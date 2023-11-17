@@ -5,6 +5,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import AddIcon from '@material-ui/icons/Add';
+import { reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   frontpageSequencesGridList: {
@@ -17,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const AlignmentForumHome = ({classes}: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, SectionTitle, SequencesGridWrapper, PostsList2, SectionButton, RecentDiscussionThreadsList } = Components
+  const { SingleColumnSection, SectionTitle, FrontpageReviewWidget, PostsList2, SectionButton, RecentDiscussionThreadsList, CuratedSequences } = Components
   const currentUser = useCurrentUser();
 
   let recentPostsTerms = {view: 'new', limit: 10, forum: true, af: true}
@@ -26,13 +27,13 @@ const AlignmentForumHome = ({classes}: {
     <div className="alignment-forum-home">
       <SingleColumnSection>
         <SectionTitle title="Recommended Sequences"/>
-        <SequencesGridWrapper
-            terms={{view:"curatedSequences", limit:3}}
-            showAuthor={true}
-            showLoadMore={false}
-            className={classes.frontpageSequencesGridList}
-          />
+        <div className={classes.frontpageSequencesGridList}>
+          <CuratedSequences />
+        </div>
       </SingleColumnSection>
+      {reviewIsActive() && <SingleColumnSection>
+        <FrontpageReviewWidget reviewYear={REVIEW_YEAR}/>
+      </SingleColumnSection>}
       <SingleColumnSection>
         <SectionTitle title="AI Alignment Posts">
           { currentUser && userCanDo(currentUser, "posts.alignment.new") && 
@@ -50,6 +51,7 @@ const AlignmentForumHome = ({classes}: {
         <RecentDiscussionThreadsList
           terms={{view: 'afRecentDiscussionThreadsList', limit:6}}
           maxAgeHours={24*7}
+          commentsLimit={4}
           af={true}
         />
       </SingleColumnSection>

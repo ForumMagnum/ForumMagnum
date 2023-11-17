@@ -1,5 +1,5 @@
 //
-// Usage: mongo <database-URI> print_indexes.js
+// Usage: mongo <database-URI> printIndexes.js
 //
 // This runs in a MongoDB context, not a regular Node context. Print a list of
 // indexes on a database. Filters out primary key indexes and fields that you

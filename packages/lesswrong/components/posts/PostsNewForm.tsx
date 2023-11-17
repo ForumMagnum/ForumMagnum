@@ -1,21 +1,27 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
-import { Posts } from '../../lib/collections/posts';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { userCanPost } from '../../lib/collections/posts';
+import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } from '../../lib/collections/posts/helpers';
+import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
-import { useLocation, useNavigation } from '../../lib/routeUtil';
-import NoSsr from '@material-ui/core/NoSsr';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useLocation } from '../../lib/routeUtil';
+import NoSSR from 'react-no-ssr';
+import { isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { useSingle } from '../../lib/crud/withSingle';
+import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
+import type { PostSubmitProps } from './PostSubmit';
+import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { QuestionIcon } from '../icons/questionIcon';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
   postForm: {
-    width:715,
+    maxWidth: 715,
     margin: "0 auto",
 
     [theme.breakpoints.down('xs')]: {
@@ -80,19 +86,115 @@ export const styles = (theme: ThemeType): JssStyles => ({
 
     "& .form-submit": {
       textAlign: "right",
-    }
+    },
+    
+    "& .form-input.input-url": {
+      margin: 0,
+      width: "100%"
+    },
+    "& .form-input.input-contents": {
+      marginTop: 0,
+    },
   },
   formSubmit: {
     display: "flex",
     flexWrap: "wrap",
-  }
+    marginTop: 20
+  },
+  collaborativeRedirectLink: {
+    color:  theme.palette.secondary.main
+  },
+  modNote: {
+    [theme.breakpoints.down('xs')]: {
+      paddingTop: 20,
+    },
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 20
+  },
+  editorGuideOffset: {
+    paddingTop: isLW ? 80 : 100,
+  },
+  editorGuide: {
+    display: 'flex',
+    alignItems: 'center',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    padding: 10,
+    borderRadius: theme.borderRadius.default,
+    color: theme.palette.primary.main,
+    [theme.breakpoints.up('lg')]: {
+      width: 'max-content',
+      paddingLeft: 20,
+      paddingRight: 20
+    },
+  },
+  editorGuideIcon: {
+    height: 40,
+    width: 40,
+    fill: theme.palette.primary.main,
+    marginRight: -4
+  },
+  editorGuideLink: {}
 })
+
+const prefillFromTemplate = (template: PostsEdit) => {
+  return pick(
+    template,
+    [
+      "contents",
+      "activateRSVPs",
+      "location",
+      "googleLocation",
+      "onlineEvent",
+      "globalEvent",
+      "startTime",
+      "endTime",
+      "localStartTime",
+      "localEndTime",
+      "eventRegistrationLink",
+      "joinEventLink",
+      "website",
+      "contactInfo",
+      "isEvent",
+      "eventImageId",
+      "eventType",
+      "types",
+      "groupId",
+      "group",
+      "title",
+      "coauthorStatuses",
+      "hasCoauthorPermission",
+    ]
+  )
+}
+
+export const getPostEditorGuide = (classes: ClassesType) => {
+  const {LWTooltip, NewPostHowToGuides} = Components;
+  if (isLWorAF) {
+    return (
+      <div className={classes.editorGuideOffset}>
+        <LWTooltip title='The Editor Guide covers sharing drafts, co-authoring, crossposting, LaTeX, footnotes, internal linking, and more!'>
+          <div className={classes.editorGuide}>
+            <QuestionIcon className={classes.editorGuideIcon} />
+            <div className={classes.editorGuideLink}>
+              <Link to="/tag/guide-to-the-lesswrong-editor">Editor Guide / FAQ</Link>
+            </div>
+          </div>
+        </LWTooltip>
+      </div>
+    );
+  }
+  if (isEAForum) {
+    return <NewPostHowToGuides />;
+  }
+  return undefined;
+}
 
 const PostsNewForm = ({classes}: {
   classes: ClassesType,
 }) => {
   const { query } = useLocation();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { openDialog } = useDialog();
@@ -100,6 +202,7 @@ const PostsNewForm = ({classes}: {
     collectionName: "Posts",
     fragmentName: 'SuggestAlignmentPost',
   })
+  const templateId = query && query.templateId;
   
   // if we are trying to create an event in a group,
   // we want to prefill the "onlineEvent" checkbox if the group is online
@@ -109,54 +212,132 @@ const PostsNewForm = ({classes}: {
     documentId: query && query.groupId,
     skip: !query || !query.groupId
   });
-  
-  const { PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox, RecaptchaWarning } = Components
+  const { document: templateDocument, loading: templateLoading } = useSingle({
+    documentId: templateId,
+    collectionName: "Posts",
+    fragmentName: 'PostsEdit',
+    skip: !templateId,
+  });
+
+  const {
+    PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox,
+    RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
+    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
+  } = Components;
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
-  const af = forumTypeSetting.get() === 'AlignmentForum'
-  const prefilledProps = {
+  const debateForm = !!(query && query.debate);
+
+  const questionInQuery = query && !!query.question
+  const postCategory = isPostCategory(query.category)
+    ? query.category
+    : questionInQuery
+    ? ("question" as const)
+    : postDefaultCategory;
+
+  let prefilledProps = templateDocument ? prefillFromTemplate(templateDocument) : {
     isEvent: query && !!query.eventForm,
+    question: (postCategory === "question") || questionInQuery,
+    activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
+    globalEvent: groupData?.isOnline,
     types: query && query.ssc ? ['SSC'] : [],
     meta: query && !!query.meta,
-    af: af || (query && !!query.af),
+    af: isAF || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
-    moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined
+    moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined,
+    debate: debateForm,
+    postCategory
   }
   const eventForm = query && query.eventForm
 
-  if (!Posts.options.mutations.new.check(currentUser)) {
+  if (query?.subforumTagId) {
+    prefilledProps = {
+      ...prefilledProps,
+      subforumTagId: query.subforumTagId,
+      tagRelevance: {[query.subforumTagId]: 1},
+    }
+  }
+
+  const {document: userWithRateLimit} = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersCurrentPostRateLimit",
+    fetchPolicy: "cache-and-network",
+    skip: !currentUser,
+    extraVariables: { eventForm: 'Boolean' },
+    extraVariablesValues: { eventForm: !!eventForm }
+  });
+  const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
+
+  if (!currentUser) {
     return (<WrappedLoginForm />);
   }
-  const NewPostsSubmit = (props) => {
+
+  if (!userCanPost(currentUser)) {
+    return (<SingleColumnSection>
+      <Typography variant="display1">
+        You don't have permission to post
+      </Typography>
+    </SingleColumnSection>);
+  }
+
+  if (templateId && templateLoading) {
+    return <Loading />
+  }
+
+  const NewPostsSubmit = (props: SubmitToFrontpageCheckboxProps & PostSubmitProps) => {
     return <div className={classes.formSubmit}>
       {!eventForm && <SubmitToFrontpageCheckbox {...props} />}
       <PostSubmit {...props} />
     </div>
   }
 
+  // on LW, show a moderation message to users who haven't been approved yet
+  const postWillBeHidden = isLW && !currentUser.reviewedByUserId
+
   return (
-    <div className={classes.postForm}>
-      <RecaptchaWarning currentUser={currentUser}>
-        <NoSsr>
-          <WrappedSmartForm
-            collection={Posts}
-            mutationFragment={getFragment('PostsPage')}
-            prefilledProps={prefilledProps}
-            successCallback={post => {
-              if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-              history.push({pathname: postGetPageUrl(post)})
-              flash({ messageString: "Post created.", type: 'success'});
-            }}
-            eventForm={eventForm}
-            repeatErrors
-            formComponents={{
-              FormSubmit: NewPostsSubmit
-            }}
-          />
-        </NoSsr>
-      </RecaptchaWarning>
-    </div>
+    <DynamicTableOfContents rightColumnChildren={getPostEditorGuide(classes)}>
+      <div className={classes.postForm}>
+        <RecaptchaWarning currentUser={currentUser}>
+          <PostsAcceptTos currentUser={currentUser} />
+          {postWillBeHidden && <NewPostModerationWarning />}
+          {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+          <NoSSR>
+              <WrappedSmartForm
+                collectionName="Posts"
+                mutationFragment={getFragment('PostsPage')}
+                prefilledProps={prefilledProps}
+                successCallback={(post: any, options: any) => {
+                  if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
+                  if (options?.submitOptions?.redirectToEditor) {
+                    navigate(postGetEditUrl(post._id));
+                  } else {
+                    // If they are publishing a non-draft post, show the share popup
+                    const showSharePopup = !isLWorAF && !post.draft
+                    const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
+                    const url  = postGetPageUrl(post);
+                    navigate({pathname: url, search: showSharePopup ? sharePostQuery: ''})
+
+                    const postDescription = post.draft ? "Draft" : "Post";
+                    if (!showSharePopup) {
+                      flash({ messageString: `${postDescription} created`, type: 'success'});
+                    }
+                  }
+                }}
+                eventForm={eventForm}
+                debateForm={debateForm}
+                repeatErrors
+                noSubmitOnCmdEnter
+                formComponents={{
+                  FormSubmit: NewPostsSubmit
+                }}
+              />
+          </NoSSR>
+        </RecaptchaWarning>
+      </div>
+    </DynamicTableOfContents>
+
   );
 }
 

@@ -4,40 +4,44 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classnames from 'classnames';
 import * as _ from 'underscore';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)
-    fontWeight: 500,
+    fontWeight: isFriendlyUI ? 600 : 500,
     fontSize: "16px",
-    fontFamily: "Roboto, sans-serif",
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : "Roboto, sans-serif",
   },
 
   selected: {
-    color: "white",
+    color: theme.palette.buttons.primaryDarkText,
     textTransform: "none",
     // TODO: This green is hardcoded, but it's k because it's only used for events
-    backgroundColor: "rgba(100,169,105, 0.9)",
+    backgroundColor: theme.palette.buttons.groupTypesMultiselect.background,
 
     "&:hover": {
-      backgroundColor: "rgba(100,169,105, 0.5)",
+      backgroundColor: theme.palette.buttons.groupTypesMultiselect.hoverBackground,
     },
   },
 
   notSelected: {
     textTransform: "none",
-    color: "rgba(0,0,0,0.6)",
-    backgroundColor: "rgba(0,0,0, 0)",
+    color: theme.palette.text.dim60,
+    backgroundColor: "transparent",
 
     "&:hover": {
-      backgroundColor: "rgba(0,0,0, 0.1)",
+      backgroundColor: theme.palette.panelBackground.hoverHighlightGrey,
     },
   },
 });
 
-const MultiSelectButtons = ({ value, classes, label, options, path }, context) => {
-  const handleClick = (option) => {    
+const MultiSelectButtons = ({ value, label, options, path, classes }: FormComponentProps<string> & {
+  options: Array<{ value: string; label?: string }>;
+  classes: ClassesType;
+}, context: any) => {
+  const handleClick = (option: string) => {    
     if (value && value.includes(option)) {
       context.updateCurrentValues({
         [path]: _.without(value, option)

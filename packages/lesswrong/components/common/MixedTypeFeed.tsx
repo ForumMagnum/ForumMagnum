@@ -4,6 +4,7 @@ import { useQuery, gql } from '@apollo/client';
 import { useOnPageScroll } from './withOnPageScroll';
 import { isClient } from '../../lib/executionEnvironment';
 import * as _ from 'underscore';
+import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
 
 const loadMoreDistance = 500;
 
@@ -25,14 +26,14 @@ const getQuery = ({resolverName, resolverArgs, fragmentArgs, sortKeyType, render
   renderers: any,
 }) => {
   const fragmentsUsed = _.filter(Object.keys(renderers).map(r => renderers[r].fragmentName), f=>f);
-  const queryArgsList=["$limit: Int", "$cutoff: Date", "$offset: Int",
+  const queryArgsList=["$limit: Int", `$cutoff: ${sortKeyType}`, "$offset: Int",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `$${k}: ${resolverArgs[k]}`) : []),
     ...(fragmentArgs ? Object.keys(fragmentArgs).map(k => `$${k}: ${fragmentArgs[k]}`) : []),
   ];
   const resolverArgsList=["limit: $limit", "cutoff: $cutoff", "offset: $offset",
     ...(resolverArgs ? Object.keys(resolverArgs).map(k => `${k}: $${k}`) : []),
   ];
-  
+
   return gql`
     query ${resolverName}Query(${queryArgsList.join(", ")}) {
       ${resolverName}(${resolverArgsList.join(", ")}) {
@@ -138,9 +139,10 @@ const MixedTypeFeed = (args: {
   // for the cutoff.
   const reachedEnd = (data && data[resolverName] && !data[resolverName].cutoff);
   
+  const keyFunc = (result: any) => `${result.type}_${result[result.type]?._id}`; // Get a unique key for each result. Used for sorting and deduplication.
+
   // maybeStartLoadingMore: Test whether the scroll position is close enough to
-  // the bottom that we should start loading the next page, and if so, start
-  // loading it.
+  // the bottom that we should start loading the next page, and if so, start loading it.
   const maybeStartLoadingMore = () => {
     // Client side, scrolled to near the bottom? Start loading if we aren't loading already.
     if (isClient
@@ -164,13 +166,18 @@ const MixedTypeFeed = (args: {
             if (!fetchMoreResult) {
               return prev;
             }
-            
+
+            // Deduplicate by removing repeated results from the newly fetched page. Ideally we
+            // would use cursor-based pagination to avoid this
+            const prevKeys = new Set(prev[resolverName].results.map(keyFunc));
+            const deduplicatedResults = fetchMoreResult[resolverName].results.filter((result: any) => !prevKeys.has(keyFunc(result)));
+
             return {
               [resolverName]: {
                 __typename: fetchMoreResult[resolverName].__typename,
                 cutoff: fetchMoreResult[resolverName].cutoff,
                 endOffset: data[resolverName].endOffset,
-                results: [...prev[resolverName].results, ...fetchMoreResult[resolverName].results],
+                results: [...prev[resolverName].results, ...deduplicatedResults],
               }
             };
           }
@@ -185,9 +192,12 @@ const MixedTypeFeed = (args: {
   // have been attached to the DOM, so we can''t test whether they reach the bottom.
   useEffect(maybeStartLoadingMore);
   useOnPageScroll(maybeStartLoadingMore);
+  
+  const results = (data && data[resolverName]?.results) || [];
+  const orderedResults = useOrderPreservingArray(results, keyFunc);
   return <div>
-    {data && data[resolverName]?.results && data[resolverName].results.map((result,i) =>
-      <div key={i}>
+    {orderedResults.map((result) =>
+      <div key={keyFunc(result)}>
         <RenderFeedItem renderers={renderers} item={result}/>
       </div>
     )}

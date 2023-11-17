@@ -2,13 +2,14 @@ import React from 'react'
 import { createStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button';
 import { useSingle } from '../../lib/crud/withSingle';
-import { useCookies } from 'react-cookie'
 import { useMessages } from '../common/withMessages';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
 
 const bannerHeight = 250
 
@@ -110,11 +111,13 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
 }))
 
-const COOKIE_NAME = 'hide_home_handbook'
 const END_OF_TIME = new Date('2038-01-18')
 const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional") // Post ID for the first post in the EAHomeHandbook Sequence
 
-const EAHomeHandbook = ({ classes, documentId }) => {
+const EAHomeHandbook = ({ classes, documentId }: {
+  classes: ClassesType;
+  documentId: string;
+}) => {
   const { SingleColumnSection, CloudinaryImage2, Loading, Typography } = Components
   const { document, loading } = useSingle({
     documentId,
@@ -122,14 +125,14 @@ const EAHomeHandbook = ({ classes, documentId }) => {
     fragmentName: 'SequencesPageFragment',
   });
   const { flash } = useMessages();
-  const [cookies, setCookie] = useCookies([COOKIE_NAME]);
-  const hideHandbook = cookies[COOKIE_NAME]
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_HANDBOOK_COOKIE]);
+  const hideHandbook = cookies[HIDE_HANDBOOK_COOKIE]
   if (hideHandbook) return null
   if (loading || !document) return <Loading />
 
 
   const handleDismiss = () => {
-    setCookie(COOKIE_NAME, 'true', {
+    setCookie(HIDE_HANDBOOK_COOKIE, 'true', {
       expires: END_OF_TIME
     })
     flash({

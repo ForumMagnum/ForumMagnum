@@ -49,16 +49,16 @@ async function getAllCollectionPosts(id: string) {
   let allCollectionSequences: Array<any> = [];
   const collection = queryResult.data.collection.result
 
-  collection.books.forEach((book) => {
-    const bookPosts = book.posts.map((post) => {
+  collection.books.forEach((book: AnyBecauseTodo) => {
+    const bookPosts = book.posts.map((post: AnyBecauseTodo) => {
       post.canonicalBookId = book._id
       return post
     })
     allCollectionPosts = allCollectionPosts.concat(bookPosts);
     allCollectionSequences = allCollectionSequences.concat(book.sequences);
-    book.sequences.forEach((sequence) => {
-      sequence.chapters.forEach((chapter) => {
-        const newPosts = chapter.posts.map((post) => {
+    book.sequences.forEach((sequence: AnyBecauseTodo) => {
+      sequence.chapters.forEach((chapter: AnyBecauseTodo) => {
+        const newPosts = chapter.posts.map((post: AnyBecauseTodo) => {
           post.canonicalBookId = book._id
           post.canonicalSequenceId = sequence._id
           return post
@@ -76,7 +76,7 @@ async function getAllCollectionPosts(id: string) {
 
 async function updateCollectionSequences(sequences: Array<DbSequence>, collectionSlug: string) {
   await asyncForeachSequential(_.range(sequences.length), async (i) => {
-    await Sequences.update(sequences[i]._id, {$set: {
+    await Sequences.rawUpdateOne(sequences[i]._id, {$set: {
       canonicalCollectionSlug: collectionSlug,
     }});
   })
@@ -94,7 +94,7 @@ async function updateCollectionPosts(posts: Array<DbPost>, collectionSlug: strin
     if (i+1<posts.length) {
       nextPost = posts[i+1]
     }
-    await Posts.update({slug: currentPost.slug}, {$set: {
+    await Posts.rawUpdateOne({slug: currentPost.slug}, {$set: {
       canonicalPrevPostSlug: prevPost.slug,
       canonicalNextPostSlug: nextPost.slug,
       canonicalBookId: currentPost.canonicalBookId,
@@ -111,7 +111,7 @@ getCollectionHooks("Books").editAsync.add(async function UpdateCollectionLinks (
   //eslint-disable-next-line no-console
   console.log(`Updating Collection Links for ${collectionId}...`)
 
-  await Collections.update(collectionId, { $set: {
+  await Collections.rawUpdateOne(collectionId, { $set: {
     firstPageLink: "/" + results.collectionSlug + "/" + results.posts[0].slug
   }})
 

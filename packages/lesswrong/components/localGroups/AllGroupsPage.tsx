@@ -6,7 +6,7 @@ const AllGroupsPage = () => {
 
   return (
     <SingleColumnSection>
-      <SectionTitle title="All Local Groups"/>
+      <SectionTitle title="All Groups"/>
       <Components.LocalGroupsList
         terms={{view: "all", limit: 1000}}
       />

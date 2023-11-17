@@ -1,9 +1,10 @@
-import { onStartupFunctions } from '../lib/executionEnvironment';
+import { runStartupFunctions } from '../lib/executionEnvironment';
+import { filterConsoleLogSpam } from '../lib/consoleFilters';
 
 async function clientStartup() {
+  filterConsoleLogSpam();
   require('../client.js');
-  for (let startupFunction of onStartupFunctions)
-    await startupFunction();
+  await runStartupFunctions();
 }
 
 void clientStartup();

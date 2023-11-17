@@ -1,6 +1,6 @@
 import { foreignKeyField, arrayOfForeignKeysField } from '../../utils/schemaUtils'
 
-export const formGroups: Partial<Record<string,FormGroup>> = {
+export const formGroups: Partial<Record<string,FormGroupType>> = {
   chapterDetails: {
     name: "chapterDetails",
     order: 25,
@@ -10,21 +10,14 @@ export const formGroups: Partial<Record<string,FormGroup>> = {
 }
 
 const schema: SchemaType<DbChapter> = {
-  createdAt: {
-    type: Date,
-    optional: true,
-    viewableBy: ['guests'],
-    onInsert: () => new Date(),
-  },
-
   // Custom Properties
 
   title: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ["admins"],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ["admins"],
+    canCreate: ['admins'],
     placeholder:"Title",
     order: 10,
     group: formGroups.chapterDetails
@@ -33,9 +26,9 @@ const schema: SchemaType<DbChapter> = {
   subtitle: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ["admins"],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ["admins"],
+    canCreate: ['admins'],
     placeholder:"Subtitle",
     order: 20,
     group: formGroups.chapterDetails
@@ -44,9 +37,9 @@ const schema: SchemaType<DbChapter> = {
   number: {
     type: Number,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
     group: formGroups.chapterDetails
   },
 
@@ -60,9 +53,9 @@ const schema: SchemaType<DbChapter> = {
     }),
     optional: true,
     hidden: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['members'],
   },
 
   postIds: {
@@ -73,9 +66,9 @@ const schema: SchemaType<DbChapter> = {
       type: "Post"
     }),
     optional: false,
-    viewableBy: ["guests"],
-    editableBy: ["members"],
-    insertableBy: ['members'],
+    canRead: ["guests"],
+    canUpdate: ["members"],
+    canCreate: ['members'],
     control: 'PostsListEditor',
   },
 

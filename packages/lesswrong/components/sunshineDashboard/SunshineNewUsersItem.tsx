@@ -1,18 +1,15 @@
-/* global confirm */
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { userGetProfileUrl } from '../../lib/collections/users/helpers';
+import { getUserEmail , userGetProfileUrl} from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 
 import { useHover } from '../common/withHover'
 import withErrorBoundary from '../common/withErrorBoundary'
-import red from '@material-ui/core/colors/red';
-import DescriptionIcon from '@material-ui/icons/Description'
 import FlagIcon from '@material-ui/icons/Flag'
 
 const styles = (theme: ThemeType): JssStyles => ({
   negativeKarma: {
-     color: red['A100']
+     color: theme.palette.text.negativeKarmaRed,
   },
   info: {
     // Wrap between MetaInfo elements. Non-standard CSS which may not work in Firefox.
@@ -26,23 +23,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 3
   },
   flagged: {
-    background: "rgba(150,0,0,.05)"
+    background: theme.palette.panelBackground.sunshineFlaggedUser,
   }
 })
-const SunshineNewUsersItem = ({ user, classes }: {
+const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
   user: SunshineUsersList,
   classes: ClassesType,
-  updateUser?: any
+  refetch: () => void,
+  currentUser: UsersCurrent,
 }) => {
   const { eventHandlers, hover, anchorEl } = useHover();
 
-  const { SunshineListItem, SidebarHoverOver, SunshineNewUsersInfo, MetaInfo, FormatDate } = Components
-
+  const { SunshineListItem, SidebarHoverOver, SunshineNewUsersInfo, MetaInfo, FormatDate, FirstContentIcons } = Components
+  
   return (
-    <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : null}>
+    <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : undefined}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
-          <SunshineNewUsersInfo user={user} />
+          <SunshineNewUsersInfo user={user} refetch={refetch} currentUser={currentUser}/>
         </SidebarHoverOver>
         <div>
           <MetaInfo className={classes.info}>
@@ -56,10 +54,10 @@ const SunshineNewUsersItem = ({ user, classes }: {
           <MetaInfo className={classes.info}>
             <FormatDate date={user.createdAt}/>
           </MetaInfo>
-          {(user.postCount > 0 && !user.reviewedByUserId) && <DescriptionIcon  className={classes.icon}/>}
+          <FirstContentIcons user={user}/>
           {user.sunshineFlagged && <FlagIcon className={classes.icon}/>}
           {!user.reviewedByUserId && <MetaInfo className={classes.info}>
-            { user.email || "This user has no email" }
+            { getUserEmail(user) || "This user has no email" }
           </MetaInfo>}
         </div>
       </SunshineListItem>

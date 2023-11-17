@@ -1,6 +1,5 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import LinkIcon from '@material-ui/icons/Link';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import SvgIcon from '@material-ui/core/SvgIcon';
 import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
@@ -33,6 +32,31 @@ export const MeetupIcon = (props: any) => <SvgIcon viewBox="15 15 70 70" {...pro
   C82.172,71.633,81.989,73.13,80.952,74.251z" />
 </SvgIcon>
 
+export const SlackIcon = (props: any) => <SvgIcon viewBox="70 70 130 130" {...props}>
+  <g>
+    <g>
+      <path d="M99.4,151.2c0,7.1-5.8,12.9-12.9,12.9s-12.9-5.8-12.9-12.9c0-7.1,5.8-12.9,12.9-12.9h12.9V151.2z"/>
+      <path d="M105.9,151.2c0-7.1,5.8-12.9,12.9-12.9s12.9,5.8,12.9,12.9v32.3c0,7.1-5.8,12.9-12.9,12.9s-12.9-5.8-12.9-12.9
+        C105.9,183.5,105.9,151.2,105.9,151.2z"/>
+    </g>
+    <g>
+      <path d="M118.8,99.4c-7.1,0-12.9-5.8-12.9-12.9s5.8-12.9,12.9-12.9s12.9,5.8,12.9,12.9v12.9H118.8z"/>
+      <path d="M118.8,105.9c7.1,0,12.9,5.8,12.9,12.9s-5.8,12.9-12.9,12.9H86.5c-7.1,0-12.9-5.8-12.9-12.9s5.8-12.9,12.9-12.9
+        C86.5,105.9,118.8,105.9,118.8,105.9z"/>
+    </g>
+    <g>
+      <path d="M170.6,118.8c0-7.1,5.8-12.9,12.9-12.9c7.1,0,12.9,5.8,12.9,12.9s-5.8,12.9-12.9,12.9h-12.9V118.8z"/>
+      <path d="M164.1,118.8c0,7.1-5.8,12.9-12.9,12.9c-7.1,0-12.9-5.8-12.9-12.9V86.5c0-7.1,5.8-12.9,12.9-12.9
+        c7.1,0,12.9,5.8,12.9,12.9V118.8z"/>
+    </g>
+    <g>
+      <path d="M151.2,170.6c7.1,0,12.9,5.8,12.9,12.9c0,7.1-5.8,12.9-12.9,12.9c-7.1,0-12.9-5.8-12.9-12.9v-12.9H151.2z"/>
+      <path d="M151.2,164.1c-7.1,0-12.9-5.8-12.9-12.9c0-7.1,5.8-12.9,12.9-12.9h32.3c7.1,0,12.9,5.8,12.9,12.9
+        c0,7.1-5.8,12.9-12.9,12.9H151.2z"/>
+    </g>
+  </g>
+</SvgIcon>
+
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
     display: 'inline-block'
@@ -59,36 +83,36 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   
   groupLink: {
-    marginLeft: theme.spacing.unit
+    marginLeft: 6,
   },
   
   websiteLink: {
-    marginLeft: theme.spacing.unit - 2
+    marginLeft: theme.spacing.unit - 2,
+    transform: "translateY(3px)",
   },
   
   facebookGroupIcon: {
-    width: "13px",
-    height: "13px",
+    width: 14,
+    height: 14,
     display: "inline-block",
-    color: "rgba(0, 0, 0, 0.7)",
+    color: theme.palette.icon.slightlyDim3,
     paddingTop: "0px",
   },
 
   socialIcon: {
-    width: "15px",
-    height: "15px",
+    width: 16,
+    height: 16,
     display: "inline-block",
-    color: "rgba(0, 0, 0, 0.7)",
+    color: theme.palette.icon.slightlyDim3,
     paddingTop: "0px",
     transform: "translateY(2px)",
   },
 
   linkIcon: {
-    height: "17px",
-    width: "17px",
+    height: 18,
+    width: 18,
     paddingTop: "0px",
-    transform: "translateY(3px) rotate(-45deg)",
-    color: "rgba(0, 0, 0, 0.7)",
+    color: theme.palette.icon.slightlyDim3,
   },
 
   iconButton: {
@@ -121,7 +145,8 @@ const GroupLinks = ({ document, noMargin, classes }: {
   const isEAForum = forumTypeSetting.get() === 'EAForum';
   // tooltip text differs between group and event
   const isEvent = 'isEvent' in document;
-  
+  const {ForumIcon} = Components;
+
   return(
     <div className={classes.root}>
       {!isEAForum && <div className={noMargin ? classNames(classes.groupTypes, classes.noMargin) : classes.groupTypes}>
@@ -139,7 +164,7 @@ const GroupLinks = ({ document, noMargin, classes }: {
           )
         })}
       </div>}
-      <div className={(noMargin && (isEAForum || !document.types.length)) ? classNames(classes.groupLinks, classes.noMargin) : classes.groupLinks}>
+      <div className={(noMargin && (isEAForum || !document.types?.length)) ? classNames(classes.groupLinks, classes.noMargin) : classes.groupLinks}>
         {document.facebookLink
           && <Tooltip
             title={`Link to Facebook ${isEvent ? 'Event' : 'Group'}`}
@@ -164,10 +189,16 @@ const GroupLinks = ({ document, noMargin, classes }: {
               <MeetupIcon className={classes.socialIcon}/>
             </a>
           </Tooltip>}
+        {'slackLink' in document && document.slackLink
+          && <Tooltip title={`Link to Slack Workspace`} placement="top-end">
+          <a href={document.slackLink} className={classes.groupLink}>
+            <SlackIcon className={classes.socialIcon}/>
+          </a>
+        </Tooltip>}
         {document.website
           && <Tooltip title={<span>Link to Group Website ({document.website})</span>} placement="top-end">
             <a href={document.website} className={classes.websiteLink}>
-              <LinkIcon className={classes.linkIcon}/>
+              <ForumIcon icon="Link" className={classes.linkIcon}/>
             </a>
           </Tooltip>}
       </div>

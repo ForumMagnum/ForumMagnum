@@ -10,27 +10,27 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: theme.spacing.unit,
     paddingBottom: theme.spacing.unit,
     cursor: "pointer",
-    color: "rgba(0,0,0,.75)",
+    color: theme.palette.icon.slightlyDim2,
   },
   active: {
-    color: "rgba(0,0,0, .3)",
+    color: theme.palette.icon.dim5,
   },
   icon: {
     fontSize: 12,
     transform: "rotate(90deg)"
   },
-  parentComment: {
-    background: "white",
+  parentComment: { // UNUSED
+    background: theme.palette.panelBackground.default,
     position: "absolute",
     zIndex: 2,
     maxWidth: 650,
     bottom: "100%",
     left: 0,
-    boxShadow: "0 0 10px rgba(0,0,0,.2)"
+    boxShadow: theme.palette.boxShadow.comment,
   },
-  usernameSpacing: {
+  usernameSpacing: { // UNUSED
     paddingRight: 1,
-    color: "rgba(0,0,0,.3)",
+    color: theme.palette.icon.dim5,
     [legacyBreakpoints.maxSmall]: {
       padding: "0 10px",
     }

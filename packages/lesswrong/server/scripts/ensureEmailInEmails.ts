@@ -11,7 +11,7 @@ import Users from '../../lib/collections/users/collection'
 Vulcan.ensureEmailInEmails = wrapVulcanAsyncScript(
   'ensureEmailInEmails',
   async () => {
-    const allUsers = Users.find({}, {fields: {emails: 1}});
+    const allUsers = Users.find({}, {projection: {emails: 1}});
     // build a set of all email addresses from the "emails", to be used in a later comparison
     const allEmails = new Set();
     for (const user of await allUsers.fetch()) {
@@ -23,7 +23,7 @@ Vulcan.ensureEmailInEmails = wrapVulcanAsyncScript(
     // {$nin: [null, ''] excludes users without the email field because mongo considers undefined as equal to null
     const usersWithEmail = Users.find({
       email: {$nin: [null, '']},
-    }, {fields: {email: 1, emails: 1}});
+    }, {projection: {email: 1, emails: 1}});
     
     for (const user of await usersWithEmail.fetch()) {
       // goddamnit
@@ -43,7 +43,7 @@ Vulcan.ensureEmailInEmails = wrapVulcanAsyncScript(
         // add email to emails
         const newEmail = {address: user.email, verified: true};
         const newEmails = user.emails ? [...user.emails, newEmail] : [newEmail]
-        void Users.update(user._id, {$set: {'emails': newEmails}});
+        void Users.rawUpdateOne(user._id, {$set: {'emails': newEmails}});
         // eslint-disable-next-line no-console
         console.log('updating user account:', user.email, user.emails, newEmails);
       }

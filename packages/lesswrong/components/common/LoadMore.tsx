@@ -3,6 +3,10 @@ import React from 'react';
 import classNames from 'classnames';
 import { queryIsUpdating } from './queryStatusUtils'
 import {useTracking} from "../../lib/analyticsEvents";
+import { LoadMoreCallback } from '../../lib/crud/withMulti';
+import { useIsFirstRender } from "../hooks/useFirstRender";
+
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -11,6 +15,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.lwTertiary.main,
     display: "inline-block",
     minHeight: 20,
+    ...(isFriendlyUI
+      ? {
+        fontSize: 14,
+        fontWeight: 600,
+        lineHeight: "24px",
+      }
+      : {}),
+  },
+  afterPostsListMarginTop: {
+    marginTop: 6,
   },
   loading: {
     minHeight: 20,
@@ -21,21 +35,50 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: 1
     }
+  },
+  sectionFooterStyles: {
+    // This is an artifact of how SectionFooter is currently implemented, which should probably change.
+    flexGrow: 1,
+    textAlign: "left !important",
+    marginLeft: "0 !important", // for loading spinner
+    '&:after': {
+      content: "'' !important",
+      marginLeft: "0 !important",
+      marginRight: "0 !important",
+    }
   }
 })
 
 
-// Load More button. The simplest way to use this is to take `loadMoreProps`
-// from the return value of `useMulti` and spread it into this component's
-// props.
-const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false, networkStatus, loading=false, hideLoading=false, hidden=false, classes }: {
+/**
+ * Load More button. The simplest way to use this is to take `loadMoreProps`
+ * from the return value of `useMulti` and spread it into this component's
+ * props.
+ */
+const LoadMore = ({
+  loadMore,
+  count,
+  totalCount,
+  className=null,
+  loadingClassName,
+  disabled=false,
+  networkStatus,
+  loading=false,
+  hideLoading=false,
+  hidden=false,
+  classes,
+  sectionFooterStyles,
+  afterPostsListMarginTop,
+  message=preferredHeadingCase("Load More"),
+}: {
   // loadMore: Callback when clicked.
-  loadMore: any,
+  loadMore: LoadMoreCallback,
   // count/totalCount: If provided, looks like "Load More (10/25)"
   count?: number,
   totalCount?: number,
   // className: If provided, replaces the root style (default typography).
   className?: string|null|undefined,
+  loadingClassName?: string,
   // disabled: If true, this is grayed out (eg because everything's already loaded).
   disabled?: boolean,
   networkStatus?: any,
@@ -44,36 +87,48 @@ const LoadMore = ({ loadMore, count, totalCount, className=null, disabled=false,
   hideLoading?: boolean,
   hidden?: boolean,
   classes: ClassesType,
+  sectionFooterStyles?: boolean,
+  afterPostsListMarginTop?: boolean,
+  message?: string,
 }) => {
   const { captureEvent } = useTracking()
 
+  /**
+   * To avoid hydration errors, set loading to false if this is the initial render and we have
+   * a non-zero count that graphql cached during SSR.
+   */
+  const isFirstRender = useIsFirstRender();
+  loading = loading && !(isFirstRender && (count ?? 0) > 0);
+
   const { Loading } = Components
-  const handleClickLoadMore = event => {
+  const handleClickLoadMore = (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    loadMore();
+    void loadMore();
     captureEvent("loadMoreClicked")
   }
 
-  if (loading || (networkStatus && queryIsUpdating(networkStatus))) {
-    return <div className={classes.loading}>
-      {!hideLoading && <Loading/>}
-    </div>
+  if (!hideLoading && (loading || (networkStatus && queryIsUpdating(networkStatus)))) {
+    return <Loading className={classNames(classes.loading, loadingClassName, {[classes.sectionFooterStyles]: sectionFooterStyles})} />
   }
 
   if (hidden) return null;
-  
+
   return (
     <a
-      className={classNames(className ? className : classes.root, {[classes.disabled]: disabled})}
+      className={classNames(classes.root, className, {
+        [classes.disabled]: disabled,
+        [classes.sectionFooterStyles]: sectionFooterStyles,
+        [classes.afterPostsListMarginTop]: afterPostsListMarginTop,
+      })}
       href="#"
       onClick={handleClickLoadMore}
     >
-      {totalCount ? `Load More (${count}/${totalCount})` : "Load More"}
+      {totalCount ? `${message} (${count}/${totalCount})` : `${message}`}
     </a>
   )
 }
 
-const LoadMoreComponent = registerComponent('LoadMore', LoadMore, {styles});
+const LoadMoreComponent = registerComponent('LoadMore', LoadMore, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {

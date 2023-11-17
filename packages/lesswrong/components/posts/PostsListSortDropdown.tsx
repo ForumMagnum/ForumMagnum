@@ -1,71 +1,31 @@
-import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import { sortings } from './AllPostsPage';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
-import { QueryLink } from '../../lib/reactRouterWrapper';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import React from 'react';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { TAG_POSTS_SORT_ORDER_OPTIONS } from '../../lib/collections/tags/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    ...theme.typography.body2,
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[600],
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit
-  },
-  selectMenu: {
-    cursor: "pointer",
-    paddingLeft: 4,
-    color: theme.palette.primary.main
-  },
-  icon: {
-    verticalAlign: "middle",
-    position: "relative",
-    top: -2,
-    left: -2
-  },
-  menuItem: {
-    '&:focus': {
-      outline: "none",
-    }
-  }
+  root: {}
 })
 
-const PostsListSortDropdown = ({classes, value}:{
-  classes: ClassesType,
-  value: string
-}) => {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  
-  const newSortings = {
-    ...sortings,
-    relevance: "Most Relevant"
-  }
+const defaultOptions = Object.keys(TAG_POSTS_SORT_ORDER_OPTIONS);
 
-  return <div className={classes.root}>
-    <span className={classes.selectMenu} onClick={e=>setAnchorEl(e.currentTarget)}>
-      {newSortings[value]} <ArrowDropDownIcon className={classes.icon}/>
-    </span>
-    <Menu
-      open={Boolean(anchorEl)}
-      anchorEl={anchorEl}
-      onClose={()=>setAnchorEl(null)}
-    >
-        <QueryLink query={{sortedBy: undefined}} merge className={classes.menuItem}>
-          <MenuItem value={"relevance"} onClick={()=>setAnchorEl(null)}>
-            {newSortings["relevance"]}
-          </MenuItem>
-        </QueryLink>
-        {Object.keys(sortings).map(sorting => (
-          <QueryLink key={sorting} query={{sortedBy:sorting}} merge>
-            <MenuItem value={sorting} onClick={()=>setAnchorEl(null)}>
-              {newSortings[sorting]}
-            </MenuItem>
-          </QueryLink>
-        ))}
-    </Menu>
-  </div>
+const PostsListSortDropdown = ({value, options=defaultOptions, sortingParam="sortedBy", classes}:{
+  value: string
+  options?: string[],
+  sortingParam?: string,
+  classes: ClassesType,
+}) => {
+  const { ForumDropdown } = Components;
+
+  // if specific options are passed in, filter out any other options from TAG_POSTS_SORT_ORDER_OPTIONS
+  const filteredOptions = options
+    ? defaultOptions
+        .filter((option) => options.includes(option))
+        .reduce((obj, key) => {
+          return Object.assign(obj, { [key]: TAG_POSTS_SORT_ORDER_OPTIONS[key] });
+        }, {})
+    : TAG_POSTS_SORT_ORDER_OPTIONS;
+
+  return <ForumDropdown value={value} options={filteredOptions} queryParam={sortingParam} />;
 }
 
 const PostsListSortDropdownComponent = registerComponent('PostsListSortDropdown', PostsListSortDropdown, {styles});

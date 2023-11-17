@@ -15,7 +15,7 @@ const alignmentCommentResolvers = {
 
       if (userCanDo(context.currentUser, "comments.alignment.move.all")) {
         let modifier = { $set: {af: af} };
-        await context.Comments.update({_id: commentId}, modifier);
+        await context.Comments.rawUpdateOne({_id: commentId}, modifier);
         const updatedComment = (await context.Comments.findOne(commentId))!
         await commentsAlignmentAsync.runCallbacksAsync(
           [updatedComment, comment, context]
@@ -40,7 +40,7 @@ const alignmentPostResolvers = {
 
       if (userCanMakeAlignmentPost(context.currentUser, post)) {
         let modifier = { $set: {af: af} };
-        await context.Posts.update({_id: postId}, modifier);
+        await context.Posts.rawUpdateOne({_id: postId}, modifier);
         const updatedPost = (await context.Posts.findOne(postId))!
         await postsAlignmentAsync.runCallbacksAsync(
           [updatedPost, post, context]

@@ -1,26 +1,34 @@
 import React, {useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { commentBodyStyles } from '../../themes/stylePiping'
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-    background: "white",
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+  container: {
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
     padding: 12,
     borderRadius:3,
     marginBottom: 16,
   },
-  textBody: {
-    ...commentBodyStyles(theme),
-  },
   discussionButtonPositioning: {
     display: "flex",
-    marginTop: "3px"
+    marginTop: 16,
+    marginRight: 8
   }
 });
 
-const TagRevisionItem = ({tag, collapsed=false, headingStyle, revision, previousRevision, documentId, showDiscussionLink=true, classes}: {
+const TagRevisionItem = ({
+  tag,
+  collapsed=false,
+  headingStyle,
+  revision,
+  previousRevision,
+  documentId,
+  showDiscussionLink=true,
+  noContainer=false,
+  classes,
+}: {
   tag: TagBasicInfo,
   collapsed?: boolean,
   headingStyle: "full"|"abridged",
@@ -28,26 +36,27 @@ const TagRevisionItem = ({tag, collapsed=false, headingStyle, revision, previous
   previousRevision?: RevisionMetadataWithChangeMetrics
   documentId: string,
   showDiscussionLink?: boolean,
+  noContainer?: boolean,
   classes: ClassesType,
 }) => {
-  const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton } = Components
+  const { CompareRevisions, TagRevisionItemFullMetadata, TagRevisionItemShortMetadata, TagDiscussionButton, ContentStyles } = Components
   const [expanded, setExpanded] = useState(false);
   if (!documentId || !revision) return null
   const { added, removed } = revision.changeMetrics;
-  
+
   if (collapsed && !expanded) {
     return <Components.SingleLineFeedEvent expands setExpanded={setExpanded}>
       <TagRevisionItemShortMetadata tag={tag} revision={revision} />
     </Components.SingleLineFeedEvent>
   }
 
-  return <div className={classes.root}>
+  return <div className={classNames({[classes.container]: !noContainer})}>
     {headingStyle==="full" &&
       <TagRevisionItemFullMetadata tag={tag} revision={revision} />}
     {headingStyle==="abridged" &&
       <div><TagRevisionItemShortMetadata tag={tag} revision={revision} /></div>}
-    
-    {!!(added || removed || !previousRevision) && <div className={classes.textBody}>
+
+    {!!(added || removed || !previousRevision) && <ContentStyles contentType="comment">
       <CompareRevisions
         trim={true}
         collectionName="Tags" fieldName="description"
@@ -55,7 +64,7 @@ const TagRevisionItem = ({tag, collapsed=false, headingStyle, revision, previous
         versionBefore={previousRevision?.version||null}
         versionAfter={revision.version}
       />
-    </div>}
+    </ContentStyles>}
     {showDiscussionLink && <div className={classes.discussionButtonPositioning}>
       <TagDiscussionButton tag={tag} text={`Discuss this ${tag.wikiOnly ? "wiki" : "tag"}`}/>
     </div>}

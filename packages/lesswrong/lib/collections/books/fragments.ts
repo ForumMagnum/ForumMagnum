@@ -7,18 +7,22 @@ registerFragment(`
     title
     number
     subtitle
+    tocTitle
     contents {
       ...RevisionDisplay
     }
     sequenceIds
     sequences {
-      ...SequencesPageFragment
+      ...SequencesPageWithChaptersFragment
     }
     postIds
     posts {
-      ...PostsList
+      ...PostsListWithVotes
     }
     collectionId
+    displaySequencesAsGrid
+    hideProgressBar
+    showChapters
   }
 `);
 

@@ -5,7 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 const styles = (theme: ThemeType): JssStyles => ({
   meta: {
     fontSize: ".9rem",
-    color: "rgba(0,0,0,.45)"
+    color: theme.palette.text.dim45,
   },
   title: {
     overflow: "hidden",

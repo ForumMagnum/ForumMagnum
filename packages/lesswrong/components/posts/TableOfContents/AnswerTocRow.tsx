@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import Tooltip from '@material-ui/core/Tooltip';
+import type { ToCAnswer } from '../../../lib/tableOfContents';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -38,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const AnswerTocRow = ({classes, answer}: {
   classes: ClassesType,
-  answer: any,
+  answer: ToCAnswer,
 }) => {
   const { FormatDate } = Components
 

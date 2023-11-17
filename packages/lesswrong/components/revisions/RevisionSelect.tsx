@@ -24,14 +24,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   radioDisabled: {
-    color: "rgba(0,0,0,0) !important",
+    color: "transparent !important",
   },
   button: {
     marginBottom: 12,
     marginTop: 6
   },
   username: {
-    color: "rgba(0,0,0,.87)",
+    color: theme.palette.text.normal,
     paddingRight: 10,
     paddingLeft: 4
   },
@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes, count, totalCount }: {
   revisions: Array<RevisionMetadataWithChangeMetrics>,
-  getRevisionUrl: (rev: RevisionMetadata) => React.ReactNode,
+  getRevisionUrl: (rev: RevisionMetadata) => string,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
   loadMoreProps: any,
   classes: ClassesType,

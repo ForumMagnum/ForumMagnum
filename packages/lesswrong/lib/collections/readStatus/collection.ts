@@ -1,5 +1,6 @@
 import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, ensureIndex } from '../../collectionUtils'
+import { addUniversalFields } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbReadStatus> = {
@@ -41,6 +42,7 @@ const schema: SchemaType<DbReadStatus> = {
 export const ReadStatuses: ReadStatusesCollection = createCollection({
   collectionName: "ReadStatuses",
   typeName: "ReadStatus",
+  collectionType: 'pg',
   schema,
   logChanges: false,
 });

@@ -1,16 +1,12 @@
-import { isAnyTest } from '../lib/executionEnvironment';
+import { CommandLineArguments, isAnyTest, isMigrations } from '../lib/executionEnvironment';
 import process from 'process';
 import fs from 'fs';
 
-interface CommandLineArguments {
-  mongoUrl: string
-  settingsFileName: string
-  shellMode: boolean,
-}
 
 const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
   const commandLine: CommandLineArguments = {
-    mongoUrl: process.env.MONGO_URL || "mongodb://localhost:27017",
+    postgresUrl: process.env.PG_URL || "",
+    postgresReadUrl: process.env.PG_READ_URL || "",
     settingsFileName: "settings.json",
     shellMode: false,
   }
@@ -29,8 +25,13 @@ const parseCommandLine = (argv: Array<string>): CommandLineArguments => {
       case "--shell":
         commandLine.shellMode = true;
         break;
+      case "--command":
+        commandLine.command = argv[++i];
+        break;
       default:
-        throw new Error(`Unrecognized command line argument: ${arg}`);
+        if (!isMigrations) {
+          throw new Error(`Unrecognized command line argument: ${arg}`);
+        }
     }
   }
   
@@ -41,22 +42,20 @@ export const getCommandLineArguments = () => {
   return parseCommandLine(process.argv);
 }
 
-export const loadInstanceSettings = () => {
-  const commandLineArguments = parseCommandLine(process.argv);
+export const loadInstanceSettings = (args?: CommandLineArguments) => {
+  const commandLineArguments = args ?? parseCommandLine(process.argv);
   const instanceSettings = loadSettingsFile(commandLineArguments.settingsFileName);
   return instanceSettings;
 }
 
 function loadSettingsFile(filename: string) {
   if (isAnyTest) {
-    return {};
-  } else {
-    const settingsFileText = readTextFile(filename);
-    if (!settingsFileText)
-      throw new Error(`Settings file ${filename} not found.`);
-    
-    return JSON.parse(settingsFileText);
+    filename = "./settings-test.json";
   }
+  const settingsFileText = readTextFile(filename);
+  if (!settingsFileText)
+    throw new Error(`Settings file ${filename} not found.`);
+  return JSON.parse(settingsFileText);
 }
 
 const readTextFile = (filename: string): string|null => {

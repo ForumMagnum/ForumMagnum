@@ -1,36 +1,44 @@
 import React, {useState} from 'react';
-import MenuItem from "@material-ui/core/MenuItem";
 import Menu from '@material-ui/core/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
 import EditIcon from "@material-ui/icons/Edit";
 import {Components, registerComponent} from "../../lib/vulcan-lib";
-import { useTagBySlug } from '../tagging/useTag'
 import { useMulti } from "../../lib/crud/withMulti";
 import { useCurrentUser } from '../common/withUser';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import type { TemplateQueryStrings } from '../messaging/NewConversationButton'
+import { commentBodyStyles } from '../../themes/stylePiping';
 
+const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    display: "flex",
+    alignItems: "center",
+    cursor: "pointer"
+  },
   editIcon: {
     width: 20,
     color: theme.palette.grey[400]
   },
   defaultMessage: {
     maxWidth: 500,
-    backgroundColor: "white",
+    ...commentBodyStyles(theme),
+    backgroundColor: theme.palette.panelBackground.default,
     padding:12,
-    boxShadow: "0 0 10px rgba(0,0,0,0.5)"
+    boxShadow: theme.palette.boxShadow.sunshineSendMessage,
   },
   sendMessageButton: {
-    marginLeft: 8,
-    marginRight: 4,
-    marginTop: 16,
-    // marginBottom: 16,
-    width: 64,
-    height: 32,
+    marginTop: 8,
     padding: 8,
+    paddingTop: 6,
+    height: 32,
+    wordBreak: "keep-all",
     fontSize: "1rem",
+    border: theme.palette.border.faint,
+    borderRadius: 2,
     color: theme.palette.grey[500],
     '&:hover': {
       backgroundColor: theme.palette.grey[200]
@@ -38,37 +46,32 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
+const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   user: SunshineUsersList|UsersMinimumInfo|null,
-  tagSlug: string,
+  embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
   classes: ClassesType,
 }) => {
-  
-  const { CommentBody, LWTooltip, NewConversationButton } = Components
-  
-  
+  const { ContentItemBody, LWTooltip, NewConversationButton, MenuItem } = Components
+
   const currentUser = useCurrentUser()
   const [anchorEl, setAnchorEl] = useState<any>(null);
   
-  const { tag: defaultResponsesTag } = useTagBySlug(tagSlug, "TagBasicInfo")
   const { results: defaultResponses } = useMulti({
-    terms:{view:"defaultModeratorResponses", tagId: defaultResponsesTag?._id},
-    collectionName: "Comments",
-    fragmentName: 'CommentsListWithParentMetadata',
-    fetchPolicy: 'cache-and-network',
+    terms:{view:"moderationTemplatesList", collectionName: "Messages"},
+    collectionName: "ModerationTemplates",
+    fragmentName: 'ModerationTemplateFragment',
     limit: 50
   });
-  
-  
+
   if (!(user && currentUser)) return null
   
   return (
-    <div>
+    <div className={classes.root}>
       <span
         className={classes.sendMessageButton}
         onClick={(ev) => setAnchorEl(ev.currentTarget)}
       >
-        Start Message
+        New Message
       </span>
       <Menu
         onClick={() => setAnchorEl(null)}
@@ -76,26 +79,34 @@ const SunshineSendMessageWithDefaults = ({ user, tagSlug, classes }: {
         anchorEl={anchorEl}
       >
         <MenuItem value={0}>
-          <NewConversationButton user={user} currentUser={currentUser}>
-            Start a message
+          <NewConversationButton user={user} currentUser={currentUser} includeModerators embedConversation={embedConversation}>
+            New Message
           </NewConversationButton>
         </MenuItem>
-        {defaultResponses && defaultResponses.map((comment, i) =>
-          <div key={`template-${comment._id}`}>
+        {defaultResponses && defaultResponses.map((template, i) =>
+          <div key={`template-${template._id}`}>
             <LWTooltip tooltip={false} placement="left" title={
               <div className={classes.defaultMessage}>
-                <CommentBody comment={comment}/>
+                <ContentItemBody dangerouslySetInnerHTML={{__html:template.contents?.html || ""}}/>
               </div>}
             >
               <MenuItem>
-                <NewConversationButton user={user} currentUser={currentUser} templateCommentId={comment._id}>
-                  {getTitle(comment.contents?.plaintextMainText || null)}
+                <NewConversationButton user={user} currentUser={currentUser} templateQueries={{templateId: template._id, displayName: user.displayName}} includeModerators embedConversation={embedConversation}>
+                  {template.name}
                 </NewConversationButton>
               </MenuItem>
             </LWTooltip>
           </div>)}
+          <Link to={MODERATION_TEMPLATES_URL}>
+            <MenuItem>
+              <ListItemIcon>
+                <EditIcon className={classes.editIcon}/>
+              </ListItemIcon>
+              <em>Edit Messages</em>
+            </MenuItem>
+          </Link>
         </Menu>
-      <Link to={`/tag/${tagSlug}/discussion`}><EditIcon className={classes.editIcon}/></Link>
+
     </div>
   )
 }

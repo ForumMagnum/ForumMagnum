@@ -20,16 +20,26 @@ function maybeNullable(type: string, nullable: boolean) {
   return nullable ? `${type} | null` : type 
 }
 
-export function simplSchemaTypeToTypescript(schema, fieldName, simplSchemaType): string {
+export function simplSchemaTypeToTypescript(schema: SchemaType<DbObject>, fieldName: string, simplSchemaType: AnyBecauseTodo, indent = 2): string {
+  const nullable = !!schema[fieldName]?.nullable;
   if (simplSchemaType.singleType == Array) {
     const elementFieldName = `${fieldName}.$`;
-    if (!(elementFieldName in schema))
+    if (!(elementFieldName in schema)) {
       throw new Error(`Field ${fieldName} has an array type but ${fieldName}.$ is not in the schema`);
+    }
+
     const typescriptStrElementType = simplSchemaTypeToTypescript(schema, elementFieldName, schema[elementFieldName].type);
-    return `Array<${typescriptStrElementType}>`;
+    return maybeNullable(`Array<${typescriptStrElementType}>`, nullable);
   } else if (simplSchemaType.singleType) {
-    const nullable = !!schema[fieldName]?.nullable
-    if (simplSchemaType.singleType == String) return maybeNullable("string", nullable);
+    const allowedValues = simplSchemaType.definitions[0]?.allowedValues;
+
+    if (simplSchemaType.singleType == String) {
+      if (allowedValues) {
+        const unionType = simplSchemaUnionTypeToTypescript(allowedValues);
+        return maybeNullable(unionType, nullable);
+      }
+      return maybeNullable("string", nullable);
+    }
     else if (simplSchemaType.singleType == Boolean) return maybeNullable("boolean", nullable);
     else if (simplSchemaType.singleType == Number) return maybeNullable("number", nullable);
     else if (simplSchemaType.singleType == Date) return maybeNullable("Date", nullable);
@@ -39,12 +49,37 @@ export function simplSchemaTypeToTypescript(schema, fieldName, simplSchemaType):
     if (graphQLtype) {
       return graphqlTypeToTypescript(graphQLtype);
     } else {
-      //return simplSchemaType.singleType;
+      const innerSchema = simplSchemaType?.singleType?.schema?.();
+      if (innerSchema) {
+        const objectSchema = simplSchemaObjectTypeToTypescript(innerSchema, indent);
+        return maybeNullable(objectSchema, nullable);
+      }
       return `any /*${JSON.stringify(simplSchemaType)}*/`
     }
   } else {
     return "any";
   }
+}
+
+function simplSchemaUnionTypeToTypescript(allowedValues: string[]) {
+  return allowedValues.map(allowedValue => `"${allowedValue}"`).join(" | ");
+}
+
+function simplSchemaObjectTypeToTypescript(innerSchema: AnyBecauseTodo, indent: number) {
+  const indentSpaces = Array(indent + 2).fill(' ').join('');
+  const fields = Object.keys(innerSchema)
+    .filter((innerSchemaField) => !innerSchemaField.includes(".$")) // filter out array type definitions
+    .map((innerSchemaField) => {
+      const fieldTypeDef = simplSchemaTypeToTypescript(
+        innerSchema,
+        innerSchemaField,
+        innerSchema[innerSchemaField].type,
+        indent + 2
+      );
+      return `\n${indentSpaces}${innerSchemaField}: ${fieldTypeDef},`;
+    })
+    .join("");
+  return `{${fields}\n${indentSpaces.slice(0, indentSpaces.length - 2)}}`;
 }
 
 export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): string {

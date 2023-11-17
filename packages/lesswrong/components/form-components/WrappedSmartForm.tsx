@@ -1,11 +1,11 @@
 /*
- * This component wraps SmartForm (see below for why), which is defined in
- * FormWrapper.tsx (where it calls itself FormWrapper), which itself wraps Form,
- * which is defined in Form.tsx (where it calls itself SmartForm).
+ * This component wraps FormWrapper (see below for why), which is defined in
+ * FormWrapper.tsx, which itself wraps Form, which is defined in Form.tsx.
  */
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { editableCollections, editableCollectionsFields } from '../../lib/editor/make_editable'
+import type { WrappedSmartFormProps } from '../vulcan-forms/propTypes';
 import * as _ from 'underscore';
 
 /**
@@ -15,23 +15,27 @@ import * as _ from 'underscore';
  * query type, and so we have to make sure to not resubmit any data that we
  * queried
  */
-function WrappedSmartForm(props) {
-  const { collection } = props
-  const collectionName = collection && collection.options && collection.options.collectionName
+function WrappedSmartForm(props: WrappedSmartFormProps) {
+  const { collectionName } = props
+
   if (editableCollections.has(collectionName)) {
     return <Components.FormWrapper
       {...props}
-      submitCallback={(data) => {
+      submitCallback={(data: AnyBecauseTodo) => {
         if (props.submitCallback) {data = props.submitCallback(data)}
         
         // For all editable fields, ensure that we actually have data, and make sure we submit the response in the correct shape
         const editableFields = _.object(editableCollectionsFields[collectionName].map(fieldName => {
-          const { originalContents, updateType, commitMessage } = (data && data[fieldName]) || {}
+          const { originalContents, updateType, commitMessage, dataWithDiscardedSuggestions } = (data && data[fieldName]) || {}
           return [
             fieldName, // _.object takes array of tuples, with first value being fieldName and second being value
-            (originalContents?.data) ? // Ensure that we have data
-              { originalContents, updateType, commitMessage } : // If so, constrain it to correct shape
-              undefined // If not, set field to undefined
+            // Ensure that we have data. We check for data field presence but
+            // not truthiness, because the empty string is falsy.
+            (typeof originalContents==="object" && "data" in originalContents)
+              // If so, constrain it to correct shape
+              ? { originalContents, updateType, commitMessage, dataWithDiscardedSuggestions }
+              // If not, set field to undefined
+              : undefined
           ]
         }))
         return {...data, ...editableFields}

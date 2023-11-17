@@ -1,89 +1,133 @@
+import React, { ReactNode } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import Card from '@material-ui/core/Card';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
-import React from 'react';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
 import { looksLikeDbIdString } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { commentBodyStyles, metaculusBackground, postHighlightStyles } from '../../themes/stylePiping';
 import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
+import { isClient } from '../../lib/executionEnvironment';
+import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
-const PostLinkPreview = ({href, targetLocation, innerHTML, id}: {
+let missingLinkPreviewsLogged = new Set<string>();
+
+// Log a message about a link-preview being a broken link. Suppresses duplicate
+// logs. Client-side only (so the set of saved messages can't grow huge, as it
+// would on a server).
+//
+// This is special-cased error handling because in the LessWrong dev DB, it's
+// fairly common to load the front page and find that it has RSS-synced posts
+// on it which contain links to LessWrong posts that only exist in the prod DB,
+// not the dev DB, and the error-logging that used to produce was extremely
+// voluminous.
+function logMissingLinkPreview(message: string)
+{
+  if (isClient) {
+    if(!missingLinkPreviewsLogged.has(message)) {
+      missingLinkPreviewsLogged.add(message);
+      //eslint-disable-next-line no-console
+      console.log(message);
+    }
+  }
+}
+
+const PostLinkPreview = ({href, targetLocation, id, children}: {
   href: string,
   targetLocation: any,
-  innerHTML: string,
   id: string,
+  children: ReactNode,
 }) => {
   const postID = targetLocation.params._id;
 
-  const { document: post, error } = useSingle({
+  const { document: post, loading, error } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
 
     documentId: postID,
+    allowNull: true,
   });
+  
+  if (!loading && !post) {
+    logMissingLinkPreview(`Link preview: No post found with ID ${postID}`);
+  }
 
-  if (!post) return null;
-
-  return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
+  return <Components.PostLinkPreviewVariantCheck
+    post={post||null}
+    targetLocation={targetLocation}
+    error={error}
+    href={href} id={id}
+  >
+    {children}
+  </Components.PostLinkPreviewVariantCheck>
 }
 const PostLinkPreviewComponent = registerComponent('PostLinkPreview', PostLinkPreview);
 
-const PostLinkPreviewSequencePost = ({href, targetLocation, innerHTML, id}: {
+const PostLinkPreviewSequencePost = ({href, targetLocation, id, children}: {
   href: string,
   targetLocation: any,
-  innerHTML: string,
   id: string,
+  children: ReactNode,
 }) => {
   const postID = targetLocation.params.postId;
 
-  const { document: post, error } = useSingle({
+  const { document: post, loading, error } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: postID,
+    allowNull: true,
   });
-  if (!post) {return null;}
 
-  return <Components.PostLinkPreviewVariantCheck post={post} targetLocation={targetLocation} error={error} href={href} innerHTML={innerHTML} id={id} />
+  if (!loading && !post) {
+    logMissingLinkPreview(`Link preview: No post found with ID ${postID}`);
+  }
+
+  return <Components.PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} id={id}>
+    {children}
+  </Components.PostLinkPreviewVariantCheck>
 }
 const PostLinkPreviewSequencePostComponent = registerComponent('PostLinkPreviewSequencePost', PostLinkPreviewSequencePost);
 
-const PostLinkPreviewSlug = ({href, targetLocation, innerHTML, id}: {
+const PostLinkPreviewSlug = ({href, targetLocation, id, children}: {
   href: string,
   targetLocation: any,
-  innerHTML: string,
   id: string,
+  children: ReactNode,
 }) => {
   const slug = targetLocation.params.slug;
   const { post, error } = usePostBySlug({ slug });
 
-  return <Components.PostLinkPreviewVariantCheck href={href} innerHTML={innerHTML} post={post} targetLocation={targetLocation} error={error} id={id} />
+  return <Components.PostLinkPreviewVariantCheck href={href} post={post} targetLocation={targetLocation} error={error} id={id}>
+    {children}
+  </Components.PostLinkPreviewVariantCheck>
 }
 const PostLinkPreviewSlugComponent = registerComponent('PostLinkPreviewSlug', PostLinkPreviewSlug);
 
-const PostLinkPreviewLegacy = ({href, targetLocation, innerHTML, id}: {
+const PostLinkPreviewLegacy = ({href, targetLocation, id, children}: {
   href: string,
   targetLocation: any,
-  innerHTML: string,
   id: string,
+  children: ReactNode,
 }) => {
   const legacyId = targetLocation.params.id;
   const { post, error } = usePostByLegacyId({ legacyId });
 
-  return <Components.PostLinkPreviewVariantCheck href={href} innerHTML={innerHTML} post={post} targetLocation={targetLocation} error={error} id={id} />
+  return <Components.PostLinkPreviewVariantCheck href={href} post={post} targetLocation={targetLocation} error={error} id={id}>
+    {children}
+  </Components.PostLinkPreviewVariantCheck>
 }
 const PostLinkPreviewLegacyComponent = registerComponent('PostLinkPreviewLegacy', PostLinkPreviewLegacy);
 
-const CommentLinkPreviewLegacy = ({href, targetLocation, innerHTML, id}: {
+const CommentLinkPreviewLegacy = ({href, targetLocation, id, children}: {
   href: string,
   targetLocation: any,
-  innerHTML: string,
   id: string,
+  children: ReactNode,
 }) => {
   const legacyPostId = targetLocation.params.id;
   const legacyCommentId = targetLocation.params.commentId;
@@ -93,60 +137,76 @@ const CommentLinkPreviewLegacy = ({href, targetLocation, innerHTML, id}: {
   const error = postError || commentError;
 
   if (comment) {
-    return <Components.CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} innerHTML={innerHTML} id={id} />
+    return <Components.CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} id={id}>
+      {children}
+    </Components.CommentLinkPreviewWithComment>
   }
-  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} error={error} id={id} />
+  return <Components.PostLinkPreviewWithPost href={href} post={post} error={error} id={id}>
+    {children}
+  </Components.PostLinkPreviewWithPost>
 }
 const CommentLinkPreviewLegacyComponent = registerComponent('CommentLinkPreviewLegacy', CommentLinkPreviewLegacy);
 
-const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, innerHTML, id}: {
+const PostCommentLinkPreviewGreaterWrong = ({href, targetLocation, id, children}: {
   href: string,
   targetLocation: any,
-  innerHTML: string,
   id: string,
+  children: ReactNode
 }) => {
   const postId = targetLocation.params._id;
   const commentId = targetLocation.params.commentId;
 
-  const { document: post } = useSingle({
+  const { document: post, loading } = useSingle({
     collectionName: "Posts",
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
 
     documentId: postId,
+    allowNull: true,
   });
 
-  if (!post) {return null;}
-
-  return <Components.PostLinkCommentPreview href={href} innerHTML={innerHTML} commentId={commentId} post={post} id={id}/>
+  if (!loading && !post) {
+    logMissingLinkPreview(`Link preview: No post found with ID ${postId}`);
+  }
+  return <Components.PostLinkCommentPreview href={href} commentId={commentId} post={post||null} id={id}>
+    {children}
+  </Components.PostLinkCommentPreview>
 }
 const PostCommentLinkPreviewGreaterWrongComponent = registerComponent('PostCommentLinkPreviewGreaterWrong', PostCommentLinkPreviewGreaterWrong);
 
-const PostLinkPreviewVariantCheck = ({ href, innerHTML, post, targetLocation, comment, commentId, error, id}: {
+const PostLinkPreviewVariantCheck = ({ href, post, targetLocation, comment, commentId, error, id, children}: {
   href: string,
-  innerHTML: string,
   post: PostsList|null,
   targetLocation: any,
   comment?: any,
   commentId?: string,
   error: any,
   id: string,
+  children: ReactNode,
 }) => {
   if (targetLocation.query.commentId) {
-    return <PostLinkCommentPreview commentId={targetLocation.query.commentId} href={href} innerHTML={innerHTML} post={post} id={id}/>
+    return <PostLinkCommentPreview commentId={targetLocation.query.commentId} href={href} post={post} id={id}>
+      {children}
+    </PostLinkCommentPreview>
   }
   if (targetLocation.hash) {
     const commentId = targetLocation.hash.split("#")[1]
     if (looksLikeDbIdString(commentId)) {
-      return <PostLinkCommentPreview commentId={commentId} href={href} innerHTML={innerHTML} post={post} id={id} />
+      return <PostLinkCommentPreview commentId={commentId} href={href} post={post} id={id}>
+        {children}
+      </PostLinkCommentPreview>
     }
   }
 
   if (commentId) {
-    return <Components.PostLinkCommentPreview commentId={commentId} post={post} href={href} innerHTML={innerHTML} id={id}/>
+    return <Components.PostLinkCommentPreview commentId={commentId} post={post} href={href} id={id}>
+      {children}
+    </Components.PostLinkCommentPreview>
   }
 
-  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} error={error} id={id} />
+  return <Components.PostLinkPreviewWithPost href={href} post={post} error={error} id={id}>
+    {children}
+  </Components.PostLinkPreviewWithPost>
 }
 const PostLinkPreviewVariantCheckComponent = registerComponent('PostLinkPreviewVariantCheck', PostLinkPreviewVariantCheck);
 
@@ -154,7 +214,6 @@ export const linkStyle = (theme: ThemeType) => ({
   '&:after': {
     content: '"°"',
     marginLeft: 1,
-    color: theme.palette.primary.main,
   }
 })
 
@@ -164,107 +223,147 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PostLinkCommentPreview = ({href, commentId, post, innerHTML, id}: {
+const PostLinkCommentPreview = ({href, commentId, post, id, children}: {
   href: string,
   commentId: string,
   post: PostsList|null,
-  innerHTML: string,
   id: string,
+  children: ReactNode,
 }) => {
 
-  const { document: comment, error } = useSingle({
+  const { document: comment, loading, error } = useSingle({
     collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-then-network' as any, //TODO
     documentId: commentId,
+    allowNull: true,
   });
 
-  if (comment) {
-    return <Components.CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} innerHTML={innerHTML} id={id}/>
+  if (!loading && !comment) {
+    logMissingLinkPreview(`Link preview: No comment found with ID ${commentId}`);
   }
-  return <Components.PostLinkPreviewWithPost href={href} innerHTML={innerHTML} post={post} error={error} id={id} />
-
+  if (comment) {
+    return <Components.CommentLinkPreviewWithComment comment={comment} post={post} error={error} href={href} id={id}>
+      {children}
+    </Components.CommentLinkPreviewWithComment>
+  }
+  return <Components.PostLinkPreviewWithPost href={href} post={post} error={error} id={id}>
+    {children}
+  </Components.PostLinkPreviewWithPost>
 }
 const PostLinkCommentPreviewComponent = registerComponent('PostLinkCommentPreview', PostLinkCommentPreview);
 
-const PostLinkPreviewWithPost = ({classes, href, innerHTML, post, id, error}: {
-  classes: ClassesType,
+const PostLinkPreviewWithPost = ({href, post, id, children, classes}: {
   href: string,
-  innerHTML: string,
   post: PostsList|null,
   id: string,
   error: any,
+  children: ReactNode,
+  classes: ClassesType,
 }) => {
-  const { PostsPreviewTooltip, LWPopper } = Components
-  const { anchorEl, hover, eventHandlers } = useHover();
-  
-  const hash = (href.indexOf("#")>=0) ? (href.split("#")[1]) : null;
-
   if (!post) {
-    return <span {...eventHandlers}>
-      <Link to={href}  dangerouslySetInnerHTML={{__html: innerHTML}}/>
+    return <span>
+      <Link to={href}>
+        {children}
+      </Link>
     </span>
   }
+
+  const hash = (href.indexOf("#") >= 0) ? (href.split("#")[1]) : undefined;
+  const {PostsTooltip} = Components;
   return (
-    <span {...eventHandlers}>
-      <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
-      >
-        <PostsPreviewTooltip post={post} hash={hash} />
-      </LWPopper>
-      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} smooth/>
-    </span>
+    <PostsTooltip
+      post={post}
+      hash={hash}
+      placement="bottom-start"
+      clickable={!isFriendlyUI}
+      As="span"
+    >
+      <Link className={classes.link} to={href} id={id} smooth>
+        {children}
+      </Link>
+    </PostsTooltip>
   );
 }
 const PostLinkPreviewWithPostComponent = registerComponent('PostLinkPreviewWithPost', PostLinkPreviewWithPost, {
   styles
 });
 
-const CommentLinkPreviewWithComment = ({classes, href, innerHTML, comment, post, id, error}: {
+const CommentLinkPreviewWithComment = ({classes, href, comment, post, id, children}: {
   classes: ClassesType,
   href: string,
-  innerHTML: string,
   comment: any,
   post: PostsList|null,
   id: string,
   error: any,
+  children: ReactNode,
 }) => {
-  const { PostsPreviewTooltip, LWPopper } = Components
-  const { eventHandlers, anchorEl, hover } = useHover();
-
   if (!comment) {
-    return <span {...eventHandlers}>
-      <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}}/>
+    return <span>
+      <Link to={href}>
+        {children}
+      </Link>
     </span>
   }
+
+  const {PostsTooltip} = Components;
+  return (
+    <PostsTooltip
+      post={post}
+      comment={comment}
+      placement="bottom-start"
+      As="span"
+    >
+      <Link className={classes.link} to={href} id={id}>
+        {children}
+      </Link>
+    </PostsTooltip>
+  );
+}
+const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment, {
+  styles,
+});
+
+const SequencePreview = ({classes, targetLocation, href, children}: {
+  classes: ClassesType,
+  targetLocation: any,
+  href: string,
+  children: ReactNode,
+}) => {
+  const { LWPopper, SequencesHoverOver } = Components
+  const sequenceId = targetLocation.params._id;
+  const { eventHandlers, anchorEl, hover } = useHover();
+
+  const { document: sequence, loading } = useSingle({
+    documentId: sequenceId,
+    collectionName: "Sequences",
+    fragmentName: 'SequencesPageFragment',
+    fetchPolicy: 'cache-then-network' as any,
+    allowNull: true,
+  });
+  
+  if (!sequence && !loading) {
+    logMissingLinkPreview(`Link preview: No sequence  found with ID ${sequenceId}`);
+  }
+
   return (
     <span {...eventHandlers}>
       <LWPopper
         open={hover}
         anchorEl={anchorEl}
         placement="bottom-start"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-start", "top-end", "bottom-start"],
-            boundariesElement: 'viewport'
-          }
-        }}
+        allowOverflow
       >
-        <PostsPreviewTooltip post={post} comment={comment} />
+        <SequencesHoverOver sequence={sequence || null} />
       </LWPopper>
-      <Link className={classes.link} to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id}/>
+      <Link className={classes.link} to={href} id={sequenceId}>
+        {children}
+      </Link>
     </span>
   )
 }
-const CommentLinkPreviewWithCommentComponent = registerComponent('CommentLinkPreviewWithComment', CommentLinkPreviewWithComment, {
+
+const SequencePreviewComponent = registerComponent('SequencePreview', SequencePreview, {
   styles,
 });
 
@@ -284,13 +383,13 @@ const defaultPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const DefaultPreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
+const DefaultPreview = ({classes, href, onsite=false, id, rel, children}: {
   classes: ClassesType,
   href: string,
-  innerHTML: string,
   onsite?: boolean,
   id?: string,
   rel?: string
+  children: ReactNode,
 }) => {
   const { LWPopper } = Components
   const { eventHandlers, hover, anchorEl } = useHover({
@@ -310,9 +409,11 @@ const DefaultPreview = ({classes, href, innerHTML, onsite=false, id, rel}: {
       </LWPopper>
 
       {onsite
-        ? <Link to={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
+        ? <Link to={href} id={id} rel={rel}>{children}</Link>
         : <Components.AnalyticsTracker eventType="link" eventProps={{to: href}}>
-            <a href={href} dangerouslySetInnerHTML={{__html: innerHTML}} id={id} rel={rel}/>
+            <a href={href} id={id} rel={rel}>
+              {children}
+            </a>
           </Components.AnalyticsTracker>}
     </span>
   );
@@ -340,7 +441,6 @@ const mozillaHubStyles = (theme: ThemeType): JssStyles => ({
     height: 200
   },
   roomInfo: {
-    ...postHighlightStyles(theme),
     padding: 16
   },
   roomHover: {
@@ -351,9 +451,9 @@ const mozillaHubStyles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.3rem"
   },
   card: {
-    boxShadow: "0px 0px 10px rgba(0,0,0,.1)",
+    boxShadow: theme.palette.boxShadow.mozillaHubPreview,
     width: 350,
-    backgroundColor: "white"
+    backgroundColor: theme.palette.panelBackground.default,
   },
   description: {
     marginTop: 8,
@@ -361,11 +461,11 @@ const mozillaHubStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const MozillaHubPreview = ({classes, href, innerHTML, id}: {
+const MozillaHubPreview = ({classes, href, id, children}: {
   classes: ClassesType,
   href: string,
-  innerHTML: string,
   id?: string,
+  children: ReactNode,
 }) => {
   const roomId = href.split("/")[3]
   const { data: rawData, loading } = useQuery(gql`
@@ -386,16 +486,16 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
   });
   
   const data = rawData?.MozillaHubsRoomData
-  const { AnalyticsTracker, LWPopper } = Components
+  const { AnalyticsTracker, LWPopper, ContentStyles } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   if (loading || !data) return <a href={href}>
-    <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
+    <span>{children}</span>
   </a>  
 
   return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
     <span {...eventHandlers}>
       <a href={data.url} id={id}>
-        <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
+        <span>{children}</span>
         <span className={classes.users}>
           (<SupervisorAccountIcon className={classes.icon}/> 
           {data.memberCount}/{data.roomSize})
@@ -405,7 +505,7 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.card}>
           <img className={classes.image} src={data.previewImage}/>
-          <div className={classes.roomInfo}>
+          <ContentStyles contentType="postHighlight" className={classes.roomInfo}>
             <div className={classes.roomTitle}>{data.name}</div>
             <div className={classes.usersPreview}>
               <SupervisorAccountIcon className={classes.icon}/> 
@@ -414,7 +514,7 @@ const MozillaHubPreview = ({classes, href, innerHTML, id}: {
             {data.description && <div className={classes.description}>
               {data.description}
             </div>}
-          </div>
+          </ContentStyles>
         </div>
       </LWPopper>
     </span>
@@ -425,9 +525,56 @@ const MozillaHubPreviewComponent = registerComponent('MozillaHubPreview', Mozill
   styles: mozillaHubStyles
 })
 
+const owidStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 600,
+    height: 375,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: {
+    ...linkStyle(theme)
+  }
+})
+
+const OWIDPreview = ({classes, href, id, children}: {
+  classes: ClassesType,
+  href: string,
+  id?: string,
+  children: ReactNode,
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components
+  const { anchorEl, hover, eventHandlers } = useHover();
+  const [match] = href.match(/^http(?:s?):\/\/ourworldindata\.org\/grapher\/.*/) || []
+
+  if (!match) {
+    return <a href={href}>
+      {children}
+    </a>
+  }
+
+  return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
+    <span {...eventHandlers}>
+      <a className={classes.link} href={href} id={id}>
+        {children}
+      </a>
+      
+      <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+        <div className={classes.background}>
+          <iframe className={classes.iframeStyling} src={match} />
+        </div>
+      </LWPopper>
+    </span>
+  </AnalyticsTracker>
+}
+
+const OWIDPreviewComponent = registerComponent('OWIDPreview', OWIDPreview, {
+  styles: owidStyles
+})
+
 const metaculusStyles = (theme: ThemeType): JssStyles => ({
   background: {
-    backgroundColor: metaculusBackground
+    backgroundColor: theme.palette.panelBackground.metaculusBackground,
   },
   iframeStyling: {
     width: 400,
@@ -440,11 +587,11 @@ const metaculusStyles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const MetaculusPreview = ({classes, href, innerHTML, id}: {
+const MetaculusPreview = ({classes, href, id, children}: {
   classes: ClassesType,
   href: string,
-  innerHTML: string,
   id?: string,
+  children: ReactNode,
 }) => {
   const { AnalyticsTracker, LWPopper } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
@@ -452,13 +599,15 @@ const MetaculusPreview = ({classes, href, innerHTML, id}: {
 
   if (!questionNumber) {
     return <a href={href}>
-      <span dangerouslySetInnerHTML={{__html: innerHTML}}/>
+      {children}
     </a>  
   }
 
   return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
     <span {...eventHandlers}>
-      <a className={classes.link} href={href} id={id} dangerouslySetInnerHTML={{__html: innerHTML}} />
+      <a className={classes.link} href={href} id={id}>
+        {children}
+      </a>
       
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <div className={classes.background}>
@@ -472,6 +621,110 @@ const MetaculusPreview = ({classes, href, innerHTML, id}: {
 const MetaculusPreviewComponent = registerComponent('MetaculusPreview', MetaculusPreview, {
   styles: metaculusStyles
 })
+
+const manifoldStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: linkStyle(theme),
+});
+
+const ManifoldPreview = ({classes, href, id, children}: {
+  classes: ClassesType;
+  href: string;
+  id?: string;
+  children: ReactNode,
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  // test if fits https://manifold.markets/embed/[...]
+  const isEmbed = /^https?:\/\/manifold\.markets\/embed\/.+$/.test(href);
+
+  // if it fits  https://manifold.markets/[username]/[market-slug] instead, get the (username and market slug)
+  const [, userAndSlug] = href.match(/^https?:\/\/manifold\.markets\/(\w+\/[\w-]+)/) || [];
+
+  if (!isEmbed && !userAndSlug) {
+    return (
+      <a href={href}>
+        {children}
+      </a>
+    );
+  }
+
+  const url = isEmbed ? href : `https://manifold.markets/embed/${userAndSlug}`;
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id}>
+          {children}
+        </a>
+
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={url} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const ManifoldPreviewComponent = registerComponent('ManifoldPreview', ManifoldPreview, { styles: manifoldStyles })
+
+const metaforecastStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: linkStyle(theme),
+});
+
+const MetaforecastPreview = ({classes, href, id, children}: {
+  classes: ClassesType;
+  href: string;
+  id?: string;
+  children: ReactNode,
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  // test if fits https://metaforecast.org/questions/embed/[...]
+  const isEmbed = /^https?:\/\/metaforecast\.org\/questions\/embed\/.+$/.test(href);
+
+  // test if it fits https://manifold.markets/questions/[...] instead
+  const [, questionId] = href.match(/^https?:\/\/metaforecast\.org\/questions\/([\w-]+)/) || [];
+
+  if (!isEmbed && !questionId) {
+    return (
+      <a href={href}>
+        {children}
+      </a>
+    );
+  }
+
+  const url = isEmbed ? href : `https://metaforecast.org/questions/embed/${questionId}`;
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id}>
+          {children}
+        </a>
+
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={url} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const MetaforecastPreviewComponent = registerComponent('MetaforecastPreview', MetaforecastPreview, { styles: metaforecastStyles })
 
 const ArbitalLogo = () => <svg x="0px" y="0px" height="100%" viewBox="0 0 27.5 23.333">
   <g>
@@ -501,7 +754,6 @@ const ArbitalLogo = () => <svg x="0px" y="0px" height="100%" viewBox="0 0 27.5 2
 
 const arbitalStyles = (theme: ThemeType): JssStyles => ({
   hovercard: {
-    ...commentBodyStyles(theme),
     padding: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*1.5,
     paddingRight: theme.spacing.unit*1.5,
@@ -521,7 +773,7 @@ const arbitalStyles = (theme: ThemeType): JssStyles => ({
   },
   logo: {
     height: 24,
-    fill: 'rgba(0,0,0,0.4)',
+    fill: theme.palette.icon.dim2,
     marginTop: -5
   },
   link: {
@@ -532,13 +784,13 @@ const arbitalStyles = (theme: ThemeType): JssStyles => ({
 
 
 
-const ArbitalPreview = ({classes, href, innerHTML, id}: {
+const ArbitalPreview = ({classes, href, id, children}: {
   classes: ClassesType,
   href: string,
-  innerHTML: string,
   id?: string,
+  children: ReactNode,
 }) => {
-  const { AnalyticsTracker, LWPopper } = Components
+  const { AnalyticsTracker, LWPopper, ContentStyles } = Components
   const { anchorEl, hover, eventHandlers } = useHover();
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
 
@@ -555,22 +807,26 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
   });
 
   if (!arbitalSlug || loading) {
-    return <Components.DefaultPreview href={href} innerHTML={innerHTML} id={id} />
+    return <Components.DefaultPreview href={href} id={id}>
+      {children}
+    </Components.DefaultPreview>
   }
 
   return <AnalyticsTracker eventType="link" eventProps={{to: href}}>
     <span {...eventHandlers}>
-      <a className={classes.link} href={href} id={id} dangerouslySetInnerHTML={{__html: innerHTML}} />
+      <a className={classes.link} href={href} id={id}>
+        {children}
+      </a>
       
       <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
         <Card>
-          <div className={classes.hovercard}>
+          <ContentStyles contentType="comment" className={classes.hovercard}>
             <div className={classes.headerRow}>
               <a href={href}><h2>{rawData?.ArbitalPageData?.title}</h2></a>
               <a href="https://arbital.com" title="This article is hosted on Arbital.com"><div className={classes.logo}><ArbitalLogo/></div></a>
             </div>
             <div dangerouslySetInnerHTML={{__html: rawData?.ArbitalPageData?.html}} id={id} />
-          </div>
+          </ContentStyles>
         </Card>
       </LWPopper>
     </span>
@@ -580,6 +836,104 @@ const ArbitalPreview = ({classes, href, innerHTML, id}: {
 const ArbitalPreviewComponent = registerComponent('ArbitalPreview', ArbitalPreview, {
   styles: arbitalStyles
 })
+
+const estimakerStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 560,
+    height: 405,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: linkStyle(theme),
+});
+
+const EstimakerPreview = ({classes, href, id, children}: {
+  classes: ClassesType,
+  href: string,
+  id?: string,
+  children: ReactNode,
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  // test if fits https://estimaker.app/_/$user/$slug
+  const isEmbed = /^https?:\/\/estimaker\.app\/_\/.+$/.test(href);
+  
+  if (!isEmbed) {
+    return (
+      <a href={href}>
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id}>
+          {children}
+        </a>
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={href} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const EstimakerPreviewComponent = registerComponent('EstimakerPreview', EstimakerPreview, { styles: estimakerStyles })
+
+
+const viewpointsStyles = (theme: ThemeType): JssStyles => ({
+  iframeStyling: {
+    width: 560,
+    height: 300,
+    border: "none",
+    maxWidth: "100vw",
+  },
+  link: linkStyle(theme),
+});
+
+const ViewpointsPreview = ({classes, href, id, children}: {
+  classes: ClassesType,
+  href: string,
+  id?: string,
+  children: ReactNode,
+}) => {
+  const { AnalyticsTracker, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  // test if fits https://viewpoints.xyz/embed/polls/$slug
+  const isEmbed = /^https?:\/\/viewpoints\.xyz\/embed\/polls\/.+$/.test(href);
+
+  // test if it fits https://viewpoints.xyz/polls/$slug
+  const [, slug] = href.match(/^https?:\/\/viewpoints\.xyz\/polls\/([\w-]+)/) || [];
+
+  if (!isEmbed && !slug) {
+    return (
+      <a href={href}>
+        {children}
+      </a>
+    );
+  }
+
+  const url = isEmbed ? href : `https://viewpoints.xyz/embed/polls/${slug}`;
+
+  return (
+    <AnalyticsTracker eventType="link" eventProps={{ to: url }}>
+      <span {...eventHandlers}>
+        <a className={classes.link} href={href} id={id}>
+          {children}
+        </a>
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
+          <iframe className={classes.iframeStyling} src={url} />
+        </LWPopper>
+      </span>
+    </AnalyticsTracker>
+  );
+};
+
+const ViewpointsPreviewComponent = registerComponent('ViewpointsPreview', ViewpointsPreview, { styles: viewpointsStyles })
 
 declare global {
   interface ComponentTypes {
@@ -595,7 +949,13 @@ declare global {
     CommentLinkPreviewWithComment: typeof CommentLinkPreviewWithCommentComponent,
     MozillaHubPreview: typeof MozillaHubPreviewComponent,
     MetaculusPreview: typeof MetaculusPreviewComponent,
+    ManifoldPreview: typeof ManifoldPreviewComponent,
+    MetaforecastPreview: typeof MetaforecastPreviewComponent,
+    OWIDPreview: typeof OWIDPreviewComponent,
     ArbitalPreview: typeof ArbitalPreviewComponent,
     DefaultPreview: typeof DefaultPreviewComponent,
+    SequencePreview: typeof SequencePreviewComponent,
+    EstimakerPreview: typeof EstimakerPreviewComponent,
+    ViewpointsPreview: typeof ViewpointsPreviewComponent,
   }
 }

@@ -34,6 +34,7 @@ interface ExtendedSequencesCollection extends SequencesCollection {
 export const Sequences: ExtendedSequencesCollection = createCollection({
   collectionName: 'Sequences',
   typeName: 'Sequence',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Sequences'),
   mutations: getDefaultMutations('Sequences', options),

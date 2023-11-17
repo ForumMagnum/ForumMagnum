@@ -44,6 +44,7 @@ registerFragment(`
 registerFragment(`
   fragment emailHistoryFragment on LWEvent {
     _id
+    createdAt
     userId
     name
     properties

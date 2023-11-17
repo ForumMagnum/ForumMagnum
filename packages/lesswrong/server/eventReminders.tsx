@@ -1,6 +1,6 @@
 import React from 'react';
 import { Components } from '../lib/vulcan-lib/components';
-import { testServerSetting } from './debouncer';
+import { testServerSetting } from '../lib/instanceSettings';
 import { Posts } from '../lib/collections/posts/collection';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { Users } from '../lib/collections/users/collection';

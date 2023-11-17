@@ -1,26 +1,26 @@
 import React, { useState, useCallback } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { postBodyStyles } from '../../themes/stylePiping';
 
 const styles = (theme: ThemeType): JssStyles => ({
   description: {
-    ...postBodyStyles(theme),
     marginLeft: 10,
-    marginBottom: 8,
+    marginBottom: 24,
     marginTop: 16
   },
   subtitle: {
-    fontSize: 20,
+    fontSize: "1.16em",
     lineHeight: 1.1,
     fontStyle: "italic",
-    marginTop: 20,
+    marginTop: 12,
   },
   posts: {
-    [theme.breakpoints.down('sm')]: {
       paddingLeft: 8,
       paddingRight: 8
-    }
+  },
+  title: {
+    display: "flex",
+    justifyContent: "space-between"
   }
 });
 
@@ -38,37 +38,44 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
     setEdit(false);
   }, []);
 
-  const { ChaptersEditForm, SectionTitle, SectionFooter,
-    SectionButton, SequencesPostsList, ContentItemBody } = Components
+  const { ChaptersEditForm, ChapterTitle, SectionFooter,
+    SectionButton, ContentItemBody, ContentStyles, PostsItem } = Components
   const html = chapter.contents?.html || ""
+
   if (edit) return (
     <ChaptersEditForm
       documentId={chapter._id}
+      postIds={chapter.postIds}
       successCallback={showChapter}
       cancelCallback={showChapter}
     />
   )
+
   const editButton = <SectionButton>
     <a onClick={showEdit}>Add/Remove Posts</a>
   </SectionButton>
 
   return (
     <div>
-      {chapter.title && <SectionTitle title={chapter.title}>
-        {canEdit && editButton}
-      </SectionTitle>}
-      {html && <div className={classes.description}>
+      <div className={classes.title}>
+        {chapter.title && <ChapterTitle title={chapter.title} large/>}
+      </div>
+      {html && <ContentStyles contentType="post" className={classes.description}>
         <ContentItemBody
           dangerouslySetInnerHTML={{__html: html}}
           description={`chapter ${chapter._id}`}
         />
-      </div>}
+      </ContentStyles>}
       <div className={classes.posts}>
         <AnalyticsContext chapter={chapter._id} capturePostItemOnMount>
-          <SequencesPostsList posts={chapter.posts} chapter={chapter} />
+          {chapter.posts.map(post => {
+            return <div key={chapter._id + post._id}>
+              <PostsItem sequenceId={chapter.sequenceId} post={post} showReadCheckbox/>
+            </div>
+          })}
         </AnalyticsContext>
       </div>
-      {!chapter.title && canEdit && <SectionFooter>{editButton}</SectionFooter>}
+      {canEdit && <SectionFooter>{editButton}</SectionFooter>}
     </div>
   )
 }
@@ -80,4 +87,3 @@ declare global {
     ChaptersItem: typeof ChaptersItemComponent
   }
 }
-

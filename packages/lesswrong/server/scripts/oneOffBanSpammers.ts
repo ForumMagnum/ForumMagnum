@@ -5,6 +5,9 @@ import Users from '../../lib/collections/users/collection'
 import moment from 'moment'
 
 const banUser = async (user: DbUser, adminUser: DbUser) => {
+  // this was not updated when we moved from the "bio" field to the "biography" field,
+  // because I'm not sure if this will ever be used again,
+  // but note that if we use this we might want to update the fields
   await Users.rawCollection().bulkWrite([{
     updateOne: {
       filter: {_id: user._id},
@@ -24,7 +27,7 @@ const banUser = async (user: DbUser, adminUser: DbUser) => {
 
 Vulcan.oneOffBanSpammers = wrapVulcanAsyncScript(
   'oneOffBanSpammers',
-  async (adminId) => {
+  async (adminId: string) => {
     const spammers = Users.find({
       // signUpReCaptchaRating: {$exists: false},
       reviewedByUserId: {$exists: false},

@@ -5,12 +5,23 @@ registerFragment(`
     _id
     postId
     tagId
+    tag {
+      slug
+    }
+    relevantTagIds
+    relevantTags {
+      ...TagBasicInfo
+    }
+    tagCommentType
     parentCommentId
     topLevelCommentId
     descendentCount
+    title
     contents {
+      _id
       html
       plaintextMainText
+      wordCount
     }
     postedAt
     repliesBlockedUntil
@@ -19,17 +30,22 @@ registerFragment(`
     deletedPublic
     deletedReason
     hideAuthor
+    authorIsUnreviewed
     user {
       ...UsersMinimumInfo
     }
     currentUserVote
+    currentUserExtendedVote
     baseScore
+    extendedScore
     score
     voteCount
+    emojiReactors
     af
     afDate
     moveToAlignmentUserId
     afBaseScore
+    afExtendedScore
     suggestForAlignmentUserIds
     reviewForAlignmentUserId
     needsReview
@@ -39,8 +55,10 @@ registerFragment(`
     postVersion
     reviewedByUserId
     shortform
+    shortformFrontpage
     lastSubthreadActivity
     moderatorHat
+    hideModeratorHat
     nominatedForReview
     reviewingForReview
     promoted
@@ -48,6 +66,22 @@ registerFragment(`
       ...UsersMinimumInfo
     }
     directChildrenCount
+    votingSystem
+    isPinnedOnProfile
+    debateResponse
+    rejected
+    rejectedReason
+    modGPTRecommendation
+    originalDialogueId
+  }
+`);
+
+registerFragment(`
+  fragment CommentsListWithTopLevelComment on Comment {
+    ...CommentsList
+    topLevelComment {
+      ...CommentsList
+    }
   }
 `);
 
@@ -56,6 +90,9 @@ registerFragment(`
     ...CommentsList
     post {
       ...PostsMinimumInfo
+    }
+    relevantTags {
+      ...TagPreviewFragment
     }
   }
 `)
@@ -67,6 +104,9 @@ registerFragment(`
     latestChildren {
       ...CommentsList
     }
+    tag {
+      ...TagBasicInfo
+    }
     post {
       ...PostsBase
     }
@@ -76,6 +116,7 @@ registerFragment(`
 registerFragment(`
   fragment CommentEdit on Comment {
     ...CommentsList
+    relevantTagIds
     contents {
       ...RevisionEdit
     }
@@ -115,7 +156,19 @@ registerFragment(`
     ...CommentsList
     post {
       ...PostsMinimumInfo
+      isRead
     }
+    tag {
+      ...TagBasicInfo
+    }
+  }
+`);
+
+// TODO: This is now the same as CommentWithRepliesFragment, now that said
+// fragment gets the tag field
+registerFragment(`
+  fragment StickySubforumCommentFragment on Comment {
+    ...CommentWithRepliesFragment
     tag {
       ...TagBasicInfo
     }
@@ -127,9 +180,31 @@ registerFragment(`
     __typename
     _id
     currentUserVote
+    currentUserExtendedVote
     baseScore
+    extendedScore
     score
     afBaseScore
+    afExtendedScore
     voteCount
+  }
+`);
+
+registerFragment(`
+  fragment CommentsListWithModerationMetadata on Comment {
+    ...CommentWithRepliesFragment
+    allVotes {
+      voteType
+    }
+  }
+`);
+
+registerFragment(`
+  fragment CommentsListWithModGPTAnalysis on Comment {
+    ...CommentsList
+    post {
+      ...PostsMinimumInfo
+    }
+    modGPTAnalysis
   }
 `);

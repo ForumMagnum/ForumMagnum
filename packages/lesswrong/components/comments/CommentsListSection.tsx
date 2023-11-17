@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
-import {
-  Components,
-  registerComponent
-} from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import { useCurrentUser } from '../common/withUser';
-import type { CommentTreeNode } from '../../lib/utils/unflatten';
+import { unflattenComments } from '../../lib/utils/unflatten';
 import classNames from 'classnames';
+import { filter } from 'underscore';
+import { postGetCommentCountStr } from '../../lib/collections/posts/helpers';
+import { CommentsNewFormProps } from './CommentsNewForm';
+import { Link } from '../../lib/reactRouterWrapper';
+import { isEAForum } from '../../lib/instanceSettings';
+import { userIsAdmin } from '../../lib/vulcan-users';
+
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    fontWeight: 400,
+    fontWeight: theme.typography.body1.fontWeight ?? 400,
     margin: "0px auto 15px auto",
     ...theme.typography.commentStyle,
     position: "relative"
@@ -24,21 +29,39 @@ const styles = (theme: ThemeType): JssStyles => ({
   maxWidthRoot: {
     maxWidth: 720,
   },
+  commentsHeadline: {
+    fontSize: 24,
+    lineHeight: '36px',
+    fontWeight: 600,
+    marginBottom: 16
+  },
+  commentCount: {
+    color: theme.palette.grey[600],
+    marginLeft: 10
+  },
   inline: {
     display: 'inline',
     color: theme.palette.text.secondary,
+  },
+  clickToHighlightNewSince: {
+    display: 'inline',
+    color: theme.palette.text.secondary,
+    "@media print": { display: "none" },
   },
   button: {
     color: theme.palette.lwTertiary.main,
   },
   newComment: {
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    border: theme.palette.border.commentBorder,
     position: 'relative',
-    borderRadius: 3,
+    borderRadius: theme.borderRadius.small,
     marginBottom: NEW_COMMENT_MARGIN_BOTTOM,
     "@media print": {
       display: "none"
     }
+  },
+  newQuickTake: {
+    border: "none",
   },
   newCommentLabel: {
     paddingLeft: theme.spacing.unit*1.5,
@@ -46,16 +69,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     fontWeight: 600,
     marginTop: 12
+  },
+  newCommentSublabel: {
+    paddingLeft: theme.spacing.unit*1.5,
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[600],
+    marginTop: isFriendlyUI ? 8 : 4,
+    fontStyle: "italic",
   }
 })
 
-interface CommentsListSectionState {
-  highlightDate: Date,
-  anchorEl: any,
-}
-
-const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount, totalComments, loadMoreComments, loadingMoreComments, comments, parentAnswerId, startThreadTruncated, newForm=true, classes}: {
-  lastEvent?: any,
+const CommentsListSection = ({
+  post,
+  tag,
+  commentCount,
+  loadMoreCount,
+  totalComments,
+  loadMoreComments,
+  loadingMoreComments,
+  comments,
+  parentAnswerId,
+  startThreadTruncated,
+  newForm=true,
+  newFormProps={},
+  classes,
+}: {
   post?: PostsDetails,
   tag?: TagBasicInfo,
   commentCount: number,
@@ -63,21 +101,30 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
   totalComments: number,
   loadMoreComments: any,
   loadingMoreComments: boolean,
-  comments: Array<CommentTreeNode<CommentsList>>,
+  comments: CommentsList[],
   parentAnswerId?: string,
   startThreadTruncated?: boolean,
   newForm: boolean,
+  newFormProps?: Partial<CommentsNewFormProps>,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const [highlightDate,setHighlightDate] = useState(
-    (lastEvent?.properties?.createdAt
-      && new Date(lastEvent.properties.createdAt))
-    || (post?.lastVisitedAt &&
-      new Date(post.lastVisitedAt))
-    || new Date()
-  );
+  const commentTree = unflattenComments(comments);
+
+  const {
+    LWTooltip, CommentsList, PostsPageCrosspostComments, MetaInfo, Row,
+    CommentsNewForm, QuickTakesEntry,
+  } = Components;
+
+  const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
+  const newCommentsSinceDate = highlightDate
+    ? filter(
+      comments,
+      (comment) => new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime(),
+    ).length
+    : 0;
+  const now = useCurrentTime();
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
     setAnchorEl(event.currentTarget);
@@ -87,38 +134,49 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
     setAnchorEl(null);
   }
 
-  const handleDateChange = (date) => {
+  const handleDateChange = (date: Date) => {
     setHighlightDate(date)
     setAnchorEl(null);
   }
 
   const renderTitleComponent = () => {
-    const { CommentsListMeta, Typography } = Components
-    const suggestedHighlightDates = [moment().subtract(1, 'day'), moment().subtract(1, 'week'), moment().subtract(1, 'month'), moment().subtract(1, 'year')]
+    const { CommentsListMeta, Typography, MenuItem } = Components
+    const suggestedHighlightDates = [moment(now).subtract(1, 'day'), moment(now).subtract(1, 'week'), moment(now).subtract(1, 'month'), moment(now).subtract(1, 'year')]
     const newLimit = commentCount + (loadMoreCount || commentCount)
+    let commentSortNode = (commentCount < totalComments) ?
+      <span>
+        Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} />
+        {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
+      </span> :
+      <span>
+        {postGetCommentCountStr(post, totalComments)}, sorted by <Components.CommentsViews post={post} />
+      </span>
+    if (isFriendlyUI) {
+      commentSortNode = <>Sorted by <Components.CommentsViews post={post} /></>
+    }
+
+    const contentType = isEAForum && post?.shortform
+      ? "quick takes"
+      : "comments";
+
     return <CommentsListMeta>
       <Typography
         variant="body2"
         component='span'
-        className={classes.inline}>
-        {
-          (commentCount < totalComments) ?
-            <span>
-              Rendering {commentCount}/{totalComments} comments, sorted by <Components.CommentsViews post={post} />
-              {loadingMoreComments ? <Components.Loading /> : <a onClick={() => loadMoreComments(newLimit)}> (show more) </a>}
-            </span> :
-            <span>
-              { totalComments } comments, sorted by <Components.CommentsViews post={post} />
-            </span>
-        }
+        className={classes.inline}
+      >
+        {commentSortNode}
       </Typography>
       {post && <Typography
         variant="body2"
         component='span'
-        className={classes.inline}
+        className={classes.clickToHighlightNewSince}
       >
-        Highlighting new comments since <a className={classes.button} onClick={handleClick}>
-          <Components.CalendarDate date={highlightDate}/>
+        {highlightDate && newCommentsSinceDate>0 && `Highlighting ${newCommentsSinceDate} new ${contentType} since `}
+        {highlightDate && !newCommentsSinceDate && `No new ${contentType} since `}
+        {!highlightDate && `Click to highlight new ${contentType} since: `}
+        <a className={classes.button} onClick={handleClick}>
+          <Components.CalendarDate date={highlightDate || now}/>
         </a>
         <Menu
           anchorEl={anchorEl}
@@ -131,7 +189,7 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
             clickCallback={handleDateChange}/>}
           <Divider />
           {suggestedHighlightDates.map(date => {
-            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date)}>
+            return <MenuItem key={date.toString()} onClick={() => handleDateChange(date.toDate())}>
               {date.calendar().toString()}
             </MenuItem>
           })}
@@ -143,37 +201,82 @@ const CommentsListSection = ({lastEvent, post, tag, commentCount, loadMoreCount,
   // TODO: Update "author has blocked you" message to include link to moderation guidelines (both author and LW)
 
   const postAuthor = post?.user || null;
+
+  const userIsDebateParticipant =
+    currentUser
+    && post?.debate
+    && (currentUser._id === postAuthor?._id || post?.coauthorStatuses?.some(coauthor => coauthor.userId === currentUser._id));
+    
+  const commentCountNode = !!totalComments && <span className={classes.commentCount}>{totalComments}</span>
+
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
-      { totalComments ? renderTitleComponent() : null }
       <div id="comments"/>
-
-      {newForm && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor)) && !post?.draft &&
-        <div id="posts-thread-new-comment" className={classes.newComment}>
-          <div className={classes.newCommentLabel}>New Comment</div>
-          <Components.CommentsNewForm
-            post={post} tag={tag}
-            prefilledProps={{
-              parentAnswerId: parentAnswerId}}
-            type="comment"
-          />
+      {isFriendlyUI && (newForm || !!totalComments) && !post?.shortform &&
+        <div className={classes.commentsHeadline}>
+          Comments{commentCountNode}
         </div>
       }
-      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor) &&
+
+      {newForm
+        && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor, false))
+        && (!post?.draft || userIsDebateParticipant || userIsAdmin(currentUser))
+        && (
+        <div
+          id="posts-thread-new-comment"
+          className={classNames(classes.newComment, {
+            [classes.newQuickTake]: isEAForum && post?.shortform,
+          })}
+        >
+          {!isEAForum && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
+          {post?.isEvent && (post?.rsvps?.length > 0) && (
+            <div className={classes.newCommentSublabel}>
+              Everyone who RSVP'd to this event will be notified.
+            </div>
+          )}
+          {isEAForum && post?.shortform
+            ? <QuickTakesEntry currentUser={currentUser} />
+            : (
+              <CommentsNewForm
+                post={post}
+                tag={tag}
+                prefilledProps={{
+                  parentAnswerId: parentAnswerId,
+                  ...(userIsDebateParticipant ? { debateResponse: true } : {})
+                }}
+                type="comment"
+                {...newFormProps}
+                {...(userIsDebateParticipant ? { formProps: { post } } : {})}
+              />
+            )
+          }
+        </div>
+      )}
+      {currentUser && post && !userIsAllowedToComment(currentUser, post, postAuthor, false) &&
         <Components.CantCommentExplanation post={post}/>
       }
-      <Components.CommentsList
+      { totalComments ? renderTitleComponent() : null }
+      <CommentsList
         treeOptions={{
           highlightDate: highlightDate,
           post: post,
           postPage: true,
+          showCollapseButtons: true,
           tag: tag,
         }}
         totalComments={totalComments}
-        comments={comments}
+        comments={commentTree}
         startThreadTruncated={startThreadTruncated}
         parentAnswerId={parentAnswerId}
       />
+      <PostsPageCrosspostComments />
+      {!isEAForum && <Row justifyContent="flex-end">
+        <LWTooltip title="View deleted comments and banned users">
+          <Link to="/moderation">
+            <MetaInfo>Moderation Log</MetaInfo>
+          </Link>
+        </LWTooltip>
+      </Row>}
     </div>
   );
 }
@@ -185,4 +288,3 @@ declare global {
     CommentsListSection: typeof CommentsListSectionComponent,
   }
 }
-

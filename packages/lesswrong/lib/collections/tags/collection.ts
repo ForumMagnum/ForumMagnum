@@ -3,7 +3,9 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
-import { schema } from './schema';
+import schema from './schema';
+import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
+import { formGroups } from './formGroups';
 
 type getUrlOptions = {
   edit?: boolean, 
@@ -14,16 +16,36 @@ interface ExtendedTagsCollection extends TagsCollection {
   toAlgolia: (tag: DbTag) => Promise<Array<AlgoliaDocument>|null>
 }
 
+export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
+export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';
+export const EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID = '4saLTjJHsbduczFti';
+
 export const Tags: ExtendedTagsCollection = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Tags'),
   mutations: getDefaultMutations('Tags', {
     newCheck: (user: DbUser|null, tag: DbTag|null) => {
+      if (!user) return false;
+      if (user.deleted) return false;
+
+      if (!user.isAdmin) {  // skip further checks for admins
+        if (!tagUserHasSufficientKarma(user, "new")) return false
+      }
       return userCanCreateTags(user);
     },
     editCheck: (user: DbUser|null, tag: DbTag|null) => {
+      if (!user) return false;
+      if (user.deleted) return false;
+
+      if (!user.isAdmin) {  // skip further checks for admins
+        // If canEditUserIds is set only those users can edit the tag
+        const restricted = tag && tag.canEditUserIds
+        if (restricted && !tag.canEditUserIds.includes(user._id)) return false;
+        if (!restricted && !tagUserHasSufficientKarma(user, "edit")) return false
+      }
       return userCanCreateTags(user);
     },
     removeCheck: (user: DbUser|null, tag: DbTag|null) => {
@@ -55,12 +77,44 @@ makeEditable({
     },
     revisionsHaveCommitMessages: true,
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members']
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members']
     },
     order: 10
   }
 });
+
+makeEditable({
+  collection: Tags,
+  options: {
+    formGroup: formGroups.subforumWelcomeMessage,
+    fieldName: "subforumWelcomeText",
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+    },
+  }
+});
+
+makeEditable({
+  collection: Tags,
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    formGroup: formGroups.subforumModerationGuidelines,
+    hidden: true,
+    order: 50,
+    fieldName: "moderationGuidelines",
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+    },
+  }
+})
 
 export default Tags;

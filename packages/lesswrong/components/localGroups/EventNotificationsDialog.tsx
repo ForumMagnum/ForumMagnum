@@ -3,6 +3,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
+// These imports need to be separate to satisfy eslint, for some reason
+import type { Suggest } from 'react-geosuggest';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -12,11 +14,13 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import FormLabel from '@material-ui/core/FormLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { geoSuggestStyles, useGoogleMaps } from '../form-components/LocationFormComponent'
-import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/custom_fields'
+import { MAX_NOTIFICATION_RADIUS } from '../../lib/collections/users/schema'
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import deepmerge from 'deepmerge';
+import InputLabel from '@material-ui/core/InputLabel';
 
 
-const suggestionToGoogleMapsLocation = (suggestion) => {
+const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
 }
 
@@ -31,38 +35,24 @@ export const sharedStyles = (theme: ThemeType): JssStyles => ({
     textTransform: 'uppercase'
   },
   actions: {
+    ...theme.typography.commentStyle,
     marginTop: 24
   },
   geoSuggest: {
     marginTop: 16, 
     marginBottom: 16,
     width: 400,
-    ...geoSuggestStyles(theme),
-    "& .geosuggest__suggests": {
-      top: "100%",
-      left: 0,
-      right: 0,
-      maxHeight: "25em",
-      padding: 0,
-      marginTop: -1,
-      background: "#fff",
-      borderTopWidth: 0,
-      overflowX: "hidden",
-      overflowY: "auto",
-      listStyle: "none",
-      zIndex: 5,
-      transition: "max-height 0.2s, border 0.2s",
-    },
-    "& .geosuggest__input": {
-      border: "2px solid transparent",
-      borderBottom: "1px solid rgba(0,0,0,.87)",
-      padding: ".5em 1em 0.5em 0em !important",
-      width: '100%',
-      fontSize: 13,
-      [theme.breakpoints.down('sm')]: {
-        width: "100%"
+    maxWidth: '100%',
+    ...deepmerge(geoSuggestStyles(theme), {
+      "& .geosuggest__suggests": {
+        ...theme.typography.commentStyle,
       },
-    },
+      "& .geosuggest__input": {
+        padding: ".5em 1em 0.5em 0em !important",
+        width: '100%',
+        fontSize: 13,
+      },
+    }),
   },
 })
 
@@ -73,7 +63,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex'
   },
   input: {
-    width: '15%',
     marginLeft: '5%',
     position: 'relative',
     top: -12
@@ -93,7 +82,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   peopleThresholdText: {
     alignSelf: 'center',
     position: 'relative',
-    top: 2
+    top: 2,
+    color: theme.palette.text.normal,
+    cursor: 'pointer',
   },
   peopleInput: {
     width: 20
@@ -112,7 +103,7 @@ const EventNotificationsDialog = ({ onClose, classes }: {
   const { Loading, Typography, LWDialog } = Components
   const { nearbyEventsNotificationsLocation, mapLocation, googleLocation, nearbyEventsNotificationsRadius, nearbyPeopleNotificationThreshold } = currentUser || {}
 
-  const [ mapsLoaded ] = useGoogleMaps("EventNotificationsDialog")
+  const [ mapsLoaded ] = useGoogleMaps()
   const [ location, setLocation ] = useState(nearbyEventsNotificationsLocation || mapLocation || googleLocation)
   const [ label, setLabel ] = useState(nearbyEventsNotificationsLocation?.formatted_address || mapLocation?.formatted_address || googleLocation?.formatted_address)
   const [ distance, setDistance ] = useState(nearbyEventsNotificationsRadius || 50)
@@ -136,12 +127,12 @@ const EventNotificationsDialog = ({ onClose, classes }: {
       onClose={onClose}
     >
       <DialogTitle>
-        I wish to be notified of nearby events and new groups
+        {currentUser?.nearbyEventsNotifications ? 'Edit Notifications' : 'Sign up for Notifications'}
       </DialogTitle>
       <DialogContent>
         <Typography variant="body2">
           <p>
-            Notify me for events and new groups in this location 
+            Notify me of events and new groups in this location
           </p>
         </Typography>
         <div className={classes.geoSuggest}>
@@ -183,16 +174,14 @@ const EventNotificationsDialog = ({ onClose, classes }: {
           />
         </div>
         {!isEAForum && <div className={classes.peopleThreshold}>
-          <div>
+          <InputLabel className={classes.peopleThresholdText}>
             <Checkbox
               className={classes.peopleThresholdCheckbox}
               checked={notifyPeopleCheckboxState}
               onChange={(e) => setNotifyPeopleCheckboxState(!!e.target.checked)}
             />
-          </div>
-          <div className={classes.peopleThresholdText}>
             Notify me when there are {peopleThresholdInput} or more people in my area
-          </div>
+          </InputLabel>
         </div>}
         <DialogActions className={classes.actions}>
           {currentUser?.nearbyEventsNotifications && <a className={classes.removeButton} onClick={()=>{

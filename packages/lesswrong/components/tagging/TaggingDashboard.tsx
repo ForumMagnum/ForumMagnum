@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
+import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
+import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
@@ -46,14 +48,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
     marginTop: 0,
-},
+  },
   navigationLinks: {
     ...theme.typography.commentStyle,
     display: "block",
     paddingBottom: 3,
     opacity: 1,
-    color: "black",
-    textShadow: "0 0 0 rgba(0,0,0,1].87)",
+    color: theme.palette.icon.maxIntensity,
     lineHeight: "0.9em",
     fontWeight: 300,
     fontSize: "1.5rem"
@@ -61,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   navigationLinksDivider: {
     display: "block",
     width: "260px",
-    borderBottom: "solid 1px rgba(0,0,0,.1)",
+    borderBottom: theme.palette.border.faint,
     marginRight: "auto",
     marginBottom: "4px",
     // paddingBottom: "8px"
@@ -84,10 +85,10 @@ const TaggingDashboard = ({classes}: {
       allPages: {view: "allPagesByNewest"},
       myPages: {view: "userTags", userId: currentUser?._id},
       //tagFlagId handled as default case below
-  }
+  } as const
     
   const { results: tags, loading, loadMoreProps } = useMulti({
-    terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
+    terms: fieldIn(query.focus, multiTerms) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
     collectionName: "Tags",
     fragmentName: "TagWithFlagsFragment",
     limit: 10,
@@ -108,19 +109,21 @@ const TaggingDashboard = ({classes}: {
   });
 
   const { openDialog } = useDialog();
+  
+  const dashboardTagsNameAlt = taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tags'
 
   return <div>
     <div className={classes.root}>
       <div className={classes.navigationLinks}>
         <div className={classes.navigationLinksDivider}/>
-        <p><a href="#Pages_in_need_of_work">Wiki-Tags in Need of Work</a></p>
-        <p><a href="#Newest_tags">Newest Tags</a></p>
-        <p><a href="#Tag_voting_activity">Tag Voting Activity</a></p>
-        <p><a href="#Tag_activity_feed">Combined Wiki-Tag Activity Feed</a></p>
+        <p><a href="#Pages_in_need_of_work">{dashboardTagsNameAlt} in Need of Work</a></p>
+        <p><a href="#Newest_tags">Newest {taggingNameCapitalSetting.get()}</a></p>
+        <p><a href="#Tag_voting_activity">{taggingNameCapitalSetting.get()} Voting Activity</a></p>
+        <p><a href="#Tag_activity_feed">Combined {dashboardTagsNameAlt} Activity Feed</a></p>
         <div className={classes.navigationLinksDivider}/>
       </div>
       <div id="Pages_in_need_of_work">
-        <SectionTitle title="Wiki-Tags in Need of Work">
+        <SectionTitle title={`${dashboardTagsNameAlt} in Need of Work`}>
           <SectionButton>
             {query.focus && <QueryLink query={{}}> Reset Filter </QueryLink>}
             {currentUser?.isAdmin &&
@@ -128,7 +131,9 @@ const TaggingDashboard = ({classes}: {
                   componentName: "TagFlagEditAndNewForm",
                   componentProps: query.focus ? {tagFlagId: query.focus} : {}
                 })}>
-                  {query.focus ? "Edit Tag Flag" : "New Tag Flag"}
+                  {query.focus ?
+                    `Edit ${taggingNameCapitalSetting.get()} Flag` :
+                    `New ${taggingNameCapitalSetting.get()} Flag`}
                 </span>
             }
             <a
@@ -142,7 +147,7 @@ const TaggingDashboard = ({classes}: {
                  }
                  }
               }
-            > {collapsed ? "Uncollapse" : "Collapse"} Tags </a>
+            > {collapsed ? "Uncollapse" : "Collapse"} {taggingNamePluralCapitalSetting.get()}</a>
           </SectionButton>
         </SectionTitle>
         <div className={classes.flagList}>
@@ -170,11 +175,11 @@ const TaggingDashboard = ({classes}: {
     </div>
     <SingleColumnSection>
       <div id="Newest_tags" className={classes.sectionPositioning}>
-        <SectionTitle title="Newest Tags"/>
+        <SectionTitle title={`Newest ${taggingNamePluralCapitalSetting.get()}`}/>
         <NewTagsList showHeaders={false}/>
       </div>
       <div id="Tag_voting_activity" className={classes.sectionPositioning}>
-        <SectionTitle title="Tag Voting Activity"/>
+        <SectionTitle title={`${taggingNameCapitalSetting.get()} Voting Activity`}/>
         <TagVoteActivity showHeaders={false} showNewTags={false} limit={10} itemsPerPage={100}/>
       </div>
       <div id="Tag_activity_feed" className={classes.sectionPositioning}>

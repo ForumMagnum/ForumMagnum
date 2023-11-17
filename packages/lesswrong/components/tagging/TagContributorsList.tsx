@@ -1,6 +1,9 @@
 import React, {useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
+import withErrorBoundary from '../common/withErrorBoundary'
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     
     "&:hover, &:hover a": {
-      color: "black",
+      color: theme.palette.text.maxIntensity,
     },
   },
   contributorScore: {
@@ -37,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const TagContributorsList = ({tag, onHoverUser, classes}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,
-  onHoverUser: (userId: string|null)=>void,
+  onHoverUser?: (userId: string|null)=>void,
   classes: ClassesType,
 }) => {
   const { UsersNameDisplay, Loading, LWTooltip } = Components;
@@ -53,6 +56,11 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
   const loadMore = () => setExpandLoadMore(true);
   
   const contributorsList = expandedList || tag.contributors.contributors;
+  
+  // Filter out tag-contributor entries where the user is null (which happens
+  // if the contribution is by a deleted account)
+  const nonMissingContributors = contributorsList.filter((c: { user?: UsersMinimumInfo }) => !!c.user);
+  
   const hasLoadMore = !expandLoadMore && tag.contributors.totalCount > tag.contributors.contributors.length;
   
   return <div className={classes.root}>
@@ -60,7 +68,12 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
       Contributors
     </div>
     
-    {tag.contributors && contributorsList.map(contributor => <div key={contributor.user._id} className={classes.contributorRow} >
+    {tag.contributors && nonMissingContributors.map((contributor: {
+      user: UsersMinimumInfo;
+      contributionScore: number;
+      numCommits: number;
+      voteCount: number;
+    }) => <div key={contributor.user._id} className={classes.contributorRow} >
       <LWTooltip
         className={classes.contributorScore}
         placement="left"
@@ -72,10 +85,10 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
       </LWTooltip>
       <span className={classes.contributorName}
         onMouseEnter={ev => {
-          onHoverUser(contributor.user._id);
+          onHoverUser?.(contributor.user._id);
         }}
         onMouseLeave={ev => {
-          onHoverUser(null);
+          onHoverUser?.(null);
         }}
       >
         <UsersNameDisplay user={contributor.user}/>
@@ -83,17 +96,18 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
     </div>)}
     {expandLoadMore && loadingMore && <Loading/>}
     {hasLoadMore && <div className={classes.loadMore}><a onClick={loadMore}>
-      Load More
+      {preferredHeadingCase("Load More")}
     </a></div>}
   </div>
 }
 
-const TagContributorsListComponent = registerComponent("TagContributorsList", TagContributorsList, {styles});
+const TagContributorsListComponent = registerComponent("TagContributorsList", TagContributorsList, {
+  styles,
+  hocs: [withErrorBoundary],
+});
 
 declare global {
   interface ComponentTypes {
     TagContributorsList: typeof TagContributorsListComponent
   }
 }
-
-

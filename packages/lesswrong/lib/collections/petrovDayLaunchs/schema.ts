@@ -1,31 +1,25 @@
 
 const schema: SchemaType<DbPetrovDayLaunch> = {
-  createdAt: {
-    type: Date,
-    optional: true,
-    onInsert: (document, currentUser) => new Date(),
-    viewableBy: ['guests'],
-  },
   launchCode: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
   },
   hashedLaunchCode: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
   },
   userId: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
   }
 }
 

@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib';
+import React, { useState, useRef } from 'react';
+import { Components, ComponentsTable, DeferredComponentsTable, registerComponent } from '../../lib/vulcan-lib';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import classNames from 'classnames'
 import Input from '@material-ui/core/Input';
@@ -16,10 +15,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     overflow: 'hidden',
     transition: 'width 0.25s',
-    width: 150,
+    width: 175,
+    fontSize: '1.1rem',
+    lineHeight: '1.5em',
   },
-  hideInput: {
-    width: 28,
+  inactive: {
+    width: 120,
   },
   button: {
     '&:hover': {
@@ -28,77 +29,121 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   innerInput: {
     padding: '6px 0 7px'
-  }
+  },
+  footer: {
+    border: theme.palette.border.grey400,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    padding: '16px 19px',
+    marginBottom: 32, // NB: This will margin-collapse with the top margin of the next field
+    animation: 'reveal-url-footer 0.2s ease 0s',
+    transformOrigin: 'top left',
+  },
+  '@keyframes reveal-url-footer': {
+    from: {
+      opacity: '0%',
+      transform: 'scaleY(0%)',
+    },
+    to: {
+      opacity: '100%',
+      transform: 'scaleY(100%)',
+    },
+  },
+  hintText: {
+    '& a': {
+      color: theme.palette.primary.main,
+    },
+  },
 })
 
-interface EditUrlProps extends WithStylesProps{
-  document: any,
-  value: any,
-  defaultValue: any,
-  label: string,
-  hintText: string,
-  placeholder: string,
-  path: string,
-}
-interface EditUrlState {
-  active: boolean,
-}
-class EditUrl extends Component<EditUrlProps,EditUrlState> {
-  state: EditUrlState = {
-    active: !!this.props.value
+const EditUrl = ({ value, path, classes, document, defaultValue, label, hintText, placeholder, tooltip, updateCurrentValues, setFooterContent, inputProperties }: {
+  value: string,
+  path: keyof DbPost,
+  classes: ClassesType,
+  document: Partial<DbPost>,
+  defaultValue?: string,
+  label?: string,
+  hintText?: string,
+  placeholder?: string,
+  tooltip?: string,
+  updateCurrentValues<T extends {}>(values: T) : void,
+  setFooterContent(content: any) : void,
+  inputProperties: {
+    labels?: {
+      active: string,
+      inactive: string,
+    },
+  },
+}) => {
+  const [active, setActive] = useState(!!value);
+  const inputRef = useRef<HTMLInputElement>();
+  let HintTextComponent: React.ComponentClass | React.FC;
+  if (hintText && (hintText in ComponentsTable || hintText in DeferredComponentsTable)) {
+    HintTextComponent = Components[hintText as keyof ComponentTypes]
   }
 
-  toggleEditor = () => {
-    this.setState({active: !this.state.active}, () => {
-      if (!this.state.active) { // Reset the URL when you deactivate the URL editor
-        this.context.updateCurrentValues({
-          [this.props.path]: null
-        })
+  const updateValue = (value: string | null) => {
+    updateCurrentValues({
+      [path]: value,
+    });
+  }
+
+  const setEditorActive = (value: boolean) => {
+    if (value) {
+      if (inputRef.current) {
+        inputRef.current.focus();
       }
-    })
-  }
-
-  onChange = (event) => {
-    this.context.updateCurrentValues({
-      [this.props.path]: event.target.value
-    })
-  }
-
-  render() {
-    const active = this.state.active
-    const { classes, document, path, defaultValue, label, hintText, placeholder } = this.props;
-    
-    const startAdornmentInactive = <InputAdornment className={classes.button} onClick={this.toggleEditor} position="start">
-      <LinkIcon/>
-    </InputAdornment>
-    const startAdornmentActive = <InputAdornment className={classes.button} onClick={this.toggleEditor} position="start">
-      <LinkOffIcon/></InputAdornment>
-    
-    return (
-      <div className={classes.root}>
-        <div>
-          <span className={classNames(classes.input, {[classes.hideInput]: !active})}>
-              <Input
-                className={classes.innerInput}
-                value={(document && document[path]) || defaultValue || ""}
-                onChange={this.onChange}
-                placeholder={hintText || placeholder || label}
-                disableUnderline={!active}
-                classes={{input: classes.input}}
-                startAdornment={active ? startAdornmentActive : startAdornmentInactive}
-              />
-          </span>
+      setFooterContent(
+        <div className={classes.footer}>
+          <Components.Typography variant='body2' className={classes.hintText}>
+            {HintTextComponent ? <HintTextComponent /> : hintText}
+          </Components.Typography>
         </div>
-      </div>
-    )
+      );
+    } else {
+      updateValue(null);
+      setFooterContent(null);
+    }
+    setActive(value);
   }
-};
 
-(EditUrl as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  addToSubmitForm: PropTypes.func,
-};
+  const toggleEditor = () => setEditorActive(!active);
+
+  const onChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => updateValue(event.target.value);
+  const onFocus = () => setEditorActive(true);
+  const onBlur = () => {
+    if (!value || value.length < 1) {
+      setEditorActive(false);
+    }
+  }
+
+  if (inputProperties.labels) {
+    placeholder = inputProperties.labels[active ? 'active' : 'inactive'];
+  }
+
+  return (
+    <div className={classes.root}>
+      <div>
+        <span className={classNames(classes.input, {[classes.inactive]: !active})}>
+          <Input
+            inputRef={inputRef}
+            className={classes.innerInput}
+            value={(document && document[path]) || defaultValue || ""}
+            onChange={onChange}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            placeholder={placeholder || label}
+            classes={{input: classes.input}}
+            startAdornment={
+              <InputAdornment className={classes.button} onClick={toggleEditor} position="start">
+                {active ? <LinkOffIcon/> : <LinkIcon />}
+              </InputAdornment>
+            }
+          />
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export const EditUrlComponent = registerComponent("EditUrl", EditUrl, {styles});
 

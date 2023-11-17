@@ -103,11 +103,13 @@ module.exports = {
     nearbyEventsNotifications: false,
     sunshineNotes: "",
     sunshineFlagged: false,
-    sunshineSnoozed: false,
+    snoozedUntilContentCount: null,
     maxPostCount: 1,
     maxCommentCount: 0,
     schemaVersion: 1,
     afCommentCount: 0,
     commentCount: 0,
+    hideDialogueFacilitation: false,
+    optedInToDialogueFacilitation: false,
+    revealChecksToAdmins: false,
 }
-

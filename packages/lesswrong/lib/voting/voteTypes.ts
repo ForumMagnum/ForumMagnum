@@ -9,7 +9,8 @@ export const calculateVotePower = (karma: number, voteType: string): number => {
   if (voteType == "smallDownvote") { return userSmallVotePower(karma, -1)}
   if (voteType == "bigUpvote") { return userBigVotePower(karma, 1)}
   if (voteType == "bigDownvote") { return userBigVotePower(karma, -1)}
-  else throw new Error("Invalid vote type");
+  if (voteType == "neutral") return 0;
+  else throw new Error(`Invalid vote type in calculateVotePower: ${voteType}`);
 }
 
 export const userSmallVotePower = (karma: number, multiplier: number) => {
@@ -49,5 +50,8 @@ export const voteTypes: Partial<Record<string,VoteTypeOptions>> = {
   },
   bigDownvote: {
     power: (user: DbUser|UsersCurrent) => userBigVotePower(user.karma, -1),
+  },
+  neutral: {
+    power: (user: DbUser|UsersCurrent) => 0,
   },
 }

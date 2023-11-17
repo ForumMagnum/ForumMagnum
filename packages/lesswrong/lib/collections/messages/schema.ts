@@ -10,16 +10,10 @@ const schema: SchemaType<DbMessage> = {
       type: "User",
       nullable: true
     }),
-    viewableBy: ['members'],
-    insertableBy: ['admins'],
+    canRead: ['members'],
+    canCreate: ['admins'],
     optional: true,
     hidden: true,
-  },
-  createdAt: {
-    optional: true,
-    type: Date,
-    viewableBy: ['members'],
-    onInsert: (document, currentUser) => new Date(),
   },
   conversationId: {
     ...foreignKeyField({
@@ -29,17 +23,17 @@ const schema: SchemaType<DbMessage> = {
       type: "Conversation",
       nullable: false,
     }),
-    viewableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['members'],
+    canCreate: ['members'],
     hidden: true,
   },
   noEmail: {
     optional: true,
     type: Boolean,
-    viewableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['admins'],
+    canCreate: ['admins'],
     ...schemaDefaultValue(false)
-  }
+  },
 };
 
 export default schema;

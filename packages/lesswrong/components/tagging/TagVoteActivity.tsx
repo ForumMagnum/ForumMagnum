@@ -2,6 +2,9 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useVote } from '../votes/withVote';
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   voteRow: {
@@ -38,11 +41,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center"
   },
   tagVotingTable: {
-    background: "white",
+    background: theme.palette.panelBackground.default,
     padding: 12,
     paddingTop: 2,
     ...theme.typography.commentStyle,
-    boxShadow: theme.boxShadow
+    boxShadow: theme.palette.boxShadow.default,
   }
 })
 
@@ -50,10 +53,15 @@ const TagVoteActivityRow = ({vote, classes}: {
   vote: TagVotingActivity,
   classes: ClassesType
 }) => {
-  const { FormatDate, VoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
+  const { FormatDate, OverallVoteButton, FooterTag, UsersName, TagSmallPostLink } = Components;
   const voteProps = useVote(vote.tagRel!, "TagRels")
+  const currentUser = useCurrentUser();
   if (!vote.tagRel?.post || !vote.tagRel?.tag)
     return null;
+  
+  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
+  const canVote = !fail;
+  
   return (
     <tr key={vote._id} className={classes.voteRow}>
       <td><UsersName documentId={vote.userId}/></td>
@@ -65,19 +73,21 @@ const TagVoteActivityRow = ({vote, classes}: {
       <td className={classes.smallCell}><FormatDate date={vote.votedAt}/></td>
       <td className={classes.votingCell}>
         <div className={classes.voteButtons}>
-          <VoteButton
+          <OverallVoteButton
             orientation="left"
             color="error"
-            voteType="Downvote"
+            upOrDown="Downvote"
+            enabled={canVote}
             {...voteProps}
           />
           <span className={classes.score}>
             {voteProps.baseScore}
           </span>
-          <VoteButton
+          <OverallVoteButton
             orientation="right"
             color="secondary"
-            voteType="Upvote"
+            upOrDown="Upvote"
+            enabled={canVote}
             {...voteProps}
           />
         </div>
@@ -105,13 +115,13 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
   return <SingleColumnSection>
     {showNewTags && <NewTagsList />}
     <div className={classes.tagVotingTable}>
-      {showHeaders && <h2>Tag Voting</h2>}
+      {showHeaders && <h2>{taggingNameCapitalSetting.get()} Voting</h2>}
       <table>
         <tbody>
           <tr className={classes.headerRow}>
             <td className={classes.headerCell}> User </td>
             <td className={classes.headerCell}> Post Title </td>
-            <td className={classes.headerCell}> Tag </td>
+            <td className={classes.headerCell}> {taggingNameCapitalSetting.get()} </td>
             <td className={classes.headerCell}> Pow </td>
             <td className={classes.headerCell}> When </td>
             <td className={classes.headerCell}> Vote </td>
@@ -132,4 +142,3 @@ declare global {
     TagVoteActivity: typeof TagVoteActivityComponent
   }
 }
-

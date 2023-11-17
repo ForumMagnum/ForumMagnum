@@ -1,69 +1,75 @@
-import React, { useCallback } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useCreate } from '../../lib/crud/withCreate';
-import { useNavigation } from '../../lib/routeUtil';
-import Conversations from '../../lib/collections/conversations/collection';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import React, { MouseEvent, ReactNode, useCallback, useEffect } from 'react';
+import { registerComponent } from '../../lib/vulcan-lib';
 import qs from 'qs';
-import { useMulti } from '../../lib/crud/withMulti';
+import { useDialog } from '../common/withDialog';
+import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useInitiateConversation } from '../hooks/useInitiateConversation';
+import { userCanStartConversations } from '../../lib/collections/conversations/collection';
+
+export interface TemplateQueryStrings {
+  templateId: string;
+  displayName: string;
+}
 
 // Button used to start a new conversation for a given user
-const NewConversationButton = ({ user, currentUser, children, templateCommentId }: {
-  user: UsersMinimumInfo,
-  currentUser: UsersCurrent,
-  templateCommentId?: string,
-  children: any
+const NewConversationButton = ({ user, currentUser, children, from, includeModerators, templateQueries, embedConversation }: {
+  user: {
+    _id: string
+  },
+  currentUser: UsersCurrent|null,
+  templateQueries?: TemplateQueryStrings,
+  from?: string,
+  children: ReactNode,
+  includeModerators?: boolean,
+  embedConversation?: (conversationId: string, templateQueries?: TemplateQueryStrings) => void
 }) => {
-  
-  const { history } = useNavigation();
-  const { create: createConversation } = useCreate({
-    collection: Conversations,
-    fragmentName: 'newConversationFragment',
-  });
-  
-  
-  // Checks if unnamed conversation between the two users exists
-  const terms: ConversationsViewTerms = {view: 'userUntitledConversations', userId: currentUser?._id};
-  const { results } = useMulti({
-    terms,
-    collectionName: "Conversations",
-    fragmentName: 'conversationsListFragment',
-    fetchPolicy: 'cache-and-network',
-    limit: 1,
-  });
-  
-  const newConversation = useCallback(async (search) =>  {
-    const alignmentFields = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+  const navigate = useNavigate();
+  const { openDialog } = useDialog()
+  const { conversation, initiateConversation } = useInitiateConversation({ includeModerators })
 
-    const response = await createConversation({
-      data: {participantIds:[user._id, currentUser?._id], ...alignmentFields},
-    })
-    const conversationId = response.data.createConversation.data._id
-    history.push({pathname: `/inbox/${conversationId}`, ...search})
-  }, [createConversation, user, currentUser, history]);
+  const getTemplateParams = useCallback(() => {
+    let templateParams: Array<string> = []
+    if (templateQueries) {
+      templateParams.push(qs.stringify(templateQueries))
+    }
+    if (from) {
+      templateParams.push(`from=${from}`)
+    }
+    return templateParams.length > 0 ? {search:`?${templateParams.join('&')}`} : {}
+  }, [from, templateQueries])
 
-  const existingConversationCheck = () => {
-    let conversationExists = false;
-    const search = templateCommentId ? {search:`?${qs.stringify({templateCommentId: templateCommentId})}`} : {}
-    results?.forEach(conversation => {
-      if (conversation.title === null && conversation.participants.some(participant => participant._id === user._id)){
-        history.push({pathname: `/inbox/${conversation._id}`, ...search})
-        conversationExists = true;
-      }
-    })
-    conversationExists ? undefined : void newConversation(search);
-  }
-  
+  // Navigate to the conversation that is created
+  useEffect(() => {
+    if (!conversation) return;
 
-  if (currentUser) {
-    return (
-      <div onClick={existingConversationCheck}>
-        {children}
-      </div>
-    )
-  } else {
-    return <Components.Loading />
-  }
+    if (embedConversation) {
+      embedConversation(conversation._id, templateQueries)
+    } else {
+      const templateParams = getTemplateParams()
+      navigate({pathname: `/inbox/${conversation._id}`, ...templateParams})
+    }
+  }, [conversation, embedConversation, getTemplateParams, navigate, templateQueries])
+
+  const handleClick = currentUser
+    ? (e: MouseEvent) => {
+      initiateConversation(user._id)
+      e.stopPropagation()
+    }
+    : () => openDialog({componentName: "LoginPopup"})
+
+  if (currentUser && !userCanStartConversations(currentUser)) return null
+
+  // in this case we show the button, but we don't actually let them create a conversation with themselves
+  if (currentUser?._id === user._id)
+    return <div>
+      {children}
+    </div>
+
+  return (
+    <div onClick={handleClick}>
+      {children}
+    </div>
+  )
 }
 
 const NewConversationButtonComponent = registerComponent('NewConversationButton', NewConversationButton);
@@ -73,4 +79,3 @@ declare global {
     NewConversationButton: typeof NewConversationButtonComponent
   }
 }
-

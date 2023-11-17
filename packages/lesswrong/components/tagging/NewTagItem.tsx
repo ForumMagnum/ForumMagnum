@@ -5,12 +5,13 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { tagPostTerms } from './TagPage';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
-import { tagBodyStyles } from '../../themes/stylePiping'
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
     padding: 12,
     borderRadius:3,
     marginBottom: 16,
@@ -29,10 +30,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     marginBottom: 24,
   },
-  description: {
-    ...tagBodyStyles(theme),
-    marginBottom: 18,
-  },
   discussionButtonPositioning: {
     display: "flex",
   }
@@ -43,7 +40,7 @@ const NewTagItem = ({tag, classes}: {
   classes: ClassesType,
 }) => {
   const tagUrl = tagGetUrl(tag);
-  const {UsersName, FormatDate, PostsList2, ContentItemBody, TagDiscussionButton } = Components;
+  const {UsersName, FormatDate, PostsList2, ContentItemBody, TagDiscussionButton, ContentStyles} = Components;
   const [truncated, setTruncated] = useState(true);
   const { captureEvent } =  useTracking()
   
@@ -56,9 +53,13 @@ const NewTagItem = ({tag, classes}: {
     setTruncated(false)
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
-  
-  const description = truncated ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", "<span>...<p><a>(Read More)</a></p></span>") : tag.description?.html
-  
+
+  const readMore = preferredHeadingCase("Read More");
+  const suffix = `<span>...<p><a>(${readMore})</a></p></span>`;
+  const description = truncated
+    ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", suffix)
+    : tag.description?.html;
+
   return <div className={classes.root}>
     <Link to={tagUrl} className={classes.title}>
       {tag.name}
@@ -70,11 +71,13 @@ const NewTagItem = ({tag, classes}: {
     </div>
     
     <div onClick={clickReadMore}>
-      <ContentItemBody
-        dangerouslySetInnerHTML={{__html: description||""}}
-        description={`tag ${tag.name}`}
-        className={classes.description}
-      />
+      <ContentStyles contentType="tag">
+        <ContentItemBody
+          dangerouslySetInnerHTML={{__html: description||""}}
+          description={`tag ${tag.name}`}
+          className={classes.description}
+        />
+      </ContentStyles>
     </div>
     
     {!tag.wikiOnly && <PostsList2

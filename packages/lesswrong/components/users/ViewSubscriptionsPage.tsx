@@ -81,7 +81,7 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
   renderDocument: (document: any)=>ReactNode,
   classes: ClassesType,
 }) => {
-  const { Loading, SubscribeTo } = Components;
+  const { Loading, NotifyMeButton } = Components;
   const { document, loading } = useSingle({
     documentId: subscription.documentId,
     collectionName, fragmentName,
@@ -94,7 +94,7 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
     <div className={classes.subscribedItemDescription}>
     {renderDocument(document)}
     </div>
-    <SubscribeTo
+    <NotifyMeButton
       document={document}
       subscriptionType={subscription.type}
       subscribeMessage="Resubscribe"
@@ -144,11 +144,47 @@ const ViewSubscriptionsPage = ({classes}: {
     />
 
     <SubscriptionsList
+      title="Subscribed to Dialogues (as a reader)"
+      collectionName="Posts"
+      subscriptionType="newPublishedDialogueMessages"
+      fragmentName="PostsList"
+      renderDocument={(post: PostsList) => post.title}
+      noSubscriptionsMessage="You are not subscribed to any dialogues as a reader."
+    />
+
+    <SubscriptionsList
+      title="Subscribed to Dialogues (as a participant)"
+      collectionName="Posts"
+      subscriptionType="newDialogueMessages"
+      fragmentName="PostsList"
+      renderDocument={(post: PostsList) => post.title}
+      noSubscriptionsMessage="You are not subscribed to any dialogues as a participant."
+    />
+  
+    <SubscriptionsList
+      title="Subscribed to Old-Style Dialogues (as a reader)"
+      collectionName="Posts"
+      subscriptionType="newDebateComments"
+      fragmentName="PostsList"
+      renderDocument={(post: PostsList) => post.title}
+      noSubscriptionsMessage="You are not subscribed to any dialogues as a reader."
+    />
+  
+    <SubscriptionsList
+      title="Subscribed to Old-Style dialogues (as a participant)"
+      collectionName="Posts"
+      subscriptionType="newDebateReplies"
+      fragmentName="PostsList"
+      renderDocument={(post: PostsList) => post.title}
+      noSubscriptionsMessage="You are not subscribed to any dialogues as a participant."
+    />
+
+    <SubscriptionsList
       title="Subscribed to Comment Replies"
       collectionName="Comments"
       subscriptionType="newReplies"
       fragmentName="CommentsListWithParentMetadata"
-      renderDocument={(comment: CommentsListWithParentMetadata) => <Link to={commentGetPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, tagSlug: comment?.tag?.slug, commentId: comment?._id, permalink: true})}>
+      renderDocument={(comment: CommentsListWithParentMetadata) => <Link to={commentGetPageUrlFromIds({postId: comment?.post?._id, postSlug: comment?.post?.slug, tagSlug: comment?.tag?.slug, tagCommentType: comment?.tagCommentType, commentId: comment?._id, permalink: true})}>
         author: {comment?.user?.displayName} post: {comment?.post?.title}
       </Link>}
       noSubscriptionsMessage="You are not subscribed to any comment replies."

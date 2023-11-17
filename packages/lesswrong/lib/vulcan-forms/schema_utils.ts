@@ -14,17 +14,17 @@ export const getValidFields = <T extends DbObject>(schema: SchemaType<T>) => {
 
 export const getReadableFields = <T extends DbObject>(schema: SchemaType<T>) => {
   // OpenCRUD backwards compatibility
-  return getValidFields(schema).filter(fieldName => schema[fieldName].canRead || schema[fieldName].viewableBy);
+  return getValidFields(schema).filter(fieldName => schema[fieldName].canRead);
 };
 
 export const getCreateableFields = <T extends DbObject>(schema: SchemaType<T>) => {
   // OpenCRUD backwards compatibility
-  return getValidFields(schema).filter(fieldName => schema[fieldName].canCreate || schema[fieldName].insertableBy);
+  return getValidFields(schema).filter(fieldName => schema[fieldName].canCreate);
 };
 
 export const getUpdateableFields = <T extends DbObject>(schema: SchemaType<T>) => {
   // OpenCRUD backwards compatibility
-  return getValidFields(schema).filter(fieldName => schema[fieldName].canUpdate || schema[fieldName].editableBy);
+  return getValidFields(schema).filter(fieldName => schema[fieldName].canUpdate);
 };
 
 /* permissions */
@@ -47,7 +47,7 @@ export const getInsertableFields = function<T extends DbObject>(schema: SchemaTy
  * Get an array of all fields editable by a specific user for a given collection (and optionally document)
  * @param {Object} user – the user for which to check field permissions
  */
-export const getEditableFields = function<T extends DbObject>(schema: SchemaType<T>, user: UsersCurrent|null, document): Array<string> {
+export const getEditableFields = function<T extends DbObject>(schema: SchemaType<T>, user: UsersCurrent|null, document: T): Array<string> {
   const fields = _.filter(_.keys(schema), function(fieldName: string): boolean {
     var field = schema[fieldName];
     return userCanUpdateField(user, field, document);
@@ -55,15 +55,13 @@ export const getEditableFields = function<T extends DbObject>(schema: SchemaType
   return fields;
 };
 
-/*
-
-Convert a nested SimpleSchema schema into a JSON object
-If flatten = true, will create a flat object instead of nested tree
-
-*/
+/**
+ * Convert a nested SimpleSchema schema into a JSON object
+ * If flatten = true, will create a flat object instead of nested tree
+ */
 export const convertSchema = <T extends DbObject>(schema: SimpleSchemaType<T>, flatten = false) => {
   if (schema._schema) {
-    let jsonSchema = {};
+    let jsonSchema: AnyBecauseTodo = {};
 
     Object.keys(schema._schema).forEach(fieldName => {
       // exclude array fields
@@ -107,7 +105,7 @@ Get a JSON object representing a field's schema
 
 */
 export const getFieldSchema = <T extends DbObject>(fieldName: string, schema: SimpleSchemaType<T>) => {
-  let fieldSchema = {};
+  let fieldSchema: AnyBecauseTodo = {};
   schemaProperties.forEach(property => {
     const propertyValue = schema.get(fieldName, property);
     if (propertyValue) {
@@ -119,21 +117,22 @@ export const getFieldSchema = <T extends DbObject>(fieldName: string, schema: Si
 
 // type is an array due to the possibility of using SimpleSchema.oneOf
 // right now we support only fields with one type
-export const getSchemaType = schema => schema.type.definitions[0].type;
+export const getSchemaType = (schema: AnyBecauseTodo) => schema.type.definitions[0].type;
 
-const getArrayNestedSchema = <T extends DbObject>(fieldName: keyof T, schema: SchemaType<T>) => {
+const getArrayNestedSchema = <T extends DbObject>(fieldName: string&keyof T, schema: SimpleSchemaType<T>) => {
   const arrayItemSchema = schema._schema[`${fieldName}.$`];
+  
   const nestedSchema = arrayItemSchema && getSchemaType(arrayItemSchema);
   return nestedSchema;
 };
 // nested object fields type is of the form "type: new SimpleSchema({...})"
 // so they should possess a "_schema" prop
-const isNestedSchemaField = fieldSchema => {
+const isNestedSchemaField = (fieldSchema: AnyBecauseTodo) => {
   const fieldType = getSchemaType(fieldSchema);
   //console.log('fieldType', typeof fieldType, fieldType._schema)
   return fieldType && !!fieldType._schema;
 };
-const getObjectNestedSchema = (fieldName, schema) => {
+const getObjectNestedSchema = (fieldName: AnyBecauseTodo, schema: AnyBecauseTodo) => {
   const fieldSchema = schema._schema[fieldName];
   if (!isNestedSchemaField(fieldSchema)) return null;
   const nestedSchema = fieldSchema && getSchemaType(fieldSchema);
@@ -144,7 +143,7 @@ const getObjectNestedSchema = (fieldName, schema) => {
 Given an array field, get its nested schema
 If the field is not an object, this will return the subfield type instead
 */
-export const getNestedFieldSchemaOrType = (fieldName, schema) => {
+export const getNestedFieldSchemaOrType = (fieldName: AnyBecauseTodo, schema: AnyBecauseTodo) => {
   const arrayItemSchema = getArrayNestedSchema(fieldName, schema);
   if (!arrayItemSchema) {
     // look for an object schema
@@ -160,23 +159,16 @@ export const schemaProperties = [
   'type',
   'label',
   'optional',
-  'required',
   'min',
   'max',
-  'exclusiveMin',
-  'exclusiveMax',
   'minCount',
   'maxCount',
   'allowedValues',
   'regEx',
   'blackbox',
-  'trim',
-  'custom',
   'defaultValue',
-  'autoValue',
   'hidden', // hidden: true means the field is never shown in a form no matter what
   'form', // form placeholder
-  'inputProperties', // form placeholder
   'control', // SmartForm control (String or React component)
   'input', // SmartForm control (String or React component)
   'autoform', // legacy form placeholder; backward compatibility (not used anymore)
@@ -190,38 +182,28 @@ export const schemaProperties = [
   'canRead',
   'canCreate',
   'canUpdate',
-  'viewableBy', // OpenCRUD backwards compatibility
-  'insertableBy', // OpenCRUD backwards compatibility
-  'editableBy', // OpenCRUD backwards compatibility
   'resolveAs',
   'description',
   'beforeComponent',
   'afterComponent',
   'placeholder',
   'options',
-  'query',
-  'fieldProperties',
   'tooltip'
-];
+] as const;
 
+/** Fields that, if they appear on a field schema, will be passed through to the
+ * form component for that field. */
 export const formProperties = [
   'optional',
-  'required',
   'min',
   'max',
-  'exclusiveMin',
-  'exclusiveMax',
   'minCount',
   'maxCount',
   'allowedValues',
   'regEx',
   'blackbox',
-  'trim',
-  'custom',
   'defaultValue',
-  'autoValue',
   'form', // form placeholder
-  'inputProperties', // form placeholder
   'control', // SmartForm control (String or React component)
   'input', // SmartForm control (String or React component)
   'order', // position in the form
@@ -231,7 +213,5 @@ export const formProperties = [
   'afterComponent',
   'placeholder',
   'options',
-  'query',
-  'fieldProperties',
   'tooltip'
-];
+] as const;

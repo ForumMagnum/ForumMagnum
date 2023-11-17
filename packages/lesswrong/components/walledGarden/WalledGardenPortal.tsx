@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import {useLocation, useNavigation} from "../../lib/routeUtil";
-import { postBodyStyles } from '../../themes/stylePiping'
+import { useLocation } from "../../lib/routeUtil";
 import moment from '../../lib/moment-timezone';
 import { gardenOpenToPublic } from './GatherTown';
 import { useMulti } from "../../lib/crud/withMulti";
@@ -12,12 +11,12 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ExpandLessIcon from '@material-ui/icons/ExpandLess';
 import qs from 'qs'
 import {useTagBySlug} from "../tagging/useTag";
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const toggleEventsOffset = "330px"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...postBodyStyles(theme),
     marginTop: "50px",
     display: "flex",
     flexDirection: "column"
@@ -40,12 +39,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "absolute",
     bottom: 0,
     left: toggleEventsOffset,
-    color: "rgba(255,255,255,.8)",
+    color: theme.palette.text.invertedBackgroundText4,
     ...theme.typography.commentStyle,
     display: "flex",
     alignItems: "center",
     cursor: "pointer",
-    textShadow: "0 0 10px rgba(0,0,0,.8)"
+    textShadow: `0 0 10px ${theme.palette.greyAlpha(.8)}`
   },
   closeIcon: {
     height: 48,
@@ -78,14 +77,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
-  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar, GardenEventDetails, ContentItemBody } = Components
+  const { SingleColumnSection, LoginPopupButton, AnalyticsTracker, WalledGardenMessage, GatherTownIframeWrapper, WalledGardenPortalBar, GardenEventDetails, ContentItemBody, ContentStyles } = Components
   
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser()
   const isOpenToPublic = gardenOpenToPublic.get()
 
   const { query } = useLocation();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const { code: inviteCodeQuery, entered } = query;
   const enteredQuery = entered === "true"
 
@@ -168,8 +167,10 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
 
     //Default Access Denied Message
     return <SingleColumnSection className={classes.root}>
-      <p>The Walled Garden is a virtual space managed by the LessWrong team.</p>
-      <p>If you have an event invite link, please use that to enter. If you have been granted full-access, to {currentUser ? 'log in' : <LoginPopupButton><b>Log In</b></LoginPopupButton>}.</p>
+      <ContentStyles contentType="post">
+        <p>The Walled Garden is a virtual space managed by the LessWrong team.</p>
+        <p>If you have an event invite link, please use that to enter. If you have been granted full-access, to {currentUser ? 'log in' : <LoginPopupButton><b>Log In</b></LoginPopupButton>}.</p>
+      </ContentStyles>
     </SingleColumnSection>
   }
 
@@ -177,7 +178,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
       <div className={classes.enterButton}>
         <a className={classes.buttonStyling} onClick={ async () => {
           setOnboarded(true)
-          history.push({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
+          navigate({pathname: "/walledGardenPortal", search: `?${qs.stringify({...query, entered: true})}`})
           if (currentUser && !currentUser.walledGardenPortalOnboarded) {
             void updateCurrentUser({
               walledGardenPortalOnboarded: true
@@ -191,6 +192,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
   
   if ((!!gardenCode && !enteredQuery) || (!!currentUser && !onboarded)){
     return <SingleColumnSection className={classes.root}>
+      <ContentStyles contentType="post">
       <h2><strong>Welcome to the Walled Garden, a curated space for truthseekers!</strong></h2>
       {!!gardenCode && <div>
         {codeIsValid ?
@@ -212,6 +214,7 @@ const WalledGardenPortal = ({ classes }: { classes: ClassesType }) => {
         description={`tag ${onboardingText?.name}`}
       />
       {enterGardenButton}
+      </ContentStyles>
     </SingleColumnSection>
   }
 

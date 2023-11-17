@@ -15,13 +15,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     display: "inline",
     marginRight: 10,
-    fontVariant: "small-caps",
     fontSize: 20,
     lineHeight: 1.25,
+    ...theme.typography.smallCaps,
   },
   meta: {
     display: "inline-block",
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.text.dim,
     "& div": {
       display: "inline-block",
       marginRight: 5,
@@ -34,13 +34,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
   },
   removeIcon: {
-    color: "rgba(0,0,0,0.3) !important"
+    color: `${theme.palette.icon.dim5} !important`
   },
   dragHandle: {
     pointerEvents: "none",
     position: "absolute",
     display: "block !important",
-    color: "rgba(0,0,0,0.5)",
+    color: theme.palette.icon.dim,
     margin: "auto",
     top: "0px",
     bottom: "0px",
@@ -48,7 +48,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const SequencesListEditorItem = ({documentId, classes, ...props}) => {
+const SequencesListEditorItem = ({documentId, removeItem, classes}: {
+  documentId: string;
+  removeItem: (itemId: string) => void;
+  classes: ClassesType;
+}) => {
   const { document, loading } = useSingle({
     documentId,
     collectionName: "Sequences",
@@ -67,7 +71,7 @@ const SequencesListEditorItem = ({documentId, classes, ...props}) => {
             {(document.user && document.user.displayName) || "Undefined Author"}
           </div>
           <div className={classes.remove}>
-            <RemoveIcon className={classes.removeIcon} onClick={() => props.removeItem(documentId)} />
+            <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(documentId)} />
           </div>
         </div>
       </div>

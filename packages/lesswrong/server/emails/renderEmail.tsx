@@ -1,5 +1,5 @@
 import { createGenerateClassName, MuiThemeProvider } from '@material-ui/core/styles';
-import htmlToText from 'html-to-text';
+import { htmlToText } from 'html-to-text';
 import Juice from 'juice';
 import { sendEmailSmtp } from './sendEmail';
 import React from 'react';
@@ -11,10 +11,9 @@ import JssProvider from 'react-jss/lib/JssProvider';
 import { TimezoneContext } from '../../components/common/withTimezone';
 import { UserContext } from '../../components/common/withUser';
 import LWEvents from '../../lib/collections/lwevents/collection';
-import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers';
-import { forumTitleSetting, forumTypeSetting } from '../../lib/instanceSettings';
-import moment from '../../lib/moment-timezone';
-import forumTheme from '../../themes/forumTheme';
+import { getUserEmail, userEmailAddressIsVerified} from '../../lib/collections/users/helpers';
+import { forumTitleSetting, isEAForum } from '../../lib/instanceSettings';
+import { getForumTheme } from '../../themes/forumTheme';
 import { DatabaseServerSetting } from '../databaseSettings';
 import StyleValidator from '../vendor/react-html-email/src/StyleValidator';
 import { Components, EmailRenderContext } from '../../lib/vulcan-lib/components';
@@ -22,7 +21,6 @@ import { createClient } from '../vulcan-lib/apollo-ssr/apolloClient';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { createMutator } from '../vulcan-lib/mutators';
 import { UnsubscribeAllToken } from '../emails/emailTokens';
-import { userGetEmail } from '../../lib/vulcan-users/helpers';
 import { captureException } from '@sentry/core';
 
 export interface RenderedEmail {
@@ -44,7 +42,7 @@ export const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transi
 // handling the top-level table layout; some of it looks like workarounds for
 // specific dysfunctional email clients (like the ".ExternalClass" and
 // ".yshortcuts" entries.)
-const emailGlobalCss = `
+const emailGlobalCss = () => `
   .ReadMsgBody { width: 100%; background-color: #ebebeb;}
   .ExternalClass {width: 100%; background-color: #ebebeb;}
   .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height:100%;}
@@ -74,7 +72,7 @@ const emailGlobalCss = `
   
   /* Global styles that apply eg inside of posts */
   a {
-    color: ${forumTypeSetting.get() === 'EAForum' ? '#0C869B' : '#5f9b65'}
+    color: ${getForumTheme({name: "default"}).palette.primary.main};
   }
   blockquote {
     border-left: solid 3px #e0e0e0;
@@ -101,7 +99,7 @@ function addEmailBoilerplate({ css, title, body }: {
    
       <title>${title}</title>
       <style>
-        ${emailGlobalCss}
+        ${emailGlobalCss()}
         ${css}
       </style>
     </head>
@@ -152,15 +150,16 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     dangerouslyUseGlobalCSS: true
   });
   
-  // TODO: Keep track of individual users' preferred time zone, and set this
-  // accordingly so that time zones on posts/comments/etc are in that timezone.
-  const timezone = moment.tz.guess();
+  // Use the user's last-used timezone, which is the timezone of their browser
+  // the last time they visited the site. Potentially null, if they haven't
+  // visited since before that feature was implemented.
+  const timezone = user?.lastUsedTimezone || null
   
   const wrappedBodyComponent = (
     <EmailRenderContext.Provider value={{isEmailRender:true}}>
     <ApolloProvider client={apolloClient}>
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-    <MuiThemeProvider theme={forumTheme} sheetsManager={new Map()}>
+    <MuiThemeProvider theme={getForumTheme({name: "default", siteThemeOverride: {}})} sheetsManager={new Map()}>
     <UserContext.Provider value={user as unknown as UsersCurrent | null /*FIXME*/}>
     <TimezoneContext.Provider value={timezone}>
       {bodyComponent}
@@ -191,7 +190,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   const inlinedHTML = Juice(html, { preserveMediaQueries: true });
   
   // Generate a plain-text representation, based on the React representation
-  const plaintext = htmlToText.fromString(html, {
+  const plaintext = htmlToText(html, {
     wordwrap: plainTextWordWrap
   });
   
@@ -239,7 +238,7 @@ export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
   body: React.ReactNode}
 ): Promise<boolean> => {
   if (!to && !user) throw new Error("No destination email address for logged-out user email");
-  const destinationAddress = to || userGetEmail(user!);
+  const destinationAddress = to || getUserEmail(user)
   if (!destinationAddress) throw new Error("No destination email address for user email");
   
   try {
@@ -255,7 +254,7 @@ export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
   }
 }
 
-function validateSheets(sheetsRegistry: SheetsRegistry)
+function validateSheets(sheetsRegistry: typeof SheetsRegistry)
 {
   let styleValidator = new StyleValidator();
   
@@ -278,7 +277,7 @@ export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
     console.log("subject: " + renderedEmail.subject); //eslint-disable-line
     console.log("from: " + renderedEmail.from); //eslint-disable-line
     
-    return sendEmailSmtp(renderedEmail); // From meteor's 'email' package
+    return sendEmailSmtp(renderedEmail);
   } else {
     console.log("//////// Pretending to send email (not production and enableDevelopmentEmails is false)"); //eslint-disable-line
     console.log("to: " + renderedEmail.to); //eslint-disable-line
@@ -293,9 +292,13 @@ export async function sendEmail(renderedEmail: RenderedEmail): Promise<boolean>
 }
 
 export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | null, additionalFields: any) {
+  // Remove the html, which is very large and bloats LWEvents
+  // We still have the text content of the email, which is sufficient for email history
+  const { html, ...emailFields } = renderedEmail;
+
   // Replace user (object reference) in renderedEmail so we can log it in LWEvents
   const emailJson = {
-    ...renderedEmail,
+    ...emailFields,
     user: user?._id,
   };
   // Log in LWEvents table
@@ -321,7 +324,7 @@ export function reasonUserCantReceiveEmails(user: DbUser): string|null
 {
   if (!user.email)
     return "No email address";
-  if (!userEmailAddressIsVerified(user) && forumTypeSetting.get() !== 'EAForum')
+  if (!userEmailAddressIsVerified(user) && !isEAForum) // TODO: make this an instance setting?
     return "Address is not verified";
   if (user.unsubscribeFromAll)
     return "Setting 'Do not send me any emails' is checked";

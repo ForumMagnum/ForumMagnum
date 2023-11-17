@@ -2,7 +2,6 @@ import React from 'react';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { postBodyStyles } from '../../themes/stylePiping';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
@@ -43,7 +42,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   bookExplanation: {
-    ...postBodyStyles(theme),
     paddingRight: 181,
     textAlign: 'right',
     [theme.breakpoints.down('md')]: {
@@ -87,7 +85,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     right: '182px',
     top: '-20px',
     fontSize: '1rem',
-    color: 'rgba(0,0,0,0.4)',
+    color: theme.palette.icon.dim2,
     cursor: 'pointer',
     [theme.breakpoints.down('md')]: {
       right: 0
@@ -99,7 +97,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   mobileCloseButton: {
     ...theme.typography.commentStyle,
     fontSize: '1.1rem',
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.icon.slightlyDim4,
     marginLeft: 'auto',
     display: 'none',
     whiteSpace: "nowrap",
@@ -116,7 +114,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   disclaimerRow: {
     ...theme.typography.commentStyle,
     fontSize: '0.65em',
-    color: 'rgba(0,0,0,0.4)',
+    color: theme.palette.text.dim40,
     marginTop: 4,
     lineHeight: '1.3'
   },
@@ -125,7 +123,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const BookFrontpageWidget = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { BookCheckout, BookAnimation } = Components
+  const { BookCheckout, BookAnimation, ContentStyles } = Components
   const currentUser = useCurrentUser();
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -151,8 +149,13 @@ const BookFrontpageWidget = ({ classes }: {
     }
   }
 
-  const BookMarketingText = ({title, subtitle, description, buttons}) => {
-    return <div className={classes.bookExplanation}>
+  const BookMarketingText = ({title, subtitle, description, buttons}: {
+    title: string;
+    subtitle: string;
+    description: string | JSX.Element;
+    buttons: JSX.Element;
+  }) => {
+    return <ContentStyles contentType="post" className={classes.bookExplanation}>
       <div className={classes.closeButton} onClick={hideClickHandler}>X</div>
       <h1 className={classes.mainHeading}>
         {title}
@@ -166,7 +169,7 @@ const BookFrontpageWidget = ({ classes }: {
       <div className={classes.buttonRow}>
         {buttons}
       </div>
-    </div>
+    </ContentStyles>
   }
 
   return (
@@ -183,7 +186,7 @@ const BookFrontpageWidget = ({ classes }: {
             <Link className={classes.learnMore} to="/books">
               Learn More
             </Link>
-            <BookCheckout ignoreMessages text={"Buy Another"}/>
+            <BookCheckout ignoreMessages text={"Buy Another"} link="https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"/>
           </>}
         />
       }>
@@ -196,7 +199,7 @@ const BookFrontpageWidget = ({ classes }: {
             <Link className={classes.learnMore} to="/books">
               Learn More
             </Link>
-            <BookCheckout />
+            <BookCheckout link="https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"/>
           </>}
         />
       </BookAnimation>

@@ -7,10 +7,13 @@ import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
 import { InstantSearch, SearchBox, Configure, Hits } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, getSearchClient } from '../../lib/algoliaUtil';
+import { getAlgoliaIndexName, getSearchClient } from '../../lib/search/algoliaUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@material-ui/icons/Close';
+
+import { formatFacetFilters } from '../search/SearchAutoComplete';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -18,7 +21,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& input': {
       width: 70,
       cursor: "pointer"
-    }
+    },
+    "@media print": {
+      display: "none",
+    },
   },
   open: {
     width: "100%",
@@ -26,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       width: "calc(100% - 15px)",
       cursor: "unset"
     },
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     padding: 8
   },
   icon: {
@@ -56,15 +62,29 @@ const styles = (theme: ThemeType): JssStyles => ({
       bottom: 3
     }
   },
+  searchBox: {
+    "& form": {
+      display: "flex",
+      gap: "6px",
+    },
+    "& svg": {
+      fill: theme.palette.grey[1000],
+    },
+    "& input": {
+      background: theme.palette.grey[55],
+      borderRadius: theme.borderRadius.small,
+      padding: 6,
+    },
+  },
   closeIcon: {
     fontSize: '16px',
-    color: 'black',
+    color: theme.palette.icon.maxIntensity,
     cursor: 'pointer'
   },
   addButton: {
     cursor: 'pointer',
     alignItems: 'center',
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.text.dim60,
     display: 'flex'
   },
   postHit: {
@@ -123,7 +143,7 @@ const AddPostsToTag = ({classes, tag}: {
       onClick={() => setSearchOpen(true)}
       className={classes.addButton}
     >
-      <AddBoxIcon className={classes.icon}/> Add Posts
+      <AddBoxIcon className={classes.icon}/> {preferredHeadingCase("Add Posts")}
     </span> }
     {searchOpen && <div className={classes.search}>
       <InstantSearch
@@ -135,13 +155,13 @@ const AddPostsToTag = ({classes, tag}: {
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
               * null is the only option that actually suppresses the extra X button.
             // @ts-ignore */}
-            <SearchBox focusShortcuts={[]} autoFocus={true} reset={null} />
+            <SearchBox focusShortcuts={[]} autoFocus={true} reset={null} className={classes.searchBox} />
             <CloseIcon className={classes.closeIcon} onClick={() => setSearchOpen(false)}/>
           </div>
           <SearchPagination />
         </div>
         <Configure
-          facetFilters={`tags:-zxmLyuTr7nujF523s`}
+          facetFilters={formatFacetFilters({tags: `-${tag._id}`})}
           hitsPerPage={10}
         />
         <Hits hitComponent={({hit}: {hit: any}) => <span className={classes.postHit} onClick={() => onPostSelected(hit._id)}>
@@ -159,4 +179,3 @@ declare global {
     AddPostsToTag: typeof AddPostsToTagComponent
   }
 }
-

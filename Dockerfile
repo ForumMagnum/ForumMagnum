@@ -1,4 +1,6 @@
-FROM node:15.5.0
+# Node 18.x is LTS
+FROM node:18.15.0
+ENV IS_DOCKER=true
 # Transcrypt dependency
 RUN apt-get update && apt-get install -y bsdmainutils
 # Install transcrypt for EA Forum
@@ -10,7 +12,9 @@ COPY package.json package.json
 COPY yarn.lock yarn.lock
 COPY public/lesswrong-editor public/lesswrong-editor
 COPY scripts/postinstall.sh scripts/postinstall.sh
-RUN yarn
+# clear the cache -- it's not useful and it adds to the time docker takes to
+# save the layer diff
+RUN yarn install && yarn cache clean
 COPY . .
 EXPOSE 8080
 CMD [ "yarn", "run", "production" ]

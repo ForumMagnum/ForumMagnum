@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 2200 1800" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
+  <path d="M 400 100 L 100 100 M 100 100 L 100 1700 M 100 1700 L 400 1700" style="stroke: rgb(0, 0, 0); stroke-linejoin: round; stroke-linecap: round; stroke-width: 160px;"/>
+  <path d="M 1800 100 L 2100 100 M 2100 1700 L 1800 1700 M 2100 100 L 2100 1700" style="stroke: rgb(0, 0, 0); stroke-linejoin: round; stroke-linecap: round; stroke-width: 160px;"/>
+  <path d="M 1100 438.12 L 1100 1361.88 M 1500 669.06 L 700 1130.94 M 1499.999 1130.938 L 700.001 669.059" style="stroke: rgb(0, 0, 0); stroke-linecap: round; stroke-width: 160px;" bx:origin="0 0"/>
+</svg>

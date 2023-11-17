@@ -1,35 +1,28 @@
-import { CallbackHook, CallbackChainHook } from '../lib/vulcan-lib/callbacks';
+import { CallbackHook, CallbackChainHook, CallbackPropertiesBase } from '../lib/vulcan-lib/callbacks';
 import { getCollection } from '../lib/vulcan-lib/getCollection';
 
 type CallbackValidationErrors = Array<any>;
 
-export interface CreateCallbackProperties<T extends DbObject> {
-  data: Partial<T>|undefined
-  currentUser: DbUser|null
-  collection: CollectionBase<T>
-  context: ResolverContext
+export interface CreateCallbackProperties<T extends DbObject> extends CallbackPropertiesBase<T> {
   document: T
+  /** 
+   * BE CAREFUL USING THIS - IT'S NOT THE INSERTED RECORD, BUT THE DATA PASSED IN TO `createMutator`
+   * Correspondingly, it won't have fields like `_id`
+   */
   newDocument: T
-  schema: SchemaType<T>
 }
 
-export interface UpdateCallbackProperties<T extends DbObject> {
+export interface UpdateCallbackProperties<T extends DbObject> extends CallbackPropertiesBase<T> {
   data: Partial<T>
   oldDocument: T
+  /** DEPRECATED: Is a "preview" of the new document. Use newDocument instead */
   document: T
+  /** Is a "preview" of the new document */
   newDocument: T
-  currentUser: DbUser|null
-  collection: CollectionBase<T>
-  context: ResolverContext
-  schema: SchemaType<T>
 }
 
-export interface DeleteCallbackProperties<T extends DbObject> {
+export interface DeleteCallbackProperties<T extends DbObject> extends CallbackPropertiesBase<T> {
   document: T
-  currentUser: DbUser|null
-  collection: CollectionBase<T>
-  context: ResolverContext
-  schema: SchemaType<T>
 }
 
 export class CollectionMutationCallbacks<T extends DbObject> {
@@ -46,6 +39,7 @@ export class CollectionMutationCallbacks<T extends DbObject> {
   updateValidate: CallbackChainHook<CallbackValidationErrors,[UpdateCallbackProperties<T>]>
   editValidate: CallbackChainHook<MongoModifier<T>,[T,DbUser|null,CallbackValidationErrors]>
   updateBefore: CallbackChainHook<Partial<T>,[UpdateCallbackProperties<T>]>
+  /** DEPRECATED: use updateBefore */
   editBefore: CallbackChainHook<MongoModifier<T>,[T,DbUser|null,T]>
   editSync: CallbackChainHook<MongoModifier<T>,[T,DbUser|null,T]>
   updateAfter: CallbackChainHook<T,[UpdateCallbackProperties<T>]>

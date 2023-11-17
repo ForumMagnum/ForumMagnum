@@ -7,19 +7,21 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import { useMulti } from '../../../lib/crud/withMulti';
-import { useCookies } from 'react-cookie';
 import moment from 'moment';
 import sample from 'lodash/sample';
-import {AnalyticsContext} from "../../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
+import { HIDE_FEATURED_RESOURCE_COOKIE } from '../../../lib/cookies/cookies';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   card: {
-    margin: '1em 0 1em 1em',
+    margin: '1.5em 0 1em 1em',
     padding: '2em',
-    boxShadow: '0 4px 4px rgba(0, 0, 0, 0.07)',
+    boxShadow: theme.palette.boxShadow.featuredResourcesCard,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
+    borderRadius: theme.borderRadius.default,
   },
   closeButton: {
     padding: '.25em',
@@ -31,10 +33,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   closeIcon: {
     width: '.6em',
     height: '.6em',
-    color: 'rgba(0, 0, 0, .2)',
+    color: theme.palette.icon.dim6,
   },
   title: {
-    color: '#616161',
+    color: theme.palette.text.dim700,
     paddingBottom: '1em',
     fontFamily: theme.typography.fontFamily,
     textAlign: 'center',
@@ -43,7 +45,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     width: '50%',
   },
   body: {
-    color: '#616161',
+    color: theme.palette.text.dim700,
     marginTop: '1.5rem',
     marginBottom: '1.5rem',
     textAlign: 'center',
@@ -51,22 +53,37 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontSize: '1.05rem',
   },
   ctaButton: {
-    borderRadius: 'unset',
+    borderRadius: theme.borderRadius.small,
     minWidth: '50%',
     background: theme.palette.primary.main,
-    color: 'white',
+    color: theme.palette.buttons.featuredResourceCTAtext,
     '&:hover': {
       background: theme.palette.primary.main,
     },
   }
 }));
 
-const FeaturedResourceBanner = ({ terms, classes }: {
+const LinkButton = ({ resource, classes }: {
+  classes: ClassesType,
+  resource: FeaturedResourcesFragment,
+}) => {
+  const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: resource.ctaUrl}});
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    captureEvent(undefined, {buttonPressed: e.button});
+  };
+
+  return <a href={resource.ctaUrl} target="_blank" rel="noopener noreferrer">
+    <Button color="primary" className={classes.ctaButton} onClick={handleClick}>
+      {resource.ctaText}
+    </Button>
+  </a>;
+};
+
+const FeaturedResourceBanner = ({terms, classes} : {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType
 }) => {
-  const HIDE_FEATURED_RESOURCE_COOKIE = 'hide_featured_resource';
-  const [cookies, setCookie] = useCookies([HIDE_FEATURED_RESOURCE_COOKIE])
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_FEATURED_RESOURCE_COOKIE])
   const [resource, setResource] = useState<FeaturedResourcesFragment | undefined>(undefined)
   const { results, loading } = useMulti({
     terms,
@@ -77,7 +94,7 @@ const FeaturedResourceBanner = ({ terms, classes }: {
   const { Typography } = Components
 
   useEffect(() => {
-    if (loading || !results.length) {
+    if (loading || !results?.length) {
       return;
     }
 
@@ -98,8 +115,8 @@ const FeaturedResourceBanner = ({ terms, classes }: {
     return null;
   }
 
-  return <Card className={classes.card}>
-    <AnalyticsContext pageSectionContext="featuredResourceBanner">
+  return <AnalyticsContext pageElementContext="featuredResourceLink" resourceName={resource.title} resourceUrl={resource.ctaUrl} >
+      <Card className={classes.card}>
       <Tooltip title="Hide this for the next month">
         <Button className={classes.closeButton} onClick={hideBanner}>
           <CloseIcon className={classes.closeIcon} />
@@ -112,13 +129,9 @@ const FeaturedResourceBanner = ({ terms, classes }: {
       <Typography variant="body2" className={classes.body}>
         {resource.body}
       </Typography>
-      {resource.ctaUrl && resource.ctaText && <a href={resource.ctaUrl} target="_blank" rel="noopener noreferrer">
-        <Button color="primary" className={classes.ctaButton}>
-          {resource.ctaText}
-        </Button>
-      </a>}
-    </AnalyticsContext>
-  </Card>
+      {resource.ctaUrl && resource.ctaText && <LinkButton resource={resource} classes={classes} />}
+    </Card>
+  </AnalyticsContext>
 }
 
 const FeaturedResourceBannerComponent = registerComponent(

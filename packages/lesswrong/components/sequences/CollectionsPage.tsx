@@ -5,24 +5,40 @@ import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import { postBodyStyles } from '../../themes/stylePiping'
+import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
+
+const PADDING = 36
+const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: "white",
     padding: 32,
-    [theme.breakpoints.down('md')]: {
+    position: "relative",
+    [theme.breakpoints.down('sm')]: {
       paddingTop: 70,
       marginTop: -50,
-      marginLeft: -4,
-      marginRight: -4
+      marginLeft: -8,
+      marginRight: -8
     }
   },
-  header: {
+  section: {
     marginBottom: 50,
+    background: theme.palette.background.pageActiveAreaBackground,
+    borderRadius: theme.borderRadius.default,
+    padding: PADDING,
+    maxWidth: COLLECTION_WIDTH,
+    marginLeft: "auto",
+    marginRight: "auto",
+    position: "relative",
+    zIndex: theme.zIndexes.singleColumnSection,
+    [theme.breakpoints.up('md')]: {
+      width: COLLECTION_WIDTH // TODO: replace this hacky solution with a more comprehensive refactoring of SingleColumnSection. 
+      // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)
+    }
   },
   startReadingButton: {
-    background: "rgba(0,0,0, 0.05)",
+    background: theme.palette.buttons.startReadingButtonBackground,
 
     // TODO: Pick typography for this button. (This is just the typography that
     // Material UI v0 happened to use.)
@@ -41,12 +57,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 0,
   },
   description: {
-    fontSize: 20,
     marginTop: 30,
     marginBottom: 25,
     lineHeight: 1.25,
     maxWidth: 700,
-    ...postBodyStyles(theme),
   },
 });
 
@@ -70,7 +84,7 @@ const CollectionsPage = ({ documentId, classes }: {
     setEdit(false);
   }, []);
 
-  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography } = Components
+  const { SingleColumnSection, BooksItem, BooksNewForm, SectionFooter, SectionButton, ContentItemBody, Typography, ContentStyles, ErrorBoundary, CollectionTableOfContents, ToCColumn, HeadTags } = Components
   if (loading || !document) {
     return <Components.Loading />;
   } else if (edit) {
@@ -83,46 +97,75 @@ const CollectionsPage = ({ documentId, classes }: {
     const startedReading = false; //TODO: Check whether user has started reading sequences
     const collection = document;
     const canEdit = userCanDo(currentUser, 'collections.edit.all') || (userCanDo(currentUser, 'collections.edit.own') && userOwns(currentUser, collection))
-    const { html = "" } = collection.contents || {}
+    const { html = "", plaintextDescription } = collection.contents || {}
     
     // Workaround: MUI Button takes a component option and passes extra props to
     // that component, but has a type signature which fails to include the extra
     // props
     const ButtonUntyped = Button as any;
     
-    return (<div className={classes.root}>
-      <SingleColumnSection>
-        <div className={classes.header}>
-          <Typography variant="display3" className={classes.title}>{collection.title}</Typography>
+    // hidden wordcount logged for admin convenience 
+    // we don't show to users because it'd be too intimidating
+    // (more info in BooksProgressBar for users)
+    const posts = collection.books.flatMap(book => book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts)))
+    const wordCount = posts.reduce((i, post) => i + (post?.contents?.wordCount || 0), 0)
+    // eslint-disable-next-line no-console
+    console.log(`${wordCount.toLocaleString()} words`)
+
+    const socialImageUrl = collection.gridImageId ? makeCloudinaryImageUrl(collection.gridImageId, {
+      c: "fill",
+      dpr: "auto",
+      q: "auto",
+      f: "auto",
+      g: "auto:faces",
+    }) : undefined;
+
+    return (<ErrorBoundary>
+      <HeadTags
+        title={collection.title}
+        description={plaintextDescription || undefined}
+        noIndex={collection.noindex}
+        image={socialImageUrl}
+      />
+      <div className={classes.root}>
+      <ToCColumn
+        tableOfContents={<CollectionTableOfContents collection={document}/>}
+      >
+        <div className={classes.section}>
+          {collection.title && <Typography variant="display3" className={classes.title}>{collection.title}</Typography>}
 
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
 
-          <div className={classes.description}>
+          <ContentStyles contentType="post" className={classes.description}>
             {html && <ContentItemBody dangerouslySetInnerHTML={{__html: html}} description={`collection ${document._id}`}/>}
-          </div>
+          </ContentStyles>
 
-          <ButtonUntyped
-            className={classes.startReadingButton}
-            component={Link} to={document.firstPageLink}
-          >
-            {startedReading ? "Continue Reading" : "Start Reading"}
-          </ButtonUntyped>
+          {!collection.hideStartReadingButton &&
+            <ButtonUntyped
+              className={classes.startReadingButton}
+              component={Link} to={document.firstPageLink}
+            >
+              {startedReading ? "Continue Reading" : "Start Reading"}
+            </ButtonUntyped>
+          }
         </div>
-      </SingleColumnSection>
-      <div>
-        {/* For each book, print a section with a grid of sequences */}
-        {collection.books.map(book => <BooksItem key={book._id} book={book} canEdit={canEdit} />)}
-      </div>
+        <div>
+          {collection.books.map(book => <div className={classes.section} key={`collectionsPage${book._id}`}>
+            <BooksItem key={book._id} book={book} canEdit={canEdit} />
+          </div>)}
+        </div>
+        
+        {canEdit && <SectionFooter>
+          <SectionButton>
+            <a onClick={() => setAddingBook(true)}>Add Book</a>
+          </SectionButton>
+        </SectionFooter>}
+        {addingBook && <SingleColumnSection>
+          <BooksNewForm prefilledProps={{collectionId: collection._id}} />
+        </SingleColumnSection>}
+      </ToCColumn>
       
-      {canEdit && <SectionFooter>
-        <SectionButton>
-          <a onClick={() => setAddingBook(true)}>Add Book</a>
-        </SectionButton>
-      </SectionFooter>}
-      {addingBook && <SingleColumnSection>
-        <BooksNewForm prefilledProps={{collectionId: collection._id}} />
-      </SingleColumnSection>}
-    </div>);
+    </div></ErrorBoundary>);
   }
 }
 

@@ -1,7 +1,6 @@
 import React, {useCallback} from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { Link } from '../../../lib/reactRouterWrapper';
-import { useNavigation } from '../../../lib/routeUtil';
+import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
 import { useGlobalKeydown } from '../../common/withGlobalKeydown';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { sequenceGetPageUrl } from '../../../lib/collections/sequences/helpers';
@@ -18,10 +17,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     fontSize: 22,
     verticalAlign: '-webkit-baseline-middle',
-    fontVariant: 'small-caps',
     fontFamily: theme.typography.uiSecondary.fontFamily,
     lineHeight: '24px',
-    color: 'rgba(0,0,0,0.5)',
+    color: theme.palette.text.dim,
+    ...theme.typography.smallCaps,
   }
 })
 
@@ -29,7 +28,8 @@ const PostsTopSequencesNav = ({post, classes}: {
   post: PostSequenceNavigation,
   classes: ClassesType,
 }) => {
-  const { history } = useNavigation();
+  const { LWTooltip, SequencesHoverOver, SequencesNavigationLink } = Components 
+  const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
   const handleKey = useCallback((ev) => {
@@ -43,14 +43,14 @@ const PostsTopSequencesNav = ({post, classes}: {
       if (ev.target === document.body || (ev.target && (ev.target as any).tagName === 'A')) {
         if (ev.keyCode == 37) { // Left
           if (post.prevPost)
-            history.push(postGetPageUrl(post.prevPost, false, post.prevPost.sequence?._id));
+            navigate(postGetPageUrl(post.prevPost, false, post.prevPost.sequence?._id));
         } else if (ev.keyCode == 39) { // Right
           if (post.nextPost)
-            history.push(postGetPageUrl(post.nextPost, false, post.nextPost.sequence?._id));
+            navigate(postGetPageUrl(post.nextPost, false, post.nextPost.sequence?._id));
         }
       }
     }
-  }, [post, history]);
+  }, [navigate, post]);
   useGlobalKeydown(handleKey);
 
   if (!post?.sequence)
@@ -62,16 +62,18 @@ const PostsTopSequencesNav = ({post, classes}: {
   
   return (
     <div className={classes.root}>
-      <Components.SequencesNavigationLink
+      <SequencesNavigationLink
         post={post.prevPost}
         direction="left" />
 
-      <div className={classes.title}>
-        {post.sequence.draft && "[Draft] "}
-        <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
-      </div>
+      <LWTooltip tooltip={false} title={<SequencesHoverOver sequence={post.sequence} />} clickable={true}>
+        <div className={classes.title}>
+          {post.sequence.draft && "[Draft] "}
+          <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>
+        </div>
+      </LWTooltip>
 
-      <Components.SequencesNavigationLink
+      <SequencesNavigationLink
         post={post.nextPost}
         direction="right" />
     </div>

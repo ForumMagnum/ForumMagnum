@@ -6,14 +6,7 @@ import { makeEditable } from '../../editor/make_editable';
 import './fragments'
 import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
 
-
 const schema: SchemaType<DbTagFlag> = {
-  createdAt: {
-    optional: true,
-    type: Date,
-    canRead: ['guests'],
-    onInsert: () => new Date(),
-  },
   name: {
     type: String,
     canRead: ['guests'],
@@ -33,7 +26,7 @@ const schema: SchemaType<DbTagFlag> = {
   slug: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     onInsert: async (tagFlag) => {
       return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
     },
@@ -46,7 +39,7 @@ const schema: SchemaType<DbTagFlag> = {
   order: {
     type: Number,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'], 
   }
@@ -81,6 +74,7 @@ const options: MutationOptions<DbTagFlag> = {
 export const TagFlags: TagFlagsCollection = createCollection({
   collectionName: 'TagFlags',
   typeName: 'TagFlag',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('TagFlags'),
   mutations: getDefaultMutations('TagFlags', options),

@@ -2,9 +2,9 @@ import set from 'lodash/set';
 import { removePrefix, filterPathsByPrefix } from './path_utils';
 
 // see http://stackoverflow.com/questions/19098797/fastest-way-to-flatten-un-flatten-nested-json-objects
-export const flatten = function(data) {
-  var result = {};
-  function recurse(cur, prop) {
+export const flatten = function(data: AnyBecauseTodo) {
+  var result: AnyBecauseTodo = {};
+  function recurse(cur: AnyBecauseTodo, prop: AnyBecauseTodo) {
     if (Object.prototype.toString.call(cur) !== '[object Object]') {
       result[prop] = cur;
     } else if (Array.isArray(cur)) {
@@ -23,7 +23,7 @@ export const flatten = function(data) {
   return result;
 };
 
-export const isEmptyValue = value =>
+export const isEmptyValue = (value: AnyBecauseTodo) =>
   typeof value === 'undefined' || value === null || value === '' || (Array.isArray(value) && value.length === 0);
 
 
@@ -47,8 +47,8 @@ export const isEmptyValue = value =>
  *  getNestedDeletedValues(deletedFields);
  *  // => { 'field': { 'subField': null, 'subFieldArray': [null] }, 'fieldArray': [null, undefined, { name: null } }
  */
-export const getDeletedValues = (deletedFields, accumulator = {}) =>
-  deletedFields.reduce((deletedValues, path) => set(deletedValues, path, null), accumulator);
+export const getDeletedValues = (deletedFields: AnyBecauseTodo, accumulator: AnyBecauseTodo = {}) =>
+  deletedFields.reduce((deletedValues: AnyBecauseTodo, path: AnyBecauseTodo) => set(deletedValues, path, null), accumulator);
 
 /**
  * Filters the given field names by prefix, removes it from each one of them
@@ -76,17 +76,17 @@ export const getDeletedValues = (deletedFields, accumulator = {}) =>
  *  getNestedDeletedValues('fieldArray', deletedFields, []);
  *  // => [null, undefined, { 'name': null } ]
  */
-export const getNestedDeletedValues = (prefix, deletedFields, accumulator = {}) =>
+export const getNestedDeletedValues = (prefix: AnyBecauseTodo, deletedFields: AnyBecauseTodo, accumulator: AnyBecauseTodo = {}) =>
   getDeletedValues(removePrefix(prefix, filterPathsByPrefix(prefix, deletedFields)), accumulator);
 
-export const getFieldType = datatype => datatype[0].type;
+export const getFieldType = (datatype: AnyBecauseTodo) => datatype[0].type;
 /**
  * Get appropriate null value for various field types
  *
  * @param {Array} datatype
  * Field's datatype property
  */
-export const getNullValue = datatype => {
+export const getNullValue = (datatype: AnyBecauseTodo) => {
   const fieldType = getFieldType(datatype);
   if (fieldType === Array) {
     return [];

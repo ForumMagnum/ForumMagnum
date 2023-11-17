@@ -12,5 +12,6 @@ registerFragment(`
     message
     type
     viewed
+    extraData
   }
 `);

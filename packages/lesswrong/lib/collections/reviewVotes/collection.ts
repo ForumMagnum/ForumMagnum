@@ -7,6 +7,7 @@ import { sunshineRegimentGroup } from '../../permissions';
 export const ReviewVotes: ReviewVotesCollection = createCollection({
   collectionName: 'ReviewVotes',
   typeName: 'ReviewVote',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('ReviewVotes'),
 });

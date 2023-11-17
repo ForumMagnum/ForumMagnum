@@ -4,24 +4,26 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 // -- See here for all the tab content --
 import menuTabs from './menuTabs'
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { forumSelect } from '../../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     justifyContent: "space-around",
-    backgroundColor: "#ffffffd4",
+    backgroundColor: theme.palette.panelBackground.mobileNavFooter,
     flexDirection: "row",
   }
 })
 
-const TabNavigationMenuFooter = ({classes}) => {
+const TabNavigationMenuFooter = ({classes}: {
+  classes: ClassesType
+}) => {
   const { TabNavigationFooterItem } = Components
 
   return (
       <AnalyticsContext pageSectionContext="tabNavigationFooter">
         <div className={classes.root}>
-          {menuTabs[forumTypeSetting.get()].map(tab => {
+          {forumSelect(menuTabs).map(tab => {
             if (!('showOnMobileStandalone' in tab) || !tab.showOnMobileStandalone) {
               return
             }

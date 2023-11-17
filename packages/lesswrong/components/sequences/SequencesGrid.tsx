@@ -5,23 +5,29 @@ import { legacyBreakpoints } from '../../lib/utils/theme';
 // Shared with SequencesGridWrapper
 export const styles = (theme: ThemeType): JssStyles => ({
   grid: {
+    marginBottom: 10,
   },
   gridContent: {
-    display: "flex",
-    flexDirection: "row",
-    flexWrap: "wrap",
-    flexFlow: "row wrap",
-    justifyContent: "space-between",
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: "10px",
+
     [legacyBreakpoints.maxSmall]: {
-      alignItems: "center",
-      justifyContent: "center",
+      gridTemplateColumns: "1fr",
+      maxWidth: "max-content",
+      margin: "0 auto",
     },
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: "rgba(0,0,0,0.87)",
+      color: theme.palette.link.unmarked,
     }
   },
+  noResults: {
+    marginLeft: theme.spacing.unit,
+    color: theme.palette.text.dim4,
+    ...theme.typography.italic,
+  }
 });
 
 const SequencesGrid = ({sequences, showAuthor, classes, bookItemStyle }: {

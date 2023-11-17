@@ -10,24 +10,26 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useDialog } from '../../common/withDialog'
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { frontpageGuidelines, defaultGuidelines } from './ForumModerationGuidelinesContent'
-import { commentBodyStyles } from '../../../themes/stylePiping'
+import { userCanModerateSubforum } from '../../../lib/collections/tags/helpers';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     padding: theme.spacing.unit*2,
     position:"relative"
   },
-  assistance: {
-    color: 'rgba(0,0,0,0.6)',
+  assistance: { //UNUSED
+    color: theme.palette.text.normal,
   },
   'easy-going': {
-    color: 'rgba(100, 169, 105, 0.9)',
+    color: theme.palette.text.moderationGuidelinesEasygoing,
   },
   'norm-enforcing': {
-    color: '#2B6A99',
+    color: theme.palette.text.moderationGuidelinesNormEnforcing,
   },
   'reign-of-terror': {
-    color: 'rgba(179,90,49,.8)',
+    color: theme.palette.text.moderationGuidelinesReignOfTerror,
   },
   'editButton': {
     cursor: "pointer",
@@ -42,7 +44,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 4,
   },
   moderationGuidelines: {
-    ...commentBodyStyles(theme),
     fontSize: "1.1rem",
     '& p, & ul': {
       marginTop: '.6em',
@@ -55,22 +56,27 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const getModerationGuidelines = (document: PostsList, classes: ClassesType) => {
-  const moderationStyle = document.moderationStyle || (document.user?.moderationStyle || "")
+const truncateGuidelines = (guidelines: string) => {
   const truncatiseOptions = {
     TruncateLength: 300,
     TruncateBy: "characters",
-    Suffix: "... <a>(Read More)</a>",
+    Suffix: `... <a>(${preferredHeadingCase("Read More")})</a>`,
     Strict: false
   }
-  const { html = "" } = document.moderationGuidelines || {}
-  const userGuidelines = `${document.user ? `<p><em>${document.user.displayName + "'s commenting guidelines"}</em></p><p class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</p>` : ""}
+  return truncatise(guidelines, truncatiseOptions)
+}
+
+const getPostModerationGuidelines = (post: PostsList, classes: ClassesType) => {
+  const moderationStyle = post.moderationStyle || (post.user?.moderationStyle || "")
+
+  const { html = "" } = post.moderationGuidelines || {}
+  const userGuidelines = `${post.user ? `<p><em>${post.user.displayName + "'s commenting guidelines"}</em></p><p class="${classes[moderationStyle]}">${moderationStyleLookup[moderationStyle] || ""}</p>` : ""}
   ${html || ""}`
 
   const combinedGuidelines = `
     ${(html || moderationStyle) ? userGuidelines : ""}
-    ${(html && document.frontpageDate) ? '<hr/>' : ''}
-    ${document.frontpageDate ?
+    ${(html && post.frontpageDate) ? '<hr/>' : ''}
+    ${post.frontpageDate ?
         frontpageGuidelines :
           (
             (html || moderationStyle) ?
@@ -79,42 +85,60 @@ const getModerationGuidelines = (document: PostsList, classes: ClassesType) => {
           )
      }
   `
-  const truncatedGuidelines = truncatise(combinedGuidelines, truncatiseOptions)
+  const truncatedGuidelines = truncateGuidelines(combinedGuidelines)
   return { combinedGuidelines, truncatedGuidelines }
 }
 
-const ModerationGuidelinesBox = ({classes, post}: {
+const getSubforumModerationGuidelines = (tag: TagFragment) => {
+  const { html = "" } = tag.moderationGuidelines || {}
+  const combinedGuidelines = html
+  const truncatedGuidelines = truncateGuidelines(combinedGuidelines)
+  return { combinedGuidelines, truncatedGuidelines }
+}
+
+const ModerationGuidelinesBox = ({classes, commentType = "post", documentId}: {
   classes: ClassesType,
-  post: PostsMinimumInfo,
+  commentType?: "post" | "subforum",
+  documentId: string,
 }) => {
   const {recordEvent} = useNewEvents();
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const [expanded, setExpanded] = useState(false)
+  const isPost = commentType === "post"
 
-  const { document: postWithDetails, loading } = useSingle({
-    skip: !post,
-    documentId: post?._id,
-    collectionName: "Posts",
+  const { document, loading } = useSingle({
+    documentId,
+    collectionName: isPost ? "Posts" : "Tags",
     fetchPolicy: "cache-first",
-    fragmentName: "PostsList",
+    fragmentName: isPost ? "PostsList" : "TagFragment",
   });
+  const isPostType = (document: PostsList|TagFragment): document is PostsList => isPost && !!document
   
-  if (!post || !postWithDetails)
-    return null
-  if (loading)
-    return <Components.Loading/>
+  if (!document || loading) return null
 
   const handleClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    // On click, toggle moderation-guidelines expansion. Event handler is only
+    // attached if they're long enough for expand/collapse to be a thing. Note
+    // that if the moderation guidelines contain a link, this could also be a
+    // link-click, in which case it's important not to preventDefault or
+    // stopPropagation.
+    
+    // Only toggle moderation-guidelines expansion on an unmodified left-click
+    // (ie not if this is an open-new-tab on a link)
+    if(e.altKey || e.shiftKey || e.ctrlKey || e.metaKey || e.button!==0) {
+      return;
+    }
+    
     setExpanded(!expanded)
+    
     if (currentUser) {
       const eventProperties = {
         userId: currentUser._id,
         important: false,
         intercom: true,
-        documentId: postWithDetails?.userId,
+        documentId: document?.userId,
+        commentType: commentType,
         targetState: !expanded
       };
       recordEvent('toggled-user-moderation-guidelines', false, eventProperties);
@@ -124,36 +148,35 @@ const ModerationGuidelinesBox = ({classes, post}: {
   const openEditDialog = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+
     openDialog({
       componentName: "ModerationGuidelinesEditForm",
       componentProps: {
-        postId: post._id,
+        commentType,
+        documentId,
       }
     });
   }
   
-  const { combinedGuidelines, truncatedGuidelines } = getModerationGuidelines(postWithDetails, classes)
+  const { combinedGuidelines, truncatedGuidelines } = isPostType(document) ? getPostModerationGuidelines(document, classes) : getSubforumModerationGuidelines(document)
   const displayedGuidelines = expanded ? combinedGuidelines : truncatedGuidelines
 
   const expandable = combinedGuidelines.trim().length !== truncatedGuidelines.trim().length
 
   return (
     <div className={classes.root} onClick={expandable ? handleClick : undefined}>
-      { // FIXME: Users.canModeratePost depends on some fields that aren't always
-        // reasonable to include in fragments, so on non-post pages the edit button
-        // may be missing from moderation guidelines.
-        // @ts-ignore
-        userCanModeratePost(currentUser, post) &&
+      {
+        !!(isPostType(document) ? userCanModeratePost(currentUser, document) : userCanModerateSubforum(currentUser, document)) &&
         <span onClick={openEditDialog}>
           <Tooltip title="Edit moderation guidelines">
             <Edit className={classes.editButton} />
           </Tooltip>
         </span>
       }
-      <div className={classes.moderationGuidelines}>
+      <Components.ContentStyles contentType="comment" className={classes.moderationGuidelines}>
         <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
         {expanded && expandable && <a className={classes.collapse}>(Click to Collapse)</a>}
-      </div>
+      </Components.ContentStyles>
     </div>
   )
 }

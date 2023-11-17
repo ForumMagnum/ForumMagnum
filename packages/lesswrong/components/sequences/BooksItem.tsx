@@ -1,30 +1,28 @@
 import React, { useState, useCallback } from 'react';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { getBookAnchor } from '../../lib/collections/books/helpers';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { postBodyStyles } from '../../themes/stylePiping'
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-  },
   description: {
     marginTop: theme.spacing.unit,
     marginBottom: 20,
-    ...postBodyStyles(theme),
   },
   subtitle: {
     fontSize: 20,
     lineHeight: 1.1,
     fontStyle: "italic",
-    marginTop: 20,
+    marginBottom: 20,
   },
   posts: {
     marginLeft: 20,
     marginRight: 25,
     marginBottom: 30,
-    "& .posts-item": {
+    "& .posts-item": { // UNUSED (.posts-item isn't a real clas)
       "&:hover": {
-        boxShadow: "0 1px 6px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.12)",
+        boxShadow: `0 1px 6px ${theme.palette.boxShadowColor(0.12)}, 0 1px 4px ${theme.palette.boxShadowColor(0.12)}`,
       },
-      boxShadow: "0 1px 6px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.1)",
+      boxShadow: `0 1px 6px ${theme.palette.boxShadowColor(0.06)}, 0 1px 4px ${theme.palette.boxShadowColor(0.12)}`,
       textDecoration: "none",
     }
   },
@@ -38,8 +36,8 @@ const BooksItem = ({ book, canEdit, classes }: {
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}
-  const { SingleColumnSection, SectionTitle, SectionButton, SequencesGrid,
-    SequencesPostsList, Divider, ContentItemBody } = Components
+  const { BooksProgressBar, SectionTitle, SectionButton, LargeSequencesItem,
+    SequencesPostsList, ContentItemBody, ContentStyles, SequencesGrid } = Components
   
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -55,25 +53,31 @@ const BooksItem = ({ book, canEdit, classes }: {
       cancelCallback={showBook}
     />
   } else {
-    return <div className="books-item">
-      <SingleColumnSection>
-        <SectionTitle title={book.title}>
+    return <div>
+        <SectionTitle title={book.title} anchor={getBookAnchor(book)}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
-        {html  && <div className={classes.description}>
+        {book.subtitle && <div className={classes.subtitle}>{book.subtitle}</div>}
+
+        <AnalyticsContext pageElementContext="booksProgressBar">
+          <BooksProgressBar book={book} />
+        </AnalyticsContext>
+
+        {html  && <ContentStyles contentType="post" className={classes.description}>
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: html}}
             description={`book ${book._id}`}
           />
-        </div>}
+        </ContentStyles>}
 
         {book.posts && !!book.posts.length && <div className={classes.posts}>
           <SequencesPostsList posts={book.posts} />
         </div>}
 
-        <SequencesGrid sequences={book.sequences} bookItemStyle/>
-      </SingleColumnSection>
-      <Divider />
+        {book.displaySequencesAsGrid && <SequencesGrid sequences={book.sequences}/>}
+        {!book.displaySequencesAsGrid && book.sequences.map(sequence =>
+          <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters} />
+        )}
     </div>
   }
 }

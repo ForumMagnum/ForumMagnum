@@ -1,30 +1,22 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import mapValues from 'lodash/mapValues';
 
-class FormComponentNumber extends PureComponent<any> {
-
-  getChildContext() {
-    return {
-      ...this.context,
-      
-      // For some reason MuiTextField with type="number" constrains the input
-      // to a number, but then reports the result as a string, which causes
-      // form validation to fail because strings like "3" are not nunbers.
-      // Insert a mapping here to parse them first.
-      updateCurrentValues: (changes) => {
-        this.context.updateCurrentValues(mapValues(changes, n=>parseInt(n)));
+const FormComponentNumber = (props: FormComponentProps<number>) => {
+  return <Components.MuiTextField
+    type="number"
+    {...props}
+    value={""+props.value}
+    updateCurrentValues={
+      // MuiTextField returns a string - convert it into a number to avoid database errors
+      (values: any, options?: any) => {
+        for (const key in values) {
+          values[key] = parseInt(values[key]);
+        }
+        return props.updateCurrentValues(values, options);
       }
-    };
-  }
-  
-  render() {
-    return <Components.MuiTextField
-      type="number"
-      {...this.props}
-    />
-  }
+    }
+  />
 }
 
 (FormComponentNumber as any).contextTypes = {
@@ -42,5 +34,3 @@ declare global {
     FormComponentNumber: typeof FormComponentNumberComponent
   }
 }
-
-

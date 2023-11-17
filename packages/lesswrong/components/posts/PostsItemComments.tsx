@@ -10,6 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 4,
     height: 24,
     position: "relative",
+    flexShrink: 0,
     
     "& .MuiSvgIcon-root": {
       height: "100%",
@@ -19,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   commentsIconLarge: {
-    width: 48,
+    width: 26,
     height: 24,
     cursor: "pointer",
     position: "relative",
@@ -34,18 +35,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     right:"50%",
     top:"50%",
     transform:"translate(50%, -50%)",
-    color:"white",
+    color: theme.palette.icon.commentsBubble.commentCount,
     fontVariantNumeric:"lining-nums",
     ...theme.typography.commentStyle
   },
   noUnreadComments: {
-    color: "rgba(0,0,0,.22)",
+    color: theme.palette.icon.commentsBubble.noUnread,
   },
   unreadComments: {
     color: theme.palette.secondary.light,
   },
   newPromotedComments: {
-    color: "rgb(160, 225, 165)"
+    color: theme.palette.icon.commentsBubble.newPromoted,
   },
   commentCountIcon: {
     position:"absolute",

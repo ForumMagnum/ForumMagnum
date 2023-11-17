@@ -1,26 +1,32 @@
 {
   "compilerOptions": {
-    "lib": ["es2015", "dom"],
-    "noImplicitAny": false,
+    "lib": ["es2019", "dom"],
+    "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
     "jsx": "react",
     "esModuleInterop": true,
     "rootDir": ".",
     "module": "commonjs",
-    "target": "es5",
+    "target": "es6",
     "sourceMap": true,
     "moduleResolution": "node",
     "downlevelIteration": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "strictBindCallApply": true,
+    "allowImportingTsExtensions": true
   },
   "include": [
     "packages/lesswrong",
+    "public/lesswrong-editor/src/editorConfigs.js",
     "cypress"
   ],
   "exclude": [
     "node_modules",
     "build"
-  ]
+  ],
+  "ts-node": {
+    "files": true
+  }
 }

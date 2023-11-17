@@ -15,7 +15,7 @@ if (fixKarma) { void (async ()=>{
   await asyncForeachSequential(allUsers, async (user) => {
     if (user.legacy) {
       // Function to deal with fields sometimes being undefined. Casts undefined to 0;
-      const f = (number) => number || 0;
+      const f = (n: number) => n || 0;
       // @ts-ignore legacyData isn't handled right on the schema
       const mainPostKarma = (upvoteWeight * f(user.legacyData.karma_ups_link_lesswrong))
         // @ts-ignore for legacyData
@@ -41,7 +41,7 @@ if (fixKarma) { void (async ()=>{
         + (discussionPostKarmaWeight*discussionPostKarma)
         + (discussionCommentKarmaWeight*discussionCommentKarma)
 
-      await Users.update({_id: user._id}, {$set :{karma: karma}});
+      await Users.rawUpdateOne({_id: user._id}, {$set :{karma: karma}});
       usersCount++;
 
       if (usersCount % 1000 == 0 ){

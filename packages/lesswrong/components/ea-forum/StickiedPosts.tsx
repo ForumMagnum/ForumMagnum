@@ -1,13 +1,19 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { sectionTitleStyle } from "../common/SectionTitle";
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  title: {
-    ...sectionTitleStyle(theme),
-    display: "inline",
-    marginRight: "auto",
-  },
+  root: isFriendlyUI
+    ? {
+      margin: "8px 0",
+    }
+    : {
+      marginBottom: 24,
+      [theme.breakpoints.down("md")]: {
+        marginTop: 12,
+        marginBottom: 8,
+      }
+    },
 });
 
 const StickiedPosts = ({
@@ -15,19 +21,18 @@ const StickiedPosts = ({
 }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, PostsList2, SectionTitle } = Components;
+  const { SingleColumnSection, PostsList2, TargetedJobAd } = Components
 
-  return <SingleColumnSection className={classes.section}>
-    <SectionTitle title="Pinned Posts" className={classes.title} />
+  return <SingleColumnSection className={classes.root}>
     <PostsList2
-      terms={{view:"stickied", limit:100}}
+      terms={{view:"stickied", limit:100, forum: true}}
       showNoResults={false}
       showLoadMore={false}
       hideLastUnread={false}
       boxShadow={false}
       curatedIconLeft={false}
     />
-  </SingleColumnSection>;
+  </SingleColumnSection>
 }
 
 const StickiedPostsComponent = registerComponent("StickiedPosts", StickiedPosts, {styles});

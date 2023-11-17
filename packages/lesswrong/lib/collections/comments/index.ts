@@ -1,7 +1,8 @@
 export * from './collection';
 
-import './custom_fields';
+import './schema';
 import './helpers';
 import './permissions';
 import './views';
-import './voting'
+import './voting';
+import './types';

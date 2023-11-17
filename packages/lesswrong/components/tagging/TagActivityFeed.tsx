@@ -1,4 +1,5 @@
 import React from 'react';
+import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const TagActivityFeed = ({classes, pageSize = 50}: {
@@ -8,7 +9,7 @@ const TagActivityFeed = ({classes, pageSize = 50}: {
   const { SingleColumnSection, MixedTypeFeed, TagRevisionItem, CommentsNode, NewTagItem, SectionTitle } = Components;
   
   return <SingleColumnSection>
-    <SectionTitle title="Recent Tag & Wiki Activity"/>
+    <SectionTitle title={`Recent ${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag & Wiki'} Activity`}/>
     <MixedTypeFeed
       pageSize={pageSize}
       resolverName="AllTagsActivityFeed"

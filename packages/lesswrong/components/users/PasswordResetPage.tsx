@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '1.2rem',
     marginBottom: 8,
     padding: 8,
-    backgroundColor: 'rgba(0,0,0,0.03)',
+    backgroundColor: theme.palette.panelBackground.darken03,
     width: '100%'
   },
   submit: {
@@ -44,7 +44,7 @@ const PasswordResetPage = ({classes}: {
   }
   const { SingleColumnSection } = Components;
   
-  const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName]
+  const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName as keyof ComponentTypes]
   return <SingleColumnSection className={classes.root}>
     {!useTokenResult && <> 
       <input value={password} type="password" name="password" placeholder="new password" className={classes.input} onChange={event => setPassword(event.target.value)}/>

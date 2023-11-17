@@ -1,12 +1,9 @@
 import React from 'react';
 import Badge from '@material-ui/core/Badge';
-import { registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import IconButton from '@material-ui/core/IconButton';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import NotificationsNoneIcon from '@material-ui/icons/NotificationsNone';
-import * as _ from 'underscore';
-import { getHeaderTextColor } from "../common/Header";
+import classNames from 'classnames';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   badgeContainer: {
@@ -16,72 +13,62 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   badge: {
     backgroundColor: 'inherit',
-    color: getHeaderTextColor(theme),
-    fontFamily: 'freight-sans-pro, sans-serif',
-    fontSize: "12px",
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
     fontWeight: 500,
     right: "1px",
     top: "1px",
     pointerEvents: "none",
+    ...(isFriendlyUI
+      ? {
+        fontSize: 10,
+      }
+      : {
+        fontFamily: "freight-sans-pro, sans-serif",
+        fontSize: 12,
+      }),
   },
   buttonOpen: {
-    backgroundColor: "rgba(0,0,0,0.4)"
+    backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.buttons.notificationsBellOpen.icon,
   },
   buttonClosed: {
-    backgroundColor: "rgba(0,0,0,0)"
+    backgroundColor: "transparent",
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
   },
 });
 
-const NotificationsMenuButton = ({ open, color, toggle, currentUser, classes }: {
+const NotificationsMenuButton = ({ unreadNotifications, open, toggle, className, classes }: {
+  unreadNotifications: number,
   open: boolean,
-  color?: string,
-  toggle: any,
-  currentUser: UsersCurrent,
+  toggle: ()=>void,
+  className?: string,
   classes: ClassesType,
 }) => {
-  const { results } = useMulti({
-    terms: {
-      view: 'userNotifications',
-      userId: currentUser._id
-    },
-    collectionName: "Notifications",
-    fragmentName: 'NotificationsList',
-    pollInterval: 0,
-    limit: 20,
-    enableTotal: false,
-    fetchPolicy: 'cache-and-network',
-  });
-  
-  let filteredResults: Array<NotificationsList> = results && _.filter(results,
-    (x) => !currentUser.lastNotificationsCheck || x.createdAt > currentUser.lastNotificationsCheck
-  );
-
+  const { ForumIcon } = Components
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
-  const notificationIconStyle = {
-    color: open ? "#FFFFFF" : (color || "rgba(0,0,0,0.6)"),
-  }
 
   return (
     <Badge
-      classes={{ root: classes.badgeContainer, badge: classes.badge }}
-      badgeContent={(filteredResults && filteredResults.length) || ""}
+      classes={{ root: classNames(classes.badgeContainer, className), badge: classes.badge }}
+      badgeContent={(unreadNotifications>0) ? `${unreadNotifications}` : ""}
     >
       <IconButton
-          classes={{ root: buttonClass }}
-          onClick={toggle}
-          style={ notificationIconStyle }
+        classes={{ root: buttonClass }}
+        onClick={toggle}
       >
-        {filteredResults && filteredResults.length ? <NotificationsIcon /> : <NotificationsNoneIcon />}
+        {(unreadNotifications>0) ? <ForumIcon icon="Bell" /> : <ForumIcon icon="BellBorder" />}
       </IconButton>
     </Badge>
   )
 }
 
-const NotificationsMenuButtonComponent = registerComponent('NotificationsMenuButton', NotificationsMenuButton, {styles});
+const NotificationsMenuButtonComponent = registerComponent('NotificationsMenuButton', NotificationsMenuButton, {
+  styles,
+  areEqual: "auto",
+});
 
 declare global {
   interface ComponentTypes {
     NotificationsMenuButton: typeof NotificationsMenuButtonComponent
   }
 }
-

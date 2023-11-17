@@ -13,13 +13,13 @@ export const logFieldChanges = async <T extends DbObject>({currentUser, collecti
   let schema = getSchema(collection);
   
   for (let key of Object.keys(data)) {
-    let before = oldDocument[key], after = data[key];
+    let before = oldDocument[key as keyof T], after = data[key as keyof T];
     // Don't log if:
     //  * The field didn't change
     //  * It's a denormalized field
     //  * The logChanges option is present on the field, and false
     //  * The logChanges option is undefined on the field, and is false on the collection
-    if (before===after) continue;
+    if (before===after || JSON.stringify(before)===JSON.stringify(after)) continue;
     if (schema[key]?.denormalized) continue;
     if (schema[key]?.logChanges != undefined && !schema[key]?.logChanges)
       continue;

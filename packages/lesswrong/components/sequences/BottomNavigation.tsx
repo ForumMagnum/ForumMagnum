@@ -47,7 +47,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "0px",
     borderLeftStyle: "solid",
     borderLeftWidth: "1px",
-    color: "rgba(0,0,0,0.3)",
+    color: theme.palette.icon.dim5,
     left: 0,
     right: 0,
     top: 0,

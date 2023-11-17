@@ -23,7 +23,10 @@ registerFragment(`
     updateType
     editedAt
     userId
-    originalContents
+    originalContents {
+      type
+      data
+    }
     html
     markdown
     draftJS
@@ -44,8 +47,10 @@ registerFragment(`
     
     score
     baseScore
+    extendedScore
     voteCount
     currentUserVote
+    currentUserExtendedVote
   }
 `);
 
@@ -80,11 +85,22 @@ registerFragment(`
 `);
 
 registerFragment(`
+  fragment RecentDiscussionRevisionTagFragment on Revision {
+    ...RevisionHistoryEntry
+    tag {
+      ...TagRecentDiscussion
+    }
+  }
+`);
+
+registerFragment(`
   fragment WithVoteRevision on Revision {
     __typename
     _id
     currentUserVote
+    currentUserExtendedVote
     baseScore
+    extendedScore
     score
     voteCount
   }

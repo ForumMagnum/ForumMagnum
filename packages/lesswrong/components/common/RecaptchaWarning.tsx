@@ -10,7 +10,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   warningText: {
     margin: 10,
     padding: 20,
-    border: '1px solid #ccc',
+    border: theme.palette.border.slightlyIntense,
     ...theme.typography.body2
   },
   link: {
@@ -27,18 +27,17 @@ const RecaptchaWarning = ({ currentUser, classes, children }: {
     return <> { children } </>
   }
   switch (forumTypeSetting.get()) {
-    case 'EAForum':
-      return <div className={classes.warningText}>
-        You've been flagged by our spam detection system. Please{' '}
-        <Link className={classes.link} to="/contact">contact us</Link> to active posting and commenting privileges on your accout.
-      </div>
     case 'AlignmentForum':
     case 'LessWrong':
-    default:
       return <div className={classes.warningText}>
         You've been flagged by our spam detection system. Please message an admin via
         Intercom (the chat bubble in the bottom right corner) or send a private message to admin
         <Link className={classes.link} to="/users/habryka"> habryka</Link> to activate posting- and commenting-privileges on your account.
+      </div>
+    default:
+      return <div className={classes.warningText}>
+        You've been flagged by our spam detection system. Please{' '}
+        <Link className={classes.link} to="/contact">contact us</Link> to activate posting and commenting privileges on your account.
       </div>
   }
 }

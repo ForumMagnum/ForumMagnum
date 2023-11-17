@@ -1,208 +1,47 @@
 import Notifications from '../lib/collections/notifications/collection';
-import Messages from '../lib/collections/messages/collection';
-import { messageGetLink } from '../lib/helpers';
 import Conversations from '../lib/collections/conversations/collection';
-import Subscriptions from '../lib/collections/subscriptions/collection';
 import { subscriptionTypes } from '../lib/collections/subscriptions/schema';
 import Localgroups from '../lib/collections/localgroups/collection';
 import Users from '../lib/collections/users/collection';
-import { getUserEmail, userGetProfileUrl } from '../lib/collections/users/helpers';
 import { Posts } from '../lib/collections/posts';
 import { postStatuses } from '../lib/collections/posts/constants';
-import { postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
+import { getConfirmedCoauthorIds, postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
-import { commentGetPageUrlFromDB } from '../lib/collections/comments/helpers'
 import { reasonUserCantReceiveEmails, wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
+import './emailComponents/PostNominatedEmail';
 import './emailComponents/PrivateMessagesEmail';
-import { EventDebouncer, DebouncerTiming } from './debouncer';
-import { getNotificationTypeByName } from '../lib/notificationTypes';
-import { notificationDebouncers } from './notificationBatching';
-import { defaultNotificationTypeSettings } from '../lib/collections/users/custom_fields';
-import { ensureIndex } from '../lib/collectionUtils';
+import { EventDebouncer } from './debouncer';
 import * as _ from 'underscore';
 import { Components } from '../lib/vulcan-lib/components';
-import { createMutator, updateMutator } from './vulcan-lib/mutators';
+import { updateMutator } from './vulcan-lib/mutators';
 import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import { CallbackHook } from '../lib/vulcan-lib/callbacks';
 
 import React from 'react';
-import keyBy from 'lodash/keyBy';
 import TagRels from '../lib/collections/tagRels/collection';
 import { RSVPType } from '../lib/collections/posts/schema';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../lib/instanceSettings';
+import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius, createNotification } from './notificationCallbacksHelpers'
+import moment from 'moment';
+import difference from 'lodash/difference';
+import uniq from 'lodash/uniq';
+import Messages from '../lib/collections/messages/collection';
+import Tags from '../lib/collections/tags/collection';
+import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
+import UserTagRels from '../lib/collections/userTagRels/collection';
+import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
+import { commentIsHidden } from '../lib/collections/comments/helpers';
+import { getDialogueResponseIds } from './posts/utils';
+import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
 // moderator approval because they're a user's first post (but does fire when
 // they're approved).
 export const postPublishedCallback = new CallbackHook<[DbPost]>("post.published");
-
-
-/**
- * Return a list of users (as complete user objects) subscribed to a given
- * document. This is the union of users who have subscribed to it explicitly,
- * and users who were subscribed to it by default and didn't suppress the
- * subscription.
- *
- * documentId: The document to look for subscriptions to.
- * collectionName: The collection the document to look for subscriptions to is in.
- * type: The type of subscription to check for.
- * potentiallyDefaultSubscribedUserIds: (Optional) An array of user IDs for
- *   users who are potentially subscribed to this document by default, eg
- *   because they wrote the post being replied to or are an organizer of the
- *   group posted in.
- * userIsDefaultSubscribed: (Optional. User=>bool) If
- *   potentiallyDefaultSubscribedUserIds is given, takes a user and returns
- *   whether they would be default-subscribed to this document.
- */
-export async function getSubscribedUsers({
-  documentId, collectionName, type,
-  potentiallyDefaultSubscribedUserIds=null, userIsDefaultSubscribed=null
-}: {
-  documentId: string|null,
-  collectionName: CollectionNameString,
-  type: string,
-  potentiallyDefaultSubscribedUserIds?: null|Array<string>,
-  userIsDefaultSubscribed?: null|((u:DbUser)=>boolean),
-}) {
-  if (!documentId) {
-    return [];
-  }
-  
-  const subscriptions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: 'subscribed'}).fetch()
-  const explicitlySubscribedUserIds = _.pluck(subscriptions, 'userId')
-  
-  const explicitlySubscribedUsers = await Users.find({_id: {$in: explicitlySubscribedUserIds}}).fetch()
-  const explicitlySubscribedUsersDict = keyBy(explicitlySubscribedUsers, u=>u._id);
-  
-  // Handle implicitly subscribed users
-  if (potentiallyDefaultSubscribedUserIds && potentiallyDefaultSubscribedUserIds.length>0) {
-    // Filter explicitly-subscribed users out of the potentially-implicitly-subscribed
-    // users list, since their subscription status is already known
-    potentiallyDefaultSubscribedUserIds = _.filter(potentiallyDefaultSubscribedUserIds, id=>!(id in explicitlySubscribedUsersDict));
-    
-    // Fetch and filter potentially-subscribed users
-    const potentiallyDefaultSubscribedUsers: Array<DbUser> = await Users.find({
-      _id: {$in: potentiallyDefaultSubscribedUserIds}
-    }).fetch();
-    // @ts-ignore @types/underscore annotated this wrong; the filter is optional, if it's null then everything passes
-    const defaultSubscribedUsers: Array<DbUser> = _.filter(potentiallyDefaultSubscribedUsers, userIsDefaultSubscribed);
-    
-    // Check for suppression in the subscriptions table
-    const suppressions = await Subscriptions.find({documentId, type, collectionName, deleted: false, state: "suppressed"}).fetch();
-    const suppressionsByUserId = keyBy(suppressions, s=>s.userId);
-    const defaultSubscribedUsersNotSuppressed = _.filter(defaultSubscribedUsers, u=>!(u._id in suppressionsByUserId))
-    
-    return _.union(explicitlySubscribedUsers, defaultSubscribedUsersNotSuppressed);
-  } else {
-    return explicitlySubscribedUsers;
-  }
-}
-
-
-export const createNotifications = async ({ userIds, notificationType, documentType, documentId, noEmail }:{
-  userIds: Array<string>
-  notificationType: string,
-  documentType: string|null,
-  documentId: string|null,
-  noEmail?: boolean|null
-}) => { 
-  return Promise.all(
-    userIds.map(async userId => {
-      await createNotification({userId, notificationType, documentType, documentId, noEmail});
-    })
-  );
-}
-
-const getNotificationTiming = (typeSettings): DebouncerTiming => {
-  switch (typeSettings.batchingFrequency) {
-    case "realtime":
-      return { type: "none" };
-    case "daily":
-      return {
-        type: "daily",
-        timeOfDayGMT: typeSettings.timeOfDayGMT,
-      };
-    case "weekly":
-      return {
-        type: "weekly",
-        timeOfDayGMT: typeSettings.timeOfDayGMT,
-        dayOfWeekGMT: typeSettings.dayOfWeekGMT,
-      };
-    default:
-      // eslint-disable-next-line no-console
-      console.error(`Unrecognized batching frequency: ${typeSettings.batchingFrequency}`);
-      return { type: "none" };
-  }
-}
-
-
-export const createNotification = async ({userId, notificationType, documentType, documentId, noEmail}:{
-    userId: string,
-    notificationType: string,
-    documentType: string|null,
-    documentId: string|null,
-    noEmail?: boolean|null
-  }) => { 
-  let user = await Users.findOne({ _id:userId });
-  if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
-  const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
-  const notificationTypeSettings = (userSettingField && user[userSettingField]) ? user[userSettingField] : defaultNotificationTypeSettings;
-
-  let notificationData = {
-    userId: userId,
-    documentId: documentId||undefined,
-    documentType: documentType||undefined,
-    message: await notificationMessage(notificationType, documentType, documentId),
-    type: notificationType,
-    link: await getLink(notificationType, documentType, documentId),
-  }
-
-  if (notificationTypeSettings.channel === "onsite" || notificationTypeSettings.channel === "both")
-  {
-    const createdNotification = await createMutator({
-      collection: Notifications,
-      document: {
-        ...notificationData,
-        emailed: false,
-        waitingForBatch: notificationTypeSettings.batchingFrequency !== "realtime",
-      },
-      currentUser: user,
-      validate: false
-    });
-    if (notificationTypeSettings.batchingFrequency !== "realtime") {
-      await notificationDebouncers[notificationType]!.recordEvent({
-        key: {notificationType, userId},
-        data: createdNotification.data._id,
-        timing: getNotificationTiming(notificationTypeSettings),
-        af: false, //TODO: Handle AF vs non-AF notifications
-      });
-    }
-  }
-  if ((notificationTypeSettings.channel === "email" || notificationTypeSettings.channel === "both") && !noEmail) {
-    const createdNotification = await createMutator({
-      collection: Notifications,
-      document: {
-        ...notificationData,
-        emailed: true,
-        waitingForBatch: true,
-      },
-      currentUser: user,
-      validate: false
-    });
-    if (!notificationDebouncers[notificationType])
-      throw new Error("Invalid notification type");
-    await notificationDebouncers[notificationType]!.recordEvent({
-      key: {notificationType, userId},
-      data: createdNotification.data._id,
-      timing: getNotificationTiming(notificationTypeSettings),
-      af: false, //TODO: Handle AF vs non-AF notifications
-    });
-  }
-}
 
 const removeNotification = async (notificationId: string) => {
   await updateMutator({
@@ -213,74 +52,27 @@ const removeNotification = async (notificationId: string) => {
   })
 }
 
-const sendPostByEmail = async (users: Array<DbUser>, postId: string, reason: string) => {
+const sendPostByEmail = async ({users, postId, reason, subject}: {
+  users: Array<DbUser>,
+  postId: string,
+  reason: string,
+  
+  // Subject line to use in the email. If omitted, uses the post title.
+  subject?: string,
+}) => {
   let post = await Posts.findOne(postId);
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
   for(let user of users) {
     if(!reasonUserCantReceiveEmails(user)) {
       await wrapAndSendEmail({
         user,
-        subject: post.title,
+        subject: subject ?? post.title,
         body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
       });
     } else {
       //eslint-disable-next-line no-console
       console.log(`Skipping user ${user.username} when emailing: ${reasonUserCantReceiveEmails(user)}`);
     }
-  }
-}
-
-const getLink = async (notificationType: string, documentType: string|null, documentId: string|null) => {
-  let document = await getDocument(documentType, documentId);
-
-  switch(notificationType) {
-    case "emailVerificationRequired":
-      return "/resendVerificationEmail";
-    default:
-      // Fall through to based on document-type
-      break;
-  }
-  
-  switch(documentType) {
-    case "post":
-      return postGetPageUrl(document as DbPost);
-    case "comment":
-      return await commentGetPageUrlFromDB(document as DbComment);
-    case "user":
-      return userGetProfileUrl(document as DbUser);
-    case "message":
-      return messageGetLink(document as DbMessage);
-    case "tagRel":
-      const post = await Posts.findOne({_id: (document as DbTagRel).postId})
-      return postGetPageUrl(post as DbPost);
-    default:
-      //eslint-disable-next-line no-console
-      console.error("Invalid notification type");
-  }
-}
-
-const notificationMessage = async (notificationType: string, documentType: string|null, documentId: string|null) => {
-  return await getNotificationTypeByName(notificationType)
-    .getMessage({documentType, documentId});
-}
-
-const getDocument = async (documentType: string|null, documentId: string|null) => {
-  if (!documentId) return null;
-  
-  switch(documentType) {
-    case "post":
-      return await Posts.findOne(documentId);
-    case "comment":
-      return await Comments.findOne(documentId);
-    case "user":
-      return await Users.findOne(documentId);
-    case "message":
-      return await Messages.findOne(documentId);
-    case "tagRel": 
-      return await TagRels.findOne(documentId)
-    default:
-      //eslint-disable-next-line no-console
-      console.error(`Invalid documentType type: ${documentType}`);
   }
 }
 
@@ -292,66 +84,263 @@ getCollectionHooks("Posts").editAsync.add(function PostsEditRunPostApprovedAsync
   }
 });
 
-export async function postsUndraftNotification(post: DbPost) {
-  //eslint-disable-next-line no-console
-  console.info("Post undrafted, creating notifications");
-
-  await postsNewNotifications(post);
-}
-
 function postIsPublic (post: DbPost) {
   return !post.draft && post.status === postStatuses.STATUS_APPROVED
 }
 
 // Export for testing
-/** Add new post notification callback on post submit */
+/** create notifications for a new post being published */
 export async function postsNewNotifications (post: DbPost) {
   if (postIsPublic(post)) {
-
-    // add users who are subscribed to this post's author
-    let usersToNotify = await getSubscribedUsers({
-      documentId: post.userId,
-      collectionName: "Users",
-      type: subscriptionTypes.newPosts
-    })
-
-    // add users who are subscribed to this post's groups
+    // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification -
+    // start by excluding the post author
+    let userIdsNotified: string[] = [post.userId];
+    
+    // first, if the post is in a group, notify all users who are subscribed to the group
     if (post.groupId) {
       // Load the group, so we know who the organizers are
       const group = await Localgroups.findOne(post.groupId);
       if (group) {
         const organizerIds = group.organizerIds;
-        const subscribedUsers = await getSubscribedUsers({
+        const groupSubscribedUsers = await getSubscribedUsers({
           documentId: post.groupId,
           collectionName: "Localgroups",
           type: subscriptionTypes.newEvents,
           potentiallyDefaultSubscribedUserIds: organizerIds,
           userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer,
         });
-        usersToNotify = _.union(usersToNotify, subscribedUsers)
+        
+        const userIdsToNotify = _.difference(groupSubscribedUsers.map(user => user._id), userIdsNotified)
+        if (post.isEvent) {
+          await createNotifications({userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
+        } else {
+          await createNotifications({userIds: userIdsToNotify, notificationType: 'newGroupPost', documentType: 'post', documentId: post._id});
+        }
+        // don't notify these users again
+        userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
       }
     }
     
-    // remove this post's author
-    // TODO: Removed because this was written in a way that didn't work and didn't
-    // typecheck, but also, it seems fine for people to get notifications for their
-    // own submissions to localgroups? It's nice to have a preview of what other
-    // subscribed users would see.
-    //usersToNotify = _.without(usersToNotify, post.userId);
-    
-    const userIdsToNotify = _.map(usersToNotify, u=>u._id);
-
-    if (post.groupId && post.isEvent) {
-      await createNotifications({userIds: userIdsToNotify, notificationType: 'newEvent', documentType: 'post', documentId: post._id});
-    } else if (post.groupId && !post.isEvent) {
-      await createNotifications({userIds: userIdsToNotify, notificationType: 'newGroupPost', documentType: 'post', documentId: post._id});
-    } else {
-      await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
+    // then notify all users who want to be notified of events in a radius
+    if (post.isEvent && post.mongoLocation) {
+      const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(post.mongoLocation)
+      const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
+      await createNotifications({userIds: userIdsToNotify, notificationType: "newEventInRadius", documentType: "post", documentId: post._id})
+      // don't notify these users again
+      userIdsNotified = _.union(userIdsNotified, userIdsToNotify)
     }
-
+    
+    // finally notify all users who are subscribed to the post's author
+    let authorSubscribedUsers = await getSubscribedUsers({
+      documentId: post.userId,
+      collectionName: "Users",
+      type: subscriptionTypes.newPosts
+    })
+    const userIdsToNotify = _.difference(authorSubscribedUsers.map(user => user._id), userIdsNotified)
+    await createNotifications({userIds: userIdsToNotify, notificationType: 'newPost', documentType: 'post', documentId: post._id});
   }
 }
-getCollectionHooks("Posts").newAsync.add(postsNewNotifications);
+
+postPublishedCallback.add(postsNewNotifications);
+
+function eventHasRelevantChangeForNotification(oldPost: DbPost, newPost: DbPost) {
+  const oldLocation = oldPost.googleLocation?.geometry?.location;
+  const newLocation = newPost.googleLocation?.geometry?.location;
+  if (!!oldLocation !== !!newLocation) {
+    //Location added or removed
+    return true;
+  }
+  if (oldLocation && newLocation && !_.isEqual(oldLocation, newLocation)) {
+    // Location changed
+    // NOTE: We treat the added/removed and changed cases separately because a
+    // dumb thing inside the mutation callback handlers mixes up null vs
+    // undefined, causing callbacks to get a spurious change from null to
+    // undefined which should not trigger a notification.
+    return true;
+  }
+
+  /* 
+   * moment(null) is not the same as moment(undefined), which started happening after the postgres migration of posts for events that didn't have endTimes.
+   * We can't check moment(null).isSame(moment(null)), since that always returns false.
+   * moment(undefined).isSame(moment(undefined)) often returns true but that's actually not guaranteed, so it's not safe to rely on.
+   * We shouldn't send a notification in those cases, obviously.
+   */
+  const { startTime: oldStartTime, endTime: oldEndTime } = oldPost;
+  const { startTime: newStartTime, endTime: newEndTime } = newPost;
+
+  const startTimeAddedOrRemoved = !!oldStartTime !== !!newStartTime;
+  const endTimeAddedOrRemoved = !!oldEndTime !== !!newEndTime;
+
+  const startTimeChanged = oldStartTime && newStartTime && !moment(newStartTime).isSame(moment(oldStartTime));
+  const endTimeChanged = oldEndTime && newEndTime && !moment(newEndTime).isSame(moment(oldEndTime));
+
+  if ((newPost.joinEventLink ?? null) !== (oldPost.joinEventLink ?? null)
+    || startTimeAddedOrRemoved
+    || startTimeChanged
+    || endTimeAddedOrRemoved
+    || endTimeChanged
+  ) {
+    // Link, start time, or end time changed
+    return true;
+  }
+  
+  return false;
+}
+
+getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
+  // don't bother notifying people about past or unscheduled events
+  const isUpcomingEvent = newPost.startTime && moment().isBefore(moment(newPost.startTime))
+  // only send notifications if the event was already published *before* being edited
+  const alreadyPublished = !oldPost.draft && !newPost.draft && !oldPost.authorIsUnreviewed && !newPost.authorIsUnreviewed
+  if (eventHasRelevantChangeForNotification(oldPost, newPost)
+    && newPost.isEvent && isUpcomingEvent && alreadyPublished
+  ) {
+    // track the users who we've notified, so that we only do so once per user, even if they qualify for more than one notification
+    let userIdsNotified: string[] = []
+
+    // first email everyone who RSVP'd to the event
+    const rsvpUsers = await getUsersToNotifyAboutEvent(newPost)
+    for (let {userId,email} of rsvpUsers) {
+      if (!email) continue
+      const user = await Users.findOne(userId)
+      if (userId) {
+        userIdsNotified.push(userId)
+      }
+      
+      await wrapAndSendEmail({
+        user: user,
+        to: email,
+        subject: `Event updated: ${newPost.title}`,
+        body: <Components.EventUpdatedEmail postId={newPost._id} />
+      });
+    }
+    
+    // then notify all users who want to be notified of events in a radius
+    if (newPost.mongoLocation) {
+      const radiusNotificationUsers = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
+      const userIdsToNotify = _.difference(radiusNotificationUsers.map(user => user._id), userIdsNotified)
+      await createNotifications({userIds: userIdsToNotify, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
+    }
+  }
+});
+
+
+interface NotifyDialogueParticipantProps {
+  participant: DbUser,
+  post: DbPost,
+  previousNotifications: DbNotification[],
+  newMessageAuthorId: string,
+  dialogueMessageInfo: DialogueMessageInfo|undefined,
+}
+
+async function sendSingleDialogueMessageNotification(props: Omit<NotifyDialogueParticipantProps, "previousNotifications">) {
+  const { participant, post, newMessageAuthorId, dialogueMessageInfo } = props
+  return await createNotifications({ 
+    userIds: [participant._id], 
+    notificationType: 'newDialogueMessages', 
+    documentType: 'post', 
+    documentId: post._id, 
+    extraData: {newMessageAuthorId, dialogueMessageInfo} 
+  })
+}
+
+async function sendBatchDialogueMessageNotification(props: Pick<NotifyDialogueParticipantProps, "participant"|"post">) {
+  const { participant, post } = props
+  return await createNotifications({ 
+    userIds: [participant._id], 
+    notificationType: 'newDialogueBatchMessages', 
+    documentType: 'post', 
+    documentId: post._id, 
+  })
+}
+
+async function notifyDialogueParticipantNewMessage(props: NotifyDialogueParticipantProps) {
+  const { participant, previousNotifications } = props
+  const lastNotificationCheckedAt = participant.lastNotificationsCheck;
+  const mostRecentNotification = previousNotifications[0]
+
+  //no previous dialogue notifications, send notification with individual message preview
+  if (!mostRecentNotification) {
+    return await sendSingleDialogueMessageNotification(props)
+  }
+
+  const isLastNotificationUnread = moment(mostRecentNotification.createdAt).isAfter(lastNotificationCheckedAt)
+
+  //most recent notification is a batch notifcation
+  if (mostRecentNotification.type === 'newDialogueBatchMessages') {
+    //if unread, don't send another
+    if (isLastNotificationUnread) return
+    //if read, go back to sending individual message preview
+    return await sendSingleDialogueMessageNotification(props)
+  //most recent notification is an individual message preview
+  } else {
+    //if unread, send batch notification
+    if (isLastNotificationUnread) {
+      return await sendBatchDialogueMessageNotification(props)
+    }
+    //if read, send another individual message preview
+    return await sendSingleDialogueMessageNotification(props)
+  }
+}
+
+export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, dialogueMessageInfo: DialogueMessageInfo|undefined, post: DbPost) {
+  // Get all the debate participants, but exclude the comment author if they're a debate participant
+  const debateParticipantIds = _.difference([post.userId, ...getConfirmedCoauthorIds(post)], [newMessageAuthorId]);
+  const debateParticipants = await Users.find({_id: {$in: debateParticipantIds}}).fetch();
+  const earliestLastNotificationsCheck = _.min(debateParticipants.map(user => user.lastNotificationsCheck));
+
+  const notifications = await Notifications.find({
+    userId: {$in: debateParticipantIds}, 
+    documentId: post._id,
+    documentType: 'post', 
+    type: {$in: ['newDialogueMessages', 'newDialogueBatchMessages']}, 
+    createdAt: {$gt: earliestLastNotificationsCheck}
+  }, {sort: {createdAt: -1}}).fetch();
+
+
+  const notificationsByUserId = _.groupBy(notifications, notification => notification.userId);
+  debateParticipantIds.forEach(userId => {
+    if (!notificationsByUserId[userId]) {
+      notificationsByUserId[userId] = []
+    }
+  })
+  const notificationPromises = Object.entries(notificationsByUserId).map(async ([userId, previousNotifications]) => {
+    const participant = debateParticipants.find(user => user._id === userId)
+    if (participant) {
+      return notifyDialogueParticipantNewMessage({participant, post, previousNotifications, newMessageAuthorId, dialogueMessageInfo})
+    }
+  })
+
+  await Promise.all(notificationPromises)
+}
+
+getCollectionHooks("Posts").editAsync.add(async function newPublishedDialogueMessageNotification (newPost: DbPost, oldPost: DbPost) {
+  if (newPost.collabEditorDialogue) {
+    
+    const oldIds = getDialogueResponseIds(oldPost)
+    const newIds = getDialogueResponseIds(newPost);
+    const uniqueNewIds = _.difference(newIds, oldIds);
+    
+    if (uniqueNewIds.length > 0) {
+      const dialogueParticipantIds = [newPost.userId, ...getConfirmedCoauthorIds(newPost)];
+      const dialogueSubscribers = await getSubscribedUsers({
+        documentId: newPost._id,
+        collectionName: "Posts",
+        type: subscriptionTypes.newPublishedDialogueMessages,
+      });
+      
+      const dialogueSubscriberIds = dialogueSubscribers.map(sub => sub._id);
+      const dialogueSubscriberIdsToNotify = _.difference(dialogueSubscriberIds, dialogueParticipantIds);
+      await createNotifications({
+        userIds: dialogueSubscriberIdsToNotify,
+        notificationType: 'newPublishedDialogueMessages',
+        documentType: 'post',
+        documentId: newPost._id
+      });
+    }
+    
+  }
+});
 
 getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotifications(newPost: DbPost, oldPost: DbPost) {
   if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
@@ -372,7 +361,7 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
 
 async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   let usersMatchingFilter = await Users.find(filter).fetch();
-  if (forumTypeSetting.get() === 'EAForum') {
+  if (isEAForum) {
     return usersMatchingFilter
   }
 
@@ -382,7 +371,7 @@ async function findUsersToEmail(filter: MongoSelector<DbUser>) {
 
       for(let i=0; i<u.emails.length; i++)
       {
-        if(u.emails[i].address === primaryAddress && u.emails[i].verified)
+        if(u.emails[i] && u.emails[i].address === primaryAddress && u.emails[i].verified)
           return true;
       }
       return false;
@@ -393,7 +382,7 @@ async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   return usersToEmail
 }
 
-const curationEmailDelay = new EventDebouncer<string,null>({
+const curationEmailDelay = new EventDebouncer({
   name: "curationEmail",
   defaultTiming: {
     type: "delayed",
@@ -405,10 +394,18 @@ const curationEmailDelay = new EventDebouncer<string,null>({
     // Still curated? If it was un-curated during the 20 minute delay, don't
     // send emails.
     if (post?.curatedDate) {
-      // Email only non-admins (admins get emailed immediately, without the
-      // delay).
-      let usersToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: false});
-      await sendPostByEmail(usersToEmail, postId, "you have the \"Email me new posts in Curated\" option enabled");
+      //eslint-disable-next-line no-console
+      console.log(`Sending curation emails`);
+
+      let usersToEmail = await findUsersToEmail({'emailSubscribedToCurated': true});
+
+      //eslint-disable-next-line no-console
+      console.log(`Found ${usersToEmail.length} users to email`);
+      await sendPostByEmail({
+        users: usersToEmail,
+        postId,
+        reason: "you have the \"Email me new posts in Curated\" option enabled"
+      });
     } else {
       //eslint-disable-next-line no-console
       console.log(`Not sending curation notice for ${post?.title} because it was un-curated during the delay period.`);
@@ -417,16 +414,21 @@ const curationEmailDelay = new EventDebouncer<string,null>({
 });
 
 getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
-  if(post.curatedDate && !oldPost.curatedDate) {
+  if(post.curatedDate && !oldPost.curatedDate && isLWorAF) {
     // Email admins immediately, everyone else after a 20-minute delay, so that
-    // we get a chance to catch formatting issues with the email.
-    
+    // we get a chance to catch formatting issues with the email. (Admins get
+    // emailed twice.)
     const adminsToEmail = await findUsersToEmail({'emailSubscribedToCurated': true, isAdmin: true});
-    await sendPostByEmail(adminsToEmail, post._id, "you have the \"Email me new posts in Curated\" option enabled");
+
+    await sendPostByEmail({
+      users: adminsToEmail,
+      postId: post._id,
+      reason: "you have the \"Email me new posts in Curated\" option enabled",
+      subject: `[Admin preview] ${post.title}`,
+    });
     
     await curationEmailDelay.recordEvent({
       key: post._id,
-      data: null,
       af: false
     });
   }
@@ -439,7 +441,7 @@ getCollectionHooks("TagRels").newAsync.add(async function TaggedPostNewNotificat
     type: subscriptionTypes.newTagPosts
   })
   const post = await Posts.findOne({_id:tagRel.postId})
-  if (post && postIsPublic(post)) {
+  if (post && postIsPublic(post) && !post.authorIsUnreviewed) {
     const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
     
     // Don't notify the person who created the tagRel
@@ -464,13 +466,17 @@ async function getEmailFromRsvp({email, userId}: RSVPType): Promise<string | und
   if (userId) {
     const user = await Users.findOne(userId)
     if (user) {
-      return getUserEmail(user)
+      return user.email
     }
   }
 }
 
 
 export async function getUsersToNotifyAboutEvent(post: DbPost): Promise<{rsvp: RSVPType, userId: string|null, email: string|undefined}[]> {
+  if (!post.rsvps || !post.rsvps.length) {
+    return [];
+  }
+  
   return await Promise.all(post.rsvps
     .filter(r => r.response !== "no")
     .map(async (r: RSVPType) => ({
@@ -503,8 +509,18 @@ async function notifyRsvps(comment: DbComment, post: DbPost) {
   }
 }
 
-// add new comment notification callback on comment submit
-getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotifications(comment: DbComment) {
+// This may have been sending out duplicate notifications in previous years, maybe just be because this was implemented partway into the review, and some posts slipped through that hadn't previously gotten voted on.
+getCollectionHooks("ReviewVotes").newAsync.add(async function PositiveReviewVoteNotifications(reviewVote: DbReviewVote) {
+  const post = reviewVote.postId ? await Posts.findOne(reviewVote.postId) : null;
+  if (post && post.positiveReviewVoteCount >= REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD) {
+    const notifications = await Notifications.find({documentId:post._id, type: "postNominated" }).fetch()
+    if (!notifications.length) {
+      await createNotifications({userIds: [post.userId], notificationType: "postNominated", documentType: "post", documentId: post._id})
+    }
+  }
+})
+
+const sendNewCommentNotifications = async (comment: DbComment) => {
   const post = comment.postId ? await Posts.findOne(comment.postId) : null;
   
   if (post?.isEvent) {
@@ -542,17 +558,59 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
       }
     }
   }
+
+  // 2. If this comment is a debate comment, notify users who are subscribed to the post as a debate (`newDebateComments`)
+  if (post && comment.debateResponse) {
+    // Get all the debate participants, but exclude the comment author if they're a debate participant
+    const debateParticipantIds = _.difference([post.userId, ...(post.coauthorStatuses ?? []).map(coauthor => coauthor.userId)], [comment.userId]);
+
+    const debateSubscribers = await getSubscribedUsers({
+      documentId: comment.postId,
+      collectionName: "Posts",
+      type: subscriptionTypes.newDebateComments,
+      potentiallyDefaultSubscribedUserIds: debateParticipantIds
+    });
+
+    const debateSubscriberIds = debateSubscribers.map(sub => sub._id);
+    // Handle debate readers
+    // Filter out debate participants, since they get a different notification type
+    // (We shouldn't have notified any users for these comments previously, but leaving that in for sanity)
+    const debateSubscriberIdsToNotify = _.difference(debateSubscriberIds, [...debateParticipantIds, ...notifiedUsers, comment.userId]);
+    await createNotifications({ userIds: debateSubscriberIdsToNotify, notificationType: 'newDebateComment', documentType: 'comment', documentId: comment._id });
+
+    // Handle debate participants
+    const subscribedParticipantIds = _.intersection(debateSubscriberIds, debateParticipantIds);
+    await createNotifications({ userIds: subscribedParticipantIds, notificationType: 'newDebateReply', documentType: 'comment', documentId: comment._id });
+
+    // Avoid notifying users who are subscribed to both the debate comments and regular comments on a debate twice 
+    notifiedUsers = [...notifiedUsers, ...debateSubscriberIdsToNotify, ...subscribedParticipantIds];
+  }
   
-  // 2. Notify users who are subscribed to the post (which may or may not include the post's author)
+  // 3. Notify users who are subscribed to the post (which may or may not include the post's author)
   let userIdsSubscribedToPost: Array<string> = [];
   const usersSubscribedToPost = await getSubscribedUsers({
     documentId: comment.postId,
     collectionName: "Posts",
     type: subscriptionTypes.newComments,
-    potentiallyDefaultSubscribedUserIds: post ? [post.userId] : [],
+    potentiallyDefaultSubscribedUserIds: post ? [post.userId, ...getConfirmedCoauthorIds(post)] : [],
     userIsDefaultSubscribed: u => u.auto_subscribe_to_my_posts
   })
   userIdsSubscribedToPost = _.map(usersSubscribedToPost, u=>u._id);
+  
+  // if the post is associated with a group, also (potentially) notify the group organizers
+  if (post && post.groupId) {
+    const group = await Localgroups.findOne(post.groupId)
+    if (group?.organizerIds && group.organizerIds.length) {
+      const subsWithOrganizers = await getSubscribedUsers({
+        documentId: comment.postId,
+        collectionName: "Posts",
+        type: subscriptionTypes.newComments,
+        potentiallyDefaultSubscribedUserIds: group.organizerIds,
+        userIsDefaultSubscribed: u => u.autoSubscribeAsOrganizer
+      })
+      userIdsSubscribedToPost = _.union(userIdsSubscribedToPost, _.map(subsWithOrganizers, u=>u._id))
+    }
+  }
 
   // Notify users who are subscribed to shortform posts
   if (!comment.topLevelCommentId && comment.shortform) {
@@ -571,6 +629,47 @@ getCollectionHooks("Comments").newAsync.add(async function CommentsNewNotificati
   const postSubscriberIdsToNotify = _.difference(userIdsSubscribedToPost, [...notifiedUsers, comment.userId])
   if (postSubscriberIdsToNotify.length > 0) {
     await createNotifications({userIds: postSubscriberIdsToNotify, notificationType: 'newComment', documentType: 'comment', documentId: comment._id})
+    notifiedUsers = [ ...notifiedUsers, ...postSubscriberIdsToNotify]
+  }
+  
+  // 4. If this comment is in a subforum, notify members with email notifications enabled
+  if (
+    comment.tagId &&
+    comment.tagCommentType === "SUBFORUM" &&
+    !comment.topLevelCommentId &&
+    !comment.authorIsUnreviewed // FIXME: make this more general, and possibly queue up notifications from unreviewed users to send once they are approved
+  ) {
+    const subforumSubscriberIds = (await subforumGetSubscribedUsers({ tagId: comment.tagId })).map((u) => u._id);
+    const subforumSubscriberIdsMaybeNotify = (
+      await UserTagRels.find({
+        userId: { $in: subforumSubscriberIds },
+        tagId: comment.tagId,
+        subforumEmailNotifications: true,
+      }).fetch()
+    ).map((u) => u.userId);
+    const subforumSubscriberIdsToNotify = _.difference(subforumSubscriberIdsMaybeNotify, [...notifiedUsers, comment.userId])
+
+    await createNotifications({
+      userIds: subforumSubscriberIdsToNotify,
+      notificationType: "newSubforumComment",
+      documentType: "comment",
+      documentId: comment._id,
+    });
+  }
+}
+
+// add new comment notification callback on comment submit
+getCollectionHooks("Comments").newAsync.add(async function commentsNewNotifications(comment: DbComment) {
+  // if the site is currently hiding comments by unreviewed authors, do not send notifications if this comment should be hidden
+  if (commentIsHidden(comment)) return
+  
+  void sendNewCommentNotifications(comment)
+});
+
+getCollectionHooks("Comments").editAsync.add(async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment) {
+  // if the site is currently hiding comments by unreviewed authors, send the proper "new comment" notifications once the comment author is reviewed
+  if (commentIsHidden(oldComment) && !commentIsHidden(comment)) {
+    void sendNewCommentNotifications(comment)
   }
 });
 
@@ -589,6 +688,17 @@ getCollectionHooks("Messages").newAsync.add(async function messageNewNotificatio
   await createNotifications({userIds: recipientIds, notificationType: 'newMessage', documentType: 'message', documentId: message._id, noEmail: message.noEmail});
 });
 
+getCollectionHooks("Conversations").editAsync.add(async function conversationEditNotification(conversation: DbConversation, oldConversation: DbConversation) {
+  const newParticipantIds = difference(conversation.participantIds || [], oldConversation.participantIds || []);
+
+  if (newParticipantIds.length) {
+    // Notify newly added users of the most recent message
+    const mostRecentMessage = await Messages.findOne({conversationId: conversation._id}, {sort: {createdAt: -1}});
+    if (mostRecentMessage) // don't notify if there are no messages, they will still be notified when they receive the first message
+      await createNotifications({userIds: newParticipantIds, notificationType: 'newMessage', documentType: 'message', documentId: mostRecentMessage._id, noEmail: mostRecentMessage.noEmail});
+  }
+});
+
 export async function bellNotifyEmailVerificationRequired (user: DbUser) {
   await createNotifications({userIds: [user._id], notificationType: 'emailVerificationRequired', documentType: null, documentId: null});
 }
@@ -604,10 +714,47 @@ getCollectionHooks("Posts").editAsync.add(async function PostsEditNotifyUsersSha
 });
 
 getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersSharedOnPost (post: DbPost) {
-  if (post.shareWithUsers?.length) {
-    await createNotifications({userIds: post.shareWithUsers, notificationType: "postSharedWithUser", documentType: "post", documentId: post._id})
+  const { _id, shareWithUsers = [], coauthorStatuses } = post;
+  const coauthors: Array<string> = coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) || [];
+  const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthors.includes(user)) || [];
+  await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
+});
+
+getCollectionHooks("Posts").createAsync.add(async function PostsNewNotifyUsersAddedAsCoauthors ({ document: post }) {
+  const coauthorIds: Array<string> = getConfirmedCoauthorIds(post);
+  await createNotifications({ userIds: coauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
+});
+
+getCollectionHooks("Posts").updateAsync.add(async function PostsEditNotifyUsersAddedAsCoauthors ({ oldDocument: oldPost, newDocument: newPost }) {
+  const newCoauthorIds = getConfirmedCoauthorIds(newPost);
+  const oldCoauthorIds = getConfirmedCoauthorIds(oldPost);
+  const addedCoauthorIds = _.difference(newCoauthorIds, oldCoauthorIds);
+
+  if (addedCoauthorIds.length) {
+    await createNotifications({ userIds: addedCoauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: newPost._id });
   }
 });
+
+const sendCoauthorRequestNotifications = async (post: DbPost) => {
+  const { _id, coauthorStatuses, hasCoauthorPermission } = post;
+
+  if (hasCoauthorPermission === false && coauthorStatuses?.length) {
+    await createNotifications({
+      userIds: coauthorStatuses.filter(({requested, confirmed}) => !requested && !confirmed).map(({userId}) => userId),
+      notificationType: "coauthorRequestNotification",
+      documentType: "post",
+      documentId: _id,
+    });
+
+    post.coauthorStatuses = coauthorStatuses.map((status) => ({ ...status, requested: true }));
+    await Posts.rawUpdateOne({ _id }, { $set: { coauthorStatuses: post.coauthorStatuses } });
+  }
+
+  return post;
+}
+
+getCollectionHooks("Posts").newAfter.add(sendCoauthorRequestNotifications);
+getCollectionHooks("Posts").updateAfter.add(sendCoauthorRequestNotifications);
 
 const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComment, oldDocument: DbPost|DbComment) => {
   const newlyAF = newDocument.af && !oldDocument.af
@@ -620,57 +767,25 @@ const AlignmentSubmissionApprovalNotifyUser = async (newDocument: DbPost|DbComme
     await createNotifications({userIds: [newDocument.userId], notificationType: "alignmentSubmissionApproved", documentType, documentId: newDocument._id})
   }
 }
-  
+
 getCollectionHooks("Posts").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 getCollectionHooks("Comments").editAsync.add(AlignmentSubmissionApprovalNotifyUser)
 
-async function getUsersWhereLocationIsInNotificationRadius(location): Promise<Array<DbUser>> {
-  return await Users.aggregate([
-    {
-      "$geoNear": {
-        "near": location, 
-        "spherical": true,
-        "distanceField": "distance",
-        "distanceMultiplier": 0.001,
-        "maxDistance": 300000, // 300km is maximum distance we allow to set in the UI
-        "key": "nearbyEventsNotificationsMongoLocation"
-      }
-    },
-    {
-      "$match": {
-        "$expr": {
-            "$gt": ["$nearbyEventsNotificationsRadius", "$distance"]
-        }
-      }
+async function newSubforumMemberNotifyMods (user: DbUser, oldUser: DbUser) {
+  const newSubforumIds = difference(user.profileTagIds, oldUser.profileTagIds)
+  for (const subforumId of newSubforumIds) {
+    const subforum = await Tags.findOne(subforumId)
+    if (subforum?.isSubforum) {
+      const modIds = subforum.subforumModeratorIds || []
+      await createNotifications({
+        userIds: modIds,
+        notificationType: 'newSubforumMember',
+        documentType: 'user',
+        documentId: user._id,
+        extraData: {subforumId}
+      })
     }
-  ]).toArray()
+  }
 }
-ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
-postPublishedCallback.add(async function PostsNewMeetupNotifications (newPost: DbPost) {
-  if (newPost.isEvent && newPost.mongoLocation && !newPost.draft) {
-    const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
-    const userIds = usersToNotify.map(user => user._id)
-    const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
-    await createNotifications({userIds: usersIdsWithoutAuthor, notificationType: "newEventInRadius", documentType: "post", documentId: newPost._id})
-  }
-});
-
-getCollectionHooks("Posts").updateAsync.add(async function PostsEditMeetupNotifications ({document: newPost, oldDocument: oldPost}: {document: DbPost, oldDocument: DbPost}) {
-  if (
-    (
-      (!newPost.draft && oldPost.draft) || 
-      (newPost.mongoLocation !== oldPost.mongoLocation) ||
-      (newPost.startTime !== oldPost.startTime) || 
-      (newPost.endTime !== oldPost.endTime) || 
-      (newPost.contents?.html !== oldPost.contents?.html) ||
-      (newPost.title !== oldPost.title)
-    )
-    && newPost.mongoLocation && newPost.isEvent && !newPost.draft) 
-  {
-    const usersToNotify = await getUsersWhereLocationIsInNotificationRadius(newPost.mongoLocation)
-    const userIds = usersToNotify.map(user => user._id)
-    const usersIdsWithoutAuthor = userIds.filter(id => id !== newPost.userId)
-    await createNotifications({userIds: usersIdsWithoutAuthor, notificationType: "editedEventInRadius", documentType: "post", documentId: newPost._id})
-  }
-});
+getCollectionHooks("Users").editAsync.add(newSubforumMemberNotifyMods)

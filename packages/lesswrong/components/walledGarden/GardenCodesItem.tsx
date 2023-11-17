@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import CreateIcon from '@material-ui/icons/Create';
 import { eventRoot, eventName, eventTime, eventFormat } from "./PortalBarGcalEventItem";
-import { highlightSimplifiedStyles } from '../posts/PostsPreviewTooltip';
+import { highlightSimplifiedStyles } from '../posts/PostsPreviewTooltip/LWPostsPreviewTooltip';
 import { userOwns, userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import PersonIcon from '@material-ui/icons/Person';
@@ -36,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...eventName(theme)
   },
   eventNameLink: {
-    color: "rgba(0,0,0,0.55) !important",
+    color: `${theme.palette.text.dim55} !important`,
   },
   eventTime: {
     ...eventTime(theme)
@@ -48,7 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: .75,
   },
   trailingIcons: {
-    color: theme.palette.grey[700],
+    color: theme.palette.icon.dim700,
     width: 48,
     marginLeft: 8,
     display: "flex",
@@ -64,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...iconStyling,
   },
   fbIcon: {
-    color: theme.palette.grey[700],
+    color: theme.palette.icon.dim700,
     height: 12,
     width: 12,
     opacity: .5,

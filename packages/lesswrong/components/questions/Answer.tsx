@@ -1,17 +1,17 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState, useCallback } from 'react';
-import { answerStyles } from '../../themes/stylePiping'
 import withErrorBoundary from '../common/withErrorBoundary'
 import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
-import { styles as commentsItemStyles } from "../comments/CommentsItem/CommentsItem";
+import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
+import { useCommentLink } from '../comments/CommentsItem/useCommentLink';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { CommentTreeNode } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  postContent: {
-    ...answerStyles(theme),
-  },
   root: {
     marginBottom: theme.spacing.unit*4,
     paddingTop: theme.spacing.unit*2.5,
@@ -29,25 +29,34 @@ const styles = (theme: ThemeType): JssStyles => ({
   answerHeader: {
     display: "flex",
     alignItems: "center",
-    marginBottom: theme.spacing.unit*2
+    marginBottom: theme.spacing.unit*2,
+    flexWrap: "wrap",
   },
   author: {
     display: 'inline-block',
     fontWeight: 600,
-    ...theme.typography.postStyle
+    ...theme.typography.postStyle,
+    ...(isFriendlyUI
+      ? {
+        fontFamily: theme.palette.fonts.sansSerifStack,
+      }
+      : {}),
   },
   date: {
     display: 'inline-block',
     marginLeft: 10,
+    flexGrow: 0,
+    flexShrink: 0,
   },
   vote: {
-    display: 'inline-block',
+    display: "flex",
     marginLeft: 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.grey[500],
+    flexShrink: 0,
     flexGrow: 1,
     position: "relative",
-    top: -4
+    top: isFriendlyUI ? 0 : -4,
   },
   footer: {
     marginTop: 5,
@@ -60,6 +69,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "25%",
     marginTop: theme.spacing.unit*4,
     marginBottom: theme.spacing.unit*8
+  },
+  linkIcon: {
+    fontSize: "1.2rem",
+    color: theme.palette.icon.dim,
+    margin: "0 4px",
+    position: "relative",
   },
   menu: {
     opacity:.5,
@@ -98,7 +113,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     border: `solid 2px ${theme.palette.lwTertiary.main}`,
   },
   metaNotice: {
-    ...commentsItemStyles(theme).metaNotice,
+    ...metaNoticeStyles(theme),
     ...theme.typography.commentStyle,
     marginTop: -12,
     marginBottom: 10
@@ -108,13 +123,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const Answer = ({ comment, post, classes }: {
+const Answer = ({ comment, post, childComments, classes }: {
   comment: CommentsList,
   post: PostsList,
+  childComments: CommentTreeNode<CommentsList>[],
   classes: ClassesType,
 }) => {
   const [showEdit,setShowEdit] = useState(false);
-  const [commenting,setCommenting] = useState(false);
   
   const setShowEditTrue = useCallback(() => {
     setShowEdit(true)
@@ -123,8 +138,17 @@ const Answer = ({ comment, post, classes }: {
     setShowEdit(false)
   }, [setShowEdit]);
 
-  const { ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, CommentsItemDate, UsersName, CommentBottomCaveats, Typography } = Components
+  const CommentLinkWrapper = useCommentLink({comment, post});
+
+  const {
+    ContentItemBody, SmallSideVote, AnswerCommentsList, CommentsMenu, ForumIcon,
+    CommentsItemDate, UsersName, CommentBottomCaveats, Typography, ContentStyles,
+  } = Components;
   const { html = "" } = comment.contents || {}
+
+  const menuIcon = isFriendlyUI
+    ? undefined
+    : <MoreHorizIcon className={classes.menuIcon} />;
 
   return (
     <div className={classNames(classes.root, {[classes.promoted]: comment.promoted})}>
@@ -133,12 +157,17 @@ const Answer = ({ comment, post, classes }: {
           <Typography variant="body2" className={classes.deleted}>
             Answer was deleted
           </Typography>
+          {isFriendlyUI &&
+            <CommentLinkWrapper>
+              <ForumIcon icon="Link" className={classes.linkIcon} />
+            </CommentLinkWrapper>
+          }
           <CommentsMenu
             className={classes.menu}
             showEdit={setShowEditTrue}
             comment={comment}
             post={post}
-            icon={<MoreHorizIcon className={classes.menuIcon}/>}
+            icon={menuIcon}
           />
         </div>
         :
@@ -155,16 +184,21 @@ const Answer = ({ comment, post, classes }: {
                 <span className={classes.vote}>
                   <SmallSideVote document={comment} collection={Comments}/>
                 </span>
+                {isFriendlyUI &&
+                  <CommentLinkWrapper>
+                    <ForumIcon icon="Link" className={classes.linkIcon} />
+                  </CommentLinkWrapper>
+                }
                 <CommentsMenu
                   className={classes.menu}
                   showEdit={setShowEditTrue}
                   comment={comment}
                   post={post}
-                  icon={<MoreHorizIcon className={classes.menuIcon}/>}
+                  icon={menuIcon}
                 />
               </div>
               { comment.promotedByUser && <div className={classes.metaNotice}>
-                Promoted by {comment.promotedByUser.displayName}
+                Pinned by {comment.promotedByUser.displayName}
               </div>}
               { showEdit ?
                 <Components.CommentsEditForm
@@ -174,12 +208,14 @@ const Answer = ({ comment, post, classes }: {
                 />
                 :
                 <>
-                  <ContentItemBody
-                    className={classNames(classes.postContent,
-                      {[classes.retracted]: comment.retracted})}
-                    dangerouslySetInnerHTML={{__html:html}}
-                    description={`comment ${comment._id} on post ${post._id}`}
-                  />
+                  <ContentStyles contentType="answer">
+                    <ContentItemBody
+                      className={classNames({[classes.retracted]: comment.retracted})}
+                      dangerouslySetInnerHTML={{__html:html}}
+                      description={`comment ${comment._id} on post ${post._id}`}
+                      nofollow={(comment.user?.karma || 0) < nofollowKarmaThreshold.get()}
+                    />
+                  </ContentStyles>
                   <CommentBottomCaveats comment={comment}/>
                 </>
               }
@@ -187,6 +223,7 @@ const Answer = ({ comment, post, classes }: {
           </AnalyticsContext>
           <AnswerCommentsList
             post={post}
+            commentTree={childComments}
             parentAnswer={comment}
           />
         </div>
@@ -205,4 +242,3 @@ declare global {
     Answer: typeof AnswerComponent
   }
 }
-

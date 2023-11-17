@@ -7,13 +7,20 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 const Reports: ReportsCollection = createCollection({
   collectionName: 'Reports',
   typeName: 'Report',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Reports'),
   mutations: getDefaultMutations('Reports'),
   logChanges: true,
 });
 
-addUniversalFields({collection: Reports})
+addUniversalFields({
+  collection: Reports,
+  createdAtOptions: {
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+  },
+});
 
 const membersActions = [
   'reports.new',

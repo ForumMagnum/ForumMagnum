@@ -39,7 +39,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 75,
   },
   newForm: {
-    border: "solid 1px rgba(0,0,0,.2)",
+    border: theme.palette.border.normal,
   },
 });
 
@@ -52,7 +52,7 @@ const CollectionsEditForm = ({documentId, successCallback, cancelCallback, class
   return (
     <div className={classNames(classes.newOrEditForm,classes.editForm)}>
       <Components.WrappedSmartForm
-        collection={Collections}
+        collectionName="Collections"
         documentId={documentId}
         successCallback={successCallback}
         cancelCallback={cancelCallback}

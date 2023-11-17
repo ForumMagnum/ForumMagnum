@@ -15,11 +15,11 @@ export const GardenCodesEditForm = ({classes, gardenCodeId, cancelCallback, succ
   successCallback?: any,
   cancelCallback?: any,
 }) => {
-  const { WrappedSmartForm } = Components
-  return <div className={classes.root}>
+  const { WrappedSmartForm, ContentStyles } = Components
+  return <ContentStyles contentType="commentExceptPointerEvents" className={classes.root}>
     <WrappedSmartForm
       layout="elementOnly"
-      collection={GardenCodes}
+      collectionName="GardenCodes"
       documentId={gardenCodeId}
       successCallback={successCallback}
       cancelCallback={cancelCallback}
@@ -28,7 +28,7 @@ export const GardenCodesEditForm = ({classes, gardenCodeId, cancelCallback, succ
       mutationFragment={getFragment('GardenCodeFragmentEdit')}
       submitLabel="Save"
     />
-  </div>
+  </ContentStyles>
 }
 
 const GardenCodesEditFormComponent = registerComponent('GardenCodesEditForm', GardenCodesEditForm, {styles});

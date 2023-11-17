@@ -105,7 +105,7 @@ function isArray(o: any): boolean {
 /**
  * Color Hash Class
  */
-export const ColorHash = function(this: any, options: any) {
+export const ColorHash: AnyBecauseTodo = function(this: AnyBecauseTodo, options: AnyBecauseTodo) {
     options = options || {};
 
     var LS = [options.lightness, options.saturation].map(function(param) {

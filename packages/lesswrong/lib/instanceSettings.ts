@@ -1,7 +1,10 @@
 import { initializeSetting } from './publicSettings'
 import { isServer, isDevelopment, isAnyTest, getInstanceSettings, getAbsoluteUrl } from './executionEnvironment';
+import { pluralize } from './vulcan-lib/pluralize';
+import startCase from 'lodash/startCase' // AKA: capitalize, titleCase
+import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 
-const getNestedProperty = function (obj, desc) {
+const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;
@@ -108,17 +111,46 @@ export class PublicInstanceSetting<SettingValueType> {
   Public Instance Settings
 */
 
-export type ForumTypeString = "LessWrong"|"AlignmentForum"|"EAForum";
+export const allForumTypes = new TupleSet(["LessWrong","AlignmentForum","EAForum"] as const);
+export type ForumTypeString = UnionOf<typeof allForumTypes>;
 export const forumTypeSetting = new PublicInstanceSetting<ForumTypeString>('forumType', 'LessWrong', 'warning') // What type of Forum is being run, {LessWrong, AlignmentForum, EAForum}
+
+export const isLW = forumTypeSetting.get() === "LessWrong"
+export const isEAForum = forumTypeSetting.get() === "EAForum"
+export const isAF = forumTypeSetting.get() === "AlignmentForum"
+export const isLWorAF = isLW || isAF
+
 export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'LessWrong', 'warning') // Default title for URLs
 
 // Your site name may be referred to as "The Alignment Forum" or simply "LessWrong". Use this setting to prevent something like "view on Alignment Forum". Leave the article uncapitalized ("the Alignment Forum") and capitalize if necessary.
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
 
+/**
+ * By default, we switch between using Mongo or Postgres based on the forum type. This can make it difficult to
+ * test changes with different forum types to find regressions. Setting this to either "mongo" or "pg" will force
+ * all collections to be of that type whatever the forum type setting might be, making cross-forum testing much
+ * easier.
+ */
+export const forceCollectionTypeSetting = new PublicInstanceSetting<CollectionType|null>("forceCollectionType", null, "optional");
+
+/**
+ * Name of the tagging feature on your site. The EA Forum is going to try
+ * calling them topics. You should set this setting with the lowercase singular
+ * form of the name. We assume this is a single word currently. Spaces will
+ * cause issues.
+ */
+export const taggingNameSetting = new PublicInstanceSetting<string>('taggingName', 'tag', 'optional')
+export const taggingNameCapitalSetting = {get: () => startCase(taggingNameSetting.get())}
+export const taggingNamePluralSetting = {get: () => pluralize(taggingNameSetting.get())}
+export const taggingNamePluralCapitalSetting = {get: () => pluralize(startCase(taggingNameSetting.get()))}
+export const taggingNameIsSet = {get: () => taggingNameSetting.get() !== 'tag'}
+
 // NB: Now that neither LW nor the EAForum use this setting, it's a matter of
 // time before it falls out of date. Nevertheless, I expect any newly-created
 // forums to use this setting.
 export const hasEventsSetting = new PublicInstanceSetting<boolean>('hasEvents', true, 'optional') // Whether the current connected server has events activated
+
+export const hasRejectedContentSectionSetting = new PublicInstanceSetting<boolean>('hasRejectedContentSection', false, 'optional');
 
 // Sentry settings
 export const sentryUrlSetting = new PublicInstanceSetting<string|null>('sentry.url', null, "warning"); // DSN URL
@@ -126,4 +158,45 @@ export const sentryEnvironmentSetting = new PublicInstanceSetting<string|null>('
 export const sentryReleaseSetting = new PublicInstanceSetting<string|null>('sentry.release', null, "warning") // Current release, i.e. hash of lattest commit
 export const siteUrlSetting = new PublicInstanceSetting<string>('siteUrl', getAbsoluteUrl(), "optional")
 
+// FM Crossposting
+export const fmCrosspostSiteNameSetting = new PublicInstanceSetting<string|null>("fmCrosspost.siteName", null, "optional");
+export const fmCrosspostBaseUrlSetting = new PublicInstanceSetting<string|null>("fmCrosspost.baseUrl", null, "optional");
+
+// For development, there's a matched set of CkEditor settings as instance
+// settings, which take precedence over the database settings. This allows
+// using custom CkEditor settings that don't match what's in the attached
+// database.
+export const ckEditorUploadUrlOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.uploadUrl', null, "optional") // Image Upload URL for CKEditor
+export const ckEditorWebsocketUrlOverrideSetting = new PublicInstanceSetting<string | null>('ckEditorOverride.webSocketUrl', null, "optional") // Websocket URL for CKEditor (for collaboration)
+
 // Stripe setting
+
+//Test vs Production Setting
+export const testServerSetting = new PublicInstanceSetting<boolean>("testServer", false, "warning")
+
+export const disableEnsureIndexSetting = new PublicInstanceSetting<boolean>("disableEnsureIndex", false, "optional");
+
+/** Currently LW-only; forum-gated in `userCanVote` */
+export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<string>("lowKarmaUserVotingCutoffDate", "11-30-2022", "optional");
+/** Currently LW-only; forum-gated in `userCanVote` */
+export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 1, "optional");
+
+/** Whether to include a Share button. (Forums with no public access, or a more conservative style wouldn't want one.) */
+export const hasShareButtonsSetting = new PublicInstanceSetting<boolean>("hasShareButtons", true, "optional");
+
+/** Whether posts and other content is visible to non-logged-in users (TODO: actually implement this) */
+export const publicAccess = new PublicInstanceSetting<boolean>("publicAccess", true, "optional");
+
+/** Header-related settings */
+export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
+export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
+export const faviconWithBadgeSetting = new PublicInstanceSetting<string|null>('faviconWithBadge', null, "optional")
+export const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.tabTitle', 'LessWrong', "warning")
+export const tabLongTitleSetting = new PublicInstanceSetting<string | null>('forumSettings.tabLongTitle', null, "optional")
+
+export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
+
+/** Whether this forum verifies user emails */
+export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
+
+export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");

@@ -4,7 +4,7 @@ import classNames from 'classnames'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     fontSize: "1.1rem",
     display: "flex",
     alignItems: "center",

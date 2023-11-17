@@ -79,7 +79,7 @@ export function mergeSingleUser(userList: Array<DuplicateUser>)
 
   // Otherwise, we need to check if they all share the same name
   const keptUsers = classifications.filter(x => x.classification === MergeType.KeepAccount)
-  const cleanName = x => x.user.matches?.displayName?.toLocaleLowerCase()?.replace(/\s|_/g, '')
+  const cleanName = (x: AnyBecauseTodo) => x.user.matches?.displayName?.toLocaleLowerCase()?.replace(/\s|_/g, '')
   const keptUsersNames = keptUsers.map(cleanName)
   const allshareName = keptUsersNames.every(username => username === keptUsersNames[0])
   if (allshareName) {

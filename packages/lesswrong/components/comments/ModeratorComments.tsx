@@ -49,10 +49,10 @@ const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncate
                 post: comment.post || undefined,
                 tag: comment.tag || undefined,
                 showPostTitle: true,
+                forceNotSingleLine: true,
               }}
               comment={comment}
               startThreadTruncated={truncated}
-              forceNotSingleLine
             />
           </div>
         )}

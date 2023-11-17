@@ -2,25 +2,32 @@ import Button from '@material-ui/core/Button';
 import React, { useCallback, useEffect } from 'react';
 import { RSVPType } from '../../../lib/collections/posts/schema';
 import { useLocation } from '../../../lib/routeUtil';
-import { registerComponent } from '../../../lib/vulcan-lib';
-import { commentBodyStyles, postBodyStyles } from '../../../themes/stylePiping';
+import { registerComponent, Components, getFragment } from '../../../lib/vulcan-lib';
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
-import { responseToText } from './RSVPForm';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { responseToText, RsvpResponse } from './RSVPForm';
+import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import { gql, useMutation } from '@apollo/client';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import groupBy from "lodash/groupBy";
+import mapValues from "lodash/mapValues";
 
 const styles = (theme: ThemeType): JssStyles => ({
   body: {
-    ...postBodyStyles(theme),
     marginBottom: 12
   },
   rsvpItem: {
-    width:  forumTypeSetting.get() === "EAForum" ? "33%" : "25%",
+    width:  isFriendlyUI ? "33%" : "25%",
     display: "inline-block",
+    marginRight: 16,
     paddingTop: 4,
     paddingBottom: 4,
     padding: 8,
     verticalAlign: "top",
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
     [theme.breakpoints.down('sm')]: {
       width: "33.3%"
     },
@@ -29,27 +36,68 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   response: {
-    ...commentBodyStyles(theme),
-    marginTop: -4
-  },
-  email: {
-    ...commentBodyStyles(theme),
     marginTop: -4,
-    fontSize: "1rem",
-    color: "rgba(0,0,0,0.7)"
+    ...theme.typography.smallText
   },
   rsvpBlock: {
-    marginTop: 10, 
+    marginTop: 10,
     marginBottom: 10
-  }, 
+  },
+  rsvpCounts: {
+    marginTop: 10,
+    marginBottom: 10,
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
+  },
+  rsvpCount: {
+    marginLeft: 10,
+  },
   buttons: {
     [theme.breakpoints.down('xs')]: {
       display: "block"
     },
   },
-  button: {
-
-  }, 
+  goingButton: {
+    color: theme.palette.primary.main,
+    borderColor: theme.palette.primary.main,
+    marginRight: 8
+  },
+  goingIcon: {
+    height: 14,
+    color: theme.palette.primary.main
+  },
+  maybeButton: {
+    color: theme.palette.text.eventMaybe,
+    borderColor: theme.palette.text.eventMaybe,
+    marginRight: 8
+  },
+  maybeIcon: {
+    height: 14,
+    color: theme.palette.text.eventMaybe
+  },
+  noIcon: {
+    height: 14,
+    color: theme.palette.grey[500]
+  },
+  cantGoButton: {
+    color: theme.palette.grey[800]
+  },
+  email: {
+    ...theme.typography.smallText,
+    color: theme.palette.text.dim3,
+    marginLeft: 24
+  },
+  remove: {
+    color: theme.palette.grey[500],
+    marginLeft: 12,
+    cursor: "pointer",
+    position: "relative",
+    top: -2
+  },
+  rsvpName: {
+    position: "relative",
+    top: -1
+  },
   topRow: {
     display: "flex",
     justifyContent: "space-between",
@@ -57,13 +105,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       display: "block"
     },
-  }
+  },
+  rsvpMessage: isFriendlyUI
+    ? {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }
+    : {
+      fontStyle: "italic",
+    },
 });
 
 const RSVPs = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType
 }) => {
+  const { ContentStyles } = Components;
   const { openDialog } = useDialog()
   const { query } = useLocation()
   const currentUser = useCurrentUser()
@@ -78,24 +134,77 @@ const RSVPs = ({post, classes}: {
       openRSVPForm("yes")
     }
   })
-  return <div className={classes.body}>
+  const [cancelMutation] = useMutation(gql`
+    mutation CancelRSVPToEvent($postId: String, $name: String, $userId: String) {
+        CancelRSVPToEvent(postId: $postId, name: $name, userId: $userId) {
+        ...PostsDetails
+        }
+    }
+    ${getFragment("PostsDetails")}
+  `)
+  const cancelRSVP = async (rsvp: RSVPType) => await cancelMutation({variables: {postId: post._id, name: rsvp.name, userId: rsvp.userId}})
+
+  const rsvpCounts: Partial<Record<RsvpResponse,number>> = mapValues(groupBy(post.rsvps, rsvp => rsvp.response), rsvps=>rsvps.length);
+
+  return <ContentStyles contentType="post" className={classes.body}>
     <div className={classes.topRow}>
-      <i>The host has requested RSVPs for this event</i>
+      <span className={classes.rsvpMessage}>
+        The host has requested RSVPs for this event
+      </span>
       <span className={classes.buttons}>
-        <Button color="primary" className={classes.button} onClick={() => openRSVPForm("yes")}>Going</Button>
-        <Button className={classes.button} onClick={() => openRSVPForm("maybe")}>Maybe</Button>
-        <Button className={classes.button} onClick={() => openRSVPForm("no")}>Can't Go</Button>
+        <Button color="primary" variant="outlined" className={classes.goingButton} onClick={() => openRSVPForm("yes")}>
+          <CheckCircleOutlineIcon className={classes.goingIcon} /> Going
+        </Button>
+        <Button variant="outlined" className={classes.maybeButton} onClick={() => openRSVPForm("maybe")}>
+          <HelpOutlineIcon className={classes.maybeIcon} /> Maybe
+        </Button>
+        <Button variant="outlined" className={classes.button} onClick={() => openRSVPForm("no")}>
+          <HighlightOffIcon className={classes.noIcon} /> Can't Go
+        </Button>
       </span>
     </div>
-    {post.isEvent && post.rsvps?.length > 0 && <div className={classes.rsvpBlock}>
-      {post.rsvps.map((rsvp:RSVPType) => <span className={classes.rsvpItem} key={`${rsvp.name}-${rsvp.response}`}>
-        <div>{rsvp.name}</div>
-        <div className={classes.response}>{responseToText[rsvp.response]}</div>
-        {currentUser?._id === post.userId && <div className={classes.email}>{rsvp.email}</div>}
-      </span>)}
-    </div>}
-    
-  </div>;
+    {post.isEvent && post.rsvps?.length > 0 && <>
+      <div className={classes.rsvpCounts}>
+        {Object.keys(responseToText).map((response: RsvpResponse) => <span key={response} className={classes.rsvpCount}>
+          <ResponseIcon response={response} classes={classes} />
+          {rsvpCounts[response]??0} {responseToText[response]}
+        </span>)}
+      </div>
+      <div className={classes.rsvpBlock}>
+        {post.rsvps.map((rsvp:RSVPType) => {
+          const canCancel = currentUser?._id === post.userId || currentUser?._id === rsvp.userId
+          return <span className={classes.rsvpItem} key={`${rsvp.name}-${rsvp.response}`}>
+            <div>
+              <ResponseIcon response={rsvp.response} classes={classes}/>
+              <span className={classes.rsvpName}>{rsvp.name}</span>
+              {canCancel && <span className={classes.remove} onClick={() => cancelRSVP(rsvp)}>
+                {"x"}
+              </span>}
+            </div>
+            {currentUser?._id === post.userId && <div className={classes.email}>
+              {rsvp.email}
+            </div>}
+        </span>
+        })}
+      </div>
+    </>}
+  </ContentStyles>;
+}
+
+function ResponseIcon({response, classes}: {
+  response: RsvpResponse
+  classes: ClassesType
+}) {
+  switch (response) {
+    case "yes":
+      return <CheckCircleOutlineIcon className={classes.goingIcon} />
+    case "maybe":
+      return <HelpOutlineIcon className={classes.maybeIcon} />
+    case "no":
+      return <HighlightOffIcon className={classes.noIcon} />
+    default:
+      return <></>
+  }
 }
 
 const RSVPsComponent = registerComponent('RSVPs', RSVPs, {styles});

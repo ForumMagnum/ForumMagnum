@@ -1,12 +1,12 @@
 import compose from 'lodash/flowRight';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { withStyles } from '@material-ui/core/styles';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
 import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 type ComparisonFn = (prev: any, next: any)=>boolean
-type ComparePropsDict = { [propName: string]: "shallow"|"ignore"|"deep"|ComparisonFn }
+type ComparePropsDict = { [propName: string]: "default"|"shallow"|"ignore"|"deep"|ComparisonFn }
 type AreEqualOption = ComparisonFn|ComparePropsDict|"auto"
 
 // Options passed to registerComponent
@@ -14,6 +14,11 @@ interface ComponentOptions {
   // JSS styles for this component. These will generate class names, which will
   // be passed as an extra prop named "classes".
   styles?: any
+  
+  // Whether to ignore the presence of colors that don't come from the theme in
+  // the component's stylesheet. Use for things that don't change color with
+  // dark mode.
+  allowNonThemeColors?: boolean,
   
   // Default is 0. If classes with overlapping attributes from two different
   // components' styles wind up applied to the same node, the one with higher
@@ -73,7 +78,7 @@ const PreparedComponents: Record<string,any> = {};
 // storage for infos about components
 export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
-const DeferredComponentsTable: Record<string,()=>void> = {};
+export const DeferredComponentsTable: Record<string,()=>void> = {};
 
 type EmailRenderContextType = {
   isEmailRender: boolean
@@ -81,8 +86,8 @@ type EmailRenderContextType = {
 
 export const EmailRenderContext = React.createContext<EmailRenderContextType|null>(null);
 
-const addClassnames = (componentName: string, styles: any) => {
-  const classesProxy = new Proxy({}, {
+const classNameProxy = (componentName: string) => {
+  return new Proxy({}, {
     get: function(obj: any, prop: any) {
       // Check that the prop is really a string. This isn't an error that comes
       // up normally, but apparently React devtools will try to query for non-
@@ -93,16 +98,24 @@ const addClassnames = (componentName: string, styles: any) => {
         return `${componentName}-invalid`;
     }
   });
-  return (WrappedComponent: any) => (props: any) => {
+}
+
+const addClassnames = (componentName: string, styles: any) => {
+  const classesProxy = classNameProxy(componentName);
+  return (WrappedComponent: any) => forwardRef((props, ref) => {
     const emailRenderContext = React.useContext(EmailRenderContext);
     if (emailRenderContext?.isEmailRender) {
       const withStylesHoc = withStyles(styles, {name: componentName})
       const StylesWrappedComponent = withStylesHoc(WrappedComponent)
       return <StylesWrappedComponent {...props}/>
     }
-    return <WrappedComponent {...props} classes={classesProxy}/>
-  }
+    return <WrappedComponent ref={ref} {...props} classes={classesProxy}/>
+  })
 }
+
+export const useStyles = (styles: (theme: ThemeType)=>JssStyles, componentName: keyof ComponentTypes) => {
+  return classNameProxy(componentName);
+};
 
 // Register a component. Takes a name, a raw component, and ComponentOptions
 // (see above). Components should be in their own file, imported with
@@ -118,7 +131,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 {
   const { styles=null, hocs=[] } = options || {};
   if (styles) {
-    if (isClient && (window as any).missingMainStylesheet) {
+    if (isClient && window?.missingMainStylesheet) {
       hocs.push(withStyles(styles, {name: name}));
     } else {
       hocs.push(addClassnames(name, styles));
@@ -307,7 +320,7 @@ export const instantiateComponent = (component: any, props: any) => {
   if (!component) {
     return null;
   } else if (typeof component === 'string') {
-    const Component: any = Components[component];
+    const Component: any = Components[component as keyof ComponentTypes];
     return <Component {...props} />;
   } else if (
     typeof component === 'function' &&
@@ -323,21 +336,23 @@ export const instantiateComponent = (component: any, props: any) => {
   }
 };
 
-// Given an optional set of override-components, return a Components object
-// which wraps the main Components table, preserving Components'
-// proxy/deferred-execution tricks.
-export const mergeWithComponents = (myComponents: any) => {
+/**
+ * Given an optional set of override-components, return a Components object
+ * which wraps the main Components table, preserving Components'
+ * proxy/deferred-execution tricks.
+ */
+export const mergeWithComponents = (myComponents: Partial<ComponentTypes>|null|undefined): ComponentTypes => {
   if (!myComponents) return Components;
   
-  if (myComponents.__isProxy)
-    return myComponents;
+  if ((myComponents as any).__isProxy)
+    return (myComponents as any);
   
   const mergedComponentsProxyHandler = {
     get: function(obj: any, prop: string) {
       if (prop === "__isProxy") {
         return true;
       } else if (prop in myComponents) {
-        return myComponents[prop];
+        return (myComponents as any)[prop];
       } else if (prop in PreparedComponents) {
         return PreparedComponents[prop];
       } else {

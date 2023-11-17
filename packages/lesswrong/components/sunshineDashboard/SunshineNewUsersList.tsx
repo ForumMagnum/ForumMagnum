@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { useCurrentUser } from '../common/withUser';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   loadMore: {
@@ -13,12 +13,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SunshineNewUsersList = ({ classes, terms }: {
+const SunshineNewUsersList = ({ classes, terms, currentUser }: {
   terms: UsersViewTerms,
-  classes: ClassesType
+  classes: ClassesType,
+  currentUser: UsersCurrent,
 }) => {
-  const currentUser = useCurrentUser();
-  const { results, totalCount, loadMoreProps } = useMulti({
+  const { results, totalCount, loadMoreProps, refetch } = useMulti({
     terms,
     collectionName: "Users",
     fragmentName: 'SunshineUsersList',
@@ -31,12 +31,12 @@ const SunshineNewUsersList = ({ classes, terms }: {
     return (
       <div>
         <SunshineListTitle>
-          <span>New Users</span>
+          <Link to="/admin/moderation">Unreviewed Users</Link>
           <SunshineListCount count={totalCount}/>
         </SunshineListTitle>
         {results.map(user =>
           <div key={user._id} >
-            <SunshineNewUsersItem user={user}/>
+            <SunshineNewUsersItem user={user} refetch={refetch} currentUser={currentUser}/>
           </div>
         )}
         <div className={classes.loadMore}>

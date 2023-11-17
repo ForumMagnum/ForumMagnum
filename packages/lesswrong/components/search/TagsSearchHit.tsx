@@ -1,43 +1,57 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
-import type { Hit } from 'react-instantsearch-core';
+import LocalOfferOutlinedIcon from '@material-ui/icons/LocalOfferOutlined';
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import type { SearchHitComponentProps } from './types';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginLeft: theme.spacing.unit,
-    marginTop: 6,
-    marginBottom: theme.spacing.unit/2
+    padding: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
+    display: 'flex',
+    alignItems: 'center',
   },
   name: {
     ...theme.typography.body2,
   },
+  icon: {
+    width: 20,
+    color: theme.palette.grey[500],
+    marginRight: 12,
+    marginLeft: 4
+  },
   snippet: {
     ...theme.typography.body2,
-    color: 'rgba(0,0,0,0.5)'
+    color: theme.palette.text.dim,
+    wordBreak: "break-word"
   }
 })
 
-const isLeftClick = (event: MouseEvent): boolean => {
+const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const TagsSearchHit = ({hit, clickAction, classes}: {
-  hit: Hit<any>,
-  clickAction?: any,
-  classes: ClassesType,
-}) => {
+const TagsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+  const { LWTooltip } = Components
   const tag = hit as AlgoliaTag;
+
+  const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
+
   return <div className={classes.root}>
-    <Link to={tagGetUrl(tag)} onClick={(event: MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
+    {showIcon && <LWTooltip title={taggingNameCapitalSetting.get()}>
+      <LocalOfferOutlinedIcon className={classes.icon}/>
+    </LWTooltip>}
+    <Link to={tagGetUrl(tag)} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div className={classes.name}>
         {tag.name}
       </div>
-      <div className={classes.snippet}>
+      {showSnippet && <div className={classes.snippet}>
         <Snippet attribute="description" hit={tag} tagName="mark" />
-      </div>
+      </div>}
     </Link>
   </div>
 }

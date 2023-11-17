@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { ForwardedRef, forwardRef, useContext } from 'react';
 
 export const UserContext = React.createContext<UsersCurrent|null>(null);
 
@@ -8,12 +8,17 @@ export const UserContext = React.createContext<UsersCurrent|null>(null);
 // prop rather than getting it with useCurrentUser.
 export const useCurrentUser = () => useContext(UserContext);
 
+interface WithUserProps {
+  currentUser: UsersCurrent | null;
+  ref: ForwardedRef<unknown>;
+};
+
 // Higher-order component for providing the currently logged in user, assuming
 // the component is a descendant of Layout. This is much faster than Vulcan's
 // withCurrentUser, which creates a graphql query for each component.
-export default function withUser(Component) {
-  return function WithUserComponent(props) {
+export default function withUser(Component: React.FC<WithUserProps>) {
+  return forwardRef((props, ref) => {
     const currentUser = useCurrentUser();
-    return <Component {...props} currentUser={currentUser} />
-  }
+    return <Component ref={ref} {...props} currentUser={currentUser} />
+  })
 }

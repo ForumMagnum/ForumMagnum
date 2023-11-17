@@ -11,13 +11,11 @@ import PlusOneIcon from '@material-ui/icons/PlusOne';
 import UndoIcon from '@material-ui/icons/Undo';
 import ClearIcon from '@material-ui/icons/Clear';
 import withErrorBoundary from '../common/withErrorBoundary'
-import {commentBodyStyles} from "../../themes/stylePiping";
 import {DatabasePublicSetting} from "../../lib/publicSettings";
 
 export const defaultAFModeratorPMsTagSlug = new DatabasePublicSetting<string>('defaultAFModeratorPMsTagSlug', "af-default-moderator-responses")
 
-export const afSubmissionHeader = (theme) => ({
-  ...commentBodyStyles(theme),
+export const afSubmissionHeader = (theme: ThemeType): JssStyles => ({
   marginBottom: 24,
   display: "flex",
   flex: "flex-start",
@@ -25,8 +23,7 @@ export const afSubmissionHeader = (theme) => ({
   justifyContent: "space-between"
 })
 
-export const afSubmissionHeaderText = (theme) => ({
-  ...commentBodyStyles(theme),
+export const afSubmissionHeaderText = (theme: ThemeType): JssStyles => ({
   fontStyle: 'italic',
 })
 
@@ -82,12 +79,12 @@ class AFSuggestPostsItem extends Component<AFSuggestPostsItemProps> {
     return (
       <Components.SunshineListItem hover={hover}>
         <Components.SidebarHoverOver hover={hover} anchorEl={anchorEl} >
-          { userHasSelfSuggested && <div className={classes.afSubmissionHeader}>
-            <span className={classes.afSubmissionHeaderText}>
-                AF Submission
-            </span>
-            <Components.SunshineSendMessageWithDefaults user={post.user} tagSlug={defaultAFModeratorPMsTagSlug.get()}/>
-          </div>}
+          { userHasSelfSuggested && <Components.ContentStyles contentType="comment" className={classes.afSubmissionHeader}>
+            <Components.ContentStyles contentType="comment" className={classes.afSubmissionHeaderText}>
+              AF Submission
+            </Components.ContentStyles>
+            <Components.SunshineSendMessageWithDefaults user={post.user}/>
+          </Components.ContentStyles>}
           <Components.Typography variant="title">
             <Link to={postGetPageUrl(post)}>
               { post.title }

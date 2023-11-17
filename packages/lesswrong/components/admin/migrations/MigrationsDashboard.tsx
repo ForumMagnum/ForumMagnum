@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     fontWeight: 'bold',
     fontSize: 17,
-    borderBottom: '2px solid black',
+    borderBottom: theme.palette.border.tableHeadingDivider,
     marginBottom: theme.spacing.unit / 2,
   }
 });
@@ -49,7 +49,7 @@ const MigrationsDashboard = ({classes}: {
       <span className={classes.middleColumn}>Status</span>
       <span className={classes.lastRun}>Last Run (Started)</span>
     </div>
-    {data?.MigrationsDashboard?.migrations && data.MigrationsDashboard.migrations.map(migration =>
+    {data?.MigrationsDashboard?.migrations && data.MigrationsDashboard.migrations.map((migration: AnyBecauseTodo) =>
       <Components.MigrationsDashboardRow key={migration.name} migration={migration}/>)}
   </SingleColumnSection>;
 }

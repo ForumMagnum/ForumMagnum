@@ -1,9 +1,9 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { registerComponent } from '../../lib/vulcan-lib';
 
-const collapsedStyles = theme => ({
+const collapsedStyles = (theme: ThemeType): JssStyles => ({
   [theme.breakpoints.up('lg')]: {
     '& .book-container': {
       left: 'calc(var(--book-animation-left-offset, -100px) + var(--collapsed-position))',
@@ -221,7 +221,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const BookAnimation = ({ classes, children, successContent }: {
   classes: ClassesType,
-  children: any,
+  children: ReactNode,
   successContent?: any
 }) => {
   const { query } = useLocation();
@@ -273,7 +273,12 @@ const BookAnimation = ({ classes, children, successContent }: {
 }
 
 
-const BookAnimationComponent = registerComponent('BookAnimation', BookAnimation, { styles });
+const BookAnimationComponent = registerComponent('BookAnimation', BookAnimation, {
+  styles,
+  // This component tries to look like a printed book, which is white, so its colors
+  // don't change in dark mode
+  allowNonThemeColors: true,
+});
 
 declare global {
   interface ComponentTypes {

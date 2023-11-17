@@ -1,36 +1,65 @@
+import React, { useState, useRef } from "react";
+import classnames from "classnames";
 import { gql, useMutation } from "@apollo/client";
-import Button from "@material-ui/core/Button";
 import Checkbox from "@material-ui/core/Checkbox";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import TextField from "@material-ui/core/TextField";
-import React, { useState, useRef } from "react";
-import { forumTypeSetting, siteNameWithArticleSetting } from "../../lib/instanceSettings";
+import { isEAForum, siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
-import { useCurrentUser } from "../common/withUser";
+import { getUserEmail } from "../../lib/collections/users/helpers";
+import { LicenseLink, TosLink } from "../posts/PostsAcceptTos";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    background: 'white',
-    padding: theme.spacing.unit * 6
+    background: theme.palette.panelBackground.default,
+    padding: '40px 50px',
+    [theme.breakpoints.down('xs')]: {
+      padding: '30px 20px',
+    }
   },
   title: {
-    marginTop: 0
+    marginTop: 0,
+    [theme.breakpoints.down('md')]: {
+      fontSize: 28,
+    }
   },
   section: {
-    marginTop: theme.spacing.unit * 6
+    maxWidth: 600,
+    marginTop: theme.spacing.unit * 6,
+    "& .MuiTypography-body1": {
+      color: theme.palette.text.normal,
+    },
+    "& .MuiFormHelperText-root": {
+      color: theme.palette.grey[600],
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    },
+  },
+  sectionHeadingText: {
+    fontWeight: 600,
+    fontSize: 24,
+    [theme.breakpoints.down('md')]: {
+      fontSize: 20,
+    }
   },
   sectionHelperText: {
     color: theme.palette.grey[600],
-    fontStyle: 'italic',
-    fontSize: '1rem'
+    fontSize: '1rem',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    "& a": {
+      color: theme.palette.primary.main,
+    },
+  },
+  tosText: {
+    marginBottom: 16,
   },
   submitButtonSection: {
     marginTop: theme.spacing.unit * 3
-  }
+  },
 });
 
 type NewUserCompleteProfileProps = {
+  currentUser: UsersCurrent
   classes: ClassesType
 }
 
@@ -41,15 +70,14 @@ function prefillUsername(maybeUsername: string | undefined | null): string {
   return maybeUsername
 }
 
-const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes }) => {
-  const currentUser = useCurrentUser()
-  const [username, setUsername] = useState(prefillUsername(currentUser?.displayName))
+const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ currentUser, classes }) => {
+  const [username, setUsername] = useState(prefillUsername(currentUser.displayName))
   const emailInput = useRef<HTMLInputElement>(null)
   const [subscribeToDigest, setSubscribeToDigest] = useState(false)
   const [validationError, setValidationError] = useState('')
   const [updateUser] = useMutation(gql`
-    mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!, $email: String) {
-      NewUserCompleteProfile(username: $username, subscribeToDigest: $subscribeToDigest, email: $email) {
+    mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!, $email: String, $acceptedTos: Boolean) {
+      NewUserCompleteProfile(username: $username, subscribeToDigest: $subscribeToDigest, email: $email, acceptedTos: $acceptedTos) {
         username
         slug
         displayName
@@ -57,7 +85,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
     }
   `, {refetchQueries: ['getCurrentUser']})
   const {flash} = useMessages();
-  const {SingleColumnSection, Typography} = Components
+  const {SingleColumnSection, Typography, EAButton} = Components
 
   function validateUsername(username: string): void {
     if (username.length === 0) {
@@ -65,7 +93,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
       return
     }
     if (username.length > 70) {
-      setValidationError('username too long')
+      setValidationError('Username must be less than 70 characters')
       return
     }
     // TODO: Really want them to be able to tell live if their username is
@@ -75,11 +103,11 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
     // if (usernameIsUnique) ...
     setValidationError('')
   }
-  
+
   async function handleSave() {
     try {
       if (validationError) return
-      
+
       // TODO: loading spinner while running
       await updateUser({variables: {
         username,
@@ -87,7 +115,8 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
         // We do this fancy spread so we avoid setting the email to an empty
         // string in the likely event that someone already had an email and
         // wasn't shown the set email field
-        ...(!currentUser?.email && {email: emailInput.current?.value})
+        ...(!getUserEmail(currentUser) && {email: emailInput.current?.value}),
+        acceptedTos: isEAForum,
       }})
     } catch (err) {
       if (/duplicate key error/.test(err.toString?.())) {
@@ -101,21 +130,24 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
   
   return <SingleColumnSection>
     <div className={classes.root}>
-      <Typography variant='display3' gutterBottom className={classes.title}>
+      <Typography variant="display2" gutterBottom className={classes.title}>
         Thanks for registering for {siteNameWithArticleSetting.get()}
       </Typography>
       <Typography variant='body2'>
-        Please take a second to complete your profile
+        Take a moment to complete your profile
       </Typography>
       <div className={classes.section}>
-        <Typography variant='display1' gutterBottom>Please choose a username</Typography>
-        <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          This is the name that people will see when you post or comment.
+        <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
+          Please choose a username
         </Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          We encourage you to use your real name, because this will help other
-          people in the community to identify you, but you can choose a pseudonym
-          if you'd prefer.
+          We encourage you to use your real name, as it will help other people
+          in the community to identify you, but you can choose a pseudonym. If
+          you do, try to choose{' '}
+          <a href="https://jimpix.co.uk/words/random-username-generator.asp" target="_blank" rel="noopener noreferrer">
+            something recognizable like "WobblyPanda",
+          </a>{' '}
+          instead of a variation of anon7.
         </Typography>
         <TextField
           label='Username'
@@ -129,7 +161,9 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
       
       {/* Facebook user with no email fix (very small % of users) */}
       {!currentUser?.email && <div className={classes.section}>
-        <Typography variant='display1' gutterBottom>Please enter your email</Typography>
+        <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
+          Please enter your email
+        </Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
           {/* I'd rather be honest than concise here. */}
           To get here without an email you must have logged in with Facebook
@@ -142,12 +176,13 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
           inputRef={emailInput}
         />
       </div>}
-      
-      {forumTypeSetting.get() === 'EAForum' && <div className={classes.section}>
-        <Typography variant='display1' gutterBottom>Would you like to get digest emails?</Typography>
+
+      {isEAForum && <div className={classes.section}>
+        <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
+          Would you like to get digest emails?
+        </Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          The EA Forum Digest is a weekly summary of the best content, curated by
-          Aaron Gertler from the Forum's moderation team.
+          The EA Forum Digest is a weekly summary of the best content, curated by the EA Forum team.
         </Typography>
         <FormControlLabel
           control={
@@ -161,14 +196,15 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ classes
       </div>}
       {/* TODO: Something about bio? */}
       <div className={classes.submitButtonSection}>
-        <Button
-          onClick={handleSave}
-          color='primary'
-          variant='outlined'
-          disabled={!!validationError}
-        >
-          Save
-        </Button>
+        {isEAForum &&
+          <Typography variant="body1" className={classnames(classes.sectionHelperText, classes.tosText)} gutterBottom>
+            I agree to the <TosLink />, including my content being available
+            under a <LicenseLink /> license.
+          </Typography>
+        }
+        <EAButton onClick={handleSave} disabled={!!validationError}>
+          Submit
+        </EAButton>
       </div>
     </div>
   </SingleColumnSection>

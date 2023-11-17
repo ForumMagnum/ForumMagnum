@@ -1,7 +1,9 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import React, {useState} from 'react';
-import Popper, { PopperPlacementType } from '@material-ui/core/Popper'
+import React, {ReactNode, useState} from 'react';
+import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
+import { usePopper } from 'react-popper';
+import { createPortal } from 'react-dom';
 
 const styles = (theme: ThemeType): JssStyles => ({
   popper: {
@@ -13,54 +15,114 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.lwPopperTooltip,
   },
   tooltip: {
-    backgroundColor: "rgba(75,75,75,.94)",
+    backgroundColor: theme.palette.panelBackground.tooltipBackground,
     borderRadius: 3,
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontSize: "1rem",
     padding: theme.spacing.unit,
-    color: "white",
+    color: theme.palette.text.tooltipText,
     position: "relative",
     zIndex: theme.zIndexes.lwPopperTooltip,
   },
   noMouseEvents: {
     pointerEvents: "none",
   },
+  hideOnTouchScreens: {
+    "@media (pointer:coarse)": {
+      display: "none",
+    },
+  },
 })
 
-// This is a thin wrapper over material-UI Popper so that we can set default z-index and modifiers
-const LWPopper = ({classes, children, tooltip=false, modifiers, open, clickable = true, ...props}: {
+// This is a wrapper around the Popper library so we can easily replace it with different versions and
+// implementations
+const LWPopper = ({
+  classes,
+  children,
+  className,
+  tooltip=false,
+  allowOverflow,
+  flip,
+  open,
+  anchorEl,
+  placement,
+  clickable = true,
+  hideOnTouchScreens,
+}: {
   classes: ClassesType,
-  children: any,
+  children: ReactNode,
   tooltip?: boolean,
-  modifiers?: any,
+  allowOverflow?: boolean,
+  flip?: boolean,
   open: boolean,
-  
-  // Arguments destructured into ...props
   placement?: PopperPlacementType,
   anchorEl: any,
   className?: string,
-  clickable?: boolean
+  clickable?: boolean,
+  hideOnTouchScreens?: boolean,
 }) => {
-  const newModifiers = {computeStyle: { gpuAcceleration: false}, ...modifiers}
   const [everOpened, setEverOpened] = useState(open);
-  
-  if (open && !everOpened)
-    setEverOpened(true);
-  if (!open && !everOpened)
+  const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
+
+  const flipModifier = !flip && allowOverflow ? [
+    {
+      name: 'flip',
+      enabled: false,
+    }
+  ] : [];
+
+  const preventOverflowModifier = allowOverflow ? [
+    {
+      name: 'preventOverflow',
+      enabled: false,
+    }
+  ] : [];
+
+  const { styles, attributes } = usePopper(anchorEl, popperElement, {
+    placement,
+    modifiers: [
+      {
+        name: 'computeStyles',
+        options: {
+          gpuAcceleration: false, // true by default
+        },
+      },
+      ...flipModifier,
+      ...preventOverflowModifier
+    ],
+  });
+
+  if (!open)
     return null;
   
+  // In some cases, interacting with something inside a popper will cause a rerender that detaches the anchorEl
+  // This happened in hovers on in-line reacts, and the button to create a new react ended up on the top-left corner of the page
+  if (anchorEl && !anchorEl.isConnected) {
+    return null;
+  }
+  
   return (
-    <Popper 
-      className={classNames(classes.popper, {[classes.noMouseEvents]: !clickable})} 
-      modifiers={newModifiers} 
-      open={open}
-      {...props}
-    >
-      <div className={classNames({[classes.tooltip]: tooltip, [classes.default]: !tooltip})}>
+    // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
+    // context, by placing the Popper element directly into the document root
+    // Rest of usage from https://popper.js.org/react-popper/v2/
+    createPortal(
+      <div
+        ref={setPopperElement}
+        className={classNames({
+          [classes.tooltip]: tooltip,
+          [classes.default]: !tooltip,
+          [classes.noMouseEvents]: !clickable,
+          [classes.hideOnTouchScreens]: hideOnTouchScreens},
+          className
+        )}
+        style={styles.popper}
+        {...attributes.popper}
+      >
         { children }
-      </div>
-    </Popper>
+      </div>,
+      document.body
+    )
   )
 };
 

@@ -1,11 +1,9 @@
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
-import { commentBodyStyles } from '../../themes/stylePiping';
 import { useMulti } from "../../lib/crud/withMulti";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...commentBodyStyles(theme),
     fontWeight: 400,
     marginTop: 32,
     display: "flex",
@@ -34,10 +32,10 @@ const AFUnreviewedCommentCount = ({ post, classes }: {
    return null
  } else {
    return (
-     <div className={classes.root}>
+     <Components.ContentStyles contentType="comment" className={classes.root}>
        {`There are ${count} comments pending acceptance to the Alignment Forum.`}
        <a href={`https://www.lesswrong.com/posts/${post._id}`} className={classes.viewLink}>View them on LessWrong.</a>
-     </div>
+     </Components.ContentStyles>
    );
  }
 }

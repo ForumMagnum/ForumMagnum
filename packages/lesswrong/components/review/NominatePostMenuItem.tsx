@@ -1,7 +1,7 @@
+// TODO:(Review) delete
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
-import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Divider from '@material-ui/core/Divider';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -11,14 +11,9 @@ import StarBorderIcon from '@material-ui/icons/StarBorder';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { useNavigation } from '../../lib/routeUtil';
 import qs from 'qs'
-
-export function eligibleToNominate (currentUser: UsersCurrent|null) {
-  if (!currentUser) return false;
-  if (new Date(currentUser.createdAt) > new Date("2019-01-01")) return false
-  return true
-}
+import { canNominate } from '../../lib/reviewUtils';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const NominatePostMenuItem = ({ post, closeMenu }: {
   post: PostsBase,
@@ -26,7 +21,8 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
+  const { MenuItem } = Components;
 
   const { results: nominations = [], loading } = useMulti({
     skip: !currentUser,
@@ -39,10 +35,7 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
     fragmentName: "CommentsList"
   });
 
-  if (!eligibleToNominate(currentUser)) return null
-  if (post.userId === currentUser!._id) return null
-  if (new Date(post.postedAt) > new Date("2020-01-01")) return null
-  if (new Date(post.postedAt) < new Date("2019-01-01")) return null
+  if (!canNominate(currentUser, post)) return null
 
   const nominated = !loading && nominations?.length;
 
@@ -56,7 +49,7 @@ const NominatePostMenuItem = ({ post, closeMenu }: {
 
   const handleClick = () => {
     if (nominated) {
-      history.push({pathname: postGetPageUrl(post), search: `?${qs.stringify({commentId: nominations[0]._id})}`});
+      navigate({pathname: postGetPageUrl(post), search: `?${qs.stringify({commentId: nominations[0]._id})}`});
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       closeMenu();
@@ -88,4 +81,3 @@ declare global {
     NominatePostMenuItem: typeof NominatePostMenuItemComponent
   }
 }
-

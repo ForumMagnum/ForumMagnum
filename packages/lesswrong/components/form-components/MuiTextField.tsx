@@ -1,7 +1,6 @@
-import React, { PureComponent } from 'react';
-import PropTypes from 'prop-types';
+import React, { ChangeEventHandler, ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import TextField from '@material-ui/core/TextField';
+import TextField, { TextFieldProps } from '@material-ui/core/TextField';
 import classnames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -16,50 +15,51 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   fullWidth: {
-    width:"100%",
+    width: "100%",
   }
 })
 
-class MuiTextField extends PureComponent<any> {
-  constructor(props, context) {
-    super(props,context);
-  }
-
-  onChange = (event) => {
-    this.context.updateCurrentValues({
-      [this.props.path]: event.target.value
+const MuiTextField = ({ value, updateCurrentValues, path, children, select, defaultValue, label, fullWidth, multiLine, rows, variant, type, disabled=false, InputLabelProps, classes }: FormComponentProps<string> & {
+  children?: ReactNode;
+  select?: boolean;
+  defaultValue?: string | number;
+  fullWidth?: boolean;
+  multiLine?: boolean;
+  rows?: number;
+  variant?: "standard" | "outlined" | "filled";
+  type?: string;
+  InputLabelProps?: Partial<TextFieldProps['InputLabelProps']>;
+  classes: ClassesType;
+}) => {
+  const onChange: ChangeEventHandler<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> = (event) => {
+    void updateCurrentValues({
+      [path]: event.target.value
     })
   }
 
-  render() {
-    const { classes, value, select, children, label, multiLine, rows, fullWidth, type, defaultValue, InputLabelProps } = this.props
-
-    return <TextField
-        select={select}
-        value={value||""}
-        defaultValue={defaultValue}
-        label={label}
-        onChange={this.onChange}
-        multiline={multiLine}
-        rows={rows}
-        type={type}
-        fullWidth={fullWidth}
-        InputLabelProps={{
-          className: classes.cssLabel,
-          ...InputLabelProps
-        }}
-        className={classnames(
-          classes.textField,
-          {fullWidth:fullWidth}
-        )}
-      >
-        {children}
-      </TextField>
-  }
-};
-
-(MuiTextField as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
+  return <TextField
+    variant={variant || 'standard'}
+    select={select}
+    value={value ?? ""}
+    defaultValue={defaultValue}
+    label={label}
+    onChange={onChange}
+    multiline={multiLine}
+    rows={rows}
+    type={type}
+    fullWidth={fullWidth}
+    InputLabelProps={{
+      className: classes.cssLabel,
+      ...InputLabelProps
+    }}
+    className={classnames(
+      classes.textField,
+      {[classes.fullWidth] :fullWidth}
+    )}
+    disabled={disabled}
+  >
+    {children}
+  </TextField>
 };
 
 const MuiTextFieldComponent = registerComponent("MuiTextField", MuiTextField, {styles});

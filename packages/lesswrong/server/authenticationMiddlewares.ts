@@ -13,9 +13,12 @@ import { DatabaseServerSetting } from './databaseSettings';
 import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { isEAForum, siteUrlSetting } from '../lib/instanceSettings';
 import { userFromAuth0Profile } from './authentication/auth0Accounts';
+import { captureException } from '@sentry/core';
 import moment from 'moment';
+import {userFindOneByEmail, usersFindAllByEmail} from "./commonQueries";
+import type { AddMiddlewareType } from './apolloServer';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -36,6 +39,11 @@ declare global {
   }
 }
 
+// Extend Auth0Strategy to include the missing userProfile method
+class Auth0StrategyFixed extends Auth0Strategy {
+  userProfile!: any;
+}
+
 const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null)
 const googleOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.google.secret', null)
 
@@ -54,11 +62,11 @@ export const expressSessionSecretSetting = new DatabaseServerSetting<string | nu
 type IdFromProfile<P extends Profile> = (profile: P) => string | number
 type UserDataFromProfile<P extends Profile> = (profile: P) => Promise<Partial<DbUser>>
 
-async function mergeAccount(idPath: string, user: DbUser, profile: Profile) {
+async function mergeAccount(profilePath: string, user: DbUser, profile: Profile) {
   return await updateMutator({
     collection: Users,
     documentId: user._id,
-    set: {[idPath]: profile} as any,
+    set: {[profilePath]: profile} as any,
     // Normal updates are not supposed to update services
     validate: false
   })
@@ -68,30 +76,34 @@ async function mergeAccount(idPath: string, user: DbUser, profile: Profile) {
  * Given the provider-appropriate ways to get user info from a profile, create
  * a function that handles successful logins from that provider
  */
-function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProfile: IdFromProfile<P>, getUserDataFromProfile: UserDataFromProfile<P>) {
+function createOAuthUserHandler<P extends Profile>(profilePath: string, getIdFromProfile: IdFromProfile<P>, getUserDataFromProfile: UserDataFromProfile<P>) {
   return async (_accessToken: string, _refreshToken: string, profile: P, done: VerifyCallback) => {
     try {
       const profileId = getIdFromProfile(profile)
       // Probably impossible
       if (!profileId) {
-        return done(new Error('OAuth profile does not have a profile ID'))
+        throw new Error('OAuth profile does not have a profile ID')
       }
-      let user = await Users.findOne({[idPath]: profileId})
+      // TODO: We use a string representation of the profileId because we have Github IDs stored as strings but we get them as numbers
+      // And our query builder can't yet handle that case correctly
+      let user = await Users.findOne({[`${profilePath}.id`]: `${profileId}`})
       if (!user) {
         const email = profile.emails?.[0]?.value 
-        if (!email) {
-          throw new Error('Account must have associated email!')
-        }
-        //FB and GitHub require verified emails, so this is secure
+        
+        // Don't enforce having an email. Facebook OAuth accounts don't necessarily
+        // have an email address associated (or visible to us).
+        //
+        // If an email *is* provided, the OAuth provider verified it, and we should
+        // be able to trust that.
         if (email) {
           // Collation here means we're using the case-insensitive index
-          const matchingUsers = await Users.find({'emails.address': email}, {collation: {locale: 'en', strength: 2}}).fetch()
+          const matchingUsers = await usersFindAllByEmail(email)
           if (matchingUsers.length > 1) {
-            throw new Error(`Multiple users found with email ${email}, please contact support`)
+            throw new Error(`Multiple existing users found with email ${email}, please contact support`)
           }
           const user = matchingUsers[0]
           if (user) {
-            const { data: userUpdated } = await mergeAccount(idPath, user, profile)
+            const { data: userUpdated } = await mergeAccount(profilePath, user, profile)
             if (user.banned && new Date(user.banned) > new Date()) {
               return done(new Error("banned"))
             }
@@ -112,6 +124,7 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
       }
       return done(null, user)
     } catch (err) {
+      captureException(err);
       return done(err)
     }
   }
@@ -120,8 +133,8 @@ function createOAuthUserHandler<P extends Profile>(idPath: string, getIdFromProf
 /**
  * Auth0 passes 5 parameters, not 4, so we need to wrap createOAuthUserHandler
  */
-function createOAuthUserHandlerAuth0(idPath: string, getIdFromProfile: IdFromProfile<Auth0Profile>, getUserDataFromProfile: UserDataFromProfile<Auth0Profile>) {
-  const standardHandler = createOAuthUserHandler(idPath, getIdFromProfile, getUserDataFromProfile)
+function createOAuthUserHandlerAuth0(profilePath: string, getIdFromProfile: IdFromProfile<Auth0Profile>, getUserDataFromProfile: UserDataFromProfile<Auth0Profile>) {
+  const standardHandler = createOAuthUserHandler(profilePath, getIdFromProfile, getUserDataFromProfile)
   return (accessToken: string, refreshToken: string, _extraParams: ExtraVerificationParams, profile: Auth0Profile, done: VerifyCallback) => {
     return standardHandler(accessToken, refreshToken, profile, done)
   }
@@ -144,13 +157,22 @@ async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
   // ever report one email, in which case this is over-thought.
   const profileEmails = profile.emails.map(emailObj => emailObj.value)
   if (!profileEmails.includes(user.email)) {
-    const updatedUserResponse = await updateMutator({
-      collection: Users,
-      documentId: user._id,
-      set: {email: profileEmails[0]},
-      validate: false
-    })
-    return updatedUserResponse.data
+    // Attempt to update the email field on the account to match the OAuth-provided
+    // email. This will fail if the user has both an OAuth and a non-OAuth account
+    // with the same email.
+    const preexistingAccountWithEmail = await userFindOneByEmail(profileEmails[0]);
+    if (!preexistingAccountWithEmail) {
+      const updatedUserResponse = await updateMutator({
+        collection: Users,
+        documentId: user._id,
+        set: {
+          email: profileEmails[0],
+          emails: [{address: profileEmails[0], verified: true}] //will overwrite other past emails which we don't actually want to support
+        },
+        validate: false
+      })
+      return updatedUserResponse.data
+    }
   }
   return user
 }
@@ -202,7 +224,30 @@ const cookieAuthStrategy = new CustomStrategy(async function getUserPassport(req
   done(null, user)
 })
 
-async function deserializeUserPassport(id, done) {
+/**
+ * Creates a custom strategy which allows third-party API clients to log in via Auth0
+ */
+function createAccessTokenStrategy(auth0Strategy: AnyBecauseTodo) {
+  const accessTokenUserHandler = createOAuthUserHandler('services.auth0', profile => profile.id, userFromAuth0Profile)
+
+  return new CustomStrategy((req, done) => {
+    const accessToken = req.query['access_token']
+    const resumeToken = "" // not used
+    if (typeof(accessToken) !== 'string') {
+      return done("Invalid token")
+    } else {
+      auth0Strategy.userProfile(accessToken, (err: AnyBecauseTodo, profile: AnyBecauseTodo) => {
+        if (profile) {
+          void accessTokenUserHandler(accessToken, resumeToken, profile, done)
+        } else {
+          return done("Invalid token")
+        }
+      })
+    }
+  })
+}
+
+async function deserializeUserPassport(id: AnyBecauseTodo, done: AnyBecauseTodo) {
   const user = await Users.findOne({_id: id})
   if (!user) done()
   done(null, user)
@@ -211,22 +256,22 @@ async function deserializeUserPassport(id, done) {
 passport.serializeUser((user, done) => done(null, user._id))
 passport.deserializeUser(deserializeUserPassport)
 
-export const addAuthMiddlewares = (addConnectHandler) => {
+export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
   addConnectHandler(passport.initialize())
   passport.use(cookieAuthStrategy)
   
-  addConnectHandler('/', (req, res, next) => {
+  addConnectHandler('/', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('custom', (err, user, info) => {
       if (err) return next(err)
       if (!user) return next()
-      req.logIn(user, (err) => {
+      req.logIn(user, (err: AnyBecauseTodo) => {
         if (err) return next(err)
         next()
       })
     })(req, res, next) 
   })
 
-  addConnectHandler('/logout', (req, res, next) => {
+  addConnectHandler('/logout', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('custom', (err, user, info) => {
       if (err) return next(err)
       req.logOut()
@@ -248,10 +293,11 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       // Need to log the user out of their Auth0 account. Otherwise when they
       // next try to login they won't be given a choice, just auto-resumed to
       // the same Auth0 account.
-      if (auth0DomainSetting.get() && auth0ClientIdSetting.get() && forumTypeSetting.get() === 'EAForum') {
+      if (auth0DomainSetting.get() && auth0ClientIdSetting.get() && isEAForum) {
         // Will redirect to our homepage, and is a noop if they're not logged in
         // to an Auth0 account, so this is very non-disruptive
-        res.setHeader('Location', `https://${auth0DomainSetting.get()}/v2/logout?client_id=${auth0ClientIdSetting.get()}`);
+        const returnUrl = encodeURIComponent(siteUrlSetting.get());
+        res.setHeader('Location', `https://${auth0DomainSetting.get()}/v2/logout?client_id=${auth0ClientIdSetting.get()}&returnTo=${returnUrl}`);
       } else {
         res.setHeader('Location', '/');
       }
@@ -262,39 +308,44 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   const googleClientId =  googleClientIdSetting.get()
   const googleOAuthSecret = googleOAuthSecretSetting.get()
   if (googleClientId && googleOAuthSecret) {
-    passport.use(new GoogleOAuthStrategy({
-      clientID: googleClientId,
-      clientSecret: googleOAuthSecret,
-      callbackURL: `${getSiteUrl()}auth/google/callback`,
-      proxy: true
-    },
-    createOAuthUserHandler<GoogleProfile>('services.google.id', profile => profile.id, async profile => ({
-      email: profile.emails?.[0].value,
-      services: {
-        google: profile
+    passport.use(
+      new GoogleOAuthStrategy({
+        clientID: googleClientId,
+        clientSecret: googleOAuthSecret,
+        callbackURL: `${getSiteUrl()}auth/google/callback`,
+        proxy: true
       },
-      emails: [{address: profile.emails?.[0].value, verified: true}],
-      username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
-      displayName: profile.displayName,
-      emailSubscribedToCurated: true
-      // Type assertion here is because @types/passport-google-oauth20 doesn't
-      // think their verify callback is able to take a null in the place of the
-      // error, which seems like a bug and which prevents are seemingly working
-      // code from type-checking
-    })) as (_accessToken: string, _refreshToken: string, profile: GoogleProfile, done: GoogleVerifyCallback) => Promise<void>
-  ))}
+      createOAuthUserHandler<GoogleProfile>('services.google', profile => profile.id, async profile => ({
+        services: {
+          google: profile
+        },
+        email: profile.emails?.[0].value,
+        emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
+        username: await Utils.getUnusedSlugByCollectionName("Users", slugify(profile.displayName)),
+        displayName: profile.displayName,
+        emailSubscribedToCurated: true
+        // Type assertion here is because @types/passport-google-oauth20 doesn't
+        // think their verify callback is able to take a null in the place of the
+        // error, which seems like a bug and which prevents are seemingly working
+        // code from type-checking
+      })) as (_accessToken: string, _refreshToken: string, profile: GoogleProfile, done: GoogleVerifyCallback) => Promise<void>
+      )
+    )
+  }
   
   const facebookClientId = facebookClientIdSetting.get()
   const facebookOAuthSecret = facebookOAuthSecretSetting.get()
   if (facebookClientId && facebookOAuthSecret) {
-    passport.use(new FacebookOAuthStrategy({
-      clientID: facebookClientId,
-      clientSecret: facebookOAuthSecret,
-      callbackURL: `${getSiteUrl()}auth/facebook/callback`,
-      profileFields: ['id', 'emails', 'name', 'displayName'],
-    },
-      createOAuthUserHandler<FacebookProfile>('services.facebook.id', profile => profile.id, async profile => ({
+    passport.use(
+      new FacebookOAuthStrategy({
+        clientID: facebookClientId,
+        clientSecret: facebookOAuthSecret,
+        callbackURL: `${getSiteUrl()}auth/facebook/callback`,
+        profileFields: ['id', 'emails', 'name', 'displayName'],
+      },
+      createOAuthUserHandler<FacebookProfile>('services.facebook', profile => profile.id, async profile => ({
         email: profile.emails?.[0].value,
+        emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
         services: {
           facebook: profile
         },
@@ -314,8 +365,9 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       callbackURL: `${getSiteUrl()}auth/github/callback`,
       scope: [ 'user:email' ], // fetches non-public emails as well
     },
-      createOAuthUserHandler<GithubProfile>('services.github.id', profile => parseInt(profile.id), async profile => ({
+      createOAuthUserHandler<GithubProfile>('services.github', profile => parseInt(profile.id), async profile => ({
         email: profile.emails?.[0].value,
+        emails: profile.emails?.[0].value ? [{address: profile.emails?.[0].value, verified: true}] : [],
         services: {
           github: profile
         },
@@ -326,7 +378,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     ));
   }
   
-  const handleAuthenticate = (req, res, next, err, user, info) => {
+  const handleAuthenticate = (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo, err: AnyBecauseTodo, user: AnyBecauseTodo, info: AnyBecauseTodo) => {
     if (err) {
       if (err.message === "banned") {
         res.redirect(301, '/banNotice');
@@ -340,7 +392,7 @@ export const addAuthMiddlewares = (addConnectHandler) => {
       return next(new Error(`${error}: ${error_description}`))
     }
     if (!user) return next()
-    req.logIn(user, async (err) => {
+    req.logIn(user, async (err: AnyBecauseTodo) => {
       if (err) return next(err)
       await createAndSetToken(req, res, user)
       
@@ -358,51 +410,62 @@ export const addAuthMiddlewares = (addConnectHandler) => {
   const auth0OAuthSecret = auth0OAuthSecretSetting.get()
   const auth0Domain = auth0DomainSetting.get()
   if (auth0ClientId && auth0OAuthSecret && auth0Domain) {
-    passport.use(new Auth0Strategy(
+    const auth0Strategy = new Auth0StrategyFixed(
       {
         clientID: auth0ClientId,
         clientSecret: auth0OAuthSecret,
         domain: auth0Domain,
         callbackURL: combineUrls(getSiteUrl(), 'auth/auth0/callback')
       },
-      createOAuthUserHandlerAuth0('services.auth0.id', profile => profile.id, userFromAuth0Profile)
-    ));
+      createOAuthUserHandlerAuth0('services.auth0', profile => profile.id, userFromAuth0Profile)
+    )
+    passport.use(auth0Strategy)
+
+    passport.use('access_token', createAccessTokenStrategy(auth0Strategy))
+
+    addConnectHandler('/auth/useAccessToken', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+      passport.authenticate('access_token', {}, (err, user, info) => {
+        handleAuthenticate(req, res, next, err, user, info)
+      })(req, res, next)
+    })
   }
 
-  addConnectHandler('/auth/google/callback', (req, res, next) => {
+  addConnectHandler('/auth/google/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('google', {}, (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/google', (req, res, next) => {
+  addConnectHandler('/auth/google', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     saveReturnTo(req)
     passport.authenticate('google', {
       scope: [
         'https://www.googleapis.com/auth/plus.login',
         'https://www.googleapis.com/auth/userinfo.email'
-      ], accessType: "offline", prompt: "consent"
+      ],
+      accessType: "offline",
+      prompt: "select_account consent",
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/facebook/callback', (req, res, next) => {
+  addConnectHandler('/auth/facebook/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('facebook', {}, (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/facebook', (req, res, next) => {
+  addConnectHandler('/auth/facebook', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     saveReturnTo(req)
     passport.authenticate('facebook')(req, res, next)
   })
 
-  addConnectHandler('/auth/auth0/callback', (req, res, next) => {
+  addConnectHandler('/auth/auth0/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('auth0', (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info)
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/auth0', (req, res, next) => {
+  addConnectHandler('/auth/auth0', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     const extraParams = pick(req.query, ['screen_hint', 'prompt'])
     saveReturnTo(req)
     
@@ -412,13 +475,13 @@ export const addAuthMiddlewares = (addConnectHandler) => {
     } as AuthenticateOptions)(req, res, next)
   })
 
-  addConnectHandler('/auth/github/callback', (req, res, next) => {
+  addConnectHandler('/auth/github/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('github', {}, (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/github', (req, res, next) => {
+  addConnectHandler('/auth/github', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     saveReturnTo(req)
     passport.authenticate('github', { scope: ['user:email']})(req, res, next)
   })

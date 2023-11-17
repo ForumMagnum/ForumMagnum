@@ -3,7 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { userBlockedCommentingReason } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { moderationEmail } from '../../lib/publicSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -13,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textDecoration: "underline !important",
   
     "&:hover": {
-      color: "rgba(0,0,0,.5)"
+      color: theme.palette.link.dim,
     }
   },
 });
@@ -24,11 +25,15 @@ const CantCommentExplanation = ({post, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const author = post.user;
+  const email = moderationEmail.get()
+  if (isFriendlyUI && post.shortform) {
+    return null;
+  }
   return (
     <div className={classNames("i18n-message", "author_has_banned_you", classes.root)}>
-      { userBlockedCommentingReason(currentUser, post, author)}
-      { forumTypeSetting.get() !== 'AlignmentForum' && <span>
-        (Questions? Send an email to <a className={classes.emailLink} href="mailto:moderation@lesserwrong.com">moderation@lesserwrong.com</a>)
+      { userBlockedCommentingReason(currentUser, post, author)}{" "}
+      { email && <span>
+        (Questions? Send an email to <a className={classes.emailLink} href={`mailto:${email}`}>{email}</a>)
       </span> }
     </div>
   );

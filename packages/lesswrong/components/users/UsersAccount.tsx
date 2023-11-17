@@ -7,8 +7,14 @@ const UsersAccount = () => {
   const { params } = useLocation();
   const currentUser = useCurrentUser();
   
+  if (!currentUser) {
+    return <Components.SingleColumnSection>
+      Log in to access account settings.
+    </Components.SingleColumnSection>
+  }
+  
   // note: terms is as the same as a document-shape the SmartForm edit-mode expects to receive
-  const terms: {slug?: string, documentId?: string} = params.slug ? { slug: params.slug } : currentUser ? { documentId: currentUser._id } : {};
+  const terms: {slug?: string, documentId?: string} = params.slug ? { slug: params.slug } : { documentId: currentUser._id };
   return <div>
     <Components.UsersEditForm terms={terms} />
   </div>
@@ -21,3 +27,5 @@ declare global {
     UsersAccount: typeof UsersAccountComponent
   }
 }
+
+

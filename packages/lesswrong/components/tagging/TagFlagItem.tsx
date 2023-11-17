@@ -6,8 +6,8 @@ import classNames from 'classnames';
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import Card from "@material-ui/core/Card";
-import { commentBodyStyles } from "../../themes/stylePiping";
 import { useCurrentUser } from "../common/withUser";
+import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -15,22 +15,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 4,
     margin: 4,
     borderRadius: 5,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: theme.palette.panelBackground.tenPercent,
     display: 'inline-block'
   },
   black: {
-    color: 'white',
-    backgroundColor: 'rgba(0,0,0,0.8)'
+    color: theme.palette.text.invertedBackgroundText,
+    backgroundColor: theme.palette.greyAlpha(0.8),
   },
   white: {
-    backgroundColor: 'white',
-    border: '1px solid rgba(0,0,0,0.4)',
-    color: 'rgba(0,0,0,0.6)'
+    backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.border.slightlyIntense3,
+    color: theme.palette.text.dim60,
   },
   hoverCard: {
     maxWidth: 350,
     padding: theme.spacing.unit,
-    ...commentBodyStyles(theme)
   }
 })
 
@@ -43,7 +42,7 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   style?: "white"|"grey"|"black",
   classes: ClassesType,
 }) => {
-  const { LWPopper, ContentItemBody } = Components;
+  const { LWPopper, ContentItemBody, ContentStyles } = Components;
   const {eventHandlers, hover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { document: tagFlag } = useSingle({
@@ -71,38 +70,39 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", showNumber = true, sty
   
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
   
-  
+  const tagsNameAlt = taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tags'
   
   const tagFlagDescription = {
     tagFlagId:`tagFlag ${tagFlag?._id}`,
     allPages:"All Pages",
-    userPages: "User Wiki-Tags"
+    userPages: `User ${tagsNameAlt}`
   }
   const tagFlagText = {
     tagFlagId: tagFlag?.name,
-    allPages: "All Wiki-Tags",
-    userPages: "My Wiki-Tags"
+    allPages: `All ${tagsNameAlt}`,
+    userPages: `My ${tagsNameAlt}`
   }
   const hoverText = {
     tagFlagId: tagFlag?.contents?.html || "",
-    allPages: "All Wiki-Tags sorted by most recently created, including those with no flags set.",
-    userPages: "Wiki-Tags you created, including those with no flags set."
-  } 
+    allPages: `All ${tagsNameAlt} sorted by most recently created, including those with no flags set.`,
+    userPages: `${tagsNameAlt} you created, including those with no flags set.`
+  }
     
   return <span {...eventHandlers} className={rootStyles}>
     <LWPopper
       open={hover}
       anchorEl={anchorEl}
-      clickable={false}
       placement="bottom-start"
     >
         {(["allPages", "userPages"].includes(itemType) || tagFlag) && <AnalyticsContext pageElementContext="hoverPreview">
           <Card className={classes.hoverCard}>
-            <ContentItemBody
-              className={classes.highlight}
-              dangerouslySetInnerHTML={{__html: hoverText[itemType]}}
-              description={tagFlagDescription[itemType]}
-            />
+            <ContentStyles contentType="comment">
+              <ContentItemBody
+                className={classes.highlight}
+                dangerouslySetInnerHTML={{__html: hoverText[itemType]}}
+                description={tagFlagDescription[itemType]}
+              />
+            </ContentStyles>
           </Card>
         </AnalyticsContext>}
     </LWPopper>

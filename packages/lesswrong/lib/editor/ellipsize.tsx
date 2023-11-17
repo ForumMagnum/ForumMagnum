@@ -18,7 +18,13 @@ export const highlightFromHTML = (html: string): string => {
   });
 };
 
-export const truncate = (html: string|null|undefined, truncateLength: number, truncateBy?: string, suffix?: string) => {
+export const truncate = (
+  html: string|null|undefined,
+  truncateLength: number,
+  truncateBy?: "words" | "characters" | "paragraphs",
+  suffix?: string,
+  allowTruncationMidWord = true,
+) => {
   const newTruncateBy = truncateBy || "characters"
   const newSuffix = (suffix !== undefined) ? suffix : "..."
 
@@ -30,6 +36,7 @@ export const truncate = (html: string|null|undefined, truncateLength: number, tr
     TruncateLength: Math.floor(truncateLength - (truncateLength/4)) || truncateLength,
     TruncateBy: newTruncateBy,
     Suffix: `${newSuffix}`,
+    Strict: allowTruncationMidWord,
   });
   return styles + truncatedHtml;
 }
@@ -88,7 +95,7 @@ export function commentExcerptFromHTML (comment: CommentsList, currentUser?: Use
       // This varies by the size of the comment or truncation amount, and reducing it by 1/4th seems about right.
       TruncateLength: Math.floor(truncationCharCount - (truncationCharCount/4)),
       TruncateBy: "characters",
-      Suffix: `... <span class="read-more">(read more)</span>${styles}`,
+      Suffix: `... <span class="read-more-button">(read more)</span>${styles}`,
     });
   } else {
     return htmlRemovedStyles

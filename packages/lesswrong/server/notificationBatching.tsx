@@ -10,7 +10,7 @@ import { Posts } from '../lib/collections/posts';
 import { Components } from '../lib/vulcan-lib/components';
 import { addGraphQLQuery, addGraphQLSchema, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import { wrapAndSendEmail, wrapAndRenderEmail } from './emails/renderEmail';
-import { getUserEmail } from '../lib/collections/users/helpers';
+import { getUserEmail } from "../lib/collections/users/helpers";
 
 // string (notification type name) => Debouncer
 export const notificationDebouncers = toDictionary(getNotificationTypes(),
@@ -36,7 +36,7 @@ const sendNotificationBatch = async ({userId, notificationIds}: {userId: string,
   
   const user = await getUser(userId);
   if (!user) throw new Error(`Missing user: ID ${userId}`);
-  await Notifications.update(
+  await Notifications.rawUpdateMany(
     { _id: {$in: notificationIds} },
     { $set: { waitingForBatch: false } },
     { multi: true }
@@ -60,22 +60,22 @@ const notificationBatchToEmails = async ({user, notifications}: {user: DbUser, n
   const notificationType = notifications[0].type;
   const notificationTypeRenderer = getNotificationTypeByNameServer(notificationType);
   
-  if (notificationTypeRenderer.canCombineEmails) {
-    return [{
-      user,
-      from: notificationTypeRenderer.from,
-      subject: await notificationTypeRenderer.emailSubject({ user, notifications }),
-      body: await notificationTypeRenderer.emailBody({ user, notifications }),
-    }];
-  } else {
-    return await Promise.all(notifications.map(async (notification: DbNotification) => ({
-      user,
-      to: getUserEmail(user),
-      from: notificationTypeRenderer.from,
-      subject: await notificationTypeRenderer.emailSubject({ user, notifications:[notification] }),
-      body: await notificationTypeRenderer.emailBody({ user, notifications:[notification] }),
-    })));
-  }
+  // Each call to emailSubject or emailBody takes a list of notifications.
+  // If we can combine the emails this will be all the notifications in the batch, if we can't combine the emails, this will be a list containing a single notification.
+  const groupedNotifications = notificationTypeRenderer.canCombineEmails ? [notifications] : notifications.map((notification) => [notification])
+
+  const shouldSkip = await Promise.all(groupedNotifications.map(async notifications => notificationTypeRenderer.skip({ user, notifications })));
+  return await Promise.all(
+    groupedNotifications
+      .filter((_, idx) => !shouldSkip[idx])
+      .map(async (notifications: DbNotification[]) => ({
+        user,
+        to: getUserEmail(user),
+        from: notificationTypeRenderer.from,
+        subject: await notificationTypeRenderer.emailSubject({ user, notifications }),
+        body: await notificationTypeRenderer.emailBody({ user, notifications }),
+      }))
+  );
 }
 
 

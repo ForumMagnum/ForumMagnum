@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles =>  ({
   }
 })
 
-const UserCommentsReplies = ({ classes }) => {
+const UserCommentsReplies = ({ classes }: { classes: ClassesType }) => {
   const { SingleColumnSection, SectionTitle, Loading } = Components
 
   const { params } = useLocation();
@@ -24,7 +24,7 @@ const UserCommentsReplies = ({ classes }) => {
     fragmentName: 'UsersProfile',
     enableTotal: false,
   });
-  const user = getUserFromResults(userResults)
+  const user = getUserFromResults(userResults ?? null)
   const { loadingInitial, loadMoreProps, results } = useMulti({
     terms: {view: 'allRecentComments', authorIsUnreviewed: null, limit: 50, userId: user?._id},
     collectionName: "Comments",
@@ -50,10 +50,10 @@ const UserCommentsReplies = ({ classes }) => {
                 post: comment.post || undefined,
                 tag: comment.tag || undefined,
                 showPostTitle: true,
+                forceNotSingleLine: true
               }}
               comment={comment}
               startThreadTruncated={true}
-              forceNotSingleLine
               loadChildrenSeparately
               loadDirectReplies
             />

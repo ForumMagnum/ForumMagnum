@@ -25,11 +25,15 @@ const options: MutationOptions<DbLWEvent> = {
 export const LWEvents: LWEventsCollection = createCollection({
   collectionName: 'LWEvents',
   typeName: 'LWEvent',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('LWEvents'),
   mutations: getDefaultMutations('LWEvents', options),
 });
 
-addUniversalFields({collection: LWEvents})
+addUniversalFields({
+  collection: LWEvents,
+  createdAtOptions: {canRead: ['members']},
+});
 
 export default LWEvents;

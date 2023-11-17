@@ -6,6 +6,7 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 export const Collections: CollectionsCollection = createCollection({
   collectionName: 'Collections',
   typeName: 'Collection',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Collections'),
   mutations: getDefaultMutations('Collections'),
@@ -18,6 +19,13 @@ makeEditable({
     order: 20
   }
 })
-addUniversalFields({collection: Collections})
+
+addUniversalFields({
+  collection: Collections,
+  createdAtOptions: {
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+  },
+});
 
 export default Collections;

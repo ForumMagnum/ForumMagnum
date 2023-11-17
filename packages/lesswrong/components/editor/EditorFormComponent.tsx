@@ -1,149 +1,50 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
-import { editorStyles, postBodyStyles, answerStyles, commentBodyStyles } from '../../themes/stylePiping'
-import withUser from '../common/withUser';
-import classNames from 'classnames';
-import Input from '@material-ui/core/Input';
-import { getLSHandlers } from '../async/localStorageHandlers'
-import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
-import EditorForm from '../async/EditorForm'
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
+import { debateEditorPlaceholder, defaultEditorPlaceholder, editableCollectionsFieldOptions, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
+import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
+import { userCanCreateCommitMessages } from '../../lib/betas';
+import { useCurrentUser } from '../common/withUser';
+import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents,
+  getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
+  EditorTypeString, styles, FormProps, shouldSubmitContents } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { editableCollectionsFieldOptions } from '../../lib/editor/make_editable';
-import { userHasCkCollaboration, userCanCreateCommitMessages } from '../../lib/betas';
+import PropTypes from 'prop-types';
 import * as _ from 'underscore';
-import { isClient } from '../../lib/executionEnvironment';
-import { forumTypeSetting } from '../../lib/instanceSettings';
-
-const postEditorHeight = 250;
-const questionEditorHeight = 150;
-const commentEditorHeight = 100;
-const postEditorHeightRows = 15;
-const commentEditorHeightRows = 5;
-
-const styles = (theme: ThemeType): JssStyles => ({
-  editor: {
-    position: 'relative',
-  },
-  postBodyStyles: {
-    ...editorStyles(theme, postBodyStyles),
-    cursor: "text",
-    padding: 0,
-    '& li .public-DraftStyleDefault-block': {
-      margin: 0
-    }
-  },
-
-  answerStyles: {
-    ...editorStyles(theme, answerStyles),
-    cursor: "text",
-    maxWidth:620,
-    '& li .public-DraftStyleDefault-block': {
-      margin: 0
-    }
-  },
-
-  commentBodyStyles: {
-    ...editorStyles(theme, commentBodyStyles),
-    cursor: "text",
-    marginTop: 0,
-    marginBottom: 0,
-    padding: 0,
-    pointerEvents: 'auto'
-  },
-  questionWidth: {
-    width: 640,
-    [theme.breakpoints.down('sm')]: {
-      width: 'inherit'
-    }
-  },
-  postEditorHeight: {
-    minHeight: postEditorHeight,
-    '& .ck.ck-content': {
-      minHeight: postEditorHeight,
-    },
-    '& .ck-sidebar .ck-content': {
-      minHeight: "unset"
-    }
-  },
-  commentEditorHeight: {
-    minHeight: commentEditorHeight,
-    '& .ck.ck-content': {
-      minHeight: commentEditorHeight,
-    }
-  },
-  questionEditorHeight: {
-    minHeight: questionEditorHeight,
-    '& .ck.ck-content': {
-      minHeight: questionEditorHeight,
-    }
-  },
-  maxHeight: {
-    maxHeight: "calc(100vh - 450px)",
-    overflowY: "scroll"
-  },
-  clickHereColor: {
-    color: theme.palette.primary.main
-  },
-  select: {
-    marginRight: theme.spacing.unit*1.5
-  },
-  placeholder: {
-    position: "absolute",
-    top: 0,
-    color: theme.palette.grey[500],
-    // Dark Magick
-    // https://giphy.com/gifs/psychedelic-art-phazed-12GGadpt5aIUQE
-    // Without this code, there's a weird thing where if you try to click the placeholder text, instead of focusing on the editor element, it... doesn't. This is overriding something habryka did to make spoiler tags work. We discussed this for awhile and this seemed like the best option.
-    pointerEvents: "none",
-    "& *": {
-      pointerEvents: "none",
-    }
-  },
-  placeholderCollaborationSpacing: {
-    top: 60
-  },
-  changeDescriptionRow: {
-    display: "flex",
-    alignItems: "center",
-  },
-  changeDescriptionLabel: {
-    marginLeft: 8,
-    marginRight: 8,
-    ...theme.typography.commentStyle,
-    color: "rgba(0,0,0,.87)",
-  },
-  changeDescriptionInput: {
-    flexGrow: 1,
-  },
-  markdownImgErrText: {
-    margin: `${theme.spacing.unit * 3}px 0`,
-    color: theme.palette.error.main,
-  },
-  lastEditedWarning: {
-    color: theme.palette.error.main,
-  },
-})
+import { gql, useLazyQuery } from '@apollo/client';
+import { useUpdate } from "../../lib/crud/withUpdate";
+import { isEAForum } from '../../lib/instanceSettings';
+import Transition from 'react-transition-group/Transition';
+import { useTracking } from '../../lib/analyticsEvents';
+import { PostCategory } from '../../lib/collections/posts/helpers';
+import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
 
 const autosaveInterval = 3000; //milliseconds
-const checkImgErrsInterval = 500; //milliseconds
-const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Docs' : 'LessWrong Docs'
-const editorTypeToDisplay = {
-  html: {name: 'HTML', postfix: '[Admin Only]'},
-  ckEditorMarkup: {name: ckEditorName, postfix: '[Beta]'},
-  markdown: {name: 'Markdown'},
-  draftJS: {name: 'Draft-JS'},
-}
-const nonAdminEditors = ['ckEditorMarkup', 'markdown', 'draftJS']
-const adminEditors = ['html', 'ckEditorMarkup', 'markdown', 'draftJS']
 
-interface EditorFormComponentProps extends WithUserProps, WithStylesProps {
+export function isCollaborative(post: DbPost, fieldName: string): boolean {
+  if (!post) return false;
+  if (!post._id) return false;
+  if (fieldName !== "contents") return false;
+  if (post.shareWithUsers?.length > 0) return true;
+  if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
+    return true;
+  if (post.collabEditorDialogue) return true;
+  return false;
+}
+
+const getPostPlaceholder = (post: PostsBase) => {
+  const { question, postCategory } = post;
+  const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
+
+  if (post.debate) return debateEditorPlaceholder; // note: this version of debates are deprecated in favor of post.collabEditorDialogue
+  if (effectiveCategory === "question") return questionEditorPlaceholder;
+  if (effectiveCategory === "linkpost") return linkpostEditorPlaceholder;
+  return defaultEditorPlaceholder;
+}
+
+export const EditorFormComponent = ({form, formType, formProps, document, name, fieldName, value, hintText, placeholder, label, commentStyles, classes}: {
   form: any,
-  formType: any,
-  formProps: any,
+  formType: "edit"|"new",
+  formProps: FormProps,
   document: any,
   name: any,
   fieldName: any,
@@ -152,672 +53,339 @@ interface EditorFormComponentProps extends WithUserProps, WithStylesProps {
   placeholder: string,
   label: string,
   commentStyles: boolean,
-}
-interface EditorFormComponentState {
-  editorOverride: any,
-  ckEditorLoaded: any,
-  updateType: string,
-  commitMessage: string,
-  ckEditorReference: any,
-  loading: boolean,
-  draftJSValue: any,
-  ckEditorValue: any,
-  markdownValue: any,
-  htmlValue: any,
-  markdownImgErrs: boolean
-}
+  classes: ClassesType,
+}, context: any) => {
+  const { commentEditor, collectionName, hideControls } = (form || {});
+  const { editorHintText, maxHeight } = (formProps || {});
+  const { updateCurrentValues } = context;
+  const currentUser = useCurrentUser();
+  const editorRef = useRef<Editor|null>(null);
+  const hasUnsavedDataRef = useRef({hasUnsavedData: false});
+  const isCollabEditor = isCollaborative(document, fieldName);
+  const { captureEvent } = useTracking()
+  const editableFieldOptions = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName];
 
-class EditorFormComponent extends Component<EditorFormComponentProps,EditorFormComponentState> {
-  hasUnsavedData: boolean
-  throttledSaveBackup: any
-  throttledSetCkEditor: any
-  debouncedCheckMarkdownImgErrs: any
-  unloadEventListener: any
-  ckEditor: any
+  const getLocalStorageHandlers = useCallback((editorType: EditorTypeString) => {
+    const getLocalStorageId = editableFieldOptions.getLocalStorageId;
+    return getLSHandlers(getLocalStorageId, document, name,
+      getLSKeyPrefix(editorType)
+    );
+  }, [document, name, editableFieldOptions.getLocalStorageId]);
+  
+  const [contents,setContents] = useState(() => getInitialEditorContents(
+    value, document, fieldName, currentUser
+  ));
+  const [initialEditorType] = useState(contents.type);
 
-  constructor(props: EditorFormComponentProps) {
-    super(props)
-    const editorType = this.getCurrentEditorType()
-    this.state = {
-      editorOverride: null,
-      ckEditorLoaded: null,
-      updateType: 'minor',
-      commitMessage: "",
-      ckEditorReference: null,
-      loading: true,
-      ...this.getEditorStatesFromType(editorType),
-      markdownImgErrs: false
+  const dynamicTableOfContents = useContext(DynamicTableOfContentsContext)
+  
+  const defaultEditorType = getUserDefaultEditor(currentUser);
+  const currentEditorType = contents.type || defaultEditorType;
+
+  // We used to show this warning to a variety of editor types, but now we only want
+  // to show it to people using the html editor. Converting from markdown to ckEditor
+  // is error prone and we don't want to encourage it. We no longer support draftJS
+  // but some old posts still are using it so we show the warning for them too.
+  const showEditorWarning = (formType !== "new") && (currentEditorType === 'html' || currentEditorType === 'draftJS')
+  
+  // On the EA Forum, our bot checks if posts are potential criticism,
+  // and if so we show a little card with tips on how to make it more likely to go well.
+  const [postFlaggedAsCriticism, setPostFlaggedAsCriticism] = useState<boolean>(false)
+  const [criticismTipsDismissed, setCriticismTipsDismissed] = useState<boolean>(document.criticismTipsDismissed)
+
+  const { mutate: updatePostCriticismTips } = useUpdate({
+    collectionName: "Posts",
+    fragmentName: "PostsEditCriticismTips",
+  })
+  const handleDismissCriticismTips = () => {
+    // hide the card
+    setCriticismTipsDismissed(true)
+    captureEvent('criticismTipsDismissed', {postId: document._id})
+    // make sure not to show the card for this post ever again
+    updateCurrentValues({criticismTipsDismissed: true})
+    if (formType !== 'new' && document._id) {
+      void updatePostCriticismTips({
+        selector: {_id: document._id},
+        data: {
+          criticismTipsDismissed: true
+        }
+      })
     }
-    this.hasUnsavedData = false;
-    this.throttledSaveBackup = _.throttle(this.saveBackup, autosaveInterval, {leading:false});
-    this.throttledSetCkEditor = _.throttle(this.setCkEditor, autosaveInterval);
-    this.debouncedCheckMarkdownImgErrs = _.debounce(this.checkMarkdownImgErrs, checkImgErrsInterval);
-
   }
-
-  async componentDidMount() {
-    const { form } = this.props
-
-    this.context.addToSubmitForm(this.submitData);
-
-    this.context.addToSuccessForm((result) => {
-      this.resetEditor();
-      return result;
-    });
-
-    if (isClient && window) {
-      this.unloadEventListener = (ev) => {
-        if (this.hasUnsavedData) {
-          ev.preventDefault();
-          ev.returnValue = 'Are you sure you want to close?';
-          return ev.returnValue
+  
+  const [checkPostIsCriticism] = useLazyQuery(gql`
+    query getPostIsCriticism($args: JSON) {
+      PostIsCriticism(args: $args)
+    }
+    `, {
+      onCompleted: (data) => {
+        const isCriticism = !!data.PostIsCriticism
+        setPostFlaggedAsCriticism(isCriticism)
+        if (isCriticism && !postFlaggedAsCriticism) {
+          captureEvent('criticismTipsShown', {postId: document._id})
         }
       }
-      window.addEventListener("beforeunload", this.unloadEventListener );
     }
+  )
+  
+  // On the EA Forum, our bot checks if posts are potential criticism,
+  // and if so we show a little card with tips on how to make it more likely to go well.
+  const checkIsCriticism = useCallback((contents: EditorContents) => {
+    // we're currently skipping linkposts, since the linked post's author is
+    // not always the same person posting it on the forum
+    if (
+      !isEAForum ||
+      collectionName !== 'Posts' ||
+      document.isEvent ||
+      document.debate ||
+      document.shortform ||
+      document.url ||
+      criticismTipsDismissed
+    ) return
 
-    let EditorModule = await (form?.commentEditor ? import('../async/CKCommentEditor') : import('../async/CKPostEditor'))
-    const Editor = EditorModule.default
-    this.ckEditor = Editor
-    this.setState({ckEditorLoaded: true})
-    
-    if (isClient) {
-      this.restoreFromLocalStorage();
-      this.setState({loading: false})
+    checkPostIsCriticism({variables: { args: {
+      title: document.title ?? '',
+      contentType: contents.type,
+      body: contents.value
+    }}})
+  }, [
+    collectionName,
+    document.isEvent,
+    document.debate,
+    document.shortform,
+    document.url,
+    document.title,
+    criticismTipsDismissed,
+    checkPostIsCriticism
+  ])
+
+  // Run this check up to once per 20 min.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledCheckIsCriticism = useCallback(_.throttle(checkIsCriticism, 1000*60*20), [])
+  // Run this check up to once per 2 min (called only when there is a significant amount of text added).
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledCheckIsCriticismLargeDiff = useCallback(_.throttle(checkIsCriticism, 1000*60*2), [])
+  
+  useEffect(() => {
+    // check when loading the post edit form
+    if (contents?.value?.length > 300) {
+      throttledCheckIsCriticism(contents)
     }
-  }
-
-  getEditorStatesFromType = (editorType: string, contents?: any) => {
-    const { document, fieldName, value } = this.props
-    const { editorOverride } = this.state || {} // Provide default value, since we can call this before state is initialized
-
-    // if contents are manually specified, use those:
-    const newValue = contents || value
-
-    // Initialize the editor to whatever the canonicalContent is
-    if (newValue?.originalContents?.data
-        && !editorOverride
-        && editorType === newValue.originalContents.type)
-    {
-      return {
-        draftJSValue:  editorType === "draftJS"        ? this.initializeDraftJS(newValue.originalContents.data) : null,
-        markdownValue: editorType === "markdown"       ? newValue.originalContents.data : null,
-        htmlValue:     editorType === "html"           ? newValue.originalContents.data : null,
-        ckEditorValue: editorType === "ckEditorMarkup" ? newValue.originalContents.data : null
-      }
-    }
-
-    // Otherwise, just set it to the value of the document
-    const { draftJS, html, markdown, ckEditorMarkup } = document[fieldName] || {}
-    return {
-      draftJSValue:  editorType === "draftJS"        ? this.initializeDraftJS(draftJS) : null,
-      markdownValue: editorType === "markdown"       ? markdown       : null,
-      htmlValue:     editorType === "html"           ? html           : null,
-      ckEditorValue: editorType === "ckEditorMarkup" ? ckEditorMarkup : null
-    }
-  }
-
-  getEditorStatesFromLocalStorage = (editorType: string): any => {
-    const { document, name } = this.props;
-    const savedState = this.getStorageHandlers().get({doc: document, name, prefix:this.getLSKeyPrefix(editorType)})
-    if (!savedState) return null;
-
-    if (editorType === "draftJS") {
-      try {
-        // eslint-disable-next-line no-console
-        console.log("Restoring saved document state: ", savedState);
-        const contentState = convertFromRaw(savedState)
-        if (contentState.hasText()) {
-          return {
-            draftJSValue: EditorState.createWithContent(contentState)
-          };
-        } else {
-          // eslint-disable-next-line no-console
-          console.log("Not restoring empty document state: ", contentState)
-        }
-      } catch(e) {
-        // eslint-disable-next-line no-console
-        console.error(e)
-      }
-      return null;
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  
+  const saveBackup = useCallback((newContents: EditorContents) => {
+    if (isBlank(newContents)) {
+      getLocalStorageHandlers(currentEditorType).reset();
+      hasUnsavedDataRef.current.hasUnsavedData = false;
     } else {
-      return {
-        draftJSValue:  editorType === "draftJS"        ? savedState : null,
-        markdownValue: editorType === "markdown"       ? savedState : null,
-        htmlValue:     editorType === "html"           ? savedState : null,
-        ckEditorValue: editorType === "ckEditorMarkup" ? savedState : null
-      }
-    }
-  }
-
-  restoreFromLocalStorage = () => {
-    const savedState = this.getEditorStatesFromLocalStorage(this.getCurrentEditorType());
-    if (savedState) {
-      this.setState(savedState);
-    }
-  }
-  
-  isEmpty = (): boolean => {
-    switch(this.getCurrentEditorType()) {
-      case "draftJS": {
-        const draftJSValue = this.state.draftJSValue;
-        if (!draftJSValue) return true;
-        const draftJScontent = draftJSValue.getCurrentContent()
-        return !draftJScontent.hasText();
-      }
-      case "markdown": {
-        const markdownValue = this.state.markdownValue;
-        if (!markdownValue) return true;
-        return markdownValue.trim() === "";
-      }
-      case "html": {
-        const htmlValue = this.state.htmlValue;
-        if (!htmlValue) return true;
-        return htmlValue.trim() === "";
-      }
-      case "ckEditorMarkup": {
-        const ckEditorValue = this.state.ckEditorValue;
-        if (!ckEditorValue) return true;
-        return ckEditorValue.trim() === "";
-      }
-      default:
-        throw new Error("Invalid editor type");
-    }
-  }
-
-
-  getStorageHandlers = () => {
-    const { fieldName, form } = this.props
-    const collectionName = form.collectionName;
-    
-    const getLocalStorageId = editableCollectionsFieldOptions[collectionName][fieldName].getLocalStorageId;
-    return getLSHandlers(getLocalStorageId)
-  }
-
-  initializeDraftJS = (draftJS) => {
-    const { document } = this.props
-
-    // Initialize from the database state
-    if (draftJS) {
-      try {
-        return EditorState.createWithContent(convertFromRaw(draftJS));
-      } catch(e) {
-        // eslint-disable-next-line no-console
-        console.error("Invalid document content", document);
-      }
-    }
-
-    // And lastly, if the field is empty, create an empty draftJS object
-    return EditorState.createEmpty();
-  }
-
-  submitData = (submission) => {
-    const { fieldName } = this.props
-    let data: any = null
-    const { draftJSValue, markdownValue, htmlValue, updateType, commitMessage, ckEditorReference } = this.state
-    const type = this.getCurrentEditorType()
-    switch(type) {
-      case "draftJS":
-        const draftJS = draftJSValue.getCurrentContent()
-        data = draftJS.hasText() ? convertToRaw(draftJS) : null
-        break
-      case "markdown":
-        data = markdownValue
-        break
-      case "html":
-        data = htmlValue
-        break
-      case "ckEditorMarkup":
-        if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
-        if (!this.isDocumentCollaborative()) {
-          this.context.addToSuccessForm((s) => {
-            this.state.ckEditorReference.setData('')
-          })
-        }
-        data = ckEditorReference.getData()
-        break
-      default:
-        // eslint-disable-next-line no-console
-        console.error(`Unrecognized editor type: ${type}`);
-        data = "";
-        break;
-    }
-    return {
-      ...submission,
-      [fieldName]: data ? {
-        originalContents: {type, data},
-        commitMessage, updateType,
-      } : undefined
-    }
-  }
-
-  resetEditor = () => {
-    const { name, document } = this.props;
-    // On Form submit, create a new empty editable
-    this.getStorageHandlers().reset({doc: document, name, prefix:this.getLSKeyPrefix()})
-    this.setState({
-      draftJSValue: EditorState.createEmpty(),
-      htmlValue: null,
-      markdownValue: null,
-      editorOverride: null,
-      ckEditorValue: null
-    });
-  }
-
-  componentWillUnmount() {
-    if (this.unloadEventListener) {
-      window.removeEventListener("beforeunload", this.unloadEventListener);
-    }
-  }
-
-
-  setEditorType = (editorType) => {
-    if (!editorType) throw new Error("Missing argument to setEditorType: editorType");
-    const targetEditorType = editorType;
-    this.setState({
-      editorOverride: targetEditorType,
-      ...this.getEditorStatesFromType(targetEditorType)
-    })
-
-    this.restoreFromLocalStorage();
-  }
-
-  setDraftJS = (value) => { // Takes in an editorstate
-    const { draftJSValue } = this.state
-    const currentContent = draftJSValue.getCurrentContent()
-    const newContent = value.getCurrentContent()
-    this.setState({draftJSValue: value})
-
-    if (currentContent !== newContent) {
-      this.afterChange();
-    }
-  }
-
-  setHtml = (value) => {
-    if (this.state.htmlValue !== value) {
-      this.setState({htmlValue: value});
-      this.afterChange();
-    }
-  }
-
-  setMarkdown = (value) => {
-    if (this.state.markdownValue !== value) {
-      this.setState({markdownValue: value})
-      this.debouncedCheckMarkdownImgErrs()
-      this.afterChange();
-    }
-  }
-
-  setCkEditor = (editor) => {
-    const newContent = editor.getData()
-    if (this.state.ckEditorValue !== newContent) {
-      this.setState({ckEditorValue: newContent})
-      this.afterChange();
-    }
-  }
-
-
-  afterChange = () => {
-    this.hasUnsavedData = true;
-    this.throttledSaveBackup();
-  }
-
-  saveBackup = () => {
-    const { document, name } = this.props;
-
-    if (this.isEmpty()) {
-      this.getStorageHandlers().reset({
-        doc: document,
-        name,
-        prefix: this.getLSKeyPrefix()
-      });
-      this.hasUnsavedData = false;
-    } else {
-      const serialized = this.editorContentsToJson();
-  
-      const success = this.getStorageHandlers().set({
-        state: serialized,
-        doc: document,
-        name,
-        prefix: this.getLSKeyPrefix()
-      });
-  
+      const serialized = serializeEditorContents(newContents);
+      const success = getLocalStorageHandlers(newContents.type).set(serialized);
+      
       if (success) {
-        this.hasUnsavedData = false;
+        hasUnsavedDataRef.current.hasUnsavedData = false;
       }
     }
-  }
+  }, [getLocalStorageHandlers, currentEditorType]);
 
-  // Take the editor contents (whichever editor you're using), and return
-  // something JSON (ie, a JSON object or a string) which represents the
-  // content and can be saved to localStorage.
-  editorContentsToJson = () => {
-    switch(this.getCurrentEditorType()) {
-      case "draftJS":
-        const draftJScontent = this.state.draftJSValue.getCurrentContent()
-        return convertToRaw(draftJScontent);
-      case "markdown":
-        return this.state.markdownValue;
-      case "html":
-        return this.state.htmlValue;
-      case "ckEditorMarkup":
-        return this.state.ckEditorValue;
-    }
-  }
-
-  // Get an editor-type-specific prefix to use on localStorage keys, to prevent
-  // drafts written with different editors from having conflicting names.
-  getLSKeyPrefix = (editorType?: string): string => {
-    switch(editorType || this.getCurrentEditorType()) {
-      default:
-      case "draftJS":  return "";
-      case "markdown": return "md_";
-      case "html":     return "html_";
-      case "ckEditorMarkup": return "ckeditor_";
-    }
-  }
-
-
-  renderEditorWarning = () => {
-    const { currentUser, classes } = this.props
-    const type = this.getInitialEditorType();
-    const defaultType = this.getUserDefaultEditor(currentUser)
-    return <div>
-      <Components.Typography variant="body2" className={classes.lastEditedWarning}>
-        This document was last edited in {editorTypeToDisplay[type].name} format. Showing the{' '}
-        {editorTypeToDisplay[this.getCurrentEditorType()].name} editor.{' '}
-        <a
-          className={classes.clickHereColor}
-          onClick={() => this.setEditorType(defaultType)}
-        >
-          Click here
-        </a>
-        {' '}to switch to the {editorTypeToDisplay[defaultType].name} editor (your default editor).
-      </Components.Typography>
-      <br/>
-    </div>
-  }
-
-
-  getCurrentEditorType = () => {
-    const { editorOverride } = this.state || {} // Provide default since we can call this function before we initialize state
-
-    // If there is an override, return that
-    if (editorOverride)
-      return editorOverride;
-
-    return this.getInitialEditorType();
-  }
-
-  getInitialEditorType = () => {
-    const { document, currentUser, fieldName, value } = this.props
-
-    // Check whether we are directly passed a value in the form context, with a type (as a default value for example)
-    if (value?.originalContents?.type) {
-      return value.originalContents.type
-    }
-    // Next check whether the document came with a field value with a type specified
-    const originalType = document?.[fieldName]?.originalContents?.type
-    if (originalType) return originalType;
-
-    // Finally pick the editor type from the user's config
-    return this.getUserDefaultEditor(currentUser)
-  }
-
-  getUserDefaultEditor = (user) => {
-    if (userUseMarkdownPostEditor(user)) return "markdown"
-    if (user?.reenableDraftJs) return "draftJS"
-    return "ckEditorMarkup"
-  }
-
-
-  handleUpdateTypeSelect = (e) => {
-    this.setState({ updateType: e.target.value })
-  }
-
-  renderUpdateTypeSelect = () => {
-    const { currentUser, formType, classes, form } = this.props
-    if (form.hideControls) return null
-    if (!currentUser || !currentUser.isAdmin || formType !== "edit") { return null }
-    return <Select
-      value={this.state.updateType}
-      onChange={this.handleUpdateTypeSelect}
-      className={classes.select}
-      disableUnderline
-    >
-      <MenuItem value={'major'}>Major Update</MenuItem>
-      <MenuItem value={'minor'}>Minor Update</MenuItem>
-      <MenuItem value={'patch'}>Patch</MenuItem>
-    </Select>
-  }
+  /**
+   * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
+   * was for SocialPreviewUpload, which needs to know the body of the post in order to generate a preview description and image.
+   */
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledSetContentsValue = useCallback(_.throttle(async () => {
+    if (!(editorRef.current && shouldSubmitContents(editorRef.current))) return
+    
+    // Preserve other fields in "contents" which may have been sent from the server
+    updateCurrentValues({[fieldName]: {...(document[fieldName] || {}), ...(await editorRef.current.submitData())}})
+  }, autosaveInterval, {leading: true}), [autosaveInterval])
   
-  renderCommitMessageInput = () => {
-    const { currentUser, formType, fieldName, form, classes } = this.props
-    
-    const collectionName = form.collectionName;
-    if (!currentUser || (!userCanCreateCommitMessages(currentUser) && collectionName !== "Tags") || formType !== "edit") { return null }
-    
-    
-    const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName][fieldName].revisionsHaveCommitMessages;
-    if (!fieldHasCommitMessages) return null;
-    if (form.hideControls) return null
-    
-    return <div className={classes.changeDescriptionRow}>
-      <span className={classes.changeDescriptionLabel}>Edit summary (Briefly describe your changes):{" "}</span>
-      <Input
-        className={classes.changeDescriptionInput}
-        value={this.state.commitMessage}
-        onChange={(ev) => {
-          this.setState({ commitMessage: ev.target.value });
-        }}
-      />
-    </div>
-  }
-
-  renderEditorTypeSelect = () => {
-    const { currentUser, classes, form } = this.props
-    const { LWTooltip } = Components
-
-    if (form.hideControls) return null
-    if (!currentUser?.reenableDraftJs && !currentUser?.isAdmin) return null
-    const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
-    return (
-      <LWTooltip title="Warning! Changing format will erase your content" placement="left">
-        <Select
-          className={classes.select}
-          value={this.getCurrentEditorType()}
-          onChange={(e) => this.setEditorType(e.target.value)}
-          disableUnderline
-          >
-            {editors.map((editorType, i) =>
-              <MenuItem value={editorType} key={i}>
-                {editorTypeToDisplay[editorType].name} {editorTypeToDisplay[editorType].postfix}
-              </MenuItem>
-            )}
-          </Select>
-      </LWTooltip>
-    )
-  }
-
-  getBodyStyles = () => {
-    const { classes, commentStyles, document } = this.props
-    if (commentStyles && document.answer) return classes.answerStyles
-    if (commentStyles) return classes.commentBodyStyles
-    return classes.postBodyStyles
-  }
-
-  renderEditorComponent = (currentEditorType) => {
-    switch (currentEditorType) {
-      case "ckEditorMarkup":
-        return this.renderCkEditor()
-      case "draftJS":
-        return this.renderDraftJSEditor()
-      case "markdown":
-        return this.renderPlaintextEditor(currentEditorType)
-      case "html":
-        return this.renderPlaintextEditor(currentEditorType)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledSaveBackup = useCallback(
+    _.throttle(saveBackup, autosaveInterval, {leading: false}),
+    [saveBackup, autosaveInterval]
+  );
+  
+  const wrappedSetContents = useCallback((change: EditorChangeEvent) => {
+    const {contents: newContents, autosave} = change;
+    if (dynamicTableOfContents && editableFieldOptions.hasToc) {
+      dynamicTableOfContents.setToc(change.contents);
     }
-  }
-
-  renderPlaceholder = (showPlaceholder, collaboration) => {
-    const { classes, formProps, hintText, placeholder, label  } = this.props
-
-    if (showPlaceholder) {
-      return <div className={classNames(this.getBodyStyles(), classes.placeholder, {[classes.placeholderCollaborationSpacing]: collaboration})}>
-        { formProps?.editorHintText || hintText || placeholder || label }
-      </div>
-    }
-  }
-
-  isDocumentCollaborative = () => {
-    const { document, fieldName, currentUser } = this.props
-    return userHasCkCollaboration(currentUser) && document?._id && document?.shareWithUsers && (fieldName === "contents")
-  }
-
-  renderCkEditor = () => {
-    const { ckEditorValue, ckEditorReference } = this.state
-    const { document, currentUser, formType } = this.props
-    const { Loading } = Components
-    const CKEditor = this.ckEditor
-    const value = ckEditorValue || ckEditorReference?.getData()
-    if (!this.state.ckEditorLoaded || !CKEditor) {
-      return <Loading />
-    } else {
-      const editorProps = {
-        data: value,
-        documentId: document?._id,
-        formType: formType,
-        userId: currentUser?._id,
-        onChange: (event, editor) => this.throttledSetCkEditor(editor),
-        onInit: editor => this.setState({ckEditorReference: editor})
+    setContents(newContents);
+    
+    // Only save to localStorage if not using collaborative editing, since with
+    // collaborative editing stuff is getting constantly sent through a
+    // websocket and saved that way.
+    if (!isCollabEditor) {
+      if (!isBlank(newContents)) {
+        hasUnsavedDataRef.current.hasUnsavedData = true;
       }
-
-      // if document is shared with at least one user, it will render the collaborative ckEditor (note: this costs a small amount of money per document)
-      //
-      // requires _id because before the draft is saved, ckEditor loses track of what you were writing when turning collaborate on and off (and, meanwhile, you can't actually link people to a shared draft before it's saved anyhow)
-      // TODO: figure out a better solution to this problem.
-
-      const collaboration = this.isDocumentCollaborative()
-
-      return <div className={classNames(this.getHeightClass(), this.getMaxHeightClass())}>
-          { this.renderPlaceholder(!value, collaboration)}
-          { collaboration ?
-            <CKEditor key="ck-collaborate" { ...editorProps } collaboration />
-            :
-            <CKEditor key="ck-default" { ...editorProps } />}
-        </div>
     }
-  }
-
-  checkMarkdownImgErrs = () => {
-    const { markdownValue } = this.state
-    // match markdown image tags of the form
-    // ![](http://example.com/example.jpg)
-    // ![Alt text](http://example.com/example.jpg)
-    const httpImageRE = /!\[[^\]]*?\]\(http:/g
-    this.setState({
-      markdownImgErrs: httpImageRE.test(markdownValue)
-    })
-  }
-
-  renderPlaintextEditor = (editorType) => {
-    const { markdownValue, htmlValue, markdownImgErrs } = this.state
-    const { classes, document, form: { commentStyles }, label } = this.props
-    const value = (editorType === "html" ? htmlValue : markdownValue) || ""
-    return <div>
-        { this.renderPlaceholder(!value, false) }
-        <Input
-          className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: document.question})}
-          value={value}
-          onChange={(ev) => {
-            if (editorType === "html")
-              this.setHtml(ev.target.value);
-            else
-              this.setMarkdown(ev.target.value);
-          }}
-          multiline={true}
-          rows={commentStyles ? commentEditorHeightRows : postEditorHeightRows}
-          rowsMax={99999}
-          fullWidth={true}
-          disableUnderline={true}
-        />
-      {markdownImgErrs && editorType === 'markdown' && <Components.Typography component='aside' variant='body2' className={classes.markdownImgErrText}>
-          Your Markdown contains at least one link to an image served over an insecure HTTP{' '}
-          connection. You should update all links to images so that they are served over a{' '}
-          secure HTTPS connection (i.e. the links should start with <em>https://</em>).
-        </Components.Typography>}
-      </div>
-  }
-
-  renderDraftJSEditor = () => {
-    const { draftJSValue } = this.state
-    const { document, form, classes } = this.props
-    const showPlaceholder = !(draftJSValue?.getCurrentContent && draftJSValue.getCurrentContent().hasText())
-
-    return <div>
-        { this.renderPlaceholder(showPlaceholder, false) }
-        {draftJSValue && <EditorForm
-          editorState={draftJSValue}
-          onChange={this.setDraftJS}
-          commentEditor={form?.commentEditor}
-          className={classNames(this.getBodyStyles(), this.getHeightClass(), this.getMaxHeightClass(), {[classes.questionWidth]: document.question})}
-        />}
-      </div>
-  }
-
-  getMaxHeightClass = () => {
-    const { classes, formProps } = this.props
-    return formProps?.maxHeight ? classes.maxHeight : null
-  }
-
-  getHeightClass = () => {
-    const { document, classes, form: { commentStyles } } = this.props
-    if (commentStyles) {
-      return classes.commentEditorHeight
-    } else if (document.question) {
-      return classes.questionEditorHeight;
-    } else {
-      return classes.postEditorHeight
+    
+    // Hack: Fill in ${fieldName}_type with the editor type on every keystroke, to enable other
+    // form components (in particular PostSharingSettings) to check whether we're
+    // using CkEditor vs draftjs vs etc. Update the actual contents with a throttled
+    // callback to improve performance. Note that the contents are always recalculated on
+    // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
+    updateCurrentValues({[`${fieldName}_type`]: newContents?.type});
+    void throttledSetContentsValue()
+    
+    if (autosave) {
+      throttledSaveBackup(newContents);
     }
+    
+    // We only check posts that have >300 characters, which is ~a few sentences.
+    if (newContents?.value?.length > 300) {
+      // If there's a lot more text (ex. something pasted in), we check the post sooner.
+      if (newContents.value.length - (contents?.value?.length ?? 0) > 300) {
+        throttledCheckIsCriticismLargeDiff(newContents)
+      } else {
+        throttledCheckIsCriticism(newContents)
+      }
+    }
+  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, contents, throttledCheckIsCriticismLargeDiff, throttledCheckIsCriticism, dynamicTableOfContents, editableFieldOptions.hasToc]);
+  
+  const hasGeneratedFirstToC = useRef({generated: false});
+  useEffect(() => {
+    if (dynamicTableOfContents && contents && !hasGeneratedFirstToC.current.generated && editableFieldOptions.hasToc) {
+      dynamicTableOfContents.setToc(contents);
+      hasGeneratedFirstToC.current.generated = true;
+    }
+  }, [contents, dynamicTableOfContents, editableFieldOptions.hasToc]);
+
+  useEffect(() => {
+    const unloadEventListener = (ev: BeforeUnloadEvent) => {
+      if (hasUnsavedDataRef?.current?.hasUnsavedData) {
+        ev.preventDefault();
+        ev.returnValue = 'Are you sure you want to close?';
+        return ev.returnValue
+      }
+    };
+    
+    window.addEventListener("beforeunload", unloadEventListener);
+    return () => {
+      window.removeEventListener("beforeunload", unloadEventListener);
+    };
+  }, [fieldName, hasUnsavedDataRef]);
+  
+  const onRestoreLocalStorage = useCallback((newState: EditorContents) => {
+    wrappedSetContents({contents: newState, autosave: false});
+    // TODO: Focus editor
+  }, [wrappedSetContents]);
+  
+  useEffect(() => {
+    if (editorRef.current) {
+      const cleanupSubmitForm = context.addToSubmitForm(async (submission: any) => {
+        if (editorRef.current && shouldSubmitContents(editorRef.current))
+          return {
+            ...submission,
+            [fieldName]: await editorRef.current.submitData()
+          };
+        else
+          return submission;
+      });
+      const cleanupSuccessForm = context.addToSuccessForm((result: any, form: any, submitOptions: any) => {
+        getLocalStorageHandlers(currentEditorType).reset();
+        if (editorRef.current && !submitOptions?.redirectToEditor && !isCollabEditor) {
+          wrappedSetContents({
+            contents: getBlankEditorContents(initialEditorType),
+            autosave: false,
+          });
+        }
+        return result;
+      });
+      return () => {
+        cleanupSubmitForm();
+        cleanupSuccessForm();
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!editorRef.current, fieldName, initialEditorType, context.addToSuccessForm, context.addToSubmitForm]);
+  
+  const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].revisionsHaveCommitMessages;
+  const hasCommitMessages = fieldHasCommitMessages
+    && currentUser && userCanCreateCommitMessages(currentUser)
+    && (collectionName!=="Tags" || formType==="edit");
+
+  const actualPlaceholder = ((collectionName === "Posts" && getPostPlaceholder(document)) || editorHintText || hintText || placeholder);
+
+  // The logic here is to make sure that the placeholder is updated when it changes in the props.
+  // CKEditor can't change the placeholder after it's been initialized, so we need to change the key
+  // to force it to unmount and remount the whole component. Only do this where there are no contents,
+  // as this is the only time the placeholder is visible.
+  const placeholderKey = useRef(actualPlaceholder);
+  if (placeholderKey.current !== actualPlaceholder && !contents?.value) {
+    placeholderKey.current = actualPlaceholder;
   }
 
+  // document isn't necessarily defined. TODO: clean up rest of file
+  // to not rely on document
+  if (!document) return null;
+    
+  return <div className={classes.root}>
+    {showEditorWarning &&
+      <Components.LastEditedInWarning
+        initialType={initialEditorType}
+        currentType={contents.type}
+        defaultType={defaultEditorType}
+        value={contents} setValue={wrappedSetContents}
+      />
+    }
+    {!isCollabEditor &&<Components.LocalStorageCheck
+      getLocalStorageHandlers={getLocalStorageHandlers}
+      onRestore={onRestoreLocalStorage}
+    />}
+    <Components.Editor
+      key={placeholderKey.current}
+      ref={editorRef}
+      _classes={classes}
+      currentUser={currentUser}
+      label={label}
+      formType={formType}
+      documentId={document._id}
+      collectionName={collectionName}
+      fieldName={fieldName}
+      initialEditorType={initialEditorType}
+      formProps={formProps}
+      isCollaborative={isCollabEditor}
+      accessLevel={document.myEditorAccess}
+      value={contents}
+      onChange={wrappedSetContents}
+      placeholder={actualPlaceholder}
+      commentStyles={commentStyles}
+      answerStyles={document.answer}
+      questionStyles={document.question}
+      commentEditor={commentEditor}
+      hideControls={hideControls}
+      maxHeight={maxHeight}
+      hasCommitMessages={hasCommitMessages ?? undefined}
+      document={document}
+    />
+    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
+    {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
+      <Components.PostVersionHistoryButton
+        post={document}
+        postId={document._id}
+      />
+    }
+    <Transition in={postFlaggedAsCriticism && !criticismTipsDismissed} timeout={0} mountOnEnter unmountOnExit appear>
+      {(state) => <Components.PostsEditBotTips
+        handleDismiss={handleDismissCriticismTips}
+        postId={document._id}
+        className={classes[`${state}BotTips`]}
+      />}
+    </Transition>
+  </div>
+}
 
-  render() {
-    const { editorOverride, loading } = this.state
-    const { document, currentUser, formType, classes } = this.props
-    const { Loading } = Components
-    const currentEditorType = this.getCurrentEditorType()
-
-    if (!document) return null;
-
-    const editorWarning =
-      !editorOverride
-      && formType !== "new"
-      && this.getInitialEditorType() !== this.getUserDefaultEditor(currentUser)
-      && this.renderEditorWarning()
-    return <div>
-      { editorWarning }
-      <div className={classNames(classes.editor, this.getBodyStyles())}>
-        { loading ? <Loading/> : this.renderEditorComponent(currentEditorType) }
-        { this.renderUpdateTypeSelect() }
-        { this.renderEditorTypeSelect() }
-      </div>
-      { this.renderCommitMessageInput() }
-    </div>
-  }
-};
+export const EditorFormComponentComponent = registerComponent('EditorFormComponent', EditorFormComponent, {
+  hocs: [withErrorBoundary], styles
+});
 
 (EditorFormComponent as any).contextTypes = {
   addToSubmitForm: PropTypes.func,
-  addToSuccessForm: PropTypes.func
+  addToSuccessForm: PropTypes.func,
+  updateCurrentValues: PropTypes.func,
 };
-
-export const EditorFormComponentComponent = registerComponent(
-  'EditorFormComponent', EditorFormComponent, {
-    styles,
-    hocs: [withUser, withErrorBoundary]
-  }
-);
 
 declare global {
   interface ComponentTypes {

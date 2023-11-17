@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { Popup } from 'react-map-gl';
+import { isEAForum } from '../../lib/instanceSettings';
 
 // Shared with LocalEventMarker
 export const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -27,12 +28,12 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
   contactInfo: {
     marginBottom: "10px",
     marginTop: "10px",
-    fontWeight: 400,
-    color: "rgba(0,0,0,0.6)",
+    fontWeight: isEAForum ? 450 : 400,
+    color: theme.palette.text.dim60,
   },
   markerPageLink: {
-    fontWeight: 400,
-    color: "rgba(0,0,0,0.4)",
+    fontWeight: isEAForum ? 450 : 400,
+    color: theme.palette.link.dim3,
     flex: 'none'
   },
   linksWrapper: {
@@ -44,18 +45,20 @@ export const styles = createStyles((theme: ThemeType): JssStyles => ({
 const StyledMapPopup = ({
   children, classes, link, title,
   metaInfo, cornerLinks, lat, lng,
-  onClose, offsetTop=-20
+  onClose, offsetTop=-20, offsetLeft, hideBottomLinks
 }: {
-  children?: React.ReactNode,
+  children?: ReactNode,
   classes: ClassesType,
   link: string,
-  title: string,
+  title: string|ReactNode,
   metaInfo?: any,
   cornerLinks?: any,
   lat: number,
   lng: number,
   onClose: any,
   offsetTop?: number,
+  offsetLeft?: number,
+  hideBottomLinks?: boolean
 }) => {
   return <Popup
     latitude={lat}
@@ -63,6 +66,7 @@ const StyledMapPopup = ({
     closeButton={true}
     closeOnClick={false}
     offsetTop={offsetTop}
+    offsetLeft={offsetLeft}
     onClose={onClose}
     captureClick
     captureScroll
@@ -71,10 +75,10 @@ const StyledMapPopup = ({
         <Link to={link}><h5 className={classes.groupMarkerName}> {title} </h5></Link>
         <div className={classes.markerBody}>{children}</div>
         {metaInfo && <div className={classes.contactInfo}>{metaInfo}</div>}
-        <div className={classes.linksWrapper}>
+        {!hideBottomLinks && <div className={classes.linksWrapper}>
           <Link className={classes.markerPageLink} to={link}> Full link </Link>
           <div>{cornerLinks}</div>
-        </div>
+        </div>}
       </div>
   </Popup>
 }

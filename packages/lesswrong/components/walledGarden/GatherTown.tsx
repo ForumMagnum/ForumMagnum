@@ -34,13 +34,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   secondaryInfo: {
     ...theme.typography.commentStyle,
     fontSize: '1rem',
-    color: 'rgba(0,0,0,0.55)',
+    color: theme.palette.text.dim55,
     marginTop: 8
   },
   usersOnlineList: {
     ...theme.typography.commentStyle,
     fontSize: '1rem',
-    color: 'rgba(0,0,0,0.55)',
+    color: theme.palette.text.dim55,
     display: "flex",
     justifyContent: 'flex-start',
     flexWrap: "wrap",
@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   noUsers: {
     fontSize: '0.8rem',
-    color: 'rgba(0,0,0,0.5)'
+    color: theme.palette.text.dim,
   },
   icon: {
     marginRight: 24,
@@ -65,7 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: "pointer",
     width: '0.5em',
     height: '0.5em',
-    color: 'rgba(0,0,0,0.5)',
+    color: theme.palette.text.dim,
     opacity: 0
   },
   onlineDot: {

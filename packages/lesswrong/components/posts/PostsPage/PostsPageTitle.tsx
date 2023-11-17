@@ -3,27 +3,54 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import * as _ from 'underscore';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+
+export const postPageTitleStyles = (theme: ThemeType): JssStyles => ({
+  ...theme.typography.display3,
+  ...theme.typography.postStyle,
+  ...theme.typography.headerStyle,
+  marginTop: isFriendlyUI ? 5 : 0,
+  marginLeft: 0,
+  marginBottom: isFriendlyUI ? 12 : 0,
+  color: theme.palette.text.primary,
+  [theme.breakpoints.down('sm')]: isFriendlyUI
+    ? {
+      fontSize: '2.3rem',
+      marginTop: 20,
+    }
+    : {
+      fontSize: '2.5rem',
+    },
+  ...(isFriendlyUI
+    ? {
+      fontSize: '3rem',
+    }
+    : {}),
+})
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...theme.typography.display3,
-    ...theme.typography.postStyle,
-    ...theme.typography.headerStyle,
-    marginTop: 0,
-    marginLeft: 0,
-    marginBottom: forumTypeSetting.get() === 'EAForum' ? theme.spacing.unit : 0,
-    color: theme.palette.text.primary,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '2.5rem',
-    },
+    ...postPageTitleStyles(theme)
   },
   draft: {
-    color: theme.palette.grey[500]
+    color: theme.palette.text.dim4
   },
   question: {
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     display: "block",
+  },
+  link: {
+    '&:hover': {
+      opacity: "unset"
+    }
+  },
+  lastWord: {
+    display: "inline-block",
+  },
+  linkIcon: {
+    color: theme.palette.grey[500],
+    marginLeft: 14,
+    fontSize: "0.8em",
   }
 })
 
@@ -32,8 +59,13 @@ const PostsPageTitle = ({classes, post}: {
   post: PostsDetails,
 }) => {
   const parentPost = _.filter(post.sourcePostRelations, rel => !!rel.sourcePost)?.[0]?.sourcePost
-  const { Typography } = Components;
-  
+  const { Typography, ForumIcon } = Components;
+  const showLinkIcon = post.url && isFriendlyUI;
+
+  const words = post.title.trim().split(/\s+/);
+  const mostOfTitle = words.slice(0, -1).join(" ");
+  const lastWordOfTitle = words[words.length - 1];
+
   return (
     <div>
       {post.question && !parentPost && <Typography variant="title">
@@ -47,13 +79,18 @@ const PostsPageTitle = ({classes, post}: {
         </Link>
       </Typography>}
       <Typography variant="display3" className={classes.root}>
-        {post.draft && <span className={classes.draft}>[Draft] </span>}
-        {post.title}
+        <Link to={postGetPageUrl(post)} className={classes.link}>
+          {post.draft && <span className={classes.draft}>[Draft] </span>}
+          {mostOfTitle}{mostOfTitle && " "}
+          <span className={classes.lastWord}>
+            {lastWordOfTitle}
+            {showLinkIcon && <><ForumIcon className={classes.linkIcon} icon="BoldLink" /></>}
+          </span>
+        </Link>
       </Typography>
     </div>
   )
 }
-
 
 const PostsPageTitleComponent = registerComponent('PostsPageTitle', PostsPageTitle, {styles});
 

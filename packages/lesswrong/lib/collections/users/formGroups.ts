@@ -1,46 +1,84 @@
+import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
 
-export const formGroups: Partial<Record<string,FormGroup>> = {
+export const formGroups: Partial<Record<string, FormGroupType>> = {
   default: {
     name: "default",
     order: 0,
     paddingStyle: true
   },
-  moderationGroup: {
-    order:60,
-    name: "moderation",
-    label: "Moderation & Moderation Guidelines",
-  },
   siteCustomizations: {
     order: 1,
-    label: "Site Customizations",
-    name: "siteCustomizations"
-  },
-  banUser: {
-    order:50,
-    name: "banUser",
-    label: "Ban & Purge User",
+    label: preferredHeadingCase("Site Customizations"),
+    name: "siteCustomizations",
     startCollapsed: true,
   },
   notifications: {
     order: 10,
     name: "notifications",
-    label: "Notifications"
+    label: "Notifications",
+    startCollapsed: true,
   },
   emails: {
     order: 15,
     name: "emails",
-    label: "Emails"
+    label: "Emails",
+    startCollapsed: true,
+  },
+  privacy: {
+    order: 16,
+    name: "privacy",
+    label: preferredHeadingCase("Privacy Settings"),
+    startCollapsed: true,
   },
   adminOptions: {
     name: "adminOptions",
     order: 25,
-    label: "Admin Options",
+    label: preferredHeadingCase("Admin Options"),
     startCollapsed: true,
   },
-  truncationOptions: {
-    name: "truncationOptions",
-    order: 9,
-    label: "Comment Truncation Options",
+  paymentInfo: {
+    name: "paymentInfo",
+    label: preferredHeadingCase("Prize/Payment Info"),
+    order: 35,
     startCollapsed: false,
   },
-}
+  disabledPrivileges: {
+    order:40,
+    name: "disabledPrivileges",
+    label: preferredHeadingCase("Disabled Privileges"),
+    startCollapsed: true,
+  },
+  banUser: {
+    order:50,
+    name: "banUser",
+    label: preferredHeadingCase("Ban & Purge User"),
+    startCollapsed: true,
+  },
+  moderationGroup: {
+    order:60,
+    name: "moderation",
+    label: preferredHeadingCase("Moderation & Moderation Guidelines"),
+    startCollapsed: true,
+  },
+  aboutMe: {
+    name: 'aboutMe',
+    order: 100,
+    label: isFriendlyUI ? "About you" : "About Me",
+  },
+  socialMedia: {
+    name: 'socialMedia',
+    order: 110,
+    label: isFriendlyUI ? "Social media" : "My Social Media",
+  },
+  activity: {
+    name: 'activity',
+    order: 120,
+    label: isFriendlyUI ? "Your activity" : "My Activity",
+  },
+  deactivate: {
+    order: 130,
+    name: "deactivate",
+    label: preferredHeadingCase("Deactivate Account"),
+    startCollapsed: true,
+  },
+};

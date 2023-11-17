@@ -1,19 +1,27 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Check presence and versions of outside-of-node dependencies, including the
 # version of nodejs, and warn about system issues that would cause problems.
 # This is run as a postinstall script from package.json.
+
+REQUIRED_NODE_MAJOR_VERSION=18
 
 echo -n "Checking for node... "
 if which node >/dev/null; then
   node --version 2>&1
   NODE_MAJOR_VERSION=$(node -p 'process.version.match(/^v(\d+)/)[1]')
-  if [ "$NODE_MAJOR_VERSION" -lt 14 ]; then
-    echo "Your version of nodejs is too old (we require 14+). You might want to use"
-    echo "Node Version Manager (nvm). For install instructions, see"
+  if [ "$NODE_MAJOR_VERSION" -lt "$REQUIRED_NODE_MAJOR_VERSION" ]; then
+    echo "Your version of nodejs is too old (we require 18.x). You might want to use Node"
+    echo "Version Manager (nvm). For install instructions, see"
     echo "    https://github.com/nvm-sh/nvm#installing-and-updating"
     echo "And then run:"
-    echo "    nvm use 14"
+    echo "    nvm install $REQUIRED_NODE_MAJOR_VERSION; nvm use $REQUIRED_NODE_MAJOR_VERSION"
     exit 1
+  elif [ "$NODE_MAJOR_VERSION" -gt "$REQUIRED_NODE_MAJOR_VERSION" ]; then
+    echo "Your version of nodejs is a newer major version than we use (we use 18.x); you"
+    echo "may encounter compatibility issues. To switch to node ${REQUIRED_NODE_MAJOR_VERSION}, use"
+    echo "    nvm install $REQUIRED_NODE_MAJOR_VERSION; nvm use $REQUIRED_NODE_MAJOR_VERSION"
+    echo "If you don't have nvm installed, see:"
+    echo "    https://github.com/nvm-sh/nvm#installing-and-updating"
   fi
 else
   echo "not found"
@@ -35,14 +43,13 @@ if [ "$NODE_ENV" == "production" ]; then
   exit 0
 fi
 
-echo -n "Checking for mongodb... "
-if which mongod >/dev/null; then
-  mongod --version |head -1
+echo -n "Checking for postgres... "
+if which psql >/dev/null; then
+  echo "yes"
 else
   echo "not found"
-  echo '`mongod` is not installed. You can run LessWrong by connecting to a remote'
+  echo '`psql` is not installed. You can run ForumMagnum by connecting to a remote'
   echo 'database, but you probably want a local server for testing.'
-  echo "See https://docs.mongodb.com/manual/installation/"
   echo
 fi
 
@@ -56,9 +63,14 @@ else
   echo
 fi
 
-if [ ! -f settings.json ]; then
-  echo "Creating settings.json"
-  cp sample_settings.json settings.json
+echo -n "Checking for perl... "
+if which perl >/dev/null; then
+  echo "yes"
+else
+  echo "no"
+  echo "You do not have perl installed. The server will still run, you will not be able"
+  echo "to run makemigrations"
+  echo
 fi
 
 if [ ! -f settings-dev.json ]; then

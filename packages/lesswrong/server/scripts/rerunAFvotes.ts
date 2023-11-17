@@ -4,7 +4,7 @@ import { Vulcan, getCollection } from '../vulcan-lib';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 
 Vulcan.rerunAFVotes = async () => {
-  await Users.update({}, {$set:{afKarma:0}}, {multi:true})
+  await Users.rawUpdateMany({}, {$set:{afKarma:0}}, {multi:true})
   const afVotes = await Votes.find({
     afPower:{$exists:true},
     cancelled:false,
@@ -17,9 +17,9 @@ Vulcan.rerunAFVotes = async () => {
       console.log(i)
     }
     const collection = getCollection(vote.collectionName as VoteableCollectionName);
-    const document = await collection.findOne({_id: vote.documentId}) as VoteableType;
+    const document = await collection.findOne({_id: vote.documentId}) as DbVoteableType;
     if (document.af) {
-      await Users.update({_id:document.userId}, {$inc: {afKarma: vote.afPower}})
+      await Users.rawUpdateOne({_id:document.userId}, {$inc: {afKarma: vote.afPower}})
     }
   })
 }

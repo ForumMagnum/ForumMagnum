@@ -9,7 +9,7 @@ const fragmentFileHeader = generatedFileHeader+`//
 `
 
 export function generateFragmentTypes(): string {
-  const fragmentNames: Array<FragmentName> = getAllFragmentNames();
+  const fragmentNames: Array<FragmentName> = getAllFragmentNames();  
   const sb: Array<string> = [];
   
   for (let fragmentName of fragmentNames) {
@@ -23,21 +23,28 @@ export function generateFragmentTypes(): string {
   return fragmentFileHeader + sb.join('');
 }
 
+type ParsedFragmentType = ReturnType<typeof getParsedFragment>;
+
 function getParsedFragment(fragmentName: FragmentName) {
   const fragmentDefinitions = getFragment(fragmentName);
   
   // `getFragment` returns the parsed definition of a fragment plus all of its
   // dependency fragments. The one we requested will be first.
-  assert(fragmentDefinitions.definitions.length > 0);
-  const parsedFragment = fragmentDefinitions.definitions[0];
-  assert(parsedFragment.kind == "FragmentDefinition");
-  assert(parsedFragment.name.value == fragmentName);
+  assert((fragmentDefinitions?.definitions?.length ?? 0) > 0);
+  const parsedFragment = fragmentDefinitions?.definitions[0];
+  assert(parsedFragment?.kind == "FragmentDefinition");
+  if (!parsedFragment || !("name" in parsedFragment) || !("selectionSet" in parsedFragment) || parsedFragment?.name?.value !== fragmentName) {
+    throw new Error("Retrieved parsed fragment with wrong name");
+  }
   return parsedFragment;
 }
 
 function fragmentNameToCollectionName(fragmentName: FragmentName): CollectionNameString {
   const parsedFragment = getParsedFragment(fragmentName);
-  const typeName = parsedFragment.typeCondition?.name?.value;
+  if (!parsedFragment || !("typeCondition" in parsedFragment)) {
+    throw new Error("Not a type node");
+  }
+  const typeName = parsedFragment.typeCondition.name?.value;
   const collectionName = getCollectionName(typeName!);
   return collectionName;
 }
@@ -82,7 +89,7 @@ function generateCollectionNamesIndexType(): string {
   return 'type CollectionNameString = ' + getAllCollections().map(c => `"${c.collectionName}"`).join('|') + '\n\n';
 }
 
-function fragmentToInterface(interfaceName: string, parsedFragment, collection): string {
+function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragmentType, collection: AnyBecauseTodo): string {
   const sb: Array<string> = [];
   
   const spreadFragments = getSpreadFragments(parsedFragment);
@@ -113,7 +120,7 @@ function fragmentToInterface(interfaceName: string, parsedFragment, collection):
   return sb.join('');
 }
 
-function getSpreadFragments(parsedFragment): Array<string> {
+function getSpreadFragments(parsedFragment: AnyBecauseTodo): Array<string> {
   const spreadFragmentNames: Array<string> = [];
   for (let selection of parsedFragment.selectionSet.selections) {
     if(selection.kind == "FragmentSpread") {
@@ -123,7 +130,7 @@ function getSpreadFragments(parsedFragment): Array<string> {
   return spreadFragmentNames;
 }
 
-function getFragmentFieldType(fragmentName: string, parsedFragmentField, collection):
+function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBecauseTodo, collection: AnyBecauseTodo):
   { fieldType: string, subfragment: string|null }
 {
   const fieldName: string = parsedFragmentField.name.value;

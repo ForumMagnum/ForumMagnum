@@ -1,7 +1,7 @@
 import later from 'later';
 import * as _ from 'underscore';
 import { isAnyTest, onStartup } from '../../../lib/executionEnvironment';
-import { MongoCollection } from '../../../lib/mongoCollection';
+import { CronHistories } from '../../../lib/collections/cronHistories';
 
 // A package for running jobs synchronized across multiple processes
 export const SyncedCron: any = {
@@ -90,8 +90,7 @@ onStartup(function() {
     later.date.localTime();
 
   // collection holding the job history records
-  SyncedCron._collection = new MongoCollection(options.collectionName);
-  SyncedCron._collection._ensureIndex({intendedAt: 1, name: 1}, {unique: true});
+  SyncedCron._collection = CronHistories;
 
   if (options.collectionTTL) {
     if (options.collectionTTL > minTTL)
@@ -143,13 +142,11 @@ SyncedCron.add = async function(entry: {
 SyncedCron.start = function() {
   var self = this;
 
-  onStartup(async function() {
-    // Schedule each job with later.js
-    _.each(self._entries, function(entry) {
-      scheduleEntry(entry);
-    });
-    self.running = true;
+  // Schedule each job with later.js
+  _.each(self._entries, function(entry) {
+    scheduleEntry(entry);
   });
+  self.running = true;
 }
 
 // Return the next scheduled date of the first matching entry or undefined
@@ -192,6 +189,14 @@ SyncedCron.stop = function() {
   this.running = false;
 }
 
+const isDuplicateKeyError = (
+  collection: CollectionBase<DbCronHistory>,
+  error: Error & {code?: number | string},
+) =>
+  collection.isPostgres()
+    ? error.code === '23505' // pg duplicate key error code - note it's a string
+    : error.code === 11000; // mongodb duplicate key error code
+
 // The meat of our logic. Checks if the specified has already run. If not,
 // records that it's running the job, runs it, and records the output
 SyncedCron._entryWrapper = function(entry: any) {
@@ -213,11 +218,9 @@ SyncedCron._entryWrapper = function(entry: any) {
       // If we have a dup key error, another instance has already tried to run
       // this job.
       try {
-        jobHistory._id = await self._collection.insert(jobHistory);
+        jobHistory._id = await self._collection.rawInsert(jobHistory, {quiet: true});
       } catch(e) {
-        // http://www.mongodb.org/about/contributors/error-codes/
-        // 11000 == duplicate key error
-        if (e.code === 11000) {
+        if (isDuplicateKeyError(self._collection, e)) {
           log.info('Not running "' + entry.name + '" again.');
           return;
         }
@@ -233,7 +236,7 @@ SyncedCron._entryWrapper = function(entry: any) {
 
       log.info('Finished "' + entry.name + '".');
       if(entry.persist) {
-        await self._collection.update({_id: jobHistory._id}, {
+        await self._collection.rawUpdateOne({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             result: output
@@ -243,7 +246,7 @@ SyncedCron._entryWrapper = function(entry: any) {
     } catch(e) {
       log.info('Exception "' + entry.name +'" ' + ((e && e.stack) ? e.stack : e));
       if(entry.persist) {
-        await self._collection.update({_id: jobHistory._id}, {
+        await self._collection.rawUpdateOne({_id: jobHistory._id}, {
           $set: {
             finishedAt: new Date(),
             error: (e && e.stack) ? e.stack : e
@@ -257,7 +260,7 @@ SyncedCron._entryWrapper = function(entry: any) {
 // for tests
 SyncedCron._reset = async function() {
   this._entries = {};
-  await this._collection.remove({});
+  await this._collection.rawRemove({});
   this.running = false;
 }
 

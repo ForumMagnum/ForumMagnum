@@ -20,7 +20,7 @@ Forum Magnum is built on top of a number major open-source libraries.
 
 5. [Apollo](https://www.apollographql.com/docs/) is a client-side ORM which we use for managing data on the client. We interact with it primarily via the React hooks API.
 
-6. [CkEditor5](https://ckeditor.com/) is the default text editor for posts, comments, and some other form fields. [Draft](https://draftjs.org/) is an alternative text editor, which is no longer the default but which we still support.
+6. [CkEditor5](https://ckeditor.com/) is the default text editor for posts, comments, and some other form fields. [Draft](https://draftjs.org/) is an alternative rich text editor, which is no longer the default but which we still support.
 
 ## Running locally
 
@@ -28,19 +28,20 @@ Forum Magnum is built on top of a number major open-source libraries.
 
   * MacOS or Linux
     * Known to work on MacOS 10.15 and Ubuntu 18.04, should work on others
+    * It is also known to work on Ubuntu 18.04 using Windows Subsystem for Linux
   * Node
     * see `.nvmrc` for the required node version
     * You can use [Node Version Manager](https://github.com/creationix/nvm) to install the appropriate version of Node
+    * Starting from a fresh MacOS system, try: `brew install nvm` to install nvm, then `nvm install` in the ForumMagnum directory
+  * Curl, Perl are optional, but needed to run some scripts and tests
 
 ### Installation
 
 Clone our repo:
 
 ```
-git clone git@github.com:centre-for-effective-altruism/EAForum.git
+git clone https://github.com/ForumMagnum/ForumMagnum.git
 ```
-
-(CEA Devs, see the ForumCredentials repository for secrets)
 
 Install dependencies:
 
@@ -49,15 +50,76 @@ cd ForumMagnum
 yarn install
 ```
 
-Start the development server:
+### If you want to run a local database
+
+CEA Devs, see the ForumCredentials repository for access to a remote dev database. Otherwise, do the following:
+
+Run a local postgres instance, version 15. For example, if you're on macos:
+
+```bash
+brew install postgresql@15
+brew services start postgresql@15
+
+createdb forummagnum
+```
+
+(DB name is an arbitrary choice.)
+
+You must also have the [pgvector](https://github.com/pgvector/pgvector) Postgres extension installed.
+
+Configure the schema:
+
+```bash
+psql forummagnum -f ./schema/accepted_schema.sql
+```
+
+TODOs:
+
+* You won't have any database settings yet. TODO: add instructions.
+* You won't be able to run migrations yet. TODO: fix migrations so they can be
+  run on a new db (NB: goal is still to have the db have the accepted_schema).
+
+### Creating branch-specific development databases
+
+When developing features that require changing database schemas, it can be
+desirable to do this work without changing schemas in shared database instances
+that other developers are working on. To solve this problem, we have a script
+that can be used to create temporary clones of the dev database. The following
+commands are supported:
+ - `yarn branchdb create` clones a new dev database for the current git branch
+ - `yarn branchdb drop` drops the cloned database for the current git branch
+ - `yarn branchdb clean` drops all cloned dev databases created by this git clone
+ - `yarn branchdb list` lists all cloned dev databases created by this git clone
+
+### Start the development server
+
+Your postgres URL for the locally-running database will be
+postgres://localhost/forummagnum.
 
 ```
-yarn [start|ea-start]
+yarn start-local-db --postgresUrl $YOUR_LOCAL_POSTGRES_URL
+```
+
+Next, select which website you are working on. If you're making a new site, open
+packages/lesswrong/lib/instanceSettings.ts, find the line that says
+
+```
+export const allForumTypes = ...
+```
+
+and add your forum type to the end. Then regardless of whether you're making a
+new site or editing an existing one, open settings-dev.json and change the line
+that says `"forumType": "LessWrong"` to the correct forum.
+
+Or, if (and only if!) you have access to CEA's ForumCredentials repository, use
+
+```
+yarn ea-start
 ```
 
 You should now have a local version running at [http://localhost:3000](http://localhost:3000/).
 
-It will start out with an empty database. (This means that some of the hardcoded links on the frontpage will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins. [Note for CEA, this doesn't apply to you, your database is shared with other developers.]
+It will start out with an empty database. (This means that some of the hardcoded links on the frontpage will not work). You can create users via the normal sign up process (entering a fake email is fine). The first user you’ll create will be an admin, so you’ll probably want to create at least two users to check how the site looks for non-admins. [Note for CEA: this doesn't apply to you, your database is shared with other developers.]
 
 ## Documentation
 
@@ -69,7 +131,7 @@ Some relevant pieces of documentation that will help you understand aspects of t
 2. JSS styles: [intro](https://cssinjs.org/)
 3. GraphQL: [tutorial](https://graphql.org/learn/)
 4. Apollo: [introduction](https://www.apollographql.com/docs/react/) and [hooks API reference](https://www.apollographql.com/docs/react/api/react/hooks/)
-5. Underscore: [reference](https://underscorejs.org/)
+5. Lodash: [reference](https://lodash.com/docs/4.17.15)
 6. MongoDB: [manual](https://docs.mongodb.com/manual/introduction/)
 
 You can also see auto-generated documentation of our GraphQL API endpoints and try out queries using [GraphiQL](https://www.lesswrong.com/graphiql) on our server or on a development server.
@@ -141,9 +203,57 @@ used.
 * (Note: currently aspirational): If you fix a bug, **write a test for it**.
 * If you're trying to debug an email problem, you might want to know about `forcePendingEvents`.
 
+## Database Migrations
+
+All migrations should be designed to be idempotent and should represent a
+one-off operation (such as updating a table schema). Operations that need to be
+run multiple times should instead be implemented as a server script.
+
+* Run pending migrations with `yarn migrate up [dev|staging|prod]`
+* Revert migrations with `yarn migrate down [dev|staging|prod]`, but note that we treat down migrations as optionally so this may or may not work as expected
+* Create a new migration with `yarn migrate create --name=my-new-migration`, although usually you will want to do `yarn makemigrations` instead (see below)
+* View pending migrations with `yarn migrate pending [dev|staging|prod]`
+* View executed migrations with `yarn migrate executed [dev|staging|prod]`
+
+Instead of using \[dev|staging|prod\] above, you can also manually pass in a postgres connection string through a `PG_URL` environement variable. Use that option if you are not using the \[EA\] ForumCredentials repo.
+
+### Schema changing migrations
+
+Many (most) migrations will just be to update the database schema to be in line with what the code expects. For these we have
+scripts to autogenerate a migration template, and assert that the new schema has been "accepted" (i.e. you have remembered to write a migration).
+For these the development process will be like this:
+
+* Make some changes which add or alter fields in one of the `schema.ts` files
+* Run `yarn makemigrations`, to check the schema and generate a new migration file if there are changes
+* Fill out the migration file, and uncomment the `acceptsSchemaHash = ...` line when you are done
+* Run `yarn acceptmigrations` to accept the changes (this updates two files which should be committed, `accepted_schema.sql` and `schema_changelog.json`)
+
+#### Migrations and git conflicts
+* When you created a new migration, but then someone else merged a PR that also created a migration, you will get a git conflict.
+* To resolve it you basically need to re-run migration process:
+  * merge/rebase on top of new changes accepting their versions of schema files (i.e. `accepted_schema.sql` and `schema_changelog.json`)
+  * run `yarn makemigrations` again, to generate new hashes for the schema
+  * copy the logic from the migration file you've crated previously, but keep new `acceptedSchemaHash` value and timestamp in the file name
+  * delete your old migration file (and reference to it in `schema_changelog.json` if it's still there)
+  * run `yarn acceptmigrations`
+  * finish merge/rebase
+
+### Migrating both Mongo and Postgres
+* Currently, you need to create a migration for both Mongo and Postgres separately. 
+* You do the Postgres migration via the `yarn makemigrations` process described above.
+* You make Mongo migration by imitating the previous examples in `packages/lesswrong/server/manualMigrations`
+* See https://github.com/ForumMagnum/ForumMagnum/pull/6458 for an example of a migration that does both.
+
 ## Testing
 
-We use [Jest](https://jestjs.io/) for unit testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
+We use [Jest](https://jestjs.io/) for unit and integration testing, and [Cypress](https://www.cypress.io/) for end-to-end testing.
+
+### Jest
+
+* Run the unit test suite with `yarn unit`
+* Run the integration test suite with `yarn integration` (you may need to run `yarn create-integration-db` first so that the db is up-to-date)
+
+Both commands support a `-watch` suffix to watch the file system, and a `-coverage` suffix to generate a code coverage report. After generating both code coverage reports they can be combined into a single report with `yarn combine-coverage`.
 
 ### Cypress
 

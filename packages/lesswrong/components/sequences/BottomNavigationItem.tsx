@@ -2,7 +2,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import classnames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { postGetCommentCount, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     
     "&:hover, &:visited, &:focus": {
-      color: "rgba(0,0,0, 0.5)",
+      color: theme.palette.link.dim,
     },
     fontFamily: theme.typography.uiSecondary.fontFamily,
   },
@@ -46,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   
   meta: {
-    color: "rgba(0,0,0,.5)",
+    color: theme.palette.text.dim,
     fontSize: 12,
   },
   
@@ -67,8 +67,8 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
   classes: ClassesType,
 }) => {
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
-  const { LoginPopupButton } = Components
-  const commentCount = post.commentCount || "No"
+  const { LoginToTrack } = Components
+  const commentCount = postGetCommentCount(post) || "No"
   const url = postGetPageUrl(post, false, sequence?._id);
   
   return (
@@ -82,14 +82,12 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
           <div className={classes.postTitle}>{post.title}</div>
           <div className={classes.meta}>
             <span className={classes.metaEntry}>{commentCount} comments</span>
-            <span className={classes.metaEntry}>{post.baseScore} points</span>
+            <span className={classes.metaEntry}>{post.baseScore} karma</span>
           </div>
         </div>
       </Link>
       {direction==="Next" && <span className={classes.login}>
-        <LoginPopupButton title="LessWrong keeps track of what posts logged in users have read, so you can keep reading wherever you've left off">
-            Log in to save where you left off
-        </LoginPopupButton>
+        <LoginToTrack />
       </span>}
     </span>
   )

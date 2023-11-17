@@ -1,14 +1,14 @@
-import { addGraphQLSchema, Globals } from './vulcan-lib';
-import { CallbackChainHook } from './vulcan-lib/callbacks';
+import { addGraphQLSchema } from './vulcan-lib/graphql';
 import { RateLimiter } from './rateLimiter';
-import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
+import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react'
 import { hookToHoc } from './hocUtils'
 import { isClient, isServer, isDevelopment, isAnyTest } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
 import { DatabasePublicSetting } from './publicSettings';
 import { getPublicSettingsLoaded } from './settingsCache';
-import * as _ from 'underscore';
+import { throttle } from 'underscore';
 import moment from 'moment';
+import { Globals } from './vulcan-lib/config';
 
 const showAnalyticsDebug = new DatabasePublicSetting<"never"|"dev"|"always">("showAnalyticsDebug", "dev");
 const flushIntervalSetting = new DatabasePublicSetting<number>("analyticsFlushInterval", 1000);
@@ -56,7 +56,7 @@ function getShowAnalyticsDebug() {
     return false;
 }
 
-export function captureEvent(eventType: string, eventProps?: Record<string,any>) {
+export function captureEvent(eventType: string, eventProps?: Record<string,any>, suppressConsoleLog = false) {
   try {
     if (isServer) {
       // If run from the server, we can run this immediately except for a few
@@ -68,7 +68,7 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
           ...eventProps
         }
       }
-      if (getShowAnalyticsDebug()) {
+      if (!suppressConsoleLog && getShowAnalyticsDebug()) {
         serverConsoleLogAnalyticsEvent(event);
       }
       if (AnalyticsUtil.serverWriteEvent) {
@@ -102,11 +102,49 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>)
   }
 }
 
+type TrackingContext = Record<string, unknown>;
 
-const ReactTrackingContext = React.createContext({});
+const ReactTrackingContext = React.createContext<TrackingContext>({});
 
+export type AnalyticsProps = {
+  pageContext?: string,
+  pageSectionContext?: string,
+  pageSubSectionContext?: string,
+  pageElementContext?: string,
+  pageElementSubContext?: string,
+  reviewYear?: string,
+  path?: string,
+  resourceName?: string,
+  resourceUrl?: string,
+  chapter?: string,
+  documentSlug?: string,
+  postId?: string,
+  sequenceId?: string,
+  commentId?: string,
+  tagId?: string,
+  tagName?: string,
+  tagSlug?: string,
+  userIdDisplayed?: string,
+  hoverPreviewType?: string,
+  sortedBy?: string,
+  branch?: string,
+  siteEvent?: string,
+  href?: string,
+  limit?: number,
+  capturePostItemOnMount?: boolean,
+  singleLineComment?: boolean,
+  onsite?: boolean,
+  terms?: PostsViewTerms,
+  /** @deprecated Use `pageSectionContext` instead */
+  listContext?: string,
+  /** @deprecated Use `pageSectionContext` instead */
+  pageSection?: "karmaChangeNotifer",
+  /** @deprecated Use `pageSubSectionContext` instead */
+  pageSubsectionContext?: "latestReview",
+}
 
-/* HOW TO USE ANALYTICS CONTEXT WRAPPER COMPONENTS
+/**
+HOW TO USE ANALYTICS CONTEXT WRAPPER COMPONENTS
 When you create a new feature (page, widget,button, etc.) or change the structure of a page, 
 you should wrap the relevant components in an <AnalyticsContext> component. These 
 components allow passing contextual information to the analytics event capture 
@@ -127,10 +165,14 @@ USE THIS CONVENTION FOR TRACKING EVENT LOCATION
     - (only needs to defined once for each page)
 * pageSectionContext={sectionName}, e.g. recentDiscussion, gatherTownWidget, wikiSection, userDrafts
     - use for larger sections of a page
+* pageSubSectionContext is used when a section meaningfully has subsections (such as bookmarks list within the recommendations section on the frontpage)
 * pageElementContext={elementName}> e.g. hoverPreview, commentItem, answerItem
     -use when wanting to mark where within a section something occurs
 * listContext is historical. Now just use pageSection.
-* pageSubSectionContext has been used in a couple of places, but is largely superceded by elementContext
+
+When adding a new prop simply add it to the list in the type of the `props` argument here.
+Arguments can be of any type that can be handled by JSON.stringify. It's fine to have a low
+barrier for adding new props here.
 
 Also, context labels and their values should be camelCase, e.g. `pageSectionContext="fromTheArchives"`, 
 and *not* `page_section_context="From the Archives" or the like.
@@ -149,22 +191,24 @@ will overwrite the first.
 NOTE! AnalyticsContext components will only add context data to events that are already
 being tracked (e.g. linkClicks, navigate). If you've added a button or change of state, you
 will likely have to add tracking manually with a captureEvent call. (Search codebase for examples or consult others)
-The best way to ensure you are tracking correctly with is to insert a console.log statement 
-in captureEvent in this file, e.g. console.log({eventType: eventProps}).
-*/
 
-export const AnalyticsContext = ({children, ...props}: any) => {
+The best way to ensure you are tracking correctly with is to look at the logs
+in the client or server (ensure getShowAnalyticsDebug is returning true).
+*/
+export const AnalyticsContext = ({children, ...props}: AnalyticsProps & {
+  children: ReactNode,
+}) => {
   const existingContextData = useContext(ReactTrackingContext)
-  
+
   // Create a child context, which is the parent context plus the provided props
   // merged on top of it. But create it in a referentially stable way: reuse
   // the same object, so that changes never cause child components to rerender.
   // (As long as they captured the context in the obvious way, they'll still get
   // the newest values of these props when they actually log an event.)
-  const newContextData = useRef({...existingContextData});
+  const newContextData = useRef<TrackingContext>({...existingContextData});
   for (let key of Object.keys(props))
-    newContextData.current[key] = props[key];
-  
+    newContextData.current[key] = props[key as keyof typeof props];
+
   return <ReactTrackingContext.Provider value={newContextData.current}>
     {children}
   </ReactTrackingContext.Provider>
@@ -174,12 +218,11 @@ export const AnalyticsContext = ({children, ...props}: any) => {
 // value were set to {} in the usual way, it would be a new instance of {} each
 // time; this way, it's the same {}, which in turn matters for making
 // useCallback return the same thing each tie.
-const emptyEventProps = {};
+const emptyEventProps = {} as any;
 
-export function useTracking({eventType="unnamed", eventProps=emptyEventProps, skip=false}: {
+export function useTracking({eventType="unnamed", eventProps=emptyEventProps}: {
   eventType?: string,
   eventProps?: any,
-  skip?: boolean
 }={}) {
   const trackingContext = useContext(ReactTrackingContext)
 
@@ -195,15 +238,15 @@ export function useTracking({eventType="unnamed", eventProps=emptyEventProps, sk
 
 export const withTracking = hookToHoc(useTracking)
 
-export function useOnMountTracking({eventType="unnamed", eventProps=emptyEventProps, captureOnMount, skip=false}: {
+export function useOnMountTracking<T>({eventType="unnamed", eventProps=emptyEventProps, captureOnMount, skip=false}: {
   eventType?: string,
-  eventProps?: any,
-  captureOnMount?: any,
+  eventProps?: T,
+  captureOnMount?: boolean | ((eventProps: T) => boolean),
   skip?: boolean
 }={}) {
   const trackingContext = useContext(ReactTrackingContext)
   useEffect(() => {
-    const eventData = {...trackingContext, ...eventProps}
+    const eventData: AnyBecauseTodo = {...trackingContext, ...eventProps}
     if (typeof captureOnMount === "function") {
       !skip && captureOnMount(eventData) && captureEvent(`${eventType}Mounted`, eventData)
     } else if (!!captureOnMount) {
@@ -264,9 +307,9 @@ const burstLimitKB = 20;
 const rateLimitEventsPerSec = 3.0;
 const rateLimitKBps = 5;
 const rateLimitEventIntervalMs = 5000;
-let eventTypeLimiters = {};
+let eventTypeLimiters: AnyBecauseTodo = {};
 
-const throttledStoreEvent = (event) => {
+const throttledStoreEvent = (event: AnyBecauseTodo) => {
   const now = new Date();
   const eventType = event.type;
   const eventSize = JSON.stringify(event).length;
@@ -282,7 +325,7 @@ const throttledStoreEvent = (event) => {
         steadyStateLimit: rateLimitKBps*1024,
         timestamp: now
       }),
-      exceeded: _.throttle(() => {
+      exceeded: throttle(() => {
         pendingAnalyticsEvents.push({
           type: "rateLimitExceeded",
           timestamp: now,
@@ -374,5 +417,3 @@ function throttledFlushClientEvents() {
     flushClientEvents();
   }
 }
-
-export const userIdentifiedCallback = new CallbackChainHook<UsersCurrent|DbUser,[]>("events.identify");

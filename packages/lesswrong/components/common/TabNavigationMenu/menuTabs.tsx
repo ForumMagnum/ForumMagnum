@@ -1,4 +1,10 @@
 import React from 'react';
+import { communityPath, getAllTagsPath } from '../../../lib/routes';
+import { REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { eaSequencesHomeDescription } from '../../ea-forum/EASequencesHome';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { ForumOptions } from '../../../lib/forumTypeUtils';
+import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
@@ -7,15 +13,28 @@ import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
 
-
 import Home from '@material-ui/icons/Home'
 import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
-import type { ForumTypeString } from '../../../lib/instanceSettings';
-import { communityPath } from '../../../lib/routes';
+
+// EA Forum menu icons
+import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
+import HomeSelectedIcon from "@heroicons/react/20/solid/HomeIcon";
+import BestOfIcon from "@heroicons/react/24/outline/StarIcon";
+import BestOfSelectedIcon from "@heroicons/react/24/solid/StarIcon";
+import AllPostsIcon from "@heroicons/react/24/outline/ArchiveBoxIcon";
+import AllPostsSelectedIcon from "@heroicons/react/24/solid/ArchiveBoxIcon";
+import TopicsIcon from "@heroicons/react/24/outline/TagIcon";
+import TopicsSelectedIcon from "@heroicons/react/24/solid/TagIcon";
+import TakeActionIcon from "@heroicons/react/24/outline/HeartIcon";
+import TakeActionSelectedIcon from "@heroicons/react/24/solid/HeartIcon";
+import EventsIcon from "@heroicons/react/24/outline/CalendarIcon";
+import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
+import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
+import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -38,6 +57,7 @@ import { communityPath } from '../../../lib/routes';
 //   showOnMobileStandalone: boolean; show in (2) Standalone Footer Menu
 //   showOnCompressed: boolean; show in (4) Drawer Collapsed Menu
 //   subitem: boolean; display title in smaller text
+//   loggedOutOnly: boolean; only visible to logged out users
 //   customComponentName: string; instead of a TabNavigationItem, display this component
 //
 // See TabNavigation[Footer|Compressed]?Item.jsx for how these are used by the code
@@ -53,23 +73,27 @@ type MenuTabCustomComponent = {
   customComponentName: string
 }
 
+type MenuItemIcon = React.ComponentType | React.FC<{className?: string}>;
+
 export type MenuTabRegular = {
   id: string
   title: string
   mobileTitle?: string
   link: string
   icon?: React.ReactNode
-  iconComponent?: any // I tried
-  compressedIconComponent?: any
+  iconComponent?: MenuItemIcon
+  selectedIconComponent?: MenuItemIcon
+  compressedIconComponent?: MenuItemIcon
   tooltip?: React.ReactNode
   showOnMobileStandalone?: boolean
   showOnCompressed?: boolean
-  subItem?: boolean
+  subItem?: boolean,
+  loggedOutOnly?: boolean
 }
 
 type MenuTab = MenuTabDivider | MenuTabCustomComponent | MenuTabRegular
 
-export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
+export const menuTabs: ForumOptions<Array<MenuTab>> = {
   LessWrong: [
     {
       id: 'home',
@@ -80,10 +104,18 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'allPosts',
+      title: 'All Posts',
+      link: '/allPosts',
+      icon: allPostsIcon,
+      tooltip: 'See all posts, filtered and sorted however you like.',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
       id: 'concepts',
       title: 'Concepts',
       mobileTitle: 'Concepts',
-      link: '/tags/all',
+      link: getAllTagsPath(),
       icon: conceptsIcon,
       tooltip: <div>
         Get an overview over all the concepts used on LessWrong
@@ -99,6 +131,12 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     // next 3 are subItems
+    }, {
+      id: 'highlights',
+      title: 'Sequence Highlights',
+      link: '/highlights',
+      tooltip: "A curated selection of Eliezer's sequences, covering important background material for participating in the LessWrong community (50 posts, approx. 7 hour read)",
+      subItem: true,
     }, {
       id: 'r-az',
       title: 'Rationality: A-Z',
@@ -125,6 +163,12 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       tooltip: 'What if Harry Potter was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.',
       subItem: true,
     }, {
+      id: 'bestoflesswrong',
+      title: 'Best Of',
+      link: '/bestoflesswrong',
+      tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
+      subItem: true,
+    }, {
       id: 'events',
       title: 'Community Events', // Events hide on mobile
       mobileTitle: 'Community',
@@ -137,36 +181,12 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       id: 'eventsList',
       customComponentName: "EventsList",
     }, {
-      id: 'allPosts',
-      title: 'All Posts',
-      link: '/allPosts',
-      icon: allPostsIcon,
-      tooltip: 'See all posts, filtered and sorted however you like.',
-      showOnMobileStandalone: true,
-      showOnCompressed: true,
-    }, {
       id: 'divider',
       divider: true,
       showOnCompressed: true,
     }, {
       id: 'subscribeWidget',
       customComponentName: "SubscribeWidget",
-    }, {
-      id: 'questions',
-      title: 'Open Questions',
-      mobileTitle: 'Questions',
-      link: '/questions',
-      tooltip: <div>
-        <div>• Ask simple newbie questions.</div>
-        <div>• Collaborate on open research questions.</div>
-        <div>• Pose and resolve confusions.</div>
-      </div>,
-      subItem: true
-    }, {
-      id: 'contact',
-      title: 'Contact Us',
-      link: '/contact',
-      subItem: true,
     }, {
       id: 'about',
       title: 'About',
@@ -179,11 +199,6 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       title: 'FAQ',
       link: '/faq',
       subItem: true,
-    }, {
-      id: 'donate',
-      title: "Donate",
-      link: '/donate',
-      subItem: true
     }
   ],
   AlignmentForum: [
@@ -240,6 +255,108 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       id: 'home',
       title: 'Home',
       link: '/',
+      iconComponent: HomeIcon,
+      selectedIconComponent: HomeSelectedIcon,
+      tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
+      id: 'giving-portal',
+      title: 'Giving portal',
+      link: '/giving-portal',
+      iconComponent: TakeActionSelectedIcon,
+      customComponentName: 'GivingPortalMobileMenuItem'
+    }, {
+      id: 'bestOf',
+      title: 'Best of the Forum',
+      link: '/best-of',
+      iconComponent: BestOfIcon,
+      selectedIconComponent: BestOfSelectedIcon,
+      tooltip: 'Curated by the Forum team',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
+      id: 'allPosts',
+      title: 'All posts',
+      link: '/allPosts',
+      iconComponent: AllPostsIcon,
+      selectedIconComponent: AllPostsSelectedIcon,
+      tooltip: 'See all posts, filtered and sorted by date, karma, and more.',
+      showOnMobileStandalone: false,
+      showOnCompressed: true,
+    }, {
+      id: taggingNamePluralSetting.get(),
+      title: taggingNamePluralCapitalSetting.get(),
+      mobileTitle: taggingNamePluralCapitalSetting.get(),
+      link: getAllTagsPath(),
+      iconComponent: TopicsIcon,
+      selectedIconComponent: TopicsSelectedIcon,
+      tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
+      ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
+      id: 'takeAction',
+      title: 'Take action',
+      link: `/${taggingNamePluralSetting.get()}/opportunities-to-take-action`,
+      iconComponent: TakeActionIcon,
+      selectedIconComponent: TakeActionSelectedIcon,
+      tooltip: "Opportunities to get involved with impactful work",
+      loggedOutOnly: true
+    }, {
+      id: 'events',
+      title: 'Events',
+      link: '/events',
+      iconComponent: EventsIcon,
+      selectedIconComponent: EventsSelectedIcon,
+      tooltip: 'Upcoming events near you',
+      showOnMobileStandalone: true,
+      showOnCompressed: true
+    }, {
+      id: 'community',
+      title: 'Groups & people',
+      link: communityPath,
+      iconComponent: GroupsIcon,
+      selectedIconComponent: GroupsSelectedIcon,
+      tooltip: 'Join a group near you or meet others online',
+      showOnMobileStandalone: false,
+      showOnCompressed: true
+    }, {
+      id: 'divider',
+      divider: true,
+      showOnCompressed: true,
+    }, {
+      id: 'shortform',
+      title: 'Quick takes',
+      link: '/quicktakes',
+      subItem: true,
+    }, {
+      id: 'about',
+      title: 'How to use the Forum',
+      link: '/about',
+      subItem: true,
+      compressedIconComponent: Info,
+      showOnCompressed: true,
+    }, {
+      id: 'contact',
+      title: preferredHeadingCase('Contact Us'),
+      link: '/contact',
+      subItem: true,
+    }, {
+      id: 'cookies',
+      title: preferredHeadingCase('Cookie Policy'),
+      link: '/cookiePolicy',
+      subItem: true,
+    }, {
+      id: 'subscribeWidget',
+      customComponentName: "SubscribeWidget",
+    }
+  ],
+  default: [
+    {
+      id: 'home',
+      title: 'Home',
+      link: '/',
       iconComponent: Home,
       tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
       showOnMobileStandalone: true,
@@ -256,7 +373,7 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       id: 'wiki',
       title: 'Wiki',
       mobileTitle: 'Wiki',
-      link: '/tags/all',
+      link: getAllTagsPath(),
       iconComponent: LocalOffer,
       tooltip: 'Collaboratively edited Tags and Wiki Articles',
       showOnMobileStandalone: true,
@@ -266,34 +383,16 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       title: 'Library',
       link: '/library',
       iconComponent: LocalLibrary,
-      tooltip: "Core reading, and sequences of posts building on a common theme",
+      tooltip: eaSequencesHomeDescription,
       showOnMobileStandalone: true,
       showOnCompressed: true,
-    }, {
-      id: 'handbook',
-      title: 'The EA Handbook',
-      link: '/handbook',
-      tooltip: "To help you learn the basics of Effective Altruism, we took some of the best writing and made this handbook. Think of it as the textbook you’d get in your first college course. It explains the core ideas of EA, so that you can start applying them to your own life.",
-      subItem: true,
-    }, {
-      id: 'replacing-guilt',
-      title: 'Replacing Guilt',
-      link: '/s/a2LBRPLhvwB83DSGq',
-      tooltip: "Nate Soares writes about replacing guilt with other feelings, exercising self-compassion, and developing confidence — so that we can create a better world.",
-      subItem: true,
-    }, {
-      id: 'most-important-century',
-      title: 'Most Important Century',
-      link: '/posts/TwQzyP3QgttmuTHym/all-possible-views-about-humanity-s-future-are-wild',
-      tooltip: `Holden Karnofsky argues that there's a good chance of a productivity explosion by 2100, which could quickly lead to a "technologically mature" civilization.`,
-      subItem: true,
     }, {
       id: 'events',
       title: 'Community and Events',
       mobileTitle: 'Events',
       link: communityPath,
       iconComponent: SupervisedUserCircleIcon,
-      tooltip: 'See EA groups and events in your area',
+      tooltip: 'See groups and events in your area',
       showOnMobileStandalone: true,
       showOnCompressed: true
     }, {
@@ -312,11 +411,6 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       id: 'subscribeWidget',
       customComponentName: "SubscribeWidget",
     }, {
-      id: 'intro',
-      title: 'About EA',
-      link: '/intro',
-      subItem: true,
-    }, {
       id: 'about',
       title: 'About the Forum',
       link: '/about',
@@ -325,7 +419,7 @@ export const menuTabs: Record<ForumTypeString,Array<MenuTab>> = {
       showOnCompressed: true,
     }, {
       id: 'contact',
-      title: 'Contact Us',
+      title: preferredHeadingCase('Contact Us'),
       link: '/contact',
       subItem: true,
     }

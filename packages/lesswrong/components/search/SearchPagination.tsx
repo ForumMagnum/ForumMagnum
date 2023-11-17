@@ -5,7 +5,7 @@ import { Pagination } from 'react-instantsearch-dom';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     fontFamily: theme.typography.fontFamily,
-    fontVariant: "small-caps",
+    ...theme.typography.smallCaps,
     '& .ais-Pagination': {
       width: 'auto',
       display: 'inline-block',
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .ais-Pagination-item:hover': {
       background: "transparent",
       '& .ais-Pagination-link': {
-        color: "rgba(0,0,0,0.87)",
+        color: theme.palette.text.normal,
       }
     },
     '& .ais-Pagination-item--nextPage .ais-Pagination-link':{

@@ -1,33 +1,35 @@
-import React, { useState }  from 'react';
+import React, { ReactNode, useRef, useState }  from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Paper from '@material-ui/core/Paper';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   addTagButton: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     display: "inline-block",
-    textAlign: "center"
+    textAlign: "center",
+    "@media print": { display: "none" },
   },
   defaultButton: {
     paddingLeft: 4
   }
 });
 
-const AddTagButton = ({onTagSelected, classes, children}: {
+const AddTagButton = ({onTagSelected, isVotingContext, classes, children}: {
   onTagSelected: (props: {tagId: string, tagName: string})=>void,
+  isVotingContext?: boolean,
   classes: ClassesType,
-  children?: any
+  children?: ReactNode,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement|null>(null);
+  const anchorEl = useRef<HTMLAnchorElement|null>(null);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
-  const { LWPopper, AddTag } = Components
+  const { LWPopper, AddTag, LWClickAwayListener } = Components
 
   if (!userCanUseTags(currentUser)) {
     return null;
@@ -35,37 +37,33 @@ const AddTagButton = ({onTagSelected, classes, children}: {
 
   return <a
     onClick={(ev) => {
-      setAnchorEl(ev.currentTarget);
       setIsOpen(true);
       captureEvent("addTagClicked")
     }}
     className={classes.addTagButton}
+    ref={anchorEl}
   >
-    {children ? children : <span className={classes.defaultButton}>+ Add Tag</span>}
+    {children ? children : <span className={classes.defaultButton}>+ Add {taggingNameCapitalSetting.get()}</span>}
 
     <LWPopper
       open={isOpen}
-      anchorEl={anchorEl}
-      placement="bottom"
-      modifiers={{
-        flip: {
-          enabled: false
-        }
-      }}
+      anchorEl={anchorEl.current}
+      placement="bottom-start"
+      allowOverflow
     >
-      <ClickAwayListener
+      <LWClickAwayListener
         onClickAway={() => setIsOpen(false)}
       >
         <Paper>
           <AddTag
             onTagSelected={({tagId, tagName}: {tagId: string, tagName: string}) => {
-              setAnchorEl(null);
               setIsOpen(false);
               onTagSelected({tagId, tagName});
             }}
+            isVotingContext={isVotingContext}
           />
         </Paper>
-      </ClickAwayListener>
+      </LWClickAwayListener>
     </LWPopper>
   </a>;
 }

@@ -26,8 +26,8 @@ import {
   upsertMutationTemplate,
   deleteMutationTemplate,
 } from './graphqlTemplates';
-import type { GraphQLScalarType } from 'graphql';
-import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib/utils';
+import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
+import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib';
 import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
 import deepmerge from 'deepmerge';
@@ -193,13 +193,8 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
     // note: insertable/editable fields must be included in main schema in case they're returned by a mutation
     // OpenCRUD backwards compatibility
     if (
-      (field.canRead ||
-        field.canCreate ||
-        field.canUpdate ||
-        field.viewableBy ||
-        field.insertableBy ||
-        field.editableBy) &&
-      fieldName.indexOf('$') === -1
+      (field.canRead || field.canCreate || field.canUpdate)
+      && fieldName.indexOf('$') === -1
     ) {
       const fieldDescription = field.description;
       const fieldDirective = '';
@@ -262,7 +257,7 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
       }
 
       // OpenCRUD backwards compatibility
-      if (field.canCreate || field.insertableBy) {
+      if (field.canCreate) {
         fields.create.push({
           name: fieldName,
           type: inputFieldType,
@@ -270,7 +265,7 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
         });
       }
       // OpenCRUD backwards compatibility
-      if (field.canUpdate || field.editableBy) {
+      if (field.canUpdate) {
         fields.update.push({
           name: fieldName,
           type: inputFieldType,
@@ -304,7 +299,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
     : `Type for ${collectionName}`;
 
   const { mainType, create, update, selector, selectorUnique, orderBy } = fields;
-  
+
   let addedQueries: Array<any> = [];
   let addedResolvers: Array<any> = [...fieldResolvers];
   let addedMutations: Array<any> = [];
@@ -331,7 +326,7 @@ const generateSchema = (collection: CollectionBase<DbObject>) => {
       schemaFragments.push(updateDataInputTemplate({ typeName, fields: update }));
     }
 
-    schemaFragments.push(selectorInputTemplate({ typeName, fields: selector }));
+    schemaFragments.push( selectorInputTemplate({ typeName, fields: selector }));
 
     schemaFragments.push(selectorUniqueInputTemplate({ typeName, fields: selectorUnique }));
 
@@ -453,7 +448,7 @@ export const initGraphQL = () => {
   return executableSchema;
 };
 
-let executableSchema: any = null;
+let executableSchema: GraphQLSchema | null = null;
 export const getExecutableSchema = () => {
   if (!executableSchema) {
     throw new Error('Warning: trying to access executable schema before it has been created by the server.');

@@ -46,14 +46,14 @@ if (runSSCFix) {
       //eslint-disable-next-line no-console
       console.log(queryResult);
 
-      let allCodexPosts = [];
+      let allCodexPosts: AnyBecauseTodo[] = [];
 
-      queryResult.data.CollectionsSingle.books.forEach((book) => {
+      queryResult.data.CollectionsSingle.books.forEach((book: AnyBecauseTodo) => {
         //eslint-disable-next-line no-console
         console.log("Adding posts for book...")
         allCodexPosts = allCodexPosts.concat(book.posts);
-        book.sequences.forEach((sequence) => {
-          sequence.chapters.forEach((chapter) => {
+        book.sequences.forEach((sequence: AnyBecauseTodo) => {
+          sequence.chapters.forEach((chapter: AnyBecauseTodo) => {
             //eslint-disable-next-line no-console
             console.log("Adding Posts for chapter...")
             allCodexPosts = allCodexPosts.concat(chapter.posts);
@@ -65,10 +65,10 @@ if (runSSCFix) {
 
     async function updateCodexDrafts() {
       let allCodexPostIds: any = await allCodexPosts();
-      allCodexPostIds = allCodexPostIds.map((post) => post._id);
+      allCodexPostIds = allCodexPostIds.map((post: AnyBecauseTodo) => post._id);
       //eslint-disable-next-line no-console
       console.log(allCodexPostIds)
-      await Posts.update({_id: {$in: allCodexPostIds}}, {$set: {draft: false}}, {multi: true})
+      await Posts.rawUpdateMany({_id: {$in: allCodexPostIds}}, {$set: {draft: false}}, {multi: true})
       //eslint-disable-next-line no-console
       console.log("Updated codex draft status");
     }

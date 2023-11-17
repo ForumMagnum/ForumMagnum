@@ -1,6 +1,5 @@
 import LWEvents from '../lib/collections/lwevents/collection'
 import { Posts } from '../lib/collections/posts/collection'
-import { postStatuses } from '../lib/collections/posts/constants';
 import { postGetPageUrl } from '../lib/collections/posts/helpers'
 import { Comments } from '../lib/collections/comments/collection'
 import { updateMutator } from './vulcan-lib';
@@ -9,6 +8,7 @@ import akismet from 'akismet-api'
 import { isDevelopment } from '../lib/executionEnvironment';
 import { DatabaseServerSetting } from './databaseSettings';
 import { getCollectionHooks } from './mutationCallbacks';
+import { captureEvent } from '../lib/analyticsEvents';
 
 const SPAM_KARMA_THRESHOLD = 10 //Threshold after which you are no longer affected by spam detection
 
@@ -24,13 +24,13 @@ const getAkismetClient = () => {
       blog : akismetURLSetting.get()
     });
     akismetClient.verifyKey()
-      .then(function(valid) {
+      .then(function(valid: AnyBecauseTodo) {
         //eslint-disable-next-line no-console
         if (valid) console.log('Valid Akismet key!');
         //eslint-disable-next-line no-console
         else console.log('Invalid Akismet key. Please provide a key to activate spam detection.', akismetKeySetting.get());
       })
-      .catch(function(err) {
+      .catch(function(err: AnyBecauseTodo) {
         //eslint-disable-next-line no-console
         console.log('Akismet key check failed: ' + err.message);
       });
@@ -38,7 +38,10 @@ const getAkismetClient = () => {
   return akismetClient;
 }
 
-async function constructAkismetReport({document, type = "post"}) {
+async function constructAkismetReport({document, type="post"}: {
+  document: AnyBecauseTodo
+  type: string
+}) {
     const author = await Users.findOne(document.userId)
     if (!author) throw Error("Couldn't find author for Akismet report")
     let post = document
@@ -63,7 +66,7 @@ async function constructAkismetReport({document, type = "post"}) {
     }
 }
 
-async function checkForAkismetSpam({document, type = "post"}) {
+async function checkForAkismetSpam({document, type}: AnyBecauseTodo) {
   try {
     if (document?.contents?.html?.indexOf("spam-test-string-123") >= 0) {
       // eslint-disable-next-line no-console
@@ -82,35 +85,22 @@ async function checkForAkismetSpam({document, type = "post"}) {
   }
 }
 
-getCollectionHooks("Posts").newAfter.add(async function checkPostForSpamWithAkismet(post: DbPost, currentUser: DbUser|null) {
-  if (!currentUser) throw new Error("Submitted post has no associated user");
-  
-  if (akismetKeySetting.get()) {
-    const spam = await checkForAkismetSpam({document: post,type: "post"})
-    if (spam) {
-      if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
-        // eslint-disable-next-line no-console
-        console.log("Deleting post from user below spam threshold", post)
-        await updateMutator({
-          collection: Posts,
-          documentId: post._id,
-          set: {status: postStatuses.STATUS_SPAM},
-          validate: false,
-        });
-      }
-    } else {
-      //eslint-disable-next-line no-console
-      console.log('Post marked as not spam', post._id);
-    }
-  }
-  return post
-});
-
 getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWithAkismet(comment: DbComment, currentUser: DbUser|null) {
     if (!currentUser) throw new Error("Submitted comment has no associated user");
+
+    const unreviewedUser = !currentUser.reviewedByUserId;
     
-    if (akismetKeySetting.get()) {
+    if (unreviewedUser && akismetKeySetting.get()) {
+      const start = Date.now();
+
       const spam = await checkForAkismetSpam({document: comment, type: "comment"})
+
+      const timeElapsed = Date.now() - start;
+      captureEvent('checkForAkismetSpamCompleted', {
+        commentId: comment._id,
+        timeElapsed
+      }, true);
+
       if (spam) {
         if (((currentUser.karma || 0) < SPAM_KARMA_THRESHOLD) && !currentUser.reviewedByUserId) {
           // eslint-disable-next-line no-console
@@ -121,8 +111,8 @@ getCollectionHooks("Comments").newAfter.add(async function checkCommentForSpamWi
             // NOTE: This mutation has no user attached. This interacts with commentsDeleteSendPMAsync so that the PM notification of a deleted comment appears to come from themself.
             set: {
               deleted: true,
-              deletedDate: new Date(), 
-              deletedReason: "Your comment has been marked as spam by the Akismet spam integration. We've sent you a PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page)"
+              deletedDate: new Date(),
+              deletedReason: "This comment has been marked as spam by the Akismet spam integration. We've sent the poster a PM with the content. If this deletion seems wrong to you, please send us a message on Intercom (the icon in the bottom-right of the page)."
             },
             validate: false,
           });
@@ -154,7 +144,7 @@ async function akismetReportSpamHam(report: DbReport) {
     if (!report.markedAsSpam) {
       const akismetReportArguments = report.commentId ? {document: comment, type: "comment"} : {document: post, type: "post"}
       const akismetReport = await constructAkismetReport(akismetReportArguments)
-      getAkismetClient().submitHam(akismetReport, (err) => {
+      getAkismetClient().submitHam(akismetReport, (err: AnyBecauseTodo) => {
         // eslint-disable-next-line no-console
         if (!err) { console.log("Reported Akismet false positive", akismetReport)}
       })
@@ -165,7 +155,7 @@ async function akismetReportSpamHam(report: DbReport) {
 
 export async function postReportPurgeAsSpam(post: DbPost) {
   const akismetReport = await constructAkismetReport({document: post, type: "post"})
-  getAkismetClient().submitSpam(akismetReport, (err) => {
+  getAkismetClient().submitSpam(akismetReport, (err: AnyBecauseTodo) => {
     // eslint-disable-next-line no-console
     if (!err) { console.log("Reported Akismet false negative", akismetReport)}
   })
@@ -173,7 +163,7 @@ export async function postReportPurgeAsSpam(post: DbPost) {
 
 export async function commentReportPurgeAsSpam(comment: DbComment) {
   const akismetReport = await constructAkismetReport({document: comment, type: "comment"})
-  getAkismetClient().submitSpam(akismetReport, (err) => {
+  getAkismetClient().submitSpam(akismetReport, (err: AnyBecauseTodo) => {
     // eslint-disable-next-line no-console
     if (!err) { console.log("Reported Akismet false negative", akismetReport)}
   })

@@ -7,14 +7,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const UsersAutoCompleteHit = ({document, classes}) => {
+const UsersAutoCompleteHit = ({document, classes}: {
+  document: AlgoliaUser
+  classes: ClassesType
+}) => {
   if (document) {
     return <div className={classes.root}>
       <Components.MetaInfo>
         {document.displayName}
       </Components.MetaInfo>
       <Components.MetaInfo>
-        {document.karma} points
+        {document.karma} karma
       </Components.MetaInfo>
       <Components.MetaInfo>
         <Components.FormatDate date={document.createdAt}/>

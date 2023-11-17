@@ -1,49 +1,60 @@
-import React, { useState } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
-import { withTheme } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import TocIcon from '@material-ui/icons/Toc';
-import grey from '@material-ui/core/colors/grey';
 import { useCurrentUser } from '../common/withUser';
+import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumTypeSetting, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { PublicInstanceSetting } from '../../lib/instanceSettings';
+import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import { hasProminentLogoSetting } from '../../lib/publicSettings';
 
-const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
-const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
-export const getHeaderTextColor = (theme: ThemeType) => {
-  if (theme.palette.headerType === 'primary') {
-    return theme.palette.primary.contrastText
-  } else if (theme.palette.headerType === 'secondary') {
-    return theme.palette.secondary.contrastText
-  } else if (theme.palette.type === "dark") {
-    return theme.palette.getContrastText(grey[900])
-  } else {
-    return theme.palette.getContrastText(grey[100])
-  }
-}
+import { useLocation } from '../../lib/routeUtil';
+import { useIsGivingSeason } from '../ea-forum/giving-portal/hooks';
 
-const styles = (theme: ThemeType): JssStyles => ({
+export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
+export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
+/** Height of top header. On Book UI sites, this is for desktop only */
+export const HEADER_HEIGHT = isBookUI ? 64 : 66;
+/** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
+export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
+
+export const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
-    boxShadow: "0 1px 1px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.05)",
+    boxShadow: theme.palette.boxShadow.appBar,
+    color: theme.palette.header.text,
+    backgroundColor: theme.palette.header.background,
+    position: "static",
+    width: "100%",
+    display: "flex",
+    zIndex: 1100,
+    boxSizing: "border-box",
+    flexShrink: 0,
+    flexDirection: "column",
+    ...(isFriendlyUI ? {
+      padding: '1px 20px',
+      [theme.breakpoints.down('sm')]: {
+        padding: '1px 11px',
+      },
+      [theme.breakpoints.down('xs')]: {
+        padding: '9px 11px',
+      },
+    } : {})
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
-    height: 64,
+    height: HEADER_HEIGHT,
     [theme.breakpoints.down('xs')]: {
-      height: 56,
+      height: MOBILE_HEADER_HEIGHT,
     },
-    
-    flexGrow: 1,
     "@media print": {
       display: "none"
     }
@@ -60,7 +71,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.secondary,
   },
   titleLink: {
-    color: getHeaderTextColor(theme),
+    color: theme.palette.header.text,
     fontSize: 19,
     '&:hover, &:focus, &:active': {
       textDecoration: 'none',
@@ -68,13 +79,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     display: 'flex',
     alignItems: 'center',
+    fontWeight: isFriendlyUI ? 400 : undefined,
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
   },
   siteLogo: {
-    marginLeft: -theme.spacing.unit * 1.5,
+    marginLeft:  -7,
+    marginRight: 6,
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: -12,
+      marginRight: 3
+    },
   },
   hideLgUp: {
     [theme.breakpoints.up('lg')]: {
@@ -91,6 +108,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
   },
+  hideXsDown: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
+  },
   hideMdUp: {
     [theme.breakpoints.up('md')]: {
       display: "none",
@@ -99,6 +121,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
     display: "flex",
+    alignItems: isFriendlyUI ? 'center' : undefined,
   },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {
@@ -108,7 +131,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Styles for header scrolling, provided by react-headroom
     // https://github.com/KyleAMathews/react-headroom
     "& .headroom": {
-      top: 0,
+      top: "unset",
       left: 0,
       right: 0,
       zIndex: 1300,
@@ -139,12 +162,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, searchResultsArea, theme, classes}: {
+const Header = ({
+  standaloneNavigationPresent,
+  sidebarHidden,
+  toggleStandaloneNavigation,
+  stayAtTop=false,
+  searchResultsArea,
+  classes,
+}: {
   standaloneNavigationPresent: boolean,
+  sidebarHidden: boolean,
   toggleStandaloneNavigation: ()=>void,
-  toc: any,
+  stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
-  theme?: ThemeType,
   classes: ClassesType,
 }) => {
   const [navigationOpen, setNavigationOpenState] = useState(false);
@@ -153,20 +183,22 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
   const currentUser = useCurrentUser();
+  const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
-  const updateCurrentUser = useUpdateCurrentUser();
+  const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
+  const { pathname } = useLocation()
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
     captureEvent("navigationBarToggle", {open: open})
   }
 
-  const handleSetNotificationDrawerOpen = (isOpen: boolean): void => {
+  const handleSetNotificationDrawerOpen = async (isOpen: boolean): Promise<void> => {
     if (!currentUser) return;
     if (isOpen) {
-      void updateCurrentUser({lastNotificationsCheck: new Date()});
       setNotificationOpen(true);
       setNotificationHasOpened(true);
+      await notificationsOpened();
     } else {
       setNotificationOpen(false);
     }
@@ -177,7 +209,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
     const { lastNotificationsCheck } = currentUser
 
     captureEvent("notificationsIconToggle", {open: !notificationOpen, previousCheck: lastNotificationsCheck})
-    handleSetNotificationDrawerOpen(!notificationOpen);
+    void handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
   // We do two things when the search is open:
@@ -185,18 +217,18 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
   //  2) Hide the username on mobile so users with long usernames can still
   //     enter search queries
   // Called by SearchBar.
-  const setSearchOpen = (isOpen: boolean) => {
+  const setSearchOpen = useCallback((isOpen: boolean) => {
     if (isOpen) { captureEvent("searchToggle", {"open": isOpen}) }
     setSearchOpenState(isOpen);
-  }
+  }, [captureEvent]);
 
-  const renderNavigationMenuButton = () => {
+  const NavigationMenuButton = () => {
     // The navigation menu button either toggles a free floating sidebar, opens
     // a drawer with site navigation, or a drawer with table of contents. (This
     // is structured a little oddly because the hideSmDown/hideMdUp filters
     // cause a misalignment if they're in the wrong part of the tree.)
     return <React.Fragment>
-      {toc?.sections
+      {toc?.sectionData?.sections
         ? <>
             <div className={classes.hideSmDown}>
               <IconButton
@@ -208,7 +240,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
                 aria-label="Menu"
                 onClick={()=>setNavigationOpen(true)}
               >
-                <MenuIcon />
+                <ForumIcon icon="Menu" />
               </IconButton>
             </div>
             <div className={classes.hideMdUp}>
@@ -234,7 +266,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
             aria-label="Menu"
             onClick={()=>setNavigationOpen(true)}
           >
-            <MenuIcon/>
+            <ForumIcon icon="Menu" />
           </IconButton>
       }
       {standaloneNavigationPresent && unFixed && <IconButton
@@ -246,17 +278,77 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        <MenuIcon />
+        {(isFriendlyUI && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
       </IconButton>}
     </React.Fragment>
   }
 
-  const hasLogo = forumTypeSetting.get() === 'EAForum'
-
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography
+    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
+    GivingSeasonHeader,
   } = Components;
+  
+  const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
+  const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
+    <AnalyticsContext pageSectionContext="usersMenu">
+      <UsersMenu />
+    </AnalyticsContext>
+  </div>
+
+  // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
+  const RightHeaderItems = () => <div className={classes.rightHeaderItems}>
+    <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
+      <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
+    </NoSSR>
+    {!isFriendlyUI && usersMenuNode}
+    {!currentUser && <UsersAccountMenu />}
+    {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
+      currentUser={currentUser}
+      className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
+    />}
+    {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
+      unreadNotifications={unreadNotifications}
+      toggle={handleNotificationToggle}
+      open={notificationOpen}
+      className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
+    />}
+    {isFriendlyUI && usersMenuNode}
+  </div>
+
+  // the left side nav menu
+  const HeaderNavigationDrawer = () => <NavigationDrawer
+    open={navigationOpen}
+    handleOpen={() => setNavigationOpen(true)}
+    handleClose={() => setNavigationOpen(false)}
+    toc={toc?.sectionData ?? null}
+  />
+
+  // the right side notifications menu
+  const HeaderNotificationsMenu = () => currentUser && <NotificationsMenu
+    unreadPrivateMessages={unreadPrivateMessages}
+    open={notificationOpen}
+    hasOpened={notificationHasOpened}
+    setIsOpen={handleSetNotificationDrawerOpen}
+  />
+
+  // special case for the homepage header of EA Forum Giving Season 2023
+  // TODO: delete after 2023
+  const isGivingSeason = useIsGivingSeason();
+  if (isGivingSeason && pathname === '/') {
+    return (
+      <GivingSeasonHeader
+        searchOpen={searchOpen}
+        hasLogo={hasProminentLogoSetting.get()}
+        unFixed={unFixed}
+        setUnFixed={setUnFixed}
+        NavigationMenuButton={NavigationMenuButton}
+        RightHeaderItems={RightHeaderItems}
+        HeaderNavigationDrawer={HeaderNavigationDrawer}
+        HeaderNotificationsMenu={HeaderNotificationsMenu}
+      />
+    );
+  }
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -265,21 +357,21 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
           disableInlineStyles
           downTolerance={10} upTolerance={10}
           height={64}
-          className={classNames(
-            classes.headroom,
-            { [classes.headroomPinnedOpen]: searchOpen }
-          )}
+          className={classNames(classes.headroom, {
+            [classes.headroomPinnedOpen]: searchOpen,
+          })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
+          disable={stayAtTop}
         >
-          <AppBar className={classes.appBar} position="static" color={theme.palette.headerType || "default"}>
-            <Toolbar disableGutters={forumTypeSetting.get() === 'EAForum'}>
-              {renderNavigationMenuButton()}
+          <header className={classes.appBar}>
+            <Toolbar disableGutters={isFriendlyUI}>
+              <NavigationMenuButton />
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
                     <Link to="/" className={classes.titleLink}>
-                      {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                       {forumHeaderTitleSetting.get()}
                     </Link>
                     <HeaderSubtitle />
@@ -287,43 +379,17 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
                 </div>
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>
               </Typography>
-              <div className={classes.rightHeaderItems}>
-                <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
-                  <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-                </NoSSR>
-                {currentUser && <div className={searchOpen ? classes.hideMdDown : undefined}>
-                    <AnalyticsContext pageSectionContext="usersMenu">
-                      <UsersMenu color={getHeaderTextColor(theme)} />
-                    </AnalyticsContext>
-                  </div>}
-                {!currentUser && <UsersAccountMenu color={getHeaderTextColor(theme)} />}
-                {currentUser && <KarmaChangeNotifier documentId={currentUser._id}/>}
-                {currentUser && <NotificationsMenuButton
-                  color={getHeaderTextColor(theme)}
-                  toggle={handleNotificationToggle}
-                  open={notificationOpen}
-                  currentUser={currentUser}
-                />}
-              </div>
+              <RightHeaderItems />
             </Toolbar>
-          </AppBar>
-          <NavigationDrawer
-            open={navigationOpen}
-            handleOpen={() => setNavigationOpen(true)}
-            handleClose={() => setNavigationOpen(false)}
-            toc={toc}
-          />
+          </header>
+          <HeaderNavigationDrawer />
         </Headroom>
-        {currentUser && <NotificationsMenu
-          open={notificationOpen}
-          hasOpened={notificationHasOpened}
-          setIsOpen={handleSetNotificationDrawerOpen}
-        />}
+        <HeaderNotificationsMenu />
       </div>
     </AnalyticsContext>
   )
@@ -331,10 +397,7 @@ const Header = ({standaloneNavigationPresent, toggleStandaloneNavigation, toc, s
 
 const HeaderComponent = registerComponent('Header', Header, {
   styles,
-  hocs: [
-    withErrorBoundary,
-    withTheme(),
-  ]
+  hocs: [withErrorBoundary]
 });
 
 declare global {

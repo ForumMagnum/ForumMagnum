@@ -1,15 +1,15 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useHover } from '../common/withHover';
-import { KARMA_WIDTH } from './PostsItem2';
+import { KARMA_WIDTH } from './LWPostsItem';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     marginBottom: 2,
   },
   karma: {
-    width: KARMA_WIDTH
+    width: KARMA_WIDTH,
+    marginRight: 8
   }
 });
 
@@ -17,30 +17,17 @@ const Pingback = ({classes, post}: {
   classes: ClassesType,
   post: PostsList,
 }) => {
-  const { LWPopper, PostsItem2MetaInfo, PostsItemKarma, PostsTitle, PostsPreviewTooltip } = Components
-  const {eventHandlers, hover, anchorEl } = useHover();
-
-  return <span {...eventHandlers}>
+  const {PostsTooltip, PostsItem2MetaInfo, KarmaDisplay, PostsTitle} = Components;
+  return (
     <div className={classes.root}>
-      <LWPopper 
-        open={hover} 
-        anchorEl={anchorEl} 
-        placement="bottom-end"
-        modifiers={{
-          flip: {
-            behavior: ["bottom-end", "top", "bottom-end"],
-            boundariesElement: 'viewport'
-          } 
-        }}
-      >
-        <PostsPreviewTooltip post={post}/>
-      </LWPopper>
       <PostsItem2MetaInfo className={classes.karma}>
-        <PostsItemKarma post={post} />
+        <KarmaDisplay document={post} />
       </PostsItem2MetaInfo>
-      <PostsTitle post={post} read={!!post.lastVisitedAt} showIcons={false} wrap/>
+      <PostsTooltip post={post} placement="bottom-end" clickable>
+        <PostsTitle post={post} read={!!post.lastVisitedAt} showIcons={false} wrap />
+      </PostsTooltip>
     </div>
-  </span>
+  );
 }
 
 const PingbackComponent = registerComponent("Pingback", Pingback, {styles});

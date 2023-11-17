@@ -3,23 +3,29 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames'
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
     display: 'inline-block',
     fontSize: 22,
     verticalAlign: '-webkit-baseline-middle',
-    fontVariant: 'small-caps',
     lineHeight: '24px',
-    color: 'rgba(0,0,0,0.5)',
+    color: theme.palette.text.dim,
     marginTop: -10,
+    ...theme.typography.smallCaps,
   },
-  sansSerif: {
+  notRecentDiscussionTitle: {
+    fontFamily: isFriendlyUI
+      ? theme.palette.fonts.sansSerifStack
+      : theme.typography.body1.fontFamily,
+  },
+  recentDiscussionTitle: {
     fontSize: 16,
     fontFamily: theme.typography.fontFamily
   },
   root: {
-    marginBottom: 10, 
+    marginBottom: 5, 
     marginTop: 10
   }
 })
@@ -35,15 +41,24 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
     collectionName: "Localgroups",
     fragmentName: 'localGroupsHomeFragment',
   });
-  if (document) {
-    return <div className={inRecentDiscussion ? {} : classes.root}>
-      <div className={inRecentDiscussion ? classNames(classes.title, classes.sansSerif) : classes.title}>
-        {post?.group && <Link to={'/groups/' + post.group._id }>{ document.name }</Link>}
-      </div>
-    </div>
-  } else {
+
+  if (!document) {
     return null
   }
+
+  let groupName: React.ReactNode;
+  if (post.group) {
+    groupName = document.deleted ? document.name : <Link to={'/groups/' + post.group._id }>{ document.name }</Link>
+  }
+
+  return <div className={inRecentDiscussion ? '' : classes.root}>
+    <div className={classNames(classes.title, {
+      [classes.recentDiscussionTitle]: inRecentDiscussion,
+      [classes.notRecentDiscussionTitle]: !inRecentDiscussion,
+    })}>
+      {groupName}
+    </div>
+  </div>
 }
 
 const PostsGroupDetailsComponent = registerComponent(
@@ -55,4 +70,3 @@ declare global {
     PostsGroupDetails: typeof PostsGroupDetailsComponent
   }
 }
-

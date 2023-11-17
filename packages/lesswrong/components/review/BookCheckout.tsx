@@ -18,10 +18,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   checkoutButton: {
     ...theme.typography.commentStyle,
     height: '36px',
-    background: "#53a55a", //theme.palette.primary.dark,
+    background: theme.palette.buttons.bookCheckoutButton,
     paddingLeft: 16,
     paddingRight: 16,
-    color: 'white',
+    color: theme.palette.buttons.primaryDarkText,
     fontSize: '14px',
     border: 0,
     fontWeight: '500',
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     letterSpacing: '0.6',
     borderRadius: '6px',
     transition: 'all 0.2s ease',
-    boxShadow: '0px 4px 5.5px 0px rgba(0, 0, 0, 0.07)',
+    boxShadow: `0px 4px 5.5px 0px ${theme.palette.greyAlpha(0.07)}`,
     '&:hover': {
       opacity: 0.8
     },
@@ -43,10 +43,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
   },
   intlButton: {
-    background: "white",
+    background: theme.palette.panelBackground.default,
     marginLeft: 10,
-    color: "#606060",
-    border: "1px solid #ccc",
+    color: theme.palette.grey[710],
+    border: `1px solid ${theme.palette.greyAlpha(.75)}`,
     
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0,
@@ -54,13 +54,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+// deprecated
+// 
 // Make sure to call `loadStripe` outside of a component’s render to avoid
 // recreating the `Stripe` object on every render.
 // const stripePublicKey = stripePublicKeySetting.get()
 // const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
-const amazonLink = "https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507"
 
-const ProductDisplay = ({ handleClickAmazon, text="Buy", classes }: {
+const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
   handleClickAmazon: (event: any)=>void,
   // handleClickStripe: (event: any)=>void,
   text?: string,
@@ -68,7 +69,7 @@ const ProductDisplay = ({ handleClickAmazon, text="Buy", classes }: {
 }) => {
   return <>
     <button className={classNames(classes.checkoutButton, classes.buyUsButton)} id="checkout-button-amazon-us" role="link" onClick={handleClickAmazon}>
-      {`${text} (US) - $29`}
+      {`${text} (US) - $30`}
     </button>
     {/* <button className={classNames(classes.checkoutButton, classes.intlButton)} id="checkout-button" role="link" onClick={handleClickStripe}>
       {`${text} (international) - $29`}
@@ -80,7 +81,7 @@ const Message = ({ message, classes }: {message: string, classes: ClassesType}) 
     <p className={classes.messageParagraph}>{message}</p>
   </section>
 );
-export default function BookCheckout({classes, ignoreMessages = false, text}: {classes: ClassesType, ignoreMessages?: boolean, text?: string}) {
+export default function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType, ignoreMessages?: boolean, text?: string, link: string}) {
   const [message, setMessage] = useState("");
   const { captureEvent } = useTracking()
   
@@ -93,27 +94,8 @@ export default function BookCheckout({classes, ignoreMessages = false, text}: {c
   }, []);
   const handleClickAmazon = async (event: Event) => {
     captureEvent("preOrderButtonClicked")
-    window.location.assign(amazonLink);
+    window.open(link, '_blank');
   }
-  // const handleClickStripe = async (event: Event) => {
-  //   captureEvent("preOrderButtonClicked")
-  //   const stripe = await stripePromise;
-  //   if (stripe) {
-  //     const response = await fetch("/create-session", {
-  //       method: "POST",
-  //     });
-  //     const session = await response.json();
-  //     // When the customer clicks on the button, redirect them to Checkout.
-  //     const result = await stripe.redirectToCheckout({
-  //       sessionId: session.id,
-  //     });
-  //     if (result.error) {
-  //       // If `redirectToCheckout` fails due to a browser or network
-  //       // error, display the localized error message to your customer
-  //       // using `result.error.message`.
-  //     }
-  //   }
-  // };
 
   return <div className={classes.root}>
     { (message && !ignoreMessages) ? (

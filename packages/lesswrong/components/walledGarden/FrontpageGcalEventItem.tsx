@@ -7,7 +7,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.commentStyle,
     fontSize: '1rem',
-    color: 'rgba(0,0,0,0.55)'
+    color: theme.palette.text.dim55,
   },
   eventTime: {
     fontSize: ".8em",

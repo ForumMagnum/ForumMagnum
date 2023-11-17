@@ -13,7 +13,7 @@ const EmailFormatDate = ({date, format}: {
   if (format)
     return <span>{moment(new Date(date)).format(format)}</span>
   else
-    return <span>{moment(new Date(date)).format("LLL z")}</span>
+    return <span>{moment(new Date(date)).format("LLL z").trim()}</span>
 }
 
 const EmailFormatDateComponent = registerComponent('EmailFormatDate', EmailFormatDate);

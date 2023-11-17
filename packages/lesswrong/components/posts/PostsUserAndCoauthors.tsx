@@ -2,7 +2,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import React from 'react';
 import ModeCommentIcon from '@material-ui/icons/ModeComment';
 import classNames from 'classnames';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import type { PopperPlacementType } from '@material-ui/core/Popper'
+import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
 
 const styles = (theme: ThemeType): JssStyles => ({
   lengthLimited: {
@@ -14,6 +15,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       maxWidth: 160
     },
   },
+  userMarkers: {
+    marginLeft: 4,
+  },
   lengthUnlimited: {
     display: "inline",
   },
@@ -24,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   topAuthorIcon: {
     width: 12,
     height: 12,
-    color: "#d0d0d0",
+    color: theme.palette.icon.topAuthor,
     position: "relative",
     top: 2,
     marginRight: 4,
@@ -32,30 +36,47 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   new: {
     color: theme.palette.primary.main
-  }
+  },
 });
 
-const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, classes, simple=false, newPromotedComments}: {
+const PostsUserAndCoauthors = ({
+  post,
+  abbreviateIfLong=false,
+  classes,
+  simple=false,
+  tooltipPlacement="left",
+  newPromotedComments,
+  showMarkers,
+}: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
   classes: ClassesType,
   simple?: boolean,
-  newPromotedComments?: boolean
+  tooltipPlacement?: PopperPlacementType,
+  newPromotedComments?: boolean,
+  showMarkers?: boolean,
 }) => {
-  const { UsersName, UserNameDeleted } = Components
-  if (!post.user || post.hideAuthor)
+  const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
+
+  const {UsersName, UserNameDeleted, UserCommentMarkers} = Components
+
+  if (isAnon)
     return <UserNameDeleted/>;
-  
-  const topCommentAuthor = post.question ? post.bestAnswer?.user : post.lastPromotedComment?.user
-  const renderTopCommentAuthor = (forumTypeSetting.get() && topCommentAuthor && topCommentAuthor._id != post.user._id)
-  
+
   return <div className={abbreviateIfLong ? classes.lengthLimited : classes.lengthUnlimited}>
-    {<UsersName user={post.user} simple={simple} />}
-    {post.coauthors.map(coauthor =>
-      <span key={coauthor._id}>, <UsersName user={coauthor} simple={simple}  /></span>)}
-    {renderTopCommentAuthor && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
-      , <ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
-      <UsersName user={topCommentAuthor || undefined} simple={simple} />
+    {authors.map((author, i) =>
+      <React.Fragment key={author._id}>
+        {i > 0 ? ", " : ""}
+        <UsersName user={author} simple={simple} tooltipPlacement={tooltipPlacement}/>
+        {showMarkers &&
+          <UserCommentMarkers user={author} className={classes.userMarkers} />
+        }
+      </React.Fragment>
+    )
+    }
+    {topCommentAuthor && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
+      {", "}<ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
+      <UsersName user={topCommentAuthor || undefined} simple={simple} tooltipPlacement={tooltipPlacement} />
     </span>}
   </div>;
 };

@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import times from 'lodash/times';
 import groupBy from 'lodash/groupBy';
 import maxBy from 'lodash/maxBy';
-import { commentBodyStyles } from '../../themes/stylePiping';
 import { useMutation, useQuery, gql } from '@apollo/client';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
@@ -54,7 +53,6 @@ const rootPaddingTop = 12
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...commentBodyStyles(theme),
     position: 'relative',
     paddingTop: rootPaddingTop,
     marginBottom: 0
@@ -68,7 +66,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
     justifyContent: 'flex-end',
     '&:hover $sliceColoredArea': {
-      backgroundColor: "rgba(0,0,0,0.15)"
+      backgroundColor: theme.palette.panelBackground.darken15,
     },
     '&:hover $usersInBucket': {
       display: 'block'
@@ -85,10 +83,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: 'column',
     '&:hover': {
       '& $additionalVoteArea': {
-        backgroundColor: "rgba(0,0,0,0.05)"
+        backgroundColor: theme.palette.panelBackground.darken05,
       },
       '& $sliceColoredArea': {
-        backgroundColor: "rgba(0,0,0,0.2)"
+        backgroundColor: theme.palette.panelBackground.darken20,
       },
       '& $sliceNumber': {
         opacity: 1,
@@ -139,7 +137,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     right: 0
   },
   sliceColoredArea: {
-    backgroundColor: "rgba(0,0,0,0.1)",
+    backgroundColor: theme.palette.panelBackground.darken10,
   },
   additionalVoteArea: {
     marginTop: 'auto',
@@ -148,7 +146,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   titleSection: {
     textAlign: 'center',
     width: '100%',
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.text.dim60,
     marginTop: 4,
     paddingBottom: 4,
     display: 'flex',
@@ -175,7 +173,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     width: '100%',
-    color: 'rgba(0,0,0,0.6)',
+    color: theme.palette.text.dim60,
     height: `calc(100% - ${rootHeight + rootPaddingTop}px)`,
     paddingTop: 4,
     zIndex: 1 // Ensure that the users are displayed on top of the title element
@@ -192,7 +190,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   const currentUser = useCurrentUser();
   const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
-  const { UsersName } = Components;
+  const { UsersName, ContentStyles } = Components;
   const { data, loading } = useQuery(elicitQuery, { ssr: true, variables: { questionId } })
   const [makeElicitPrediction] = useMutation(gql`
     mutation ElicitPrediction($questionId:String, $prediction: Int) {
@@ -214,7 +212,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   
   const maxSize = (maxBy(Object.values(roughlyGroupedData), arr => arr.length) || []).length
 
-  return <div className={classes.root}>
+  return <ContentStyles contentType="comment" className={classes.root}>
     <div className={classes.histogramRoot}>
       {times(10, (bucket) => <div key={bucket} 
         className={classNames(classes.histogramBucket, {
@@ -237,7 +235,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
             onClick={() => {
               if (currentUser) {
                 const predictions = data?.ElicitBlockData?.predictions || []
-                const filteredPredictions = predictions.filter(prediction => prediction?.creator?.sourceUserId !== currentUser._id)
+                const filteredPredictions = predictions.filter((prediction: any) => prediction?.creator?.sourceUserId !== currentUser._id)
                 // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)
                 const newPredictions = isCurrentUserSlice ? filteredPredictions : [createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser), ...filteredPredictions]
 
@@ -292,8 +290,7 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
       </div>
       <div className={classes.endPercentage}>99%</div>
     </div>
-  </div>
-    
+  </ContentStyles>
 }
 
 const ElicitBlockComponent = registerComponent('ElicitBlock', ElicitBlock, {

@@ -1,24 +1,26 @@
 import { useQuery, gql } from '@apollo/client';
-import { getFragment } from '../../lib/vulcan-lib';
+import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 
-export const useContinueReading = () => {
-  // FIXME: For some unclear reason, using a ...fragment in the 'sequence' part
-  // of this query doesn't work (leads to a 400 Bad Request), so this is expanded
-  // out to a short list of individual fields.
+export const useContinueReading = (): {
+  continueReading: Array<{
+    sequence: SequenceContinueReadingFragment,
+    collection: CollectionContinueReadingFragment,
+    nextPost: PostsList,
+    numRead: number,
+    numTotal: number,
+    lastReadTime: Date,
+  }>,
+  loading: boolean,
+  error: any,
+}=> {
   const continueReadingQuery = gql`
     query ContinueReadingQuery {
       ContinueReading {
         sequence {
-          _id
-          title
-          gridImageId
-          canonicalCollectionSlug
+          ...SequenceContinueReadingFragment
         }
         collection {
-          _id
-          title
-          slug
-          gridImageId
+          ...CollectionContinueReadingFragment
         }
         nextPost {
           ...PostsList
@@ -28,7 +30,7 @@ export const useContinueReading = () => {
         lastReadTime
       }
     }
-    ${getFragment("PostsList")}
+    ${fragmentTextForQuery(["SequenceContinueReadingFragment","CollectionContinueReadingFragment","PostsList"])}
   `;
   
   const { data, loading, error } = useQuery(continueReadingQuery, {

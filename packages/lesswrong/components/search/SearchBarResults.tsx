@@ -1,65 +1,58 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { Hits, Configure, Index, CurrentRefinements } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName } from '../../lib/algoliaUtil';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { Hits, Configure, Index } from 'react-instantsearch-dom';
+import { AlgoliaIndexCollectionName, getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
 import { Link } from '../../lib/reactRouterWrapper';
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
+import { SearchHitComponentProps } from './types';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    color: "rgba(0,0,0, 0.87)",
+    color: theme.palette.text.normal,
     transition: "opacity .1s ease-in-out",
     zIndex: theme.zIndexes.searchResults,
-    width:520,
+    width: 520,
     position: "fixed",
     right: 0,
-    top: forumTypeSetting.get() === 'EAForum' ? 90 : 64,
+    top: HEADER_HEIGHT,
     display: "flex",
     flexWrap: "wrap",
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
     [theme.breakpoints.down('xs')]: {
-      top: 48,
-    },
-    "& .ais-CurrentRefinements": {
-      display: 'inline-block',
-      position: 'absolute',
-      padding: '0px 16px',
-      top: 16
-    },
-    "& .ais-CurrentRefinements-item": {
-      border: '1px solid rgba(0,0,0,0.3)',
-      borderRadius: 20,
-      padding: '8px',
-    },
-    "& .ais-CurrentRefinements-label": {
-      marginRight: 5
+      top: MOBILE_HEADER_HEIGHT,
     },
   },
   searchResults: {
     overflow:"scroll",
     width: "100%",
     height: "calc(100vh - 48px)",
-    backgroundColor: "white",
+    backgroundColor: theme.palette.panelBackground.default,
     paddingBottom: 100,
     [theme.breakpoints.up('md')]: {
       marginLeft: 20,
-      boxShadow: "0 0 20px rgba(0,0,0,.2)",
+      boxShadow: theme.palette.boxShadow.searchResults,
       height: "calc(100vh - 64px)",
     },
   },
-  searchList: {
-    borderBottom: "solid 1px rgba(0,0,0,.3)",
-    paddingTop:theme.spacing.unit,
-    paddingBottom:theme.spacing.unit,
-    paddingLeft:theme.spacing.unit*2,
-    paddingRight:theme.spacing.unit*2
+  list: {
+    '& .ais-Hits-list':{
+      paddingTop: 6,
+      paddingBottom: 4,
+      borderBottom: theme.palette.border.grey300,
+    },
+    '& .ais-Hits-list:empty':{
+      display:"none"
+    },
   },
   seeAll: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
+    marginTop: 10,
+    display: "block",
+    textAlign: "center"
   },
   header: {
     cursor: "pointer",
@@ -79,59 +72,34 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   currentQuery: string,
   classes: ClassesType
 }) => {
-  const { PostsSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit, Typography } = Components
+  const { PostsSearchHit, SequencesSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit } = Components
+
+  const searchTypes: Array<{
+    type: AlgoliaIndexCollectionName;
+    Component: React.ComponentType<Omit<SearchHitComponentProps, "classes">>;
+  }> = [
+    { type: "Users", Component: UsersSearchHit },
+    { type: "Posts", Component: PostsSearchHit },
+    { type: "Tags", Component: TagsSearchHit },
+    { type: "Comments", Component: CommentsSearchHit },
+    { type: "Sequences", Component: SequencesSearchHit },
+  ];
 
   return <div className={classes.root}>
     <div className={classes.searchResults}>
-        <CurrentRefinements />
-        <Components.ErrorBoundary>
-          <div className={classes.searchList}>
-            <Index indexName={getAlgoliaIndexName("Users")}>
-              <div className={classes.header}>
-                <Typography variant="body1">Users</Typography>
-                <Link to={`/search?terms=${currentQuery}`} className={classes.seeAll}>
-                  See all results
-                </Link>
-              </div>
-              <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <UsersSearchHit clickAction={closeSearch} {...props} />} />
-            </Index>
-          </div>
-        </Components.ErrorBoundary>
-        <Components.ErrorBoundary>
-          <div className={classes.searchList}>
-            <Index indexName={getAlgoliaIndexName("Tags")}>
-              <div className={classes.header}>
-                <Typography variant="body1">Tags and Wiki</Typography>
-              </div>
-              <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <TagsSearchHit clickAction={closeSearch} {...props} />} />
-            </Index>
-          </div>
-        </Components.ErrorBoundary>
-        <Components.ErrorBoundary>
-          <div className={classes.searchList}>
-            <Index indexName={getAlgoliaIndexName("Posts")}>
-              <div className={classes.header}>
-                <Typography variant="body1">Posts</Typography>
-              </div>
-
-              <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <PostsSearchHit clickAction={closeSearch} {...props} />} />
-            </Index>
-          </div>
-        </Components.ErrorBoundary>
-        <Components.ErrorBoundary>
-          <div className={classes.searchList}>
-            <Index indexName={getAlgoliaIndexName("Comments")}>
-              <div className={classes.header}>
-                <Typography variant="body1">Comments</Typography>
-              </div>
-              <Configure hitsPerPage={3} />
-              <Hits hitComponent={(props) => <CommentsSearchHit clickAction={closeSearch} {...props} />} />
-            </Index>
-          </div>
-        </Components.ErrorBoundary>
+        {searchTypes.map(({ type, Component }) => (
+          <Components.ErrorBoundary key={type}>
+            <div className={classes.list}>
+              <Index indexName={getAlgoliaIndexName(type)}>
+                <Configure hitsPerPage={3} />
+                <Hits hitComponent={(props) => <Component clickAction={closeSearch} {...props} showIcon/>} />
+              </Index>
+            </div>
+          </Components.ErrorBoundary>
+        ))}
+        <Link to={`/search?query=${currentQuery}`} className={classes.seeAll}>
+          See all results
+        </Link>
     </div>
   </div>
 }

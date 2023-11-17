@@ -1,26 +1,28 @@
-import { ensureIndex } from '../../collectionUtils';
-import { forumTypeSetting } from '../../instanceSettings';
+import { ensureIndex } from '../../collectionIndexUtils';
+import { isAF } from '../../instanceSettings';
 import Sequences from './collection';
 
 declare global {
   interface SequencesViewTerms extends ViewTermsBase {
     view?: SequencesViewName
     userId?: string
+    sequenceIds?: string[]
   }
 }
 
 Sequences.addDefaultView((terms: SequencesViewTerms) => {
-  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = isAF ? {af: true} : {}
   let params = {
     selector: {
       hidden: false,
+      ...(terms.sequenceIds && {_id: {$in: terms.sequenceIds}}),
       ...alignmentForum
     }
   }
   return params;
 })
 
-function augmentForDefaultView(indexFields)
+function augmentForDefaultView(indexFields: MongoIndexKeyObj<DbSequence>): MongoIndexKeyObj<DbSequence>
 {
   return { hidden:1, af:1, isDeleted:1, ...indexFields };
 }
@@ -31,6 +33,7 @@ Sequences.addView("userProfile", function (terms: SequencesViewTerms) {
       userId: terms.userId,
       isDeleted: false,
       draft: false,
+      hideFromAuthorPage: false
     },
     options: {
       sort: {
@@ -42,21 +45,43 @@ Sequences.addView("userProfile", function (terms: SequencesViewTerms) {
 });
 ensureIndex(Sequences, augmentForDefaultView({ userId:1, userProfileOrder: -1 }));
 
-Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
+Sequences.addView("userProfilePrivate", function (terms: SequencesViewTerms) {
   return {
     selector: {
       userId: terms.userId,
       isDeleted: false,
+      $or: [
+        {draft: true},
+        {hideFromAuthorPage: true}
+      ]
     },
     options: {
       sort: {
-        drafts: -1,
+        draft: -1,
+        userProfileOrder: 1,
+        createdAt: -1,
+      }
+    },
+  };
+});
+
+Sequences.addView("userProfileAll", function (terms: SequencesViewTerms) {
+  return {
+    selector: {
+      userId: terms.userId,
+      isDeleted: false
+    },
+    options: {
+      sort: {
+        draft: -1,
+        hideFromAuthorPage: 1,
         userProfileOrder: 1,
         createdAt: -1
       }
     },
   };
 });
+ensureIndex(Sequences, augmentForDefaultView({ userId: 1, draft: 1, hideFromAuthorPage: 1, userProfileOrder: 1 }))
 
 Sequences.addView("curatedSequences", function (terms: SequencesViewTerms) {
   return {
@@ -83,9 +108,12 @@ Sequences.addView("communitySequences", function (terms: SequencesViewTerms) {
       userId: terms.userId,
       curatedOrder: {$exists: false},
       gridImageId: {$ne: null },
-      canonicalCollectionSlug: { $in: [null, ""] },
       isDeleted: false,
       draft: false,
+      $or: [
+        {canonicalCollectionSlug: ""},
+        {canonicalCollectionSlug: {$exists: false}},
+      ],
     },
     options: {
       sort: {

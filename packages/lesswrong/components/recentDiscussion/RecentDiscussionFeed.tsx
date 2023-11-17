@@ -1,11 +1,30 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumSelect } from '../../lib/forumTypeUtils';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
+import AddBoxIcon from '@material-ui/icons/AddBox'
+import { isLWorAF } from '../../lib/instanceSettings';
 
-const isEAForum = forumTypeSetting.get() === "EAForum"
+const recentDisucssionFeedComponents = forumSelect({
+  LWAF: {
+    ThreadComponent: Components.RecentDiscussionThread,
+    ShortformComponent: Components.RecentDiscussionThread,
+    TagCommentedComponent: Components.RecentDiscussionTag,
+    TagRevisionComponent: Components.RecentDiscussionTagRevisionItem,
+    SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
+    MeetupsPokeComponent: Components.RecentDiscussionMeetupsPoke,
+  },
+  default: {
+    ThreadComponent: Components.EARecentDiscussionThread,
+    ShortformComponent: Components.EARecentDiscussionQuickTake,
+    TagCommentedComponent: Components.EARecentDiscussionTagCommented,
+    TagRevisionComponent: Components.EARecentDiscussionTagRevision,
+    SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
+    MeetupsPokeComponent: () => null,
+  },
+});
 
 const RecentDiscussionFeed = ({
   commentsLimit, maxAgeHours, af,
@@ -22,100 +41,133 @@ const RecentDiscussionFeed = ({
   const refetchRef = useRef<null|(()=>void)>(null);
   const currentUser = useCurrentUser();
   const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
-  
+
   useGlobalKeydown(event => {
     const F_Key = 70
     if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
       setExpandAllThreads(true);
     }
   });
-  
+
   const toggleShortformFeed = useCallback(
     () => {
       setShowShortformFeed(!showShortformFeed);
     },
     [setShowShortformFeed, showShortformFeed]
   );
-  
-  const { SingleColumnSection, SectionTitle, SectionButton, ShortformSubmitForm, MixedTypeFeed, RecentDiscussionThread, TagRevisionItem, RecentDiscussionTag, RecentDiscussionSubscribeReminder, RecentDiscussionMeetupsPoke } = Components
-  
+
+  const {
+    SingleColumnSection,
+    SectionTitle,
+    SectionButton,
+    ShortformSubmitForm,
+    MixedTypeFeed,
+    AnalyticsInViewTracker,
+  } = Components;
+
   const refetch = useCallback(() => {
     if (refetchRef.current)
       refetchRef.current();
   }, [refetchRef]);
 
+  const {
+    ThreadComponent,
+    ShortformComponent,
+    TagCommentedComponent,
+    TagRevisionComponent,
+    SubscribeReminderComponent,
+    MeetupsPokeComponent,
+  } = recentDisucssionFeedComponents;
+
+  const showShortformButton = isLWorAF && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
   return (
-    <SingleColumnSection>
-      <SectionTitle title={title}>
-        {currentUser?.isReviewed && shortformButton && <div onClick={toggleShortformFeed}>
-          <SectionButton>
-            <AddBoxIcon />
-            New Shortform Post
-          </SectionButton>
-        </div>}
-      </SectionTitle>
-      {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
-      <MixedTypeFeed
-        firstPageSize={10}
-        pageSize={20}
-        refetchRef={refetchRef}
-        resolverName="RecentDiscussionFeed"
-        sortKeyType="Date"
-        resolverArgs={{ af: 'Boolean' }}
-        resolverArgsValues={{ af }}
-        fragmentArgs={{
-          commentsLimit: 'Int',
-          maxAgeHours: 'Int',
-          tagCommentsLimit: 'Int',
-        }}
-        fragmentArgsValues={{
-          commentsLimit, maxAgeHours,
-          tagCommentsLimit: commentsLimit,
-        }}
-        renderers={{
-          postCommented: {
-            fragmentName: "PostsRecentDiscussion",
-            render: (post: PostsRecentDiscussion) => (
-              <RecentDiscussionThread
-                post={post}
-                refetch={refetch}
-                comments={post.recentComments}
-                expandAllThreads={expandAll}
-              />
-            )
-          },
-          tagDiscussed: {
-            fragmentName: "TagRecentDiscussion",
-            render: (tag: TagRecentDiscussion) => (
-              <RecentDiscussionTag
-                tag={tag}
-                comments={tag.recentComments}
-                expandAllThreads={expandAll}
-              />
-            )
-          },
-          tagRevised: {
-            fragmentName: "RevisionTagFragment",
-            render: (revision: RevisionTagFragment) => <div>
-              {revision.tag && <TagRevisionItem
-                tag={revision.tag}
-                revision={revision}
-                headingStyle="full"
-                documentId={revision.documentId}
-              />}
-            </div>,
-          },
-          subscribeReminder: {
-            fragmentName: null,
-            render: () => <RecentDiscussionSubscribeReminder/>
-          },
-          meetupsPoke: {
-            fragmentName: null,
-            render: () => isEAForum ? null : <RecentDiscussionMeetupsPoke/>
-          },
-        }}
-      />
-    </SingleColumnSection>
+    <AnalyticsContext pageSectionContext="recentDiscussion">
+      <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
+        <SingleColumnSection>
+          <SectionTitle title={title} >
+            {showShortformButton && <div onClick={toggleShortformFeed}>
+              <SectionButton>
+                <AddBoxIcon />
+                New Shortform Post
+              </SectionButton>
+            </div>}
+          </SectionTitle>
+          {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
+          <MixedTypeFeed
+            firstPageSize={10}
+            pageSize={20}
+            refetchRef={refetchRef}
+            resolverName="RecentDiscussionFeed"
+            sortKeyType="Date"
+            resolverArgs={{ af: 'Boolean' }}
+            resolverArgsValues={{ af }}
+            fragmentArgs={{
+              commentsLimit: 'Int',
+              maxAgeHours: 'Int',
+              tagCommentsLimit: 'Int',
+            }}
+            fragmentArgsValues={{
+              commentsLimit, maxAgeHours,
+              tagCommentsLimit: commentsLimit,
+            }}
+            renderers={{
+              postCommented: {
+                fragmentName: "PostsRecentDiscussion",
+                render: (post: PostsRecentDiscussion) => (
+                  <ThreadComponent
+                    post={post}
+                    refetch={refetch}
+                    comments={post.recentComments}
+                    expandAllThreads={expandAll}
+                  />
+                )
+              },
+              shortformCommented: {
+                fragmentName: "ShortformRecentDiscussion",
+                render: (post: ShortformRecentDiscussion) => (
+                  <ShortformComponent
+                    post={post}
+                    refetch={refetch}
+                    comments={post.recentComments}
+                    expandAllThreads={expandAll}
+                  />
+                )
+              },
+              tagDiscussed: {
+                fragmentName: "TagRecentDiscussion",
+                render: (tag: TagRecentDiscussion) => (
+                  <TagCommentedComponent
+                    tag={tag}
+                    refetch={refetch}
+                    comments={tag.recentComments}
+                    expandAllThreads={expandAll}
+                  />
+                )
+              },
+              tagRevised: {
+                fragmentName: "RecentDiscussionRevisionTagFragment",
+                render: (revision: RecentDiscussionRevisionTagFragment) => <div>
+                  {revision.tag && <TagRevisionComponent
+                    tag={revision.tag}
+                    revision={revision}
+                    headingStyle="full"
+                    documentId={revision.documentId}
+                  />}
+                </div>,
+              },
+              subscribeReminder: {
+                fragmentName: null,
+                render: () => <SubscribeReminderComponent />
+              },
+              meetupsPoke: {
+                fragmentName: null,
+                render: () => <MeetupsPokeComponent />
+              },
+            }}
+          />
+        </SingleColumnSection>
+      </AnalyticsInViewTracker>
+    </AnalyticsContext>
   )
 }
 

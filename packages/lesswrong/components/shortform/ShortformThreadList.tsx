@@ -1,18 +1,21 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useCurrentUser } from '../common/withUser';
+import { userCanComment } from '../../lib/vulcan-users/permissions';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   shortformItem: {
-    marginTop: theme.spacing.unit*4
+    marginTop: theme.spacing.unit * (isFriendlyUI ? 2 : 4),
   }
 })
 
 const ShortformThreadList = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { LoadMore, CommentWithReplies, ShortformSubmitForm } = Components
-  const { results, loadMoreProps, refetch } = useMulti({
+  const currentUser = useCurrentUser();
+  const {results, loadMoreProps, refetch} = useMulti({
     terms: {
       view: 'shortform',
       limit:20
@@ -24,14 +27,27 @@ const ShortformThreadList = ({ classes }: {
     pollInterval: 0,
   });
 
+  const {
+    LoadMore, CommentOnPostWithReplies, ShortformSubmitForm,
+    QuickTakesEntry,
+  } = Components;
   return (
     <div>
-      <ShortformSubmitForm successCallback={refetch} />
-      
-      {results && results.map((comment, i) => {
-        if (!comment.post) return null
+      {isFriendlyUI && userCanComment(currentUser) &&
+        <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />
+      }
+      {!isFriendlyUI && <ShortformSubmitForm successCallback={refetch} />}
+
+      {results && results.map((comment) => {
+        if (!comment.post) {
+          return null;
+        }
         return <div key={comment._id} className={classes.shortformItem}>
-          <CommentWithReplies comment={comment} post={comment.post} refetch={refetch}/>
+          <CommentOnPostWithReplies comment={comment} post={comment.post} commentNodeProps={{
+            treeOptions: {
+              refetch
+            }
+          }}/>
         </div>
       })}
       <LoadMore {...loadMoreProps} />
@@ -46,4 +62,3 @@ declare global {
     ShortformThreadList: typeof ShortformThreadListComponent
   }
 }
-

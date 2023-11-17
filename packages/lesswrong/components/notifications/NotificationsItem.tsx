@@ -1,33 +1,34 @@
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
-import React, { useState } from 'react';
+import React, { FC, ReactNode, useCallback, useState } from 'react';
 import Card from '@material-ui/core/Card';
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
-import { getUrlClass, useNavigation } from '../../lib/routeUtil';
-import { useHover } from '../common/withHover';
+import { getUrlClass } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
+import { useTracking } from '../../lib/analyticsEvents';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     "&:hover": {
-      backgroundColor: "rgba(0,0,0,0.02) !important",
+      backgroundColor: `${theme.palette.panelBackground.darken02} !important`,
     },
     display: "flex",
     alignItems: "center",
     padding: 0,
-    borderBottom: "solid 1px rgba(0,0,0,.1)",
+    borderBottom: theme.palette.border.faint,
 
     // Disable MUI's hover-highlight-color animation that conflicts with having
     // a non-default background color and looks glitchy.
     transition: "none",
   },
   read: {
-    backgroundColor: "rgba(0,0,0,0.04) !important",
+    backgroundColor: `${theme.palette.panelBackground.darken04} !important`,
     
     "&:hover": {
-      backgroundColor: "rgba(0,0,0,0.08) !important",
+      backgroundColor: `${theme.palette.panelBackground.darken08} !important`,
     },
   },
   unread: {
@@ -39,12 +40,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   notificationLabel: {
-    ...theme.typography.commentStyles,
     ...theme.typography.body2,
     fontSize: "14px",
     lineHeight: "18px",
     paddingRight: theme.spacing.unit*2,
-    color: "rgba(0,0,0, 0.66)",
+    color: theme.palette.text.notificationLabel,
     
     // Two-line ellipsis hack. Webkit-specific (doesn't work in Firefox),
     // inherited from old-Material-UI (where it also doesn't work in Firefox,
@@ -58,41 +58,142 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const tooltipProps = {
+  placement: "left-start",
+  pageElementContext: "linkPreview",
+  pageElementSubContext: "notificationItem",
+  clickable: true,
+} as const;
+
+const TooltipWrapper: FC<{
+  title: ReactNode,
+  children: ReactNode,
+  classes: ClassesType,
+}> = ({title, children, classes}) => {
+  const {LWTooltip} = Components;
+  return (
+    <LWTooltip
+      {...tooltipProps}
+      tooltip={false}
+      title={
+        <span className={classes.preview}>
+          <Card>
+            {title}
+          </Card>
+        </span>
+      }
+    >
+      {children}
+    </LWTooltip>
+  );
+}
+
 const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, classes}: {
-  notification: any,
+  notification: NotificationsList,
   lastNotificationsCheck: any,
   currentUser: UsersCurrent, // *Not* from an HoC, this must be passed (to enforce this component being shown only when logged in)
   classes: ClassesType,
 }) => {
   const [clicked,setClicked] = useState(false);
-  const {eventHandlers, hover, anchorEl} = useHover({
-    pageElementContext: "linkPreview",
-    pageElementSubContext: "notificationItem",
-  });
-  const { history } = useNavigation();
-  const { LWPopper } = Components
+  const { captureEvent } = useTracking();
+  const navigate = useNavigate();
+  const notificationType = getNotificationTypeByName(notification.type);
 
-  const renderPreview = () => {
-    const { PostsPreviewTooltipSingle, TaggedPostTooltipSingle, PostsPreviewTooltipSingleWithComment, ConversationPreview } = Components
-    const parsedPath = parseRouteWithErrors(notification.link)
+  const notificationLink = (notificationType.getLink
+    ? notificationType.getLink({
+      documentType: notification.documentType,
+      documentId: notification.documentId,
+      extraData: notification.extraData,
+    })
+    : notification.link
+  );
 
-    switch (notification.documentType) {
-      case 'tagRel':
-        return  <Card><TaggedPostTooltipSingle tagRelId={notification.documentId} /></Card>
-      case 'post':
-        return <Card><PostsPreviewTooltipSingle postId={notification.documentId} /></Card>
-      case 'comment':
-        const postId = parsedPath?.params?._id
-        if (!postId) return null
-        return <Card><PostsPreviewTooltipSingleWithComment postId={parsedPath?.params?._id} commentId={notification.documentId} /></Card>
-      case 'message':
-        return <Card>
-          <ConversationPreview conversationId={parsedPath?.params?._id} currentUser={currentUser} />
-        </Card>
-      default:
-        return null
+  const PreviewTooltip: FC<{children: ReactNode}> = useCallback(({children}) => {
+    const {
+      PostsTooltip, ConversationPreview, PostNominatedNotification,
+    } = Components;
+
+    if (notificationType.onsiteHoverView) {
+      return (
+        <TooltipWrapper
+          title={notificationType.onsiteHoverView({notification})}
+          classes={classes}
+        >
+          {children}
+        </TooltipWrapper>
+      );
     }
-  }
+
+    if (notification.type == "postNominated") {
+      return (
+        <TooltipWrapper
+          title={<PostNominatedNotification postId={notification.documentId}/>}
+          classes={classes}
+        >
+          {children}
+        </TooltipWrapper>
+      );
+    }
+
+    if (notification.type == "newDialogueMessages") {
+      const dialogueMessageInfo = notification.extraData?.dialogueMessageInfo
+      const postId = notification.documentId
+      return (
+        <PostsTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo} {...tooltipProps}>
+          {children}
+        </PostsTooltip>
+      )
+    }
+
+    const parsedPath = parseRouteWithErrors(notificationLink);
+    switch (notification.documentType) {
+      case "tagRel":
+        return (
+          <PostsTooltip tagRelId={notification.documentId} {...tooltipProps}>
+            {children}
+          </PostsTooltip>
+        );
+      case "post":
+        return (
+          <PostsTooltip postId={notification.documentId} {...tooltipProps}>
+            {children}
+          </PostsTooltip>
+        );
+      case "comment":
+        const postId = parsedPath?.params?._id;
+        return postId
+          ? (
+            <PostsTooltip
+              postId={postId}
+              commentId={notification.documentId}
+              {...tooltipProps}
+            >
+              {children}
+            </PostsTooltip>
+          )
+          : null;
+      case "message":
+        return (
+          <TooltipWrapper
+            title={
+              <ConversationPreview
+                conversationId={parsedPath?.params?._id}
+                currentUser={currentUser}
+              />
+            }
+            classes={classes}
+          >
+            {children}
+          </TooltipWrapper>
+        );
+      default:
+        break;
+    }
+
+    return (
+      <>{children}</>
+    );
+  }, [classes, currentUser, notification, notificationLink, notificationType]);
 
   const renderMessage = () => {
     const { TagRelNotificationItem } = Components
@@ -104,11 +205,11 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
         return notification.message
     }
   }
-
+  
   return (
-    <span {...eventHandlers}>
+    <PreviewTooltip>
       <a
-        href={notification.link}
+        href={notificationLink}
         className={classNames(
           classes.root,
           {
@@ -119,16 +220,26 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
         onClick={(ev) => {
           if (ev.button>0 || ev.ctrlKey || ev.shiftKey || ev.altKey || ev.metaKey)
             return;
+            
+          captureEvent("notificationItemClick", {
+            notification: {
+              _id: notification._id,
+              type: notification.type,
+              documentId: notification.documentId,
+              documentType: notification.documentType,
+              link: notification.link,
+            }
+          });
           
           // Do manual navigation since we also want to do a bunch of other stuff
           ev.preventDefault()
-          history.push(notification.link)
+          navigate(notificationLink)
 
           setClicked(true);
           
           // we also check whether it's a relative link, and if so, scroll to the item
           const UrlClass = getUrlClass()
-          const url = new UrlClass(notification.link, getSiteUrl())
+          const url = new UrlClass(notificationLink, getSiteUrl())
           const hash = url.hash
           if (hash) {
             const element = document.getElementById(hash.substr(1))
@@ -136,26 +247,13 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
           }
         }}
       >
-        <LWPopper
-          open={hover}
-          anchorEl={anchorEl}
-          placement="left-start"
-          modifiers={{
-            flip: {
-              behavior: ["left-start"],
-              boundariesElement: 'viewport'
-            }
-          }}
-        >
-          <span className={classes.preview}>{renderPreview()}</span>
-        </LWPopper>
-        {getNotificationTypeByName(notification.type).getIcon()}
+        {notificationType.getIcon()}
         <div className={classes.notificationLabel}>
           {renderMessage()}
         </div>
       </a>
-    </span>
-  )
+    </PreviewTooltip>
+  );
 }
 
 const NotificationsItemComponent = registerComponent('NotificationsItem', NotificationsItem, {
@@ -168,4 +266,3 @@ declare global {
     NotificationsItem: typeof NotificationsItemComponent
   }
 }
-

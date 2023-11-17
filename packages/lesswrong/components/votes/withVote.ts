@@ -1,48 +1,68 @@
 import { useState, useCallback, useRef } from 'react';
 import { useMessages } from '../common/withMessages';
+import { useDialog } from '../common/withDialog';
 import { useMutation, gql } from '@apollo/client';
 import { setVoteClient } from '../../lib/voting/vote';
 import { getCollection, getFragmentText } from '../../lib/vulcan-lib';
+import { isAF } from '../../lib/instanceSettings';
+import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSystems';
 import * as _ from 'underscore';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { VotingProps } from './votingProps';
 
 const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
   const typeName = collection.options.typeName;
-  const mutationName = `setVote${typeName}`;
+  const mutationName = `performVote${typeName}`;
   
   return gql`
-    mutation ${mutationName}($documentId: String, $voteType: String) {
-      ${mutationName}(documentId: $documentId, voteType: $voteType) {
-        ...WithVote${typeName}
+    mutation ${mutationName}($documentId: String, $voteType: String, $extendedVote: JSON) {
+      ${mutationName}(documentId: $documentId, voteType: $voteType, extendedVote: $extendedVote) {
+        document {
+          ...WithVote${typeName}
+        }
+        showVotingPatternWarning
       }
     }
     ${getFragmentText(`WithVote${typeName}` as any)}
   `
 }
 
-export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName): {
-  vote: (props: {document: T, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent})=>void,
-  collectionName: VoteableCollectionName,
-  document: T,
-  baseScore: number,
-  voteCount: number,
-} => {
+export const useVote = <T extends VoteableTypeClient>(document: T, collectionName: VoteableCollectionName, votingSystem?: VotingSystem): VotingProps<T> => {
   const messages = useMessages();
   const [optimisticResponseDocument, setOptimisticResponseDocument] = useState<any>(null);
   const mutationCounts = useRef({optimisticMutationIndex: 0, completedMutationIndex: 0});
   const collection = getCollection(collectionName);
+  const typeName = collection.options.typeName;
   const query = getVoteMutationQuery(collection);
+  const votingSystemOrDefault = votingSystem || getDefaultVotingSystem();
+  const {openDialog} = useDialog();
+  
+  const showVotingPatternWarningPopup= useCallback(() => {
+    openDialog({
+      componentName: "VotingPatternsWarningPopup",
+      componentProps: {},
+      noClickawayCancel: true,
+      closeOnNavigate: true,
+    });
+  }, [openDialog]);
   
   const [mutate] = useMutation(query, {
     onCompleted: useCallback((mutationResult) => {
       if (++mutationCounts.current.completedMutationIndex == mutationCounts.current.optimisticMutationIndex) {
         setOptimisticResponseDocument(null)
       }
-    }, []),
+      
+      const mutationName = `performVote${typeName}`;
+      if (mutationResult?.[mutationName]?.showVotingPatternWarning) {
+        showVotingPatternWarningPopup();
+      }
+    }, [typeName, showVotingPatternWarningPopup]),
   });
   
-  const vote = useCallback(async ({document, voteType, collectionName, currentUser}: {
-    document: T, voteType: string|null, collectionName: VoteableCollectionName, currentUser: UsersCurrent
+  const vote = useCallback(async ({document, voteType, extendedVote=null, currentUser}: {
+    document: T,
+    voteType: string,
+    extendedVote?: any,
+    currentUser: UsersCurrent,
   }) => {
     // Cast a vote. Because the vote buttons are easy to mash repeatedly (and
     // the strong-voting mechanic encourages this), there could be multiple
@@ -55,7 +75,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
     // means that if you double-click a vote button, you can get a weird result
     // due to votes being processed out of order.
     
-    const newDocument = await setVoteClient({collection, document, user: currentUser, voteType });
+    const newDocument = await setVoteClient({collection, document, user: currentUser, voteType, extendedVote, votingSystem: votingSystemOrDefault });
 
     try {
       mutationCounts.current.optimisticMutationIndex++;
@@ -63,7 +83,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
       await mutate({
         variables: {
           documentId: document._id,
-          voteType,
+          voteType, extendedVote,
         },
       })
     } catch(e) {
@@ -71,14 +91,13 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
       messages.flash({ messageString: errorMessage });
       setOptimisticResponseDocument(null);
     }
-  }, [messages, mutate, collection]);
-  
-  const af = forumTypeSetting.get() === 'AlignmentForum'
+  }, [messages, mutate, collection, votingSystemOrDefault]);
+
   const result = optimisticResponseDocument || document;
   return {
     vote, collectionName,
     document: result,
-    baseScore: (af ? result.afBaseScore : result.baseScore) || 0,
+    baseScore: (isAF ? result.afBaseScore : result.baseScore) || 0,
     voteCount: (result.voteCount) || 0,
   };
 }

@@ -1,15 +1,17 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Posts } from '../../lib/collections/posts';
-import { postHighlightStyles } from '../../themes/stylePiping'
 import { Link } from '../../lib/reactRouterWrapper'
 import _filter from 'lodash/filter';
+import { postGetCommentCountStr, postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { hasRejectedContentSectionSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+    flexWrap: "wrap"
   },
   post: {
     marginTop: theme.spacing.unit*2,
@@ -17,7 +19,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.1em",
   },
   postBody: {
-    ...postHighlightStyles(theme),
     marginTop: 12,
     fontSize: "1rem",
     '& li, & h1, & h2, & h3': {
@@ -26,15 +27,22 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   meta: {
     display: 'inline-block'
+  },
+  vote: {
+    marginRight: 10
+  },
+  rejectButton: {
+    marginLeft: 'auto',
   }
 })
 
 const SunshineNewUserPostsList = ({posts, user, classes}: {
-  posts: SunshinePostsList[],
+  posts?: SunshinePostsList[],
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostsPageActions } = Components
+  const { MetaInfo, FormatDate, PostsTitle, SmallSideVote, PostActionsButton, ContentStyles, LinkPostMessage, RejectContentButton, RejectedReasonDisplay } = Components
+
  
   if (!posts) return null
 
@@ -49,14 +57,36 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
               <PostsTitle post={post} showIcons={false} wrap/> 
               {(post.status !==2) && <MetaInfo>[Spam] {post.status}</MetaInfo>}
             </Link>
-            <span className={classes.meta}>
-              <MetaInfo><FormatDate date={post.postedAt}/> </MetaInfo>
-              <SmallSideVote document={post} collection={Posts}/>
-            </span>
+            <div>
+              <span className={classes.meta}>
+                <span className={classes.vote}>
+                  <SmallSideVote document={post} collection={Posts}/>
+                </span>
+                <MetaInfo>
+                  <FormatDate date={post.postedAt}/>
+                </MetaInfo>
+                <MetaInfo>
+                  <Link to={`${postGetPageUrl(post)}#comments`}>
+                    {postGetCommentCountStr(post)}
+                  </Link>
+                </MetaInfo>
+              </span>
+            </div>
           </div>
-          <PostsPageActions post={post} />
+          
+          {hasRejectedContentSectionSetting.get() && <span className={classes.rejectButton}>
+            {post.rejected && <RejectedReasonDisplay reason={post.rejectedReason}/>}
+            <RejectContentButton contentWrapper={{ collectionName: 'Posts', content: post }}/>
+          </span>}
+          
+          <PostActionsButton post={post} />
         </div>
-        {!post.draft && <div className={classes.postBody} dangerouslySetInnerHTML={{__html: (post.contents?.htmlHighlight || "")}} />}
+        {!post.draft && <div className={classes.postBody}>
+          <LinkPostMessage post={post}/>
+          <ContentStyles contentType="postHighlight">
+            <div dangerouslySetInnerHTML={{__html: (post.contents?.html || "")}} />
+          </ContentStyles>
+        </div>}
       </div>)}
     </div>
   )
@@ -69,4 +99,3 @@ declare global {
     SunshineNewUserPostsList: typeof SunshineNewUserPostsListComponent
   }
 }
-

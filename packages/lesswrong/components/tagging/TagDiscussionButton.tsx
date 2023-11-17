@@ -4,16 +4,15 @@ import { Link } from "../../lib/reactRouterWrapper";
 import CommentOutlinedIcon from "@material-ui/icons/ModeCommentOutlined";
 import { useHover } from "../common/withHover";
 import { useMulti } from "../../lib/crud/withMulti";
+import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   discussionButton: {
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
-    ...theme.typography.uiStyle,
     color: theme.palette.grey[700],
     display: "flex",
     alignItems: "center",
-    marginRight: 8,
     marginLeft: "auto"
   },
   discussionButtonIcon: {
@@ -24,10 +23,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[700]
   },
   discussionCount: {
-      [theme.breakpoints.down('sm')]: { 
-        alignSelf: "flex-start" //appears to low when there's no label
-      }
-    },
+    [theme.breakpoints.down('sm')]: {
+      alignSelf: "flex-start" //appears to low when there's no label
+    }
+  },
   hideOnMobile: {
     marginRight: 2,
     [theme.breakpoints.down('sm')]: { //optimized or tag paye
@@ -48,7 +47,7 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
   const { hover, anchorEl, eventHandlers } = useHover()
   const { totalCount, loading } = useMulti({
     terms: {
-      view: "commentsOnTag",
+      view: "tagDiscussionComments",
       tagId: tag._id,
       limit: 0,
     },
@@ -57,9 +56,13 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
     enableTotal: true,
   });
   
-  return <Link className={classes.discussionButton} to={`/tag/${tag.slug}/discussion`} {...eventHandlers}>
+  return <Link
+    className={classes.discussionButton}
+    to={tagGetDiscussionUrl(tag)}
+    {...eventHandlers}
+  >
     <CommentOutlinedIcon className={classes.discussionButtonIcon} />
-    <span className={hideLabelOnMobile ? classes.hideOnMobile : null}>{text}</span>
+    <span className={hideLabelOnMobile ? classes.hideOnMobile : undefined}>{text}</span>
     {!loading && <span className={classes.discussionCount}>&nbsp;{`(${totalCount || 0})`}</span>}
     <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
       <TagDiscussion tag={tag}/>

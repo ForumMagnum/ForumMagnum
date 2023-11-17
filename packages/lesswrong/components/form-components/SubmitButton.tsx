@@ -4,7 +4,10 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 
 
-const SubmitButton = ({ name, label }, context) => {
+const SubmitButton = ({ name, label }: {
+  name: string;
+  label: string;
+}, context: any) => {
   const fieldName = name;
   return (<Button onClick={() => context.updateCurrentValues({[fieldName]: true}, true)}>
     {label}

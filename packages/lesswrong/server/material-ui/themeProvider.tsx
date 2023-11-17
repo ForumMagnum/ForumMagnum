@@ -1,16 +1,15 @@
 import React from 'react';
 import JssProvider from 'react-jss/lib/JssProvider';
-import { MuiThemeProvider, createGenerateClassName } from '@material-ui/core/styles';
-import forumTheme from '../../themes/forumTheme'
 import { SheetsRegistry } from 'react-jss/lib/jss';
-import JssCleanup from '../../components/themes/JssCleanup';
+import { ThemeContextProvider } from '../../components/themes/useTheme';
+import { AbstractThemeOptions } from '../../themes/themeNames';
+import { createGenerateClassName } from '@material-ui/core/styles';
 
-const MuiThemeProviderWrapper = (props, context) => {
-  return <MuiThemeProvider {...props}>
-    {props.children}
-  </MuiThemeProvider>
-}
-export function wrapWithMuiTheme (app: React.ReactNode, context) {
+export const wrapWithMuiTheme = <Context extends {sheetsRegistry?: typeof SheetsRegistry}>(
+  app: React.ReactNode,
+  context: Context,
+  themeOptions: AbstractThemeOptions,
+): React.ReactElement => {
   const sheetsRegistry = new SheetsRegistry();
   context.sheetsRegistry = sheetsRegistry;
   const generateClassName = createGenerateClassName({
@@ -19,11 +18,9 @@ export function wrapWithMuiTheme (app: React.ReactNode, context) {
 
   return (
     <JssProvider registry={sheetsRegistry} generateClassName={generateClassName}>
-      <MuiThemeProviderWrapper theme={forumTheme} sheetsManager={new Map()}>
+      <ThemeContextProvider options={themeOptions}>
         {app}
-        <JssCleanup/>
-      </MuiThemeProviderWrapper>
+      </ThemeContextProvider>
     </JssProvider>
   );
 }
-

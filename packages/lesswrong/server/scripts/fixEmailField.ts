@@ -12,7 +12,7 @@ if (fixEmail) { void (async ()=>{
   await asyncForeachSequential(allUsers, async (user) => {
     if (user.legacy && user.email) {
       try {
-      await Users.update({_id: user._id}, {$set: {'emails': [{address: user.email, verified: true}]}});
+      await Users.rawUpdateOne({_id: user._id}, {$set: {'emails': [{address: user.email, verified: true}]}});
       usersCount++;
       if (usersCount % 1000 == 0 ){
         //eslint-disable-next-line no-console

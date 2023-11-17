@@ -2,17 +2,18 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
-import type { CoreReadingCollection } from '../sequences/CoreReading';
+import type { CoreReadingCollection } from '../sequences/LWCoreReading';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: "100%",
     maxWidth: 347,
     marginRight: 12,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     marginBottom: 12,
     "&:hover": {
-      boxShadow: "0 0 3px rgba(0,0,0,.1)"
+      boxShadow: theme.palette.boxShadow.collectionsCardHover,
     },
   },
   card: {
@@ -31,8 +32,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
   },
   content: {
-    borderTop: "solid 4px black",
+    borderTop: `solid 4px ${theme.palette.text.maxIntensity}`, // This gets overwritten by a color from the DB
     paddingTop: theme.spacing.unit*1.5
+  },
+  title: {
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   mergeTitle: {
     display: "inline",
@@ -45,6 +49,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     marginBottom:theme.spacing.unit,
     display: "inline-block",
+    ...(isFriendlyUI && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   media: {
     '& img':{
@@ -88,13 +95,13 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
   return <LinkCard className={classes.root} to={url}>
     <div className={classes.card}>
       <div className={classes.content} style={cardContentStyle}>
-        <div className={classes.thumbnailImage}>
+        {collection.imageId && <div className={classes.thumbnailImage}>
           <CloudinaryImage
             publicId={collection.imageId}
             width={50}
             height={41}
           />
-        </div>
+        </div>}
         <Typography variant="title" className={classNames(classes.title, {[classes.mergeTitle]: mergeTitle})}>
           <Link to={url}>{collection.title}</Link>
         </Typography>
@@ -105,9 +112,9 @@ const CollectionsCard = ({ collection, url, mergeTitle=false, classes }: {
           {collection.summary}
         </Typography>
       </div>
-      <div className={classes.media}>
+      {collection.imageId && <div className={classes.media}>
         <CloudinaryImage publicId={collection.imageId} width={307} height={86} />
-      </div>
+      </div>}
     </div>
   </LinkCard>
 }

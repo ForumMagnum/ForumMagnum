@@ -1,5 +1,5 @@
 import { Posts } from '../../lib/collections/posts';
-import htmlToText from 'html-to-text';
+import { htmlToText } from 'html-to-text';
 import { asyncForeachSequential } from '../../lib/utils/asyncUtils';
 
 const runFix = false;
@@ -12,9 +12,9 @@ if (runFix) { void (async ()=>{
   await asyncForeachSequential(allPosts, async (post) => {
     const { html = "" } = post.contents || {}
     if (html) {
-      const plaintextBody = htmlToText.fromString(html);
+      const plaintextBody = htmlToText(html);
       const excerpt =  plaintextBody.slice(0,140);
-      await Posts.update(post._id, {$set: {body: plaintextBody, excerpt: excerpt}});
+      await Posts.rawUpdateOne(post._id, {$set: {body: plaintextBody, excerpt: excerpt}});
       postCount++;
       if (postCount % 100 == 0) {
         //eslint-disable-next-line no-console

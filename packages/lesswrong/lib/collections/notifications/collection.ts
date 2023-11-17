@@ -24,12 +24,16 @@ const options: MutationOptions<DbNotification> = {
 export const Notifications: NotificationsCollection = createCollection({
   collectionName: 'Notifications',
   typeName: 'Notification',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Notifications'),
   mutations: getDefaultMutations('Notifications', options),
   logChanges: false,
 });
 
-addUniversalFields({collection: Notifications})
+addUniversalFields({
+  collection: Notifications,
+  createdAtOptions: {canRead: [userOwns]},
+})
 
 export default Notifications;

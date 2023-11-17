@@ -1,5 +1,5 @@
 import { Tags } from './collection';
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 import { viewFieldAllowAny } from '../../vulcan-lib';
 
 declare global {
@@ -9,6 +9,7 @@ declare global {
     wikiGrade?: string
     slug?: string
     tagFlagId?: string
+    parentTagId?: string
   }
 }
 
@@ -42,6 +43,17 @@ Tags.addView("userTags", (terms: TagsViewTerms) => {
   }
 });
 ensureIndex(Tags, {deleted: 1, userId: 1, createdAt: 1});
+
+Tags.addView("currentUserSubforums", (terms: TagsViewTerms, _, context?: ResolverContext) => {
+  return {
+    selector: {
+      // Always show core subforums
+      $or: [{_id: {$in: context?.currentUser?.profileTagIds ?? []}}, {core: true}],
+      isSubforum: true
+    },
+    options: {sort: {createdAt: -1}},
+  }
+});
 
 Tags.addView('allPagesByNewest', (terms: TagsViewTerms) => {
   return {
@@ -84,6 +96,39 @@ Tags.addView('coreTags', (terms: TagsViewTerms) => {
     },
     options: {
       sort: {
+        defaultOrder: -1,
+        name: 1
+      }
+    },
+  }
+});
+ensureIndex(Tags, {deleted: 1, core:1, name: 1});
+
+Tags.addView('postTypeTags', (terms: TagsViewTerms) => {
+  return {
+    selector: {
+      isPostType: true,
+      adminOnly: viewFieldAllowAny
+    },
+    options: {
+      sort: {
+        defaultOrder: -1,
+        name: 1
+      }
+    },
+  }
+});
+ensureIndex(Tags, {deleted: 1, isPostType:1, name: 1});
+
+Tags.addView('coreAndSubforumTags', (terms: TagsViewTerms) => {
+  return {
+    selector: {
+      $or: [{core: true}, {isSubforum: true}],
+      adminOnly: viewFieldAllowAny
+    },
+    options: {
+      sort: {
+        defaultOrder: -1,
         name: 1
       }
     },
@@ -182,3 +227,6 @@ Tags.addView('allPublicTags', (terms: TagsViewTerms) => {
 });
 
 ensureIndex(Tags, {name: 1});
+
+// Used in subTags resolver
+ensureIndex(Tags, {parentTagId: 1});

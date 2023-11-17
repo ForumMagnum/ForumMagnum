@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useHover } from './withHover';
-import { PopperPlacementType } from '@material-ui/core/Popper'
+import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
+import { AnalyticsProps } from '../../lib/analyticsEvents';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType): JssStyles => ({
   root: {
     // inline-block makes sure that the popper placement works properly (without flickering). "block" would also work, but there may be situations where we want to wrap an object in a tooltip that shouldn't be a block element.
     display: "inline-block",
@@ -14,45 +15,67 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const LWTooltip = ({classes, className, children, title, placement="bottom-start", tooltip=true, flip=true, inlineBlock=true}: {
-  children?: any,
-  title?: any,
+const LWTooltip = ({
+  children,
+  title,
+  placement="bottom-start",
+  tooltip=true,
+  flip=true,
+  clickable=false,
+  inlineBlock=true,
+  As="span",
+  disabled=false,
+  hideOnTouchScreens=false,
+  classes,
+  className,
+  analyticsProps,
+  titleClassName,
+  popperClassName,
+}: {
+  children?: ReactNode,
+  title?: ReactNode,
   placement?: PopperPlacementType,
   tooltip?: boolean,
   flip?: boolean,
+  clickable?: boolean,
   inlineBlock?: boolean,
+  As?: keyof JSX.IntrinsicElements,
+  disabled?: boolean,
+  hideOnTouchScreens?: boolean,
   classes: ClassesType,
-  className?: string
+  className?: string,
+  analyticsProps?: AnalyticsProps,
+  titleClassName?: string
+  popperClassName?: string,
 }) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
-    pageElementContext: "tooltipHovered",
-    title: typeof title=="string" ? title : undefined
+    pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
+    title: typeof title === "string" ? title : undefined,
+    ...analyticsProps,
   });
-  
-  if (!title) return children
 
-  return <span className={classNames({[classes.root]: inlineBlock}, className)} {...eventHandlers}>
+  if (!title) return <>{children}</>
+
+  return <As className={classNames({[classes.root]: inlineBlock}, className)} {...eventHandlers}>
     { /* Only render the LWPopper if this element has ever been hovered. (But
          keep it in the React tree thereafter, so it can remember its state and
          can have a closing animation if applicable. */ }
     {everHovered && <LWPopper
       placement={placement}
-      open={hover}
+      open={hover && !disabled}
       anchorEl={anchorEl}
       tooltip={tooltip}
-      modifiers={{
-        flip: {
-          enabled: flip
-        }
-      }}
-      clickable={false}
+      allowOverflow={!flip}
+      clickable={clickable}
+      hideOnTouchScreens={hideOnTouchScreens}
+      className={popperClassName}
     >
-      <div className={tooltip ? classes.tooltip : null}>{title}</div>
+      <div className={classNames({[classes.tooltip]: tooltip}, titleClassName)}>{title}</div>
     </LWPopper>}
-    
+
     {children}
-  </span>
+  </As>
 }
 
 const LWTooltipComponent = registerComponent("LWTooltip", LWTooltip, {

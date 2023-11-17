@@ -32,6 +32,7 @@ const options: MutationOptions<DbMessage> = {
 export const Messages: MessagesCollection = createCollection({
   collectionName: 'Messages',
   typeName: 'Message',
+  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Messages'),
   mutations: getDefaultMutations('Messages', options),
@@ -48,14 +49,17 @@ makeEditable({
     // Determines whether to use the comment editor styles (e.g. Fonts)
     commentStyles: true,
     permissions: {
-      viewableBy: ['members'],
-      insertableBy: ['members'],
-      editableBy: userOwns,
+      canRead: ['members'],
+      canCreate: ['members'],
+      canUpdate: userOwns,
     },
     order: 2,
   }
 })
 
-addUniversalFields({collection: Messages})
+addUniversalFields({
+  collection: Messages,
+  createdAtOptions: {canRead: ['members']},
+});
 
 export default Messages;

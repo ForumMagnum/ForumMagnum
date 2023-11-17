@@ -1,10 +1,9 @@
-import cheerio from 'cheerio';
+import { cheerioParse } from './utils/htmlUtil';
 
 export function htmlStartingAtHash(html: string, hash: string): string {
   try {
     // Find the given anchor, if present
-    // @ts-ignore DefinitelyTyped annotation is wrong, and cheerio's own annotations aren't ready yet
-    const $ = cheerio.load(html, null, false);
+    const $ = cheerioParse(html);
     const matchesWithID = $(`#${hash}`);
     if (matchesWithID.length==0)
       return html;

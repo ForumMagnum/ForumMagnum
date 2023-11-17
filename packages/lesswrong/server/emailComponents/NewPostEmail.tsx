@@ -11,18 +11,32 @@ import './EmailFooterRecommendations';
 const styles = (theme: ThemeType): JssStyles => ({
   heading: {
     textAlign: "center",
+    color: theme.palette.primary.main,
+    marginBottom: 30
+  },
+  headingRow: {
+    marginBottom: 8
+  },
+
+  podcastRow: {
+    '& p': {
+      marginBottom: 16,
+    },
+    fontStyle: "italic"
   },
   
   headingLink: {
-    color: "black",
+    color: theme.palette.text.maxIntensity,
     textDecoration: "none",
+    fontWeight: "normal",
+    fontFamily: "Arial, sans-serif"
   },
   
   headingHR: {
     width: 210,
     height: 0,
     borderTop: "none",
-    borderBottom: "1px solid #aaa",
+    borderBottom: theme.palette.border.emailHR,
     marginTop: 50,
     marginBottom: 35,
   },
@@ -31,6 +45,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 30,
   },
 });
+
+const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
+  const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
+  const episodeUrl = new URL(episodeLink);
+
+  // episodeLink is something like https://www.buzzsprout.com/2037297/11391281-...
+  // But they can also have multiple forward slashes between the origin and the podcast ID
+  // Therefore, the first element returned by `episodeUrl.pathname.split('/').filter(pathSection => !!pathSection)` is `2037297`
+  const [buzzsproutPodcastId] = episodeUrl.pathname.split('/').filter(pathSection => !!pathSection);
+  const buzzsproutEpisodePath = `${buzzsproutPodcastId}/${externalEpisodeId}`;
+
+  const directEpisodeUrl = new URL(episodeUrl.origin);
+  directEpisodeUrl.pathname = buzzsproutEpisodePath;
+
+  const buzzsproutLinkElement = <a href={directEpisodeUrl.toString()}>Buzzsprout</a>
+  const spotifyLinkElement = spotifyPodcastLink ? <a href={spotifyPodcastLink}>Spotify</a> : undefined;
+  const appleLinkElement = applePodcastLink ? <a href={applePodcastLink}>Apple Podcasts</a> : undefined;
+
+  const externalDirectoryAvailability = !!spotifyLinkElement && !!appleLinkElement;
+
+  return <p>
+    Listen to the podcast version of this post on {buzzsproutLinkElement}.
+    {externalDirectoryAvailability ? <>  You can also find it on {spotifyLinkElement} and {appleLinkElement}.</> : <></>}
+  </p>;
+};
 
 const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
   documentId: string,
@@ -49,6 +88,18 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
   });
   const { EmailPostAuthors, EmailContentItemBody, EmailPostDate, EmailFooterRecommendations } = Components;
   if (!document) return null;
+  
+  // event location - for online events, attempt to show the meeting link
+  let eventLocation: string|JSX.Element = document.location
+  if (document.onlineEvent) {
+    eventLocation = document.joinEventLink ? <a
+      className={classes.onlineEventLocation}
+      href={document.joinEventLink}
+      target="_blank" rel="noopener noreferrer">
+        {document.joinEventLink}
+    </a> : "Online Event"
+  }
+
   return (<React.Fragment>
     <div className={classes.heading}>
       <h1>
@@ -57,21 +108,28 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
       
       <hr className={classes.headingHR}/>
       
-      <EmailPostAuthors post={document}/><br/>
-      <div className="postDate">
+      <div className={classes.headingRow}>
+        <EmailPostAuthors post={document}/>
+      </div>
+      <div className={classes.headingRow}>
         <EmailPostDate post={document}/>
-      </div><br/>
-      {document.location && <div>
-        {document.location}
+      </div>
+      {document.isEvent && <div className={classes.headingRow}>
+        {eventLocation}
       </div>}
-      {document.contactInfo && <div>
+      {document.contactInfo && <div className={classes.headingRow}>
         Contact: {document.contactInfo}
       </div>}
       
-      {document.url && <div>
+      {document.url && <div className={classes.headingRow}>
         This is a linkpost for <a href={postGetLink(document)} target={postGetLinkTarget(document)}>{document.url}</a>
       </div>}
     </div>
+
+    {document.podcastEpisode && <div className={classes.podcastRow}>
+      {getPodcastInfoElement(document.podcastEpisode)}
+      <hr />
+    </div>}
     
     {document.contents && <EmailContentItemBody className="post-body" dangerouslySetInnerHTML={{
       __html: document.contents.html

@@ -2,8 +2,8 @@ module.exports = {
     _id : "test-seeded-conversation",
     createdAt: new Date(),
     latestActivity: new Date(),
-    participantIds : [ 
-        "test-other-user", 
+    participantIds : [
+        "test-other-user",
         "test-user",
     ],
     schemaVersion : 1,

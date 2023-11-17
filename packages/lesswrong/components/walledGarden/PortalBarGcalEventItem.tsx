@@ -6,7 +6,7 @@ import { getUrlClass } from '../../lib/routeUtil';
 export const eventRoot = (theme: ThemeType) => ({
   ...theme.typography.commentStyle,
   fontSize: '1.1rem',
-  color: 'rgba(0,0,0,0.55)',
+  color: theme.palette.text.dim55,
   display: "flex",
   width: 350,
   [theme.breakpoints.down('xs')]: {
@@ -39,7 +39,7 @@ export const eventTime = (theme: ThemeType) => ({
   display: "inline-block"
 })
 
-export const eventFormat = (startTime) => {
+export const eventFormat = (startTime: AnyBecauseTodo) => {
   return moment(new Date(startTime)).format("ddd h:mma, MMM D")
 }
 
@@ -56,7 +56,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-export const getAddToCalendarLink = (gcalEvent) => {
+export const getAddToCalendarLink = (gcalEvent: AnyBecauseTodo) => {
   const { LWTooltip } = Components
   
   const UrlClass = getUrlClass()

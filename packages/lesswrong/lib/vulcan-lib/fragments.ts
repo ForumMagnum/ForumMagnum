@@ -1,10 +1,11 @@
+import type { DocumentNode } from 'graphql';
 import gql from 'graphql-tag';
 import * as _ from 'underscore';
 
 interface FragmentDefinition {
   fragmentText: string
   subFragments?: Array<FragmentName>
-  fragmentObject?: any
+  fragmentObject?: DocumentNode
 }
 
 const Fragments: Record<FragmentName,FragmentDefinition> = {} as any;
@@ -46,14 +47,14 @@ const getFragmentObject = (fragmentText: string, subFragments: Array<FragmentNam
   const literals = subFragments ? [fragmentText, ...subFragments.map(x => '\n')] : [fragmentText];
 
   // the gql function expects an array of literals as first argument, and then sub-fragments as other arguments
-  const gqlArguments = subFragments ? [literals, ...subFragments.map(subFragmentName => {
+  const gqlArguments: [string | readonly string[], ...any[]] = subFragments ? [literals, ...subFragments.map(subFragmentName => {
     // return subfragment's gql fragment
     if (!Fragments[subFragmentName]) {
       throw new Error(`Subfragment “${subFragmentName}” of fragment “${extractFragmentName(fragmentText)}” has not been defined.`);
     }
     
     return getFragment(subFragmentName);
-  })] : [literals];
+  }).filter((fragment): fragment is DocumentNode => fragment !== undefined)] : [literals];
 
   return gql.apply(null, gqlArguments);
 };
@@ -71,7 +72,9 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
     */
     const field: CollectionFieldSpecification<T> = schema[fieldName];
     // OpenCRUD backwards compatibility
-    return (field.resolveAs && !field.resolveAs.addOriginalField) || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !(field.canRead || field.viewableBy));
+
+    const isResolverField = field.resolveAs && !field.resolveAs.addOriginalField && field.resolveAs.type !== "ContentType";
+    return isResolverField || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !field.canRead);
   });
 
   if (fieldNames.length) {
@@ -91,18 +94,19 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
 };
 
 // Get fragment name from fragment object
-export const getFragmentName = fragment => fragment && fragment.definitions[0] && fragment.definitions[0].name.value;
+export const getFragmentName = (fragment: AnyBecauseTodo) => fragment && fragment.definitions[0] && fragment.definitions[0].name.value;
 
 // Get actual gql fragment
-export const getFragment = (fragmentName: FragmentName) => {
+export const getFragment = (fragmentName: FragmentName): DocumentNode => {
   if (!Fragments[fragmentName]) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }
-  if (!Fragments[fragmentName].fragmentObject) {
-    initializeFragment(fragmentName);
+  const fragmentObject = Fragments[fragmentName].fragmentObject;
+  if (!fragmentObject) {
+    // return fragment object created by gql
+    return initializeFragment(fragmentName);
   }
-  // return fragment object created by gql
-  return Fragments[fragmentName].fragmentObject;  
+  return fragmentObject;
 };
 
 // Get gql fragment text
@@ -114,9 +118,11 @@ export const getFragmentText = (fragmentName: FragmentName): string => {
   return Fragments[fragmentName].fragmentText;  
 };
 
-export const initializeFragment = (fragmentName: FragmentName): void => {
+export const initializeFragment = (fragmentName: FragmentName): DocumentNode => {
   const fragment = Fragments[fragmentName];
-  Fragments[fragmentName].fragmentObject = getFragmentObject(fragment.fragmentText, fragment.subFragments);
+  const fragmentObject = getFragmentObject(fragment.fragmentText, fragment.subFragments);
+  Fragments[fragmentName].fragmentObject = fragmentObject;
+  return fragmentObject;
 };
 
 export const getAllFragmentNames = (): Array<FragmentName> => {

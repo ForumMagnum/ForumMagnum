@@ -5,7 +5,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.panelBackground.default,
     width: '100%',
     padding: 32,
     '& a': {

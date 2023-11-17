@@ -3,7 +3,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
 import classNames from 'classnames';
 
-const styles = theme => ({
+const styles = (theme: ThemeType): JssStyles => ({
   maxHeight: {
     maxHeight: 600,
     overflow: "hidden"
@@ -12,7 +12,7 @@ const styles = theme => ({
 
 // ContentItemTruncated: Wrapper around ContentItemBody with options for
 // limiting length and height in various ways.
-const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description}: {
+const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=false, rawWordCount, getTruncatedSuffix, nonTruncatedSuffix, dangerouslySetInnerHTML, className, description, nofollow}: {
   classes: ClassesType,
   maxLengthWords: number,
   graceWords?: number,
@@ -27,6 +27,7 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
   dangerouslySetInnerHTML: { __html: string },
   className?: string,
   description?: string,
+  nofollow?: boolean
 }) => {
   const {ContentItemBody} = Components;
   
@@ -43,6 +44,7 @@ const ContentItemTruncated = ({classes, maxLengthWords, graceWords=20, expanded=
       dangerouslySetInnerHTML={{__html: truncatedHtml}}
       className={classNames(className, {[classes.maxHeight]:!expanded})}
       description={description}
+      nofollow={nofollow}
     />
     {wasTruncated && getTruncatedSuffix && getTruncatedSuffix({wordsLeft})}
     {!wasTruncated && nonTruncatedSuffix}

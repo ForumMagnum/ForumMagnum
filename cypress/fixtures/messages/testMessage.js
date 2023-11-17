@@ -18,4 +18,4 @@ module.exports = {
     userId : "test-other-user",
     noEmail : false,
     schemaVersion : 1
-}  
+}

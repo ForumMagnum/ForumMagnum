@@ -1,3 +1,5 @@
+import { randomId } from "../random";
+import markdownIt from 'markdown-it'
 
 // This currently only supports our limited subset of semVer
 export function parseSemver(semver: string) {
@@ -21,4 +23,10 @@ export function compareVersionNumbers(a: string, b: string): number {
   if (patchA>patchB) return 1;
   if (patchA<patchB) return -1;
   return 0;
+}
+
+const mdi = markdownIt({linkify: true})
+export function markdownToHtmlSimple(markdown: string): string {
+  const id = randomId()
+  return mdi.render(markdown, {docId: id})
 }

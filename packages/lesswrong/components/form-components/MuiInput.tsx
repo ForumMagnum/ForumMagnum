@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 class MuiInput extends Component<any,any> {
-  constructor(props, context) {
+  constructor(props: any, context: any) {
     super(props,context);
     this.state = {
       contents: (props.document && props.document[props.path]) || props.defaultValue || ""
@@ -26,7 +26,7 @@ class MuiInput extends Component<any,any> {
     })
   }
 
-  onChange = (event) => {
+  onChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     this.setState({contents: event.target.value})
     this.context.updateCurrentValues({
       [this.props.path]: event.target.value
@@ -35,7 +35,7 @@ class MuiInput extends Component<any,any> {
 
   render() {
     const { className, label, multiLine, rows, hintText, placeholder,
-      rowsMax, fullWidth, disableUnderline, startAdornment, classes } = this.props;
+      rowsMax, fullWidth, disableUnderline, startAdornment, disabled, classes } = this.props;
     return <Input
         className={className}
         value={this.state.contents || ""}
@@ -48,6 +48,7 @@ class MuiInput extends Component<any,any> {
         disableUnderline={disableUnderline}
         classes={{input: classes.input}}
         startAdornment={startAdornment}
+        disabled={disabled}
       />
   }
 };

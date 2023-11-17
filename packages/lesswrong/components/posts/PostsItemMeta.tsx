@@ -1,9 +1,9 @@
 import { Components, registerComponent} from '../../lib/vulcan-lib';
-import React from 'react';
+import React, { FC } from 'react';
 import classNames from 'classnames';
 import moment from '../../lib/moment-timezone';
 import { useTimezone } from '../common/withTimezone';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   info: {
     display: "inline",
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     marginRight: theme.spacing.unit,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const DateWithoutTime = ({date}: {date: Date}) => {
+export const DateWithoutTime: FC<{date: Date}> = ({date}) => {
   const { timezone } = useTimezone();
   return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
 }
@@ -37,9 +37,9 @@ const PostsItemMeta = ({post, read, classes}: {
   read?: boolean,
   classes: ClassesType,
 }) => {
-  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
-  const afBaseScore = forumTypeSetting.get() !== 'AlignmentForum' && post.af ? post.afBaseScore : null
-  const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip, AddToCalendarIcon } = Components;
+  const baseScore = isAF ? post.afBaseScore : post.baseScore
+  const afBaseScore = !isAF && post.af ? post.afBaseScore : null
+  const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip, AddToCalendarButton } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
       {!post.shortform && !post.isEvent && <span className={classes.info}>
@@ -56,7 +56,7 @@ const PostsItemMeta = ({post, read, classes}: {
       { post.isEvent && <span className={classes.info}>
         {post.startTime && (
           <span className={classes.calendarIcon}>
-            <AddToCalendarIcon post={post} />
+            <AddToCalendarButton post={post} />
           </span>
         )}
         {post.startTime
@@ -73,7 +73,7 @@ const PostsItemMeta = ({post, read, classes}: {
       </span>}
 
       <span className={classes.info}>
-        <PostsUserAndCoauthors post={post}/>
+        <PostsUserAndCoauthors post={post} showMarkers />
       </span>
 
       { afBaseScore && <span className={classes.info}>

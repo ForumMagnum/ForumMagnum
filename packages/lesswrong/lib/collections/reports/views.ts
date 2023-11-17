@@ -1,5 +1,5 @@
 import Reports from "./collection"
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface ReportsViewTerms extends ViewTermsBase {

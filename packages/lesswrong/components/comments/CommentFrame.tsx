@@ -2,12 +2,16 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const HIGHLIGHT_DURATION = 3
 
+export const CONDENSED_MARGIN_BOTTOM = 4
+
 const styles = (theme: ThemeType): JssStyles => ({
   node: {
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    border: theme.palette.border.commentBorder,
+    borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -15,16 +19,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   commentsNodeRoot: {
-    borderRadius: 3,
+    borderRadius: theme.borderRadius.small,
   },
   child: {
     marginLeft: theme.spacing.unit,
     marginBottom: 6,
-    borderLeft: `solid 1px ${theme.palette.commentBorderGrey}`,
-    borderTop: `solid 1px ${theme.palette.commentBorderGrey}`,
-    borderBottom: `solid 1px ${theme.palette.commentBorderGrey}`,
+    borderLeft: theme.palette.border.commentBorder,
+    borderTop: theme.palette.border.commentBorder,
+    borderBottom: theme.palette.border.commentBorder,
     borderRight: "none",
-    borderRadius: "2px 0 0 2px"
+    borderRadius: isFriendlyUI
+      ? `${theme.borderRadius.small}px 0 0 ${theme.borderRadius.small}px`
+      : "2px 0 0 2px",
   },
   new: {
     '&&': {
@@ -36,17 +42,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   deleted: {},
   isAnswer: {
-    border: `solid 2px ${theme.palette.commentBorderGrey}`,
+    border: theme.palette.border.answerBorder,
   },
   answerChildComment: {
     marginBottom: theme.spacing.unit,
-    border: `solid 1px ${theme.palette.commentBorderGrey}`,
+    border: theme.palette.border.commentBorder,
   },
   childAnswerComment: {
     borderRight: "none"
   },
   oddAnswerComment: {
-    backgroundColor: 'white'
+    backgroundColor: theme.palette.panelBackground.default,
   },
   answerLeafComment: {
     paddingBottom: 0
@@ -54,42 +60,44 @@ const styles = (theme: ThemeType): JssStyles => ({
   isSingleLine: {
     marginBottom: 0,
     borderBottom: "none",
-    borderTop: `solid 1px ${theme.palette.commentBorderGrey}`,
+    borderTop: theme.palette.border.commentBorder,
     '&.comments-node-root':{
-      marginBottom: 4,
-      borderBottom: `solid 1px ${theme.palette.commentBorderGrey}`,
+      marginBottom: CONDENSED_MARGIN_BOTTOM,
+      borderBottom: theme.palette.border.commentBorder,
     }
   },
   condensed: {
     '&.comments-node-root':{
-      marginBottom: 4,
+      marginBottom: CONDENSED_MARGIN_BOTTOM,
     }
   },
   shortformTop: {
     '&&': {
-      marginTop: theme.spacing.unit*4,
-      marginBottom: 0
+      marginTop: isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
+      marginBottom: 0,
     }
   },
   hoverPreview: {
-    marginBottom: 0
+    '&&': {
+      marginBottom: 0
+    }
   },
   moderatorHat: {
     "&.comments-node-even": {
-      background: "#5f9b651c",
+      background: theme.palette.panelBackground.commentModeratorHat,
     },
     "&.comments-node-odd": {
-      background: "#5f9b651c",
+      background: theme.palette.panelBackground.commentModeratorHat,
     },
   },
   '@keyframes higlight-animation': {
     from: {
-      backgroundColor: theme.palette.grey[300],
-      borderColor: "black"
+      backgroundColor: theme.palette.panelBackground.commentHighlightAnimation,
+      border: theme.palette.border.maxIntensity,
     },
     to: {
       backgroundColor: "none",
-      borderColor: "rgba(0,0,0,.15)"
+      border: theme.palette.border.commentBorder,
     }
   },
   highlightAnimation: {
@@ -97,10 +105,52 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   promoted: {
     border: `solid 1px ${theme.palette.lwTertiary.main}`,
-  }
+  },
+  isPinnedOnProfile: {
+    // What we _really_ want to do here is apply a 1px border with the given linear
+    // gradient, however, the `border-image` property isn't compatible with
+    // `border-radius`. Using the `::before` selector is a hack to get around this.
+    "&::before": {
+      content: "''",
+      position: "absolute",
+      zIndex: -1,
+      top: 1,
+      right: 1,
+      bottom: 1,
+      left: 1,
+      boxSizing: "border-box",
+      backgroundColor: theme.palette.panelBackground.default,
+      borderRadius: isFriendlyUI ? theme.borderRadius.small : 0,
+    },
+    position: "relative",
+    backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
+    border: "none",
+    zIndex: 0,
+    '&.CommentFrame-isAnswer': {
+      backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight2}, ${theme.palette.border.primaryHighlight2})`,
+    },
+  },
 });
 
-const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChildren, highlighted, isSingleLine, isChild, isNewComment, isReplyToAnswer, hoverPreview, shortform, children, classes}: {
+const CommentFrame = ({
+  comment,
+  treeOptions,
+  onClick,
+  id,
+  nestingLevel,
+  hasChildren,
+  highlighted,
+  isSingleLine,
+  isChild,
+  isNewComment,
+  isReplyToAnswer,
+  hoverPreview,
+  shortform,
+  showPinnedOnProfile,
+  children,
+  className,
+  classes
+}: {
   comment: CommentsList,
   treeOptions: CommentTreeOptions,
   onClick?: (event: any)=>void,
@@ -115,8 +165,10 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
   isReplyToAnswer?: boolean,
   hoverPreview?: boolean,
   shortform?: boolean,
+  showPinnedOnProfile?: boolean,
   
   children: React.ReactNode,
+  className?: string,
   classes: ClassesType,
 }) => {
   const { condensed, postPage } = treeOptions;
@@ -125,12 +177,14 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
     "comments-node",
     nestingLevelToClass(nestingLevel, classes),
     classes.node,
+    className,
     {
       "af":comment.af,
       [classes.highlightAnimation]: highlighted,
       [classes.child]: isChild,
       [classes.new]: isNewComment,
       [classes.deleted]: comment.deleted,
+      [classes.isPinnedOnProfile]: isFriendlyUI && showPinnedOnProfile && comment.isPinnedOnProfile,
       [classes.isAnswer]: comment.answer,
       [classes.answerChildComment]: isReplyToAnswer,
       [classes.childAnswerComment]: isChild && isReplyToAnswer,
@@ -140,7 +194,7 @@ const CommentFrame = ({comment, treeOptions, onClick, id, nestingLevel, hasChild
       [classes.condensed]: condensed,
       [classes.shortformTop]: postPage && shortform && (nestingLevel===1),
       [classes.hoverPreview]: hoverPreview,
-      [classes.moderatorHat]: comment.moderatorHat,
+      [classes.moderatorHat]: comment.hideModeratorHat ? false : comment.moderatorHat,
       [classes.promoted]: comment.promoted
     }
   )
@@ -169,11 +223,10 @@ const nestingLevelToClass = (nestingLevel: number, classes: ClassesType): string
 }
 
 
-const CommentFrameComponent = registerComponent('CommentFrame', CommentFrame, {styles});
+const CommentFrameComponent = registerComponent('CommentFrame', CommentFrame, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {
     CommentFrame: typeof CommentFrameComponent,
   }
 }
-

@@ -5,23 +5,26 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
-import { commentBodyStyles } from '../../themes/stylePiping'
-import { useRecordTagView } from '../common/withRecordPostView';
 import type { CommentTreeOptions } from '../comments/commentTree';
+import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { TagCommentType } from '../../lib/collections/comments/types';
+import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
-    boxShadow: theme.boxShadow,
+    boxShadow: theme.palette.boxShadow.default,
     borderRadius: 3,
-    backgroundColor: "rgba(253,253,253)",
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
   },
   title: {
     ...theme.typography.display2,
     ...theme.typography.commentStyle,
-    fontVariant: "small-caps",
+    ...theme.typography.smallCaps,
     marginTop: 0,
     marginBottom: 8,
     display: "block",
@@ -31,12 +34,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
-    background: "white",
+    background: theme.palette.panelBackground.default,
     borderRadius: 3,
     marginBottom:4
-  },
-  tagDescription: {
-    ...commentBodyStyles(theme),
   },
   content: {
     marginLeft: 4,
@@ -55,55 +55,49 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   metadata: {
     fontSize: "1.1rem",
-    color: theme.palette.grey[600],
+    color: theme.palette.text.dim3,
     ...theme.typography.commentStyle,
   },
 });
 
-const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAllThreads, classes }: {
+const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
   tag: TagRecentDiscussion,
+  refetch?: any,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
+  tagCommentType?: TagCommentType,
   classes: ClassesType
 }) => {
-  const { CommentsNode, ContentItemBody } = Components;
+  const { CommentsNode, ContentItemBody, ContentStyles } = Components;
+
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
-  const [readStatus, setReadStatus] = useState(false);
-  const {recordTagView} = useRecordTagView(tag);
-  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
   
-  const lastVisitedAt = markedAsVisitedAt || tag.lastVisitedAt
   const lastCommentId = comments && comments[0]?._id
-  const nestedComments = unflattenComments(comments);
+  const nestedComments = useOrderPreservingArray(unflattenComments(comments), (comment) => comment.item._id);
   
-  const markAsRead = useCallback(
-    () => {
-      setReadStatus(true);
-      setMarkedAsVisitedAt(new Date());
-      setExpandAllThreads(true);
-      recordTagView({tag, extraEventProperties: {type: "recentDiscussionTagClick"}})
-    },
-    [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordTagView, tag]
-  );
   const clickExpandDescription = useCallback(() => {
     setTruncated(false);
     setExpandAllThreads(true);
   }, []);
   
   const descriptionHtml = tag.description?.html;
+  const readMore = `<a>(${preferredHeadingCase("Read More")})</a>`;
   const maybeTruncatedDescriptionHtml = truncated
-    ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", "<a>(Read More)</a>")
+    ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", readMore)
     : descriptionHtml;
   
   const commentTreeOptions: CommentTreeOptions = {
+    refetch,
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    markAsRead: markAsRead,
-    highlightDate: lastVisitedAt,
+    highlightDate: tag.lastVisitedAt,
     tag: tag,
     condensed: true,
+    replyFormStyle: "default",
   }
+  
+  const metadataWording = tag.wikiOnly ? "Wiki page" : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
   
   return <div className={classes.root}>
     <div className={classes.tag}>
@@ -112,18 +106,17 @@ const RecentDiscussionTag = ({ tag, comments, expandAllThreads: initialExpandAll
       </Link>
       
       <div className={classes.metadata}>
-        {tag.wikiOnly
-          ? <span>Wiki page</span>
-          : <span>Tag page - {tag.postCount} posts</span>
-        }
+        <span>{metadataWording}</span>
       </div>
       
-      <div onClick={clickExpandDescription} className={classes.tagDescription}>
-        <ContentItemBody
-          dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
-          description={`tag ${tag.name}`}
-          className={classes.description}
-        />
+      <div onClick={clickExpandDescription}>
+        <ContentStyles contentType="comment">
+          <ContentItemBody
+            dangerouslySetInnerHTML={{__html: maybeTruncatedDescriptionHtml||""}}
+            description={`tag ${tag.name}`}
+            className={classes.description}
+          />
+        </ContentStyles>
       </div>
     </div>
     

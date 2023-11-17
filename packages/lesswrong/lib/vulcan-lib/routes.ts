@@ -6,14 +6,15 @@ export type PingbackDocument = {
 };
 
 export type RouterLocation = {
-  currentRoute: Route,
+  // Null in 404
+  currentRoute: Route|null,
   RouteComponent: any,
   location: any,
   pathname: string,
   url: string,
   hash: string,
   params: Record<string,string>,
-  query: Record<string,string>,
+  query: Record<string,string>, // TODO: this should be Record<string,string|string[]>
   redirected?: boolean,
 };
 
@@ -32,6 +33,7 @@ export type Route = {
   subtitle?: string,
   subtitleLink?: string,
   subtitleComponentName?: keyof ComponentTypes,
+  description?: string,
   redirect?: (location: RouterLocation)=>string,
   getPingback?: (parsedUrl: RouterLocation) => Promise<PingbackDocument|null> | PingbackDocument|null,
   previewComponentName?: keyof ComponentTypes,
@@ -41,9 +43,28 @@ export type Route = {
   sunshineSidebar?: boolean
   disableAutoRefresh?: boolean,
   initialScroll?: "top"|"bottom",
+  noFooter?: boolean,
+  standalone?: boolean // if true, this page has no header / intercom
+  staticHeader?: boolean // if true, the page header is not sticky to the top of the screen
+  fullscreen?: boolean // if true, the page contents are put into a flexbox with the header such that the page contents take up the full height of the screen without scrolling
+  unspacedGrid?: boolean // for routes with standalone navigation, setting this to true allows the page body to be full-width (the default is to have empty columns providing padding)
+  
+  // enablePrefetch: Start loading stylesheet and JS bundle before the page is
+  // rendered. This requires sending headers before rendering, which means
+  // that the page can't return an HTTP error status or an HTTP redirect. In
+  // exchange, loading time is significantly improved for users who don't have
+  // the stylesheet and JS bundle already in their cache.
+  //
+  // This should only be set for routes which are guaranteed to be valid, ie,
+  // they don't have a post-ID or anything variable in them.
+  //
+  // Currently used for / and for /allPosts which is where this matters most.
+  // Not used for post-pages because we don't know whether a post page is going
+  // to be a 404 until we render it.
+  enableResourcePrefetch?: boolean
 };
 
-// populated by calls to addRoute
+/** Populated by calls to addRoute */
 export const Routes: Record<string,Route> = {};
 
 // Add a route to the routes table.
@@ -78,3 +99,19 @@ export const addRoute = (...routes: Route[]): void => {
     };
   }
 };
+
+export const overrideRoute = (...routes: Route[]): void => {
+  // remove the old route if it exists, then call addRoute
+  for (let route of routes) {
+    const {name, path} = route;
+    delete Routes[name];
+
+    // @ts-ignore The @types/underscore signature for _.findWhere is narrower than the real function; this works fine
+    const routeWithSamePath = _.findWhere(Routes, { path });
+
+    if (routeWithSamePath) {
+      delete Routes[routeWithSamePath.name];
+    }
+  }
+  addRoute(...routes);
+}

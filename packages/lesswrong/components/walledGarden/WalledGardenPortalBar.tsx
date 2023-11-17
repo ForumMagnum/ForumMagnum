@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import {commentBodyStyles } from "../../themes/stylePiping";
 import { useCurrentUser } from '../common/withUser';
 import { gatherTownURL } from "./GatherTownIframeWrapper";
 
@@ -12,7 +11,6 @@ const gatherTownRightSideBarWidth = 300
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...commentBodyStyles(theme, true),
     padding: 16,
     marginBottom: 0,
     marginTop: 0,
@@ -73,13 +71,13 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 
 export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefObject<HTMLIFrameElement|null>, classes:ClassesType}) => {
-  const { GardenCodeWidget, GardenCodesList, PomodoroWidget, Typography } = Components
+  const { GardenCodeWidget, GardenCodesList, PomodoroWidget, Typography, ContentStyles } = Components
 
   const currentUser =  useCurrentUser()
 
   const refocusOnIframe = () => iframeRef?.current && iframeRef.current.focus()
 
-  return <div className={classes.root}>
+  return <ContentStyles contentType="commentExceptPointerEvents" className={classes.root}>
     <div className={classes.widgetsContainer}>
       {currentUser?.walledGardenInvite && <div className={classes.events}>
         <Typography variant="title">Garden Events</Typography>
@@ -108,7 +106,7 @@ export const WalledGardenPortalBar = ({iframeRef, classes}:{iframeRef:React.RefO
         <PomodoroWidget />
       </div>
     </div>
-  </div>
+  </ContentStyles>
 }
 
 const WalledGardenPortalBarComponent = registerComponent('WalledGardenPortalBar', WalledGardenPortalBar, {styles});

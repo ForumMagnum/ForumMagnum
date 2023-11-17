@@ -1,24 +1,36 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
-import * as _ from 'underscore';
-import { getDefaultFilterSettings } from '../../lib/filterSettings';
+import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
 import moment from '../../lib/moment-timezone';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
+import { isEAForum, isLW, isLWorAF, taggingNamePluralSetting, taggingNameSetting} from '../../lib/instanceSettings';
 import { sectionTitleStyle } from '../common/SectionTitle';
+import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
+import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
+import classNames from 'classnames';
+import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
+import { reviewIsActive } from '../../lib/reviewUtils';
+import { forumSelect } from '../../lib/forumTypeUtils';
+import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
+
+const titleWrapper = isLWorAF ? {
+  marginBottom: 8
+} : {
+  display: "flex",
+  marginBottom: 8,
+  flexWrap: "wrap",
+  alignItems: "center"
+};
 
 const styles = (theme: ThemeType): JssStyles => ({
-  titleWrapper: {
-    display: "flex",
-    marginBottom: 8,
-    flexWrap: "wrap",
-    alignItems: "center"
-  },
+  titleWrapper,
   title: {
     ...sectionTitleStyle(theme),
     display: "inline",
@@ -29,98 +41,166 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     },
   },
-  hideOnMobile: {
-    [theme.breakpoints.down('xs')]: {
+  hide: {
       display: "none"
-    }
+  },
+  hideOnMobile: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    },
+  },
+  hideOnDesktop: {
+    [theme.breakpoints.up('md')]: {
+      display: "none"
+    },
+  },
+})
+
+const latestPostsName = isFriendlyUI ? 'New & upvoted' : 'Latest Posts'
+
+const filterSettingsToggleLabels = forumSelect({
+  EAForum: {
+    desktopVisible: "Customize feed",
+    desktopHidden: "Customize feed",
+    mobileVisible: "Customize feed",
+    mobileHidden: "Customize feed",
+  },
+  default: {
+    desktopVisible: "Customize Feed (Hide)",
+    desktopHidden: "Customize Feed",
+    mobileVisible: "Customize Feed (Hide)",
+    mobileHidden: "Customize Feed (Show)",
   }
 })
 
-const latestPostsName = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest'
+const advancedSortingText = isFriendlyUI
+  ? "Advanced sorting & filtering"
+  : "Advanced Sorting/Filtering";
 
-const useFilterSettings = (currentUser: UsersCurrent|null) => {
-  const defaultSettings = currentUser?.frontpageFilterSettings ? currentUser.frontpageFilterSettings : getDefaultFilterSettings();
+const defaultLimit = isFriendlyUI ? 11 : 13;
 
-  return useState(defaultSettings);
+const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings => {
+  if (!isEAForum) {
+    return filterSettings;
+  }
+  const tags = filterSettings.tags.filter(
+    ({tagId}) => tagId !== EA_FORUM_TRANSLATION_TOPIC_ID,
+  );
+  tags.push({
+    tagId: EA_FORUM_TRANSLATION_TOPIC_ID,
+    tagName: "Translation",
+    filterMode: "Hidden",
+  });
+  return {
+    ...filterSettings,
+    tags,
+  };
 }
 
 const HomeLatestPosts = ({classes}:{classes: ClassesType}) => {
-  const currentUser = useCurrentUser();
   const location = useLocation();
   const updateCurrentUser = useUpdateCurrentUser();
+  const currentUser = useCurrentUser();
 
-  const [filterSettings, setFilterSettings] = useFilterSettings(currentUser);
-  const [filterSettingsVisible, setFilterSettingsVisible] = useState(false);
+  const {filterSettings, setPersonalBlogFilter, setTagFilter, removeTagFilter} = useFilterSettings()
+  // While hiding desktop settings is stateful over time, on mobile the filter settings always start out hidden
+  // (except that on the EA Forum/FriendlyUI it always starts out hidden)
+  const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
+  const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
   const { timezone } = useTimezone();
-  const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible}, captureOnMount: true})
+  const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop, pageSectionContext: "latestPosts"}, captureOnMount: true})
   const { query } = location;
-  const { SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton, Typography } = Components
-  const limit = parseInt(query.limit) || 13
-  
-  const now = moment().tz(timezone);
-  const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD");
+  const {
+    SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,
+    CuratedPostsList, SectionTitle, StickiedPosts
+  } = Components
+  const limit = parseInt(query.limit) || defaultLimit;
+
+  const now = useCurrentTime();
+  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
 
   const recentPostsTerms = {
     ...query,
-    filterSettings: filterSettings,
+    filterSettings: applyConstantFilters(filterSettings),
     after: dateCutoff,
     view: "magic",
     forum: true,
     limit:limit
   }
+  
+  const changeShowTagFilterSettingsDesktop = () => {
+    setFilterSettingsVisibleDesktop(!filterSettingsVisibleDesktop)
+    if (isLWorAF) {
+      void updateCurrentUser({hideFrontpageFilterSettingsDesktop: filterSettingsVisibleDesktop})
+    }
+    
+    captureEvent("filterSettingsClicked", {
+      settingsVisible: !filterSettingsVisibleDesktop,
+      settings: filterSettings,
+    })
+  }
+
+  const showCurated = isFriendlyUI || (isLW && reviewIsActive())
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
       <SingleColumnSection>
-        <div className={classes.titleWrapper}>
-          <Typography variant='display1' className={classes.title}>
-            <LWTooltip title="Recent posts, sorted by a combination of 'new' and 'highly upvoted'" placement="left">
-              {latestPostsName}
-            </LWTooltip>
-          </Typography>
-         
-          <AnalyticsContext pageSectionContext="tagFilterSettings">
-              <div className={classes.toggleFilters}>
-                <SettingsButton 
-                  label={filterSettingsVisible  ? "Hide Filters" : "Show Tag Filters"}
-                  showIcon={false}
-                  onClick={() => {
-                    setFilterSettingsVisible(!filterSettingsVisible)
-                    captureEvent("filterSettingsClicked", {
-                      settingsVisible: !filterSettingsVisible,
-                      settings: filterSettings,
-                      pageSectionContext: "latestPosts"
-                    })
-                  }} />
-              </div>
-              <span className={!filterSettingsVisible ? classes.hideOnMobile : null}>
-                <TagFilterSettings
-                  filterSettings={filterSettings} setFilterSettings={(newSettings) => {
-                    setFilterSettings(newSettings)
-                    void updateCurrentUser({
-                      frontpageFilterSettings: newSettings
-                    });
-                  }}
-                />
-              </span>
-          </AnalyticsContext>
-        </div>
-        <AnalyticsContext listContext={"latestPosts"}>
-          <AnalyticsContext listContext={"curatedPosts"}>
-            <PostsList2
-              terms={{view:"curated", limit: currentUser ? 3 : 2}}
-              showNoResults={false}
-              showLoadMore={false}
-              hideLastUnread={true}
-              boxShadow={false}
-              curatedIconLeft={true}
-              showFinalBottomBorder={true}
+        <SectionTitle title={latestPostsName} noTopMargin={isFriendlyUI} noBottomPadding>
+          <LWTooltip
+            title={`Use these buttons to increase or decrease the visibility of posts based on ${taggingNameSetting.get()}. Use the "+" button at the end to add additional ${taggingNamePluralSetting.get()} to boost or reduce them.`}
+            hideOnTouchScreens
+          >
+            <SettingsButton
+              className={classes.hideOnMobile}
+              label={filterSettingsVisibleDesktop ?
+                filterSettingsToggleLabels.desktopVisible :
+                filterSettingsToggleLabels.desktopHidden}
+              showIcon={false}
+              onClick={changeShowTagFilterSettingsDesktop}
             />
-          </AnalyticsContext>
-          <PostsList2 terms={recentPostsTerms}>
-            <Link to={"/allPosts"}>Advanced Sorting/Filtering</Link>
-          </PostsList2>
+            <SettingsButton
+              className={classes.hideOnDesktop}
+              label={filterSettingsVisibleMobile ?
+                filterSettingsToggleLabels.mobileVisible :
+                filterSettingsToggleLabels.mobileHidden}
+              showIcon={false}
+              onClick={() => {
+                setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)
+                captureEvent("filterSettingsClicked", {
+                  settingsVisible: !filterSettingsVisibleMobile,
+                  settings: filterSettings,
+                  pageSectionContext: "latestPosts"
+                })
+              }} />
+          </LWTooltip>
+        </SectionTitle>
+  
+        <AnalyticsContext pageSectionContext="tagFilterSettings">
+          <div className={classNames({
+            [classes.hideOnDesktop]: !filterSettingsVisibleDesktop,
+            [classes.hideOnMobile]: !filterSettingsVisibleMobile,
+          })}>
+            <TagFilterSettings
+              filterSettings={filterSettings} setPersonalBlogFilter={setPersonalBlogFilter} setTagFilter={setTagFilter} removeTagFilter={removeTagFilter}
+            />
+          </div>
         </AnalyticsContext>
+        {isFriendlyUI && <StickiedPosts />}
+        <HideRepeatedPostsProvider>
+          {showCurated && <CuratedPostsList />}
+          <AnalyticsContext listContext={"latestPosts"}>
+            {/* Allow hiding posts from the front page*/}
+            <AllowHidingFrontPagePostsContext.Provider value={true}>
+              <PostsList2
+                terms={recentPostsTerms}
+                alwaysShowLoadMore
+                hideHiddenFrontPagePosts
+              >
+                <Link to={"/allPosts"}>{advancedSortingText}</Link>
+              </PostsList2>
+            </AllowHidingFrontPagePostsContext.Provider>
+          </AnalyticsContext>
+        </HideRepeatedPostsProvider>
       </SingleColumnSection>
     </AnalyticsContext>
   )

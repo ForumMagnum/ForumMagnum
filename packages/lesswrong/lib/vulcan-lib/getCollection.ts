@@ -2,6 +2,7 @@ import sortBy from 'lodash/sortBy';
 
 export const Collections: Array<CollectionBase<any>> = [];
 const collectionsByName: Partial<Record<CollectionNameString,CollectionBase<any>>> = {};
+const collectionsByLowercaseName: Partial<Record<string,CollectionBase<any>>> = {};
 
 export const getCollection = (name: CollectionNameString): CollectionBase<any> => {
   if (name in collectionsByName)
@@ -30,6 +31,12 @@ export const getCollectionByTypeName = (typeName: string): CollectionBase<any> =
   return collection;
 }
 
+export const getCollectionByTableName = (tableName: string): CollectionBase<any> => {
+  if (tableName in collectionsByLowercaseName)
+    return (collectionsByLowercaseName as AnyBecauseTodo)[tableName];
+  throw new Error(`Invalid table name: ${tableName}`);
+}
+
 export const isValidCollectionName = (name: string): name is CollectionNameString => {
   if (name in collectionsByName)
     return true;
@@ -46,6 +53,7 @@ export const isValidCollectionName = (name: string): name is CollectionNameStrin
 export const registerCollection = (collection: CollectionBase<any>): void => {
   Collections.push(collection);
   collectionsByName[collection.collectionName] = collection;
+  (collectionsByLowercaseName as AnyBecauseTodo)[collection.collectionName.toLowerCase()] = collection;
 }
 
 // Get a list of all collections, sorted by collection name.

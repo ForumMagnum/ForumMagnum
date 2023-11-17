@@ -1,11 +1,12 @@
 import { registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position:"relative",
-    borderTop: "solid 1px rgba(0,0,0,.1)",
+    borderTop: theme.palette.border.faint,
     paddingTop: theme.spacing.unit,
     paddingLeft: theme.spacing.unit*2,
     paddingRight: theme.spacing.unit,
@@ -14,7 +15,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   content: {
     ...theme.typography.postStyle,
     overflow: "hidden",
-    lineHeight: "1.2rem"
+    lineHeight: "1.2rem",
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   hover: {
     backgroundColor: theme.palette.grey[50]
