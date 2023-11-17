@@ -23,7 +23,6 @@ import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsAlgoliaIndexed, isAlgoliaEnabled } from '../lib/search/algoliaUtil';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
-import { isEAForum } from '../lib/instanceSettings';
 import {Posts} from '../lib/collections/posts';
 
 

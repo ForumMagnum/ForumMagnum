@@ -3,8 +3,8 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useBookmarkPost } from '../hooks/useBookmarkPost';
 import withErrorBoundary from '../common/withErrorBoundary';
 import type { TooltipProps } from '@material-ui/core/Tooltip';
-import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   container: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginRight: -3,
     },
   },
-  iconWithTextEAForum: {
+  iconWithTextFriendlyUI: {
     '& svg': {
       transform: "translateY(5px)",
       marginRight: -1,
@@ -52,7 +52,7 @@ const BookmarkButton = ({
       <Component onClick={toggleBookmark} className={classNames({
         [classes.container]: !withText,
         [classes.iconWithText]: withText,
-        [classes.iconWithTextEAForum]: withText && isEAForum,
+        [classes.iconWithTextFriendlyUI]: withText && isFriendlyUI,
       })}>
         <ForumIcon
           icon={icon}

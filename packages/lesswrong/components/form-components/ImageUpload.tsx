@@ -8,8 +8,8 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import { userHasDefaultProfilePhotos } from '../../lib/betas';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
-import { isEAForum } from '../../lib/instanceSettings';
 import { useSingle } from '../../lib/crud/withSingle';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -131,7 +131,7 @@ const TriggerButton: FC<{
 }> = ({imageType, imageId, uploadImage, label, classes}) => {
   let mainClass = classes.button;
   let showIcon = true;
-  if (isEAForum && imageType === "profileImageId") {
+  if (isFriendlyUI && imageType === "profileImageId") {
     label = "profile image";
     mainClass = classes.profileImageButton;
     showIcon = false;
@@ -156,7 +156,7 @@ const RemoveButton: FC<{
   if (!imageId) {
     return null;
   }
-  const mainClass = isEAForum && imageType === "profileImageId"
+  const mainClass = isFriendlyUI && imageType === "profileImageId"
     ? classes.removeProfileImageButton
     : classes.removeButton;
   return (
@@ -211,7 +211,7 @@ const ImageUpload = ({name, document, updateCurrentValues, clearField, label, cr
   const formPreviewSize = formPreviewSizeByImageType[name as keyof typeof formPreviewSizeByImageType]
   if (!formPreviewSize) throw new Error("Unsupported image upload type")
 
-  const showUserProfileImage = isEAForum && name === "profileImageId";
+  const showUserProfileImage = isFriendlyUI && name === "profileImageId";
 
   return (
     <div className={classes.root}>

@@ -3,7 +3,6 @@ import { membersGroup, userCanDo } from '../../vulcan-users/permissions';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { sunshineRegimentGroup } from '../../permissions';
-import { forumTypeSetting } from '../../instanceSettings';
 
 export const ReviewVotes: ReviewVotesCollection = createCollection({
   collectionName: 'ReviewVotes',

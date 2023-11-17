@@ -2,7 +2,6 @@ import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations } from '../../vulcan-core/default_mutations';
-import { forumTypeSetting } from '../../instanceSettings';
 
 /**
  * Creating a moderator action sets a note on the user's profile for moderators
