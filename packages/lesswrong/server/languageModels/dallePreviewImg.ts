@@ -107,6 +107,11 @@ export async function generateDallePreviewImg(post: GeneratePreviewImgRequest, u
     console.log('url', imgUrl)
     if (!imgUrl) return null
     
+    captureEvent("dallePreviewImg", {
+      ...analyticsData,
+      url: imgUrl
+    })
+    
     return await uploadImgToCloudinary(imgUrl)
     
     // await updateMutator({

@@ -18,6 +18,7 @@ import { ckEditorName } from "../editor/Editor";
 import classNames from "classnames";
 import Input from "@material-ui/core/Input";
 import { gql, useLazyQuery } from "@apollo/client";
+import { useTracking } from "../../lib/analyticsEvents";
 
 const DESCRIPTION_HEIGHT = 56; // 3 lines
 
@@ -103,7 +104,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     rowGap: '16px'
   },
   generatePreviewImgBtn: {
-    minWidth: 200
+    marginTop: 10
   },
   note: {
     color: theme.palette.grey[600],
@@ -280,17 +281,18 @@ const SocialPreviewUpload = ({
     `, {
       onCompleted: (data) => {
         if (!data.GeneratePreviewImg) return
-        console.log('onCompleted', data)
+        // update the preview image and remove the loading spinner
         updateImageId(data.GeneratePreviewImg)
         setGeneratePreviewImgLoading(false)
-      }
-    }
+      },
+      fetchPolicy: "no-cache",
+    },
   )
+  const { captureEvent } = useTracking()
 
   const { ImageUpload2, EAButton, Loading } = Components;
 
   const docWithValue = { ...document, socialPreviewData: value };
-  console.log('SocialPreviewUpload', value)
 
   const textValue = value?.text ?? undefined;
 
@@ -341,8 +343,9 @@ const SocialPreviewUpload = ({
         body: document.contents?.originalContents?.data,
         _id: document._id
       }}})
+      captureEvent('generateDallePreviewImg', {postId: document._id})
     },
-    [document, generatePreviewImg, setGeneratePreviewImgLoading]
+    [document, generatePreviewImg, setGeneratePreviewImgLoading, captureEvent]
   )
 
   const hasTitle = document.title && document.title.length > 0;
@@ -352,7 +355,7 @@ const SocialPreviewUpload = ({
       <div className={classes.preview}>
         <ImageUpload2
           name={"socialPreviewImageId"}
-          value={document.socialPreviewData?.imageId}
+          value={value?.imageId}
           updateValue={updateImageId}
           clearField={() => updateImageId(undefined)}
           label={fallbackImageUrl ? "Change preview image" : "Upload preview image"}
@@ -382,14 +385,16 @@ const SocialPreviewUpload = ({
           or an AI image generator.
         </div>
         <div>
-          <EAButton
-            style="grey"
-            onClick={generateDallePreviewImg}
-            disabled={generatePreviewImgLoading}
-            className={classes.generatePreviewImgBtn}
-          >
-            {generatePreviewImgLoading ? <Loading /> : "Generate a preview image via DALLE 3"}
-          </EAButton>
+          [BETA] Generate a preview image for your post using DALLE 3 (limited to twice a day).
+          <div className={classes.generatePreviewImgBtn}>
+            <EAButton
+              style="grey"
+              onClick={generateDallePreviewImg}
+              disabled={generatePreviewImgLoading}
+            >
+              {generatePreviewImgLoading ? <Loading /> : "Generate"}
+            </EAButton>
+          </div>
         </div>
         <div className={classes.note}>
           <strong>Note:</strong> Text changes here will not affect the post.

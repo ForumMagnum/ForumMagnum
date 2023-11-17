@@ -74,7 +74,6 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
 
   const [imageId, setImageId] = useState(value)
   useEffect(() => {
-    console.log('new value', value)
     setImageId(value)
   }, [value, setImageId])
 
