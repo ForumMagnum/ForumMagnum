@@ -57,10 +57,12 @@ Votes.addView("userPostVotes", function ({voteType, collectionName, after/* , be
 ensureIndex(Votes, {collectionName: 1, userId: 1, voteType: 1, cancelled: 1, isUnvote: 1, votedAt: 1})
 
 Votes.addView("userVotes", function ({collectionNames,}, _, context?: ResolverContext) {
+  const currentUserId = context?.currentUser?._id;
   return {
     selector: {
       collectionName: {$in: collectionNames},
-      userId: context?.currentUser?._id,
+      userId: currentUserId,
+      ...(currentUserId ? {authorIds: {$not: currentUserId}} : {}),
       cancelled: {$ne: true},
       isUnvote: {$ne: true},
       // only include neutral votes that have extended vote data
