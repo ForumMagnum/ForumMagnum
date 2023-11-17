@@ -628,7 +628,7 @@ export const KarmaPowersGainedNotification = registerNotificationType({
   name: "karmaPowersGained",
   userSettingField: "notificationKarmaPowersGained",
   async getMessage() {
-    return "Your votes are stronger because your karma has gone up!"
+    return "Your votes are stronger because your karma went up!"
   },
   getIcon() {
     return <Components.ForumIcon icon="Bell" style={iconStyles} />

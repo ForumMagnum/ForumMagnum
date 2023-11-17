@@ -612,7 +612,7 @@ export const KarmaPowersGainedNotification = serverRegisterNotificationType({
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     return <div>
-      Your votes are stronger because your karma has gone up!
+      Your votes are stronger because your karma went up!
     </div>
   },
 });

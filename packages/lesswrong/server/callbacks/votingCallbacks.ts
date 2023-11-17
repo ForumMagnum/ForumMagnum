@@ -42,7 +42,6 @@ voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: 
 
 async function userKarmaChangedFrom(userId: string, oldKarma: number, newKarma: number, context: ResolverContext) {
   if (userSmallVotePower(oldKarma, 1) < userSmallVotePower(newKarma, 1)) {
-    // TODO: check if there's already a notification
     const yesterday = moment().subtract(1, 'days').toDate();
     const existingNotificationCount = await Notifications.find({userId, type: 'karmaPowersGained', createdAt: {$gt: yesterday}}).count();
     if (existingNotificationCount === 0) {
