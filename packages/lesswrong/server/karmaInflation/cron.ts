@@ -96,7 +96,12 @@ export async function refreshKarmaInflation() {
   };
 
   // insert the new series into the db
-  await new DatabaseMetadataRepo().upsertKarmaInflationSeries(karmaInflationSeries);
+  try {
+    await new DatabaseMetadataRepo().upsertKarmaInflationSeries(karmaInflationSeries);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(err);
+  }
 
   // refresh the cache after every update
   // it's a bit wasteful to immediately go and fetch the thing we just calculated from the db again,

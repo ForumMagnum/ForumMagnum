@@ -21,7 +21,7 @@ export default class SessionsRepo extends AbstractRepo<DbSession> {
         $(expires),
         $(lastModified)
       ) ON CONFLICT (
-        COALESCE("_id", '')
+        "_id"
       )
       DO UPDATE SET
         "session" = $(session),

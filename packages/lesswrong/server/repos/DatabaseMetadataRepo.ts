@@ -41,7 +41,7 @@ export default class DatabaseMetadataRepo extends AbstractRepo<DbDatabaseMetadat
       ) VALUES (
         $(_id), $(name), $(value), $(schemaVersion), $(createdAt)
       ) ON CONFLICT (
-        COALESCE("name", '')
+        "name"
       )
       DO UPDATE SET
         "value" = $(value)

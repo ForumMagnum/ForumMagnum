@@ -40,55 +40,64 @@ export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
       WHERE "expiresAt" < NOW()`);
   }
 
-  upsertPageCacheEntry(path: string, abTestGroups: RelevantTestGroupAllocation, renderResult: RenderResult): Promise<null> {
+  async upsertPageCacheEntry(path: string, abTestGroups: RelevantTestGroupAllocation, renderResult: RenderResult): Promise<null> {
     const bundleHash = getServerBundleHash();
     const now = new Date();
 
-    return this.getRawDb().none(`
-      INSERT INTO "PageCache" (
-        "_id",
-        "path", 
-        "abTestGroups",
-        "bundleHash", 
-        "renderedAt",
-        "expiresAt", 
-        "ttlMs",
-        "renderResult", 
-        "schemaVersion",
-        "createdAt"
-      ) VALUES (
-        $(_id),
-        $(path), 
-        $(abTestGroups),
-        $(bundleHash), 
-        $(renderedAt),
-        $(expiresAt), 
-        $(ttlMs),
-        $(renderResult), 
-        $(schemaVersion),
-        $(createdAt)
-      ) ON CONFLICT (
-        COALESCE(path, ''),
-        "abTestGroups",
-        COALESCE("bundleHash", '')
-      )
-      DO UPDATE
-      SET 
-        "ttlMs" = $(ttlMs),
-        "renderedAt" = $(renderedAt),
-        "expiresAt" = $(expiresAt),
-        "renderResult" = $(renderResult)
-      `, {
-      _id: randomId(),
-      path,
-      abTestGroups,
-      bundleHash,
-      renderedAt: now,
-      expiresAt: new Date(now.getTime() + maxCacheAgeMs),
-      ttlMs: maxCacheAgeMs,
-      renderResult,
-      schemaVersion: 1,
-      createdAt: now,
-    });
+    // We wrap this particular query in a try-catch for the nullability migration, where we might encounter race conditions
+    // This query failing causes whatever page was loaded to break in weird ways if the promise rejection isn't caught and handled
+    try {
+      await this.getRawDb().none(`
+        INSERT INTO "PageCache" (
+          "_id",
+          "path", 
+          "abTestGroups",
+          "bundleHash", 
+          "renderedAt",
+          "expiresAt", 
+          "ttlMs",
+          "renderResult", 
+          "schemaVersion",
+          "createdAt"
+        ) VALUES (
+          $(_id),
+          $(path), 
+          $(abTestGroups),
+          $(bundleHash), 
+          $(renderedAt),
+          $(expiresAt), 
+          $(ttlMs),
+          $(renderResult), 
+          $(schemaVersion),
+          $(createdAt)
+        ) ON CONFLICT (
+          "path",
+          "abTestGroups",
+          "bundleHash"
+        )
+        DO UPDATE
+        SET 
+          "ttlMs" = $(ttlMs),
+          "renderedAt" = $(renderedAt),
+          "expiresAt" = $(expiresAt),
+          "renderResult" = $(renderResult)
+        `, {
+        _id: randomId(),
+        path,
+        abTestGroups,
+        bundleHash,
+        renderedAt: now,
+        expiresAt: new Date(now.getTime() + maxCacheAgeMs),
+        ttlMs: maxCacheAgeMs,
+        renderResult,
+        schemaVersion: 1,
+        createdAt: now,
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+    }
+
+    return null;
   }
 }
