@@ -22,9 +22,9 @@ import { userHasEAHomeRHS } from '../../lib/betas';
 import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
 import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
 import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
-import { googlePodcastsLogoIcon } from '../icons/GooglePodcastsLogoIcon';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
+import { podcastAddictLogoIcon } from '../icons/PodcastAddictLogoIcon';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -528,9 +528,9 @@ export const EAHomeRightHandSide = ({classes}: {
     icon: pocketCastsLogoIcon,
     name: 'Pocket Casts'
   }, {
-    url: 'https://podcasts.google.com/feed/aHR0cHM6Ly9mb3J1bS1wb2RjYXN0cy5lZmZlY3RpdmVhbHRydWlzbS5vcmcvZWEtZm9ydW0tLWFsbC1hdWRpby5yc3M',
-    icon: googlePodcastsLogoIcon,
-    name: 'Google Podcasts'
+    url: 'https://podcastaddict.com/podcast/ea-forum-podcast-curated-popular/4160487',
+    icon: podcastAddictLogoIcon,
+    name: 'Podcast Addict'
   }]
   const podcastPost = '/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 

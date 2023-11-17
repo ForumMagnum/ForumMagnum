@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useEffect } from 'react';
+import React, { MouseEvent, ReactNode, useCallback, useEffect } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import qs from 'qs';
 import { useDialog } from '../common/withDialog';
@@ -51,7 +51,10 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
   }, [conversation, embedConversation, getTemplateParams, navigate, templateQueries])
 
   const handleClick = currentUser
-    ? () => initiateConversation(user._id)
+    ? (e: MouseEvent) => {
+      initiateConversation(user._id)
+      e.stopPropagation()
+    }
     : () => openDialog({componentName: "LoginPopup"})
 
   if (currentUser && !userCanStartConversations(currentUser)) return null
