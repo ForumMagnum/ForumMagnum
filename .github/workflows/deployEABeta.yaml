@@ -3,7 +3,7 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [ea-giving-season-23]
+    branches: [agnes/new-serif]
 jobs:
   deploy:
     runs-on: ubuntu-latest
