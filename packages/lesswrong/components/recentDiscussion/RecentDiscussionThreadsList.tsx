@@ -69,7 +69,7 @@ const RecentDiscussionThreadsList = ({
         {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
           <SectionButton>
             <AddBoxIcon />
-            {isFriendlyUI ? "New Quick Take" : "New Shortform Post"}
+            {isFriendlyUI ? "New quick take" : "New Shortform Post"}
           </SectionButton>
         </div>}
       </SectionTitle>
@@ -106,4 +106,3 @@ declare global {
     RecentDiscussionThreadsList: typeof RecentDiscussionThreadsListComponent,
   }
 }
-
