@@ -760,7 +760,6 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     ({...matchedPersonTopic, preference: undefined, ...ownTopic})
   )
   const [topicPreferences, setTopicPreferences] = useState<ExtendedDialogueMatchPreferenceTopic[]>(Object.values(initialTopicDict))
-  console.log({initialTopicDict, topicPreferences, ownTopicDict, matchedPersonTopicDict})
 
   // Once we get the topic recommendations from the query, merge them into the topic preferences
   useEffect(() => setTopicPreferences(topicPreferences => {
