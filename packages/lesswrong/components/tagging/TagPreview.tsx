@@ -4,13 +4,14 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPage';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, isEAForum } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   relatedTagWrapper: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     fontSize: "1.1rem",
     color: theme.palette.grey[900],
     display: '-webkit-box',

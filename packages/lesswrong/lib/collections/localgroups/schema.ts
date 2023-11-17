@@ -1,7 +1,8 @@
 import SimpleSchema from 'simpl-schema';
 import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
-import { isEAForum } from '../../instanceSettings';
+import { isEAForum, isLW } from '../../instanceSettings';
+import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 
 export const GROUP_CATEGORIES = [
   {value: 'national', label: 'National'},
@@ -19,7 +20,7 @@ const formGroups: Partial<Record<string,FormGroupType>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 2,
-    label: isEAForum ? "Advanced options" : "Advanced Options",
+    label: isFriendlyUI ? "Advanced options" : "Advanced Options",
     startCollapsed: true,
   },
 };
@@ -32,7 +33,7 @@ const schema: SchemaType<DbLocalgroup> = {
     canUpdate: ['members'],
     order: 10,
     control: "MuiTextField",
-    label: isEAForum ? "Group name" : "Group Name"
+    label: isFriendlyUI ? "Group name" : "Group Name"
   },
   
   nameInAnotherLanguage: {
@@ -59,7 +60,7 @@ const schema: SchemaType<DbLocalgroup> = {
     canUpdate: ['members'],
     order: 20,
     control: "FormUsersListEditor",
-    label: isEAForum ? "Add organizers" : "Add Organizers",
+    label: preferredHeadingCase("Add Organizers"),
   },
 
   'organizerIds.$': {
@@ -91,7 +92,7 @@ const schema: SchemaType<DbLocalgroup> = {
     form: {
       options: localGroupTypeFormOptions
     },
-    hidden: isEAForum,
+    hidden: !isLW,
   },
 
   'types.$': {
@@ -152,7 +153,7 @@ const schema: SchemaType<DbLocalgroup> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    label: isEAForum ? "Group location" : "Group Location",
+    label: isFriendlyUI ? "Group location" : "Group Location",
     control: 'LocationFormComponent',
     blackbox: true,
     hidden: data => data.document.isOnline,
@@ -173,7 +174,7 @@ const schema: SchemaType<DbLocalgroup> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    label: isEAForum ? "Contact info" : "Contact Info",
+    label: isFriendlyUI ? "Contact info" : "Contact Info",
     control: "MuiTextField",
     optional: true,
   },
@@ -183,7 +184,7 @@ const schema: SchemaType<DbLocalgroup> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    label: isEAForum ? "Facebook group" : "Facebook Group",
+    label: isFriendlyUI ? "Facebook group" : "Facebook Group",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -195,7 +196,7 @@ const schema: SchemaType<DbLocalgroup> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    label: isEAForum ? "Facebook page" : "Facebook Page",
+    label: isFriendlyUI ? "Facebook page" : "Facebook Page",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -207,7 +208,7 @@ const schema: SchemaType<DbLocalgroup> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    label: isEAForum ? "Meetup.com group" : "Meetup.com Group",
+    label: isFriendlyUI ? "Meetup.com group" : "Meetup.com Group",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -219,7 +220,7 @@ const schema: SchemaType<DbLocalgroup> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
-    label: isEAForum ? "Slack workspace" : "Slack Workspace",
+    label: isFriendlyUI ? "Slack workspace" : "Slack Workspace",
     control: "MuiTextField",
     optional: true,
     regEx: SimpleSchema.RegEx.Url,
@@ -244,7 +245,7 @@ const schema: SchemaType<DbLocalgroup> = {
     canRead: ['guests'],
     canUpdate: ['members'],
     canCreate: ['members'],
-    label: isEAForum ? "Banner image" : "Banner Image",
+    label: isFriendlyUI ? "Banner image" : "Banner Image",
     control: "ImageUpload",
     tooltip: "Recommend 1640x856 px, 1.91:1 aspect ratio (same as Facebook)",
     form: {

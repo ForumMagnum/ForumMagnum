@@ -9,7 +9,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser';
 
 import { sortings as defaultSortings } from './DraftsList'
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

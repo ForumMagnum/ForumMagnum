@@ -4,7 +4,7 @@ import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
-import { forumTypeSetting } from '../../instanceSettings';
+import { isEAForum } from '../../instanceSettings';
 
 interface ExtendedUsersCollection extends UsersCollection {
   // Fron search/utils.ts
@@ -127,9 +127,9 @@ makeEditable({
   options: {
     commentEditor: true,
     commentStyles: true,
-    hidden: forumTypeSetting.get() === "EAForum",
-    order: forumTypeSetting.get() === "EAForum" ? 6 : 40,
-    formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    hidden: isEAForum,
+    order: isEAForum ? 6 : 40,
+    formGroup: isEAForum ? formGroups.aboutMe : formGroups.default,
     fieldName: "biography",
     label: "Bio",
     hintText: "Tell us about yourself",

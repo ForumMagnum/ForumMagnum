@@ -1,6 +1,6 @@
 import { captureException } from '@sentry/core';
 import { DebouncerEvents } from '../lib/collections/debouncerEvents/collection';
-import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
+import { isAF, testServerSetting } from '../lib/instanceSettings';
 import moment from '../lib/moment-timezone';
 import { addCronJob } from './cronUtil';
 import { Vulcan } from '../lib/vulcan-lib/config';
@@ -214,7 +214,6 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
 
 export const dispatchPendingEvents = async () => {
   const now = formatDate(new Date());
-  const af = forumTypeSetting.get() === 'AlignmentForum'
   let eventToHandle: any = null;
   
   do {
@@ -227,7 +226,7 @@ export const dispatchPendingEvents = async () => {
     const queryResult: any = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: af,
+        af: isAF,
         $or: [
           { delayTime: {$lt: now} },
           { upperBoundTime: {$lt: now} }
@@ -272,7 +271,6 @@ export const forcePendingEvents = async (
   } = {}
 ) => {
   let eventToHandle = null;
-  const af = forumTypeSetting.get() === 'AlignmentForum'
   let countHandled = 0;
   // Default time condition is nothing
   let timeCondition: MongoFindOneOptions<DbDebouncerEvents> = {}
@@ -290,7 +288,7 @@ export const forcePendingEvents = async (
     const queryResult = await DebouncerEvents.rawCollection().findOneAndUpdate(
       {
         dispatched: false,
-        af: af,
+        af: isAF,
         ...timeCondition,
       },
       { $set: { dispatched: true } },

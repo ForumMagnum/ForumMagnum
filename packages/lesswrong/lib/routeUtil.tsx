@@ -48,13 +48,14 @@ export const useSubscribedLocation = (): RouterLocation => {
   return useContext(SubscribeLocationContext)!;
 }
 
+export type NavigateFunction = AnyBecauseTodo
 /**
  * React Hook which returns an acessor-object for page navigation. Contains one
  * field, `history`. See https://github.com/ReactTraining/history for
  * documentation on it.
  * Use of this hook will never trigger rerenders.
  */
-export const useNavigate = (): AnyBecauseTodo => {
+export const useNavigate = (): NavigateFunction => {
   const { history } = useContext(NavigationContext);
   return useCallback((url: string, options?: {replace?: boolean}) => {
     if (options?.replace) {

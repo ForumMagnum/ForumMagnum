@@ -1,26 +1,24 @@
 import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
-import { randomId } from "../../lib/random";
 import { augmentFieldsDict } from "../../lib/utils/schemaUtils";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import DialogueChecksRepo from "../repos/DialogueChecksRepo";
 import { defineMutation } from "../utils/serverGraphqlUtil";
 
-async function notifyUsersIfMatchingDialogueChecks (dialogueCheck: DbDialogueCheck) {
-  const match = await getMatchingDialogueCheck(dialogueCheck);
-  if (match) {
-    await createNotifications({
+async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck, matchingDialogueCheck: DbDialogueCheck) {
+  await Promise.all([ 
+    createNotifications({
       userIds: [dialogueCheck.userId],
       notificationType: "newDialogueMatch",
       documentType: "dialogueCheck",
       documentId: dialogueCheck._id,
-    });
-    await createNotifications({
-      userIds: [match.userId],
+    }),
+    createNotifications({
+      userIds: [matchingDialogueCheck.userId],
       notificationType: "newDialogueMatch",
       documentType: "dialogueCheck",
-      documentId: match._id,
-    });
-  }
+      documentId: matchingDialogueCheck._id,
+    })
+  ])
 }
 
 defineMutation({
@@ -30,9 +28,12 @@ defineMutation({
   fn: async (_, {targetUserId, checked}:{targetUserId:string, checked:boolean}, {currentUser, repos}) => {
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")    
-    const response = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked)    
-    void notifyUsersIfMatchingDialogueChecks(response)
-    return response
+    const dialogueCheck = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked) 
+    const matchingDialogueCheck = await getMatchingDialogueCheck(dialogueCheck)
+    if (matchingDialogueCheck) {
+      void notifyUsersMatchingDialogueChecks(dialogueCheck, matchingDialogueCheck)   
+    }
+    return dialogueCheck
   } 
 })
 
@@ -45,11 +46,11 @@ augmentFieldsDict(DialogueChecks, {
     resolveAs: {
       fieldName: 'match',
       type: 'Boolean',
-      resolver: async (check: DbDialogueCheck, args: void, context: ResolverContext): Promise<boolean> => {
+      resolver: async (dialogueCheck: DbDialogueCheck, args: void, context: ResolverContext): Promise<boolean> => {
         const currentUser = context.currentUser
         if (!currentUser) throw Error("Can't get match without current User")
-        const match = await getMatchingDialogueCheck(check)
-        return !!match
+        const matchingDialogueCheck = await getMatchingDialogueCheck(dialogueCheck)
+        return !!matchingDialogueCheck
       },
     }
   }

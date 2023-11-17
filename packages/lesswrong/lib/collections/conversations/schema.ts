@@ -1,7 +1,8 @@
 import { accessFilterSingle, arrayOfForeignKeysField, denormalizedCountOfReferences, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils'
 import * as _ from 'underscore';
-import { forumTypeSetting, isEAForum } from '../../instanceSettings';
+import { isLWorAF } from '../../instanceSettings';
 import { getWithCustomLoader } from '../../loaders';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const schema: SchemaType<DbConversation> = {
   title: {
@@ -10,7 +11,7 @@ const schema: SchemaType<DbConversation> = {
     canUpdate: ['members'],
     canCreate: ['members'],
     optional: true,
-    label: isEAForum ? "Conversation title (visible to all)" : "Conversation Title"
+    label: isFriendlyUI ? "Conversation title (visible to all)" : "Conversation Title"
   },
   participantIds: {
     ...arrayOfForeignKeysField({
@@ -46,7 +47,7 @@ const schema: SchemaType<DbConversation> = {
     canCreate: ['members'],
     canUpdate: ['admins'],
     optional: true,
-    hidden: !['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get())
+    hidden: !isLWorAF
   },
   messageCount: {
     ...denormalizedCountOfReferences({

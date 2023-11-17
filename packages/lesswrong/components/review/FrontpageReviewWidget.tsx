@@ -5,12 +5,11 @@ import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
-import { forumTitleSetting, forumTypeSetting, siteNameWithArticleSetting } from '../../lib/instanceSettings';
+import { forumTitleSetting, isEAForum, siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { annualReviewAnnouncementPostPathSetting, annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart } from '../../lib/publicSettings';
 import moment from 'moment';
 import { eligibleToNominate, getReviewPhase, getReviewTitle, ReviewYear, REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../lib/reviewUtils';
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   learnMore: {
@@ -51,14 +50,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   activeProgress: {
-    backgroundColor: isEAForum ? theme.palette.primary.main : theme.palette.review.activeProgress,
+    backgroundColor: isFriendlyUI ? theme.palette.primary.main : theme.palette.review.activeProgress,
   },
   coloredProgress: {
     position: 'absolute',
     top: 0,
     left: 0,
     height: '100%',
-    backgroundColor: isEAForum ? theme.palette.lwTertiary.main : theme.palette.review.progressBar,
+    backgroundColor: isFriendlyUI ? theme.palette.lwTertiary.main : theme.palette.review.progressBar,
   },
   nominationDate: {},
   actionButtonRow: {

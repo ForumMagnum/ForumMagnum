@@ -3,7 +3,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames'
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.smallCaps,
   },
   notRecentDiscussionTitle: {
-    fontFamily: isEAForum
+    fontFamily: isFriendlyUI
       ? theme.palette.fonts.sansSerifStack
       : theme.typography.body1.fontFamily,
   },

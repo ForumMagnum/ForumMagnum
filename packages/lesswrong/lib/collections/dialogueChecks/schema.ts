@@ -1,4 +1,4 @@
-import {schemaDefaultValue} from "../../utils/schemaUtils";
+import { accessFilterSingle, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 import {userOwns} from "../../vulcan-users/permissions";
 
 const schema: SchemaType<DbDialogueCheck> = {
@@ -35,7 +35,29 @@ const schema: SchemaType<DbDialogueCheck> = {
     nullable: false,
     canRead: ['members'],
     // Defined in server/resolvers/dialogueChecksResolvers.ts
-  }
+  },
+  matchPreference: resolverOnlyField({
+    type: 'DialogueMatchPreference',
+    graphQLtype: 'DialogueMatchPreference',
+    canRead: ['members', 'admins'],
+    resolver: async (dialogueCheck: DbDialogueCheck, args: void, context: ResolverContext) => {
+      const { DialogueMatchPreferences, DialogueChecks } = context;
+      const matchPreference = await DialogueMatchPreferences.findOne({dialogueCheckId: dialogueCheck._id});
+      return await accessFilterSingle(context.currentUser, DialogueMatchPreferences, matchPreference, context);
+    }
+  }),
+  reciprocalMatchPreference: resolverOnlyField({
+    type: 'DialogueMatchPreference',
+    graphQLtype: 'DialogueMatchPreference',
+    canRead: ['members', 'admins'],
+    resolver: async (dialogueCheck: DbDialogueCheck, args: void, context: ResolverContext) => {
+      const { DialogueMatchPreferences, DialogueChecks } = context;
+      const matchingDialogueCheck = await DialogueChecks.findOne({userId: dialogueCheck.targetUserId, targetUserId: dialogueCheck.userId});
+      if (!matchingDialogueCheck) return null;
+      const reciprocalMatchPreference = await DialogueMatchPreferences.findOne({dialogueCheckId: matchingDialogueCheck._id});
+      return await accessFilterSingle(context.currentUser, DialogueMatchPreferences, reciprocalMatchPreference, context);
+    }
+  }),
 }
 
 export default schema;

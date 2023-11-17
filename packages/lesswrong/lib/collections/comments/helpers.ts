@@ -1,4 +1,4 @@
-import { forumTypeSetting, taggingNameSetting } from '../../instanceSettings';
+import { isAF, taggingNameSetting } from '../../instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { postGetPageUrl } from '../posts/helpers';
@@ -73,7 +73,7 @@ export const commentGetRSSUrl = function(comment: HasIdType, isAbsolute = false)
 };
 
 export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: PostsMinimumInfo|undefined, comment?: CommentsList): boolean => {
-  if (forumTypeSetting.get() === 'AlignmentForum') { return true }
+  if (isAF) { return true }
   if (comment) {
     return !!(userCanDo(currentUser, "comments.alignment.new") && post?.af && comment.af)
   } else {
@@ -91,7 +91,7 @@ export const commentGetDefaultView = (post: PostsDetails|DbPost|null, currentUse
 }
 
 export const commentGetKarma = (comment: CommentsList|DbComment): number => {
-  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? comment.afBaseScore : comment.baseScore
+  const baseScore = isAF ? comment.afBaseScore : comment.baseScore
   return baseScore || 0
 }
 

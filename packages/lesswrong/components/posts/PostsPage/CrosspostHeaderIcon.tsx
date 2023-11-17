@@ -1,13 +1,13 @@
 import React from "react";
 import { Components, registerComponent, combineUrls } from "../../../lib/vulcan-lib";
 import {
-  forumTypeSetting,
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
-  isEAForum,
+  isLW,
 } from "../../../lib/instanceSettings";
 import { compassIcon } from "../../icons/compassIcon";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
+import { isFriendlyUI } from "../../../themes/forumTheme";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim3,
     display: "inline-block",
     width: 20,
-    marginLeft: isEAForum ? undefined : -6,
+    marginLeft: isFriendlyUI ? undefined : -6,
     verticalAlign: "sub",
   },
 });
@@ -31,7 +31,7 @@ const CrosspostHeaderIcon = ({post, classes}: {
   }
 
   const {LWTooltip} = Components;
-  const icon = forumTypeSetting.get() === "LessWrong" ? lightbulbIcon : compassIcon;
+  const icon = isLW ? lightbulbIcon : compassIcon;
   const tip = post.fmCrosspost.hostedHere
     ? `This post was crossposted to ${fmCrosspostSiteNameSetting.get()}. Click to view.`
     : `This is a crosspost. Click to view the original on ${fmCrosspostSiteNameSetting.get()}.`;
