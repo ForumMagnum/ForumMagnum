@@ -116,13 +116,6 @@ export const ddTracingSampleRate = new DatabasePublicSetting<number>('datadog.tr
 export const ddRumSampleRate = new DatabasePublicSetting<number>('datadog.rumSampleRate', 100) // Sample rate for backend traces, between 0 and 100
 export const ddSessionReplaySampleRate = new DatabasePublicSetting<number>('datadog.sessionReplaySampleRate', 100) // Sample rate for backend traces, between 0 and 100
 
-export type CurrentEventHeader = {
-  name: string,
-  link: string,
-}
-
-export const currentEventHeader = new DatabasePublicSetting<CurrentEventHeader | null>("currentEventHeader", null);
-
 /** Will we show our logo prominently, such as in the header */
 export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasProminentLogo", false);
 
