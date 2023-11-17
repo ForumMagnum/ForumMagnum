@@ -11,6 +11,11 @@ import { getUserEmail } from "../../lib/collections/users/helpers";
 import { LicenseLink, TosLink } from "../posts/PostsAcceptTos";
 import { Link } from "../../lib/reactRouterWrapper";
 
+/**
+ * 2023-11-17 SC: This component is not used by LW/AF, though we left some forum-gating
+ * in here for elements that are probably still EAF-specific, such as the ToS.
+ */
+
 // link to the page that lists past digests
 const eaForumDigestLink = 'https://us8.campaign-archive.com/home/?u=52b028e7f799cca137ef74763&id=7457c7ff3e'
 
@@ -139,11 +144,11 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
   return <SingleColumnSection>
     <div className={classes.root}>
       <Typography variant="display2" gutterBottom className={classes.title}>
-        Thanks for registering! Complete your profile.
+        Welcome to {siteNameWithArticleSetting.get()}!
       </Typography>
       <div className={classes.section}>
         <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
-          Please choose a username
+          Choose a username
         </Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
           We encourage you to use your real name, as it will help other people
@@ -185,7 +190,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
 
       {isEAForum && <div className={classes.section}>
         <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
-          Would you like to get weekly emails with selected recent posts from the Forum?
+          Get weekly emails with selected posts
         </Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
           The EA Forum Digest is curated by the Forum team, and features highlights from
