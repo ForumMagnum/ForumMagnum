@@ -580,5 +580,5 @@ export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): 
 
 export const showDonatedIcon = (user: UsersMinimumInfo|DbUser|null): boolean => {
   // Fundraiser closes on 2023-12-20
-  return !!user?.givingSeason2023DonatedFlair && new Date() < new Date('2023-12-21');
+  return isEAForum && !!user?.givingSeason2023DonatedFlair && new Date() < new Date('2023-12-21');
 }

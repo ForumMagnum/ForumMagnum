@@ -2841,6 +2841,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['admins'],
     group: formGroups.adminOptions,
     label: '"I Donated" flair for 2023 giving season',
+    hidden: !isEAForum,
     ...schemaDefaultValue(false),
   },
 };
