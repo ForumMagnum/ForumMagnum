@@ -255,11 +255,11 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
         {hit.htmlBio && <ContentStyles contentType="comment" className={classes.description}>
           <div dangerouslySetInnerHTML={{__html: truncate(hit.htmlBio, 220)}} />
         </ContentStyles>}
-        {hit._id !== currentUser?._id && <div className={classes.buttonRow}>
+        {/* {hit._id !== currentUser?._id && <div className={classes.buttonRow}>
           <NewConversationButton user={hit} currentUser={currentUser} from="community_members_tab">
             <Button variant="contained" color="primary" className={classes.messageBtn}>Message</Button>
           </NewConversationButton>
-        </div>}
+        </div>} */}
       </div>
     </div>
   }

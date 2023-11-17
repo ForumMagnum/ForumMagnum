@@ -68,7 +68,7 @@ const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
     {yesterdaysPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
     {!!olderPosts.length && <SectionTitle title="Older"/>}
     {olderPosts?.map(post => <PostsItem key={post._id} post={post}/>)}
-    <div className={classes.loadMore}>
+    {!!readHistory.length && <div className={classes.loadMore}>
       <LoadMore
         loading={networkStatus === NetworkStatus.fetchMore}
         loadMore={() => {
@@ -86,7 +86,7 @@ const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
         }}
         loadingClassName={classes.loadMoreSpinner}
       />
-    </div>
+    </div>}
   </AnalyticsContext>
 }
 

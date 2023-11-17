@@ -38,7 +38,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "center",
     color: theme.palette.primary.main,
     textAlign: "center",
-    width: 28,
+    width: 32,
+    marginRight: 4,
+    "& svg": {
+      width: 18,
+      height: 18.
+    },
   },
 });
 

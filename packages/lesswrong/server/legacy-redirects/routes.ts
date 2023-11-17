@@ -1,11 +1,10 @@
-import { faviconUrlSetting } from '../../components/common/HeadTags';
 import { Comments } from '../../lib/collections/comments';
 import { commentGetPageUrlFromDB, commentGetRSSUrl } from '../../lib/collections/comments/helpers';
 import { Posts } from '../../lib/collections/posts/collection';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import Users from '../../lib/collections/users/collection';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { faviconUrlSetting, forumTypeSetting } from '../../lib/instanceSettings';
 import { legacyRouteAcronymSetting } from '../../lib/publicSettings';
 import { onStartup } from '../../lib/executionEnvironment';
 import { addStaticRoute } from '../vulcan-lib';
@@ -45,11 +44,11 @@ function makeRedirect(res: ServerResponse, destination: string) {
 }
 
 async function findPostByLegacyAFId(legacyId: number) {
-  return await Posts.findOne({"agentFoundationsId": legacyId})
+  return await Posts.findOne({"agentFoundationsId": legacyId.toString()})
 }
 
 async function findCommentByLegacyAFId(legacyId: number) {
-  return await Comments.findOne({"agentFoundationsId": legacyId})
+  return await Comments.findOne({"agentFoundationsId": legacyId.toString()})
 }
 
 

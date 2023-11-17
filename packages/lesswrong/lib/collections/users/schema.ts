@@ -6,7 +6,7 @@ import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../v
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
-import { forumTypeSetting, hasEventsSetting, isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
+import { forumTypeSetting, hasEventsSetting, isEAForum, isLW, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
 import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
@@ -16,6 +16,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
+import { dialoguesEnabled } from '../../betas';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -166,6 +167,7 @@ const expandedFrontpageSectionsSettings = new SimpleSchema({
   community: {type: Boolean, optional: true, nullable: true},
   recommendations: {type: Boolean, optional: true, nullable: true},
   quickTakes: {type: Boolean, optional: true, nullable: true},
+  quickTakesCommunity: {type: Boolean, optional: true, nullable: true},
   popularComments: {type: Boolean, optional: true, nullable: true},
 });
 
@@ -1006,6 +1008,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     // TODO: add nullable: true
     canRead: ['guests'],
+    ...schemaDefaultValue(0),
   },
 
   goodHeartTokens: {
@@ -1070,7 +1073,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (All)",
-    control: 'UsersListEditor'
+    control: 'FormUsersListEditor'
   },
   'bannedUserIds.$': {
     type: String,
@@ -1087,7 +1090,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (Personal)",
-    control: 'UsersListEditor',
+    control: 'FormUsersListEditor',
     tooltip: "Users who are banned from commenting on your personal blogposts (will not affect posts promoted to frontpage)"
   },
   "bannedPersonalUserIds.$": {
@@ -1184,6 +1187,7 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.deactivate,
   },
 
+  // DEPRECATED
   // voteBanned: All future votes of this user have weight 0
   voteBanned: {
     type: Boolean,
@@ -1193,7 +1197,8 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['admins'],
     control: 'checkbox',
     group: formGroups.banUser,
-    label: 'Set all future votes of this user to have zero weight'
+    label: 'Set all future votes of this user to have zero weight',
+    hidden: true,
   },
 
   // nullifyVotes: Set all historical votes of this user to 0, and make any future votes have a vote weight of 0
@@ -1371,13 +1376,73 @@ const schema: SchemaType<DbUser> = {
     label: "Someone has mentioned me in a post or a comment",
     ...notificationTypeSettingsField(),
   },
-  notificationDebateCommentsOnSubscribedPost: {
+  notificationDialogueMessages: {
+    label: "New dialogue content in a dialogue I'm participating in",
+    ...notificationTypeSettingsField({ channel: "both"}),
+    hidden: !dialoguesEnabled,
+  },
+  notificationPublishedDialogueMessages: {
     label: "New dialogue content in a dialogue I'm subscribed to",
-    ...notificationTypeSettingsField({ batchingFrequency: 'daily' })
+    ...notificationTypeSettingsField(),
+    hidden: !dialoguesEnabled,
+  },
+  notificationAddedAsCoauthor: {
+    label: "Someone has added me as a coauthor to a post",
+    ...notificationTypeSettingsField({ channel: "both" }),
+  },
+  //TODO: clean up old dialogue implementation notifications
+  notificationDebateCommentsOnSubscribedPost: {
+    label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
+    ...notificationTypeSettingsField({ batchingFrequency: 'daily' }),
+    hidden: !dialoguesEnabled,
   },
   notificationDebateReplies: {
-    label: "New dialogue content in a dialogue I'm participating in",
-    ...notificationTypeSettingsField()
+    label: "[Old Style] New dialogue content in a dialogue I'm participating in",
+    ...notificationTypeSettingsField(),
+    hidden: !dialoguesEnabled,
+  },
+  notificationDialogueMatch: {
+    label: "Another user and I have matched for a dialogue",
+    ...notificationTypeSettingsField({ channel: "both" }),
+    hidden: !dialoguesEnabled,
+  },
+
+  hideDialogueFacilitation: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Hide the widget for opting in to being approached about dialogues",
+    ...schemaDefaultValue(false)
+  },
+
+  revealChecksToAdmins: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Allow users to reveal their checks for better facilitation",
+    ...schemaDefaultValue(false)
+  },
+
+  optedInToDialogueFacilitation: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    hidden: !isLW,
+    label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team",
+    ...schemaDefaultValue(false)
   },
 
   // Karma-change notifier settings
@@ -1414,6 +1479,17 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
     logChanges: false,
+  },
+
+  // User wants to get notifications when giving season voting begins
+  givingSeasonNotifyForVoting: {
+    type: Boolean,
+    optional: true,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    hidden: true,
+    ...schemaDefaultValue(false),
   },
 
   // Email settings
@@ -1681,7 +1757,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     order: 44,
     group: formGroups.siteCustomizations,
-    hidden: forumTypeSetting.get() !== 'LessWrong',
+    hidden: !isLW,
     label: "Hide the frontpage map"
   },
 

@@ -24,7 +24,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     padding: '50px 24px',
     '& .VirtualProgramCard-eventCardDescription': {
       opacity: 1,
-      lineHeight: '1.8em',
+      lineHeight: '1.6em',
       marginTop: 30
     },
     '& .VirtualProgramCard-eventCardDeadline': {
@@ -67,8 +67,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardTitle: {
     ...theme.typography.headline,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     color: 'white',
-    fontSize: 22,
+    fontSize: 20,
+    fontWeight: 600,
     marginTop: 8,
     marginBottom: 0
   },
@@ -90,7 +92,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventCardDeadline: {
     ...theme.typography.commentStyle,
     display: 'inline-block',
-    fontWeight: 'bold',
+    fontWeight: 600,
     color: 'white',
     fontSize: 16,
     paddingBottom: 5,
@@ -111,17 +113,13 @@ const VirtualProgramCard = ({program, classes}: {
   // This defaults to the Sunday in the week of the 28th day of this month.
   const now = moment()
   let deadline = now.date(28).day(0)
-  // Aug 2023 has the deadline on the 3rd Sunday
-  if (now.month() === 7) {
-    deadline.subtract(1, 'week')
-  }
   // If that Sunday is in the past, use next month's 4th Sunday.
-  if (deadline.isBefore(moment())) {
-    deadline = now.add(1, 'months').date(28).day(0)
+  if (deadline.isBefore(now)) {
+    deadline = moment(now).add(1, 'months').date(28).day(0)
   }
   
-  // VP starts 15 days after the deadline, on a Monday
-  const startOfVp = moment(deadline).add(15, 'days')
+  // VP starts 22 days after the deadline, on a Monday
+  const startOfVp = moment(deadline).add(22, 'days')
   // VP ends 8 weeks after the start (subtract a day to end on a Sunday)
   const endOfVp = moment(startOfVp).add(8, 'weeks').subtract(1, 'day')
 
@@ -148,6 +146,21 @@ const VirtualProgramCard = ({program, classes}: {
   }
   
   if (program === 'advanced') {
+    // Find the next deadline for applying to the Precipice VP, which is some Sunday every 3 months
+    // (as with the Intro/Advanced VP deadline, it will prob sometimes be off by a week or two).
+    // The first confirmed deadline is Nov 19, 2023, so we assume the deadlines will be
+    // ~the 3rd Sunday in Feb, May, Aug, and Nov each year. Start by checking Feb of this year.
+    let precipiceDeadline = moment(now).month(1).date(21).day(0)
+    // While that day is in the past, keep adding 3 months.
+    while (precipiceDeadline.isBefore(now)) {
+      precipiceDeadline = moment(precipiceDeadline).add(3, 'months').date(21).day(0)
+    }
+    
+    // VP starts 22 days after the deadline, on a Monday
+    const startOfPrecipice = moment(precipiceDeadline).add(22, 'days')
+    // VP ends 8 weeks after the start (subtract a day to end on a Sunday)
+    const endOfPrecipice = moment(startOfPrecipice).add(8, 'weeks').subtract(1, 'day')
+    
     return <Card className={classes.eventCard}>
       <a
         href="https://www.effectivealtruism.org/virtual-programs/in-depth-program?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
@@ -174,7 +187,7 @@ const VirtualProgramCard = ({program, classes}: {
       >
         <div>
           <div className={classes.eventCardTime}>
-            {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
+            {startOfPrecipice.format('MMMM D')} - {endOfPrecipice.format('MMMM D')}
           </div>
           <div className={classes.eventCardTitle}>
             <em>The Precipice</em> Reading Group
@@ -182,7 +195,7 @@ const VirtualProgramCard = ({program, classes}: {
           <div className={classes.eventCardDescription}>
             Join weekly discussions about existential risks and safeguarding the future of humanity
           </div>
-          <div className={classes.eventCardDeadline}>Apply by Sunday, {deadline.format('MMMM D')}</div>
+          <div className={classes.eventCardDeadline}>Apply by Sunday, {precipiceDeadline.format('MMMM D')}</div>
         </div>
       </a>
     </Card>

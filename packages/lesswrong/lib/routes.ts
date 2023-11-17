@@ -197,26 +197,6 @@ addRoute(
     background: "white"
   },
   {
-    name: 'inbox',
-    path: '/inbox',
-    componentName: 'InboxWrapper',
-    title: "Inbox"
-  },
-  {
-    name: 'moderatorInbox',
-    path: '/moderatorInbox',
-    componentName: 'ModeratorInboxWrapper',
-    title: "Moderator Inbox"
-  },
-  {
-    name: 'conversation',
-    path: '/inbox/:_id',
-    componentName: 'ConversationWrapper',
-    title: "Private Conversation",
-    background: "white",
-    initialScroll: "bottom",
-  },
-  {
     name: 'newPost',
     path: '/newPost',
     componentName: 'PostsNewForm',
@@ -310,7 +290,6 @@ addRoute(
     path: '/s/:sequenceId/p/:postId',
     componentName: 'SequencesPost',
     titleComponentName: 'PostsPageHeaderTitle',
-    subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSequencePost',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params.postId),
     background: "white"
@@ -633,12 +612,24 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/best-of',
       componentName: 'EABestOfPage',
       title: 'Best of the Forum',
+      subtitle: 'Best of the Forum',
+      subtitleLink: '/best-of',
     },
     {
       name: 'BestOfCamelCase',
       path: '/bestOf',
       componentName: 'EABestOfPage',
       redirect: () => '/best-of',
+    },
+    {
+      name: 'GivingPortal',
+      path: '/giving-portal',
+      componentName: 'EAGivingPortalPage',
+      title: 'Giving portal',
+      subtitle: 'Giving portal',
+      subtitleLink: '/giving-portal',
+      unspacedGrid: true,
+      fullscreen: true,
     },
     {
       name: 'contact',
@@ -766,6 +757,18 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'Digests',
     },
     {
+      name: 'ElectionCandidates',
+      path: '/admin/election-candidates',
+      componentName: 'AdminElectionCandidates',
+      title: 'Election Candidates',
+    },
+    {
+      name: 'EditElectionCandidate',
+      path: '/admin/election-candidates/:id',
+      componentName: 'EditElectionCandidate',
+      title: 'Edit Election Candidate',
+    },
+    {
       name: 'EditDigest',
       path: '/admin/digests/:num',
       componentName: 'EditDigest',
@@ -805,6 +808,18 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'LWHome',
       enableResourcePrefetch: true,
       sunshineSidebar: true
+    },
+    {
+      name: 'dialogues',
+      path: '/dialogues',
+      componentName: 'DialoguesPage',
+      title: "All Dialogues",
+    },
+    {
+      name:'users.dialogueMatching',
+      path:'/dialogueMatching',
+      componentName: 'DialogueMatchingPage',
+      title: "Dialogue Matching",
     },
     {
       name: 'about',
@@ -1022,6 +1037,17 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       name: 'editor',
       path: '/editor',
       redirect: () => '/tag/guide-to-the-lesswrong-editor',
+    },
+    {
+      name: 'petrovDayPoll',
+      path: '/petrovDayPoll',
+      componentName: "PetrovDayPoll",
+    },
+    {
+      name: 'petroyDayPoll',
+      path: '/petroyDayPoll',
+      componentName: "PetrovDayPoll",
+      title: "Petrov Day Poll",
     }
   ],
   AlignmentForum: [
@@ -1193,6 +1219,7 @@ addRoute({
   title: "All Comments"
 });
 
+// Routes where just the EA Forum has an override
 addRoute(...forumSelect<Route[]>({
   EAForum: [
     {
@@ -1207,6 +1234,36 @@ addRoute(...forumSelect<Route[]>({
       path: '/shortform',
       redirect: () => "/quicktakes",
     },
+    // The inbox components here use the same components but some of the other
+    // parameters are different.
+    {
+      name: 'inbox',
+      path: '/inbox',
+      componentName: 'InboxWrapper',
+      title: "Inbox",
+      fullscreen: true,
+    },
+    {
+      name: 'conversation',
+      path: '/inbox/:_id',
+      componentName: 'InboxWrapper',
+      title: "Inbox",
+      fullscreen: true,
+    },
+    {
+      name: 'moderatorInbox',
+      path: '/moderatorInbox',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox",
+      fullscreen: true,
+    },
+    {
+      name: 'moderatorInboxConversation',
+      path: '/moderatorInbox/:_id',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox",
+      fullscreen: true,
+    },
   ],
   default: [
     {
@@ -1214,6 +1271,25 @@ addRoute(...forumSelect<Route[]>({
       path: '/shortform',
       componentName: 'ShortformPage',
       title: "Shortform"
+    },
+    {
+      name: 'inbox',
+      path: '/inbox',
+      componentName: 'InboxWrapper',
+      title: "Inbox"
+    },
+    {
+      name: 'conversation',
+      path: '/inbox/:_id',
+      componentName: 'ConversationWrapper',
+      title: "Private Conversation",
+      background: "white",
+    },
+    {
+      name: 'moderatorInbox',
+      path: '/moderatorInbox',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox"
     },
   ],
 }));
@@ -1315,20 +1391,20 @@ addRoute(
     path:'/posts/:_id/:slug?',
     componentName: 'PostsSingle',
     titleComponentName: 'PostsPageHeaderTitle',
-    subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreview',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
-    background: postBackground
+    background: postBackground,
+    noFooter: isEAForum,
   },
   {
     name:'posts.slug.single',
     path:'/posts/slug/:slug?',
     componentName: 'PostsSingleSlugRedirect',
     titleComponentName: 'PostsPageHeaderTitle',
-    subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: 'PostLinkPreviewSlug',
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
-    background: postBackground
+    background: postBackground,
+    noFooter: isEAForum,
   },
   {
     name: 'posts.revisioncompare',
@@ -1444,7 +1520,6 @@ addRoute(
     name: 'comment.greaterwrong',
     componentName: "PostsSingle",
     titleComponentName: 'PostsPageHeaderTitle',
-    subtitleComponentName: 'PostsPageHeaderTitle',
     previewComponentName: "PostCommentLinkPreviewGreaterWrong",
     noIndex: true,
     // TODO: Handle pingbacks leading to comments.

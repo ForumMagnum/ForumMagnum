@@ -6,9 +6,10 @@ import compose from 'recompose/compose';
 import withState from 'recompose/withState';
 import * as _ from 'underscore';
 import { extractCollectionInfo, extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
-import { useLocation, useNavigation } from '../routeUtil';
+import { useLocation } from '../routeUtil';
 import { invalidateQuery } from './cacheUpdates';
 import { isServer } from '../executionEnvironment';
+import { useNavigate } from '../reactRouterWrapper';
 
 // Template of a GraphQL query for withMulti/useMulti. A sample query might look
 // like:
@@ -28,8 +29,7 @@ const multiClientTemplate = ({ typeName, fragmentName, extraVariablesString }: {
   typeName: string,
   fragmentName: FragmentName,
   extraVariablesString: string,
-}) =>
-`query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
+}) => `query multi${typeName}Query($input: Multi${typeName}Input, ${extraVariablesString || ''}) {
   ${camelCaseify(pluralize(typeName))}(input: $input) {
     results {
       ...${fragmentName}
@@ -301,7 +301,7 @@ export function useMulti<
   ssr = true,
 }: UseMultiOptions<FragmentTypeName,CollectionName>): UseMultiResult<FragmentTypeName> {
   const { query: locationQuery, location } = useLocation();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
 
   const locationQueryLimit = locationQuery && queryLimitName && !isNaN(parseInt(locationQuery[queryLimitName])) ? parseInt(locationQuery[queryLimitName]) : undefined;
   const termsLimit = terms?.limit; // FIXME despite the type definition, terms can actually be undefined
@@ -379,7 +379,7 @@ export function useMulti<
     const newLimit = limitOverride || (effectiveLimit+itemsPerPage)
     if (queryLimitName) {
       const newQuery = {...locationQuery, [queryLimitName]: newLimit}
-      history.push({...location, search: `?${qs.stringify(newQuery)}`})
+      navigate({...location, search: `?${qs.stringify(newQuery)}`})
     }
     void fetchMore({
       variables: {

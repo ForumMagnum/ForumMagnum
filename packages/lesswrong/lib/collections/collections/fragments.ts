@@ -40,3 +40,23 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment CollectionsBestOfFragment on Collection {
+    _id
+    createdAt
+    slug
+    userId
+    user {
+      ...UsersMinimumInfo
+    }
+    title
+    gridImageId
+    noindex
+    postsCount
+    readPostsCount
+    contents {
+      ...RevisionDisplay
+    }
+  }
+`);

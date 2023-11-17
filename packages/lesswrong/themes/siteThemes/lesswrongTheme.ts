@@ -64,6 +64,9 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
       commentStyle: {
         fontFamily: sansSerifStack,
+        '& b, & strong': {
+          fontWeight: 600
+        }
       },
       errorStyle: {
         color: palette.error.main,
@@ -84,7 +87,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
     },
     overrides: {
-      PostsVote: {
+      PostsVoteDefault: {
         voteScores: {
           margin: "25% 15% 15% 15%"
         }

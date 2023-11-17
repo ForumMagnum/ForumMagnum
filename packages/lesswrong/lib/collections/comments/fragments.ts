@@ -72,6 +72,16 @@ registerFragment(`
     rejected
     rejectedReason
     modGPTRecommendation
+    originalDialogueId
+  }
+`);
+
+registerFragment(`
+  fragment CommentsListWithTopLevelComment on Comment {
+    ...CommentsList
+    topLevelComment {
+      ...CommentsList
+    }
   }
 `);
 

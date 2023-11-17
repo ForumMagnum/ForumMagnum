@@ -158,7 +158,11 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classe
   );
 }
 
-const ForumDropdownMultiselectComponent = registerComponent('ForumDropdownMultiselect', ForumDropdownMultiselect, {styles});
+const ForumDropdownMultiselectComponent = registerComponent(
+  'ForumDropdownMultiselect',
+  ForumDropdownMultiselect,
+  {styles, stylePriority: -2},
+);
 
 declare global {
   interface ComponentTypes {

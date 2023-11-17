@@ -1,5 +1,4 @@
 import cheerio from 'cheerio';
-import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
 import { cheerioParse } from './utils/htmlUtil';
 import { Comments } from '../lib/collections/comments/collection';
@@ -14,10 +13,14 @@ import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import type { ToCData, ToCSection } from '../lib/tableOfContents';
 import { defineQuery } from './utils/serverGraphqlUtil';
-import GraphQLJSON from 'graphql-type-json';
+import { htmlToTextDefault } from '../lib/htmlToText';
+import { commentsTableOfContentsEnabled } from '../lib/betas';
 
 // Number of headings below which a table of contents won't be generated.
-const MIN_HEADINGS_FOR_TOC = 3;
+// If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
+// it's empty) to keep the horizontal position of things on the page from
+// being imbalanced.
+const MIN_HEADINGS_FOR_TOC = commentsTableOfContentsEnabled ? 0 : 3;
 
 // Tags which define headings. Currently <h1>-<h4>, <strong>, and <b>. Excludes
 // <h5> and <h6> because their usage in historical (HTML) wasn't as a ToC-
@@ -232,7 +235,7 @@ async function getTocAnswers (document: DbPost) {
   const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
     const { html = "" } = answer.contents || {}
     const highlight = truncate(html, 900)
-    let shortHighlight = htmlToText(answerTocExcerptFromHTML(html), {selectors: [ { selector: 'img', format: 'skip' }, { selector: 'a', options: { ignoreHref: true } } ]})
+    let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html));
     
     return {
       title: `${answer.baseScore} ${answer.author}`,

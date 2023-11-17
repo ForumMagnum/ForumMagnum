@@ -1,5 +1,5 @@
 import { isAnyTest } from "../../../lib/executionEnvironment";
-import { PublicInstanceSetting, isEAForum } from "../../../lib/instanceSettings";
+import { PublicInstanceSetting } from "../../../lib/instanceSettings";
 
 export const elasticCloudIdSetting = new PublicInstanceSetting<string|null>(
   "elasticsearch.cloudId",
@@ -32,4 +32,3 @@ const disableElastic = new PublicInstanceSetting<boolean>(
 );
 
 export const isElasticEnabled = !isAnyTest && !disableElastic.get();
-export const isAlgoliaEnabled = !isAnyTest && !isEAForum;

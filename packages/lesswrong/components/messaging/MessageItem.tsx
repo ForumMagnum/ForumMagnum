@@ -14,10 +14,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'grid',
     columnGap: 10,
     maxWidth: '95%',
-    gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px 1fr`,
+    gridTemplateColumns: `${PROFILE_IMG_DIAMETER}px minmax(100px, 100%)`,
     gridTemplateAreas: '"image message"',
     [theme.breakpoints.down('xs')]: {
-      gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px 1fr`,
+      gridTemplateColumns: `${PROFILE_IMG_DIAMETER_MOBILE}px minmax(100px, 100%)`,
     }
   },
   rootCurrentUserWithImages: {
@@ -32,6 +32,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingRight: theme.spacing.unit*1.5,
     borderRadius:5,
     wordWrap: "break-word",
+    overflowWrap: "break-word",
+    whiteSpace: "normal",
     flexGrow: 1,
     gridArea: 'message',
   },
@@ -41,23 +43,34 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft:theme.spacing.unit*1.5,
   },
   meta: {
-    marginBottom:theme.spacing.unit*1.5
+    marginBottom:theme.spacing.unit*1.5,
   },
   whiteMeta: {
     color: theme.palette.text.invertedBackgroundText2,
   },
   messageBody: {
     '& a': {
-      color: theme.palette.primary.light
+      color: theme.palette.primary.light,
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
     },
     '& img': {
       maxWidth: '100%',
+    },
+    // Workaround to make sure links don't overflow the message box
+    '& .LWTooltip-root': {
+      display: 'inline',
     },
   },
   profileImg: {
     gridArea: 'image',
     alignSelf: 'flex-end'
   },
+  username: {
+    marginRight: 6,
+    fontWeight: 600
+  }
 })
 
 /**
@@ -87,9 +100,10 @@ const MessageItem = ({message, classes}: {
       {profilePhoto}
       <Components.Typography variant="body2" className={classNames(classes.message, {[classes.backgroundIsCurrent]: isCurrentUser})}>
         <div className={classes.meta}>
-          {message.user && <Components.MetaInfo>
+          {message.user && <span className={classes.username}>
             <span className={colorClassName}><Components.UsersName user={message.user}/></span>
-          </Components.MetaInfo>}
+          </span>}
+          <span>{" " /* Explicit space (rather than just padding/margin) for copy-paste purposes */}</span>
           {message.createdAt && <Components.MetaInfo>
             <span className={colorClassName}><Components.FormatDate date={message.createdAt}/></span>
           </Components.MetaInfo>}

@@ -24,8 +24,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: theme.spacing.unit*4,
     position: "relative",
-    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
-    
+    backgroundColor: isEAForum
+      ? theme.palette.grey[0]
+      : theme.palette.panelBackground.recentDiscussionThread,
+    border: isEAForum ? `1px solid ${theme.palette.grey[200]}` : undefined,
+
     padding: 16,
     ...theme.typography.body2,
     boxShadow: theme.palette.boxShadow.default,

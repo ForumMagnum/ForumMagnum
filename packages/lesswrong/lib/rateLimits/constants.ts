@@ -98,14 +98,14 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('1 Comments per 1 hours'),
       last20KarmaThreshold: -1,
       downvoterCountThreshold: 3,
-      appliesToOwnPosts: true,
+      appliesToOwnPosts: false,
       rateLimitMessage: `Users with -1 or less karma on recent posts/comments can comment once per hour.<br/>${lwDefaultMessage}`
     }, 
   // 3 comments per day rate limits
     {
       ...timeframe('3 Comments per 1 days'),
       karmaThreshold: 4,
-      appliesToOwnPosts: true,
+      appliesToOwnPosts: false,
       rateLimitType: "newUserDefault",
       rateLimitMessage: `Users with less than 5 karma can write up to 3 comments a day.<br/>${lwDefaultMessage}`,
     }, 

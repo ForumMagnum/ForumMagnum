@@ -1,4 +1,5 @@
 import { schemaDefaultValue } from '../../collectionUtils';
+import { getWithCustomLoader } from '../../loaders';
 import { foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbCollection> = {
@@ -54,6 +55,50 @@ const schema: SchemaType<DbCollection> = {
     foreignKey: "Books",
     optional: true,
   },
+
+  postsCount: resolverOnlyField({
+    type: Number,
+    canRead: ['guests'],
+    resolver: async (collection: DbCollection, args: void, context: ResolverContext) => {
+      const count = await getWithCustomLoader<number, string>(
+        context,
+        "collectionPostsCount",
+        collection._id,
+        (collectionIds): Promise<number[]> => {
+          return context.repos.collections.postsCount(collectionIds);
+        }
+      );
+
+      return count;
+    }
+  }),
+
+  readPostsCount: resolverOnlyField({
+    type: Number,
+    canRead: ['guests'],
+    resolver: async (collection: DbCollection, args: void, context: ResolverContext) => {
+      const currentUser = context.currentUser;
+      
+      if (!currentUser) return 0;
+
+      const createCompositeId = (collectionId: string, userId: string) => `${collectionId}-${userId}`;
+      const splitCompositeId = (compositeId: string) => {
+        const [collectionId, userId] = compositeId.split('-')
+        return {collectionId, userId};
+      };
+
+      const count = await getWithCustomLoader<number, string>(
+        context,
+        "collectionReadPostsCount",
+        createCompositeId(collection._id, currentUser._id),
+        (compositeIds): Promise<number[]> => {
+          return context.repos.collections.readPostsCount(compositeIds.map(splitCompositeId));
+        }
+      );
+
+      return count;
+    }
+  }),
 
   gridImageId: {
     type: String,

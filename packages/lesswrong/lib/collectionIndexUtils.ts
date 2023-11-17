@@ -71,7 +71,6 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
         
         collection.rawCollection().dropIndex(options.name);
       }
-      
       const mergedOptions = {background: true, ...options};
       collection._ensureIndex(index, mergedOptions);
     } catch(e) {

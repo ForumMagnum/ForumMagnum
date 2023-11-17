@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import { useTheme } from '../themes/useTheme';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
@@ -7,7 +7,8 @@ import CheckIcon from '@material-ui/icons/Check';
 import ClearIcon from '@material-ui/icons/Clear';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
-import { VoteColor, cssVoteColors } from './voteColors';
+import { useVoteColors } from './useVoteColors';
+import type { VoteColor } from './voteColors';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -146,11 +147,21 @@ export interface VoteArrowIconProps {
   alwaysColored: boolean,
 }
 
-const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = true, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
+const VoteAgreementIcon = ({
+  solidArrow,
+  orientation,
+  enabled = true,
+  color,
+  voted,
+  eventHandlers,
+  bigVotingTransition,
+  bigVoted,
+  bigVoteCompleted,
+  alwaysColored,
+  classes,
+}: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
-  const { LWTooltip } = Components;
-
   const theme = useTheme();
   const upOrDown = orientation === "left" ? "Downvote" : "Upvote"
   
@@ -166,6 +177,8 @@ const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, enabled =
     eventHandlers = {};
   }
 
+  const {mainColor, lightColor} = useVoteColors(color);
+
   return (
     <IconButton
       className={classNames(classes.root, {[classes.disabled]: !enabled})}
@@ -178,7 +191,7 @@ const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, enabled =
       <span className={classes.iconsContainer}>
         <PrimaryIcon
           className={classNames(primaryIconStyling, classes.noClickCatch, {[classes.hideIcon]: bigVotingTransition || bigVoted})}
-          color={voted ? color : 'inherit'}
+          style={{color: voted || alwaysColored ? mainColor : "inherit"}}
           viewBox='6 6 12 12'
         />
         <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
@@ -186,17 +199,16 @@ const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, enabled =
             <>
               <BigVoteAccentIcon
                 className={classNames(bigVoteAccentStyling, classes.noClickCatch, {[classes.hideIcon]: !bigVoted})}
-                color={voted ? color : 'inherit'}
+                style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
                 viewBox='6 6 12 12'
               />
               <PrimaryIcon
-                style={bigVoteCompleted ? {color: cssVoteColors[color]} : {}}
+                style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
                 className={classNames(bigVoteStyling, classes.noClickCatch, {
                   [bigVoteCompletedStyling]: bigVoteCompleted,
                   // [classes.bigCheckCompleted]: bigVoteCompleted,
                   [classes.bigCheckSolid]: solidArrow
                 }, classes[state])}
-                color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
                 viewBox='6 6 12 12'
               />
             </>)}

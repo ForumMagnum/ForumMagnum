@@ -49,11 +49,10 @@ export function parseColor(color: string): ColorTuple|null
   return null;
 }
 
+export const zeroTo255 = (n: number): string => ""+Math.floor(n*255);
+
 export function colorToString(color: ColorTuple): string
 {
-  function zeroTo255(n: number): string {
-    return ""+Math.floor(n*255);
-  }
   const [r,g,b,a] = color;
   if (a>=1.0) {
     return `#${toHex2(r)}${toHex2(g)}${toHex2(b)}`;

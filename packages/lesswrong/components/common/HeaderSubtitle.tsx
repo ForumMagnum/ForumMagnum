@@ -18,14 +18,14 @@ const HeaderSubtitle = ({classes}: {
   classes: ClassesType,
 }) => {
   const { currentRoute } = useSubscribedLocation();
-  if (!currentRoute) return null
+  if (!currentRoute) {
+    return null;
+  }
+
   const SubtitleComponent: any = currentRoute.subtitleComponentName ? Components[currentRoute.subtitleComponentName] : null;
   const subtitleString = currentRoute.subtitle;
   const subtitleLink = currentRoute.subtitleLink;
-  
-  if (!SubtitleComponent && !subtitleString)
-    return null;
-  
+
   if (SubtitleComponent) {
     return <SubtitleComponent isSubtitle={true} />
   } else if (subtitleLink) {
@@ -37,7 +37,7 @@ const HeaderSubtitle = ({classes}: {
       {subtitleString}
     </span>
   } else {
-    return null;
+    return <Components.HeaderEventSubtitle />;
   }
 }
 

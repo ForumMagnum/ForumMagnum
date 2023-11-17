@@ -4,6 +4,12 @@ import SelectQuery from "../../lib/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
+
+type ExtendedCommentWithReactions = DbComment & {
+  yourVote?: string,
+  theirVote?: string,
+}
 
 export default class CommentsRepo extends AbstractRepo<DbComment> {
   constructor() {
@@ -74,17 +80,77 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [limit]);
   }
 
-  async getPopularComments({minScore = 15, offset = 0, limit = 3}: {
+  readonly bensInterestingDisagreementsCommentId = 'NtsPs9wcwrpeK6KYL';
+
+  async getPopularPollComments (limit: number): Promise<(ExtendedCommentWithReactions)[]> {
+    return await this.getRawDb().manyOrNone(`
+      SELECT c.*
+      FROM public."Comments" AS c
+      WHERE c."parentCommentId" = $2
+      ORDER BY c."baseScore" DESC
+      LIMIT $1
+    `, [limit, this.bensInterestingDisagreementsCommentId]);
+  }
+
+  async getPopularPollCommentsWithUserVotes (userId:string, limit: number): Promise<(ExtendedCommentWithReactions)[]> {
+    return await this.getRawDb().manyOrNone(`
+    SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "yourVote"
+    FROM public."Comments" AS c
+    INNER JOIN public."Votes" AS v ON c._id = v."documentId"
+    WHERE
+      c."parentCommentId" = $3
+      AND v."userId" = $1
+      AND v."extendedVoteType"->'reacts'->0->>'vote' = 'created'
+      AND v.cancelled IS NOT TRUE
+      AND v."isUnvote" IS NOT TRUE
+    ORDER BY c."baseScore" DESC
+    LIMIT $2
+    `, [userId, limit, this.bensInterestingDisagreementsCommentId]);
+  }
+
+  async getPopularPollCommentsWithTwoUserVotes (userId:string, targetUserId:string, limit: number): Promise<(ExtendedCommentWithReactions)[]> {
+    return await this.getRawDb().manyOrNone(`
+      WITH votes_filtered AS (
+        SELECT *
+        FROM public."Votes"
+        WHERE "extendedVoteType"->'reacts'->0->>'vote' = 'created'
+          AND cancelled IS NOT TRUE
+          AND "isUnvote" IS NOT TRUE
+      )
+      SELECT c.*, v1."extendedVoteType"->'reacts'->0->>'react' AS "yourVote", v2."extendedVoteType"->'reacts'->0->>'react' AS "theirVote"
+      FROM public."Comments" AS c
+      INNER JOIN votes_filtered AS v1 ON c._id = v1."documentId"
+      INNER JOIN votes_filtered AS v2 ON c._id = v2."documentId"
+      WHERE
+        c."parentCommentId" = $4
+        AND v1."userId" = $1
+        AND v2."userId" = $2
+        AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
+      ORDER BY c."baseScore" DESC
+      LIMIT $3
+    `, [userId, targetUserId, limit, this.bensInterestingDisagreementsCommentId]);
+  }
+
+  async getPopularComments({
+    minScore = 15,
+    offset = 0,
+    limit = 3,
+    recencyFactor = 250000,
+    recencyBias = 60 * 60 * 2,
+  }: {
     offset?: number,
     limit?: number,
     minScore?: number,
+    // The factor to divide age by for the recency bonus
+    recencyFactor?: number,
+    // The minimum age that a post will be considered as having, to avoid
+    // over selecting brand new comments - defaults to 2 hours
+    recencyBias?: number,
   }): Promise<DbComment[]> {
     return this.any(`
       SELECT c.*
       FROM (
-        SELECT DISTINCT ON ("postId")
-          "_id",
-          fm_comment_confidence("_id", 3) AS "confidence"
+        SELECT DISTINCT ON ("postId") "_id"
         FROM "Comments"
         WHERE
           CURRENT_TIMESTAMP - "postedAt" < '1 week'::INTERVAL AND
@@ -94,15 +160,24 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
           "deleted" IS NOT TRUE AND
           "deletedPublic" IS NOT TRUE AND
           "needsReview" IS NOT TRUE
-        ORDER BY "postId", "confidence" DESC
+        ORDER BY "postId", "baseScore" DESC
       ) q
       JOIN "Comments" c ON c."_id" = q."_id"
       JOIN "Posts" p ON c."postId" = p."_id"
-      WHERE p."hideFromPopularComments" IS NOT TRUE
-      ORDER BY q."confidence" DESC, c."createdAt" ASC
+      WHERE
+        p."hideFromPopularComments" IS NOT TRUE AND
+        COALESCE((p."tagRelevance"->$6)::INTEGER, 0) < 1
+      ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $5) / -$4) DESC
       OFFSET $2
       LIMIT $3
-    `, [minScore, offset, limit]);
+    `, [
+      minScore,
+      offset,
+      limit,
+      recencyFactor,
+      recencyBias,
+      EA_FORUM_COMMUNITY_TOPIC_ID,
+    ]);
   }
 
   private getSearchDocumentQuery(): string {
@@ -186,5 +261,13 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       ORDER BY
         window_start_key;
     `, [postIds, startDate, endDate]);
+  }
+
+  async getCommentsWithElicitData(): Promise<DbComment[]> {
+    return await this.any(`
+      SELECT *
+      FROM "Comments"
+      WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
+    `);
   }
 }

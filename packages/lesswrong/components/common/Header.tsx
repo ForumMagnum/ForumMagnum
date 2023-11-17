@@ -1,6 +1,5 @@
 import React, { useContext, useState, useCallback } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
@@ -14,13 +13,14 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { useLocation } from '../../lib/routeUtil';
+import { useIsGivingSeason } from '../ea-forum/giving-portal/hooks';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
-export const EA_FORUM_HEADER_HEIGHT = 66
+export const EA_FORUM_HEADER_HEIGHT = 66;
 
-const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.header.text,
@@ -158,7 +158,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNavigation, stayAtTop=false, searchResultsArea, classes}: {
+const Header = ({
+  standaloneNavigationPresent,
+  sidebarHidden,
+  toggleStandaloneNavigation,
+  stayAtTop=false,
+  searchResultsArea,
+  classes,
+}: {
   standaloneNavigationPresent: boolean,
   sidebarHidden: boolean,
   toggleStandaloneNavigation: ()=>void,
@@ -174,8 +181,8 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
   const currentUser = useCurrentUser();
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
-  const updateCurrentUser = useUpdateCurrentUser();
-  const { unreadNotifications, unreadPrivateMessages, refetch: refetchNotificationCounts } = useUnreadNotifications();
+  const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
+  const { pathname } = useLocation()
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -187,8 +194,7 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
     if (isOpen) {
       setNotificationOpen(true);
       setNotificationHasOpened(true);
-      await updateCurrentUser({lastNotificationsCheck: new Date()});
-      await refetchNotificationCounts();
+      await notificationsOpened();
     } else {
       setNotificationOpen(false);
     }
@@ -212,7 +218,7 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
     setSearchOpenState(isOpen);
   }, [captureEvent]);
 
-  const renderNavigationMenuButton = () => {
+  const NavigationMenuButton = () => {
     // The navigation menu button either toggles a free floating sidebar, opens
     // a drawer with site navigation, or a drawer with table of contents. (This
     // is structured a little oddly because the hideSmDown/hideMdUp filters
@@ -277,15 +283,70 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon
+    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
+    GivingSeasonHeader,
   } = Components;
-  
+
   const usersMenuClass = isEAForum ? classes.hideXsDown : classes.hideMdDown
   const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
       <UsersMenu />
     </AnalyticsContext>
   </div>
+
+  // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
+  const RightHeaderItems = () => <div className={classes.rightHeaderItems}>
+    <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
+      <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
+    </NoSSR>
+    {!isEAForum && usersMenuNode}
+    {!currentUser && <UsersAccountMenu />}
+    {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
+      currentUser={currentUser}
+      className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
+    />}
+    {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
+      unreadNotifications={unreadNotifications}
+      toggle={handleNotificationToggle}
+      open={notificationOpen}
+      className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
+    />}
+    {isEAForum && usersMenuNode}
+  </div>
+
+  // the left side nav menu
+  const HeaderNavigationDrawer = () => <NavigationDrawer
+    open={navigationOpen}
+    handleOpen={() => setNavigationOpen(true)}
+    handleClose={() => setNavigationOpen(false)}
+    toc={toc?.sectionData ?? null}
+  />
+
+  // the right side notifications menu
+  const HeaderNotificationsMenu = () => currentUser && <NotificationsMenu
+    unreadPrivateMessages={unreadPrivateMessages}
+    open={notificationOpen}
+    hasOpened={notificationHasOpened}
+    setIsOpen={handleSetNotificationDrawerOpen}
+  />
+
+  // special case for the homepage header of EA Forum Giving Season 2023
+  // TODO: delete after 2023
+  const isGivingSeason = useIsGivingSeason();
+  if (isGivingSeason && pathname === '/') {
+    return (
+      <GivingSeasonHeader
+        searchOpen={searchOpen}
+        hasLogo={hasLogo}
+        unFixed={unFixed}
+        setUnFixed={setUnFixed}
+        NavigationMenuButton={NavigationMenuButton}
+        RightHeaderItems={RightHeaderItems}
+        HeaderNavigationDrawer={HeaderNavigationDrawer}
+        HeaderNotificationsMenu={HeaderNotificationsMenu}
+      />
+    );
+  }
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -303,7 +364,7 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
         >
           <header className={classes.appBar}>
             <Toolbar disableGutters={isEAForum}>
-              {renderNavigationMenuButton()}
+              <NavigationMenuButton />
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
@@ -321,39 +382,12 @@ const Header = ({standaloneNavigationPresent, sidebarHidden, toggleStandaloneNav
                   </Link>
                 </div>
               </Typography>
-              <div className={classes.rightHeaderItems}>
-                <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
-                  <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-                </NoSSR>
-                {!isEAForum && usersMenuNode}
-                {!currentUser && <UsersAccountMenu />}
-                {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
-                  currentUser={currentUser}
-                  className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
-                />}
-                {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
-                  unreadNotifications={unreadNotifications}
-                  toggle={handleNotificationToggle}
-                  open={notificationOpen}
-                  className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
-                />}
-                {isEAForum && usersMenuNode}
-              </div>
+              <RightHeaderItems />
             </Toolbar>
           </header>
-          <NavigationDrawer
-            open={navigationOpen}
-            handleOpen={() => setNavigationOpen(true)}
-            handleClose={() => setNavigationOpen(false)}
-            toc={toc?.sectionData ?? null}
-          />
+          <HeaderNavigationDrawer />
         </Headroom>
-        {currentUser && <NotificationsMenu
-          unreadPrivateMessages={unreadPrivateMessages}
-          open={notificationOpen}
-          hasOpened={notificationHasOpened}
-          setIsOpen={handleSetNotificationDrawerOpen}
-        />}
+        <HeaderNotificationsMenu />
       </div>
     </AnalyticsContext>
   )

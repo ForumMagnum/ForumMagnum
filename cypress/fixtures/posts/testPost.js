@@ -4,6 +4,7 @@ module.exports = {
     title: "Test Seeded Post",
     submitToFrontpage: true,
     draft: false,
+    wasEverUndrafted: true,
     meta: false,
     isEvent: false,
     createdAt: new Date(),

@@ -179,6 +179,7 @@ interface DbComment extends DbObject {
   afDate: Date
   moveToAlignmentUserId: string
   agentFoundationsId: string
+  originalDialogueId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   contents: EditableFieldContents
@@ -250,6 +251,39 @@ interface DbDebouncerEvents extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface DialogueChecksCollection extends CollectionBase<DbDialogueCheck, "DialogueChecks"> {
+}
+
+interface DbDialogueCheck extends DbObject {
+  __collectionName?: "DialogueChecks"
+  userId: string
+  targetUserId: string
+  checked: boolean
+  checkedAt: Date
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface DialogueMatchPreferencesCollection extends CollectionBase<DbDialogueMatchPreference, "DialogueMatchPreferences"> {
+}
+
+interface DbDialogueMatchPreference extends DbObject {
+  __collectionName?: "DialogueMatchPreferences"
+  dialogueCheckId: string
+  topicPreferences: Array<{
+    text: string,
+    preference: "Yes" | "No",
+    commentSourceId: string | null,
+  }>
+  topicNotes: string
+  syncPreference: "Yes" | "Meh" | "No"
+  asyncPreference: "Yes" | "Meh" | "No"
+  formatNotes: string
+  generatedDialogueId: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface DigestPostsCollection extends CollectionBase<DbDigestPost, "DigestPosts"> {
 }
 
@@ -274,6 +308,69 @@ interface DbDigest extends DbObject {
   publishedDate: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+interface ElectionCandidatesCollection extends CollectionBase<DbElectionCandidate, "ElectionCandidates"> {
+}
+
+interface DbElectionCandidate extends DbObject {
+  __collectionName?: "ElectionCandidates"
+  electionName: string
+  name: string
+  logoSrc: string
+  href: string
+  fundraiserLink: string | null
+  gwwcLink: string | null
+  gwwcId: string | null
+  description: string
+  userId: string
+  postCount: number
+  tagId: string | null
+  isElectionFundraiser: boolean
+  amountRaised: number | null
+  targetAmount: number | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  voteCount: number
+  baseScore: number
+  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  score: number
+  inactive: boolean
+  afBaseScore: number
+  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
+  afVoteCount: number
+}
+
+interface ElicitQuestionPredictionsCollection extends CollectionBase<DbElicitQuestionPrediction, "ElicitQuestionPredictions"> {
+}
+
+interface DbElicitQuestionPrediction extends DbObject {
+  __collectionName?: "ElicitQuestionPredictions"
+  prediction: number
+  createdAt: Date
+  notes: string | null
+  creator: {
+    _id: string,
+    displayName: string,
+    isQuestionCreator: boolean,
+    sourceUserId: string | null,
+  }
+  userId: string | null
+  sourceUrl: string | null
+  sourceId: string | null
+  binaryQuestionId: string
+}
+
+interface ElicitQuestionsCollection extends CollectionBase<DbElicitQuestion, "ElicitQuestions"> {
+}
+
+interface DbElicitQuestion extends DbObject {
+  __collectionName?: "ElicitQuestions"
+  title: string
+  notes: string | null
+  resolution: string | null
+  resolvesBy: Date
+  createdAt: Date
 }
 
 interface EmailTokensCollection extends CollectionBase<DbEmailTokens, "EmailTokens"> {
@@ -649,6 +746,7 @@ interface DbPost extends DbObject {
   hideFromRecentDiscussions: boolean | null
   votingSystem: string
   podcastEpisodeId: string | null
+  forceAllowType3Audio: boolean
   legacy: boolean
   legacyId: string
   legacySpam: boolean
@@ -686,6 +784,7 @@ interface DbPost extends DbObject {
   defaultRecommendation: boolean
   hideFromPopularComments: boolean
   draft: boolean
+  wasEverUndrafted: boolean
   meta: boolean
   hideFrontpageComments: boolean
   maxBaseScore: number
@@ -737,6 +836,8 @@ interface DbPost extends DbObject {
   topLevelCommentCount: number
   criticismTipsDismissed: boolean
   debate: boolean | null
+  collabEditorDialogue: boolean | null
+  mostRecentPublishedDialogueResponseDate: Date | null
   rejected: boolean
   rejectedReason: string | null
   rejectedByUserId: string
@@ -915,6 +1016,9 @@ interface DbSpotlight extends DbObject {
   duration: number
   customTitle: string | null
   customSubtitle: string | null
+  headerTitle: string | null
+  headerTitleLeftColor: string | null
+  headerTitleRightColor: string | null
   lastPromotedAt: Date
   draft: boolean
   showAuthor: boolean
@@ -937,7 +1041,7 @@ interface DbSubscription extends DbObject {
   documentId: string
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments"
+  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1034,6 +1138,18 @@ interface DbTag extends DbObject {
   subforumWelcomeText_latest: string
   moderationGuidelines: EditableFieldContents
   moderationGuidelines_latest: string
+}
+
+interface TypingIndicatorsCollection extends CollectionBase<DbTypingIndicator, "TypingIndicators"> {
+}
+
+interface DbTypingIndicator extends DbObject {
+  __collectionName?: "TypingIndicators"
+  userId: string
+  documentId: string
+  lastUpdated: Date
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface UserActivitiesCollection extends CollectionBase<DbUserActivity, "UserActivities"> {
@@ -1134,6 +1250,7 @@ interface DbUser extends DbObject {
     community: boolean | null,
     recommendations: boolean | null,
     quickTakes: boolean | null,
+    quickTakesCommunity: boolean | null,
     popularComments: boolean | null,
   } | null
   showCommunityInRecentDiscussion: boolean
@@ -1275,6 +1392,24 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  notificationDialogueMessages: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationPublishedDialogueMessages: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationAddedAsCoauthor: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
   notificationDebateCommentsOnSubscribedPost: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
@@ -1287,6 +1422,15 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  notificationDialogueMatch: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  hideDialogueFacilitation: boolean
+  revealChecksToAdmins: boolean
+  optedInToDialogueFacilitation: boolean
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -1295,6 +1439,7 @@ interface DbUser extends DbObject {
   }
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
+  givingSeasonNotifyForVoting: boolean
   emailSubscribedToCurated: boolean
   subscribedToDigest: boolean
   unsubscribeFromAll: boolean
@@ -1467,6 +1612,7 @@ interface DbVote extends DbObject {
   isUnvote: boolean
   votedAt: Date
   documentIsAf: boolean
+  silenceNotification: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1484,8 +1630,13 @@ interface CollectionsByName {
   CronHistories: CronHistoriesCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
+  DialogueChecks: DialogueChecksCollection
+  DialogueMatchPreferences: DialogueMatchPreferencesCollection
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
+  ElectionCandidates: ElectionCandidatesCollection
+  ElicitQuestionPredictions: ElicitQuestionPredictionsCollection
+  ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
@@ -1518,6 +1669,7 @@ interface CollectionsByName {
   TagFlags: TagFlagsCollection
   TagRels: TagRelsCollection
   Tags: TagsCollection
+  TypingIndicators: TypingIndicatorsCollection
   UserActivities: UserActivitiesCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
@@ -1539,8 +1691,13 @@ interface ObjectsByCollectionName {
   CronHistories: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
+  DialogueChecks: DbDialogueCheck
+  DialogueMatchPreferences: DbDialogueMatchPreference
   DigestPosts: DbDigestPost
   Digests: DbDigest
+  ElectionCandidates: DbElectionCandidate
+  ElicitQuestionPredictions: DbElicitQuestionPrediction
+  ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
@@ -1573,11 +1730,73 @@ interface ObjectsByCollectionName {
   TagFlags: DbTagFlag
   TagRels: DbTagRel
   Tags: DbTag
+  TypingIndicators: DbTypingIndicator
   UserActivities: DbUserActivity
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote
+}
+
+interface ObjectsByTypeName {
+  AdvisorRequest: DbAdvisorRequest
+  Ban: DbBan
+  Book: DbBook
+  Chapter: DbChapter
+  ClientId: DbClientId
+  Collection: DbCollection
+  CommentModeratorAction: DbCommentModeratorAction
+  Comment: DbComment
+  Conversation: DbConversation
+  CronHistory: DbCronHistory
+  DatabaseMetadata: DbDatabaseMetadata
+  DebouncerEvents: DbDebouncerEvents
+  DialogueCheck: DbDialogueCheck
+  DialogueMatchPreference: DbDialogueMatchPreference
+  DigestPost: DbDigestPost
+  Digest: DbDigest
+  ElectionCandidate: DbElectionCandidate
+  ElicitQuestionPrediction: DbElicitQuestionPrediction
+  ElicitQuestion: DbElicitQuestion
+  EmailTokens: DbEmailTokens
+  FeaturedResource: DbFeaturedResource
+  GardenCode: DbGardenCode
+  Images: DbImages
+  LWEvent: DbLWEvent
+  LegacyData: DbLegacyData
+  Localgroup: DbLocalgroup
+  Message: DbMessage
+  Migration: DbMigration
+  ModerationTemplate: DbModerationTemplate
+  ModeratorAction: DbModeratorAction
+  Notification: DbNotification
+  PageCacheEntry: DbPageCacheEntry
+  PetrovDayLaunch: DbPetrovDayLaunch
+  PodcastEpisode: DbPodcastEpisode
+  Podcast: DbPodcast
+  PostEmbedding: DbPostEmbedding
+  PostRecommendation: DbPostRecommendation
+  PostRelation: DbPostRelation
+  Post: DbPost
+  RSSFeed: DbRSSFeed
+  ReadStatus: DbReadStatus
+  Report: DbReport
+  ReviewVote: DbReviewVote
+  Revision: DbRevision
+  Sequence: DbSequence
+  Session: DbSession
+  Spotlight: DbSpotlight
+  Subscription: DbSubscription
+  TagFlag: DbTagFlag
+  TagRel: DbTagRel
+  Tag: DbTag
+  TypingIndicator: DbTypingIndicator
+  UserActivity: DbUserActivity
+  UserMostValuablePost: DbUserMostValuablePost
+  UserRateLimit: DbUserRateLimit
+  UserTagRel: DbUserTagRel
+  User: DbUser
+  Vote: DbVote
 }
 

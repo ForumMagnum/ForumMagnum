@@ -81,14 +81,20 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
 
   const isHealthCheck = userAgent === healthCheckUserAgentSetting.get();
   const abTestGroups = getAllUserABTestGroups(user, clientId);
-  if (!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) {
+  
+  // Skip the page-cache if the user-agent is Slackbot's link-preview fetcher
+  // because we need to render that page with a different value for the
+  // twitter:card meta tag (see also: HeadTags.tsx, Head.tsx).
+  const isSlackBot = userAgent && userAgent.startsWith("Slackbot-LinkExpanding");
+  
+  if ((!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) || isSlackBot) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     //eslint-disable-next-line no-console
     const rendered = await renderRequest({
       req, user, startTime, res, clientId, userAgent,
     });
-    if (!isLWorAF || shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+    if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
       Vulcan.captureEvent("ssr", {
         ...ssrEventParams,
         userId: user?._id,
@@ -119,7 +125,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       console.log(`Rendered ${url} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
     }
 
-    if (!isLWorAF || shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+    if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
       Vulcan.captureEvent("ssr", {
         ...ssrEventParams,
         userId: null,
@@ -240,7 +246,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: {
   const ssrBody = buildSSRBody(htmlContent, userAgent);
 
   // add headers using helmet
-  const head = ReactDOM.renderToString(<Head />);
+  const head = ReactDOM.renderToString(<Head userAgent={userAgent}/>);
 
   // add Apollo state, the client will then parse the string
   const initialState = client.extract();

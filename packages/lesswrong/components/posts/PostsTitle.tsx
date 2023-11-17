@@ -131,10 +131,11 @@ const PostsTitle = ({
   showDraftTag=true, 
   wrap=false, 
   showIcons=true,
-  isLink=true, 
-  curatedIconLeft=true, 
+  isLink=true,
+  curatedIconLeft=true,
   strikethroughTitle=false,
   Wrapper=DefaultWrapper,
+  linkEventProps,
   className,
 }:{
   post: PostsBase|PostsListBase,
@@ -150,6 +151,7 @@ const PostsTitle = ({
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
   Wrapper?: FC,
+  linkEventProps?: Record<string, string>,
   className?: string
 }) => {
   const currentUser = useCurrentUser();
@@ -194,7 +196,7 @@ const PostsTitle = ({
         </InteractionWrapper>
       </span>}
       <span className={!wrap ? classes.eaTitleDesktopEllipsis : undefined}>
-        {isLink ? <Link to={url}>{title}</Link> : title }
+        {isLink ? <Link to={url} eventProps={linkEventProps}>{title}</Link> : title }
       </span>
       {showIcons && <span className={classes.hideXsDown}>
         <InteractionWrapper className={classes.interactionWrapper}>

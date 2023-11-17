@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   postHighlight: {
     ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
-      fontSize: "1.6rem",
+      fontSize: isEAForum ? "1.1rem" : "1.6rem",
       // Cancel out a negative margin which would cause clipping
       marginBlickStart: "0 !important",
     },
@@ -28,9 +28,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   debateResponseBody: {
     ...commentBodyStyles(theme),
-    fontSize: '1.3rem',
+    fontSize: '1.35rem',
+    '& .dialogue-message-header + p': {
+      marginTop: 0,
+    },
     '& blockquote, & li': {
-      fontSize: '1.3rem'
+      fontSize: '1.35rem'
     }
   },
   answerBody: {
@@ -87,13 +90,14 @@ export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPo
 // so some things want to inherit all of the comment styles *except* for that.
 // (This hack exists to support spoiler blocks and we should probably clean it
 // up.)
-const ContentStyles = ({contentType, className, children, classes}: {
+const ContentStyles = ({contentType, className, style, children, classes}: {
   contentType: ContentStyleType,
   className?: string,
+  style?: CSSProperties,
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
-  return <div className={classNames(
+  return <div style={style} className={classNames(
     className, classes.base, "content", {
       [classes.postBody]: contentType==="post",
       [classes.postHighlight]: contentType==="postHighlight",

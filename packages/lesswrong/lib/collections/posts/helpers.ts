@@ -123,6 +123,19 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
+export const postGetUrlWithSourceParam = (
+  post: PostsMinimumForGetPageUrl,
+  source: string,
+) => `${postGetPageUrl(post, true)}&source=${source}`;
+
+export const postGetCommentsUrl = (
+  post: PostsMinimumForGetPageUrl,
+  isAbsolute = false,
+  sequenceId: string | null = null,
+): string => {
+  return postGetPageUrl(post, isAbsolute, sequenceId) + "#comments";
+}
+
 export const getPostCollaborateUrl = function (postId: string, isAbsolute=false, linkSharingKey?: string): string {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
   if (linkSharingKey) {
@@ -379,7 +392,8 @@ export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
     return (
       (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF ||
         TYPE_III_ALLOWED_POST_IDS.includes(post._id) ||
-        post.baseScore > type3KarmaCutoffSetting.get()) &&
+        post.baseScore > type3KarmaCutoffSetting.get() ||
+        post.forceAllowType3Audio) &&
       !post.draft &&
       !post.authorIsUnreviewed &&
       !post.rejected &&

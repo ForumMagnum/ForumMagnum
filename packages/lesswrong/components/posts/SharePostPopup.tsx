@@ -4,7 +4,7 @@ import Popper from "@material-ui/core/Popper";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import { useForceRerender } from "../hooks/useFirstRender";
-import { postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { postGetUrlWithSourceParam } from "../../lib/collections/posts/helpers";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from "../common/withMessages";
 import { forumTitleSetting } from "../../lib/instanceSettings";
@@ -208,7 +208,7 @@ const SharePostPopup = ({
   classes: ClassesType;
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
-  const postUrl = postGetPageUrl(post, true);
+  const postUrl = postGetUrlWithSourceParam(post, "publish_share");
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
   const [isClosing, setIsClosing] = useState(false);

@@ -70,12 +70,15 @@ getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(
   }
 });
 
-const reverseVote = async (vote: DbVote, context: ResolverContext) => {
+/**
+ * Reverse the given vote, without triggering any karma change notifications
+ */
+export const silentlyReverseVote = async (vote: DbVote, context: ResolverContext) => {
   const collection = getCollection(vote.collectionName as VoteableCollectionName);
   const document = await collection.findOne({_id: vote.documentId});
   const user = await Users.findOne({_id: vote.userId});
   if (document && user) {
-    await clearVotesServer({document, collection, user, context})
+    await clearVotesServer({ document, collection, user, silenceNotification: true, context });
   } else {
     //eslint-disable-next-line no-console
     console.info("No item or user found corresponding to vote: ", vote, document, user);
@@ -85,6 +88,17 @@ const reverseVote = async (vote: DbVote, context: ResolverContext) => {
 export const nullifyVotesForUser = async (user: DbUser) => {
   for (let collection of VoteableCollections) {
     await nullifyVotesForUserAndCollection(user, collection);
+  }
+}
+
+interface DateRange {
+  after?: Date;
+  before?: Date;
+}
+
+export const nullifyVotesForUserByTarget = async (user: DbUser, targetUserId: string, dateRange: DateRange) => {
+  for (let collection of VoteableCollections) {
+    await nullifyVotesForUserAndCollectionByTarget(user, collection, targetUserId, dateRange);
   }
 }
 
@@ -99,10 +113,32 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection: Collec
   for (let vote of votes) {
     //eslint-disable-next-line no-console
     console.log("reversing vote: ", vote)
-    await reverseVote(vote, context);
+    await silentlyReverseVote(vote, context);
   };
   //eslint-disable-next-line no-console
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
+}
+
+const nullifyVotesForUserAndCollectionByTarget = async (user: DbUser, collection: CollectionBase<DbVoteableType>, targetUserId: string, dateRange: DateRange) => {
+  const collectionName = capitalize(collection.collectionName);
+  const context = await createAdminContext();
+  const votes = await Votes.find({
+    collectionName: collectionName,
+    userId: user._id,
+    cancelled: false,
+    authorIds: targetUserId,
+    power: { $ne: 0 },
+    ...(dateRange.after ? { votedAt: { $gt: dateRange.after } } : {}),
+    ...(dateRange.before ? { votedAt: { $lt: dateRange.before } } : {})
+  }).fetch();
+  for (let vote of votes) {
+    const { documentId, collectionName, authorIds, extendedVoteType, power, cancelled, votedAt } = vote;
+    //eslint-disable-next-line no-console
+    console.log("reversing vote: ", { documentId, collectionName, authorIds, extendedVoteType, power, cancelled, votedAt });
+    await silentlyReverseVote(vote, context);
+  };
+  //eslint-disable-next-line no-console
+  console.info(`Nullified ${votes.length} votes for user ${user.username} in collection ${collectionName}`);
 }
 
 export async function userDeleteContent(user: DbUser, deletingUser: DbUser, deleteTags=true) {

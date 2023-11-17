@@ -58,7 +58,8 @@ export const eaForumTheme: SiteThemeSpecification = {
       main: "#ffad08"
     },
     text: {
-      primaryAlert: "#137283"
+      primaryAlert: "#137283",
+      contentHeader: shadePalette.grey[1000],
     },
     link: {
       visited: "#7130a6",
@@ -250,7 +251,7 @@ export const eaForumTheme: SiteThemeSpecification = {
             fontFamily: sansSerifStack
           }
         },
-        PostsVote: {
+        PostsVoteDefault: {
           voteScore: {
             paddingTop:4,
             paddingBottom:2,

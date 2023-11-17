@@ -7,7 +7,6 @@ import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
-import { PublicInstanceSetting } from '../../lib/instanceSettings';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 
 export const curatedUrl = "/recommendations"
@@ -116,7 +115,8 @@ const LWRecommendations = ({
 
   const render = () => {
     const { DismissibleSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
-      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, Book2020FrontpageWidget, SectionSubtitle, ContinueReadingList, BookmarksList } = Components;
+      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, Book2020FrontpageWidget, SectionSubtitle,
+      ContinueReadingList, BookmarksList } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -132,7 +132,7 @@ const LWRecommendations = ({
       </div>
       <div><em>(Click to see more recommendations)</em></div>
     </div>
-    
+
     const renderRecommendations = !settings.hideFrontpage && !bookDisplaySetting.get()
 
     const titleText = "Recommendations"
@@ -165,9 +165,10 @@ const LWRecommendations = ({
       <div><em>(Click to see all)</em></div>
     </div>
 
-    const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
 
+    const bookmarksLimit = (settings.hideFrontpage && settings.hideContinueReading) ? 6 : 3
     const renderBookmarks = ((currentUser?.bookmarkedPostsMetadata?.length || 0) > 0) && !settings.hideBookmarks
+
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
@@ -202,7 +203,7 @@ const LWRecommendations = ({
         </div>
 
         {renderContinueReading && (
-          <div className={currentUser ? classes.subsection : null}>
+          <div className={currentUser ? classes.subsection : undefined}>
             <AnalyticsContext pageSubSectionContext="continueReading">
               <LWTooltip placement="top-start" title={continueReadingTooltip}>
                 <Link to={"/library"}>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useNavigation, useSubscribedLocation } from '../../../lib/routeUtil';
-import { isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { useSubscribedLocation } from '../../../lib/routeUtil';
+import { getConfirmedCoauthorIds, isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -10,7 +10,7 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { userHasSideComments } from '../../../lib/betas';
+import { commentsTableOfContentsEnabled, userHasSideComments } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
@@ -20,7 +20,6 @@ import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
-import Helmet from 'react-helmet';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 import { isServer } from '../../../lib/executionEnvironment';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
@@ -28,13 +27,18 @@ import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
+import { useOnNotificationsChanged } from '../../hooks/useUnreadNotifications';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
+import isEqual from 'lodash/isEqual';
+import { unflattenComments } from '../../../lib/utils/unflatten';
+import { useNavigate } from '../../../lib/reactRouterWrapper';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
 
 export const SHARE_POPUP_QUERY_PARAM = 'sharePopup';
 
-const MAX_ANSWERS_QUERIED = 100
+const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
   /cross-? ?posted/i,
@@ -192,17 +196,19 @@ export const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
     marginRight: 'auto',
-    marginBottom: theme.spacing.unit *3
   },
   postContent: { //Used by a Cypress test
     marginBottom: isEAForum ? 40 : undefined
+  },
+  betweenPostAndComments: {
+    minHeight: 24,
   },
   recommendations: {
     maxWidth: MAX_COLUMN_WIDTH,
     margin: "0 auto 40px",
   },
   commentsSection: {
-    minHeight: 'calc(70vh - 100px)',
+    minHeight: isEAForum ? undefined : 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
       marginLeft: 0
@@ -211,6 +217,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.background.pageActiveAreaBackground,
     position: "relative",
     paddingTop: isEAForum ? 16 : undefined
+  },
+  noCommentsPlaceholder: {
+    marginTop: 60,
+    color: theme.palette.grey[600],
+    textAlign: "center",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    fontSize: 14,
+    lineHeight: "1.6em",
   },
   // these marginTops are necessary to make sure the image is flush with the header,
   // since the page layout has different paddingTop values for different widths
@@ -255,6 +270,14 @@ export const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('md')]: {
       display: 'none'
     }
+  },
+  subscribeToDialogue: {
+    marginBottom: 40,
+    marginTop: 40,
+    border: theme.palette.border.commentBorder,
+    borderRadius: 5,
+    display: "flex",
+    justifyContent: "center",
   }
 })
 
@@ -268,6 +291,13 @@ export type EagerPostComments = {
   queryResponse: UseMultiResult<'CommentsList'>,
 }
 
+export const postsCommentsThreadMultiOptions = {
+  collectionName: "Comments" as const,
+  fragmentName: 'CommentsList' as const,
+  fetchPolicy: 'cache-and-network' as const,
+  enableTotal: true,
+}
+
 const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   eagerPostComments?: EagerPostComments,
@@ -275,7 +305,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   classes: ClassesType,
 }) => {
   const location = useSubscribedLocation();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
@@ -352,15 +382,15 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     // sharing links with the popup open
     const currentQuery = isEmpty(query) ? {} : query
     const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
-    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
-  }, [history, location.location, openDialog, post, query]);
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
+  }, [navigate, location.location, openDialog, post, query]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
-  const { results: answers } = useMulti({
+  const { results: answersAndReplies } = useMulti({
     terms: {
-      view: "questionAnswers",
+      view: "answersAndReplies",
       postId: post._id,
-      limit: MAX_ANSWERS_QUERIED,
+      limit: MAX_ANSWERS_AND_REPLIES_QUERIED,
       sortBy
     },
     collectionName: "Comments",
@@ -369,8 +399,12 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     enableTotal: true,
     skip: !post.question,
   });
+  const answers = answersAndReplies?.filter(c => c.answer) ?? [];
 
-  const { results: debateResponses } = useMulti({
+  // note: these are from a debate feature that was deprecated in favor of collabEditorDialogue.
+  // we're leaving it for now to keep supporting the few debates that were made with it, but
+  // may want to migrate them at some point.
+  const { results: debateResponses, refetch: refetchDebateResponses } = useMulti({
     terms: {
       view: 'debateResponses',
       postId: post._id,
@@ -380,15 +414,25 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     skip: !post.debate,
     limit: 1000
   });
+  
+  useOnNotificationsChanged(currentUser, (message) => {
+    if (message.eventType === 'notificationCheck') {
+      if (currentUser && isDialogueParticipant(currentUser._id, post)) {
+        refetchDebateResponses();
+      }
+    }
+  });
 
   const defaultView = commentGetDefaultView(post, currentUser)
   // If the provided view is among the valid ones, spread whole query into terms, otherwise just do the default query
   const commentOpts = {includeAdminViews: currentUser?.isAdmin};
+  const defaultCommentTerms = useMemo(() => ({view: defaultView, limit: 1000}), [defaultView])
   const commentTerms: CommentsViewTerms = isValidCommentView(query.view, commentOpts)
     ? {...(query as CommentsViewTerms), limit:1000}
-    : {view: defaultView, limit: 1000}
+    : defaultCommentTerms;
 
-  const { results: nonDebateComments } = useMulti({
+  // these are the replies to the debate responses (see earlier comment about deprecated feature)
+  const { results: debateReplies } = useMulti({
     terms: {...commentTerms, postId: post._id},
     collectionName: "Comments",
     fragmentName: 'CommentsList',
@@ -397,11 +441,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   });
 
   const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
-    PostsCommentsThread, PostsPageQuestionContent, PostCoauthorRequest,
-    CommentPermalink, AnalyticsInViewTracker, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
-    PostsPodcastPlayer, AFUnreviewedCommentCount, CloudinaryImage2, ContentStyles,
+    PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
+    PostsPodcastPlayer, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
-    PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer
+    PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
+    PostBottomRecommendations, NotifyMeDropdownItem, Row,
+    AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
+    CommentsListSection, CommentsTableOfContents
   } = Components
 
   useEffect(() => {
@@ -453,13 +499,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   }
 
   const debateResponseIds = new Set((debateResponses ?? []).map(response => response._id));
-  const debateResponseReplies = nonDebateComments?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
+  const debateResponseReplies = debateReplies?.filter(comment => debateResponseIds.has(comment.topLevelCommentId));
 
   const isDebateResponseLink = commentId && debateResponseIds.has(commentId);
   
   useEffect(() => {
     if (isDebateResponseLink) {
-      history.replace({ ...location.location, hash: `#debate-comment-${commentId}` });
+      navigate({ ...location.location, hash: `#debate-comment-${commentId}` }, {replace: true});
     }
     // No exhaustive deps to avoid any infinite loops with links to comments
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -483,7 +529,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // as we read ToC data from the foreign site and it includes answers
   // which don't exists locally. TODO: Remove this gating when we finally
   // rewrite crossposting.
-  const tableOfContents = sectionData && !isCrosspostedQuestion
+  const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
+  const tableOfContents = hasTableOfContents
     ? <TableOfContents sectionData={sectionData} title={post.title} />
     : null;
 
@@ -537,10 +584,20 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       </div>
     : null;
 
-  const rightColumnChildren = <>
+  const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
     {showRecommendations && recommendationsPosition === "right" && <PostSideRecommendations post={post} />}
   </>;
+
+  // check for deep equality between terms and eagerPostComments.terms
+  const useEagerResults = eagerPostComments && isEqual(commentTerms, eagerPostComments?.terms);
+
+  const lazyResults = useMulti({
+    terms: {...commentTerms, postId: post._id},
+    skip: useEagerResults,
+    ...postsCommentsThreadMultiOptions,
+  });
+
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
   const isAF = (forumTypeSetting.get() === 'AlignmentForum');
@@ -549,47 +606,63 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     return <PermanentRedirect url={lwURL}/>
   }
 
-  return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
-    <PostsPageContext.Provider value={post}>
-    <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
-    <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    <ToCColumn
-      tableOfContents={tableOfContents}
-      header={header}
-      rightColumnChildren={rightColumnChildren}
-    >
-      <div ref={postBodyRef} className={classes.centralColumn}>
-        {/* Body */}
-        {/* The embedded player for posts with a manually uploaded podcast episode */}
-        {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
-          <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
-        </div>}
-        {allowTypeIIIPlayer && <T3AudioPlayer showEmbeddedPlayer={showEmbeddedPlayer} postId={post._id}/>}
-        { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
-        {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
-          <PostBodyPrefix post={post} query={query}/>
-          <AnalyticsContext pageSectionContext="postBody">
-            <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
-              {htmlWithAnchors &&
-                <PostBody
-                  post={post}
-                  html={htmlWithAnchors}
-                  sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
-                />
-              }
-            </CommentOnSelectionContentWrapper>
-          </AnalyticsContext>
-        </ContentStyles>}
+  const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
+  const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
+  
+  // JB: postBodySection, betweenPostAndCommentsSection, and commentsSection are represented as variables here
+  // to support the forum-gating below, because the comments-ToC changes the page structure wrt the ToC column
+  // components. When the forum gating is removed, each of these variables should have only a single usage,
+  // so inline it back into place. See also the forum gating in PostsCommentsSection, which must be removed at
+  // the same time.
 
-        {post.debate && debateResponses && debateResponseReplies &&
-          <DebateBody
-            debateResponses={getDebateResponseBlocks(debateResponses, debateResponseReplies)}
-            post={post}
-          />}
+  const postBodySection =
+    <div id="postBody" ref={postBodyRef} className={classes.centralColumn}>
+      {/* Body */}
+      {/* The embedded player for posts with a manually uploaded podcast episode */}
+      {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
+        <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
+      </div>}
+      {allowTypeIIIPlayer && <T3AudioPlayer showEmbeddedPlayer={showEmbeddedPlayer} postId={post._id}/>}
+      { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
+      {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
+        <PostBodyPrefix post={post} query={query}/>
+        <AnalyticsContext pageSectionContext="postBody">
+          <CommentOnSelectionContentWrapper onClickComment={onClickCommentOnSelection}>
+            {htmlWithAnchors &&
+              <PostBody
+                post={post}
+                html={htmlWithAnchors}
+                sideCommentMode={isOldVersion ? "hidden" : sideCommentMode}
+              />
+            }
+          </CommentOnSelectionContentWrapper>
+        </AnalyticsContext>
+      </ContentStyles>}
 
-        <PostsPagePostFooter post={post} sequenceId={sequenceId} />
-      </div>
+      {showSubscribeToDialogueButton && <Row justifyContent="center">
+        <div className={classes.subscribeToDialogue}>
+          <NotifyMeDropdownItem
+            document={post}
+            enabled={!!post.collabEditorDialogue}
+            subscribeMessage="Subscribe to dialogue"
+            unsubscribeMessage="Unsubscribe from dialogue"
+            subscriptionType={subscriptionTypes.newPublishedDialogueMessages}
+            tooltip="Notifies you when there is new activity in the dialogue"
+          />
+        </div>
+      </Row>}
 
+      {post.debate && debateResponses && debateResponseReplies &&
+        <DebateBody
+          debateResponses={getDebateResponseBlocks(debateResponses, debateResponseReplies)}
+          post={post}
+        />}
+
+    </div>
+  const betweenPostAndCommentsSection =
+    <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
+      <PostsPagePostFooter post={post} sequenceId={sequenceId} />
+  
       {showRecommendations && recommendationsPosition === "underPost" &&
         <AnalyticsContext pageSectionContext="postBottomRecommendations">
           <div className={classes.recommendations}>
@@ -599,34 +672,101 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
           </div>
         </AnalyticsContext>
       }
+    </div>
 
-      <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
-        {/* Answers Section */}
-        {post.question && <div className={classes.centralColumn}>
-          <div id="answers"/>
-          <AnalyticsContext pageSectionContext="answersSection">
-            <PostsPageQuestionContent post={post} answers={answers ?? []} refetch={refetch}/>
-          </AnalyticsContext>
-        </div>}
-        {/* Comments Section */}
-        <div className={classes.commentsSection}>
-          <AnalyticsContext pageSectionContext="commentsSection">
-            <PostsCommentsThread
-              terms={{...commentTerms, postId: post._id}}
-              eagerPostComments={eagerPostComments}
-              post={post}
-              newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
-            />
-            {isAF && <AFUnreviewedCommentCount post={post}/>}
-          </AnalyticsContext>
-        </div>
-      </AnalyticsInViewTracker>
-    </ToCColumn>
+  const { loading, results, loadMore, loadingMore, totalCount } = useEagerResults ? eagerPostComments.queryResponse : lazyResults;
+
+  const commentCount = results?.length ?? 0;
+  const commentTree = unflattenComments(results ?? []);
+  const answersTree = unflattenComments(answersAndReplies ?? []);
+  
+  const commentsSection =
+    <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}} >
+      {/* Answers Section */}
+      {post.question && <div className={classes.centralColumn}>
+        <div id="answers"/>
+        <AnalyticsContext pageSectionContext="answersSection">
+          <PostsPageQuestionContent post={post} answersTree={answersTree ?? []} refetch={refetch}/>
+        </AnalyticsContext>
+      </div>}
+      {/* Comments Section */}
+      <div className={classes.commentsSection}>
+        <AnalyticsContext pageSectionContext="commentsSection">
+          <CommentsListSection
+            comments={results ?? []}
+            loadMoreComments={loadMore}
+            totalComments={totalCount as number}
+            commentCount={commentCount}
+            loadingMoreComments={loadingMore}
+            post={post}
+            newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
+          />
+          {isAF && <AFUnreviewedCommentCount post={post}/>}
+        </AnalyticsContext>
+        {isEAForum && post.commentCount < 1 &&
+          <div className={classes.noCommentsPlaceholder}>
+            <div>No comments on this post yet.</div>
+            <div>Be the first to respond.</div>
+          </div>
+        }
+      </div>
+    </AnalyticsInViewTracker>
+  const commentsToC =
+    <CommentsTableOfContents
+      commentTree={commentTree}
+      answersTree={answersTree}
+      post={post}
+    />
+
+  return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
+    <PostsPageContext.Provider value={post}>
+    <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
+    <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
+    {commentsTableOfContentsEnabled
+      ? <Components.MultiToCLayout
+          segments={[
+            {centralColumn: header},
+            {
+              toc: tableOfContents,
+              centralColumn: postBodySection,
+              rightColumn: rightColumnChildren
+            },
+            {centralColumn: betweenPostAndCommentsSection},
+            {
+              toc: commentsToC,
+              centralColumn: commentsSection,
+            },
+          ]}
+        />
+      : <ToCColumn
+          tableOfContents={tableOfContents}
+          header={header}
+          rightColumnChildren={rightColumnChildren}
+        >
+          {postBodySection}
+          {betweenPostAndCommentsSection}
+          {commentsSection}
+        </ToCColumn>
+    }
+  
+    {isEAForum && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
+      <PostBottomRecommendations
+        post={post}
+        hasTableOfContents={hasTableOfContents}
+      />
+    </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>
   </AnalyticsContext>);
 }
 
+export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>
+
+export function isDialogueParticipant(userId: string, post: PostParticipantInfo) {
+  if (post.userId === userId) return true 
+  if (getConfirmedCoauthorIds(post).includes(userId)) return true
+  return false
+}
 const PostsPageComponent = registerComponent('PostsPage', PostsPage, {
   styles, hocs: [withErrorBoundary],
   areEqual: "auto",

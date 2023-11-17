@@ -8,16 +8,21 @@ import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
 import UsersIcon from "@heroicons/react/24/solid/UsersIcon";
+import UsersOutlineIcon from "@heroicons/react/24/outline/UsersIcon";
 import BellIcon from "@heroicons/react/24/solid/BellIcon";
+import BellAlertIcon from "@heroicons/react/24/solid/BellAlertIcon";
 import LinkIcon from "@heroicons/react/20/solid/LinkIcon";
 import BookmarkOutlineIcon from "@heroicons/react/24/outline/BookmarkIcon";
 import PlusIcon from "@heroicons/react/20/solid/PlusIcon";
 import PlusSmallIcon from "@heroicons/react/20/solid/PlusSmallIcon";
 import MinusSmallIcon from "@heroicons/react/20/solid/MinusSmallIcon";
+import HeartIcon from "@heroicons/react/24/solid/HeartIcon";
+import HeartOutlineIcon from "@heroicons/react/24/outline/HeartIcon";
 import BellOutlineIcon from "@heroicons/react/24/outline/BellIcon";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
+import CalendarIcon from "@heroicons/react/24/solid/CalendarIcon";
 import CalendarDaysIcon from "@heroicons/react/24/solid/CalendarDaysIcon";
 import BriefcaseIcon from "@heroicons/react/24/solid/BriefcaseIcon";
 import AcademicCapIcon from "@heroicons/react/24/solid/AcademicCapIcon";
@@ -30,6 +35,7 @@ import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
 import ListBulletIcon from "@heroicons/react/24/outline/ListBulletIcon";
 import TagIcon from "@heroicons/react/24/outline/TagIcon";
+import TagFilledIcon from "@heroicons/react/24/solid/TagIcon";
 import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
 import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
 import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
@@ -38,6 +44,7 @@ import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PhotoIcon from "@heroicons/react/24/outline/PhotoIcon";
 import DocumentTextIcon from "@heroicons/react/24/outline/DocumentTextIcon";
+import DocumentIcon from "@heroicons/react/24/solid/DocumentIcon";
 import PuzzleIcon from "@heroicons/react/24/solid/PuzzlePieceIcon";
 import ChartBarIcon from "@heroicons/react/24/solid/ChartBarIcon";
 import EllipsisVerticalIcon from "@heroicons/react/20/solid/EllipsisVerticalIcon";
@@ -50,6 +57,7 @@ import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
+import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -98,6 +106,8 @@ import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { MenuIcon } from "../icons/menuIcon";
 import { CloseMenuIcon } from "../icons/closeMenuIcon";
 import { BoldLinkIcon } from "../icons/boldLink";
+import { QIcon } from "../icons/qIcon";
+import { FilterAlt } from "../icons/filteralt";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -116,7 +126,9 @@ export type ForumIconName =
   "Star" |
   "User" |
   "Users" |
+  "UsersOutline" |
   "Bell" |
+  "BellAlert" |
   "BellBorder" |
   "AddEmoji" |
   "Link" |
@@ -125,6 +137,7 @@ export type ForumIconName =
   "Author" |
   "Sprout" |
   "Close" |
+  "Calendar" |
   "CalendarDays" |
   "Work" |
   "School" |
@@ -141,6 +154,7 @@ export type ForumIconName =
   "Eye" |
   "EyeOutline" |
   "Tag" |
+  "TagFilled" |
   "Edit" |
   "Analytics" |
   "ThickChevronLeft" |
@@ -154,11 +168,14 @@ export type ForumIconName =
   "List" |
   "PlusSmall" |
   "MinusSmall" |
+  "Heart" |
+  "HeartOutline" |
   "Settings" |
   "Email" |
   "Puzzle" |
   "Image" |
   "Document" |
+  "DocumentFilled" |
   "SoftUpArrow" |
   "ArrowRight" |
   "EllipsisVertical" |
@@ -170,7 +187,9 @@ export type ForumIconName =
   "ComputerDesktop" |
   "Menu" |
   "CloseMenu" |
-  "BarChart";
+  "Q" |
+  "BarChart" |
+  "Funnel";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   default: {
@@ -184,7 +203,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Star: MuiStarIcon,
     User: MuiPersonIcon,
     Users: MuiPeopleIcon,
+    UsersOutline: UsersOutlineIcon,
     Bell: MuiNotificationsIcon,
+    BellAlert: BellAlertIcon,
     BellBorder: MuiBellBorderIcon,
     AddEmoji: AddEmojiIcon,
     Link: MuiLinkIcon,
@@ -193,6 +214,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
     Work: BriefcaseIcon,
     School: AcademicCapIcon,
@@ -207,6 +229,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ListBullet: ListBulletIcon,
     Report: MuiReportIcon,
     Tag: MuiTagIcon,
+    TagFilled: TagFilledIcon,
     Eye: MuiVisibility,
     EyeOutline: MuiVisibilityOff,
     Edit: MuiEditIcon,
@@ -218,10 +241,13 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
+    Heart: HeartIcon,
+    HeartOutline: HeartOutlineIcon,
     Settings: MuiSettingsIcon,
     Email: MuiEmailIcon,
     Image: PhotoIcon,
     Document: DocumentTextIcon,
+    DocumentFilled: DocumentIcon,
     Puzzle: MuiPuzzleIcon,
     Check: MuiCheckIcon,
     CheckCircle: CheckCircleIcon,
@@ -238,7 +264,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MuiMenuIcon,
     CloseMenu: CloseMenuIcon,
+    Q: QIcon,
     BarChart: ChartBarIcon,
+    Funnel: FilterAlt,
   },
   EAForum: {
     VolumeUp: SpeakerWaveIcon,
@@ -251,7 +279,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Star: StarIcon,
     User: UserIcon,
     Users: UsersIcon,
+    UsersOutline: UsersOutlineIcon,
     Bell: BellIcon,
+    BellAlert: BellAlertIcon,
     BellBorder: BellOutlineIcon,
     AddEmoji: AddEmojiIcon,
     Link: LinkIcon,
@@ -260,6 +290,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Author: AuthorIcon,
     Sprout: SproutIcon,
     Close: CloseIcon,
+    Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
     Work: BriefcaseIcon,
     School: AcademicCapIcon,
@@ -274,6 +305,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ListBullet: ListBulletIcon,
     Report: ReportIcon,
     Tag: TagIcon,
+    TagFilled: TagFilledIcon,
     Eye: EyeIcon,
     EyeOutline: EyeOutlineIcon,
     Edit: PencilIcon,
@@ -285,10 +317,13 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
     MinusSmall: MinusSmallIcon,
+    Heart: HeartIcon,
+    HeartOutline: HeartOutlineIcon,
     Settings: SettingsIcon,
     Email: EmailIcon,
     Image: PhotoIcon,
     Document: DocumentTextIcon,
+    DocumentFilled: DocumentIcon,
     Puzzle: PuzzleIcon,
     Check: CheckIcon,
     CheckCircle: CheckCircleIcon,
@@ -305,7 +340,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ComputerDesktop: ComputerDesktopIcon,
     Menu: MenuIcon,
     CloseMenu: CloseMenuIcon,
+    Q: QIcon,
     BarChart: ChartBarIcon,
+    Funnel: FunnelIcon,
   },
 };
 
@@ -368,7 +405,7 @@ const ForumIcon = ({
   const customClass = customClassKey ? classes[customClassKey] : undefined;
   const fullClassName = classNames(className, {
     [classes.root]: !noDefaultStyles,
-    [customClass]: !noDefaultStyles && customClass,
+    [customClass as AnyBecauseHard]: !noDefaultStyles && customClass,
   });
 
   return <Icon className={fullClassName} {...props} />;
@@ -376,7 +413,7 @@ const ForumIcon = ({
 
 const ForumIconComponent = registerComponent("ForumIcon", memo(ForumIcon), {
   styles,
-  stylePriority: -1,
+  stylePriority: -2,
 });
 
 declare global {

@@ -16,6 +16,7 @@ describe("ElasticService", () => {
         ["a:true"],
         ["b:false"],
         ["c:test"],
+        ["c:-test"],
       ], [
         "d<3",
         "e<=4",
@@ -25,9 +26,10 @@ describe("ElasticService", () => {
       ],
     );
     expect(result).toStrictEqual([
-      {type: "facet", field: "a", value: true},
-      {type: "facet", field: "b", value: false},
-      {type: "facet", field: "c", value: "test"},
+      {type: "facet", field: "a", value: true, negated: false},
+      {type: "facet", field: "b", value: false, negated: false},
+      {type: "facet", field: "c", value: "test", negated: false},
+      {type: "facet", field: "c", value: "test", negated: true},
       {type: "numeric", field: "d", value: 3, op: "lt"},
       {type: "numeric", field: "e", value: 4, op: "lte"},
       {type: "numeric", field: "f", value: 5, op: "gt"},
