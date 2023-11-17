@@ -61,6 +61,7 @@ type NotificationDisplayPost = Pick<
   "postedAt" |
   "groupId" |
   "fmCrosspost" |
+  "collabEditorDialogue" |
   "readTimeMinutes" |
   "socialPreviewData" |
   "customHighlight" |
@@ -669,9 +670,12 @@ export const PostAddedAsCoauthorNotification = registerNotificationType({
     return postGetEditUrl(documentId, false)
   },
   // TODO: Check if post is a dialogue or not
-  Display: ({User, Post, notification: {post}}) => <>
-    <User /> added you as a coauthor to the post <Post />
-  </>,
+  Display: ({User, Post, notification: {post}}) => {
+    const postOrDialogue = post?.collabEditorDialogue ? "dialogue" : "post";
+    return <>
+      <User /> added you as a coauthor to the {postOrDialogue} <Post />
+    </>;
+  },
 });
 
 export const AlignmentSubmissionApprovalNotification = registerNotificationType({

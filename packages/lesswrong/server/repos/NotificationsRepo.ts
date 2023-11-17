@@ -45,6 +45,7 @@ const buildNotificationPost = (
     'postedAt', ${prefix}."postedAt",
     'groupId', ${prefix}."groupId",
     'fmCrosspost', ${prefix}."fmCrosspost",
+    'collabEditorDialogue', ${prefix}."collabEditorDialogue",
     'readTimeMinutes', COALESCE(
       ${prefix}."readTimeMinutesOverride",
       (${prefix}."contents"->'wordCount')::INTEGER / ${READ_WORDS_PER_MINUTE}
