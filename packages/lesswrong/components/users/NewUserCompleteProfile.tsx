@@ -9,6 +9,10 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useMessages } from "../common/withMessages";
 import { getUserEmail } from "../../lib/collections/users/helpers";
 import { LicenseLink, TosLink } from "../posts/PostsAcceptTos";
+import { Link } from "../../lib/reactRouterWrapper";
+
+// link to the page that lists past digests
+const eaForumDigestLink = 'https://us8.campaign-archive.com/home/?u=52b028e7f799cca137ef74763&id=7457c7ff3e'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,6 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   title: {
+    fontSize: 30,
     marginTop: 0,
     [theme.breakpoints.down('md')]: {
       fontSize: 28,
@@ -26,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   section: {
     maxWidth: 600,
-    marginTop: theme.spacing.unit * 6,
+    marginTop: 30,
     "& .MuiTypography-body1": {
       color: theme.palette.text.normal,
     },
@@ -50,11 +55,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.primary.main,
     },
   },
+  usernameInput: {
+    marginBottom: 10
+  },
   tosText: {
     marginBottom: 16,
   },
   submitButtonSection: {
-    marginTop: theme.spacing.unit * 3
+    marginTop: 30
   },
 });
 
@@ -73,7 +81,7 @@ function prefillUsername(maybeUsername: string | undefined | null): string {
 const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ currentUser, classes }) => {
   const [username, setUsername] = useState(prefillUsername(currentUser.displayName))
   const emailInput = useRef<HTMLInputElement>(null)
-  const [subscribeToDigest, setSubscribeToDigest] = useState(false)
+  const [subscribeToDigest, setSubscribeToDigest] = useState(true)
   const [validationError, setValidationError] = useState('')
   const [updateUser] = useMutation(gql`
     mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!, $email: String, $acceptedTos: Boolean) {
@@ -131,10 +139,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
   return <SingleColumnSection>
     <div className={classes.root}>
       <Typography variant="display2" gutterBottom className={classes.title}>
-        Thanks for registering for {siteNameWithArticleSetting.get()}
-      </Typography>
-      <Typography variant='body2'>
-        Take a moment to complete your profile
+        Thanks for registering! Complete your profile.
       </Typography>
       <div className={classes.section}>
         <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
@@ -156,6 +161,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
           value={username}
           onChange={(event) => setUsername(event.target.value)}
           onBlur={(_event) => validateUsername(username)}
+          className={classes.usernameInput}
         />
       </div>
       
@@ -179,10 +185,14 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
 
       {isEAForum && <div className={classes.section}>
         <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
-          Would you like to get digest emails?
+          Would you like to get weekly emails with selected recent posts from the Forum?
         </Typography>
         <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          The EA Forum Digest is a weekly summary of the best content, curated by the EA Forum team.
+          The EA Forum Digest is curated by the Forum team, and features highlights from
+          every week, announcements, and more.{" "}
+          <Link to={eaForumDigestLink} target="_blank" rel="noreferrer">
+            See recent issues here
+          </Link>.
         </Typography>
         <FormControlLabel
           control={

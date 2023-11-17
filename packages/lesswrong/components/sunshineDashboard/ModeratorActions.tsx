@@ -216,7 +216,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handlePurge = () => {
     const newNotes = getModSignatureWithNote("Purge") + notes;
-    if (confirm("Are you sure you want to delete all this user's posts, comments and votes?")) {
+    if (confirm("Are you sure you want to delete all this user's posts, comments, sequences, and votes?")) {
       void updateUser({
         selector: {_id: user._id},
         data: {
