@@ -53,6 +53,7 @@ const buildNotificationPost = (
     'socialPreviewData', ${getSocialPreviewSql(prefix)},
     'customHighlight', ${prefix}."customHighlight",
     'contents', ${prefix}."contents",
+    'rsvps', ${prefix}."rsvps",
     'user', ${buildNotificationUser(userPrefix)},
     'group', ${buildNotificationLocalgroup(localgroupPrefix)}
   ) END`;

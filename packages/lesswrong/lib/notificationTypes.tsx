@@ -66,7 +66,7 @@ type NotificationDisplayPost = Pick<
   "socialPreviewData" |
   "customHighlight" |
   "contents"
-> & {
+> & Pick<DbPost, "rsvps"> & {
   user?: NotificationDisplayUser,
   group?: NotificationDisplayLocalgroup,
 };
@@ -114,6 +114,7 @@ export interface NotificationType {
   Display?: FC<{
     notification: NotificationDisplay,
     User: FC,
+    LazyUser: FC<{userId: string}>,
     Post: FC,
     Comment: FC,
     Tag: FC,
@@ -640,9 +641,8 @@ export const PostSharedWithUserNotification = registerNotificationType({
     }
     return getPostCollaborateUrl(documentId, false)
   },
-  // TODO: Check if post is a draft or not
   Display: ({User, Post, notification: {post}}) => <>
-    <User /> shared their post <Post /> with you
+    <User /> shared their {post?.draft ? "draft" : "post"} <Post /> with you
   </>,
 });
 
@@ -669,7 +669,6 @@ export const PostAddedAsCoauthorNotification = registerNotificationType({
     }
     return postGetEditUrl(documentId, false)
   },
-  // TODO: Check if post is a dialogue or not
   Display: ({User, Post, notification: {post}}) => {
     const postOrDialogue = post?.collabEditorDialogue ? "dialogue" : "post";
     return <>
@@ -734,8 +733,16 @@ export const NewRSVPNotification = registerNotificationType({
   getIcon() {
     return <EventIcon style={iconStyles} />
   },
-  // TODO: This probably isn't the correct user and we don't know their RSVP value
-  Display: ({User, Post}) => <><User /> responded to your event <Post /></>,
+  Display: ({Post, LazyUser, notification: {post}}) => {
+    const rsvps = post?.rsvps ?? [];
+    const lastRsvp = sortBy(rsvps, (r) => r.createdAt)[rsvps.length - 1];
+    if (!lastRsvp?.userId) {
+      return <>Someone responded to your event <Post /></>;
+    }
+    return <>
+      <LazyUser userId={lastRsvp.userId} /> responded to your event <Post />
+    </>
+  },
 })
 
 export const CancelledRSVPNotification = registerNotificationType({

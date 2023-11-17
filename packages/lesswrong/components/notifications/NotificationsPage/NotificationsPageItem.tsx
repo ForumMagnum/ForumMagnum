@@ -175,19 +175,25 @@ export const NotificationsPageItem = ({notification, classes}: {
   const displayLocalgroup = localgroup ?? post?.group;
 
   const {
-    ForumIcon, UsersNameDisplay, PostsTooltip, FormatDate, Loading,
-    CommentsNode,
+    ForumIcon, UsersName, PostsTooltip, FormatDate, Loading, CommentsNode,
   } = Components;
   const User: FC = () => (
-    <UsersNameDisplay
+    <UsersName
       user={displayUser}
+      tooltipPlacement="bottom-start"
+      className={classes.primaryText}
+    />
+  );
+  const LazyUser: FC<{userId: string}> = ({userId}) => (
+    <UsersName
+      documentId={userId}
       tooltipPlacement="bottom-start"
       className={classes.primaryText}
     />
   );
   const Post: FC = () => displayPost
     ? (
-      <PostsTooltip post={displayPost as PostsList}>
+      <PostsTooltip post={displayPost as unknown as PostsList}>
         <Link
           to={link ?? postGetPageUrl(displayPost)}
           className={classes.primaryText}
@@ -255,6 +261,7 @@ export const NotificationsPageItem = ({notification, classes}: {
             <Display
               notification={notification}
               User={User}
+              LazyUser={LazyUser}
               Post={Post}
               Comment={Comment}
               Tag={Tag}
