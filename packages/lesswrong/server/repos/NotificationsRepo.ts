@@ -95,7 +95,10 @@ const buildNotificationsQuery = (
     ${buildNotificationPost("p", "pu", "pl")} "post",
     ${buildNotificationComment("c", "cu", "cp", "cpu", "cpl")} "comment",
     ${buildNotificationTag("t")} "tag",
-    ${buildNotificationUser("u")} "user",
+    COALESCE(
+      ${buildNotificationUser("nma")},
+      ${buildNotificationUser("u")}
+    ) "user",
     ${buildNotificationLocalgroup("l")} "localgroup"
   FROM "Notifications" n
   LEFT JOIN "Posts" p ON
@@ -127,6 +130,8 @@ const buildNotificationsQuery = (
   LEFT JOIN "Localgroups" l ON
     n."documentType" = 'localgroup' AND
     n."documentId" = l."_id"
+  LEFT JOIN "Users" nma ON
+    n."extraData"->>'newMessageAuthorId' = nma."_id"
   WHERE
     n."userId" = $${userIdIndex} AND
     n."deleted" IS NOT TRUE AND

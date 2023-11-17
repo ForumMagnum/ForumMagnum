@@ -369,7 +369,8 @@ export const NewSubforumCommentNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
-  // TODO: Load subforum name
+  // We don't have the exact data here to format this the same as above, but
+  // subforums don't exist anymore so it doesn't seem worth the effort to fix
   Display: ({User, Post}) => <><User /> left a new comment on <Post /></>,
 });
 
@@ -395,7 +396,6 @@ export const NewDialogueMessagesNotification = registerNotificationType({
     return `/editPost?postId=${documentId}`;
   },
   causesRedBadge: true,
-  // TODO: newMessageAuthorId?
   Display: ({User, Post}) => <><User /> left a new reply in your dialogue <Post /></>,
 });
 
