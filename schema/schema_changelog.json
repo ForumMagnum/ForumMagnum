@@ -408,5 +408,10 @@
     "acceptsSchemaHash": "4a83029d46e8b6afd17ced17bfeb6cf7",
     "acceptedByMigration": "20231116T195724.addDialogueMatchTable.ts",
     "timestamp": "2023-11-16T19:57:24.000Z"
+  },
+  {
+    "acceptsSchemaHash": "46cb69b82a73d56236575ea2f03a4b5d",
+    "acceptedByMigration": "20231118T000042.make_fields_not_nullable.ts",
+    "timestamp": "2023-11-18T00:00:42.000Z"
   }
 ]
