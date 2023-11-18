@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
@@ -10,6 +10,7 @@ import { DialogueUserRowProps, getRowProps } from '../users/DialogueMatchingPage
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import MuiPeopleIcon from "@material-ui/icons/People";
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
+import {gql, useQuery} from '@apollo/client';
 
 
 const styles = (theme: ThemeType) => ({
@@ -120,16 +121,24 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 8
   },
   findDialoguePartners: {
-  }
+  },
+  debateTopic: {
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  expandIcon: {
+    cursor: 'pointer',
+  },
 });
 
-interface DialogueRowProps {
+interface DialogueMatchRowProps {
   rowProps: DialogueUserRowProps<boolean>; 
   classes: ClassesType<typeof styles>; 
   showMatchNote: boolean;
 }
 
-const DialogueRow = ({ rowProps, classes, showMatchNote }: DialogueRowProps) => {
+const DialogueMatchRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRowProps) => {
   const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo } = Components
 
   const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
@@ -175,6 +184,96 @@ const DialogueRow = ({ rowProps, classes, showMatchNote }: DialogueRowProps) => 
             currentUser={currentUser}
           />
         </div>
+      </div>
+    </div>
+  );
+};
+
+const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRowProps) => {
+  const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo } = Components
+
+  const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
+  const currentUser = useCurrentUser();
+  // Dummy sentences for debate topics
+  const debateTopics = ["Example sentence 1", "Example sentence 2", "Example sentence 3"];
+
+  // State to handle the expansion of the text
+  const [isExpanded, setIsExpanded] = useState(false);
+
+
+  const { loading, error, data: topicData } = useQuery(gql`
+    query getTopicRecommendations($userId: String!, $targetUserId: String!, $limit: Int!) {
+      GetTwoUserTopicRecommendations(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
+        _id
+        contents {
+          html
+          plaintextMainText
+        }
+      }
+    }
+  `, {
+    variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit:4 },
+  });
+
+  if (!currentUser) return <></>;
+  const topicRecommendations: CommentsList[] | undefined = topicData?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard  
+
+  console.log(topicRecommendations);
+  // Function to toggle the expansion
+  const toggleExpansion = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  return (
+    <div>
+      <div key={targetUser._id} className={classes.dialogueUserRow}>
+        <div className={classes.dialogueLeftContainer}>
+          <div className={classes.dialogueMatchCheckbox}>
+            <DialogueCheckBox
+              targetUserId={targetUser._id}
+              targetUserDisplayName={targetUser.displayName}
+              checkId={checkId}
+              isChecked={userIsChecked}
+              isMatched={userIsMatched}
+            />
+          </div>
+          <PostsItem2MetaInfo className={classes.dialogueMatchUsername}>
+            <UsersName
+              documentId={targetUser._id}
+              simple={false}
+            />
+          </PostsItem2MetaInfo>
+          <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+            {showMatchNote ? "You've matched!" : "Check to opt in to dialogue, if you find a topic"}
+          </PostsItem2MetaInfo>
+        </div>
+        <div className={classes.dialogueRightContainer}>
+          <div className={classes.dialogueMatchMessageButton}>
+            <MessageButton
+              targetUserId={targetUser._id}
+              currentUser={currentUser}
+              isMatched={userIsMatched}
+            />
+          </div>
+          <div className={classes.dialogueMatchPreferencesButton}>
+            <DialogueNextStepsButton
+              isMatched={userIsMatched}
+              checkId={checkId}
+              targetUserId={targetUser._id}
+              targetUserDisplayName={targetUser.displayName}
+              currentUser={currentUser}
+            />
+          </div>
+        </div>
+        
+      </div>
+      <div style={{ color: 'grey', fontSize: 'small' }}>
+        {debateTopics.map((topic, index) => (
+          <p key={index} className={isExpanded ? '' : classes.debateTopic}>• {topic}</p>
+        ))}
+        <span className={classes.expandIcon} onClick={toggleExpansion}>
+          {isExpanded ? '▲' : '▼'}
+        </span>
       </div>
     </div>
   );
@@ -278,10 +377,10 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
       {dialogueMatchmakingEnabled.get() && <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
         <div>
         {currentUser && matchRowPropsList?.map((rowProps, index) => (
-          <DialogueRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
+          <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
         ))}
         {currentUser && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
-          <DialogueRow key={index} rowProps={rowProps} classes={classes} showMatchNote={false} />
+          <DialogueRecommendationRow key={index} rowProps={rowProps} classes={classes} showMatchNote={false} />
         ))}
         </div>
       </AnalyticsContext>}
