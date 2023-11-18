@@ -1,5 +1,5 @@
 /**
- * Generated on 2023-10-18T22:37:24.782Z by `yarn makemigrations`
+ * Generated on 2023-11-18T00:00:42.372Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * ***Diff too large to display***
@@ -11,7 +11,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "e1a0256be4f29b89da1777967e01519b";
+export const acceptsSchemaHash = "46cb69b82a73d56236575ea2f03a4b5d";
 
 const fillInNullWithDefaultCommands = `
   UPDATE "AdvisorRequests"
