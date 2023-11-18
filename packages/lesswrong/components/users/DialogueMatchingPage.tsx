@@ -667,7 +667,7 @@ const Headers = ({ titles, classes, headerClasses }: { titles: string[], headerC
   );
 };
 
-type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No", recommendationReason: string, theirVote?: string, yourVote?: string}
+export type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No", recommendationReason: string, theirVote?: string, yourVote?: string}
 
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes, dialogueCheck }: NextStepsDialogProps) => {
   const { LWDialog, ReactionIcon, LWTooltip } = Components;

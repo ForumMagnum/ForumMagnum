@@ -6,7 +6,7 @@ import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
-import { DialogueUserRowProps, getRowProps } from '../users/DialogueMatchingPage';
+import { DialogueUserRowProps, ExtendedDialogueMatchPreferenceTopic, getRowProps } from '../users/DialogueMatchingPage';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import MuiPeopleIcon from "@material-ui/icons/People";
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
@@ -130,6 +130,15 @@ const styles = (theme: ThemeType) => ({
   expandIcon: {
     cursor: 'pointer',
   },
+  recommendationReasons: {
+    paddingLeft: 4,
+    paddingRight: 4,
+    paddingBottom: 4,
+    marginLeft: 'auto',
+    borderRadius: 5,
+    backgroundColor: "rgba(0,0,0,0.05)",
+    whiteSpace: 'nowrap'
+  }
 });
 
 interface DialogueMatchRowProps {
@@ -190,7 +199,7 @@ const DialogueMatchRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRow
 };
 
 const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRowProps) => {
-  const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo } = Components
+  const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo, LWTooltip, ReactionIcon } = Components
 
   const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
   const currentUser = useCurrentUser();
@@ -204,11 +213,16 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
   const { loading, error, data: topicData } = useQuery(gql`
     query getTopicRecommendations($userId: String!, $targetUserId: String!, $limit: Int!) {
       GetTwoUserTopicRecommendations(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
-        _id
-        contents {
-          html
-          plaintextMainText
+        comment {
+          _id
+          contents {
+            html
+            plaintextMainText
+          }
         }
+        recommendationReason
+        yourVote
+        theirVote
       }
     }
   `, {
@@ -216,9 +230,14 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
   });
 
   if (!currentUser) return <></>;
-  const topicRecommendations: CommentsList[] | undefined = topicData?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard  
+  // const topicRecommendations: ExtendedDialogueMatchPreferenceTopic[] | undefined = topicData?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard  
+  const preTopicRecommendations: {comment: {_id: string, contents: {html: string, plaintextMainText: string}}, recommendationReason: string, yourVote: string, theirVote: string}[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
+  const topicRecommendations = preTopicRecommendations?.filter(topic => topic.theirVote !== null);
 
-  console.log(topicRecommendations);
+  //console.log(topicRecommendations);
+  console.log(topicRecommendations?.map(topic => ({name: targetUser.displayName, theirVote: topic.theirVote, content: topic.comment.contents.plaintextMainText}) ));
+
+
   // Function to toggle the expansion
   const toggleExpansion = () => {
     setIsExpanded(!isExpanded);
@@ -244,7 +263,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
             />
           </PostsItem2MetaInfo>
           <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
-            {showMatchNote ? "You've matched!" : "Check to opt in to dialogue, if you find a topic"}
+            Topic suggestions
           </PostsItem2MetaInfo>
         </div>
         <div className={classes.dialogueRightContainer}>
@@ -268,13 +287,20 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
         
       </div>
       <div style={{ color: 'grey', fontSize: 'small' }}>
-        {debateTopics.map((topic, index) => (
-          <p key={index} className={isExpanded ? '' : classes.debateTopic}>• {topic}</p>
-        ))}
-        <span className={classes.expandIcon} onClick={toggleExpansion}>
-          {isExpanded ? '▲' : '▼'}
-        </span>
-      </div>
+      {topicRecommendations?.map((topic, index) => (
+        <p key={index} className={isExpanded ? '' : classes.debateTopic}>
+          {topic.theirVote === 'agree' ? `agrees that "${topic.comment.contents.plaintextMainText}"` : `disagrees that "${topic.comment.contents.plaintextMainText}"`}
+          <span className={classes.recommendationReasons}>
+            {/* {topic.yourVote && <LWTooltip title={`You reacted with ${topic.yourVote} to this`}><ReactionIcon size={13} react={topic.yourVote} /></LWTooltip>} */}
+            {/* {topic.theirVote && <LWTooltip title={`${targetUser.displayName} reacted with ${topic.theirVote} to this`}><ReactionIcon size={13} react={topic.theirVote} /></LWTooltip>} */}
+            {/* {topic.recommendationReason === "This comment is popular" && <LWTooltip title="This comment is popular"><ReactionIcon size={13} react={"excitement"} /></LWTooltip>} */}
+          </span>
+        </p>
+      ))}
+  {/* <span className={classes.expandIcon} onClick={toggleExpansion}>
+    {isExpanded ? '▲' : '▼'}
+  </span> */}
+</div>
     </div>
   );
 };
@@ -380,6 +406,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
           <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
         ))}
         {currentUser && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
+          console.log(rowProps.targetUser.displayName),
           <DialogueRecommendationRow key={index} rowProps={rowProps} classes={classes} showMatchNote={false} />
         ))}
         </div>
