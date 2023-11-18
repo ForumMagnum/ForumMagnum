@@ -1304,9 +1304,6 @@ export const DialogueMatchingPage = ({classes}: {
   return (
   <div className={classes.root}>
     <div className={classes.container}>
-      <div className={classes.mobileWarning}>
-        Dialogues matching doesn't render well on narrow screens right now. <br/> <br /> Please view on laptop or tablet!
-      </div>
 
       <h1>Dialogue Matching</h1>
       <ul>
