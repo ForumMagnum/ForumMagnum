@@ -6,6 +6,11 @@ import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 
+type ExtendedCommentWithReactions = DbComment & {
+  yourVote?: string,
+  theirVote?: string,
+}
+
 export default class CommentsRepo extends AbstractRepo<DbComment> {
   constructor() {
     super(Comments);
@@ -78,8 +83,8 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   // LW only! This is site specific to get the popular comments on the Bens Interesting Disagreements post
   readonly bensInterestingDisagreementsCommentId = 'NtsPs9wcwrpeK6KYL';
 
-  async getPopularPollComments (limit: number): Promise<(DbComment)[]> {
-    return await this.manyOrNone(`
+  async getPopularPollComments (limit: number): Promise<(ExtendedCommentWithReactions)[]> {
+    return await this.getRawDb().manyOrNone(`
       SELECT c.*
       FROM public."Comments" AS c
       WHERE c."parentCommentId" = $2
@@ -88,9 +93,9 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [limit, this.bensInterestingDisagreementsCommentId]);
   }
 
-  async getPopularPollCommentsWithUserVotes (userId:string, limit: number): Promise<(DbComment)[]> {
-    return await this.manyOrNone(`
-    SELECT c.*
+  async getPopularPollCommentsWithUserVotes (userId:string, limit: number): Promise<(ExtendedCommentWithReactions)[]> {
+    return await this.getRawDb().manyOrNone(`
+    SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "yourVote"
     FROM public."Comments" AS c
     INNER JOIN public."Votes" AS v ON c._id = v."documentId"
     WHERE
@@ -104,8 +109,8 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [userId, limit, this.bensInterestingDisagreementsCommentId]);
   }
 
-  async getPopularPollCommentsWithTwoUserVotes (userId:string, targetUserId:string, limit: number): Promise<(DbComment)[]> {
-    return await this.manyOrNone(`
+  async getPopularPollCommentsWithTwoUserVotes (userId:string, targetUserId:string, limit: number): Promise<(ExtendedCommentWithReactions)[]> {
+    return await this.getRawDb().manyOrNone(`
       WITH votes_filtered AS (
         SELECT *
         FROM public."Votes"
@@ -113,7 +118,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
           AND cancelled IS NOT TRUE
           AND "isUnvote" IS NOT TRUE
       )
-      SELECT c.*
+      SELECT c.*, v1."extendedVoteType"->'reacts'->0->>'react' AS "yourVote", v2."extendedVoteType"->'reacts'->0->>'react' AS "theirVote"
       FROM public."Comments" AS c
       INNER JOIN votes_filtered AS v1 ON c._id = v1."documentId"
       INNER JOIN votes_filtered AS v2 ON c._id = v2."documentId"

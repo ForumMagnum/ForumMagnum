@@ -25,6 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       1.5fr
     `,
     [theme.breakpoints.down('sm')]: {
+      display: 'block',
       paddingTop: 12
     },
   },

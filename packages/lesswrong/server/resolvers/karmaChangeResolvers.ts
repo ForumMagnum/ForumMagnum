@@ -1,5 +1,5 @@
 import Users from "../../lib/collections/users/collection";
-import { forumTypeSetting } from "../../lib/instanceSettings";
+import { isAF } from "../../lib/instanceSettings";
 import { augmentFieldsDict } from '../../lib/utils/schemaUtils';
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "../karmaChanges";
 
@@ -38,12 +38,11 @@ augmentFieldsDict(Users, {
         
         const nextBatchDate = getKarmaChangeNextBatchDate({settings, now});
         
-        const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
         return getKarmaChanges({
           user: document,
           startDate, endDate,
           nextBatchDate,
-          af: alignmentForum,
+          af: isAF,
           context,
         });
       },

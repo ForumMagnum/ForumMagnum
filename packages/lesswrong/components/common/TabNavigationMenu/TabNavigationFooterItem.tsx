@@ -5,7 +5,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import Tooltip from '@material-ui/core/Tooltip';
 import { MenuTabRegular } from './menuTabs';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const smallIconSize = 23
 
@@ -13,10 +13,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   selected: {
     '& $icon': {
       opacity: 1,
-      color: isEAForum ? 'white' : undefined,
+      color: isFriendlyUI ? 'white' : undefined,
     },
     '& $navText': {
-      color: isEAForum ? 'white' : theme.palette.grey[900],
+      color: isFriendlyUI ? 'white' : theme.palette.grey[900],
       fontWeight: 600,
     },
     backgroundColor: theme.palette.grey[400]
@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "column",
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         color: theme.palette.grey[600],
         "&:hover": {
@@ -43,19 +43,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   icon: {
     display: "block",
-    opacity: isEAForum ? 1 : 0.45,
+    opacity: isFriendlyUI ? 1 : 0.45,
     width: smallIconSize,
     height: smallIconSize,
     '& svg': {
       width: smallIconSize,
       height: smallIconSize,
-      fill: isEAForum ? undefined : "currentColor",
-      color: isEAForum ? "inherit" : undefined,
+      fill: isFriendlyUI ? undefined : "currentColor",
+      color: isFriendlyUI ? "inherit" : undefined,
     }
   },
   navText: {
     ...theme.typography.body2,
-    color: isEAForum ? "inherit" : theme.palette.grey[700],
+    color: isFriendlyUI ? "inherit" : theme.palette.grey[700],
     fontSize: '.8rem',
   },
   homeIcon: {

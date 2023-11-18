@@ -9,7 +9,8 @@ import qs from 'qs';
 import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug} from './pingback'
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { pluralize } from './vulcan-lib';
-
+import { forumSpecificRoutes } from './forumSpecificRoutes';
+import { hasPostRecommendations } from './betas';
 
 const knownTagNames = ['tag', 'topic', 'concept']
 const useShortAllTagsPath = isEAForum;
@@ -570,7 +571,7 @@ onStartup(() => {
   );
 });
 
-const forumSpecificRoutes = forumSelect<Route[]>({
+const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
   EAForum: [
     {
       name: 'home',
@@ -1209,7 +1210,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
   ],
 })
 
-addRoute(...forumSpecificRoutes)
+addRoute(...eaLwAfForumSpecificRoutes)
 
 addRoute({
   name: 'AllComments',
@@ -1394,7 +1395,7 @@ addRoute(
     previewComponentName: 'PostLinkPreview',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     background: postBackground,
-    noFooter: isEAForum,
+    noFooter: hasPostRecommendations,
   },
   {
     name:'posts.slug.single',
@@ -1404,7 +1405,7 @@ addRoute(
     previewComponentName: 'PostLinkPreviewSlug',
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     background: postBackground,
-    noFooter: isEAForum,
+    noFooter: hasPostRecommendations,
   },
   {
     name: 'posts.revisioncompare',
@@ -1596,3 +1597,5 @@ addRoute(
     title: "Review Admin Dashboard",
   }
 );
+
+forumSpecificRoutes();

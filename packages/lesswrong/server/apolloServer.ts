@@ -24,6 +24,7 @@ import { getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
+import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -32,7 +33,7 @@ import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { faviconUrlSetting, forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
+import { faviconUrlSetting, isEAForum, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './testingSqlClient';
@@ -63,8 +64,10 @@ class ApolloServerLogging {
   }
 }
 
+export type AddMiddlewareType = typeof app.use;
+
 export function startWebserver() {
-  const addMiddleware: typeof app.use = (...args: any[]) => app.use(...args);
+  const addMiddleware: AddMiddlewareType = (...args: any[]) => app.use(...args);
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
 
@@ -101,6 +104,7 @@ export function startWebserver() {
 
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
+  addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
   app.use(datadogMiddleware);
@@ -195,7 +199,7 @@ export function startWebserver() {
   }));
   
   app.get('/api/eag-application-data', async function(req, res, next) {
-    if (forumTypeSetting.get() !== 'EAForum') {
+    if (!isEAForum) {
       next()
       return
     }

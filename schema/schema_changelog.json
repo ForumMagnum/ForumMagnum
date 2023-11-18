@@ -408,5 +408,10 @@
     "acceptsSchemaHash": "4a83029d46e8b6afd17ced17bfeb6cf7",
     "acceptedByMigration": "20231116T195724.addDialogueMatchTable.ts",
     "timestamp": "2023-11-16T19:57:24.000Z"
+  },
+  {
+    "acceptsSchemaHash": "cdea3c2caa55eb651988dcb30e827b07",
+    "acceptedByMigration": "20231117T215406.addNotificationKarmaPowersGainedSetting.ts",
+    "timestamp": "2023-11-17T21:54:06.000Z"
   }
 ]

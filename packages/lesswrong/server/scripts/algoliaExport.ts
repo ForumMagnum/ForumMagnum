@@ -9,7 +9,7 @@ import {
   algoliaIndexedCollectionNames,
   AlgoliaIndexCollectionName,
 } from '../../lib/search/algoliaUtil';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import { isProductionDBSetting } from '../../lib/publicSettings';
 import * as _ from 'underscore';
 import moment from 'moment';
@@ -22,7 +22,7 @@ async function algoliaExport<T extends AlgoliaIndexedDbObject>(collection: Algol
   
   // The EA Forum needs to use less algolia resources on Dev and Staging, so we
   // time-bound our queries
-  const timeBound = forumTypeSetting.get() === 'EAForum' && !isProductionDBSetting.get() ?
+  const timeBound = isEAForum && !isProductionDBSetting.get() ?
     { createdAt: { $gte: moment().subtract(3, 'months').toDate() } } :
     {}
   const computedSelector = {...selector, ...timeBound}

@@ -1,11 +1,11 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { userHasCommentProfileImages } from '../../../lib/betas';
 import { useCurrentUser } from '../../common/withUser';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const PROFILE_IMAGE_SIZE = 20;
 
@@ -13,13 +13,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   author: {
     ...theme.typography.body2,
     fontWeight: 600,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       marginRight: 2,
     }),
   },
   authorAnswer: {
     ...theme.typography.body2,
-    fontFamily: isEAForum
+    fontFamily: isFriendlyUI
       ? theme.palette.fonts.sansSerifStack
       : theme.typography.postStyle.fontFamily,
     fontWeight: 600,
@@ -87,7 +87,7 @@ const CommentUserName = ({
         Answer by <UsersName user={author} simple={simple}/>
       </span>
     );
-  } else if (isEAForum) {
+  } else if (isFriendlyUI) {
     const Wrapper = ({children}: {children: ReactNode}) => simple
       ? (
         <div className={classes.mainWrapper}>
