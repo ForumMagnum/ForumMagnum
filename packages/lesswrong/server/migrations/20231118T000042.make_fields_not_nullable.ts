@@ -20,7 +20,7 @@ const fillInNullWithDefaultCommands = `
   WHERE
     "interestedInMetaculus" IS NULL;
 
-  #No columns with defaults to coalesce to for table "Bans"
+  -- No columns with defaults to coalesce to for table "Bans"
 
   UPDATE "Books"
   SET
@@ -36,7 +36,7 @@ const fillInNullWithDefaultCommands = `
   WHERE
     "noindex" IS NULL;
 
-  #No columns with defaults to coalesce to for table "CommentModeratorActions"
+  -- No columns with defaults to coalesce to for table "CommentModeratorActions"
 
   UPDATE "Comments"
   SET
@@ -96,11 +96,11 @@ const fillInNullWithDefaultCommands = `
     "messageCount" IS NULL OR
     "participantIds" IS NULL;
 
-  #No columns with defaults to coalesce to for table "DatabaseMetadata"
+  -- No columns with defaults to coalesce to for table "DatabaseMetadata"
 
-  #No columns with defaults to coalesce to for table "DebouncerEvents"
+  -- No columns with defaults to coalesce to for table "DebouncerEvents"
 
-  #No columns with defaults to coalesce to for table "DigestPosts"
+  -- No columns with defaults to coalesce to for table "DigestPosts"
 
   UPDATE "ElectionCandidates"
   SET
@@ -114,9 +114,9 @@ const fillInNullWithDefaultCommands = `
     "score" IS NULL OR
     "voteCount" IS NULL;
 
-  #No columns with defaults to coalesce to for table "EmailTokens"
+  -- No columns with defaults to coalesce to for table "EmailTokens"
 
-  #No columns with defaults to coalesce to for table "FeaturedResources"
+  -- No columns with defaults to coalesce to for table "FeaturedResources"
 
   UPDATE "GardenCodes"
   SET
@@ -132,9 +132,9 @@ const fillInNullWithDefaultCommands = `
     "title" IS NULL OR
     "type" IS NULL;
 
-  #No columns with defaults to coalesce to for table "Images"
+  -- No columns with defaults to coalesce to for table "Images"
 
-  #No columns with defaults to coalesce to for table "LegacyData"
+  -- No columns with defaults to coalesce to for table "LegacyData"
 
   UPDATE "Localgroups"
   SET
@@ -172,7 +172,7 @@ const fillInNullWithDefaultCommands = `
     "deleted" IS NULL OR
     "order" IS NULL;
 
-  #No columns with defaults to coalesce to for table "ModeratorActions"
+  -- No columns with defaults to coalesce to for table "ModeratorActions"
 
   UPDATE "Notifications"
   SET
@@ -186,13 +186,13 @@ const fillInNullWithDefaultCommands = `
     "viewed" IS NULL OR
     "waitingForBatch" IS NULL;
 
-  #No columns with defaults to coalesce to for table "PageCache"
+  -- No columns with defaults to coalesce to for table "PageCache"
 
-  #No columns with defaults to coalesce to for table "PetrovDayLaunchs"
+  -- No columns with defaults to coalesce to for table "PetrovDayLaunchs"
 
-  #No columns with defaults to coalesce to for table "PodcastEpisodes"
+  -- No columns with defaults to coalesce to for table "PodcastEpisodes"
 
-  #No columns with defaults to coalesce to for table "PostRelations"
+  -- No columns with defaults to coalesce to for table "PostRelations"
 
   UPDATE "Posts"
   SET
@@ -344,9 +344,9 @@ const fillInNullWithDefaultCommands = `
     "ownedByUser" IS NULL OR
     "setCanonicalUrl" IS NULL;
 
-  #No columns with defaults to coalesce to for table "ReadStatuses"
+  -- No columns with defaults to coalesce to for table "ReadStatuses"
 
-  #No columns with defaults to coalesce to for table "Reports"
+  -- No columns with defaults to coalesce to for table "Reports"
 
   UPDATE "ReviewVotes"
   SET
@@ -456,7 +456,7 @@ const fillInNullWithDefaultCommands = `
     "wikiGrade" IS NULL OR
     "wikiOnly" IS NULL;
 
-  #No columns with defaults to coalesce to for table "UserActivities"
+  -- No columns with defaults to coalesce to for table "UserActivities"
 
   UPDATE "UserMostValuablePosts"
   SET
@@ -464,7 +464,7 @@ const fillInNullWithDefaultCommands = `
   WHERE
     "deleted" IS NULL;
 
-  #No columns with defaults to coalesce to for table "UserRateLimits"
+  -- No columns with defaults to coalesce to for table "UserRateLimits"
 
   UPDATE "UserTagRels"
   SET
