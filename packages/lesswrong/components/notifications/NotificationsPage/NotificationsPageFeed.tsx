@@ -1,8 +1,6 @@
-import React, { FC, useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef, useState, ChangeEvent } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { useSingle } from "../../../lib/crud/withSingle";
 import { gql, useQuery } from "@apollo/client";
-import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { Link } from "../../../lib/reactRouterWrapper";
 import {
   isNotificationsPageTabName,
@@ -12,14 +10,7 @@ import {
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
-import type { KarmaChanges } from "../../../lib/types/karmaChangesTypes";
-
-type Feed<T = unknown> = {
-  items: T[],
-  getId: (item: T) => string,
-  getDate: (item: T) => Date,
-  Component: FC<{item: T}>,
-}
+import type { KarmaChangeSettingsType } from "../../../lib/collections/users/schema";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -71,21 +62,18 @@ const query = gql`
 
 const DEFAULT_LIMIT = 20;
 
-export const NotificationsPageFeed = ({currentUser, classes}: {
+export const NotificationsPageFeed = ({
+  karmaUpdateFrequency,
+  currentUser,
+  classes,
+}: {
+  karmaUpdateFrequency?: KarmaChangeSettingsType["updateFrequency"],
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
-  const updateCurrentUser = useUpdateCurrentUser();
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const {tab, setTab} = useNotificationsPageTab();
   const canLoadMore = tab.name !== "karma";
-
-  const {document: karmaChanges} = useSingle({
-    documentId: currentUser?._id,
-    collectionName: "Users",
-    fragmentName: "UserKarmaChanges",
-    skip: !currentUser,
-  });
 
   const {
     data,
@@ -119,60 +107,19 @@ export const NotificationsPageFeed = ({currentUser, classes}: {
     notifications.current = data.NotificationDisplays.results;
   }
 
-  const onChangeTab = useCallback((_: React.ChangeEvent, tabName: string) => {
-    if (!isNotificationsPageTabName(tabName)) {
-      return;
+  const onChangeTab = useCallback((_: ChangeEvent, tabName: string) => {
+    if (isNotificationsPageTabName(tabName)) {
+      notifications.current = [];
+      setLimit(DEFAULT_LIMIT);
+      setTab(tabName);
     }
+  }, [setTab]);
 
-    notifications.current = [];
-    setLimit(DEFAULT_LIMIT);
-    setTab(tabName);
-
-    if (tabName === "karma" && karmaChanges?.karmaChanges) {
-      void updateCurrentUser({
-        karmaChangeLastOpened: karmaChanges.karmaChanges.endDate,
-        karmaChangeBatchStart: karmaChanges.karmaChanges.startDate,
-      });
-    }
-  }, [karmaChanges?.karmaChanges, updateCurrentUser, setTab]);
-
-  const {
-    NotificationsPageKarma, NotificationsPageItem, LoadMore,
-    NotificationsPageEmpty,
-  } = Components;
-
-  const feeds: Feed[] = [];
-  if (karmaChanges?.karmaChanges && (tab.name === "all" || tab.name === "karma")) {
-    feeds.push({
-      items: [karmaChanges.karmaChanges],
-      getId: ({endDate}: KarmaChanges) => `karma-${endDate}`,
-      getDate: ({endDate}: KarmaChanges) => new Date(endDate),
-      Component: ({item}: {item: KarmaChanges}) => (
-        <NotificationsPageKarma karmaChanges={item} />
-      ),
-    });
-  }
-  if (tab.name !== "karma") {
-    feeds.push({
-      items: notifications.current,
-      getId: ({_id}: NotificationDisplay) => _id,
-      getDate: ({createdAt}: NotificationDisplay) => new Date(createdAt),
-      Component: ({item}: {item: NotificationDisplay}) => (
-        <NotificationsPageItem notification={item} />
-      ),
-    });
-  }
-
-  const flatFeed = feeds
-    .flatMap((feed) => feed.items.map((item) => ({item, feed})))
-    .sort((a, b) =>
-      a.feed.getDate(a.item).getTime() - b.feed.getDate(a.item).getTime()
-    );
-
-  const batchedText = karmaChanges?.karmaChanges?.updateFrequency === "realtime"
+  const batchedText = karmaUpdateFrequency === "realtime"
     ? "in realtime"
-    : `batched ${karmaChanges?.karmaChanges?.updateFrequency}`;
+    : `batched ${karmaUpdateFrequency}`;
 
+  const {NotificationsPageItem, NotificationsPageEmpty, LoadMore} = Components;
   return (
     <div className={classes.root}>
       <Tabs
@@ -194,11 +141,14 @@ export const NotificationsPageFeed = ({currentUser, classes}: {
           <Link to="/account">Change settings</Link>
         </div>
       }
-      {flatFeed.length === 0 && !loading &&
+      {notifications.current.length === 0 && !loading &&
         <NotificationsPageEmpty tabName={tab.name} />
       }
-      {flatFeed.map(({item, feed: {Component, getId}}) => (
-        <Component item={item} key={getId(item)} />
+      {notifications.current.map((notification) => (
+        <NotificationsPageItem
+          key={notification._id}
+          notification={notification}
+        />
       ))}
       {canLoadMore &&
         <LoadMore

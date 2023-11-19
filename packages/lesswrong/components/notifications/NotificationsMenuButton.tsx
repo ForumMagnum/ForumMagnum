@@ -100,6 +100,21 @@ const LWNotificationsMenuButton = ({
   );
 }
 
+const hasKarmaChange = (
+  currentUser: UsersCurrent | null,
+  karmaChanges?: UserKarmaChanges,
+) => {
+  if (!currentUser || !karmaChanges?.karmaChanges) {
+    return false;
+  }
+  const {totalChange, updateFrequency, endDate} = karmaChanges.karmaChanges;
+  if (!totalChange) {
+    return false;
+  }
+  const lastOpened = currentUser.karmaChangeLastOpened ?? new Date(0);
+  return lastOpened < endDate || updateFrequency === "realtime";
+}
+
 const EANotificationsMenuButton = ({
   unreadNotifications,
   toggle,
@@ -114,8 +129,9 @@ const EANotificationsMenuButton = ({
     fragmentName: "UserKarmaChanges",
     skip: !currentUser,
   });
-  const hasKarmaChange = !!karmaChanges?.karmaChanges?.totalChange;
-  const hasBadge = unreadNotifications > 0 || hasKarmaChange;
+
+  const showKarmaStar = hasKarmaChange(currentUser, karmaChanges);
+  const hasBadge = unreadNotifications > 0 || showKarmaStar;
   const badgeText = hasBadge ? `${unreadNotifications}` : "";
 
   useEffect(() => {
@@ -137,7 +153,7 @@ const EANotificationsMenuButton = ({
         badgeContent={
           <>
             {badgeText}
-            {hasKarmaChange &&
+            {showKarmaStar &&
               <ForumIcon icon="Star" className={classes.karmaStar} />
             }
           </>

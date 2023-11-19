@@ -7,7 +7,7 @@ export const notificationPageTabs = [
   },
   {
     name: "karma",
-    type: undefined,
+    type: "karmaChange",
   },
   {
     name: "comments",

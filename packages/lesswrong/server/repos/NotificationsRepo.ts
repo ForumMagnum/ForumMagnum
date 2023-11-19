@@ -288,7 +288,7 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
     limit?: number,
     offset?: number,
   }): Promise<NotificationDisplay[]> {
-    const includeNotifications = type !== "reaction";
+    const includeNotifications = type !== "karmaChange" && type !== "reaction";
     const includeKarma = !type || type === "karmaChange";
     const includeReactions = !type || type === "reaction";
 

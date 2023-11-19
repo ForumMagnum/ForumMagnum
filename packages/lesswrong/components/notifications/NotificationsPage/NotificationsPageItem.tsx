@@ -7,6 +7,7 @@ import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { localgroupGetUrl } from "../../../lib/collections/localgroups/helpers";
+import { getEAPublicEmojiByName } from "../../../lib/voting/eaEmojiPalette";
 import {
   NotificationDisplay,
   NotificationType,
@@ -14,7 +15,6 @@ import {
 } from "../../../lib/notificationTypes";
 import type { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
-import { getEAPublicEmojiByName } from "../../../lib/voting/eaEmojiPalette";
 
 const ICON_WIDTH = 24;
 
@@ -35,6 +35,9 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     gap: "8px",
   },
+  karma: {
+    marginRight: "5px",
+  },
   iconContainer: {
     display: "flex",
     alignItems: "center",
@@ -54,6 +57,11 @@ const styles = (theme: ThemeType) => ({
   },
   iconGrey: {
     backgroundColor: theme.palette.icon.recentDiscussionGrey,
+  },
+  iconYellow: {
+    color: theme.palette.icon.headerKarma,
+    backgroundColor: "transparent",
+    transform: "scale(1.5)",
   },
   iconClear: {
     color: theme.palette.primary.main,
@@ -99,16 +107,42 @@ const getFirstReaction = (extendedVoteType: unknown) => {
 type DisplayConfig = {
   Display: NotificationType["Display"] | null,
   Icon: ForumIconName | FC,
-  iconVariant: "primary" | "grey" | "clear",
+  iconVariant: "primary" | "grey" | "yellow" | "clear",
 }
 
+const emptyDisplay = {
+  Display: null,
+  Icon: "DocumentFilled",
+  iconVariant: "grey",
+} as const;
+
 const getDisplayConfig = (
-  {type, comment, extendedVoteType}: NotificationDisplay,
+  {type, karmaChange, extendedVoteType, post, comment, tag}: NotificationDisplay,
+  classes: ClassesType<typeof styles>,
 ): DisplayConfig => {
+  if (type === "karmaChange") {
+    if (!karmaChange) {
+      return emptyDisplay;
+    }
+    const amountText = karmaChange > 0 ? `+${karmaChange}` : String(karmaChange);
+    return {
+      Display: ({Post, Comment, Tag}) => (
+        <>
+          <span className={classes.karma}>{amountText} karma</span>
+          {post && <Post />}
+          {comment && <><Comment /> on <Post /></>}
+          {tag && <Tag />}
+        </>
+      ),
+      Icon: "Star",
+      iconVariant: "yellow",
+    };
+  }
+
   if (type === "reaction") {
     const reaction = getFirstReaction(extendedVoteType);
     if (!reaction) {
-      return {Display: null, Icon: "DocumentFilled", iconVariant: "grey"};
+      return emptyDisplay;
     }
     return {
       Display: ({User, Post, Comment, notification: {comment}}) =>
@@ -134,15 +168,17 @@ const getDisplayConfig = (
     console.error("Invalid notification type:", type, e);
   }
 
-  return {Display: null, Icon: "DocumentFilled", iconVariant: "grey"};
+  return emptyDisplay;
 }
 
 export const NotificationsPageItem = ({notification, classes}: {
   notification: NotificationDisplay,
   classes: ClassesType<typeof styles>,
 }) => {
-  const showPreviewComment = !!notification.comment?._id &&
-    notification.type !== "reaction";
+  const showPreviewComment =
+    !!notification.comment?._id &&
+    notification.type !== "reaction" &&
+    notification.type !== "karmaChange";
 
   // The main notifications query that returns `NotificationDisplay`s is a
   // custom resolver that runs as a single SQL query. We fetch comments to
@@ -160,7 +196,7 @@ export const NotificationsPageItem = ({notification, classes}: {
     fragmentName: "CommentsList",
   });
 
-  const {Display, Icon, iconVariant} = getDisplayConfig(notification);
+  const {Display, Icon, iconVariant} = getDisplayConfig(notification, classes);
   if (!Display) {
     return null;
   }
@@ -250,6 +286,7 @@ export const NotificationsPageItem = ({notification, classes}: {
           <div className={classNames(classes.iconContainer, {
             [classes.iconPrimary]: iconVariant === "primary",
             [classes.iconGrey]: iconVariant === "grey",
+            [classes.iconYellow]: iconVariant === "yellow",
             [classes.iconClear]: iconVariant === "clear",
           })}>
             {typeof Icon === "string"
