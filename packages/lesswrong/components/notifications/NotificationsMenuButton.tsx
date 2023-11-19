@@ -5,14 +5,14 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import IconButton from '@material-ui/core/IconButton';
-import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const styles = (theme: ThemeType) => ({
   badgeContainer: {
     padding: "none",
     verticalAlign: "inherit",
-    fontFamily: isEAForum
+    fontFamily: isFriendlyUI
       ? theme.palette.fonts.sansSerifStack
       : 'freight-sans-pro, sans-serif',
   },
@@ -20,7 +20,7 @@ export const styles = (theme: ThemeType) => ({
     right: "1px",
     top: "1px",
     pointerEvents: "none",
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         fontSize: 11,
         fontWeight: 800,
@@ -39,13 +39,13 @@ export const styles = (theme: ThemeType) => ({
   },
   buttonOpen: {
     backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
-    color: isEAForum
+    color: isFriendlyUI
       ? theme.palette.grey[600]
       : theme.palette.buttons.notificationsBellOpen.icon,
   },
   buttonClosed: {
     backgroundColor: "transparent",
-    color: isEAForum
+    color: isFriendlyUI
       ? theme.palette.grey[600]
       : theme.palette.header.text,
   },
@@ -76,7 +76,7 @@ type NotificationsMenuButtonProps = {
   classes: ClassesType<typeof styles>,
 }
 
-const LWNotificationsMenuButton = ({
+const BookNotificationsMenuButton = ({
   unreadNotifications,
   open,
   toggle,
@@ -115,7 +115,7 @@ const hasKarmaChange = (
   return lastOpened < endDate || updateFrequency === "realtime";
 }
 
-const EANotificationsMenuButton = ({
+const FriendlyNotificationsMenuButton = ({
   unreadNotifications,
   toggle,
   className,
@@ -174,7 +174,7 @@ const EANotificationsMenuButton = ({
 
 const NotificationsMenuButtonComponent = registerComponent(
   "NotificationsMenuButton",
-  isEAForum ? EANotificationsMenuButton : LWNotificationsMenuButton,
+  isFriendlyUI ? FriendlyNotificationsMenuButton : BookNotificationsMenuButton,
   {
     styles,
     stylePriority: -1,

@@ -14,33 +14,33 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog'
 import { useHover } from '../common/withHover'
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
 import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { userCanPost } from '../../lib/collections/posts';
-import postSchema, { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
+import { MINIMUM_COAUTHOR_KARMA } from '../../lib/collections/posts/schema';
 import { DisableNoKibitzContext } from './UsersNameDisplay';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { useAdminToggle } from '../admin/useAdminToggle';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
+import { isAF, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginTop: isEAForum ? undefined : 5,
+    marginTop: isFriendlyUI ? undefined : 5,
     wordBreak: 'break-all',
     position: "relative"
   },
   userButtonRoot: {
     // Mui default is 16px, so we're halving it to bring it into line with the
     // rest of the header components
-    paddingLeft: isEAForum ? 12 : theme.spacing.unit,
+    paddingLeft: isFriendlyUI ? 12 : theme.spacing.unit,
     paddingRight: theme.spacing.unit,
-    borderRadius: isEAForum ? theme.borderRadius.default : undefined
+    borderRadius: isFriendlyUI ? theme.borderRadius.default : undefined
   },
   userButtonContents: {
     textTransform: 'none',
     fontSize: '16px',
-    fontWeight: isEAForum ? undefined : 400,
+    fontWeight: isFriendlyUI ? undefined : 400,
     color: theme.palette.header.text,
     wordBreak: 'break-word',
   },
@@ -58,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.9
   },
   icon: {
-    color: isEAForum ? undefined : theme.palette.grey[500]
+    color: isFriendlyUI ? undefined : theme.palette.grey[500]
   },
   deactivatedTooltip: {
     maxWidth: 230
@@ -67,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[600],
     marginLeft: 20
   },
-  adminToggleItem: isEAForum ? {
+  adminToggleItem: isFriendlyUI ? {
     display: 'none',
     [theme.breakpoints.down('xs')]: {
       display: 'block'
@@ -89,13 +89,13 @@ const UsersMenu = ({classes}: {
     return <div className={classes.root}>
       <Button href='/logout' classes={{root: classes.userButtonRoot}}>
         <span className={classes.userButtonContents}>
-          {isEAForum ? "Log out" : "LOG OUT"}
+          {isFriendlyUI ? "Log out" : "LOG OUT"}
         </span>
       </Button>
     </div>
   }
 
-  const showNewButtons = (forumTypeSetting.get() !== 'AlignmentForum' || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
+  const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   
   const {
@@ -114,10 +114,10 @@ const UsersMenu = ({classes}: {
     </div>}>
       <span className={classes.deactivated}>[Deactivated]</span>
     </LWTooltip>}
-    {forumTypeSetting.get() === 'AlignmentForum' && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
+    {isAF && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
   </span>
   // On the EA Forum, if the user isn't deactivated, we instead show their profile image and a little arrow.
-  if (isEAForum && !currentUser.deleted) {
+  if (isFriendlyUI && !currentUser.deleted) {
     userButtonNode = <div className={classes.userImageButton}>
       <UsersProfileImage user={currentUser} size={32} />
       <ForumIcon icon="ThickChevronDown" className={classes.arrowIcon} />
@@ -198,9 +198,9 @@ const UsersMenu = ({classes}: {
                 * as there's issues with the new quick takes entry for such users.
                 * Long-term, we should fix these issues and reenable this option.
                 */}
-              {showNewButtons && (!isEAForum || userCanComment(currentUser)) &&
+              {showNewButtons && (!isFriendlyUI || userCanComment(currentUser)) &&
                 <DropdownItem
-                  title={isEAForum ? "New quick take" : "New Shortform"}
+                  title={isFriendlyUI ? "New quick take" : "New Shortform"}
                   onClick={() => openDialog({componentName:"NewShortformDialog"})}
                 />
               }
@@ -220,7 +220,7 @@ const UsersMenu = ({classes}: {
   
               <DropdownDivider />
   
-              {forumTypeSetting.get() === 'AlignmentForum' && !isAfMember &&
+              {isAF && !isAfMember &&
                 <DropdownItem
                   title={preferredHeadingCase("Apply for Membership")}
                   onClick={() => openDialog({componentName: "AFApplicationForm"})}
@@ -277,27 +277,27 @@ const UsersMenu = ({classes}: {
                 icon="BarChart"
                 iconClassName={classes.icon}
               />}
-              {!isEAForum && accountSettingsNode}
-              {!isEAForum && messagesNode}
+              {!isFriendlyUI && accountSettingsNode}
+              {!isFriendlyUI && messagesNode}
               <DropdownItem
-                title={isEAForum ? "Saved & read" : "Bookmarks"}
-                to={isEAForum ? "/saved" : "/bookmarks"}
+                title={isFriendlyUI ? "Saved & read" : "Bookmarks"}
+                to={isFriendlyUI ? "/saved" : "/bookmarks"}
                 icon="Bookmarks"
                 iconClassName={classes.icon}
               />
               {currentUser.shortformFeedId &&
                 <DropdownItem
-                  title={isEAForum ? "Your quick takes" : "Shortform Page"}
+                  title={isFriendlyUI ? "Your quick takes" : "Shortform Page"}
                   to={postGetPageUrl({
                     _id: currentUser.shortformFeedId,
                     slug: "shortform",
                   })}
-                  icon={isEAForum ? "CommentFilled" : "Shortform"}
+                  icon={isFriendlyUI ? "CommentFilled" : "Shortform"}
                   iconClassName={classes.icon}
                 />
               }
-              {isEAForum && messagesNode}
-              {isEAForum && accountSettingsNode}
+              {isFriendlyUI && messagesNode}
+              {isFriendlyUI && accountSettingsNode}
   
               {/*
                 If you're an admin, you can disable your admin + moderator

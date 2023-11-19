@@ -9,8 +9,8 @@ import { useCurrentUser } from '../common/withUser'
 import { useDialog } from '../common/withDialog';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { isEAForum } from '../../lib/instanceSettings';
 import { BtnProps } from '../comments/CommentsNewForm';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   answersForm: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginRight: "auto"
     }
   },
-  formButton: isEAForum ? {
+  formButton: isFriendlyUI ? {
     float: "right",
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
@@ -54,7 +54,7 @@ const NewAnswerForm = ({post, classes}: {
   });
   
   const SubmitComponent = ({submitLabel = "Submit"}) => {
-    const submitBtnProps: BtnProps = isEAForum ? {variant: 'contained', color: 'primary'} : {}
+    const submitBtnProps: BtnProps = isFriendlyUI ? {variant: 'contained', color: 'primary'} : {}
     return <div className={classes.submit}>
       <Button
         type="submit"
@@ -100,12 +100,12 @@ const NewAnswerForm = ({post, classes}: {
         layout="elementOnly"
         addFields={currentUser?[]:["contents"]}
         formProps={{
-          editorHintText: isEAForum ? 'Write a new answer...' : undefined
+          editorHintText: isFriendlyUI ? 'Write a new answer...' : undefined
         }}
         successCallback={(comment: CommentsList, { form }: { form: any }) => {
           afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment})
         }}
-        submitLabel={isEAForum ? 'Add answer' : 'Submit'}
+        submitLabel={isFriendlyUI ? 'Add answer' : 'Submit'}
       />
     </div>
   )

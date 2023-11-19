@@ -28,7 +28,7 @@ import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
 import DialogueChecks from './collections/dialogueChecks/collection';
 import { Link } from './reactRouterWrapper';
-import { isEAForum } from './instanceSettings';
+import { isFriendlyUI } from '../themes/forumTheme';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -585,7 +585,7 @@ export const NewMessageNotification = registerNotificationType({
   getIcon() {
     return <MailIcon style={iconStyles}/>
   },
-  causesRedBadge: !isEAForum,
+  causesRedBadge: !isFriendlyUI,
 });
 
 export const WrappedNotification = registerNotificationType({
@@ -746,6 +746,19 @@ export const NewRSVPNotification = registerNotificationType({
   },
 })
 
+export const KarmaPowersGainedNotification = registerNotificationType({
+  name: "karmaPowersGained",
+  userSettingField: "notificationKarmaPowersGained",
+  async getMessage() {
+    return "Your votes are stronger because your karma went up!"
+  },
+  getLink() {
+    return `/tag/vote-strength`;
+  },
+  getIcon() {
+    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+  }
+})
 export const CancelledRSVPNotification = registerNotificationType({
   name: "cancelledRSVP",
   userSettingField: "notificationRSVPs",
