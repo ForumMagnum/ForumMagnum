@@ -3,8 +3,8 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import type { UsePostsItem } from "./usePostsItem";
 import ArchiveIcon from "@material-ui/icons/Archive";
 import CloseIcon from "@material-ui/icons/Close";
-import { isEAForum } from "../../lib/instanceSettings";
 import { useCurrentUser } from "../common/withUser";
+import { isBookUI } from "../../themes/forumTheme";
 
 export const MENU_WIDTH = 18;
 
@@ -89,9 +89,9 @@ const PostsItemTrailingButtons = ({
 
   return (
     <>
-      {(showDismissButton || resumeReading || !isEAForum) && <div className={classes.actions}>
+      {(showDismissButton || resumeReading || isBookUI) && <div className={classes.actions}>
         <DismissButton {...{showDismissButton, onDismiss}} />
-        {!isEAForum && !resumeReading && currentUser && <PostActionsButton post={post} vertical />}
+        {isBookUI && !resumeReading && currentUser && <PostActionsButton post={post} vertical />}
       </div>}
       {showArchiveButton && <div className={classes.archiveButton}>
         <LWTooltip title={archiveDraftTooltip} placement="right">

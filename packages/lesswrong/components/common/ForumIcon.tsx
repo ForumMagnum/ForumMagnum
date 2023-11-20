@@ -195,7 +195,7 @@ export type ForumIconName =
   "Funnel";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
-  default: {
+  LWAF: {
     VolumeUp: MuiVolumeUpIcon,
     BookOpen: BookOpenIcon,
     Bookmark: MuiBookmarkIcon,
@@ -272,7 +272,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BarChart: ChartBarIcon,
     Funnel: FilterAlt,
   },
-  EAForum: {
+  default: {
     VolumeUp: SpeakerWaveIcon,
     BookOpen: BookOpenIcon,
     Bookmark: BookmarkIcon,

@@ -264,6 +264,26 @@ interface DbDialogueCheck extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface DialogueMatchPreferencesCollection extends CollectionBase<DbDialogueMatchPreference, "DialogueMatchPreferences"> {
+}
+
+interface DbDialogueMatchPreference extends DbObject {
+  __collectionName?: "DialogueMatchPreferences"
+  dialogueCheckId: string
+  topicPreferences: Array<{
+    text: string,
+    preference: "Yes" | "No",
+    commentSourceId: string | null,
+  }>
+  topicNotes: string
+  syncPreference: "Yes" | "Meh" | "No"
+  asyncPreference: "Yes" | "Meh" | "No"
+  formatNotes: string
+  generatedDialogueId: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface DigestPostsCollection extends CollectionBase<DbDigestPost, "DigestPosts"> {
 }
 
@@ -1336,6 +1356,12 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  notificationKarmaPowersGained: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
   notificationRSVPs: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
@@ -1611,6 +1637,7 @@ interface CollectionsByName {
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
   DialogueChecks: DialogueChecksCollection
+  DialogueMatchPreferences: DialogueMatchPreferencesCollection
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
   ElectionCandidates: ElectionCandidatesCollection
@@ -1671,6 +1698,7 @@ interface ObjectsByCollectionName {
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueChecks: DbDialogueCheck
+  DialogueMatchPreferences: DbDialogueMatchPreference
   DigestPosts: DbDigestPost
   Digests: DbDigest
   ElectionCandidates: DbElectionCandidate
@@ -1730,9 +1758,13 @@ interface ObjectsByTypeName {
   CronHistory: DbCronHistory
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
+  DialogueCheck: DbDialogueCheck
+  DialogueMatchPreference: DbDialogueMatchPreference
   DigestPost: DbDigestPost
   Digest: DbDigest
   ElectionCandidate: DbElectionCandidate
+  ElicitQuestionPrediction: DbElicitQuestionPrediction
+  ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResource: DbFeaturedResource
   GardenCode: DbGardenCode

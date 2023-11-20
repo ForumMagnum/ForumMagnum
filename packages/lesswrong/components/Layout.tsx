@@ -1,4 +1,4 @@
-import React, {useRef, useState, useCallback, useEffect, FC, ReactNode} from 'react';
+import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
@@ -9,11 +9,11 @@ import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
-import { CommentBoxManager } from './common/withCommentBox';
+import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
+import { isAF, isLW } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -22,10 +22,11 @@ import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
+import { HEADER_HEIGHT } from './common/Header';
 import { useCookiePreferences } from './hooks/useCookiesWithConsent';
-import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
+import { isFriendlyUI } from '../themes/forumTheme';
 import { useIsGivingSeason } from './ea-forum/giving-portal/hooks';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
@@ -63,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.background.default,
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
-    minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? EA_FORUM_HEADER_HEIGHT : 64}px)`,
+    minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
@@ -191,7 +192,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 20,
   },
   stickyWrapperHeaderVisible: {
-    transform: `translateY(${EA_FORUM_HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
+    transform: `translateY(${HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
   },
 });
 
@@ -232,7 +233,7 @@ const Layout = ({currentUser, children, classes}: {
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
   const renderCommunityMap = false // replace with following line to enable during ACX Everywhere
-  // (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  // (isLW) && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -278,6 +279,11 @@ const Layout = ({currentUser, children, classes}: {
     throw new Error("LayoutOptionsContext not set");
   }
 
+  const noKibitzContext = useMemo(
+    () => ({ disableNoKibitz, setDisableNoKibitz }),
+    [disableNoKibitz, setDisableNoKibitz]
+  );
+
   const isGivingSeason = useIsGivingSeason();
   const renderGivingSeason = isGivingSeason && pathname === "/";
 
@@ -322,8 +328,8 @@ const Layout = ({currentUser, children, classes}: {
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
-    // The EA Forum home page has a unique grid layout, to account for the right hand side column.
-    const eaHomeLayout = isEAForum && currentRoute?.name === 'home'
+    // The friendly home page has a unique grid layout, to account for the right hand side column.
+    const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
     const showNewUserCompleteProfile = currentUser?.usernameUnset &&
       !allowedIncompletePaths.includes(currentRoute?.name ?? "404");
@@ -333,9 +339,8 @@ const Layout = ({currentUser, children, classes}: {
       const beforeTime = petrovBeforeTime.get()
       const afterTime = petrovAfterTime.get()
     
-      return currentRoute?.name === "home"
-        && ('LessWrong' === forumTypeSetting.get())
-        && beforeTime < currentTime 
+      return currentRoute?.name === "home" && isLW
+        && beforeTime < currentTime
         && currentTime < afterTime
     }
 
@@ -345,9 +350,12 @@ const Layout = ({currentUser, children, classes}: {
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
       <SidebarsWrapper>
-      <DisableNoKibitzContext.Provider value={{ disableNoKibitz, setDisableNoKibitz }}>
+      <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
-        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum', [classes.fullscreen]: currentRoute?.fullscreen}) } id="wrapper">
+        <div className={classNames(
+          "wrapper",
+          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen}
+        )} id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
@@ -386,14 +394,14 @@ const Layout = ({currentUser, children, classes}: {
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
-                [classes.eaHomeLayout]: eaHomeLayout && !renderSunshineSidebar,
-                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen
+                [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
+                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
               }
               )}>
-                {isEAForum && <AdminToggle />}
+                {isFriendlyUI && <AdminToggle />}
                 {standaloneNavigation &&
                   <StickyWrapper
-                    eaHomeLayout={eaHomeLayout}
+                    eaHomeLayout={friendlyHomeLayout}
                     headerVisible={headerVisible}
                     headerAtTop={headerAtTop}
                     classes={classes}
@@ -401,7 +409,7 @@ const Layout = ({currentUser, children, classes}: {
                     <NavigationStandalone
                       sidebarHidden={hideNavigationSidebar}
                       unspacedGridLayout={unspacedGridLayout}
-                      noTopMargin={eaHomeLayout}
+                      noTopMargin={friendlyHomeLayout}
                     />
                   </StickyWrapper>
                 }
@@ -424,10 +432,10 @@ const Layout = ({currentUser, children, classes}: {
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
                 {!renderSunshineSidebar &&
-                  eaHomeLayout &&
+                  friendlyHomeLayout &&
                   !showNewUserCompleteProfile &&
                   <StickyWrapper
-                    eaHomeLayout={eaHomeLayout}
+                    eaHomeLayout={friendlyHomeLayout}
                     headerVisible={headerVisible}
                     headerAtTop={headerAtTop}
                     classes={classes}

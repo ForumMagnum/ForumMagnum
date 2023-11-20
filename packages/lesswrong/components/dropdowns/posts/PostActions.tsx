@@ -3,7 +3,8 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { userGetDisplayName } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
 import { isDialogueParticipant } from '../../posts/PostsPage/PostsPage';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
@@ -12,7 +13,7 @@ export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(fal
 
 const styles = (_theme: ThemeType): JssStyles => ({
   root: {
-    minWidth: isEAForum ? undefined : 300,
+    minWidth: isFriendlyUI ? undefined : 300,
     maxWidth: "calc(100vw - 100px)",
   },
 })
@@ -57,7 +58,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
     <DropdownMenu className={classes.root} >
       <EditPostDropdownItem post={post} />
       <ResyncRssDropdownItem post={post} closeMenu={closeMenu} />
-      {!isEAForum && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
+      {isBookUI && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
       <NotifyMeDropdownItem
@@ -99,7 +100,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
       <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
       {currentUser && <MarkAsReadDropdownItem post={post} />}
-      <SuggestCuratedDropdownItem post={post} />
+      {hasCuratedPostsSetting.get() && <SuggestCuratedDropdownItem post={post} />}
       <MoveToDraftDropdownItem post={post} />
       <DeleteDraftDropdownItem post={post} />
       <MoveToFrontpageDropdownItem post={post} />

@@ -6,11 +6,11 @@ import {
   styles as headerStyles,
   forumHeaderTitleSetting,
   forumShortTitleSetting,
-  EA_FORUM_HEADER_HEIGHT,
+  HEADER_HEIGHT,
 } from "../../common/Header";
 import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { heroImageId } from "../../../lib/eaGivingSeason";
+import { headerImageId } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
@@ -20,7 +20,7 @@ export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
 const BACKGROUND_ASPECT = 3160 / 800;
 const BACKGROUND_WIDTH = Math.round(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT * BACKGROUND_ASPECT);
 
-const GIVING_SEASON_HEADER_IMAGE = makeCloudinaryImageUrl(heroImageId, {
+const GIVING_SEASON_HEADER_IMAGE = makeCloudinaryImageUrl(headerImageId, {
   h: String(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT),
   w: String(BACKGROUND_WIDTH),
   q: "100",
@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
   rootGivingSeason: {
     "& .headroom": {
       zIndex: theme.zIndexes.searchResults,
-      height: EA_FORUM_HEADER_HEIGHT,
+      height: HEADER_HEIGHT,
       overflow: "hidden",
     },
   },
@@ -192,7 +192,7 @@ const GivingSeasonHeader = ({
         <Headroom
           disableInlineStyles
           downTolerance={10} upTolerance={10}
-          height={EA_FORUM_HEADER_HEIGHT}
+          height={HEADER_HEIGHT}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
           })}

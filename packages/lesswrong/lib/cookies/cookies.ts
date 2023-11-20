@@ -37,13 +37,13 @@ export const SHOW_COMMUNITY_POSTS_SECTION_COOKIE = registerCookie({
 export const SHOW_QUICK_TAKES_SECTION_COOKIE = registerCookie({
   name: 'show_quick_takes_section',
   type: "necessary",
-  description: "Whether to show the Quick takes section on the EA Forum home page",
+  description: "Whether to show the quick takes section on the EA Forum home page",
 })
 
 export const SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE = registerCookie({
   name: 'show_quick_takes_community',
   type: "necessary",
-  description: "Whether to include Quick takes tagged with community in the home page quick takes section",
+  description: "Whether to include quick takes tagged with community in the home page quick takes section",
 })
 
 export const SHOW_POPULAR_COMMENTS_SECTION_COOKIE = registerCookie({
@@ -115,6 +115,7 @@ export const HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE = registerCookie({
   type: "necessary",
   description: "Don't show the how-to guide on the new post page",
 });
+
 
 // Third party cookies
 
@@ -248,4 +249,3 @@ registerCookie({
                "The full list of known possible cookies are: __Secure-3PSIDCC, __Secure-1PSIDCC, SIDCC, __Secure-3PAPISID, SSID, " +
                "__Secure-1PAPISID, HSID, __Secure-3PSID, __Secure-1PSID, SID, SAPISID, APISID, NID, OTZ, 1P_JAR, AEC, DV, __Secure-ENID",
 });
-

@@ -6,7 +6,7 @@ import { questionAnswersSortings } from '../lib/collections/comments/views';
 import { postGetCommentCountStr } from '../lib/collections/posts/helpers';
 import { Revisions } from '../lib/collections/revisions/collection';
 import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { isAF } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
@@ -14,9 +14,13 @@ import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import type { ToCData, ToCSection } from '../lib/tableOfContents';
 import { defineQuery } from './utils/serverGraphqlUtil';
 import { htmlToTextDefault } from '../lib/htmlToText';
+import { commentsTableOfContentsEnabled } from '../lib/betas';
 
 // Number of headings below which a table of contents won't be generated.
-const MIN_HEADINGS_FOR_TOC = 3;
+// If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
+// it's empty) to keep the horizontal position of things on the page from
+// being imbalanced.
+const MIN_HEADINGS_FOR_TOC = commentsTableOfContentsEnabled ? 0 : 3;
 
 // Tags which define headings. Currently <h1>-<h4>, <strong>, and <b>. Excludes
 // <h5> and <h6> because their usage in historical (HTML) wasn't as a ToC-
@@ -224,7 +228,7 @@ async function getTocAnswers (document: DbPost) {
     postId: document._id,
     deleted:false,
   }
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+  if (isAF) {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
@@ -265,7 +269,7 @@ async function getTocComments (document: DbPost) {
     parentAnswerId: null,
     postId: document._id
   }
-  if (document.af && forumTypeSetting.get() === 'AlignmentForum') {
+  if (document.af && isAF) {
     commentSelector.af = true
   }
   const commentCount = await Comments.find(commentSelector).count()

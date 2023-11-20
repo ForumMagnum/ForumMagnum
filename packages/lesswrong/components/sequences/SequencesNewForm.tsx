@@ -1,11 +1,10 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import React from 'react';
-import { useNavigation } from '../../lib/routeUtil';
-import Sequences from '../../lib/collections/sequences/collection';
 import { useCurrentUser } from '../common/withUser';
 import { legacyBreakpoints } from '../../lib/utils/theme';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 // Also used by SequencesEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -103,7 +102,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
         },
         "& .form-input-errors": {
           position: "absolute",
-          top: forumTypeSetting.get() === 'EAForum' ? 84 : 45,
+          top: isFriendlyUI ? 84 : 45,
           left: 7,
           textAlign: "left",
         }
@@ -147,15 +146,15 @@ const SequencesNewForm = ({ redirect, cancelCallback, removeSuccessCallback, cla
 }) => {
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
-  const { history } = useNavigation();
-  
+  const navigate = useNavigate();
+
   if (currentUser) {
     return (
       <div className={classes.sequencesForm}>
         <Components.WrappedSmartForm
           collectionName="Sequences"
           successCallback={(sequence: any) => {
-            history.push({pathname: redirect || '/s/' + sequence._id });
+            navigate({pathname: redirect || '/s/' + sequence._id });
             flash({messageString: "Successfully created Sequence", type: "success"});
           }}
           cancelCallback={cancelCallback}

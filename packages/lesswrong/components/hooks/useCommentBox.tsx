@@ -1,4 +1,4 @@
-import React, { ComponentProps, useState } from 'react';
+import React, { ComponentProps, useCallback, useMemo, useState } from 'react';
 import { Components } from '../../lib/vulcan-lib';
 import { hookToHoc } from '../../lib/hocUtils';
 
@@ -22,19 +22,21 @@ export const CommentBoxManager = ({ children }: {
 
   const CommentBoxComponent = componentName ? Components[componentName] : null;
 
-  const close = () => {
+  const close = useCallback(() => {
     setComponentName(null)
     setComponentProps(null)
-  }
+  }, []);
+  const openCommentBox = useCallback(({componentName, componentProps}) => {
+    setComponentName(componentName)
+    setComponentProps(componentProps)
+  }, []);
+  const commentBoxContext = useMemo(
+    () => ({ openCommentBox, close }),
+    [openCommentBox, close]
+  );
 
   return (
-    <CommentBoxContext.Provider value={{
-      openCommentBox: ({componentName, componentProps}) => {
-        setComponentName(componentName)
-        setComponentProps(componentProps)
-      },
-      close: close
-    }}>
+    <CommentBoxContext.Provider value={commentBoxContext}>
       {children}
       {CommentBoxComponent && componentName &&
         <CommentBoxComponent

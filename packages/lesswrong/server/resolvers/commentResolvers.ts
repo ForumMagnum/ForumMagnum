@@ -1,12 +1,16 @@
 import {addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema} from '../../lib/vulcan-lib';
 import { encodeIntlError} from '../../lib/vulcan-lib/utils';
 import { userCanModerateComment } from "../../lib/collections/users/helpers";
-import { accessFilterSingle } from '../../lib/utils/schemaUtils';
+import { accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { updateMutator } from '../vulcan-lib';
 import { Comments } from '../../lib/collections/comments';
 import {CommentsRepo} from "../repos";
 import { createPaginatedResolver } from './paginatedResolver';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
+import { defineQuery } from '../utils/serverGraphqlUtil';
+import uniqBy from 'lodash/uniqBy';
+import sampleSize from 'lodash/sampleSize';
+
 
 const specificResolvers = {
   Mutation: {
@@ -76,4 +80,51 @@ createPaginatedResolver({
     limit: number,
   ): Promise<DbComment[]> => context.repos.comments.getPopularComments({limit}),
   cacheMaxAgeMs: 300000, // 5 mins
+});
+
+type TopicRecommendation = {
+  comment: DbComment,
+  yourVote?: string,
+  theirVote?: string,
+  recommendationReason: string
+}
+
+defineQuery({
+  name: "GetTwoUserTopicRecommendations",
+  resultType: "[TopicRecommendation]",
+  argTypes: "(userId: String!, targetUserId: String!, limit: Int!)",
+  schema: `
+    type TopicRecommendation {
+      comment: Comment,
+      yourVote: String,
+      theirVote: String,
+      recommendationReason: String
+    }
+  `,
+  fn: async (root: void, {userId, targetUserId, limit}: {userId: string, targetUserId: string, limit: number}, context: ResolverContext): Promise<TopicRecommendation[]> => {
+
+    // iterate through different lists of comments. return as soon as we've accumulated enough to meet the limit
+    async function* commentSources() {
+      yield (await context.repos.comments.getPopularPollCommentsWithTwoUserVotes(userId, targetUserId, limit)).map(comment => ({comment, recommendationReason: "You both reacted on this comment", yourVote: comment.yourVote, theirVote: comment.theirVote}));
+      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit * 3), Math.round(limit / 2)).map(comment => ({comment, recommendationReason: "You reacted on this comment", yourVote: comment.yourVote}));
+      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(targetUserId, limit * 3), Math.round(limit / 2)).map(comment => ({comment, recommendationReason: "They reacted on this comment", theirVote: comment.theirVote}));
+      yield sampleSize(await context.repos.comments.getPopularPollComments(limit * 3), limit).map(comment => ({comment, recommendationReason: "This comment is popular"}));
+    }
+    
+    let recommendedComments : TopicRecommendation[] = []
+    
+    for await (const source of commentSources()) {
+      const rawComments = source.map(({comment}) => comment);
+
+      const newAnnotatedComments = (await accessFilterMultiple(context.currentUser, context.Comments, rawComments, context))
+        .flatMap(comment => source.find(({comment: rawComment}) => rawComment._id === comment._id) || []);
+
+      recommendedComments = uniqBy([...recommendedComments, ...newAnnotatedComments], ({comment}) => comment._id).slice(0, limit);
+      if (recommendedComments.length >= limit) {
+        break;
+      }
+    }
+
+    return recommendedComments
+  },
 });
