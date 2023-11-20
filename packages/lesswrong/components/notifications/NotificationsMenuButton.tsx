@@ -7,6 +7,7 @@ import { useLocation } from '../../lib/routeUtil';
 import IconButton from '@material-ui/core/IconButton';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 
 export const styles = (theme: ThemeType) => ({
   badgeContainer: {
@@ -69,7 +70,6 @@ export const styles = (theme: ThemeType) => ({
 });
 
 type NotificationsMenuButtonProps = {
-  unreadNotifications: number,
   open: boolean,
   toggle: ()=>void,
   className?: string,
@@ -77,12 +77,12 @@ type NotificationsMenuButtonProps = {
 }
 
 const BookNotificationsMenuButton = ({
-  unreadNotifications,
   open,
   toggle,
   className,
   classes,
 }: NotificationsMenuButtonProps) => {
+  const {unreadNotifications} = useUnreadNotifications();
   const {ForumIcon} = Components;
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   return (
@@ -122,13 +122,13 @@ const hasKarmaChange = (
 }
 
 const FriendlyNotificationsMenuButton = ({
-  unreadNotifications,
   toggle,
   className,
   classes,
 }: NotificationsMenuButtonProps) => {
   const currentUser = useCurrentUser();
   const {pathname} = useLocation();
+  const {unreadNotifications, newReactionCount} = useUnreadNotifications();
   const {document: karmaChanges, refetch} = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
@@ -136,9 +136,10 @@ const FriendlyNotificationsMenuButton = ({
     skip: !currentUser,
   });
 
+  const unreadCount = unreadNotifications + newReactionCount;
   const showKarmaStar = hasKarmaChange(currentUser, karmaChanges);
-  const hasBadge = unreadNotifications > 0 || showKarmaStar;
-  const badgeText = hasBadge ? `${unreadNotifications}` : "";
+  const hasBadge = unreadCount > 0 || showKarmaStar;
+  const badgeText = hasBadge ? `${unreadCount}` : "";
 
   useEffect(() => {
     void refetch();

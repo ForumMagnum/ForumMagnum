@@ -186,7 +186,7 @@ const Header = ({
   const navigate = useNavigate();
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
-  const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
+  const { notificationsOpened } = useUnreadNotifications();
   const { pathname } = useLocation()
 
   const hasNotificationsPage = isFriendlyUI;
@@ -324,13 +324,12 @@ const Header = ({
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
     {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
-      unreadNotifications={unreadNotifications}
       toggle={handleNotificationToggle}
       open={notificationOpen}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
     {hasMessagesButton &&
-      <MessagesMenuButton unreadPrivateMessages={unreadPrivateMessages} />
+      <MessagesMenuButton />
     }
     {isFriendlyUI && usersMenuNode}
   </div>
@@ -347,7 +346,6 @@ const Header = ({
   const HeaderNotificationsMenu = () => currentUser && !hasNotificationsPage
     ? (
       <NotificationsMenu
-        unreadPrivateMessages={unreadPrivateMessages}
         open={notificationOpen}
         hasOpened={notificationHasOpened}
         setIsOpen={handleSetNotificationDrawerOpen}

@@ -2,15 +2,16 @@ import React, { useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useNavigate } from "../../lib/reactRouterWrapper";
 import { useLocation } from "../../lib/routeUtil";
+import { useUnreadNotifications } from "../hooks/useUnreadNotifications";
 import { styles } from "../notifications/NotificationsMenuButton";
 import Badge from "@material-ui/core/Badge";
 import IconButton from "@material-ui/core/IconButton";
 import classNames from "classnames";
 
-const MessagesMenuButton = ({unreadPrivateMessages, classes}: {
-  unreadPrivateMessages: number,
+const MessagesMenuButton = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {unreadPrivateMessages} = useUnreadNotifications();
   const {pathname} = useLocation();
   const navigate = useNavigate();
   const onClick = useCallback(() => {

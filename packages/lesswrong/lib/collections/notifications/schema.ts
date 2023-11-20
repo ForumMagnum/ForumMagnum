@@ -77,6 +77,7 @@ export type NotificationCountsResult = {
   unreadNotifications: number
   unreadPrivateMessages: number
   faviconBadgeNumber: number
+  newReactionCount: number
 }
 
 export default schema;

@@ -214,6 +214,7 @@ const buildKarmaChangeQuery = (userIdIndex: number) => `
     r."collectionName" = 'Tags' AND
     t."_id" = r."documentId"`;
 
+// The logic in this selector should match `countNewReactions`
 const buildReactionsQuery = (userIdIndex: number) =>
   `SELECT
     q."_id",
@@ -238,6 +239,7 @@ const buildReactionsQuery = (userIdIndex: number) =>
     FROM "Votes"
     WHERE
       "authorIds" @> ARRAY[$${userIdIndex}]::VARCHAR[] AND
+      NOT "authorIds" @> ARRAY["userId"] AND
       "cancelled" IS NOT TRUE AND
       "isUnvote" IS NOT TRUE AND
       "collectionName" IN ('Posts', 'Comments') AND (
@@ -309,5 +311,27 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
       LIMIT $3
       OFFSET $4
     `, [userId, type, limit, offset]);
+  }
+
+  async countNewReactions(userId: string): Promise<number> {
+    // The logic in this selector should match `buildReactionsQuery`
+    const result = await this.getRawDb().one(`
+      SELECT COUNT(*) "count"
+      FROM "Votes" v
+      JOIN "Users" u ON u."_id" = $1
+      WHERE
+        v."authorIds" @> ARRAY[u."_id"]::VARCHAR[] AND
+        NOT v."authorIds" @> ARRAY[v."userId"] AND
+        v."cancelled" IS NOT TRUE AND
+        v."isUnvote" IS NOT TRUE AND
+        v."collectionName" IN ('Posts', 'Comments') AND (
+          ${eaPublicEmojiNames.map((name) =>
+            `(v."extendedVoteType"->'${name}')::BOOLEAN`
+          ).join(" OR ")}
+        ) AND
+        v."createdAt" > COALESCE(u."lastNotificationsCheck", TO_TIMESTAMP(0))
+    `, [userId]);
+    const count = result?.count;
+    return Number(count);
   }
 }
