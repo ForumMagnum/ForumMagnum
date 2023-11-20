@@ -344,9 +344,9 @@ const styles = (theme: ThemeType) => ({
   },
   checkboxCheckedNotMatched: {
     height: 10, 
-    color: '#ADD8E6',
+    color: theme.palette.dialogueMatching.checkedNotMatched,
     '&$checked': {
-      color: '#00000038',
+      color: theme.palette.dialogueMatching.checkedMatched,
     },
   },
   centeredText: {
@@ -362,7 +362,7 @@ const styles = (theme: ThemeType) => ({
 
   // mobile warning stuff
   mobileWarning: {
-    backgroundColor: 'yellow',
+    backgroundColor: theme.palette.dialogueMatching.warning,
     padding: 10,
     marginBottom: 20,
     maxWidth: '40vw',
@@ -381,7 +381,7 @@ const styles = (theme: ThemeType) => ({
   optInCheckbox: {
     height: 10,
     width: 30,
-    color: "#9a9a9a",
+    color: theme.palette.dialogueMatching.optIn,
     marginRight: '-10px', // to get the prompt to line up closer
   },
   dialogueTopicList: {

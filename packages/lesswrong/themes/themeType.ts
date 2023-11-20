@@ -253,6 +253,7 @@ declare global {
       primaryTranslucent: string,
       dashed500: string,
       mentionsBaloon: string,
+      wrappedSummary: string,
     },
     panelBackground: {
       default: ColorString,
@@ -305,6 +306,9 @@ declare global {
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
       cookieBanner: ColorString,
+      strawpoll: ColorString,
+      userProfileImageHover: ColorString,
+      userProfileImageLoading: string,
     },
     boxShadow: {
       default: string,
@@ -479,6 +483,15 @@ declare global {
         secondaryOpaque: ColorString,
         secondaryOpaqueDark: ColorString,
       }
+    },
+    dialogueMatching: {
+      checkedNotMatched: ColorString,
+      checkedMatched: ColorString,
+      optIn: ColorString,
+      warning: ColorString,
+    },
+    namesAttachedReactions: {
+      selectedAnti: ColorString,
     },
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>

@@ -106,7 +106,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.uiSecondary.fontFamily,
     fontSize: 14,
     textAlign: 'right',
-    color: '#BBB',
+    color: theme.palette.grey.A400,
     zIndex: 1,
   },
 }))

@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: "100%",
     height: "100%",
     color: theme.palette.text.alwaysWhite, // These colors are dark-mode independent
-    background: "rgba(0, 0, 0, 0.5)",
+    background: theme.palette.panelBackground.userProfileImageHover,
     borderRadius: "50%",
     display: "flex",
     alignItems: "center",

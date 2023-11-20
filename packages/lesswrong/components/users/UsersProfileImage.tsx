@@ -19,12 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   loadingPlaceholder: {
-    background: `linear-gradient(
-      90deg,
-      rgba(0,0,0,0) 33%,
-      rgba(255,255,255,0.25) 50%,
-      rgba(0,0,0,0) 66%
-    ) ${theme.palette.grey[500]}`,
+    background: theme.palette.panelBackground.userProfileImageLoading,
     backgroundSize: "300% 100%",
     animation: "profile-image-loader 1s infinite",
   },

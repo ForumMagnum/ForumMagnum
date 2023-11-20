@@ -76,9 +76,12 @@ function replacePaletteWithStubs(theme: ThemeType): ThemeType {
   return {
     ...theme,
     typography: objReplaceColors(theme.typography, "fakecolor"),
+    shadows: theme.shadows.map(() => "fakecolor"),
     palette: {
       ...objReplaceColors(theme.palette, "fakecolor"),
       greyAlpha: ()=>"fakecolor",
+      inverseGreyAlpha: ()=>"fakecolor",
+      primaryAlpha: ()=>"fakecolor",
       boxShadowColor: ()=>"fakecolor",
       greyBorder: ()=>"fakecolor",
     },
