@@ -8,6 +8,8 @@ import qs from 'qs'
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import { useNavigate } from '../../lib/reactRouterWrapper';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -40,12 +42,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: 24,
     paddingTop: 4,
   },
+  highlightUnread: {
+    paddingLeft: 4,
+    marginLeft: -7,
+    borderLeft: `solid 3px ${theme.palette.secondary.main}`
+  },
 })
 
-const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
+const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate, classes}: {
   commentTree?: CommentTreeNode<CommentsList>[],
   answersTree?: CommentTreeNode<CommentsList>[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
+  highlightDate: Date|undefined,
   classes: ClassesType,
 }) => {
   const { TableOfContentsRow } = Components;
@@ -83,13 +91,17 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, classes}: {
         key={answer.item._id}
         commentTree={answer} indentLevel={1} classes={classes}
         highlightedCommentId={highlightedLandmarkName}
+        highlightDate={highlightDate}
       />
       <Components.TableOfContentsDivider/>
     </>)}
     {commentTree && commentTree.map(comment => <ToCCommentBlock
       key={comment.item._id}
-      commentTree={comment} indentLevel={1} classes={classes}
+      commentTree={comment}
+      indentLevel={1}
+      highlightDate={highlightDate}
       highlightedCommentId={highlightedLandmarkName}
+      classes={classes}
     />)}
   </div>
 }
@@ -103,10 +115,11 @@ export function commentIdToLandmark(commentId: string): ScrollHighlightLandmark 
   }
 }
 
-const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classes}: {
+const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highlightDate, classes}: {
   commentTree: CommentTreeNode<CommentsList>,
   indentLevel: number,
   highlightedCommentId: string|null,
+  highlightDate: Date|undefined,
   classes: ClassesType,
 }) => {
   const { TableOfContentsRow } = Components;
@@ -141,7 +154,9 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classe
         ev.preventDefault();
       }}
     >
-      <span className={classes.comment}>
+      <span className={classNames(classes.comment, {
+        [classes.highlightUnread]: highlightDate && new Date(comment.postedAt) > new Date(highlightDate),
+      })}>
         <span className={classes.commentKarma}>{comment.baseScore}</span>
         <span className={classes.commentAuthor}>
           {comment.user ? userGetDisplayName(comment.user) : "[anonymous]"}
@@ -153,7 +168,10 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, classe
       <ToCCommentBlock
         key={child.item._id}
         highlightedCommentId={highlightedCommentId}
-        commentTree={child} indentLevel={indentLevel+1} classes={classes}
+        highlightDate={highlightDate}
+        commentTree={child}
+        indentLevel={indentLevel+1}
+        classes={classes}
       />
     )}
   </div>
