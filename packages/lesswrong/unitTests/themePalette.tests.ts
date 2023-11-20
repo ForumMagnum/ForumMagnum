@@ -19,7 +19,11 @@ describe('JSS', () => {
       .filter(
         cName => !themePaletteTestExcludedComponents.includes(cName)
       ) as (keyof typeof ComponentsTable)[];
-    
+
+    if (componentsToTest.length < 1000) {
+      throw new Error("Expected more components to test - are they imported correctly?");
+    }
+
     for (let componentName of _.sortBy(componentsToTest, x=>x)) {
       const styleGetter = ComponentsTable[componentName].options?.styles;
       const styles = (typeof styleGetter === 'function') ? styleGetter(fakeTheme) : styleGetter;
