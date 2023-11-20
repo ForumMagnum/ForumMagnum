@@ -202,6 +202,10 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
     order: 2,
     ...(isFriendlyUI
       ? {
+        fontSize: 14,
+        "& p, & div, & span, & li, & blockquote, & pre": {
+          fontSize: 14,
+        },
         borderRadius: theme.borderRadius.small,
         '&[user-order="1"]': {
           border: `2px solid ${theme.palette.text.debateComment} !important`,
@@ -266,6 +270,9 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
     ...(isFriendlyUI
       ? {
         fontSize: 14,
+        "& p, & div, & span, & li, & blockquote, & pre": {
+          fontSize: 14,
+        },
         marginBottom: 22,
         padding: '26px 8px 0px 12px',
         '&[user-order="1"]': {
