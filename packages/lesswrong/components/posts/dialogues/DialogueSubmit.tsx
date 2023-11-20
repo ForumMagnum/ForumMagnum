@@ -88,6 +88,7 @@ const DialogueSubmit = ({
   const submitWithoutConfirmation = () => collectionName === "Posts" && updateCurrentValues({draft: false});
 
   const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate;
+  const showShortformButton = !!userShortformId && !isFriendlyUI;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
 
@@ -100,7 +101,7 @@ const DialogueSubmit = ({
       >
         {saveDraftLabel}
       </Button>
-      {userShortformId && <Button
+      {showShortformButton && <Button
         className={classNames(classes.formButton)}
         disabled={loading || !!error}
         onClick={async e => {
