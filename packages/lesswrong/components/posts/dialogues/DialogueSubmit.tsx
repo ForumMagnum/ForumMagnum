@@ -1,10 +1,8 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
-import { useTracking } from "../../../lib/analyticsEvents";
 import { isLW } from "../../../lib/instanceSettings";
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCreate } from '../../../lib/crud/withCreate';
@@ -62,19 +60,12 @@ export type DialogueSubmitProps = FormButtonProps & {
   classes: ClassesType
 }
 
-type CoauthorSignoff = {
-  displayName: string,
-  signedOff: boolean
-}
-
 const DialogueSubmit = ({
   submitLabel = "Submit",
-  cancelLabel = "Cancel",
   saveDraftLabel = "Save as draft",
   document, collectionName, classes
-}: DialogueSubmitProps, { updateCurrentValues, addToSuccessForm, submitForm }: any) => {
+}: DialogueSubmitProps, { updateCurrentValues, submitForm }: any) => {
   const currentUser = useCurrentUser();
-  const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
 
   const { create: createShortform, loading, error } = useCreate({
@@ -83,15 +74,6 @@ const DialogueSubmit = ({
   })
   const userShortformId = currentUser?.shortformFeedId;
   const [editor, _] = React.useContext(EditorContext)
-
-  const { SectionFooterCheckbox, Row } = Components;
-
-  const defaultCoauthorSignoffs = document.coauthors.reduce((result: Record<string, CoauthorSignoff>, coauthor: UsersMinimumInfo) => {
-    result[coauthor._id] = {displayName: coauthor.displayName, signedOff: false};
-      return result;
-  }, {});
-
-  const [coauthorSignoffs, setCoauthorSignoffs] = React.useState<Record<string, CoauthorSignoff>>(defaultCoauthorSignoffs)
 
   const navigate = useNavigate();
 
@@ -109,76 +91,56 @@ const DialogueSubmit = ({
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
 
-
+  const {Row} = Components;
   return (
-    <React.Fragment>
-      <Row justifyContent="flex-end">
-        <Button type="submit"
-          className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
-          onClick={() => updateCurrentValues({draft: true})}
-        >
-          {saveDraftLabel}
-        </Button>
-        {userShortformId && <Button
-          className={classNames(classes.formButton)}
-          disabled={loading || !!error}
-          onClick={async e => {
-            e.preventDefault()
+    <Row justifyContent="flex-end">
+      <Button type="submit"
+        className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
+        onClick={() => updateCurrentValues({draft: true})}
+      >
+        {saveDraftLabel}
+      </Button>
+      {userShortformId && <Button
+        className={classNames(classes.formButton)}
+        disabled={loading || !!error}
+        onClick={async e => {
+          e.preventDefault()
 
-            // So getData() does exist on the Editor. But the typings don't agree. For now, #AnyBecauseHard
-            // @ts-ignore
-            const shortformString = editor && editor.getData()
-            // Casting because the current type we have for new comment creation doesn't quite line up with our actual GraphQL API
-            const shortformContents = {originalContents: {type: "ckEditorMarkup", data: shortformString}} as DbComment['contents']
+          // So getData() does exist on the Editor. But the typings don't agree. For now, #AnyBecauseHard
+          // @ts-ignore
+          const shortformString = editor && editor.getData()
+          // Casting because the current type we have for new comment creation doesn't quite line up with our actual GraphQL API
+          const shortformContents = {originalContents: {type: "ckEditorMarkup", data: shortformString}} as DbComment['contents']
 
-            const response = await createShortform({
-              data: {
-                contents: shortformContents,
-                shortform: true,
-                postId: userShortformId,
-                originalDialogueId: document._id,
-              }
-            })
+          const response = await createShortform({
+            data: {
+              contents: shortformContents,
+              shortform: true,
+              postId: userShortformId,
+              originalDialogueId: document._id,
+            }
+          })
 
-            response.data && navigate(`/posts/${userShortformId}?commentId=${response.data.createComment.data._id}`)
-          }}
-        >{loading ? "Publishing to shortform ..." : `Publish to ${currentUser?.displayName}'s shortform`}</Button>
-        }
-        <Button
-          type="submit"
-          onClick={onSubmitClick}
-          className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          {...(isFriendlyUI ? {
-            variant: "contained",
-            color: "primary",
-          } : {})}
-        >
-          {submitLabel}
-        </Button>
-      </Row>
-    </React.Fragment>
+          response.data && navigate(`/posts/${userShortformId}?commentId=${response.data.createComment.data._id}`)
+        }}
+      >{loading ? "Publishing to shortform ..." : `Publish to ${currentUser?.displayName}'s shortform`}</Button>
+      }
+      <Button
+        type="submit"
+        onClick={onSubmitClick}
+        className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+        {...(isFriendlyUI ? {
+          variant: "contained",
+          color: "primary",
+        } : {})}
+      >
+        {submitLabel}
+      </Button>
+    </Row>
   );
 }
 
-DialogueSubmit.propTypes = {
-  submitLabel: PropTypes.string,
-  cancelLabel: PropTypes.string,
-  cancelCallback: PropTypes.func,
-  document: PropTypes.object,
-  collectionName: PropTypes.string,
-  classes: PropTypes.object,
-};
-
-DialogueSubmit.contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  addToSubmitForm: PropTypes.func,
-  submitForm: PropTypes.func
-}
-
-
-// HACK: Cast DialogueSubmit to hide the legacy context arguments, to make the type checking work
-const DialogueSubmitComponent = registerComponent('DialogueSubmit', (DialogueSubmit as React.ComponentType<DialogueSubmitProps>), {styles});
+const DialogueSubmitComponent = registerComponent('DialogueSubmit', DialogueSubmit, {styles});
 
 declare global {
   interface ComponentTypes {
