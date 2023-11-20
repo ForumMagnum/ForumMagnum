@@ -107,8 +107,14 @@ const hasKarmaChange = (
   if (!currentUser || !karmaChanges?.karmaChanges) {
     return false;
   }
-  const {totalChange, updateFrequency, endDate} = karmaChanges.karmaChanges;
-  if (!totalChange) {
+  const {
+    totalChange, updateFrequency, endDate, posts, comments, tagRevisions,
+  } = karmaChanges.karmaChanges;
+  if (
+    !(posts?.length || comments?.length || tagRevisions?.length) ||
+    !totalChange ||
+    updateFrequency === "disabled"
+  ) {
     return false;
   }
   const lastOpened = currentUser.karmaChangeLastOpened ?? new Date(0);
