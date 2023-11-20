@@ -57,14 +57,18 @@ export type DialogueSubmitProps = FormButtonProps & {
   saveDraftLabel?: string,
   feedbackLabel?: string,
   document: PostsPage,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>,
 }
 
 const DialogueSubmit = ({
+  updateCurrentValues,
+  submitForm,
   submitLabel = "Submit",
   saveDraftLabel = "Save as draft",
-  document, collectionName, classes
-}: DialogueSubmitProps, { updateCurrentValues, submitForm }: any) => {
+  document,
+  collectionName,
+  classes,
+}: DialogueSubmitProps) => {
   const currentUser = useCurrentUser();
   if (!currentUser) throw Error("must be logged in to post")
 
