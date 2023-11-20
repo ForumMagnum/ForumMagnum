@@ -1,16 +1,15 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../../themes/stylePiping';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     backgroundColor: theme.palette.grey[60],
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         padding: "16px 16px 0",
-        borderTopLeftRadius: theme.borderRadius.default,
-        borderTopRightRadius: theme.borderRadius.default,
+        borderRadius: theme.borderRadius.default,
       } : {
         paddingLeft: 16,
         paddingTop: 12,
@@ -19,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingLeft: 20
     }
   },
-  title: isEAForum
+  title: isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontWeight: 600,

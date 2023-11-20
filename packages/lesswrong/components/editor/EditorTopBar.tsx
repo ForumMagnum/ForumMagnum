@@ -2,11 +2,10 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import {useCurrentUser} from '../common/withUser';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
 import type { ConnectedUserInfo } from './CKPostEditor';
-import classNames from 'classnames';
-import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType) => ({
   editorTopBar: {
@@ -16,11 +15,6 @@ const styles = (theme: ThemeType) => ({
     padding: 4,
     paddingLeft: 16,
     marginBottom: 16,
-  },
-  eaForumDialogue: {
-    paddingBottom: 12,
-    borderBottomLeftRadius: theme.borderRadius.default,
-    borderBottomRightRadius: theme.borderRadius.default,
   },
   presenceList: {
     flexGrow: 1,
@@ -66,9 +60,11 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   const canEditOnlyBecauseAdmin = isAdmin && !accessLevelCan(accessLevel, "edit");
   const alwaysShownUserIds = [post.userId, ...(post.coauthorStatuses?.map(u=>u.userId) ?? [])]
 
-  return <div className={classNames(classes.editorTopBar, {
-    [classes.eaForumDialogue]: isEAForum && post.collabEditorDialogue,
-  })}>
+  if (isFriendlyUI && post.collabEditorDialogue) {
+    return null;
+  }
+
+  return <div className={classes.editorTopBar}>
     <div className={classes.presenceList}>
       <PresenceList connectedUsers={connectedUsers} alwaysShownUserIds={alwaysShownUserIds}/>
     </div>
