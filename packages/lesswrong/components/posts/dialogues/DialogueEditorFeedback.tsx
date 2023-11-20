@@ -39,7 +39,6 @@ export const DialogueEditorFeedback = ({ classes, post }: {
       author: post.user?.displayName,
       requester: user?.displayName
     }
-    // TODO: EA Forum - either change this action or hide this button
     const response = await fetch('https://hooks.slack.com/triggers/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', {
       method: 'POST',
       body: JSON.stringify(data),
