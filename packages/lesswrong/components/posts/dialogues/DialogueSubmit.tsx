@@ -32,9 +32,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.text.dim40,
     })
   },
-  submitButtons: {
-    marginLeft: 'auto'
-  },
   submitButton: {
     ...(isFriendlyUI ? {
       backgroundColor: theme.palette.buttons.alwaysPrimary,
@@ -45,12 +42,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.secondary.main
     })
   },
-  cancelButton: {
-  },
-  draft: {
-  },
-  feedback: {
-  }
 });
 
 export type DialogueSubmitProps = FormButtonProps & {
