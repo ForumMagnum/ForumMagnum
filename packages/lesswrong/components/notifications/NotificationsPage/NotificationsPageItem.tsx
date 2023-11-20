@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
     color: theme.palette.grey[600],
-    margin: "28px 0",
+    margin: "24px 0",
     "&:first-child": {
       marginTop: 8,
     },
