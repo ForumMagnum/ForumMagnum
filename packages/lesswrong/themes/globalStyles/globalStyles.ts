@@ -202,9 +202,9 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
     order: 2,
     ...(isFriendlyUI
       ? {
-        fontSize: 14,
+        fontSize: "1.1rem",
         "& p, & div, & span, & li, & blockquote, & pre": {
-          fontSize: 14,
+          fontSize: "1.1rem",
         },
         borderRadius: theme.borderRadius.small,
         '&[user-order="1"]': {
@@ -279,9 +279,9 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
     position: 'relative',
     ...(isFriendlyUI
       ? {
-        fontSize: 14,
+        fontSize: "1.1rem",
         "& p, & div, & span, & li, & blockquote, & pre": {
-          fontSize: 14,
+          fontSize: "1.1rem",
         },
         marginBottom: 22,
         padding: '26px 8px 0px 12px',
