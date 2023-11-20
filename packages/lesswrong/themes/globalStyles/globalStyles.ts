@@ -253,15 +253,25 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
   },
 
   '.dialogue-message-input button': {
-    marginLeft: 'auto',
     marginRight: -8,
-    marginBottom: -4,
     display: 'block',
     position: 'absolute',
-    right: 16,
-    bottom: 12,
-    padding: 0,
-    minHeight: 'unset',
+    ...(isFriendlyUI
+      ? {
+        right: 12,
+        background: theme.palette.primary.main,
+        "&:hover": {
+          background: theme.palette.primary.light,
+        },
+      }
+      : {
+        right: 16,
+        padding: 0,
+        minHeight: 'unset',
+        marginLeft: 'auto',
+        marginBottom: -4,
+        bottom: 12,
+      }),
   },
 
   '.dialogue-message': {
