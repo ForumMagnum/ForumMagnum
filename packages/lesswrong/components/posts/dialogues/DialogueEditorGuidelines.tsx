@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { commentBodyStyles } from '../../../themes/stylePiping';
-import { isFriendlyUI } from '../../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -37,7 +37,7 @@ export const DialogueEditorGuidelines = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   return <div className={classes.root}>
-    <div className={classes.title}>Dialogue Editor</div>
+    <div className={classes.title}>{preferredHeadingCase("Dialogue Editor")}</div>
     <ul className={classes.info}>
       <li>You can edit your responses afterwards.</li>
       <li>You can see each other's responses as you type them.</li>
