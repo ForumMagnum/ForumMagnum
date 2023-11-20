@@ -205,7 +205,7 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
   '.dialogue-message-input-header': {
     position: 'absolute',
     top: -14,
-    'background-color': 'white',
+    backgroundColor: theme.palette.grey[1000],
     padding: 4
   },
   

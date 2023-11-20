@@ -268,7 +268,7 @@ const styles = (theme: ThemeType) => ({
     maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.light,
-    color: 'white',
+    color: theme.palette.grey[0],
     whiteSpace: 'nowrap',
     borderRadius: 5,
     [theme.breakpoints.down("xs")]: {
@@ -280,7 +280,7 @@ const styles = (theme: ThemeType) => ({
     maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.main ,
-    color: 'white',
+    color: theme.palette.grey[0],
     whiteSpace: 'nowrap',
     borderRadius: 5
   },
@@ -288,8 +288,8 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 200,
     maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: 'white',
-    color: 'black',
+    backgroundColor: theme.palette.grey[0],
+    color: theme.palette.grey[1000],
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
@@ -309,19 +309,19 @@ const styles = (theme: ThemeType) => ({
     position: 'relative',
     maxHeight: 70, 
     overflow: 'auto',
-    color: 'grey', 
+    color: theme.palette.grey[600],
     fontSize: 14,
     lineHeight: '1.15em',
-    WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
+    WebkitMaskImage: `linear-gradient(to bottom, transparent 0%, ${theme.palette.text.alwaysBlack} 20%, ${theme.palette.text.alwaysBlack} 80%, transparent 100%)`,
     '&.scrolled-to-bottom': {
-      WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 100%)',
+      WebkitMaskImage: `linear-gradient(to bottom, transparent 0%, ${theme.palette.text.alwaysBlack} 20%, ${theme.palette.text.alwaysBlack} 100%)`,
     },
     '&.scrolled-to-top': {
-      WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 80%, transparent 100%)',
+      WebkitMaskImage: `linear-gradient(to bottom, ${theme.palette.text.alwaysBlack} 0%, ${theme.palette.text.alwaysBlack} 80%, transparent 100%)`,
     }
   },
   privacyNote: {
-    color: 'grey',
+    color: theme.palette.grey[600],
     fontSize: '1rem',
     maxWidth: 1300
   },
@@ -441,7 +441,7 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 4,
     marginLeft: 'auto',
     borderRadius: 5,
-    backgroundColor: "rgba(0,0,0,0.05)",
+    backgroundColor: theme.palette.greyAlpha(0.05),
     whiteSpace: 'nowrap'
   }
 });

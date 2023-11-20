@@ -29,8 +29,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     animation: "profile-image-loader 1s infinite",
   },
   initalText: {
-    color: "#fff", // For both light and dark mode
-    fill: "#fff",
+    color: theme.palette.text.alwaysWhite, // For both light and dark mode
+    fill: theme.palette.text.alwaysWhite,
     lineHeight: 1,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },

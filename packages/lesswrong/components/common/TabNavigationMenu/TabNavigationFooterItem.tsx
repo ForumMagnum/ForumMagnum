@@ -13,10 +13,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   selected: {
     '& $icon': {
       opacity: 1,
-      color: isFriendlyUI ? 'white' : undefined,
+      color: isFriendlyUI ? theme.palette.text.alwaysWhite : undefined,
     },
     '& $navText': {
-      color: isFriendlyUI ? 'white' : theme.palette.grey[900],
+      color: isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[900],
       fontWeight: 600,
     },
     backgroundColor: theme.palette.grey[400]
