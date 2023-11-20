@@ -110,7 +110,14 @@ const PostsItemIcons = ({post, classes, hideCuratedIcon, hidePersonalIcon}: {
 
     {(post.debate || post.collabEditorDialogue) && <span className={classes.postIcon}>
       <LWTooltip title="Dialogue" placement="right">
-        <ForumIcon icon="ChatBubbleLeftRightFilled" className={classes.icon} />
+        <ForumIcon
+          icon={
+            isFriendlyUI
+              ? "ChatBubbleLeftRight"
+              : "ChatBubbleLeftRightFilled"
+          }
+          className={classes.icon}
+        />
       </LWTooltip>
     </span>}
 
