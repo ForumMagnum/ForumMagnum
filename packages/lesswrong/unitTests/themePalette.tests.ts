@@ -44,8 +44,9 @@ function assertNoNonPaletteColors(componentName: string, styles: JssStyles, outN
 
 function assertNoNonPaletteColorsRec(componentName: string, path: string, styleFragment: any, outNonPaletteColors: string[]) {
   if (typeof styleFragment === "string") {
-    if (stringMentionsAnyColor(styleFragment)) {
-      outNonPaletteColors.push(`Non-palette color in styles for ${componentName} at ${path}`);
+    const mentionedColor = stringMentionsAnyColor(styleFragment);
+    if (mentionedColor) {
+      outNonPaletteColors.push(`Non-palette color in styles for ${componentName} at ${path} - ${mentionedColor}`);
     }
   } else if (typeof styleFragment === "object") {
     for (let key of Object.keys(styleFragment)) {
@@ -85,19 +86,19 @@ function replacePaletteWithStubs(theme: ThemeType): ThemeType {
 }
 
 const colorWords = ["white","black","red","grey","gray"];
-function stringMentionsAnyColor(str: string): boolean {
+function stringMentionsAnyColor(str: string): string | null {
   if (!!str.match(/rgba?\(/)
     || !!str.match(/#[0-9a-fA-F]{6}/)
     || !!str.match(/#[0-9a-fA-F]{3}/)
   ) {
-    return true;
+    return `color literal (${str})`;
   }
   for (let colorWord of colorWords) {
     if (new RegExp(`\\b${colorWord}\\b`).test(str))
-      return true;
+      return `color word (${str})`;
   }
   if (str.match(/theme/)) {
-    return true; // Usually suggests a typo with trying to string-interpolate
+    return '"theme"'; // Usually suggests a typo with trying to string-interpolate
   }
-  return false;
+  return null;
 }
