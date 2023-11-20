@@ -2,10 +2,14 @@ import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/componen
 import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
 import { themePaletteTestExcludedComponents } from '../server/register-mui-styles';
+import { setPublicSettings } from '../lib/settingsCache';
 
 describe('JSS', () => {
   it('uses only colors from the theme palette', () => {
+    setPublicSettings({});
+    require("../server");
     importAllComponents();
+
     const realTheme = getForumTheme({name: "default", siteThemeOverride: {}}) as unknown as ThemeType;
     const fakeTheme = replacePaletteWithStubs(realTheme);
     let nonPaletteColors: string[] = [];
