@@ -1,4 +1,5 @@
 import { isEAForum } from "../../lib/instanceSettings";
+import { isFriendlyUI } from "../forumTheme";
 
 export const maxSmallish = "@media screen and (max-width: 715px)";
 export const maxTiny = "@media screen and (max-width: 400px)";
@@ -191,69 +192,126 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
 const dialogueStyle = (theme: ThemeType): JssStyles => ({
   '.dialogue-message-input-wrapper': {
     display: 'flex',
-    'flex-direction': 'column',
-    'margin-top': 12
+    flexDirection: 'column',
+    marginTop: 12,
   },
 
   '.dialogue-message-input': {
-    border: '2px solid !important',
     padding: '26px 16px 40px 16px',
-    'border-radius': 3,
     position: 'relative',
     margin: '12px 0',
-    order: 2
+    order: 2,
+    ...(isFriendlyUI
+      ? {
+        borderRadius: theme.borderRadius.small,
+        '&[user-order="1"]': {
+          border: `2px solid ${theme.palette.text.debateComment} !important`,
+        },
+        '&[user-order="2"]': {
+          border: `2px solid ${theme.palette.text.debateComment2} !important`,
+        },
+        '&[user-order="3"]': {
+          border: `2px solid ${theme.palette.text.debateComment3} !important`,
+        },
+        '&[user-order="4"]': {
+          border: `2px solid ${theme.palette.text.debateComment4} !important`,
+        },
+        '&[user-order="5"]': {
+          border: `2px solid ${theme.palette.text.debateComment5} !important`,
+        },
+      }
+      : {
+        borderRadius: 3,
+        border: '2px solid !important',
+        '&[user-order="1"] .dialogue-message-input-header': {
+          color: `${theme.palette.text.debateComment} !important`,
+        },
+        '&[user-order="2"] .dialogue-message-input-header': {
+          color: `${theme.palette.text.debateComment2} !important`,
+        },
+        '&[user-order="3"] .dialogue-message-input-header': {
+          color: `${theme.palette.text.debateComment3} !important`,
+        },
+        '&[user-order="4"] .dialogue-message-input-header': {
+          color: `${theme.palette.text.debateComment4} !important`,
+        },
+        '&[user-order="5"] .dialogue-message-input-header': {
+          color: `${theme.palette.text.debateComment5} !important`,
+        },
+      }),
   },
-  
+
   '.dialogue-message-input-header': {
     position: 'absolute',
     top: -14,
-    'background-color': 'white',
+    backgroundColor: theme.palette.grey[0],
     padding: isEAForum ? "4px 8px" : 4,
     borderRadius: isEAForum ? theme.borderRadius.small : undefined,
   },
-  
+
   '.dialogue-message-input button': {
-    'margin-left': 'auto',
-    'margin-right': -8,
-    'margin-bottom': -4,
+    marginLeft: 'auto',
+    marginRight: -8,
+    marginBottom: -4,
     display: 'block',
     position: 'absolute',
     right: 16,
     bottom: 12,
     padding: 0,
-    'min-height': 'unset'
+    minHeight: 'unset',
   },
-  
+
   '.dialogue-message': {
-    'margin-top': 6,
-    padding: '22px 8px 8px 0px',
-    position: 'relative'
+    marginTop: 6,
+    position: 'relative',
+    ...(isFriendlyUI
+      ? {
+        fontSize: 14,
+        marginBottom: 22,
+        padding: '26px 8px 0px 12px',
+        '&[user-order="1"]': {
+          borderLeft: `2px solid ${theme.palette.text.debateComment}`,
+        },
+        '&[user-order="2"]': {
+          borderLeft: `2px solid ${theme.palette.text.debateComment2}`,
+        },
+        '&[user-order="3"]': {
+          borderLeft: `2px solid ${theme.palette.text.debateComment3}`,
+        },
+        '&[user-order="4"]': {
+          borderLeft: `2px solid ${theme.palette.text.debateComment4}`,
+        },
+        '&[user-order="5"]': {
+          borderLeft: `2px solid ${theme.palette.text.debateComment5}`,
+        },
+        '& .dialogue-message-header b': {
+          fontWeight: 700,
+        },
+      }
+      : {
+        padding: '22px 8px 8px 0px',
+        '&[user-order="1"] .dialogue-message-header': {
+          color: `${theme.palette.text.debateComment} !important`,
+        },
+        '&[user-order="2"] .dialogue-message-header': {
+          color: `${theme.palette.text.debateComment2} !important`,
+        },
+        '&[user-order="3"] .dialogue-message-header': {
+          color: `${theme.palette.text.debateComment3} !important`,
+        },
+        '&[user-order="4"] .dialogue-message-header': {
+          color: `${theme.palette.text.debateComment4} !important`,
+        },
+        '&[user-order="5"] .dialogue-message-header': {
+          color: `${theme.palette.text.debateComment5} !important`,
+        },
+      }),
   },
-  
+
   '.dialogue-message p, .dialogue-message-input p': {
-    'margin-bottom': '0px !important'
+    marginBottom: '0px !important'
   },
-  
-  '.dialogue-message[user-order="1"] .dialogue-message-header, .dialogue-message-input[user-order="1"] .dialogue-message-input-header': {
-    'color': `${theme.palette.text.debateComment} !important`
-  },
-  
-  '.dialogue-message[user-order="2"] .dialogue-message-header, .dialogue-message-input[user-order="2"] .dialogue-message-input-header': {
-    'color': `${theme.palette.text.debateComment2} !important`
-  },
-  
-  '.dialogue-message[user-order="3"] .dialogue-message-header, .dialogue-message-input[user-order="3"] .dialogue-message-input-header': {
-    'color': `${theme.palette.text.debateComment3} !important`
-  },
-  
-  '.dialogue-message[user-order="4"] .dialogue-message-header, .dialogue-message-input[user-order="4"] .dialogue-message-input-header': {
-    'color': `${theme.palette.text.debateComment4} !important`
-  },
-  
-  '.dialogue-message[user-order="5"] .dialogue-message-header, .dialogue-message-input[user-order="5"] .dialogue-message-input-header': {
-    'color': `${theme.palette.text.debateComment5} !important`
-  },
-  
+
   '.dialogue-message-header': {
     position: 'absolute',
     top: 0
