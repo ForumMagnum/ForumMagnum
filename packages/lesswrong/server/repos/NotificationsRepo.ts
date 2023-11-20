@@ -331,7 +331,6 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
         ) AND
         v."createdAt" > COALESCE(u."lastNotificationsCheck", TO_TIMESTAMP(0))
     `, [userId]);
-    const count = result?.count;
-    return Number(count);
+    return Number(result?.count ?? 0);
   }
 }
