@@ -11,9 +11,12 @@ import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 const styles = (theme: ThemeType): JssStyles => ({
   dialog: {
     padding: 24,
-    paddingBottom: 12,
+    paddingBottom: isFriendlyUI ? undefined : 12,
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.text.normal,
+    "& .MuiDialogActions-root": {
+      marginBottom: isFriendlyUI ? 0 : undefined,
+    },
   },
   inputRow: {
     marginBottom: 12,
