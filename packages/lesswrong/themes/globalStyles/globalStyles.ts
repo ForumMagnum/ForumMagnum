@@ -207,20 +207,21 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
           fontSize: "1.1rem",
         },
         borderRadius: theme.borderRadius.small,
+        border: "2px solid transparent",
         '&[user-order="1"]': {
-          border: `2px solid ${theme.palette.text.debateComment} !important`,
+          borderColor: theme.palette.text.debateComment,
         },
         '&[user-order="2"]': {
-          border: `2px solid ${theme.palette.text.debateComment2} !important`,
+          borderColor: theme.palette.text.debateComment2,
         },
         '&[user-order="3"]': {
-          border: `2px solid ${theme.palette.text.debateComment3} !important`,
+          borderColor: theme.palette.text.debateComment3,
         },
         '&[user-order="4"]': {
-          border: `2px solid ${theme.palette.text.debateComment4} !important`,
+          borderColor: theme.palette.text.debateComment4,
         },
         '&[user-order="5"]': {
-          border: `2px solid ${theme.palette.text.debateComment5} !important`,
+          borderColor: theme.palette.text.debateComment5,
         },
       }
       : {
@@ -284,21 +285,30 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
           fontSize: "1.1rem",
         },
         marginBottom: 22,
-        padding: '26px 8px 0px 12px',
-        '&[user-order="1"]': {
-          borderLeft: `2px solid ${theme.palette.text.debateComment}`,
+        padding: '22px 8px 0px 12px',
+        "&:after": {
+          display: "block",
+          position: "absolute",
+          content: "''",
+          top: 0,
+          left: 0,
+          height: "calc(100% - 3px)",
+          borderRight: "2px solid transparent",
         },
-        '&[user-order="2"]': {
-          borderLeft: `2px solid ${theme.palette.text.debateComment2}`,
+        '&[user-order="1"]:after': {
+          borderColor: theme.palette.text.debateComment,
         },
-        '&[user-order="3"]': {
-          borderLeft: `2px solid ${theme.palette.text.debateComment3}`,
+        '&[user-order="2"]:after': {
+          borderColor: theme.palette.text.debateComment2,
         },
-        '&[user-order="4"]': {
-          borderLeft: `2px solid ${theme.palette.text.debateComment4}`,
+        '&[user-order="3"]:after': {
+          borderColor: theme.palette.text.debateComment3,
         },
-        '&[user-order="5"]': {
-          borderLeft: `2px solid ${theme.palette.text.debateComment5}`,
+        '&[user-order="4"]:after': {
+          borderColor: theme.palette.text.debateComment4,
+        },
+        '&[user-order="5"]:after': {
+          borderColor: theme.palette.text.debateComment5,
         },
         '& .dialogue-message-header b': {
           fontWeight: 700,
@@ -330,7 +340,7 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
 
   '.dialogue-message-header': {
     position: 'absolute',
-    top: 0
+    top: isFriendlyUI ? -4 : 0,
   },
 
   '.dialogue-message-header b': {
