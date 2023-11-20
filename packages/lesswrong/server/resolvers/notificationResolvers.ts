@@ -9,7 +9,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { handleDialogueHtml } from '../editor/conversionUtils';
 import { createPaginatedResolver } from './paginatedResolver';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 defineQuery({
   name: "unreadNotificationCounts",
@@ -42,7 +42,7 @@ defineQuery({
         createdAt: {$gt: lastNotificationsCheck},
       }),
     }).fetch();
-    const unreadNotifications = isEAForum
+    const unreadNotifications = isFriendlyUI
       ? newNotifications.filter(
         ({type, viewed}) => type !== "newMessage" && !viewed,
       ).length
