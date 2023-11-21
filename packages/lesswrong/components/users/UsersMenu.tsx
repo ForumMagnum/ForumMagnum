@@ -150,6 +150,69 @@ const UsersMenu = ({classes}: {
     && dialoguesEnabled
     && userOverNKarmaOrApproved(MINIMUM_COAUTHOR_KARMA)(currentUser)
 
+  const items = {
+    divider: DropdownDivider,
+    newPost: () => userCanPost(currentUser)
+      ? (
+        <DropdownItem
+          title={preferredHeadingCase("New Post")}
+          to="/newPost"
+        />
+      )
+      : null,
+    newQuestion: () => userCanPost(currentUser)
+      ? (
+        <DropdownItem
+          title={preferredHeadingCase("New Question")}
+          to="/newPost?question=true"
+        />
+      )
+      : null,
+    newDialogue: () => canCreateDialogue
+      ? (
+        <DropdownItem
+          title={preferredHeadingCase("New Dialogue")}
+          onClick={() => openDialog({componentName:"NewDialogueDialog"})}
+        />
+      )
+    : null,
+    /*
+      * This is currently disabled for unreviewed users on the EA forum
+      * as there's issues with the new quick takes entry for such users.
+      * Long-term, we should fix these issues and reenable this option.
+      */
+    newShortform: () =>
+      showNewButtons && (!isFriendlyUI || userCanComment(currentUser))
+        ? (
+          <DropdownItem
+            title={isFriendlyUI ? "New quick take" : "New Shortform"}
+            onClick={() => openDialog({componentName:"NewShortformDialog"})}
+          />
+        )
+      : null,
+    newEvent: () => userCanPost(currentUser)
+      ? (
+        <DropdownItem
+          title={preferredHeadingCase("New Event")}
+          to="/newPost?eventForm=true"
+        />
+      )
+      : null,
+    newSequence: () =>
+      showNewButtons && currentUser.karma >= SHOW_NEW_SEQUENCE_KARMA_THRESHOLD
+        ? (
+          <DropdownItem
+            title={preferredHeadingCase("New Sequence")}
+            to="/sequencesnew"
+          />
+        )
+        : null,
+  } as const;
+
+  const order: (keyof typeof items)[] = isFriendlyUI
+    ? ["newPost", "newShortform", "newQuestion", "newDialogue", "divider", "newEvent", "newSequence"]
+    : ["newQuestion", "newPost", "newDialogue", "newShortform", "divider", "newEvent", "newSequence"];
+
   return (
     <div className={classes.root} {...eventHandlers}>
       <Link to={`/users/${currentUser.slug}`}>
@@ -174,52 +237,14 @@ const UsersMenu = ({classes}: {
                   ev.preventDefault()
                 }
               }}>
-                {userCanPost(currentUser) &&
-                  <DropdownItem
-                    title={preferredHeadingCase("New Question")}
-                    to="/newPost?question=true"
-                  />
-                }
-                {userCanPost(currentUser) &&
-                  <DropdownItem
-                    title={preferredHeadingCase("New Post")}
-                    to="/newPost"
-                  />
-                }
-                {canCreateDialogue &&
-                  <DropdownItem
-                    title={preferredHeadingCase("New Dialogue")}
-                    onClick={() => openDialog({componentName:"NewDialogueDialog"})}
-                  />
-                }
+                {order.map((itemName, i) => {
+                  const Component = items[itemName];
+                  return <Component key={i} />
+                })}
               </div>
-              {/*
-                * This is currently disabled for unreviewed users on the EA forum
-                * as there's issues with the new quick takes entry for such users.
-                * Long-term, we should fix these issues and reenable this option.
-                */}
-              {showNewButtons && (!isFriendlyUI || userCanComment(currentUser)) &&
-                <DropdownItem
-                  title={isFriendlyUI ? "New quick take" : "New Shortform"}
-                  onClick={() => openDialog({componentName:"NewShortformDialog"})}
-                />
-              }
-              {showNewButtons && <DropdownDivider />}
-              {showNewButtons && userCanPost(currentUser) &&
-                <DropdownItem
-                  title={preferredHeadingCase("New Event")}
-                  to="/newPost?eventForm=true"
-                />
-              }
-              {showNewButtons && currentUser.karma >= SHOW_NEW_SEQUENCE_KARMA_THRESHOLD &&
-                <DropdownItem
-                  title={preferredHeadingCase("New Sequence")}
-                  to="/sequencesnew"
-                />
-              }
-  
+
               <DropdownDivider />
-  
+
               {isAF && !isAfMember &&
                 <DropdownItem
                   title={preferredHeadingCase("Apply for Membership")}
