@@ -14,6 +14,8 @@ const querySchema = z.object({
     page: z.optional(z.number().int().nonnegative()),
     facetFilters: z.optional(z.array(z.array(z.string()))),
     numericFilters: z.optional(z.array(z.string())),
+    existsFilters: z.optional(z.array(z.string())),
+    aroundLatLng: z.optional(z.string()),
   }),
 });
 
