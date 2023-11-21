@@ -602,14 +602,14 @@ export const EAHomeRightHandSide = ({classes}: {
           <div>Donate to the Election Fund</div>
           <div className={classes.givingSeasonAmount}>
             {amountRaisedLoading && <Loading />}
-            {amountRaised?.totalRaised &&
+            {amountRaised?.raisedForElectionFund > 0 &&
               <>
                 <div className={classes.givingSeasonProgress}>
                   <div style={{
-                    width: `${100 * amountRaised.totalRaised / amountRaised.totalTarget}%`,
+                    width: `${100 * amountRaised.raisedForElectionFund / amountRaised.electionFundTarget}%`,
                   }} />
                 </div>
-                ${formatStat(Math.round(amountRaised.totalRaised))} raised so far
+                ${formatStat(Math.round(amountRaised.raisedForElectionFund))} raised so far
               </>
             }
           </div>
