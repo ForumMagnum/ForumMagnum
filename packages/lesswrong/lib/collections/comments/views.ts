@@ -15,6 +15,7 @@ declare global {
     userId?: string,
     tagId?: string,
     relevantTagId?: string,
+    maxAgeDays?: number,
     parentCommentId?: string,
     parentAnswerId?: string,
     topLevelCommentId?: string,
@@ -519,13 +520,14 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
 
 Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
   const twoHoursAgo = moment().subtract(2, 'hours').toDate();
+  const maxAgeDays = terms.maxAgeDays ?? 5;
   return {
     selector: {
       shortform: true,
       shortformFrontpage: true,
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
-      createdAt: {$gt: moment().subtract(5, 'days').toDate()},
+      createdAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
       $and: [
         !terms.showCommunity
           ? {

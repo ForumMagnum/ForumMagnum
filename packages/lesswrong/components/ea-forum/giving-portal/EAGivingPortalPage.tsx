@@ -515,6 +515,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
               <QuickTakesList
                 showCommunity
                 tagId={effectiveGivingTagId}
+                maxAgeDays={30}
                 className={classNames(classes.postsList, classes.primaryLoadMore)}
               />
             </div>

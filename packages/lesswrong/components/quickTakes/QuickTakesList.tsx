@@ -2,9 +2,10 @@ import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useMulti } from "../../lib/crud/withMulti";
 
-const QuickTakesList = ({showCommunity, tagId, className}: {
+const QuickTakesList = ({showCommunity, tagId, maxAgeDays, className}: {
   showCommunity?: boolean,
   tagId?: string,
+  maxAgeDays?: number,
   className?: string,
 }) => {
   const {
@@ -17,6 +18,7 @@ const QuickTakesList = ({showCommunity, tagId, className}: {
       view: "shortformFrontpage",
       showCommunity,
       relevantTagId: tagId,
+      maxAgeDays,
     },
     limit: 5,
     collectionName: "Comments",
