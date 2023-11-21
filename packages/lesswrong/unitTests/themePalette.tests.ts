@@ -2,14 +2,18 @@ import { importAllComponents, ComponentsTable } from '../lib/vulcan-lib/componen
 import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
 import { themePaletteTestExcludedComponents } from '../server/register-mui-styles';
-import { setPublicSettings } from '../lib/settingsCache';
+
+/*
+ * We call `importAllComponents` in the test to actually call `require` on all
+ * the components that are registed in the deferred components table, but we
+ * need this import to actually get the components _into_ the deferred
+ * components table in the first place.
+ */
+import "../server";
 
 describe('JSS', () => {
   it('uses only colors from the theme palette', () => {
-    setPublicSettings({});
-    require("../server");
     importAllComponents();
-
     const realTheme = getForumTheme({name: "default", siteThemeOverride: {}}) as unknown as ThemeType;
     const fakeTheme = replacePaletteWithStubs(realTheme);
     let nonPaletteColors: string[] = [];

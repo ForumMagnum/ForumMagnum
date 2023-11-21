@@ -79,7 +79,7 @@ const createMarkdownShortcutsPlugin = (config = { insertEmptyBlockOnReturnWithMo
     blockRenderMap: Map({
       'code-block': {
         element: 'code',
-        wrapper: (<pre spellCheck={'false'} />)
+        wrapper: <pre spellCheck={'false'} />
       }
     }).merge(checkboxBlockRenderMap),
     decorators: [
