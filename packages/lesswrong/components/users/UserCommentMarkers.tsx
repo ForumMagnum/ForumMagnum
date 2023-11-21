@@ -46,7 +46,7 @@ const UserCommentMarkers = ({
   const showNewUserIcon = isNewUser(user);
   const _showDonatedIcon = showDonatedIcon(user);
 
-  if (!showAuthorIcon && !showNewUserIcon && !showDonatedIcon) {
+  if (!showAuthorIcon && !showNewUserIcon && !_showDonatedIcon) {
     return null;
   }
 
