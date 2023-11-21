@@ -242,9 +242,10 @@ const styles = (theme: ThemeType) => ({
   givingSeason: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: "12px",
     width: "100%",
+    maxWidth: 280,
     background: theme.palette.grey[0],
     borderRadius: theme.borderRadius.default,
     padding: "16px 12px",
@@ -261,6 +262,7 @@ const styles = (theme: ThemeType) => ({
     gap: "8px",
     width: "100%",
     color: theme.palette.grey[1000],
+    fontSize: 14,
   },
   givingSeasonProgress: {
     background: theme.palette.givingPortal[900],
@@ -275,7 +277,15 @@ const styles = (theme: ThemeType) => ({
   },
   givingSeasonLearnMore: {
     fontSize: 14,
-    fontWeight: 600,
+    fontWeight: 500,
+    color: theme.palette.grey[600],
+    "& a": {
+      textDecoration: "underline",
+      "&:hover": {
+        textDecoration: "none",
+        opacity: 1,
+      },
+    },
   },
 });
 
@@ -603,9 +613,10 @@ export const EAHomeRightHandSide = ({classes}: {
               </>
             }
           </div>
-          <Link to="giving-portal" className={classes.givingSeasonLearnMore}>
-            Learn more
-          </Link>
+          <div className={classes.givingSeasonLearnMore}>
+            The fund will be designated for the top 3 candidates, based on
+            Forum users' votes. <Link to="giving-portal">Learn more</Link>
+          </div>
         </div>
       }
 
