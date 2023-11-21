@@ -248,7 +248,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 280,
     background: theme.palette.grey[0],
     borderRadius: theme.borderRadius.default,
-    padding: "16px 12px",
+    padding: 16,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 16,
     fontWeight: 700,
