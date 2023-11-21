@@ -387,6 +387,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly rateLimitNextAbleToComment: any,
   readonly rateLimitNextAbleToPost: any,
   readonly recentKarmaInfo: any,
+  readonly givingSeason2023DonatedFlair: boolean,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -2614,6 +2615,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly spamRiskScore: number,
   readonly tagRevisionCount: number,
   readonly reviewedByUserId: string,
+  readonly givingSeason2023DonatedFlair: boolean,
 }
 
 interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBooleans { // fragment on Users
