@@ -112,7 +112,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 18,
     lineHeight: '24px',
     paddingBottom: 4,
-    borderBottom: `2px solid rgba(255, 168, 50, 0.6)`
+    borderBottom: theme.palette.border.wrappedSummary,
   },
   summaryData: {
   },

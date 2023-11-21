@@ -21,11 +21,8 @@ import { Map } from 'immutable';
 import { createBlockStyleButton, ItalicButton, BoldButton, UnderlineButton, BlockquoteButton } from 'draft-js-buttons';
 import NoSSR from 'react-no-ssr';
 import { isClient } from '../../lib/executionEnvironment';
+import { styleMap } from "./draftJsEditorStyleMap";
 import * as _ from 'underscore';
-
-const styleMap = (theme: ThemeType) => ({
-  'CODE': theme.typography.code
-})
 
 function customBlockStyleFn(contentBlock: AnyBecauseTodo) {
   const type = contentBlock.getType();
