@@ -253,7 +253,12 @@ const styles = (theme: ThemeType) => ({
   w100: { width: "100%" },
 });
 
-const getListTerms = ({ tagId, sortedBy, limit, after }: { tagId: string; sortedBy: PostSortingModeWithRelevanceOption; limit: number, after: string }): PostsViewTerms => ({
+const getListTerms = ({ tagId, sortedBy, limit, after }: {
+  tagId: string,
+  sortedBy: PostSortingModeWithRelevanceOption,
+  limit: number,
+  after?: string,
+}): PostsViewTerms => ({
   filterSettings: {
     tags: [
       {
@@ -347,7 +352,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     flash(`Notifications ${notifyForVotingOn ? "disabled" : "enabled"}`);
   }, [captureEvent, notifyForVotingOn, currentUser, updateCurrentUser, flash, openDialog]);
 
-  const effectiveGivingPostsTerms = getListTerms({ tagId: effectiveGivingTagId, sortedBy: "magic", limit: 8, after: dateCutoff });
+  const donationElectionPostsTerms = getListTerms({
+    tagId: donationElectionTagId,
+    sortedBy: "magic",
+    limit: 8,
+  });
 
   const totalRaisedFormatted = formatDollars(amountRaised.totalRaised);
   const raisedForElectionFundFormatted = formatDollars(amountRaised.raisedForElectionFund);
@@ -497,14 +506,14 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
               classes.mb80,
             )} id="posts">
               <div className={classNames(classes.h2, classes.primaryText)}>
-                Recent posts tagged &quot;Effective giving&quot;
+                Posts tagged &quot;Donation Election 2023&quot;
               </div>
               <div className={classNames(
                 classes.postsList,
                 classes.primaryLoadMore,
               )}>
                 <PostsList2
-                  terms={effectiveGivingPostsTerms}
+                  terms={donationElectionPostsTerms}
                   loadMoreMessage="View more"
                 />
               </div>
