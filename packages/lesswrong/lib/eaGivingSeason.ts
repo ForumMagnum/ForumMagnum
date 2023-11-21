@@ -85,7 +85,7 @@ export const timelineSpec: TimelineSpec = {
       start: new Date("2023-11-21"),
       end: new Date("2023-11-28"),
       description: "Donation Debate Week",
-      href: `${donationElectionLink}#Donation_Debate_Week`,
+      href: `/s/exEpwrsESEELJji3n`,
       consecutive: true,
     },
     {
