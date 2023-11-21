@@ -1349,6 +1349,11 @@ const schema: SchemaType<DbUser> = {
     hidden: !hasEventsSetting.get(),
     ...notificationTypeSettingsField({ channel: "both" }),
   },
+  notificationKarmaPowersGained: {
+    label: "Karma powers gained",
+    hidden: true,
+    ...notificationTypeSettingsField({ channel: "onsite" }),
+  },
   notificationRSVPs: {
     label: "New RSVP responses to my events",
     hidden: !hasEventsSetting.get(),

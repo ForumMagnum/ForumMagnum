@@ -31,7 +31,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "b03df6b8a9b5f9dc9457d46d16c3436c";
+export const acceptsSchemaHash = "6d8270f44805a1ee0b363924964776e7";
 
 import Users from "../../lib/collections/users/collection";
 import { addField, dropField } from "./meta/utils";

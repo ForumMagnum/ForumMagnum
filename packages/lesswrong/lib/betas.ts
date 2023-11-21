@@ -46,14 +46,14 @@ export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
 
 // Non-user-specific features
-export const dialoguesEnabled = isLWorAF;
+export const dialoguesEnabled = true;
 export const inlineReactsHoverEnabled = isLWorAF;
 /** On the post page, do we show users other content they might want to read */
 export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
 export const hasDigests = isEAForum;
 export const hasSideComments = isLWorAF;
-export const useElicitApi = !isLWorAF;
+export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = isLWorAF;
 
 // Shipped Features
