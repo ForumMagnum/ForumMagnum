@@ -45,10 +45,15 @@ class SqlFragment<T extends DbObject> {
     return this.entries;
   }
 
-  private parseEntries(fieldsLines: string[]): FragmentEntry[] {
+  private parseEntries(lines: string[]): FragmentEntry[] {
     const entries: FragmentEntry[] = [];
-    for (const line of fieldsLines) {
-      let match = line.match(/\s*([a-zA-Z0-9-_]+)\s*/);
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].match(/\s*([^#]*)(#.*)?/)?.[1]?.trimEnd();
+      if (!line) {
+        continue;
+      }
+
+      let match = line.match(/\s*([a-zA-Z0-9-_]+)\s*(#\s*)?/);
       if (match?.[1]) {
         entries.push({
           type: "field",

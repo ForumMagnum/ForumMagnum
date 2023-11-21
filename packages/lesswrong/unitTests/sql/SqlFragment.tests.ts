@@ -6,7 +6,7 @@ describe("SqlFragment", () => {
     const fragment = new SqlFragment(`
       fragment TestFragment on TestCollection {
         _id
-        a
+        a # with a comment
       }
     `);
     expect(fragment.getName()).toBe("TestFragment");
