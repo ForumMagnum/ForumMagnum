@@ -17,6 +17,7 @@ export type DbTestObject = {
 
 export const TestCollection = {
   collectionName: "TestCollection",
+  isPostgres: () => true,
   _schemaFields: {
     _id: {
       type: String,
