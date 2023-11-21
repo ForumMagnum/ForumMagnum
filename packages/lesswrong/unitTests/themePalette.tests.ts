@@ -3,6 +3,18 @@ import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
 import { themePaletteTestExcludedComponents } from '../server/register-mui-styles';
 
+// Jsx doesn't get parsed correctly in test runs - this is quicker than
+// _real_ debugging
+jest.mock("../components/editor/draftjs-plugins/markdown-shortcuts-plugin", () => ({
+  default: jest.fn(),
+}));
+jest.mock("../components/editor/draftjs-plugins/image/AddImageForm", () => ({
+  default: jest.fn(),
+}));
+jest.mock("../components/editor/draftjs-plugins/image/ImageButton", () => ({
+  default: jest.fn(),
+}));
+
 /*
  * We call `importAllComponents` in the test to actually call `require` on all
  * the components that are registed in the deferred components table, but we
