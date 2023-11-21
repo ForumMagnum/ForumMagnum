@@ -265,14 +265,14 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
   },
   givingSeasonProgress: {
-    background: theme.palette.givingPortal[900],
+    background: theme.palette.givingPortal.homepageHeader.light1,
     borderRadius: theme.borderRadius.small,
     overflow: "hidden",
     width: "100%",
     height: 8,
     "& *": {
       height: "100%",
-      background: theme.palette.givingPortal[1000],
+      background: theme.palette.givingPortal.homepageHeader.main,
     },
   },
   givingSeasonLearnMore: {
