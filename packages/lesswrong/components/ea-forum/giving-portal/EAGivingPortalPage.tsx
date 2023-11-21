@@ -517,11 +517,6 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   loadMoreMessage="View more"
                 />
               </div>
-              <div className={classes.rowThin}>
-                <Link to={`/topics/${effectiveGivingTag?.slug}`} className={classes.button}>
-                  Contribute to the discussion
-                </Link>
-              </div>
             </div>
           </div>
         </div>
