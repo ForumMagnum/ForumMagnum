@@ -354,7 +354,9 @@ export const NewCommentNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
-  Display: ({User, Post}) => <><User /> left a new comment on <Post /></>,
+  Display: ({User, Comment, Post}) => <>
+    <User /> left a new <Comment /> on <Post />
+  </>,
 });
 
 // New comment on a subforum you're subscribed to.
@@ -372,7 +374,9 @@ export const NewSubforumCommentNotification = registerNotificationType({
   },
   // We don't have the exact data here to format this the same as above, but
   // subforums don't exist anymore so it doesn't seem worth the effort to fix
-  Display: ({User, Post}) => <><User /> left a new comment on <Post /></>,
+  Display: ({User, Comment, Post}) => <>
+    <User /> left a new <Comment /> on <Post />
+  </>,
 });
 
 // New message in a dialogue which you are a participant
@@ -503,7 +507,9 @@ export const NewShortformNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
-  Display: ({User, Post}) => <><User /> left a new comment on <Post /></>,
+  Display: ({User, Comment, Post}) => <>
+    <User /> left a new <Comment /> on <Post />
+  </>,
 });
 
 export const taggedPostMessage = async ({documentType, documentId}: GetMessageProps) => {
@@ -542,7 +548,9 @@ export const NewReplyNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
-  Display: ({User, Post}) => <><User /> replied to a comment on <Post /></>,
+  Display: ({User, Comment, Post}) => <>
+    <User /> replied to a <Comment /> on <Post />
+  </>,
 });
 
 // Reply to a comment you are the author of.
@@ -556,7 +564,9 @@ export const NewReplyToYouNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
-  Display: ({User, Post}) => <><User /> replied to your comment on <Post /></>,
+  Display: ({User, Comment, Post}) => <>
+    <User /> replied to your <Comment /> on <Post />
+  </>,
 });
 
 // Vulcan notification that we don't really use
@@ -867,14 +877,14 @@ export const NewMentionNotification = registerNotificationType({
   getIcon() {
     return <CommentsIcon style={iconStyles}/>
   },
-  Display: ({User, Post, Tag, notification: {comment, tag}}) => {
+  Display: ({User, Comment, Post, Tag, notification: {comment, tag}}) => {
     if (tag) {
       return (
         <><User /> mentioned you in <Tag /></>
       );
     }
     return (
-      <><User /> mentioned you in {comment ? "their comment on " : ""}<Post /></>
+      <><User /> mentioned you in {comment ? <>their <Comment /> on </> : ""}<Post /></>
     );
   },
 })
