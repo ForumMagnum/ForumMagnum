@@ -3,7 +3,7 @@ import { getForumTheme } from '../themes/forumTheme';
 import * as _ from 'underscore';
 import { themePaletteTestExcludedComponents } from '../server/register-mui-styles';
 
-// This component imports a lot of JSX files for plugs and our current build
+// This component imports a lot of JSX files for plugins and our current build
 // setup for tests can't parse them correctly for some reason. For now we can
 // just avoid importing them at all
 jest.mock("../components/editor/DraftJSEditor", () => {
