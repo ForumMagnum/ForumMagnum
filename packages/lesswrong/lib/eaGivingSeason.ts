@@ -16,7 +16,7 @@ export const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
 export const heroImageId = "giving_portal_23_hero";
 
 /** Cloudinary ID for the frontpage header background image */
-export const headerImageId = "giving_portal_23_hero2";
+export const headerImageId = "giving_portal_23_hero3";
 
 const votingAccountCreationCutoff = new Date("2023/10/23");
 
