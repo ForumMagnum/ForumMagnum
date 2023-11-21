@@ -73,7 +73,6 @@ export const NotificationsPageFeed = ({
 }) => {
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const {tab, setTab} = useNotificationsPageTab();
-  const canLoadMore = tab.name !== "karma";
 
   const {
     data,
@@ -107,6 +106,8 @@ export const NotificationsPageFeed = ({
     notifications.current = data.NotificationDisplays.results;
   }
 
+  const canLoadMore = tab.name !== "karma" && notifications.current.length > 0;
+
   const onChangeTab = useCallback((_: ChangeEvent, tabName: string) => {
     if (isNotificationsPageTabName(tabName)) {
       notifications.current = [];
@@ -119,7 +120,9 @@ export const NotificationsPageFeed = ({
     ? "in realtime"
     : `batched ${karmaUpdateFrequency}`;
 
-  const {NotificationsPageItem, NotificationsPageEmpty, LoadMore} = Components;
+  const {
+    NotificationsPageItem, NotificationsPageEmpty, LoadMore, Loading,
+  } = Components;
   return (
     <div className={classes.root}>
       <Tabs
@@ -150,6 +153,7 @@ export const NotificationsPageFeed = ({
           notification={notification}
         />
       ))}
+      {loading && notifications?.current?.length === 0 && <Loading />}
       {canLoadMore &&
         <LoadMore
           loadMore={loadMore}
