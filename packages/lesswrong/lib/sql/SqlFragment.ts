@@ -4,6 +4,38 @@ import PgCollection from "./PgCollection";
 type FragmentEntry = {
   type: "field",
   name: string,
+} | {
+  type: "spread",
+  fragmentName: string,
+} | {
+  type: "pick",
+  name: string,
+  entries: FragmentEntry[],
+};
+
+class Lexer {
+  private lines: string[];
+  private position = 0;
+
+  constructor(fieldsText: string) {
+    this.lines = fieldsText.split("\n");
+  }
+
+  next(): string | null {
+    while (this.position < this.lines.length) {
+      const line = this.lines[this.position++];
+      const trimmedLine = line.match(/\s*([^#]*)(#.*)?/)?.[1]?.trimEnd();
+      if (!trimmedLine) {
+        continue;
+      }
+      return trimmedLine;
+    }
+    return null;
+  }
+
+  finished(): boolean {
+    return this.position >= this.lines.length;
+  }
 }
 
 class SqlFragment<T extends DbObject> {
@@ -30,7 +62,11 @@ class SqlFragment<T extends DbObject> {
     }
 
     const fieldsText = match[3];
-    this.entries = this.parseEntries(fieldsText.split("\n"));
+    const lexer = new Lexer(fieldsText);
+    this.entries = this.parseEntries(lexer);
+    if (!lexer.finished()) {
+      throw new Error(`Mismatched braces in fragment: "${this.name}"`);
+    }
   }
 
   getName(): string {
@@ -45,36 +81,43 @@ class SqlFragment<T extends DbObject> {
     return this.entries;
   }
 
-  private parseEntries(lines: string[]): FragmentEntry[] {
+  private parseEntries(lexer: Lexer): FragmentEntry[] {
     const entries: FragmentEntry[] = [];
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].match(/\s*([^#]*)(#.*)?/)?.[1]?.trimEnd();
-      if (!line) {
-        continue;
+    let line: string | null;
+    while (line = lexer.next()) {
+      if (line === "}") {
+        break;
       }
 
-      let match = line.match(/\s*([a-zA-Z0-9-_]+)\s*(#\s*)?/);
-      if (match?.[1]) {
+      let match = line.match(/^[a-zA-Z0-9-_]+$/);
+      if (match?.[0]) {
         entries.push({
           type: "field",
-          name: match[1],
+          name: match[0],
         });
         continue;
       }
 
-      match = line.match(/\s*\.\.\.([a-zA-Z0-9-_]+)\s*/)
+      match = line.match(/^\.\.\.([a-zA-Z0-9-_]+)$/)
       if (match?.[1]) {
-        // TODO
-        console.log("spread");
+        entries.push({
+          type: "spread",
+          fragmentName: match[1],
+        });
         continue;
       }
 
-      match = line.match(/\s*[a-zA-Z0-9-_]+\s*{\s*/);
+      match = line.match(/^([a-zA-Z0-9-_]+)\s*{$/);
       if (match?.[1]) {
-        // TODO
-        console.log("complex");
+        entries.push({
+          type: "pick",
+          name: match[1],
+          entries: this.parseEntries(lexer),
+        });
         continue;
       }
+
+      throw new Error(`Parse error in fragment "${this.name}": "${line}"`);
     }
     return entries;
   }
