@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: 12,
+    padding: "12px 12px 12px 16px",
     borderBottom: theme.palette.border.grey200,
     cursor: "pointer",
     "&:hover": {
