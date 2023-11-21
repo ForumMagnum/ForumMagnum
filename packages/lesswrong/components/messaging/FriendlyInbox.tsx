@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: `min(${MAX_WIDTH}px, 100%)`,
     marginLeft: "auto",
     marginRight: "auto",
-    padding: "32px 32px",
+    padding: "24px 24px",
     zIndex: theme.zIndexes.singleColumnSection,
     [theme.breakpoints.down('xs')]: {
       padding: 0,
@@ -90,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     borderRight: theme.palette.border.grey200,
     borderBottom: theme.palette.border.grey200,
-    padding: "0px 32px",
+    padding: "0px 16px",
     flex: "1 1 auto",
     [theme.breakpoints.down('xs')]: {
       padding: "0px 24px",
@@ -104,7 +104,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: "space-between",
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
-    fontSize: 20,
+    fontSize: "1.4rem",
     fontWeight: 600,
     padding: 16,
   },
