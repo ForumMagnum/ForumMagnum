@@ -18,11 +18,12 @@ export const styles = (theme: ThemeType) => ({
       : 'freight-sans-pro, sans-serif',
   },
   badge: {
-    right: "1px",
-    top: "1px",
     pointerEvents: "none",
     ...(isFriendlyUI
       ? {
+        top: 3,
+        right: 6,
+        maxHeight: 20,
         fontSize: 11,
         fontWeight: 800,
         letterSpacing: "0.22px",
@@ -31,6 +32,8 @@ export const styles = (theme: ThemeType) => ({
         borderRadius: "50%",
       }
       : {
+        top: 1,
+        right: 1,
         backgroundColor: "inherit",
         fontWeight: 500,
         fontFamily: "freight-sans-pro, sans-serif",
@@ -38,6 +41,18 @@ export const styles = (theme: ThemeType) => ({
         color: theme.palette.header.text,
       }),
   },
+  badge1Char: isFriendlyUI
+    ? {
+      width: 18,
+      height: 18,
+    }
+    : {},
+  badge2Chars: isFriendlyUI
+    ? {
+      width: 20,
+      height: 20,
+    }
+    : {},
   buttonOpen: {
     backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
     color: isFriendlyUI
@@ -155,7 +170,12 @@ const FriendlyNotificationsMenuButton = ({
       <Badge
         classes={{
           root: classNames(classes.badgeContainer, className),
-          badge: hasBadge ? classes.badge : undefined,
+          badge: hasBadge
+            ? classNames(classes.badge, {
+              [classes.badge1Char]: badgeText.length === 1,
+              [classes.badge2Chars]: badgeText.length === 2,
+            })
+            : undefined,
         }}
         badgeContent={
           <>
