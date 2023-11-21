@@ -933,7 +933,8 @@ const schema: SchemaType<DbPost> = {
     blackbox: true,
     group: formGroups.tags,
     control: "FormComponentPostEditorTagging",
-    hidden: (props) => props.eventForm,
+    hidden: ({eventForm, document}) => eventForm ||
+      (isLWorAF && !!document.collabEditorDialogue),
   },
   "tagRelevance.$": {
     type: Number,
@@ -1439,6 +1440,7 @@ const schema: SchemaType<DbPost> = {
     control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
     order: 4,
+    hidden: ({document}) => isLWorAF && !!document.collabEditorDialogue,
   },
 
   fmCrosspost: {
@@ -2410,6 +2412,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
+    hidden: ({document}) => !!document.collabEditorDialogue,
     resolveAs: {
       type: 'Boolean',
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
@@ -2447,6 +2450,7 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
+    hidden: ({document}) => !!document.collabEditorDialogue,
     form: {
       options: function () { // options for the select form control
         return [
@@ -2463,7 +2467,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     nullable: true,
-    hidden: isEAForum,
+    hidden: ({document}) => isEAForum || !!document.collabEditorDialogue,
     tooltip: "Allow rate-limited users to comment freely on this post",
     group: formGroups.moderationGroup,
     canRead: ["guests"],
