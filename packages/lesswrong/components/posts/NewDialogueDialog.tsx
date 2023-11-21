@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.text.normal,
     "& .MuiDialogActions-root": {
-      marginBottom: isFriendlyUI ? 0 : undefined,
+      margin: isFriendlyUI ? 0 : undefined,
     },
   },
   inputRow: {
