@@ -88,6 +88,7 @@ export type NotificationDisplay =
     localgroup?: NotificationDisplayLocalgroup,
     karmaChange?: number,
     extendedVoteType?: unknown,
+    tagRelId?: string,
   };
 
 export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)

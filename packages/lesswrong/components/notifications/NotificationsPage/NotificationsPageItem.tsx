@@ -201,7 +201,9 @@ export const NotificationsPageItem = ({notification, classes}: {
     return null;
   }
 
-  const {createdAt, comment, post, user, tag, localgroup, link} = notification;
+  const {
+    createdAt, comment, post, user, tag, localgroup, link, tagRelId,
+  } = notification;
   const displayUser = (
     user ??
     post?.user ??
@@ -229,7 +231,10 @@ export const NotificationsPageItem = ({notification, classes}: {
   );
   const Post: FC = () => displayPost
     ? (
-      <PostsTooltip post={displayPost as unknown as PostsList}>
+      <PostsTooltip
+        post={displayPost as unknown as PostsList}
+        tagRelId={tagRelId}
+      >
         <Link
           to={link ?? postGetPageUrl(displayPost)}
           className={classes.primaryText}
@@ -242,7 +247,11 @@ export const NotificationsPageItem = ({notification, classes}: {
     : null;
   const Comment: FC = () => comment
     ? (
-      <PostsTooltip postId={displayPost?._id} commentId={comment._id}>
+      <PostsTooltip
+        postId={displayPost?._id}
+        commentId={comment._id}
+        tagRelId={tagRelId}
+      >
         <Link
           to={commentGetPageUrlFromIds({
             commentId: comment._id,
