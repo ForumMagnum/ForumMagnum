@@ -242,18 +242,20 @@ export const NotificationsPageItem = ({notification, classes}: {
     : null;
   const Comment: FC = () => comment
     ? (
-      <Link
-        to={commentGetPageUrlFromIds({
-          commentId: comment._id,
-          postId: comment.post?._id,
-          postSlug: comment.post?.slug,
-          tagSlug: tag?.slug, // TODO: This probably doesn't work for tags yet?
-        })}
-        className={classes.primaryText}
-        eventProps={{intent: "expandComment"}}
-      >
-        comment
-      </Link>
+      <PostsTooltip postId={displayPost?._id} commentId={comment._id}>
+        <Link
+          to={commentGetPageUrlFromIds({
+            commentId: comment._id,
+            postId: comment.post?._id,
+            postSlug: comment.post?.slug,
+            tagSlug: tag?.slug,
+          })}
+          className={classes.primaryText}
+          eventProps={{intent: "expandComment"}}
+        >
+          comment
+        </Link>
+      </PostsTooltip>
     )
     : null;
   const Tag: FC = () => tag
