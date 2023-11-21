@@ -14,6 +14,7 @@ declare global {
     postId?: string,
     userId?: string,
     tagId?: string,
+    relevantTagId?: string,
     parentCommentId?: string,
     parentAnswerId?: string,
     topLevelCommentId?: string,
@@ -525,9 +526,18 @@ Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
       createdAt: {$gt: moment().subtract(5, 'days').toDate()},
-      ...(!terms.showCommunity && {
-        relevantTagIds: {$ne: EA_FORUM_COMMUNITY_TOPIC_ID},
-      }),
+      $and: [
+        !terms.showCommunity
+          ? {
+            relevantTagIds: {$ne: EA_FORUM_COMMUNITY_TOPIC_ID},
+          }
+          : {},
+        !!terms.relevantTagId
+          ? {
+            relevantTagIds: terms.relevantTagId,
+          }
+          : {},
+      ],
       // Quick takes older than 2 hours must have at least 1 karma, quick takes
       // younger than 2 hours must have at least -5 karma
       $or: [

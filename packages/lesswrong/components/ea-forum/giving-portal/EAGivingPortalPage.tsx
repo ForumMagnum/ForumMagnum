@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Components, getSiteUrl, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle } from "../../../lib/crud/withSingle";
-import { useMulti } from "../../../lib/crud/withMulti";
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
@@ -27,10 +26,6 @@ import { useMessages } from "../../common/withMessages";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
-import { useCurrentTime } from "../../../lib/utils/timeUtil";
-import moment from "moment";
-import { useTimezone } from "../../common/withTimezone";
-import { frontpageDaysAgoCutoffSetting } from "../../../lib/scoring";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
@@ -298,7 +293,7 @@ const socialImageProps: CloudinaryPropsType = {
   f: "auto",
 };
 
-const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
+const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { data: amountRaised, loading: amountRaisedLoading } = useAmountRaised(eaGivingSeason23ElectionName);
 
   const {
@@ -311,11 +306,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",
   });
-  const {document: effectiveGivingTag} = useSingle({
-    documentId: effectiveGivingTagId,
-    collectionName: "Tags",
-    fragmentName: "TagBasicInfo",
-  });
+  /*
   const {
     results: relevantSequences,
     loading: loadingRelevantSequences,
@@ -326,16 +317,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
       "wog9xb8cdqDySbBvM", // TODO: Add more sequences here
     ]},
   });
+   */
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const [notifyForVotingOn, setNotifyForVotingOn] = useState(currentUser?.givingSeasonNotifyForVoting ?? false);
   const {flash} = useMessages();
   const {openDialog} = useDialog();
   const { captureEvent } = useTracking({ eventProps: { pageContext: "eaGivingPortal" } });
-
-  const { timezone } = useTimezone();
-  const now = useCurrentTime();
-  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
 
   const toggleNotifyWhenVotingOpens = useCallback(() => {
     captureEvent('toggleNotifyWhenVotingOpens', { notifyForVotingOn: !notifyForVotingOn })
@@ -364,7 +352,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
 
   const {
     Loading, LoadMore, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
-    ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, EASequenceCard,
+    ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, QuickTakesList,
   } = Components;
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
@@ -517,6 +505,18 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                   loadMoreMessage="View more"
                 />
               </div>
+              <div className={classNames(
+                classes.h2,
+                classes.primaryText,
+                classes.mt30,
+              )}>
+                Quick takes tagged &quot;Effective Giving&quot;
+              </div>
+              <QuickTakesList
+                showCommunity
+                tagId={effectiveGivingTagId}
+                className={classNames(classes.postsList, classes.primaryLoadMore)}
+              />
             </div>
           </div>
         </div>
