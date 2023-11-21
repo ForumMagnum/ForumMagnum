@@ -1,5 +1,6 @@
 import React, { FC } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { useIsAboveBreakpoint } from "../../hooks/useScreenWidth";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import {
@@ -184,6 +185,7 @@ const GivingSeasonHeader = ({
   classes: ClassesType,
 }) => {
   const {Typography} = Components;
+  const isDesktop = useIsAboveBreakpoint("md");
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
       <div className={classNames(classes.root, classes.rootGivingSeason, {
@@ -198,6 +200,7 @@ const GivingSeasonHeader = ({
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
+          disable={isDesktop}
         >
           <header className={classes.appBarGivingSeason}>
             <div className={classes.givingSeasonGradient} />
