@@ -5,15 +5,11 @@ import { themePaletteTestExcludedComponents } from '../server/register-mui-style
 
 // Jsx doesn't get parsed correctly in test runs - this is quicker than
 // _real_ debugging
-jest.mock("../components/editor/draftjs-plugins/markdown-shortcuts-plugin", () => ({
-  default: jest.fn(),
-}));
-jest.mock("../components/editor/draftjs-plugins/image/AddImageForm", () => ({
-  default: jest.fn(),
-}));
-jest.mock("../components/editor/draftjs-plugins/image/ImageButton", () => ({
-  default: jest.fn(),
-}));
+jest.mock("../components/editor/DraftJSEditor", () => {
+  const {registerComponent} = require("../lib/vulcan-lib/components");
+  registerComponent("DraftJSEditor", () => null);
+  return {default: jest.fn()};
+});
 
 /*
  * We call `importAllComponents` in the test to actually call `require` on all
