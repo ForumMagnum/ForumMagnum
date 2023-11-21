@@ -25,6 +25,7 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
+    givingSeason2023DonatedFlair
   }
 `);
 

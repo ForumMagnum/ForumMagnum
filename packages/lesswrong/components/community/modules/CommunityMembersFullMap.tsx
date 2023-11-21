@@ -25,7 +25,7 @@ const CommunityMembersFullMap = ({classes}: {
     searchClient={getSearchClient()}
   >
     <SearchResultsMap zoom={1} className={classes.map} />
-    <Configure hitsPerPage={1000} filters="_geoloc.lat>-100" />
+    <Configure hitsPerPage={1500} existsFilters={['_geoloc']} />
   </InstantSearch>
 }
 

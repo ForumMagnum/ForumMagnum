@@ -1,5 +1,6 @@
 import React, { FC } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { useIsAboveBreakpoint } from "../../hooks/useScreenWidth";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import {
@@ -63,7 +64,7 @@ export const givingSeasonGradient = (
     height,
     margin: "0 auto",
     "@media (max-width: 1200px)": {
-      background: `linear-gradient(76deg, ${theme.palette.givingPortal.homepageHeader.dark} 10%, ${theme.palette.givingPortal.homepageHeader.main} 40%, ${theme.palette.background.transparent} 70%, ${theme.palette.givingPortal.homepageHeader.main})`,
+      background: `linear-gradient(to right, ${theme.palette.givingPortal.homepageHeader.dark} 10%, ${theme.palette.givingPortal.homepageHeader.main} 40%, ${theme.palette.background.transparent} 70%, ${theme.palette.givingPortal.homepageHeader.main})`,
     },
     [theme.breakpoints.down("sm")]: {
       display: "none",
@@ -190,6 +191,7 @@ const GivingSeasonHeader = ({
   classes: ClassesType,
 }) => {
   const {Typography} = Components;
+  const isDesktop = useIsAboveBreakpoint("md");
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
       <div className={classNames(classes.root, classes.rootGivingSeason, {
@@ -204,6 +206,7 @@ const GivingSeasonHeader = ({
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
+          disable={isDesktop}
         >
           <header className={classes.appBarGivingSeason}>
             <div className={classes.givingSeasonGradient} />
