@@ -209,19 +209,19 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
         borderRadius: theme.borderRadius.small,
         border: "2px solid transparent",
         '&[user-order="1"]': {
-          borderColor: theme.palette.text.debateComment,
+          borderColor: `${theme.palette.text.debateComment} !important`,
         },
         '&[user-order="2"]': {
-          borderColor: theme.palette.text.debateComment2,
+          borderColor: `${theme.palette.text.debateComment2} !important`,
         },
         '&[user-order="3"]': {
-          borderColor: theme.palette.text.debateComment3,
+          borderColor: `${theme.palette.text.debateComment3} !important`,
         },
         '&[user-order="4"]': {
-          borderColor: theme.palette.text.debateComment4,
+          borderColor: `${theme.palette.text.debateComment4} !important`,
         },
         '&[user-order="5"]': {
-          borderColor: theme.palette.text.debateComment5,
+          borderColor: `${theme.palette.text.debateComment5} !important`,
         },
       }
       : {
