@@ -107,9 +107,6 @@ const styles = (theme: ThemeType) => ({
     ["@media (max-width: 600px)"]: {
       marginBottom: 12,
     },
-    ["@media (max-width: 520px)"]: {
-      alignSelf: "flex-start",
-    },
     ["@media (max-width: 380px)"]: {
       display: "none",
     },
