@@ -1,19 +1,24 @@
 import { getCollectionByTypeName } from "../vulcan-lib/getCollection";
-import ProjectionContext, { CodeResolver, CustomResolver } from "./ProjectionContext";
+import ProjectionContext, { CodeResolver } from "./ProjectionContext";
 import FragmentLexer from "./FragmentLexer";
-import Table from "./Table";
 
-type SqlFragmentEntry = {
+type SqlFragmentField = {
   type: "field",
   name: string,
-} | {
+}
+
+type SqlFragmentSpread = {
   type: "spread",
   fragmentName: string,
-} | {
+}
+
+type SqlFragmentPick = {
   type: "pick",
   name: string,
   entries: SqlFragmentEntryMap,
-};
+}
+
+type SqlFragmentEntry = SqlFragmentField | SqlFragmentSpread | SqlFragmentPick;
 
 type SqlFragmentEntryMap = Record<string, SqlFragmentEntry>;
 
@@ -87,33 +92,55 @@ class SqlFragment {
     return entries;
   }
 
-  private getCollection() {
-    const baseTypeName = this.getBaseTypeName();
-    const collection = getCollectionByTypeName(baseTypeName);
-    if (!collection.isPostgres()) {
-      throw new Error(`Type is not in Postgres: "${baseTypeName}"`);
-    }
-    return collection;
-  }
-
-  private getTable(): Table<DbObject> {
-    return this.getCollection().table;
-  }
-
-  private getSchema() {
-    const collection = this.getCollection();
-    const schema = collection._schemaFields;
-
-    const resolvers: Record<string, CustomResolver> = {};
-    for (const fieldName in schema) {
-      const field = schema[fieldName];
-      if (field.resolveAs) {
-        const resolverName = field.resolveAs.fieldName ?? fieldName;
-        resolvers[resolverName] = field.resolveAs;
+  private compileFieldEntry(
+    context: ProjectionContext,
+    {name}: SqlFragmentField,
+  ) {
+    const resolver = context.getResolver(name);
+    if (resolver) {
+      if (resolver.sqlResolver) {
+        const result = resolver.sqlResolver({
+          field: context.field.bind(context),
+          currentUserField: context.currentUserField.bind(context),
+          join: context.addJoin.bind(context),
+          arg: context.addArg.bind(context),
+        });
+        context.addProjection(name, result);
+      } else {
+        context.addCodeResolver(
+          resolver.fieldName ?? name,
+          resolver.resolver,
+        );
       }
+    } else if (context.getSchema()[name]) {
+      context.addProjection(name);
+    } else {
+      const baseTypeName = this.getBaseTypeName();
+      throw new Error(`Field "${name}" doesn't exist on "${baseTypeName}"`);
     }
+  }
 
-    return {schema, resolvers};
+  private compileSpreadEntry(
+    context: ProjectionContext,
+    spread: SqlFragmentSpread,
+  ) {
+    // `getFragment` takes a `FragmentName` but then checks if it's valid.
+    // It should probably just be typed as taking a string but that might
+    // not a be a totally safe change, so for now we'll just cast.
+    const fragmentName = spread.fragmentName as FragmentName;
+    const fragment = this.getFragment(fragmentName);
+    if (!fragment) {
+      throw new Error(`Fragment "${fragmentName}" not found`);
+    }
+    fragment.compileSelector(context);
+  }
+
+  private compilePickEntry(
+    context: ProjectionContext,
+    {name, entries}: SqlFragmentPick,
+  ) {
+    // TODO
+    console.log("MARK PICK", name, entries, context.getSchema()[name]);
   }
 
   private compileSelector(context: ProjectionContext) {
@@ -122,62 +149,35 @@ class SqlFragment {
       throw new Error(`Mismatched braces in fragment: "${this.getName()}"`);
     }
 
-    const {schema, resolvers} = this.getSchema();
-
     for (const entryName in entries) {
       const entry = entries[entryName];
       switch (entry.type) {
-        case "field": {
-          const resolver = resolvers[entry.name];
-          if (resolver) {
-            if (resolver.sqlResolver) {
-              const result = resolver.sqlResolver({
-                field: context.field.bind(context),
-                currentUserField: context.currentUserField.bind(context),
-                join: context.addJoin.bind(context),
-                arg: context.addArg.bind(context),
-              });
-              context.addProjection(entry.name, result);
-            } else {
-              context.addCodeResolver(
-                resolver.fieldName ?? entry.name,
-                resolver.resolver,
-              );
-            }
-          } else if (schema[entry.name]) {
-            context.addProjection(entry.name);
-          } else {
-            const baseTypeName = this.getBaseTypeName();
-            throw new Error(`${entry.name} doesn't exist on ${baseTypeName}`);
-          }
-          break;
-        }
-        case "spread": {
-          // `getFragment` takes a `FragmentName` but then checks if it's valid.
-          // It should probably just be typed as taking a string but that might
-          // not a be a totally safe change, so for now we'll just cast.
-          const fragmentName = entry.fragmentName as FragmentName;
-          const fragment = this.getFragment(fragmentName);
-          if (!fragment) {
-            throw new Error(`Fragment "${entry.fragmentName}" not found`);
-          }
-          fragment.compileSelector(context);
-          break;
-        }
-        case "pick": {
-          // TODO
-          break;
-        }
+      case "field":
+        this.compileFieldEntry(context, entry);
+        break;
+      case "spread":
+        this.compileSpreadEntry(context, entry);
+        break;
+      case "pick":
+        this.compilePickEntry(context, entry);
+        break;
       }
     }
   }
 
   buildSelector(currentUser: DbUser | UsersCurrent | null): SqlFragmentSelector {
-    const context = new ProjectionContext(this.getTable());
+    const baseTypeName = this.getBaseTypeName();
+    const collection = getCollectionByTypeName(baseTypeName);
+    if (!collection.isPostgres()) {
+      throw new Error(`Type is not in Postgres: "${baseTypeName}"`);
+    }
+
+    const context = new ProjectionContext(collection);
     context.setCurrentUser(currentUser);
     this.compileSelector(context);
+
     return {
-      tableName: `"${context.getTable().getName()}"`,
+      tableName: context.getTableName(),
       selectors: context.getProjections(),
       args: context.getArgs(),
       joins: context.getJoins(),

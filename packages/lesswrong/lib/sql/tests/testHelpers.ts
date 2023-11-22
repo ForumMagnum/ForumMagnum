@@ -47,6 +47,8 @@ export const TestCollection = {
 } as unknown as CollectionBase<DbTestObject>;
 
 export const testTable = Table.fromCollection<DbTestObject>(TestCollection);
+(TestCollection as any).table = testTable;
+registerCollection(TestCollection);
 
 testTable.addIndex({a: 1, b: 1});
 testTable.addIndex({a: 1, "c.d": 1});
@@ -77,6 +79,8 @@ export const TestCollection2 = {
 } as unknown as CollectionBase<DbTestObject2>;
 
 export const testTable2 = Table.fromCollection(TestCollection2);
+(TestCollection2 as any).table = testTable2;
+registerCollection(TestCollection2);
 
 export type DbTestObject3 = {
   _id: string,
@@ -102,6 +106,8 @@ export const TestCollection3 = {
 } as unknown as CollectionBase<DbTestObject3>;
 
 export const testTable3 = Table.fromCollection(TestCollection3);
+(TestCollection3 as any).table = testTable3;
+registerCollection(TestCollection3);
 
 registerFragment(`
   fragment TestCollection3DefaultFragment on TestCollection3 {
@@ -138,6 +144,10 @@ export const TestCollection4 = {
   },
 } as unknown as CollectionBase<DbTestObject4>;
 
+export const testTable4 = Table.fromCollection(TestCollection4);
+(TestCollection4 as any).table = testTable4;
+registerCollection(TestCollection4);
+
 registerFragment(`
   fragment TestCollection4DefaultFragment on TestCollection4 {
     _id
@@ -145,11 +155,6 @@ registerFragment(`
     testCollection3
   }
 `);
-
-registerCollection(TestCollection);
-registerCollection(TestCollection2);
-registerCollection(TestCollection3);
-registerCollection(TestCollection4);
 
 export const normalizeWhitespace = (s: string) => s.trim().replace(/\s+/g, " ");
 

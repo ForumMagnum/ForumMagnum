@@ -1,30 +1,32 @@
 import ProjectionContext from "../../lib/sql/ProjectionContext";
-import { testTable } from "../../lib/sql/tests/testHelpers";
+import PgCollection from "../../lib/sql/PgCollection";
+import { TestCollection as RawTestCollection } from "../../lib/sql/tests/testHelpers";
 
 describe("ProjectionContext", () => {
+  const TestCollection = RawTestCollection as unknown as PgCollection<DbObject>;
   it("can set current user for logged-out users", () => {
-    const context = new ProjectionContext(testTable);
+    const context = new ProjectionContext(TestCollection);
     context.setCurrentUser(null);
     expect(context.getJoins()[0].table).toBe("Users");
     expect(context.getArgs()[0]).toBe(null);
   });
   it("can set current user for logged-in users", () => {
-    const context = new ProjectionContext(testTable);
+    const context = new ProjectionContext(TestCollection);
     const user = {_id: "test-user-id"} as DbUser;
     context.setCurrentUser(user);
     expect(context.getJoins()[0].table).toBe("Users");
     expect(context.getArgs()[0]).toBe("test-user-id");
   });
   it("prepends primary prefix to fields", () => {
-    const context = new ProjectionContext(testTable);
+    const context = new ProjectionContext(TestCollection);
     expect(context.field("test")).toBe(`t."test"`);
   });
   it("prepends current user prefix to fields", () => {
-    const context = new ProjectionContext(testTable);
+    const context = new ProjectionContext(TestCollection);
     expect(context.currentUserField("_id")).toBe(`"currentUser"."_id"`);
   });
   it("detects duplicate joins", () => {
-    const context = new ProjectionContext(testTable);
+    const context = new ProjectionContext(TestCollection);
     const join1: SqlResolverJoin = {
       table: "TestTable2",
       type: "left",
@@ -50,7 +52,7 @@ describe("ProjectionContext", () => {
     expect(context.getJoins()).toHaveLength(2);
   });
   it("increments argument number", () => {
-    const context = new ProjectionContext(testTable);
+    const context = new ProjectionContext(TestCollection);
     expect(context.addArg(3)).toBe("$1");
     expect(context.addArg(null)).toBe("$2");
     expect(context.addArg("test")).toBe("$3");

@@ -1,26 +1,46 @@
-import Table from "./Table";
+import PgCollection from "./PgCollection";
 import isEqual from "lodash/isEqual";
 import { randomId } from "../random";
 
-export type CustomResolver<T extends DbObject = DbObject> =
+type CustomResolver<T extends DbObject = DbObject> =
   NonNullable<CollectionFieldSpecification<T>["resolveAs"]>;
 
 export type CodeResolver<T extends DbObject = DbObject> =
   CustomResolver<T>["resolver"];
 
 class ProjectionContext {
+  private resolvers: Record<string, CustomResolver> = {};
   private projections: string[] = [];
   private joins: SqlJoinSpec[] = [];
   private args: unknown[] = [];
   private codeResolvers: Record<string, CodeResolver> = {};
   private primaryPrefix: string;
 
-  constructor(private table: Table<DbObject>) {
-    this.primaryPrefix = table.getName()[0].toLowerCase();
+  constructor(private collection: PgCollection<DbObject>) {
+    this.primaryPrefix = collection.table.getName()[0].toLowerCase();
+
+    const schema = this.getSchema();
+    for (const fieldName in schema) {
+      const field = schema[fieldName];
+      if (field.resolveAs) {
+        const resolverName = field.resolveAs.fieldName ?? fieldName;
+        this.resolvers[resolverName] = field.resolveAs;
+      }
+    }
   }
 
-  getTable() {
-    return this.table;
+  getSchema() {
+    // *sigh*
+    const collection = this.collection as unknown as CollectionBase<DbObject>;
+    return collection._schemaFields;
+  }
+
+  getResolver(name: string): CustomResolver | null {
+    return this.resolvers[name] ?? null;
+  }
+
+  getTableName() {
+    return `"${this.collection.table.getName()}"`;
   }
 
   getProjections() {
@@ -109,9 +129,9 @@ class ProjectionContext {
   compileQuery(): {sql: string, args: unknown[]} {
     const projection = this.projections.join(", ");
     const joins = this.joins.map((join) => this.compileJoin(join)).join(" ");
-    const table = this.table.getName();
+    const table = this.getTableName();
     const prefix = this.primaryPrefix;
-    const sql = `SELECT ${projection} FROM "${table}" ${prefix} ${joins}`;
+    const sql = `SELECT ${projection} FROM ${table} ${prefix} ${joins}`;
     return {
       sql,
       args: this.args,
