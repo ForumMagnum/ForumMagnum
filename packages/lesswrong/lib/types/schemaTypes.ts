@@ -23,6 +23,29 @@ interface CollectionFieldPermissions {
 
 type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
 
+type SqlFieldFunction = (fieldName: string) => string;
+
+type SqlJoinBase = {
+  table: string,
+  type?: "inner" | "full" | "left" | "right",
+  on: Record<string, string>,
+}
+
+type SqlResolverJoin = Pick<SqlJoinBase, "table" | "type" | "on"> & {
+  resolver: (field: SqlFieldFunction) => string,
+};
+
+type SqlJoinSpec = Pick<SqlJoinBase, "table" | "type" | "on"> & {
+  prefix: string,
+};
+
+type SqlResolver = (args: {
+  field: SqlFieldFunction,
+  currentUserField: SqlFieldFunction,
+  join: (args: SqlResolverJoin) => string,
+  arg: (value: unknown) => string,
+}) => string;
+
 interface CollectionFieldSpecification<T extends DbObject> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
@@ -39,6 +62,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
     addOriginalField?: boolean,
     arguments?: string|null,
     resolver: (root: T, args: any, context: ResolverContext, info?: any)=>any,
+    sqlResolver?: SqlResolver,
   },
   blackbox?: boolean,
   denormalized?: boolean,

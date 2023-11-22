@@ -1,55 +1,62 @@
 import SqlFragment from "../../lib/sql/SqlFragment";
-import "../../lib/sql/tests/testHelpers";
 
 describe("SqlFragment", () => {
-  it("can parse simple fields", () => {
+  it("can parse field entries", () => {
+    const getFragment = () => null;
     const fragment = new SqlFragment(`
       fragment TestFragment on TestCollection {
         _id
-        a # with a comment
+        a
       }
-    `);
-    expect(fragment.getName()).toBe("TestFragment");
-    expect(fragment.getCollection().collectionName).toBe("TestCollection");
-    expect(fragment.getEntries()).toStrictEqual([
-      {type: "field", name: "_id"},
-      {type: "field", name: "a"},
-    ]);
+    `, getFragment);
+    const entries = fragment.parseEntries();
+    expect(entries).toStrictEqual({
+      _id: {
+        type: "field",
+        name: "_id",
+      },
+      a: {
+        type: "field",
+        name: "a",
+      },
+    });
   });
-  it("can parse spread fragments", () => {
+  it("can parse spread entries", () => {
+    const getFragment = () => null;
     const fragment = new SqlFragment(`
       fragment TestFragment on TestCollection {
-        _id
-        ...SomeOtherTestFragment
+        ...SomeOtherFragment
       }
-    `);
-    expect(fragment.getName()).toBe("TestFragment");
-    expect(fragment.getCollection().collectionName).toBe("TestCollection");
-    expect(fragment.getEntries()).toStrictEqual([
-      {type: "field", name: "_id"},
-      {type: "spread", fragmentName: "SomeOtherTestFragment"},
-    ]);
+    `, getFragment);
+    const entries = fragment.parseEntries();
+    expect(entries).toStrictEqual({
+      SomeOtherFragment: {
+        type: "spread",
+        fragmentName: "SomeOtherFragment",
+      },
+    });
   });
-  it("can parse picked fragments", () => {
+  it("can parse pick entries", () => {
+    const getFragment = () => null;
     const fragment = new SqlFragment(`
       fragment TestFragment on TestCollection {
-        _id
-        aField {
+        a {
           _id
-          anotherField
-          ...SomeFragment
         }
       }
-    `);
-    expect(fragment.getName()).toBe("TestFragment");
-    expect(fragment.getCollection().collectionName).toBe("TestCollection");
-    expect(fragment.getEntries()).toStrictEqual([
-      {type: "field", name: "_id"},
-      {type: "pick", name: "aField", entries: [
-        {type: "field", name: "_id"},
-        {type: "field", name: "anotherField"},
-        {type: "spread", fragmentName: "SomeFragment"},
-      ]},
-    ]);
+    `, getFragment);
+    const entries = fragment.parseEntries();
+    expect(entries).toStrictEqual({
+      a: {
+        type: "pick",
+        name: "a",
+        entries: {
+          _id: {
+            type: "field",
+            name: "_id",
+          },
+        },
+      },
+    });
   });
 });

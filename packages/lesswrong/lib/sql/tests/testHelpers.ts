@@ -1,6 +1,8 @@
 import { registerCollection } from "../../vulcan-lib/getCollection";
 import Table from "../Table";
 import Query from "../Query";
+import { foreignKeyField } from "../../utils/schemaUtils";
+import { registerFragment } from "../../vulcan-lib";
 
 export type DbTestObject = {
   _id: string,
@@ -60,6 +62,7 @@ export type DbTestObject2 = {
 
 export const TestCollection2 = {
   collectionName: "TestCollection2",
+  isPostgres: () => true,
   _schemaFields: {
     _id: {
       type: String,
@@ -83,6 +86,7 @@ export type DbTestObject3 = {
 
 export const TestCollection3 = {
   collectionName: "TestCollection3",
+  isPostgres: () => true,
   _schemaFields: {
     _id: {
       type: String,
@@ -99,9 +103,53 @@ export const TestCollection3 = {
 
 export const testTable3 = Table.fromCollection(TestCollection3);
 
+registerFragment(`
+  fragment TestCollection3DefaultFragment on TestCollection3 {
+    _id
+    notNullData
+  }
+`);
+
+export type DbTestObject4 = {
+  _id: string,
+  testCollection3Id: string,
+  schemaVersion: number
+};
+
+export const TestCollection4 = {
+  collectionName: "TestCollection4",
+  isPostgres: () => true,
+  _schemaFields: {
+    _id: {
+      type: String,
+    },
+    testCollection3: {
+      ...foreignKeyField({
+        idFieldName: "testCollection3Id",
+        resolverName: "testCollection3",
+        collectionName: "TestCollection3" as CollectionNameString,
+        type: "TestCollection3",
+        nullable: true,
+      }),
+    },
+    schemaVersion: {
+      type: Number,
+    },
+  },
+} as unknown as CollectionBase<DbTestObject4>;
+
+registerFragment(`
+  fragment TestCollection4DefaultFragment on TestCollection4 {
+    _id
+    testCollection3Id
+    testCollection3
+  }
+`);
+
 registerCollection(TestCollection);
 registerCollection(TestCollection2);
 registerCollection(TestCollection3);
+registerCollection(TestCollection4);
 
 export const normalizeWhitespace = (s: string) => s.trim().replace(/\s+/g, " ");
 

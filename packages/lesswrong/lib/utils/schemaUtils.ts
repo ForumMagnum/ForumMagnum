@@ -157,6 +157,7 @@ export const simplSchemaToGraphQLtype = (type: any): string|null => {
 
 interface ResolverOnlyFieldArgs<T extends DbObject> extends CollectionFieldSpecification<T> {
   resolver: (doc: T, args: any, context: ResolverContext) => any,
+  sqlResolver?: SqlResolver,
   graphQLtype?: string|GraphQLScalarType|null,
   graphqlArguments?: string|null,
 }
@@ -165,7 +166,14 @@ interface ResolverOnlyFieldArgs<T extends DbObject> extends CollectionFieldSpeci
  * This field is not stored in the database, but is filled in at query-time by
  * our GraphQL API using the supplied resolver function.
  */
-export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}: ResolverOnlyFieldArgs<T>): CollectionFieldSpecification<T> => {
+export const resolverOnlyField = <T extends DbObject>({
+  type,
+  graphQLtype=null,
+  resolver,
+  sqlResolver,
+  graphqlArguments=null,
+  ...rest
+}: ResolverOnlyFieldArgs<T>): CollectionFieldSpecification<T> => {
   const resolverType = graphQLtype || simplSchemaToGraphQLtype(type);
   if (!type || !resolverType)
     throw new Error("Could not determine resolver graphQL type");
@@ -175,7 +183,8 @@ export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, r
     resolveAs: {
       type: resolverType,
       arguments: graphqlArguments,
-      resolver: resolver,
+      resolver,
+      sqlResolver,
     },
     ...rest
   }
