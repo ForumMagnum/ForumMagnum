@@ -19,7 +19,14 @@ describe("ProjectionContext", () => {
   });
   it("prepends primary prefix to fields", () => {
     const context = new ProjectionContext(TestCollection);
-    expect(context.field("test")).toBe(`t."test"`);
+    expect(context.field("test")).toBe(`"t"."test"`);
+  });
+  it("prepends aggregate prefix to fields", () => {
+    const context = new ProjectionContext(TestCollection, {
+      prefix: "p",
+      argOffset: 0,
+    });
+    expect(context.field("test")).toBe(`'test', "p"."test"`);
   });
   it("prepends current user prefix to fields", () => {
     const context = new ProjectionContext(TestCollection);
@@ -56,5 +63,14 @@ describe("ProjectionContext", () => {
     expect(context.addArg(3)).toBe("$1");
     expect(context.addArg(null)).toBe("$2");
     expect(context.addArg("test")).toBe("$3");
+  });
+  it("increments argument number with offset", () => {
+    const context = new ProjectionContext(TestCollection, {
+      prefix: "p",
+      argOffset: 5,
+    });
+    expect(context.addArg(3)).toBe("$6");
+    expect(context.addArg(null)).toBe("$7");
+    expect(context.addArg("test")).toBe("$8");
   });
 });

@@ -1,6 +1,7 @@
 import { getCollectionByTypeName } from "../vulcan-lib/getCollection";
-import ProjectionContext, { CodeResolver } from "./ProjectionContext";
+import ProjectionContext, { CodeResolverMap, CustomResolver } from "./ProjectionContext";
 import FragmentLexer from "./FragmentLexer";
+import PgCollection from "./PgCollection";
 
 type SqlFragmentField = {
   type: "field",
@@ -27,7 +28,25 @@ type SqlFragmentSelector = {
   selectors: string[],
   args: unknown[],
   joins: SqlJoinSpec[],
-  codeResolvers: Record<string, CodeResolver>,
+  codeResolvers: CodeResolverMap,
+}
+
+const getResolverCollection = (
+  resolver: CustomResolver,
+): PgCollection<DbObject> => {
+  if (typeof resolver.type !== "string") {
+    throw new Error(`Resolver "${resolver.fieldName}" has a scalar type`);
+  }
+  let type = resolver.type;
+  const exclam = type.indexOf("!");
+  if (exclam >= 0) {
+    type = type.substring(0, exclam);
+  }
+  const collection = getCollectionByTypeName(type);
+  if (!collection.isPostgres()) {
+    throw new Error(`"${collection.collectionName}" is not in Postgres`);
+  }
+  return collection;
 }
 
 class SqlFragment {
@@ -99,18 +118,10 @@ class SqlFragment {
     const resolver = context.getResolver(name);
     if (resolver) {
       if (resolver.sqlResolver) {
-        const result = resolver.sqlResolver({
-          field: context.field.bind(context),
-          currentUserField: context.currentUserField.bind(context),
-          join: context.addJoin.bind(context),
-          arg: context.addArg.bind(context),
-        });
+        const result = resolver.sqlResolver(context.getSqlResolverArgs());
         context.addProjection(name, result);
       } else {
-        context.addCodeResolver(
-          resolver.fieldName ?? name,
-          resolver.resolver,
-        );
+        context.addCodeResolver(resolver.fieldName ?? name, resolver.resolver);
       }
     } else if (context.getSchema()[name]) {
       context.addProjection(name);
@@ -132,23 +143,44 @@ class SqlFragment {
     if (!fragment) {
       throw new Error(`Fragment "${fragmentName}" not found`);
     }
-    fragment.compileSelector(context);
+    fragment.compileProjection(context);
   }
 
   private compilePickEntry(
     context: ProjectionContext,
     {name, entries}: SqlFragmentPick,
   ) {
-    // TODO
-    console.log("MARK PICK", name, entries, context.getSchema()[name]);
+    const resolver = context.getResolver(name);
+    if (resolver) {
+      if (resolver.sqlResolver) {
+        // We don't care about the return value here, just the side-effect of
+        // registering the necessary join. Note that we assume that only one
+        // join gets registered here - it's theoretically possible that this
+        // assumption wouldn't be true, but only if you do some really-deep
+        // hack that bypasses the entire vulcan schema/graphql setup.
+        resolver.sqlResolver(context.getSqlResolverArgs());
+        const joins = context.getJoins();
+        const collection = getResolverCollection(resolver);
+        const aggregate = {
+          prefix: joins[joins.length - 1].prefix,
+          argOffset: context.getArgs().length,
+        };
+        const subcontext = new ProjectionContext(collection, aggregate);
+        this.compileEntries(subcontext, entries);
+        context.aggregate(subcontext, name);
+      } else {
+        context.addCodeResolver(resolver.fieldName ?? name, resolver.resolver);
+      }
+    } else {
+      const baseTypeName = this.getBaseTypeName();
+      throw new Error(`Field "${name}" on "${baseTypeName}" has no resolver`);
+    }
   }
 
-  private compileSelector(context: ProjectionContext) {
-    const entries = this.parseEntries();
-    if (!this.lexer.isFinished()) {
-      throw new Error(`Mismatched braces in fragment: "${this.getName()}"`);
-    }
-
+  private compileEntries(
+    context: ProjectionContext,
+    entries: SqlFragmentEntryMap,
+  ) {
     for (const entryName in entries) {
       const entry = entries[entryName];
       switch (entry.type) {
@@ -165,6 +197,14 @@ class SqlFragment {
     }
   }
 
+  private compileProjection(context: ProjectionContext) {
+    const entries = this.parseEntries();
+    if (!this.lexer.isFinished()) {
+      throw new Error(`Mismatched braces in fragment: "${this.getName()}"`);
+    }
+    this.compileEntries(context, entries);
+  }
+
   buildSelector(currentUser: DbUser | UsersCurrent | null): SqlFragmentSelector {
     const baseTypeName = this.getBaseTypeName();
     const collection = getCollectionByTypeName(baseTypeName);
@@ -174,7 +214,10 @@ class SqlFragment {
 
     const context = new ProjectionContext(collection);
     context.setCurrentUser(currentUser);
-    this.compileSelector(context);
+    this.compileProjection(context);
+
+    // TODO TMP
+    console.log("MARK COMPILED", context.compileQuery());
 
     return {
       tableName: context.getTableName(),

@@ -2,22 +2,38 @@ import PgCollection from "./PgCollection";
 import isEqual from "lodash/isEqual";
 import { randomId } from "../random";
 
-type CustomResolver<T extends DbObject = DbObject> =
+export type CustomResolver<T extends DbObject = DbObject> =
   NonNullable<CollectionFieldSpecification<T>["resolveAs"]>;
 
 export type CodeResolver<T extends DbObject = DbObject> =
   CustomResolver<T>["resolver"];
+
+export interface CodeResolverMap extends
+  Record<string, CodeResolver | CodeResolverMap> {}
 
 class ProjectionContext {
   private resolvers: Record<string, CustomResolver> = {};
   private projections: string[] = [];
   private joins: SqlJoinSpec[] = [];
   private args: unknown[] = [];
-  private codeResolvers: Record<string, CodeResolver> = {};
+  private codeResolvers: CodeResolverMap = {};
   private primaryPrefix: string;
+  private argOffset: number;
+  private isAggregate: boolean;
 
-  constructor(private collection: PgCollection<DbObject>) {
-    this.primaryPrefix = collection.table.getName()[0].toLowerCase();
+  constructor(
+    private collection: PgCollection<DbObject>,
+    aggregate?: {prefix: string, argOffset: number},
+  ) {
+    if (aggregate) {
+      this.primaryPrefix = aggregate.prefix;
+      this.argOffset = aggregate.argOffset;
+      this.isAggregate = true;
+    } else {
+      this.primaryPrefix = collection.table.getName()[0].toLowerCase();
+      this.argOffset = 0;
+      this.isAggregate = false;
+    }
 
     const schema = this.getSchema();
     for (const fieldName in schema) {
@@ -26,6 +42,18 @@ class ProjectionContext {
         const resolverName = field.resolveAs.fieldName ?? fieldName;
         this.resolvers[resolverName] = field.resolveAs;
       }
+    }
+  }
+
+  aggregate(subcontext: ProjectionContext, name: string) {
+    const test = `"${subcontext.primaryPrefix}"."_id"`;
+    const obj = `JSONB_BUILD_OBJECT(${subcontext.projections.join(", ")})`;
+    const proj = `CASE WHEN ${test} IS NULL THEN NULL ELSE ${obj} END "${name}"`;
+    this.projections.push(proj);
+    this.joins = this.joins.concat(subcontext.joins);
+    this.args = this.args.concat(subcontext.args);
+    if (Object.keys(subcontext.codeResolvers).length) {
+      this.codeResolvers[name] = subcontext.codeResolvers;
     }
   }
 
@@ -60,7 +88,9 @@ class ProjectionContext {
   }
 
   field(name: string) {
-    return `${this.primaryPrefix}."${name}"`;
+    return this.isAggregate
+      ? `'${name}', "${this.primaryPrefix}"."${name}"`
+      : `"${this.primaryPrefix}"."${name}"`;
   }
 
   currentUserField(name: string) {
@@ -95,11 +125,20 @@ class ProjectionContext {
 
   addArg(value: unknown) {
     this.args.push(value);
-    return `$${this.args.length}`;
+    return `$${this.args.length + this.argOffset}`;
   }
 
   addCodeResolver(name: string, resolver: CodeResolver) {
     this.codeResolvers[name] = resolver;
+  }
+
+  getSqlResolverArgs(): SqlResolverArgs {
+    return {
+      field: this.field.bind(this),
+      currentUserField: this.currentUserField.bind(this),
+      join: this.addJoin.bind(this),
+      arg: this.addArg.bind(this),
+    };
   }
 
   private getJoinSpec({table, type, on}: SqlJoinBase): SqlJoinSpec {
@@ -131,7 +170,7 @@ class ProjectionContext {
     const joins = this.joins.map((join) => this.compileJoin(join)).join(" ");
     const table = this.getTableName();
     const prefix = this.primaryPrefix;
-    const sql = `SELECT ${projection} FROM ${table} ${prefix} ${joins}`;
+    const sql = `SELECT ${projection} FROM ${table} "${prefix}" ${joins}`;
     return {
       sql,
       args: this.args,

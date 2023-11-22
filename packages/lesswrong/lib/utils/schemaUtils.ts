@@ -95,13 +95,22 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
  * This field is stored in the database as a string, but resolved as the
  * referenced document
  */
-export const foreignKeyField = <CollectionName extends CollectionNameString>({idFieldName, resolverName, collectionName, type, nullable=true}: {
+export const foreignKeyField = <
+  CollectionName extends CollectionNameString,
+  T extends DbObject
+>({
+  idFieldName,
+  resolverName,
+  collectionName,
+  type,
+  nullable=true,
+}: {
   idFieldName: string,
   resolverName: string,
   collectionName: CollectionName,
   type: string,
   nullable?: boolean,
-}) => {
+}): CollectionFieldSpecification<T> => {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
   
@@ -115,6 +124,14 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({id
         collectionName,
         fieldName: idFieldName,
         nullable,
+      }),
+      sqlResolver: ({field, join}) => join({
+        table: collectionName,
+        type: nullable ? "left" : "inner",
+        on: {
+          _id: field(idFieldName),
+        },
+        resolver: (foreignField) => foreignField("*"),
       }),
       addOriginalField: true,
     },

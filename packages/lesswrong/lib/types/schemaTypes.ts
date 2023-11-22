@@ -39,12 +39,14 @@ type SqlJoinSpec = Pick<SqlJoinBase, "table" | "type" | "on"> & {
   prefix: string,
 };
 
-type SqlResolver = (args: {
+type SqlResolverArgs = {
   field: SqlFieldFunction,
   currentUserField: SqlFieldFunction,
   join: (args: SqlResolverJoin) => string,
   arg: (value: unknown) => string,
-}) => string;
+}
+
+type SqlResolver = (args: SqlResolverArgs) => string;
 
 interface CollectionFieldSpecification<T extends DbObject> extends CollectionFieldPermissions {
   type?: any,
