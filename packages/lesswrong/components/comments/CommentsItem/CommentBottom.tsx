@@ -12,13 +12,14 @@ import type { VotingSystem } from '../../../lib/voting/votingSystems';
 import type { ContentItemBody } from '../../common/ContentItemBody';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { userIsAllowedToComment } from '../../../lib/collections/users/helpers';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   bottom: {
-    paddingBottom: isEAForum ? 12 : 5,
-    paddingTop: isEAForum ? 4 : undefined,
+    paddingBottom: isFriendlyUI ? 12 : 5,
+    paddingTop: isFriendlyUI ? 4 : undefined,
     minHeight: 12,
-    ...(isEAForum ? {} : {fontSize: 12}),
+    ...(isFriendlyUI ? {} : {fontSize: 12}),
   },
   bottomWithReacts: {
     display: "flex",
