@@ -25,6 +25,7 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
+    givingSeason2023DonatedFlair
   }
 `);
 
@@ -555,6 +556,5 @@ registerFragment(`
   fragment UsersOptedInToDialogueFacilitation on User {
     _id
     displayName
-    karma
   }
 `);

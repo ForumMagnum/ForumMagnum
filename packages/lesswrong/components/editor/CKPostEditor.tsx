@@ -19,6 +19,7 @@ import { gql, useMutation } from "@apollo/client";
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/PostsEditForm';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -629,7 +630,7 @@ const CKPostEditor = ({
         dialogues: dialogueConfiguration
       }}
     />}
-    {post.collabEditorDialogue ? <DialogueEditorFeedback post={post} /> : null}
+    {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
   </div>
 }
 

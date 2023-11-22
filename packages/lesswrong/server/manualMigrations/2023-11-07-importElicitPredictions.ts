@@ -54,8 +54,8 @@ registerMigration({
 
     const elicitQuestionsWithPredictions = await executePromiseQueue(questionIds.map(
       id => () => Promise.all([
-        getPredictionDataFromElicit(id).then(q => apiQuestionToDBQuestion(q, id)),
-        getPredictionsFromElicit(id).then(ps => (ps ?? []).map(p => apiPredictionToDBQuestion(p, id)))
+        getPredictionDataFromElicit(id).then(q => apiQuestionToDBQuestion(q, id)).catch(() => null),
+        getPredictionsFromElicit(id).then(ps => (ps ?? []).map(p => apiPredictionToDBQuestion(p, id))).catch(() => [])
       ])
     ), 10)
 

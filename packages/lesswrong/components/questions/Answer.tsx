@@ -5,9 +5,9 @@ import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { Comments } from "../../lib/collections/comments";
-import { isEAForum } from '../../lib/instanceSettings';
 import { metaNoticeStyles } from '../comments/CommentsItem/CommentsItemMeta';
 import { useCommentLink } from '../comments/CommentsItem/useCommentLink';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { ContentItemBody } from '../common/ContentItemBody';
 import { useVote } from '../votes/withVote';
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-block',
     fontWeight: 600,
     ...theme.typography.postStyle,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         fontFamily: theme.palette.fonts.sansSerifStack,
       }
@@ -59,7 +59,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexShrink: 0,
     flexGrow: 1,
     position: "relative",
-    top: isEAForum ? 0 : -4,
+    top: isFriendlyUI ? 0 : -4,
   },
   footer: {
     marginTop: 5,
@@ -161,7 +161,7 @@ const Answer = ({ comment, post, childComments, classes }: {
     HoveredReactionContextProvider, CommentBody, CommentBottom, CommentsNewForm
   } = Components;
 
-  const menuIcon = isEAForum
+  const menuIcon = isFriendlyUI
     ? undefined
     : <MoreHorizIcon className={classes.menuIcon} />;
 
@@ -179,7 +179,7 @@ const Answer = ({ comment, post, childComments, classes }: {
           <Typography variant="body2" className={classes.deleted}>
             Answer was deleted
           </Typography>
-          {isEAForum &&
+          {isFriendlyUI &&
             <CommentLinkWrapper>
               <ForumIcon icon="Link" className={classes.linkIcon} />
             </CommentLinkWrapper>
@@ -207,7 +207,7 @@ const Answer = ({ comment, post, childComments, classes }: {
                 <span className={classes.vote}>
                   <SmallSideVote document={comment} collection={Comments}/>
                 </span>
-                {isEAForum &&
+                {isFriendlyUI &&
                   <CommentLinkWrapper>
                     <ForumIcon icon="Link" className={classes.linkIcon} />
                   </CommentLinkWrapper>
@@ -289,4 +289,3 @@ declare global {
     Answer: typeof AnswerComponent
   }
 }
-

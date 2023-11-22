@@ -62,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 6
   },
   selectedAnti: {
-    background: "rgb(255, 189, 189, .23)",
+    background: theme.palette.namesAttachedReactions.selectedAnti,
     borderRadius: 6
   },
   reactionPaletteScrollRegion: {

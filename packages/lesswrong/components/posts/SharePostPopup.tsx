@@ -237,7 +237,7 @@ const SharePostPopup = ({
   }, []);
 
   const copyLink = () => {
-    captureEvent("sharePost", { option: "copyLink" });
+    captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "copyLink" });
     void navigator.clipboard.writeText(postUrl);
     flash("Link copied to clipboard");
   };
@@ -250,20 +250,20 @@ const SharePostPopup = ({
   const linkTitle = `${post.title} - ${siteName}`;
 
   const shareToTwitter = () => {
-    captureEvent("sharePost", { option: "twitter" });
+    captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "twitter" });
     const tweetText = `${linkTitle} ${postUrl}`;
     const destinationUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     openLinkInNewTab(destinationUrl);
   };
   const shareToFacebook = () => {
-    captureEvent("sharePost", { option: "facebook" });
+    captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "facebook" });
     const destinationUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
       postUrl
     )}&t=${encodeURIComponent(linkTitle)}`;
     openLinkInNewTab(destinationUrl);
   };
   const shareToLinkedIn = () => {
-    captureEvent("sharePost", { option: "linkedIn" });
+    captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "linkedIn" });
     const destinationUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`;
     openLinkInNewTab(destinationUrl);
   };

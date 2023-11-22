@@ -14,7 +14,8 @@ import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupL
 import EmailIcon from '@material-ui/icons/Email';
 import LocationIcon from '@material-ui/icons/LocationOn';
 import { GROUP_CATEGORIES } from '../../lib/collections/localgroups/schema';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {},

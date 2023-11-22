@@ -8,6 +8,7 @@ import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import classNames from 'classnames';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
+import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
 
 export const curatedUrl = "/recommendations"
 
@@ -196,9 +197,9 @@ const LWRecommendations = ({
                 <RecommendationsList algorithm={frontpageRecommendationSettings} />
               </AnalyticsContext>
             )}
-            <div className={classes.curated}>
+            {hasCuratedPostsSetting.get() && <div className={classes.curated}>
               <CuratedPostsList />
-            </div>
+            </div>}
           </div>
         </div>
 

@@ -6,7 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { withLocation } from '../../lib/routeUtil';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeading: {
@@ -21,7 +21,7 @@ const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeadingTitle: {
     marginBottom: 5,
     fontSize: "1.25rem",
-    fontWeight: isEAForum ? 600 : undefined,
+    fontWeight: isFriendlyUI ? 600 : undefined,
   },
 });
 
@@ -53,7 +53,7 @@ export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
     border: theme.palette.border.grey300,
     marginBottom: theme.spacing.unit,
     background: theme.palette.background.pageActiveAreaBackground,
-    ...(isEAForum ? {borderRadius: 6} : {})
+    ...(isFriendlyUI ? {borderRadius: 6} : {})
   },
   formSectionBody: {
     paddingTop: theme.spacing.unit,

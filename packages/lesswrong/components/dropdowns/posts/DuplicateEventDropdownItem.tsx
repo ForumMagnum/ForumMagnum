@@ -1,9 +1,10 @@
 import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
 import { canUserEditPostMetadata } from "../../../lib/collections/posts/helpers";
-import { preferredHeadingCase } from "../../../lib/forumTypeUtils";
+
 import { useCurrentUser } from "../../common/withUser";
 import qs from "qs";
+import { preferredHeadingCase } from "../../../themes/forumTheme";
 
 const DuplicateEventDropdownItem = ({post}: {post: PostsBase}) => {
   const currentUser = useCurrentUser();

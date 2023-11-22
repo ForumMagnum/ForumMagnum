@@ -3,10 +3,11 @@ import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   voteBlock: {
@@ -37,11 +38,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     margin: '0 12px'
   },
   voteScore: {
-    color: isEAForum ? theme.palette.grey[600] : theme.palette.grey[500],
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.grey[500],
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
-    fontSize: isEAForum ? '50%' : '55%',
+    fontSize: isFriendlyUI ? '50%' : '55%',
   },
   voteScoreFooter: {
     fontSize: 18,
@@ -63,7 +64,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.panelBackground.default,
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
     marginLeft: 0,
-    paddingTop: isEAForum ? 12 : 0
+    paddingTop: isFriendlyUI ? 12 : 0
   },
 });
 
@@ -88,7 +89,7 @@ const PostsVoteDefault = ({
   const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
   const canVote = !fail;
 
-  let tooltipPlacement: "left"|"right"|"top" = isEAForum ? "left" : "right";
+  let tooltipPlacement: "left"|"right"|"top" = isFriendlyUI ? "left" : "right";
   if (useHorizontalLayout) {
     tooltipPlacement = "top";
   }
@@ -139,7 +140,7 @@ const PostsVoteDefault = ({
           </div>
         </Tooltip>
 
-        {!!post.af && !!post.afBaseScore && forumTypeSetting.get() !== 'AlignmentForum' &&
+        {!!post.af && !!post.afBaseScore && !isAF &&
           <Tooltip
             title="AI Alignment Forum karma"
             placement={tooltipPlacement}

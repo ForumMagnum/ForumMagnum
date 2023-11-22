@@ -5,7 +5,6 @@ import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "../../vulcan-lib";
-import moment from "moment";
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {

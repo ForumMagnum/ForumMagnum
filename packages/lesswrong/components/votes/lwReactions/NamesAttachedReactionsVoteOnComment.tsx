@@ -113,7 +113,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.panelBackground.darken10,
   },
   footerSelectedAnti: {
-    background: "rgb(255, 189, 189, .23)",
+    background: theme.palette.namesAttachedReactions.selectedAnti,
   },
   overviewButton: {
     opacity: .35,

@@ -5,7 +5,8 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { tagPostTerms } from './TagPage';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {

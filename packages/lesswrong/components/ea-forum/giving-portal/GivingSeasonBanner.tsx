@@ -4,7 +4,6 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { TimelineSpan, timelineSpec } from "../../../lib/eaGivingSeason";
 import { useCurrentTime } from "../../../lib/utils/timeUtil";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { EA_FORUM_HEADER_HEIGHT } from "../../common/Header";
 import {
   EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
   givingSeasonGradient,
@@ -12,8 +11,9 @@ import {
 } from "./GivingSeasonHeader";
 import classNames from "classnames";
 import moment from "moment";
+import { HEADER_HEIGHT } from "../../common/Header";
 
-const BANNER_HEIGHT = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT - EA_FORUM_HEADER_HEIGHT;
+const BANNER_HEIGHT = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT - HEADER_HEIGHT;
 const MAX_SPANS = 3;
 
 const styles = (theme: ThemeType) => ({

@@ -11,7 +11,6 @@ import { tagGetCommentLink } from "../../../lib/collections/tags/helpers";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../commentTree';
 import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR, reviewIsActive, eligibleToNominate } from '../../../lib/reviewUtils';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import startCase from 'lodash/startCase';
@@ -21,6 +20,7 @@ import { metaNoticeStyles } from './CommentsItemMeta';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useVote } from '../../votes/withVote';
 import { VotingProps } from '../../votes/votingProps';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { ContentItemBody } from '../../common/ContentItemBody';
 
 export const highlightSelectorClassName = "highlighted-substring";
@@ -60,6 +60,16 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingLeft: 12,
     },
   },
+  replyLink: {
+    marginRight: 8,
+    display: "inline",
+    fontWeight: isFriendlyUI ? 600 : theme.typography.body1.fontWeight,
+    color: theme.palette.link.dim,
+    fontSize: isFriendlyUI ? "1.1rem" : undefined,
+    "@media print": {
+      display: "none",
+    },
+  },
   firstParentComment: {
     marginLeft: -theme.spacing.unit*1.5,
     marginRight: -theme.spacing.unit*1.5
@@ -68,7 +78,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 2,
     marginBottom: 8,
     border: theme.palette.border.normal,
-    borderRadius: isEAForum ? theme.borderRadius.small : 0,
+    borderRadius: isFriendlyUI ? theme.borderRadius.small : 0,
   },
   replyFormMinimalist: {
     borderRadius: theme.borderRadius.small,
@@ -84,7 +94,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 10,
     marginBottom: '-3px',
   },
-  pinnedIcon: isEAForum
+  pinnedIcon: isFriendlyUI
     ? {
       width: 16,
       height: 16,
@@ -142,16 +152,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   excerpt: {
     marginBottom: 8,
-  },
-  replyLink: {
-    marginRight: 8,
-    display: "inline",
-    fontWeight: isEAForum ? 600 : theme.typography.body1.fontWeight,
-    color: theme.palette.link.dim,
-    fontSize: isEAForum ? "1.1rem" : undefined,
-    "@media print": {
-      display: "none",
-    },
   },
 });
 

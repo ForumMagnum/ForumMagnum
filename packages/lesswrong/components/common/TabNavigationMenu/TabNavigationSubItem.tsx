@@ -3,10 +3,10 @@ import { registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames'
 import { iconWidth } from './TabNavigationItem'
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const iconPadding = (theme: ThemeType) =>
-  isEAForum ? theme.spacing.unit / 2 : iconWidth + (theme.spacing.unit * 2);
+  isFriendlyUI ? theme.spacing.unit / 2 : iconWidth + (theme.spacing.unit * 2);
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: theme.spacing.unit,
     // padding reflects how large an icon+padding is
     paddingLeft: (theme.spacing.unit*2) + iconPadding(theme),
-    color: theme.palette.grey[isEAForum ? 600 : 700],
+    color: theme.palette.grey[isFriendlyUI ? 600 : 700],
     width:
       TAB_NAVIGATION_MENU_WIDTH - // base width
       ((theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2))) - // paddingLeft,
@@ -24,8 +24,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "nowrap",
     overflow: "hidden",
     '&:hover': {
-      opacity: isEAForum ? 1 : 0.6,
-      color: isEAForum ? theme.palette.grey[800] : undefined,
+      opacity: isFriendlyUI ? 1 : 0.6,
+      color: isFriendlyUI ? theme.palette.grey[800] : undefined,
     },
     boxSizing: "content-box"
   }
