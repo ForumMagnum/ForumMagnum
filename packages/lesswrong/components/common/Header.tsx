@@ -18,6 +18,7 @@ import { hasProminentLogoSetting } from '../../lib/publicSettings';
 
 import { useLocation } from '../../lib/routeUtil';
 import { useIsGivingSeason } from '../ea-forum/giving-portal/hooks';
+import { isAdmin } from '../../lib/vulcan-users';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -286,7 +287,7 @@ const Header = ({
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    GivingSeasonHeader,
+    GivingSeasonHeader, VotingPortalHeader,
   } = Components;
   
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
@@ -338,6 +339,24 @@ const Header = ({
   if (isGivingSeason && pathname === '/') {
     return (
       <GivingSeasonHeader
+        searchOpen={searchOpen}
+        hasLogo={hasProminentLogoSetting.get()}
+        unFixed={unFixed}
+        setUnFixed={setUnFixed}
+        NavigationMenuButton={NavigationMenuButton}
+        RightHeaderItems={RightHeaderItems}
+        HeaderNavigationDrawer={HeaderNavigationDrawer}
+        HeaderNotificationsMenu={HeaderNotificationsMenu}
+      />
+    );
+  }
+
+  // special case for the voting portal for EA Forum Giving Season 2023
+  // TODO: un-admin-gate when the voting portal is ready
+  // TODO: delete after 2023
+  if (pathname.startsWith('/voting-portal') && isAdmin(currentUser)) {
+    return (
+      <VotingPortalHeader
         searchOpen={searchOpen}
         hasLogo={hasProminentLogoSetting.get()}
         unFixed={unFixed}
