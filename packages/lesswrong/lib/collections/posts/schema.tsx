@@ -13,7 +13,7 @@ import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting, isLW } from '../../instanceSettings';
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
@@ -23,14 +23,9 @@ import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, get
 import { userOverNKarmaFunc } from "../../vulcan-users";
 import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
-import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
-
-const isEAForum = (forumTypeSetting.get() === 'EAForum')
-
-
 
 const urlHintText = isEAForum
     ? 'UrlHintText'
@@ -938,7 +933,8 @@ const schema: SchemaType<DbPost> = {
     blackbox: true,
     group: formGroups.tags,
     control: "FormComponentPostEditorTagging",
-    hidden: (props) => props.eventForm,
+    hidden: ({eventForm, document}) => eventForm ||
+      (isLWorAF && !!document.collabEditorDialogue),
   },
   "tagRelevance.$": {
     type: Number,
@@ -1444,6 +1440,7 @@ const schema: SchemaType<DbPost> = {
     control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
     order: 4,
+    hidden: ({document}) => isLWorAF && !!document.collabEditorDialogue,
   },
 
   fmCrosspost: {
@@ -2229,7 +2226,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    hidden: (props) => isEAForum || !props.eventForm,
+    hidden: (props) => !isLWorAF || !props.eventForm,
     control: 'MultiSelectButtons',
     label: "Group Type:",
     group: formGroups.event,
@@ -2415,6 +2412,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
+    hidden: ({document}) => !!document.collabEditorDialogue,
     resolveAs: {
       type: 'Boolean',
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
@@ -2452,6 +2450,7 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
+    hidden: ({document}) => !!document.collabEditorDialogue,
     form: {
       options: function () { // options for the select form control
         return [
@@ -2468,7 +2467,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     nullable: true,
-    hidden: isEAForum,
+    hidden: ({document}) => isEAForum || !!document.collabEditorDialogue,
     tooltip: "Allow rate-limited users to comment freely on this post",
     group: formGroups.moderationGroup,
     canRead: ["guests"],
@@ -2718,6 +2717,14 @@ const schema: SchemaType<DbPost> = {
       return firstComment.contents.html;
     }
   }),
+
+  dialogueMessageContents: {
+    type: Object,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+    //implementation in postResolvers.ts
+  },
 
   /* subforum-related fields */
 

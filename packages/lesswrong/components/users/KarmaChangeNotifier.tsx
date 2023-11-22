@@ -13,11 +13,10 @@ import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers
 import { useTracking, AnalyticsContext } from '../../lib/analyticsEvents';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { isEAForum } from '../../lib/instanceSettings';
-import classNames from 'classnames';
 import { ReactionChange } from '../../lib/collections/users/karmaChangesGraphQL';
 import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: theme.zIndexes.karmaChangeNotifier,
   },
   starIcon: {
-    color: isEAForum ? theme.palette.grey[600] : theme.palette.header.text,
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
   },
   title: {
     display: 'block',

@@ -1,6 +1,9 @@
-import { arrayOfForeignKeysField, denormalizedCountOfReferences } from '../../utils/schemaUtils'
+import { accessFilterSingle, arrayOfForeignKeysField, denormalizedCountOfReferences, resolverOnlyField } from '../../utils/schemaUtils'
 import * as _ from 'underscore';
-import { forumTypeSetting } from '../../instanceSettings';
+import { isLWorAF } from '../../instanceSettings';
+import { getWithCustomLoader } from '../../loaders';
+import { schemaDefaultValue } from '../../collectionUtils';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const schema: SchemaType<DbConversation> = {
   title: {
@@ -9,7 +12,7 @@ const schema: SchemaType<DbConversation> = {
     canUpdate: ['members'],
     canCreate: ['members'],
     optional: true,
-    label: "Conversation Title"
+    label: isFriendlyUI ? "Conversation title (visible to all)" : "Conversation Title"
   },
   participantIds: {
     ...arrayOfForeignKeysField({
@@ -45,7 +48,7 @@ const schema: SchemaType<DbConversation> = {
     canCreate: ['members'],
     canUpdate: ['admins'],
     optional: true,
-    hidden: !['LessWrong', 'AlignmentForum'].includes(forumTypeSetting.get())
+    hidden: !isLWorAF
   },
   messageCount: {
     ...denormalizedCountOfReferences({
@@ -77,6 +80,7 @@ const schema: SchemaType<DbConversation> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
+    ...schemaDefaultValue([]), // Note: this sets onUpdate and onCreate. onUpdate is overridden below
     // Allow users to only update their own archived status, this has some potential concurrency problems,
     // but I don't expect this to ever come up, and it fails relatively gracefully in case one does occur
     onUpdate: ({data, currentUser, oldDocument}) => {
@@ -88,6 +92,7 @@ const schema: SchemaType<DbConversation> = {
           }
         }))
       }
+      return data.archivedByIds ?? []
     }
   },
   'archivedByIds.$': {
@@ -95,6 +100,25 @@ const schema: SchemaType<DbConversation> = {
     foreignKey: "Users",
     optional: true,
   },
+  latestMessage: resolverOnlyField({
+    type: "Message",
+    graphQLtype: "Message",
+    canRead: ['members'],
+    resolver: async (conversation: DbConversation, args, context: ResolverContext) => {
+      const { tagId } = args;
+      const { currentUser } = context;
+      const message: DbMessage | null = await getWithCustomLoader<DbMessage | null, string>(
+        context,
+        "latestMessage",
+        conversation._id,
+        async (conversationIds: string[]): Promise<(DbMessage | null)[]> => {
+          return await context.repos.conversations.getLatestMessages(conversationIds);
+        }
+      );
+      const filteredMessage = await accessFilterSingle(currentUser, context.Messages, message, context)
+      return filteredMessage;
+    }
+  }),
 };
 
 export default schema;

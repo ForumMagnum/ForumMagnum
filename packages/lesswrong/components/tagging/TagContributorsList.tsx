@@ -2,7 +2,8 @@ import React, {useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -110,5 +111,3 @@ declare global {
     TagContributorsList: typeof TagContributorsListComponent
   }
 }
-
-

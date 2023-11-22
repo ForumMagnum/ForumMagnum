@@ -17,6 +17,7 @@ import './emailComponents/EmailComment';
 import './emailComponents/PrivateMessagesEmail';
 import './emailComponents/EventUpdatedEmail';
 import './emailComponents/EmailUsernameByID';
+import './emailComponents/NewDialogueMatchEmail';
 import {getDocumentSummary, taggedPostMessage, NotificationDocument} from '../lib/notificationTypes'
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
@@ -26,6 +27,8 @@ import Tags from '../lib/collections/tags/collection';
 import { tagGetSubforumUrl } from '../lib/collections/tags/helpers';
 import uniq from 'lodash/uniq';
 import startCase from 'lodash/startCase';
+import { DialogueMessageEmailInfo } from './emailComponents/NewDialogueMessagesEmail';
+import DialogueChecks from '../lib/collections/dialogueChecks/collection';
 
 interface ServerNotificationType {
   name: string,
@@ -214,8 +217,38 @@ export const NewDialogueMessageNotification = serverRegisterNotificationType({
   canCombineEmails: true,
   emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const post = await Posts.findOne(notifications[0].documentId);
+    const authorId = notifications[0].extraData?.newMessageAuthorId
+    const author = authorId && await Users.findOne(authorId)
     if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
-    return `New content in the dialogue you are participating in, ${post.title}`;
+
+    if (author) {
+      return `${userGetDisplayName(author)} left a new reply in your dialogue, ${post.title}`
+    }      
+
+    return `New reply in your dialogue, ${post.title}`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const postId = notifications[0].documentId;
+    const dialogueMessageEmailInfo = getDialogueMessageEmailInfo(notifications[0].extraData)
+    return <Components.NewDialogueMessagesEmail documentId={postId} userId={user._id} dialogueMessageEmailInfo={dialogueMessageEmailInfo}/>;
+  },
+});
+
+function getDialogueMessageEmailInfo(extraData?: AnyBecauseHard): DialogueMessageEmailInfo|undefined {
+  if (!extraData) return undefined
+  const messageContents = extraData.dialogueMessageInfo.dialogueMessageContents
+  const messageAuthorId = extraData.newMessageAuthorId
+  if (!messageContents || !messageAuthorId) return undefined
+  return { messageContents, messageAuthorId }
+}
+
+export const NewDialogueMessageBatchNotification = serverRegisterNotificationType({
+  name: "newDialogueBatchMessages",
+  canCombineEmails: true,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
+    return `Multiple new messages in the dialogue you are participating in, ${post.title}`;
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
@@ -235,6 +268,24 @@ export const NewPublishedDialogueMessageNotification = serverRegisterNotificatio
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
     const postId = notifications[0].documentId;
     return <Components.NewDialogueMessagesEmail documentId={postId} userId={user._id}/>;
+  },
+});
+
+export const NewDialogueMatchNotification = serverRegisterNotificationType({
+  name: "newDialogueMatch",
+  canCombineEmails: true,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const dialogueCheck = await DialogueChecks.findOne(notifications[0].documentId);
+    if (!dialogueCheck) throw Error(`Can't find dialogue check for notification: ${notifications[0]}`)
+    const targetUser = await Users.findOne(dialogueCheck.targetUserId);
+    if (!targetUser) throw Error(`Can't find dialogue match user for notification: ${notifications[0]}`)
+    return `You matched with ${userGetDisplayName(targetUser)} for dialogues!`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const documentId = notifications[0].documentId;
+    const dialogueCheck = await DialogueChecks.findOne(documentId);
+    const targetUser = await Users.findOne(dialogueCheck?.targetUserId);
+    return <Components.NewDialogueMatchEmail documentId={documentId} targetUser={targetUser}/>;
   },
 });
 
@@ -549,6 +600,19 @@ export const NewRSVPNotification = serverRegisterNotificationType({
       <p>
         <a href={postGetPageUrl(post,true)}>Event Link</a>
       </p>
+    </div>
+  },
+});
+
+export const KarmaPowersGainedNotification = serverRegisterNotificationType({
+  name: "karmaPowersGained",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    return "Thank you for your contribution";
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    return <div>
+      Your votes are stronger because your karma went up!
     </div>
   },
 });

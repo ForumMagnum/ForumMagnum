@@ -2,9 +2,8 @@ import AbstractRepo from "./AbstractRepo";
 import Votes from "../../lib/collections/votes/collection";
 import { logIfSlow } from "../../lib/sql/sqlClient";
 import type { RecentVoteInfo } from "../../lib/rateLimits/types";
-import keyBy from "lodash/keyBy";
 import groupBy from "lodash/groupBy";
-import { EAOrLWReactionsVote, NamesAttachedReactionsVote, UserVoteOnSingleReaction } from "../../lib/voting/namesAttachedReactions";
+import { EAOrLWReactionsVote, UserVoteOnSingleReaction } from "../../lib/voting/namesAttachedReactions";
 import type { CommentKarmaChange, KarmaChangeBase, KarmaChangesArgs, PostKarmaChange, ReactionChange, TagRevisionKarmaChange } from "../../lib/collections/users/karmaChangesGraphQL";
 import { eaEmojiNames } from "../../lib/voting/eaEmojiPalette";
 
@@ -16,6 +15,13 @@ type PostVoteCounts = {
   bigUpvoteCount: number,
   smallDownvoteCount: number
   bigDownvoteCount: number
+}
+
+export type React = {
+  documentId: string,
+  userId: string,
+  createdAt: Date,
+  reactionType?: string, // should this be a specific reaction type?
 }
 
 export default class VotesRepo extends AbstractRepo<DbVote> {
@@ -77,7 +83,8 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
           "authorIds" @> ARRAY[$1::CHARACTER VARYING] AND
           "votedAt" >= $2 AND
           "votedAt" <= $3 AND
-          "userId" <> $1
+          "userId" <> $1 AND
+          "silenceNotification" IS NOT TRUE
       `;
 
     const [allScoreChanges, allReactionVotes] = await Promise.all([
@@ -103,7 +110,8 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
             "authorIds" @> ARRAY[$1::CHARACTER VARYING] AND
             "votedAt" >= $2 AND
             "votedAt" <= $3 AND
-            "userId" <> $1
+            "userId" <> $1 AND
+            "silenceNotification" IS NOT TRUE
           GROUP BY "Votes"."documentId", "Votes"."collectionName"
         ) v
         LEFT JOIN "Comments" comment ON (
@@ -415,4 +423,45 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         window_start_key;
     `, [postIds, startDate, endDate]);
   }
+
+  /**
+   * Get the ids of all votes where user1 and user2 have voted on the same document. This is mainly
+   * for the purpose of nullifying votes where a user has double-voted from an alt.
+   */
+  async getSharedVoteIds({ user1Id, user2Id }: { user1Id: string; user2Id: string; }): Promise<string[]> {
+    const results = await this.getRawDb().any<{vote_id: string}>(
+      `
+      WITH JoinedVotes AS (
+        SELECT
+          v1._id AS v1_id,
+          v1.power AS v1_power,
+          v2._id AS v2_id,
+          v2.power AS v2_power
+        FROM
+          "Votes" v1
+          INNER JOIN "Votes" v2 ON v1."documentId" = v2."documentId"
+            AND v2."userId" = $2
+            AND v2.cancelled IS FALSE
+            AND v2."isUnvote" IS FALSE
+            AND v2."voteType" != 'neutral'
+        WHERE
+          v1."userId" = $1
+          AND v1.cancelled IS FALSE
+          AND v1."isUnvote" IS FALSE
+          AND v1."voteType" != 'neutral'
+      )
+      SELECT DISTINCT
+        v1_id AS vote_id
+      FROM
+        JoinedVotes
+      UNION
+      SELECT DISTINCT
+        v2_id AS vote_id
+      FROM
+        JoinedVotes;
+      `, [user1Id, user2Id]
+    );
+    return results.map(({ vote_id }) => vote_id);
+  }
+
 }

@@ -1,6 +1,6 @@
 import React from 'react'
-import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const AUTHOR_MARKER_STYLES = {
   display: "inline-block",
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   authorName: {
     fontWeight: 600,
-    marginLeft: forumTypeSetting.get() === 'EAForum' ? 1 : 0,
+    marginLeft: isFriendlyUI ? 1 : 0,
   },
   authorMarkers: AUTHOR_MARKER_STYLES,
 })

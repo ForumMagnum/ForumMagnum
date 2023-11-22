@@ -1,4 +1,4 @@
-import { DeferredForumSelect, forumSelect } from '../lib/forumTypeUtils';
+import { DeferredForumSelect } from '../lib/forumTypeUtils';
 import { forumTypeSetting } from '../lib/instanceSettings';
 import { TupleSet } from '../lib/utils/typeGuardUtils';
 

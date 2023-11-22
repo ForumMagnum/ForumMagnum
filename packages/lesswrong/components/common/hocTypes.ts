@@ -3,8 +3,19 @@ import { RouterLocation } from '../../lib/vulcan-lib';
 
 declare global {
 
-type ClassesType = Record<string,any>
-type JssStyles = any
+// This `any` should actually be `CSSProperties` from either MUI or JSS but this
+// currently causes an avalanche of type errors, I think due to the fact that
+// we're stuck on a precambrian version of MUI. Upgrading would probably fix this.
+type JssStyles<ClassKey extends string = string> = Record<ClassKey, AnyBecauseHard>;
+
+type JssStylesCallback<ClassKey extends string = string> = (
+  theme: ThemeType,
+) => JssStyles<ClassKey>;
+
+type ClassesType<
+  Styles extends JssStylesCallback<ClassKey> = JssStylesCallback<string>,
+  ClassKey extends string = string
+> = Readonly<Record<keyof ReturnType<Styles>, string>>;
 
 interface WithStylesProps {
   classes: ClassesType,
@@ -29,10 +40,6 @@ interface WithTrackingProps {
 interface WithTimezoneProps {
   timezone: string,
   timezoneIsKnown: boolean,
-}
-
-interface WithNavigationProps {
-  history: any,
 }
 
 interface WithLocationProps {

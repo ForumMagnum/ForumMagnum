@@ -1,19 +1,18 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useSingle } from '../../lib/crud/withSingle';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
+import { getRowProps } from '../users/DialogueMatchingPage';
+import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
+import MuiPeopleIcon from "@material-ui/icons/People";
+import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
 
-const styles = (theme: ThemeType): JssStyles => ({
+
+const styles = (theme: ThemeType) => ({
   dialogueFacilitationItem: {
     paddingTop: 12,
     paddingBottom: 12,
@@ -44,10 +43,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: 0,
       marginTop: 5,
     }
-  },  
+  },
 
-  closeIcon: { 
-    color: "#e0e0e0",
+  subsection: {
+    marginBottom: theme.spacing.unit,
+  },
+
+  closeIcon: {
+    color: theme.palette.grey[300],
     position: 'absolute', 
     right: '8px',
     top: '8px',
@@ -61,87 +64,68 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   subheading: {
     marginTop: '10px',
+  },
+
+  dialogueUserRow: {
+    display: 'flex',
+    alignItems: 'center',
+    background: theme.palette.panelBackground.default,
+    padding: 8,
+    marginBottom: 3,
+    borderRadius: 2,
+  },
+  dialogueLeftContainer: {
+    display: 'flex',
+    width: '100%',
+    alignItems: 'center',
+  },
+  dialogueMatchCheckbox: {
+    marginLeft: 6,
+    width: 29,
+    '& label': {
+      marginRight: 0
+    }
+  },
+  dialogueMatchUsername: {
+    marginRight: 10,
+    '&&': {
+      color: theme.palette.text.primary,
+      textAlign: 'left'
+    },
+    maxWidth: 95,
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+  },
+  dialogueMatchNote: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  },
+  dialogueRightContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingRight: 10,
+    marginRight: 3
+  },
+  dialogueMatchMessageButton: {
+    marginLeft: 'auto',
+    marginRight: 10
+  },
+  dialogueMatchPreferencesButton: {
+    marginLeft: 8,
+    marginRight: 0 //3
+  },
+  dialogueNoMatchesButton: {
+    marginLeft: 8
+  },
+  findDialoguePartners: {
   }
 });
 
-const DialogueFacilitationBox = ({ classes, currentUser, setShowOptIn }: { classes: ClassesType, currentUser: UsersCurrent, setShowOptIn: React.Dispatch<React.SetStateAction<boolean>> }) => {
-  const { captureEvent } = useTracking();
-
-  const [optIn, setOptIn] = React.useState(false); // for rendering the checkbox
-  const updateCurrentUser = useUpdateCurrentUser()
-
-  const hideOptInItem = () => {
-    void updateCurrentUser({hideDialogueFacilitation: true})
-    setShowOptIn(false)
-  }
-
-  const handleOptInChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    setOptIn(event.target.checked);
-    void updateCurrentUser({hideDialogueFacilitation: event.target.checked}) // show people they have clicked, but remove component from view upon refresh
-    captureEvent("optInToDialogueFacilitation", {optIn: event.target.checked})
-    
-    const userDetailString = currentUser?.displayName + " / " + currentUser?.slug
-  
-    // ping the slack webhook to inform team of opt-in. YOLO:ing and putting this on the client. Seems fine. 
-    const webhookURL = "https://hooks.slack.com/triggers/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";
-    const data = {
-      user: userDetailString,
-      abTestGroup: "optIn (no more AB test)",
-    };
-  
-    if (event.target.checked) {
-      try {
-        const response = await fetch(webhookURL, {
-          method: 'POST',
-          body: JSON.stringify(data),
-        });
-  
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-      } catch (error) {
-        //eslint-disable-next-line no-console
-        console.error('There was a problem with the fetch operation: ', error);
-      }
-    }
-  };
-
-  const prompt = "Opt-in to dialogue invitations" 
- 
-  return (
-      <div className={classes.dialogueFacilitationItem}>
-        <IconButton className={classes.closeIcon} onClick={() => hideOptInItem()}>
-          <CloseIcon />
-        </IconButton>
-        <div className={classes.content} >
-          <div style={{ height: '20px', display: 'flex', alignItems: 'top' }}>
-            <FormControlLabel  style={{ paddingLeft: '8px' }}
-              control={
-                <Checkbox
-                  checked={optIn}
-                  onChange={event => handleOptInChange(event)}
-                  name="optIn"
-                  color="primary"
-                  style={{ height: '10px', width: '30px', color: "#9a9a9a" }}
-                />
-              }
-              label={<span className={classes.prompt} >{prompt}</span>}
-            />
-          </div>     
-          <p>
-            If you tick the box, we might check in to see if we can facilitate a dialogue you'd find valuable 
-            (by helping with topics, partners, scheduling or editing).  
-          </p>        
-        </div>
-      </div>
-  );
-};
-
-const DialoguesList = ({ classes }: { classes: ClassesType }) => {
-  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
+const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+  const { PostsItem, DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo, SectionButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
   const currentUser = useCurrentUser()
-  const optInStartState = !!currentUser && !currentUser?.hideDialogueFacilitation 
-  const [showOptIn, setShowOptIn] = useState(optInStartState);
 
   const { results: dialoguePosts } = usePaginatedResolver({
     fragmentName: "PostsListWithVotes",
@@ -153,25 +137,40 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
     fragmentName: "PostsListWithVotes",
     resolverName: "MyDialogues",
     limit: 3,
-  }); 
-
-  const {
-    document: party,
-  } = useSingle({
-    documentId: "BJcNeJss4jxc68GQR",
-    collectionName: "Posts",
-    fragmentName: "PostsListWithVotes",
   });
 
-  const dialoguesTooltip = <div>
+  const {
+    matchedUsersQueryResult: { data: matchedUsersResult },
+    userDialogueChecksResult: { results: userDialogueChecks = [] },
+  } = useDialogueMatchmaking({ getMatchedUsers: true, getOptedInUsers: false, getUserDialogueChecks: true });
+
+  const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
+
+  const dialoguesTooltip = (<div>
     <p>Dialogues between a small group of users. Click to see more.</p>
-  </div>
+  </div>);
 
   const renderMyDialogues = !!currentUser && myDialogues?.length 
 
-  const myDialoguesTooltip = <div>
-      <div>These are the dialoges you are involved in (both drafts and published)</div>
-    </div>
+  const myDialoguesTooltip = (<div>
+    <div>These are the dialogues you are involved in (both drafts and published)</div>
+  </div>);
+
+  const matchmakingTooltip = (<div>
+    <p> Click here to go to the dialogue matchmaking page.</p>
+  </div>);
+
+  const rowPropsList = currentUser && getRowProps({
+    currentUser,
+    tableContext: 'match',
+    showAgreement: false,
+    showBio: false,
+    showFrequentCommentedTopics: false,
+    showKarma: false,
+    showPostsYouveRead: false,
+    userDialogueChecks,
+    users: matchedUsers ?? []
+  });
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
     <SingleColumnSection>
@@ -179,10 +178,64 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
         title={<LWTooltip placement="top-start" title={dialoguesTooltip}>
           Dialogues
         </LWTooltip>}
-      />
-      {showOptIn && !!currentUser && <DialogueFacilitationBox classes={classes} currentUser={currentUser} setShowOptIn={setShowOptIn} />}
+      >
+      {currentUser && dialogueMatchmakingEnabled.get() && (
+        <LWTooltip placement="top-start" title={matchmakingTooltip}>
+          <SectionButton className={classes.findDialoguePartners}>
+            <MuiPeopleIcon />
+            <Link to="/dialogueMatching">Find Dialogue Partners</Link>
+          </SectionButton>
+        </LWTooltip>
+      )}
+      </SectionTitle>
 
-      {party && <PostsItem post={party}/>}
+      {dialogueMatchmakingEnabled.get() && <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
+        <div>
+          {currentUser && rowPropsList?.map(rowProps => {
+            const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
+            return (<div key={targetUser._id} className={classes.dialogueUserRow}>
+              <div className={classes.dialogueLeftContainer}>
+                <div className={classes.dialogueMatchCheckbox}>
+                  <DialogueCheckBox
+                    targetUserId={targetUser._id}
+                    targetUserDisplayName={targetUser.displayName}
+                    checkId={checkId}
+                    isChecked={userIsChecked}
+                    isMatched={userIsMatched}
+                  />
+                </div>
+                <PostsItem2MetaInfo className={classes.dialogueMatchUsername}>
+                  <UsersName
+                    documentId={targetUser._id}
+                    simple={false}
+                  />
+                </PostsItem2MetaInfo>
+                <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+                  You've matched with this user
+                </PostsItem2MetaInfo>
+              </div>
+              <div className={classes.dialogueRightContainer}>
+                <div className={classes.dialogueMatchMessageButton}>
+                  <MessageButton
+                    targetUserId={targetUser._id}
+                    currentUser={currentUser}
+                    isMatched={userIsMatched}
+                  />
+                </div>
+                <div className={classes.dialogueMatchPreferencesButton}>
+                  <DialogueNextStepsButton
+                    isMatched={userIsMatched}
+                    checkId={checkId}
+                    targetUserId={targetUser._id}
+                    targetUserDisplayName={targetUser.displayName}
+                    currentUser={currentUser}
+                  />
+                </div>
+              </div>
+            </div>);
+          })}
+        </div>
+      </AnalyticsContext>}
       
       {dialoguePosts?.map((post, i: number) =>
         <PostsItem
@@ -192,25 +245,24 @@ const DialoguesList = ({ classes }: { classes: ClassesType }) => {
       )}
 
       {renderMyDialogues && (
-          <div className={classes.subsection}>
-            <AnalyticsContext pageSubSectionContext="myDialogues">
-              <LWTooltip placement="top-start" title={myDialoguesTooltip}>
-                <Link to={"/dialogues"}>
-                  <SectionSubtitle className={classes.subheading}>
-                    My Dialogues (only visible to you)
-                  </SectionSubtitle>
-                </Link>
-              </LWTooltip>
-              {myDialogues?.map((post, i: number) =>
-                <PostsItem
-                  key={post._id} post={post}
-                  showBottomBorder={i < myDialogues.length-1}
-                />
-              )}
-            </AnalyticsContext>
-          </div>
-        )}
-      
+        <div className={classes.subsection}>
+          <AnalyticsContext pageSubSectionContext="myDialogues">
+            <LWTooltip placement="top-start" title={myDialoguesTooltip}>
+              <Link to={"/dialogues"}>
+                <SectionSubtitle className={classes.subheading}>
+                  My Dialogues (only visible to you)
+                </SectionSubtitle>
+              </Link>
+            </LWTooltip>
+            {myDialogues?.map((post, i: number) =>
+              <PostsItem
+                key={post._id} post={post}
+                showBottomBorder={i < myDialogues.length-1}
+              />
+            )}
+          </AnalyticsContext>
+        </div>
+      )}
 
    </SingleColumnSection>
   </AnalyticsContext>

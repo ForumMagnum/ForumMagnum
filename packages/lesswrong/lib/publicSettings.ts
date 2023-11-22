@@ -37,7 +37,7 @@ export class DatabasePublicSetting<SettingValueType> {
   }
   get(): SettingValueType {
     // eslint-disable-next-line no-console
-    if (!getPublicSettingsLoaded()) throw Error("Tried to access public setting before it was initialized")
+    if (!getPublicSettingsLoaded()) throw Error(`Tried to access public setting ${this.settingName} before it was initialized`)
     const cacheValue = getNestedProperty(getPublicSettings(), this.settingName)
     if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue
@@ -53,7 +53,7 @@ export const reCaptchaSiteKeySetting = new DatabasePublicSetting<string | null>(
 // Algolia Search Settings
 export const algoliaAppIdSetting = new DatabasePublicSetting<string | null>('algolia.appId', null)
 export const algoliaSearchKeySetting = new DatabasePublicSetting<string | null>('algolia.searchKey', null)
-export const algoliaPrefixSetting = new DatabasePublicSetting<string | null>('algolia.indexPrefix', null)
+export const algoliaPrefixSetting = new DatabasePublicSetting<string>('algolia.indexPrefix', '')
 
 export const ckEditorUploadUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.uploadUrl', null) // Image Upload URL for CKEditor
 export const ckEditorWebsocketUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.webSocketUrl', null) // Websocket URL for CKEditor (for collaboration)
@@ -104,9 +104,21 @@ export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
 
 export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")
+type AccountInfo = {
+  username: string,
+  email: string,
+};
+export const adminAccountSetting = new DatabasePublicSetting<AccountInfo|null>('adminAccount', null);
 
 export const crosspostKarmaThreshold = new DatabasePublicSetting<number | null>('crosspostKarmaThreshold', 100);
 
 export const ddTracingSampleRate = new DatabasePublicSetting<number>('datadog.tracingSampleRate', 100) // Sample rate for backend traces, between 0 and 100
 export const ddRumSampleRate = new DatabasePublicSetting<number>('datadog.rumSampleRate', 100) // Sample rate for backend traces, between 0 and 100
 export const ddSessionReplaySampleRate = new DatabasePublicSetting<number>('datadog.sessionReplaySampleRate', 100) // Sample rate for backend traces, between 0 and 100
+
+/** Will we show our logo prominently, such as in the header */
+export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasProminentLogo", false);
+
+export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)
+
+export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('dialogueMatchmakingEnabled', false)
