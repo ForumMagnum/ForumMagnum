@@ -6,15 +6,29 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import sortBy from 'lodash/sortBy';
 import findIndex from 'lodash/findIndex';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { isEAForum } from '../../lib/instanceSettings';
 
-const BookmarksList = ({limit=20, hideLoadMore=false}: {
+const styles = (theme: ThemeType): JssStyles => ({
+  empty: {
+    color: theme.palette.grey[600],
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    fontSize: 14,
+    lineHeight: "1.6em",
+    marginBottom: 40,
+  },
+});
+
+const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, classes}: {
+  showMessageIfEmpty?: boolean,
   limit?: number,
   hideLoadMore?: boolean,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const { PostsItem, LoadMore } = Components
   
-  const {results: bookmarkedPosts, loadMoreProps} = useMulti({
+  const {results: bookmarkedPosts, loading, loadMoreProps} = useMulti({
     collectionName: "Posts",
     terms: {
       view: "myBookmarkedPosts",
@@ -39,6 +53,12 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
 
   return <AnalyticsContext pageSubSectionContext="bookmarksList">
     <div>
+      {showMessageIfEmpty && !loading && sortedBookmarkedPosts && !sortedBookmarkedPosts.length && <div className={classes.empty}>
+        {isEAForum
+          ? "You haven't saved any posts yet."
+          : "You haven't bookmarked any posts yet."
+        }
+      </div>}
       {sortedBookmarkedPosts && sortedBookmarkedPosts.map((post: PostsListWithVotes, i: number) =>
         <PostsItem
           key={post._id} post={post} bookmark
@@ -51,6 +71,7 @@ const BookmarksList = ({limit=20, hideLoadMore=false}: {
 }
 
 const BookmarksListComponent = registerComponent('BookmarksList', BookmarksList, {
+  styles,
   hocs: [withErrorBoundary]
 });
 
