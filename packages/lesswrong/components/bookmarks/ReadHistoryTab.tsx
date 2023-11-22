@@ -6,6 +6,14 @@ import { gql, useQuery, NetworkStatus } from '@apollo/client';
 import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  empty: {
+    color: theme.palette.grey[600],
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    fontSize: 14,
+    lineHeight: "1.6em",
+    marginBottom: 40,
+  },
   loadMore: {
     marginTop: 10
   },
@@ -53,7 +61,10 @@ const ReadHistoryTab = ({classes}: {classes: ClassesType}) => {
     return <Loading />
   }
   if (!readHistory) {
-    return null
+    return null;
+  }
+  if (!readHistory.length) {
+    return <div className={classes.empty}>{"You haven't read any posts yet."}</div>
   }
   
   // group the posts by last read "Today", "Yesterday", and "Older"

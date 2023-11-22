@@ -305,6 +305,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryTranslucent: 'rgba(12,134,155,.7)',
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
+    wrappedSummary: "2px solid rgba(255, 168, 50, 0.6)",
   },
   background: {
     default: shades.grey[60],
@@ -374,6 +375,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sequenceImageGradient: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)',
     sequencesBanner: shades.greyAlpha(.5),
     cookieBanner: shades.grey[800],
+    strawpoll: "rgba(251, 191, 36, 1)", // Color used by StrawPoll
+    userProfileImageHover: "rgba(0, 0, 0, 0.5)",
+    userProfileImageLoading: `linear-gradient(
+      90deg,
+      rgba(0,0,0,0) 33%,
+      rgba(255,255,255,0.25) 50%,
+      rgba(0,0,0,0) 66%
+    ) ${shades.grey[500]}`,
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -527,6 +536,15 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       secondaryOpaque: "rgba(253, 139, 132, 0.40)",
       secondaryOpaqueDark: "rgba(197, 106, 101, 0.40)",
     },
+  },
+  dialogueMatching: {
+    checkedNotMatched: "#ADD8E6",
+    checkedMatched: "#00000038",
+    optIn: "#9a9a9a",
+    warning: "yellow",
+  },
+  namesAttachedReactions: {
+    selectedAnti: "rgb(255, 189, 189, .23)",
   },
 
   contrastText: shades.grey[0],

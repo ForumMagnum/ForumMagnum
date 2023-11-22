@@ -11,8 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative"
   },
   yellowBar: {
-    // Color used by StrawPoll
-    backgroundColor: "rgba(251, 191, 36, 1)",
+    backgroundColor: theme.palette.panelBackground.strawpoll,
     height: "4px",
     position: "absolute",
     top: 0,

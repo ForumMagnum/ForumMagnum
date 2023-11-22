@@ -49,8 +49,8 @@ const styles = (theme: ThemeType) => ({
     marginBottom: theme.spacing.unit,
   },
 
-  closeIcon: { 
-    color: "#e0e0e0",
+  closeIcon: {
+    color: theme.palette.grey[300],
     position: 'absolute', 
     right: '8px',
     top: '8px',

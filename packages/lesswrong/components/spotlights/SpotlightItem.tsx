@@ -158,8 +158,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...(isFriendlyUI && {width: "100%", objectFit: "cover"}),
   },
   imageFade: {
-    mask: "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 80%,#fff 100%)",
-    "-webkit-mask-image": "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 80%,#fff 100%)",
+    mask: `linear-gradient(to right, transparent 0, ${theme.palette.text.alwaysWhite} 80%, ${theme.palette.text.alwaysWhite} 100%)`,
+    "-webkit-mask-image": `linear-gradient(to right, transparent 0, ${theme.palette.text.alwaysWhite} 80%, ${theme.palette.text.alwaysWhite} 100%)`,
   },
   author: {
     marginTop: 4,
