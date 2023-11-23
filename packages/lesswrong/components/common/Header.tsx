@@ -18,6 +18,7 @@ import { hasProminentLogoSetting } from '../../lib/publicSettings';
 
 import { useLocation } from '../../lib/routeUtil';
 import { useIsGivingSeason } from '../ea-forum/giving-portal/hooks';
+import { isAdmin } from '../../lib/vulcan-users';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -73,7 +74,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   titleLink: {
     color: theme.palette.header.text,
     fontSize: 19,
-    '&:hover, &:focus, &:active': {
+    '&:hover, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
     },
@@ -95,27 +96,27 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   hideLgUp: {
     [theme.breakpoints.up('lg')]: {
-      display:"none"
+      display:"none !important"
     }
   },
   hideMdDown: {
     [theme.breakpoints.down('md')]: {
-      display:"none"
+      display:"none !important"
     }
   },
   hideSmDown: {
     [theme.breakpoints.down('sm')]: {
-      display: "none",
+      display: "none !important",
     },
   },
   hideXsDown: {
     [theme.breakpoints.down('xs')]: {
-      display: "none",
+      display: "none !important",
     },
   },
   hideMdUp: {
     [theme.breakpoints.up('md')]: {
-      display: "none",
+      display: "none !important",
     },
   },
   rightHeaderItems: {
@@ -335,7 +336,7 @@ const Header = ({
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
   const isGivingSeason = useIsGivingSeason();
-  if (isGivingSeason && pathname === '/') {
+  if ((isGivingSeason && pathname === "/") || (pathname.startsWith("/voting-portal") && isAdmin(currentUser))) {
     return (
       <GivingSeasonHeader
         searchOpen={searchOpen}
