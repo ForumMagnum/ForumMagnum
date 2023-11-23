@@ -8,10 +8,11 @@ export type CustomResolver<T extends DbObject = DbObject> =
 export type CodeResolver<T extends DbObject = DbObject> =
   CustomResolver<T>["resolver"];
 
-export interface CodeResolverMap extends
-  Record<string, CodeResolver | CodeResolverMap> {}
+interface CodeResolverMap extends Record<string, CodeResolver | CodeResolverMap> {}
 
-class ProjectionContext {
+export type PrefixGenerator = () => string;
+
+class ProjectionContext<T extends DbObject = DbObject> {
   private resolvers: Record<string, CustomResolver> = {};
   private projections: string[] = [];
   private joins: SqlJoinSpec[] = [];
@@ -22,8 +23,9 @@ class ProjectionContext {
   private isAggregate: boolean;
 
   constructor(
-    private collection: PgCollection<DbObject>,
+    private collection: PgCollection<T>,
     aggregate?: {prefix: string, argOffset: number},
+    private prefixGenerator?: PrefixGenerator,
   ) {
     if (aggregate) {
       this.primaryPrefix = aggregate.prefix;
@@ -47,7 +49,7 @@ class ProjectionContext {
 
   aggregate(subcontext: ProjectionContext, name: string) {
     const test = `"${subcontext.primaryPrefix}"."_id"`;
-    const obj = `JSONB_BUILD_OBJECT(${subcontext.projections.join(", ")})`;
+    const obj = `JSONB_BUILD_OBJECT( ${subcontext.projections.join(", ")} )`;
     const proj = `CASE WHEN ${test} IS NULL THEN NULL ELSE ${obj} END "${name}"`;
     this.projections.push(proj);
     this.joins = this.joins.concat(subcontext.joins);
@@ -55,6 +57,10 @@ class ProjectionContext {
     if (Object.keys(subcontext.codeResolvers).length) {
       this.codeResolvers[name] = subcontext.codeResolvers;
     }
+  }
+
+  getCollection() {
+    return this.collection;
   }
 
   getSchema() {
@@ -87,10 +93,16 @@ class ProjectionContext {
     return this.codeResolvers;
   }
 
+  getPrefixGenerator() {
+    return this.prefixGenerator;
+  }
+
   field(name: string) {
-    return this.isAggregate
-      ? `'${name}', "${this.primaryPrefix}"."${name}"`
-      : `"${this.primaryPrefix}"."${name}"`;
+    let absoluteField = `"${this.primaryPrefix}"."${name}"`;
+    if (name.indexOf("*") > -1) {
+      absoluteField = `ROW_TO_JSON(${absoluteField})`;
+    }
+    return this.isAggregate ? `'${name}', ${absoluteField}` : absoluteField;
   }
 
   currentUserField(name: string) {
@@ -141,6 +153,10 @@ class ProjectionContext {
     };
   }
 
+  private generateTablePrefix() {
+    return this.prefixGenerator ? this.prefixGenerator() : randomId(5);
+  }
+
   private getJoinSpec({table, type, on}: SqlJoinBase): SqlJoinSpec {
     for (const join of this.joins) {
       if (
@@ -151,7 +167,7 @@ class ProjectionContext {
         return join;
       }
     }
-    const join = {table, type, on, prefix: randomId(5)};
+    const join = {table, type, on, prefix: this.generateTablePrefix()};
     this.joins.push(join);
     return join;
   }

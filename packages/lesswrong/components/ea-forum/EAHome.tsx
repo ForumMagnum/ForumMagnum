@@ -51,10 +51,6 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const EAHome = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser();
-
-  // TODO TMP
-  getSqlFragment("PostsList").buildSelector(currentUser);
-
   const {
     RecentDiscussionFeed, EAHomeMainContent, QuickTakesSection,
     SmallpoxBanner, EventBanner, MaintenanceBanner, FrontpageReviewWidget,

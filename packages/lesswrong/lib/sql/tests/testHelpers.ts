@@ -19,6 +19,7 @@ export type DbTestObject = {
 
 export const TestCollection = {
   collectionName: "TestCollection",
+  typeName: "TestCollection",
   isPostgres: () => true,
   _schemaFields: {
     _id: {
@@ -64,6 +65,7 @@ export type DbTestObject2 = {
 
 export const TestCollection2 = {
   collectionName: "TestCollection2",
+  typeName: "TestCollection2",
   isPostgres: () => true,
   _schemaFields: {
     _id: {
@@ -90,6 +92,7 @@ export type DbTestObject3 = {
 
 export const TestCollection3 = {
   collectionName: "TestCollection3",
+  typeName: "TestCollection3",
   isPostgres: () => true,
   _schemaFields: {
     _id: {
@@ -124,12 +127,13 @@ export type DbTestObject4 = {
 
 export const TestCollection4 = {
   collectionName: "TestCollection4",
+  typeName: "TestCollection4",
   isPostgres: () => true,
   _schemaFields: {
     _id: {
       type: String,
     },
-    testCollection3: {
+    testCollection3Id: {
       ...foreignKeyField({
         idFieldName: "testCollection3Id",
         resolverName: "testCollection3",
@@ -152,7 +156,9 @@ registerFragment(`
   fragment TestCollection4DefaultFragment on TestCollection4 {
     _id
     testCollection3Id
-    testCollection3
+    testCollection3 {
+      ...TestCollection3DefaultFragment
+    }
   }
 `);
 
@@ -181,7 +187,8 @@ export const runTestCases = (tests: TestCase[]) => {
         const query = test.getQuery();
         const {sql, args} = query.compile();
         const normalizedSql = normalizeWhitespace(sql);
-        expect(normalizedSql).toBe(test.expectedSql);
+        const normalizedExpectedSql = normalizeWhitespace(test.expectedSql);
+        expect(normalizedSql).toBe(normalizedExpectedSql);
         expect(args).toStrictEqual(test.expectedArgs);
       }
     });

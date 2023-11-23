@@ -1,5 +1,5 @@
 import { getCollectionByTypeName } from "../vulcan-lib/getCollection";
-import ProjectionContext, { CodeResolverMap, CustomResolver } from "./ProjectionContext";
+import ProjectionContext, { CustomResolver, PrefixGenerator } from "./ProjectionContext";
 import FragmentLexer from "./FragmentLexer";
 import PgCollection from "./PgCollection";
 
@@ -22,14 +22,6 @@ type SqlFragmentPick = {
 type SqlFragmentEntry = SqlFragmentField | SqlFragmentSpread | SqlFragmentPick;
 
 type SqlFragmentEntryMap = Record<string, SqlFragmentEntry>;
-
-type SqlFragmentSelector = {
-  tableName: string,
-  selectors: string[],
-  args: unknown[],
-  joins: SqlJoinSpec[],
-  codeResolvers: CodeResolverMap,
-}
 
 const getResolverCollection = (
   resolver: CustomResolver,
@@ -165,7 +157,8 @@ class SqlFragment {
           prefix: joins[joins.length - 1].prefix,
           argOffset: context.getArgs().length,
         };
-        const subcontext = new ProjectionContext(collection, aggregate);
+        const gen = context.getPrefixGenerator();
+        const subcontext = new ProjectionContext(collection, aggregate, gen);
         this.compileEntries(subcontext, entries);
         context.aggregate(subcontext, name);
       } else {
@@ -205,27 +198,19 @@ class SqlFragment {
     this.compileEntries(context, entries);
   }
 
-  buildSelector(currentUser: DbUser | UsersCurrent | null): SqlFragmentSelector {
+  buildProjection<T extends DbObject = DbObject>(
+    currentUser: DbUser | UsersCurrent | null,
+    prefixGenerator?: PrefixGenerator,
+  ): ProjectionContext<T> {
     const baseTypeName = this.getBaseTypeName();
     const collection = getCollectionByTypeName(baseTypeName);
     if (!collection.isPostgres()) {
       throw new Error(`Type is not in Postgres: "${baseTypeName}"`);
     }
-
-    const context = new ProjectionContext(collection);
+    const context = new ProjectionContext(collection, undefined, prefixGenerator);
     context.setCurrentUser(currentUser);
     this.compileProjection(context);
-
-    // TODO TMP
-    console.log("MARK COMPILED", context.compileQuery());
-
-    return {
-      tableName: context.getTableName(),
-      selectors: context.getProjections(),
-      args: context.getArgs(),
-      joins: context.getJoins(),
-      codeResolvers: context.getCodeResolvers(),
-    };
+    return context;
   }
 }
 

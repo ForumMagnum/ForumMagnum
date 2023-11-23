@@ -71,6 +71,10 @@ export type SelectSqlOptions = Partial<{
    * from the result.
    */
   sampleSize: number,
+  /**
+   * Don't initialize the query in the constructor
+   */
+  deferInit: boolean,
 }>
 
 /**
@@ -109,7 +113,8 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     options?: MongoFindOptions<T>,
     sqlOptions?: SelectSqlOptions,
   ) {
-    super(table, ["SELECT"]);
+    const deferInit = sqlOptions?.deferInit ?? false;
+    super(table, deferInit ? [] : ["SELECT"]);
 
     if (options?.collation) {
       const collation = getCollationType(options.collation);
@@ -121,6 +126,17 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       return;
     }
 
+    if (!deferInit) {
+      this.initOptions(table, options, sqlOptions);
+      this.initSelector(selector, options, sqlOptions);
+    }
+  }
+
+  private initOptions(
+    table: Table<T> | Query<T>,
+    options?: MongoFindOptions<T>,
+    sqlOptions?: SelectSqlOptions,
+  ) {
     this.hasLateralJoin = !!sqlOptions?.lookup;
 
     const {addFields, projection} = this.disambiguateSyntheticFields(sqlOptions?.addFields, options?.projection);
@@ -137,7 +153,13 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     if (sqlOptions?.joinHook) {
       this.atoms.push(sqlOptions.joinHook);
     }
+  }
 
+  protected initSelector(
+    selector?: string | MongoSelector<T>,
+    options?: MongoFindOptions<T>,
+    sqlOptions?: SelectSqlOptions,
+  ) {
     if (typeof selector === "string") {
       selector = {_id: selector};
     }
