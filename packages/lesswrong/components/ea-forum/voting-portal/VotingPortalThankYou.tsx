@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { HEADER_HEIGHT } from "../../common/Header";
+import { useWindowSize } from "../../hooks/useScreenWidth";
+import ReactConfetti from "react-confetti";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -127,9 +129,26 @@ const VotingPortalThankYou = ({currentUser, classes}: {
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {width, height} = useWindowSize();
+  const [confetti, setConfetti] = useState(true);
+  const onConfettiComplete = useCallback(() => {
+    setConfetti(false);
+  }, []);
+
   const {ForumIcon} = Components;
   return (
     <div className={classes.root}>
+      {confetti &&
+        <ReactConfetti
+          width={width}
+          height={height}
+          numberOfPieces={1200}
+          tweenDuration={20000}
+          colors={["#aa4578", "#bb85db", "#7839ca", "#bb3666", "#d7748a"]}
+          recycle={false}
+          onConfettiComplete={onConfettiComplete}
+        />
+      }
       <div className={classes.election}>EA FORUM ELECTION 2023</div>
       <div className={classes.thankYou}>Thank you for voting!</div>
       <div className={classes.horiz}>
