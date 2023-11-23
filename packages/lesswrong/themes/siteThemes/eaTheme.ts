@@ -54,12 +54,14 @@ export const eaForumTheme: SiteThemeSpecification = {
     text: {
       primaryAlert: "#137283",
       contentHeader: shadePalette.grey[1000],
-      debateComment: "#66C9F3",
-      debateComment2: "#FE927B",
-      debateComment3: "#F9E199",
-      debateComment4: "#4BF283",
-      debateComment5: "#CF72F0",
-      debateComment6: "#6C7BFF",
+      debateComment: {
+        [1]: "#66C9F3",
+        [2]: "#FE927B",
+        [3]: "#F9E199",
+        [4]: "#4BF283",
+        [5]: "#CF72F0",
+        [6]: "#6C7BFF",
+      },
     },
     link: {
       visited: "#7130a6",
