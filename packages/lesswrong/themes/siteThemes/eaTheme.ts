@@ -59,7 +59,7 @@ export const eaForumTheme: SiteThemeSpecification = {
       debateComment3: "#F9E199",
       debateComment4: "#4BF283",
       debateComment5: "#CF72F0",
-      debateComment6: "6C7BFF",
+      debateComment6: "#6C7BFF",
     },
     link: {
       visited: "#7130a6",

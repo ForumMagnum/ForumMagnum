@@ -221,6 +221,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     debateComment3: '#b28600',
     debateComment4: '#9f1853',
     debateComment5: '#a56eff',
+    debateComment6: '#6C7BFF',
   },
   link: {
     unmarked: shades.greyAlpha(.87),

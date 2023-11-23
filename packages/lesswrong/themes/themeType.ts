@@ -169,6 +169,7 @@ declare global {
       debateComment3: ColorString,
       debateComment4: ColorString,
       debateComment5: ColorString,
+      debateComment6: ColorString,
     },
     linkHover: {
       dim: ColorString,
