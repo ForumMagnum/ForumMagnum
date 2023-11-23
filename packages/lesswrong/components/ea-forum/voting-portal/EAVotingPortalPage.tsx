@@ -5,9 +5,26 @@ import { votingPortalStyles } from "./styles";
 import { useCurrentUser } from "../../common/withUser";
 import { isAdmin } from "../../../lib/vulcan-users";
 import { useLocation } from "react-router";
+import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
+import { votingThankYouImageId } from "../../../lib/eaGivingSeason";
+import Helmet from "react-helmet";
+import classNames from "classnames";
+
+const BACKGROUND_IMAGE = makeCloudinaryImageUrl(votingThankYouImageId, {
+  q: "100",
+  f: "auto",
+  c: "fill",
+  g: "center",
+});
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
+  thankYouImage: {
+    backgroundImage: `url(${BACKGROUND_IMAGE})`,
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "auto",
+  },
 });
 
 const EAVotingPortalPage = ({classes}: {classes: ClassesType}) => {
@@ -21,14 +38,22 @@ const EAVotingPortalPage = ({classes}: {classes: ClassesType}) => {
 
   const {VotingPortalThankYou} = Components;
   return (
-    <AnalyticsContext pageContext="eaVotingPortal">
-      <div className={classes.root}>
+    <AnalyticsContext
+      pageContext="eaVotingPortal"
+      pageSectionContext={isThankYouPage ? "thankyou" : "intro"}
+    >
+      <Helmet>
+        <link rel="preload" as="image" href={BACKGROUND_IMAGE} />
+      </Helmet>
+      <div className={classNames(classes.root, {
+        [classes.thankYouImage]: isThankYouPage,
+      })}>
         {isThankYouPage
           ? <VotingPortalThankYou />
           : (
             <div className={classes.content} id="top">
               <div className={classes.h1}>
-                Voting portal
+                Voting portal intro
               </div>
             </div>
           )

@@ -18,6 +18,9 @@ export const heroImageId = "giving_portal_23_hero";
 /** Cloudinary ID for the frontpage header background image */
 export const headerImageId = "giving_portal_23_hero3";
 
+/** Cloudinary ID for the voting portal thank you page background image */
+export const votingThankYouImageId = "voting_portal_hero";
+
 const votingAccountCreationCutoff = new Date("2023/10/23");
 
 const userCanVoteInDonationElection = (

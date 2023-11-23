@@ -1,13 +1,20 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
+  root: {
+    height: "100%",
+  },
 });
 
-const VotingPortalThankYou = () => {
+const VotingPortalThankYou = ({classes}: {
+  classes: ClassesType<typeof styles>,
+}) => {
   return (
-    <div>
-      Thank you
+    <div className={classes.root}>
+      <div>
+        Thank you
+      </div>
     </div>
   );
 }
