@@ -170,7 +170,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
       <div
         key={`debate-comment-${comment._id}`}
         id={`debate-comment-${comment._id}`}
-        className={classNames(classes.innerDebateComment, classes[borderStyle], { [classes.blockMargin]: addBottomMargin })}
+        className={classNames(classes.innerDebateComment, borderStyle, { [classes.blockMargin]: addBottomMargin })}
       >
         {header}
         {menu}
