@@ -599,7 +599,11 @@ export const EAHomeRightHandSide = ({classes}: {
       {/* TODO: Remove after giving season ends */}
       {isGivingSeason &&
         <div className={classes.givingSeason}>
-          <div>Donate to the Election Fund</div>
+          <div>
+            <Link to="/giving-portal">
+              Donate to the Election Fund
+            </Link>
+          </div>
           <div className={classes.givingSeasonAmount}>
             {amountRaisedLoading && <Loading />}
             {amountRaised?.raisedForElectionFund > 0 &&
