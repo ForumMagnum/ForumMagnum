@@ -74,7 +74,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   titleLink: {
     color: theme.palette.header.text,
     fontSize: 19,
-    '&:hover, &:focus, &:active': {
+    '&:hover, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
     },
@@ -96,27 +96,27 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   hideLgUp: {
     [theme.breakpoints.up('lg')]: {
-      display:"none"
+      display:"none !important"
     }
   },
   hideMdDown: {
     [theme.breakpoints.down('md')]: {
-      display:"none"
+      display:"none !important"
     }
   },
   hideSmDown: {
     [theme.breakpoints.down('sm')]: {
-      display: "none",
+      display: "none !important",
     },
   },
   hideXsDown: {
     [theme.breakpoints.down('xs')]: {
-      display: "none",
+      display: "none !important",
     },
   },
   hideMdUp: {
     [theme.breakpoints.up('md')]: {
-      display: "none",
+      display: "none !important",
     },
   },
   rightHeaderItems: {
@@ -287,7 +287,7 @@ const Header = ({
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    GivingSeasonHeader, VotingPortalHeader,
+    GivingSeasonHeader,
   } = Components;
   
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
@@ -336,27 +336,9 @@ const Header = ({
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
   const isGivingSeason = useIsGivingSeason();
-  if (isGivingSeason && pathname === '/') {
+  if ((isGivingSeason && pathname === "/") || (pathname.startsWith("/voting-portal") && isAdmin(currentUser))) {
     return (
       <GivingSeasonHeader
-        searchOpen={searchOpen}
-        hasLogo={hasProminentLogoSetting.get()}
-        unFixed={unFixed}
-        setUnFixed={setUnFixed}
-        NavigationMenuButton={NavigationMenuButton}
-        RightHeaderItems={RightHeaderItems}
-        HeaderNavigationDrawer={HeaderNavigationDrawer}
-        HeaderNotificationsMenu={HeaderNotificationsMenu}
-      />
-    );
-  }
-
-  // special case for the voting portal for EA Forum Giving Season 2023
-  // TODO: un-admin-gate when the voting portal is ready
-  // TODO: delete after 2023
-  if (pathname.startsWith('/voting-portal') && isAdmin(currentUser)) {
-    return (
-      <VotingPortalHeader
         searchOpen={searchOpen}
         hasLogo={hasProminentLogoSetting.get()}
         unFixed={unFixed}
