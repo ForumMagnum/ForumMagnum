@@ -146,7 +146,7 @@ const styles = (theme: ThemeType) => ({
       textDecoration: "none",
     },
   },
-  button: {
+  buttonDisabled: {
     display: "flex",
     alignItems: "center",
     gap: "10px",
@@ -159,12 +159,14 @@ const styles = (theme: ThemeType) => ({
     padding: "12px 48px",
     border: "none",
     outline: "none",
-    "&:hover": {
-      opacity: 0.85,
-    },
-    "&:active": {
-      opacity: 0.7,
-    },
+    userSelect: "none",
+    cursor: "not-allowed",
+    opacity: 0.65,
+  },
+  tooltip: {
+    background: theme.palette.panelBackground.tooltipBackground2,
+    maxWidth: 300,
+    textAlign: "center",
   },
   progressBar: {
     position: "relative",
@@ -353,6 +355,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const {
     Loading, LoadMore, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
     ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, QuickTakesList,
+    LWTooltip,
   } = Components;
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
@@ -474,13 +477,15 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 classes.mt10,
                 classes.mb80,
               )}>
-                <Link to="https://docs.google.com/forms/d/e/1FAIpQLScnIBGnpqQUNTXqeh-DjLKPZ3b4-Cs9vBnvd6Wh5r_7oiX92Q/viewform" className={classes.button}>
+                <LWTooltip
+                  title="The deadline for adding candidates has now passed"
+                  placement="right"
+                  popperClassName={classes.tooltip}
+                  className={classes.buttonDisabled}
+                >
                   <ForumIcon icon="Plus" />
                   Add candidate
-                </Link>
-                <div className={classNames(classes.text, classes.primaryText)}>
-                  Deadline to add: November 21
-                </div>
+                </LWTooltip>
               </div>
             </div>
           </div>
