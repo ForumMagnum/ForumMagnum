@@ -80,6 +80,7 @@ importComponent("EAVotingPortalSelectCandidatesPage", () => require('../componen
 importComponent("EAVotingPortalComparePage", () => require('../components/ea-forum/voting-portal/EAVotingPortalComparePage'));
 importComponent("EAVotingPortalAllocateVotesPage", () => require('../components/ea-forum/voting-portal/EAVotingPortalAllocateVotesPage'));
 importComponent("EAVotingPortalSubmitPage", () => require('../components/ea-forum/voting-portal/EAVotingPortalSubmitPage'));
+importComponent("VotingPortalThankYou", () => require('../components/ea-forum/voting-portal/VotingPortalThankYou'));
 
 importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
