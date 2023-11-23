@@ -19,7 +19,10 @@ const BACKGROUND_IMAGE = makeCloudinaryImageUrl(votingThankYouImageId, {
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
-  thankYouImage: {
+  thankYouLayout: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     backgroundImage: `url(${BACKGROUND_IMAGE})`,
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
@@ -27,10 +30,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAVotingPortalPage = ({classes}: {classes: ClassesType}) => {
+const EAVotingPortalPage = ({classes}: {
+  classes: ClassesType<typeof styles>,
+}) => {
   const {search} = useLocation();
   const params = new URLSearchParams(search);
-  const isThankYouPage = params.get("complete") === "true";
+  const isThankYouPage = params.get("thankyou") === "true";
 
   // TODO un-admin-gate when the voting portal is ready
   const currentUser = useCurrentUser();
@@ -46,10 +51,10 @@ const EAVotingPortalPage = ({classes}: {classes: ClassesType}) => {
         <link rel="preload" as="image" href={BACKGROUND_IMAGE} />
       </Helmet>
       <div className={classNames(classes.root, {
-        [classes.thankYouImage]: isThankYouPage,
+        [classes.thankYouLayout]: isThankYouPage,
       })}>
         {isThankYouPage
-          ? <VotingPortalThankYou />
+          ? <VotingPortalThankYou currentUser={currentUser} />
           : (
             <div className={classes.content} id="top">
               <div className={classes.h1}>
