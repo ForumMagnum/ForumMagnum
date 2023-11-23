@@ -19,6 +19,9 @@
           },
           {
             "name": "Revision"
+          },
+          {
+            "name": "ElectionVote"
           }
         ]
       }
