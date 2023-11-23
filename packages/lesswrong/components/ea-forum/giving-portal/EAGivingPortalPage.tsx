@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Components, getSiteUrl, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle } from "../../../lib/crud/withSingle";
-import { useMulti } from "../../../lib/crud/withMulti";
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
@@ -16,6 +15,7 @@ import {
   donationElectionTagId,
   eaGivingSeason23ElectionName,
   effectiveGivingTagId,
+  heroImageId,
   postsAboutElectionLink,
   setupFundraiserLink,
   timelineSpec,
@@ -26,10 +26,6 @@ import { useMessages } from "../../common/withMessages";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
-import { useCurrentTime } from "../../../lib/utils/timeUtil";
-import moment from "moment";
-import { useTimezone } from "../../common/withTimezone";
-import { frontpageDaysAgoCutoffSetting } from "../../../lib/scoring";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
@@ -252,7 +248,12 @@ const styles = (theme: ThemeType) => ({
   w100: { width: "100%" },
 });
 
-const getListTerms = ({ tagId, sortedBy, limit, after }: { tagId: string; sortedBy: PostSortingModeWithRelevanceOption; limit: number, after: string }): PostsViewTerms => ({
+const getListTerms = ({ tagId, sortedBy, limit, after }: {
+  tagId: string,
+  sortedBy: PostSortingModeWithRelevanceOption,
+  limit: number,
+  after?: string,
+}): PostsViewTerms => ({
   filterSettings: {
     tags: [
       {
@@ -282,8 +283,6 @@ const canonicalUrl = getSiteUrl() + "giving-portal";
 
 const pageDescription = "It's Giving season on the EA Forum. We're hosting a Donation Election, weekly themes, and more throughout November and December 2023.";
 
-const heroImage = "giving_portal_23_hero";
-
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
   ar: "16:9",
@@ -294,7 +293,7 @@ const socialImageProps: CloudinaryPropsType = {
   f: "auto",
 };
 
-const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
+const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { data: amountRaised, loading: amountRaisedLoading } = useAmountRaised(eaGivingSeason23ElectionName);
 
   const {
@@ -307,11 +306,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",
   });
-  const {document: effectiveGivingTag} = useSingle({
-    documentId: effectiveGivingTagId,
-    collectionName: "Tags",
-    fragmentName: "TagBasicInfo",
-  });
+  /*
   const {
     results: relevantSequences,
     loading: loadingRelevantSequences,
@@ -322,16 +317,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
       "wog9xb8cdqDySbBvM", // TODO: Add more sequences here
     ]},
   });
+   */
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const [notifyForVotingOn, setNotifyForVotingOn] = useState(currentUser?.givingSeasonNotifyForVoting ?? false);
   const {flash} = useMessages();
   const {openDialog} = useDialog();
   const { captureEvent } = useTracking({ eventProps: { pageContext: "eaGivingPortal" } });
-
-  const { timezone } = useTimezone();
-  const now = useCurrentTime();
-  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
 
   const toggleNotifyWhenVotingOpens = useCallback(() => {
     captureEvent('toggleNotifyWhenVotingOpens', { notifyForVotingOn: !notifyForVotingOn })
@@ -348,7 +340,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     flash(`Notifications ${notifyForVotingOn ? "disabled" : "enabled"}`);
   }, [captureEvent, notifyForVotingOn, currentUser, updateCurrentUser, flash, openDialog]);
 
-  const effectiveGivingPostsTerms = getListTerms({ tagId: effectiveGivingTagId, sortedBy: "magic", limit: 8, after: dateCutoff });
+  const donationElectionPostsTerms = getListTerms({
+    tagId: donationElectionTagId,
+    sortedBy: "magic",
+    limit: 8,
+  });
 
   const totalRaisedFormatted = formatDollars(amountRaised.totalRaised);
   const raisedForElectionFundFormatted = formatDollars(amountRaised.raisedForElectionFund);
@@ -356,7 +352,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
 
   const {
     Loading, LoadMore, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
-    ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, EASequenceCard,
+    ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, QuickTakesList,
   } = Components;
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
@@ -366,7 +362,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
           canonicalUrl={canonicalUrl}
           ogUrl={canonicalUrl}
           description={pageDescription}
-          image={makeCloudinaryImageUrl(heroImage, socialImageProps)}
+          image={makeCloudinaryImageUrl(heroImageId, socialImageProps)}
         />
         <div className={classNames(classes.content, classes.mb20)} id="top">
           <div className={classNames(classes.h1, classes.center, classes.mt30)}>
@@ -399,7 +395,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 <span className={classes.bold}>
                 Contribute to the Donation Election Fund to encourage more discussion about donation choice and effective giving.
                 </span>{" "}
-                The fund will be designated for the top 3 winners in the Donation Election. It's matched up to $5,000.{" "}
+                The fund will be designated for the top 3 winners in the Donation Election.{" "}
                 <Link to={donationElectionLink}>Learn more</Link>.
               </div>
               <div className={classNames(classes.row, classes.mt20)}>
@@ -489,7 +485,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
             </div>
           </div>
         </div>
-        <CloudinaryImage2 publicId={heroImage} fullWidthHeader imgProps={{ h: "1200" }} />
+        <CloudinaryImage2 publicId={heroImageId} fullWidthHeader imgProps={{ h: "1200" }} />
         <div className={classes.sectionLight}>
           <div className={classes.content}>
             <div className={classNames(
@@ -498,22 +494,30 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
               classes.mb80,
             )} id="posts">
               <div className={classNames(classes.h2, classes.primaryText)}>
-                Recent posts tagged &quot;Effective giving&quot;
+                Posts tagged &quot;Donation Election 2023&quot;
               </div>
               <div className={classNames(
                 classes.postsList,
                 classes.primaryLoadMore,
               )}>
                 <PostsList2
-                  terms={effectiveGivingPostsTerms}
+                  terms={donationElectionPostsTerms}
                   loadMoreMessage="View more"
                 />
               </div>
-              <div className={classes.rowThin}>
-                <Link to={`/topics/${effectiveGivingTag?.slug}`} className={classes.button}>
-                  Contribute to the discussion
-                </Link>
+              <div className={classNames(
+                classes.h2,
+                classes.primaryText,
+                classes.mt30,
+              )}>
+                Quick takes tagged &quot;Effective Giving&quot;
               </div>
+              <QuickTakesList
+                showCommunity
+                tagId={effectiveGivingTagId}
+                maxAgeDays={30}
+                className={classNames(classes.postsList, classes.primaryLoadMore)}
+              />
             </div>
           </div>
         </div>

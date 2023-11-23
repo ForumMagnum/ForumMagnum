@@ -1,11 +1,10 @@
 import { isServer, getServerPort } from './executionEnvironment';
 import qs from 'qs';
-import React, { useContext } from 'react';
-import { LocationContext, NavigationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType } from './vulcan-core/appContext';
+import React, { useCallback, useContext } from 'react';
+import { LocationContext, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from './vulcan-core/appContext';
 import type { RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
-import type { History } from 'history';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -49,12 +48,22 @@ export const useSubscribedLocation = (): RouterLocation => {
   return useContext(SubscribeLocationContext)!;
 }
 
-// React Hook which returns an acessor-object for page navigation. Contains one
-// field, `history`. See https://github.com/ReactTraining/history for
-// documentation on it.
-// Use of this hook will never trigger rerenders.
-export const useNavigation = (): { history: History } => {
-  return useContext(NavigationContext);
+export type NavigateFunction = AnyBecauseTodo
+/**
+ * React Hook which returns an acessor-object for page navigation. Contains one
+ * field, `history`. See https://github.com/ReactTraining/history for
+ * documentation on it.
+ * Use of this hook will never trigger rerenders.
+ */
+export const useNavigate = (): NavigateFunction => {
+  const { history } = useContext(NavigationContext);
+  return useCallback((url: string, options?: {replace?: boolean}) => {
+    if (options?.replace) {
+      history.replace(url);
+    } else {
+      history.push(url);
+    }
+  }, [history]);
 }
 
 // HoC which adds a `location` property to an object, which contains the page
@@ -69,22 +78,6 @@ export const withLocation = (WrappedComponent: any) => {
         />
       }
     </LocationContext.Consumer>
-  );
-}
-
-// HoC which adds a `history` property to an object, which is a history obejct
-// as doumented on https://github.com/ReactTraining/history .
-// This HoC will never trigger rerenders.
-export const withNavigation = (WrappedComponent: any) => {
-  return (props: AnyBecauseTodo) => (
-    <NavigationContext.Consumer>
-      {navigation =>
-        <WrappedComponent
-          {...props}
-          history={navigation.history}
-        />
-      }
-    </NavigationContext.Consumer>
   );
 }
 

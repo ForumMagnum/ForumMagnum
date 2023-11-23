@@ -604,6 +604,19 @@ export const NewRSVPNotification = serverRegisterNotificationType({
   },
 });
 
+export const KarmaPowersGainedNotification = serverRegisterNotificationType({
+  name: "karmaPowersGained",
+  canCombineEmails: false,
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    return "Thank you for your contribution";
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    return <div>
+      Your votes are stronger because your karma went up!
+    </div>
+  },
+});
+
 export const NewGroupOrganizerNotification = serverRegisterNotificationType({
   name: "newGroupOrganizer",
   canCombineEmails: false,

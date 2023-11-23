@@ -14,11 +14,13 @@ import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
+import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { gql, useMutation } from "@apollo/client";
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/PostsEditForm';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -503,7 +505,10 @@ const CKPostEditor = ({
         const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
         if (post.collabEditorDialogue) {
           const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
-          const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
+          const coauthors = uniqBy(
+            rawAuthors.filter(coauthor => userIds.includes(coauthor._id)),
+            (user) => user._id,
+          );
           editor.model.document.registerPostFixer( createDialoguePostFixer(editor, coauthors) );
 
           // This is just to trigger the postFixer when the editor is initialized
@@ -629,7 +634,7 @@ const CKPostEditor = ({
         dialogues: dialogueConfiguration
       }}
     />}
-    {post.collabEditorDialogue ? <DialogueEditorFeedback post={post} /> : null}
+    {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
   </div>
 }
 

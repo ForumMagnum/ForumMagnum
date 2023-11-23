@@ -11,34 +11,29 @@ import { updateMutator, createMutator, deleteMutator } from '../vulcan-lib';
 import { getCommentAncestorIds } from '../utils/commentTreeUtils';
 import { recalculateAFCommentMetadata } from './alignment-forum/alignmentCommentCallbacks';
 import { getCollectionHooks, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { REJECTED_COMMENT } from '../../lib/collections/moderatorActions/schema';
 import { captureEvent } from '../../lib/analyticsEvents';
+import { adminAccountSetting } from '../../lib/publicSettings';
 
 
 const MINIMUM_APPROVAL_KARMA = 5
 
-// This should get refactored someday to be more forum-neutral
-const adminTeamUserData = forumTypeSetting.get() === 'EAForum' ?
-  {
-    username: "AdminTeam",
-    email: "forum@effectivealtruism.org"
-  } :
-  {
-    username: forumTypeSetting.get(),
-    email: "team@lesswrong.com"
-  }
 
 export const getAdminTeamAccount = async () => {
-  let account = await Users.findOne({username: adminTeamUserData.username});
+  const adminAccountData = adminAccountSetting.get();
+  if (!adminAccountData) {
+    return null;
+  }
+  let account = await Users.findOne({username: adminAccountData.username});
   if (!account) {
     const newAccount = await createMutator({
       collection: Users,
-      document: adminTeamUserData,
+      document: adminAccountData,
       validate: false,
     })
     return newAccount.data
@@ -313,7 +308,7 @@ async function commentsRejectSendPMAsync (comment: DbComment, currentUser: DbUse
   let messageContents = getRejectionMessage(rejectedContentLink, comment.rejectedReason)
   
   // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can reject comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-  const noEmail = forumTypeSetting.get() === "EAForum" 
+  const noEmail = isEAForum 
   ? false 
   : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
 
@@ -342,8 +337,12 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
         : null
       );
     const moderatingUser = comment.deletedByUserId ? await Users.findOne(comment.deletedByUserId) : null;
-    const lwAccount = await getAdminTeamAccount();
     const commentUser = await Users.findOne({_id: comment.userId})
+    const lwAccount = await getAdminTeamAccount() ?? commentUser;
+    if (!lwAccount) {
+      // Something has gone horribly wrong
+      throw new Error("Could not find admin account to send PM from");
+    }
 
     let messageContents =
         `<div>
@@ -358,7 +357,7 @@ export async function commentsDeleteSendPMAsync (comment: DbComment, currentUser
     }
 
     // EAForum always sends an email when deleting comments. Other ForumMagnum sites send emails if the user has been approved, but not otherwise (so that admins can delete comments by mediocre users without sending them an email notification that might draw their attention back to the site.)
-    const noEmail = forumTypeSetting.get() === "EAForum" 
+    const noEmail = isEAForum
     ? false 
     : !(!!commentUser?.reviewedByUserId && !commentUser.snoozedUntilContentCount)
 

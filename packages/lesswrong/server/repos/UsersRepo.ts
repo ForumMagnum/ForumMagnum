@@ -182,7 +182,13 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         u."groups",
         u."groups" @> ARRAY['alignmentForum'] AS "af",
         u."profileTagIds" AS "tags",
-        u."mapLocation"->'geometry'->'location' AS "_geoloc",
+        CASE WHEN u."mapLocation"->'geometry'->'location' IS NULL THEN NULL ELSE
+          JSONB_BUILD_OBJECT(
+            'type', 'point',
+            'coordinates', JSONB_BUILD_ARRAY(
+              u."mapLocation"->'geometry'->'location'->'lng',
+              u."mapLocation"->'geometry'->'location'->'lat'
+          )) END AS "_geoloc",
         u."mapLocation"->'formatted_address' AS "mapLocationAddress",
         NOW() AS "exportedAt"
       FROM "Users" u
@@ -278,7 +284,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `)
   }  
 
-  async getUsersTopUpvotedUsers(user:DbUser, limit = 30): Promise<UpvotedUser[]> {
+  async getUsersTopUpvotedUsers(user:DbUser, limit = 20, recencyLimitDays = 10): Promise<UpvotedUser[]> {
     const karma = user?.karma ?? 0
     const smallVotePower = calculateVotePower(karma, "smallUpvote");
     const bigVotePower = calculateVotePower(karma, "bigUpvote");
@@ -332,6 +338,22 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
             AND u._id != $1
             AND v."votedAt" > NOW() - INTERVAL '1.5 years'
             AND v."cancelled" IS NOT TRUE
+    ),
+
+    "UserChecks" AS (
+      SELECT
+          u._id,
+          COALESCE(
+              EXISTS (
+                  SELECT 1
+                  FROM "DialogueChecks" as dc
+                  WHERE
+                      dc."userId" = u._id
+                      AND "checkedAt" > NOW() - INTERVAL '$5 days'
+              ),
+              FALSE
+          ) AS recently_active_matchmaking
+      FROM "Users" as u
     )
   
     SELECT
@@ -346,12 +368,55 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
           SELECT val
           FROM UNNEST(ARRAY_AGG(agreement_value)) AS val
           WHERE val != 0
-      ) AS agreement_values
-    FROM "CombinedVotes"
-    GROUP BY user_id, user_username, user_displayName
+      ) AS agreement_values,
+      uc.recently_active_matchmaking
+    FROM "CombinedVotes" as cv
+    LEFT JOIN "UserChecks" AS uc ON cv.user_id = uc._id
+    GROUP BY 
+      user_id, 
+      user_username, 
+      user_displayName,
+      uc.recently_active_matchmaking
     HAVING SUM(vote_power) > 1
     ORDER BY total_power DESC
     LIMIT $4;
-      `, [user._id, smallVotePower, bigVotePower, limit])
+      `, [user._id, smallVotePower, bigVotePower, limit, recencyLimitDays])
+  }
+
+
+  async getDialogueMatchedUsers(userId: string): Promise<DbUser[]> {
+    return this.any(`
+      SELECT DISTINCT(u.*)
+      FROM "DialogueChecks" other_users_checks
+      JOIN "DialogueChecks" current_user_checks
+      -- Join such that there must exist reciprocal checks
+      ON (
+        other_users_checks."targetUserId" = current_user_checks."userId"
+        AND current_user_checks."targetUserId" = other_users_checks."userId"
+        AND other_users_checks.checked IS TRUE
+        AND current_user_checks.checked IS TRUE
+      )
+      JOIN "Users" u
+      -- Given those, join for users who've created checks on you
+      ON (
+        other_users_checks."userId" = u._id
+        AND other_users_checks."targetUserId" = $1
+        AND current_user_checks."userId" = $1
+      )
+    `, [userId]);
+  }
+
+  async getActiveDialogueMatchSeekers(limit: number): Promise<DbUser[]> {
+    return this.manyOrNone(`
+      SELECT  
+        u.*,
+        MAX(dc."checkedAt") AS "mostRecentCheckedAt"
+      FROM public."Users" AS u
+      LEFT JOIN public."DialogueChecks" AS dc ON u._id = dc."userId"
+      WHERE u."optedInToDialogueFacilitation" IS TRUE OR dc."userId" IS NOT NULL
+      GROUP BY u._id
+      ORDER BY "mostRecentCheckedAt" ASC
+      LIMIT $1;
+    `, [limit])
   }
 }

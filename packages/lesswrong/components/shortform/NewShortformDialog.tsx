@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import DialogContent from '@material-ui/core/DialogContent';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useNavigation } from '../../lib/routeUtil';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = (_theme: ThemeType) => ({
   content: {
     // This subselector is needed to beat the specificity of the default
     // MUI styles
     "&:first-child": {
-      padding: isEAForum ? 0 : undefined,
+      padding: isFriendlyUI ? 0 : undefined,
     },
   },
   dialogPaper: {
-    maxWidth: isEAForum ? 750 : undefined,
+    maxWidth: isFriendlyUI ? 750 : undefined,
   },
 });
 
@@ -22,23 +22,23 @@ const NewShortformDialog = ({onClose, classes}: {
   classes: ClassesType,
 }) => {
   const [open, setOpen] = useState(true);
-  const {history} = useNavigation();
+  const navigate = useNavigate();
   const {ShortformSubmitForm, LWDialog} = Components;
   return (
     <LWDialog
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth={isEAForum ? "md" : "sm"}
-      disableBackdropClick={isEAForum}
-      disableEscapeKeyDown={isEAForum}
+      maxWidth={isFriendlyUI ? "md" : "sm"}
+      disableBackdropClick={isFriendlyUI}
+      disableEscapeKeyDown={isFriendlyUI}
       dialogClasses={{paper: classes.dialogPaper}}
     >
       <DialogContent className={classes.content}>
         <ShortformSubmitForm
           successCallback={() => {
             onClose();
-            history.push(isEAForum ? '/quicktakes' : '/shortform');
+            navigate(isFriendlyUI ? '/quicktakes' : '/shortform');
           }}
           cancelCallback={() => {
             setOpen(false);
@@ -61,4 +61,3 @@ declare global {
     NewShortformDialog: typeof NewShortformDialogComponent
   }
 }
-

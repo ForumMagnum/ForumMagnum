@@ -22,11 +22,14 @@ import { userHasEAHomeRHS } from '../../lib/betas';
 import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
 import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
 import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
-import { googlePodcastsLogoIcon } from '../icons/GooglePodcastsLogoIcon';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
+import { podcastAddictLogoIcon } from '../icons/PodcastAddictLogoIcon';
+import { useAmountRaised, useIsGivingSeason } from './giving-portal/hooks';
+import { eaGivingSeason23ElectionName } from '../../lib/eaGivingSeason';
+import { formatStat } from '../users/EAUserTooltipContent';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     paddingRight: 50,
     marginTop: 10,
@@ -236,6 +239,54 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: 600,
     fontSize: 13,
   },
+  givingSeason: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: "12px",
+    width: "100%",
+    maxWidth: 280,
+    background: theme.palette.grey[0],
+    borderRadius: theme.borderRadius.default,
+    padding: 16,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 16,
+    fontWeight: 700,
+    color: theme.palette.givingPortal[1000],
+    marginBottom: 32,
+  },
+  givingSeasonAmount: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: "8px",
+    width: "100%",
+    color: theme.palette.grey[1000],
+    fontSize: 14,
+  },
+  givingSeasonProgress: {
+    background: theme.palette.givingPortal.homepageHeader.light1,
+    borderRadius: theme.borderRadius.small,
+    overflow: "hidden",
+    width: "100%",
+    height: 8,
+    "& *": {
+      height: "100%",
+      background: theme.palette.givingPortal.homepageHeader.main,
+    },
+  },
+  givingSeasonLearnMore: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.grey[600],
+    "& a": {
+      textDecoration: "underline",
+      "&:hover": {
+        textDecoration: "none",
+        opacity: 1,
+      },
+    },
+  },
 });
 
 /**
@@ -247,7 +298,7 @@ const styles = (theme: ThemeType): JssStyles => ({
  * See RecentDiscussionSubscribeReminder.tsx for the other component.
  */
 const DigestAd = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
@@ -384,7 +435,7 @@ const DigestAd = ({classes}: {
  * This is a list of upcoming (nearby) events. It uses logic similar to EventsList.tsx.
  */
 const UpcomingEventsSection = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone()
   const currentUser = useCurrentUser()
@@ -423,7 +474,7 @@ const UpcomingEventsSection = ({classes}: {
       </LWTooltip>
       {upcomingEvents?.map(event => {
         const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
-        return <div key={event._id} className={classes.post}>
+        return <div key={event._id}>
           <div className={classes.postTitle}>
             <PostsItemTooltipWrapper post={event} As="span">
               <Link to={postGetPageUrl(event)} className={classes.postTitleLink}>
@@ -449,8 +500,13 @@ const UpcomingEventsSection = ({classes}: {
  * This is the primary EA Forum home page right-hand side component.
  */
 export const EAHomeRightHandSide = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
+  const isGivingSeason = useIsGivingSeason();
+  const {
+    data: amountRaised,
+    loading: amountRaisedLoading,
+  } = useAmountRaised(eaGivingSeason23ElectionName);
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
@@ -496,7 +552,10 @@ export const EAHomeRightHandSide = ({classes}: {
 
   if (!userHasEAHomeRHS(currentUser)) return null
   
-  const { SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon } = Components
+  const {
+    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon,
+    Loading,
+  } = Components
   
   const sidebarToggleNode = <div className={classes.sidebarToggle} onClick={handleToggleSidebar}>
     <LWTooltip title={isHidden ? 'Show sidebar' : 'Hide sidebar'}>
@@ -528,15 +587,39 @@ export const EAHomeRightHandSide = ({classes}: {
     icon: pocketCastsLogoIcon,
     name: 'Pocket Casts'
   }, {
-    url: 'https://podcasts.google.com/feed/aHR0cHM6Ly9mb3J1bS1wb2RjYXN0cy5lZmZlY3RpdmVhbHRydWlzbS5vcmcvZWEtZm9ydW0tLWFsbC1hdWRpby5yc3M',
-    icon: googlePodcastsLogoIcon,
-    name: 'Google Podcasts'
+    url: 'https://podcastaddict.com/podcast/ea-forum-podcast-curated-popular/4160487',
+    icon: podcastAddictLogoIcon,
+    name: 'Podcast Addict'
   }]
   const podcastPost = '/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
   return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}
     <div className={classes.root}>
+      {/* TODO: Remove after giving season ends */}
+      {isGivingSeason &&
+        <div className={classes.givingSeason}>
+          <div>Donate to the Election Fund</div>
+          <div className={classes.givingSeasonAmount}>
+            {amountRaisedLoading && <Loading />}
+            {amountRaised?.raisedForElectionFund > 0 &&
+              <>
+                <div className={classes.givingSeasonProgress}>
+                  <div style={{
+                    width: `${100 * amountRaised.raisedForElectionFund / amountRaised.electionFundTarget}%`,
+                  }} />
+                </div>
+                ${formatStat(Math.round(amountRaised.raisedForElectionFund))} raised so far
+              </>
+            }
+          </div>
+          <div className={classes.givingSeasonLearnMore}>
+            The fund will be designated for the top 3 candidates, based on
+            Forum users' votes. <Link to="giving-portal">Learn more</Link>
+          </div>
+        </div>
+      }
+
       {digestAdNode}
       
       <AnalyticsContext pageSubSectionContext="resources">
@@ -584,7 +667,7 @@ export const EAHomeRightHandSide = ({classes}: {
               noBottomPadding
             />
           </LWTooltip>
-          {opportunityPosts?.map(post => <div key={post._id} className={classes.post}>
+          {opportunityPosts?.map(post => <div key={post._id}>
             <div className={classes.postTitle}>
               <PostsItemTooltipWrapper post={post} As="span">
                 <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
@@ -616,7 +699,7 @@ export const EAHomeRightHandSide = ({classes}: {
               postAuthor = post.user.displayName
             }
             const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
-            return <div key={post._id} className={classes.post}>
+            return <div key={post._id}>
               <div className={classes.postTitle}>
                 <PostsItemTooltipWrapper post={post} As="span">
                   <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
