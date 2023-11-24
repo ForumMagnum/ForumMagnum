@@ -20,7 +20,6 @@ const styles = (theme: ThemeType) => ({
     maxWidth: "100%",
   },
   dropdown: {
-
     "& .ForumDropdownMultiselect-button": {
       color: theme.palette.givingPortal[1000],
       fontSize: 16,
@@ -43,7 +42,14 @@ const sortOptions: Record<ElectionCandidatesSort, SettingsOption> = {
   },
 };
 
-const ElectionCandidatesList = ({className, classes}: {
+const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect, className, classes}: {
+  /**
+   * - "preVote": selecting a candidate (instantly) adds a pre-vote for it
+   * - "select"
+   */
+  type?: "preVote" | "select",
+  selectedCandidateIds?: string[],
+  onSelect?: (candidateId: string) => void,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -59,16 +65,16 @@ const ElectionCandidatesList = ({className, classes}: {
   const {Loading, ElectionCandidate, ForumDropdown} = Components;
   return (
     <div className={classNames(classes.root, className)}>
-      <ForumDropdown
-        value={sortBy}
-        options={sortOptions}
-        onSelect={onSelectSort}
-        className={classes.dropdown}
-      />
+      <ForumDropdown value={sortBy} options={sortOptions} onSelect={onSelectSort} className={classes.dropdown} />
       <div className={classes.grid}>
         {loading && <Loading white />}
         {results?.map((candidate) => (
-          <ElectionCandidate candidate={candidate} key={candidate._id} />
+          <ElectionCandidate
+            type={type}
+            selected={selectedCandidateIds?.includes(candidate._id)}
+            candidate={candidate}
+            key={candidate._id}
+          />
         ))}
       </div>
     </div>

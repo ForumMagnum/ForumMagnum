@@ -91,10 +91,15 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ElectionCandidate = ({candidate, classes}: {
+const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, classes}: {
   candidate: ElectionCandidateBasicInfo,
+  type?: "preVote" | "select",
+  selected?: boolean,
+  onSelect?: (candidateId: string) => void,
   classes: ClassesType,
 }) => {
+  const isSelect = type === "select";
+
   const votingProps = useVote(
     candidate,
     "ElectionCandidates",
@@ -129,13 +134,13 @@ const ElectionCandidate = ({candidate, classes}: {
             </Link>
           </div>
           <div className={classes.metaInfo}>
-            <span className={classes.preVotes}>
+            {!isSelect && <span className={classes.preVotes}>
               <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
               {preVoteCountString}
-            </span>
+            </span>}
+            {!isSelect && tag && ", "}
             {tag &&
               <>
-                {", "}
                 <LWTooltip
                   title={`View ${postCountString} tagged “${tag.name}” and “Donation Election (2023)”`}
                   placement="bottom"
@@ -149,7 +154,7 @@ const ElectionCandidate = ({candidate, classes}: {
             }
           </div>
         </div>
-        <PreVoteButton {...votingProps} className={classes.preVoteButton} />
+        {!isSelect && <PreVoteButton {...votingProps} className={classes.preVoteButton} />}
       </div>
     </AnalyticsContext>
   );
