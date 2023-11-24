@@ -6,6 +6,8 @@ import { getVotingSystemByName } from "../../../lib/voting/votingSystems";
 import { donationElectionTagId } from "../../../lib/eaGivingSeason";
 import classNames from "classnames";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import Checkbox from "@material-ui/core/Checkbox";
+import { requireCssVar } from "../../../themes/cssVars";
 
 const imageSize = 52;
 
@@ -72,6 +74,10 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     letterSpacing: "-0.14px",
   },
+  checkboxPadding: {
+    padding: 6,
+    marginRight: -12
+  },
   preVotes: {
     opacity: 0.8,
   },
@@ -119,9 +125,19 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
   const {PreVoteButton, ForumIcon, LWTooltip} = Components;
   return (
     <AnalyticsContext pageElementContext="electionCandidate">
-      <div className={classNames(classes.root, {
-        [classes.rootVoted]: hasVoted,
-      })}>
+      <div
+        className={classNames(classes.root, {
+          [classes.rootVoted]: hasVoted,
+        })}
+      >
+        {isSelect && (
+          <Checkbox
+            className={classes.checkboxPadding}
+            style={{ color: requireCssVar("palette", "givingPortal", 1000) }}
+            checked={selected}
+            onChange={() => onSelect?.(candidate._id)}
+          />
+        )}
         <div className={classes.imageContainer}>
           <Link to={fundraiserLink}>
             <img src={logoSrc} className={classes.image} />
@@ -129,17 +145,17 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
         </div>
         <div className={classes.details}>
           <div className={classes.name}>
-            <Link to={fundraiserLink}>
-              {name}
-            </Link>
+            <Link to={fundraiserLink}>{name}</Link>
           </div>
           <div className={classes.metaInfo}>
-            {!isSelect && <span className={classes.preVotes}>
-              <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
-              {preVoteCountString}
-            </span>}
+            {!isSelect && (
+              <span className={classes.preVotes}>
+                <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
+                {preVoteCountString}
+              </span>
+            )}
             {!isSelect && tag && ", "}
-            {tag &&
+            {tag && (
               <>
                 <LWTooltip
                   title={`View ${postCountString} tagged “${tag.name}” and “Donation Election (2023)”`}
@@ -151,7 +167,7 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
                   </a>
                 </LWTooltip>
               </>
-            }
+            )}
           </div>
         </div>
         {!isSelect && <PreVoteButton {...votingProps} className={classes.preVoteButton} />}
@@ -163,7 +179,7 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
 const ElectionCandidateComponent = registerComponent(
   "ElectionCandidate",
   ElectionCandidate,
-  {styles},
+  {styles,},
 );
 
 declare global {

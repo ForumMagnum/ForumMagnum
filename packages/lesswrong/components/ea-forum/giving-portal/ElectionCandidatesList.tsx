@@ -72,6 +72,7 @@ const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect,
           <ElectionCandidate
             type={type}
             selected={selectedCandidateIds?.includes(candidate._id)}
+            onSelect={onSelect}
             candidate={candidate}
             key={candidate._id}
           />
