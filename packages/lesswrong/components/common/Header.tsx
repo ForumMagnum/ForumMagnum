@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
@@ -187,7 +187,16 @@ const Header = ({
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
-  const { pathname } = useLocation()
+  const { pathname, hash } = useLocation()
+
+  useEffect(() => {
+    // When we move to a different page we will be positioned at the top of
+    // the page (unless the hash is set) but Headroom doesn't run this callback
+    // on navigation so we have to do it manually
+    if (!hash) {
+      setUnFixed(true);
+    }
+  }, [pathname, hash]);
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
