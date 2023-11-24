@@ -297,7 +297,7 @@ export const createSqlConnection = async (
         (extension) => new CreateExtensionQuery(extension).compile().sql,
       );
       queries = queries.concat(onConnectQueries);
-      await Promise.all(queries.map((query) => queryWithLock(client, query)));
+      await db.multi(queries.join(";"));
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("Failed to run Postgres onConnectQuery:", e);
