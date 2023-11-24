@@ -6,6 +6,14 @@ import { isAnyTest } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import type { DbTarget } from "../lib/sql/PgCollection";
 import CreateExtensionQuery from "../lib/sql/CreateExtensionQuery";
+import omit from "lodash/omit";
+import { logAllQueries } from "../lib/sql/sqlClient";
+
+const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
+
+export interface JsonArray extends ReadonlyArray<Json> {};
+export interface JsonRecord extends Record<string, Json> {};
+export type Json = boolean | number | string | null | JsonArray | JsonRecord;
 
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
@@ -66,13 +74,77 @@ export const pgPromiseLib = pgp({
  */
 const MAX_CONNECTIONS = parseInt(process.env.PG_MAX_CONNECTIONS ?? "25");
 
+const queryMethods = [
+  "none",
+  "one",
+  "oneOrNone",
+  "many",
+  "manyOrNone",
+  "any",
+  "multi",
+] as const;
+
+type SqlDescription = string | (() => string);
+
 declare global {
+  /**
+   * By default most args are passed in as an array of values,
+   * but you can also pass in named args as a record with field names corresponding to the named parameters in the query.
+   * Those should use the $() syntax - e.g. `$(postId)`
+   */
+  type SqlQueryArg = Json | Date | undefined;
+  type SqlQueryArgs = SqlQueryArg[] | Record<string, SqlQueryArg>;
+
   type RawSqlClient = IDatabase<{}>;
-  type SqlClient = RawSqlClient & {
+  type SqlClient = Omit<RawSqlClient, typeof queryMethods[number]> & {
     // We can't use `T extends DbObject` here because DbObject isn't available to the
     // migration bootstrapping code - `any` will do for now
     concat: (queries: Query<any>[]) => string;
     isTestingClient: boolean;
+
+    // We augment all the normal query functions with logging for slow queries
+    none: (
+      query: string,
+      values?: SqlQueryArgs,
+      describe?: SqlDescription,
+      quiet?: boolean,
+    ) => Promise<null>;
+    one: <T = any>(
+      query: string,
+      values?: SqlQueryArgs,
+      describe?: SqlDescription,
+      quiet?: boolean,
+    ) => Promise<T>;
+    oneOrNone: <T = any>(
+      query: string,
+      values?: SqlQueryArgs,
+      describe?: SqlDescription,
+      quiet?: boolean,
+    ) => Promise<T | null>;
+    many: <T = any>(
+      query: string,
+      values?: SqlQueryArgs,
+      describe?: SqlDescription,
+      quiet?: boolean,
+    ) => Promise<T[]>;
+    manyOrNone: <T = any>(
+      query: string,
+      values?: SqlQueryArgs,
+      describe?: SqlDescription,
+      quiet?: boolean,
+    ) => Promise<T[]>;
+    any: <T = any>(
+      query: string,
+      values?: SqlQueryArgs,
+      describe?: SqlDescription,
+      quiet?: boolean,
+    ) => Promise<T[]>;
+    multi: <T = any>(
+      query: string,
+      values?: SqlQueryArgs,
+      describe?: SqlDescription,
+      quiet?: boolean,
+    ) => Promise<T[][]>;
   };
 }
 
@@ -262,6 +334,62 @@ const onConnectQueries: string[] = [
   `,
 ];
 
+let queriesExecuted = 0;
+
+const logIfSlow = async <T>(
+  execute: () => Promise<T>,
+  describe: SqlDescription,
+  quiet?: boolean,
+) => {
+  const getDescription = (): string => {
+    const describeString = typeof describe === "string" ? describe : describe();
+    // Truncate this at a pretty high limit, just to avoid logging things like
+    // entire rendered pages
+    return describeString.slice(0, 5000);
+  }
+
+  const queryID = ++queriesExecuted;
+  if (logAllQueries) {
+    // eslint-disable-next-line no-console
+    console.log(`Running Postgres query #${queryID}: ${getDescription()}`);
+  }
+
+  const startTime = new Date().getTime();
+  const result = await execute();
+  const endTime = new Date().getTime();
+
+  const milliseconds = endTime - startTime;
+  if (logAllQueries) {
+    // eslint-disable-next-line no-console
+    console.log(`Finished query #${queryID} (${milliseconds} ms)`);
+  } else if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
+    // eslint-disable-next-line no-console
+    console.trace(`Slow Postgres query detected (${milliseconds} ms): ${getDescription()}`);
+  }
+
+  return result;
+}
+
+const wrapQueryMethod = <T>(
+  queryMethod: (query: string, values?: SqlQueryArgs) => Promise<T>,
+): ((
+  query: string,
+  values?: SqlQueryArgs,
+  describe?: SqlDescription,
+  quiet?: boolean,
+) => ReturnType<typeof queryMethod>) => {
+  return (
+    query: string,
+    values?: SqlQueryArgs,
+    describe?: SqlDescription,
+    quiet?: boolean,
+  ) => logIfSlow(
+    () => queryMethod(query, values),
+    describe ?? query,
+    quiet,
+  ) as ReturnType<typeof queryMethod>;
+}
+
 export const createSqlConnection = async (
   url?: string,
   isTestingClient = false,
@@ -279,7 +407,14 @@ export const createSqlConnection = async (
   });
 
   const client: SqlClient = {
-    ...db,
+    ...omit(db, queryMethods),
+    none: wrapQueryMethod(db.none),
+    one: wrapQueryMethod(db.one),
+    oneOrNone: wrapQueryMethod(db.oneOrNone),
+    many: wrapQueryMethod(db.many),
+    manyOrNone: wrapQueryMethod(db.manyOrNone),
+    any: wrapQueryMethod(db.any),
+    multi: wrapQueryMethod(db.multi),
     $pool: db.$pool, // $pool is accessed with magic and isn't copied by spreading
     concat: (queries: Query<any>[]): string => {
       const compiled = queries.map((query) => {

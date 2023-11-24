@@ -60,7 +60,7 @@ export class HybridView {
   protected indexQueryGenerators: ((viewName: string) => string)[];
   protected versionHash: string;
   protected identifier: string;
-  private viewSqlClient: RawSqlClient;
+  private viewSqlClient: RawSqlClient | SqlClient;
   private matViewName: string;
 
   constructor({

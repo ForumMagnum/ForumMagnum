@@ -1,7 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Votes from "../../lib/collections/votes/collection";
 import type { TagCommentType } from "../../lib/collections/comments/types";
-import { logIfSlow } from "../../lib/sql/sqlClient";
 import type { RecentVoteInfo } from "../../lib/rateLimits/types";
 export const RECENT_CONTENT_COUNT = 20
 
@@ -99,7 +98,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   }> {
     const powerField = af ? "afPower" : "power";
 
-    const allChanges = await logIfSlow(() => this.getRawDb().any(`
+    const allChanges = await this.getRawDb().any(`
       SELECT
         v.*,
         comment."contents"->'html' AS "commentHtml",
@@ -137,8 +136,9 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         AND revision._id = v._id
       )
       WHERE v."scoreChange" ${showNegative ? "<>" : ">"} 0
-    `, [userId, startDate, endDate]),
-      `getKarmaChanges(${userId}, ${startDate}, ${endDate})`
+    `,
+      [userId, startDate, endDate],
+      `getKarmaChanges(${userId}, ${startDate}, ${endDate})`,
     );
 
     let changedComments: CommentKarmaChange[] = [];
@@ -293,7 +293,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   }
 
   async getDigestPlannerVotesForPosts(postIds: string[]): Promise<Array<PostVoteCounts>> {
-    return await logIfSlow(async () => await this.getRawDb().manyOrNone(`
+    return this.getRawDb().manyOrNone(`
       SELECT p._id as "postId",
         count(v._id) FILTER(WHERE v."voteType" = 'smallUpvote') as "smallUpvoteCount",
         count(v._id) FILTER(WHERE v."voteType" = 'bigUpvote') as "bigUpvoteCount",
@@ -305,7 +305,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         AND v."collectionName" = 'Posts'
         AND v.cancelled = false
       GROUP BY p._id
-    `, [postIds]), "getDigestPlannerVotesForPosts");
+    `, [postIds], "getDigestPlannerVotesForPosts");
   }
 
   async getPostKarmaChangePerDay({ postIds, startDate, endDate }: { postIds: string[]; startDate?: Date; endDate: Date; }): Promise<{ window_start_key: string; karma_change: string }[]> {
