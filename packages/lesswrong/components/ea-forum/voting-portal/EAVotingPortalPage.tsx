@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { votingPortalStyles } from "./styles";
 import { useCurrentUser } from "../../common/withUser";
 import { isAdmin } from "../../../lib/vulcan-users";
-import { useLocation } from "react-router";
+import { useLocation } from "../../../lib/routeUtil";
 import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { votingThankYouImageId } from "../../../lib/eaGivingSeason";
 import Helmet from "react-helmet";
@@ -33,7 +33,7 @@ const styles = (theme: ThemeType) => ({
 const EAVotingPortalPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {search} = useLocation();
+  const {location: {search}} = useLocation();
   const params = new URLSearchParams(search);
   const isThankYouPage = params.get("thankyou") === "true";
 
