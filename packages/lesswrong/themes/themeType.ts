@@ -164,11 +164,14 @@ declare global {
         green: ColorString,
       },
 
-      debateComment: ColorString,
-      debateComment2: ColorString,
-      debateComment3: ColorString,
-      debateComment4: ColorString,
-      debateComment5: ColorString,
+      debateComment: {
+        [1]: ColorString,
+        [2]: ColorString,
+        [3]: ColorString,
+        [4]: ColorString,
+        [5]: ColorString,
+        [6]: ColorString,
+      },
     },
     linkHover: {
       dim: ColorString,
