@@ -204,8 +204,8 @@ const makeDialogueCommentStyles = (
 ) => {
   const count = 6;
   const result: JssStyles = {};
-  for (let i = 1; i <= count; i++) {
-    const color = theme.palette.text.debateComment[`${i as IntRange<1, 6>}`];
+  for (let i = 1 as IntRange<1, 7>; i <= count; i++) {
+    const color = theme.palette.text.debateComment[`${i}`];
     result[selector(i)] = style(color);
   }
   return result;
