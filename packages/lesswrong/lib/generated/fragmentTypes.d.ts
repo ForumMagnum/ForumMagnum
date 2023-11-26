@@ -3364,6 +3364,21 @@ interface WithVoteElectionCandidate { // fragment on ElectionCandidates
   readonly currentUserExtendedVote: any,
 }
 
+interface ElectionVotesDefaultFragment { // fragment on ElectionVotes
+  readonly electionName: string,
+  readonly userId: string,
+  readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly submittedAt: Date | null,
+}
+
+interface ElectionVoteInfo { // fragment on ElectionVotes
+  readonly _id: string,
+  readonly electionName: string,
+  readonly userId: string,
+  readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly submittedAt: Date | null,
+}
+
 interface TypingIndicatorInfo { // fragment on TypingIndicators
   readonly _id: string,
   readonly userId: string,
@@ -3660,6 +3675,8 @@ interface FragmentTypes {
   UserRateLimitDisplay: UserRateLimitDisplay
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   WithVoteElectionCandidate: WithVoteElectionCandidate
+  ElectionVotesDefaultFragment: ElectionVotesDefaultFragment
+  ElectionVoteInfo: ElectionVoteInfo
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
@@ -3881,6 +3898,8 @@ interface CollectionNamesByFragmentName {
   UserRateLimitDisplay: "UserRateLimits"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
+  ElectionVotesDefaultFragment: "ElectionVotes"
+  ElectionVoteInfo: "ElectionVotes"
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"

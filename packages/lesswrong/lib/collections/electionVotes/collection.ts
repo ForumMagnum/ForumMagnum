@@ -1,5 +1,5 @@
+import { ensureIndex } from "../../collectionIndexUtils";
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "../../collectionUtils";
-import { makeVoteable } from "../../make_voteable";
 import { createCollection } from "../../vulcan-lib";
 import schema from "./schema";
 
@@ -16,5 +16,7 @@ const ElectionVotes: ElectionVotesCollection = createCollection({
 addUniversalFields({
   collection: ElectionVotes,
 });
+
+ensureIndex(ElectionVotes, {electionName: 1, userId: 1}, {unique: true});
 
 export default ElectionVotes;

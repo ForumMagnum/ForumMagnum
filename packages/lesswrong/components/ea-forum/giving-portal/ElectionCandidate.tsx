@@ -139,13 +139,13 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
           />
         )}
         <div className={classes.imageContainer}>
-          <Link to={fundraiserLink}>
+          <Link to={fundraiserLink || ''}>
             <img src={logoSrc} className={classes.image} />
           </Link>
         </div>
         <div className={classes.details}>
           <div className={classes.name}>
-            <Link to={fundraiserLink}>{name}</Link>
+            <Link to={fundraiserLink || ''}>{name}</Link>
           </div>
           <div className={classes.metaInfo}>
             {!isSelect && (

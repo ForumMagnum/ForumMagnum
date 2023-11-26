@@ -1,5 +1,5 @@
-import SimpleSchema from "simpl-schema";
 import { foreignKeyField } from "../../utils/schemaUtils";
+import { userOwns } from "../../vulcan-users";
 
 const schema: SchemaType<DbElectionVote> = {
   /** The name of the election */
@@ -7,6 +7,9 @@ const schema: SchemaType<DbElectionVote> = {
     type: String,
     optional: false,
     nullable: false,
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
   },
   /** The user voting */
   userId: {
@@ -17,6 +20,9 @@ const schema: SchemaType<DbElectionVote> = {
       type: "User",
       nullable: false,
     }),
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
   },
   /**
    * Object like {'cF8iwCmwFjbmCqYkQ': 1, 'cF8iwCmwFjbmCqYkQ': 2} representing the (unnormalised) weights
@@ -28,11 +34,17 @@ const schema: SchemaType<DbElectionVote> = {
     blackbox: true,
     optional: true,
     nullable: true,
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
   },
   submittedAt: {
     type: Date,
     optional: true,
     nullable: true,
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
   },
 };
 

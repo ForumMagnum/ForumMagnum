@@ -352,14 +352,6 @@ interface DbElectionVote extends DbObject {
   submittedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
-  voteCount: number
-  baseScore: number
-  extendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  score: number
-  inactive: boolean
-  afBaseScore: number
-  afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
-  afVoteCount: number
 }
 
 interface ElicitQuestionPredictionsCollection extends CollectionBase<DbElicitQuestionPrediction, "ElicitQuestionPredictions"> {

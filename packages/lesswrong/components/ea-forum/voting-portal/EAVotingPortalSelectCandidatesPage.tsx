@@ -5,16 +5,47 @@ import { votingPortalStyles } from "./styles";
 import { useCurrentUser } from "../../common/withUser";
 import { isAdmin } from "../../../lib/vulcan-users";
 import { Link } from "../../../lib/reactRouterWrapper";
+import { useElectionVote } from "./hooks";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
 });
 
-// TODO: implement
-const EAVotingPortalSelectCandidatesPage = ({classes}: {classes: ClassesType}) => {
-  const { ElectionCandidatesList } = Components;
+const EAVotingPortalSelectCandidatesPageLoader = ({classes}: {classes: ClassesType}) => {
+  const { electionVote, updateVote } = useElectionVote('givingSeason23');
 
-  const [selectedCandidateIds, setSelectedCandidateIds] = useState<string[]>([]);
+  if (!electionVote) return null;
+
+  const selectedCandidateIds = Object.keys(electionVote);
+
+  return (
+    <EAVotingPortalSelectCandidatesPage
+      selectedCandidateIds={selectedCandidateIds}
+      electionVote={electionVote}
+      updateVote={updateVote}
+      classes={classes}
+    />
+  );
+}
+
+const EAVotingPortalSelectCandidatesPage = ({
+  selectedCandidateIds,
+  electionVote,
+  updateVote,
+  classes,
+}: {
+  selectedCandidateIds: string[];
+  electionVote: Record<string, number | null>;
+  updateVote: (newVote: Record<string, number | null>) => Promise<void>;
+  classes: ClassesType;
+}) => {
+  const { ElectionCandidatesList } = Components;
+  const [selectedIds, setSelectedCandidateIds] = useState<string[]>(selectedCandidateIds);
+
+  const saveSelection = useCallback(async () => {
+    await updateVote(selectedIds.reduce((acc, id) => ({ ...acc, [id]: electionVote[id] || null }), {}));
+  }, [electionVote, selectedIds, updateVote]);
+
   const onSelect = useCallback((candidateId: string) => {
     setSelectedCandidateIds((prev) => {
       if (prev.includes(candidateId)) {
@@ -42,7 +73,7 @@ const EAVotingPortalSelectCandidatesPage = ({classes}: {classes: ClassesType}) =
           </div>
           <ElectionCandidatesList
             type="select"
-            selectedCandidateIds={selectedCandidateIds}
+            selectedCandidateIds={selectedIds}
             onSelect={onSelect}
             className={classes.electionCandidates}
           />
@@ -50,11 +81,11 @@ const EAVotingPortalSelectCandidatesPage = ({classes}: {classes: ClassesType}) =
       </div>
     </AnalyticsContext>
   );
-}
+};
 
 const EAVotingPortalSelectCandidatesPageComponent = registerComponent(
   "EAVotingPortalSelectCandidatesPage",
-  EAVotingPortalSelectCandidatesPage,
+  EAVotingPortalSelectCandidatesPageLoader,
   {styles},
 );
 
