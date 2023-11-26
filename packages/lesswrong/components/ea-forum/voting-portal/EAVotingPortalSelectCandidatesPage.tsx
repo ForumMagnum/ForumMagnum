@@ -1,14 +1,33 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { votingPortalStyles } from "./styles";
 import { useCurrentUser } from "../../common/withUser";
 import { isAdmin } from "../../../lib/vulcan-users";
-import { Link } from "../../../lib/reactRouterWrapper";
+import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import { useElectionVote } from "./hooks";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
+  continueButton: {
+    flex: 1,
+    width: "100%",
+    maxWidth: 244,
+    height: 51,
+    alignSelf: "flex-end",
+  },
+  backLink: {
+    gap: "6px",
+    display: "flex",
+    alignItems: "center",
+  },
+  arrowIcon: {
+    fontSize: 18,
+  },
+  arrowLeft: {
+    transform: "rotate(180deg)",
+  },
 });
 
 const EAVotingPortalSelectCandidatesPageLoader = ({classes}: {classes: ClassesType}) => {
@@ -39,8 +58,10 @@ const EAVotingPortalSelectCandidatesPage = ({
   updateVote: (newVote: Record<string, number | null>) => Promise<void>;
   classes: ClassesType;
 }) => {
-  const { ElectionCandidatesList } = Components;
+  const { ElectionCandidatesList, ForumIcon } = Components;
   const [selectedIds, setSelectedCandidateIds] = useState<string[]>(selectedCandidateIds);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const navigate = useNavigate();
 
   const saveSelection = useCallback(async () => {
     await updateVote(selectedIds.reduce((acc, id) => ({ ...acc, [id]: electionVote[id] || null }), {}));
@@ -75,8 +96,30 @@ const EAVotingPortalSelectCandidatesPage = ({
             type="select"
             selectedCandidateIds={selectedIds}
             onSelect={onSelect}
+            setTotalCount={setTotalCount}
             className={classes.electionCandidates}
           />
+        </div>
+        <div className={classes.footer}>
+          <div className={classes.footerInner}>
+            <div className={classes.footerTopRow}>
+              <Link to="/voting-portal" className={classes.backLink}>
+                <ForumIcon icon="ArrowRight" className={classNames(classes.arrowIcon, classes.arrowLeft)} /> Go back
+              </Link>
+              <div>
+                Selected {selectedIds.length}/{totalCount} candidates
+              </div>
+            </div>
+            <button
+              onClick={async () => {
+                await saveSelection();
+                navigate({ pathname: "/voting-portal/compare" });
+              }}
+              className={classNames(classes.button, classes.continueButton)}
+            >
+              Continue <ForumIcon icon="ArrowRight" className={classes.arrowIcon} />
+            </button>
+          </div>
         </div>
       </div>
     </AnalyticsContext>

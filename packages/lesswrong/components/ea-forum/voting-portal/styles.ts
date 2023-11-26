@@ -4,6 +4,8 @@ export const votingPortalStyles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     minHeight: "100%",
+    display: "flex",
+    flexDirection: "column",
   },
   content: {
     display: "flex",
@@ -45,5 +47,56 @@ export const votingPortalStyles = (theme: ThemeType) => ({
         textDecoration: "underline",
       }
     }
-  }
+  },
+  footer: {
+    display: "flex",
+    marginTop: "auto",
+    justifyContent: "center",
+    backgroundColor: theme.palette.givingPortal[200],
+  },
+  footerInner: {
+    padding: "20px 40px",
+    display: "flex",
+    justifyContent: "space-between",
+    maxWidth: 1000,
+    width: "100%",
+    gap: "32px",
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+      gap: "20px",
+      padding: "20px 24px",
+    },
+  },
+  footerTopRow: {
+    display: "flex",
+    flex: 1,
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 20,
+    fontWeight: 600,
+    fontSize: 16,
+    color: theme.palette.givingPortal[1000],
+  },
+  button: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "6px",
+    fontSize: 16,
+    lineHeight: '22px',
+    fontWeight: 600,
+    borderRadius: theme.borderRadius.small,
+    padding: 16,
+    outline: "none",
+    textAlign: "center",
+    color: theme.palette.givingPortal.button.light,
+    backgroundColor: theme.palette.givingPortal.button.dark,
+    border: `1.5px solid ${theme.palette.givingPortal.button.dark}`,
+    "&:hover": {
+      opacity: 0.9,
+    },
+    "&:active": {
+      opacity: 0.8,
+    },
+  },
 });

@@ -29,6 +29,9 @@ const styles = (theme: ThemeType) => ({
   rootVoted: {
     backgroundColor: theme.palette.givingPortal.votedCandidate,
   },
+  rootSelected: {
+    backgroundColor: theme.palette.givingPortal[900],
+  },
   imageContainer: {
     borderRadius: theme.borderRadius.small,
     backgroundColor: theme.palette.grey[0],
@@ -127,7 +130,8 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
     <AnalyticsContext pageElementContext="electionCandidate">
       <div
         className={classNames(classes.root, {
-          [classes.rootVoted]: hasVoted,
+          [classes.rootVoted]: !isSelect && hasVoted,
+          [classes.rootSelected]: isSelect && selected,
         })}
       >
         {isSelect && (
@@ -139,13 +143,13 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
           />
         )}
         <div className={classes.imageContainer}>
-          <Link to={fundraiserLink || ''}>
+          <Link to={fundraiserLink || ""}>
             <img src={logoSrc} className={classes.image} />
           </Link>
         </div>
         <div className={classes.details}>
           <div className={classes.name}>
-            <Link to={fundraiserLink || ''}>{name}</Link>
+            <Link to={fundraiserLink || ""}>{name}</Link>
           </div>
           <div className={classes.metaInfo}>
             {!isSelect && (

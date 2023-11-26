@@ -42,19 +42,24 @@ const sortOptions: Record<ElectionCandidatesSort, SettingsOption> = {
   },
 };
 
-const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect, className, classes}: {
+const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect, setTotalCount, className, classes}: {
   /**
    * - "preVote": selecting a candidate (instantly) adds a pre-vote for it
-   * - "select"
+   * - "select": selecting a candidate runs the onSelect callback
    */
   type?: "preVote" | "select",
   selectedCandidateIds?: string[],
   onSelect?: (candidateId: string) => void,
+  setTotalCount?: (count: number) => void,
   className?: string,
   classes: ClassesType,
 }) => {
   const [sortBy, setSortBy] = useState<ElectionCandidatesSort>("mostPreVoted");
   const {results, loading} = useElectionCandidates(sortBy);
+
+  if (setTotalCount) {
+    setTotalCount(results?.length || 0);
+  }
 
   const onSelectSort = useCallback((value: string) => {
     if (isElectionCandidateSort(value)) {
