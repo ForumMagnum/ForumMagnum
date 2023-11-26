@@ -10,14 +10,11 @@ export const votingPortalStyles = (theme: ThemeType) => ({
   content: {
     display: "flex",
     flexDirection: "column",
-    padding: 40,
+    padding: "24px 24px 48px 24px",
     margin: "0 auto",
     maxWidth: 800,
     position: "relative",
     zIndex: theme.zIndexes.singleColumnSection,
-    [theme.breakpoints.down("md")]: {
-      padding: 24,
-    },
   },
   h1: {
     fontSize: 48,
@@ -33,7 +30,10 @@ export const votingPortalStyles = (theme: ThemeType) => ({
     lineHeight: "normal",
     letterSpacing: "-1.2px",
     color: theme.palette.givingPortal[1000],
-    marginBottom: 15
+    marginBottom: 15,
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 32,
+    },
   },
   subtitle: {
     fontWeight: 500,

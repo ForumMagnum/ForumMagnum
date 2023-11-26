@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.givingPortal.votedCandidate,
   },
   rootSelected: {
-    backgroundColor: theme.palette.givingPortal[900],
+    backgroundColor: theme.palette.givingPortal.selectedCandidate,
   },
   imageContainer: {
     borderRadius: theme.borderRadius.small,
