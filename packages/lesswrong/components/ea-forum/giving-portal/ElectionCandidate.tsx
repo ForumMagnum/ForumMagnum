@@ -77,7 +77,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     letterSpacing: "-0.14px",
   },
-  checkboxPadding: {
+  checkbox: {
     padding: 6,
     marginRight: -12
   },
@@ -104,7 +104,7 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
   candidate: ElectionCandidateBasicInfo,
   type?: "preVote" | "select",
   selected?: boolean,
-  onSelect?: (candidateId: string) => void,
+  onSelect?: (candidateIds: string[]) => void,
   classes: ClassesType,
 }) => {
   const isSelect = type === "select";
@@ -136,10 +136,10 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
       >
         {isSelect && (
           <Checkbox
-            className={classes.checkboxPadding}
+            className={classes.checkbox}
             style={{ color: requireCssVar("palette", "givingPortal", 1000) }}
             checked={selected}
-            onChange={() => onSelect?.(candidate._id)}
+            onChange={() => onSelect?.([candidate._id])}
           />
         )}
         <div className={classes.imageContainer}>

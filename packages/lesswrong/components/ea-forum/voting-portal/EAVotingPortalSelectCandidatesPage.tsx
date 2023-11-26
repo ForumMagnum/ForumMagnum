@@ -7,6 +7,7 @@ import { isAdmin } from "../../../lib/vulcan-users";
 import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import { useElectionVote } from "./hooks";
 import classNames from "classnames";
+import difference from "lodash/difference";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -67,13 +68,12 @@ const EAVotingPortalSelectCandidatesPage = ({
     await updateVote(selectedIds.reduce((acc, id) => ({ ...acc, [id]: electionVote[id] || null }), {}));
   }, [electionVote, selectedIds, updateVote]);
 
-  const onSelect = useCallback((candidateId: string) => {
+  const onSelect = useCallback((candidateIds: string[]) => {
     setSelectedCandidateIds((prev) => {
-      if (prev.includes(candidateId)) {
-        return prev.filter((id) => id !== candidateId);
-      } else {
-        return [...prev, candidateId];
-      }
+      const newIds = difference(candidateIds, prev);
+      const carriedIds = difference(prev, candidateIds);
+
+      return [...newIds, ...carriedIds];
     });
   }, []);
 
