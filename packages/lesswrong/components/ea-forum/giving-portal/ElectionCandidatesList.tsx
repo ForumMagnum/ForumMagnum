@@ -48,15 +48,22 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const sortOptions: Record<ElectionCandidatesSort, SettingsOption> = {
-  mostPreVoted: {
-    label: "Most pre-voted",
+const selectSortOptions: Record<Exclude<ElectionCandidatesSort, "mostPreVoted"> | "random", SettingsOption> = {
+  random: {
+    label: "Random (per user)",
   },
   name: {
     label: "Name A-Z",
   },
   recentlyAdded: {
     label: "Recently added",
+  },
+};
+
+const sortOptions: Record<ElectionCandidatesSort | "random", SettingsOption> = {
+  ...selectSortOptions,
+  mostPreVoted: {
+    label: "Most pre-voted",
   },
 };
 
@@ -72,7 +79,10 @@ const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect,
   className?: string,
   classes: ClassesType,
 }) => {
-  const [sortBy, setSortBy] = useState<ElectionCandidatesSort>("mostPreVoted");
+  const isSelect = type === "select";
+  const [sortBy, setSortBy] = useState<ElectionCandidatesSort | "random">(
+    isSelect ? "random" : "mostPreVoted"
+  );
   const {results, loading} = useElectionCandidates(sortBy);
 
   const allSelected = useMemo(
@@ -85,7 +95,7 @@ const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect,
   }
 
   const onSelectSort = useCallback((value: string) => {
-    if (isElectionCandidateSort(value)) {
+    if (isElectionCandidateSort(value) || value === "random") {
       setSortBy(value);
     }
   }, []);
@@ -94,7 +104,7 @@ const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect,
   return (
     <div className={classNames(classes.root, className)}>
       <div className={classes.controls}>
-        <ForumDropdown value={sortBy} options={sortOptions} onSelect={onSelectSort} className={classes.dropdown} />
+        <ForumDropdown value={sortBy} options={isSelect ? selectSortOptions : sortOptions} onSelect={onSelectSort} className={classes.dropdown} />
         <div className={classes.selectAll}>
           <Checkbox
             className={classes.checkbox}
@@ -116,7 +126,7 @@ const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect,
         </div>
       </div>
       <div className={classes.grid}>
-        {loading && <Loading white />}
+        {loading && <Loading />}
         {results?.map((candidate) => (
           <ElectionCandidate
             type={type}

@@ -99,4 +99,14 @@ export const votingPortalStyles = (theme: ThemeType) => ({
       opacity: 0.8,
     },
   },
+  buttonDisabled: {
+    cursor: "not-allowed",
+    opacity: 0.65,
+    "&:hover": {
+      opacity: 0.65,
+    },
+    "&:active": {
+      opacity: 0.65,
+    },
+  },
 });

@@ -115,7 +115,10 @@ const EAVotingPortalSelectCandidatesPage = ({
                 await saveSelection();
                 navigate({ pathname: "/voting-portal/compare" });
               }}
-              className={classNames(classes.button, classes.continueButton)}
+              className={classNames(classes.button, classes.continueButton, {
+                [classes.buttonDisabled]: selectedIds.length === 0,
+              })}
+              disabled={selectedIds.length === 0}
             >
               Continue <ForumIcon icon="ArrowRight" className={classes.arrowIcon} />
             </button>
