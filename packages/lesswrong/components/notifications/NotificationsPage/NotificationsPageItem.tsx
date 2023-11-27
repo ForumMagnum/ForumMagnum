@@ -7,7 +7,6 @@ import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { localgroupGetUrl } from "../../../lib/collections/localgroups/helpers";
-import { getEAPublicEmojiByName } from "../../../lib/voting/eaEmojiPalette";
 import {
   NotificationDisplay,
   NotificationType,
@@ -87,73 +86,13 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const getFirstReaction = (extendedVoteType: unknown) => {
-  if (typeof extendedVoteType !== "object" || !extendedVoteType) {
-    return null;
-  }
-  const voteType = extendedVoteType as Record<string, boolean>;
-  for (const name in extendedVoteType) {
-    if (!voteType[name]) {
-      continue;
-    }
-    const emojiOption = getEAPublicEmojiByName(name);
-    if (emojiOption) {
-      return emojiOption;
-    }
-  }
-  return null;
-}
-
 type DisplayConfig = {
   Display: NotificationType["Display"] | null,
   Icon: ForumIconName | FC,
   iconVariant: "primary" | "grey" | "yellow" | "clear",
 }
 
-const emptyDisplay = {
-  Display: null,
-  Icon: "DocumentFilled",
-  iconVariant: "grey",
-} as const;
-
-const getDisplayConfig = (
-  {type, karmaChange, extendedVoteType, post, comment, tag}: NotificationDisplay,
-  classes: ClassesType<typeof styles>,
-): DisplayConfig => {
-  if (type === "karmaChange") {
-    if (!karmaChange) {
-      return emptyDisplay;
-    }
-    const amountText = karmaChange > 0 ? `+${karmaChange}` : String(karmaChange);
-    return {
-      Display: ({Post, Comment, Tag}) => (
-        <>
-          <span className={classes.karma}>{amountText} karma</span>
-          {post && <Post />}
-          {comment && <><Comment /> on <Post /></>}
-          {tag && <Tag />}
-        </>
-      ),
-      Icon: "Star",
-      iconVariant: "yellow",
-    };
-  }
-
-  if (type === "reaction") {
-    const reaction = getFirstReaction(extendedVoteType);
-    if (!reaction) {
-      return emptyDisplay;
-    }
-    return {
-      Display: ({User, Post, Comment, notification: {comment}}) =>
-        comment
-          ? <><User /> reacted to your <Comment /> on <Post /></>
-          : <><User /> reacted to <Post /></>,
-      Icon: reaction.Component,
-      iconVariant: "clear",
-    };
-  }
-
+const getDisplayConfig = ({type, comment}: NotificationDisplay): DisplayConfig => {
   try {
     const {Display} = getNotificationTypeByName(type);
     return {
@@ -168,7 +107,11 @@ const getDisplayConfig = (
     console.error("Invalid notification type:", type, e);
   }
 
-  return emptyDisplay;
+  return {
+    Display: null,
+    Icon: "DocumentFilled",
+    iconVariant: "grey",
+  };
 }
 
 export const NotificationsPageItem = ({notification, classes}: {
@@ -196,7 +139,7 @@ export const NotificationsPageItem = ({notification, classes}: {
     fragmentName: "CommentsList",
   });
 
-  const {Display, Icon, iconVariant} = getDisplayConfig(notification, classes);
+  const {Display, Icon, iconVariant} = getDisplayConfig(notification);
   if (!Display) {
     return null;
   }
