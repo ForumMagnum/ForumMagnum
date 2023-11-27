@@ -152,7 +152,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
   }
 
   rawInsert = async (data: T, options: MongoInsertOptions<T>) => {
-    const insert = new InsertQuery<T>(this.getTable(), data, options, {returnInserted: true});
+    const liveFields = await this.getTable().getLiveFields();
+    const insert = new InsertQuery<T>(this.getTable(), data, options, {returnInserted: true}, liveFields);
     const result = await this.executeWriteQuery(insert, {data, options});
     return result[0]._id;
   }
@@ -168,10 +169,11 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       ...rest,
       ...selector,
     } as T;
+    const liveFields = await this.getTable().getLiveFields();
     const upsert = new InsertQuery<T>(this.getTable(), data, options, {
       conflictStrategy: "upsert",
       upsertSelector: selector,
-    });
+    }, liveFields);
     const result = await this.executeWriteQuery(upsert, {selector, modifier, options});
     const action = result[0]?.action;
     if (!action) {
@@ -253,6 +255,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       let result: BulkWriterResult;
       try {
         const client = getSqlClientOrThrow();
+        const liveFields = await this.getTable().getLiveFields();
         const writer = new BulkWriter(this.getTable(), operations, options);
         result = await writer.execute(client);
       } finally {

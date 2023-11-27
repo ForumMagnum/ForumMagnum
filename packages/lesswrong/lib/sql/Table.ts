@@ -2,6 +2,19 @@ import { Type, IdType, isResolverOnly } from "./Type";
 import TableIndex from "./TableIndex";
 import { expectedIndexes } from "../collectionIndexUtils";
 import { forumTypeSetting, ForumTypeString } from "../instanceSettings";
+import { getSqlClientOrThrow } from "./sqlClient";
+import { cacheLiveDatabaseFieldsMs } from "../publicSettings";
+
+interface CachedLiveFields {
+  /**
+   * Epoch timestamp in ms, i.e. output of Date.now()
+   */
+  cachedAt: number;
+  /**
+   * Types generated for fields, except with nullability determined by querying the database
+   */
+  liveFields: Record<string, Type>;
+}
 
 /**
  * Table represents the collection schema as it exists in Postgres,
@@ -20,6 +33,8 @@ import { forumTypeSetting, ForumTypeString } from "../instanceSettings";
 class Table<T extends DbObject> {
   private fields: Record<string, Type> = {};
   private indexes: TableIndex<T>[] = [];
+  private collection: CollectionBase<T>;
+  private cachedLiveFields: CachedLiveFields | undefined;
 
   constructor(private name: string) {}
 
@@ -33,6 +48,49 @@ class Table<T extends DbObject> {
 
   getFields() {
     return this.fields;
+  }
+
+  async getLiveFields(): Promise<Record<string, Type> | undefined> {
+    if (!cacheLiveDatabaseFieldsMs.get()) {
+      return undefined;
+    }
+
+    if (this.cachedLiveFields && this.cachedLiveFields.cachedAt > (Date.now() - 10_000)) {
+      return this.cachedLiveFields.liveFields;
+    }
+
+    try {
+      const sqlClient = getSqlClientOrThrow();
+      const res = await sqlClient.any(`
+        SELECT column_name, is_nullable
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+        AND table_name = $1
+      `, [this.name]);
+  
+      const liveFields = Object.fromEntries(res.map(({ column_name, is_nullable }) => {
+        if (column_name === "_id" && this.name !== "Sessions") {
+          return ["_id", new IdType(this.collection)] as const;
+        } else {
+          const schema = this.collection._schemaFields;
+          const fieldSchema = schema[column_name];
+          fieldSchema.nullable = is_nullable === 'YES';
+          const indexSchema = schema[`${column_name}.$`];
+          return [column_name, Type.fromSchema(column_name, fieldSchema, indexSchema, forumTypeSetting.get())] as const;
+        }
+      }));
+  
+      this.cachedLiveFields = {
+        cachedAt: Date.now(),
+        liveFields
+      };
+  
+      return liveFields;  
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(`Error when fetching live field metadata for table ${this.name}`, { err });
+      return undefined;
+    }
   }
 
   getField(name: string) {
@@ -61,8 +119,13 @@ class Table<T extends DbObject> {
     return this.indexes;
   }
 
+  setCollection(collection: CollectionBase<T>) {
+    this.collection = collection;
+  }
+
   static fromCollection<T extends DbObject>(collection: CollectionBase<T>, forumType?: ForumTypeString): Table<T> {
     const table = new Table<T>(collection.collectionName);
+    table.setCollection(collection);
     forumType ??= forumTypeSetting.get() ?? "EAForum";
 
     const schema = collection._schemaFields;

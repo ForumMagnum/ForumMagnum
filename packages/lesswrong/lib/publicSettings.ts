@@ -122,3 +122,6 @@ export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasPr
 export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)
 
 export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('dialogueMatchmakingEnabled', false)
+
+/** For the purposes of generating queries based on field nullability, should we use live info from the database (and if so, how long do we keep it cached)? */
+export const cacheLiveDatabaseFieldsMs = new DatabasePublicSetting<number | null>('cacheLiveDatabaseFieldsMs', null);

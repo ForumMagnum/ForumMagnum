@@ -59,6 +59,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
     data: InsertQueryData<T> | InsertQueryData<T>[],
     _options: MongoInsertOptions<T> = {}, // TODO: What can options be?
     sqlOptions?: InsertSqlOptions<T>,
+    private liveFields?: Record<string, Type>
   ) {
     super(table, [`INSERT INTO "${table.getName()}"`]);
     data = Array.isArray(data) ? data : [data];
@@ -94,7 +95,7 @@ class InsertQuery<T extends DbObject> extends Query<T> {
       throw new Error("Empty insert data");
     }
 
-    const fields = this.table.getFields();
+    const fields = this.liveFields ?? this.table.getFields();
     this.atoms.push("(");
     let prefix = "";
     for (const key in fields) {

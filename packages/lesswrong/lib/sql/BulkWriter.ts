@@ -3,6 +3,7 @@ import Table from "./Table";
 import InsertQuery from "./InsertQuery";
 import UpdateQuery from "./UpdateQuery";
 import DeleteQuery from "./DeleteQuery";
+import type { Type } from "./Type";
 
 export type BulkWriterResult = {
   ok: number,
@@ -21,7 +22,7 @@ export type BulkWriterResult = {
 class BulkWriter<T extends DbObject> {
   private queries: Query<T>[] = [];
 
-  constructor(table: Table<T>, operations: MongoBulkWriteOperations<T>, _options?: MongoBulkWriteOptions) {
+  constructor(table: Table<T>, operations: MongoBulkWriteOperations<T>, _options?: MongoBulkWriteOptions, liveFields?: Record<string, Type>) {
     const inserts: MongoBulkInsert<T>[] = [];
     const updateOnes: MongoBulkUpdate<T>[] = [];
     const updateManys: MongoBulkUpdate<T>[] = [];
@@ -57,11 +58,11 @@ class BulkWriter<T extends DbObject> {
     }
 
     if (inserts.length) {
-      this.queries.push(new InsertQuery(table, inserts.map(({document}) => document)));
+      this.queries.push(new InsertQuery(table, inserts.map(({document}) => document), undefined, undefined, liveFields));
     }
     if (updateOnes.length) {
       this.queries = this.queries.concat(updateOnes.map(({filter, update, upsert}) => upsert
-        ? new InsertQuery(table, update as T, {}, {conflictStrategy: "upsert", upsertSelector: filter})
+        ? new InsertQuery(table, update as T, {}, {conflictStrategy: "upsert", upsertSelector: filter}, liveFields)
         : new UpdateQuery(table, filter, update)
       ));
     }
