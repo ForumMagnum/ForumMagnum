@@ -46,6 +46,8 @@ const styles = (theme: ThemeType) => ({
     gap: "6px",
     display: "flex",
     alignItems: "center",
+    // This margin is to make the footer look visually centered on large screens (even though it is already
+    // centered, the button on the right makes it look off balance)
     marginLeft: 20,
     [theme.breakpoints.down("sm")]: {
       marginLeft: 0,
