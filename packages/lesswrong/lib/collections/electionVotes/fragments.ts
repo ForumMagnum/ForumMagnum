@@ -7,5 +7,7 @@ registerFragment(`
     userId
     vote
     submittedAt
+    userExplanation
+    userOtherComments
   }
 `);

@@ -77,7 +77,7 @@ const EAVotingPortalAllocateVotesPage = ({
               await saveAllocation();
               navigate({ pathname: "/voting-portal/submit" });
             },
-            disabled: allocatedCandidateIds.length === 0,
+            disabled: allocatedCandidateIds.length === 0 || !!electionVote.submittedAt,
           }}
         />
       </div>

@@ -48,14 +48,35 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAVotingPortalSubmitPage = ({ classes }: { classes: ClassesType }) => {
+const EAVotingPortalSubmitPageLoader = ({ classes }: { classes: ClassesType }) => {
+  const { electionVote, updateVote } = useElectionVote("givingSeason23");
+
+  if (!electionVote?.vote) return null;
+
+  return (
+    <EAVotingPortalSubmitPage
+      electionVote={electionVote}
+      updateVote={updateVote}
+      classes={classes}
+    />
+  );
+};
+
+const EAVotingPortalSubmitPage = ({
+  electionVote,
+  updateVote,
+  classes,
+}: {
+  electionVote: ElectionVoteInfo;
+  updateVote: (newVote: NullablePartial<DbElectionVote>) => Promise<void>;
+  classes: ClassesType;
+}) => {
   const { VotingPortalFooter } = Components;
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
-  const { updateVote } = useElectionVote("givingSeason23");
 
-  const [userExplanation, setUserExplanation] = useState<string>("");
-  const [userOtherComments, setUserOtherComments] = useState<string>("");
+  const [userExplanation, setUserExplanation] = useState<string>(electionVote.userExplanation ?? "");
+  const [userOtherComments, setUserOtherComments] = useState<string>(electionVote.userOtherComments ?? "");
 
   const handleSubmit = useCallback(async () => {
     await updateVote({ userExplanation, userOtherComments, submittedAt: new Date() });
@@ -80,6 +101,7 @@ const EAVotingPortalSubmitPage = ({ classes }: { classes: ClassesType }) => {
               className={classes.textField}
               value={userExplanation}
               onChange={(event) => setUserExplanation(event.target.value)}
+              disabled={!!electionVote.submittedAt}
             />
           </div>
           <div className={classes.explanationRow}>
@@ -93,6 +115,7 @@ const EAVotingPortalSubmitPage = ({ classes }: { classes: ClassesType }) => {
               className={classes.textField}
               value={userOtherComments}
               onChange={(event) => setUserOtherComments(event.target.value)}
+              disabled={!!electionVote.submittedAt}
             />
           </div>
         </div>
@@ -105,6 +128,7 @@ const EAVotingPortalSubmitPage = ({ classes }: { classes: ClassesType }) => {
               await handleSubmit();
               navigate({ pathname: "/voting-portal" });
             },
+            disabled: !!electionVote.submittedAt,
           }}
         />
       </div>
@@ -112,7 +136,7 @@ const EAVotingPortalSubmitPage = ({ classes }: { classes: ClassesType }) => {
   );
 };
 
-const EAVotingPortalSubmitPageComponent = registerComponent("EAVotingPortalSubmitPage", EAVotingPortalSubmitPage, {
+const EAVotingPortalSubmitPageComponent = registerComponent("EAVotingPortalSubmitPage", EAVotingPortalSubmitPageLoader, {
   styles,
 });
 

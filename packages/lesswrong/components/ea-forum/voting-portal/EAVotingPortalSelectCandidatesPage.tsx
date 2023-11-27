@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
 const EAVotingPortalSelectCandidatesPageLoader = ({ classes }: { classes: ClassesType }) => {
   const { electionVote, updateVote } = useElectionVote("givingSeason23");
 
-  if (!electionVote) return null;
+  if (!electionVote?.vote) return null;
 
   const selectedCandidateIds = Object.keys(electionVote.vote);
 
@@ -90,7 +90,7 @@ const EAVotingPortalSelectCandidatesPage = ({
               await saveSelection();
               navigate({ pathname: "/voting-portal/compare" });
             },
-            disabled: selectedIds.length === 0
+            disabled: selectedIds.length === 0 || !!electionVote.submittedAt,
           }}
         />
       </div>
