@@ -9,13 +9,14 @@ import {
   forumShortTitleSetting,
   HEADER_HEIGHT,
 } from "../../common/Header";
-import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
+import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { headerImageId } from "../../../lib/eaGivingSeason";
+import { headerImageId, heroImageId } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
+import { useLocation } from "../../../lib/routeUtil";
 
 export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
 const BACKGROUND_ASPECT = 3160 / 800;
@@ -89,8 +90,17 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-  appBarGivingSeason: {
+  leftHeaderItems: {
+    display: "flex",
+    alignItems: "center",
+  },
+  homePageBackground: {
     ...givingSeasonImageBackground(theme, "top"),
+  },
+  votingPortalBackground: {
+    background: theme.palette.givingPortal.homepageHeader.dark,
+  },
+  appBarGivingSeason: {
     color: theme.palette.givingPortal.homepageHeader.light4,
     position: "static",
     width: "100%",
@@ -156,6 +166,7 @@ const styles = (theme: ThemeType) => ({
   },
   toolbarGivingSeason: {
     zIndex: theme.zIndexes.spotlightItem,
+    justifyContent: "space-between",
   },
   siteLogoGivingSeason: {
     width: 34,
@@ -167,7 +178,60 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.givingPortal.homepageHeader.light4,
   },
   givingSeasonGradient: givingSeasonGradient(theme),
+  navigationSteps: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.text.alwaysWhite,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '24px',
+    fontSize: 16,
+    fontWeight: 500,
+    whiteSpace: 'nowrap',
+    [theme.breakpoints.down('md')]: {
+      gap: '12px',
+    }
+  },
+  activeStepLink: {
+    textUnderlineOffset: '6px',
+    textDecoration: 'underline',
+    '&:hover': {
+      textDecoration: 'underline',
+    }
+  },
+  disabledStepLink: {
+    opacity: 0.7,
+  }
 });
+
+const votingPortalSocialImageProps: CloudinaryPropsType = {
+  dpr: "auto",
+  ar: "16:9",
+  w: "1200",
+  c: "fill",
+  g: "center",
+  q: "auto",
+  f: "auto",
+};
+
+const VOTING_STEPS = [
+  {
+    label: '1. Select candidates',
+    href: '/voting-portal/select-candidates',
+  },
+  {
+    label: '2. Compare',
+    href: '/voting-portal/compare',
+  },
+  {
+    label: '3. Allocate votes',
+    href: '/voting-portal/allocate-votes',
+  },
+  {
+    label: '4. Submit',
+    href: '/voting-portal/submit',
+  },
+] as const;
 
 const GivingSeasonHeader = ({
   searchOpen,
@@ -190,16 +254,30 @@ const GivingSeasonHeader = ({
   HeaderNotificationsMenu: FC,
   classes: ClassesType,
 }) => {
-  const {Typography} = Components;
+  const { Typography, HeadTags } = Components;
   const isDesktop = useIsAboveBreakpoint("md");
+  const { pathname } = useLocation();
+
+  const isVotingPortal = pathname.startsWith("/voting-portal");
+  // Show voting steps if we are on a path like /voting-portal/compare (with anything after /voting-portal/)
+  const showVotingSteps = isVotingPortal && /\/voting-portal\/\w/.test(pathname);
+
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
-      <div className={classNames(classes.root, classes.rootGivingSeason, {
-        [classes.rootScrolled]: !unFixed,
-      })}>
+      {isVotingPortal && <HeadTags
+        title="Donation Election: voting portal"
+        description="Vote in the EA Forum Donation Election"
+        image={makeCloudinaryImageUrl(heroImageId, votingPortalSocialImageProps)}
+      />}
+      <div
+        className={classNames(classes.root, classes.rootGivingSeason, {
+          [classes.rootScrolled]: !unFixed,
+        })}
+      >
         <Headroom
           disableInlineStyles
-          downTolerance={10} upTolerance={10}
+          downTolerance={10}
+          upTolerance={10}
           height={HEADER_HEIGHT}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
@@ -208,32 +286,60 @@ const GivingSeasonHeader = ({
           onUnpin={() => setUnFixed(false)}
           disable={isDesktop}
         >
-          <header className={classes.appBarGivingSeason}>
-            <div className={classes.givingSeasonGradient} />
+          <header
+            className={classNames(
+              classes.appBarGivingSeason,
+              isVotingPortal ? classes.votingPortalBackground : classes.homePageBackground
+            )}
+          >
+            <div className={isVotingPortal ? "" : classes.givingSeasonGradient} />
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
-              <NavigationMenuButton />
-              <Typography className={classes.title} variant="title">
-                <div className={classes.hideSmDown}>
-                  <div className={classes.titleSubtitleContainer}>
-                    <Link to="/" className={classNames(classes.titleLink, classes.titleLinkGivingSeason)}>
-                      {hasLogo && <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>
-                        {lightbulbIcon}
-                      </div>}
-                      {forumHeaderTitleSetting.get()}
-                    </Link>
+              <div className={classes.leftHeaderItems}>
+                <NavigationMenuButton />
+                <Typography className={classes.title} variant="title">
+                  <div className={isVotingPortal ? classes.hideMdDown : classes.hideSmDown}>
+                    <div className={classes.titleSubtitleContainer}>
+                      <Link to={"/"} className={classNames(classes.titleLink, classes.titleLinkGivingSeason)}>
+                        {hasLogo && (
+                          <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>
+                            {lightbulbIcon}
+                          </div>
+                        )}
+                        {isVotingPortal ? "Donation Election: Voting portal" : forumHeaderTitleSetting.get()}
+                      </Link>
+                    </div>
                   </div>
-                </div>
-                <div className={classes.hideMdUp}>
-                  <div className={classes.titleSubtitleContainer}>
-                    <Link to="/" className={classNames(classes.titleLink, classes.titleLinkGivingSeason)}>
-                      {hasLogo && <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>
-                        {lightbulbIcon}
-                      </div>}
-                      {forumShortTitleSetting.get()}
-                    </Link>
+                  <div className={isVotingPortal ? classes.hideLgUp : classes.hideMdUp}>
+                    <div className={classes.titleSubtitleContainer}>
+                      <Link to={"/"} className={classNames(classes.titleLink, classes.titleLinkGivingSeason)}>
+                        {hasLogo && (
+                          <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>
+                            {lightbulbIcon}
+                          </div>
+                        )}
+                        {isVotingPortal ? "Voting portal" : forumShortTitleSetting.get()}
+                      </Link>
+                    </div>
                   </div>
+                </Typography>
+              </div>
+              {showVotingSteps && (
+                <div className={classNames(classes.navigationSteps, classes.hideSmDown)}>
+                  {VOTING_STEPS.map(({ label, href }) => (
+                    <Link
+                      key={href}
+                      to={href}
+                      className={classNames(classes.stepLink, {
+                        [classes.activeStepLink]: pathname === href,
+                        // TODO: make this based on what they have completed so far
+                        [classes.disabledStepLink]: label === "4. Submit",
+                      })}
+                    >
+                      {label}
+                    </Link>
+                  ))}
                 </div>
-              </Typography>
+              )}
               <RightHeaderItems />
             </Toolbar>
           </header>

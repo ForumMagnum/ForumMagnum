@@ -134,11 +134,6 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
-export const postGetUrlWithSourceParam = (
-  post: PostsMinimumForGetPageUrl,
-  source: string,
-) => `${postGetPageUrl(post, true)}&source=${source}`;
-
 export const postGetCommentsUrl = (
   post: PostsMinimumForGetPageUrl,
   isAbsolute = false,

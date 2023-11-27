@@ -67,7 +67,7 @@ const connectToPostgres = async (connectionString: string, target: DbTarget = "w
       const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
       // eslint-disable-next-line no-console
       console.log(`Connecting to postgres (${dbName})`);
-      const sql = await createSqlConnection(connectionString, false, target);
+      const sql = await createSqlConnection(connectionString, false);
       setSqlClient(sql, target);
     }
   } catch(err) {

@@ -42,12 +42,9 @@ importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EA
 importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
 importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
 importComponent("EABestOfPage", () => require('../components/ea-forum/EABestOfPage'));
-importComponent("GivingSeasonHeader", () => require('../components/ea-forum/giving-portal/GivingSeasonHeader'));
-importComponent("GivingSeasonBanner", () => require('../components/ea-forum/giving-portal/GivingSeasonBanner'));
 importComponent("AdminElectionCandidates", () => require('../components/ea-forum/giving-portal/AdminElectionCandidates'));
 importComponent("EditElectionCandidate", () => require('../components/ea-forum/giving-portal/EditElectionCandidate'));
 importComponent("DeleteElectionCandidateDialog", () => require('../components/ea-forum/giving-portal/DeleteElectionCandidateDialog'));
-importComponent("EAGivingPortalPage", () => require('../components/ea-forum/giving-portal/EAGivingPortalPage'));
 importComponent("Timeline", () => require('../components/ea-forum/giving-portal/Timeline'));
 importComponent("ElectionFundCTA", () => require('../components/ea-forum/giving-portal/ElectionFundCTA'));
 importComponent("ElectionCandidate", () => require('../components/ea-forum/giving-portal/ElectionCandidate'));
@@ -73,6 +70,16 @@ importComponent("EventBanner", () => require('../components/ea-forum/EventBanner
 importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
 importComponent("BotSiteBanner", () => require('../components/common/BotSiteBanner'));
 importComponent("HorizScrollBlock", () => require('../components/common/HorizScrollBlock'));
+
+// EA Giving Season 2023
+importComponent("EAGivingPortalPage", () => require('../components/ea-forum/giving-portal/EAGivingPortalPage'));
+importComponent("GivingSeasonHeader", () => require('../components/ea-forum/giving-portal/GivingSeasonHeader'));
+importComponent("GivingSeasonBanner", () => require('../components/ea-forum/giving-portal/GivingSeasonBanner'));
+importComponent("EAVotingPortalPage", () => require('../components/ea-forum/voting-portal/EAVotingPortalPage'));
+importComponent("EAVotingPortalSelectCandidatesPage", () => require('../components/ea-forum/voting-portal/EAVotingPortalSelectCandidatesPage'));
+importComponent("EAVotingPortalComparePage", () => require('../components/ea-forum/voting-portal/EAVotingPortalComparePage'));
+importComponent("EAVotingPortalAllocateVotesPage", () => require('../components/ea-forum/voting-portal/EAVotingPortalAllocateVotesPage'));
+importComponent("EAVotingPortalSubmitPage", () => require('../components/ea-forum/voting-portal/EAVotingPortalSubmitPage'));
 
 importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
@@ -580,6 +587,7 @@ importComponent("CommentDeletedMetadata", () => require('../components/comments/
 importComponent("CommentBody", () => require('../components/comments/CommentsItem/CommentBody'));
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
+importComponent("CommentBottom", () => require('../components/comments/CommentsItem/CommentBottom'));
 importComponent("CommentBottomCaveats", () => require('../components/comments/CommentsItem/CommentBottomCaveats'));
 
 importComponent("AllComments", () => require('../components/comments/AllComments'));

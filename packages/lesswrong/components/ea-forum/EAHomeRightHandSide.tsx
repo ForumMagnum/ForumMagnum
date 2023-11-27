@@ -599,17 +599,21 @@ export const EAHomeRightHandSide = ({classes}: {
       {/* TODO: Remove after giving season ends */}
       {isGivingSeason &&
         <div className={classes.givingSeason}>
-          <div>Donate to the Election Fund</div>
+          <div>
+            <Link to="/giving-portal">
+              Donate to the Election Fund
+            </Link>
+          </div>
           <div className={classes.givingSeasonAmount}>
             {amountRaisedLoading && <Loading />}
-            {amountRaised?.totalRaised &&
+            {amountRaised?.raisedForElectionFund > 0 &&
               <>
                 <div className={classes.givingSeasonProgress}>
                   <div style={{
-                    width: `${100 * amountRaised.totalRaised / amountRaised.totalTarget}%`,
+                    width: `${100 * amountRaised.raisedForElectionFund / amountRaised.electionFundTarget}%`,
                   }} />
                 </div>
-                ${formatStat(Math.round(amountRaised.totalRaised))} raised so far
+                ${formatStat(Math.round(amountRaised.raisedForElectionFund))} raised so far
               </>
             }
           </div>

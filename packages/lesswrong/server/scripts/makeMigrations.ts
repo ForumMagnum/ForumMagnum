@@ -11,7 +11,8 @@ import { exec } from 'child_process';
 import { acceptMigrations, migrationsPath } from './acceptMigrations';
 import { existsSync } from 'node:fs';
 import { ForumTypeString } from '../../lib/instanceSettings';
-import { PostgresExtension, postgresExtensions } from '../sqlConnection';
+import { PostgresFunction, postgresFunctions } from '../postgresFunctions';
+import { PostgresExtension, postgresExtensions } from '../postgresExtensions';
 import CreateExtensionQuery from '../../lib/sql/CreateExtensionQuery';
 
 const ROOT_PATH = path.join(__dirname, "../../../");
@@ -102,6 +103,8 @@ const getCreateTableQueryForCollection = (collectionName: string, forumType?: Fo
   return sql;
 }
 
+type Artifact = CollectionNameString | PostgresExtension | PostgresFunction;
+
 /**
  * Update the `./schema/` files to match the current database schema, and generate a migration if there are changes which need to be accepted.
  *
@@ -141,7 +144,7 @@ export const makeMigrations = async ({
   const {acceptsSchemaHash: acceptedHash, acceptedByMigration, timestamp} = await acceptMigrations({write: writeSchemaChangelog, rootPath});
   log(`-- Using accepted hash ${acceptedHash}`);
 
-  const currentHashes: Partial<Record<CollectionNameString|PostgresExtension, string>> = {};
+  const currentHashes: Partial<Record<Artifact, string>> = {};
   let schemaFileContents = "";
 
   for (const extensionName of postgresExtensions) {
@@ -171,6 +174,13 @@ export const makeMigrations = async ({
       failed.push(collectionName);
       console.error(e);
     }
+  }
+
+  for (const func of postgresFunctions) {
+    const hash = md5(func);
+    currentHashes[func] = hash;
+    schemaFileContents += `-- Function, hash: ${hash}\n`;
+    schemaFileContents += func + ";\n\n";
   }
 
   if (failed.length) throw new Error(`Failed to generate schema for ${failed.length} collections: ${failed}`)
