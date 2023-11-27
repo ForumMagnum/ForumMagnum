@@ -86,9 +86,15 @@ const styles = (theme: ThemeType) => ({
       textAlign: "right",
       fontSize: 18,
       fontWeight: 500,
+      color: theme.palette.grey[1000],
+      zIndex: theme.zIndexes.singleColumnSection
     },
     "& .MuiNotchedOutline-focused": {
-      borderColor: theme.palette.givingPortal[1000],
+      border: `2px solid ${theme.palette.givingPortal[1000]} !important`
+    },
+    "& .MuiNotchedOutline-root": {
+      backgroundColor: theme.palette.grey[100],
+      border: "none"
     },
     [theme.breakpoints.down("xs")]: {
       width: "100%",
