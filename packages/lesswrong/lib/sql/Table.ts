@@ -51,11 +51,12 @@ class Table<T extends DbObject> {
   }
 
   async getLiveFields(): Promise<Record<string, Type> | undefined> {
-    if (!cacheLiveDatabaseFieldsMs.get()) {
+    const ttl = cacheLiveDatabaseFieldsMs.get();
+    if (!ttl) {
       return undefined;
     }
 
-    if (this.cachedLiveFields && this.cachedLiveFields.cachedAt > (Date.now() - 10_000)) {
+    if (this.cachedLiveFields && this.cachedLiveFields.cachedAt > (Date.now() - ttl)) {
       return this.cachedLiveFields.liveFields;
     }
 
