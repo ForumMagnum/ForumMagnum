@@ -4,6 +4,8 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { HEADER_HEIGHT } from "../../common/Header";
 import { useWindowSize } from "../../hooks/useScreenWidth";
 import ReactConfetti from "react-confetti";
+import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
+import { useTracking } from "../../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -85,6 +87,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    textAlign: "center",
     gap: "10px",
     fontSize: 16,
     fontWeight: 600,
@@ -129,13 +132,27 @@ const VotingPortalThankYou = ({currentUser, classes}: {
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
+  const updateCurrentUser = useUpdateCurrentUser();
+  const [loadingFlair, setLoadingFlair] = useState(false);
+  const {captureEvent} = useTracking();
   const {width, height} = useWindowSize();
   const [confetti, setConfetti] = useState(true);
+
   const onConfettiComplete = useCallback(() => {
     setConfetti(false);
   }, []);
 
-  const {ForumIcon} = Components;
+  const toggleFlair = useCallback(async () => {
+    setLoadingFlair(true);
+    const newValue = !currentUser.givingSeason2023VotedFlair;
+    await updateCurrentUser({
+      givingSeason2023VotedFlair: newValue,
+    });
+    setLoadingFlair(false);
+    captureEvent("setGivingSeasonVotedFlair", {value: newValue});
+  }, [updateCurrentUser, currentUser.givingSeason2023VotedFlair, captureEvent]);
+
+  const {ForumIcon, Loading} = Components;
   return (
     <div className={classes.root}>
       {confetti &&
@@ -167,7 +184,14 @@ const VotingPortalThankYou = ({currentUser, classes}: {
           </div>
         </div>
         <div>
-          <div className={classes.button}>Add icon to your profile</div>
+          <div className={classes.button} role="button" onClick={toggleFlair}>
+            {loadingFlair
+              ? <Loading white />
+              : currentUser.givingSeason2023VotedFlair
+                ? "Remove icon from your profile"
+                : "Add icon to your profile"
+            }
+          </div>
         </div>
       </div>
       <div className={classes.hr} />
