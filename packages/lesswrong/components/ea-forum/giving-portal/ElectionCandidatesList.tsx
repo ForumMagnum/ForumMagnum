@@ -105,7 +105,7 @@ const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect,
     <div className={classNames(classes.root, className)}>
       <div className={classes.controls}>
         <ForumDropdown value={sortBy} options={isSelect ? selectSortOptions : sortOptions} onSelect={onSelectSort} className={classes.dropdown} />
-        <div className={classes.selectAll}>
+        {isSelect && <div className={classes.selectAll}>
           <Checkbox
             className={classes.checkbox}
             style={{ color: requireCssVar("palette", "givingPortal", 1000) }}
@@ -123,7 +123,7 @@ const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect,
             }}
           />
           Select all
-        </div>
+        </div>}
       </div>
       <div className={classes.grid}>
         {loading && <Loading />}

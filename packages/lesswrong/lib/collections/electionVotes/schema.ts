@@ -1,6 +1,18 @@
 import { foreignKeyField } from "../../utils/schemaUtils";
 import { userOwns } from "../../vulcan-users";
 
+const validateVote = ({data}: {data: Partial<DbElectionVote>}) => {
+  if (data.vote !== null && typeof data.vote !== 'object') {
+    throw new Error("Invalid vote value");
+  }
+  for (let key in data.vote) {
+    if (typeof data.vote[key] !== 'number' && data.vote[key] !== null) {
+      throw new Error("Invalid vote value");
+    }
+  }
+  return data.vote;
+};
+
 const schema: SchemaType<DbElectionVote> = {
   /** The name of the election */
   electionName: {
@@ -37,6 +49,11 @@ const schema: SchemaType<DbElectionVote> = {
     canRead: [userOwns, "sunshineRegiment", "admins"],
     canCreate: ["members"],
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    onCreate: ({ newDocument }) => validateVote({ data: newDocument }),
+    onUpdate: ({ data }) => {
+      // Throw errors but don't return anything
+      validateVote({ data });
+    },
   },
   submittedAt: {
     type: Date,

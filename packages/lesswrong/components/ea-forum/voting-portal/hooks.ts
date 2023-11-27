@@ -23,7 +23,6 @@ export const useElectionVote = (electionName: string) => {
   });
   const voteDocument = results?.[0];
 
-  // TODO update callback
   const {mutate: updateVoteDb} = useUpdate({
     collectionName: "ElectionVotes",
     fragmentName: 'ElectionVoteInfo',
