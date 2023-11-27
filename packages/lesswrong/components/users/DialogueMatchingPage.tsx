@@ -29,6 +29,7 @@ import merge from 'lodash/merge';
 import mergeWith from 'lodash/mergeWith';
 import partition from 'lodash/partition';
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
+import NoSSR from 'react-no-ssr';
 
 export type UpvotedUser = {
   _id: string;
@@ -1465,11 +1466,13 @@ export const DialogueMatchingPage = ({classes}: {
   </div>)
 }
 
+const NoSSRMatchingPage = (props: {classes: ClassesType<typeof styles>}) => <NoSSR><DialogueMatchingPage {...props} /></NoSSR>
+
 const DialogueNextStepsButtonComponent = registerComponent('DialogueNextStepsButton', DialogueNextStepsButton, {styles});
 const MessageButtonComponent = registerComponent('MessageButton', MessageButton, {styles});
 const DialogueCheckBoxComponent = registerComponent('DialogueCheckBox', DialogueCheckBox, {styles});
 const DialogueUserRowComponent = registerComponent('DialogueUserRow', DialogueUserRow, {styles});
-const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', DialogueMatchingPage, {styles});
+const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', NoSSRMatchingPage, {styles});
 
 declare global {
   interface ComponentTypes {
