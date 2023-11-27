@@ -93,7 +93,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.text.primary,
       textAlign: 'left'
     },
-    maxWidth: 95,
+    // maxWidth: 95,
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
@@ -126,6 +126,11 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+  },
+  topicRecommendationsList: {
+    color: 'grey',
+    fontSize: 'small',
+    overflow: 'hidden',
   },
   expandIcon: {
     cursor: 'pointer',
@@ -204,7 +209,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
   const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
   const currentUser = useCurrentUser();
   // Dummy sentences for debate topics
-  const debateTopics = ["Example sentence 1", "Example sentence 2", "Example sentence 3"];
+  // const debateTopics = ["Example sentence 1", "Example sentence 2", "Example sentence 3"];
 
   // State to handle the expansion of the text
   const [isExpanded, setIsExpanded] = useState(false);
@@ -231,8 +236,8 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
 
   if (!currentUser) return <></>;
   // const topicRecommendations: ExtendedDialogueMatchPreferenceTopic[] | undefined = topicData?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard  
-  const preTopicRecommendations: {comment: {_id: string, contents: {html: string, plaintextMainText: string}}, recommendationReason: string, yourVote: string, theirVote: string}[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
-  const topicRecommendations = preTopicRecommendations?.filter(topic => topic.theirVote !== null);
+  const topicRecommendations: {comment: {_id: string, contents: {html: string, plaintextMainText: string}}, recommendationReason: string, yourVote: string, theirVote: string}[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
+ // const topicRecommendations = preTopicRecommendations?.filter(topic => topic.theirVote !== null);
 
   //console.log(topicRecommendations);
   console.log(topicRecommendations?.map(topic => ({name: targetUser.displayName, theirVote: topic.theirVote, content: topic.comment.contents.plaintextMainText}) ));
@@ -242,6 +247,8 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
   const toggleExpansion = () => {
     setIsExpanded(!isExpanded);
   };
+  
+  const numShown = isExpanded ? 3 : 1
 
   return (
     <div>
@@ -262,18 +269,36 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
               simple={false}
             />
           </PostsItem2MetaInfo>
-          <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+          {/* <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
             Topic suggestions
-          </PostsItem2MetaInfo>
+          </PostsItem2MetaInfo> */}
         </div>
+        <div className={classes.topicRecommendationsList}>
+            {topicRecommendations?.slice(0,numShown).map((topic, index) => (
+              <p key={index} className={isExpanded ? '' : classes.debateTopic}>
+                {topic.theirVote === 'agree' ? 
+                  [<ReactionIcon size={13} react={"agree"} />, `agrees that "${topic.comment.contents.plaintextMainText}"`] : 
+                  [<ReactionIcon size={13} react={"disagree"} />, `disagrees that "${topic.comment.contents.plaintextMainText}"`]
+                }
+                {/* <span className={classes.recommendationReasons}> */}
+                  {/* {topic.yourVote && <LWTooltip title={`You reacted with ${topic.yourVote} to this`}><ReactionIcon size={13} react={topic.yourVote} /></LWTooltip>} */}
+                  {/* {topic.theirVote && <LWTooltip title={`${targetUser.displayName} reacted with ${topic.theirVote} to this`}><ReactionIcon size={13} react={topic.theirVote} /></LWTooltip>} */}
+                  {/* {topic.recommendationReason === "This comment is popular" && <LWTooltip title="This comment is popular"><ReactionIcon size={13} react={"excitement"} /></LWTooltip>} */}
+                {/* </span> */}
+              </p>
+            ))}
+            <span className={classes.expandIcon} onClick={toggleExpansion}>
+              {isExpanded ? '▲ hide' : '▼ show more topics...'}
+            </span>
+          </div>
         <div className={classes.dialogueRightContainer}>
-          <div className={classes.dialogueMatchMessageButton}>
+          {/* <div className={classes.dialogueMatchMessageButton}>
             <MessageButton
               targetUserId={targetUser._id}
               currentUser={currentUser}
               isMatched={userIsMatched}
             />
-          </div>
+          </div> */}
           <div className={classes.dialogueMatchPreferencesButton}>
             <DialogueNextStepsButton
               isMatched={userIsMatched}
@@ -284,23 +309,8 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
             />
           </div>
         </div>
-        
+          
       </div>
-      <div style={{ color: 'grey', fontSize: 'small' }}>
-      {topicRecommendations?.map((topic, index) => (
-        <p key={index} className={isExpanded ? '' : classes.debateTopic}>
-          {topic.theirVote === 'agree' ? `agrees that "${topic.comment.contents.plaintextMainText}"` : `disagrees that "${topic.comment.contents.plaintextMainText}"`}
-          <span className={classes.recommendationReasons}>
-            {/* {topic.yourVote && <LWTooltip title={`You reacted with ${topic.yourVote} to this`}><ReactionIcon size={13} react={topic.yourVote} /></LWTooltip>} */}
-            {/* {topic.theirVote && <LWTooltip title={`${targetUser.displayName} reacted with ${topic.theirVote} to this`}><ReactionIcon size={13} react={topic.theirVote} /></LWTooltip>} */}
-            {/* {topic.recommendationReason === "This comment is popular" && <LWTooltip title="This comment is popular"><ReactionIcon size={13} react={"excitement"} /></LWTooltip>} */}
-          </span>
-        </p>
-      ))}
-  {/* <span className={classes.expandIcon} onClick={toggleExpansion}>
-    {isExpanded ? '▲' : '▼'}
-  </span> */}
-</div>
     </div>
   );
 };
