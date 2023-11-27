@@ -78,7 +78,6 @@ const EAVotingPortalSelectCandidatesPage = ({
             selectedCandidateIds={selectedIds}
             onSelect={onSelect}
             setTotalCount={setTotalCount}
-            className={classes.electionCandidates}
           />
         </div>
         <VotingPortalFooter

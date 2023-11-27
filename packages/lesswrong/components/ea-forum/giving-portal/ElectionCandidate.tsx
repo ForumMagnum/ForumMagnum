@@ -9,7 +9,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import Checkbox from "@material-ui/core/Checkbox";
 import { requireCssVar } from "../../../themes/cssVars";
 
-const imageSize = 52;
+export const imageSize = 52;
 
 const styles = (theme: ThemeType) => ({
   root: {
