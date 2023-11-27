@@ -39,10 +39,11 @@ export const NotificationsPage = ({classes}: {
 
   useEffect(() => {
     if (karmaChanges?.karmaChanges) {
-      void updateCurrentUser({
-        karmaChangeLastOpened: karmaChanges.karmaChanges.endDate,
-        karmaChangeBatchStart: karmaChanges.karmaChanges.startDate,
-      });
+      // TODO
+      // void updateCurrentUser({
+        // karmaChangeLastOpened: karmaChanges.karmaChanges.endDate,
+        // karmaChangeBatchStart: karmaChanges.karmaChanges.startDate,
+      // });
     }
   }, [karmaChanges?.karmaChanges, updateCurrentUser]);
 
@@ -59,7 +60,7 @@ export const NotificationsPage = ({classes}: {
       <div className={classes.title}>Notifications</div>
       <NotificationsPageTabContextProvider>
         <NotificationsPageFeed
-          karmaUpdateFrequency={karmaChanges?.karmaChanges?.updateFrequency}
+          karmaChanges={karmaChanges?.karmaChanges}
           currentUser={currentUser}
         />
       </NotificationsPageTabContextProvider>

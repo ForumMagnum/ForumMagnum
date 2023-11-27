@@ -10,7 +10,7 @@ import {
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
-import type { KarmaChangeSettingsType } from "../../../lib/collections/users/schema";
+import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,14 +38,11 @@ const styles = (theme: ThemeType) => ({
     },
   },
   karmaBatching: {
-    marginBottom: 24,
-    color: theme.palette.grey[600],
-    fontSize: 14,
-    fontWeight: 500,
+    marginBottom: 32,
     "& a": {
-      color: theme.palette.primary.main,
+      color: theme.palette.grey[600],
+      fontSize: 14,
       fontWeight: 600,
-      marginLeft: 10,
     },
   },
 });
@@ -63,14 +60,15 @@ const query = gql`
 const DEFAULT_LIMIT = 20;
 
 export const NotificationsPageFeed = ({
-  karmaUpdateFrequency,
+  karmaChanges,
   currentUser,
   classes,
 }: {
-  karmaUpdateFrequency?: KarmaChangeSettingsType["updateFrequency"],
+  karmaChanges?: KarmaChanges,
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
+  console.log("karma", karmaChanges);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const {tab, setTab} = useNotificationsPageTab();
 
@@ -106,7 +104,9 @@ export const NotificationsPageFeed = ({
     notifications.current = data.NotificationDisplays.results;
   }
 
-  const canLoadMore = tab.name !== "karma" && notifications.current.length > 0;
+  // const canLoadMore = tab.name !== "karma" && notifications.current.length > 0;
+  const canLoadMore = notifications.current.length > 0;
+  const showKarmaChanges = tab.name === "all";
 
   const onChangeTab = useCallback((_: ChangeEvent, tabName: string) => {
     if (isNotificationsPageTabName(tabName)) {
@@ -116,12 +116,9 @@ export const NotificationsPageFeed = ({
     }
   }, [setTab]);
 
-  const batchedText = karmaUpdateFrequency === "realtime"
-    ? "in realtime"
-    : `batched ${karmaUpdateFrequency}`;
-
   const {
-    NotificationsPageItem, NotificationsPageEmpty, LoadMore, Loading,
+    NotificationsPageNotification, NotificationsPageEmpty, LoadMore, Loading,
+    SectionTitle,
   } = Components;
   return (
     <div className={classes.root}>
@@ -138,17 +135,21 @@ export const NotificationsPageFeed = ({
           <Tab label={name} value={name} key={name} />
         ))}
       </Tabs>
-      {tab.name === "karma" &&
-        <div className={classes.karmaBatching}>
-          Karma notifications are {batchedText}
-          <Link to="/account">Change settings</Link>
-        </div>
+      {showKarmaChanges &&
+        <>
+          <SectionTitle title="Karma changes" />
+          {karmaChanges?.posts?.map((karmaChange) => null)}
+          <div className={classes.karmaBatching}>
+            <Link to="/account">Change settings</Link>
+          </div>
+          <SectionTitle title="All other" />
+        </>
       }
       {notifications.current.length === 0 && !loading &&
         <NotificationsPageEmpty tabName={tab.name} />
       }
       {notifications.current.map((notification) => (
-        <NotificationsPageItem
+        <NotificationsPageNotification
           key={notification._id}
           notification={notification}
         />

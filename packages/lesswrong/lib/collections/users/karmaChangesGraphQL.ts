@@ -3,6 +3,7 @@ import { userOwns } from '../../vulcan-users/permissions';
 import { addFieldsDict } from '../../utils/schemaUtils';
 import { addGraphQLSchema, addGraphQLResolvers } from '../../vulcan-lib';
 import type { TagCommentType } from "../../collections/comments/types";
+import type { KarmaChangeUpdateFrequency } from "./schema";
 
 addGraphQLSchema(`
   type PostKarmaChange {
@@ -105,4 +106,15 @@ export type TagRevisionKarmaChange = KarmaChangeBase & {
   // Not filled in by the initial query; added by a followup query in the resolver
   tagSlug?: string
   tagName?: string
+}
+
+export type KarmaChanges = {
+  totalChange: number,
+  startDate?: Date,
+  endDate?: Date,
+  nextBatchDate?: Date,
+  updateFrequency: KarmaChangeUpdateFrequency,
+  posts: PostKarmaChange[],
+  comments: CommentKarmaChange[],
+  tagRevisions: TagRevisionKarmaChange[],
 }

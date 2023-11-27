@@ -36,14 +36,6 @@ const NotificationsPageEmpty = ({tabName, classes}: {
         </div>
       </div>
     );
-  case "karma":
-    return (
-      <div className={classes.root}>
-        <div>
-          You have no new karma change notifications.
-        </div>
-      </div>
-    );
   case "comments":
     return (
       <div className={classes.root}>
@@ -52,14 +44,6 @@ const NotificationsPageEmpty = ({tabName, classes}: {
         </div>
         <div>
           <Link to="/allPosts">Comment on a post</Link> to receive replies.
-        </div>
-      </div>
-    );
-  case "reactions":
-    return (
-      <div className={classes.root}>
-        <div>
-          You have no notifications for reactions.
         </div>
       </div>
     );

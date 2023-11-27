@@ -6,16 +6,8 @@ export const notificationPageTabs = [
     type: undefined,
   },
   {
-    name: "karma",
-    type: "karmaChange",
-  },
-  {
     name: "comments",
     type: "newComment",
-  },
-  {
-    name: "reactions",
-    type: "reaction",
   },
   {
     name: "new posts",

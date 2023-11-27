@@ -1,17 +1,7 @@
-import React, { FC } from "react";
+import React, { FC, ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useSingle } from "../../../lib/crud/withSingle";
-import { Link } from "../../../lib/reactRouterWrapper";
-import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
-import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
-import { tagGetUrl } from "../../../lib/collections/tags/helpers";
-import { localgroupGetUrl } from "../../../lib/collections/localgroups/helpers";
-import {
-  NotificationDisplay,
-  NotificationType,
-  getNotificationTypeByName,
-} from "../../../lib/notificationTypes";
 import type { ForumIconName } from "../../common/ForumIcon";
 import classNames from "classnames";
 
@@ -33,9 +23,6 @@ const styles = (theme: ThemeType) => ({
   container: {
     display: "flex",
     gap: "8px",
-  },
-  karma: {
-    marginRight: "5px",
   },
   iconContainer: {
     display: "flex",
@@ -72,9 +59,6 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "1.5em",
     fontWeight: 500,
   },
-  primaryText: {
-    color: theme.palette.grey[1000],
-  },
   hideOnMobile: {
     [theme.breakpoints.down("xs")]: {
       display: "none",
@@ -86,153 +70,35 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-type DisplayConfig = {
-  Display: NotificationType["Display"] | null,
+export type IconVariant = "primary" | "grey" | "yellow" | "clear";
+
+export const NotificationsPageItem = ({
+  Icon,
+  iconVariant,
+  post,
+  previewCommentId,
+  children,
+  classes,
+}: {
   Icon: ForumIconName | FC,
-  iconVariant: "primary" | "grey" | "yellow" | "clear",
-}
-
-const getDisplayConfig = ({type, comment}: NotificationDisplay): DisplayConfig => {
-  try {
-    const {Display} = getNotificationTypeByName(type);
-    return {
-      Display,
-      ...(comment
-        ? {Icon: "CommentFilled", iconVariant: "primary"}
-        : {Icon: "DocumentFilled", iconVariant: "grey"}
-      ),
-    };
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error("Invalid notification type:", type, e);
-  }
-
-  return {
-    Display: null,
-    Icon: "DocumentFilled",
-    iconVariant: "grey",
-  };
-}
-
-export const NotificationsPageItem = ({notification, classes}: {
-  notification: NotificationDisplay,
+  iconVariant: IconVariant,
+  post?: PostsMinimumInfo,
+  previewCommentId?: string,
+  children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const showPreviewComment =
-    !!notification.comment?._id &&
-    notification.type !== "reaction" &&
-    notification.type !== "karmaChange";
-
-  // The main notifications query that returns `NotificationDisplay`s is a
-  // custom resolver that runs as a single SQL query. We fetch comments to
-  // preview outside of this query in order to avoid nuking the apollo cache
-  // when trying to do things like loading the parent comment, and also
-  // because it'd be tricky to fetch things like the current user vote without
-  // running typescript resolvers.
+  const showPreviewComment = !!previewCommentId;
   const {
     document: previewComment,
     loading: previewCommentLoading,
   } = useSingle({
     skip: !showPreviewComment,
-    documentId: notification.comment?._id,
+    documentId: previewCommentId,
     collectionName: "Comments",
     fragmentName: "CommentsList",
   });
 
-  const {Display, Icon, iconVariant} = getDisplayConfig(notification);
-  if (!Display) {
-    return null;
-  }
-
-  const {
-    createdAt, comment, post, user, tag, localgroup, link, tagRelId,
-  } = notification;
-  const displayUser = (
-    user ??
-    post?.user ??
-    comment?.user
-  ) as UsersMinimumInfo | undefined;
-  const displayPost = post ?? comment?.post;
-  const displayLocalgroup = localgroup ?? post?.group;
-
-  const {
-    ForumIcon, UsersName, PostsTooltip, FormatDate, Loading, CommentsNode,
-  } = Components;
-  const User: FC = () => (
-    <UsersName
-      user={displayUser}
-      tooltipPlacement="bottom-start"
-      className={classes.primaryText}
-    />
-  );
-  const LazyUser: FC<{userId: string}> = ({userId}) => (
-    <UsersName
-      documentId={userId}
-      tooltipPlacement="bottom-start"
-      className={classes.primaryText}
-    />
-  );
-  const Post: FC = () => displayPost
-    ? (
-      <PostsTooltip
-        post={displayPost as unknown as PostsList}
-        tagRelId={tagRelId}
-      >
-        <Link
-          to={link ?? postGetPageUrl(displayPost)}
-          className={classes.primaryText}
-          eventProps={{intent: "expandPost"}}
-        >
-          {displayPost.title}
-        </Link>
-      </PostsTooltip>
-    )
-    : null;
-  const Comment: FC = () => comment
-    ? (
-      <PostsTooltip
-        postId={displayPost?._id}
-        commentId={comment._id}
-        tagRelId={tagRelId}
-      >
-        <Link
-          to={commentGetPageUrlFromIds({
-            commentId: comment._id,
-            postId: comment.post?._id,
-            postSlug: comment.post?.slug,
-            tagSlug: tag?.slug,
-          })}
-          className={classes.primaryText}
-          eventProps={{intent: "expandComment"}}
-        >
-          comment
-        </Link>
-      </PostsTooltip>
-    )
-    : null;
-  const Tag: FC = () => tag
-    ? (
-      <Link
-        to={link ?? tagGetUrl(tag)}
-        className={classes.primaryText}
-        eventProps={{intent: "expandTag"}}
-      >
-        {tag.name}
-      </Link>
-    )
-    : null;
-  const Localgroup: FC = () => displayLocalgroup
-    ? (
-      <Link
-        to={link ?? localgroupGetUrl(displayLocalgroup)}
-        className={classes.primaryText}
-        eventProps={{intent: "expandLocalgroup"}}
-      >
-        {displayLocalgroup.name}
-      </Link>
-    )
-    : null;
-
+  const {ForumIcon, CommentsNode, Loading} = Components;
   return (
     <AnalyticsContext pageSubSectionContext="notificationsPageItem">
       <div className={classes.root}>
@@ -249,15 +115,7 @@ export const NotificationsPageItem = ({notification, classes}: {
             }
           </div>
           <div className={classes.meta}>
-            <Display
-              notification={notification}
-              User={User}
-              LazyUser={LazyUser}
-              Post={Post}
-              Comment={Comment}
-              Tag={Tag}
-              Localgroup={Localgroup}
-            /> <FormatDate date={new Date(createdAt)} includeAgo />
+            {children}
           </div>
         </div>
         {showPreviewComment &&
@@ -273,7 +131,7 @@ export const NotificationsPageItem = ({notification, classes}: {
                   treeOptions={{
                     scrollOnExpand: true,
                     condensed: true,
-                    post: post as PostsMinimumInfo | undefined,
+                    post,
                   }}
                   startThreadTruncated
                   expandAllThreads
