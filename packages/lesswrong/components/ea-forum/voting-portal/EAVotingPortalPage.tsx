@@ -19,10 +19,15 @@ const BACKGROUND_IMAGE = makeCloudinaryImageUrl(votingThankYouImageId, {
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
-  thankYouLayout: {
+  layout: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+  },
+  introBackground: {
+    backgroundColor: theme.palette.givingPortal.votingPortalIntroBackground,
+  },
+  thankYouBackground: {
     backgroundImage: `url(${BACKGROUND_IMAGE})`,
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",
@@ -50,8 +55,9 @@ const EAVotingPortalPage = ({classes}: {
       <Helmet>
         <link rel="preload" as="image" href={BACKGROUND_IMAGE} />
       </Helmet>
-      <div className={classNames(classes.root, {
-        [classes.thankYouLayout]: isThankYouPage,
+      <div className={classNames(classes.root, classes.layout, {
+        [classes.introBackground]: !isThankYouPage,
+        [classes.thankYouBackground]: isThankYouPage,
       })}>
         {isThankYouPage
           ? <VotingPortalThankYou currentUser={currentUser} />

@@ -467,6 +467,7 @@ declare global {
       votedCandidate: ColorString,
       rhsLink: ColorString,
       secondary: ColorString,
+      votingPortalIntroBackground: ColorString,
       button: {
         alwaysDark: ColorString,
         dark: ColorString,

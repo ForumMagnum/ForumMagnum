@@ -519,6 +519,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     ctaText: "#757575",
     rhsLink: '#862115',
     secondary: '#E7714E',
+    votingPortalIntroBackground: "#fff6f2",
     button: {
       alwaysDark: "#862115",
       dark: "#862115",
