@@ -1,9 +1,10 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { votingPortalStyles } from "./styles";
-import { useCurrentUser } from "../../common/withUser";
 import { isAdmin } from "../../../lib/vulcan-users";
+import { useCurrentUser } from "../../common/withUser";
+import { useNavigate } from "../../../lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -11,6 +12,9 @@ const styles = (theme: ThemeType) => ({
 
 // TODO: implement
 const EAVotingPortalAllocateVotesPage = ({classes}: {classes: ClassesType}) => {
+  const { VotingPortalFooter } = Components;
+  const navigate = useNavigate();
+
   // TODO un-admin-gate when the voting portal is ready
   const currentUser = useCurrentUser();
   if (!isAdmin(currentUser)) return null;
@@ -19,10 +23,19 @@ const EAVotingPortalAllocateVotesPage = ({classes}: {classes: ClassesType}) => {
     <AnalyticsContext pageContext="eaVotingPortalAllocateVotes">
       <div className={classes.root}>
         <div className={classes.content} id="top">
-          <div className={classes.h1}>
-            Allocate votes
-          </div>
+          <div className={classes.h1}>Allocate</div>
         </div>
+        <VotingPortalFooter
+          leftHref="/voting-portal/compare"
+          // TODO actual numbers
+          middleNode={<div>Allocated to 0/12 projects</div>}
+          buttonProps={{
+            onClick: async () => {
+              // TODO save allocation
+              navigate({ pathname: "/voting-portal/submit" });
+            },
+          }}
+        />
       </div>
     </AnalyticsContext>
   );

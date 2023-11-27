@@ -40,7 +40,7 @@ const EAVotingPortalSelectCandidatesPage = ({
   updateVote: (newVote: Record<string, number | null>) => Promise<void>;
   classes: ClassesType;
 }) => {
-  const { ElectionCandidatesList, ForumIcon, VotingPortalFooter } = Components;
+  const { ElectionCandidatesList, VotingPortalFooter } = Components;
   const [selectedIds, setSelectedCandidateIds] = useState<string[]>(selectedCandidateIds);
   const [totalCount, setTotalCount] = useState<number>(0);
   const navigate = useNavigate();
@@ -85,7 +85,6 @@ const EAVotingPortalSelectCandidatesPage = ({
           leftText="Go back"
           leftHref="/voting-portal"
           middleNode={<div>Selected {selectedIds.length}/{totalCount} candidates</div>}
-          buttonText="Continue"
           buttonProps={{
             onClick: async () => {
               await saveSelection();
