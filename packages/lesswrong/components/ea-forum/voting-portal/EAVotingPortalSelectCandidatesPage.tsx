@@ -46,7 +46,7 @@ const EAVotingPortalSelectCandidatesPage = ({
   const navigate = useNavigate();
 
   const saveSelection = useCallback(async () => {
-    await updateVote(selectedIds.reduce((acc, id) => ({ ...acc, [id]: electionVote[id] || null }), {}));
+    await updateVote(selectedIds.reduce((acc, id) => ({ ...acc, [id]: electionVote[id] ?? null }), {}));
   }, [electionVote, selectedIds, updateVote]);
 
   const onSelect = useCallback((candidateIds: string[]) => {

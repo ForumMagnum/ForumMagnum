@@ -103,8 +103,8 @@ const AllocateVoteRow = ({
   classes,
 }: {
   candidate: ElectionCandidateBasicInfo;
-  voteState: Record<string, number | null>;
-  setVoteState: Dispatch<SetStateAction<Record<string, number | null>>>;
+  voteState: Record<string, number | string | null>;
+  setVoteState: Dispatch<SetStateAction<Record<string, number | string | null>>>;
   classes: ClassesType<typeof styles>;
 }) => {
   const { _id: candidateId, name, logoSrc, fundraiserLink } = candidate;
@@ -123,14 +123,13 @@ const AllocateVoteRow = ({
         <OutlinedInput
           className={classes.allocateInput}
           labelWidth={0}
-          value={voteState[candidateId] || ""}
+          value={voteState[candidateId] ?? ""}
           onChange={(e) => {
             const value = e.target.value;
-            // Only allow (decimal) numbers
-            if (/^\d*\.?\d*$/.test(value)) {
-              setVoteState((prev) => ({ ...prev, [candidateId]: parseFloat(value) } as Record<string, number | null>));
-            } else if (value === "") {
-              setVoteState((prev) => ({ ...prev, [candidateId]: null } as Record<string, number | null>));
+            if (value === "" || value === null) {
+              setVoteState((prev) => ({ ...prev, [candidateId]: null } as Record<string, number | string | null>));
+            } else if (/^\d*\.?\d*$/.test(value)) { // Only allow (decimal) numbers
+              setVoteState((prev) => ({ ...prev, [candidateId]: value } as Record<string, number | string | null>));
             }
           }}
           type="number"
@@ -146,8 +145,8 @@ const ElectionAllocateVote = ({
   className,
   classes,
 }: {
-  voteState: Record<string, number | null>;
-  setVoteState: Dispatch<SetStateAction<Record<string, number | null>>>;
+  voteState: Record<string, number | string | null>;
+  setVoteState: Dispatch<SetStateAction<Record<string, number | string | null>>>;
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {

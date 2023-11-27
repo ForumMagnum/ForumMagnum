@@ -36,13 +36,19 @@ const EAVotingPortalAllocateVotesPage = ({
 }) => {
   const { VotingPortalFooter, ElectionAllocateVote } = Components;
   const navigate = useNavigate();
-  const [voteState, setVoteState] = useState<Record<string, number | null>>(electionVote);
+  // Note: strings are allowed here because to allow the user to type we need to differentiate between
+  // e.g. "0" and "0.". These are converted to numbers in saveAllocation
+  const [voteState, setVoteState] = useState<Record<string, number | string | null>>(electionVote);
 
   const selectedCandidateIds = Object.keys(voteState);
   const allocatedCandidateIds = selectedCandidateIds.filter((id) => voteState[id] !== null);
 
   const saveAllocation = useCallback(async () => {
-    await updateVote(voteState);
+    // Convert all strings to numbers with parseFloat
+    const newVote = Object.fromEntries(
+      Object.entries(voteState).map(([id, value]) => [id, parseFloat(value as string)])
+    );
+    await updateVote(newVote);
   }, [updateVote, voteState]);
 
   // TODO un-admin-gate when the voting portal is ready
