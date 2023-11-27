@@ -1558,6 +1558,7 @@ interface DbUser extends DbObject {
   afApplicationText: string
   afSubmittedApplication: boolean
   givingSeason2023DonatedFlair: boolean
+  givingSeason2023VotedFlair: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents

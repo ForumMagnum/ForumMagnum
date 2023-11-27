@@ -25,7 +25,8 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
-    givingSeason2023DonatedFlair
+    givingSeason2023DonatedFlair # TODO: Remove after giving season
+    givingSeason2023VotedFlair   # TODO: Remove after giving season
   }
 `);
 
