@@ -216,11 +216,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       green: "#1b5e20",
     },
 
-    debateComment: '#1192e8',
-    debateComment2: '#198038',
-    debateComment3: '#b28600',
-    debateComment4: '#9f1853',
-    debateComment5: '#a56eff',
+    debateComment: {
+      [1]: '#1192e8',
+      [2]: '#198038',
+      [3]: '#b28600',
+      [4]: '#9f1853',
+      [5]: '#a56eff',
+      [6]: '#6C7BFF',
+    },
   },
   link: {
     unmarked: shades.greyAlpha(.87),
