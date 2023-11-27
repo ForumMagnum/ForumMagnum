@@ -1091,14 +1091,14 @@ const setNotnullCommands = `
 
 const createNewIndexesForOnConflictConstraints = `
   ALTER INDEX "idx_DatabaseMetadata_name"
-    RENAME TO "idx_DatabaseMetadata_name_old"
+    RENAME TO "idx_DatabaseMetadata_name_old";
 
   CREATE UNIQUE INDEX "idx_DatabaseMetadata_name"
     ON public."DatabaseMetadata" USING btree
     (name);
 
   ALTER INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered"
-    RENAME TO "idx_DebouncerEvents_dispatched_af_key_name_filtered_old"
+    RENAME TO "idx_DebouncerEvents_dispatched_af_key_name_filtered_old";
 
   CREATE UNIQUE INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered"
     ON public."DebouncerEvents" USING btree
@@ -1106,26 +1106,498 @@ const createNewIndexesForOnConflictConstraints = `
     WHERE (dispatched IS FALSE);
 
   ALTER INDEX "idx_PageCache_path_abTestGroups_bundleHash"
-    RENAME TO "idx_PageCache_path_abTestGroups_bundleHash_old"
+    RENAME TO "idx_PageCache_path_abTestGroups_bundleHash_old";
 
   CREATE UNIQUE INDEX "idx_PageCache_path_abTestGroups_bundleHash"
     ON public."PageCache" USING btree
     (path, "abTestGroups", "bundleHash");
 
   ALTER INDEX "idx_ReadStatuses_userId_postId_tagId"
-    RENAME TO "idx_ReadStatuses_userId_postId_tagId_old"
+    RENAME TO "idx_ReadStatuses_userId_postId_tagId_old";
 
   CREATE UNIQUE INDEX "idx_ReadStatuses_userId_postId_tagId"
     ON public."ReadStatuses" USING btree
     ("userId", COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
 `
 
+const dropNotnullCommands = `
+  ALTER TABLE "AdvisorRequests"
+    ALTER COLUMN "interestedInMetaculus" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "Bans"
+    ALTER COLUMN "comment" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "Books"
+    ALTER COLUMN "postIds" DROP NOT NULL,
+    ALTER COLUMN "sequenceIds" DROP NOT NULL;
+
+  ALTER TABLE "Collections"
+    ALTER COLUMN "firstPageLink" DROP NOT NULL,
+    ALTER COLUMN "noindex" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "CommentModeratorActions"
+    ALTER COLUMN "commentId" DROP NOT NULL,
+    ALTER COLUMN "type" DROP NOT NULL;
+
+  ALTER TABLE "Comments"
+    ALTER COLUMN "af" DROP NOT NULL,
+    ALTER COLUMN "answer" DROP NOT NULL,
+    ALTER COLUMN "authorIsUnreviewed" DROP NOT NULL,
+    ALTER COLUMN "baseScore" DROP NOT NULL,
+    ALTER COLUMN "deleted" DROP NOT NULL,
+    ALTER COLUMN "deletedPublic" DROP NOT NULL,
+    ALTER COLUMN "descendentCount" DROP NOT NULL,
+    ALTER COLUMN "directChildrenCount" DROP NOT NULL,
+    ALTER COLUMN "hideAuthor" DROP NOT NULL,
+    ALTER COLUMN "inactive" DROP NOT NULL,
+    ALTER COLUMN "isPinnedOnProfile" DROP NOT NULL,
+    ALTER COLUMN "legacy" DROP NOT NULL,
+    ALTER COLUMN "legacyPoll" DROP NOT NULL,
+    ALTER COLUMN "moderatorHat" DROP NOT NULL,
+    ALTER COLUMN "postedAt" DROP NOT NULL,
+    ALTER COLUMN "rejected" DROP NOT NULL,
+    ALTER COLUMN "relevantTagIds" DROP NOT NULL,
+    ALTER COLUMN "retracted" DROP NOT NULL,
+    ALTER COLUMN "score" DROP NOT NULL,
+    ALTER COLUMN "shortformFrontpage" DROP NOT NULL,
+    ALTER COLUMN "spam" DROP NOT NULL,
+    ALTER COLUMN "suggestForAlignmentUserIds" DROP NOT NULL,
+    ALTER COLUMN "tagCommentType" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL,
+    ALTER COLUMN "voteCount" DROP NOT NULL;
+
+  ALTER TABLE "Conversations"
+    ALTER COLUMN "archivedByIds" DROP NOT NULL,
+    ALTER COLUMN "messageCount" DROP NOT NULL,
+    ALTER COLUMN "participantIds" DROP NOT NULL;
+
+  ALTER TABLE "DatabaseMetadata"
+    ALTER COLUMN "name" DROP NOT NULL,
+    ALTER COLUMN "value" DROP NOT NULL;
+
+  ALTER TABLE "DebouncerEvents"
+    ALTER COLUMN "delayTime" DROP NOT NULL,
+    ALTER COLUMN "dispatched" DROP NOT NULL,
+    ALTER COLUMN "key" DROP NOT NULL,
+    ALTER COLUMN "name" DROP NOT NULL,
+    ALTER COLUMN "upperBoundTime" DROP NOT NULL;
+
+  ALTER TABLE "DigestPosts"
+    ALTER COLUMN "digestId" DROP NOT NULL,
+    ALTER COLUMN "emailDigestStatus" DROP NOT NULL,
+    ALTER COLUMN "onsiteDigestStatus" DROP NOT NULL,
+    ALTER COLUMN "postId" DROP NOT NULL;
+
+  ALTER TABLE "ElectionCandidates"
+    ALTER COLUMN "afBaseScore" DROP NOT NULL,
+    ALTER COLUMN "afExtendedScore" DROP NOT NULL,
+    ALTER COLUMN "afVoteCount" DROP NOT NULL,
+    ALTER COLUMN "amountRaised" DROP NOT NULL,
+    ALTER COLUMN "baseScore" DROP NOT NULL,
+    ALTER COLUMN "extendedScore" DROP NOT NULL,
+    ALTER COLUMN "fundraiserLink" DROP NOT NULL,
+    ALTER COLUMN "gwwcId" DROP NOT NULL,
+    ALTER COLUMN "gwwcLink" DROP NOT NULL,
+    ALTER COLUMN "inactive" DROP NOT NULL,
+    ALTER COLUMN "isElectionFundraiser" DROP NOT NULL,
+    ALTER COLUMN "score" DROP NOT NULL,
+    ALTER COLUMN "targetAmount" DROP NOT NULL,
+    ALTER COLUMN "voteCount" DROP NOT NULL;
+
+  ALTER TABLE "EmailTokens"
+    ALTER COLUMN "token" DROP NOT NULL,
+    ALTER COLUMN "tokenType" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "FeaturedResources"
+    ALTER COLUMN "ctaText" DROP NOT NULL,
+    ALTER COLUMN "ctaUrl" DROP NOT NULL,
+    ALTER COLUMN "expiresAt" DROP NOT NULL,
+    ALTER COLUMN "title" DROP NOT NULL;
+
+  ALTER TABLE "GardenCodes"
+    ALTER COLUMN "afOnly" DROP NOT NULL,
+    ALTER COLUMN "code" DROP NOT NULL,
+    ALTER COLUMN "deleted" DROP NOT NULL,
+    ALTER COLUMN "endTime" DROP NOT NULL,
+    ALTER COLUMN "hidden" DROP NOT NULL,
+    ALTER COLUMN "slug" DROP NOT NULL,
+    ALTER COLUMN "title" DROP NOT NULL,
+    ALTER COLUMN "type" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "Images"
+    ALTER COLUMN "cdnHostedUrl" DROP NOT NULL,
+    ALTER COLUMN "originalUrl" DROP NOT NULL;
+
+  ALTER TABLE "LegacyData"
+    ALTER COLUMN "collectionName" DROP NOT NULL,
+    ALTER COLUMN "objectId" DROP NOT NULL;
+
+  ALTER TABLE "Localgroups"
+    ALTER COLUMN "deleted" DROP NOT NULL,
+    ALTER COLUMN "inactive" DROP NOT NULL,
+    ALTER COLUMN "isOnline" DROP NOT NULL,
+    ALTER COLUMN "lastActivity" DROP NOT NULL,
+    ALTER COLUMN "name" DROP NOT NULL,
+    ALTER COLUMN "organizerIds" DROP NOT NULL,
+    ALTER COLUMN "types" DROP NOT NULL;
+
+  ALTER TABLE "Messages"
+    ALTER COLUMN "conversationId" DROP NOT NULL,
+    ALTER COLUMN "noEmail" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "Migrations"
+    ALTER COLUMN "finished" DROP NOT NULL,
+    ALTER COLUMN "name" DROP NOT NULL,
+    ALTER COLUMN "started" DROP NOT NULL,
+    ALTER COLUMN "succeeded" DROP NOT NULL;
+
+  ALTER TABLE "ModerationTemplates"
+    ALTER COLUMN "collectionName" DROP NOT NULL,
+    ALTER COLUMN "deleted" DROP NOT NULL,
+    ALTER COLUMN "name" DROP NOT NULL,
+    ALTER COLUMN "order" DROP NOT NULL;
+
+  ALTER TABLE "ModeratorActions"
+    ALTER COLUMN "type" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "Notifications"
+    ALTER COLUMN "deleted" DROP NOT NULL,
+    ALTER COLUMN "emailed" DROP NOT NULL,
+    ALTER COLUMN "message" DROP NOT NULL,
+    ALTER COLUMN "type" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL,
+    ALTER COLUMN "viewed" DROP NOT NULL,
+    ALTER COLUMN "waitingForBatch" DROP NOT NULL;
+
+  ALTER TABLE "PageCache"
+    ALTER COLUMN "abTestGroups" DROP NOT NULL,
+    ALTER COLUMN "bundleHash" DROP NOT NULL,
+    ALTER COLUMN "expiresAt" DROP NOT NULL,
+    ALTER COLUMN "path" DROP NOT NULL,
+    ALTER COLUMN "renderResult" DROP NOT NULL,
+    ALTER COLUMN "renderedAt" DROP NOT NULL,
+    ALTER COLUMN "ttlMs" DROP NOT NULL;
+
+  ALTER TABLE "PetrovDayLaunchs"
+    ALTER COLUMN "launchCode" DROP NOT NULL;
+
+  ALTER TABLE "PodcastEpisodes"
+    ALTER COLUMN "podcastId" DROP NOT NULL;
+
+  ALTER TABLE "PostRelations"
+    ALTER COLUMN "sourcePostId" DROP NOT NULL,
+    ALTER COLUMN "targetPostId" DROP NOT NULL,
+    ALTER COLUMN "type" DROP NOT NULL;
+
+  ALTER TABLE "Posts"
+    ALTER COLUMN "af" DROP NOT NULL,
+    ALTER COLUMN "afCommentCount" DROP NOT NULL,
+    ALTER COLUMN "afSticky" DROP NOT NULL,
+    ALTER COLUMN "authorIsUnreviewed" DROP NOT NULL,
+    ALTER COLUMN "baseScore" DROP NOT NULL,
+    ALTER COLUMN "clickCount" DROP NOT NULL,
+    ALTER COLUMN "collabEditorDialogue" DROP NOT NULL,
+    ALTER COLUMN "commentCount" DROP NOT NULL,
+    ALTER COLUMN "debate" DROP NOT NULL,
+    ALTER COLUMN "defaultRecommendation" DROP NOT NULL,
+    ALTER COLUMN "deletedDraft" DROP NOT NULL,
+    ALTER COLUMN "disableRecommendation" DROP NOT NULL,
+    ALTER COLUMN "draft" DROP NOT NULL,
+    ALTER COLUMN "finalReviewVoteScoreAF" DROP NOT NULL,
+    ALTER COLUMN "finalReviewVoteScoreAllKarma" DROP NOT NULL,
+    ALTER COLUMN "finalReviewVoteScoreHighKarma" DROP NOT NULL,
+    ALTER COLUMN "finalReviewVotesAF" DROP NOT NULL,
+    ALTER COLUMN "finalReviewVotesAllKarma" DROP NOT NULL,
+    ALTER COLUMN "finalReviewVotesHighKarma" DROP NOT NULL,
+    ALTER COLUMN "fmCrosspost" DROP NOT NULL,
+    ALTER COLUMN "forceAllowType3Audio" DROP NOT NULL,
+    ALTER COLUMN "globalEvent" DROP NOT NULL,
+    ALTER COLUMN "hasCoauthorPermission" DROP NOT NULL,
+    ALTER COLUMN "hiddenRelatedQuestion" DROP NOT NULL,
+    ALTER COLUMN "hideAuthor" DROP NOT NULL,
+    ALTER COLUMN "hideCommentKarma" DROP NOT NULL,
+    ALTER COLUMN "hideFromPopularComments" DROP NOT NULL,
+    ALTER COLUMN "hideFromRecentDiscussions" DROP NOT NULL,
+    ALTER COLUMN "hideFrontpageComments" DROP NOT NULL,
+    ALTER COLUMN "inactive" DROP NOT NULL,
+    ALTER COLUMN "isEvent" DROP NOT NULL,
+    ALTER COLUMN "isFuture" DROP NOT NULL,
+    ALTER COLUMN "legacy" DROP NOT NULL,
+    ALTER COLUMN "legacySpam" DROP NOT NULL,
+    ALTER COLUMN "maxBaseScore" DROP NOT NULL,
+    ALTER COLUMN "meta" DROP NOT NULL,
+    ALTER COLUMN "metaSticky" DROP NOT NULL,
+    ALTER COLUMN "nextDayReminderSent" DROP NOT NULL,
+    ALTER COLUMN "noIndex" DROP NOT NULL,
+    ALTER COLUMN "nominationCount2018" DROP NOT NULL,
+    ALTER COLUMN "nominationCount2019" DROP NOT NULL,
+    ALTER COLUMN "onlineEvent" DROP NOT NULL,
+    ALTER COLUMN "onlyVisibleToEstablishedAccounts" DROP NOT NULL,
+    ALTER COLUMN "onlyVisibleToLoggedIn" DROP NOT NULL,
+    ALTER COLUMN "organizerIds" DROP NOT NULL,
+    ALTER COLUMN "positiveReviewVoteCount" DROP NOT NULL,
+    ALTER COLUMN "postCategory" DROP NOT NULL,
+    ALTER COLUMN "postedAt" DROP NOT NULL,
+    ALTER COLUMN "question" DROP NOT NULL,
+    ALTER COLUMN "rejected" DROP NOT NULL,
+    ALTER COLUMN "reviewCount" DROP NOT NULL,
+    ALTER COLUMN "reviewCount2018" DROP NOT NULL,
+    ALTER COLUMN "reviewCount2019" DROP NOT NULL,
+    ALTER COLUMN "reviewVoteCount" DROP NOT NULL,
+    ALTER COLUMN "reviewVoteScoreAF" DROP NOT NULL,
+    ALTER COLUMN "reviewVoteScoreAllKarma" DROP NOT NULL,
+    ALTER COLUMN "reviewVoteScoreHighKarma" DROP NOT NULL,
+    ALTER COLUMN "reviewVotesAF" DROP NOT NULL,
+    ALTER COLUMN "reviewVotesAllKarma" DROP NOT NULL,
+    ALTER COLUMN "reviewVotesHighKarma" DROP NOT NULL,
+    ALTER COLUMN "score" DROP NOT NULL,
+    ALTER COLUMN "shareWithUsers" DROP NOT NULL,
+    ALTER COLUMN "shortform" DROP NOT NULL,
+    ALTER COLUMN "slug" DROP NOT NULL,
+    ALTER COLUMN "status" DROP NOT NULL,
+    ALTER COLUMN "sticky" DROP NOT NULL,
+    ALTER COLUMN "stickyPriority" DROP NOT NULL,
+    ALTER COLUMN "submitToFrontpage" DROP NOT NULL,
+    ALTER COLUMN "suggestForAlignmentUserIds" DROP NOT NULL,
+    ALTER COLUMN "topLevelCommentCount" DROP NOT NULL,
+    ALTER COLUMN "unlisted" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL,
+    ALTER COLUMN "viewCount" DROP NOT NULL,
+    ALTER COLUMN "voteCount" DROP NOT NULL;
+
+  ALTER TABLE "RSSFeeds"
+    ALTER COLUMN "displayFullContent" DROP NOT NULL,
+    ALTER COLUMN "importAsDraft" DROP NOT NULL,
+    ALTER COLUMN "nickname" DROP NOT NULL,
+    ALTER COLUMN "ownedByUser" DROP NOT NULL,
+    ALTER COLUMN "rawFeed" DROP NOT NULL,
+    ALTER COLUMN "setCanonicalUrl" DROP NOT NULL,
+    ALTER COLUMN "url" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "ReadStatuses"
+    ALTER COLUMN "isRead" DROP NOT NULL,
+    ALTER COLUMN "lastUpdated" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "Reports"
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "ReviewVotes"
+    ALTER COLUMN "dummy" DROP NOT NULL,
+    ALTER COLUMN "postId" DROP NOT NULL,
+    ALTER COLUMN "quadraticScore" DROP NOT NULL,
+    ALTER COLUMN "qualitativeScore" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL,
+    ALTER COLUMN "year" DROP NOT NULL;
+
+  ALTER TABLE "Revisions"
+    ALTER COLUMN "baseScore" DROP NOT NULL,
+    ALTER COLUMN "changeMetrics" DROP NOT NULL,
+    ALTER COLUMN "score" DROP NOT NULL,
+    ALTER COLUMN "version" DROP NOT NULL,
+    ALTER COLUMN "voteCount" DROP NOT NULL;
+
+  ALTER TABLE "Sequences"
+    ALTER COLUMN "af" DROP NOT NULL,
+    ALTER COLUMN "draft" DROP NOT NULL,
+    ALTER COLUMN "hidden" DROP NOT NULL,
+    ALTER COLUMN "hideFromAuthorPage" DROP NOT NULL,
+    ALTER COLUMN "isDeleted" DROP NOT NULL,
+    ALTER COLUMN "noindex" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "Spotlights"
+    ALTER COLUMN "documentId" DROP NOT NULL,
+    ALTER COLUMN "documentType" DROP NOT NULL,
+    ALTER COLUMN "draft" DROP NOT NULL,
+    ALTER COLUMN "duration" DROP NOT NULL,
+    ALTER COLUMN "lastPromotedAt" DROP NOT NULL,
+    ALTER COLUMN "position" DROP NOT NULL;
+
+  ALTER TABLE "Subscriptions"
+    ALTER COLUMN "collectionName" DROP NOT NULL,
+    ALTER COLUMN "deleted" DROP NOT NULL,
+    ALTER COLUMN "state" DROP NOT NULL,
+    ALTER COLUMN "type" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "TagFlags"
+    ALTER COLUMN "deleted" DROP NOT NULL,
+    ALTER COLUMN "name" DROP NOT NULL,
+    ALTER COLUMN "slug" DROP NOT NULL;
+
+  ALTER TABLE "TagRels"
+    ALTER COLUMN "backfilled" DROP NOT NULL,
+    ALTER COLUMN "baseScore" DROP NOT NULL,
+    ALTER COLUMN "deleted" DROP NOT NULL,
+    ALTER COLUMN "inactive" DROP NOT NULL,
+    ALTER COLUMN "postId" DROP NOT NULL,
+    ALTER COLUMN "score" DROP NOT NULL,
+    ALTER COLUMN "tagId" DROP NOT NULL,
+    ALTER COLUMN "voteCount" DROP NOT NULL;
+
+  ALTER TABLE "Tags"
+    ALTER COLUMN "adminOnly" DROP NOT NULL,
+    ALTER COLUMN "core" DROP NOT NULL,
+    ALTER COLUMN "defaultOrder" DROP NOT NULL,
+    ALTER COLUMN "deleted" DROP NOT NULL,
+    ALTER COLUMN "isPostType" DROP NOT NULL,
+    ALTER COLUMN "isSubforum" DROP NOT NULL,
+    ALTER COLUMN "name" DROP NOT NULL,
+    ALTER COLUMN "noindex" DROP NOT NULL,
+    ALTER COLUMN "postCount" DROP NOT NULL,
+    ALTER COLUMN "slug" DROP NOT NULL,
+    ALTER COLUMN "subTagIds" DROP NOT NULL,
+    ALTER COLUMN "subforumModeratorIds" DROP NOT NULL,
+    ALTER COLUMN "suggestedAsFilter" DROP NOT NULL,
+    ALTER COLUMN "tagFlagsIds" DROP NOT NULL,
+    ALTER COLUMN "wikiGrade" DROP NOT NULL,
+    ALTER COLUMN "wikiOnly" DROP NOT NULL;
+
+  ALTER TABLE "UserActivities"
+    ALTER COLUMN "activityArray" DROP NOT NULL,
+    ALTER COLUMN "endDate" DROP NOT NULL,
+    ALTER COLUMN "startDate" DROP NOT NULL,
+    ALTER COLUMN "type" DROP NOT NULL,
+    ALTER COLUMN "visitorId" DROP NOT NULL;
+
+  ALTER TABLE "UserMostValuablePosts"
+    ALTER COLUMN "deleted" DROP NOT NULL,
+    ALTER COLUMN "postId" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "UserRateLimits"
+    ALTER COLUMN "endedAt" DROP NOT NULL;
+
+  ALTER TABLE "UserTagRels"
+    ALTER COLUMN "subforumHideIntroPost" DROP NOT NULL,
+    ALTER COLUMN "tagId" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL;
+
+  ALTER TABLE "Users"
+    ALTER COLUMN "acceptedTos" DROP NOT NULL,
+    ALTER COLUMN "afCommentCount" DROP NOT NULL,
+    ALTER COLUMN "afKarma" DROP NOT NULL,
+    ALTER COLUMN "afPostCount" DROP NOT NULL,
+    ALTER COLUMN "afSequenceCount" DROP NOT NULL,
+    ALTER COLUMN "afSequenceDraftCount" DROP NOT NULL,
+    ALTER COLUMN "allowDatadogSessionReplay" DROP NOT NULL,
+    ALTER COLUMN "autoSubscribeAsOrganizer" DROP NOT NULL,
+    ALTER COLUMN "auto_subscribe_to_my_comments" DROP NOT NULL,
+    ALTER COLUMN "auto_subscribe_to_my_posts" DROP NOT NULL,
+    ALTER COLUMN "bookmarkedPostsMetadata" DROP NOT NULL,
+    ALTER COLUMN "commentCount" DROP NOT NULL,
+    ALTER COLUMN "deleted" DROP NOT NULL,
+    ALTER COLUMN "frontpagePostCount" DROP NOT NULL,
+    ALTER COLUMN "givingSeason2023DonatedFlair" DROP NOT NULL,
+    ALTER COLUMN "givingSeasonNotifyForVoting" DROP NOT NULL,
+    ALTER COLUMN "hiddenPostsMetadata" DROP NOT NULL,
+    ALTER COLUMN "hideAFNonMemberInitialWarning" DROP NOT NULL,
+    ALTER COLUMN "hideCommunitySection" DROP NOT NULL,
+    ALTER COLUMN "hideElicitPredictions" DROP NOT NULL,
+    ALTER COLUMN "hideHomeRHS" DROP NOT NULL,
+    ALTER COLUMN "hideIntercom" DROP NOT NULL,
+    ALTER COLUMN "hideMeetupsPoke" DROP NOT NULL,
+    ALTER COLUMN "hidePostsRecommendations" DROP NOT NULL,
+    ALTER COLUMN "hideSubscribePoke" DROP NOT NULL,
+    ALTER COLUMN "isAdmin" DROP NOT NULL,
+    ALTER COLUMN "karma" DROP NOT NULL,
+    ALTER COLUMN "karmaChangeNotifierSettings" DROP NOT NULL,
+    ALTER COLUMN "legacy" DROP NOT NULL,
+    ALTER COLUMN "markDownPostEditor" DROP NOT NULL,
+    ALTER COLUMN "maxCommentCount" DROP NOT NULL,
+    ALTER COLUMN "maxPostCount" DROP NOT NULL,
+    ALTER COLUMN "nearbyEventsNotifications" DROP NOT NULL,
+    ALTER COLUMN "needsReview" DROP NOT NULL,
+    ALTER COLUMN "noCollapseCommentsFrontpage" DROP NOT NULL,
+    ALTER COLUMN "noCollapseCommentsPosts" DROP NOT NULL,
+    ALTER COLUMN "noExpandUnreadCommentsReview" DROP NOT NULL,
+    ALTER COLUMN "noSingleLineComments" DROP NOT NULL,
+    ALTER COLUMN "noindex" DROP NOT NULL,
+    ALTER COLUMN "notificationAddedAsCoauthor" DROP NOT NULL,
+    ALTER COLUMN "notificationAlignmentSubmissionApproved" DROP NOT NULL,
+    ALTER COLUMN "notificationCommentsOnDraft" DROP NOT NULL,
+    ALTER COLUMN "notificationCommentsOnSubscribedPost" DROP NOT NULL,
+    ALTER COLUMN "notificationDebateCommentsOnSubscribedPost" DROP NOT NULL,
+    ALTER COLUMN "notificationDebateReplies" DROP NOT NULL,
+    ALTER COLUMN "notificationDialogueMatch" DROP NOT NULL,
+    ALTER COLUMN "notificationDialogueMessages" DROP NOT NULL,
+    ALTER COLUMN "notificationEventInRadius" DROP NOT NULL,
+    ALTER COLUMN "notificationGroupAdministration" DROP NOT NULL,
+    ALTER COLUMN "notificationKarmaPowersGained" DROP NOT NULL,
+    ALTER COLUMN "notificationNewMention" DROP NOT NULL,
+    ALTER COLUMN "notificationPostsInGroups" DROP NOT NULL,
+    ALTER COLUMN "notificationPostsNominatedReview" DROP NOT NULL,
+    ALTER COLUMN "notificationPrivateMessage" DROP NOT NULL,
+    ALTER COLUMN "notificationPublishedDialogueMessages" DROP NOT NULL,
+    ALTER COLUMN "notificationRSVPs" DROP NOT NULL,
+    ALTER COLUMN "notificationRepliesToMyComments" DROP NOT NULL,
+    ALTER COLUMN "notificationRepliesToSubscribedComments" DROP NOT NULL,
+    ALTER COLUMN "notificationSharedWithMe" DROP NOT NULL,
+    ALTER COLUMN "notificationShortformContent" DROP NOT NULL,
+    ALTER COLUMN "notificationSubforumUnread" DROP NOT NULL,
+    ALTER COLUMN "notificationSubscribedTagPost" DROP NOT NULL,
+    ALTER COLUMN "notificationSubscribedUserPost" DROP NOT NULL,
+    ALTER COLUMN "organizerOfGroupIds" DROP NOT NULL,
+    ALTER COLUMN "petrovOptOut" DROP NOT NULL,
+    ALTER COLUMN "postCount" DROP NOT NULL,
+    ALTER COLUMN "profileTagIds" DROP NOT NULL,
+    ALTER COLUMN "reactPaletteStyle" DROP NOT NULL,
+    ALTER COLUMN "sequenceCount" DROP NOT NULL,
+    ALTER COLUMN "sequenceDraftCount" DROP NOT NULL,
+    ALTER COLUMN "showCommunityInRecentDiscussion" DROP NOT NULL,
+    ALTER COLUMN "subscribedToDigest" DROP NOT NULL,
+    ALTER COLUMN "sunshineFlagged" DROP NOT NULL,
+    ALTER COLUMN "sunshineNotes" DROP NOT NULL,
+    ALTER COLUMN "sunshineSnoozed" DROP NOT NULL,
+    ALTER COLUMN "tagRevisionCount" DROP NOT NULL,
+    ALTER COLUMN "theme" DROP NOT NULL,
+    ALTER COLUMN "usernameUnset" DROP NOT NULL;
+
+  ALTER TABLE "Votes"
+    ALTER COLUMN "cancelled" DROP NOT NULL,
+    ALTER COLUMN "collectionName" DROP NOT NULL,
+    ALTER COLUMN "documentId" DROP NOT NULL,
+    ALTER COLUMN "documentIsAf" DROP NOT NULL,
+    ALTER COLUMN "isUnvote" DROP NOT NULL,
+    ALTER COLUMN "power" DROP NOT NULL,
+    ALTER COLUMN "userId" DROP NOT NULL,
+    ALTER COLUMN "voteType" DROP NOT NULL,
+    ALTER COLUMN "votedAt" DROP NOT NULL;
+`
+
 export const up = async ({db}: MigrationContext) => {
-  await db.none(fillInNullWithDefaultCommands);
-  await db.none(setNotnullCommands);
-  await db.none(createNewIndexesForOnConflictConstraints);
+  const hydrateDefaultCommandList = fillInNullWithDefaultCommands.split(';');
+  hydrateDefaultCommandList.pop();
+  for (const hydrateDefaultCommand of hydrateDefaultCommandList) {
+    await db.none(hydrateDefaultCommand);
+  }
+
+  const setNotNullCommandList = setNotnullCommands.split(';');
+  setNotNullCommandList.pop();
+  for (const setNotNullCommand of setNotNullCommandList) {
+    await db.none(setNotNullCommand);
+  }
+
+  const createNewIndexCommandList = createNewIndexesForOnConflictConstraints.split(';');
+  createNewIndexCommandList.pop();
+  for (const createNewIndexCommand of createNewIndexCommandList) {
+    await db.none(createNewIndexCommand);
+  }
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
+  const dropNotNullCommandList = dropNotnullCommands.split(';');
+  dropNotNullCommandList.pop();
+  for (const setNotNullCommand of dropNotNullCommandList) {
+    await db.none(setNotNullCommand);
+  }
 }
