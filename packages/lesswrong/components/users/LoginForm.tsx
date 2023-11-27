@@ -2,11 +2,12 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 import { gql, useMutation, DocumentNode } from '@apollo/client';
-import { isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import classnames from 'classnames'
 import { useLocation } from '../../lib/routeUtil';
+import type { GraphQLError } from 'graphql';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -85,56 +86,31 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const loginMutation = gql`
-  mutation login($username: String, $password: String) {
-    login(username: $username, password: $password) {
-      token
-    }
-  }
-`
-
-const signupMutation = gql`
-  mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean, $reCaptchaToken: String, $abTestKey: String) {
-    signup(email: $email, username: $username, password: $password, subscribeToCurated: $subscribeToCurated, reCaptchaToken: $reCaptchaToken, abTestKey: $abTestKey) {
-      token
-    }
-  }
-`
-
-const passwordResetMutation = gql`
-  mutation resetPassword($email: String) {
-    resetPassword(email: $email)
-  }
-`
-
 type possibleActions = "login" | "signup" | "pwReset"
-
-const currentActionToMutation : Record<possibleActions, DocumentNode> = {
-  login: loginMutation, 
-  signup: signupMutation,
-  pwReset: passwordResetMutation
-}
 
 const currentActionToButtonText : Record<possibleActions, string> = {
   login: "Log In",
-  signup: "Sign Up", 
+  signup: "Sign Up",
   pwReset: "Request Password Reset"
 }
 
-type WrappedLoginFormProps = {
+type LoginFormProps = {
   startingState?: possibleActions,
   immediateRedirect?: boolean,
   classes: ClassesType
 }
 
-const WrappedLoginForm = (props: WrappedLoginFormProps) => {
+const LoginForm = (props: LoginFormProps) => {
   if (isEAForum) {
-    return <WrappedLoginFormEA {...props} />
+    return <LoginFormEA {...props} />
   }
-  return <WrappedLoginFormDefault {...props} />
+  return <LoginFormDefault {...props} />
 }
 
-const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLoginFormProps) => {
+const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) => {
+  const hasSubscribeToCuratedCheckbox = !isEAForum && !isAF;
+  const hasOauthSection = !isEAForum;
+
   const { pathname } = useLocation()
   const { SignupSubscribeToCurated } = Components;
   const [reCaptchaToken, setReCaptchaToken] = useState<any>(null);
@@ -143,21 +119,76 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
   const [email, setEmail] = useState<string>("")
   const { flash } = useMessages();
   const [currentAction, setCurrentAction] = useState<possibleActions>(startingState)
-  const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(isLW)
-  const [ mutate, { error } ] = useMutation(currentActionToMutation[currentAction], { errorPolicy: 'all' })
+  const [subscribeToCurated, setSubscribeToCurated] = useState<boolean>(hasSubscribeToCuratedCheckbox)
+
+  const [loginMutation] = useMutation(gql`
+    mutation login($username: String, $password: String) {
+      login(username: $username, password: $password) {
+        token
+      }
+    }
+  `, { errorPolicy: 'all' })
+
+  const [signupMutation] = useMutation(gql`
+    mutation signup($email: String, $username: String, $password: String, $subscribeToCurated: Boolean, $reCaptchaToken: String, $abTestKey: String) {
+      signup(email: $email, username: $username, password: $password, subscribeToCurated: $subscribeToCurated, reCaptchaToken: $reCaptchaToken, abTestKey: $abTestKey) {
+        token
+      }
+    }
+  `, { errorPolicy: 'all' })
+
+  const [pwResetMutation] = useMutation(gql`
+    mutation resetPassword($email: String) {
+      resetPassword(email: $email)
+    }
+  `, { errorPolicy: 'all' })
+
+  const [displayedError, setDisplayedError] = useState<string|null>(null);
   const clientId = useClientId();
 
+  const showErrors = (errors: readonly GraphQLError[]) => {
+    setDisplayedError(errors.map(err => err.message).join('.\n'));
+  }
+  
   const submitFunction = async (e: AnyBecauseTodo) => {
     e.preventDefault();
     const signupAbTestKey = getUserABTestKey(null, clientId);
-    const variables = 
-      currentAction === "signup" ? { email, username, password, reCaptchaToken, abTestKey: signupAbTestKey, subscribeToCurated } : (
-      currentAction === "login" ? { username, password } :
-      currentAction === "pwReset" ? { email } : {})
-    const { data } = await mutate({ variables })
-    if (data?.login?.token || data?.signup?.token) location.reload()
-    if (data?.resetPassword) {
-      flash(data?.resetPassword)
+
+    if (currentAction === 'login') {
+      const { data, errors } = await loginMutation({
+        variables: { username, password }
+      })
+      if (errors) {
+        showErrors(errors);
+      }
+      if (data?.login?.token) {
+        location.reload()
+      }
+    } else if (currentAction === 'signup') {
+      const { data, errors } = await signupMutation({
+        variables: {
+          email, username, password,
+          reCaptchaToken,
+          abTestKey: signupAbTestKey,
+          subscribeToCurated
+        }
+      })
+      if (errors) {
+        showErrors(errors);
+      }
+      if (data?.signup?.token) {
+        location.reload()
+      }
+    } else if (currentAction === 'pwReset') {
+      const { data, errors } = await pwResetMutation({
+        variables: { email }
+      })
+      if (errors) {
+        showErrors(errors);
+      }
+      if (data?.resetPassword) {
+        flash(data?.resetPassword)
+      }
     }
   }
 
@@ -177,16 +208,15 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
       </>}
       <input type="submit" className={classes.submit} value={currentActionToButtonText[currentAction]} />
       
-      {currentAction === "signup" && isLW &&
+      {currentAction === "signup" && hasSubscribeToCuratedCheckbox &&
         <SignupSubscribeToCurated defaultValue={subscribeToCurated} onChange={(checked: boolean) => setSubscribeToCurated(checked)} />
       }
       <div className={classes.options}>
-        { currentAction !== "login" && <span className={classes.toggle} onClick={() => setCurrentAction("login")}> Log In </span> }
-        { currentAction === "login" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span> }
-        { currentAction === "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span> }
-        { currentAction !== "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("pwReset")}> Reset Password </span> }
+        {currentAction !== "login" && <span className={classes.toggle} onClick={() => setCurrentAction("login")}> Log In </span>}
+        {currentAction !== "signup" && <span className={classes.toggle} onClick={() => setCurrentAction("signup")}> Sign Up </span>}
+        {currentAction !== "pwReset" && <span className={classes.toggle} onClick={() => setCurrentAction("pwReset")}> Reset Password </span>}
       </div>
-      {isLWorAF && <>
+      {hasOauthSection && <>
         <div className={classes.oAuthComment}>...or continue with</div>
         <div className={classes.oAuthBlock}>
           <a className={classes.oAuthLink} href={`/auth/facebook?returnTo=${pathname}`}>FACEBOOK</a>
@@ -194,12 +224,12 @@ const WrappedLoginFormDefault = ({ startingState = "login", classes }: WrappedLo
           <a className={classes.oAuthLink} href={`/auth/github?returnTo=${pathname}`}>GITHUB</a>
         </div>
       </>}
-      {error && <div className={classes.error}>{error.message}</div>}
+      {displayedError && <div className={classes.error}>{displayedError}</div>}
     </form>
   </Components.ContentStyles>;
 }
 
-const WrappedLoginFormEA = ({startingState, immediateRedirect, classes}: WrappedLoginFormProps) => {
+const LoginFormEA = ({startingState, immediateRedirect, classes}: LoginFormProps) => {
   const { pathname, query } = useLocation()
   const returnUrl = `${pathname}?${new URLSearchParams(query).toString()}`;
   const returnTo = encodeURIComponent(returnUrl);
@@ -224,10 +254,10 @@ const WrappedLoginFormEA = ({startingState, immediateRedirect, classes}: Wrapped
   </Components.ContentStyles>
 }
 
-const WrappedLoginFormComponent = registerComponent('WrappedLoginForm', WrappedLoginForm, { styles });
+const LoginFormComponent = registerComponent('LoginForm', LoginForm, { styles });
 
 declare global {
   interface ComponentTypes {
-    WrappedLoginForm: typeof WrappedLoginFormComponent
+    LoginForm: typeof LoginFormComponent
   }
 }
