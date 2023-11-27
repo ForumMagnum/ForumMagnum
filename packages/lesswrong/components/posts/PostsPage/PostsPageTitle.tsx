@@ -64,7 +64,7 @@ const PostsPageTitle = ({classes, post}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const parentPost = post.sourcePostRelations?.filter(rel => !!rel.sourcePost)?.[0]?.sourcePost;
-  const { Typography, ForumIcon } = Components;
+  const { Typography, ForumIcon, LWTooltip } = Components;
   const showLinkIcon = post.url && isFriendlyUI;
   const showDialogueIcon = post.collabEditorDialogue && isFriendlyUI;
 
@@ -91,10 +91,14 @@ const PostsPageTitle = ({classes, post}: {
           <span className={classes.lastWord}>
             {lastWordOfTitle}
             {showLinkIcon &&
-              <ForumIcon className={classes.linkIcon} icon="BoldLink" />
+              <LWTooltip title="Link post">
+                <ForumIcon className={classes.linkIcon} icon="BoldLink" />
+              </LWTooltip>
             }
             {showDialogueIcon &&
-              <ForumIcon className={classes.dialogueIcon} icon="ChatBubbleLeftRight" />
+              <LWTooltip title="Dialogue">
+                <ForumIcon className={classes.dialogueIcon} icon="ChatBubbleLeftRight" />
+              </LWTooltip>
             }
           </span>
         </Link>

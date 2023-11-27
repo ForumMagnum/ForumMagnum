@@ -58,7 +58,7 @@ const BookmarksPage = ({ classes }: {
 
   const currentUser = useCurrentUser()
   if (!currentUser) {
-    return <span>You must sign in to view this page.</span>
+    return <Components.ErrorAccessDenied />
   }
   
   const {SingleColumnSection, Typography, BookmarksTab, ReadHistoryTab, VoteHistoryTab} = Components

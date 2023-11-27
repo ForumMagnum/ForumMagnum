@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
@@ -18,6 +18,7 @@ import { hasProminentLogoSetting } from '../../lib/publicSettings';
 
 import { useLocation } from '../../lib/routeUtil';
 import { useIsGivingSeason } from '../ea-forum/giving-portal/hooks';
+import { isAdmin } from '../../lib/vulcan-users';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -73,7 +74,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   titleLink: {
     color: theme.palette.header.text,
     fontSize: 19,
-    '&:hover, &:focus, &:active': {
+    '&:hover, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
     },
@@ -95,27 +96,27 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   hideLgUp: {
     [theme.breakpoints.up('lg')]: {
-      display:"none"
+      display:"none !important"
     }
   },
   hideMdDown: {
     [theme.breakpoints.down('md')]: {
-      display:"none"
+      display:"none !important"
     }
   },
   hideSmDown: {
     [theme.breakpoints.down('sm')]: {
-      display: "none",
+      display: "none !important",
     },
   },
   hideXsDown: {
     [theme.breakpoints.down('xs')]: {
-      display: "none",
+      display: "none !important",
     },
   },
   hideMdUp: {
     [theme.breakpoints.up('md')]: {
-      display: "none",
+      display: "none !important",
     },
   },
   rightHeaderItems: {
@@ -186,7 +187,16 @@ const Header = ({
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
-  const { pathname } = useLocation()
+  const { pathname, hash } = useLocation()
+
+  useEffect(() => {
+    // When we move to a different page we will be positioned at the top of
+    // the page (unless the hash is set) but Headroom doesn't run this callback
+    // on navigation so we have to do it manually
+    if (!hash) {
+      setUnFixed(true);
+    }
+  }, [pathname, hash]);
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -335,7 +345,7 @@ const Header = ({
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
   const isGivingSeason = useIsGivingSeason();
-  if (isGivingSeason && pathname === '/') {
+  if ((isGivingSeason && pathname === "/") || (pathname.startsWith("/voting-portal") && isAdmin(currentUser))) {
     return (
       <GivingSeasonHeader
         searchOpen={searchOpen}
