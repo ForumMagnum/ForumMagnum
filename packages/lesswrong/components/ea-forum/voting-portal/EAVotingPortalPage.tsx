@@ -46,7 +46,7 @@ const EAVotingPortalPage = ({classes}: {
   const currentUser = useCurrentUser();
   if (!isAdmin(currentUser)) return null;
 
-  const {VotingPortalThankYou} = Components;
+  const {VotingPortalIntro, VotingPortalThankYou} = Components;
   return (
     <AnalyticsContext
       pageContext="eaVotingPortal"
@@ -61,13 +61,7 @@ const EAVotingPortalPage = ({classes}: {
       })}>
         {isThankYouPage
           ? <VotingPortalThankYou currentUser={currentUser} />
-          : (
-            <div className={classes.content} id="top">
-              <div className={classes.h1}>
-                Voting portal intro
-              </div>
-            </div>
-          )
+          : <VotingPortalIntro />
         }
       </div>
     </AnalyticsContext>
