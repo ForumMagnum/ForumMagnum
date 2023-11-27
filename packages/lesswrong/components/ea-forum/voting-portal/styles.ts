@@ -15,6 +15,9 @@ export const votingPortalStyles = (theme: ThemeType) => ({
     maxWidth: 800,
     position: "relative",
     zIndex: theme.zIndexes.singleColumnSection,
+    [theme.breakpoints.down("xs")]: {
+      padding: "24px 24px 48px 24px",
+    },
   },
   h1: {
     fontSize: 48,

@@ -403,6 +403,7 @@ declare global {
     background: {
       default: ColorString
       paper: ColorString,
+      contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
       translucentBackground: ColorString,
       diffInserted: ColorString,

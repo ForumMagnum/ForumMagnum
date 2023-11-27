@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
       border: `2px solid ${theme.palette.givingPortal[1000]} !important`,
     },
     "& .MuiNotchedOutline-root": {
-      backgroundColor: theme.palette.background.paper,
+      backgroundColor: theme.palette.background.contrastInDarkMode,
     },
   },
   greyedOut: {
