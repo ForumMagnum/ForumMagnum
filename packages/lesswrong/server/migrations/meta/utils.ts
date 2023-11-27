@@ -17,8 +17,9 @@ export const addField = async <T extends DbObject>(
   db: SqlClientOrTx,
   collection: PgCollection<T>,
   fieldName: keyof T & string,
+  skipValidation = false,
 ): Promise<void> => {
-  const {sql, args} = new AddFieldQuery(collection.getTable(), fieldName).compile();
+  const {sql, args} = new AddFieldQuery(collection.getTable(), fieldName, skipValidation).compile();
   await db.none(sql, args);
 }
 
@@ -41,8 +42,9 @@ export const dropField = async <T extends DbObject>(
   db: SqlClientOrTx,
   collection: PgCollection<T>,
   fieldName: keyof T & string,
+  skipValidation = false,
 ): Promise<void> => {
-  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName).compile();
+  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName, skipValidation).compile();
   await db.none(sql, args);
 }
 

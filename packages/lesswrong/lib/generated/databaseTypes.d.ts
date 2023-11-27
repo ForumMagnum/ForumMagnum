@@ -350,6 +350,8 @@ interface DbElectionVote extends DbObject {
   userId: string
   vote: any /*{"definitions":[{"blackbox":true}]}*/
   submittedAt: Date | null
+  userExplanation: string | null
+  userOtherComments: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

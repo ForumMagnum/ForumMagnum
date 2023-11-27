@@ -28,7 +28,7 @@ export const useElectionVote = (electionName: string) => {
     fragmentName: 'ElectionVoteInfo',
   });
 
-  const updateVote = useCallback(async (vote: any) => {
+  const updateVote = useCallback(async (data: NullablePartial<DbElectionVote>) => {
     if (!voteDocument) {
       return;
     }
@@ -37,18 +37,16 @@ export const useElectionVote = (electionName: string) => {
       selector: {
         _id: voteDocument._id,
       },
-      data: {
-        vote,
-      }
+      data,
     });
 
     refetch();
   }, [voteDocument, refetch, updateVoteDb]);
 
   return {
-    electionVote: (voteDocument ? voteDocument.vote : {}) as Record<string, number | null>,
+    electionVote: voteDocument,
+    updateVote,
     loading,
     error,
-    updateVote,
   };
 }
