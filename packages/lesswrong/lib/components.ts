@@ -582,6 +582,7 @@ importComponent("CommentDeletedMetadata", () => require('../components/comments/
 importComponent("CommentBody", () => require('../components/comments/CommentsItem/CommentBody'));
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
+importComponent("CommentBottom", () => require('../components/comments/CommentsItem/CommentBottom'));
 importComponent("CommentBottomCaveats", () => require('../components/comments/CommentsItem/CommentBottomCaveats'));
 
 importComponent("AllComments", () => require('../components/comments/AllComments'));
