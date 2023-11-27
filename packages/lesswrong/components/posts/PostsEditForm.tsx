@@ -113,11 +113,6 @@ const PostsEditForm = ({ documentId, classes }: {
       />
     </div>
   }
-  
-  const removedFields = []
-  if (document.collabEditorDialogue) {
-    removedFields.push('debate', 'moderationStyle', 'moderationGuidelines', 'ignoreRateLimits', 'tagRelevance', 'socialPreview', 'socialPreviewImageId')
-  }
 
   return (
     <DynamicTableOfContents title={document.title}>
@@ -129,7 +124,6 @@ const PostsEditForm = ({ documentId, classes }: {
           <EditorContext.Provider value={[editorState, setEditorState]}>
             <WrappedSmartForm
               collectionName="Posts"
-              removeFields={removedFields}
               documentId={documentId}
               queryFragment={getFragment('PostsEditQueryFragment')}
               mutationFragment={getFragment('PostsEditMutationFragment')}

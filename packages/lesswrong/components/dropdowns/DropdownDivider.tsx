@@ -1,12 +1,12 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
-import { isEAForum } from "../../lib/instanceSettings";
 import Divider from "@material-ui/core/Divider";
 import classNames from "classnames";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = (_theme: ThemeType): JssStyles => ({
   root: {
-    margin: isEAForum ? `6px 0` : undefined,
+    margin: isFriendlyUI ? `6px 0` : undefined,
   },
 });
 

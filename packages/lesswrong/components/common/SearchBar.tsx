@@ -8,10 +8,11 @@ import Portal from '@material-ui/core/Portal';
 import IconButton from '@material-ui/core/IconButton';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { getAlgoliaIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/algoliaUtil';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
 import { useCurrentUser } from './withUser';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 
@@ -54,7 +55,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
       height: "100%",
       width: "100%",
-      paddingTop: isEAForum ? 5 : undefined,
+      paddingTop: isFriendlyUI ? 5 : undefined,
       paddingRight: 0,
       paddingLeft: 48,
       verticalAlign: "bottom",
@@ -73,13 +74,13 @@ const styles = (theme: ThemeType): JssStyles => ({
       position: 'fixed',
     },
   },
-  searchInputAreaSmall: isEAForum ? {
+  searchInputAreaSmall: isFriendlyUI ? {
     minWidth: 34,
   } : {},
   searchIcon: {
-    color: isEAForum ? undefined : theme.palette.header.text,
+    color: isFriendlyUI ? undefined : theme.palette.header.text,
   },
-  searchIconSmall: isEAForum ? {
+  searchIconSmall: isFriendlyUI ? {
     padding: 6,
     marginTop: 6,
   } : {},
@@ -89,7 +90,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   searchBarClose: {
     display: "inline-block",
     position: "absolute",
-    top: isEAForum ? 18 : 15,
+    top: isFriendlyUI ? 18 : 15,
     right: 5,
     cursor: "pointer"
   },
@@ -164,7 +165,6 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
     }
   }, [currentQuery, captureSearch])
 
-  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
   const { SearchBarResults, ForumIcon } = Components
 
   if (!isSearchEnabled()) {
@@ -181,9 +181,9 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
         <div className={classNames(
           classes.searchInputArea,
           {"open": inputOpen},
-          {[classes.alignmentForum]: alignmentForum, [classes.searchInputAreaSmall]: !currentUser}
+          {[classes.alignmentForum]: isAF, [classes.searchInputAreaSmall]: !currentUser}
         )}>
-          {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
+          {isAF && <VirtualMenu attribute="af" defaultRefinement="true" />}
           <div onClick={handleSearchTap}>
             <IconButton className={classNames(classes.searchIcon, {[classes.searchIconSmall]: !currentUser})}>
               <ForumIcon icon="Search" />

@@ -2,17 +2,16 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import React, {useCallback, useState} from 'react';
 import Input from '@material-ui/core/Input';
 import PropTypes from 'prop-types'
-import classNames from 'classnames';
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { isEAForum } from '../../lib/instanceSettings';
 import { PostCategory } from '../../lib/collections/posts/helpers';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontWeight: 700,
       fontSize: "3rem",
       marginBottom: 12,
@@ -89,4 +88,3 @@ declare global {
     EditTitle: typeof EditTitleComponent
   }
 }
-

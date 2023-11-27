@@ -6,10 +6,8 @@ import { Posts } from '../../lib/collections/posts';
 import Users from '../../lib/collections/users/collection';
 import moment from 'moment';
 import { getForumTheme } from '../../themes/forumTheme';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isLW } from '../../lib/instanceSettings';
 import fs from 'fs';
-
-const isLW = forumTypeSetting.get() === 'LessWrong';
 
 const getCost = (vote: AnyBecauseTodo) => getCostData({})[vote.qualitativeScore].cost
 const getValue = (vote: AnyBecauseTodo, total: number) => getCostData({costTotal:total})[vote.qualitativeScore].value

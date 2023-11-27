@@ -21,6 +21,7 @@ import Tags from '../lib/collections/tags/collection';
 import Revisions from '../lib/collections/revisions/collection';
 import { syncDocumentWithLatestRevision } from './editor/utils';
 import { createAdminContext } from './vulcan-lib/query';
+import Sequences from '../lib/collections/sequences/collection';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -233,6 +234,20 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, dele
     }
 
     await commentReportPurgeAsSpam(comment);
+  }
+  
+  const sequences = await Sequences.find({userId: user._id}).fetch();
+  //eslint-disable-next-line no-console
+  console.info("Deleting sequences: ", sequences);
+  for (let sequence of sequences) {
+    await updateMutator({
+      collection: Sequences,
+      documentId: sequence._id,
+      set: {isDeleted: true},
+      unset: {},
+      currentUser: deletingUser,
+      validate: false,
+    })
   }
   
   if (deleteTags) {

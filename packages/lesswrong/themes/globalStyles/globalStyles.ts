@@ -1,3 +1,5 @@
+import { isFriendlyUI } from "../forumTheme";
+
 export const maxSmallish = "@media screen and (max-width: 715px)";
 export const maxTiny = "@media screen and (max-width: 400px)";
 
@@ -186,74 +188,151 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
   },
 });
 
+
+type Enumerate<N extends number, Acc extends number[] = []> =
+  Acc["length"] extends N
+    ? Acc[number]
+    : Enumerate<N, [...Acc, Acc["length"]]>;
+
+type IntRange<F extends number, T extends number> =
+  Exclude<Enumerate<T>, Enumerate<F>>;
+
+const makeDialogueCommentStyles = (
+  theme: ThemeType,
+  selector: (i: number) => string,
+  style: (color: string) => JssStyles,
+) => {
+  const count = 6;
+  const result: JssStyles = {};
+  for (let i = 1 as IntRange<1, 7>; i <= count; i++) {
+    const color = theme.palette.text.debateComment[`${i}`];
+    result[selector(i)] = style(color);
+  }
+  return result;
+}
+
 const dialogueStyle = (theme: ThemeType): JssStyles => ({
   '.dialogue-message-input-wrapper': {
     display: 'flex',
-    'flex-direction': 'column',
-    'margin-top': 12
+    flexDirection: 'column',
+    marginTop: 12,
   },
 
   '.dialogue-message-input': {
-    border: '2px solid !important',
     padding: '26px 16px 40px 16px',
-    'border-radius': 3,
     position: 'relative',
     margin: '12px 0',
-    order: 2
+    order: 2,
+    ...(isFriendlyUI
+      ? {
+        fontSize: "1.1rem",
+        "& p, & div, & span, & li, & blockquote, & pre": {
+          fontSize: "1.1rem",
+        },
+        borderRadius: theme.borderRadius.small,
+        border: "2px solid transparent",
+        ...makeDialogueCommentStyles(
+          theme,
+          (i) => `&[user-order="${i}"]`,
+          (color) => ({
+            borderColor: `${color} !important`,
+          }),
+        ),
+      }
+      : {
+        borderRadius: 3,
+        border: '2px solid !important',
+        ...makeDialogueCommentStyles(
+          theme,
+          (i) => `&[user-order="${i}"] .dialogue-message-input-header]`,
+          (color) => ({
+            color: `${color} !important`,
+          }),
+        ),
+      }),
   },
-  
+
   '.dialogue-message-input-header': {
     position: 'absolute',
     top: -14,
-    'background-color': 'white',
-    padding: 4
+    backgroundColor: theme.palette.grey[0],
+    padding: isFriendlyUI ? "4px 8px" : 4,
+    borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
   },
-  
+
   '.dialogue-message-input button': {
-    'margin-left': 'auto',
-    'margin-right': -8,
-    'margin-bottom': -4,
+    marginRight: -8,
     display: 'block',
     position: 'absolute',
-    right: 16,
-    bottom: 12,
-    padding: 0,
-    'min-height': 'unset'
+    ...(isFriendlyUI
+      ? {
+        right: 12,
+        color: theme.palette.grey[1000],
+        backgroundColor: theme.palette.grey[250],
+        "&:hover": {
+          backgroundColor: theme.palette.grey[300],
+        },
+      }
+      : {
+        right: 16,
+        padding: 0,
+        minHeight: 'unset',
+        marginLeft: 'auto',
+        marginBottom: -4,
+        bottom: 12,
+      }),
   },
-  
+
   '.dialogue-message': {
-    'margin-top': 6,
-    padding: '22px 8px 8px 0px',
-    position: 'relative'
+    marginTop: 6,
+    position: 'relative',
+    ...(isFriendlyUI
+      ? {
+        fontSize: "1.1rem",
+        "& p, & div, & span, & li, & blockquote, & pre": {
+          fontSize: "1.1rem",
+        },
+        marginBottom: 22,
+        padding: '22px 8px 0px 12px',
+        "&:after": {
+          display: "block",
+          position: "absolute",
+          content: "''",
+          top: 0,
+          left: 0,
+          height: "calc(100% - 3px)",
+          borderRight: "2px solid transparent",
+        },
+        '& .dialogue-message-header b': {
+          fontWeight: 700,
+        },
+        ...makeDialogueCommentStyles(
+          theme,
+          (i) => `&[user-order="${i}"]:after`,
+          (color) => ({
+            borderColor: color,
+          }),
+        ),
+      }
+      : {
+        padding: '22px 8px 8px 0px',
+        ...makeDialogueCommentStyles(
+          theme,
+          (i) => `&[user-order="${i}"] .dialogue-message-header`,
+          (color) => ({
+            color: `${color} !important`,
+          }),
+        ),
+      }),
   },
-  
+
   '.dialogue-message p, .dialogue-message-input p': {
-    'margin-bottom': '0px !important'
+    marginBottom: '0px !important'
   },
-  
-  '.dialogue-message[user-order="1"] .dialogue-message-header, .dialogue-message-input[user-order="1"] .dialogue-message-input-header': {
-    'color': `${theme.palette.text.debateComment} !important`
-  },
-  
-  '.dialogue-message[user-order="2"] .dialogue-message-header, .dialogue-message-input[user-order="2"] .dialogue-message-input-header': {
-    'color': `${theme.palette.text.debateComment2} !important`
-  },
-  
-  '.dialogue-message[user-order="3"] .dialogue-message-header, .dialogue-message-input[user-order="3"] .dialogue-message-input-header': {
-    'color': `${theme.palette.text.debateComment3} !important`
-  },
-  
-  '.dialogue-message[user-order="4"] .dialogue-message-header, .dialogue-message-input[user-order="4"] .dialogue-message-input-header': {
-    'color': `${theme.palette.text.debateComment4} !important`
-  },
-  
-  '.dialogue-message[user-order="5"] .dialogue-message-header, .dialogue-message-input[user-order="5"] .dialogue-message-input-header': {
-    'color': `${theme.palette.text.debateComment5} !important`
-  },
-  
+
   '.dialogue-message-header': {
     position: 'absolute',
-    top: 0
+    top: isFriendlyUI ? -4 : 0,
   },
 
   '.dialogue-message-header b': {

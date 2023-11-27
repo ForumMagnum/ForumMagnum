@@ -3,7 +3,6 @@ import { userCanDo } from '../../vulcan-users/permissions';
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
-import { forumTypeSetting } from '../../instanceSettings';
 
 const options: MutationOptions<DbBan> = {
   newCheck: (user: DbUser|null, document: DbBan|null) => {

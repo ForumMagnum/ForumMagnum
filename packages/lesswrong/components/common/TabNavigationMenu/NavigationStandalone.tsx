@@ -5,8 +5,8 @@ import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 import { communityPath } from '../../../lib/routes';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
+import { isLWorAF } from '../../../lib/instanceSettings';
 
 const Slide = componentWithChildren(BadlyTypedSlide);
 
@@ -73,7 +73,7 @@ const NavigationStandalone = ({
         />
       </div>
     </Slide>
-    {!isEAForum && <div className={classNames(classes.footerBar, className)}>
+    {isLWorAF && <div className={classNames(classes.footerBar, className)}>
       <TabNavigationMenuFooter />
     </div>}
   </>

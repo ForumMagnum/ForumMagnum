@@ -11,6 +11,7 @@ import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSql
 import { createSqlConnection } from "./sqlConnection";
 import { inspect } from "util";
 import { testServerSetting } from "../lib/instanceSettings";
+import { installExtensions, updateFunctions } from "./migrations/meta/utils";
 import Posts from "../lib/collections/posts/collection";
 import Comments from "../lib/collections/comments/collection";
 import Conversations from "../lib/collections/conversations/collection";
@@ -40,6 +41,7 @@ export const preparePgTables = () => {
 
 const buildTables = async (client: SqlClient) => {
   await ensureMongo2PgLockTableExists(client);
+  await installExtensions(client);
 
   preparePgTables();
 
@@ -73,6 +75,7 @@ const buildTables = async (client: SqlClient) => {
     }
   }
 
+  await updateFunctions(client);
   await ensurePostgresViewsExist(client);
 }
 

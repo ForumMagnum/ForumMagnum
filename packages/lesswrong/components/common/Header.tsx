@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { NoSSR } from '../../lib/utils/componentsWithChildren';
@@ -11,14 +11,21 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { isEAForum, PublicInstanceSetting } from '../../lib/instanceSettings';
+import { PublicInstanceSetting } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import { hasProminentLogoSetting } from '../../lib/publicSettings';
+
 import { useLocation } from '../../lib/routeUtil';
 import { useIsGivingSeason } from '../ea-forum/giving-portal/hooks';
+import { isAdmin } from '../../lib/vulcan-users';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
-export const EA_FORUM_HEADER_HEIGHT = 66;
+/** Height of top header. On Book UI sites, this is for desktop only */
+export const HEADER_HEIGHT = isBookUI ? 64 : 66;
+/** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
+export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
 
 export const styles = (theme: ThemeType): JssStyles => ({
   appBar: {
@@ -32,7 +39,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     boxSizing: "border-box",
     flexShrink: 0,
     flexDirection: "column",
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       padding: '1px 20px',
       [theme.breakpoints.down('sm')]: {
         padding: '1px 11px',
@@ -45,9 +52,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
     // Headroom and top-pads the page) has to match.
-    height: isEAForum ? EA_FORUM_HEADER_HEIGHT : 64,
+    height: HEADER_HEIGHT,
     [theme.breakpoints.down('xs')]: {
-      height: isEAForum ? EA_FORUM_HEADER_HEIGHT : 56,
+      height: MOBILE_HEADER_HEIGHT,
     },
     "@media print": {
       display: "none"
@@ -67,57 +74,55 @@ export const styles = (theme: ThemeType): JssStyles => ({
   titleLink: {
     color: theme.palette.header.text,
     fontSize: 19,
-    '&:hover, &:focus, &:active': {
+    '&:hover, &:active': {
       textDecoration: 'none',
       opacity: 0.7,
     },
     display: 'flex',
     alignItems: 'center',
-    fontWeight: isEAForum ? 400 : undefined,
+    fontWeight: isFriendlyUI ? 400 : undefined,
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,
     marginRight: theme.spacing.unit,
   },
-  siteLogo: isEAForum ? {
+  siteLogo: {
     marginLeft:  -7,
     marginRight: 6,
     [theme.breakpoints.down('sm')]: {
       marginLeft: -12,
       marginRight: 3
     },
-  } : {
-    marginLeft: -theme.spacing.unit * 1.5,
   },
   hideLgUp: {
     [theme.breakpoints.up('lg')]: {
-      display:"none"
+      display:"none !important"
     }
   },
   hideMdDown: {
     [theme.breakpoints.down('md')]: {
-      display:"none"
+      display:"none !important"
     }
   },
   hideSmDown: {
     [theme.breakpoints.down('sm')]: {
-      display: "none",
+      display: "none !important",
     },
   },
   hideXsDown: {
     [theme.breakpoints.down('xs')]: {
-      display: "none",
+      display: "none !important",
     },
   },
   hideMdUp: {
     [theme.breakpoints.up('md')]: {
-      display: "none",
+      display: "none !important",
     },
   },
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
     display: "flex",
-    alignItems: isEAForum ? 'center' : undefined,
+    alignItems: isFriendlyUI ? 'center' : undefined,
   },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {
@@ -182,7 +187,16 @@ const Header = ({
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
-  const { pathname } = useLocation()
+  const { pathname, hash } = useLocation()
+
+  useEffect(() => {
+    // When we move to a different page we will be positioned at the top of
+    // the page (unless the hash is set) but Headroom doesn't run this callback
+    // on navigation so we have to do it manually
+    if (!hash) {
+      setUnFixed(true);
+    }
+  }, [pathname, hash]);
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -274,20 +288,18 @@ const Header = ({
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        {(isEAForum && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
+        {(isFriendlyUI && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
       </IconButton>}
     </React.Fragment>
   }
-
-  const hasLogo = isEAForum;
 
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
     GivingSeasonHeader,
   } = Components;
-
-  const usersMenuClass = isEAForum ? classes.hideXsDown : classes.hideMdDown
+  
+  const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
   const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
       <UsersMenu />
@@ -299,19 +311,19 @@ const Header = ({
     <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
       <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     </NoSSR>
-    {!isEAForum && usersMenuNode}
+    {!isFriendlyUI && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
     {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
       currentUser={currentUser}
-      className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
+      className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
     {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
       unreadNotifications={unreadNotifications}
       toggle={handleNotificationToggle}
       open={notificationOpen}
-      className={(isEAForum && searchOpen) ? classes.hideXsDown : undefined}
+      className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
-    {isEAForum && usersMenuNode}
+    {isFriendlyUI && usersMenuNode}
   </div>
 
   // the left side nav menu
@@ -333,11 +345,11 @@ const Header = ({
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
   const isGivingSeason = useIsGivingSeason();
-  if (isGivingSeason && pathname === '/') {
+  if ((isGivingSeason && pathname === "/") || (pathname.startsWith("/voting-portal") && isAdmin(currentUser))) {
     return (
       <GivingSeasonHeader
         searchOpen={searchOpen}
-        hasLogo={hasLogo}
+        hasLogo={hasProminentLogoSetting.get()}
         unFixed={unFixed}
         setUnFixed={setUnFixed}
         NavigationMenuButton={NavigationMenuButton}
@@ -363,13 +375,13 @@ const Header = ({
           disable={stayAtTop}
         >
           <header className={classes.appBar}>
-            <Toolbar disableGutters={isEAForum}>
+            <Toolbar disableGutters={isFriendlyUI}>
               <NavigationMenuButton />
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
                     <Link to="/" className={classes.titleLink}>
-                      {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                       {forumHeaderTitleSetting.get()}
                     </Link>
                     <HeaderSubtitle />
@@ -377,7 +389,7 @@ const Header = ({
                 </div>
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasLogo && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>

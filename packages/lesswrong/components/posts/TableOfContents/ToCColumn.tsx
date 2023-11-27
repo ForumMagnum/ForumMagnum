@@ -3,9 +3,9 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { isEAForum } from '../../../lib/instanceSettings';
 import { isClient } from '../../../lib/executionEnvironment';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
@@ -164,7 +164,7 @@ export const ToCColumn = ({
     shouldHideToggleContentsButton,
   );
   const [hidden, setHidden] = useState(false);
-  const hideable = isEAForum && !notHideable && !!tableOfContents;
+  const hideable = isFriendlyUI && !notHideable && !!tableOfContents;
 
   useEffect(() => {
     const handler = () => setHideTocButtonHidden(
