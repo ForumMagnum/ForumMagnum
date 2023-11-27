@@ -120,7 +120,7 @@ class Table<T extends DbObject> {
     return this.indexes;
   }
 
-  setCollection(collection: CollectionBase<T>) {
+  private setCollection(collection: CollectionBase<T>) {
     this.collection = collection;
   }
 
