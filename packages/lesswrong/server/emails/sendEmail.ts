@@ -19,11 +19,17 @@ const getMailUrl = () => {
  * API descended from meteor
  */
 export const sendEmailSmtp = async (email: RenderedEmail): Promise<boolean> => {
+  if (email.user?.deleted) {
+    // eslint-disable-next-line no-console
+    console.error("Attempting to send an email to a deleted user");
+    return false;
+  }
+
   const mailUrl = getMailUrl();
   
   if (!mailUrl) {
     // eslint-disable-next-line no-console
-    console.log("Unable to send email because no mailserver is configured");
+    console.error("Unable to send email because no mailserver is configured");
     return false;
   }
   

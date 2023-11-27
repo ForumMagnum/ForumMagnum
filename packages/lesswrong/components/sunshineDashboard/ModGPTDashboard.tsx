@@ -8,6 +8,7 @@ import type { Column } from '../vulcan-core/Datatable';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import sanitizeHtml from 'sanitize-html';
 import { htmlToText } from 'html-to-text';
+import { useMulti } from '../../lib/crud/withMulti';
 
 const styles = (theme: JssStyles) => ({
   root: {
@@ -99,6 +100,7 @@ const ModGPTDashboard = ({classes}: {
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser()
+  
   if (!userIsAdminOrMod(currentUser)) {
     return <Components.Error404 />
   }
@@ -108,15 +110,11 @@ const ModGPTDashboard = ({classes}: {
       <Components.SectionTitle title="ModGPT Dashboard" noTopMargin />
 
       <Components.Datatable
-        collection={Comments}
+        collectionName="Comments"
         columns={columns}
-        options={{
-          fragmentName: 'CommentsListWithModGPTAnalysis',
-          terms: {view: "checkedByModGPT"},
-          limit: 10,
-          enableTotal: true
-        }}
-        showEdit={false}
+        fragmentName={'CommentsListWithModGPTAnalysis'}
+        terms={{view: "checkedByModGPT"}}
+        limit={10}
       />
     </div>
   )

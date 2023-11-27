@@ -10,7 +10,7 @@ describe('Basic Login and Signup', function() {
     const newDisplayname = 'New User 123123';
     cy.loginAs(this.testUserUnsetUsername);
     cy.visit('/');
-    cy.contains('Please choose a username').should('exist');
+    cy.contains('Choose a username').should('exist');
     cy.get('input[type="text"]').type(newDisplayname);
     cy.get('.NewUserCompleteProfile-submitButtonSection > button').click();
     // This is not a great test, but it should work -

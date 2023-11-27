@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Components, getSiteUrl, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle } from "../../../lib/crud/withSingle";
-import { useMulti } from "../../../lib/crud/withMulti";
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
@@ -27,10 +26,6 @@ import { useMessages } from "../../common/withMessages";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
-import { useCurrentTime } from "../../../lib/utils/timeUtil";
-import moment from "moment";
-import { useTimezone } from "../../common/withTimezone";
-import { frontpageDaysAgoCutoffSetting } from "../../../lib/scoring";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 
 const styles = (theme: ThemeType) => ({
@@ -151,7 +146,7 @@ const styles = (theme: ThemeType) => ({
       textDecoration: "none",
     },
   },
-  button: {
+  buttonDisabled: {
     display: "flex",
     alignItems: "center",
     gap: "10px",
@@ -164,12 +159,14 @@ const styles = (theme: ThemeType) => ({
     padding: "12px 48px",
     border: "none",
     outline: "none",
-    "&:hover": {
-      opacity: 0.85,
-    },
-    "&:active": {
-      opacity: 0.7,
-    },
+    userSelect: "none",
+    cursor: "not-allowed",
+    opacity: 0.65,
+  },
+  tooltip: {
+    background: theme.palette.panelBackground.tooltipBackground2,
+    maxWidth: 300,
+    textAlign: "center",
   },
   progressBar: {
     position: "relative",
@@ -253,7 +250,12 @@ const styles = (theme: ThemeType) => ({
   w100: { width: "100%" },
 });
 
-const getListTerms = ({ tagId, sortedBy, limit, after }: { tagId: string; sortedBy: PostSortingModeWithRelevanceOption; limit: number, after: string }): PostsViewTerms => ({
+const getListTerms = ({ tagId, sortedBy, limit, after }: {
+  tagId: string,
+  sortedBy: PostSortingModeWithRelevanceOption,
+  limit: number,
+  after?: string,
+}): PostsViewTerms => ({
   filterSettings: {
     tags: [
       {
@@ -293,7 +295,7 @@ const socialImageProps: CloudinaryPropsType = {
   f: "auto",
 };
 
-const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
+const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { data: amountRaised, loading: amountRaisedLoading } = useAmountRaised(eaGivingSeason23ElectionName);
 
   const {
@@ -306,11 +308,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",
   });
-  const {document: effectiveGivingTag} = useSingle({
-    documentId: effectiveGivingTagId,
-    collectionName: "Tags",
-    fragmentName: "TagBasicInfo",
-  });
+  /*
   const {
     results: relevantSequences,
     loading: loadingRelevantSequences,
@@ -321,16 +319,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
       "wog9xb8cdqDySbBvM", // TODO: Add more sequences here
     ]},
   });
+   */
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const [notifyForVotingOn, setNotifyForVotingOn] = useState(currentUser?.givingSeasonNotifyForVoting ?? false);
   const {flash} = useMessages();
   const {openDialog} = useDialog();
   const { captureEvent } = useTracking({ eventProps: { pageContext: "eaGivingPortal" } });
-
-  const { timezone } = useTimezone();
-  const now = useCurrentTime();
-  const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
 
   const toggleNotifyWhenVotingOpens = useCallback(() => {
     captureEvent('toggleNotifyWhenVotingOpens', { notifyForVotingOn: !notifyForVotingOn })
@@ -347,7 +342,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
     flash(`Notifications ${notifyForVotingOn ? "disabled" : "enabled"}`);
   }, [captureEvent, notifyForVotingOn, currentUser, updateCurrentUser, flash, openDialog]);
 
-  const effectiveGivingPostsTerms = getListTerms({ tagId: effectiveGivingTagId, sortedBy: "magic", limit: 8, after: dateCutoff });
+  const donationElectionPostsTerms = getListTerms({
+    tagId: donationElectionTagId,
+    sortedBy: "magic",
+    limit: 8,
+  });
 
   const totalRaisedFormatted = formatDollars(amountRaised.totalRaised);
   const raisedForElectionFundFormatted = formatDollars(amountRaised.raisedForElectionFund);
@@ -355,7 +354,8 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
 
   const {
     Loading, LoadMore, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
-    ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, EASequenceCard,
+    ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, QuickTakesList,
+    LWTooltip,
   } = Components;
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
@@ -477,13 +477,15 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
                 classes.mt10,
                 classes.mb80,
               )}>
-                <Link to="https://docs.google.com/forms/d/e/1FAIpQLScnIBGnpqQUNTXqeh-DjLKPZ3b4-Cs9vBnvd6Wh5r_7oiX92Q/viewform" className={classes.button}>
+                <LWTooltip
+                  title="The deadline for adding candidates has now passed"
+                  placement="right"
+                  popperClassName={classes.tooltip}
+                  className={classes.buttonDisabled}
+                >
                   <ForumIcon icon="Plus" />
                   Add candidate
-                </Link>
-                <div className={classNames(classes.text, classes.primaryText)}>
-                  Deadline to add: November 21
-                </div>
+                </LWTooltip>
               </div>
             </div>
           </div>
@@ -497,22 +499,30 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType}) => {
               classes.mb80,
             )} id="posts">
               <div className={classNames(classes.h2, classes.primaryText)}>
-                Recent posts tagged &quot;Effective giving&quot;
+                Posts tagged &quot;Donation Election 2023&quot;
               </div>
               <div className={classNames(
                 classes.postsList,
                 classes.primaryLoadMore,
               )}>
                 <PostsList2
-                  terms={effectiveGivingPostsTerms}
+                  terms={donationElectionPostsTerms}
                   loadMoreMessage="View more"
                 />
               </div>
-              <div className={classes.rowThin}>
-                <Link to={`/topics/${effectiveGivingTag?.slug}`} className={classes.button}>
-                  Contribute to the discussion
-                </Link>
+              <div className={classNames(
+                classes.h2,
+                classes.primaryText,
+                classes.mt30,
+              )}>
+                Quick takes tagged &quot;Effective Giving&quot;
               </div>
+              <QuickTakesList
+                showCommunity
+                tagId={effectiveGivingTagId}
+                maxAgeDays={30}
+                className={classNames(classes.postsList, classes.primaryLoadMore)}
+              />
             </div>
           </div>
         </div>

@@ -30,6 +30,7 @@ import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import CommentFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftIcon";
 import ChatBubbleLeftRightIcon from "@heroicons/react/24/outline/ChatBubbleLeftRightIcon";
+import ChatBubbleLeftRightFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftRightIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
@@ -86,6 +87,7 @@ import MuiEllipsisVerticalIcon from "@material-ui/icons/MoreVert";
 import MuiShareIcon from "@material-ui/icons/Share";
 import MuiSearchIcon from '@material-ui/icons/Search';
 import MuiMenuIcon from "@material-ui/icons/Menu";
+import MuiForumIcon from '@material-ui/icons/Forum';
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -95,6 +97,7 @@ import MuiMenuIcon from "@material-ui/icons/Menu";
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
+import { GivingHand } from "../icons/givingHand";
 import { StickyIcon } from "../icons/stickyIcon";
 import { ThickChevronLeftIcon } from "../icons/thickChevronLeftIcon";
 import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
@@ -136,6 +139,7 @@ export type ForumIconName =
   "Pin" |
   "Author" |
   "Sprout" |
+  "GivingHand" |
   "Close" |
   "Calendar" |
   "CalendarDays" |
@@ -147,6 +151,7 @@ export type ForumIconName =
   "Comment" |
   "CommentFilled" |
   "ChatBubbleLeftRight" |
+  "ChatBubbleLeftRightFilled" |
   "Shortform" |
   "Warning" |
   "Report" |
@@ -213,6 +218,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: StickyIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
+    GivingHand: GivingHand,
     Close: CloseIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
@@ -224,6 +230,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
     ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
+    ChatBubbleLeftRightFilled: MuiForumIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
     ListBullet: ListBulletIcon,
@@ -289,6 +296,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: PinIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
+    GivingHand: GivingHand,
     Close: CloseIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
@@ -300,6 +308,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
     ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
+    ChatBubbleLeftRightFilled: ChatBubbleLeftRightFilledIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
     ListBullet: ListBulletIcon,

@@ -577,3 +577,8 @@ export async function appendToSunshineNotes({moderatedUserId, adminName, text, c
 export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): PermissionResult => {
   return { fail: false };
 };
+
+export const showDonatedIcon = (user: UsersMinimumInfo|DbUser|null): boolean => {
+  // Fundraiser closes on 2023-12-20
+  return isEAForum && !!user?.givingSeason2023DonatedFlair && new Date() < new Date('2023-12-21');
+}

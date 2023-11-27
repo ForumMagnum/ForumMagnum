@@ -35,6 +35,7 @@ type UseDialogueMatchmakingResults<T extends MatchmakingProps> = {
 export const useDialogueMatchmaking = <T extends MatchmakingProps>(props: T): UseDialogueMatchmakingResults<T> => {
   const { getMatchedUsers, getRecommendedUsers, getOptedInUsers, getUserDialogueChecks } = props; // add argument for getRecommendedUsers
   const currentUser = useCurrentUser();
+  const skipByDefault = !currentUser || !dialogueMatchmakingEnabled.get();
 
   const matchedUsersQueryResult = useQuery(gql`
     query GetDialogueMatchedUsers {
@@ -43,7 +44,7 @@ export const useDialogueMatchmaking = <T extends MatchmakingProps>(props: T): Us
         displayName
       }
     }
-  `, { skip: !getMatchedUsers || !dialogueMatchmakingEnabled.get() });
+  `, { skip: skipByDefault || !getMatchedUsers });
 
   const recommendedUsersQueryResult = useQuery(gql`
   query GetDialogueMatchedUsers {
@@ -62,7 +63,7 @@ export const useDialogueMatchmaking = <T extends MatchmakingProps>(props: T): Us
     },
     fragmentName: "DialogueCheckInfo",
     collectionName: "DialogueChecks",
-    skip: !getUserDialogueChecks || !dialogueMatchmakingEnabled.get()
+    skip: skipByDefault || !getUserDialogueChecks
   });
 
   const usersOptedInResult = useMulti({
@@ -72,7 +73,7 @@ export const useDialogueMatchmaking = <T extends MatchmakingProps>(props: T): Us
     },
     fragmentName: 'UsersOptedInToDialogueFacilitation',
     collectionName: 'Users',
-    skip: !getOptedInUsers || !dialogueMatchmakingEnabled.get()
+    skip: skipByDefault || !getOptedInUsers
   });
 
   return {

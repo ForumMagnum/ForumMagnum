@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: 16,
+    padding: "12px 12px 12px 16px",
     borderBottom: theme.palette.border.grey200,
     cursor: "pointer",
     "&:hover": {
@@ -37,13 +37,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
     color: theme.palette.grey[1000],
-    fontSize: 16,
-    fontWeight: 700,
+    fontSize: "1.1rem",
+    fontWeight: 600,
     lineHeight: '21px'
   },
   date: {
     color: theme.palette.grey[600],
-    fontSize: 14,
+    fontSize: "13px",
     fontWeight: 500,
     lineHeight: '21px',
     marginLeft: 4,
@@ -54,9 +54,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
     color: theme.palette.grey[600],
-    fontSize: 14,
+    fontSize: "13px",
     fontWeight: 500,
-    lineHeight: '21px',
     marginTop: 2,
   }
 });
