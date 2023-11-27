@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { votingPortalStyles } from "./styles";
@@ -6,33 +6,14 @@ import { useCurrentUser } from "../../common/withUser";
 import { isAdmin } from "../../../lib/vulcan-users";
 import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import { useElectionVote } from "./hooks";
-import classNames from "classnames";
 import difference from "lodash/difference";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
-  continueButton: {
-    flex: 1,
-    width: "100%",
-    maxWidth: 244,
-    height: 51,
-    alignSelf: "flex-end",
-  },
-  backLink: {
-    gap: "6px",
-    display: "flex",
-    alignItems: "center",
-  },
-  arrowIcon: {
-    fontSize: 18,
-  },
-  arrowLeft: {
-    transform: "rotate(180deg)",
-  },
 });
 
-const EAVotingPortalSelectCandidatesPageLoader = ({classes}: {classes: ClassesType}) => {
-  const { electionVote, updateVote } = useElectionVote('givingSeason23');
+const EAVotingPortalSelectCandidatesPageLoader = ({ classes }: { classes: ClassesType }) => {
+  const { electionVote, updateVote } = useElectionVote("givingSeason23");
 
   if (!electionVote) return null;
 
@@ -46,7 +27,7 @@ const EAVotingPortalSelectCandidatesPageLoader = ({classes}: {classes: ClassesTy
       classes={classes}
     />
   );
-}
+};
 
 const EAVotingPortalSelectCandidatesPage = ({
   selectedCandidateIds,
@@ -59,7 +40,7 @@ const EAVotingPortalSelectCandidatesPage = ({
   updateVote: (newVote: Record<string, number | null>) => Promise<void>;
   classes: ClassesType;
 }) => {
-  const { ElectionCandidatesList, ForumIcon } = Components;
+  const { ElectionCandidatesList, ForumIcon, VotingPortalFooter } = Components;
   const [selectedIds, setSelectedCandidateIds] = useState<string[]>(selectedCandidateIds);
   const [totalCount, setTotalCount] = useState<number>(0);
   const navigate = useNavigate();
@@ -100,30 +81,19 @@ const EAVotingPortalSelectCandidatesPage = ({
             className={classes.electionCandidates}
           />
         </div>
-        <div className={classes.footer}>
-          <div className={classes.footerInner}>
-            <div className={classes.footerTopRow}>
-              <Link to="/voting-portal" className={classes.backLink}>
-                <ForumIcon icon="ArrowRight" className={classNames(classes.arrowIcon, classes.arrowLeft)} /> Go back
-              </Link>
-              <div>
-                Selected {selectedIds.length}/{totalCount} candidates
-              </div>
-            </div>
-            <button
-              onClick={async () => {
-                await saveSelection();
-                navigate({ pathname: "/voting-portal/compare" });
-              }}
-              className={classNames(classes.button, classes.continueButton, {
-                [classes.buttonDisabled]: selectedIds.length === 0,
-              })}
-              disabled={selectedIds.length === 0}
-            >
-              Continue <ForumIcon icon="ArrowRight" className={classes.arrowIcon} />
-            </button>
-          </div>
-        </div>
+        <VotingPortalFooter
+          leftText="Go back"
+          leftHref="/voting-portal"
+          middleNode={<div>Selected {selectedIds.length}/{totalCount} candidates</div>}
+          buttonText="Continue"
+          buttonProps={{
+            onClick: async () => {
+              await saveSelection();
+              navigate({ pathname: "/voting-portal/compare" });
+            },
+            disabled: selectedIds.length === 0
+          }}
+        />
       </div>
     </AnalyticsContext>
   );
@@ -132,7 +102,7 @@ const EAVotingPortalSelectCandidatesPage = ({
 const EAVotingPortalSelectCandidatesPageComponent = registerComponent(
   "EAVotingPortalSelectCandidatesPage",
   EAVotingPortalSelectCandidatesPageLoader,
-  {styles},
+  { styles }
 );
 
 declare global {
@@ -140,4 +110,3 @@ declare global {
     EAVotingPortalSelectCandidatesPage: typeof EAVotingPortalSelectCandidatesPageComponent;
   }
 }
-

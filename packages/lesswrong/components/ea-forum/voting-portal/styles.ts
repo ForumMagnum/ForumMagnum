@@ -48,35 +48,6 @@ export const votingPortalStyles = (theme: ThemeType) => ({
       }
     }
   },
-  footer: {
-    display: "flex",
-    marginTop: "auto",
-    justifyContent: "center",
-    backgroundColor: theme.palette.givingPortal[200],
-  },
-  footerInner: {
-    padding: "20px 40px",
-    display: "flex",
-    justifyContent: "space-between",
-    maxWidth: 1000,
-    width: "100%",
-    gap: "32px",
-    [theme.breakpoints.down("xs")]: {
-      flexDirection: "column",
-      gap: "20px",
-      padding: "20px 24px",
-    },
-  },
-  footerTopRow: {
-    display: "flex",
-    flex: 1,
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 20,
-    fontWeight: 600,
-    fontSize: 16,
-    color: theme.palette.givingPortal[1000],
-  },
   button: {
     display: "flex",
     alignItems: "center",
