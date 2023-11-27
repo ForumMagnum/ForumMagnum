@@ -16,6 +16,8 @@ import { tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import { ReactionChange } from '../../lib/collections/users/karmaChangesGraphQL';
 import { karmaNotificationTimingChoices } from './KarmaChangeNotifierSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isEAForum } from '../../lib/instanceSettings';
+import { eaAnonymousEmojiPalette, eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -51,10 +53,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "right",
   },
   votedItemReacts: {
-    marginLeft: 6,
+    marginLeft: isEAForum ? 12 : 6,
   },
   individualAddedReact: {
+    color: isEAForum ? theme.palette.primary.main : undefined,
     marginLeft: 2,
+    marginRight: isEAForum ? 6 : undefined,
   },
   votedItemDescription: {
     display: "inline-block",
@@ -156,12 +160,12 @@ const KarmaChangesDisplay = ({karmaChanges, classes, handleClose }: {
                 // but actually we know it will always be a TagCommentType because the db schema constrains it
                 to={commentGetPageUrlFromIds({postId:commentChange.postId, tagSlug:commentChange.tagSlug, tagCommentType:commentChange.tagCommentType as TagCommentType, commentId: commentChange._id})} key={commentChange._id}
               >
-                <span className={classes.votedItemScoreChange}>
+                {(commentChange.scoreChange !== 0) && <span className={classes.votedItemScoreChange}>
                   <ColoredNumber n={commentChange.scoreChange} classes={classes}/>
-                </span>
-                <span className={classes.votedItemReacts}>
+                </span>}
+                {!!commentChange.addedReacts.length && <span className={classes.votedItemReacts}>
                   <NewReactions reactionChanges={commentChange.addedReacts} classes={classes}/>
-                </span>
+                </span>}
                 <div className={classes.votedItemDescription}>
                   {commentChange.description}
                 </div>
@@ -305,24 +309,37 @@ const NewReactions = ({reactionChanges, classes}: {
     distinctReactionTypes.add(reactionChange.reactionType);
   
   return <span>
-    {[...distinctReactionTypes.keys()].map(reactionType => <span
-      className={classes.individualAddedReact}
-      key={reactionType}
-    >
-      <LWTooltip
-        title={
-          reactionChanges.filter(r=>r.reactionType===reactionType)
-            .map((r,i) => <>
-              {i>0 && <>{", "}</>}
-              <Components.UsersName documentId={r.userId}/>
-            </>)
-        }
+    {[...distinctReactionTypes.keys()].map(reactionType => {
+      let disableTooltip = false
+      let EAEmojiComponent = eaEmojiPalette.find(emoji => emoji.name === reactionType)?.Component
+      // On EAF, if the emoji is not in the list of non-anonymous reacts (eaEmojiPalette),
+      // then make sure not to show any usernames of voters. They should not be available here anyway,
+      // but we also don't want to show [anonymous], so we disable the tooltip altogether.
+      if (!EAEmojiComponent && isEAForum) {
+        EAEmojiComponent = eaAnonymousEmojiPalette.find(emoji => emoji.name === reactionType)?.Component
+        disableTooltip = true
+      }
+    
+      return <span
+        className={classes.individualAddedReact}
+        key={reactionType}
       >
-        <ReactionIcon
-          react={reactionType}
-        />
-      </LWTooltip>
-    </span>)}
+        <LWTooltip
+          title={
+            reactionChanges.filter(r=>r.reactionType===reactionType)
+              .map((r,i) => <>
+                {i>0 && <>{", "}</>}
+                <Components.UsersName documentId={r.userId}/>
+              </>)
+          }
+          disabled={disableTooltip}
+        >
+          {(EAEmojiComponent && isEAForum) ? <EAEmojiComponent /> : <ReactionIcon
+            react={reactionType}
+          />}
+        </LWTooltip>
+      </span>
+    })}
   </span>
 }
 

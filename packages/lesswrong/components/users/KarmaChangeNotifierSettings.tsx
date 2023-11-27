@@ -12,7 +12,7 @@ import moment from '../../lib/moment-timezone';
 import { convertTimeOfWeekTimezone } from '../../lib/utils/timeUtil';
 import type { KarmaChangeSettingsType } from '../../lib/collections/users/schema';
 import * as _ from 'underscore';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -54,17 +54,17 @@ export const karmaNotificationTimingChoices: Record<string,KarmaNotificationTimi
   },
   daily: {
     label: "Batched daily (default)",
-    infoText: "Karma Changes and Reacts (batched daily):",
+    infoText: preferredHeadingCase("Karma Changes and Reacts (batched daily):"),
     emptyText: "No karma changes or reacts yesterday"
   },
   weekly: {
     label: "Batched weekly",
-    infoText: "Karma Changes and Reacts (batched weekly):",
+    infoText: preferredHeadingCase("Karma Changes and Reacts (batched weekly):"),
     emptyText: "No karma changes or reacts last week"
   },
   realtime: {
     label: "Realtime",
-    infoText: "Recent Karma Changes and Reacts",
+    infoText: preferredHeadingCase("Recent Karma Changes and Reacts"),
     emptyText: "No karma changes or reacts since you last checked"
   },
 };

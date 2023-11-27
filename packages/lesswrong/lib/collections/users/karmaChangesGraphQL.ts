@@ -31,7 +31,7 @@ addGraphQLSchema(`
   }
   type ReactionChange {
     reactionType: String!
-    userId: String!
+    userId: String
   }
   type KarmaChanges {
     totalChange: Int
@@ -74,7 +74,7 @@ export type KarmaChangesArgs = {
 
 export type ReactionChange = {
   reactionType: string
-  userId: string
+  userId?: string
 }
 
 export type KarmaChangeBase = {

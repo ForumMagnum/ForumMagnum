@@ -5,7 +5,8 @@ import type { RecentVoteInfo } from "../../lib/rateLimits/types";
 import groupBy from "lodash/groupBy";
 import { EAOrLWReactionsVote, UserVoteOnSingleReaction } from "../../lib/voting/namesAttachedReactions";
 import type { CommentKarmaChange, KarmaChangeBase, KarmaChangesArgs, PostKarmaChange, ReactionChange, TagRevisionKarmaChange } from "../../lib/collections/users/karmaChangesGraphQL";
-import { eaEmojiNames } from "../../lib/voting/eaEmojiPalette";
+import { eaAnonymousEmojiPalette, eaEmojiNames } from "../../lib/voting/eaEmojiPalette";
+import { isEAForum } from "../../lib/instanceSettings";
 
 export const RECENT_CONTENT_COUNT = 20
 
@@ -56,6 +57,11 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
    *
    * Then in JS, we take the result set, split it into a separate array for
    * each voteable collection, and move fields around to make it typecheck.
+   *
+   * UPDATE Nov 2023: We've added react notifications to this logic, which
+   * makes it somewhat more complicated. There's now a second query which
+   * gets react vote data, and the net changes to reacts on each document
+   * are calculated in reactionVotesToReactionChanges().
    */
   async getKarmaChanges(
     {userId, startDate, endDate, af, showNegative}: KarmaChangesArgs,
@@ -149,6 +155,11 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         scoreChange: votedContent.scoreChange,
         addedReacts: this.reactionVotesToReactionChanges(reactionVotesByDocument[votedContent._id]),
       };
+      // If we have no karma or reacts to display for this document, skip it
+      if (!change.scoreChange && !change.addedReacts.length) {
+        continue
+      }
+
       if (votedContent.collectionName==="Comments") {
         changedComments.push({
           ...change,
@@ -176,7 +187,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   reactionVotesToReactionChanges(votes: DbVote[]): ReactionChange[] {
     if (!votes?.length) return [];
     const votesByUser = groupBy(votes, v=>v.userId);
-    const reactionChanges: ReactionChange[] = [];
+    let reactionChanges: ReactionChange[] = [];
     
     type FlattenedReaction = {
         reactionType: string
@@ -216,10 +227,10 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         if (!vote.isUnvote && formattedReacts) {
           for (let react of formattedReacts) {
             // Skip anti-reacts for now
-            if (react.vote==="disagreed") {
+            if (react.vote === "disagreed") {
               continue;
             }
-            if (react.quotes && react.quotes.length>0) {
+            if (react.quotes && react.quotes.length > 0) {
               for (let quote of react.quotes) {
                 addNormalizedReact(flattenedReactions, react.react, quote);
               }
@@ -244,7 +255,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         
         if (vote.isUnvote && formattedReacts) {
           for (let react of formattedReacts) {
-            if (react.vote==="disagreed") {
+            if (react.vote === "disagreed") {
               continue;
             }
             if (react.quotes && react.quotes.length>0) {
@@ -266,6 +277,16 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
           });
         }
       }
+    }
+    
+    // On EAF, some reacts are anonymous (currently agree and disagree). For those, remove the userId.
+    if (isEAForum) {
+      reactionChanges = reactionChanges.map(change => {
+        if (eaAnonymousEmojiPalette.some(emoji => emoji.name === change.reactionType)) {
+          return {reactionType: change.reactionType}
+        }
+        return change
+      })
     }
     
     return reactionChanges;
