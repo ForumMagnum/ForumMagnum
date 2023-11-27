@@ -38,7 +38,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     [theme.breakpoints.down('xs')]: {
       display: 'none'
-    }
+    },
+    "@media print": {
+      display: "none",
+    },
   },
   toggleOff: {
     backgroundColor: theme.palette.grey[400],

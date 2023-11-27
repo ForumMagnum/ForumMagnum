@@ -18,21 +18,21 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCityName } from '../localGroups/TabNavigationEventsList';
 import { isPostWithForeignId } from '../hooks/useForeignCrosspost';
 import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionSubscribeReminder';
-import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
 import { userHasEAHomeRHS } from '../../lib/betas';
 import { spotifyLogoIcon } from '../icons/SpotifyLogoIcon';
 import { pocketCastsLogoIcon } from '../icons/PocketCastsLogoIcon';
 import { applePodcastsLogoIcon } from '../icons/ApplePodcastsLogoIcon';
-import { googlePodcastsLogoIcon } from '../icons/GooglePodcastsLogoIcon';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
+import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
+import { podcastAddictLogoIcon } from '../icons/PodcastAddictLogoIcon';
+import { useAmountRaised, useIsGivingSeason } from './giving-portal/hooks';
+import { eaGivingSeason23ElectionName } from '../../lib/eaGivingSeason';
+import { formatStat } from '../users/EAUserTooltipContent';
 
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
-    paddingLeft: 40,
-    paddingRight: 32,
-    borderLeft: theme.palette.border.faint,
-    marginTop: 30,
+    paddingRight: 50,
+    marginTop: 10,
     marginLeft: 50,
     '@media(max-width: 1370px)': {
       display: 'none'
@@ -40,7 +40,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   sidebarToggle: {
     position: 'absolute',
-    top: EA_FORUM_HEADER_HEIGHT + 30,
     right: 0,
     height: 36,
     width: 30,
@@ -69,7 +68,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 13,
     fontWeight: 450,
     fontFamily: theme.typography.fontFamily,
-    marginBottom: 30,
+    marginBottom: 32,
   },
   digestAdSection: {
     maxWidth: 334,
@@ -78,6 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     rowGap: '6px',
   },
   digestAd: {
+    maxWidth: 280,
     backgroundColor: theme.palette.grey[200],
     padding: '12px 16px',
     borderRadius: theme.borderRadius.default
@@ -168,7 +168,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'inline-flex',
     alignItems: 'center',
     columnGap: 6,
-    color: theme.palette.primary.main,
+    // color: theme.palette.primary.main,
+    color: theme.palette.givingPortal.rhsLink,
     fontWeight: 600,
   },
   resourceIcon: {
@@ -193,10 +194,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 52
   },
   eventLocation: {
-  },
-  viewMore: {
-    fontWeight: 600,
-    color: theme.palette.text.dim3
   },
   podcastApps: {
     display: 'grid',
@@ -230,7 +227,66 @@ const styles = (theme: ThemeType): JssStyles => ({
   podcastAppName: {
     fontSize: 12,
     fontWeight: 600,
-  }
+  },
+  tooltip: {
+    textAlign: "center",
+    backgroundColor: `${theme.palette.panelBackground.tooltipBackground2} !important`,
+    maxWidth: 156,
+  },
+  feedbackLink: {
+    color: theme.palette.grey[600],
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 600,
+    fontSize: 13,
+  },
+  givingSeason: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: "12px",
+    width: "100%",
+    maxWidth: 280,
+    background: theme.palette.grey[0],
+    borderRadius: theme.borderRadius.default,
+    padding: 16,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 16,
+    fontWeight: 700,
+    color: theme.palette.givingPortal[1000],
+    marginBottom: 32,
+  },
+  givingSeasonAmount: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    gap: "8px",
+    width: "100%",
+    color: theme.palette.grey[1000],
+    fontSize: 14,
+  },
+  givingSeasonProgress: {
+    background: theme.palette.givingPortal.homepageHeader.light1,
+    borderRadius: theme.borderRadius.small,
+    overflow: "hidden",
+    width: "100%",
+    height: 8,
+    "& *": {
+      height: "100%",
+      background: theme.palette.givingPortal.homepageHeader.main,
+    },
+  },
+  givingSeasonLearnMore: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.grey[600],
+    "& a": {
+      textDecoration: "underline",
+      "&:hover": {
+        textDecoration: "none",
+        opacity: 1,
+      },
+    },
+  },
 });
 
 /**
@@ -242,7 +298,7 @@ const styles = (theme: ThemeType): JssStyles => ({
  * See RecentDiscussionSubscribeReminder.tsx for the other component.
  */
 const DigestAd = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
@@ -336,7 +392,6 @@ const DigestAd = ({classes}: {
     <div className={classes.digestForm}>
       <TextField
         variant="outlined"
-        label="Email address"
         value={currentUser.email}
         className={classes.digestFormInput}
         disabled={true}
@@ -380,7 +435,7 @@ const DigestAd = ({classes}: {
  * This is a list of upcoming (nearby) events. It uses logic similar to EventsList.tsx.
  */
 const UpcomingEventsSection = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const { timezone } = useTimezone()
   const currentUser = useCurrentUser()
@@ -400,15 +455,26 @@ const UpcomingEventsSection = ({classes}: {
     fragmentName: 'PostsList',
     fetchPolicy: 'cache-and-network',
   })
-  
-  const { SectionTitle, PostsItemTooltipWrapper } = Components
-  
+
+  const {LWTooltip, SectionTitle, PostsItemTooltipWrapper} = Components;
   return <AnalyticsContext pageSubSectionContext="upcomingEvents">
     <div className={classes.section}>
-      <SectionTitle title="Upcoming events" className={classes.sectionTitle} noTopMargin noBottomPadding />
+      <LWTooltip
+        title="View more events"
+        placement="top-start"
+        popperClassName={classes.tooltip}
+      >
+        <SectionTitle
+          title="Upcoming events"
+          href="/events"
+          className={classes.sectionTitle}
+          noTopMargin
+          noBottomPadding
+        />
+      </LWTooltip>
       {upcomingEvents?.map(event => {
         const shortDate = moment(event.startTime).tz(timezone).format("MMM D")
-        return <div key={event._id} className={classes.post}>
+        return <div key={event._id}>
           <div className={classes.postTitle}>
             <PostsItemTooltipWrapper post={event} As="span">
               <Link to={postGetPageUrl(event)} className={classes.postTitleLink}>
@@ -426,9 +492,6 @@ const UpcomingEventsSection = ({classes}: {
           </div>
         </div>
       })}
-      <div>
-        <Link to="/events" className={classes.viewMore}>View more</Link>
-      </div>
     </div>
   </AnalyticsContext>
 }
@@ -437,33 +500,23 @@ const UpcomingEventsSection = ({classes}: {
  * This is the primary EA Forum home page right-hand side component.
  */
 export const EAHomeRightHandSide = ({classes}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
+  const isGivingSeason = useIsGivingSeason();
+  const {
+    data: amountRaised,
+    loading: amountRaisedLoading,
+  } = useAmountRaised(eaGivingSeason23ElectionName);
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
-  const { timezone } = useTimezone()
   // logged in users can hide the RHS - this is tracked via state so that the UI is snappy
   const [isHidden, setIsHidden] = useState(!!currentUser?.hideHomeRHS)
 
-  const now = moment().tz(timezone)
-  const dateCutoff = now.subtract(7, 'days').format("YYYY-MM-DD")
-  const { results: opportunityPosts } = useMulti({
-    collectionName: "Posts",
-    terms: {
-      view: "magic",
-      filterSettings: {tags: [{
-        tagId: 'z8qFsGt5iXyZiLbjN',
-        filterMode: 'Required'
-      }]},
-      after: dateCutoff,
-      limit: 3
-    },
-    fragmentName: "PostsList",
-    enableTotal: false,
-    fetchPolicy: "cache-and-network",
-  })
-  
+  const {results: opportunityPosts} = useRecentOpportunities({
+    fragmentName: "PostsListWithVotesAndSequence",
+  });
+
   const {results: savedPosts} = useMulti({
     collectionName: "Posts",
     terms: {
@@ -496,11 +549,13 @@ export const EAHomeRightHandSide = ({classes}: {
       void updateCurrentUser({hideHomeRHS: true})
     }
   }
-  
-  // Currently, this is only visible to beta users.
+
   if (!userHasEAHomeRHS(currentUser)) return null
   
-  const { SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon } = Components
+  const {
+    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon,
+    Loading,
+  } = Components
   
   const sidebarToggleNode = <div className={classes.sidebarToggle} onClick={handleToggleSidebar}>
     <LWTooltip title={isHidden ? 'Show sidebar' : 'Hide sidebar'}>
@@ -520,7 +575,7 @@ export const EAHomeRightHandSide = ({classes}: {
 
   // data for podcasts section
   const podcasts = [{
-    url: 'https://open.spotify.com/show/2Ki0q34zEthDfKUB56kcxH',
+    url: 'https://open.spotify.com/show/3NwXq1GGCveAbeH1Sk3yNq',
     icon: spotifyLogoIcon,
     name: 'Spotify'
   }, {
@@ -532,20 +587,54 @@ export const EAHomeRightHandSide = ({classes}: {
     icon: pocketCastsLogoIcon,
     name: 'Pocket Casts'
   }, {
-    url: 'https://podcasts.google.com/feed/aHR0cHM6Ly9mb3J1bS1wb2RjYXN0cy5lZmZlY3RpdmVhbHRydWlzbS5vcmcvZWEtZm9ydW0tLWFsbC1hdWRpby5yc3M',
-    icon: googlePodcastsLogoIcon,
-    name: 'Google Podcasts'
+    url: 'https://podcastaddict.com/podcast/ea-forum-podcast-curated-popular/4160487',
+    icon: podcastAddictLogoIcon,
+    name: 'Podcast Addict'
   }]
   const podcastPost = '/posts/K5Snxo5EhgmwJJjR2/announcing-ea-forum-podcast-audio-narrations-of-ea-forum'
 
   return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}
     <div className={classes.root}>
+      {/* TODO: Remove after giving season ends */}
+      {isGivingSeason &&
+        <div className={classes.givingSeason}>
+          <div>
+            <Link to="/giving-portal">
+              Donate to the Election Fund
+            </Link>
+          </div>
+          <div className={classes.givingSeasonAmount}>
+            {amountRaisedLoading && <Loading />}
+            {amountRaised?.raisedForElectionFund > 0 &&
+              <>
+                <div className={classes.givingSeasonProgress}>
+                  <div style={{
+                    width: `${100 * amountRaised.raisedForElectionFund / amountRaised.electionFundTarget}%`,
+                  }} />
+                </div>
+                ${formatStat(Math.round(amountRaised.raisedForElectionFund))} raised so far
+              </>
+            }
+          </div>
+          <div className={classes.givingSeasonLearnMore}>
+            The fund will be designated for the top 3 candidates, based on
+            Forum users' votes. <Link to="giving-portal">Learn more</Link>
+          </div>
+        </div>
+      }
+
       {digestAdNode}
       
       <AnalyticsContext pageSubSectionContext="resources">
         <div className={classes.section}>
           <SectionTitle title="Resources" className={classes.sectionTitle} noTopMargin noBottomPadding />
+          <div>
+            <Link to="/giving-portal" className={classes.resourceLink}>
+              <ForumIcon icon="Heart" className={classes.resourceIcon} />
+              Giving portal 2023
+            </Link>
+          </div>
           <div>
             <Link to="/handbook" className={classes.resourceLink}>
               <ForumIcon icon="BookOpen" className={classes.resourceIcon} />
@@ -560,7 +649,7 @@ export const EAHomeRightHandSide = ({classes}: {
           </div>
           <div>
             <Link to="/groups" className={classes.resourceLink}>
-              <ForumIcon icon="Users" className={classes.resourceIcon} />
+              <ForumIcon icon="UsersOutline" className={classes.resourceIcon} />
               Discover EA groups
             </Link>
           </div>
@@ -569,8 +658,20 @@ export const EAHomeRightHandSide = ({classes}: {
       
       {!!opportunityPosts?.length && <AnalyticsContext pageSubSectionContext="opportunities">
         <div className={classes.section}>
-          <SectionTitle title="Opportunities" className={classes.sectionTitle} noTopMargin noBottomPadding />
-          {opportunityPosts?.map(post => <div key={post._id} className={classes.post}>
+          <LWTooltip
+            title="View more posts tagged “Opportunities to take action”"
+            placement="top-start"
+            popperClassName={classes.tooltip}
+          >
+            <SectionTitle
+              title="Opportunities"
+              href="/topics/opportunities-to-take-action?sortedBy=magic"
+              className={classes.sectionTitle}
+              noTopMargin
+              noBottomPadding
+            />
+          </LWTooltip>
+          {opportunityPosts?.map(post => <div key={post._id}>
             <div className={classes.postTitle}>
               <PostsItemTooltipWrapper post={post} As="span">
                 <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
@@ -582,9 +683,6 @@ export const EAHomeRightHandSide = ({classes}: {
               Posted <PostsItemDate post={post} includeAgo />
             </div>
           </div>)}
-          <div>
-            <Link to="/topics/opportunities-to-take-action" className={classes.viewMore}>View more</Link>
-          </div>
         </div>
       </AnalyticsContext>}
       
@@ -592,14 +690,20 @@ export const EAHomeRightHandSide = ({classes}: {
       
       {!!sortedSavedPosts?.length && <AnalyticsContext pageSubSectionContext="savedPosts">
         <div className={classes.section}>
-          <SectionTitle title="Saved posts" className={classes.sectionTitle} noTopMargin noBottomPadding />
+          <SectionTitle
+            title="Saved posts"
+            href="/saved"
+            className={classes.sectionTitle}
+            noTopMargin
+            noBottomPadding
+          />
           {sortedSavedPosts.map(post => {
             let postAuthor = '[anonymous]'
             if (post.user && !post.hideAuthor) {
               postAuthor = post.user.displayName
             }
             const readTime = isPostWithForeignId(post) ? '' : `, ${post.readTimeMinutes} min`
-            return <div key={post._id} className={classes.post}>
+            return <div key={post._id}>
               <div className={classes.postTitle}>
                 <PostsItemTooltipWrapper post={post} As="span">
                   <Link to={postGetPageUrl(post)} className={classes.postTitleLink}>
@@ -612,15 +716,18 @@ export const EAHomeRightHandSide = ({classes}: {
               </div>
             </div>
           })}
-          <div>
-            <Link to="/saved" className={classes.viewMore}>View more</Link>
-          </div>
         </div>
       </AnalyticsContext>}
       
       <AnalyticsContext pageSubSectionContext="podcasts">
         <div className={classNames(classes.section, classes.podcastsSection)}>
-          <SectionTitle title="Listen to posts anywhere" className={classes.sectionTitle} noTopMargin noBottomPadding />
+          <SectionTitle
+            title="Listen to posts anywhere"
+            href={podcastPost}
+            className={classes.sectionTitle}
+            noTopMargin
+            noBottomPadding
+          />
           <div className={classes.podcastApps}>
             {podcasts.map(podcast => <Link key={podcast.name} to={podcast.url} target="_blank" rel="noopener noreferrer" className={classes.podcastApp}>
                 <div className={classes.podcastAppIcon}>{podcast.icon}</div>
@@ -631,11 +738,12 @@ export const EAHomeRightHandSide = ({classes}: {
               </Link>
             )}
           </div>
-          <div>
-            <Link to={podcastPost} className={classes.viewMore}>View more</Link>
-          </div>
         </div>
       </AnalyticsContext>
+
+      <a href="mailto:forum@effectivealtruism.org" className={classes.feedbackLink}>
+        Send feedback
+      </a>
     </div>
   </AnalyticsContext>
 }

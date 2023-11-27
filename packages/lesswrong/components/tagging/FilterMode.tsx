@@ -9,13 +9,14 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { forumTypeSetting, isEAForum, taggingNameSetting } from '../../lib/instanceSettings';
+import { taggingNameSetting } from '../../lib/instanceSettings';
 import { defaultVisibilityTags } from '../../lib/publicSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
-const LATEST_POSTS_NAME = forumTypeSetting.get() === 'EAForum' ? 'Frontpage Posts' : 'Latest Posts';
+const LATEST_POSTS_NAME = isFriendlyUI ? 'Frontpage Posts' : 'Latest Posts';
 const INPUT_PAUSE_MILLISECONDS = 1500;
 
 export const filteringStyles = (theme: ThemeType) => ({
@@ -45,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexGrow: 1,
     textAlign: "center",
     fontWeight: theme.typography.body1.fontWeight,
-    color: isEAForum ? theme.palette.lwTertiary.main : theme.palette.primary.main,
+    color: isFriendlyUI ? theme.palette.lwTertiary.main : theme.palette.primary.main,
     boxShadow: theme.palette.boxShadow.default,
   },
   description: {

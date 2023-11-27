@@ -5,6 +5,7 @@ import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import { Comments } from './collection';
+import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import pick from 'lodash/pick';
 
 declare global {
@@ -13,6 +14,8 @@ declare global {
     postId?: string,
     userId?: string,
     tagId?: string,
+    relevantTagId?: string,
+    maxAgeDays?: number,
     parentCommentId?: string,
     parentAnswerId?: string,
     topLevelCommentId?: string,
@@ -24,6 +27,7 @@ declare global {
     reviewYear?: ReviewYear
     profileTagIds?: string[],
     shortformFrontpage?: boolean,
+    showCommunity?: boolean,
   }
   
   /**
@@ -458,6 +462,19 @@ Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
 });
 ensureIndex(Comments, augmentForDefaultView({parentAnswerId:1, baseScore:-1}));
 
+Comments.addView('answersAndReplies', ({postId}: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId,
+      $or: [
+        { answer: true },
+        { parentAnswerId: {$exists: true} },
+      ],
+    },
+    options: {sort: {baseScore: -1}}
+  };
+});
+
 // Used in moveToAnswers
 ensureIndex(Comments, {topLevelCommentId:1});
 
@@ -502,13 +519,39 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
 });
 
 Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
+  const twoHoursAgo = moment().subtract(2, 'hours').toDate();
+  const maxAgeDays = terms.maxAgeDays ?? 5;
   return {
     selector: {
       shortform: true,
       shortformFrontpage: true,
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
-      createdAt: {$gt: moment().subtract(5, 'days').toDate()},
+      createdAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
+      $and: [
+        !terms.showCommunity
+          ? {
+            relevantTagIds: {$ne: EA_FORUM_COMMUNITY_TOPIC_ID},
+          }
+          : {},
+        !!terms.relevantTagId
+          ? {
+            relevantTagIds: terms.relevantTagId,
+          }
+          : {},
+      ],
+      // Quick takes older than 2 hours must have at least 1 karma, quick takes
+      // younger than 2 hours must have at least -5 karma
+      $or: [
+        {
+          baseScore: {$gte: 1},
+          createdAt: {$lt: twoHoursAgo},
+        },
+        {
+          baseScore: {$gte: -5},
+          createdAt: {$gte: twoHoursAgo},
+        },
+      ],
     },
     options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
   };

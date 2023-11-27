@@ -1,5 +1,64 @@
 import * as t from 'io-ts';
-import { denormalizedFieldKeys } from "./denormalizedFields";
+
+/**
+ */
+interface PartialWithNullC<P extends t.Props>
+  extends t.PartialType<
+    P,
+    {
+      [K in keyof P]?: t.TypeOf<P[K]> | null
+    },
+    {
+      [K in keyof P]?: t.OutputOf<P[K]> | null
+    },
+    unknown
+  > {}
+
+export const partialWithNull = <P extends t.Props>(props: P): PartialWithNullC<P> => {
+  return t.partial(Object.fromEntries(
+    Object.entries(props).map(([key, validator]: [string, t.Type<any> | t.PartialType<any>]) => {
+      if ('props' in validator) {
+        return [key, t.union([t.null, partialWithNull(validator.props)])] as const;
+      } else {
+        return [key, t.union([t.null, validator])] as const;
+      }
+    })
+  )) as unknown as PartialWithNullC<P>;
+};
+
+type Writeable<T> = {
+  -readonly [P in keyof T]: Writeable<T[P]>;
+};
+
+export type ReadonlyDenormalizedCrosspostData = t.TypeOf<typeof DenormalizedCrosspostValidator>;
+
+export type DenormalizedCrosspostData = Writeable<ReadonlyDenormalizedCrosspostData>;
+
+/**
+ * In general, we try to keep a single source of truth for all post data that's
+ * crossposted on the original server and let the foreign server make graphql
+ * requests when it needs access to this.
+ *
+ * Some fields have to be denormalized across sites and these are defined here. In
+ * general, a field needs to be denormalized if it's used by PostsList2 or
+ * in database selectors (but these rules aren't strict).
+ */
+export const requiredDenormalizedFields = {
+  draft: t.boolean,
+  deletedDraft: t.boolean,
+  title: t.string,
+  isEvent: t.boolean,
+  question: t.boolean,
+} as const;
+
+export const optionalDenormalizedFields = {
+  url: t.string,
+} as const;
+
+export const DenormalizedCrosspostValidator = t.intersection([
+  t.strict(requiredDenormalizedFields),
+  partialWithNull(optionalDenormalizedFields),
+]);
 
 export const CrosspostTokenResponseValidator = t.strict({
   token: t.string
@@ -57,14 +116,6 @@ export const UpdateCrosspostResponseValidator = t.strict({
   status: t.literal('updated')
 });
 
-const DenormalizedCrosspostValidator = t.strict({
-  draft: t.boolean,
-  deletedDraft: t.boolean,
-  title: t.string,
-  isEvent: t.boolean,
-  question: t.boolean,
-  url: t.string,
-});
 
 /**
  * Intersesction creates an intersection of types (i.e. type A & type B)
@@ -105,7 +156,7 @@ export const CrosspostPayloadValidator = t.intersection([
 export type CrosspostResponse = t.TypeOf<typeof CrosspostResponseValidator>;
 export type CrosspostPayload = t.TypeOf<typeof CrosspostPayloadValidator>;
 
-export type Crosspost = Pick<DbPost, "_id" | "userId" | "fmCrosspost" | typeof denormalizedFieldKeys[number]>;
+export type Crosspost = Pick<DbPost, "_id" | "userId" | "fmCrosspost"> & DenormalizedCrosspostData;
 
 /**
  * Intersesction creates an intersection of types (i.e. type A & type B)
@@ -129,33 +180,6 @@ export const GetCrosspostRequestValidator = t.intersection([
 
 export type GetCrosspostRequest = t.TypeOf<typeof GetCrosspostRequestValidator>;
 
-/**
- * Nearly all fields returned from the other forum's internal GraphQL request can be `null`
- * That's different from them being missing in the response body
- */
-// interface PartialWithNullC<P extends t.Props>
-//   extends t.PartialType<
-//     P,
-//     {
-//       [K in keyof P]?: t.TypeOf<P[K]> | null
-//     },
-//     {
-//       [K in keyof P]?: t.OutputOf<P[K]> | null
-//     },
-//     unknown
-//   > {}
-
-// const partialWithNull = <P extends t.Props>(props: P): PartialWithNullC<P> => {
-//   return t.partial(Object.fromEntries(
-//     Object.entries(props).map(([key, validator]: [string, t.Type<any> | t.PartialType<any>]) => {
-//       if ('props' in validator) {
-//         return [key, t.union([t.null, partialWithNull(validator.props)])] as const;
-//       } else {
-//         return [key, t.union([t.null, validator])] as const;
-//       }
-//     })
-//   )) as unknown as PartialWithNullC<P>;
-// };
 
 /**
  * Partial, in addition to treating all of the specified fields as optional, is permissive with respect to fields not specified

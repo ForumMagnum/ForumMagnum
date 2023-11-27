@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       '& .input-spotlightImageId, & .input-darkImageId': {
         width: "100%"
       },
-      '& .input-documentId, & .input-documentType, & .input-position, & .input-draft, & .input-duration, & .input-customTitle, & .input-customSubtitle, & .input-draft, & .input-imageFade': {
+      '& .input-documentId, & .input-documentType, & .input-position, & .input-draft, & .input-duration, & .input-customTitle, & .input-customSubtitle, & .input-draft, & .input-imageFade, & .input-headerTitle, & .input-headerTitleLeftColor, & .input-headerTitleRightColor': {
         width: "calc(33% - 12px)",
         overflow: "hidden",
         marginRight: 12

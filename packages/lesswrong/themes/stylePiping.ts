@@ -1,4 +1,4 @@
-import { isEAForum } from "../lib/instanceSettings";
+import { isFriendlyUI } from "./forumTheme";
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -101,6 +101,28 @@ const owidPreviewStyles = (theme: ThemeType): JssStyles => ({
     '& iframe': {
       width: '100%',
       height: 400,
+      border: 'none'
+    }
+  }
+})
+
+const estimakerPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& div.estimaker-preview': {
+    display: 'flex',
+    '& iframe': {
+      width: '100%',
+      height: 400,
+      border: 'none'
+    }
+  }
+})
+
+const viewpointsPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& div.viewpoints-preview': {
+    display: 'flex',
+    '& iframe': {
+      width: '100%',
+      height: 300,
       border: 'none'
     }
   }
@@ -210,6 +232,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& h1': {
     ...theme.typography.display2,
     ...theme.typography.headerStyle,
+    color: theme.palette.text.contentHeader,
   },
   // If a post starts with a header, it should still be flush with the top of
   // the container
@@ -221,6 +244,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& h2': {
     ...theme.typography.display1,
     ...theme.typography.headerStyle,
+    color: theme.palette.text.contentHeader,
   },
   '& h2:first-child': {
     marginTop: 0,
@@ -229,6 +253,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& h3': {
     ...theme.typography.display0,
     ...theme.typography.headerStyle,
+    color: theme.palette.text.contentHeader,
   },
   '& h3:first-child': {
     marginTop: 0,
@@ -238,6 +263,13 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body1,
     ...theme.typography.postStyle,
     fontWeight:600,
+    color: theme.palette.text.contentHeader,
+  },
+  '& h5': {
+    color: theme.palette.text.contentHeader,
+  },
+  '& h6': {
+    color: theme.palette.text.contentHeader,
   },
   '& img': {
     maxWidth: "100%",
@@ -262,8 +294,11 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
-  '& a:visited, & a:visited:hover, & a:visited:active': isEAForum ? {
+  '& a:visited': isFriendlyUI ? {
     color: theme.palette.link.visited,
+  } : {},
+  '& a:visited:hover, & a:visited:active': isFriendlyUI ? {
+    color: theme.palette.link.visitedHover,
   } : {},
   '& table': {
     ...tableStyles(theme)
@@ -303,6 +338,9 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& ol > li > ol > li > ol': {
     listStyle: 'lower-roman',
   },
+  "& u": {
+    textDecoration: "none",
+  },
 })
 
 export const postBodyStyles = (theme: ThemeType): JssStyles => {
@@ -314,6 +352,8 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...strawpollPreviewStyles(theme),
     ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),
+    ...estimakerPreviewStyles(theme),
+    ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
@@ -321,7 +361,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: isEAForum ? theme.palette.border.grey300 : theme.palette.border.normal,
+      borderTop: isFriendlyUI ? theme.palette.border.grey300 : theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -411,7 +451,7 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: "1.28rem",
+    fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
     lineHeight: "1.75rem",
     ...theme.typography.postStyle,
     '& blockquote': {
@@ -424,7 +464,7 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: "1.28rem",
+      fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
       lineHeight: "1.8rem",
     }
   };

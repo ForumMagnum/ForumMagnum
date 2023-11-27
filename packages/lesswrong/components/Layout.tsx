@@ -1,4 +1,4 @@
-import React, {useRef, useState, useCallback, useEffect} from 'react';
+import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
@@ -9,11 +9,11 @@ import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
-import { CommentBoxManager } from './common/withCommentBox';
+import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
+import { isAF, isLW } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -21,12 +21,18 @@ import NoSSR from 'react-no-ssr';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
-import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
-import { useCookiePreferences, useCookiesWithConsent } from './hooks/useCookiesWithConsent';
-import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
+// import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
+import { HEADER_HEIGHT } from './common/Header';
+import { useCookiePreferences } from './hooks/useCookiesWithConsent';
+import { useHeaderVisible } from './hooks/useHeaderVisible';
+import StickyBox from '../lib/vendor/react-sticky-box';
+import { isFriendlyUI } from '../themes/forumTheme';
+import { useIsGivingSeason } from './ea-forum/giving-portal/hooks';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
+
+const STICKY_SECTION_TOP_MARGIN = 20;
 
 // These routes will have the standalone TabNavigationMenu (aka sidebar)
 //
@@ -58,13 +64,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     background: theme.palette.background.default,
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
-    minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? EA_FORUM_HEADER_HEIGHT : 64}px)`,
+    minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
       paddingLeft: 8,
       paddingRight: 8,
     },
+  },
+  mainNoFooter: {
+    paddingBottom: 0,
   },
   mainFullscreen: {
     height: "100%",
@@ -89,6 +98,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexBasis: 0,
     flexGrow: 1,
     overflow: "auto",
+    [theme.breakpoints.down('xs')]: {
+      overflow: "visible",
+    },
   },
   spacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -128,29 +140,15 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: 'block'
     }
   },
-  eaHomeGrid: {
-    '@supports (grid-template-areas: "title")': {
-      display: 'grid',
-      gridTemplateAreas: `
-        "navSidebar ... main rhs ..."
-      `,
-      gridTemplateColumns: `
-        min-content
-        1fr
-        min-content
-        minmax(50px, max-content)
-        1fr
-      `,
-    },
+  eaHomeLayout: {
+    display: "flex",
+    alignItems: "start",
     [theme.breakpoints.down('md')]: {
       display: 'block'
     }
   },
   navSidebar: {
     gridArea: 'navSidebar'
-  },
-  rhs: {
-    gridArea: 'rhs',
   },
   sunshine: {
     gridArea: 'sunshine'
@@ -188,7 +186,34 @@ const styles = (theme: ThemeType): JssStyles => ({
       display: "none"
     }
   },
-})
+  stickyWrapper: {
+    transition: "transform 200ms ease-in-out",
+    transform: `translateY(${STICKY_SECTION_TOP_MARGIN}px)`,
+    marginBottom: 20,
+  },
+  stickyWrapperHeaderVisible: {
+    transform: `translateY(${HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
+  },
+});
+
+const StickyWrapper: FC<{
+  eaHomeLayout: boolean,
+  headerVisible: boolean,
+  headerAtTop: boolean,
+  children: ReactNode,
+  classes: ClassesType,
+}> = ({eaHomeLayout, headerVisible, headerAtTop, children, classes}) =>
+  eaHomeLayout
+    ? (
+      <StickyBox offsetTop={0} offsetBottom={20}>
+        <div className={classNames(classes.stickyWrapper, {
+          [classes.stickyWrapperHeaderVisible]: headerVisible && !headerAtTop,
+        })}>
+          {children}
+        </div>
+      </StickyBox>
+    )
+    : <>{children}</>;
 
 const Layout = ({currentUser, children, classes}: {
   currentUser: UsersCurrent|null,
@@ -196,18 +221,19 @@ const Layout = ({currentUser, children, classes}: {
   classes: ClassesType,
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
-  const [sideCommentsActive,setSideCommentsActive] = useState(false);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
   const theme = useTheme();
-  const { currentRoute, params: { slug }, pathname} = useLocation();
+  const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
+  const {headerVisible, headerAtTop} = useHeaderVisible();
 
   // enable during ACX Everywhere
-  const [cookies] = useCookiesWithConsent()
-  const renderCommunityMap = (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  // const [cookies] = useCookiesWithConsent()
+  const renderCommunityMap = false // replace with following line to enable during ACX Everywhere
+  // (isLW) && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -252,7 +278,15 @@ const Layout = ({currentUser, children, classes}: {
   if (!layoutOptionsState) {
     throw new Error("LayoutOptionsContext not set");
   }
-  
+
+  const noKibitzContext = useMemo(
+    () => ({ disableNoKibitz, setDisableNoKibitz }),
+    [disableNoKibitz, setDisableNoKibitz]
+  );
+
+  const isGivingSeason = useIsGivingSeason();
+  const renderGivingSeason = isGivingSeason && pathname === "/";
+
   const render = () => {
     const {
       NavigationStandalone,
@@ -273,6 +307,7 @@ const Layout = ({currentUser, children, classes}: {
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
+      GivingSeasonBanner,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -293,17 +328,19 @@ const Layout = ({currentUser, children, classes}: {
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
-    // The EA Forum home page has a unique grid layout, to account for the right hand side column.
-    const eaHomeGridLayout = isEAForum && currentRoute.name === 'home'
+    // The friendly home page has a unique grid layout, to account for the right hand side column.
+    const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
+
+    const showNewUserCompleteProfile = currentUser?.usernameUnset &&
+      !allowedIncompletePaths.includes(currentRoute?.name ?? "404");
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
       const beforeTime = petrovBeforeTime.get()
       const afterTime = petrovAfterTime.get()
     
-      return currentRoute?.name === "home"
-        && ('LessWrong' === forumTypeSetting.get())
-        && beforeTime < currentTime 
+      return currentRoute?.name === "home" && isLW
+        && beforeTime < currentTime
         && currentTime < afterTime
     }
 
@@ -313,9 +350,12 @@ const Layout = ({currentUser, children, classes}: {
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
       <SidebarsWrapper>
-      <DisableNoKibitzContext.Provider value={{ disableNoKibitz, setDisableNoKibitz }}>
+      <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
-        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum', [classes.fullscreen]: currentRoute?.fullscreen}) } id="wrapper">
+        <div className={classNames(
+          "wrapper",
+          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen}
+        )} id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
@@ -344,27 +384,39 @@ const Layout = ({currentUser, children, classes}: {
                 standaloneNavigationPresent={standaloneNavigation}
                 sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
-                stayAtTop={Boolean(currentRoute?.fullscreen || currentRoute?.staticHeader)}
+                stayAtTop={!!currentRoute?.staticHeader}
               />}
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
-              
+              {renderGivingSeason && <GivingSeasonBanner />}
+
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
-                [classes.eaHomeGrid]: eaHomeGridLayout && !renderSunshineSidebar,
-                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
+                [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
+                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
+              }
               )}>
-                {isEAForum && <AdminToggle />}
-                {standaloneNavigation && <NavigationStandalone
-                  sidebarHidden={hideNavigationSidebar}
-                  unspacedGridLayout={unspacedGridLayout}
-                  className={classes.standaloneNav}
-                />}
+                {isFriendlyUI && <AdminToggle />}
+                {standaloneNavigation &&
+                  <StickyWrapper
+                    eaHomeLayout={friendlyHomeLayout}
+                    headerVisible={headerVisible}
+                    headerAtTop={headerAtTop}
+                    classes={classes}
+                  >
+                    <NavigationStandalone
+                      sidebarHidden={hideNavigationSidebar}
+                      unspacedGridLayout={unspacedGridLayout}
+                      noTopMargin={friendlyHomeLayout}
+                    />
+                  </StickyWrapper>
+                }
                 <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
                 <div className={classNames(classes.main, {
                   [classes.whiteBackground]: useWhiteBackground,
+                  [classes.mainNoFooter]: currentRoute?.noFooter,
                   [classes.mainFullscreen]: currentRoute?.fullscreen,
                   [classes.mainUnspacedGrid]: shouldUseGridLayout && unspacedGridLayout,
                 })}>
@@ -372,16 +424,25 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {currentUser?.usernameUnset && !allowedIncompletePaths.includes(currentRoute?.name)
+                    {showNewUserCompleteProfile
                       ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
                   </ErrorBoundary>
-                  {!currentRoute?.fullscreen && <Footer />}
+                  {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                {!renderSunshineSidebar && eaHomeGridLayout && <div className={classes.rhs}>
-                  <EAHomeRightHandSide />
-                </div>}
+                {!renderSunshineSidebar &&
+                  friendlyHomeLayout &&
+                  !showNewUserCompleteProfile &&
+                  <StickyWrapper
+                    eaHomeLayout={friendlyHomeLayout}
+                    headerVisible={headerVisible}
+                    headerAtTop={headerAtTop}
+                    classes={classes}
+                  >
+                    <EAHomeRightHandSide />
+                  </StickyWrapper>
+                }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
                   <NoSSR>
                     <SunshineSidebar/>

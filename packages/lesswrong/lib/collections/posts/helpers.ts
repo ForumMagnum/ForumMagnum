@@ -1,4 +1,4 @@
-import { PublicInstanceSetting, forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
+import { PublicInstanceSetting, isAF, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
@@ -123,6 +123,14 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
+export const postGetCommentsUrl = (
+  post: PostsMinimumForGetPageUrl,
+  isAbsolute = false,
+  sequenceId: string | null = null,
+): string => {
+  return postGetPageUrl(post, isAbsolute, sequenceId) + "#comments";
+}
+
 export const getPostCollaborateUrl = function (postId: string, isAbsolute=false, linkSharingKey?: string): string {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
   if (linkSharingKey) {
@@ -142,7 +150,7 @@ export const postGetEditUrl = function(postId: string, isAbsolute=false, linkSha
 }
 
 export const postGetCommentCount = (post: PostsBase|DbPost|PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost): number => {
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+  if (isAF) {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
@@ -174,7 +182,7 @@ export const postGetAnswerCountStr = (count: number): string => {
 }
 
 export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+  if (isAF) {
     return post.afLastCommentedAt;
   } else {
     return post.lastCommentedAt;
@@ -182,7 +190,7 @@ export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
 }
 
 export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost):Date|null => {
-  if (forumTypeSetting.get() === 'AlignmentForum') return null
+  if (isAF) return null
   // TODO: add an afLastCommentPromotedAt
   return post.lastCommentPromotedAt;
 }
@@ -236,7 +244,7 @@ export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): 
 }
 
 export const postGetKarma = (post: PostsBase|DbPost): number => {
-  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const baseScore = isAF ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
 
@@ -379,7 +387,8 @@ export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
     return (
       (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF ||
         TYPE_III_ALLOWED_POST_IDS.includes(post._id) ||
-        post.baseScore > type3KarmaCutoffSetting.get()) &&
+        post.baseScore > type3KarmaCutoffSetting.get() ||
+        post.forceAllowType3Audio) &&
       !post.draft &&
       !post.authorIsUnreviewed &&
       !post.rejected &&

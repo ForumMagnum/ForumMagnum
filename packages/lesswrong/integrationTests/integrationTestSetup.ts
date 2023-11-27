@@ -2,8 +2,7 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runStartupFunctions } from '../lib/executionEnvironment';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
-import { MongoClient } from 'mongodb';
-import { setDatabaseConnection, closeDatabaseConnection } from '../lib/mongoCollection';
+import { closeDatabaseConnection } from '../lib/mongoCollection';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
 import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
@@ -14,7 +13,6 @@ import {
   createTestingSqlClientFromTemplate,
   dropTestingDatabases,
 } from '../server/testingSqlClient';
-import { isEAForum } from '../lib/instanceSettings';
 
 // Work around an incompatibility between Jest and iconv-lite (which is used
 // by mathjax).
@@ -73,7 +71,14 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-  await waitUntilCallbacksFinished();
+  // Enforce a wait of at least a 1 second before closing the database connection. To mitigate these potential issues:
+  // - There may be some dead time between callbacks where waitUntilCallbacksFinished resolves, but actually another callback is about to run
+  // - Some async functions may not be caught by waitUntilCallbacksFinished at all
+  for (let i = 0; i < 10; i++) {
+    await waitUntilCallbacksFinished();
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+
   await Promise.all([
     closeDatabaseConnection(),
     closeSqlClient(getSqlClientOrThrow()),

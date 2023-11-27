@@ -8,6 +8,7 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collecti
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_COMMUNITY_POSTS_SECTION_COOKIE } from '../../lib/cookies/cookies';
 import { useFilterSettings } from '../../lib/filterSettings';
+import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 
 const styles = (theme: ThemeType): JssStyles => ({
   readMoreLinkMobile: {
@@ -33,7 +34,7 @@ const EAHomeCommunityPosts = ({classes}:{classes: ClassesType}) => {
   const {filterSettings: userFilterSettings} = useFilterSettings()
 
   const now = moment().tz(timezone)
-  const dateCutoff = now.subtract(90, 'days').format("YYYY-MM-DD")
+  const dateCutoff = now.subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD")
 
   const recentPostsTerms = {
     view: "magic",

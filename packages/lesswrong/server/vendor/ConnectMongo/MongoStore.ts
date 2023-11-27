@@ -147,115 +147,111 @@ export default class MongoStore extends session.Store {
    * @param sid session ID
    * @param session session object
    */
-  set(
+  async set(
     sid: string,
     session: session.SessionData,
     callback: (err: any) => void = noop,
-  ): void {
-    void (async () => {
-      try {
-        debug(`MongoStore#set=${sid}`);
-        // Removing the lastModified prop from the session object before update
+  ): Promise<void> {
+    try {
+      debug(`MongoStore#set=${sid}`);
+      // Removing the lastModified prop from the session object before update
+      // @ts-ignore
+      if (this.options.touchAfter > 0 && session?.lastModified) {
         // @ts-ignore
-        if (this.options.touchAfter > 0 && session?.lastModified) {
-          // @ts-ignore
-          delete session.lastModified;
-        }
-        const s: Partial<DbSession> = {
-          _id: sid,
-          session: this.getTransformFunctions().serialize(session),
-        };
-        // Expire handling
-        if (session?.cookie?.expires) {
-          s.expires = new Date(session.cookie.expires);
-        } else {
-          // If there's no expiration date specified, it is
-          // browser-session cookie or there is no cookie at all,
-          // as per the connect docs.
-          //
-          // So we set the expiration to two-weeks from now
-          // - as is common practice in the industry (e.g Django) -
-          // or the default specified in the options.
-          s.expires = new Date(Date.now() + (this.options.ttl * 1000));
-        }
-        // Last modify handling
-        if (this.options.touchAfter > 0) {
-          s.lastModified = new Date();
-        }
-        const rawResp = await this.collection.rawUpdateOne(
-          { _id: s._id },
-          { $set: s },
-          { upsert: true, returnCount: "upsertedCount" },
-        );
-        if (rawResp > 0) {
-          this.emit('create', sid)
-        } else {
-          this.emit('update', sid)
-        }
-        this.emit('set', sid);
-      } catch (error) {
-        return callback(error);
+        delete session.lastModified;
       }
-      return callback(null);
-    })();
+      const s: Partial<DbSession> = {
+        _id: sid,
+        session: this.getTransformFunctions().serialize(session),
+      };
+      // Expire handling
+      if (session?.cookie?.expires) {
+        s.expires = new Date(session.cookie.expires);
+      } else {
+        // If there's no expiration date specified, it is
+        // browser-session cookie or there is no cookie at all,
+        // as per the connect docs.
+        //
+        // So we set the expiration to two-weeks from now
+        // - as is common practice in the industry (e.g Django) -
+        // or the default specified in the options.
+        s.expires = new Date(Date.now() + (this.options.ttl * 1000));
+      }
+      // Last modify handling
+      if (this.options.touchAfter > 0) {
+        s.lastModified = new Date();
+      }
+      const rawResp = await this.collection.rawUpdateOne(
+        { _id: s._id },
+        { $set: s },
+        { upsert: true, returnCount: "upsertedCount" },
+      );
+      if (rawResp > 0) {
+        this.emit('create', sid)
+      } else {
+        this.emit('update', sid)
+      }
+      this.emit('set', sid);
+    } catch (error) {
+      return callback(error);
+    }
+    return callback(null);
   }
 
-  touch(
+  async touch(
     sid: string,
     session: session.SessionData & { lastModified?: Date },
     callback: (err: any) => void = noop,
-  ): void {
-    void (async () => {
-      try {
-        debug(`MongoStore#touch=${sid}`);
-        const updateFields: {
-          lastModified?: Date
-          expires?: Date
-          session?: session.SessionData
-        } = {};
-        const touchAfter = this.options.touchAfter * 1000;
-        const lastModified = session.lastModified
-          ? session.lastModified.getTime()
-          : 0;
-        const currentDate = new Date();
+  ): Promise<void> {
+    try {
+      debug(`MongoStore#touch=${sid}`);
+      const updateFields: {
+        lastModified?: Date
+        expires?: Date
+        session?: session.SessionData
+      } = {};
+      const touchAfter = this.options.touchAfter * 1000;
+      const lastModified = session.lastModified
+        ? session.lastModified.getTime()
+        : 0;
+      const currentDate = new Date();
 
-        // If the given options has a touchAfter property, check if the
-        // current timestamp - lastModified timestamp is bigger than
-        // the specified, if it's not, don't touch the session
-        if (touchAfter > 0 && lastModified > 0) {
-          const timeElapsed = currentDate.getTime() - lastModified;
-          if (timeElapsed < touchAfter) {
-            debug(`Skip touching session=${sid}`);
-            return callback(null);
-          }
-          updateFields.lastModified = currentDate;
-        }
-
-        if (session?.cookie?.expires) {
-          updateFields.expires = new Date(session.cookie.expires);
-        } else {
-          updateFields.expires = new Date(Date.now() + (this.options.ttl * 1000));
-        }
-        const rawResp = await this.collection.rawUpdateOne(
-          { _id: sid },
-          { $set: updateFields },
-        );
-        if (rawResp === 0) {
-          return callback(new Error('Unable to find the session to touch'));
-        } else {
-          this.emit('touch', sid, session);
+      // If the given options has a touchAfter property, check if the
+      // current timestamp - lastModified timestamp is bigger than
+      // the specified, if it's not, don't touch the session
+      if (touchAfter > 0 && lastModified > 0) {
+        const timeElapsed = currentDate.getTime() - lastModified;
+        if (timeElapsed < touchAfter) {
+          debug(`Skip touching session=${sid}`);
           return callback(null);
         }
-      } catch (error) {
-        return callback(error);
+        updateFields.lastModified = currentDate;
       }
-    })();
+
+      if (session?.cookie?.expires) {
+        updateFields.expires = new Date(session.cookie.expires);
+      } else {
+        updateFields.expires = new Date(Date.now() + (this.options.ttl * 1000));
+      }
+      const rawResp = await this.collection.rawUpdateOne(
+        { _id: sid },
+        { $set: updateFields },
+      );
+      if (rawResp === 0) {
+        return callback(new Error('Unable to find the session to touch'));
+      } else {
+        this.emit('touch', sid, session);
+        return callback(null);
+      }
+    } catch (error) {
+      return callback(error);
+    }
   }
 
   /**
    * Get all sessions in the store as an array
    */
-  all(
+  async all(
     callback: (
       err: any,
       obj?:
@@ -263,72 +259,64 @@ export default class MongoStore extends session.Store {
         | { [sid: string]: session.SessionData }
         | null
     ) => void
-  ): void {
-    void (async () => {
-      try {
-        debug('MongoStore#all()');
-        const sessions = await this.collection.find({
-          $or: [
-            { expires: { $exists: false } },
-            { expires: { $gt: new Date() } },
-          ],
-        }).fetch();
-        const results: session.SessionData[] = [];
-        for await (const session of sessions) {
-          results.push(this.getTransformFunctions().unserialize(session.session));
-        }
-        this.emit('all', results);
-        callback(null, results);
-      } catch (error) {
-        callback(error);
+  ): Promise<void> {
+    try {
+      debug('MongoStore#all()');
+      const sessions = await this.collection.find({
+        $or: [
+          { expires: { $exists: false } },
+          { expires: { $gt: new Date() } },
+        ],
+      }).fetch();
+      const results: session.SessionData[] = [];
+      for await (const session of sessions) {
+        results.push(this.getTransformFunctions().unserialize(session.session));
       }
-    })();
+      this.emit('all', results);
+      callback(null, results);
+    } catch (error) {
+      callback(error);
+    }
   }
 
   /**
    * Destroy/delete a session from the store given a session ID (sid)
    * @param sid session ID
    */
-  destroy(sid: string, callback: (err: any) => void = noop): void {
+  async destroy(sid: string, callback: (err: any) => void = noop): Promise<void> {
     debug(`MongoStore#destroy=${sid}`);
-    void (async () => {
-      try {
-        await this.collection.rawRemove({ _id: sid });
-        this.emit('destroy', sid)
-        callback(null)
-      } catch (e) {
-        callback(e);
-      }
-    })();
+    try {
+      await this.collection.rawRemove({ _id: sid });
+      this.emit('destroy', sid)
+      callback(null)
+    } catch (e) {
+      callback(e);
+    }
   }
 
   /**
    * Get the count of all sessions in the store
    */
-  length(callback: (err: any, length: number) => void): void {
+  async length(callback: (err: any, length: number) => void): Promise<void> {
     debug('MongoStore#length()');
-    void (async () => {
-      try {
-        const length = await this.collection.find({}).count();
-        callback(null, length);
-      } catch (e) {
-        callback(e, -1);
-      }
-    })();
+    try {
+      const length = await this.collection.find({}).count();
+      callback(null, length);
+    } catch (e) {
+      callback(e, -1);
+    }
   }
 
   /**
    * Delete all sessions from the store.
    */
-  clear(callback: (err: any) => void = noop): void {
+  async clear(callback: (err: any) => void = noop): Promise<void> {
     debug('MongoStore#clear()');
-    void (async () => {
-      try {
-        await this.collection.rawRemove({});
-        callback(null);
-      } catch (e) {
-        callback(e);
-      }
-    })();
+    try {
+      await this.collection.rawRemove({});
+      callback(null);
+    } catch (e) {
+      callback(e);
+    }
   }
 }

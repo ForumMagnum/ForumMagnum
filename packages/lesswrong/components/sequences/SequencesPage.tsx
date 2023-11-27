@@ -5,12 +5,12 @@ import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import NoSSR from 'react-no-ssr';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { legacyBreakpoints } from '../../lib/utils/theme';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { nofollowKarmaThreshold } from '../../lib/publicSettings';
-import { isEAForum } from '../../lib/instanceSettings';
-import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
+import { DatabasePublicSetting, nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -21,9 +21,11 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.sequenceImageGradient,
 })
 
+const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|null>("defaultSequenceBannerId", null)
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: isEAForum ? (270 + EA_FORUM_HEADER_HEIGHT) : 380,
+    paddingTop: isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
   },
   titleWrapper: {
     paddingLeft: theme.spacing.unit/2
@@ -41,12 +43,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   banner: {
     position: "absolute",
     right: 0,
-    top: isEAForum ? EA_FORUM_HEADER_HEIGHT : 60,
+    top: HEADER_HEIGHT,
     width: "100vw",
     height: 380,
     zIndex: theme.zIndexes.sequenceBanner,
-    [legacyBreakpoints.maxTiny]: {
-      top: 40,
+    [theme.breakpoints.down('sm')]: {
+      top: MOBILE_HEADER_HEIGHT,
     },
     "& img": {
       width: "100vw",
@@ -75,8 +77,8 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: -100,
     },
     [theme.breakpoints.down('xs')]: {
-      marginTop: isEAForum ? undefined : theme.spacing.unit,
-      padding: isEAForum ? 16 : theme.spacing.unit
+      marginTop: isFriendlyUI ? undefined : theme.spacing.unit,
+      padding: isFriendlyUI ? 16 : theme.spacing.unit
     },
   },
   leftAction: {
@@ -137,15 +139,31 @@ const SequencesPage = ({ documentId, classes }: {
 
   if (!canEdit && document.draft)
     throw new Error('This sequence is a draft and is not publicly visible')
+
+  const bannerId = document.bannerImageId || defaultSequenceBannerIdSetting.get();
+  const socialImageId = document.gridImageId || document.bannerImageId;
+  const socialImageUrl = socialImageId ? makeCloudinaryImageUrl(socialImageId, {
+    c: "fill",
+    dpr: "auto",
+    q: "auto",
+    f: "auto",
+    g: "auto:faces",
+  }) : undefined;
     
   return <div className={classes.root}>
-    <HeadTags canonicalUrl={sequenceGetPageUrl(document, true)} title={document.title} description={plaintextDescription || undefined}/>
-    <div className={classes.banner}>
+    <HeadTags
+      canonicalUrl={sequenceGetPageUrl(document, true)}
+      title={document.title}
+      description={plaintextDescription || undefined}
+      image={socialImageUrl}
+      noIndex={document.noindex}
+    />
+    {bannerId && <div className={classes.banner}>
       <div className={classes.bannerWrapper}>
         <NoSSR>
           <div>
             <CloudinaryImage
-              publicId={document.bannerImageId || (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg")}
+              publicId={bannerId}
               width="auto"
               height="380"
               imgProps={{quality: '100'}}
@@ -154,7 +172,7 @@ const SequencesPage = ({ documentId, classes }: {
           </div>
         </NoSSR>
       </div>
-    </div>
+    </div>}
     <SingleColumnSection>
       <div className={classes.content}>
         <div className={classes.titleWrapper}>

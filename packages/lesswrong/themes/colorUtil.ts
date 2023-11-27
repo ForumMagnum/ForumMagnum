@@ -1,4 +1,4 @@
-import { forumTypeSetting } from "../lib/instanceSettings";
+import { isLWorAF } from "../lib/instanceSettings";
 
 type ColorTuple=[number,number,number,number]; //RGBA, all channels floating point zero to one
 
@@ -49,11 +49,10 @@ export function parseColor(color: string): ColorTuple|null
   return null;
 }
 
+export const zeroTo255 = (n: number): string => ""+Math.floor(n*255);
+
 export function colorToString(color: ColorTuple): string
 {
-  function zeroTo255(n: number): string {
-    return ""+Math.floor(n*255);
-  }
   const [r,g,b,a] = color;
   if (a>=1.0) {
     return `#${toHex2(r)}${toHex2(g)}${toHex2(b)}`;
@@ -64,9 +63,9 @@ export function colorToString(color: ColorTuple): string
 
 // HACK: Gamma here is tuned empirically for a visual result, not based on
 // anything principled.
-const GAMMA = forumTypeSetting.get() === "EAForum" ? 1.24 : 1.5;
+const GAMMA = !isLWorAF ? 1.24 : 1.5;
 
-const applyInversionBias = forumTypeSetting.get() === "EAForum"
+const applyInversionBias = !isLWorAF
   ? (color: number) => (0.92 * color) + 0.08
   : (color: number) => color;
 

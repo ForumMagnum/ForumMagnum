@@ -24,9 +24,10 @@ export function isCollaborative(post: DbPost, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
   if (fieldName !== "contents") return false;
-  if (post.shareWithUsers) return true;
+  if (post.shareWithUsers?.length > 0) return true;
   if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
     return true;
+  if (post.collabEditorDialogue) return true;
   return false;
 }
 
@@ -34,7 +35,7 @@ const getPostPlaceholder = (post: PostsBase) => {
   const { question, postCategory } = post;
   const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
 
-  if (post.debate) return debateEditorPlaceholder;
+  if (post.debate) return debateEditorPlaceholder; // note: this version of debates are deprecated in favor of post.collabEditorDialogue
   if (effectiveCategory === "question") return questionEditorPlaceholder;
   if (effectiveCategory === "linkpost") return linkpostEditorPlaceholder;
   return defaultEditorPlaceholder;
@@ -284,7 +285,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       });
       const cleanupSuccessForm = context.addToSuccessForm((result: any, form: any, submitOptions: any) => {
         getLocalStorageHandlers(currentEditorType).reset();
-        if (editorRef.current && !submitOptions?.redirectToEditor) {
+        if (editorRef.current && !submitOptions?.redirectToEditor && !isCollabEditor) {
           wrappedSetContents({
             contents: getBlankEditorContents(initialEditorType),
             autosave: false,
@@ -357,6 +358,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       hideControls={hideControls}
       maxHeight={maxHeight}
       hasCommitMessages={hasCommitMessages ?? undefined}
+      document={document}
     />
     {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&

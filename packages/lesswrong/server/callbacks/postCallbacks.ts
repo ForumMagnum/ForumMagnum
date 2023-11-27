@@ -98,17 +98,16 @@ getCollectionHooks("Posts").createValidate.add(function DebateMustHaveCoauthor(v
 });
 
 getCollectionHooks("Posts").updateBefore.add(function PostsEditRunPostUndraftedSyncCallbacks (data, { oldDocument: post }) {
-  if (data.draft === false && post.draft) {
-    data = postsSetPostedAt(data);
+  // Set postedAt and wasEverUndrafted when a post is moved out of drafts.
+  // If the post has previously been published then moved to drafts, and now
+  // it's being republished then we shouldn't reset the `postedAt` date.
+  const isRepublish = post.wasEverUndrafted || data.wasEverUndrafted;
+  if (data.draft === false && post.draft && !isRepublish) {
+    data.postedAt = new Date();
+    data.wasEverUndrafted = true;
   }
   return data;
 });
-
-// set postedAt when a post is moved out of drafts
-function postsSetPostedAt (data: Partial<DbPost>) {
-  data.postedAt = new Date();
-  return data;
-}
 
 voteCallbacks.castVoteAsync.add(async function increaseMaxBaseScore ({newDocument, vote}: VoteDocTuple) {
   if (vote.collectionName === "Posts") {
@@ -320,11 +319,14 @@ getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ new
     const noEmail = isEAForum
     ? false 
     : !(!!postUser?.reviewedByUserId && !postUser.snoozedUntilContentCount)
+    
+    const adminAccount = currentUser ?? await getAdminTeamAccount();
+    if (!adminAccount) throw new Error("Couldn't find admin account for sending rejection PM");
   
     await sendPostRejectionPM({
       post,
       messageContents: messageContents,
-      lwAccount: currentUser ?? await getAdminTeamAccount(),
+      lwAccount: adminAccount,
       noEmail,
     });  
   }
@@ -554,62 +556,3 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCa
   return post;
 });
 
-/**
- * Call the Type3 webhook to notify it of a new post. This will trigger audio to be pre-generated for the post.
- */
-async function callType3Webhook(action: 'post_published' | 'post_edited', url: string) {
-  const clientId = type3ClientIdSetting.get();
-  const webhookSecret = type3WebhookSecretSetting.get();
-
-  if (!clientId || !webhookSecret) return;
-
-  const webhookUrl = 'https://api.type3.audio/webhooks';
-  const data = {
-    client_id: clientId,
-    action,
-    url,
-    key: webhookSecret,
-  };
-
-  const res = await fetch(webhookUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (res.status !== 200) {
-    // eslint-disable-next-line no-console
-    console.log(`Failed to call Type3 webhook with action ${action} for post ${url}. Response code: `, res.status)
-  }
-}
-
-/**
- * Call the Type 3 webhook on post creation
- */
-getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<DbPost>) => {
-  if (!isPostAllowedType3Audio(document)) return
-
-  const url = postGetPageUrl(document, true);
-  void callType3Webhook('post_published', url);
-});
-
-/**
- * Call the Type 3 webhook on post update. If the post is being undrafted this will count as being "published".
- * It will count as being "edited" if the post content has changed.
- */
-getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
-  if (!isPostAllowedType3Audio(document)) return
-  const url = postGetPageUrl(document, true);
-
-  // If the old document was a draft and the new document is not, or the author is no longer unreviewed, trigger the webhook
-  if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
-    void callType3Webhook('post_published', url);
-    return
-  }
-
-  if (oldDocument.contents?.html !== document.contents?.html) {
-    void callType3Webhook('post_edited', url);
-  }
-});

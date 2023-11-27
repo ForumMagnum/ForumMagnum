@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import Settings from '@material-ui/icons/Settings';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   icon: {
@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body2,
     fontSize: 14,
     color: theme.palette.grey[600],
-    ...(isEAForum ? {fontWeight: 600} : {}),
+    ...(isFriendlyUI ? {fontWeight: 600} : {}),
   }
 })
 

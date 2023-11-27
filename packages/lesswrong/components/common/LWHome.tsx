@@ -4,7 +4,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 
 const LWHome = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget } = Components
+  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, DialoguesList } = Components
 
   return (
       <AnalyticsContext pageContext="homePage">
@@ -26,6 +26,8 @@ const LWHome = () => {
           >
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
+
+          <DialoguesList />
 
           <RecentDiscussionFeed
             af={false}

@@ -1,9 +1,9 @@
 import React from 'react';
-import { isEAForum } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: isEAForum
+  root: isFriendlyUI
     ? {
       margin: "8px 0",
     }

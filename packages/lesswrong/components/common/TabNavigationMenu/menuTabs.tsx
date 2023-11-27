@@ -1,4 +1,10 @@
 import React from 'react';
+import { communityPath, getAllTagsPath } from '../../../lib/routes';
+import { REVIEW_YEAR } from '../../../lib/reviewUtils';
+import { eaSequencesHomeDescription } from '../../ea-forum/EASequencesHome';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { ForumOptions } from '../../../lib/forumTypeUtils';
+import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 
 import { compassIcon } from '../../icons/compassIcon';
 import { questionsGlobeIcon } from '../../icons/questionsGlobeIcon';
@@ -7,34 +13,28 @@ import { communityGlobeIcon } from '../../icons/communityGlobeIcon';
 import { BookIcon } from '../../icons/bookIcon'
 import { allPostsIcon } from '../../icons/allPostsIcon';
 
-
 import Home from '@material-ui/icons/Home'
 import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
 import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
-import { communityPath, getAllTagsPath } from '../../../lib/routes';
-import { REVIEW_YEAR } from '../../../lib/reviewUtils';
-import { ForumOptions, preferredHeadingCase } from '../../../lib/forumTypeUtils';
-import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
 
 // EA Forum menu icons
 import HomeIcon from "@heroicons/react/24/outline/HomeIcon";
 import HomeSelectedIcon from "@heroicons/react/20/solid/HomeIcon";
+import BestOfIcon from "@heroicons/react/24/outline/StarIcon";
+import BestOfSelectedIcon from "@heroicons/react/24/solid/StarIcon";
 import AllPostsIcon from "@heroicons/react/24/outline/ArchiveBoxIcon";
 import AllPostsSelectedIcon from "@heroicons/react/24/solid/ArchiveBoxIcon";
 import TopicsIcon from "@heroicons/react/24/outline/TagIcon";
 import TopicsSelectedIcon from "@heroicons/react/24/solid/TagIcon";
-import LibraryIcon from "@heroicons/react/24/outline/BookOpenIcon";
-import LibrarySelectedIcon from "@heroicons/react/24/solid/BookOpenIcon";
 import TakeActionIcon from "@heroicons/react/24/outline/HeartIcon";
 import TakeActionSelectedIcon from "@heroicons/react/24/solid/HeartIcon";
 import EventsIcon from "@heroicons/react/24/outline/CalendarIcon";
 import EventsSelectedIcon from "@heroicons/react/24/solid/CalendarIcon";
 import GroupsIcon from "@heroicons/react/24/outline/UsersIcon";
 import GroupsSelectedIcon from "@heroicons/react/24/solid/UsersIcon";
-import { eaSequencesHomeDescription } from '../../ea-forum/EASequencesHome';
 
 // The sidebar / bottom bar of the Forum contain 10 or so similar tabs, unique to each Forum. The
 // tabs can appear in
@@ -261,6 +261,21 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
+      id: 'giving-portal',
+      title: 'Giving portal',
+      link: '/giving-portal',
+      iconComponent: TakeActionSelectedIcon,
+      customComponentName: 'GivingPortalMobileMenuItem'
+    }, {
+      id: 'bestOf',
+      title: 'Best of the Forum',
+      link: '/best-of',
+      iconComponent: BestOfIcon,
+      selectedIconComponent: BestOfSelectedIcon,
+      tooltip: 'Curated by the Forum team',
+      showOnMobileStandalone: true,
+      showOnCompressed: true,
+    }, {
       id: 'allPosts',
       title: 'All posts',
       link: '/allPosts',
@@ -278,15 +293,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       selectedIconComponent: TopicsSelectedIcon,
       tooltip: `A sorted list of pages — “${taggingNamePluralCapitalSetting.get()}” — in the EA Forum Wiki, which explains 
       ${taggingNamePluralSetting.get()} in EA and collects posts tagged with those ${taggingNamePluralSetting.get()}.`,
-      showOnMobileStandalone: true,
-      showOnCompressed: true,
-    }, {
-      id: 'library',
-      title: 'Library',
-      link: '/library',
-      iconComponent: LibraryIcon,
-      selectedIconComponent: LibrarySelectedIcon,
-      tooltip: eaSequencesHomeDescription,
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {

@@ -24,6 +24,7 @@ import { getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
+import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
@@ -32,7 +33,7 @@ import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { forumTypeSetting, testServerSetting } from '../lib/instanceSettings';
+import { faviconUrlSetting, isEAForum, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './testingSqlClient';
@@ -63,8 +64,10 @@ class ApolloServerLogging {
   }
 }
 
+export type AddMiddlewareType = typeof app.use;
+
 export function startWebserver() {
-  const addMiddleware: typeof app.use = (...args: any[]) => app.use(...args);
+  const addMiddleware: AddMiddlewareType = (...args: any[]) => app.use(...args);
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
 
@@ -101,15 +104,13 @@ export function startWebserver() {
 
   addStripeMiddleware(addMiddleware);
   addAuthMiddlewares(addMiddleware);
+  addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
   app.use(datadogMiddleware);
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
-
-  //eslint-disable-next-line no-console
-  console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));
   
   // create server
   // given options contains the schema
@@ -184,11 +185,7 @@ export function startWebserver() {
   app.use("/ckeditor-token", ckEditorTokenHandler)
   
   // Static files folder
-  // eslint-disable-next-line no-console
-  console.log(`Serving static files from ${path.join(__dirname, '../../client')}`);
   app.use(express.static(path.join(__dirname, '../../client')))
-  // eslint-disable-next-line no-console
-  console.log(`Serving static files from ${path.join(__dirname, '../../../public')}`);
   app.use(express.static(path.join(__dirname, '../../../public')))
   
   // Voyager is a GraphQL schema visual explorer
@@ -202,7 +199,7 @@ export function startWebserver() {
   }));
   
   app.get('/api/eag-application-data', async function(req, res, next) {
-    if (forumTypeSetting.get() !== 'EAForum') {
+    if (!isEAForum) {
       next()
       return
     }
@@ -233,6 +230,16 @@ export function startWebserver() {
 
   addServerSentEventsEndpoint(app);
 
+  app.get('/node_modules/*', (req, res) => {
+    // Under some circumstances (I'm not sure exactly what the trigger is), the
+    // Chrome JS debugger tries to load a bunch of /node_modules/... paths
+    // (presumably for some sort of source mapping). If these were treated as
+    // normal pageloads, this would produce a ton of console-log spam, which is
+    // disruptive. So instead just serve a minimal 404.
+    res.status(404);
+    res.end("");
+  });
+
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
@@ -256,6 +263,8 @@ export function startWebserver() {
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
     
+    const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
+    
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
     // close tags, since there's stuff inside that depends on what actually
@@ -268,6 +277,7 @@ export function startWebserver() {
         + jssStylePreload
         + externalStylesPreload
         + instanceSettingsHeader
+        + faviconHeader
         + clientScript
     );
     

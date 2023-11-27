@@ -4,7 +4,7 @@ const fs = require('fs');
 const process = require('process');
 const { zlib } = require("mz");
 const { getDatabaseConfig, startSshTunnel, getOutputDir, setOutputDir } = require("./scripts/startup/buildUtil");
-const { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh } = require("./scripts/startup/autoRefreshServer");
+const { setClientRebuildInProgress, setServerRebuildInProgress, generateBuildId, startAutoRefreshServer, initiateRefresh, startLint } = require("./scripts/startup/autoRefreshServer");
 /**
  * This is used for clean exiting in Github workflows by the dev
  * only route /api/quit
@@ -19,6 +19,7 @@ const [opts, args] = cliopts.parse(
   ["postgresUrlFile", "The name of a text file which contains a postgresql URL for the database", "<file>"],
   ["shell", "Open an interactive shell instead of running a webserver"],
   ["command", "Run the given server shell command, then exit", "<string>"],
+  ["lint", "Run the linter on site refresh"],
 );
 
 const defaultServerPort = 3000;
@@ -106,6 +107,9 @@ build({
     setClientRebuildInProgress(true);
     inProgressBuildId = generateBuildId();
     config.define.buildId = `"${inProgressBuildId}"`;
+    if (opts.lint) {
+      startLint();
+    }
   },
   onEnd: (config, buildResult, ctx) => {
     setClientRebuildInProgress(false);
@@ -156,6 +160,9 @@ build({
   run: cliopts.run && serverCli,
   onStart: (config, changedFiles, ctx) => {
     setServerRebuildInProgress(true);
+    if (opts.lint) {
+      startLint();
+    }
   },
   onEnd: () => {
     setServerRebuildInProgress(false);

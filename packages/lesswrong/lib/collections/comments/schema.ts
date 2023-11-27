@@ -4,7 +4,7 @@ import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
-import { forumTypeSetting, isEAForum } from "../../instanceSettings";
+import { isAF, isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
@@ -25,8 +25,6 @@ export const alignmentOptionsGroup = {
   label: "Alignment Options",
   startCollapsed: true
 };
-
-const alignmentForum = forumTypeSetting.get() === 'AlignmentForum'
 
 const schema: SchemaType<DbComment> = {
   // The `_id` of the parent comment, if there is one
@@ -685,6 +683,7 @@ const schema: SchemaType<DbComment> = {
   debateResponse: {
     type: Boolean,
     optional: true,
+    label: "Dialogue Response",
     nullable: true,
     canRead: ['guests'],
     canCreate: ['members', 'sunshineRegiment', 'admins'],
@@ -778,7 +777,7 @@ const schema: SchemaType<DbComment> = {
       ) {
         return {};
       }
-      const reactors = await context.repos.posts.getEmojiReactorsWithCache(comment.postId);
+      const reactors = await context.repos.posts.getCommentEmojiReactorsWithCache(comment.postId);
       return reactors[comment._id] ?? {};
     },
   }),
@@ -792,7 +791,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForum', 'admins'],
     canCreate: ['alignmentForum', 'admins'],
-    hidden: (props: SmartFormProps) => alignmentForum || !props.alignmentForumPost
+    hidden: (props: SmartFormProps) => isAF || !props.alignmentForumPost
   },
 
   suggestForAlignmentUserIds: {
@@ -806,7 +805,7 @@ const schema: SchemaType<DbComment> = {
     canUpdate: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     label: "Suggested for Alignment by",
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: alignmentOptionsGroup,
     hidden: true
   },
@@ -822,7 +821,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForumAdmins', 'admins'],
     label: "AF Review UserId",
-    hidden: forumTypeSetting.get() === 'EAForum'
+    hidden: !isLWorAF
   },
 
   afDate: {
@@ -860,6 +859,22 @@ const schema: SchemaType<DbComment> = {
     canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
+
+  originalDialogueId: {
+    ...foreignKeyField({
+      idFieldName: "originalDialogueId",
+      resolverName: "originalDialogue",
+      collectionName: "Posts",
+      type: "Post",
+      nullable: true,
+    }),
+    optional: true,
+    hidden: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+  } 
 };
 
 export default schema;

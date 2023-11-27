@@ -80,16 +80,17 @@ export const twoLineEventsSidebarABTest = new ABTest({
   },
 });
 
-export const postRecsPositionABTest = new ABTest({
-  name: "postsRecsPosition",
-  description: "Tests the position of recommendations on the post page",
+// not active anymore since picked the best option, but leaving around as a record of AB tests that were previously run
+export const dialogueFacilitationMessagesABTest = new ABTest({
+  name: "dialogueFacilitationMessages",
+  description: "Different wording",
   groups: {
-    right: {
-      description: "Show recommendations at the right of the post",
+    getHelp: {
+      description: "Get help version",
       weight: 1,
     },
-    underPost: {
-      description: "Show recommendations under the post, but above the comments",
+    optIn: {
+      description: "Opt-in version",
       weight: 1,
     },
   },

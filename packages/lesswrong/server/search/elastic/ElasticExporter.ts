@@ -165,16 +165,18 @@ class ElasticExporter {
   }
 
   async deleteIndex(collectionName: AlgoliaIndexCollectionName) {
-    const client = this.client.getClient();
     const collection = getCollection(collectionName) as
       AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
-
     const aliasName = this.getIndexName(collection);
     const indexName = await this.getExistingAliasTarget(aliasName);
     if (!indexName) {
       throw new Error("Can't find backing index for collection " + collectionName);
     }
+    await this.deleteIndexByName(indexName);
+  }
 
+  async deleteIndexByName(indexName: string) {
+    const client = this.client.getClient();
     await client.indices.delete({
       index: indexName,
     });
@@ -277,13 +279,25 @@ class ElasticExporter {
                     "fm_punctuation_filter",
                   ],
                 },
+                fm_exact_analyzer: {
+                  type: "custom",
+                  tokenizer: "standard",
+                  filter: [
+                    "lowercase",
+                    "decimal_digit",
+                  ],
+                  char_filter: [
+                    "fm_punctuation_filter",
+                  ],
+                },
                 fm_synonym_analyzer: {
                   type: "custom",
                   tokenizer: "standard",
                   filter: [
                     "lowercase",
-                    "fm_synonym_filter",
+                    "apostrophe",
                     "decimal_digit",
+                    "fm_synonym_filter",
                     "fm_english_stopwords",
                     "fm_english_stemmer",
                   ],
@@ -348,6 +362,12 @@ class ElasticExporter {
     const collection = getCollection(collectionName) as
       AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
     const repo = this.getRepoByCollectionName(collectionName);
+
+    const indexName = this.getIndexName(collection);
+    const alias = await this.getExistingAliasTarget(indexName);
+    if (!alias) {
+      throw new Error("Alias is not configured - run `elasticConfigureIndexes`");
+    }
 
     const total = await repo.countSearchDocuments();
 
@@ -477,6 +497,9 @@ Globals.elasticExportAll = () =>
 
 Globals.elasticDeleteIndex = (collectionName: AlgoliaIndexCollectionName) =>
   new ElasticExporter().deleteIndex(collectionName);
+
+Globals.elasticDeleteIndexByName = (indexName: string) =>
+  new ElasticExporter().deleteIndexByName(indexName);
 
 Globals.elasticDeleteOrphanedIndexes = () =>
   new ElasticExporter().deleteOrphanedIndexes();

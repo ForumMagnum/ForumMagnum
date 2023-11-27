@@ -288,12 +288,14 @@ registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagDetailsFragment
     isPostType
+    parentTagId
     parentTag {
       ...TagBasicInfo
     }
     subforumIntroPostId
     tagFlagsIds
     postsDefaultSortOrder
+    introSequenceId
     
     autoTagModel
     autoTagPrompt

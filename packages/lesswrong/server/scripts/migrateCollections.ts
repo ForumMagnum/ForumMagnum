@@ -10,7 +10,6 @@ import InsertQuery from "../../lib/sql/InsertQuery";
 import SwitchingCollection from "../../lib/SwitchingCollection";
 import type { ReadTarget, WriteTarget } from "../../lib/mongo2PgLock";
 import omit from "lodash/omit";
-import { ObjectId } from "mongodb";
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 import { LWEvents } from "../../lib/collections/lwevents";
 import { inspect } from "util";
@@ -21,13 +20,12 @@ import Users from "../../lib/collections/users/collection";
 
 type Transaction = ITask<{}>;
 
-const extractObjectId = (value: Record<string, any>): Record<string, any> => {
-  if (value._id instanceof ObjectId) {
-    value._id = value._id.toString();
-  }
-  return value;
-}
-
+// const extractObjectId = (value: Record<string, any>): Record<string, any> => {
+//   if (value._id instanceof ObjectId) {
+//     value._id = value._id.toString();
+//   }
+//   return value;
+// }
 
 const sanitizeNullTerminatingChars = (value: DbRevision['originalContents']) => {
   if (value.type !== 'markdown') return value;
@@ -93,7 +91,7 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     return user;
   },
   DebouncerEvents: (event: DbDebouncerEvents): DbDebouncerEvents => {
-    extractObjectId(event);
+    // extractObjectId(event);
     if (typeof event.createdAt === "number") {
       event.createdAt = new Date(event.createdAt);
     }
@@ -110,11 +108,11 @@ const formatters: Partial<Record<CollectionNameString, (document: DbObject) => D
     return event;
   },
   DatabaseMetadata: (metadata: DbDatabaseMetadata): DbDatabaseMetadata => {
-    extractObjectId(metadata);
+    // extractObjectId(metadata);
     return metadata;
   },
   Spotlights: (spotlight: DbSpotlight): DbSpotlight => {
-    extractObjectId(spotlight);
+    // extractObjectId(spotlight);
     if (!spotlight.hasOwnProperty('showAuthor')) {
       spotlight.showAuthor = false;
     }
@@ -312,7 +310,7 @@ const copyDatabaseId = async (sql: Transaction) => {
   const databaseId = await DatabaseMetadata.findOne({name: "databaseId"});
   const expectedDatabaseId = await DatabaseMetadata.findOne({name: "expectedDatabaseId"});
   if (databaseId) {
-    extractObjectId(databaseId);
+    // extractObjectId(databaseId);
     await sql.none(`
       INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
       VALUES ($1, $2, TO_JSONB($3::TEXT))
@@ -322,7 +320,7 @@ const copyDatabaseId = async (sql: Transaction) => {
   }
 
   if (expectedDatabaseId) {
-    extractObjectId(expectedDatabaseId);
+    // extractObjectId(expectedDatabaseId);
     await sql.none(`
       INSERT INTO "DatabaseMetadata" ("_id", "name", "value")
       VALUES ($1, $2, TO_JSONB($3::TEXT))

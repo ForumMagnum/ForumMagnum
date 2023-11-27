@@ -13,7 +13,7 @@ describe('Posts', function() {
     cy.visit(`posts/${this.testPost._id}/${this.testPost.slug}`);
     const newPostTitle = 'New Post Title';
     const newPostBody = 'New post body';
-    cy.get('.PostActionsButton-root').click();
+    cy.get('.PostActionsButton-root').first().click();
     cy.contains('.DropdownItem-title', 'Edit').click();
     cy.get('.form-component-EditTitle').click().clear().type(newPostTitle);
     cy.get('.input-contents .ck-editor__editable').click();

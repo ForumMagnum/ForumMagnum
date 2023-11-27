@@ -15,16 +15,15 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
-import { taglineSetting } from '../common/HeadTags';
 import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
 import CopyIcon from '@material-ui/icons/FileCopy'
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
 import { getUserStructuredData } from './UsersSingle';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -118,7 +117,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const { query } = useLocation()
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
-    if (forumTypeSetting.get() === 'AlignmentForum') {
+    if (isAF) {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
         return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
@@ -131,12 +130,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
-    const userPostCount = forumTypeSetting.get() !== 'AlignmentForum' ? postCount || 0 : afPostCount || 0
-    const userCommentCount = forumTypeSetting.get() !== 'AlignmentForum' ? commentCount || 0 : afCommentCount || 0
+    const userPostCount = !isAF ? postCount || 0 : afPostCount || 0
+    const userCommentCount = !isAF ? commentCount || 0 : afCommentCount || 0
 
       return <div className={classes.meta}>
 
-        { forumTypeSetting.get() !== 'AlignmentForum' && <Tooltip title={`${userKarma} karma`}>
+        { !isAF && <Tooltip title={`${userKarma} karma`}>
           <span className={classes.userMetaInfo}>
             <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo title="Karma">
@@ -145,7 +144,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </span>
         </Tooltip>}
 
-        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma${(forumTypeSetting.get() !== 'AlignmentForum') ? " on alignmentforum.org" : ""}`}>
+        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma${(!isAF) ? " on alignmentforum.org" : ""}`}>
           <span className={classes.userMetaInfo}>
             <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo title="Alignment Karma">
@@ -237,7 +236,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
     
-    const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
+    const nonAFMember = (isAF && !userCanDo(currentUser, "posts.alignment.new"))
 
     const showMessageButton = currentUser?._id != user._id
 
@@ -275,8 +274,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                     actions={[]}
                     trigger={<a>Register RSS</a>}
                   >
-                    { /*eslint-disable-next-line react/jsx-pascal-case*/ }
-                    <div><Components.newFeedButton user={user} /></div>
+                    <div><Components.NewFeedButton user={user} /></div>
                   </DialogGroup>
                 </div>
               }

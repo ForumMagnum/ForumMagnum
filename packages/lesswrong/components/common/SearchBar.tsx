@@ -6,13 +6,14 @@ import classNames from 'classnames';
 import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
 import IconButton from '@material-ui/core/IconButton';
-import { useNavigation } from '../../lib/routeUtil';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { getAlgoliaIndexName, isAlgoliaEnabled, getSearchClient } from '../../lib/search/algoliaUtil';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { getAlgoliaIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/algoliaUtil';
+import { isAF } from '../../lib/instanceSettings';
 import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
 import { useCurrentUser } from './withUser';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const VirtualMenu = connectMenu(() => null);
 
@@ -53,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
       height: "100%",
       width: "100%",
-      paddingTop: isEAForum ? 5 : undefined,
+      paddingTop: isFriendlyUI ? 5 : undefined,
       paddingRight: 0,
       paddingLeft: 48,
       verticalAlign: "bottom",
@@ -68,15 +69,17 @@ const styles = (theme: ThemeType): JssStyles => ({
     "&.open .ais-SearchBox-input": {
       display:"inline-block",
     },
+    "&.open .SearchBar-searchIcon": {
+      position: 'fixed',
+    },
   },
-  searchInputAreaSmall: isEAForum ? {
+  searchInputAreaSmall: isFriendlyUI ? {
     minWidth: 34,
   } : {},
   searchIcon: {
-    position: 'fixed',
-    color: isEAForum ? undefined : theme.palette.header.text,
+    color: isFriendlyUI ? undefined : theme.palette.header.text,
   },
-  searchIconSmall: isEAForum ? {
+  searchIconSmall: isFriendlyUI ? {
     padding: 6,
     marginTop: 6,
   } : {},
@@ -86,7 +89,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   searchBarClose: {
     display: "inline-block",
     position: "absolute",
-    top: isEAForum ? 18 : 15,
+    top: isFriendlyUI ? 18 : 15,
     right: 5,
     cursor: "pointer"
   },
@@ -109,11 +112,11 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   const [inputOpen,setInputOpen] = useState(false);
   const [searchOpen,setSearchOpen] = useState(false);
   const [currentQuery,setCurrentQuery] = useState("");
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const captureSearch = useSearchAnalytics();
 
   const handleSubmit = () => {
-    history.push({pathname: `/search`, search: `?${qs.stringify({query: currentQuery})}`});
+    navigate({pathname: `/search`, search: `?${qs.stringify({query: currentQuery})}`});
     closeSearch()
   }
   
@@ -161,11 +164,10 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
     }
   }, [currentQuery, captureSearch])
 
-  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum';
   const { SearchBarResults, ForumIcon } = Components
 
-  if (!isAlgoliaEnabled()) {
-    return <div>Search is disabled (Algolia App ID not configured on server)</div>
+  if (!isSearchEnabled()) {
+    return <div>Search is disabled (ElasticSearch not configured on server)</div>
   }
 
   return <div className={classes.root} onKeyDown={handleKeyDown}>
@@ -178,9 +180,9 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
         <div className={classNames(
           classes.searchInputArea,
           {"open": inputOpen},
-          {[classes.alignmentForum]: alignmentForum, [classes.searchInputAreaSmall]: !currentUser}
+          {[classes.alignmentForum]: isAF, [classes.searchInputAreaSmall]: !currentUser}
         )}>
-          {alignmentForum && <VirtualMenu attribute="af" defaultRefinement="true" />}
+          {isAF && <VirtualMenu attribute="af" defaultRefinement="true" />}
           <div onClick={handleSearchTap}>
             <IconButton className={classNames(classes.searchIcon, {[classes.searchIconSmall]: !currentUser})}>
               <ForumIcon icon="Search" />

@@ -28,6 +28,7 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
+import { isLWorAF } from '../../../lib/instanceSettings';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -80,21 +81,30 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
 
   const isHealthCheck = userAgent === healthCheckUserAgentSetting.get();
   const abTestGroups = getAllUserABTestGroups(user, clientId);
-  if (!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) {
+  
+  // Skip the page-cache if the user-agent is Slackbot's link-preview fetcher
+  // because we need to render that page with a different value for the
+  // twitter:card meta tag (see also: HeadTags.tsx, Head.tsx).
+  const isSlackBot = userAgent && userAgent.startsWith("Slackbot-LinkExpanding");
+  
+  if ((!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) || isSlackBot) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     //eslint-disable-next-line no-console
     const rendered = await renderRequest({
       req, user, startTime, res, clientId, userAgent,
     });
-    Vulcan.captureEvent("ssr", {
-      ...ssrEventParams,
-      userId: user?._id,
-      timings: rendered.timings,
-      cached: false,
-      abTestGroups: rendered.allAbTestGroups,
-      ip
-    });
+    if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+      Vulcan.captureEvent("ssr", {
+        ...ssrEventParams,
+        userId: user?._id,
+        timings: rendered.timings,
+        cached: false,
+        abTestGroups: rendered.allAbTestGroups,
+        ip
+      });
+    }
+
     // eslint-disable-next-line no-console
     console.log(`Rendered ${url} for ${user?.username ?? `logged out ${ip}`}: ${printTimings(rendered.timings)}`);
     
@@ -114,17 +124,19 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       // eslint-disable-next-line no-console
       console.log(`Rendered ${url} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
     }
-    
-    Vulcan.captureEvent("ssr", {
-      ...ssrEventParams,
-      userId: null,
-      timings: {
-        totalTime: new Date().valueOf()-startTime.valueOf(),
-      },
-      abTestGroups: rendered.allAbTestGroups,
-      cached: rendered.cached,
-      ip
-    });
+
+    if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+      Vulcan.captureEvent("ssr", {
+        ...ssrEventParams,
+        userId: null,
+        timings: {
+          totalTime: new Date().valueOf()-startTime.valueOf(),
+        },
+        abTestGroups: rendered.allAbTestGroups,
+        cached: rendered.cached,
+        ip
+      });
+    }
     
     return {
       ...rendered,
@@ -136,6 +148,24 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
 function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
   if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
   return false
+}
+
+const userAgentExclusions = [
+  'health',
+  'bot',
+  'spider',
+  'crawler',
+  'curl',
+  'node',
+  'python'
+];
+
+function shouldRecordSsrAnalytics(userAgent?: string) {
+  if (!userAgent) {
+    return true;
+  }
+
+  return !userAgentExclusions.some(excludedAgent => userAgent.toLowerCase().includes(excludedAgent));
 }
 
 export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {
@@ -216,7 +246,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: {
   const ssrBody = buildSSRBody(htmlContent, userAgent);
 
   // add headers using helmet
-  const head = ReactDOM.renderToString(<Head />);
+  const head = ReactDOM.renderToString(<Head userAgent={userAgent}/>);
 
   // add Apollo state, the client will then parse the string
   const initialState = client.extract();

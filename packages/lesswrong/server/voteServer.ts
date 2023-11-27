@@ -19,11 +19,11 @@ import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
-import { userCanVote } from '../lib/collections/users/helpers';
+import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
-import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
-import { isElasticEnabled, isAlgoliaEnabled } from './search/elastic/elasticSettings';
-import { isEAForum } from '../lib/instanceSettings';
+import { collectionIsAlgoliaIndexed, isAlgoliaEnabled } from '../lib/search/algoliaUtil';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
+import {Posts} from '../lib/collections/posts';
 
 
 // Test if a user has voted on the server
@@ -80,7 +80,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
       void elasticSyncDocument(collection.collectionName, newDocument._id);
     }
   }
-  if (isAlgoliaEnabled) {
+  if (isAlgoliaEnabled()) {
     void algoliaExportById(collection as any, newDocument._id);
   }
   return {newDocument, vote};
@@ -117,13 +117,18 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
 };
 
 // Clear all votes for a given document and user (server)
-export const clearVotesServer = async ({ document, user, collection, excludeLatest, context }: {
+export const clearVotesServer = async ({ document, user, collection, excludeLatest, silenceNotification=false, context }: {
   document: DbVoteableType,
   user: DbUser,
   collection: CollectionBase<DbVoteableType>,
   // If true, clears all votes except the latest (ie, only clears duplicate
   // votes). If false, clears all votes (including the latest).
   excludeLatest?: boolean,
+  /**
+   * If true, notifies the user of the karma changes from this vote. This will be true
+   * except for votes being nullified by mods.
+   */
+  silenceNotification?: boolean,
   context: ResolverContext,
 }) => {
   let newDocument = _.clone(document);
@@ -174,6 +179,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       isUnvote: true,
       power: -vote.power,
       votedAt: new Date(),
+      silenceNotification,
     };
     await createMutator({
       collection: Votes,
@@ -206,7 +212,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       void elasticSyncDocument(collection.collectionName, newDocument._id);
     }
   }
-  if (isAlgoliaEnabled) {
+  if (isAlgoliaEnabled()) {
     void algoliaExportById(collection as any, newDocument._id);
   }
   return newDocument;
@@ -242,7 +248,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!user) throw new Error("Error casting vote: Not logged in.");
   
   // Check whether the user is allowed to vote at all, in full generality
-  const { fail: cannotVote, reason } = userCanVote(user);
+  const { fail: cannotVote, reason } = voteButtonsDisabledForUser(user);
   if (!selfVote && cannotVote) {
     throw new Error(reason);
   }
@@ -253,7 +259,11 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!voteTypes[voteType]) throw new Error(`Invalid vote type in performVoteServer: ${voteType}`);
 
   if (!selfVote && collectionName === "Comments" && (document as DbComment).debateResponse) {
-    throw new Error("Cannot vote on dialogue responses");
+    const post = await Posts.findOne({_id: (document as DbComment).postId});
+    const acceptedCoauthorIds = post ? [...getConfirmedCoauthorIds(post), post.userId] : [];
+    if (!acceptedCoauthorIds.includes(user._id)) {
+      throw new Error("Cannot vote on debate responses unless you're an accepted coauthor");
+    }
   }
 
   if (collectionName==="Revisions" && (document as DbRevision).collectionName!=='Tags')

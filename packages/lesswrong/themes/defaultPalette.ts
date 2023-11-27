@@ -215,6 +215,15 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       yellow: "#f57f17",
       green: "#1b5e20",
     },
+
+    debateComment: {
+      [1]: '#1192e8',
+      [2]: '#198038',
+      [3]: '#b28600',
+      [4]: '#9f1853',
+      [5]: '#a56eff',
+      [6]: '#6C7BFF',
+    },
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -259,7 +268,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     navigationSidebarIcon: shades.greyAlpha(1.0),
     sprout: '#69886e',
     yellow: '#ffc500',
-    
+    recentDiscussionGreen: "#72B065",
+    recentDiscussionGrey: "#757575",
+
     commentsBubble: {
       commentCount: "#fff",
       noUnread: shades.greyAlpha(.22),
@@ -276,6 +287,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     intense: shades.greyBorder("2px", .5),
     faint: shades.greyBorder("1px", .1),
     extraFaint: shades.greyBorder("1px", .08),
+    grey200: `1px solid ${shades.grey[200]}`,
     grey300: `1px solid ${shades.grey[300]}`,
     grey400: `1px solid ${shades.grey[400]}`,
     maxIntensity: shades.greyBorder("1px", 1.0),
@@ -294,13 +306,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     secondaryHighlight: '#aedba3',
     secondaryHighlight2: '#d8edd3',
     primaryTranslucent: 'rgba(12,134,155,.7)',
-    debateComment: '#1c912766',
-    debateComment2: '#df1d4566',
-    debateComment3: '#2671ff66',
-    debateComment4: '#eb26ff66',
-    debateComment5: '#efdc0066',
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
+    wrappedSummary: "2px solid rgba(255, 168, 50, 0.6)",
   },
   background: {
     default: shades.grey[60],
@@ -370,6 +378,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sequenceImageGradient: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)',
     sequencesBanner: shades.greyAlpha(.5),
     cookieBanner: shades.grey[800],
+    strawpoll: "rgba(251, 191, 36, 1)", // Color used by StrawPoll
+    userProfileImageHover: "rgba(0, 0, 0, 0.5)",
+    userProfileImageLoading: `linear-gradient(
+      90deg,
+      rgba(0,0,0,0) 33%,
+      rgba(255,255,255,0.25) 50%,
+      rgba(0,0,0,0) 66%
+    ) ${shades.grey[500]}`,
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -490,7 +506,50 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',
-  
+
+  givingPortal: {
+    [0]: "#fdfcfc",
+    [200]: "#fcf5f3",
+    [800]: "#f8e7e2",
+    [900]: "#EDD3CE",
+    [1000]: "#862115",
+    candidate: "#fef4ef",
+    votedCandidate: "#fff",
+    ctaBackground: "#fdfcfc",
+    ctaText: "#757575",
+    rhsLink: '#862115',
+    secondary: '#E7714E',
+    button: {
+      alwaysDark: "#862115",
+      dark: "#862115",
+      light: "#FFF",
+      hoverOutlined: "#f5f5f5",
+      borderColor: "#d0d0d0",
+    },
+    // the special homepage header has the exact same colors in light and dark mode
+    homepageHeader: {
+      light4: "#fdfcfc",
+      light3: "#fcf5f3",
+      light2: "#f8e7e2",
+      light1: "#EDD3CE",
+      main: "#862115",
+      dark: "#6C0C00",
+      secondary: "#b44c42",
+      secondaryDark: "#a0443c",
+      secondaryOpaque: "rgba(253, 139, 132, 0.40)",
+      secondaryOpaqueDark: "rgba(197, 106, 101, 0.40)",
+    },
+  },
+  dialogueMatching: {
+    checkedNotMatched: "#ADD8E6",
+    checkedMatched: "#00000038",
+    optIn: "#9a9a9a",
+    warning: "yellow",
+  },
+  namesAttachedReactions: {
+    selectedAnti: "rgb(255, 189, 189, .23)",
+  },
+
   contrastText: shades.grey[0],
   event: 'rgba(67,151,71,.65)',
   group: 'rgba(24,68,155,.65)',
@@ -519,5 +578,5 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   },
   warning: {
     main: "#ff9800",
-  }
+  },
 })

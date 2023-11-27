@@ -1,6 +1,5 @@
 import { isServer } from "../../../lib/executionEnvironment";
-import { isEAForum } from "../../../lib/instanceSettings";
-import { DatabasePublicSetting } from "../../../lib/publicSettings";
+import { DatabasePublicSetting, hasCookieConsentSetting } from "../../../lib/publicSettings";
 import { getBrowserLocalStorage } from "../../editor/localStorageHandlers";
 
 const ipApiKeySetting = new DatabasePublicSetting<string | null>('ipapi.apiKey', null);
@@ -120,7 +119,7 @@ async function getUserCountryCode({ signal }: { signal?: AbortSignal } = {}): Pr
 }
 
 export function getExplicitConsentRequiredSync(): boolean | "unknown" {
-  if (!isEAForum) return false;
+  if (!hasCookieConsentSetting.get()) return false;
   if (isServer) return "unknown";
 
   const cachedCountryCode = getCachedUserCountryCode();
@@ -131,7 +130,7 @@ export function getExplicitConsentRequiredSync(): boolean | "unknown" {
 }
 
 export async function getExplicitConsentRequiredAsync(): Promise<boolean | "unknown"> {
-  if (!isEAForum) return false;
+  if (!hasCookieConsentSetting.get()) return false;
   if (isServer) return "unknown";
 
   const controller = new AbortController();
@@ -152,4 +151,3 @@ export async function getExplicitConsentRequiredAsync(): Promise<boolean | "unkn
     return true;
   }
 }
-

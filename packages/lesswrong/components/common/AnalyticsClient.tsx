@@ -6,6 +6,7 @@ import withErrorBoundary from './withErrorBoundary';
 import { ABTestGroupsUsedContext } from '../../lib/abTestImpl';
 import { CLIENT_ID_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { isLWorAF } from '../../lib/instanceSettings';
 
 export const AnalyticsClient = () => {
   const currentUser = useCurrentUser();
@@ -34,8 +35,10 @@ export const AnalyticsClient = () => {
     AnalyticsUtil.clientWriteEvents = flushEvents;
     AnalyticsUtil.clientContextVars.userId = currentUserId;
     AnalyticsUtil.clientContextVars.clientId = clientId;
-    AnalyticsUtil.clientContextVars.abTestGroupsUsed = abTestGroupsUsed;
-    
+    if (!isLWorAF) {
+      AnalyticsUtil.clientContextVars.abTestGroupsUsed = abTestGroupsUsed;
+    }
+
     return function cleanup() {
       AnalyticsUtil.clientWriteEvents = null;
     }

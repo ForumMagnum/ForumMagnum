@@ -13,7 +13,7 @@ const SunshineListCount = ({ count, classes }: {
 }) => {
   const { MetaInfo } = Components
   if (count && count > 10) {
-    return <MetaInfo className={(count > 20) && classes.overflow}>({count})</MetaInfo>
+    return <MetaInfo className={count > 20 ? classes.overflow : undefined}>({count})</MetaInfo>
   } else {
     return null
   }

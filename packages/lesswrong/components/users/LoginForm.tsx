@@ -2,7 +2,7 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 import { gql, useMutation, DocumentNode } from '@apollo/client';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
 import classnames from 'classnames'
@@ -101,15 +101,15 @@ type LoginFormProps = {
 }
 
 const LoginForm = (props: LoginFormProps) => {
-  if (forumTypeSetting.get() === 'EAForum') {
+  if (isEAForum) {
     return <LoginFormEA {...props} />
   }
   return <LoginFormDefault {...props} />
 }
 
 const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) => {
-  const hasSubscribeToCuratedCheckbox = !['EAForum', 'AlignmentForum'].includes(forumTypeSetting.get());
-  const hasOauthSection = forumTypeSetting.get() !== 'EAForum';
+  const hasSubscribeToCuratedCheckbox = !isEAForum && !isAF;
+  const hasOauthSection = !isEAForum;
 
   const { pathname } = useLocation()
   const { SignupSubscribeToCurated } = Components;

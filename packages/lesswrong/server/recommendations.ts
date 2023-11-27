@@ -166,7 +166,15 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm) => 
   if (algorithm.excludeDefaultRecommendations) {
     return recommendationFilter
   } else {
-    return {$or: [recommendationFilter, { defaultRecommendation: true}]}
+    return {
+      $or: [
+        recommendationFilter,
+        {
+          ...getDefaultViewSelector("Posts"), // Ensure drafts are still excluded
+          defaultRecommendation: true,
+        },
+      ],
+    };
   }
 }
 

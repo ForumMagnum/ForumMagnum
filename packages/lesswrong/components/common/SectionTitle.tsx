@@ -1,9 +1,10 @@
 import React from 'react';
 import { registerComponent, Components, slugify } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { Link } from '../../lib/reactRouterWrapper';
 
-export const sectionTitleStyle = isEAForum
+export const sectionTitleStyle = isFriendlyUI
   ? (theme: ThemeType): JssStyles => ({
     margin: 0,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -61,11 +62,23 @@ export type SectionTitleProps = {
   title: React.ReactNode,
   noTopMargin?: boolean,
   noBottomPadding?: boolean,
+  centered?: boolean,
   anchor?: string,
+  href?: string,
 }
 
 // This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
-const SectionTitle = ({children, classes, className, title, noTopMargin, noBottomPadding, anchor}: SectionTitleProps & {classes: ClassesType}) => {
+const SectionTitle = ({
+  title,
+  noTopMargin,
+  noBottomPadding,
+  centered,
+  anchor,
+  href,
+  children,
+  className,
+  classes,
+}: SectionTitleProps & {classes: ClassesType}) => {
   return (
     <div className={classNames(classes.root, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
       <Components.Typography
@@ -73,9 +86,12 @@ const SectionTitle = ({children, classes, className, title, noTopMargin, noBotto
         variant='display1'
         className={classNames(classes.title, className)}
       >
-        {title}
+        {href
+          ? <Link to={href}>{title}</Link>
+          : title
+        }
       </Components.Typography>
-      <div className={classes.children}>{ children }</div>
+      {!centered && <div className={classes.children}>{ children }</div>}
     </div>
   )
 }
