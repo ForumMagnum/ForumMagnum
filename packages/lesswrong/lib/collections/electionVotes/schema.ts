@@ -1,5 +1,5 @@
 import { foreignKeyField } from "../../utils/schemaUtils";
-import { userOwns } from "../../vulcan-users";
+import { isAdmin, userOwns } from "../../vulcan-users";
 
 const validateVote = ({data}: {data: Partial<DbElectionVote>}) => {
   if (data.vote && typeof data.vote !== 'object') {
@@ -62,6 +62,11 @@ const schema: SchemaType<DbElectionVote> = {
     canRead: [userOwns, "sunshineRegiment", "admins"],
     canCreate: ["members"],
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    onUpdate: ({ data, currentUser }) => {
+      if (data.submittedAt && !isAdmin(currentUser)) {
+        throw new Error("Cannot update submittedAt");
+      }
+    }
   },
   userExplanation: {
     type: String,
