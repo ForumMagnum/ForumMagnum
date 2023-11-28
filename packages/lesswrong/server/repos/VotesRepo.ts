@@ -117,6 +117,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
           WHERE
             ${af ? '"afPower" IS NOT NULL AND' : ''}
             "authorIds" @> ARRAY[$1::CHARACTER VARYING] AND
+            NOT ("authorIds" @> ARRAY["userId"]) AND
             "votedAt" >= $2 AND
             "votedAt" <= $3 AND
             "userId" <> $1 AND
