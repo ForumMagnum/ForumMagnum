@@ -33,7 +33,7 @@ type UseDialogueMatchmakingResults<T extends MatchmakingProps> = {
 };
 
 export const useDialogueMatchmaking = <T extends MatchmakingProps>(props: T): UseDialogueMatchmakingResults<T> => {
-  const { getMatchedUsers, getRecommendedUsers, getOptedInUsers, getUserDialogueChecks } = props; // add argument for getRecommendedUsers
+  const { getMatchedUsers, getRecommendedUsers, getOptedInUsers, getUserDialogueChecks } = props; 
   const currentUser = useCurrentUser();
   const skipByDefault = !currentUser || !dialogueMatchmakingEnabled.get();
 

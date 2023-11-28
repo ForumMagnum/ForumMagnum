@@ -446,7 +446,6 @@ importComponent("NewDialogueDialog", () => require('../components/posts/NewDialo
 importComponent("DialogueSubmit", () => require('../components/posts/dialogues/DialogueSubmit'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
 
-
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats'));
 importComponent("PostsUserAndCoauthors", () => require('../components/posts/PostsUserAndCoauthors'));
@@ -628,6 +627,8 @@ importComponent("DialoguesList", () => require('../components/dialogues/Dialogue
 importComponent("DialoguesPage", () => require('../components/dialogues/DialoguesPage'));
 importComponent("DialogueMatchingPage", () => require('../components/users/DialogueMatchingPage'));
 importComponent("DialoguesSectionFrontpageSettings", () => require('../components/dialogues/DialoguesSectionFrontpageSettings'));
+importComponent("DialogueRecommendationRow", () => require('../components/dialogues/DialogueRecommendationRow'));
+
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));
