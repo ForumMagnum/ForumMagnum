@@ -124,8 +124,6 @@ const styles = (theme: ThemeType) => ({
   dialogueNoMatchesButton: {
     marginLeft: 8
   },
-  findDialoguePartners: {
-  },
   debateTopic: {
     whiteSpace: 'nowrap',
     overflow: 'hidden',
@@ -147,6 +145,15 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5,
     backgroundColor: "rgba(0,0,0,0.05)",
     whiteSpace: 'nowrap'
+  },
+  dialogueSectionSettings: {
+    display: "flex"
+  },
+  settingsButton: {
+    cursor: "pointer"
+  },
+  findDialoguePartners: {
+    paddingRight: 5,
   }
 });
 
@@ -189,13 +196,13 @@ const DialogueMatchRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRow
         {showMatchNote ? "You've matched!" : "Check to opt in to dialogue, if you find a topic"}
       </PostsItem2MetaInfo>
       <div className={classes.dialogueRightContainer}>
-        <div className={classes.dialogueMatchMessageButton}>
+        {/* <div className={classes.dialogueMatchMessageButton}>
           <MessageButton
             targetUserId={targetUser._id}
             currentUser={currentUser}
             isMatched={userIsMatched}
           />
-        </div>
+        </div> */}
         <div className={classes.dialogueMatchPreferencesButton}>
           <DialogueNextStepsButton
             isMatched={userIsMatched}
@@ -284,8 +291,8 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
             {topicRecommendations?.slice(0,numShown).map((topic, index) => (
               <p key={index} className={isExpanded ? '' : classes.debateTopic}>
                 {topic.theirVote === 'agree' ? 
-                  [<ReactionIcon size={13} react={"agree"} />, `agrees that "${topic.comment.contents.plaintextMainText}"`] : 
-                  [<ReactionIcon size={13} react={"disagree"} />, `disagrees that "${topic.comment.contents.plaintextMainText}"`]
+                  [<ReactionIcon key={index} size={13} react={"agree"} />, `agrees that "${topic.comment.contents.plaintextMainText}"`] : 
+                  [<ReactionIcon key={index} size={13} react={"disagree"} />, `disagrees that "${topic.comment.contents.plaintextMainText}"`]
                 }
                 {/* <span className={classes.recommendationReasons}> */}
                   {/* {topic.yourVote && <LWTooltip title={`You reacted with ${topic.yourVote} to this`}><ReactionIcon size={13} react={topic.yourVote} /></LWTooltip>} */}
@@ -321,10 +328,11 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
     </div>
   );
 };
-
+ 
 const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { PostsItem, SectionButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle } = Components
+  const { PostsItem, SectionButton, SettingsButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle, DialoguesSectionFrontpageSettings } = Components
   const currentUser = useCurrentUser()
+  const [showSettings, setShowSettings] = useState(false);
 
   const { results: dialoguePosts } = usePaginatedResolver({
     fragmentName: "PostsListWithVotes",
@@ -400,6 +408,10 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
     <p> Click here to go to the dialogue matchmaking page.</p>
   </div>);
 
+  const dialogueSettingsTooltip = (<div>
+    <p> Adjust which items are shown or hidden in the Dialogues section.</p>
+  </div>);
+
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
     <SingleColumnSection>
       <SectionTitle href="/dialogues"
@@ -408,35 +420,49 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
         </LWTooltip>}
       >
       {currentUser && dialogueMatchmakingEnabled.get() && (
-        <LWTooltip placement="top-start" title={matchmakingTooltip}>
-          <SectionButton className={classes.findDialoguePartners}>
-            <MuiPeopleIcon />
-            <Link to="/dialogueMatching">Find Dialogue Partners</Link>
-          </SectionButton>
-        </LWTooltip>
+        <div className={classes.dialogueSectionSettings}>
+          <LWTooltip placement="top-start" title={matchmakingTooltip}>
+            <SectionButton className={classes.findDialoguePartners}>
+              <MuiPeopleIcon />
+              <Link to="/dialogueMatching">Find Dialogue Partners</Link>
+            </SectionButton>
+          </LWTooltip>
+          <LWTooltip placement="top-start" title={dialogueSettingsTooltip}>
+            <SettingsButton label={`Customize items`} onClick={() => setShowSettings(!showSettings)}/>
+          </LWTooltip>
+        </div>
       )}
+      
       </SectionTitle>
+      {showSettings && currentUser && <DialoguesSectionFrontpageSettings
+          persistentSettings={true}
+          hidden={false}
+          currentShowDialogues={currentUser.showDialoguesList}
+          currentShowMyDialogues={currentUser.showMyDialogues}
+          currentShowMatches={currentUser.showMatches}
+          currentShowRecommendedPartners={currentUser.showRecommendedPartners}
+        />}
 
       {dialogueMatchmakingEnabled.get() && <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
         <div>
-        {currentUser && matchRowPropsList?.map((rowProps, index) => (
+        {currentUser?.showMatches && matchRowPropsList?.map((rowProps, index) => (
           <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
         ))}
-        {currentUser && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
+        {currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
           console.log(rowProps.targetUser.displayName),
           <DialogueRecommendationRow key={index} rowProps={rowProps} classes={classes} showMatchNote={false} />
         ))}
         </div>
       </AnalyticsContext>}
       
-      {dialoguePosts?.map((post, i: number) =>
+      {(!currentUser || currentUser?.showDialoguesList) && dialoguePosts?.map((post, i: number) =>
         <PostsItem
           key={post._id} post={post}
           showBottomBorder={i < dialoguePosts.length-1}
         />
       )}
 
-      {renderMyDialogues && (
+      {renderMyDialogues && currentUser?.showMyDialogues && (
         <div className={classes.subsection}>
           <AnalyticsContext pageSubSectionContext="myDialogues">
             <LWTooltip placement="top-start" title={myDialoguesTooltip}>
