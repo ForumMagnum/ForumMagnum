@@ -132,6 +132,7 @@ const styles = (theme: ThemeType) => ({
     textOverflow: 'ellipsis',
   },
   topicRecommendationsList: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
     color: 'grey',
     fontSize: 'small',
     overflow: 'hidden',
@@ -156,6 +157,9 @@ const styles = (theme: ThemeType) => ({
   },
   findDialoguePartners: {
     paddingRight: 5,
+  },
+  reactIcon: {
+    paddingRight: "4px",
   }
 });
 
