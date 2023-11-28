@@ -1,10 +1,11 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle } from "../../../lib/crud/withSingle";
 import { useCurrentUser } from "../../common/withUser";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useUnreadNotifications } from "../../hooks/useUnreadNotifications";
 import { NotificationsPageTabContextProvider } from "./notificationsPageTabs";
+import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -26,7 +27,7 @@ export const NotificationsPage = ({classes}: {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {notificationsOpened} = useUnreadNotifications();
-  const {document: karmaChanges} = useSingle({
+  const {document: fetchedKarmaChanges} = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
     fragmentName: "UserKarmaChanges",
@@ -35,18 +36,25 @@ export const NotificationsPage = ({classes}: {
     nextFetchPolicy: "cache-only",
   });
 
+  // Save the initial karma changes to display, as they'll be marked as read
+  // once the user visits the page and they'll dissapear
+  const karmaChanges = useRef<KarmaChanges>();
+  if (fetchedKarmaChanges && !karmaChanges.current) {
+    karmaChanges.current = fetchedKarmaChanges.karmaChanges;
+  }
+
   useEffect(() => {
     void notificationsOpened();
   }, [notificationsOpened]);
 
   useEffect(() => {
-    if (karmaChanges?.karmaChanges) {
+    if (karmaChanges.current) {
       void updateCurrentUser({
-        karmaChangeLastOpened: karmaChanges.karmaChanges.endDate,
-        karmaChangeBatchStart: karmaChanges.karmaChanges.startDate,
+        karmaChangeLastOpened: karmaChanges.current.endDate,
+        karmaChangeBatchStart: karmaChanges.current.startDate,
       });
     }
-  }, [karmaChanges?.karmaChanges, updateCurrentUser]);
+  }, [fetchedKarmaChanges, updateCurrentUser]);
 
   if (!currentUser) {
     const {LoginForm} = Components;
@@ -61,7 +69,7 @@ export const NotificationsPage = ({classes}: {
       <div className={classes.title}>Notifications</div>
       <NotificationsPageTabContextProvider>
         <NotificationsPageFeed
-          karmaChanges={karmaChanges?.karmaChanges}
+          karmaChanges={karmaChanges.current}
           currentUser={currentUser}
         />
       </NotificationsPageTabContextProvider>
