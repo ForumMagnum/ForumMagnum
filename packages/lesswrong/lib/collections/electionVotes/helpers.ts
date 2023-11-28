@@ -26,6 +26,36 @@ export const getInitialCompareState = (candidatePairs: ElectionCandidateBasicInf
   );
 }
 
+export const validateVote = ({data}: {data: Partial<DbElectionVote>}) => {
+  if (data.vote && typeof data.vote !== 'object') {
+    throw new Error("Invalid vote value");
+  }
+  for (let key in data.vote) {
+    if (typeof data.vote[key] !== 'number' && data.vote[key] !== null) {
+      throw new Error("Invalid vote value");
+    }
+    if (data.vote[key] !== null && (data.vote[key] < 0 || !Number.isFinite(data.vote[key]))) {
+      throw new Error("Invalid vote value: allocation cannot be negative, NaN, or Infinity");
+    }
+  }
+  return data.vote;
+};
+
+export const validateCompareState = ({data}: {data: Partial<DbElectionVote>}) => {
+  const compareState: CompareState = data.compareState;
+
+  for (let key in compareState) {
+    const { multiplier, AtoB } = compareState[key];
+    if (typeof multiplier !== 'number' || multiplier <= 0 || !Number.isFinite(multiplier)) {
+      throw new Error("Invalid compareState value: multiplier must be a positive finite number");
+    }
+    if (typeof AtoB !== 'boolean') {
+      throw new Error("Invalid compareState value: AtoB must be a boolean");
+    }
+  }
+  return compareState;
+};
+
 export const convertCompareStateToVote = (compareState: CompareState): Record<string, number> => {
   const pairs = Object.keys(compareState).map(key => {
     const [candidate1Id, candidate2Id] = key.split("-");
@@ -33,8 +63,6 @@ export const convertCompareStateToVote = (compareState: CompareState): Record<st
     const secondTimesFirstMultiplier = AtoB ? 1 / multiplier : multiplier;
     return [candidate1Id, candidate2Id, secondTimesFirstMultiplier];
   }) as [string, string, number][];
-
-  console.log("pairs", pairs);
 
   // Process them in an order like [[A, B, x], [B, C, y], [C, D, z]], and throw an error if this ordering isn't possible
   // A (the head id) appears only once, and in the first position. D (the tail id) appears only once, and in the last position.
@@ -72,8 +100,6 @@ export const convertCompareStateToVote = (compareState: CompareState): Record<st
     vote[secondId] = secondValue;
     currentId = secondId;
   }
-
-  console.log("vote", vote);
 
   // Assert all the ids are present
   const voteIds = Object.keys(vote);

@@ -124,8 +124,9 @@ const ElectionComparePair = ({
             const newValue = e.target.value;
             if (newValue === "" || newValue === null) {
               setValue({ multiplier: "", AtoB: value.AtoB });
-            } else if (/^\d*\.?\d*$/.test(newValue)) {
-              // Only allow (decimal) numbers
+            } else if (/^\d*\.?\d*$/.test(newValue) && !newValue.includes("-")) {
+              // Only allow (decimal) numbers. To handle typing, we do allow 0 to be
+              // entered, but it will throw an error on submit
               setValue({ multiplier: newValue, AtoB: value.AtoB });
             }
           }}

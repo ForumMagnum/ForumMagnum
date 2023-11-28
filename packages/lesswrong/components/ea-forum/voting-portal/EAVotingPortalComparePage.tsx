@@ -8,7 +8,8 @@ import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import { useElectionVote } from "./hooks";
 import { useElectionCandidates } from "../giving-portal/hooks";
 import classNames from "classnames";
-import { CompareStateUI, convertCompareStateToVote, getCompareKey, getInitialCompareState } from "../../../lib/collections/electionVotes/helpers";
+import { CompareStateUI, convertCompareStateToVote, getCompareKey, getInitialCompareState, validateCompareState } from "../../../lib/collections/electionVotes/helpers";
+import { useMessages } from "../../common/withMessages";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -84,7 +85,6 @@ const EAVotingPortalComparePageLoader = ({ classes }: { classes: ClassesType }) 
   const { electionVote, updateVote } = useElectionVote("givingSeason23");
   const { results } = useElectionCandidates("random");
 
-  // TODO show a more sensible error if they have only selected one
   if (!electionVote?.vote || Object.keys(electionVote.vote).length < 2 || !results) return null;
 
   const vote = electionVote.vote;
@@ -116,13 +116,17 @@ const EAVotingPortalComparePage = ({
   candidatePairs: ElectionCandidateBasicInfo[][];
   classes: ClassesType<typeof styles>;
 }) => {
-  const { VotingPortalFooter, ElectionComparePair, ForumIcon } = Components;
+  const { VotingPortalFooter, ElectionComparePair, ForumIcon, LWTooltip } = Components;
   const navigate = useNavigate();
+  const { flash } = useMessages();
   const [compareState, setCompareState] = useState<CompareStateUI>(
     electionVote.compareState ?? getInitialCompareState(candidatePairs)
   );
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
+
   const reachedEndRef = useRef(false);
+  const doneBefore = !!electionVote.compareState;
+  const continueMessage = doneBefore ? "Recalculate allocation" : "Continue";
 
   if (currentPairIndex === candidatePairs.length - 1 && !reachedEndRef.current) {
     reachedEndRef.current = true;
@@ -145,13 +149,26 @@ const EAVotingPortalComparePage = ({
       Object.entries(compareState).map(([key, value]) => [key, { ...value, multiplier: parseFloat(value.multiplier as string) }])
     );
 
-    const newVote = convertCompareStateToVote(newCompareState);
+    try {
+      validateCompareState({ data: { compareState: newCompareState }});
+      const newVote = convertCompareStateToVote(newCompareState);
 
-    await updateVote({
-      vote: newVote,
-      compareState: newCompareState,
-    })
-  }, [compareState, updateVote]);
+      await updateVote({
+        vote: newVote,
+        compareState: newCompareState,
+      })
+    } catch (e) {
+      // If any of the multipliers are 0 or empty , give that as the error message
+      if (Object.values(newCompareState).some((value) => !value.multiplier)) {
+        flash("Error: all values must be filled in and non-zero. You can remove a candidate in the previous step if needed.");
+        return;
+      }
+      flash(e.message);
+      return;
+    }
+
+    navigate({ pathname: "/voting-portal/allocate-votes" });
+  }, [compareState, flash, navigate, updateVote]);
 
   // TODO un-admin-gate when the voting portal is ready
   const currentUser = useCurrentUser();
@@ -190,29 +207,33 @@ const EAVotingPortalComparePage = ({
                   Pair {currentPairIndex + 1}/{candidatePairs.length}
                 </div>
               </div>
-              <button
-                className={classNames(classes.button, classes.nextButton, {
-                  [classes.buttonDisabled]: nextDisabled,
-                })}
-                onClick={() => {
-                  if (nextDisabled) return;
-                  setCurrentPairIndex((prev) => prev + 1);
-                }}
-              >
-                Next pair <ForumIcon icon="ArrowRight" className={classes.arrowIcon} />
-              </button>
+              <LWTooltip
+                  title={`Click "${continueMessage}" below to continue to the next step`}
+                  placement="right"
+                  disabled={!nextDisabled}
+                >
+                <button
+                  className={classNames(classes.button, classes.nextButton, {
+                    [classes.buttonDisabled]: nextDisabled,
+                  })}
+                  onClick={() => {
+                    if (nextDisabled) return;
+                    setCurrentPairIndex((prev) => prev + 1);
+                  }}
+                >
+                  Next pair <ForumIcon icon="ArrowRight" className={classes.arrowIcon} />
+                </button>
+              </LWTooltip>
             </div>
           </div>
         </div>
         <VotingPortalFooter
           leftHref="/voting-portal/select-candidates"
           middleNode={<Link to="/voting-portal/allocate-votes">Skip this step and allocate votes manually</Link>}
+          buttonText={doneBefore ? "Recalculate allocation" : "Continue"}
           buttonProps={{
-            onClick: async () => {
-              await saveComparison();
-              navigate({ pathname: "/voting-portal/allocate-votes" });
-            },
-            disabled: !reachedEndRef.current,
+            onClick: saveComparison,
+            disabled: (!reachedEndRef.current && !doneBefore) || !!electionVote.submittedAt,
           }}
         />
       </div>

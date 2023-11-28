@@ -8,6 +8,7 @@ import { useNavigate } from "../../../lib/reactRouterWrapper";
 import TextField from "@material-ui/core/TextField";
 import classNames from "classnames";
 import { useElectionVote } from "./hooks";
+import { useMessages } from "../../common/withMessages";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -73,14 +74,22 @@ const EAVotingPortalSubmitPage = ({
 }) => {
   const { VotingPortalFooter } = Components;
   const navigate = useNavigate();
+  const { flash } = useMessages();
   const currentUser = useCurrentUser();
 
   const [userExplanation, setUserExplanation] = useState<string>(electionVote.userExplanation ?? "");
   const [userOtherComments, setUserOtherComments] = useState<string>(electionVote.userOtherComments ?? "");
 
   const handleSubmit = useCallback(async () => {
-    await updateVote({ userExplanation, userOtherComments, submittedAt: new Date() });
-  }, [updateVote, userExplanation, userOtherComments]);
+    try {
+      await updateVote({ userExplanation, userOtherComments, submittedAt: new Date() });
+    } catch (e) {
+      flash(e.message);
+      return;
+    }
+
+    navigate({ pathname: "/voting-portal" });
+  }, [flash, navigate, updateVote, userExplanation, userOtherComments]);
 
   // TODO un-admin-gate when the voting portal is ready
   if (!isAdmin(currentUser)) return null;
@@ -124,10 +133,7 @@ const EAVotingPortalSubmitPage = ({
           middleNode={<></>}
           buttonText="Submit your vote"
           buttonProps={{
-            onClick: async () => {
-              await handleSubmit();
-              navigate({ pathname: "/voting-portal" });
-            },
+            onClick: handleSubmit,
             disabled: !!electionVote.submittedAt,
           }}
         />

@@ -134,7 +134,7 @@ const AllocateVoteRow = ({
             const value = e.target.value;
             if (value === "" || value === null) {
               setVoteState((prev) => ({ ...prev, [candidateId]: null } as Record<string, number | string | null>));
-            } else if (/^\d*\.?\d*$/.test(value)) { // Only allow (decimal) numbers
+            } else if (/^\d*\.?\d*$/.test(value) && !value.includes('-')) { // Only allow positive (decimal) numbers
               setVoteState((prev) => ({ ...prev, [candidateId]: value } as Record<string, number | string | null>));
             }
           }}

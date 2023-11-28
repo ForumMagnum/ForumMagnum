@@ -7,6 +7,7 @@ import { isAdmin } from "../../../lib/vulcan-users";
 import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import { useElectionVote } from "./hooks";
 import difference from "lodash/difference";
+import { useMessages } from "../../common/withMessages";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -14,14 +15,12 @@ const styles = (theme: ThemeType) => ({
 
 const EAVotingPortalSelectCandidatesPageLoader = ({ classes }: { classes: ClassesType }) => {
   const { electionVote, updateVote } = useElectionVote("givingSeason23");
+  const { Loading } = Components;
 
-  if (!electionVote?.vote) return null;
-
-  const selectedCandidateIds = Object.keys(electionVote.vote);
+  if (!electionVote?.vote) return <Loading />;
 
   return (
     <EAVotingPortalSelectCandidatesPage
-      selectedCandidateIds={selectedCandidateIds}
       electionVote={electionVote}
       updateVote={updateVote}
       classes={classes}
@@ -30,25 +29,41 @@ const EAVotingPortalSelectCandidatesPageLoader = ({ classes }: { classes: Classe
 };
 
 const EAVotingPortalSelectCandidatesPage = ({
-  selectedCandidateIds,
   electionVote,
   updateVote,
   classes,
 }: {
-  selectedCandidateIds: string[];
   electionVote: ElectionVoteInfo;
   updateVote: (newVote: NullablePartial<DbElectionVote>) => Promise<void>;
   classes: ClassesType;
 }) => {
   const { ElectionCandidatesList, VotingPortalFooter } = Components;
-  const [selectedIds, setSelectedCandidateIds] = useState<string[]>(selectedCandidateIds);
+  const [selectedIds, setSelectedCandidateIds] = useState<string[]>(Object.keys(electionVote.vote));
   const [totalCount, setTotalCount] = useState<number>(0);
   const navigate = useNavigate();
+  const { flash } = useMessages();
 
   const saveSelection = useCallback(async () => {
-    const newVote = selectedIds.reduce((acc, id) => ({ ...acc, [id]: electionVote.vote[id] ?? null }), {})
-    await updateVote({vote: newVote});
-  }, [electionVote, selectedIds, updateVote]);
+    if (selectedIds.length === 0) {
+      flash("You must select at least one candidate");
+      return;
+    }
+    const isSingleCandidate = selectedIds.length === 1;
+
+    try {
+      const newVote = isSingleCandidate
+        ? { [selectedIds[0]]: 1 } // If there is only one candidate, give them all the votes
+        : selectedIds.reduce((acc, id) => ({ ...acc, [id]: electionVote.vote[id] ?? null }), {});
+      // In case they are redoing this step, clear the compare state
+      await updateVote({vote: newVote, compareState: null});
+    } catch (e) {
+      flash(e.message);
+      return;
+    }
+
+    const nextStep = isSingleCandidate ? "/voting-portal/submit" : "/voting-portal/compare";
+    navigate({ pathname: nextStep });
+  }, [electionVote.vote, flash, navigate, selectedIds, updateVote]);
 
   const onSelect = useCallback((candidateIds: string[]) => {
     setSelectedCandidateIds((prev) => {
@@ -86,10 +101,7 @@ const EAVotingPortalSelectCandidatesPage = ({
           leftHref="/voting-portal"
           middleNode={<div>Selected {selectedIds.length}/{totalCount} candidates</div>}
           buttonProps={{
-            onClick: async () => {
-              await saveSelection();
-              navigate({ pathname: "/voting-portal/compare" });
-            },
+            onClick: saveSelection,
             disabled: selectedIds.length === 0 || !!electionVote.submittedAt,
           }}
         />
