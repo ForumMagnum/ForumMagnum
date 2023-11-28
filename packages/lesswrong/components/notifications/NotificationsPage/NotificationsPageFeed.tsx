@@ -37,6 +37,12 @@ const styles = (theme: ThemeType) => ({
       textTransform: "uppercase",
     },
   },
+  karmaChanges: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    marginTop: 10,
+  },
   karmaBatching: {
     marginBottom: 32,
     "& a": {
@@ -44,6 +50,12 @@ const styles = (theme: ThemeType) => ({
       fontSize: 14,
       fontWeight: 600,
     },
+  },
+  notifications: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+    marginTop: 10,
   },
 });
 
@@ -141,26 +153,28 @@ export const NotificationsPageFeed = ({
       {showKarmaChanges &&
         <>
           <SectionTitle title="Karma changes" />
-          {karmaChanges?.posts?.map((karmaChange) =>
-            <NotificationsPageKarmaChange
-              key={karmaChange._id}
-              postKarmaChange={karmaChange}
-            />
-          )}
-          {karmaChanges?.comments?.map((karmaChange) =>
-            <NotificationsPageKarmaChange
-              key={karmaChange._id}
-              commentKarmaChange={karmaChange}
-            />
-          )}
-          {karmaChanges?.tagRevisions?.map((karmaChange) =>
-            <NotificationsPageKarmaChange
-              key={karmaChange._id}
-              tagRevisionKarmaChange={karmaChange}
-            />
-          )}
-          <div className={classes.karmaBatching}>
-            <Link to="/account">Change settings</Link>
+          <div className={classes.karmaChanges}>
+            {karmaChanges?.posts?.map((karmaChange) =>
+              <NotificationsPageKarmaChange
+                key={karmaChange._id}
+                postKarmaChange={karmaChange}
+              />
+            )}
+            {karmaChanges?.comments?.map((karmaChange) =>
+              <NotificationsPageKarmaChange
+                key={karmaChange._id}
+                commentKarmaChange={karmaChange}
+              />
+            )}
+            {karmaChanges?.tagRevisions?.map((karmaChange) =>
+              <NotificationsPageKarmaChange
+                key={karmaChange._id}
+                tagRevisionKarmaChange={karmaChange}
+              />
+            )}
+            <div className={classes.karmaBatching}>
+              <Link to="/account">Change settings</Link>
+            </div>
           </div>
           <SectionTitle title="All other" />
         </>
@@ -168,12 +182,16 @@ export const NotificationsPageFeed = ({
       {notifications.current.length === 0 && !loading &&
         <NotificationsPageEmpty tabName={tab.name} />
       }
-      {notifications.current.map((notification) => (
-        <NotificationsPageNotification
-          key={notification._id}
-          notification={notification}
-        />
-      ))}
+      {notifications?.current?.length > 0 &&
+        <div className={classes.notifications}>
+          {notifications.current.map((notification) => (
+            <NotificationsPageNotification
+              key={notification._id}
+              notification={notification}
+            />
+          ))}
+        </div>
+      }
       {loading && notifications?.current?.length === 0 && <Loading />}
       {canLoadMore &&
         <LoadMore
