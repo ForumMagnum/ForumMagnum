@@ -339,7 +339,9 @@ const Header = ({
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
     {hasMessagesButton &&
-      <MessagesMenuButton />
+      <MessagesMenuButton
+        className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
+      />
     }
     {isFriendlyUI && usersMenuNode}
   </div>

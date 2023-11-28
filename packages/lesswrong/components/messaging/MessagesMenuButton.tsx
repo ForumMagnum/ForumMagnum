@@ -8,7 +8,8 @@ import Badge from "@material-ui/core/Badge";
 import IconButton from "@material-ui/core/IconButton";
 import classNames from "classnames";
 
-const MessagesMenuButton = ({classes}: {
+const MessagesMenuButton = ({className, classes}: {
+  className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const {unreadPrivateMessages} = useUnreadNotifications();
@@ -25,6 +26,7 @@ const MessagesMenuButton = ({classes}: {
       title="Messages"
       placement="bottom"
       popperClassName={classes.tooltip}
+      className={className}
     >
       <Badge
         classes={{
