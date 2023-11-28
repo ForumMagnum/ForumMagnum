@@ -198,12 +198,12 @@ const VotingPortalThankYou = ({currentUser, classes}: {
       <ul className={classes.list}>
         <li>
           <Link to="#">
-            Share that you voted and why you voted the way you did
+          Share that you voted — and why!
           </Link>
         </li>
         <li>
           <Link to="#">
-            Add to the Donation Election Fund
+          Donate to the Donation Election Fund
           </Link>
         </li>
         <li>
