@@ -267,6 +267,7 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
     ...(isFriendlyUI
       ? {
         right: 12,
+        bottom: 5,
         color: theme.palette.grey[1000],
         backgroundColor: theme.palette.grey[250],
         "&:hover": {
