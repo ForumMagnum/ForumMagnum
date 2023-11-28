@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "40px",
     borderRadius: 12,
-    background: theme.palette.givingPortal[200],
+    background: theme.palette.grey[0],
     padding: 40,
     width: 730,
     maxWidth: "100%",
@@ -101,9 +101,11 @@ const VotingPortalIntro = ({classes}: {
         <div>
           The <Link to={fundLink}>Donation Election Fund</Link> will be designated
           for the top 3 winners, in proportion to the election results.{" "}
-          <span className={classes.bold}>Your vote should represent how you’d
-          allocate funding between the candidates.</span>{" "}
-          <Link to={exploreLink}>Explore the candidates</Link> before you vote. 
+          <span className={classes.bold}>
+            Your vote should represent how you’d allocate funding between the
+            candidates.
+          </span>{" "}
+          <Link to={exploreLink}>Explore the candidates</Link> before you vote.
         </div>
         <div>
           Your vote is anonymous. You won’t be able to change your vote after
