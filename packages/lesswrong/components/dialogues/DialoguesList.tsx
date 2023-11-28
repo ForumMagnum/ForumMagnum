@@ -126,19 +126,42 @@ const styles = (theme: ThemeType) => ({
   dialogueNoMatchesButton: {
     marginLeft: 8
   },
-  debateTopic: {
-    whiteSpace: 'nowrap',
+  debateTopicExpanded: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    paddingBottom: '10px',
+    [theme.breakpoints.down('xs')]: {
+      whiteSpace: 'normal'
+    }
+  },
+  debateTopicCollapsed: {
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    [theme.breakpoints.down('xs')]: {
+      whiteSpace: 'normal',
+      paddingBottom: '10px'
+    },
+    whiteSpace: 'nowrap',
   },
   topicRecommendationsList: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    color: 'grey',
+    color: theme.palette.text.primary,
     fontSize: 'small',
     overflow: 'hidden',
+    justifyContent: 'space-between'
   },
   expandIcon: {
     cursor: 'pointer',
+    minWidth: '70px',
+    color: 'grey',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  hideIcon: {
+    cursor: 'pointer',
+    minWidth: '70px',
+    color: 'grey',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+
   },
   recommendationReasons: {
     paddingLeft: 4,
@@ -160,6 +183,9 @@ const styles = (theme: ThemeType) => ({
   },
   reactIcon: {
     paddingRight: "4px",
+  },
+  suggestionRow: {
+    display: 'flex',
   }
 });
 
@@ -301,45 +327,27 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
           </PostsItem2MetaInfo> */}
         </div>
         {showSuggestedTopics && <div className={classes.topicRecommendationsList}>
-            {topicRecommendations?.slice(0,numShown).map((topic, index) => (
-              <p key={index} className={isExpanded ? '' : classes.debateTopic}>
+          {topicRecommendations?.slice(0,numShown).map((topic, index) => (
+            <div key={index} className={classes.suggestionRow}>
+              <p key={index} className={ isExpanded ? classes.debateTopicExpanded : classes.debateTopicCollapsed}>
                 {topic.theirVote === 'agree' ? 
                   [<ReactionIcon key={index} size={13} react={"agree"} />, `agrees that "${topic.comment.contents.plaintextMainText}"`] : 
                   [<ReactionIcon key={index} size={13} react={"disagree"} />, `disagrees that "${topic.comment.contents.plaintextMainText}"`]
                 }
-                {/* <span className={classes.recommendationReasons}> */}
-                  {/* {topic.yourVote && <LWTooltip title={`You reacted with ${topic.yourVote} to this`}><ReactionIcon size={13} react={topic.yourVote} /></LWTooltip>} */}
-                  {/* {topic.theirVote && <LWTooltip title={`${targetUser.displayName} reacted with ${topic.theirVote} to this`}><ReactionIcon size={13} react={topic.theirVote} /></LWTooltip>} */}
-                  {/* {topic.recommendationReason === "This comment is popular" && <LWTooltip title="This comment is popular"><ReactionIcon size={13} react={"excitement"} /></LWTooltip>} */}
-                {/* </span> */}
               </p>
-            ))}
-            <span className={classes.expandIcon} onClick={toggleExpansion}>
-              {isExpanded ? '▲ hide' : (numHidden > 0 ? `▶ ${numHidden} more topics...` : '')}
-            </span>
-        </div>}
-        {!showSuggestedTopics && 
-          <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
-            <div className={classes.dialogueMatchNote}>Check to maybe dialogue, if you find a topic</div>
-          </PostsItem2MetaInfo>}
-        <div className={classes.dialogueRightContainer}>
-          {/* <div className={classes.dialogueMatchMessageButton}>
-            <MessageButton
-              targetUserId={targetUser._id}
-              currentUser={currentUser}
-              isMatched={userIsMatched}
-            />
-          </div> */}
-          <div className={classes.dialogueMatchPreferencesButton}>
-            <DialogueNextStepsButton
-              isMatched={userIsMatched}
-              checkId={checkId}
-              targetUserId={targetUser._id}
-              targetUserDisplayName={targetUser.displayName}
-              currentUser={currentUser}
-            />
-          </div>
-        </div>
+            </div>
+          ))}
+          
+      </div>}
+      <div className={classes.dialogueRightContainer}>
+        {<span className={isExpanded ? classes.expandIcon : classes.hideIcon} onClick={toggleExpansion}>
+          {isExpanded ? '▲ hide' : (numHidden > 0 ? `▶ ...more` : '')} 
+        </span>}
+      </div>
+      {!showSuggestedTopics && 
+        <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+          <div className={classes.dialogueMatchNote}>Check to maybe dialogue, if you find a topic</div>
+        </PostsItem2MetaInfo>}
       </div>
     </div>
   );
@@ -446,7 +454,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
             </SectionButton>
           </LWTooltip>
           <LWTooltip placement="top-start" title={dialogueSettingsTooltip}>
-            <SettingsButton label={`Customize items`} onClick={() => setShowSettings(!showSettings)}/>
+            <SettingsButton label={``} onClick={() => setShowSettings(!showSettings)}/>
           </LWTooltip>
         </div>
       )}
