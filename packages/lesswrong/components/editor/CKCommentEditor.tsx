@@ -1,6 +1,6 @@
 import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import CKEditor from '../editor/ReactCKEditor';
+import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { generateTokenRequest } from '../../lib/ckEditorUtils';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
@@ -65,7 +65,7 @@ const CKCommentEditor = ({
         initialData: data || "",
         placeholder: placeholder ?? defaultEditorPlaceholder,
         mention: mentionPluginConfiguration
-      }}
+      } as any}
       data={data}
     />
   </div>

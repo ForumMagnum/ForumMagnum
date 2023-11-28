@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useContext } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
-import CKEditor from '../editor/ReactCKEditor';
+import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan, SharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
@@ -632,7 +632,7 @@ const CKPostEditor = ({
         placeholder: placeholder ?? defaultEditorPlaceholder,
         mention: mentionPluginConfiguration,
         dialogues: dialogueConfiguration
-      }}
+      } as any}
     />}
     {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
   </div>
