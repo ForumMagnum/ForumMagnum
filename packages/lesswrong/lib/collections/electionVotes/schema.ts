@@ -16,6 +16,8 @@ const validateVote = ({data}: {data: Partial<DbElectionVote>}) => {
   return data.vote;
 };
 
+// TODO the current version of this file is WIP, and is just here to generate the migrations.
+// This function will be implemented in the final version
 const validateCompareState = ({data}: {data: Partial<DbElectionVote>}) => {
   return data.compareState;
 };
