@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { votingPortalStyles } from "./styles";
@@ -8,6 +8,7 @@ import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import { useElectionVote } from "./hooks";
 import { useElectionCandidates } from "../giving-portal/hooks";
 import classNames from "classnames";
+import { CompareState, getCompareKey, getInitialCompareState } from "../../../lib/collections/electionVotes/helpers";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -103,26 +104,6 @@ const EAVotingPortalComparePageLoader = ({ classes }: { classes: ClassesType }) 
   );
 };
 
-/**
- * Each entry maps an *ordered pair* of candidate ids concatenated together (e.g. "ADoKFRmPkWbmyWwGw-cF8iwCmwFjbmCqYkQ") to
- * the relative value of the candidates. If AtoB is true, then this means the first candidate is `multiplier` times as
- * valuable as the second candidate (and vice versa if AtoB is false).
- */
-type CompareState = Record<string, {multiplier: number | string, AtoB: boolean}>;
-
-const getCompareKey = (candidate1: ElectionCandidateBasicInfo, candidate2: ElectionCandidateBasicInfo) => {
-  return `${candidate1._id}-${candidate2._id}`;
-}
-
-const getInitialCompareState = (candidatePairs: ElectionCandidateBasicInfo[][]): CompareState => {
-  return Object.fromEntries(
-    candidatePairs.map(([candidate, otherCandidate]) => {
-      const key = getCompareKey(candidate, otherCandidate);
-      return [key, {multiplier: 1, AtoB: true}];
-    })
-  );
-}
-
 const EAVotingPortalComparePage = ({
   electionVote,
   updateVote,
@@ -138,6 +119,11 @@ const EAVotingPortalComparePage = ({
   const navigate = useNavigate();
   const [compareState, setCompareState] = useState<CompareState>(getInitialCompareState(candidatePairs));
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
+  const reachedEndRef = useRef(false);
+
+  if (currentPairIndex === candidatePairs.length - 1 && !reachedEndRef.current) {
+    reachedEndRef.current = true;
+  }
 
   const [currentA, currentB] = candidatePairs[currentPairIndex];
   const currentPairKey = getCompareKey(currentA, currentB);
@@ -149,6 +135,10 @@ const EAVotingPortalComparePage = ({
   const setCurrentPairState = useCallback((newState: {multiplier: number | string, AtoB: boolean}) => {
     setCompareState((prev) => ({...prev, [currentPairKey]: newState}));
   }, [currentPairKey]);
+
+  const saveComparison = useCallback(async () => {
+    // TODO
+  }, []);
 
   // TODO un-admin-gate when the voting portal is ready
   const currentUser = useCurrentUser();
@@ -208,7 +198,7 @@ const EAVotingPortalComparePage = ({
             onClick: async () => {
               navigate({ pathname: "/voting-portal/allocate-votes" });
             },
-            disabled: true,
+            disabled: !reachedEndRef.current,
           }}
         />
       </div>

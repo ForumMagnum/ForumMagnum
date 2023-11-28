@@ -16,6 +16,10 @@ const validateVote = ({data}: {data: Partial<DbElectionVote>}) => {
   return data.vote;
 };
 
+const validateCompareState = ({data}: {data: Partial<DbElectionVote>}) => {
+  return data.compareState;
+};
+
 const schema: SchemaType<DbElectionVote> = {
   /** The name of the election */
   electionName: {
@@ -38,6 +42,33 @@ const schema: SchemaType<DbElectionVote> = {
     canRead: [userOwns, "sunshineRegiment", "admins"],
     canCreate: ["members"],
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
+  },
+  /**
+   * Object of type CompareState (from ./helpers.ts), docstring copied from there:
+   * ```
+   * /* Each entry maps an *ordered pair* of candidate ids concatenated together (e.g. "ADoKFRmPkWbmyWwGw-cF8iwCmwFjbmCqYkQ") to
+   *  *the relative value of the candidates. If AtoB is true, then this means the first candidate is `multiplier` times as
+   *  *\/ valuable as the second candidate (and vice versa if AtoB is false).
+   * export type CompareState = Record<string, {multiplier: number | string, AtoB: boolean}>;
+   * ```
+   *
+   * This is used to calculate an initial vote allocation (via convertCompareStateToVote) on the frontend. This
+   * vote allocation can then be edited manually so there is no guarantee that the vote object will be consistent
+   * with the compareState object.
+   */
+  compareState: {
+    type: Object,
+    blackbox: true,
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    onCreate: ({ newDocument }) => validateCompareState({ data: newDocument }),
+    onUpdate: ({ data }) => {
+      // Throw errors but don't return anything
+      validateCompareState({ data });
+    },
   },
   /**
    * Object like {'cF8iwCmwFjbmCqYkQ': 1, 'cF8iwCmwFjbmCqYkQ': 2} representing the (unnormalised) weights
