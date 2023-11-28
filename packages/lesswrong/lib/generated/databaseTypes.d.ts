@@ -348,8 +348,11 @@ interface DbElectionVote extends DbObject {
   __collectionName?: "ElectionVotes"
   electionName: string
   userId: string
+  compareState: any /*{"definitions":[{"blackbox":true}]}*/
   vote: any /*{"definitions":[{"blackbox":true}]}*/
   submittedAt: Date | null
+  userExplanation: string | null
+  userOtherComments: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

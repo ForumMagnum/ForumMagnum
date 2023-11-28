@@ -69,7 +69,7 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
 
   const {
     SingleColumnSection,
-    WrappedLoginForm,
+    LoginForm,
     HeadTags,
     Typography,
     AnalyticsGraph,
@@ -86,7 +86,7 @@ const PostsAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     return (
       <SingleColumnSection>
         <p>You don't have permission to view this page. Would you like to log in?</p>
-        <WrappedLoginForm />
+        <LoginForm />
       </SingleColumnSection>
     );
   }

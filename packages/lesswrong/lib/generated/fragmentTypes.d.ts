@@ -3367,8 +3367,11 @@ interface WithVoteElectionCandidate { // fragment on ElectionCandidates
 interface ElectionVotesDefaultFragment { // fragment on ElectionVotes
   readonly electionName: string,
   readonly userId: string,
+  readonly compareState: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly submittedAt: Date | null,
+  readonly userExplanation: string | null,
+  readonly userOtherComments: string | null,
 }
 
 interface ElectionVoteInfo { // fragment on ElectionVotes
