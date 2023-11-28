@@ -20,7 +20,7 @@ const LoginPage = () => {
     // `componentWillMount`.
     return <div />;
   } else {
-    return <Components.WrappedLoginForm />;
+    return <Components.LoginForm />;
   }
 }
 

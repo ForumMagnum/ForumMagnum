@@ -76,7 +76,7 @@ const SubforumSubforumTab = ({
     PostsList2,
     CommentsListCondensed,
     ShortformSubmitForm,
-    WrappedLoginForm,
+    LoginForm,
     PostsListSortDropdown,
     PostsLayoutDropdown,
   } = Components;
@@ -270,7 +270,7 @@ const SubforumSubforumTab = ({
             }}
             noDefaultStyles
           /> : <div className={classes.centerChild}>
-            <WrappedLoginForm />
+            <LoginForm />
           </div>}
         </div>
       )}
