@@ -268,8 +268,10 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   const toggleExpansion = () => {
     setIsExpanded(!isExpanded);
   };
-  
-  const numShown = isExpanded ? 3 : 1
+
+  const numRecommendations = topicRecommendations?.length || 0;
+  const numShown = isExpanded ? numRecommendations : 1
+  const numHidden = Math.max(0, numRecommendations - numShown);
 
   return (
     <div>
@@ -309,7 +311,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
               </p>
             ))}
             <span className={classes.expandIcon} onClick={toggleExpansion}>
-              {isExpanded ? '▲ hide' : '▼ show more topics...'}
+              {isExpanded ? '▲ hide' : (numHidden > 0 ? `▶ ${numHidden} more topics...` : '')}
             </span>
         </div>}
         {!showSuggestedTopics && 
