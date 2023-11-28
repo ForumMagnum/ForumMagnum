@@ -49,9 +49,9 @@ export const NotificationsPage = ({classes}: {
   }, [karmaChanges?.karmaChanges, updateCurrentUser]);
 
   if (!currentUser) {
-    const {WrappedLoginForm} = Components;
+    const {LoginForm} = Components;
     return (
-      <WrappedLoginForm />
+      <LoginForm />
     );
   }
 
