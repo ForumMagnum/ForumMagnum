@@ -271,7 +271,10 @@ registerFragment(`
         scoreChange
         description
         postId
+        postTitle
+        postSlug
         tagSlug
+        tagName
         tagCommentType
         addedReacts {
           reactionType

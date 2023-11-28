@@ -5,6 +5,8 @@ import { addGraphQLSchema, addGraphQLResolvers } from '../../vulcan-lib';
 import type { TagCommentType } from "../../collections/comments/types";
 import type { KarmaChangeUpdateFrequency } from "./schema";
 
+// When adding fields here, you almost certainly want to update the
+// `UserKarmaChanges` fragment too
 addGraphQLSchema(`
   type PostKarmaChange {
     _id: String
@@ -18,7 +20,10 @@ addGraphQLSchema(`
     scoreChange: Int
     description: String
     postId: String
+    postTitle: String
+    postSlug: String
     tagSlug: String
+    tagName: String
     tagCommentType: String
     addedReacts: [ReactionChange!]
   }
@@ -88,7 +93,10 @@ export type KarmaChangeBase = {
 export type CommentKarmaChange = KarmaChangeBase & {
   description?: string,
   postId?: string,
+  postTitle: string,
+  postSlug: string,
   tagId?: string,
+  tagName?: string,
   tagCommentType?: TagCommentType,
   
   // Not filled in by the initial query; added by a followup query in the resolver

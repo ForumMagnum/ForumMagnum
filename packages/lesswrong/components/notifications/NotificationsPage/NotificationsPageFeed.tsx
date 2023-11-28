@@ -68,7 +68,6 @@ export const NotificationsPageFeed = ({
   currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
-  console.log("karma", karmaChanges);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const {tab, setTab} = useNotificationsPageTab();
 
@@ -104,9 +103,13 @@ export const NotificationsPageFeed = ({
     notifications.current = data.NotificationDisplays.results;
   }
 
-  // const canLoadMore = tab.name !== "karma" && notifications.current.length > 0;
   const canLoadMore = notifications.current.length > 0;
-  const showKarmaChanges = tab.name === "all";
+  const hasKarmaChanges = Boolean(
+    karmaChanges?.posts?.length ||
+    karmaChanges?.comments?.length ||
+    karmaChanges?.tagRevisions?.length
+  );
+  const showKarmaChanges = hasKarmaChanges && tab.name === "all";
 
   const onChangeTab = useCallback((_: ChangeEvent, tabName: string) => {
     if (isNotificationsPageTabName(tabName)) {
@@ -117,8 +120,8 @@ export const NotificationsPageFeed = ({
   }, [setTab]);
 
   const {
-    NotificationsPageNotification, NotificationsPageEmpty, LoadMore, Loading,
-    SectionTitle,
+    NotificationsPageNotification, NotificationsPageKarmaChange,
+    NotificationsPageEmpty, LoadMore, Loading, SectionTitle,
   } = Components;
   return (
     <div className={classes.root}>
@@ -138,7 +141,24 @@ export const NotificationsPageFeed = ({
       {showKarmaChanges &&
         <>
           <SectionTitle title="Karma changes" />
-          {karmaChanges?.posts?.map((karmaChange) => null)}
+          {karmaChanges?.posts?.map((karmaChange) =>
+            <NotificationsPageKarmaChange
+              key={karmaChange._id}
+              postKarmaChange={karmaChange}
+            />
+          )}
+          {karmaChanges?.comments?.map((karmaChange) =>
+            <NotificationsPageKarmaChange
+              key={karmaChange._id}
+              commentKarmaChange={karmaChange}
+            />
+          )}
+          {karmaChanges?.tagRevisions?.map((karmaChange) =>
+            <NotificationsPageKarmaChange
+              key={karmaChange._id}
+              tagRevisionKarmaChange={karmaChange}
+            />
+          )}
           <div className={classes.karmaBatching}>
             <Link to="/account">Change settings</Link>
           </div>

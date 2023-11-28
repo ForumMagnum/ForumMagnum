@@ -203,6 +203,7 @@ importComponent("NotificationsPageFeed", () => require('../components/notificati
 importComponent("NotificationsPageEmpty", () => require('../components/notifications/NotificationsPage/NotificationsPageEmpty'));
 importComponent("NotificationsPageItem", () => require('../components/notifications/NotificationsPage/NotificationsPageItem'));
 importComponent("NotificationsPageNotification", () => require('../components/notifications/NotificationsPage/NotificationsPageNotification'));
+importComponent("NotificationsPageKarmaChange", () => require('../components/notifications/NotificationsPage/NotificationsPageKarmaChange'));
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
 importComponent("TagRelNotificationItem", () => require('../components/notifications/TagRelNotificationItem'));

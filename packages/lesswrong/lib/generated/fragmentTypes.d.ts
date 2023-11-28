@@ -542,23 +542,19 @@ interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly targetAmount: number | null,
 }
 
-interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
-  readonly postId: string,
-  readonly postHash: string,
-  readonly lastGeneratedAt: Date,
-  readonly model: string,
-  readonly embeddings: Array<number>,
-}
-
-interface PostRecommendationsDefaultFragment { // fragment on PostRecommendations
-  readonly userId: string | null,
-  readonly clientId: string | null,
-  readonly postId: string,
-  readonly strategyName: string,
-  readonly strategySettings: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly recommendationCount: number,
-  readonly lastRecommendedAt: Date,
-  readonly clickedAt: Date | null,
+interface NotificationsDefaultFragment { // fragment on Notifications
+  readonly userId: string,
+  readonly documentId: string,
+  readonly documentType: string,
+  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly link: string,
+  readonly title: string,
+  readonly message: string,
+  readonly type: string,
+  readonly deleted: boolean,
+  readonly viewed: boolean,
+  readonly emailed: boolean,
+  readonly waitingForBatch: boolean,
 }
 
 interface PostRelationsDefaultFragment { // fragment on PostRelations
@@ -605,6 +601,25 @@ interface SequencesDefaultFragment { // fragment on Sequences
   readonly hideFromAuthorPage: boolean,
   readonly noindex: boolean,
   readonly af: boolean,
+}
+
+interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
+  readonly postId: string,
+  readonly postHash: string,
+  readonly lastGeneratedAt: Date,
+  readonly model: string,
+  readonly embeddings: Array<number>,
+}
+
+interface PostRecommendationsDefaultFragment { // fragment on PostRecommendations
+  readonly userId: string | null,
+  readonly clientId: string | null,
+  readonly postId: string,
+  readonly strategyName: string,
+  readonly strategySettings: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly recommendationCount: number,
+  readonly lastRecommendedAt: Date,
+  readonly clickedAt: Date | null,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -887,21 +902,6 @@ interface SessionsDefaultFragment { // fragment on Sessions
   readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly expires: Date | null,
   readonly lastModified: Date | null,
-}
-
-interface NotificationsDefaultFragment { // fragment on Notifications
-  readonly userId: string,
-  readonly documentId: string,
-  readonly documentType: string,
-  readonly extraData: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly link: string,
-  readonly title: string,
-  readonly message: string,
-  readonly type: string,
-  readonly deleted: boolean,
-  readonly viewed: boolean,
-  readonly emailed: boolean,
-  readonly waitingForBatch: boolean,
 }
 
 interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
@@ -3458,12 +3458,13 @@ interface FragmentTypes {
   ConversationsDefaultFragment: ConversationsDefaultFragment
   DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
-  PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
-  PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
+  NotificationsDefaultFragment: NotificationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
   TagRelsDefaultFragment: TagRelsDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
+  PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
+  PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   LWEventsDefaultFragment: LWEventsDefaultFragment
@@ -3476,7 +3477,6 @@ interface FragmentTypes {
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
-  NotificationsDefaultFragment: NotificationsDefaultFragment
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RevisionsDefaultFragment: RevisionsDefaultFragment
@@ -3679,12 +3679,13 @@ interface CollectionNamesByFragmentName {
   ConversationsDefaultFragment: "Conversations"
   DialogueChecksDefaultFragment: "DialogueChecks"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
-  PostEmbeddingsDefaultFragment: "PostEmbeddings"
-  PostRecommendationsDefaultFragment: "PostRecommendations"
+  NotificationsDefaultFragment: "Notifications"
   PostRelationsDefaultFragment: "PostRelations"
   TagRelsDefaultFragment: "TagRels"
   BooksDefaultFragment: "Books"
   SequencesDefaultFragment: "Sequences"
+  PostEmbeddingsDefaultFragment: "PostEmbeddings"
+  PostRecommendationsDefaultFragment: "PostRecommendations"
   PostsDefaultFragment: "Posts"
   VotesDefaultFragment: "Votes"
   LWEventsDefaultFragment: "LWEvents"
@@ -3697,7 +3698,6 @@ interface CollectionNamesByFragmentName {
   CronHistoriesDefaultFragment: "CronHistories"
   MessagesDefaultFragment: "Messages"
   SessionsDefaultFragment: "Sessions"
-  NotificationsDefaultFragment: "Notifications"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
   RSSFeedsDefaultFragment: "RSSFeeds"
   RevisionsDefaultFragment: "Revisions"

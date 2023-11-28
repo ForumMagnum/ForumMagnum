@@ -4,6 +4,7 @@ import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";
 import SpeakerWaveIcon from "@heroicons/react/24/outline/SpeakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
+import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
@@ -125,6 +126,7 @@ export type ForumIconName =
   "Bookmark" |
   "BookmarkBorder" |
   "Bookmarks" |
+  "Sparkles" |
   "Karma" |
   "KarmaOutline" |
   "Star" |
@@ -205,6 +207,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
     Bookmarks: MuiBookmarksIcon,
+    Sparkles: SparklesIcon,
     Karma: MuiStarIcon,
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
@@ -284,6 +287,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
     Bookmarks: BookmarkIcon,
+    Sparkles: SparklesIcon,
     Karma: StarIcon,
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,

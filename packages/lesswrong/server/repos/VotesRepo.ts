@@ -99,7 +99,10 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
           v.*,
           comment."contents"->'html' AS "commentHtml",
           comment."postId" AS "commentPostId",
+          comment_post."title" AS "commentPostTitle",
+          comment_post."slug" AS "commentPostSlug",
           comment."tagId" AS "commentTagId",
+          comment_tag."name" AS "commentTagName",
           comment."tagCommentType" AS "commentTagCommentType",
           post."title" AS "postTitle",
           post."slug" AS "postSlug",
@@ -124,6 +127,10 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
           v."collectionName" = 'Comments'
           AND comment._id = v._id
         )
+        LEFT JOIN "Posts" comment_post ON
+          comment_post._id = comment."postId"
+        LEFT JOIN "Tags" comment_tag ON
+          comment_tag._id = comment."tagId"
         LEFT JOIN "Posts" post ON (
           v."collectionName" = 'Posts'
           AND post._id = v._id
@@ -165,7 +172,10 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
           ...change,
           description: votedContent.commentHtml,
           postId: votedContent.commentPostId,
+          postTitle: votedContent.commentPostTitle,
+          postSlug: votedContent.commentPostSlug,
           tagId: votedContent.commentTagId,
+          tagName: votedContent.commentTagName,
           tagCommentType: votedContent.commentTagCommentType,
         });
       } else if (votedContent.collectionName==="Posts") {

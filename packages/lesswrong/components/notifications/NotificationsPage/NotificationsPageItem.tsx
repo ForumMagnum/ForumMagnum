@@ -58,6 +58,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 12,
     lineHeight: "1.5em",
     fontWeight: 500,
+    maxWidth: "100%",
   },
   hideOnMobile: {
     [theme.breakpoints.down("xs")]: {
