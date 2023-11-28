@@ -48,15 +48,6 @@ export const eaEmojiPalette: EmojiOption[] = [
   },
 ];
 
-export const getEAPublicEmojiByName = (name: string): EmojiOption | null => {
-  for (const option of eaEmojiPalette) {
-    if (option.name === name) {
-      return option;
-    }
-  }
-  return null;
-}
-
 export const eaEmojiNames = [
   ...eaAnonymousEmojiPalette,
   ...eaEmojiPalette,

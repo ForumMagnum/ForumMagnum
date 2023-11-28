@@ -38,7 +38,6 @@ const notificationsCheckedAtLocalStorageKey = "notificationsCheckedAt";
 type UnreadNotificationsContext = {
   unreadNotifications: number,
   unreadPrivateMessages: number,
-  newReactionCount: number,
   checkedAt: Date|null,
   notificationsOpened: () => Promise<void>,
   faviconBadgeNumber: number,
@@ -48,7 +47,6 @@ type UnreadNotificationsContext = {
 const unreadNotificationsContext = createContext<UnreadNotificationsContext>({
   unreadNotifications: 0,
   unreadPrivateMessages: 0,
-  newReactionCount: 0,
   checkedAt: null,
   notificationsOpened: async () => {},
   faviconBadgeNumber: 0,
@@ -88,7 +86,6 @@ export const UnreadNotificationsContextProvider: FC<{
       unreadNotificationCounts {
         unreadNotifications
         unreadPrivateMessages
-        newReactionCount
         faviconBadgeNumber
         checkedAt
       }
@@ -100,7 +97,6 @@ export const UnreadNotificationsContextProvider: FC<{
 
   const unreadNotifications = data?.unreadNotificationCounts?.unreadNotifications ?? 0;
   const unreadPrivateMessages = data?.unreadNotificationCounts?.unreadPrivateMessages ?? 0;
-  const newReactionCount = data?.unreadNotificationCounts?.newReactionCount ?? 0;
   const faviconBadgeNumber = data?.unreadNotificationCounts?.faviconBadgeNumber ?? 0;
   const checkedAt = data?.unreadNotificationCounts?.checkedAt || null;
   
@@ -179,7 +175,6 @@ export const UnreadNotificationsContextProvider: FC<{
     <unreadNotificationsContext.Provider value={{
       unreadNotifications,
       unreadPrivateMessages,
-      newReactionCount,
       faviconBadgeNumber,
       checkedAt,
       notificationsOpened,

@@ -2,7 +2,6 @@ import AbstractRepo from "./AbstractRepo";
 import Notifications from "../../lib/collections/notifications/collection";
 import { READ_WORDS_PER_MINUTE } from "../../lib/collections/posts/schema";
 import { getSocialPreviewSql } from "../../lib/collections/posts/helpers";
-import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import type { NotificationDisplay } from "../../lib/notificationTypes";
 
 // This should return an object of type `NotificationDisplayUser`
@@ -168,25 +167,5 @@ export default class NotificationsRepo extends AbstractRepo<DbNotification> {
       LIMIT $(limit)
       OFFSET $(offset)
     `, {userId, type, limit, offset});
-  }
-
-  async countNewReactions(userId: string): Promise<number> {
-    const result = await this.getRawDb().one(`
-      SELECT COUNT(*) "count"
-      FROM "Votes" v
-      JOIN "Users" u ON u."_id" = $1
-      WHERE
-        v."authorIds" @> ARRAY[u."_id"]::VARCHAR[] AND
-        NOT v."authorIds" @> ARRAY[v."userId"] AND
-        v."cancelled" IS NOT TRUE AND
-        v."isUnvote" IS NOT TRUE AND
-        v."collectionName" IN ('Posts', 'Comments') AND (
-          ${eaPublicEmojiNames.map((name) =>
-            `(v."extendedVoteType"->'${name}')::BOOLEAN`
-          ).join(" OR ")}
-        ) AND
-        v."createdAt" > COALESCE(u."lastNotificationsCheck", TO_TIMESTAMP(0))
-    `, [userId]);
-    return Number(result?.count ?? 0);
   }
 }

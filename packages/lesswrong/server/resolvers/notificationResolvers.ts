@@ -18,7 +18,6 @@ defineQuery({
       checkedAt: Date!
       unreadNotifications: Int!
       unreadPrivateMessages: Int!
-      newReactionCount: Int!
       faviconBadgeNumber: Int!
     }
   `,
@@ -32,23 +31,17 @@ defineQuery({
         unreadNotifications: 0,
         unreadPrivateMessages: 0,
         faviconBadgeNumber: 0,
-        newReactionCount: 0,
       }
     }
 
     const lastNotificationsCheck = currentUser.lastNotificationsCheck;
-    const [newNotifications, newReactionCount] = await Promise.all([
-      Notifications.find({
-        ...getDefaultViewSelector("Notifications"),
-        userId: currentUser._id,
-        ...(lastNotificationsCheck && {
-          createdAt: {$gt: lastNotificationsCheck},
-        }),
-      }).fetch(),
-      isFriendlyUI
-        ? context.repos.notifications.countNewReactions(currentUser._id)
-        : 0,
-    ]);
+    const newNotifications = await Notifications.find({
+      ...getDefaultViewSelector("Notifications"),
+      userId: currentUser._id,
+      ...(lastNotificationsCheck && {
+        createdAt: {$gt: lastNotificationsCheck},
+      }),
+    }).fetch();
     const unreadNotifications = isFriendlyUI
       ? newNotifications.filter(
         ({type, viewed}) => type !== "newMessage" && !viewed,
@@ -66,7 +59,6 @@ defineQuery({
       unreadNotifications,
       unreadPrivateMessages,
       faviconBadgeNumber: badgeNotifications.length,
-      newReactionCount,
     }
   }
 });

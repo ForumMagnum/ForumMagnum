@@ -149,7 +149,7 @@ const FriendlyNotificationsMenuButton = ({
 }: NotificationsMenuButtonProps) => {
   const currentUser = useCurrentUser();
   const {pathname} = useLocation();
-  const {unreadNotifications, newReactionCount} = useUnreadNotifications();
+  const {unreadNotifications} = useUnreadNotifications();
   const {document: karmaChanges, refetch} = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
@@ -157,10 +157,9 @@ const FriendlyNotificationsMenuButton = ({
     skip: !currentUser,
   });
 
-  const unreadCount = unreadNotifications + newReactionCount;
   const showKarmaStar = hasKarmaChange(currentUser, karmaChanges);
-  const hasBadge = unreadCount > 0;
-  const badgeText = hasBadge ? `${unreadCount}` : "";
+  const hasBadge = unreadNotifications > 0;
+  const badgeText = hasBadge ? `${unreadNotifications}` : "";
 
   useEffect(() => {
     void refetch();
