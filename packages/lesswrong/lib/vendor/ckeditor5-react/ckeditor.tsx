@@ -60,9 +60,11 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
       const [ major ] = CKEDITOR_VERSION.split( '.' ).map( Number );
 
       if ( major < 37 ) {
+        // eslint-disable-next-line no-console
         console.warn( 'The <CKEditor> component requires using CKEditor 5 in version 37 or higher.' );
       }
     } else {
+      // eslint-disable-next-line no-console
       console.warn( 'Cannot find the "CKEDITOR_VERSION" in the "window" scope.' );
     }
   }
@@ -171,6 +173,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
     this.watchdog.setCreator( ( el, config ) => this._createEditor( el as any, config ) );
 
     this.watchdog.on( 'error', ( _, { error, causesRestart } ) => {
+      // eslint-disable-next-line no-console
       const onError = this.props.onError || console.error;
       onError( error, { phase: 'runtime', willEditorRestart: causesRestart } );
     } );
@@ -178,6 +181,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
     await this.watchdog
       .create( this.domContainer.current!, this._getConfig() )
       .catch( error => {
+        // eslint-disable-next-line no-console
         const onError = this.props.onError || console.error;
         onError( error, { phase: 'initialization', willEditorRestart: false } );
       } );
@@ -296,6 +300,7 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
     const config = this.props.config || {};
 
     if ( this.props.data && config.initialData ) {
+      // eslint-disable-next-line no-console
       console.warn(
         'Editor data should be provided either using `config.initialData` or `content` property. ' +
         'The config value takes precedence over `content` property and will be used when both are specified.'

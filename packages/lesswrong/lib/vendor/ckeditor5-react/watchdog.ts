@@ -9,7 +9,6 @@
 
 /* globals window */
 
-// eslint-disable-next-line ckeditor5-rules/no-cross-package-imports
 //import type { CKEditorError } from 'ckeditor5/src/utils';
 type CKEditorError = any;
 import type { EditorWatchdogRestartEvent } from './editorwatchdog';
@@ -232,7 +231,7 @@ export default abstract class Watchdog {
       this._fire( 'error', { error, causesRestart } );
 
       if ( causesRestart ) {
-        this._restart();
+        void this._restart();
       } else {
         this.state = 'crashedPermanently';
         this._fire( 'stateChange' );

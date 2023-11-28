@@ -40,6 +40,8 @@ export default function uid(): string {
   const r3 = Math.random() * 0x100000000 >>> 0;
   const r4 = Math.random() * 0x100000000 >>> 0;
 
+  /* eslint-disable */
+
   // Make sure that id does not start with number.
   return 'e' +
     HEX_NUMBERS[ r1 >> 0 & 0xFF ] +

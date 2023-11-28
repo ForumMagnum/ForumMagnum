@@ -9,7 +9,6 @@
 
 /* globals console */
 
-// eslint-disable-next-line ckeditor5-rules/no-cross-package-imports
 /*import type {
   Context,
   Editor,
@@ -18,7 +17,6 @@
 } from 'ckeditor5/src/core';*/
 type Context = any; type Editor = any; type EditorConfig = any; type ContextConfig = any;
 
-// eslint-disable-next-line ckeditor5-rules/no-cross-package-imports
 /*import type {
   ArrayOrItem,
   CKEditorError
@@ -267,7 +265,7 @@ export default class ContextWatchdog<TContext extends Context = Context> extends
   public add( itemConfigurationOrItemConfigurations: ArrayOrItem<WatchdogItemConfiguration> ): Promise<unknown> {
     const itemConfigurations = toArray( itemConfigurationOrItemConfigurations );
 
-    return Promise.all( itemConfigurations.map( item => {
+    return Promise.all( itemConfigurations.map( (item: WatchdogItemConfiguration) => {
       return this._actionQueues.enqueue( item.id, () => {
         if ( this.state === 'destroyed' ) {
           throw new Error( 'Cannot add items to destroyed watchdog.' );
@@ -304,7 +302,7 @@ export default class ContextWatchdog<TContext extends Context = Context> extends
               return;
             }
 
-            this._actionQueues.enqueue( item.id, () => new Promise<void>( res => {
+            void this._actionQueues.enqueue( item.id, () => new Promise<void>( res => {
               const rethrowRestartEventOnce = () => {
                 watchdog.off( 'restart', rethrowRestartEventOnce );
 
@@ -343,7 +341,7 @@ export default class ContextWatchdog<TContext extends Context = Context> extends
   public remove( itemIdOrItemIds: ArrayOrItem<string> ): Promise<unknown> {
     const itemIds = toArray( itemIdOrItemIds );
 
-    return Promise.all( itemIds.map( itemId => {
+    return Promise.all( itemIds.map( (itemId: string) => {
       return this._actionQueues.enqueue( itemId, () => {
         const watchdog = this._getWatchdog( itemId );
 
@@ -383,6 +381,7 @@ export default class ContextWatchdog<TContext extends Context = Context> extends
 
       return this._destroy()
         .catch( err => {
+          // eslint-disable-next-line no-console
           console.error( 'An error happened during destroying the context or items.', err );
         } )
         .then( () => this._create() )

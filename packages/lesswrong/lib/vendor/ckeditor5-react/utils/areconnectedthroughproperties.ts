@@ -59,11 +59,11 @@ function checkConnectionBetweenProps( target1: unknown, target2: unknown, exclud
         node = prevNodeMap2.get( node );
       }
 
-      console.log( '--------' );
-      console.log( { target1 } );
-      console.log( { sharedNode } );
-      console.log( { target2 } );
-      console.log( { connection } );
+      console.log( '--------' ); //eslint-disable-line no-console
+      console.log( { target1 } ); //eslint-disable-line no-console
+      console.log( { sharedNode } ); //eslint-disable-line no-console
+      console.log( { target2 } ); //eslint-disable-line no-console
+      console.log( { connection } ); //eslint-disable-line no-console
 
       return true;
     }

@@ -25,7 +25,7 @@ export default class CKEditorContext<TContext extends Context = Context> extends
     super( props, context );
 
     if ( this.props.isLayoutReady ) {
-      this._initializeContextWatchdog( this.props.config );
+      void this._initializeContextWatchdog( this.props.config );
     }
   }
 
@@ -67,7 +67,7 @@ export default class CKEditorContext<TContext extends Context = Context> extends
   }
 
   public override componentWillUnmount(): void {
-    this._destroyContext();
+    void this._destroyContext();
   }
 
   private async _initializeContextWatchdog( config?: ContextConfig ): Promise<void> {
@@ -104,6 +104,7 @@ export default class CKEditorContext<TContext extends Context = Context> extends
 
   public static defaultProps: Partial<Props<Context>> = {
     isLayoutReady: true,
+    // eslint-disable-next-line no-console
     onError: ( error, details ) => console.error( error, details )
   };
 

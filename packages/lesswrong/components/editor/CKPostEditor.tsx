@@ -386,7 +386,7 @@ const CKPostEditor = ({
     setLayoutReady(true)
   }, [])
 
-  const editorRef = useRef<CKEditor>(null)
+  const editorRef = useRef<CKEditor<any>>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
   const hiddenPresenceListRef = useRef<HTMLDivElement>(null)
 

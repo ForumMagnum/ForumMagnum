@@ -9,15 +9,12 @@
 
 /* globals console */
 
-// eslint-disable-next-line ckeditor5-rules/no-cross-package-imports
 //import type { CKEditorError } from 'ckeditor5/src/utils';
 type CKEditorError = any;
 
-// eslint-disable-next-line ckeditor5-rules/no-cross-package-imports
 //import type { Editor, EditorConfig, Context, EditorReadyEvent } from 'ckeditor5/src/core';
 type Editor = any; type EditorConfig = any; type Context = any; type EditorReadyEvent = any;
 
-// eslint-disable-next-line ckeditor5-rules/no-cross-package-imports
 //import type { RootAttributes } from '@ckeditor/ckeditor5-editor-multi-root';
 type RootAttributes = any;
 
@@ -31,7 +28,6 @@ import cloneDeepWith from 'lodash/cloneDeepWith';
 import isElement from 'lodash/isElement';
 type DebouncedFunc<T> = any;
 
-// eslint-disable-next-line ckeditor5-rules/no-cross-package-imports
 //import type { Node, Text, Element, Writer } from 'ckeditor5/src/engine';
 type Node = any; type Text = any; type Element = any; type Writer = any;
 
@@ -183,6 +179,7 @@ export default class EditorWatchdog<TEditor extends Editor = Editor> extends Wat
         return this._destroy();
       } )
       .catch( err => {
+        // eslint-disable-next-line no-console
         console.error( 'An error happened during the editor destroying.', err );
       } )
       .then( () => {
@@ -277,7 +274,7 @@ export default class EditorWatchdog<TEditor extends Editor = Editor> extends Wat
 
         return this._creator( elementOrData, this._config! );
       } )
-      .then( editor => {
+      .then( (editor: AnyBecauseTodo) => {
         this._editor = editor;
 
         editor.model.document.on( 'change:data', this._throttledSave );
@@ -318,7 +315,7 @@ export default class EditorWatchdog<TEditor extends Editor = Editor> extends Wat
 
         this._throttledSave.cancel();
 
-        const editor = this._editor;
+        const editor: AnyBecauseTodo = this._editor;
 
         this._editor = null;
 
@@ -336,7 +333,7 @@ export default class EditorWatchdog<TEditor extends Editor = Editor> extends Wat
    * the moment of the crash.
    */
   private _save(): void {
-    const version = this._editor!.model.document.version;
+    const version = (this._editor! as AnyBecauseTodo).model.document.version;
 
     try {
       this._data = this._getData();
@@ -347,6 +344,7 @@ export default class EditorWatchdog<TEditor extends Editor = Editor> extends Wat
 
       this._lastDocumentVersion = version;
     } catch ( err ) {
+      // eslint-disable-next-line no-console
       console.error(
         err,
         'An error happened during restoring editor data. ' +
@@ -366,8 +364,8 @@ export default class EditorWatchdog<TEditor extends Editor = Editor> extends Wat
    * Gets all data that is required to reinitialize editor instance.
    */
   private _getData(): EditorData {
-    const editor = this._editor!;
-    const roots = editor.model.document.roots.filter( root => root.isAttached() && root.rootName != '$graveyard' );
+    const editor: AnyBecauseTodo = this._editor!;
+    const roots = editor.model.document.roots.filter( (root: AnyBecauseTodo) => root.isAttached() && root.rootName != '$graveyard' );
 
     const { plugins } = editor;
     // `as any` to avoid linking from external private repo.
@@ -381,7 +379,7 @@ export default class EditorWatchdog<TEditor extends Editor = Editor> extends Wat
       suggestions: JSON.stringify( [] )
     };
 
-    roots.forEach( root => {
+    roots.forEach( (root: AnyBecauseTodo) => {
       data.roots[ root.rootName ] = {
         content: JSON.stringify( Array.from( root.getChildren() ) ),
         attributes: JSON.stringify( Array.from( root.getAttributes() ) ),
@@ -418,8 +416,8 @@ export default class EditorWatchdog<TEditor extends Editor = Editor> extends Wat
   private _getEditables(): Record<string, HTMLElement> {
     const editables: Record<string, HTMLElement> = {};
 
-    for ( const rootName of this.editor!.model.document.getRootNames() ) {
-      const editable = this.editor!.ui.getEditableElement( rootName );
+    for ( const rootName of (this.editor! as AnyBecauseTodo).model.document.getRootNames() ) {
+      const editable = (this.editor! as AnyBecauseTodo).ui.getEditableElement( rootName );
 
       if ( editable ) {
         editables[ rootName ] = editable;
@@ -478,15 +476,16 @@ class EditorWatchdogInitPlugin {
     // Stops the default editor initialization and use the saved data to restore the editor state.
     // Some of data could not be initialize as a config properties. It is important to keep the data
     // in the same form as it was before the restarting.
-    this.editor.data.on( 'init', evt => {
+    this.editor.data.on( 'init', (evt: AnyBecauseTodo) => {
       evt.stop();
 
-      this.editor.model.enqueueChange( { isUndoable: false }, writer => {
+      this.editor.model.enqueueChange( { isUndoable: false }, (writer: AnyBecauseTodo) => {
         this._restoreCollaborationData();
         this._restoreEditorData( writer );
       } );
 
-      this.editor.data.fire<EditorReadyEvent>( 'ready' );
+      //this.editor.data.fire<EditorReadyEvent>( 'ready' );
+      this.editor.data.fire( 'ready' );
 
       // Keep priority `'high' - 1` to be sure that RTC initialization will be first.
     }, { priority: 1000 - 1 } );
