@@ -275,7 +275,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       <ul>
         <li>Look over nominated posts and vote on them</li>
         <li>Any user registered before {reviewYear} can vote in the review</li>
-        <li>The end result will be compiled into a canonical sequence and best-of {reviewYear} book</li>
+        <li>The end result will be compiled into a canonical sequence</li>
       </ul>
       {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
     </>

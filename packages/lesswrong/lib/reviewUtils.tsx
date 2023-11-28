@@ -8,7 +8,7 @@ import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 const isEAForum = forumTypeSetting.get() === "EAForum"
 const isLWForum = forumTypeSetting.get() === "LessWrong"
 
-export const reviewYears = [2018, 2019, 2020, 2021] as const
+export const reviewYears = [2018, 2019, 2020, 2021, 2022] as const
 const years = new TupleSet(reviewYears);
 export type ReviewYear = UnionOf<typeof years>;
 
@@ -21,7 +21,7 @@ export function getReviewYearFromString(yearParam: string): ReviewYear {
 }
 
 /** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR: ReviewYear = 2021
+export const REVIEW_YEAR: ReviewYear = 2022
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
