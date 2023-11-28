@@ -158,7 +158,7 @@ export function configureSentryScope(context: ResolverContext) {
     });
   }
 
-  context.sentryTransanction = startTransaction({name: "GraphQLTransaction"});
+  context.sentryTransanction = startTransaction({ op: "gql", name: "GraphQLTransaction" });
 }
 
 export const getCollectionsByName = (): CollectionsByName => {

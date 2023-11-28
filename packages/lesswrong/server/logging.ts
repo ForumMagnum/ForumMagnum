@@ -46,7 +46,6 @@ onStartup(() => {
       integrations: [
         new SentryIntegrations.Dedupe(),
         new SentryIntegrations.ExtraErrorData(),
-        new SentryIntegrations.Transaction(),
       ],
       tracesSampleRate: 1
     });

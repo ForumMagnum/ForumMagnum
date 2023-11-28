@@ -71,7 +71,6 @@ const ApolloTransactionMonitoring = {
     }
     return {
       willSendResponse({ context }: {context: ResolverContext}) { // hook for transaction finished
-        console.log("in willSendResponse", {context})
         context.sentryTransanction?.finish()
       },
       executionDidStart() {
