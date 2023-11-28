@@ -323,7 +323,6 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
             />
           </div>
         </div>
-          
       </div>
     </div>
   );
