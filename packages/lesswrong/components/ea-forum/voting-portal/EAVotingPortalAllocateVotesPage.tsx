@@ -46,7 +46,8 @@ const EAVotingPortalAllocateVotesPage = ({
   const saveAllocation = useCallback(async () => {
     // Convert all strings to numbers with parseFloat
     const newVote = Object.fromEntries(
-      Object.entries(voteState).map(([id, value]) => [id, parseFloat(value as string)])
+      // TODO handle 0, "0", null etc (treat all as null)
+      Object.entries(voteState).map(([id, value]) => [id, value ? parseFloat(value as string) : null])
     );
     await updateVote({vote: newVote});
   }, [updateVote, voteState]);

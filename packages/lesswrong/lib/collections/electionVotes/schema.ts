@@ -9,6 +9,9 @@ const validateVote = ({data}: {data: Partial<DbElectionVote>}) => {
     if (typeof data.vote[key] !== 'number' && data.vote[key] !== null) {
       throw new Error("Invalid vote value");
     }
+    if (data.vote[key] !== null && data.vote[key] < 0) {
+      throw new Error("Invalid vote value: allocation cannot be negative");
+    }
   }
   return data.vote;
 };
