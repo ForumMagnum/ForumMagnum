@@ -174,9 +174,11 @@ const styles = (theme: ThemeType) => ({
   },
   dialogueSectionSettings: {
     display: "flex",
+    alignItems: "end",
   },
   settingsButton: {
-    cursor: "pointer"
+    cursor: "pointer",
+    marginLeft: "5px",
   },
   findDialoguePartners: {
     paddingRight: 5,
@@ -186,6 +188,12 @@ const styles = (theme: ThemeType) => ({
   },
   suggestionRow: {
     display: 'flex',
+  },
+  agreeText: {
+    color: theme.palette.text.dim3,
+  },
+  disagreeText: {
+    color: theme.palette.text.dim3,
   }
 });
 
@@ -331,8 +339,8 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
             <div key={index} className={classes.suggestionRow}>
               <p key={index} className={ isExpanded ? classes.debateTopicExpanded : classes.debateTopicCollapsed}>
                 {topic.theirVote === 'agree' ? 
-                  [<ReactionIcon key={index} size={13} react={"agree"} />, `agrees that "${topic.comment.contents.plaintextMainText}"`] : 
-                  [<ReactionIcon key={index} size={13} react={"disagree"} />, `disagrees that "${topic.comment.contents.plaintextMainText}"`]
+                  [<ReactionIcon key={index} size={13} react={"agree"} />, <span key={index} className={classes.agreeText}>agrees that </span>, `"${topic.comment.contents.plaintextMainText}"`] : 
+                  [<ReactionIcon key={index} size={13} react={"disagree"} />, <span key={index} className={classes.disagreeText}>disagrees that </span>, `"${topic.comment.contents.plaintextMainText}"`]
                 }
               </p>
             </div>
@@ -450,7 +458,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
           <LWTooltip placement="top-start" title={matchmakingTooltip}>
             <SectionButton className={classes.findDialoguePartners}>
               <MuiPeopleIcon />
-              <Link to="/dialogueMatching">Find Dialogue Partners</Link>
+              <Link to="/dialogueMatching">Go to Dialogue Matching Home</Link>
             </SectionButton>
           </LWTooltip>
           <LWTooltip placement="top-start" title={dialogueSettingsTooltip}>
