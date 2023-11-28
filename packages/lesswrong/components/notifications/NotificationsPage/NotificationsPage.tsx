@@ -31,6 +31,8 @@ export const NotificationsPage = ({classes}: {
     collectionName: "Users",
     fragmentName: "UserKarmaChanges",
     skip: !currentUser,
+    fetchPolicy: "network-only",
+    nextFetchPolicy: "cache-only",
   });
 
   useEffect(() => {
@@ -39,11 +41,10 @@ export const NotificationsPage = ({classes}: {
 
   useEffect(() => {
     if (karmaChanges?.karmaChanges) {
-      // TODO
-      // void updateCurrentUser({
-        // karmaChangeLastOpened: karmaChanges.karmaChanges.endDate,
-        // karmaChangeBatchStart: karmaChanges.karmaChanges.startDate,
-      // });
+      void updateCurrentUser({
+        karmaChangeLastOpened: karmaChanges.karmaChanges.endDate,
+        karmaChangeBatchStart: karmaChanges.karmaChanges.startDate,
+      });
     }
   }, [karmaChanges?.karmaChanges, updateCurrentUser]);
 
