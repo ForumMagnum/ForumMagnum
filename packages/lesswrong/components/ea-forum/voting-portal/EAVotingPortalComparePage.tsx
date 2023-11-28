@@ -8,7 +8,7 @@ import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import { useElectionVote } from "./hooks";
 import { useElectionCandidates } from "../giving-portal/hooks";
 import classNames from "classnames";
-import { CompareState, getCompareKey, getInitialCompareState } from "../../../lib/collections/electionVotes/helpers";
+import { CompareStateUI, convertCompareStateToVote, getCompareKey, getInitialCompareState } from "../../../lib/collections/electionVotes/helpers";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -84,7 +84,8 @@ const EAVotingPortalComparePageLoader = ({ classes }: { classes: ClassesType }) 
   const { electionVote, updateVote } = useElectionVote("givingSeason23");
   const { results } = useElectionCandidates("random");
 
-  if (!electionVote?.vote || !results) return null;
+  // TODO show a more sensible error if they have only selected one
+  if (!electionVote?.vote || Object.keys(electionVote.vote).length < 2 || !results) return null;
 
   const vote = electionVote.vote;
 
@@ -117,7 +118,9 @@ const EAVotingPortalComparePage = ({
 }) => {
   const { VotingPortalFooter, ElectionComparePair, ForumIcon } = Components;
   const navigate = useNavigate();
-  const [compareState, setCompareState] = useState<CompareState>(getInitialCompareState(candidatePairs));
+  const [compareState, setCompareState] = useState<CompareStateUI>(
+    electionVote.compareState ?? getInitialCompareState(candidatePairs)
+  );
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
   const reachedEndRef = useRef(false);
 
@@ -137,8 +140,18 @@ const EAVotingPortalComparePage = ({
   }, [currentPairKey]);
 
   const saveComparison = useCallback(async () => {
-    // TODO
-  }, []);
+    // Convert all strings to numbers with parseFloat (currently assuming no zeros/nulls TODO handle this properly)
+    const newCompareState = Object.fromEntries(
+      Object.entries(compareState).map(([key, value]) => [key, { ...value, multiplier: parseFloat(value.multiplier as string) }])
+    );
+
+    const newVote = convertCompareStateToVote(newCompareState);
+
+    await updateVote({
+      vote: newVote,
+      compareState: newCompareState,
+    })
+  }, [compareState, updateVote]);
 
   // TODO un-admin-gate when the voting portal is ready
   const currentUser = useCurrentUser();
@@ -196,6 +209,7 @@ const EAVotingPortalComparePage = ({
           middleNode={<Link to="/voting-portal/allocate-votes">Skip this step and allocate votes manually</Link>}
           buttonProps={{
             onClick: async () => {
+              await saveComparison();
               navigate({ pathname: "/voting-portal/allocate-votes" });
             },
             disabled: !reachedEndRef.current,
