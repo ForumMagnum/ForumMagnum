@@ -16,36 +16,31 @@ const USER_SETTING_NAMES = {
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "space-evenly",
+    display: "block",
     marginTop: isFriendlyUI ? 10 : undefined,
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
+      display: "flex",
+      alignItems: "flex-start",
+      justifyContent: "space-evenly",
       flexDirection: "column",
       flexWrap: "nowrap",
     },
   },
   hidden: {
-    display: "none", // Uses CSS to show/hide
+    display: "none",
     overflow: "hidden",
   },
-  checkbox: {
-    padding: "1px 12px 0 0",
-    paddingRight: isFriendlyUI ? 6 : undefined,
-  },
-  checkboxGroup: {
-    display: "flex",
-    alignItems: "center",
+  setting: {
     [theme.breakpoints.down('xs')]: {
-      marginBottom: theme.spacing.unit*2,
-      flex: `1 0 100%`,
-      order: 0
-    }
-  },
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+    },
+  }
 })
 
 const DialoguesSectionFrontpageSettings = ({persistentSettings, hidden, currentShowDialogues, currentShowMyDialogues, currentShowMatches, currentShowRecommendedPartners, hideReciprocityButtons, classes}: {
@@ -72,44 +67,46 @@ const DialoguesSectionFrontpageSettings = ({persistentSettings, hidden, currentS
 
   return (
       <div className={classNames(classes.root, {[classes.hidden]: hidden})}>
-        <div>
-          <Tooltip title="Toggle to show/hide dialogues">
-            <>
+          {!hideReciprocityButtons && <Tooltip title="People you matched with on dialogue matching">
+            <div className={classes.setting}>
               <Checkbox
-                checked={currentShowDialogues}
-                onChange={() => setSetting('showDialogues', !currentShowDialogues)}
-              />
-              <MetaInfo>Show Dialogues</MetaInfo>
-            </>
-          </Tooltip>
-          <Tooltip title="Toggle to show/hide my dialogues">
-            <>
-              <Checkbox
-                checked={currentShowMyDialogues}
-                onChange={() => setSetting('showMyDialogues', !currentShowMyDialogues)}
-              />
-              <MetaInfo>Show My Dialogues</MetaInfo>
-            </>
-          </Tooltip>
-          {!hideReciprocityButtons && <Tooltip title="Toggle to show/hide matches">
-            <>
-              <Checkbox
+                style={{padding: 7}}
                 checked={currentShowMatches}
                 onChange={() => setSetting('showMatches', !currentShowMatches)}
               />
               <MetaInfo>Show Matches</MetaInfo>
-            </>
+            </div>
           </Tooltip>}
-          {!hideReciprocityButtons && <Tooltip title="Toggle to show/hide recommended partners">
-            <>
+          {!hideReciprocityButtons && <Tooltip title="Recommended partners for you to consider dialogueing with">
+            <div className={classes.setting}>
               <Checkbox
+                style={{padding: 7}}
                 checked={currentShowRecommendedPartners}
                 onChange={() => setSetting('showRecommendedPartners', !currentShowRecommendedPartners)}
               />
               <MetaInfo>Show Recommended Partners</MetaInfo>
-            </>
+            </div>
           </Tooltip>}
-        </div>
+          <Tooltip title="Dialogues with new content">
+            <div className={classes.setting}>
+              <Checkbox 
+                style={{padding: 7}}
+                checked={currentShowDialogues}
+                onChange={() => setSetting('showDialogues', !currentShowDialogues)}
+              />
+              <MetaInfo>Show Dialogues</MetaInfo>
+            </div>
+          </Tooltip>
+          <Tooltip title="Dialogues you're involved in">
+            <div className={classes.setting}>
+              <Checkbox
+                style={{padding: 7}}
+                checked={currentShowMyDialogues}
+                onChange={() => setSetting('showMyDialogues', !currentShowMyDialogues)}
+              />
+              <MetaInfo>Show My Dialogues</MetaInfo>
+            </div>
+          </Tooltip>
       </div>
   );
 };

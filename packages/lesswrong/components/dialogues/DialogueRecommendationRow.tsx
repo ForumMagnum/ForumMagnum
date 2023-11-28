@@ -5,6 +5,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import {useCurrentUser} from '../common/withUser';
 import {gql, useQuery} from '@apollo/client';
 import {DialogueUserRowProps} from '../users/DialogueMatchingPage';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
   dialogueUserRow: { // TODO; shared import
@@ -15,11 +16,27 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 3,
     borderRadius: 2,
   },
+  dialogueUserRowExpandedMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'block'
+    }
+  },
   dialogueLeftContainer: {
     display: 'flex',
     maxWidth: '135px',
     minWidth: '135px',
+    [theme.breakpoints.down('xs')]: {
+      maxWidth: '110px',
+      minWidth: '110px',
+    },
     alignItems: 'center',
+  },
+  dialogueLeftContainerExpandedMobile: {
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: '7px',
+      maxWidth: '200px',
+      minWidth: '200px',
+    }
   },
   dialogueMatchUsername: {
     marginRight: 10,
@@ -44,17 +61,14 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     paddingBottom: '10px',
+    whiteSpace: 'normal',
     [theme.breakpoints.down('xs')]: {
-      whiteSpace: 'normal'
+      paddingLeft: '7px'
     }
   },
   debateTopicCollapsed: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    [theme.breakpoints.down('xs')]: {
-      whiteSpace: 'normal',
-      paddingBottom: '10px'
-    },
     whiteSpace: 'nowrap',
   },
   reactIcon: {
@@ -66,8 +80,10 @@ const styles = (theme: ThemeType) => ({
   agreeText: {
     color: theme.palette.text.dim3,
   },
-  disagreeText: {
-    color: theme.palette.text.dim3,
+  agreeTextCollapsedMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    },
   },
   topicRecommendationsList: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -79,20 +95,28 @@ const styles = (theme: ThemeType) => ({
   expandIcon: {
     cursor: 'pointer',
     minWidth: '70px',
-    color: 'grey',
+    color: theme.palette.text.dim3,
     fontFamily: theme.palette.fonts.sansSerifStack,
+    [theme.breakpoints.down('xs')]: {
+      marginLeft: 'auto',
+      minWidth: '25px',
+    },
   },
   hideIcon: {
     cursor: 'pointer',
     minWidth: '70px',
-    color: 'grey',
+    [theme.breakpoints.down('xs')]: {
+      marginLeft: 'auto',
+      minWidth: '25px',
+    },
+    color: theme.palette.text.dim3,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
   dialogueRightContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    paddingRight: 10,
-    marginRight: 3,
+    //paddingRight: 10,
+    //marginRight: 3,
     marginLeft: 'auto',
   },
   dialogueMatchNote: {
@@ -100,6 +124,11 @@ const styles = (theme: ThemeType) => ({
       display: 'none'
     }
   },
+  bigScreenExpandNote: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  }
 });
 
 interface DialogueRecommendationRowProps {
@@ -139,8 +168,8 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   });
 
   if (!currentUser) return <></>;
-  const preTopicRecommendations: {comment: {_id: string, contents: {html: string, plaintextMainText: string}}, recommendationReason: string, yourVote: string, theirVote: string}[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
-  const topicRecommendations = preTopicRecommendations?.filter(topic => topic.theirVote !== null);
+  const topicRecommendations: {comment: {_id: string, contents: {html: string, plaintextMainText: string}}, recommendationReason: string, yourVote: string, theirVote: string}[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
+//  const topicRecommendations = preTopicRecommendations?.filter(topic => topic.theirVote !== null);
 
   const numRecommendations = topicRecommendations?.length || 0;
   const numShown = isExpanded ? numRecommendations : 1
@@ -148,9 +177,9 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
 
   return (
     <div>
-      <div key={targetUser._id} className={classes.dialogueUserRow}>
-        <div className={classes.dialogueLeftContainer}>
-          <div className={classes.dialogueMatchCheckbox}>
+      <div key={targetUser._id} className={ isExpanded ? classNames(classes.dialogueUserRow, classes.dialogueUserRowExpandedMobile) : classes.dialogueUserRow}>
+        <div className={ isExpanded ? classNames(classes.dialogueLeftContainer, classes.dialogueLeftContainerExpandedMobile) : classes.dialogueLeftContainer}>
+          <div className={ classes.dialogueMatchCheckbox }>
             <DialogueCheckBox
               targetUserId={targetUser._id}
               targetUserDisplayName={targetUser.displayName}
@@ -171,8 +200,8 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
             <div key={index} className={classes.suggestionRow}>
               <p key={index} className={ isExpanded ? classes.debateTopicExpanded : classes.debateTopicCollapsed}>
                 {topic.theirVote === 'agree' ? 
-                  [<ReactionIcon key={index} size={13} react={"agree"} />, <span key={index} className={classes.agreeText}>agrees that </span>, `"${topic.comment.contents.plaintextMainText}"`] : 
-                  [<ReactionIcon key={index} size={13} react={"disagree"} />, <span key={index} className={classes.disagreeText}>disagrees that </span>, `"${topic.comment.contents.plaintextMainText}"`]
+                  [<ReactionIcon key={index} size={13} react={"agree"} />, <span key={index} className={ isExpanded ? classes.agreeText : classNames(classes.agreeText, classes.agreeTextCollapsedMobile) }>agrees: </span>, `"${topic.comment.contents.plaintextMainText}"`] : 
+                  [<ReactionIcon key={index} size={13} react={"disagree"} />, <span key={index} className={ isExpanded ? classes.agreeText : classNames(classes.agreeText, classes.agreeTextCollapsedMobile) }>disagrees: </span>, `"${topic.comment.contents.plaintextMainText}"`]
                 }
               </p>
             </div>
@@ -180,8 +209,8 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
           
       </div>}
       <div className={classes.dialogueRightContainer}>
-        {<span className={isExpanded ? classes.expandIcon : classes.hideIcon} onClick={toggleExpansion}>
-          {isExpanded ? '▲ hide' : (numHidden > 0 ? `▶ ...more` : '')} 
+        {<span className={isExpanded ? classes.hideIcon : classes.expandIcon} onClick={toggleExpansion}>
+          {isExpanded ? '▲ hide' : (numHidden > 0 ? [`▼`, <span key={targetUser._id} className={classes.bigScreenExpandNote}> ...more</span>] : '')} 
         </span>}
       </div>
       {!showSuggestedTopics && 

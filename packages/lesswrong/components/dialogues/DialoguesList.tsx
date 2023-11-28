@@ -256,26 +256,6 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
 
   const manyRecommendedUsers: DbUser[] | undefined = recommendedUsersResult?.GetDialogueRecommendedUsers;
 
-  // const matchedUserIds = matchedUsers?.map(user => user._id) || [];
-  // const checkedUserIds = userDialogueChecks.filter(check => check.checked).map(check => check._id);
-
-  // console.log("manyRecommendedUsers", manyRecommendedUsers)
-
-  // console.log("logging stuff... ", matchedUserIds, checkedUserIds)
-
-  // const filteredRecommendedUsers = manyRecommendedUsers?.filter(targetUser => 
-  //   !matchedUserIds.includes(targetUser._id) && !checkedUserIds.includes(targetUser._id)
-  // );
-
-  // console.log("filteredRecommendedUsers: ", filteredRecommendedUsers)
-
-  // let recommendedUsers:DbUser[] = []
-  // if (filteredRecommendedUsers) {
-  //   const sampleSize = 3;
-  //   const shuffled = filteredRecommendedUsers.sort(() => 0.5 - Math.random());
-  //   recommendedUsers = filteredRecommendedUsers.slice(0, sampleSize);
-  // }
-
   const recommendedDialoguePartnersRowPropsList = currentUser && getRowProps({
     currentUser,
     tableContext: 'other', 
@@ -318,7 +298,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
           <LWTooltip placement="top-start" title={matchmakingTooltip}>
             <SectionButton className={classes.findDialoguePartners}>
               <MuiPeopleIcon />
-              <Link to="/dialogueMatching">Go to Dialogue Matching home</Link>
+              <Link to="/dialogueMatching">Go to Dialogue Matching</Link>
             </SectionButton>
           </LWTooltip>
           <LWTooltip placement="top-start" title={dialogueSettingsTooltip}>

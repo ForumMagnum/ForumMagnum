@@ -545,7 +545,7 @@ defineQuery({
       throw new Error('User must be logged in to get recommended users');
     }
 
-    const upvotedUsers = await context.repos.users.getUsersTopUpvotedUsers(currentUser, 30, 720)
+    const upvotedUsers = await context.repos.users.getUsersTopUpvotedUsers(currentUser, 50, 720)
     let recommendedUsers = await context.repos.users.getDialogueRecommendedUsers(currentUser._id, upvotedUsers);
 
     // Shuffle and limit the list to 3 users
