@@ -482,7 +482,8 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
           AND v1."voteType" != 'neutral'
       )
       SELECT DISTINCT
-        v1_id AS vkarmaChangesGraphQL"      FROM
+        v1_id AS vote_id
+      FROM
         JoinedVotes
       UNION
       SELECT DISTINCT
