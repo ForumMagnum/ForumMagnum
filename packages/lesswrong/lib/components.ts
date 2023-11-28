@@ -444,6 +444,8 @@ importComponent("DialogueEditorGuidelines", () => require('../components/posts/d
 importComponent("DialogueEditorFeedback", () => require('../components/posts/dialogues/DialogueEditorFeedback'));
 importComponent("NewDialogueDialog", () => require('../components/posts/NewDialogueDialog'));
 importComponent("DialogueSubmit", () => require('../components/posts/dialogues/DialogueSubmit'));
+importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
+
 
 importComponent("PostsGroupDetails", () => require('../components/posts/PostsGroupDetails'));
 importComponent("PostsStats", () => require('../components/posts/PostsStats'));
@@ -625,7 +627,7 @@ importComponent("DebateTypingIndicator", () => require('../components/comments/D
 importComponent("DialoguesList", () => require('../components/dialogues/DialoguesList'));
 importComponent("DialoguesPage", () => require('../components/dialogues/DialoguesPage'));
 importComponent("DialogueMatchingPage", () => require('../components/users/DialogueMatchingPage'));
-
+importComponent("DialoguesSectionFrontpageSettings", () => require('../components/dialogues/DialoguesSectionFrontpageSettings'));
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));
