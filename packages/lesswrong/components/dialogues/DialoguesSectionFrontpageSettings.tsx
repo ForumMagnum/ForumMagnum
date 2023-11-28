@@ -48,13 +48,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const DialoguesSectionFrontpageSettings = ({persistentSettings, hidden, currentShowDialogues, currentShowMyDialogues, currentShowMatches, currentShowRecommendedPartners, classes}: {
+const DialoguesSectionFrontpageSettings = ({persistentSettings, hidden, currentShowDialogues, currentShowMyDialogues, currentShowMatches, currentShowRecommendedPartners, hideReciprocityButtons, classes}: {
   persistentSettings?: any,
   hidden: boolean,
   currentShowDialogues: boolean,
   currentShowMyDialogues: boolean,
   currentShowMatches: boolean,
   currentShowRecommendedPartners: boolean,
+  hideReciprocityButtons: boolean
   classes: ClassesType,
 }) => {
   const { MetaInfo } = Components
@@ -90,16 +91,16 @@ const DialoguesSectionFrontpageSettings = ({persistentSettings, hidden, currentS
               <MetaInfo>Show My Dialogues</MetaInfo>
             </>
           </Tooltip>
-          <Tooltip title="Toggle to show/hide matches">
+          {!hideReciprocityButtons && <Tooltip title="Toggle to show/hide matches">
             <>
               <Checkbox
                 checked={currentShowMatches}
-                onChange={() => {console.log("detecting an onChange..."); setSetting('showMatches', !currentShowMatches)}}
+                onChange={() => setSetting('showMatches', !currentShowMatches)}
               />
               <MetaInfo>Show Matches</MetaInfo>
             </>
-          </Tooltip>
-          <Tooltip title="Toggle to show/hide recommended partners">
+          </Tooltip>}
+          {!hideReciprocityButtons && <Tooltip title="Toggle to show/hide recommended partners">
             <>
               <Checkbox
                 checked={currentShowRecommendedPartners}
@@ -107,7 +108,7 @@ const DialoguesSectionFrontpageSettings = ({persistentSettings, hidden, currentS
               />
               <MetaInfo>Show Recommended Partners</MetaInfo>
             </>
-          </Tooltip>
+          </Tooltip>}
         </div>
       </div>
   );

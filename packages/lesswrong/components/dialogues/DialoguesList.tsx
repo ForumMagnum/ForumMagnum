@@ -11,6 +11,8 @@ import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import MuiPeopleIcon from "@material-ui/icons/People";
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
 import {gql, useQuery} from '@apollo/client';
+import {useABTest} from '../../lib/abTestImpl';
+import {frontpageDialogueReciprocityRecommendations, showTopicsInReciprocity} from '../../lib/abTests';
 
 
 const styles = (theme: ThemeType) => ({
@@ -217,7 +219,13 @@ const DialogueMatchRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRow
   );
 };
 
-const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRowProps) => {
+interface DialogueRecommendationRowProps {
+  rowProps: DialogueUserRowProps<boolean>; 
+  classes: ClassesType<typeof styles>; 
+  showSuggestedTopics: boolean;
+}
+
+const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: DialogueRecommendationRowProps) => {
   const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo, LWTooltip, ReactionIcon } = Components
 
   const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
@@ -254,8 +262,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
  // const topicRecommendations = preTopicRecommendations?.filter(topic => topic.theirVote !== null);
 
   //console.log(topicRecommendations);
-  console.log(topicRecommendations?.map(topic => ({name: targetUser.displayName, theirVote: topic.theirVote, content: topic.comment.contents.plaintextMainText}) ));
-
+  //console.log(topicRecommendations?.map(topic => ({name: targetUser.displayName, theirVote: topic.theirVote, content: topic.comment.contents.plaintextMainText}) ));
 
   // Function to toggle the expansion
   const toggleExpansion = () => {
@@ -287,7 +294,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
             Topic suggestions
           </PostsItem2MetaInfo> */}
         </div>
-        <div className={classes.topicRecommendationsList}>
+        {showSuggestedTopics && <div className={classes.topicRecommendationsList}>
             {topicRecommendations?.slice(0,numShown).map((topic, index) => (
               <p key={index} className={isExpanded ? '' : classes.debateTopic}>
                 {topic.theirVote === 'agree' ? 
@@ -304,7 +311,11 @@ const DialogueRecommendationRow = ({ rowProps, classes, showMatchNote }: Dialogu
             <span className={classes.expandIcon} onClick={toggleExpansion}>
               {isExpanded ? '▲ hide' : '▼ show more topics...'}
             </span>
-          </div>
+        </div>}
+        {!showSuggestedTopics && 
+          <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+            <div className={classes.dialogueMatchNote}>Check to maybe dialogue, if you find a topic</div>
+          </PostsItem2MetaInfo>}
         <div className={classes.dialogueRightContainer}>
           {/* <div className={classes.dialogueMatchMessageButton}>
             <MessageButton
@@ -332,6 +343,8 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   const { PostsItem, SectionButton, SettingsButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle, DialoguesSectionFrontpageSettings } = Components
   const currentUser = useCurrentUser()
   const [showSettings, setShowSettings] = useState(false);
+  const showReciprocityRecommendations = (useABTest(frontpageDialogueReciprocityRecommendations) === "show")
+  const showTopics = (useABTest(showTopicsInReciprocity) === "show")
 
   const { results: dialoguePosts } = usePaginatedResolver({
     fragmentName: "PostsListWithVotes",
@@ -440,16 +453,16 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
           currentShowMyDialogues={currentUser.showMyDialogues}
           currentShowMatches={currentUser.showMatches}
           currentShowRecommendedPartners={currentUser.showRecommendedPartners}
+          hideReciprocityButtons={!showReciprocityRecommendations}
         />}
 
       {dialogueMatchmakingEnabled.get() && <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
         <div>
-        {currentUser?.showMatches && matchRowPropsList?.map((rowProps, index) => (
+        {currentUser?.showMatches && showReciprocityRecommendations && matchRowPropsList?.map((rowProps, index) => (
           <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
         ))}
-        {currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
-          console.log(rowProps.targetUser.displayName),
-          <DialogueRecommendationRow key={index} rowProps={rowProps} classes={classes} showMatchNote={false} />
+        {currentUser?.showRecommendedPartners && showReciprocityRecommendations && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
+          <DialogueRecommendationRow key={index} rowProps={rowProps} classes={classes} showSuggestedTopics={showTopics} />
         ))}
         </div>
       </AnalyticsContext>}
