@@ -413,29 +413,34 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       FROM unnest($2::text[]) AS uv(_id)
       INNER JOIN "Users" AS u ON uv._id = u._id
       WHERE
-        -- Don't recommend users who've never commented twice on your posts OR replied 3 times to your comments 
+        -- Exclude users that the current user has already checked
         (
           SELECT COUNT(*)
-          FROM public."Comments" AS c
-          INNER JOIN "Posts" AS p ON c."postId" = p._id
-          WHERE c."userId" = uv._id AND p."userId" = $1
-        ) >= 2
-        OR (
-          SELECT COUNT(*)
-          FROM public."Comments"
-          WHERE
-            "userId" = uv._id
-            AND "parentCommentId" IN (
-              SELECT _id
-              FROM "Comments"
-              WHERE "userId" = $1
-            )
-        ) >= 3
-        -- Exclude users that the current user has already checked
-        AND NOT EXISTS (
-          SELECT 1
           FROM "DialogueChecks"
           WHERE "userId" = $1 AND "targetUserId" = uv._id AND "checked" = TRUE
+        ) = 0
+        AND
+        (
+          -- Don't recommend users who've never commented twice on your posts
+          (
+            SELECT COUNT(*)
+            FROM public."Comments" AS c
+            INNER JOIN "Posts" AS p ON c."postId" = p._id
+            WHERE c."userId" = uv._id AND p."userId" = $1
+          ) >= 2
+          OR 
+          -- Don't recommend users who've never replied 3 times to your comments 
+          (
+            SELECT COUNT(*)
+            FROM public."Comments"
+            WHERE
+              "userId" = uv._id
+              AND "parentCommentId" IN (
+                SELECT _id
+                FROM "Comments"
+                WHERE "userId" = $1
+              )
+          ) >= 3
         )
       LIMIT $3  
     `, [userId, upvotedUserIds, limit]);
