@@ -77,7 +77,8 @@ const styles = (theme: ThemeType) => ({
   },
   dialogueLeftContainer: {
     display: 'flex',
-    width: '100%',
+    maxWidth: '135px',
+    minWidth: '135px',
     alignItems: 'center',
   },
   dialogueMatchCheckbox: {
@@ -97,6 +98,8 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
+    width: 'auto',
+    flexShrink: 'unset!important',
   },
   dialogueMatchNote: {
     [theme.breakpoints.down('xs')]: {
@@ -107,7 +110,8 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between',
     paddingRight: 10,
-    marginRight: 3
+    marginRight: 3,
+    marginLeft: 'auto',
   },
   dialogueMatchMessageButton: {
     marginLeft: 'auto',
@@ -177,10 +181,13 @@ const DialogueMatchRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRow
             simple={false}
           />
         </PostsItem2MetaInfo>
-        <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+        {/* <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
           {showMatchNote ? "You've matched!" : "Check to opt in to dialogue, if you find a topic"}
-        </PostsItem2MetaInfo>
+        </PostsItem2MetaInfo> */}
       </div>
+      <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+        {showMatchNote ? "You've matched!" : "Check to opt in to dialogue, if you find a topic"}
+      </PostsItem2MetaInfo>
       <div className={classes.dialogueRightContainer}>
         <div className={classes.dialogueMatchMessageButton}>
           <MessageButton
