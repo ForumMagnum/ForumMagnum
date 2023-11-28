@@ -161,7 +161,7 @@ const VotingPortalThankYou = ({currentUser, classes}: {
           height={height}
           numberOfPieces={1200}
           tweenDuration={20000}
-          colors={["#aa4578", "#bb85db", "#7839ca", "#bb3666", "#d7748a"]}
+          colors={["#A82D22", "#9BBB99", "#FFAF58", "#FAA2A2", "#90CEE9"]}
           recycle={false}
           onConfettiComplete={onConfettiComplete}
         />
