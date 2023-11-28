@@ -59,9 +59,14 @@ userChangedCallback.add(function addUserIdToGoogleAnalytics(user: UsersCurrent |
 userChangedCallback.add(configureDatadogRum);
 
 window.addEventListener('load', ev => {
+  const urlParams = new URLSearchParams(document.location?.search)
+
   captureEvent("pageLoadFinished", {
     url: document.location?.href,
     referrer: document.referrer,
+    utmSource: urlParams.get('utm_source'),
+    utmMedium: urlParams.get('utm_medium'),
+    utmCampaign: urlParams.get('utm_campaign'),
     browserProps: browserProperties(),
     prefersDarkMode: devicePrefersDarkMode(),
     performance: {

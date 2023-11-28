@@ -4,16 +4,17 @@ import React, { PureComponent } from 'react';
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { withTracking } from '../../lib/analyticsEvents';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { withLocation } from '../../lib/routeUtil';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginTop: isEAForum ? undefined : 5,
+    marginTop: isFriendlyUI ? undefined : 5,
   },
   userButton: {
     fontSize: '14px',
-    fontWeight: isEAForum ? undefined : 400,
+    fontWeight: isFriendlyUI ? undefined : 400,
     opacity: .8,
     color: theme.palette.header.text,
   },
@@ -66,7 +67,7 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
 
   render() {
     const { classes, location } = this.props
-    const { EAButton, WrappedLoginForm } = Components
+    const { EAButton, LoginForm } = Components
     
     // Location is always passed in by hoc. We can't make it a required prop due
     // to a limitation in our typings
@@ -74,7 +75,7 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
 
     return (
       <div className={classes.root}>
-        {forumTypeSetting.get() === 'EAForum' ? <>
+        {isEAForum ? <>
           <EAButton style="grey" href={`/auth/auth0?returnTo=${pathname}`} className={classes.login}>
             Login
           </EAButton>
@@ -93,7 +94,7 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
             anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
             onClose={this.handleRequestClose}
           >
-            {this.state.open && <WrappedLoginForm />}
+            {this.state.open && <LoginForm />}
           </Popover>
         </>}
       </div>

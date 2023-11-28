@@ -6,7 +6,7 @@ import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
 import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest, isMigrations, CommandLineArguments } from '../lib/executionEnvironment';
-import { PublicInstanceSetting, forumTypeSetting, isEAForum } from "../lib/instanceSettings";
+import { PublicInstanceSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
@@ -67,7 +67,7 @@ const connectToPostgres = async (connectionString: string, target: DbTarget = "w
       const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
       // eslint-disable-next-line no-console
       console.log(`Connecting to postgres (${dbName})`);
-      const sql = await createSqlConnection(connectionString, false, target);
+      const sql = await createSqlConnection(connectionString, false);
       setSqlClient(sql, target);
     }
   } catch(err) {

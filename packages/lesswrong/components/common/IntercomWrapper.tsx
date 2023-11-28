@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       }
     } : null),
     ".intercom-lightweight-app": {
-      zIndex: theme.zIndexes.intercomButton,
+      zIndex: `${theme.zIndexes.intercomButton} !important`,
     },
   },
 });

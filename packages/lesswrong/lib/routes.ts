@@ -9,7 +9,8 @@ import qs from 'qs';
 import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug} from './pingback'
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { pluralize } from './vulcan-lib';
-
+import { forumSpecificRoutes } from './forumSpecificRoutes';
+import { hasPostRecommendations } from './betas';
 
 const knownTagNames = ['tag', 'topic', 'concept']
 const useShortAllTagsPath = isEAForum;
@@ -570,7 +571,7 @@ onStartup(() => {
   );
 });
 
-const forumSpecificRoutes = forumSelect<Route[]>({
+const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
   EAForum: [
     {
       name: 'home',
@@ -628,6 +629,46 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'Giving portal',
       subtitle: 'Giving portal',
       subtitleLink: '/giving-portal',
+      unspacedGrid: true,
+      fullscreen: true,
+    },
+    {
+      name: 'VotingPortal',
+      path: '/voting-portal',
+      componentName: 'EAVotingPortalPage',
+      title: 'Voting portal',
+      unspacedGrid: true,
+      fullscreen: true,
+    },
+    {
+      name: 'VotingPortalSelectCandidates',
+      path: '/voting-portal/select-candidates',
+      componentName: 'EAVotingPortalSelectCandidatesPage',
+      title: 'Voting portal',
+      unspacedGrid: true,
+      fullscreen: true,
+    },
+    {
+      name: 'VotingPortalCompare',
+      path: '/voting-portal/compare',
+      componentName: 'EAVotingPortalComparePage',
+      title: 'Voting portal',
+      unspacedGrid: true,
+      fullscreen: true,
+    },
+    {
+      name: 'VotingPortalAllocateVotes',
+      path: '/voting-portal/allocate-votes',
+      componentName: 'EAVotingPortalAllocateVotesPage',
+      title: 'Voting portal',
+      unspacedGrid: true,
+      fullscreen: true,
+    },
+    {
+      name: 'VotingPortalSubmit',
+      path: '/voting-portal/submit',
+      componentName: 'EAVotingPortalSubmitPage',
+      title: 'Voting portal',
       unspacedGrid: true,
       fullscreen: true,
     },
@@ -1209,7 +1250,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
   ],
 })
 
-addRoute(...forumSpecificRoutes)
+addRoute(...eaLwAfForumSpecificRoutes)
 
 addRoute({
   name: 'AllComments',
@@ -1394,7 +1435,7 @@ addRoute(
     previewComponentName: 'PostLinkPreview',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     background: postBackground,
-    noFooter: isEAForum,
+    noFooter: hasPostRecommendations,
   },
   {
     name:'posts.slug.single',
@@ -1404,7 +1445,7 @@ addRoute(
     previewComponentName: 'PostLinkPreviewSlug',
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     background: postBackground,
-    noFooter: isEAForum,
+    noFooter: hasPostRecommendations,
   },
   {
     name: 'posts.revisioncompare',
@@ -1596,3 +1637,5 @@ addRoute(
     title: "Review Admin Dashboard",
   }
 );
+
+forumSpecificRoutes();

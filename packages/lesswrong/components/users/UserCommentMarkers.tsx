@@ -1,7 +1,8 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { isEAForum, siteNameWithArticleSetting } from "../../lib/instanceSettings";
-import { isNewUser } from "../../lib/collections/users/helpers";
+import { isNewUser, showDonatedIcon } from "../../lib/collections/users/helpers";
+import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = (theme: ThemeType): JssStyles => ({
   iconWrapper: {
@@ -16,6 +17,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     bottom: -2,
     color: theme.palette.icon.sprout,
+    fontSize: 16,
+  },
+  donationIcon: {
+    position: "relative",
+    bottom: -1,
+    color: theme.palette.givingPortal[1000],
     fontSize: 16,
   },
 });
@@ -35,10 +42,11 @@ const UserCommentMarkers = ({
     return null;
   }
 
-  const showAuthorIcon = isEAForum && isPostAuthor;
+  const showAuthorIcon = isFriendlyUI && isPostAuthor;
   const showNewUserIcon = isNewUser(user);
+  const _showDonatedIcon = showDonatedIcon(user);
 
-  if (!showAuthorIcon && !showNewUserIcon) {
+  if (!showAuthorIcon && !showNewUserIcon && !_showDonatedIcon) {
     return null;
   }
 
@@ -61,6 +69,15 @@ const UserCommentMarkers = ({
           className={classes.iconWrapper}
         >
           <ForumIcon icon="Sprout" className={classes.sproutIcon} />
+        </LWTooltip>
+      }
+      {_showDonatedIcon &&
+        <LWTooltip
+          placement="bottom-start"
+          title={`Donated to the Donation Election fund`}
+          className={classes.iconWrapper}
+        >
+          <ForumIcon icon="GivingHand" className={classes.donationIcon} />
         </LWTooltip>
       }
     </span>

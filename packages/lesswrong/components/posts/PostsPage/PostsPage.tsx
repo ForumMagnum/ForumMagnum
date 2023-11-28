@@ -7,10 +7,10 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting, isEAForum} from '../../../lib/instanceSettings';
+import {forumTitleSetting, isAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { commentsTableOfContentsEnabled, userHasSideComments } from '../../../lib/betas';
+import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
@@ -27,6 +27,7 @@ import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnNotificationsChanged } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 import isEqual from 'lodash/isEqual';
@@ -198,7 +199,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 'auto',
   },
   postContent: { //Used by a Cypress test
-    marginBottom: isEAForum ? 40 : undefined
+    marginBottom: isFriendlyUI ? 40 : undefined
   },
   betweenPostAndComments: {
     minHeight: 24,
@@ -208,7 +209,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     margin: "0 auto 40px",
   },
   commentsSection: {
-    minHeight: isEAForum ? undefined : 'calc(70vh - 100px)',
+    minHeight: hasPostRecommendations ? undefined : 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
       marginLeft: 0
@@ -216,7 +217,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
     background: theme.palette.background.pageActiveAreaBackground,
     position: "relative",
-    paddingTop: isEAForum ? 16 : undefined
+    paddingTop: isFriendlyUI ? 16 : undefined
   },
   noCommentsPlaceholder: {
     marginTop: 60,
@@ -309,6 +310,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
+  const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
@@ -338,7 +340,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const postBodyRef = useRef<HTMLDivElement|null>(null)
   const readingProgressBarRef = useRef<HTMLDivElement|null>(null)
   useEffect(() => {
-    if (!isEAForum || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3) return
+    if (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3) return
 
     updateReadingProgressBar()
     window.addEventListener('scroll', updateReadingProgressBar)
@@ -462,7 +464,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   
   const isOldVersion = query.revision && post.contents;
   
-  const defaultSideCommentVisibility = userHasSideComments(currentUser)
+  const defaultSideCommentVisibility = hasSideComments
     ? (post.sideCommentVisibility ?? "highKarma")
     : "hidden";
   const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>(defaultSideCommentVisibility as SideCommentMode);
@@ -475,7 +477,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
   const htmlWithAnchors = sectionData?.html || post.contents?.html;
 
-  const showRecommendations = isEAForum &&
+  const showRecommendations = hasPostRecommendations &&
     !currentUser?.hidePostsRecommendations &&
     !post.shortform &&
     !post.draft &&
@@ -600,7 +602,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
-  const isAF = (forumTypeSetting.get() === 'AlignmentForum');
   if (isAF && !post.af) {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
@@ -700,10 +701,12 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             loadingMoreComments={loadingMore}
             post={post}
             newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
+            highlightDate={highlightDate}
+            setHighlightDate={setHighlightDate}
           />
           {isAF && <AFUnreviewedCommentCount post={post}/>}
         </AnalyticsContext>
-        {isEAForum && post.commentCount < 1 &&
+        {isFriendlyUI && post.commentCount < 1 &&
           <div className={classes.noCommentsPlaceholder}>
             <div>No comments on this post yet.</div>
             <div>Be the first to respond.</div>
@@ -716,6 +719,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       commentTree={commentTree}
       answersTree={answersTree}
       post={post}
+      highlightDate={highlightDate}
     />
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
@@ -749,7 +753,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </ToCColumn>
     }
   
-    {isEAForum && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
+    {hasPostRecommendations && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
         hasTableOfContents={hasTableOfContents}

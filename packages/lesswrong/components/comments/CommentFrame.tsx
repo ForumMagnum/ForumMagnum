@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const HIGHLIGHT_DURATION = 3
 
@@ -11,7 +11,7 @@ export const CONDENSED_MARGIN_BOTTOM = 4
 const styles = (theme: ThemeType): JssStyles => ({
   node: {
     border: theme.palette.border.commentBorder,
-    borderRadius: isEAForum ? theme.borderRadius.small : undefined,
+    borderRadius: isFriendlyUI ? theme.borderRadius.small : undefined,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -28,7 +28,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTop: theme.palette.border.commentBorder,
     borderBottom: theme.palette.border.commentBorder,
     borderRight: "none",
-    borderRadius: isEAForum
+    borderRadius: isFriendlyUI
       ? `${theme.borderRadius.small}px 0 0 ${theme.borderRadius.small}px`
       : "2px 0 0 2px",
   },
@@ -73,7 +73,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   shortformTop: {
     '&&': {
-      marginTop: isEAForum ? theme.spacing.unit*2 : theme.spacing.unit*4,
+      marginTop: isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
       marginBottom: 0,
     }
   },
@@ -120,7 +120,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       left: 1,
       boxSizing: "border-box",
       backgroundColor: theme.palette.panelBackground.default,
-      borderRadius: isEAForum ? theme.borderRadius.small : 0,
+      borderRadius: isFriendlyUI ? theme.borderRadius.small : 0,
     },
     position: "relative",
     backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
@@ -171,11 +171,12 @@ const CommentFrame = ({
   className?: string,
   classes: ClassesType,
 }) => {
-  const { condensed, postPage } = treeOptions;
+  const { condensed, postPage, switchAlternatingHighlights } = treeOptions;
+  const effectiveNestingLevel = nestingLevel + (switchAlternatingHighlights ? 1 : 0);
   
   const nodeClass = classNames(
     "comments-node",
-    nestingLevelToClass(nestingLevel, classes),
+    nestingLevelToClass(effectiveNestingLevel, classes),
     classes.node,
     className,
     {
@@ -184,15 +185,15 @@ const CommentFrame = ({
       [classes.child]: isChild,
       [classes.new]: isNewComment,
       [classes.deleted]: comment.deleted,
-      [classes.isPinnedOnProfile]: isEAForum && showPinnedOnProfile && comment.isPinnedOnProfile,
+      [classes.isPinnedOnProfile]: isFriendlyUI && showPinnedOnProfile && comment.isPinnedOnProfile,
       [classes.isAnswer]: comment.answer,
       [classes.answerChildComment]: isReplyToAnswer,
       [classes.childAnswerComment]: isChild && isReplyToAnswer,
-      [classes.oddAnswerComment]: (nestingLevel % 2 !== 0) && isReplyToAnswer,
+      [classes.oddAnswerComment]: (effectiveNestingLevel % 2 !== 0) && isReplyToAnswer,
       [classes.answerLeafComment]: !hasChildren,
       [classes.isSingleLine]: isSingleLine,
       [classes.condensed]: condensed,
-      [classes.shortformTop]: postPage && shortform && (nestingLevel===1),
+      [classes.shortformTop]: postPage && shortform && (effectiveNestingLevel===1),
       [classes.hoverPreview]: hoverPreview,
       [classes.moderatorHat]: comment.hideModeratorHat ? false : comment.moderatorHat,
       [classes.promoted]: comment.promoted
@@ -230,4 +231,3 @@ declare global {
     CommentFrame: typeof CommentFrameComponent,
   }
 }
-

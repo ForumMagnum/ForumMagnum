@@ -2,9 +2,8 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, Index } from 'react-instantsearch-dom';
 import { AlgoliaIndexCollectionName, getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
-import { isEAForum } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
-import { EA_FORUM_HEADER_HEIGHT } from '../common/Header';
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { SearchHitComponentProps } from './types';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -15,14 +14,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 520,
     position: "fixed",
     right: 0,
-    top: isEAForum ? EA_FORUM_HEADER_HEIGHT : 64,
+    top: HEADER_HEIGHT,
     display: "flex",
     flexWrap: "wrap",
     [theme.breakpoints.down('sm')]: {
       width: "100%"
     },
     [theme.breakpoints.down('xs')]: {
-      top: isEAForum ? EA_FORUM_HEADER_HEIGHT : 48,
+      top: MOBILE_HEADER_HEIGHT,
     },
   },
   searchResults: {

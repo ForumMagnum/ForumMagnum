@@ -76,6 +76,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
           parentCommentId={parentCommentId}
           parentAnswerId={parentAnswerId}
           shortform={(treeOptions.post as PostsBase)?.shortform}
+          nestingLevel={defaultNestingLevel}
           isChild={defaultNestingLevel > 1}
         />)
       }

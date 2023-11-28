@@ -20,7 +20,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Chip from '@material-ui/core/Chip';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -39,14 +39,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginTop: 30,
     },
     [theme.breakpoints.up('sm')]: {
-      marginTop: isEAForum ? 20 : undefined,
+      marginTop: isFriendlyUI ? 20 : undefined,
     },
   },
   sectionHeading: {
     ...theme.typography.headline,
     fontSize: 34,
     margin: 0,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },
@@ -153,7 +153,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   localGroupsBtn: {
     textTransform: 'none',
-    fontSize: isEAForum ? 13 : 12,
+    fontSize: isFriendlyUI ? 13 : 12,
   },
   localGroupsBtnIcon: {
     fontSize: 15,
@@ -185,7 +185,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventsPageLink: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.text.invertedBackgroundText,
-    fontSize: isEAForum ? 14 : 13,
+    fontSize: isFriendlyUI ? 14 : 13,
     padding: '8px 16px',
     borderRadius: 4,
     marginTop: 10

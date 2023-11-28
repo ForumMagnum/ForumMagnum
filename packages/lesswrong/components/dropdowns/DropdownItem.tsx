@@ -4,19 +4,19 @@ import { ForumIconName } from "../common/ForumIcon";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import { Link } from "../../lib/reactRouterWrapper";
 import type { HashLinkProps } from "../common/HashLink";
-import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       "&:hover": {
         opacity: 1,
       },
     }),
   },
   main: {
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       borderRadius: theme.borderRadius.default,
       padding: 8,
       "&:hover": {
@@ -26,12 +26,12 @@ const styles = (theme: ThemeType): JssStyles => ({
         },
       },
       "& .ForumIcon-root": {
-        fontSize: isEAForum ? 20 : undefined,
+        fontSize: isFriendlyUI ? 20 : undefined,
       },
     }),
   },
   noIcon: {
-    paddingLeft: isEAForum ? 12 : undefined,
+    paddingLeft: isFriendlyUI ? 12 : undefined,
   },
   title: {
     flexGrow: 1,
