@@ -68,7 +68,7 @@ const EAVotingPortalSelectCandidatesPage = ({
         <div className={classes.content}>
           <div className={classes.h2}>1. Select projects you want to vote for</div>
           <div className={classes.subtitle}>
-            You'll allocate votes to these projects in the next step.{" "}
+            You'll allocate votes to these projects in the next steps.{" "}
             <Link to="/posts/dYhKfsNuQX2sznfxe/donation-election-how-voting-will-work">
               See what we'll do for projects you don't vote on.
             </Link>
