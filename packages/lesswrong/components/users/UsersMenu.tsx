@@ -321,7 +321,6 @@ const UsersMenu = ({classes}: {
                   iconClassName={classes.icon}
                 />
               }
-              {isFriendlyUI && messagesNode}
               {isFriendlyUI && accountSettingsNode}
   
               {/*
