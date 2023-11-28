@@ -1469,7 +1469,7 @@ export const DialogueMatchingPage = ({classes}: {
 }
 
 const NoSSRMatchingPage = (props: {classes: ClassesType<typeof styles>}) =>
-  useABTest(dialogueMatchingPageNoSSRABTest) == 'noSSR'
+  useABTest(dialogueMatchingPageNoSSRABTest) === 'noSSR'
   ? <NoSSR><DialogueMatchingPage {...props} /></NoSSR>
   : <DialogueMatchingPage {...props} />
 
