@@ -28,18 +28,21 @@ export const styles = (theme: ThemeType) => ({
         fontWeight: 800,
         letterSpacing: "0.22px",
         color: `${theme.palette.text.alwaysWhite} !important`,
-        backgroundColor: theme.palette.primary.main,
         borderRadius: "50%",
       }
       : {
         top: 1,
         right: 1,
-        backgroundColor: "inherit",
         fontWeight: 500,
         fontFamily: "freight-sans-pro, sans-serif",
         fontSize: 12,
         color: theme.palette.header.text,
       }),
+  },
+  badgeBackground: {
+    backgroundColor: isFriendlyUI
+      ? theme.palette.primary.main
+      : "inherit",
   },
   badge1Char: isFriendlyUI
     ? {
@@ -102,7 +105,10 @@ const BookNotificationsMenuButton = ({
   const buttonClass = open ? classes.buttonOpen : classes.buttonClosed;
   return (
     <Badge
-      classes={{ root: classNames(classes.badgeContainer, className), badge: classes.badge }}
+      classes={{
+        root: classNames(classes.badgeContainer, className),
+        badge: classNames(classes.badge, classes.badgeBackground),
+      }}
       badgeContent={(unreadNotifications>0) ? `${unreadNotifications}` : ""}
     >
       <IconButton
@@ -153,7 +159,7 @@ const FriendlyNotificationsMenuButton = ({
 
   const unreadCount = unreadNotifications + newReactionCount;
   const showKarmaStar = hasKarmaChange(currentUser, karmaChanges);
-  const hasBadge = unreadCount > 0 || showKarmaStar;
+  const hasBadge = unreadCount > 0;
   const badgeText = hasBadge ? `${unreadCount}` : "";
 
   useEffect(() => {
@@ -170,12 +176,11 @@ const FriendlyNotificationsMenuButton = ({
       <Badge
         classes={{
           root: classNames(classes.badgeContainer, className),
-          badge: hasBadge
-            ? classNames(classes.badge, {
-              [classes.badge1Char]: badgeText.length === 1,
-              [classes.badge2Chars]: badgeText.length === 2,
-            })
-            : undefined,
+          badge: classNames(classes.badge, {
+            [classes.badgeBackground]: hasBadge,
+            [classes.badge1Char]: badgeText.length === 1,
+            [classes.badge2Chars]: badgeText.length === 2,
+          })
         }}
         badgeContent={
           <>
