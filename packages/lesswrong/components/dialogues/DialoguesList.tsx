@@ -147,7 +147,7 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: 'nowrap'
   },
   dialogueSectionSettings: {
-    display: "flex"
+    display: "flex",
   },
   settingsButton: {
     cursor: "pointer"

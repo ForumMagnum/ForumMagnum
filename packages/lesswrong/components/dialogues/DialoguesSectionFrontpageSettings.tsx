@@ -18,12 +18,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
-    justifyContent: "space-between",
+    justifyContent: "space-evenly",
     marginTop: isFriendlyUI ? 10 : undefined,
     marginBottom: theme.spacing.unit,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: isFriendlyUI ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
       flexDirection: "column",
@@ -64,7 +63,6 @@ const DialoguesSectionFrontpageSettings = ({persistentSettings, hidden, currentS
 
   const setSetting = (type: keyof typeof USER_SETTING_NAMES, newSetting: any) => {
     if (currentUser && persistentSettings) {
-      console.log("Updating user settings")
       void updateCurrentUser({
         [USER_SETTING_NAMES[type]]: newSetting,
       })
