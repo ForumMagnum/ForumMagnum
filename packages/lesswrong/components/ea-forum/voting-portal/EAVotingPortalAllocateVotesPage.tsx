@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
 });
 
-const EAVotingPortalSelectCandidatesPageLoader = ({ classes }: { classes: ClassesType }) => {
+const EAVotingPortalAllocateVotesPageLoader = ({ classes }: { classes: ClassesType }) => {
   const { electionVote, updateVote } = useElectionVote("givingSeason23");
 
   if (!electionVote?.vote) return null;
@@ -95,7 +95,7 @@ const EAVotingPortalAllocateVotesPage = ({
 
 const EAVotingPortalAllocateVotesPageComponent = registerComponent(
   "EAVotingPortalAllocateVotesPage",
-  EAVotingPortalSelectCandidatesPageLoader,
+  EAVotingPortalAllocateVotesPageLoader,
   {styles},
 );
 

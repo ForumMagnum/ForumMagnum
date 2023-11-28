@@ -15,9 +15,8 @@ const styles = (theme: ThemeType) => ({
 
 const EAVotingPortalSelectCandidatesPageLoader = ({ classes }: { classes: ClassesType }) => {
   const { electionVote, updateVote } = useElectionVote("givingSeason23");
-  const { Loading } = Components;
 
-  if (!electionVote?.vote) return <Loading />;
+  if (!electionVote?.vote) return null;
 
   return (
     <EAVotingPortalSelectCandidatesPage
