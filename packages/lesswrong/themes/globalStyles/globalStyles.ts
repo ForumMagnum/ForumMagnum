@@ -244,7 +244,7 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
         border: '2px solid !important',
         ...makeDialogueCommentStyles(
           theme,
-          (i) => `&[user-order="${i}"] .dialogue-message-input-header]`,
+          (i) => `&[user-order="${i}"] .dialogue-message-input-header`,
           (color) => ({
             color: `${color} !important`,
           }),
