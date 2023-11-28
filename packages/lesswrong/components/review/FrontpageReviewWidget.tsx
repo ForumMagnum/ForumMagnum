@@ -214,7 +214,7 @@ export const overviewTooltip = isEAForum ?
   </div>
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear}) => {
-  const { SectionTitle, SettingsButton, LWTooltip, LatestReview, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
+  const { SectionTitle, SettingsButton, LWTooltip, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
   const currentUser = useCurrentUser();
 
   // These should be calculated at render
@@ -324,7 +324,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
   </div>
 
   const nominationPhaseButtons = <div className={classes.actionButtonRow}>
-    {showFrontpageItems && !isLastDay(nominationEndDate) && <LatestReview/>}
+    {/* {showFrontpageItems && !isLastDay(nominationEndDate) && <LatestReview/>} */}
     {showFrontpageItems && isLastDay(nominationEndDate) && <span className={classNames(classes.nominationTimeRemaining, classes.timeRemaining)}>
       <div>{nominationEndDate.fromNow()} remaining to cast nomination votes</div>
       <div>(posts need two votes to proceed)</div>

@@ -125,7 +125,7 @@ export const ReviewQuickPage = ({classes}: {
     }
   }
 
-  const loadMoreText = `<a>(${preferredHeadingCase("Load More")})</a>`;
+  const loadMoreText = preferredHeadingCase("Load More");
 
   return <div className={classes.grid}>
     <div className={classes.leftColumn}>
