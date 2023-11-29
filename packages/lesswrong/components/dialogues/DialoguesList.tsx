@@ -12,7 +12,6 @@ import MuiPeopleIcon from "@material-ui/icons/People";
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
 import {useABTest} from '../../lib/abTestImpl';
 import {frontpageDialogueReciprocityRecommendations, showTopicsInReciprocity} from '../../lib/abTests';
-import classNames from 'classnames';
 
 
 const styles = (theme: ThemeType) => ({
@@ -334,24 +333,25 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
         />}
 
       {dialogueMatchmakingEnabled.get() && <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
-        <div>
-          <div className={classes.explanatoryNoteBox}>
-            <Typography
-              component='span'
-              className={classes.explanatoryNote}
-              variant='body2'>
-                {<div>
-                  Check a user you'd maybe dialogue with. They can't see your checks unless you match. If you match, you both get to enter topics and then choose whether to dialogue. <br/> (<a className={classes.link} href="https://www.lesswrong.com/posts/d65Ax6vbNgztBE8cy/new-lesswrong-feature-dialogue-matching">Learn more</a>)
-                  </div>}
-            </ Typography>
-          </div>
-          {currentUser?.showMatches && showReciprocityRecommendations && matchRowPropsList?.map((rowProps, index) => (
+        {showReciprocityRecommendations && <div>
+          { (currentUser?.showMatches || currentUser?.showRecommendedPartners ) &&
+            <div className={classes.explanatoryNoteBox}>
+              <Typography
+                component='span'
+                className={classes.explanatoryNote}
+                variant='body2'>
+                  {<div>
+                    Check a user you'd maybe dialogue with. They can't see your checks unless you match. If you match, you both get to enter topics and then choose whether to dialogue. (<a className={classes.link} href="https://www.lesswrong.com/posts/d65Ax6vbNgztBE8cy/new-lesswrong-feature-dialogue-matching">Learn more</a>)
+                    </div>}
+              </ Typography>
+            </div>}
+          {currentUser?.showMatches && matchRowPropsList?.map((rowProps, index) => (
             <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
           ))}
-          {currentUser?.showRecommendedPartners && showReciprocityRecommendations && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
+          {currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
             <DialogueRecommendationRow key={index} rowProps={rowProps} showSuggestedTopics={showTopics} />
           ))}
-        </div>
+        </div>}
       </AnalyticsContext>}
       
       {(!currentUser || currentUser?.showDialoguesList) && dialoguePosts?.map((post, i: number) =>

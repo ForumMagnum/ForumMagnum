@@ -34,9 +34,11 @@ const styles = (theme: ThemeType) => ({
   dialogueLeftContainerExpandedMobile: {
     [theme.breakpoints.down('xs')]: {
       marginBottom: '7px',
-      maxWidth: '200px',
-      minWidth: '200px',
     }
+  },
+  dialogueLeftContainerNoTopics: {
+    maxWidth: '200px',
+    minWidth: '200px',
   },
   dialogueMatchUsername: {
     marginRight: 10,
@@ -179,7 +181,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   return (
     <div>
       <div key={targetUser._id} className={ isExpanded ? classNames(classes.dialogueUserRow, classes.dialogueUserRowExpandedMobile) : classes.dialogueUserRow}>
-        <div className={ (isExpanded || numRecommendations === 0) ? classNames(classes.dialogueLeftContainer, classes.dialogueLeftContainerExpandedMobile) : classes.dialogueLeftContainer}>
+        <div className={ (isExpanded || numRecommendations === 0) ? classNames(classes.dialogueLeftContainer, classes.dialogueLeftContainerExpandedMobile, classes.dialogueLeftContainerNoTopics) : classes.dialogueLeftContainer}>
           <div className={ classes.dialogueMatchCheckbox }>
             <DialogueCheckBox
               targetUserId={targetUser._id}
