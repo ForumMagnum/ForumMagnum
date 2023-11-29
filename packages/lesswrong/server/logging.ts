@@ -170,3 +170,10 @@ function logInFlightStuff() {
   printInProgressCallbacks();
 }
 Globals.logInFlightStuff = logInFlightStuff;
+
+export function logGraphQLToAnalyticsDB(context: ResolverContext, operationName: string, queryString: string, variables: any, startTime: Date) {
+  const view = variables?.input?.terms?.view;
+  const endTime = new Date();
+  const path = context.headers['request-origin-path']
+  captureEvent("GraphQLRequest", { startTime, endTime, queryString, path });
+}

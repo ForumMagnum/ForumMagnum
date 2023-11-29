@@ -25,7 +25,7 @@ import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
 import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
-import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
+import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished, logGraphQLToAnalyticsDB } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
@@ -51,18 +51,43 @@ import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 
 class ApolloServerLogging {
-  requestDidStart(context: any) {
-    const {request} = context;
+  requestDidStart({ request, context }: { request: AnyBecauseTodo, context: ResolverContext }) {
     const {operationName, query, variables} = request;
     logGraphqlQueryStarted(operationName, query, variables);
+
+    const startTime = new Date()
     
     return {
-      willSendResponse(props: AnyBecauseTodo) {
+      willSendResponse({ context }: {context: ResolverContext}) { // hook for transaction finished
         logGraphqlQueryFinished(operationName, query);
+        logGraphQLToAnalyticsDB(context, operationName, query, variables, startTime)
       }
     };
   }
 }
+
+// const ApolloServerLogToDB = {
+//   requestDidStart({ request, context }: { request: AnyBecauseTodo, context: ResolverContext }) {
+//     return {
+//       willSendResponse({ context }: {context: ResolverContext}) { // hook for transaction finished
+//         context.sentryTransanction?.finish()
+//       },
+//       executionDidStart() {
+//         return {
+//           willResolveField({ context, info }: { context: ResolverContext, info: AnyBecauseTodo }) { // hook for each new resolver
+//             const span = context.sentryTransanction?.startChild({
+//               op: "resolver",
+//               description: `${info.parentType.name}.${info.fieldName}`,
+//             })
+//             return () => { // this will execute once the resolver is finished
+//               span?.finish()
+//             }
+//           },
+//         }
+//       },
+//     }
+//   },
+// }
 
 export type AddMiddlewareType = typeof app.use;
 
