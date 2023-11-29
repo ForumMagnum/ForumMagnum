@@ -1411,6 +1411,11 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField({ channel: "both" }),
     hidden: !dialoguesEnabled,
   },
+  notificationNewDialogueChecks: {
+    label: "You have new people interested in dialogue-ing with you",
+    ...notificationTypeSettingsField({ batchingFrequency: "daily" }),
+    hidden: !dialoguesEnabled,
+  },
 
   hideDialogueFacilitation: {
     type: Boolean,
