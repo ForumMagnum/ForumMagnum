@@ -291,14 +291,14 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       INNER JOIN "DialogueChecks" ON "Users"._id = "DialogueChecks"."targetUserId"
       WHERE
           "DialogueChecks"."checkedAt" > NOW() - INTERVAL '$1 minutes'
-          AND "DialogueChecks".checked = true
+          AND "DialogueChecks".checked IS TRUE
           AND NOT EXISTS (
               SELECT 1
               FROM "DialogueChecks" AS dc
               WHERE
                   "DialogueChecks"."userId" = dc."targetUserId"
                   AND "DialogueChecks"."targetUserId" = dc."userId"
-                  AND dc.checked = true
+                  AND dc.checked IS TRUE
           )
           AND "DialogueChecks"."checkedAt"
           > (
