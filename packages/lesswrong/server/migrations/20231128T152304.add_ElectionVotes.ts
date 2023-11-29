@@ -1,27 +1,30 @@
 /**
- * Generated on 2023-11-23T12:53:45.930Z by `yarn makemigrations`
+ * Generated on 2023-11-28T15:23:04.866Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/wh/Documents/code/ForumMagnum/schema/accepted_schema.sql b/Users/wh/Documents/code/ForumMagnum/schema/schema_to_accept.sql
- * index bfdf816b92..7399c75413 100644
+ * index ae273e25f1..d82a4d6ca7 100644
  * --- a/Users/wh/Documents/code/ForumMagnum/schema/accepted_schema.sql
  * +++ b/Users/wh/Documents/code/ForumMagnum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
  *  --
- * --- Overall schema hash: 6d8270f44805a1ee0b363924964776e7
+ * --- Overall schema hash: 2e28d7576d143428c88b6c5a8ece4690
  * -
- * --- Accepted on 2023-11-21T12:12:51.000Z by 20231121T121251.add_givingSeason2023DonatedFlair.ts
- * +-- Overall schema hash: 7a18af92067d934f38bfc297cdb1d0d5
+ * --- Accepted on 2023-11-24T20:09:25.000Z by 20231124T200925.move_on_connect_queries_into_migration.ts
+ * +-- Overall schema hash: 7db476f93913b50f646a44166768ced6
  *  
- * @@ -332,2 +330,14 @@ CREATE TABLE "ElectionCandidates" (
+ * @@ -332,2 +330,17 @@ CREATE TABLE "ElectionCandidates" (
  *  
- * +-- Schema for "ElectionVotes", hash: a577e3c0f0095ea2135d5a431ff2ac2c
+ * +-- Schema for "ElectionVotes", hash: 9cd2a30b6b5e16f674d704243eec8a91
  * +CREATE TABLE "ElectionVotes" (
  * +    _id varchar(27) PRIMARY KEY,
  * +    "electionName" text NOT NULL,
  * +    "userId" varchar(27),
+ * +    "compareState" jsonb,
  * +    "vote" jsonb,
  * +    "submittedAt" timestamptz,
+ * +    "userExplanation" text,
+ * +    "userOtherComments" text,
  * +    "schemaVersion" double precision DEFAULT 1,
  * +    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP,
  * +    "legacyData" jsonb
@@ -37,7 +40,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "7a18af92067d934f38bfc297cdb1d0d5";
+export const acceptsSchemaHash = "7db476f93913b50f646a44166768ced6";
 
 import ElectionVotes from "../../lib/collections/electionVotes/collection";
 import { createTable, dropTable } from "./meta/utils";
