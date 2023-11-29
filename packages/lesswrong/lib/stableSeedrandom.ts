@@ -28,6 +28,13 @@ class StableSeedRandom {
   }
 }
 
+/**
+ * Usage:
+ * ```
+ * const rng = stableSeedrandom("seed");
+ * rng.next(); // returns a random number between 0 and 1
+ * ```
+ */
 export function stableSeedrandom(seed: string): StableSeedRandom {
   return new StableSeedRandom(seed);
 }
