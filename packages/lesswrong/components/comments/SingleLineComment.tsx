@@ -186,7 +186,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           <CoreTagIcon tag={comment.tag} />
         </div>}
 
-        {!hideParentCommentToggle && parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
+        {!hideParentCommentToggle && parentCommentId!==comment.parentCommentId && <span className={classes.parentComment}>
           <ShowParentComment comment={comment} />
         </span>}
         {!hideKarma && <span className={classes.karma}>

@@ -48,6 +48,7 @@ module.exports = {
     "key-spacing": 0,
     "no-extra-boolean-cast": 0,
     "no-undef": 1,
+    "eqeqeq": [1, "always", {"null": "ignore"}],
     "no-unused-vars": [1, {
       "vars": "all",
       "args": "none",

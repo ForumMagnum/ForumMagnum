@@ -464,12 +464,12 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
             AND v2."userId" = $2
             AND v2.cancelled IS FALSE
             AND v2."isUnvote" IS FALSE
-            AND v2."voteType" != 'neutral'
+            AND v2."voteType" !== 'neutral'
         WHERE
           v1."userId" = $1
           AND v1.cancelled IS FALSE
           AND v1."isUnvote" IS FALSE
-          AND v1."voteType" != 'neutral'
+          AND v1."voteType" !== 'neutral'
       )
       SELECT DISTINCT
         v1_id AS vote_id

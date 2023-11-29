@@ -32,7 +32,7 @@ registerMigration({
         group by table_name
       LOOP
         BEGIN
-            IF rec.table_name != LOWER(rec.table_name) THEN
+            IF rec.table_name !== LOWER(rec.table_name) THEN
                 EXECUTE format(E'drop view if exists %I; create view %I as select %s from %I;',
                     LOWER(rec.table_name), LOWER(rec.table_name), rec.cols, rec.table_name);
             END IF;
@@ -61,7 +61,7 @@ registerMigration({
         group by table_name
       LOOP
         BEGIN
-          IF rec.table_name != LOWER(rec.table_name) THEN
+          IF rec.table_name !== LOWER(rec.table_name) THEN
               EXECUTE format(E'drop view if exists %I', LOWER(rec.table_name));
           END IF;
         EXCEPTION

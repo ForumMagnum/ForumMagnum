@@ -50,7 +50,7 @@ function lineIsTestableFragmentField(line) {
   if(numOpenCurlies !== numCloseCurlies) {
     return false;
   }
-  if(line.trim().length == 0) {
+  if(line.trim().length === 0) {
     return false;
   }
   if(line.trim().startsWith("//")) {

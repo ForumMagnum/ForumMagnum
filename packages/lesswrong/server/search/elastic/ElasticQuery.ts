@@ -81,13 +81,13 @@ class ElasticQuery {
       expr = `1 - decayDateLinear('${start.toISOString()}', '${dayRange}d', '0', 0.5, doc['${field}'].value)`;
       break;
     case "bool":
-      expr = `doc['${field}'].value == true ? 0.75 : 0.25`;
+      expr = `doc['${field}'].value === true ? 0.75 : 0.25`;
       break;
     }
     if (weight) {
       expr = `((${expr}) * ${weight})`;
     }
-    expr = `(doc['${field}'].size() == 0 ? 0 : (${expr}))`;
+    expr = `(doc['${field}'].size() === 0 ? 0 : (${expr}))`;
     return order === "asc" ? `(1 - ${expr})` : expr;
   }
 

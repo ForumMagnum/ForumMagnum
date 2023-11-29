@@ -106,7 +106,7 @@ export function splitRangeIntoReplaceableSubRanges(range: Range): Range[] {
   let textNodesInRange: Text[] = [];
   for (
     let pos: Text|null = reducedRange.startContainer as Text;
-    pos && pos!=reducedRange.endContainer;
+    pos && pos!==reducedRange.endContainer;
     pos=nextTextNodeAfter(pos)
   ) {
     textNodesInRange.push(pos);
@@ -137,11 +137,11 @@ function nodesCanShareSpan(first: Node, second: Node): boolean {
   const closestCommonAncestor = getClosestCommonAncestor(first, second);
   if (!closestCommonAncestor) return false;
   
-  for (let pos: Node|null=first; pos && pos!=closestCommonAncestor; pos=pos.parentElement) {
+  for (let pos: Node|null=first; pos && pos!==closestCommonAncestor; pos=pos.parentElement) {
     if (isBlockElement(pos))
       return false;
   }
-  for (let pos: Node|null=second; pos && pos!=closestCommonAncestor; pos=pos.parentElement) {
+  for (let pos: Node|null=second; pos && pos!==closestCommonAncestor; pos=pos.parentElement) {
     if (isBlockElement(pos))
       return false;
   }

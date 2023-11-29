@@ -289,7 +289,7 @@ export default class MathUI extends Plugin {
 	get _isUIVisible() {
 		const visibleView = this._balloon.visibleView;
 
-		return visibleView == this.formView;
+		return visibleView === this.formView;
 	}
 
 	get _isFormInPanel() {

@@ -114,7 +114,7 @@ const getGatherTownUsers = async (password: string|null, roomId: string, roomNam
       "sec-fetch-dest": "empty",
       "sec-fetch-mode": "cors",
       "sec-fetch-site": "cross-site",
-      "x-client-data": "CIa2yQEIpbbJAQjBtskBCKmdygEImbXKAQj1x8oBCOfIygEI6cjKAQj0zcoBCNvVygEI+tjKAQ==",
+      "x-client-data": "CIa2yQEIpbbJAQjBtskBCKmdygEImbXKAQj1x8oBCOfIygEI6cjKAQj0zcoBCNvVygEI+tjKAQ===",
       "x-client-version": "Chrome/JsCore/7.16.0/FirebaseCore-web"
     },
     "body": `{

@@ -74,7 +74,7 @@ export default class MentionCommand extends Command {
 		const mentionText = options.text || mentionID;
 
 
-		if ( options.marker.length != 1 ) {
+		if ( options.marker.length !== 1 ) {
 			/**
 			 * The marker must be a single character.
 			 *
@@ -92,7 +92,7 @@ export default class MentionCommand extends Command {
 			);
 		}
 
-		if ( mentionID.charAt( 0 ) != options.marker ) {
+		if ( mentionID.charAt( 0 ) !== options.marker ) {
 			/**
 			 * The feed item ID must start with the marker character.
 			 *

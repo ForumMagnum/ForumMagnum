@@ -335,7 +335,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         INNER JOIN "Votes" v ON p._id = v."documentId"
         WHERE
             v."userId" = $1
-            AND u._id != $1
+            AND u._id !== $1
             AND v."votedAt" > NOW() - INTERVAL '1.5 years'
             AND v."cancelled" IS NOT TRUE
 
@@ -360,7 +360,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         INNER JOIN "Votes" v ON c._id = v."documentId"
         WHERE
             v."userId" = $1
-            AND u._id != $1
+            AND u._id !== $1
             AND v."votedAt" > NOW() - INTERVAL '1.5 years'
             AND v."cancelled" IS NOT TRUE
     ),
@@ -392,7 +392,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       ARRAY(
           SELECT val
           FROM UNNEST(ARRAY_AGG(agreement_value)) AS val
-          WHERE val != 0
+          WHERE val !== 0
       ) AS agreement_values,
       uc.recently_active_matchmaking
     FROM "CombinedVotes" as cv

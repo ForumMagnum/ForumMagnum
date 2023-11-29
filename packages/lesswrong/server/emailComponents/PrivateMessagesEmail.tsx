@@ -19,7 +19,7 @@ const PrivateMessagesEmail = ({conversations, messages, participantsById, classe
   participantsById: Record<string,DbUser>,
   classes: ClassesType,
 }) => {
-  if (conversations.length == 1) {
+  if (conversations.length === 1) {
     return <React.Fragment>
       <p>
         You received {messages.length>1 ? "private messages" : "a private message"}.
@@ -60,7 +60,7 @@ const EmailListOfUsers = ({users}: {
   } else {
     let result: Array<string|JSX.Element> = [];
     for (let i=0; i<users.length; i++) {
-      if (i==users.length-1) result.push(" and ");
+      if (i===users.length-1) result.push(" and ");
       else if (i>0) result.push(", ");
       result.push(<EmailUsername user={users[i]}/>);
     }

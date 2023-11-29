@@ -70,7 +70,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       JOIN (
           SELECT "documentId", MIN("votedAt") AS most_recent_react
           FROM "Votes"
-          WHERE "collectionName" = 'Comments' AND "extendedVoteType"->'reacts' != '[]'::jsonb
+          WHERE "collectionName" = 'Comments' AND "extendedVoteType"->'reacts' !== '[]'::jsonb
           GROUP BY "documentId"
           ORDER BY most_recent_react DESC
           LIMIT $1
@@ -123,7 +123,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
         c."parentCommentId" = $4
         AND v1."userId" = $1
         AND v2."userId" = $2
-        AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
+        AND v1."extendedVoteType"->'reacts'->0->>'react' !== v2."extendedVoteType"->'reacts'->0->>'react'
       ORDER BY c."baseScore" DESC
       LIMIT $3
     `, [userId, targetUserId, limit, pollCommentId]);
