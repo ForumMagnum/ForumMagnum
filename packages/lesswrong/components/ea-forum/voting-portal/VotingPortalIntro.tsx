@@ -2,6 +2,7 @@ import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 import { HEADER_HEIGHT } from "../../common/Header";
 import { Link } from "../../../lib/reactRouterWrapper";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   // TODO combine these with votingPortalStyles
@@ -63,7 +64,19 @@ const styles = (theme: ThemeType) => ({
     fontSize: 18,
     fontWeight: 700,
     marginTop: 24,
+    marginBottom: 4,
     lineHeight: "normal",
+  },
+  buttonRow: {
+    display: "flex",
+    flexDirection: "row",
+    gap: "20px",
+    '& a': {
+      flexBasis: "50%",
+    },
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+    },
   },
   button: {
     display: "flex",
@@ -89,12 +102,18 @@ const styles = (theme: ThemeType) => ({
       opacity: "0.7 !important",
     },
   },
+  greyButton: {
+    background: theme.palette.grey[100],
+    color: theme.palette.grey[1000]
+  },
 });
 
 const fundLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
 const exploreLink = "/giving-portal";
 const processLink = "/posts/dYhKfsNuQX2sznfxe/donation-election-how-voting-will-work";
+const candidatesLink = "/posts/bBm64htDSKn3ZKiQ5/meet-the-candidates-in-the-forum-s-donation-election-2023";
 const getStartedLink = "/voting-portal/select-candidates";
+const votingNormsLink = "/posts/hAzhyikPnLnMXweXG/participate-in-the-donation-election-and-the-first-weekly#Who_can_vote___voting_norms";
 
 const VotingPortalIntro = ({classes}: {
   classes: ClassesType<typeof styles>,
@@ -104,55 +123,43 @@ const VotingPortalIntro = ({classes}: {
       <div className={classes.h1}>Welcome to the voting portal</div>
       <div className={classes.description}>
         <div>
-          The <Link to={fundLink}>Donation Election Fund</Link> will be designated
-          for the top 3 winners, in proportion to the election results.{" "}
+          The <Link to={fundLink}>Donation Election Fund</Link> will be designated for the top 3{" "}
+          <Link to={candidatesLink}>candidates</Link>, in proportion to the election results.{" "}
           <span className={classes.bold}>
-            Your vote should represent how you’d allocate funding between the
-            candidates.
+            Your vote should represent how you’d allocate funding between the candidates.
           </span>{" "}
           <Link to={exploreLink}>Explore the candidates</Link> before you vote.
-        </div>
-        <div>
-          Your vote is anonymous. You won’t be able to change your vote after
-          submitting it. When votes are in, we’ll use{" "}
-          <Link to={processLink} className={classes.bold}>the process outlined here</Link>{" "}
-          to determine the election results.
         </div>
       </div>
       <div className={classes.inset}>
         <div className={classes.h2}>How voting works</div>
-        <div className={classes.h3}>
-          1. Select candidates you want to vote for
-        </div>
+        <div className={classes.h3}>1. Select candidates you want to vote for</div>
         <div>
-          These are the candidates you’ll allocate points to; you’ll give 0
-          points to the ones you don’t select.
+          These are the candidates you’ll allocate points to; you’ll give 0 points to the ones you don’t select.
         </div>
-        <div className={classes.h3}>
-          2. Compare candidates using a tool
-        </div>
+        <div className={classes.h3}>2. Compare candidates</div>
+        <div>You'll compare pairs of candidates to create a draft point allocation. (You can skip this).</div>
+        <div className={classes.h3}>3. Allocate your points</div>
         <div>
-          The tool will prompt you to compare pairs of candidates and share how
-          much more funding you’d give to one candidate than the other. You can
-          skip this step if you want to.
+          Finalize your point allocation, which should represent how you’d distribute funding between the candidates if
+          it were up to you.
         </div>
-        <div className={classes.h3}>
-          3. Allocate your points
-        </div>
-        <div>
-          Finalize your point allocation, which should represent how you’d
-          distribute funding between the candidates if it were up to you.
-        </div>
-        <div className={classes.h3}>
-          4. Submit your votes
-        </div>
-        <div>
-          Share a note if you want to, and submit your vote!
-        </div>
+        <div className={classes.h3}>4. Submit your votes</div>
       </div>
-      <Link to={getStartedLink} className={classes.button}>
-        Get started -&gt;
-      </Link>
+      <div>
+        Your vote is anonymous to other users. If we have reason to believe you've committed{" "}
+        <Link to={votingNormsLink}>voter fraud</Link> we may nullify your vote and involve the moderators. When the election
+        closes on <span className={classes.bold}>December 15</span>, we'll use{" "}
+        <Link to={processLink}>the process outlined here</Link> to determine the winners.
+      </div>
+      <div className={classes.buttonRow}>
+        <Link to={candidatesLink} className={classNames(classes.button, classes.greyButton)}>
+          Read about the candidates
+        </Link>
+        <Link to={getStartedLink} className={classes.button}>
+          Get started -&gt;
+        </Link>
+      </div>
     </div>
   );
 }
