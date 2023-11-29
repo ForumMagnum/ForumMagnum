@@ -137,7 +137,7 @@ export type CommentsNewFormProps = {
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
-  parentComment?: any,
+  parentComment?: CommentsList,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
   type: string,
@@ -270,10 +270,13 @@ const CommentsNewForm = ({
   }
 
   if (parentComment) {
+    console.log(`parentCommentId = ${parentComment._id}`);
     prefilledProps = {
       ...prefilledProps,
       parentCommentId: parentComment._id,
     };
+  } else {
+    console.log("No parent comment");
   }
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
