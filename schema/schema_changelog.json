@@ -425,8 +425,13 @@
     "timestamp": "2023-11-24T20:09:25.000Z"
   },
   {
-    "acceptsSchemaHash": "0a525798e7ce14edc7f59274e00e273b",
-    "acceptedByMigration": "20231128T205722.addNotificationNewDialogueChecksSetting.ts",
-    "timestamp": "2023-11-28T20:57:22.000Z"
+    "acceptsSchemaHash": "7db476f93913b50f646a44166768ced6",
+    "acceptedByMigration": "20231128T152304.add_ElectionVotes.ts",
+    "timestamp": "2023-11-28T15:23:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f0c8207e63f19948cbc99d609bf283b2",
+    "acceptedByMigration": "20231129T011236.addNotificationNewDialougeChecksSetting.ts",
+    "timestamp": "2023-11-29T01:12:36.000Z"
   }
 ]

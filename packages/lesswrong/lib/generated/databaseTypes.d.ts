@@ -341,6 +341,22 @@ interface DbElectionCandidate extends DbObject {
   afVoteCount: number
 }
 
+interface ElectionVotesCollection extends CollectionBase<DbElectionVote, "ElectionVotes"> {
+}
+
+interface DbElectionVote extends DbObject {
+  __collectionName?: "ElectionVotes"
+  electionName: string
+  userId: string
+  compareState: any /*{"definitions":[{"blackbox":true}]}*/
+  vote: any /*{"definitions":[{"blackbox":true}]}*/
+  submittedAt: Date | null
+  userExplanation: string | null
+  userOtherComments: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface ElicitQuestionPredictionsCollection extends CollectionBase<DbElicitQuestionPrediction, "ElicitQuestionPredictions"> {
 }
 
@@ -1648,6 +1664,7 @@ interface CollectionsByName {
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
   ElectionCandidates: ElectionCandidatesCollection
+  ElectionVotes: ElectionVotesCollection
   ElicitQuestionPredictions: ElicitQuestionPredictionsCollection
   ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
@@ -1709,6 +1726,7 @@ interface ObjectsByCollectionName {
   DigestPosts: DbDigestPost
   Digests: DbDigest
   ElectionCandidates: DbElectionCandidate
+  ElectionVotes: DbElectionVote
   ElicitQuestionPredictions: DbElicitQuestionPrediction
   ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
@@ -1770,6 +1788,7 @@ interface ObjectsByTypeName {
   DigestPost: DbDigestPost
   Digest: DbDigest
   ElectionCandidate: DbElectionCandidate
+  ElectionVote: DbElectionVote
   ElicitQuestionPrediction: DbElicitQuestionPrediction
   ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens
