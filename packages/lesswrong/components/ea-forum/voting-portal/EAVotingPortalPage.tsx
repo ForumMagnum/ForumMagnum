@@ -9,6 +9,7 @@ import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { votingThankYouImageId } from "../../../lib/eaGivingSeason";
 import Helmet from "react-helmet";
 import classNames from "classnames";
+import { useElectionVote } from "./hooks";
 
 const BACKGROUND_IMAGE = makeCloudinaryImageUrl(votingThankYouImageId, {
   q: "100",
@@ -33,15 +34,21 @@ const styles = (theme: ThemeType) => ({
 const EAVotingPortalPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const { Loading, VotingPortalThankYou } = Components;
+
   const {location: {search}} = useLocation();
   const params = new URLSearchParams(search);
-  const isThankYouPage = params.get("thankyou") === "true";
+  const { electionVote, loading } = useElectionVote("givingSeason23");
+  const currentUser = useCurrentUser();
+
+  if (loading) return <Loading />;
+
+  const thankyouParam = params.get("thankyou");
+  const isThankYouPage = thankyouParam === "true" || (!thankyouParam && !!electionVote?.submittedAt)
 
   // TODO un-admin-gate when the voting portal is ready
-  const currentUser = useCurrentUser();
   if (!isAdmin(currentUser)) return null;
 
-  const {VotingPortalThankYou} = Components;
   return (
     <AnalyticsContext
       pageContext="eaVotingPortal"

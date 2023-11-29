@@ -215,17 +215,18 @@ const VotingPortalThankYou = ({currentUser, classes}: {
       <div className={classes.hr} />
       <ul className={classes.list}>
         <li>
-          <Link to="#">
+          <Link to="/quicktakes">
             Share that you voted — and why!
           </Link>
         </li>
         <li>
-          <Link to="#">
+          {/* TODO get this from the election candidate */}
+          <a href="https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023" target="_blank" rel="noopener noreferrer">
             Donate to the Donation Election Fund
-          </Link>
+          </a>
         </li>
         <li>
-          <Link to="#">
+          <Link to="/giving-portal">
             Explore other giving opportunities
           </Link>
         </li>
