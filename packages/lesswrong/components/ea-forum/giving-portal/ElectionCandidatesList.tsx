@@ -60,7 +60,7 @@ const selectSortOptions: Record<Exclude<ElectionCandidatesSort, "mostPreVoted"> 
   },
 };
 
-const sortOptions: Record<ElectionCandidatesSort | "random", SettingsOption> = {
+export const sortOptions: Record<ElectionCandidatesSort | "random", SettingsOption> = {
   ...selectSortOptions,
   mostPreVoted: {
     label: "Most pre-voted",

@@ -46,7 +46,7 @@ const EAVotingPortalSelectCandidatesPage = ({
   const navigate = useNavigate();
 
   const saveSelection = useCallback(async () => {
-    await updateVote(selectedIds.reduce((acc, id) => ({ ...acc, [id]: electionVote[id] || null }), {}));
+    await updateVote(selectedIds.reduce((acc, id) => ({ ...acc, [id]: electionVote[id] ?? null }), {}));
   }, [electionVote, selectedIds, updateVote]);
 
   const onSelect = useCallback((candidateIds: string[]) => {
@@ -78,14 +78,12 @@ const EAVotingPortalSelectCandidatesPage = ({
             selectedCandidateIds={selectedIds}
             onSelect={onSelect}
             setTotalCount={setTotalCount}
-            className={classes.electionCandidates}
           />
         </div>
         <VotingPortalFooter
           leftText="Go back"
           leftHref="/voting-portal"
           middleNode={<div>Selected {selectedIds.length}/{totalCount} candidates</div>}
-          buttonText="Continue"
           buttonProps={{
             onClick: async () => {
               await saveSelection();
