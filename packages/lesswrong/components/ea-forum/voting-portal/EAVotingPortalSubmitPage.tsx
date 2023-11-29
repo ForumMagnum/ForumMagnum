@@ -194,22 +194,15 @@ const EAVotingPortalSubmitPage = ({
               className={classes.textField}
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              disabled={!!electionVote.submittedAt}
             />
           </div>
         </div>
         <VotingPortalFooter
           leftHref="/voting-portal/allocate-votes"
           middleNode={<></>}
-          buttonText="Submit your vote"
-          buttonTooltip={
-            electionVote.submittedAt
-              ? "You can't change your vote after submission"
-              : "Once you submit your vote it can't be changed"
-          }
+          buttonText={electionVote.submittedAt ? "Update your vote" : "Submit your vote"}
           buttonProps={{
             onClick: handleSubmit,
-            disabled: !!electionVote.submittedAt,
           }}
         />
       </div>

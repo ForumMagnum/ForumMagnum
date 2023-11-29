@@ -102,7 +102,7 @@ const EAVotingPortalSelectCandidatesPage = ({
           }
           buttonProps={{
             onClick: saveSelection,
-            disabled: selectedIds.length === 0 || !!electionVote.submittedAt,
+            disabled: selectedIds.length === 0,
           }}
         />
       </div>

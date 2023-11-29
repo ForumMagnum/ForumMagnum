@@ -143,7 +143,7 @@ const EAVotingPortalAllocateVotesPage = ({
           }
           buttonProps={{
             onClick: saveAllocation,
-            disabled: allocatedCandidateIds.length === 0 || !!electionVote.submittedAt,
+            disabled: allocatedCandidateIds.length === 0,
           }}
         />
       </div>

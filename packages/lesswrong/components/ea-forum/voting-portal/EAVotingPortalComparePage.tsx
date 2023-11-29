@@ -235,7 +235,7 @@ const EAVotingPortalComparePage = ({
           buttonText={doneBefore ? "Recalculate allocation" : "Continue"}
           buttonProps={{
             onClick: saveComparison,
-            disabled: (!reachedEndRef.current && !doneBefore) || !!electionVote.submittedAt,
+            disabled: !reachedEndRef.current && !doneBefore,
           }}
         />
       </div>

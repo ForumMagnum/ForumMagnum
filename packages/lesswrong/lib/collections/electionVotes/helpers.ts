@@ -13,6 +13,14 @@ export type CompareStateUI = Record<string, {multiplier: number | string, AtoB: 
  */
 export type CompareState = Record<string, {multiplier: number, AtoB: boolean}>;
 
+/** Latest midnight on 2023-12-15 */
+const VOTING_DEADLINE = new Date("2023-12-15T23:59:59-12:00");
+/** Earliest start of 2023-10-22 */
+const ACCOUNT_CREATION_DEADLINE = new Date("2023-10-22T00:00:00+12:00");
+
+export const isPastVotingDeadline = () => new Date() > VOTING_DEADLINE;
+export const isPastAccountCreationDeadline = (user: { createdAt: Date }) => user.createdAt > ACCOUNT_CREATION_DEADLINE;
+
 export const getCompareKey = (candidate1: ElectionCandidateBasicInfo, candidate2: ElectionCandidateBasicInfo) => {
   return `${candidate1._id}-${candidate2._id}`;
 }
