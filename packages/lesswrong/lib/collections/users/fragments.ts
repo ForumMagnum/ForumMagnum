@@ -216,6 +216,11 @@ registerFragment(`
     hideDialogueFacilitation
     optedInToDialogueFacilitation
     revealChecksToAdmins
+
+    showDialoguesList
+    showMyDialogues
+    showMatches
+    showRecommendedPartners
   }
 `);
 

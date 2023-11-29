@@ -1445,9 +1445,58 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     nullable: false,
+    group: formGroups.siteCustomizations,
     hidden: !isLW,
     label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team",
     ...schemaDefaultValue(false)
+  },
+  showDialoguesList: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Show a list of recently active dialogues inside the frontpage widget",
+    ...schemaDefaultValue(true)
+  },
+  showMyDialogues: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Show a list of dialogues the user participated in inside the frontpage widget",
+    ...schemaDefaultValue(true)
+  },
+  showMatches: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Show a list of dialogue reciprocity matched users inside frontpage widget",
+    ...schemaDefaultValue(true)
+  },
+  showRecommendedPartners: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Show a list of recommended dialogue partners inside frontpage widget",
+    ...schemaDefaultValue(true)
   },
 
   // Karma-change notifier settings
