@@ -261,6 +261,7 @@ export const darkModeTheme: UserThemeSpecification = {
       [1000]: "#FFF",
       candidate: "#64342E",
       votedCandidate: "#8A5751",
+      selectedCandidate: "#49201C",
       ctaBackground: "#64342E",
       ctaText: "#FFF",
       rhsLink: '#E7714E',
