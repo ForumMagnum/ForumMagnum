@@ -2,13 +2,14 @@ import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { votingPortalStyles } from "./styles";
-import { useCurrentUser } from "../../common/withUser";
-import { isAdmin } from "../../../lib/vulcan-users";
 import { useNavigate } from "../../../lib/reactRouterWrapper";
 import TextField from "@material-ui/core/TextField";
 import classNames from "classnames";
 import { useElectionVote } from "./hooks";
 import { useMessages } from "../../common/withMessages";
+import RadioGroup from "@material-ui/core/RadioGroup";
+import Radio from "@material-ui/core/Radio";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -48,6 +49,36 @@ const styles = (theme: ThemeType) => ({
   greyedOut: {
     color: theme.palette.grey[600],
   },
+  infoIcon: {
+    color: theme.palette.grey[600],
+    fontSize: 20,
+  },
+  tooltip: {
+    marginLeft: 4,
+    position: "relative",
+    top: 4,
+  },
+  tooltipPopper: {
+    marginTop: 4,
+    textAlign: "center",
+  },
+  radioWrapper: {
+    // Without this the options start wrapped on page load before some js runs to unwrap them
+    maxWidth: 520,
+  },
+  radio: {
+    padding: "6px 12px",
+  },
+  radioChecked: {
+    color: `${theme.palette.givingPortal[1000]} !important`,
+  },
+  radioLabel: {
+    '& .MuiFormControlLabel-label': {
+      fontWeight: 500,
+      color: theme.palette.grey[1000],
+      fontSize: 16,
+    }
+  },
 });
 
 const EAVotingPortalSubmitPageLoader = ({ classes }: { classes: ClassesType }) => {
@@ -64,6 +95,25 @@ const EAVotingPortalSubmitPageLoader = ({ classes }: { classes: ClassesType }) =
   );
 };
 
+const ELECTION_EFFECT_OPTIONS = [
+  {
+    value: "noChange",
+    label: "Didn’t change my donation priorities",
+  },
+  {
+    value: "smChange",
+    label: "Changed my donation priorities a bit",
+  },
+  {
+    value: "lgChange",
+    label: "Noticeably changed my donation priorities",
+  },
+  {
+    value: "xlChange",
+    label: "Totally changed my donation priorities ",
+  },
+]
+
 const EAVotingPortalSubmitPage = ({
   electionVote,
   updateVote,
@@ -71,57 +121,79 @@ const EAVotingPortalSubmitPage = ({
 }: {
   electionVote: ElectionVoteInfo;
   updateVote: (newVote: NullablePartial<DbElectionVote>) => Promise<void>;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>;
 }) => {
-  const { VotingPortalFooter } = Components;
+  const { VotingPortalFooter, LWTooltip, ForumIcon } = Components;
   const navigate = useNavigate();
   const { flash } = useMessages();
-  const currentUser = useCurrentUser();
 
-  const [userExplanation, setUserExplanation] = useState<string>(electionVote.userExplanation ?? "");
-  const [userOtherComments, setUserOtherComments] = useState<string>(electionVote.userOtherComments ?? "");
+  const [electionEffect, setElectionEffect] = useState<string>("");
+  const [note, setNote] = useState<string>("");
 
   const handleSubmit = useCallback(async () => {
     try {
-      await updateVote({ userExplanation, userOtherComments, submittedAt: new Date() });
+      // TODO submit answers
+      await updateVote({ submittedAt: new Date() });
     } catch (e) {
       flash(e.message);
       return;
     }
 
     navigate({ pathname: "/voting-portal" });
-  }, [flash, navigate, updateVote, userExplanation, userOtherComments]);
+  }, [flash, navigate, updateVote]);
 
   return (
     <AnalyticsContext pageContext="eaVotingPortalSubmit">
       <div className={classes.root}>
         <div className={classNames(classes.content, classes.fullWidth)} id="top">
-          <div className={classNames(classes.h2, classes.headingMargin)}>4. Submit</div>
-          <div className={classes.explanationRow}>
-            <div className={classes.questionTitle}>
-              Tell us why you voted the way you did <span className={classes.greyedOut}>(Optional)</span>
-            </div>
-            <TextField
-              multiline
-              rows={10}
-              variant="outlined"
-              className={classes.textField}
-              value={userExplanation}
-              onChange={(event) => setUserExplanation(event.target.value)}
-              disabled={!!electionVote.submittedAt}
-            />
+          <div className={classNames(classes.h2, classes.headingMargin)}>4. Submit your vote</div>
+          <div className={classes.subtitle}>
+            <em>You can still change your vote until December 15th.</em>
           </div>
           <div className={classes.explanationRow}>
             <div className={classes.questionTitle}>
-              Any other comments? <span className={classes.greyedOut}>(Optional)</span>
+              How much did you change your mind about where to donate and/or how to vote, as a result of the Donation
+              Election or other Giving Season activities? <span className={classes.greyedOut}>(Optional)</span>
+              <LWTooltip
+                title="This will help us understand the impact of the event, and we might share aggregated information about this question in our public summary of the Election results."
+                placement="bottom"
+                className={classes.tooltip}
+                popperClassName={classes.tooltipPopper}
+              >
+                <ForumIcon icon="InfoCircle" className={classes.infoIcon} />
+              </LWTooltip>
+            </div>
+            <div className={classes.radioWrapper}>
+              <RadioGroup
+                value={electionEffect}
+                onChange={(event) => setElectionEffect((event?.target as AnyBecauseHard)?.value)}
+              >
+                {ELECTION_EFFECT_OPTIONS.map((option) => {
+                  return (
+                    <FormControlLabel
+                      key={option.value}
+                      value={option.value}
+                      label={option.label}
+                      control={<Radio className={classes.radio} classes={{ checked: classes.radioChecked }} />}
+                      className={classes.radioLabel}
+                    />
+                  );
+                })}
+              </RadioGroup>
+            </div>
+          </div>
+          <div className={classes.explanationRow}>
+            <div className={classes.questionTitle}>
+              Share a note about your vote, which might get shared (anonymously) in the public writeup of the results{" "}
+              <span className={classes.greyedOut}>(Optional)</span>
             </div>
             <TextField
               multiline
               rows={6}
               variant="outlined"
               className={classes.textField}
-              value={userOtherComments}
-              onChange={(event) => setUserOtherComments(event.target.value)}
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
               disabled={!!electionVote.submittedAt}
             />
           </div>
@@ -130,7 +202,11 @@ const EAVotingPortalSubmitPage = ({
           leftHref="/voting-portal/allocate-votes"
           middleNode={<></>}
           buttonText="Submit your vote"
-          buttonTooltip={electionVote.submittedAt ? "You can't change your vote after submission" : "Once you submit your vote it can't be changed"}
+          buttonTooltip={
+            electionVote.submittedAt
+              ? "You can't change your vote after submission"
+              : "Once you submit your vote it can't be changed"
+          }
           buttonProps={{
             onClick: handleSubmit,
             disabled: !!electionVote.submittedAt,

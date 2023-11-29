@@ -60,6 +60,7 @@ import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
+import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -89,6 +90,7 @@ import MuiShareIcon from "@material-ui/icons/Share";
 import MuiSearchIcon from '@material-ui/icons/Search';
 import MuiMenuIcon from "@material-ui/icons/Menu";
 import MuiForumIcon from '@material-ui/icons/Forum';
+
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -198,7 +200,8 @@ export type ForumIconName =
   "Q" |
   "BarChart" |
   "Funnel" |
-  "Voted";
+  "Voted" |
+  "InfoCircle";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -280,6 +283,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BarChart: ChartBarIcon,
     Funnel: FilterAlt,
     Voted: VotedIcon,
+    InfoCircle: InformationCircleIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -360,6 +364,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BarChart: ChartBarIcon,
     Funnel: FunnelIcon,
     Voted: VotedIcon,
+    InfoCircle: InformationCircleIcon,
   },
 };
 
