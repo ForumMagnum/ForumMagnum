@@ -38,6 +38,14 @@ export const votingPortalStyles = (theme: ThemeType) => ({
       fontSize: 32,
     },
   },
+  h3: {
+    fontSize: 16,
+    fontWeight: 700,
+    lineHeight: "normal",
+    letterSpacing: "-0.5px",
+    color: theme.palette.givingPortal[1000],
+    marginBottom: 12,
+  },
   subtitle: {
     fontWeight: 500,
     fontSize: 16,
@@ -50,6 +58,9 @@ export const votingPortalStyles = (theme: ThemeType) => ({
         textDecoration: "underline",
       }
     }
+  },
+  subtitleParagraph: {
+    marginBottom: 16,
   },
   button: {
     display: "flex",

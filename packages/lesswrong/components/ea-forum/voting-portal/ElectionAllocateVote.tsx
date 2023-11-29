@@ -119,11 +119,13 @@ const AllocateVoteRow = ({
       <div className={classes.allocateVoteRow}>
         <div className={classes.details}>
           <div className={classes.imageContainer}>
-            <Link to={fundraiserLink || ""}>
+            <Link to={fundraiserLink || ""} target="_blank" rel="noopener noreferrer">
               <img src={logoSrc} className={classes.image} />
             </Link>
           </div>
-          <div className={classes.candidateName}>{name}</div>
+          <Link to={fundraiserLink || ""} className={classes.candidateName} target="_blank" rel="noopener noreferrer">
+            {name}
+          </Link>
         </div>
         <OutlinedInput
           className={classes.allocateInput}
@@ -133,7 +135,8 @@ const AllocateVoteRow = ({
             const value = e.target.value;
             if (value === "" || value === null) {
               setVoteState((prev) => ({ ...prev, [candidateId]: null } as Record<string, number | string | null>));
-            } else if (/^\d*\.?\d*$/.test(value) && !value.includes('-')) { // Only allow positive (decimal) numbers
+            } else if (/^\d*\.?\d*$/.test(value) && !value.includes("-")) {
+              // Only allow positive (decimal) numbers
               setVoteState((prev) => ({ ...prev, [candidateId]: value } as Record<string, number | string | null>));
             }
           }}

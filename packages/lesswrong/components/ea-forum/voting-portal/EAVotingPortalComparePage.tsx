@@ -11,9 +11,6 @@ import { useMessages } from "../../common/withMessages";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
-  subtitleParagraph: {
-    marginBottom: 16,
-  },
   compareRow: {
     margin: "8px 0",
   },
