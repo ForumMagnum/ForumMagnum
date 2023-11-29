@@ -57,7 +57,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: '10px',
   },
 
-  dialogueUserRow: { // shared imports?
+  dialogueUserRow: { 
     display: 'flex',
     alignItems: 'center',
     background: theme.palette.panelBackground.default,
@@ -196,6 +196,11 @@ const DialogueMatchRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRow
     </div>
   );
 };
+
+interface DialogueUserResult {
+  _id: string;
+  displayName: string;
+}
  
 const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { PostsItem, SectionButton, SettingsButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle, DialoguesSectionFrontpageSettings, DialogueRecommendationRow, Typography } = Components
@@ -222,7 +227,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
     userDialogueChecksResult: { results: userDialogueChecks = [] },
   } = useDialogueMatchmaking({ getMatchedUsers: true, getRecommendedUsers: true, getOptedInUsers: false, getUserDialogueChecks: true });
 
-  const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
+  const matchedUsers: DialogueUserResult[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
 
   const matchRowPropsList = currentUser && getRowProps({
     currentUser,
@@ -236,7 +241,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
     users: matchedUsers ?? []
   });
 
-  const manyRecommendedUsers: DbUser[] | undefined = recommendedUsersResult?.GetDialogueRecommendedUsers;
+  const manyRecommendedUsers: DialogueUserResult[] | undefined = recommendedUsersResult?.GetDialogueRecommendedUsers;
 
   const recommendedDialoguePartnersRowPropsList = currentUser && getRowProps({
     currentUser,
@@ -256,7 +261,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
     <p>Dialogues between a small group of users. Click to see more.</p>
   </div>);
 
-  const renderMyDialogues = !!currentUser && myDialogues?.length 
+  const renderMyDialogues = !!currentUser && myDialogues?.length && currentUser?.showMyDialogues
 
   const myDialoguesTooltip = (<div>
     <div>These are the dialogues you are involved in (both drafts and published)</div>
@@ -293,7 +298,6 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
       
       </SectionTitle>
       {showSettings && currentUser && <DialoguesSectionFrontpageSettings
-          persistentSettings={true}
           hidden={false}
           currentShowDialogues={currentUser.showDialoguesList}
           currentShowMyDialogues={currentUser.showMyDialogues}
@@ -319,19 +323,19 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
             <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
           ))}
           {currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
-            <DialogueRecommendationRow key={index} rowProps={rowProps} showSuggestedTopics={showTopics} />
+            <DialogueRecommendationRow key={index} rowProps={rowProps} classes={classes} showSuggestedTopics={showTopics} />
           ))}
         </div>}
       </AnalyticsContext>}
       
-      {(!currentUser || currentUser?.showDialoguesList) && dialoguePosts?.map((post, i: number) =>
+      {(!currentUser || currentUser.showDialoguesList) && dialoguePosts?.map((post, i: number) =>
         <PostsItem
           key={post._id} post={post}
           showBottomBorder={i < dialoguePosts.length-1}
         />
       )}
 
-      {renderMyDialogues && currentUser?.showMyDialogues && (
+      {renderMyDialogues && (
         <div className={classes.subsection}>
           <AnalyticsContext pageSubSectionContext="myDialogues">
             <LWTooltip placement="top-start" title={myDialoguesTooltip}>

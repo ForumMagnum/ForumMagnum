@@ -43,8 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const DialoguesSectionFrontpageSettings = ({persistentSettings, hidden, currentShowDialogues, currentShowMyDialogues, currentShowMatches, currentShowRecommendedPartners, hideReciprocityButtons, classes}: {
-  persistentSettings?: any,
+const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, currentShowMyDialogues, currentShowMatches, currentShowRecommendedPartners, hideReciprocityButtons, classes}: {
   hidden: boolean,
   currentShowDialogues: boolean,
   currentShowMyDialogues: boolean,
@@ -57,8 +56,8 @@ const DialoguesSectionFrontpageSettings = ({persistentSettings, hidden, currentS
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
 
-  const setSetting = (type: keyof typeof USER_SETTING_NAMES, newSetting: any) => {
-    if (currentUser && persistentSettings) {
+  const setSetting = (type: keyof typeof USER_SETTING_NAMES, newSetting: boolean) => {
+    if (currentUser) {
       void updateCurrentUser({
         [USER_SETTING_NAMES[type]]: newSetting,
       })

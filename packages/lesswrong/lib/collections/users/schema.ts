@@ -1446,6 +1446,7 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     nullable: false,
+    group: formGroups.siteCustomizations,
     hidden: !isLW,
     label: "Opted-in to receiving invitations for dialogue facilitation from LessWrong team",
     ...schemaDefaultValue(false)
@@ -1471,7 +1472,7 @@ const schema: SchemaType<DbUser> = {
     nullable: false,
     group: formGroups.siteCustomizations,
     hidden: !isLW,
-    label: "Show a list of recently active dialogues inside the frontpage widget",
+    label: "Show a list of dialogues the user participated in inside the frontpage widget",
     ...schemaDefaultValue(true)
   },
   showMatches: {
@@ -1483,7 +1484,7 @@ const schema: SchemaType<DbUser> = {
     nullable: false,
     group: formGroups.siteCustomizations,
     hidden: !isLW,
-    label: "Show a list of recently active dialogues inside the frontpage widget",
+    label: "Show a list of dialogue reciprocity matched users inside frontpage widget",
     ...schemaDefaultValue(true)
   },
   showRecommendedPartners: {
@@ -1495,7 +1496,7 @@ const schema: SchemaType<DbUser> = {
     nullable: false,
     group: formGroups.siteCustomizations,
     hidden: !isLW,
-    label: "Show a list of recently active dialogues inside the frontpage widget",
+    label: "Show a list of recommended dialogue partners inside frontpage widget",
     ...schemaDefaultValue(true)
   },
 

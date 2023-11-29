@@ -106,7 +106,7 @@ export const frontpageDialogueReciprocityRecommendations = new ABTest({
     },
     noShow: {
       description: "Don't show",
-      weight: 5,
+      weight: 3,
     },
   },
 });

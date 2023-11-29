@@ -94,7 +94,6 @@ export type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDi
   showAgreement: false;
 });
 
-
 type RowUser = UsersOptedInToDialogueFacilitation & {
   [k in keyof Omit<UpvotedUser, '_id' | 'username' | 'displayName'>]?: never;
 };

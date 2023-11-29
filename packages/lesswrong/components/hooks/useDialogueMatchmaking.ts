@@ -53,7 +53,7 @@ export const useDialogueMatchmaking = <T extends MatchmakingProps>(props: T): Us
       displayName
     }
   }
-  `, { skip: !getRecommendedUsers || !dialogueMatchmakingEnabled.get() });
+  `, { skip: skipByDefault || !getRecommendedUsers || !dialogueMatchmakingEnabled.get() });
 
   const userDialogueChecksResult = useMulti({
     terms: {

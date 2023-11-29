@@ -546,13 +546,12 @@ defineQuery({
     }
 
     const upvotedUsers = await context.repos.users.getUsersTopUpvotedUsers(currentUser, 50, 720)
-    let recommendedUsers = await context.repos.users.getDialogueRecommendedUsers(currentUser._id, upvotedUsers);
+    const recommendedUsers = await context.repos.users.getDialogueRecommendedUsers(currentUser._id, upvotedUsers);
 
     // Shuffle and limit the list to 3 users
-    const sampleSize = 3;
     const shuffled = recommendedUsers.sort(() => 0.5 - Math.random());
-    recommendedUsers = shuffled.slice(0, sampleSize);
+    const sampleSize = 3;
 
-    return accessFilterMultiple(currentUser, Users, recommendedUsers, context);
+    return accessFilterMultiple(currentUser, Users, shuffled.slice(0, sampleSize), context);
   }
 });

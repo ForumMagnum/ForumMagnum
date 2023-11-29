@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React, {useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -8,7 +7,7 @@ import {DialogueUserRowProps} from '../users/DialogueMatchingPage';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
-  dialogueUserRow: { // TODO; shared import
+  dialogueUserRow: { 
     display: 'flex',
     alignItems: 'center',
     background: theme.palette.panelBackground.default,
@@ -117,8 +116,6 @@ const styles = (theme: ThemeType) => ({
   dialogueRightContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    //paddingRight: 10,
-    //marginRight: 3,
     marginLeft: 'auto',
   },
   dialogueMatchNote: {
@@ -139,6 +136,20 @@ interface DialogueRecommendationRowProps {
   showSuggestedTopics: boolean;
 }
 
+// Future TODO: unify this with the server type TopicRecommendation? The problem is that returns a whole DbComment, rather than just contents and id. 
+interface TopicRecommendationWithContents {
+  comment: {
+    _id: string;
+    contents: {
+      html: string;
+      plaintextMainText: string;
+    };
+  };
+  recommendationReason: string;
+  yourVote: string;
+  theirVote: string;
+}
+
 const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: DialogueRecommendationRowProps) => {
   const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, LWTooltip, ReactionIcon } = Components
 
@@ -148,6 +159,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleExpansion = () => {
     setIsExpanded(!isExpanded);
+    captureEvent("toggle_expansion_reciprocity")
   };
 
   const { loading, error, data: topicData } = useQuery(gql`
@@ -167,19 +179,42 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
     }
   `, {
     variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit:4 },
+    skip: !currentUser
   });
 
   if (!currentUser) return <></>;
-  const preTopicRecommendations: {comment: {_id: string, contents: {html: string, plaintextMainText: string}}, recommendationReason: string, yourVote: string, theirVote: string}[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
+  const preTopicRecommendations: TopicRecommendationWithContents[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
   const topicRecommendations = preTopicRecommendations?.filter(topic => topic.theirVote !== null);
-  const numRecommendations = topicRecommendations?.length || 0;
+  const numRecommendations = topicRecommendations?.length ?? 0;
   const numShown = isExpanded ? numRecommendations : 1
   const numHidden = Math.max(0, numRecommendations - numShown);
 
+  const renderExpandCollapseText = () => {
+    if (isExpanded) {
+      return '▲ hide';
+    }
+  
+    if (numHidden > 0) {
+      return [
+        '▼',
+        <span key={targetUser._id} className={classes.bigScreenExpandNote}>
+          ... {numHidden} more
+        </span>,
+      ];
+    }
+  
+    return '';
+  };
+
   return (
     <div>
-      <div key={targetUser._id} className={ isExpanded ? classNames(classes.dialogueUserRow, classes.dialogueUserRowExpandedMobile) : classes.dialogueUserRow}>
-        <div className={ (isExpanded || numRecommendations === 0) ? classNames(classes.dialogueLeftContainer, classes.dialogueLeftContainerExpandedMobile, classes.dialogueLeftContainerNoTopics) : classes.dialogueLeftContainer}>
+      <div key={targetUser._id} className={classNames(classes.dialogueUserRow, {
+          [classes.dialogueUserRowExpandedMobile]: isExpanded
+        })}>
+          <div className={classNames(classes.dialogueLeftContainer, {
+            [classes.dialogueLeftContainerExpandedMobile]: isExpanded,
+            [classes.dialogueLeftContainerNoTopics]: isExpanded || numRecommendations === 0
+          })}>
           <div className={ classes.dialogueMatchCheckbox }>
             <DialogueCheckBox
               targetUserId={targetUser._id}
@@ -199,17 +234,35 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
         {showSuggestedTopics && <div className={classes.topicRecommendationsList}>
           {topicRecommendations?.slice(0,numShown).map((topic, index) => (
             <div key={index} className={classes.suggestionRow}>
-              <p key={index} className={ isExpanded ? classes.debateTopicExpanded : classes.debateTopicCollapsed}>
-                {topic.theirVote === 'agree' && [<ReactionIcon key={index} size={13} react={"agree"} />, <span key={index} className={ isExpanded ? classes.agreeText : classNames(classes.agreeText, classes.agreeTextCollapsedMobile) }>agrees: </span>, `"${topic.comment.contents.plaintextMainText}"`] } 
-                {topic.theirVote === 'disagree' && [<ReactionIcon key={index} size={13} react={"disagree"} />, <span key={index} className={ isExpanded ? classes.agreeText : classNames(classes.agreeText, classes.agreeTextCollapsedMobile) }>disagrees: </span>, `"${topic.comment.contents.plaintextMainText}"`] }
+              <p key={index} className={classNames({
+                [classes.debateTopicExpanded]: isExpanded,
+                [classes.debateTopicCollapsed]: !isExpanded
+              })}>
+                {topic.theirVote === 'agree' && [
+                  <ReactionIcon key={index} size={13} react={"agree"} />,
+                  <span key={index} className={classNames(classes.agreeText, {
+                    [classes.agreeTextCollapsedMobile]: !isExpanded
+                  })}>agrees: </span>,
+                  `"${topic.comment.contents.plaintextMainText}"`
+                ]} 
+                {topic.theirVote === 'disagree' && [
+                  <ReactionIcon key={index} size={13} react={"disagree"} />,
+                  <span key={index} className={classNames(classes.agreeText, {
+                    [classes.agreeTextCollapsedMobile]: !isExpanded
+                  })}>disagrees: </span>,
+                  `"${topic.comment.contents.plaintextMainText}"`
+                ]}
               </p>
             </div>
           ))}
           
       </div>}
       <div className={classes.dialogueRightContainer}>
-        {<span className={isExpanded ? classes.hideIcon : classes.expandIcon} onClick={toggleExpansion}>
-          {isExpanded ? '▲ hide' : (numHidden > 0 ? [`▼`, <span key={targetUser._id} className={classes.bigScreenExpandNote}> ...more</span>] : '')} 
+        {<span className={classNames({
+          [classes.hideIcon]: isExpanded,
+          [classes.expandIcon]: !isExpanded
+        })} onClick={toggleExpansion}>
+          {renderExpandCollapseText()}
         </span>}
       </div>
       {!showSuggestedTopics && 
