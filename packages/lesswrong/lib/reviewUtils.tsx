@@ -4,6 +4,7 @@ import moment from "moment"
 import { forumTypeSetting } from "./instanceSettings"
 import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart, annualReviewVotingPhaseEnd } from "./publicSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
+import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 const isLWForum = forumTypeSetting.get() === "LessWrong"
@@ -40,7 +41,17 @@ export function getReviewShortTitle(reviewYear: ReviewYear): string {
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
 
+const reviewPhaseCache = memoizeWithExpiration<ReviewPhase>(() => recomputeReviewPhase(), 1000);
+
 export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
+  if (reviewYear) {
+    return recomputeReviewPhase(reviewYear);
+  } else {
+    return reviewPhaseCache.get();
+  }
+}
+
+function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }
