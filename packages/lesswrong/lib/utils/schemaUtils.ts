@@ -133,7 +133,18 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
   
   return {
     type: Array,
+
     defaultValue: [],
+    onCreate: ({newDocument, fieldName}: {
+      newDocument: DbObject,
+      fieldName: string,
+    }) => {
+      if (newDocument[fieldName as keyof DbObject] === undefined) {
+        return [];
+      }
+    },
+    canAutofillDefault: true,
+
     resolveAs: {
       fieldName: resolverName,
       type: `[${type}!]!`,
@@ -361,7 +372,10 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
   return {
     type: Number,
     optional: true,
+
     defaultValue: 0,
+    onCreate: ()=>0,
+    canAutofillDefault: true,
     
     denormalized: true,
     canAutoDenormalize: true,

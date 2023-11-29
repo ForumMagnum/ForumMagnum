@@ -475,7 +475,7 @@ const schema: SchemaType<DbUser> = {
   noindex: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     order: 48,
@@ -599,7 +599,7 @@ const schema: SchemaType<DbUser> = {
   legacy: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     hidden: true,
     canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
@@ -651,7 +651,6 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.siteCustomizations,
     allowedValues: ['listView', 'gridView'],
     ...schemaDefaultValue('listView'),
-    defaultValue: "listView",
     hidden: isEAForum,
     control: "select",
     form: {
@@ -709,7 +708,7 @@ const schema: SchemaType<DbUser> = {
     order: 71,
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     group: formGroups.siteCustomizations,
@@ -724,7 +723,7 @@ const schema: SchemaType<DbUser> = {
     order: 72,
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
@@ -736,7 +735,7 @@ const schema: SchemaType<DbUser> = {
     order: 80,
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: [userOwns],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
@@ -748,7 +747,7 @@ const schema: SchemaType<DbUser> = {
     order: 90,
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: [userOwns],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
@@ -762,7 +761,7 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     group: formGroups.siteCustomizations,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -775,7 +774,7 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     group: formGroups.siteCustomizations,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -788,7 +787,7 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     group: formGroups.siteCustomizations,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -802,7 +801,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     hidden: !isEAForum,
     group: formGroups.siteCustomizations,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ["guests"],
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
     canCreate: ["members"],
@@ -827,7 +826,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     hidden: !isEAForum,
     group: formGroups.siteCustomizations,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -841,7 +840,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     hidden: !hasPostRecommendations,
     group: formGroups.siteCustomizations,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ["guests"],
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
     canCreate: ["members"],
@@ -855,7 +854,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     nullable: true,
     group: formGroups.siteCustomizations,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -872,7 +871,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     nullable: true,
     hidden: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -1105,11 +1104,6 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
-    onUpdate: ({data, currentUser, oldDocument}) => {
-      if (data?.bookmarkedPostsMetadata) {
-        return _.uniq(data?.bookmarkedPostsMetadata, 'postId')
-      }
-    },
     ...arrayOfForeignKeysField({
       idFieldName: "bookmarkedPostsMetadata",
       resolverName: "bookmarkedPosts",
@@ -1117,6 +1111,11 @@ const schema: SchemaType<DbUser> = {
       type: "Post",
       getKey: (obj) => obj.postId
     }),
+    onUpdate: ({data, currentUser, oldDocument}) => {
+      if (data?.bookmarkedPostsMetadata) {
+        return _.uniq(data?.bookmarkedPostsMetadata, 'postId')
+      }
+    },
   },
 
   "bookmarkedPostsMetadata.$": {
@@ -1141,11 +1140,6 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
-    onUpdate: ({data, currentUser, oldDocument}) => {
-      if (data?.hiddenPostsMetadata) {
-        return uniqBy(data?.hiddenPostsMetadata, 'postId')
-      }
-    },
     ...arrayOfForeignKeysField({
       idFieldName: "hiddenPostsMetadata",
       resolverName: "hiddenPosts",
@@ -1153,6 +1147,11 @@ const schema: SchemaType<DbUser> = {
       type: "Post",
       getKey: (obj) => obj.postId
     }),
+    onUpdate: ({data, currentUser, oldDocument}) => {
+      if (data?.hiddenPostsMetadata) {
+        return uniqBy(data?.hiddenPostsMetadata, 'postId')
+      }
+    },
   },
 
   "hiddenPostsMetadata.$": {
@@ -1179,7 +1178,7 @@ const schema: SchemaType<DbUser> = {
   deleted: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['members', 'admins'],
     label: 'Deactivate',
@@ -1946,7 +1945,7 @@ const schema: SchemaType<DbUser> = {
     type: Number,
     optional: true,
     label: "Alignment Base Score",
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests'],
   },
 
@@ -2180,7 +2179,7 @@ const schema: SchemaType<DbUser> = {
   noExpandUnreadCommentsReview: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     hidden: true,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
