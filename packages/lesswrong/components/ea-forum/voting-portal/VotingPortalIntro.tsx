@@ -4,6 +4,7 @@ import { HEADER_HEIGHT } from "../../common/Header";
 import { Link } from "../../../lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType) => ({
+  // TODO combine these with votingPortalStyles
   root: {
     margin: "80px 0",
     display: "flex",
@@ -30,6 +31,7 @@ const styles = (theme: ThemeType) => ({
       minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
       borderRadius: 0,
       alignSelf: "flex-start",
+      margin: 0
     },
   },
   description: {
@@ -49,16 +51,19 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.givingPortal[1000],
     fontSize: 40,
     fontWeight: 700,
+    lineHeight: "normal",
   },
   h2: {
     fontSize: 24,
     fontWeight: 700,
     marginBottom: 32,
+    lineHeight: "normal",
   },
   h3: {
     fontSize: 18,
     fontWeight: 700,
     marginTop: 24,
+    lineHeight: "normal",
   },
   button: {
     display: "flex",
