@@ -29,6 +29,7 @@ import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { isLWorAF } from '../../../lib/instanceSettings';
+import { maxRenderQueueSize } from '../../../lib/publicSettings';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -60,6 +61,10 @@ interface RenderRequestParams {
   res: Response,
   clientId: string,
   userAgent?: string,
+}
+
+interface RenderQueueSlot {
+  callback: () => Promise<void>
 }
 
 export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
@@ -154,18 +159,17 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   }
 };
 
-interface RenderQueueSlot {
-  params: RenderRequestParams;
-  callback: () => Promise<void>
-}
-
 let inFlightRenderCount = 0;
 const requestQueue: RenderQueueSlot[] = [];
 
+/**
+ * We (maybe) have a problem where too many concurrently rendering requests cause our servers to fall over
+ * To solve this, we introduce a queue for incoming requests, such that we have a maximum number of requests being rendered at the same time
+ * See {@link maybeStartQueuedRequests} for the part that kicks off requests when appropriate
+ */
 function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     requestQueue.push({
-      params,
       callback: async () => {
         const result = await renderRequest(params);
         inFlightRenderCount--;
@@ -179,16 +183,14 @@ function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> 
 }
 
 function maybeStartQueuedRequests() {
-  // TODO: make cap a setting
-  while (inFlightRenderCount < 10 && requestQueue.length > 0) {
+  while (inFlightRenderCount < maxRenderQueueSize.get() && requestQueue.length > 0) {
     let requestToStartRendering = requestQueue.shift();
     if (requestToStartRendering) {
       inFlightRenderCount++;
-      void requestToStartRendering.callback()  
+      void requestToStartRendering.callback();
     }
   }
 }
-
 
 function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
   if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
