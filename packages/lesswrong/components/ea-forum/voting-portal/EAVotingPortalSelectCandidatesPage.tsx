@@ -15,9 +15,9 @@ const styles = (theme: ThemeType) => ({
 const EAVotingPortalSelectCandidatesPageLoader = ({ classes }: { classes: ClassesType }) => {
   const { electionVote, updateVote } = useElectionVote("givingSeason23");
 
-  if (!electionVote) return null;
+  if (!electionVote?.vote) return null;
 
-  const selectedCandidateIds = Object.keys(electionVote);
+  const selectedCandidateIds = Object.keys(electionVote.vote);
 
   return (
     <EAVotingPortalSelectCandidatesPage
@@ -36,8 +36,8 @@ const EAVotingPortalSelectCandidatesPage = ({
   classes,
 }: {
   selectedCandidateIds: string[];
-  electionVote: Record<string, number | null>;
-  updateVote: (newVote: Record<string, number | null>) => Promise<void>;
+  electionVote: ElectionVoteInfo;
+  updateVote: (newVote: NullablePartial<DbElectionVote>) => Promise<void>;
   classes: ClassesType;
 }) => {
   const { ElectionCandidatesList, VotingPortalFooter } = Components;
@@ -46,7 +46,8 @@ const EAVotingPortalSelectCandidatesPage = ({
   const navigate = useNavigate();
 
   const saveSelection = useCallback(async () => {
-    await updateVote(selectedIds.reduce((acc, id) => ({ ...acc, [id]: electionVote[id] ?? null }), {}));
+    const newVote = selectedIds.reduce((acc, id) => ({ ...acc, [id]: electionVote.vote[id] ?? null }), {})
+    await updateVote({vote: newVote});
   }, [electionVote, selectedIds, updateVote]);
 
   const onSelect = useCallback((candidateIds: string[]) => {
@@ -89,7 +90,7 @@ const EAVotingPortalSelectCandidatesPage = ({
               await saveSelection();
               navigate({ pathname: "/voting-portal/compare" });
             },
-            disabled: selectedIds.length === 0
+            disabled: selectedIds.length === 0 || !!electionVote.submittedAt,
           }}
         />
       </div>

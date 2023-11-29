@@ -3380,6 +3380,8 @@ interface ElectionVoteInfo { // fragment on ElectionVotes
   readonly userId: string,
   readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly submittedAt: Date | null,
+  readonly userExplanation: string | null,
+  readonly userOtherComments: string | null,
 }
 
 interface TypingIndicatorInfo { // fragment on TypingIndicators

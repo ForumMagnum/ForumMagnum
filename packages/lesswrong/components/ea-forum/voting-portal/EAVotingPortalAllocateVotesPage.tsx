@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
 const EAVotingPortalAllocateVotesPageLoader = ({ classes }: { classes: ClassesType }) => {
   const { electionVote, updateVote } = useElectionVote("givingSeason23");
 
-  if (!electionVote) return null;
+  if (!electionVote?.vote) return null;
 
   return (
     <EAVotingPortalAllocateVotesPage
@@ -30,15 +30,15 @@ const EAVotingPortalAllocateVotesPage = ({
   updateVote,
   classes,
 }: {
-  electionVote: Record<string, number | null>;
-  updateVote: (newVote: Record<string, number | null>) => Promise<void>;
+  electionVote: ElectionVoteInfo;
+  updateVote: (data: NullablePartial<DbElectionVote>) => Promise<void>;
   classes: ClassesType;
 }) => {
   const { VotingPortalFooter, ElectionAllocateVote } = Components;
   const navigate = useNavigate();
   // Note: strings are allowed here because to allow the user to type we need to differentiate between
   // e.g. "0" and "0.". These are converted to numbers in saveAllocation
-  const [voteState, setVoteState] = useState<Record<string, number | string | null>>(electionVote);
+  const [voteState, setVoteState] = useState<Record<string, number | string | null>>(electionVote.vote);
 
   const selectedCandidateIds = Object.keys(voteState);
   const allocatedCandidateIds = selectedCandidateIds.filter((id) => voteState[id] !== null);
@@ -48,7 +48,7 @@ const EAVotingPortalAllocateVotesPage = ({
     const newVote = Object.fromEntries(
       Object.entries(voteState).map(([id, value]) => [id, parseFloat(value as string)])
     );
-    await updateVote(newVote);
+    await updateVote({vote: newVote});
   }, [updateVote, voteState]);
 
   // TODO un-admin-gate when the voting portal is ready
@@ -77,7 +77,7 @@ const EAVotingPortalAllocateVotesPage = ({
               await saveAllocation();
               navigate({ pathname: "/voting-portal/submit" });
             },
-            disabled: allocatedCandidateIds.length === 0,
+            disabled: allocatedCandidateIds.length === 0 || !!electionVote.submittedAt,
           }}
         />
       </div>

@@ -10,11 +10,14 @@ export const votingPortalStyles = (theme: ThemeType) => ({
   content: {
     display: "flex",
     flexDirection: "column",
-    padding: "24px 24px 48px 24px",
+    padding: "48px 24px 48px 24px",
     margin: "0 auto",
     maxWidth: 800,
     position: "relative",
     zIndex: theme.zIndexes.singleColumnSection,
+    [theme.breakpoints.down("xs")]: {
+      padding: "24px 24px 48px 24px",
+    },
   },
   h1: {
     fontSize: 48,
