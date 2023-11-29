@@ -184,21 +184,22 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
 
   if (!currentUser) return <></>;
   const preTopicRecommendations: TopicRecommendationWithContents[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
-  const topicRecommendations = preTopicRecommendations?.filter(topic => topic.theirVote !== null);
+  const topicRecommendations = preTopicRecommendations?.filter(topic => ['agree', 'disagree'].includes(topic.theirVote) ); // todo: might want better type checking here in future for values of theirVote
   const numRecommendations = topicRecommendations?.length ?? 0;
   const numShown = isExpanded ? numRecommendations : 1
   const numHidden = Math.max(0, numRecommendations - numShown);
 
   const renderExpandCollapseText = () => {
+    if (!topicRecommendations || topicRecommendations.length === 0) return '';
     if (isExpanded) {
       return '▲ hide';
     }
   
-    if (numHidden > 0) {
+    if (numHidden > 0 || topicRecommendations[0].comment.contents.plaintextMainText.length > 84) { // hack... make better in future!
       return [
         '▼',
         <span key={targetUser._id} className={classes.bigScreenExpandNote}>
-          ... {numHidden} more
+          ...{numHidden > 0 ? ` ${numHidden} ` : ``}more
         </span>,
       ];
     }
@@ -213,7 +214,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
         })}>
           <div className={classNames(classes.dialogueLeftContainer, {
             [classes.dialogueLeftContainerExpandedMobile]: isExpanded,
-            [classes.dialogueLeftContainerNoTopics]: isExpanded || numRecommendations === 0
+            [classes.dialogueLeftContainerNoTopics]: numRecommendations === 0
           })}>
           <div className={ classes.dialogueMatchCheckbox }>
             <DialogueCheckBox
@@ -257,14 +258,14 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
           ))}
           
       </div>}
-      <div className={classes.dialogueRightContainer}>
+      {showSuggestedTopics && <div className={classes.dialogueRightContainer}>
         {<span className={classNames({
           [classes.hideIcon]: isExpanded,
           [classes.expandIcon]: !isExpanded
         })} onClick={toggleExpansion}>
           {renderExpandCollapseText()}
         </span>}
-      </div>
+      </div>}
       {!showSuggestedTopics && 
         <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
           <div className={classes.dialogueMatchNote}>Check to maybe dialogue, if you find a topic</div>
