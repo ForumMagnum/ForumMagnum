@@ -370,7 +370,7 @@ export const NewDialogueMatchNotification = registerNotificationType({
 
 // Notification that you have new interested parties for dialogues
 export const NewDialogueCheckNotification = registerNotificationType({
-  name: "newDialogueCheck",
+  name: "newDialogueChecks",
   userSettingField: "notificationNewDialogueChecks",
   allowedChannels: ["onsite", "none"],
   async getMessage(props: GetMessageProps) {

@@ -43,22 +43,4 @@ export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
       );
     `, [userId1, userId2])
   }
-
-  async getNewChecksForUser(userId: string): Promise<boolean> {
-    return (await this.getRawDb().one(`
-      SELECT EXISTS (
-        SELECT 1
-        FROM "DialogueChecks"
-        INNER JOIN "Users" ON "Users"._id = "DialogueChecks"."targetUserId"
-        WHERE public."DialogueChecks"."checkedAt"
-        > (
-            SELECT MAX("checkedAt")
-            FROM public."DialogueChecks"
-            WHERE "userId" = $1
-        )
-        AND "targetUserId" = $1 
-        AND "checked" = true 
-      ) AS "exists"
-    `, [userId])).exists
-  }
 }

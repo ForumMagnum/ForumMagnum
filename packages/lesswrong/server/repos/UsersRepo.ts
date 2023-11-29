@@ -284,6 +284,32 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `)
   }  
 
+  async getUsersWithNewDialogueChecks(hours: number): Promise<DbUser[]> {
+    return this.manyOrNone(`
+      SELECT *
+      FROM "Users"
+      WHERE EXISTS (
+        SELECT 1
+        FROM "DialogueChecks"
+        WHERE "DialogueChecks"."checkedAt"
+        > (
+            SELECT GREATEST(MAX("checkedAt"), NOW() - INTERVAL '$1 hours')
+            FROM "DialogueChecks"
+            WHERE "userId" = "Users"._id
+        )
+        AND "targetUserId" = "Users"._id
+        AND "checked" = true
+        AND NOT EXISTS (
+          SELECT 1
+          FROM "DialogueChecks"
+          WHERE "userId" = "Users"._id
+          AND "targetUserId" = "DialogueChecks"."userId"
+          AND "checked" = true
+        )
+      )
+    `, [hours])
+  }
+
   async getUsersTopUpvotedUsers(user:DbUser, limit = 20, recencyLimitDays = 10): Promise<UpvotedUser[]> {
     const karma = user?.karma ?? 0
     const smallVotePower = calculateVotePower(karma, "smallUpvote");
