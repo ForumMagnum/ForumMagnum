@@ -267,6 +267,7 @@ export const darkModeTheme: UserThemeSpecification = {
       ctaBackground: "#64342E",
       ctaText: "#FFF",
       rhsLink: '#E7714E',
+      votingPortalIntroBackground: "#202020",
       button: {
         alwaysDark: "#862115",
         dark: "#FFF",

@@ -433,5 +433,15 @@
     "acceptsSchemaHash": "8b861e3bf25c8edf6522b62bea9bf389",
     "acceptedByMigration": "20231129T080701.add_givingSeason2023VotedFlair.ts",
     "timestamp": "2023-11-29T08:07:01.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5cb40349b3ff94014c31fb0418ffa6ea",
+    "acceptedByMigration": "20231129T190047.add_four_fields_for_frontpage_dialogue_widget_customisation.ts",
+    "timestamp": "2023-11-29T19:00:47.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6ee0467b3cdea6d954c14e9bee545c42",
+    "acceptedByMigration": "20231129T200215.addNotificationNewDialogueChecks.ts",
+    "timestamp": "2023-11-29T20:02:15.000Z"
   }
 ]
