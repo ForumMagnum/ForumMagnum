@@ -67,11 +67,16 @@ const styles = (theme: ThemeType) => ({
   votedRow: {
     display: "flex",
     gap: "8px",
+    alignItems: "center",
   },
   icon: {
     color: theme.palette.givingPortal[1000],
     width: 20,
     height: 20,
+  },
+  arrowIcon: {
+    fontSize: 18,
+    transform: "rotate(180deg)",
   },
   tooltipRow: {
     display: "flex",
@@ -90,13 +95,13 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
-    gap: "10px",
+    gap: "8px",
     fontSize: 16,
     fontWeight: 600,
     background: theme.palette.givingPortal.button.dark,
     color: theme.palette.givingPortal.button.light,
     borderRadius: theme.borderRadius.small,
-    padding: "12px 20px",
+    padding: "12px 12px",
     border: "none",
     outline: "none",
     userSelect: "none",
@@ -189,9 +194,9 @@ const VotingPortalThankYou = ({currentUser, classes}: {
           <div className={classes.button} role="button" onClick={toggleFlair}>
             {loadingFlair
               ? <Loading white />
-              : currentUser.givingSeason2023VotedFlair
+              : <><ForumIcon icon="ArrowRight" className={classes.arrowIcon} /> {currentUser.givingSeason2023VotedFlair
                 ? "Remove icon from your profile"
-                : "Add icon to your profile"
+                : "Add icon to your profile"}</>
             }
           </div>
         </div>
