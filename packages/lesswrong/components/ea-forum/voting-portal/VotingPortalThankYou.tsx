@@ -70,6 +70,8 @@ const styles = (theme: ThemeType) => ({
   },
   icon: {
     color: theme.palette.givingPortal[1000],
+    width: 20,
+    height: 20,
   },
   tooltipRow: {
     display: "flex",
@@ -173,7 +175,7 @@ const VotingPortalThankYou = ({currentUser, classes}: {
           <div className={classes.votedRow}>
             {currentUser.displayName}
             <ForumIcon
-              icon="ChatBubbleLeftRightFilled"
+              icon="Voted"
               className={classes.icon}
             />
           </div>
