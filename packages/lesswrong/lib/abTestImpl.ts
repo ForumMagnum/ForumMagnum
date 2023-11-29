@@ -124,10 +124,6 @@ export function getABTestsMetadata(): Record<string,ABTest> {
   return allABTests;
 }
 
-export function getLoggedInUserABTestKey(user: UsersCurrent|DbUser) {
-  return user.abTestKey
-}
-
 export function getUserABTestKey(abKeyInfo: ABKeyInfo): string {
   if ('user' in abKeyInfo) {
     return abKeyInfo.user.abTestKey;

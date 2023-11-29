@@ -284,30 +284,29 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `)
   }  
 
-  async getUsersWithNewDialogueChecks(hours: number): Promise<DbUser[]> {
+  async getUsersWithNewDialogueChecks(minutes: number): Promise<DbUser[]> {
     return this.manyOrNone(`
-      SELECT *
+      SELECT "Users".*
       FROM "Users"
-      WHERE EXISTS (
-        SELECT 1
-        FROM "DialogueChecks"
-        WHERE "DialogueChecks"."checkedAt"
-        > (
-            SELECT GREATEST(MAX("checkedAt"), NOW() - INTERVAL '$1 hours')
-            FROM "DialogueChecks"
-            WHERE "userId" = "Users"._id
-        )
-        AND "targetUserId" = "Users"._id
-        AND "checked" = true
-        AND NOT EXISTS (
-          SELECT 1
-          FROM "DialogueChecks"
-          WHERE "userId" = "Users"._id
-          AND "targetUserId" = "DialogueChecks"."userId"
-          AND "checked" = true
-        )
-      )
-    `, [hours])
+      INNER JOIN "DialogueChecks" ON "Users"._id = "DialogueChecks"."targetUserId"
+      WHERE
+          "DialogueChecks"."checkedAt" > NOW() - INTERVAL '$1 minutes'
+          AND "DialogueChecks".checked = true
+          AND NOT EXISTS (
+              SELECT 1
+              FROM "DialogueChecks" AS dc
+              WHERE
+                  "DialogueChecks"."userId" = dc."targetUserId"
+                  AND "DialogueChecks"."targetUserId" = dc."userId"
+                  AND dc.checked = true
+          )
+          AND "DialogueChecks"."checkedAt"
+          > (
+              SELECT MAX("checkedAt")
+              FROM "DialogueChecks"
+              WHERE "DialogueChecks"."userId" = "Users"._id
+          )
+    `, [minutes])
   }
 
   async getUsersTopUpvotedUsers(user:DbUser, limit = 20, recencyLimitDays = 10): Promise<UpvotedUser[]> {

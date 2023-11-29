@@ -9,14 +9,14 @@ addCronJob({
   interval: 'every 1 hour',
   async job() {
     const context = createAdminContext();
-    const usersWithNewChecks = await context.repos.users.getUsersWithNewDialogueChecks(1)
+    const usersWithNewChecks = await context.repos.users.getUsersWithNewDialogueChecks(60)
     usersWithNewChecks.forEach(user => {
       const notificationAbGroup = getUserABTestGroup({user}, newDialogueChecksNotificationABTest)
       if (notificationAbGroup === "control") return
       void createNotification({
         userId: user._id,
         notificationType: "newDialogueChecks",
-        documentType: "newDialogueChecks",
+        documentType: null,
         documentId: null,
         context,
       })
