@@ -80,7 +80,7 @@ const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect,
   classes: ClassesType,
 }) => {
   const isSelect = type === "select";
-  const [sortBy, setSortBy] = useState<ElectionCandidatesSort | "random">("random");
+  const [sortBy, setSortBy] = useState<ElectionCandidatesSort | "random">("mostPreVoted");
   const {results, loading} = useElectionCandidates(sortBy);
 
   const allSelected = useMemo(
