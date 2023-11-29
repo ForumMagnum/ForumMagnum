@@ -111,6 +111,7 @@ import { CloseMenuIcon } from "../icons/closeMenuIcon";
 import { BoldLinkIcon } from "../icons/boldLink";
 import { QIcon } from "../icons/qIcon";
 import { FilterAlt } from "../icons/filteralt";
+import { VotedIcon } from "../icons/votedIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -194,7 +195,8 @@ export type ForumIconName =
   "CloseMenu" |
   "Q" |
   "BarChart" |
-  "Funnel";
+  "Funnel" |
+  "Voted";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -274,6 +276,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Q: QIcon,
     BarChart: ChartBarIcon,
     Funnel: FilterAlt,
+    Voted: VotedIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -352,6 +355,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Q: QIcon,
     BarChart: ChartBarIcon,
     Funnel: FunnelIcon,
+    Voted: VotedIcon,
   },
 };
 
