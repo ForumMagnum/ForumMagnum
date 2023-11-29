@@ -2849,6 +2849,17 @@ const schema: SchemaType<DbUser> = {
     hidden: !isEAForum,
     ...schemaDefaultValue(false),
   },
+  givingSeason2023VotedFlair: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    group: formGroups.adminOptions,
+    label: '"I Voted" flair for 2023 giving season',
+    hidden: !isEAForum,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

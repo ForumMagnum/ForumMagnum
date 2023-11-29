@@ -428,5 +428,10 @@
     "acceptsSchemaHash": "7db476f93913b50f646a44166768ced6",
     "acceptedByMigration": "20231128T152304.add_ElectionVotes.ts",
     "timestamp": "2023-11-28T15:23:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8b861e3bf25c8edf6522b62bea9bf389",
+    "acceptedByMigration": "20231129T080701.add_givingSeason2023VotedFlair.ts",
+    "timestamp": "2023-11-29T08:07:01.000Z"
   }
 ]
