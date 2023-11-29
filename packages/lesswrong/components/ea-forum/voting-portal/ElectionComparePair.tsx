@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
   compareInput: {
     width: 90,
     height: 48,
-    margin: "0 6px",
+    margin: "0 6px 0 0",
     "& input": {
       textAlign: "right",
       fontSize: 16,
@@ -88,7 +88,10 @@ const CandidateDetails = ({
           <img src={logoSrc} className={classes.image} />
         </Link>
       </div>
-      <div className={classes.candidateName}>{name}</div>
+      {/* TODO tooltip */}
+      <Link to={fundraiserLink || ""} target="_blank" rel="noopener noreferrer" className={classes.candidateName}>
+        {name}
+      </Link>
     </div>
   );
 }
@@ -112,10 +115,9 @@ const ElectionComparePair = ({
   const { ForumIcon } = Components;
   return (
     <div className={classes.root}>
-      <div>A dollar donated to...</div>
+      <div>We should give</div>
       <CandidateDetails candidate={firstCandidate} classes={classes} />
       <div>
-        is
         <OutlinedInput
           className={classes.compareInput}
           labelWidth={0}
@@ -132,7 +134,7 @@ const ElectionComparePair = ({
           }}
           type="number"
         />
-        times more valuable than
+        times as much money as
       </div>
       <CandidateDetails candidate={secondCandidate} classes={classes} />
       <div

@@ -11,6 +11,9 @@ import { useMessages } from "../../common/withMessages";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
+  subtitleParagraph: {
+    marginBottom: 16,
+  },
   compareRow: {
     margin: "8px 0",
   },
@@ -177,8 +180,11 @@ const EAVotingPortalComparePage = ({
         <div className={classes.content} id="top">
           <div className={classes.h2}>2. Compare projects</div>
           <div className={classes.subtitle}>
-            Use pairwise comparisons to get an initial allocation of your votes. You can still change the allocation
-            manually in the next step.
+            <div className={classes.subtitleParagraph}>
+              Use pairwise comparisons to get an initial allocation of your points. You’ll be able to change and
+              finalize the allocation in the next step.
+            </div>
+            <div>You can skip this step if you prefer to allocate points manually.</div>
           </div>
           <div className={classes.comparisonSection}>
             <ElectionComparePair
@@ -198,18 +204,19 @@ const EAVotingPortalComparePage = ({
                     setCurrentPairIndex((prev) => prev - 1);
                   }}
                 >
-                  <ForumIcon icon="ArrowRight" className={classNames(classes.arrowIcon, classes.arrowLeft)} /> Back
+                  <ForumIcon icon="ArrowRight" className={classNames(classes.arrowIcon, classes.arrowLeft)} /> Previous
+                  pair
                 </div>
                 <div className={classes.pairCounter}>
                   Pair {currentPairIndex + 1}/{candidatePairs.length}
                 </div>
               </div>
               <LWTooltip
-                  title={`Click "${continueMessage}" below to continue to the next step`}
-                  placement="top"
-                  disabled={!nextDisabled}
-                  popperClassName={classes.tooltipPopper}
-                >
+                title={`Click "${continueMessage}" below to continue to the next step`}
+                placement="top"
+                disabled={!nextDisabled}
+                popperClassName={classes.tooltipPopper}
+              >
                 <button
                   className={classNames(classes.button, classes.nextButton, {
                     [classes.buttonDisabled]: nextDisabled,
