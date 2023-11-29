@@ -24,6 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+// IMPORTANT NOTE: We have come across a bug where this gives a different result on Safari, which
+// resulted in a server/client mismatch error. We should fix this across the board, but in the meantime
+// prefer using stableSeedrandom.ts if you don't need cryptographic security or any guarantee of
+// particularly good randomness (Note: I'm not sure if the version in this file is actually cryptographically
+// secure, but stableSeedrandom definitely isn't).
+
 function Alea(seed: string) {
   // @ts-ignore
   var me = this,

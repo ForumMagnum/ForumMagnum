@@ -5,9 +5,9 @@ import { isEAForum } from "../../../lib/instanceSettings";
 import { useCurrentTime } from "../../../lib/utils/timeUtil";
 import moment from "moment";
 import { useCurrentUser } from "../../common/withUser";
-import seedrandom from "../../../lib/seedrandom";
 import { useCookiesWithConsent } from "../../hooks/useCookiesWithConsent";
 import { CLIENT_ID_COOKIE } from "../../../lib/cookies/cookies";
+import { stableSeedrandom } from "../../../lib/stableSeedrandom";
 
 export type ElectionAmountRaised = {
   raisedForElectionFund: number,
@@ -41,8 +41,9 @@ export const useElectionCandidates = (
 
   let resultsCopy = results ? [...results] : undefined;
   if (sortBy === "random") {
-    const rng = seedrandom(currentUser?.abTestKey ?? clientId);
-    resultsCopy?.sort(() => rng() - 0.5);
+    const randomSeed = currentUser?.abTestKey ?? clientId ?? "default";
+    const rng = stableSeedrandom(randomSeed);
+    resultsCopy?.sort(() => rng.next() - 0.5);
   }
 
   return {
