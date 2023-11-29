@@ -144,7 +144,7 @@ export function getUserABTestGroup<Groups extends string>(abKeyInfo: ABKeyInfo, 
       .map(([groupName, group]: [Groups, ABTestGroup]) => [groupName, group.weight] as const)
   ) as Record<Groups, number>;
 
-  if ('user' in abKeyInfo && abKeyInfo.user.abTestOverrides[abTest.name]) {
+  if ('user' in abKeyInfo && abKeyInfo.user.abTestOverrides && abKeyInfo.user.abTestOverrides[abTest.name]) {
     return abKeyInfo.user.abTestOverrides[abTest.name];
   } else {
     return weightedRandomPick(groupWeights, `${abTest.name}-${abTestKey}`);
