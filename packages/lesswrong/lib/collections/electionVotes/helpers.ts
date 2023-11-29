@@ -115,10 +115,10 @@ export const convertCompareStateToVote = (compareState: CompareState): Record<st
     throw new Error("Vote ids don't match expected ids");
   }
 
-  // Normalize (to a total of 100_000) and round
+  // Normalize (to a total of 100_000) and round to 4 sig figs
   const total = Object.values(vote).reduce((sum, value) => sum + value, 0);
   const normalizedVote = Object.fromEntries(
-    Object.entries(vote).map(([id, value]) => [id, Math.round((value / total) * 100_000)])
+    Object.entries(vote).map(([id, value]) => [id, Number((value / total * 100_000).toPrecision(4))])
   );
 
   return normalizedVote;
