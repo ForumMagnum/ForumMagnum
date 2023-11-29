@@ -403,6 +403,7 @@ declare global {
     background: {
       default: ColorString
       paper: ColorString,
+      contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
       translucentBackground: ColorString,
       diffInserted: ColorString,
@@ -465,6 +466,7 @@ declare global {
       ctaText: ColorString,
       candidate: ColorString,
       votedCandidate: ColorString,
+      selectedCandidate: ColorString,
       rhsLink: ColorString,
       secondary: ColorString,
       button: {

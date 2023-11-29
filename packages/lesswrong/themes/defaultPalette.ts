@@ -313,6 +313,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   background: {
     default: shades.grey[60],
     paper: shades.grey[0], //Used by MUI
+    contrastInDarkMode: shades.grey[0],
     pageActiveAreaBackground: shades.grey[0],
     translucentBackground: "rgba(255,255,255,.5)",
     diffInserted: "#d4ead4",
@@ -515,6 +516,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     [1000]: "#862115",
     candidate: "#fef4ef",
     votedCandidate: "#fff",
+    selectedCandidate: "#F7E5DD",
     ctaBackground: "#fdfcfc",
     ctaText: "#757575",
     rhsLink: '#862115',

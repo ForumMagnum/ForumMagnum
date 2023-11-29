@@ -3374,6 +3374,16 @@ interface ElectionVotesDefaultFragment { // fragment on ElectionVotes
   readonly userOtherComments: string | null,
 }
 
+interface ElectionVoteInfo { // fragment on ElectionVotes
+  readonly _id: string,
+  readonly electionName: string,
+  readonly userId: string,
+  readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly submittedAt: Date | null,
+  readonly userExplanation: string | null,
+  readonly userOtherComments: string | null,
+}
+
 interface TypingIndicatorInfo { // fragment on TypingIndicators
   readonly _id: string,
   readonly userId: string,
@@ -3671,6 +3681,7 @@ interface FragmentTypes {
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   WithVoteElectionCandidate: WithVoteElectionCandidate
   ElectionVotesDefaultFragment: ElectionVotesDefaultFragment
+  ElectionVoteInfo: ElectionVoteInfo
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
@@ -3893,6 +3904,7 @@ interface CollectionNamesByFragmentName {
   ElectionCandidateBasicInfo: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
   ElectionVotesDefaultFragment: "ElectionVotes"
+  ElectionVoteInfo: "ElectionVotes"
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
