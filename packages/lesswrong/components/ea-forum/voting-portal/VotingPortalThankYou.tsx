@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "center",
     gap: "32px",
     color: theme.palette.givingPortal[1000],
-    background: theme.palette.givingPortal[200],
+    background: theme.palette.givingPortal.thankYouBackground,
     borderRadius: 12,
     padding: "48px 32px",
     width: 550,
@@ -43,26 +43,31 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: "16px",
+    background: theme.palette.grey[0],
+    borderRadius: theme.borderRadius.default,
     padding: "24px 0",
-    "& > *": {
-      flexBasis: "50%",
-    },
     [theme.breakpoints.down("xs")]: {
       flexDirection: "column",
+      background: "inherit",
+      gap: "16px",
     },
   },
   voted: {
     display: "flex",
     flexDirection: "column",
     gap: "6px",
-    background: theme.palette.grey[0],
     color: theme.palette.grey[1000],
     fontSize: 14,
     fontWeight: 600,
     letterSpacing: "-0.14px",
-    padding: "12px 24px",
+    flexBasis: "50%",
+    padding: "12px 28px",
+    background: theme.palette.grey[0],
     borderRadius: theme.borderRadius.default,
+    [theme.breakpoints.down("xs")]: {
+      width: "100%",
+      maxWidth: 230,
+    },
   },
   votedRow: {
     display: "flex",
@@ -77,6 +82,9 @@ const styles = (theme: ThemeType) => ({
   arrowIcon: {
     fontSize: 18,
     transform: "rotate(180deg)",
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
   },
   tooltipRow: {
     display: "flex",
@@ -95,6 +103,8 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
+    marginRight: 20,
+    flexBasis: "50%",
     gap: "8px",
     fontSize: 16,
     fontWeight: 600,
@@ -111,6 +121,9 @@ const styles = (theme: ThemeType) => ({
     },
     "&:active": {
       opacity: 0.7,
+    },
+    [theme.breakpoints.down("xs")]: {
+      marginRight: 0,
     },
   },
   hr: {
@@ -190,27 +203,25 @@ const VotingPortalThankYou = ({currentUser, classes}: {
             </div>
           </div>
         </div>
-        <div>
-          <div className={classes.button} role="button" onClick={toggleFlair}>
-            {loadingFlair
-              ? <Loading white />
-              : <><ForumIcon icon="ArrowRight" className={classes.arrowIcon} /> {currentUser.givingSeason2023VotedFlair
-                ? "Remove icon from your profile"
-                : "Add icon to your profile"}</>
-            }
-          </div>
+        <div className={classes.button} role="button" onClick={toggleFlair}>
+          {loadingFlair
+            ? <Loading white />
+            : <><ForumIcon icon="ArrowRight" className={classes.arrowIcon} /> {currentUser.givingSeason2023VotedFlair
+              ? "Remove icon from your profile"
+              : "Add icon to your profile"}</>
+          }
         </div>
       </div>
       <div className={classes.hr} />
       <ul className={classes.list}>
         <li>
           <Link to="#">
-          Share that you voted — and why!
+            Share that you voted — and why!
           </Link>
         </li>
         <li>
           <Link to="#">
-          Donate to the Donation Election Fund
+            Donate to the Donation Election Fund
           </Link>
         </li>
         <li>
