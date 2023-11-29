@@ -111,3 +111,18 @@ export const dialogueMatchingPageNoSSRABTest = new ABTest({
     },
   },
 });
+
+export const newDialogueChecksNotificationABTest = new ABTest({
+  name: "newDialogueChecksNotification",
+  description: "Get notifications when you get new dialogue checks",
+  groups: {
+    control: {
+      description: "Control version",
+      weight: 1,
+    },
+    notification: {
+      description: "Notification version",
+      weight: 1,
+    },
+  },
+});

@@ -1,3 +1,5 @@
+import { getUserABTestGroup, useABTest } from "../../lib/abTestImpl";
+import { newDialogueChecksNotificationABTest } from "../../lib/abTests";
 import { addCronJob } from "../cronUtil";
 import { createNotification } from "../notificationCallbacksHelpers";
 import { createAdminContext } from "../vulcan-lib";
@@ -9,6 +11,8 @@ addCronJob({
     const context = createAdminContext();
     const usersWithNewChecks = await context.repos.users.getUsersWithNewDialogueChecks(1)
     usersWithNewChecks.forEach(user => {
+      const notificationAbGroup = getUserABTestGroup({user}, newDialogueChecksNotificationABTest)
+      if (notificationAbGroup === "control") return
       void createNotification({
         userId: user._id,
         notificationType: "newDialogueChecks",
