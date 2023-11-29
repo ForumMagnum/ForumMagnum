@@ -106,14 +106,34 @@ defineQuery({
     const bensInterestingDisagreementsCommentId = 'NtsPs9wcwrpeK6KYL'; // LW only! This is site specific to get the popular comments on the Bens Interesting Disagreements post
     const worthwhileOpenAIDisagreementsCommentId = 'xvCYLgygAXqip2kXt';
 
+    const getIntersectingUsersVotesOnPoll = async (userId: string, targetUserId: string, pollCommentId: string) => {
+      const comments = await context.repos.comments.getPopularPollCommentsWithTwoUserVotes(userId, targetUserId, limit, pollCommentId)
+      const result = comments.map(comment => ({comment, recommendationReason: "You both reacted on this comment", yourVote: comment.yourVote, theirVote: comment.theirVote}));
+      return result
+    }
+
+    const getUserVotesOnPoll = async (userId: string, pollCommentId: string, recommendationReason:string) => {
+      const comments = await context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit * 3, pollCommentId)
+      const sampled = sampleSize(comments, Math.round(limit / 2))
+      const result = sampled.map(comment => ({comment, recommendationReason: recommendationReason, theirVote: comment.theirVote}));
+      return result
+    }
+
+    const getPopularVotesOnPoll = async (pollCommentId: string, recommendationReason:string) => {
+      const comments = await context.repos.comments.getPopularPollComments(limit * 3, pollCommentId)
+      const sampled = sampleSize(comments, limit)
+      const result = sampled.map(comment => ({comment, recommendationReason: recommendationReason}));
+      return result
+    }
+
     // iterate through different lists of comments. return as soon as we've accumulated enough to meet the limit
     async function* commentSources() {
-      yield (await context.repos.comments.getPopularPollCommentsWithTwoUserVotes(userId, targetUserId, limit, bensInterestingDisagreementsCommentId)).map(comment => ({comment, recommendationReason: "You both reacted on this comment", yourVote: comment.yourVote, theirVote: comment.theirVote}));
-      yield (await context.repos.comments.getPopularPollCommentsWithTwoUserVotes(userId, targetUserId, limit, worthwhileOpenAIDisagreementsCommentId)).map(comment => ({comment, recommendationReason: "You both reacted on this comment", yourVote: comment.yourVote, theirVote: comment.theirVote}));
-      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(targetUserId, limit * 3, bensInterestingDisagreementsCommentId), Math.round(limit / 2)).map(comment => ({comment, recommendationReason: "They reacted on this comment", yourVote: comment.yourVote}));
-      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(targetUserId, limit * 3, worthwhileOpenAIDisagreementsCommentId), Math.round(limit / 2)).map(comment => ({comment, recommendationReason: "They reacted on this comment", yourVote: comment.yourVote}));
-      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit * 3, bensInterestingDisagreementsCommentId), Math.round(limit / 2)).map(comment => ({comment, recommendationReason: "You reacted on this comment", theirVote: comment.theirVote}));
-      yield sampleSize(await context.repos.comments.getPopularPollComments(limit * 3, bensInterestingDisagreementsCommentId), limit).map(comment => ({comment, recommendationReason: "This comment is popular"}));
+      yield getIntersectingUsersVotesOnPoll(userId, targetUserId, bensInterestingDisagreementsCommentId);
+      yield getIntersectingUsersVotesOnPoll(userId, targetUserId, worthwhileOpenAIDisagreementsCommentId);
+      yield getUserVotesOnPoll(targetUserId, bensInterestingDisagreementsCommentId, "They reacted on this comment"); 
+      yield getUserVotesOnPoll(targetUserId, worthwhileOpenAIDisagreementsCommentId, "They reacted on this comment");
+      yield getUserVotesOnPoll(userId, bensInterestingDisagreementsCommentId, "You reacted on this comment");
+      yield getPopularVotesOnPoll(bensInterestingDisagreementsCommentId, "This comment is popular");
     }
     
     let recommendedComments : TopicRecommendation[] = []
