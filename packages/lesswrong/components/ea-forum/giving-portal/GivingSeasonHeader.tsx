@@ -184,7 +184,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     whiteSpace: 'nowrap',
     [theme.breakpoints.down('md')]: {
-      gap: '12px',
+      gap: '16px',
     }
   },
   activeStepLink: {

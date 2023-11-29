@@ -35,7 +35,8 @@ const styles = (theme: ThemeType) => ({
     "& textarea": {
       color: theme.palette.grey[1000],
       zIndex: theme.zIndexes.singleColumnSection,
-      fontSize: 14,
+      fontSize: 16,
+      fontWeight: 500,
     },
     "& .MuiNotchedOutline-focused": {
       border: `2px solid ${theme.palette.givingPortal[1000]} !important`,

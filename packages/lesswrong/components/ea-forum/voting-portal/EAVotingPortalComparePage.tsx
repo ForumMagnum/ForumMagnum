@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
     margin: "6px auto",
     padding: 20,
     fontWeight: 500,
-    fontSize: 14,
+    fontSize: 16,
     gap: "16px"
   },
   controls: {
@@ -227,7 +227,7 @@ const EAVotingPortalComparePage = ({
         </div>
         <VotingPortalFooter
           leftHref="/voting-portal/select-candidates"
-          middleNode={<Link to="/voting-portal/allocate-votes">Skip this step and allocate votes manually</Link>}
+          middleNode={<Link to="/voting-portal/allocate-votes">Skip this step</Link>}
           buttonText={doneBefore ? "Recalculate allocation" : "Continue"}
           buttonProps={{
             onClick: saveComparison,
