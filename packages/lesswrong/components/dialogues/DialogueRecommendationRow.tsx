@@ -168,8 +168,9 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   });
 
   if (!currentUser) return <></>;
-  const topicRecommendations: {comment: {_id: string, contents: {html: string, plaintextMainText: string}}, recommendationReason: string, yourVote: string, theirVote: string}[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
-//  const topicRecommendations = preTopicRecommendations?.filter(topic => topic.theirVote !== null);
+  const preTopicRecommendations: {comment: {_id: string, contents: {html: string, plaintextMainText: string}}, recommendationReason: string, yourVote: string, theirVote: string}[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
+  const topicRecommendations = preTopicRecommendations?.filter(topic => topic.theirVote !== null);
+  console.log("Topic recommendations ", topicRecommendations)
 
   const numRecommendations = topicRecommendations?.length || 0;
   const numShown = isExpanded ? numRecommendations : 1
@@ -178,7 +179,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   return (
     <div>
       <div key={targetUser._id} className={ isExpanded ? classNames(classes.dialogueUserRow, classes.dialogueUserRowExpandedMobile) : classes.dialogueUserRow}>
-        <div className={ isExpanded ? classNames(classes.dialogueLeftContainer, classes.dialogueLeftContainerExpandedMobile) : classes.dialogueLeftContainer}>
+        <div className={ (isExpanded || numRecommendations === 0) ? classNames(classes.dialogueLeftContainer, classes.dialogueLeftContainerExpandedMobile) : classes.dialogueLeftContainer}>
           <div className={ classes.dialogueMatchCheckbox }>
             <DialogueCheckBox
               targetUserId={targetUser._id}
@@ -199,10 +200,8 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
           {topicRecommendations?.slice(0,numShown).map((topic, index) => (
             <div key={index} className={classes.suggestionRow}>
               <p key={index} className={ isExpanded ? classes.debateTopicExpanded : classes.debateTopicCollapsed}>
-                {topic.theirVote === 'agree' ? 
-                  [<ReactionIcon key={index} size={13} react={"agree"} />, <span key={index} className={ isExpanded ? classes.agreeText : classNames(classes.agreeText, classes.agreeTextCollapsedMobile) }>agrees: </span>, `"${topic.comment.contents.plaintextMainText}"`] : 
-                  [<ReactionIcon key={index} size={13} react={"disagree"} />, <span key={index} className={ isExpanded ? classes.agreeText : classNames(classes.agreeText, classes.agreeTextCollapsedMobile) }>disagrees: </span>, `"${topic.comment.contents.plaintextMainText}"`]
-                }
+                {topic.theirVote === 'agree' && [<ReactionIcon key={index} size={13} react={"agree"} />, <span key={index} className={ isExpanded ? classes.agreeText : classNames(classes.agreeText, classes.agreeTextCollapsedMobile) }>agrees: </span>, `"${topic.comment.contents.plaintextMainText}"`] } 
+                {topic.theirVote === 'disagree' && [<ReactionIcon key={index} size={13} react={"disagree"} />, <span key={index} className={ isExpanded ? classes.agreeText : classNames(classes.agreeText, classes.agreeTextCollapsedMobile) }>disagrees: </span>, `"${topic.comment.contents.plaintextMainText}"`] }
               </p>
             </div>
           ))}

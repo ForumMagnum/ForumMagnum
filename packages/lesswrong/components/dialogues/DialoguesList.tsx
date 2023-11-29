@@ -12,6 +12,7 @@ import MuiPeopleIcon from "@material-ui/icons/People";
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
 import {useABTest} from '../../lib/abTestImpl';
 import {frontpageDialogueReciprocityRecommendations, showTopicsInReciprocity} from '../../lib/abTests';
+import classNames from 'classnames';
 
 
 const styles = (theme: ThemeType) => ({
@@ -163,6 +164,20 @@ const styles = (theme: ThemeType) => ({
   findDialoguePartners: {
     paddingRight: 5,
   },
+  explanatoryNoteBox: {
+    paddingLeft: "5px",
+    marginBottom: "15px",
+  },
+  explanatoryNote: {
+    color: theme.palette.text.dim3,
+  },
+  link: {
+    color: theme.palette.primary.main,
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.primary.light,
+    }
+  }
 });
 
 interface DialogueMatchRowProps {
@@ -216,7 +231,7 @@ const DialogueMatchRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRow
 };
  
 const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => {
-  const { PostsItem, SectionButton, SettingsButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle, DialoguesSectionFrontpageSettings, DialogueRecommendationRow } = Components
+  const { PostsItem, SectionButton, SettingsButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle, DialoguesSectionFrontpageSettings, DialogueRecommendationRow, Typography } = Components
   const currentUser = useCurrentUser()
   const [showSettings, setShowSettings] = useState(false);
   const showReciprocityRecommendations = (useABTest(frontpageDialogueReciprocityRecommendations) === "show")
@@ -298,7 +313,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
           <LWTooltip placement="top-start" title={matchmakingTooltip}>
             <SectionButton className={classes.findDialoguePartners}>
               <MuiPeopleIcon />
-              <Link to="/dialogueMatching">Go to Dialogue Matching</Link>
+              <Link to="/dialogueMatching">See all dialogue users</Link>
             </SectionButton>
           </LWTooltip>
           <LWTooltip placement="top-start" title={dialogueSettingsTooltip}>
@@ -320,12 +335,22 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
 
       {dialogueMatchmakingEnabled.get() && <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
         <div>
-        {currentUser?.showMatches && showReciprocityRecommendations && matchRowPropsList?.map((rowProps, index) => (
-          <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
-        ))}
-        {currentUser?.showRecommendedPartners && showReciprocityRecommendations && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
-          <DialogueRecommendationRow key={index} rowProps={rowProps} showSuggestedTopics={showTopics} />
-        ))}
+          <div className={classes.explanatoryNoteBox}>
+            <Typography
+              component='span'
+              className={classes.explanatoryNote}
+              variant='body2'>
+                {<div>
+                  Check a user you'd maybe dialogue with. They can't see your checks unless you match. If you match, you both get to enter topics and then choose whether to dialogue. <br/> (<a className={classes.link} href="https://www.lesswrong.com/posts/d65Ax6vbNgztBE8cy/new-lesswrong-feature-dialogue-matching">Learn more</a>)
+                  </div>}
+            </ Typography>
+          </div>
+          {currentUser?.showMatches && showReciprocityRecommendations && matchRowPropsList?.map((rowProps, index) => (
+            <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
+          ))}
+          {currentUser?.showRecommendedPartners && showReciprocityRecommendations && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
+            <DialogueRecommendationRow key={index} rowProps={rowProps} showSuggestedTopics={showTopics} />
+          ))}
         </div>
       </AnalyticsContext>}
       

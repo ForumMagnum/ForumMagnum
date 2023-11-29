@@ -106,8 +106,8 @@ defineQuery({
     // iterate through different lists of comments. return as soon as we've accumulated enough to meet the limit
     async function* commentSources() {
       yield (await context.repos.comments.getPopularPollCommentsWithTwoUserVotes(userId, targetUserId, limit)).map(comment => ({comment, recommendationReason: "You both reacted on this comment", yourVote: comment.yourVote, theirVote: comment.theirVote}));
-      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit * 3), Math.round(limit / 2)).map(comment => ({comment, recommendationReason: "You reacted on this comment", yourVote: comment.yourVote}));
-      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(targetUserId, limit * 3), Math.round(limit / 2)).map(comment => ({comment, recommendationReason: "They reacted on this comment", theirVote: comment.theirVote}));
+      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(targetUserId, limit * 3), Math.round(limit / 2)).map(comment => ({comment, recommendationReason: "You reacted on this comment", yourVote: comment.yourVote}));
+      yield sampleSize(await context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit * 3), Math.round(limit / 2)).map(comment => ({comment, recommendationReason: "They reacted on this comment", theirVote: comment.theirVote}));
       yield sampleSize(await context.repos.comments.getPopularPollComments(limit * 3), limit).map(comment => ({comment, recommendationReason: "This comment is popular"}));
     }
     
