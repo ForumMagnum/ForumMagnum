@@ -24,7 +24,7 @@ const schema: SchemaType<DbRSSFeed> = {
     control: "checkbox",
     optional: true,
     order: 30,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
   },
   displayFullContent: {
     type: Boolean,
@@ -34,7 +34,7 @@ const schema: SchemaType<DbRSSFeed> = {
     control: "checkbox",
     optional: true,
     order: 40,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
   },
   nickname: {
     type: String,
