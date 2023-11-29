@@ -250,6 +250,8 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
     users: manyRecommendedUsers ?? []
   });
 
+  if (!recommendedDialoguePartnersRowPropsList) return <></>;
+
   const dialoguesTooltip = (<div>
     <p>Dialogues between a small group of users. Click to see more.</p>
   </div>);
@@ -302,7 +304,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
 
       {dialogueMatchmakingEnabled.get() && <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
         {showReciprocityRecommendations && <div>
-          { (currentUser?.showMatches || currentUser?.showRecommendedPartners ) &&
+          { (currentUser?.showMatches || currentUser?.showRecommendedPartners ) && recommendedDialoguePartnersRowPropsList.length > 0 &&
             <div className={classes.explanatoryNoteBox}>
               <Typography
                 component='span'
