@@ -425,8 +425,8 @@
     "timestamp": "2023-11-24T20:09:25.000Z"
   },
   {
-    "acceptsSchemaHash": "b7acd87acefd755f47f0a02cda2fcc07",
-    "acceptedByMigration": "20231128T002341.add_four_fields_for_frontpage_dialogue_widget_customisation.ts",
-    "timestamp": "2023-11-28T00:23:41.000Z"
+    "acceptsSchemaHash": "7db476f93913b50f646a44166768ced6",
+    "acceptedByMigration": "20231128T152304.add_ElectionVotes.ts",
+    "timestamp": "2023-11-28T15:23:04.000Z"
   }
 ]

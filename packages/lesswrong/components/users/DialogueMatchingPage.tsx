@@ -29,6 +29,9 @@ import merge from 'lodash/merge';
 import mergeWith from 'lodash/mergeWith';
 import partition from 'lodash/partition';
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
+import NoSSR from 'react-no-ssr';
+import { useABTest } from '../../lib/abTestImpl';
+import { dialogueMatchingPageNoSSRABTest } from '../../lib/abTests';
 
 export type UpvotedUser = {
   _id: string;
@@ -1270,14 +1273,15 @@ export const DialogueMatchingPage = ({classes}: {
 
   const userDialogueUsefulData: UserDialogueUsefulData = data?.GetUserDialogueUsefulData;
 
-  const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
+  const matchedUsersWithSelf: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers
+  const matchedUsers = matchedUsersWithSelf?.filter(user => user._id !== currentUser._id)
   const matchedUserIds = matchedUsers?.map(user => user._id) ?? [];
   const topUsers = userDialogueUsefulData?.topUsers.filter(user => !matchedUserIds.includes(user._id));
   const recentlyActiveTopUsers = topUsers.filter(user => user.recently_active_matchmaking)
   const nonRecentlyActiveTopUsers = topUsers.filter(user => !user.recently_active_matchmaking)
-  const dialogueUsers = userDialogueUsefulData?.dialogueUsers.filter(user => !matchedUserIds.includes(user._id));
-  const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id));
-  const activeDialogueMatchSeekers = userDialogueUsefulData?.activeDialogueMatchSeekers.filter(user => !matchedUserIds.includes(user._id));
+  const dialogueUsers = userDialogueUsefulData?.dialogueUsers.filter(user => !matchedUserIds.includes(user._id) && !(user._id === currentUser._id));
+  const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id) && !(user._id === currentUser._id));
+  const activeDialogueMatchSeekers = userDialogueUsefulData?.activeDialogueMatchSeekers.filter(user => !matchedUserIds.includes(user._id) && !(user._id === currentUser._id));
   
   if (loading) return <Loading />
   if (error || !userDialogueChecks || userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
@@ -1304,9 +1308,6 @@ export const DialogueMatchingPage = ({classes}: {
   return (
   <div className={classes.root}>
     <div className={classes.container}>
-      <div className={classes.mobileWarning}>
-        Dialogues matching doesn't render well on narrow screens right now. <br/> <br /> Please view on laptop or tablet!
-      </div>
 
       <h1>Dialogue Matching</h1>
       <ul>
@@ -1465,11 +1466,16 @@ export const DialogueMatchingPage = ({classes}: {
   </div>)
 }
 
+const NoSSRMatchingPage = (props: {classes: ClassesType<typeof styles>}) =>
+  useABTest(dialogueMatchingPageNoSSRABTest) === 'noSSR'
+  ? <NoSSR><DialogueMatchingPage {...props} /></NoSSR>
+  : <DialogueMatchingPage {...props} />
+
 const DialogueNextStepsButtonComponent = registerComponent('DialogueNextStepsButton', DialogueNextStepsButton, {styles});
 const MessageButtonComponent = registerComponent('MessageButton', MessageButton, {styles});
 const DialogueCheckBoxComponent = registerComponent('DialogueCheckBox', DialogueCheckBox, {styles});
 const DialogueUserRowComponent = registerComponent('DialogueUserRow', DialogueUserRow, {styles});
-const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', DialogueMatchingPage, {styles});
+const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', NoSSRMatchingPage, {styles});
 
 declare global {
   interface ComponentTypes {
