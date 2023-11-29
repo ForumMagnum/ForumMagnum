@@ -79,6 +79,9 @@ const styles = (theme: ThemeType) => ({
     height: 43,
     alignSelf: "flex-end",
   },
+  tooltipPopper: {
+    marginBottom: 6,
+  },
 });
 
 const EAVotingPortalComparePageLoader = ({ classes }: { classes: ClassesType }) => {
@@ -209,8 +212,9 @@ const EAVotingPortalComparePage = ({
               </div>
               <LWTooltip
                   title={`Click "${continueMessage}" below to continue to the next step`}
-                  placement="right"
+                  placement="top"
                   disabled={!nextDisabled}
+                  popperClassName={classes.tooltipPopper}
                 >
                 <button
                   className={classNames(classes.button, classes.nextButton, {
