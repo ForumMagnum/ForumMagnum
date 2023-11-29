@@ -75,12 +75,14 @@ const EAVotingPortalSelectCandidatesPage = ({
     <AnalyticsContext pageContext="eaVotingPortalSelectCandidates">
       <div className={classes.root}>
         <div className={classes.content}>
-          <div className={classes.h2}>1. Select projects you want to vote for</div>
+          <div className={classes.h2}>1. Select candidates you want to vote for</div>
           <div className={classes.subtitle}>
-            You'll allocate votes to these projects in the next steps.{" "}
-            <Link to="/posts/dYhKfsNuQX2sznfxe/donation-election-how-voting-will-work">
-              See what we'll do for projects you don't vote on.
-            </Link>
+            You'll give points to these projects in the next steps. If all the projects you select end up being
+            eliminated, your vote will count as if you’d assigned equal points to the remaining projects.{" "}
+            <Link to="/posts/dYhKfsNuQX2sznfxe/donation-election-how-voting-will-work" target="_blank" rel="noopener noreferrer">
+              Read this post
+            </Link>{" "}
+            for more info about how the voting system works.
           </div>
           <ElectionCandidatesList
             type="select"
@@ -92,7 +94,11 @@ const EAVotingPortalSelectCandidatesPage = ({
         <VotingPortalFooter
           leftText="Go back"
           leftHref="/voting-portal"
-          middleNode={<div>Selected {selectedIds.length}/{totalCount} candidates</div>}
+          middleNode={
+            <div>
+              Selected {selectedIds.length}/{totalCount} candidates
+            </div>
+          }
           buttonProps={{
             onClick: saveSelection,
             disabled: selectedIds.length === 0 || !!electionVote.submittedAt,
