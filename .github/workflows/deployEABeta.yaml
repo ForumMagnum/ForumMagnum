@@ -3,7 +3,7 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [wh-voting-portal-compare-2023-11]
+    branches: [wh-voting-portal-copy-2023-11]
 jobs:
   deploy:
     runs-on: ubuntu-latest

@@ -11,6 +11,10 @@ const ElectionVotes: ElectionVotesCollection = createCollection({
   schema,
   resolvers: getDefaultResolvers("ElectionVotes"),
   mutations: getDefaultMutations("ElectionVotes", {
+    newCheck: (user: DbUser|null) => {
+      if (!user) return false;
+      return true;
+    },
     editCheck: async (user: DbUser|null, document: DbElectionVote|null) => {
       if (!user || !document) return false;
       if (isAdmin(user)) return true;

@@ -91,9 +91,6 @@ const EAVotingPortalSubmitPage = ({
     navigate({ pathname: "/voting-portal" });
   }, [flash, navigate, updateVote, userExplanation, userOtherComments]);
 
-  // TODO un-admin-gate when the voting portal is ready
-  if (!isAdmin(currentUser)) return null;
-
   return (
     <AnalyticsContext pageContext="eaVotingPortalSubmit">
       <div className={classes.root}>

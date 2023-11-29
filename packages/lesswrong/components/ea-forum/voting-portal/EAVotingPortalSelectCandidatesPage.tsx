@@ -2,8 +2,6 @@ import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { votingPortalStyles } from "./styles";
-import { useCurrentUser } from "../../common/withUser";
-import { isAdmin } from "../../../lib/vulcan-users";
 import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import { useElectionVote } from "./hooks";
 import difference from "lodash/difference";
@@ -72,10 +70,6 @@ const EAVotingPortalSelectCandidatesPage = ({
       return [...newIds, ...carriedIds];
     });
   }, []);
-
-  // TODO un-admin-gate when the voting portal is ready
-  const currentUser = useCurrentUser();
-  if (!isAdmin(currentUser)) return null;
 
   return (
     <AnalyticsContext pageContext="eaVotingPortalSelectCandidates">

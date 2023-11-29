@@ -3,7 +3,6 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { votingPortalStyles } from "./styles";
 import { useCurrentUser } from "../../common/withUser";
-import { isAdmin } from "../../../lib/vulcan-users";
 import { useLocation } from "../../../lib/routeUtil";
 import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { votingThankYouImageId } from "../../../lib/eaGivingSeason";
@@ -47,12 +46,10 @@ const EAVotingPortalPage = ({classes}: {
   const currentUser = useCurrentUser();
 
   if (loading) return <Loading />;
+  if (!currentUser) return null;
 
   const thankyouParam = params.get("thankyou");
   const isThankYouPage = thankyouParam === "true" || (!thankyouParam && !!electionVote?.submittedAt)
-
-  // TODO un-admin-gate when the voting portal is ready
-  if (!isAdmin(currentUser)) return null;
 
   return (
     <AnalyticsContext

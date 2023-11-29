@@ -2,8 +2,6 @@ import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { votingPortalStyles } from "./styles";
-import { isAdmin } from "../../../lib/vulcan-users";
-import { useCurrentUser } from "../../common/withUser";
 import { useNavigate } from "../../../lib/reactRouterWrapper";
 import { useElectionVote } from "./hooks";
 import { useMessages } from "../../common/withMessages";
@@ -61,10 +59,6 @@ const EAVotingPortalAllocateVotesPage = ({
 
     navigate({ pathname: "/voting-portal/submit" });
   }, [flash, navigate, updateVote, voteState]);
-
-  // TODO un-admin-gate when the voting portal is ready
-  const currentUser = useCurrentUser();
-  if (!isAdmin(currentUser)) return null;
 
   return (
     <AnalyticsContext pageContext="eaVotingPortalAllocateVotes">
