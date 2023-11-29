@@ -128,12 +128,12 @@ defineQuery({
 
     // iterate through different lists of comments. return as soon as we've accumulated enough to meet the limit
     async function* commentSources() {
-      yield getIntersectingUsersVotesOnPoll(userId, targetUserId, bensInterestingDisagreementsCommentId);
-      yield getIntersectingUsersVotesOnPoll(userId, targetUserId, worthwhileOpenAIDisagreementsCommentId);
-      yield getUserVotesOnPoll(targetUserId, bensInterestingDisagreementsCommentId, "They reacted on this comment"); 
-      yield getUserVotesOnPoll(targetUserId, worthwhileOpenAIDisagreementsCommentId, "They reacted on this comment");
-      yield getUserVotesOnPoll(userId, bensInterestingDisagreementsCommentId, "You reacted on this comment");
-      yield getPopularVotesOnPoll(bensInterestingDisagreementsCommentId, "This comment is popular");
+      yield await getIntersectingUsersVotesOnPoll(userId, targetUserId, bensInterestingDisagreementsCommentId);
+      yield await getIntersectingUsersVotesOnPoll(userId, targetUserId, worthwhileOpenAIDisagreementsCommentId);
+      yield await getUserVotesOnPoll(targetUserId, bensInterestingDisagreementsCommentId, "They reacted on this comment"); 
+      yield await getUserVotesOnPoll(targetUserId, worthwhileOpenAIDisagreementsCommentId, "They reacted on this comment");
+      yield await getUserVotesOnPoll(userId, bensInterestingDisagreementsCommentId, "You reacted on this comment");
+      yield await getPopularVotesOnPoll(bensInterestingDisagreementsCommentId, "This comment is popular");
     }
     
     let recommendedComments : TopicRecommendation[] = []

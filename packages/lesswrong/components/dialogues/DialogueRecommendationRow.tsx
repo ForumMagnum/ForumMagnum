@@ -172,8 +172,6 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   if (!currentUser) return <></>;
   const preTopicRecommendations: {comment: {_id: string, contents: {html: string, plaintextMainText: string}}, recommendationReason: string, yourVote: string, theirVote: string}[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
   const topicRecommendations = preTopicRecommendations?.filter(topic => topic.theirVote !== null);
-  console.log("Topic recommendations ", topicRecommendations)
-
   const numRecommendations = topicRecommendations?.length || 0;
   const numShown = isExpanded ? numRecommendations : 1
   const numHidden = Math.max(0, numRecommendations - numShown);
