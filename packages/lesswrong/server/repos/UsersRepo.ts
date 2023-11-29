@@ -421,15 +421,15 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         ) = 0
         AND
         (
-          -- Don't recommend users who've never commented twice on your posts
+          -- Don't recommend users who've never commented on your posts
           (
             SELECT COUNT(*)
             FROM public."Comments" AS c
             INNER JOIN "Posts" AS p ON c."postId" = p._id
             WHERE c."userId" = uv._id AND p."userId" = $1
-          ) >= 2
+          ) >= 1
           OR 
-          -- Don't recommend users who've never replied 3 times to your comments 
+          -- Don't recommend users who've never replied to your comments 
           (
             SELECT COUNT(*)
             FROM public."Comments"
@@ -440,7 +440,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
                 FROM "Comments"
                 WHERE "userId" = $1
               )
-          ) >= 3
+          ) >= 1
         )
       LIMIT $3  
     `, [userId, upvotedUserIds, limit]);

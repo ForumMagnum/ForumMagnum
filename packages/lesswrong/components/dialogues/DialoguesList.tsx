@@ -323,7 +323,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
             <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
           ))}
           {currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
-            <DialogueRecommendationRow key={index} rowProps={rowProps} classes={classes} showSuggestedTopics={showTopics} />
+            <DialogueRecommendationRow key={index} rowProps={rowProps} showSuggestedTopics={showTopics} />
           ))}
         </div>}
       </AnalyticsContext>}
