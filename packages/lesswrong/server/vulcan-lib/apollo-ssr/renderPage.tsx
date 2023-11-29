@@ -53,6 +53,15 @@ export type RenderResult = {
   timings: RenderTimings
 }
 
+interface RenderRequestParams {
+  req: Request,
+  user: DbUser|null,
+  startTime: Date,
+  res: Response,
+  clientId: string,
+  userAgent?: string,
+}
+
 export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
   const startTime = new Date();
   
@@ -91,7 +100,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     //eslint-disable-next-line no-console
-    const rendered = await renderRequest({
+    const rendered = await queueRenderRequest({
       req, user, startTime, res, clientId, userAgent,
     });
     if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
@@ -113,7 +122,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     };
   } else {
-    const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => renderRequest({
+    const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => queueRenderRequest({
       req, user: null, startTime, res, clientId, userAgent
     }));
     
@@ -144,6 +153,42 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     };
   }
 };
+
+interface RenderQueueSlot {
+  params: RenderRequestParams;
+  callback: () => Promise<void>
+}
+
+let inFlightRenderCount = 0;
+const requestQueue: RenderQueueSlot[] = [];
+
+function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
+  return new Promise((resolve, reject) => {
+    requestQueue.push({
+      params,
+      callback: async () => {
+        const result = await renderRequest(params);
+        inFlightRenderCount--;
+        resolve(result);
+        maybeStartQueuedRequests();
+      }
+    });
+
+    maybeStartQueuedRequests();
+  });
+}
+
+function maybeStartQueuedRequests() {
+  // TODO: make cap a setting
+  while (inFlightRenderCount < 10 && requestQueue.length > 0) {
+    let requestToStartRendering = requestQueue.shift();
+    if (requestToStartRendering) {
+      inFlightRenderCount++;
+      void requestToStartRendering.callback()  
+    }
+  }
+}
+
 
 function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
   if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
@@ -186,14 +231,7 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
   return `${prefix}<div id="react-app">${htmlContent}</div>`;
 }
 
-const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: {
-  req: Request,
-  user: DbUser|null,
-  startTime: Date,
-  res: Response,
-  clientId: string,
-  userAgent?: string,
-}): Promise<RenderResult> => {
+const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
   configureSentryScope(requestContext);
   
