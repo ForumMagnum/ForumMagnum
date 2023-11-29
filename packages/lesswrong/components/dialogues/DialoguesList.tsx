@@ -46,24 +46,13 @@ const styles = (theme: ThemeType) => ({
       marginTop: 5,
     }
   },
-
   subsection: {
     marginBottom: theme.spacing.unit,
   },
-
-  closeIcon: {
-    color: theme.palette.grey[300],
-    position: 'absolute', 
-    right: '8px',
-    top: '8px',
-    padding: '2px',
-  },
-
   prompt: {
     color: theme.palette.lwTertiary.main,
     fontWeight: 645,
   },
-
   subheading: {
     marginTop: '10px',
   },
@@ -130,27 +119,6 @@ const styles = (theme: ThemeType) => ({
     fontSize: 'small',
     overflow: 'hidden',
     justifyContent: 'space-between'
-  },
-  expandIcon: {
-    cursor: 'pointer',
-    minWidth: '70px',
-    color: 'grey',
-    fontFamily: theme.palette.fonts.sansSerifStack,
-  },
-  hideIcon: {
-    cursor: 'pointer',
-    minWidth: '70px',
-    color: 'grey',
-    fontFamily: theme.palette.fonts.sansSerifStack,
-  },
-  recommendationReasons: {
-    paddingLeft: 4,
-    paddingRight: 4,
-    paddingBottom: 4,
-    marginLeft: 'auto',
-    borderRadius: 5,
-    backgroundColor: "rgba(0,0,0,0.05)",
-    whiteSpace: 'nowrap'
   },
   dialogueSectionSettings: {
     display: "flex",
