@@ -66,9 +66,11 @@ class ApolloServerLogging {
 
 const ApolloTransactionMonitoring = {
   requestDidStart({ request, context }: { request: AnyBecauseTodo, context: ResolverContext }) {
-    if (!!request.operationName) { // set the transaction Name if we have named queries
-      context.sentryTransanction?.setName(request.operationName)
+    const path = context.headers['request-origin-path']
+    if (!!path) { // set the transaction Name if we have named queries
+      context.sentryTransanction?.setName(path)
     }
+    // add the path from the request to sentryTransaction
     return {
       willSendResponse({ context }: {context: ResolverContext}) { // hook for transaction finished
         context.sentryTransanction?.finish()
