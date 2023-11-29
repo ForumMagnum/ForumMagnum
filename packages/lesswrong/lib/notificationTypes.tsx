@@ -29,7 +29,7 @@ import DebateIcon from '@material-ui/icons/Forum';
 import DialogueChecks from './collections/dialogueChecks/collection';
 import { taggingNamePluralSetting } from './instanceSettings';
 
-export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)
+export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck', 'newDialogueChecks'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 
 interface GetMessageProps {
@@ -359,6 +359,22 @@ export const NewDialogueMatchNotification = registerNotificationType({
       return `You matched with ${summary.associatedUserName} for Dialogue Matching!`
     }
     return "You have a new Dialogue Match!"
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  },
+  getLink() {
+    return "/dialogueMatching"
+  }
+});
+
+// Notification that you have new interested parties for dialogues
+export const NewDialogueCheckNotification = registerNotificationType({
+  name: "newDialogueCheck",
+  userSettingField: "notificationNewDialogueChecks",
+  allowedChannels: ["onsite", "none"],
+  async getMessage(props: GetMessageProps) {
+    return `People have expressed interest in dialogue-ing with you since you last checked!`
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>

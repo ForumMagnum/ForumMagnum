@@ -488,6 +488,7 @@ registerFragment(`
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+    notificationNewDialogueChecks
 
     givingSeasonNotifyForVoting
 

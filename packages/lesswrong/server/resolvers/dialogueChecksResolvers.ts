@@ -1,8 +1,8 @@
 import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
 import { augmentFieldsDict } from "../../lib/utils/schemaUtils";
-import { createNotifications } from "../notificationCallbacksHelpers";
+import { createNotification, createNotifications } from "../notificationCallbacksHelpers";
 import DialogueChecksRepo from "../repos/DialogueChecksRepo";
-import { defineMutation } from "../utils/serverGraphqlUtil";
+import { defineMutation, defineQuery } from "../utils/serverGraphqlUtil";
 
 async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck, matchingDialogueCheck: DbDialogueCheck) {
   await Promise.all([ 
@@ -21,15 +21,27 @@ async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck
   ])
 }
 
+const notifyUserOfNewDialogueChecks = (dialogueCheck: DbDialogueCheck, context: ResolverContext) =>
+  createNotification({
+    userId: dialogueCheck.targetUserId,
+    notificationType: "newDialogueCheck",
+    documentType: "newDialogueChecks",
+    documentId: dialogueCheck._id,
+    context,
+  })
+
 defineMutation({
   name: "upsertUserDialogueCheck",
   resultType: "DialogueCheck",
   argTypes: "(targetUserId: String!, checked: Boolean!)",
-  fn: async (_, {targetUserId, checked}:{targetUserId:string, checked:boolean}, {currentUser, repos}) => {
+  fn: async (_, {targetUserId, checked}:{targetUserId:string, checked:boolean}, context) => {
+    const {currentUser, repos} = context
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")    
     const dialogueCheck = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked) 
     const matchingDialogueCheck = await getMatchingDialogueCheck(dialogueCheck)
+    const newChecks = await repos.dialogueChecks.getNewChecksForUser(dialogueCheck.targetUserId)
+    if (newChecks && !matchingDialogueCheck) void notifyUserOfNewDialogueChecks(dialogueCheck, context)
     if (matchingDialogueCheck) {
       void notifyUsersMatchingDialogueChecks(dialogueCheck, matchingDialogueCheck)   
     }

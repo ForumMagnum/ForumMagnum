@@ -423,5 +423,10 @@
     "acceptsSchemaHash": "2e28d7576d143428c88b6c5a8ece4690",
     "acceptedByMigration": "20231124T200925.move_on_connect_queries_into_migration.ts",
     "timestamp": "2023-11-24T20:09:25.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0a525798e7ce14edc7f59274e00e273b",
+    "acceptedByMigration": "20231128T205722.addNotificationNewDialogueChecksSetting.ts",
+    "timestamp": "2023-11-28T20:57:22.000Z"
   }
 ]
