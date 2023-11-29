@@ -244,7 +244,7 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
         border: '2px solid !important',
         ...makeDialogueCommentStyles(
           theme,
-          (i) => `&[user-order="${i}"] .dialogue-message-input-header]`,
+          (i) => `&[user-order="${i}"] .dialogue-message-input-header`,
           (color) => ({
             color: `${color} !important`,
           }),
@@ -267,6 +267,7 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
     ...(isFriendlyUI
       ? {
         right: 12,
+        bottom: 5,
         color: theme.palette.grey[1000],
         backgroundColor: theme.palette.grey[250],
         "&:hover": {

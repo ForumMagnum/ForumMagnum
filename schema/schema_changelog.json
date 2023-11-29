@@ -420,13 +420,13 @@
     "timestamp": "2023-11-21T12:12:51.000Z"
   },
   {
-    "acceptsSchemaHash": "7a18af92067d934f38bfc297cdb1d0d5",
-    "acceptedByMigration": "20231123T125345.add_ElectionVotes.ts",
-    "timestamp": "2023-11-23T12:53:45.000Z"
+    "acceptsSchemaHash": "2e28d7576d143428c88b6c5a8ece4690",
+    "acceptedByMigration": "20231124T200925.move_on_connect_queries_into_migration.ts",
+    "timestamp": "2023-11-24T20:09:25.000Z"
   },
   {
-    "acceptsSchemaHash": "62a2849938fd258591b594ecd0792071",
-    "acceptedByMigration": "20231127T142120.add_electionCommentFields.ts",
-    "timestamp": "2023-11-27T14:21:20.000Z"
+    "acceptsSchemaHash": "7db476f93913b50f646a44166768ced6",
+    "acceptedByMigration": "20231128T152304.add_ElectionVotes.ts",
+    "timestamp": "2023-11-28T15:23:04.000Z"
   }
 ]

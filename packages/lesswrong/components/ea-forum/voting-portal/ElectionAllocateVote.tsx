@@ -8,7 +8,6 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { imageSize } from "../giving-portal/ElectionCandidate";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
-import { requireCssVar } from "../../../themes/cssVars";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,7 +19,7 @@ const styles = (theme: ThemeType) => ({
   table: {
     display: "flex",
     flexWrap: "wrap",
-    maxWidth: "100%",
+    width: "100%",
   },
   controls: {
     display: "flex",

@@ -358,7 +358,7 @@ importComponent("EmailTokenPage", () => require('../components/users/EmailTokenP
 importComponent("EmailTokenResult", () => require('../components/users/EmailTokenResult'));
 importComponent("SignupSubscribeToCurated", () => require('../components/users/SignupSubscribeToCurated'));
 importComponent("UserNameDeleted", () => require('../components/users/UserNameDeleted'));
-importComponent("WrappedLoginForm", () => require('../components/users/WrappedLoginForm'));
+importComponent("LoginForm", () => require('../components/users/LoginForm'));
 importComponent("ResendVerificationEmailPage", () => require('../components/users/ResendVerificationEmailPage'));
 importComponent("PasswordResetPage", () => require('../components/users/PasswordResetPage.tsx'))
 importComponent("NewUserCompleteProfile", () => require('../components/users/NewUserCompleteProfile'))
@@ -585,6 +585,7 @@ importComponent("CommentDeletedMetadata", () => require('../components/comments/
 importComponent("CommentBody", () => require('../components/comments/CommentsItem/CommentBody'));
 importComponent("CommentOutdatedWarning", () => require('../components/comments/CommentsItem/CommentOutdatedWarning'));
 importComponent("CommentsItemDate", () => require('../components/comments/CommentsItem/CommentsItemDate'));
+importComponent("CommentBottom", () => require('../components/comments/CommentsItem/CommentBottom'));
 importComponent("CommentBottomCaveats", () => require('../components/comments/CommentsItem/CommentBottomCaveats'));
 
 importComponent("AllComments", () => require('../components/comments/AllComments'));

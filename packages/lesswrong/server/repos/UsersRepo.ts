@@ -108,7 +108,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       SET services = jsonb_set(
         CASE WHEN services -> 'password' IS NULL THEN
           jsonb_set(
-            services,
+            COALESCE(services, '{}'::JSONB),
             '{password}'::TEXT[],
             jsonb_build_object('bcrypt', $2),
             true

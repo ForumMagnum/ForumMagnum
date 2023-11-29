@@ -30,7 +30,7 @@ const LoginPopup = ({onClose, classes}: {
         paper: classes.paper
       }}
     >
-      <Components.WrappedLoginForm />
+      <Components.LoginForm />
     </LWDialog>
   );
 }

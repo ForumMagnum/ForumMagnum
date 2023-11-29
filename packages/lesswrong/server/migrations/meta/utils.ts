@@ -9,6 +9,9 @@ import CreateIndexQuery from "../../../lib/sql/CreateIndexQuery";
 import CreateTableQuery from "../../../lib/sql/CreateTableQuery";
 import DropTableQuery from "../../../lib/sql/DropTableQuery";
 import DropFieldQuery from "../../../lib/sql/DropFieldQuery";
+import CreateExtensionQuery from "../../../lib/sql/CreateExtensionQuery";
+import { postgresExtensions } from "../../postgresExtensions";
+import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
@@ -127,5 +130,18 @@ export const createTable = async <T extends DbObject>(
   await db.none(sql, args);
   for (const index of table.getIndexes()) {
     await createIndex(db, collection, index, ifNotExists);
+  }
+}
+
+export const installExtensions = async (db: SqlClientOrTx) => {
+  for (const extension of postgresExtensions) {
+    const {sql, args} = new CreateExtensionQuery(extension).compile();
+    await db.none(sql, args);
+  }
+}
+
+export const updateFunctions = async (db: SqlClientOrTx) => {
+  for (const query of postgresFunctions) {
+    await db.none(query);
   }
 }
