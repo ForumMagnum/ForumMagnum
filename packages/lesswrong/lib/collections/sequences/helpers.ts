@@ -147,7 +147,7 @@ export const sequenceGetPrevPostID = async function(sequenceId: string, postId: 
   if (postIndex < 0) {
     // Post is not in this sequence
     return null;
-  } else if (postIndex===0) {
+  } else if (postIndex==0) {
     // Post is the first post in this sequence
     return null;
   } else {

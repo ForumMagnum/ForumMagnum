@@ -298,20 +298,20 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
       <Row>
        <LWTooltip title="Switch to list view">
           <ViewListIcon 
-            className={classNames(classes.viewButton, {[classes.viewButtonSelected]: displayStyle === "listView"})}
+            className={classNames(classes.viewButton, {[classes.viewButtonSelected]: displayStyle == "listView"})}
             onClick={() => handleChangeView("listView")}
           />  
         </LWTooltip>
         <LWTooltip title="Switch to grid view">
           <AppsIcon 
-            className={classNames(classes.viewButton, {[classes.viewButtonSelected]: displayStyle === "gridView"})}
+            className={classNames(classes.viewButton, {[classes.viewButtonSelected]: displayStyle == "gridView"})}
             onClick={() => handleChangeView("gridView")} 
           />
         </LWTooltip>
       </Row>
     </Row>
     <div className={classNames(classes.reactionPaletteScrollRegion, {[classes.showAll]: showAll})}>
-      {displayStyle === "listView" && <div>
+      {displayStyle == "listView" && <div>
         <div className={classes.primarySection}>
           {listPrimary.map(react => react && gridReactButton(react, 24))}
         </div>
@@ -329,7 +329,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
           {listEmotions.map(react => react && gridReactButton(react, 24))}
         </div>
       </div>}
-      {displayStyle === "gridView" && <div>
+      {displayStyle == "gridView" && <div>
         <div className={classes.iconSection}>
           {gridPrimary.map(react => react && gridReactButton(react, 24))}
           {gridEmotions.map(react => react && gridReactButton(react, 24))}
@@ -344,7 +344,7 @@ const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, cl
       </div>}
     </div>
     <div className={classes.reactPaletteFooter}>
-      {displayStyle === "listView" && <a className={classes.showAllButton} onClick={() => {
+      {displayStyle == "listView" && <a className={classes.showAllButton} onClick={() => {
         setShowAll(!showAll)
         captureEvent("reactPaletteShowMoreClicked", {showAll: !showAll})
       }} >

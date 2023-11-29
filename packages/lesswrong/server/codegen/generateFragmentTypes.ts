@@ -32,7 +32,7 @@ function getParsedFragment(fragmentName: FragmentName) {
   // dependency fragments. The one we requested will be first.
   assert((fragmentDefinitions?.definitions?.length ?? 0) > 0);
   const parsedFragment = fragmentDefinitions?.definitions[0];
-  assert(parsedFragment?.kind === "FragmentDefinition");
+  assert(parsedFragment?.kind == "FragmentDefinition");
   if (!parsedFragment || !("name" in parsedFragment) || !("selectionSet" in parsedFragment) || parsedFragment?.name?.value !== fragmentName) {
     throw new Error("Retrieved parsed fragment with wrong name");
   }
@@ -123,7 +123,7 @@ function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragme
 function getSpreadFragments(parsedFragment: AnyBecauseTodo): Array<string> {
   const spreadFragmentNames: Array<string> = [];
   for (let selection of parsedFragment.selectionSet.selections) {
-    if(selection.kind === "FragmentSpread") {
+    if(selection.kind == "FragmentSpread") {
       spreadFragmentNames.push(selection.name.value);
     }
   }
@@ -134,7 +134,7 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBeca
   { fieldType: string, subfragment: string|null }
 {
   const fieldName: string = parsedFragmentField.name.value;
-  if (fieldName === "__typename") {
+  if (fieldName == "__typename") {
     return { fieldType: "string", subfragment: null };
   }
   const schema = getSchema(collection);
@@ -149,7 +149,7 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBeca
   // Check for a field with a resolver by this name
   for (let schemaFieldName of Object.keys(schema)) {
     const fieldWithResolver = schema[schemaFieldName];
-    if (fieldWithResolver?.resolveAs?.fieldName === fieldName) {
+    if (fieldWithResolver?.resolveAs?.fieldName == fieldName) {
       assert(!!fieldWithResolver.resolveAs.type);
       fieldType = graphqlTypeToTypescript(fieldWithResolver.resolveAs.type);
       break;
@@ -180,8 +180,8 @@ function getFragmentFieldType(fragmentName: string, parsedFragmentField: AnyBeca
   if (parsedFragmentField.selectionSet?.selections?.length > 0) {
     // As a special case, if the sub-selector spreads a fragment and has no
     // other fields, use that fragment's type
-    if (parsedFragmentField.selectionSet.selections.length === 1
-      && parsedFragmentField.selectionSet.selections[0].kind === "FragmentSpread")
+    if (parsedFragmentField.selectionSet.selections.length == 1
+      && parsedFragmentField.selectionSet.selections[0].kind == "FragmentSpread")
     {
       const subfragmentName = parsedFragmentField.selectionSet.selections[0].name.value;
       if (fieldType.startsWith("Array<")) {

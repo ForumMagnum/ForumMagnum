@@ -33,7 +33,7 @@ function getIndexOptions(index) {
   let excludedFields = ["key","v","ns","name"];
   let options = {};
   for(let k in index) {
-    if(excludedFields.indexOf(k) === -1) {
+    if(excludedFields.indexOf(k) == -1) {
       options[k] = index[k];
     }
   }

@@ -14,7 +14,7 @@ registerMigration({
       if (!schema) continue;
       
       const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
-      if (fieldsWithAutofill.length === 0) continue;
+      if (fieldsWithAutofill.length == 0) continue;
       
       // eslint-disable-next-line no-console
       console.log(`Filling in missing values on ${collection.collectionName} in fields: ${fieldsWithAutofill}`);
@@ -56,7 +56,7 @@ Vulcan.checkForMissingValues = async () => {
     if (!schema) continue;
     
     const fieldsWithAutofill = getFieldsWithAttribute(schema, 'canAutofillDefault')
-    if (fieldsWithAutofill.length === 0) continue;
+    if (fieldsWithAutofill.length == 0) continue;
     
     const count = countRowsNeedingAutofill(collection, fieldsWithAutofill);
     

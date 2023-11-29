@@ -416,7 +416,7 @@ export const NewMessageNotification = serverRegisterNotificationType({
     const participantsRaw = await Users.find({ _id: {$in: participantIds} }).fetch();
     const participants = await accessFilterMultiple(user, Users, participantsRaw, null);
     const participantsById = keyBy(participants, u=>u._id);
-    const otherParticipants = _.filter(participants, participant=>participant._id!==user._id);
+    const otherParticipants = _.filter(participants, participant=>participant._id!=user._id);
     
     return { conversations, messages, participantsById, otherParticipants };
   },

@@ -492,7 +492,7 @@ const SpreadsheetPage = ({classes}:{
   return (
     <div className={classes.root}>
       <HeadTags image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1585093292/Screen_Shot_2020-03-24_at_4.41.12_PM_qiwqwc.png"}/>
-      {selectedTab === "Intro" && 
+      {selectedTab == "Intro" && 
         <ContentStyles contentType="comment" className={classes.introWrapper}>
           <div className={classes.intro}>
             <p>
@@ -631,7 +631,7 @@ const SpreadsheetPage = ({classes}:{
               </TableCell>
             </TableRow>
             {tabs.map(tab => {
-              if (tab.label === "All Links") return null
+              if (tab.label == "All Links") return null
               return <TableRow key={`intro-${tab.label}`} className={classes.categoryRow}>
                   <TableCell className={classes.cellSheet}>
                     <QueryLink query={{ tab: tab.label }}>{tab.displayLabel || tab.label}</QueryLink>

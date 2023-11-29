@@ -74,7 +74,7 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
   if (!subscribeLocationContext.current ||
     subscribeLocationContext.current.pathname !== location.pathname ||
     JSON.stringify(subscribeLocationContext.current.query) !== JSON.stringify(location.query) ||
-    subscribeLocationContext.current.hash !== location.hash
+    subscribeLocationContext.current.hash != location.hash
   ) {
     subscribeLocationContext.current = {...location};
   } else {

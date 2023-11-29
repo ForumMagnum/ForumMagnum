@@ -19,7 +19,7 @@ describe("ElasticQuery", () => {
         pivot: 20,
       },
     });
-    expect(result).toBe("(1 - (doc['baseScore'].size() === 0 ? 0 : (saturation(Math.max(1, doc['baseScore'].value), 20L))))");
+    expect(result).toBe("(1 - (doc['baseScore'].size() == 0 ? 0 : (saturation(Math.max(1, doc['baseScore'].value), 20L))))");
   });
   it("Can compile numeric descending ranking", () => {
     const result = new ElasticQuery(testQuery).compileRanking({
@@ -30,7 +30,7 @@ describe("ElasticQuery", () => {
         pivot: 20,
       },
     });
-    expect(result).toBe("(doc['baseScore'].size() === 0 ? 0 : (saturation(Math.max(1, doc['baseScore'].value), 20L)))");
+    expect(result).toBe("(doc['baseScore'].size() == 0 ? 0 : (saturation(Math.max(1, doc['baseScore'].value), 20L)))");
   });
   it("Can compile date ascending ranking", () => {
     const result = new ElasticQuery(testQuery).compileRanking({
@@ -40,7 +40,7 @@ describe("ElasticQuery", () => {
         type: "date",
       },
     });
-    expect(result).toBe(`(1 - (doc['postedAt'].size() === 0 ? 0 : (1 - decayDateLinear('${originDate}', '${dayRange}d', '0', 0.5, doc['postedAt'].value))))`);
+    expect(result).toBe(`(1 - (doc['postedAt'].size() == 0 ? 0 : (1 - decayDateLinear('${originDate}', '${dayRange}d', '0', 0.5, doc['postedAt'].value))))`);
   });
   it("Can compile date descending ranking", () => {
     const result = new ElasticQuery(testQuery).compileRanking({
@@ -50,7 +50,7 @@ describe("ElasticQuery", () => {
         type: "date",
       },
     });
-    expect(result).toBe(`(doc['postedAt'].size() === 0 ? 0 : (1 - decayDateLinear('${originDate}', '${dayRange}d', '0', 0.5, doc['postedAt'].value)))`);
+    expect(result).toBe(`(doc['postedAt'].size() == 0 ? 0 : (1 - decayDateLinear('${originDate}', '${dayRange}d', '0', 0.5, doc['postedAt'].value)))`);
   });
   it("Can compile bool descending ranking", () => {
     const result = new ElasticQuery(testQuery).compileRanking({
@@ -60,7 +60,7 @@ describe("ElasticQuery", () => {
         type: "bool",
       },
     });
-    expect(result).toBe(`(doc['core'].size() === 0 ? 0 : (doc['core'].value === true ? 0.75 : 0.25))`);
+    expect(result).toBe(`(doc['core'].size() == 0 ? 0 : (doc['core'].value == true ? 0.75 : 0.25))`);
   });
   it("Can compile bool ascending ranking", () => {
     const result = new ElasticQuery(testQuery).compileRanking({
@@ -70,7 +70,7 @@ describe("ElasticQuery", () => {
         type: "bool",
       },
     });
-    expect(result).toBe(`(1 - (doc['core'].size() === 0 ? 0 : (doc['core'].value === true ? 0.75 : 0.25)))`);
+    expect(result).toBe(`(1 - (doc['core'].size() == 0 ? 0 : (doc['core'].value == true ? 0.75 : 0.25)))`);
   });
   it("Can compile ranking with a custom weight", () => {
     const result = new ElasticQuery(testQuery).compileRanking({
@@ -82,6 +82,6 @@ describe("ElasticQuery", () => {
         pivot: 20,
       },
     });
-    expect(result).toBe("(1 - (doc['baseScore'].size() === 0 ? 0 : (((saturation(Math.max(1, doc['baseScore'].value), 20L)) * 2))))");
+    expect(result).toBe("(1 - (doc['baseScore'].size() == 0 ? 0 : (((saturation(Math.max(1, doc['baseScore'].value), 20L)) * 2))))");
   });
 });

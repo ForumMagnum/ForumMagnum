@@ -442,7 +442,7 @@ export async function algoliaGetAllDocuments(algoliaIndex: algoliasearch.Index):
 // Algolia's usage-based billing is built around it.)
 // TODO: This used to return any errors encountered, but now throws them
 async function addOrUpdateIfNeeded(algoliaIndex: algoliasearch.Index, objects: Array<AlgoliaDocument>) {
-  if (objects.length === 0) return;
+  if (objects.length == 0) return;
   
   const ids = _.map(objects, o=>o._id);
   const algoliaObjects: Array<AlgoliaDocument|null> = (await algoliaGetObjects(algoliaIndex, ids)).results;

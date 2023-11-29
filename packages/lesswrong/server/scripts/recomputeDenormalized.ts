@@ -66,7 +66,7 @@ export const recomputeDenormalizedValues = async <T extends CollectionNameString
     await runDenormalizedFieldMigration<ObjectsByCollectionName[T]>({ collection, fieldName, getValue, projection, validateOnly, nullToZero })
   } else {
     const denormalizedFields = getFieldsWithAttribute(schema, 'canAutoDenormalize')
-    if (denormalizedFields.length === 0) {
+    if (denormalizedFields.length == 0) {
       // eslint-disable-next-line no-console
       console.log(`${collectionName} does not have any fields with "canAutoDenormalize", not computing denormalized values`)
       return;

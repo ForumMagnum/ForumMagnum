@@ -124,7 +124,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
       );
     }
 
-    if (notification.type === "postNominated") {
+    if (notification.type == "postNominated") {
       return (
         <TooltipWrapper
           title={<PostNominatedNotification postId={notification.documentId}/>}
@@ -135,7 +135,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
       );
     }
 
-    if (notification.type === "newDialogueMessages") {
+    if (notification.type == "newDialogueMessages") {
       const dialogueMessageInfo = notification.extraData?.dialogueMessageInfo
       const postId = notification.documentId
       return (

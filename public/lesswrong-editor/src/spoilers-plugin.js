@@ -259,7 +259,7 @@ class SpoilerBlockCommand extends Command {
 		// to the first element and removes the right one. Since we may need to merge a couple of subsequent `<bQ>` elements
 		// we want to keep the reference to the first (furthest left) one.
 		spoilersToMerge.reverse().reduce( ( current, next ) => {
-			if ( current.nextSibling === next ) {
+			if ( current.nextSibling == next ) {
 				writer.merge( writer.createPositionAfter( current ) );
 
 				return current;
@@ -271,7 +271,7 @@ class SpoilerBlockCommand extends Command {
 }
 
 function findSpoiler( elementOrPosition ) {
-	return elementOrPosition.parent.name === 'spoiler' ? elementOrPosition.parent : null;
+	return elementOrPosition.parent.name == 'spoiler' ? elementOrPosition.parent : null;
 }
 
 // Returns a minimal array of ranges containing groups of subsequent blocks.
@@ -295,7 +295,7 @@ function getRangesOfBlockGroups( writer, blocks ) {
 			startPosition = writer.createPositionBefore( block );
 		}
 
-		if ( !nextBlock || block.nextSibling !== nextBlock ) {
+		if ( !nextBlock || block.nextSibling != nextBlock ) {
 			ranges.push( writer.createRange( startPosition, writer.createPositionAfter( block ) ) );
 			startPosition = null;
 		}

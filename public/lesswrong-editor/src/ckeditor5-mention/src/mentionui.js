@@ -111,11 +111,11 @@ export default class MentionUI extends Plugin {
 		data.preventDefault();
 		evt.stop(); // Required for Enter key overriding.
 
-		if ( data.keyCode === keyCodes.arrowdown ) {
+		if ( data.keyCode == keyCodes.arrowdown ) {
 		  this._mentionsView.selectNext();
 		}
 
-		if ( data.keyCode === keyCodes.arrowup ) {
+		if ( data.keyCode == keyCodes.arrowup ) {
 		  this._mentionsView.selectPrevious();
 		}
 
@@ -123,7 +123,7 @@ export default class MentionUI extends Plugin {
 		  this._mentionsView.executeSelected();
 		}
 
-		if ( data.keyCode === keyCodes.esc ) {
+		if ( data.keyCode == keyCodes.esc ) {
 		  this._hideUIAndRemoveMarker();
 		}
 	  }
@@ -160,7 +160,7 @@ export default class MentionUI extends Plugin {
 		throw new CKEditorError( 'mentionconfig-incorrect-marker', null, { marker } );
 	  }
 
-	  const feedCallback = typeof feed === 'function' ? feed.bind( this.editor ) : createFeedCallback( feed );
+	  const feedCallback = typeof feed == 'function' ? feed.bind( this.editor ) : createFeedCallback( feed );
 	  const itemRenderer = mentionDescription.itemRenderer;
 	  const definition = { marker, feedCallback, itemRenderer };
 
@@ -330,7 +330,7 @@ export default class MentionUI extends Plugin {
 	feedResponse
 	  .then( response => {
 		// Check the feed text of this response with the last requested one so either:
-		if ( this._lastRequested === feedText ) {
+		if ( this._lastRequested == feedText ) {
 		  // It is the same and fire the response event.
 		  this.fire( 'requestFeed:response', { feed: response, marker, feedText } );
 		} else {
@@ -466,7 +466,7 @@ export default class MentionUI extends Plugin {
 	this._items.clear();
 
 	for ( const feedItem of feed ) {
-	  const item = typeof feedItem !== 'object' ? { id: feedItem, text: feedItem } : feedItem;
+	  const item = typeof feedItem != 'object' ? { id: feedItem, text: feedItem } : feedItem;
 
 	  this._items.add( { item, marker } );
 	}
@@ -550,7 +550,7 @@ export default class MentionUI extends Plugin {
 	if ( renderer ) {
 	  const renderResult = renderer( item );
 
-	  if ( typeof renderResult !== 'string' ) {
+	  if ( typeof renderResult != 'string' ) {
 		view = new DomWrapperView( editor.locale, renderResult );
 	  } else {
 		label = renderResult;
@@ -589,7 +589,7 @@ export default class MentionUI extends Plugin {
 
 		// Target the UI to the model selection range - the marker has been removed so probably the UI will not be shown anyway.
 		// The logic is used by ContextualBalloon to display another panel in the same place.
-		if ( modelRange.start.root.rootName === '$graveyard' ) {
+		if ( modelRange.start.root.rootName == '$graveyard' ) {
 		  modelRange = editor.model.document.selection.getFirstRange();
 		}
 
@@ -799,7 +799,7 @@ function createFeedCallback( feedItems ) {
 	  // Make the default mention feed case-insensitive.
 	  .filter( item => {
 		// Item might be defined as object.
-		const itemId = typeof item === 'string' ? item : String( item.id );
+		const itemId = typeof item == 'string' ? item : String( item.id );
 
 		// The default feed is case insensitive.
 		return itemId.toLowerCase().includes( feedText.toLowerCase() );
@@ -875,7 +875,7 @@ function isMarkerInExistingMention( markerPosition ) {
 // @param {String} marker
 // @returns {Boolean}
 function isValidMentionMarker( marker ) {
-  return marker && marker.length === 1;
+  return marker && marker.length == 1;
 }
 
 // Checks the mention plugins is in completion mode (e.g. when typing is after a valid mention string like @foo).

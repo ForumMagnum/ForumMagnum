@@ -23,10 +23,10 @@
  *   var htmldiff = require('htmldiff.js');
  *
  *   htmldiff('<p>this is some text</p>', '<p>this is some more text</p>')
- *   === '<p>this is some <ins>more </ins>text</p>'
+ *   == '<p>this is some <ins>more </ins>text</p>'
  *
  *   htmldiff('<p>this is some text</p>', '<p>this is some more text</p>', 'diff-class')
- *   === '<p>this is some <ins class="diff-class">more </ins>text</p>'
+ *   == '<p>this is some <ins class="diff-class">more </ins>text</p>'
  */
 function isEndOfTag(char: string){
     return char === '>';

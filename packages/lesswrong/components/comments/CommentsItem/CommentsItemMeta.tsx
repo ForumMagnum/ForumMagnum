@@ -234,8 +234,8 @@ export const CommentsItemMeta = ({
           !(hideParentCommentToggleForTopLevel &&
             comment.parentCommentId === comment.topLevelCommentId
           ) &&
-          parentCommentId !== comment.parentCommentId &&
-          parentAnswerId !== comment.parentCommentId &&
+          parentCommentId != comment.parentCommentId &&
+          parentAnswerId != comment.parentCommentId &&
         <ShowParentComment
           comment={comment}
           active={showParentState}

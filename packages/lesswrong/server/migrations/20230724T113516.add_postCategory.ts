@@ -46,7 +46,7 @@ export const up = async ({db}: MigrationContext) => {
   await db.any(`
     UPDATE "Posts"
     SET "postCategory" = CASE
-      WHEN "url" IS NOT NULL AND "url" !== '' THEN 'linkpost'
+      WHEN "url" IS NOT NULL AND "url" != '' THEN 'linkpost'
       WHEN "question" = true THEN 'question'
       ELSE 'post'
     END

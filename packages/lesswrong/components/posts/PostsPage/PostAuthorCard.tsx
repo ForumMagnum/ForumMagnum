@@ -95,7 +95,7 @@ const PostAuthorCard = ({author, currentUser, classes}: {
           </Link>
         </Typography>
         <div className={classes.btns}>
-          {currentUser?._id !== author._id && <NewConversationButton
+          {currentUser?._id != author._id && <NewConversationButton
             user={author}
             currentUser={currentUser}
             from="post_author_card"
@@ -104,7 +104,7 @@ const PostAuthorCard = ({author, currentUser, classes}: {
               Message
             </a>
           </NewConversationButton>}
-          {currentUser?._id !== author._id && <NotifyMeButton
+          {currentUser?._id != author._id && <NotifyMeButton
             document={author}
             className={classes.subscribeBtn}
             subscribeMessage="Subscribe"

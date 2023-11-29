@@ -44,7 +44,7 @@ const RecentDiscussionFeed = ({
 
   useGlobalKeydown(event => {
     const F_Key = 70
-    if ((event.metaKey || event.ctrlKey) && event.keyCode === F_Key) {
+    if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
       setExpandAllThreads(true);
     }
   });

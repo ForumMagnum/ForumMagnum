@@ -432,7 +432,7 @@ function getAlignment(results: AnyBecauseTodo) {
   } else if  (ratio > 6) {
     lawfulChaotic = 'Lawful'
   }
-  if (lawfulChaotic === 'Neutral' && goodEvil  === 'neutral') {
+  if (lawfulChaotic == 'Neutral' && goodEvil  == 'neutral') {
     return 'True neutral'
   }
   return lawfulChaotic + ' ' + goodEvil

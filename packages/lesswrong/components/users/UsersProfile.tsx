@@ -238,7 +238,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     
     const nonAFMember = (isAF && !userCanDo(currentUser, "posts.alignment.new"))
 
-    const showMessageButton = currentUser?._id !== user._id
+    const showMessageButton = currentUser?._id != user._id
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>

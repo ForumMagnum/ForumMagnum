@@ -12,7 +12,7 @@ export const trimLatexAndAddCSS = (dom: any, css: string) => {
   // want to adjust this part.
   for (var i = 0, len = paragraphs.length; i < len; i++) {
       var elem = paragraphs[i];
-      if (elem.textContent.trim() === '') {
+      if (elem.textContent.trim() == '') {
           elem.parentNode.removeChild(elem);
           i--;
           len--;
