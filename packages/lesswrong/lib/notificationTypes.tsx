@@ -368,6 +368,22 @@ export const NewDialogueMatchNotification = registerNotificationType({
   }
 });
 
+// Notification that you have new interested parties for dialogues
+export const NewDialogueCheckNotification = registerNotificationType({
+  name: "newDialogueChecks",
+  userSettingField: "notificationNewDialogueChecks",
+  allowedChannels: ["onsite", "none"],
+  async getMessage(props: GetMessageProps) {
+    return `People have expressed interest in dialogue-ing with you since you last checked!`
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  },
+  getLink() {
+    return "/dialogueMatching"
+  }
+});
+
 //NOTIFICATION FOR OLD DIALOGUE FORMAT
 //TO-DO: clean up eventually
 // New debate comment on a debate post you're subscribed to.  For readers explicitly subscribed to the debate.

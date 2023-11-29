@@ -80,7 +80,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   };
 
   const isHealthCheck = userAgent === healthCheckUserAgentSetting.get();
-  const abTestGroups = getAllUserABTestGroups(user, clientId);
+  const abTestGroups = getAllUserABTestGroups(user ? {user} : {clientId});
   
   // Skip the page-cache if the user-agent is Slackbot's link-preview fetcher
   // because we need to render that page with a different value for the
@@ -284,7 +284,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: {
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
     relevantAbTestGroups: abTestGroups,
-    allAbTestGroups: getAllUserABTestGroups(user, clientId),
+    allAbTestGroups: getAllUserABTestGroups(user ? {user} : {clientId}),
     themeOptions,
     renderedAt: now,
     timings,
