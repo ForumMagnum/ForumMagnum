@@ -14,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "center",
     gap: "32px",
     color: theme.palette.givingPortal[1000],
-    background: theme.palette.givingPortal[200],
+    background: theme.palette.givingPortal.thankYouBackground,
     borderRadius: 12,
     padding: "48px 32px",
     width: 550,
@@ -43,33 +43,48 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: "16px",
+    background: theme.palette.grey[0],
+    borderRadius: theme.borderRadius.default,
     padding: "24px 0",
-    "& > *": {
-      flexBasis: "50%",
-    },
     [theme.breakpoints.down("xs")]: {
       flexDirection: "column",
+      background: "inherit",
+      gap: "16px",
     },
   },
   voted: {
     display: "flex",
     flexDirection: "column",
     gap: "6px",
-    background: theme.palette.grey[0],
     color: theme.palette.grey[1000],
     fontSize: 14,
     fontWeight: 600,
     letterSpacing: "-0.14px",
-    padding: "12px 24px",
+    flexBasis: "50%",
+    padding: "12px 28px",
+    background: theme.palette.grey[0],
     borderRadius: theme.borderRadius.default,
+    [theme.breakpoints.down("xs")]: {
+      width: "100%",
+      maxWidth: 230,
+    },
   },
   votedRow: {
     display: "flex",
     gap: "8px",
+    alignItems: "center",
   },
   icon: {
     color: theme.palette.givingPortal[1000],
+    width: 20,
+    height: 20,
+  },
+  arrowIcon: {
+    fontSize: 18,
+    transform: "rotate(180deg)",
+    [theme.breakpoints.down("xs")]: {
+      display: "none",
+    },
   },
   tooltipRow: {
     display: "flex",
@@ -88,13 +103,15 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
-    gap: "10px",
+    marginRight: 20,
+    flexBasis: "50%",
+    gap: "8px",
     fontSize: 16,
     fontWeight: 600,
     background: theme.palette.givingPortal.button.dark,
     color: theme.palette.givingPortal.button.light,
     borderRadius: theme.borderRadius.small,
-    padding: "12px 20px",
+    padding: "12px 12px",
     border: "none",
     outline: "none",
     userSelect: "none",
@@ -104,6 +121,9 @@ const styles = (theme: ThemeType) => ({
     },
     "&:active": {
       opacity: 0.7,
+    },
+    [theme.breakpoints.down("xs")]: {
+      marginRight: 0,
     },
   },
   hr: {
@@ -161,7 +181,7 @@ const VotingPortalThankYou = ({currentUser, classes}: {
           height={height}
           numberOfPieces={1200}
           tweenDuration={20000}
-          colors={["#aa4578", "#bb85db", "#7839ca", "#bb3666", "#d7748a"]}
+          colors={["#A82D22", "#9BBB99", "#FFAF58", "#FAA2A2", "#90CEE9"]}
           recycle={false}
           onConfettiComplete={onConfettiComplete}
         />
@@ -173,7 +193,7 @@ const VotingPortalThankYou = ({currentUser, classes}: {
           <div className={classes.votedRow}>
             {currentUser.displayName}
             <ForumIcon
-              icon="ChatBubbleLeftRightFilled"
+              icon="Voted"
               className={classes.icon}
             />
           </div>
@@ -183,31 +203,30 @@ const VotingPortalThankYou = ({currentUser, classes}: {
             </div>
           </div>
         </div>
-        <div>
-          <div className={classes.button} role="button" onClick={toggleFlair}>
-            {loadingFlair
-              ? <Loading white />
-              : currentUser.givingSeason2023VotedFlair
-                ? "Remove icon from your profile"
-                : "Add icon to your profile"
-            }
-          </div>
+        <div className={classes.button} role="button" onClick={toggleFlair}>
+          {loadingFlair
+            ? <Loading white />
+            : <><ForumIcon icon="ArrowRight" className={classes.arrowIcon} /> {currentUser.givingSeason2023VotedFlair
+              ? "Remove icon from your profile"
+              : "Add icon to your profile"}</>
+          }
         </div>
       </div>
       <div className={classes.hr} />
       <ul className={classes.list}>
         <li>
-          <Link to="#">
-            Share that you voted and why you voted the way you did
+          <Link to="/quicktakes">
+            Share that you voted — and why!
           </Link>
         </li>
         <li>
-          <Link to="#">
-            Add to the Donation Election Fund
-          </Link>
+          {/* TODO get this from the election candidate */}
+          <a href="https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023" target="_blank" rel="noopener noreferrer">
+            Donate to the Donation Election Fund
+          </a>
         </li>
         <li>
-          <Link to="#">
+          <Link to="/giving-portal">
             Explore other giving opportunities
           </Link>
         </li>

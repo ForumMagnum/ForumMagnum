@@ -296,6 +296,7 @@ describe('Voting', function() {
         // mongo aggregation. To run these tests in mongo again, remove
         // collectionName from the expected object.
         collectionName: "Posts",
+        addedReacts: [],
         scoreChange: 1,
         title: post.title,
         slug: slugify(post.title),
@@ -334,6 +335,7 @@ describe('Voting', function() {
         _id: post._id,
         // NB: See above
         collectionName: "Posts",
+        addedReacts: [],
         scoreChange: 2,
         title: post.title,
         slug: slugify(post.title),

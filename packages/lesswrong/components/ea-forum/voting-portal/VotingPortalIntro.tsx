@@ -89,7 +89,7 @@ const styles = (theme: ThemeType) => ({
 const fundLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
 const exploreLink = "/giving-portal";
 const processLink = "/posts/dYhKfsNuQX2sznfxe/donation-election-how-voting-will-work";
-const getStartedLink = "#"; // TODO
+const getStartedLink = "/voting-portal/select-candidates";
 
 const VotingPortalIntro = ({classes}: {
   classes: ClassesType<typeof styles>,

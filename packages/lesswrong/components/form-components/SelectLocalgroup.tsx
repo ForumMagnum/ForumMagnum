@@ -21,7 +21,7 @@ const SelectLocalgroup = (props: any) => {
     terms: {
       view: user.isAdmin ? 'all' : 'userActiveGroups',
       userId: user._id,
-      limit: 300
+      limit: 500
     },
     skip: !user
   });

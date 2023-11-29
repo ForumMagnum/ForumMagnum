@@ -403,6 +403,7 @@ declare global {
     background: {
       default: ColorString
       paper: ColorString,
+      contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
       translucentBackground: ColorString,
       diffInserted: ColorString,
@@ -461,10 +462,12 @@ declare global {
     eventsHomeLoadMoreHover: ColorString,
 
     givingPortal: Record<0 | 200 | 800 | 900 | 1000, ColorString> & {
-      ctaBackground: ColorString,
       ctaText: ColorString,
       candidate: ColorString,
       votedCandidate: ColorString,
+      selectedCandidate: ColorString,
+      ctaBackground: ColorString,
+      thankYouBackground: ColorString,
       rhsLink: ColorString,
       secondary: ColorString,
       votingPortalIntroBackground: ColorString,

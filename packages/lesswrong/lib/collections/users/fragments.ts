@@ -262,6 +262,10 @@ registerFragment(`
         scoreChange
         title
         slug
+        addedReacts {
+          reactionType
+          userId
+        }
       }
       comments {
         _id
@@ -270,6 +274,10 @@ registerFragment(`
         postId
         tagSlug
         tagCommentType
+        addedReacts {
+          reactionType
+          userId
+        }
       }
       tagRevisions {
         _id
@@ -277,6 +285,10 @@ registerFragment(`
         tagId
         tagSlug
         tagName
+        addedReacts {
+          reactionType
+          userId
+        }
       }
     }
   }

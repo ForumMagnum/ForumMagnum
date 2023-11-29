@@ -420,8 +420,18 @@
     "timestamp": "2023-11-21T12:12:51.000Z"
   },
   {
-    "acceptsSchemaHash": "fe1aa6911a910e4e72373cb4293fb031",
-    "acceptedByMigration": "20231127T125106.add_givingSeason2023VotedFlair.ts",
-    "timestamp": "2023-11-27T12:51:06.000Z"
+    "acceptsSchemaHash": "2e28d7576d143428c88b6c5a8ece4690",
+    "acceptedByMigration": "20231124T200925.move_on_connect_queries_into_migration.ts",
+    "timestamp": "2023-11-24T20:09:25.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7db476f93913b50f646a44166768ced6",
+    "acceptedByMigration": "20231128T152304.add_ElectionVotes.ts",
+    "timestamp": "2023-11-28T15:23:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8b861e3bf25c8edf6522b62bea9bf389",
+    "acceptedByMigration": "20231129T080701.add_givingSeason2023VotedFlair.ts",
+    "timestamp": "2023-11-29T08:07:01.000Z"
   }
 ]
