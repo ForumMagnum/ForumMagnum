@@ -59,6 +59,15 @@ const styles = (theme: ThemeType) => ({
   arrowLeft: {
     transform: "rotate(180deg)",
   },
+  tooltip: {
+    display: "flex",
+    flex: 1,
+    alignSelf: "flex-end",
+    maxWidth: 244,
+  },
+  tooltipPopper: {
+    marginBottom: 8,
+  }
 });
 
 export const VotingPortalFooter = ({
@@ -66,6 +75,7 @@ export const VotingPortalFooter = ({
   leftHref,
   middleNode,
   buttonText="Continue",
+  buttonTooltip,
   buttonProps,
   classes,
 }: {
@@ -73,10 +83,11 @@ export const VotingPortalFooter = ({
   leftHref: string,
   middleNode: React.ReactNode,
   buttonText?: string,
+  buttonTooltip?: string,
   buttonProps: React.ButtonHTMLAttributes<HTMLButtonElement>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ForumIcon } = Components;
+  const { ForumIcon, LWTooltip } = Components;
 
   return (
     <div className={classes.footer}>
@@ -87,14 +98,22 @@ export const VotingPortalFooter = ({
           </Link>
           {middleNode}
         </div>
-        <button
-          {...buttonProps}
-          className={classNames(classes.button, classes.continueButton, {
-            [classes.buttonDisabled]: buttonProps.disabled,
-          })}
+        <LWTooltip
+          title={buttonTooltip}
+          placement="top"
+          disabled={!buttonTooltip}
+          className={classes.tooltip}
+          popperClassName={classes.tooltipPopper}
         >
-          {buttonText} <ForumIcon icon="ArrowRight" className={classes.arrowIcon} />
-        </button>
+          <button
+            {...buttonProps}
+            className={classNames(classes.button, classes.continueButton, {
+              [classes.buttonDisabled]: buttonProps.disabled,
+            })}
+          >
+            {buttonText} <ForumIcon icon="ArrowRight" className={classes.arrowIcon} />
+          </button>
+        </LWTooltip>
       </div>
     </div>
   );

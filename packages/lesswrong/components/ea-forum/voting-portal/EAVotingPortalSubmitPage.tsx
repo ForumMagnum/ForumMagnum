@@ -123,6 +123,7 @@ const EAVotingPortalSubmitPage = ({
           leftHref="/voting-portal/allocate-votes"
           middleNode={<></>}
           buttonText="Submit your vote"
+          buttonTooltip={electionVote.submittedAt ? "You can't change your vote after submission" : "Once you submit your vote it can't be changed"}
           buttonProps={{
             onClick: async () => {
               await handleSubmit();
