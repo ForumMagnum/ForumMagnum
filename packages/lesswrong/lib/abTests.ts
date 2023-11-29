@@ -95,3 +95,64 @@ export const dialogueFacilitationMessagesABTest = new ABTest({
     },
   },
 });
+
+export const frontpageDialogueReciprocityRecommendations = new ABTest({
+  name: "frontpageDialogueReciprocityRecommendations",
+  description: "Show frontpage reciprocity recommendations or not",
+  groups: {
+    show: {
+      description: "Show on frontpage",
+      weight: 1,
+    },
+    noShow: {
+      description: "Don't show",
+      weight: 3,
+    },
+  },
+});
+
+export const showTopicsInReciprocity = new ABTest({
+  name: "showOpinionsInReciprocity",
+  description: "Show suggested topics in the reciprocity dialogue frontpage suggestions",
+  groups: {
+    show: {
+      description: "Show topics",
+      weight: 1,
+    },
+    noShow: {
+      description: "Don't show topics",
+      weight: 1,
+    },
+  },
+});
+
+// Does non-SSR rendering of the DialogueMatchingPage help with anything?
+export const dialogueMatchingPageNoSSRABTest = new ABTest({
+  name: "dialogueMatchingPageNoSSR",
+  description: "Different rendering of the DialogueMatchingPage",
+  groups: {
+    control: {
+      description: "Control version",
+      weight: 1,
+    },
+    noSSR: {
+      description: "Non-SSR version",
+      weight: 1,
+    },
+  },
+});
+
+export const newDialogueChecksNotificationABTest = new ABTest({
+  name: "newDialogueChecksNotification",
+  description: "Get notifications when you get new dialogue checks",
+  groups: {
+    control: {
+      description: "Control version",
+      weight: 1,
+    },
+    notification: {
+      description: "Notification version",
+      weight: 1,
+    },
+  },
+});

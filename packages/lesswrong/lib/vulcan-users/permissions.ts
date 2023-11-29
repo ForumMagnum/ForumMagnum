@@ -198,19 +198,30 @@ export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|nu
 export const userCanReadField = <T extends DbObject>(user: UsersCurrent|DbUser|null, field: CollectionFieldSpecification<T>, document: T): boolean => {
   const canRead = field.canRead;
   if (canRead) {
-    if (typeof canRead === 'function') {
-      // if canRead is a function, execute it with user and document passed. it must return a boolean
-      return canRead(user, document);
-    } else if (typeof canRead === 'string') {
-      // if canRead is just a string, we assume it's the name of a group and pass it to isMemberOf
-      return canRead === 'guests' || userIsMemberOf(user, canRead);
-    } else if (Array.isArray(canRead) && canRead.length > 0) {
-      // if canRead is an array, we do a recursion on every item and return true if one of the items return true
-      return canRead.some(group => userCanReadField(user, { canRead: group }, document));
-    }
+    return userHasFieldPermissions(user, canRead, document);
   }
   return false;
 };
+
+const userHasFieldPermissions = <T extends DbObject>(user: UsersCurrent|DbUser|null, canRead: FieldPermissions, document: T): boolean => {
+  if (typeof canRead === 'string') {
+    // if canRead is just a string, we assume it's the name of a group and pass it to isMemberOf
+    return canRead === 'guests' || userIsMemberOf(user, canRead);
+  } else if (typeof canRead === 'function') {
+    // if canRead is a function, execute it with user and document passed. it must return a boolean
+    return canRead(user, document);
+  } else if (Array.isArray(canRead) && canRead.length > 0) {
+    // if canRead is an array, we do a recursion on every item and return true if one of the items return true
+    for (const group of canRead) {
+      if (userHasFieldPermissions(user, group, document)) {
+        return true;
+      }
+    }
+    return false;
+  } else {
+    return false;
+  }
+}
 
 // @summary Get a list of fields viewable by a user
 // @param {Object} user - The user performing the action
@@ -235,23 +246,32 @@ const getViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUse
 // TODO: Integrate permissions-filtered DbObjects into the type system
 export const restrictViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>): any {
   if (!docOrDocs) return {};
+  const schema = getSchema(collection);
 
-  const restrictDoc = (document: T) => {
-    // get array of all keys viewable by user
-    const viewableKeys: Set<string> = getViewableFields(user, collection, document);
-    
-    // return a filtered document
-    const restrictedDocument: Record<string,any> = {};
-    for (let key of Object.keys(document)) {
-      if (viewableKeys.has(key))
-        restrictedDocument[key] = (document as any)[key];
-    }
-
-    return restrictedDocument;
-  };
-
-  return Array.isArray(docOrDocs) ? docOrDocs.map(restrictDoc) : restrictDoc(docOrDocs);
+  if (Array.isArray(docOrDocs)) {
+    return restrictViewableFieldsMultiple(user, collection, docOrDocs);
+  } else {
+    return restrictViewableFieldsSingle(user, collection, docOrDocs);
+  }
 };
+
+export const restrictViewableFieldsMultiple = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docs: T[]): any {
+  if (!docs) return [];
+  return docs.map(doc => restrictViewableFieldsSingle(user, collection, doc));
+};
+export const restrictViewableFieldsSingle = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, doc: T): any {
+  if (!doc) return {};
+  const schema = getSchema(collection);
+  const restrictedDocument: Record<string,any> = {};
+  for (const fieldName of Object.keys(doc)) {
+    const fieldSchema = schema[fieldName];
+    if (fieldSchema && userCanReadField(user, fieldSchema, doc)) {
+      restrictedDocument[fieldName] = (doc as any)[fieldName];
+    }
+  }
+
+  return restrictedDocument;
+}
 
 // Check if a user can submit a field
 export const userCanCreateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>): boolean => {

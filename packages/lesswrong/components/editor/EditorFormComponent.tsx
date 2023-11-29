@@ -174,7 +174,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   
   const saveBackup = useCallback((newContents: EditorContents) => {
-    if (isBlank(newContents)) {
+    const sameAsSaved = newContents.value === document?.[fieldName]?.ckEditorMarkup
+
+    if (isBlank(newContents) || sameAsSaved) {
       getLocalStorageHandlers(currentEditorType).reset();
       hasUnsavedDataRef.current.hasUnsavedData = false;
     } else {
@@ -185,7 +187,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         hasUnsavedDataRef.current.hasUnsavedData = false;
       }
     }
-  }, [getLocalStorageHandlers, currentEditorType]);
+  }, [getLocalStorageHandlers, currentEditorType, document, fieldName]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this

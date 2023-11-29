@@ -80,19 +80,17 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [limit]);
   }
 
-  readonly bensInterestingDisagreementsCommentId = 'NtsPs9wcwrpeK6KYL';
-
-  async getPopularPollComments (limit: number): Promise<(ExtendedCommentWithReactions)[]> {
+  async getPopularPollComments (limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
     return await this.getRawDb().manyOrNone(`
       SELECT c.*
       FROM public."Comments" AS c
       WHERE c."parentCommentId" = $2
       ORDER BY c."baseScore" DESC
       LIMIT $1
-    `, [limit, this.bensInterestingDisagreementsCommentId]);
+    `, [limit, pollCommentId]);
   }
 
-  async getPopularPollCommentsWithUserVotes (userId:string, limit: number): Promise<(ExtendedCommentWithReactions)[]> {
+  async getPopularPollCommentsWithUserVotes (userId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
     return await this.getRawDb().manyOrNone(`
     SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "yourVote"
     FROM public."Comments" AS c
@@ -105,10 +103,10 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       AND v."isUnvote" IS NOT TRUE
     ORDER BY c."baseScore" DESC
     LIMIT $2
-    `, [userId, limit, this.bensInterestingDisagreementsCommentId]);
+    `, [userId, limit, pollCommentId]);
   }
 
-  async getPopularPollCommentsWithTwoUserVotes (userId:string, targetUserId:string, limit: number): Promise<(ExtendedCommentWithReactions)[]> {
+  async getPopularPollCommentsWithTwoUserVotes (userId:string, targetUserId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
     return await this.getRawDb().manyOrNone(`
       WITH votes_filtered AS (
         SELECT *
@@ -128,7 +126,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
         AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
       ORDER BY c."baseScore" DESC
       LIMIT $3
-    `, [userId, targetUserId, limit, this.bensInterestingDisagreementsCommentId]);
+    `, [userId, targetUserId, limit, pollCommentId]);
   }
 
   async getPopularComments({
