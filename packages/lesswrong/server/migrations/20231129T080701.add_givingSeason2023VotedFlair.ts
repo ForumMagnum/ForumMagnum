@@ -1,7 +1,7 @@
 import Users from "../../lib/collections/users/collection";
 import { addField, dropField } from "./meta/utils";
 
-export const acceptsSchemaHash = "fe1aa6911a910e4e72373cb4293fb031";
+export const acceptsSchemaHash = "8b861e3bf25c8edf6522b62bea9bf389";
 
 export const up = async ({db}: MigrationContext) => {
   if (Users.isPostgres()) {

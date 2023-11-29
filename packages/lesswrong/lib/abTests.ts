@@ -95,3 +95,19 @@ export const dialogueFacilitationMessagesABTest = new ABTest({
     },
   },
 });
+
+// Does non-SSR rendering of the DialogueMatchingPage help with anything?
+export const dialogueMatchingPageNoSSRABTest = new ABTest({
+  name: "dialogueMatchingPageNoSSR",
+  description: "Different rendering of the DialogueMatchingPage",
+  groups: {
+    control: {
+      description: "Control version",
+      weight: 1,
+    },
+    noSSR: {
+      description: "Non-SSR version",
+      weight: 1,
+    },
+  },
+});

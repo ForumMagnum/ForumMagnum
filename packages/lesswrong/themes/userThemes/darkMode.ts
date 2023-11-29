@@ -211,6 +211,7 @@ export const darkModeTheme: UserThemeSpecification = {
       cookieBanner: shadePalette.grey[900],
     },
     background: {
+      contrastInDarkMode: shadePalette.grey[100],
       diffInserted: "#205120",
       diffDeleted: "#b92424",
       primaryDim: "#28383e",
@@ -261,6 +262,7 @@ export const darkModeTheme: UserThemeSpecification = {
       [1000]: "#FFF",
       candidate: "#64342E",
       votedCandidate: "#8A5751",
+      selectedCandidate: "#49201C",
       ctaBackground: "#64342E",
       ctaText: "#FFF",
       rhsLink: '#E7714E',
