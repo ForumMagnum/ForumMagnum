@@ -15,6 +15,7 @@ type DialogueMatchPreferencesViewName = "dialogueMatchPreferences";
 type DigestPostsViewName = never
 type DigestsViewName = "findByNum"|"all";
 type ElectionCandidatesViewName = never
+type ElectionVotesViewName = never
 type ElicitQuestionPredictionsViewName = never
 type ElicitQuestionsViewName = never
 type EmailTokensViewName = never
@@ -75,6 +76,7 @@ interface ViewTermsByCollectionName {
   DigestPosts: ViewTermsBase
   Digests: DigestsViewTerms
   ElectionCandidates: ElectionCandidatesViewTerms
+  ElectionVotes: ElectionVotesViewTerms
   ElicitQuestionPredictions: ViewTermsBase
   ElicitQuestions: ViewTermsBase
   EmailTokens: ViewTermsBase

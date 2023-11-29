@@ -17,6 +17,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
 import { useLocation } from "../../../lib/routeUtil";
+import { useElectionVote } from "../voting-portal/hooks";
 
 export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
 const BACKGROUND_ASPECT = 3160 / 800;
@@ -208,25 +209,6 @@ const votingPortalSocialImageProps: CloudinaryPropsType = {
   f: "auto",
 };
 
-const VOTING_STEPS = [
-  {
-    label: '1. Select candidates',
-    href: '/voting-portal/select-candidates',
-  },
-  {
-    label: '2. Compare',
-    href: '/voting-portal/compare',
-  },
-  {
-    label: '3. Allocate votes',
-    href: '/voting-portal/allocate-votes',
-  },
-  {
-    label: '4. Submit',
-    href: '/voting-portal/submit',
-  },
-] as const;
-
 const GivingSeasonHeader = ({
   searchOpen,
   hasLogo,
@@ -251,6 +233,32 @@ const GivingSeasonHeader = ({
   const { Typography, HeadTags } = Components;
   const isDesktop = useIsAboveBreakpoint("md");
   const { pathname } = useLocation();
+  const { electionVote } = useElectionVote("givingSeason23");
+
+  const allocateAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 0;
+  const submitAllowed = electionVote?.vote && Object.values(electionVote.vote).some((value) => value);
+
+  const votingSteps = [
+    {
+      label: '1. Select candidates',
+      href: '/voting-portal/select-candidates',
+    },
+    {
+      label: '2. Compare',
+      href: '/voting-portal/compare',
+      disabled: !allocateAllowed,
+    },
+    {
+      label: '3. Allocate votes',
+      href: '/voting-portal/allocate-votes',
+      disabled: !allocateAllowed,
+    },
+    {
+      label: '4. Submit',
+      href: '/voting-portal/submit',
+      disabled: !submitAllowed,
+    },
+  ]
 
   const isVotingPortal = pathname.startsWith("/voting-portal");
   // Show voting steps if we are on a path like /voting-portal/compare (with anything after /voting-portal/)
@@ -258,11 +266,13 @@ const GivingSeasonHeader = ({
 
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
-      {isVotingPortal && <HeadTags
-        title="Donation Election: voting portal"
-        description="Vote in the EA Forum Donation Election"
-        image={makeCloudinaryImageUrl(heroImageId, votingPortalSocialImageProps)}
-      />}
+      {isVotingPortal && (
+        <HeadTags
+          title="Donation Election: voting portal"
+          description="Vote in the EA Forum Donation Election"
+          image={makeCloudinaryImageUrl(heroImageId, votingPortalSocialImageProps)}
+        />
+      )}
       <div
         className={classNames(classes.root, classes.rootGivingSeason, {
           [classes.rootScrolled]: !unFixed,
@@ -319,19 +329,28 @@ const GivingSeasonHeader = ({
               </div>
               {showVotingSteps && (
                 <div className={classNames(classes.navigationSteps, classes.hideSmDown)}>
-                  {VOTING_STEPS.map(({ label, href }) => (
-                    <Link
-                      key={href}
-                      to={href}
-                      className={classNames(classes.stepLink, {
-                        [classes.activeStepLink]: pathname === href,
-                        // TODO: make this based on what they have completed so far
-                        [classes.disabledStepLink]: label === "4. Submit",
-                      })}
-                    >
-                      {label}
-                    </Link>
-                  ))}
+                  {votingSteps.map(({ label, href, disabled }) =>
+                    disabled ? (
+                      <span
+                        key={href}
+                        className={classNames(classes.stepLink, classes.disabledStepLink, {
+                          [classes.activeStepLink]: pathname === href,
+                        })}
+                      >
+                        {label}
+                      </span>
+                    ) : (
+                      <Link
+                        key={href}
+                        to={href}
+                        className={classNames(classes.stepLink, {
+                          [classes.activeStepLink]: pathname === href,
+                        })}
+                      >
+                        {label}
+                      </Link>
+                    )
+                  )}
                 </div>
               )}
               <RightHeaderItems />

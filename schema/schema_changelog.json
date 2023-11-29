@@ -423,5 +423,20 @@
     "acceptsSchemaHash": "2e28d7576d143428c88b6c5a8ece4690",
     "acceptedByMigration": "20231124T200925.move_on_connect_queries_into_migration.ts",
     "timestamp": "2023-11-24T20:09:25.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7db476f93913b50f646a44166768ced6",
+    "acceptedByMigration": "20231128T152304.add_ElectionVotes.ts",
+    "timestamp": "2023-11-28T15:23:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8b861e3bf25c8edf6522b62bea9bf389",
+    "acceptedByMigration": "20231129T080701.add_givingSeason2023VotedFlair.ts",
+    "timestamp": "2023-11-29T08:07:01.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5cb40349b3ff94014c31fb0418ffa6ea",
+    "acceptedByMigration": "20231129T190047.add_four_fields_for_frontpage_dialogue_widget_customisation.ts",
+    "timestamp": "2023-11-29T19:00:47.000Z"
   }
 ]

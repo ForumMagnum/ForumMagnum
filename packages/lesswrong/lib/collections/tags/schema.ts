@@ -654,7 +654,7 @@ const schema: SchemaType<DbTag> = {
   noindex: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,

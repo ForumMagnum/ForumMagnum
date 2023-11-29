@@ -1,5 +1,5 @@
 import { Utils, getTypeName, getCollection } from '../vulcan-lib';
-import { restrictViewableFields } from '../vulcan-users/permissions';
+import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
 import { describeTerms, viewTermsToQuery } from '../utils/viewUtils';
@@ -67,7 +67,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
           : docs;
 
         // take the remaining documents and remove any fields that shouldn't be accessible
-        const restrictedDocs = restrictViewableFields(currentUser, collection, viewableDocs);
+        const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collection, viewableDocs);
 
         // prime the cache
         restrictedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
@@ -160,7 +160,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
           }
         }
 
-        const restrictedDoc = restrictViewableFields(currentUser, collection, doc);
+        const restrictedDoc = restrictViewableFieldsSingle(currentUser, collection, doc);
 
         logGroupEnd();
         logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
