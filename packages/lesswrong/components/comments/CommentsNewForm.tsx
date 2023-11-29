@@ -270,13 +270,10 @@ const CommentsNewForm = ({
   }
 
   if (parentComment) {
-    console.log(`parentCommentId = ${parentComment._id}`);
     prefilledProps = {
       ...prefilledProps,
       parentCommentId: parentComment._id,
     };
-  } else {
-    console.log("No parent comment");
   }
 
   const SubmitComponent = ({submitLabel = "Submit"}) => {
