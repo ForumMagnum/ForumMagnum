@@ -273,8 +273,8 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: {
     });
   }
   
-  await client.clearStore();
-  
+  client.stop();
+
   return {
     ssrBody,
     headers: [head],

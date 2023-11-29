@@ -1,22 +1,22 @@
 /**
- * Generated on 2023-11-29T01:12:36.953Z by `yarn makemigrations`
+ * Generated on 2023-11-29T20:02:15.475Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/ForumMagnum/schema/accepted_schema.sql b/ForumMagnum/schema/schema_to_accept.sql
- * index 1a80166b28..8e2cb4845b 100644
+ * index ce1e629da8..a2a3410ca2 100644
  * --- a/ForumMagnum/schema/accepted_schema.sql
  * +++ b/ForumMagnum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
  *  --
- * --- Overall schema hash: 7db476f93913b50f646a44166768ced6
+ * --- Overall schema hash: 5cb40349b3ff94014c31fb0418ffa6ea
  * -
- * --- Accepted on 2023-11-28T15:23:04.000Z by 20231128T152304.add_ElectionVotes.ts
- * +-- Overall schema hash: f0c8207e63f19948cbc99d609bf283b2
+ * --- Accepted on 2023-11-29T19:00:47.000Z by 20231129T190047.add_four_fields_for_frontpage_dialogue_widget_customisation.ts
+ * +-- Overall schema hash: 6ee0467b3cdea6d954c14e9bee545c42
  *  
  * @@ -1133,3 +1131,3 @@ CREATE TABLE "UserTagRels" (
  *  
- * --- Schema for "Users", hash: 35f8ce70829fe6ccf6d005353b2d9439
- * +-- Schema for "Users", hash: fc476347f8389e9d90ee4f78e8a13061
+ * --- Schema for "Users", hash: a22133351267b7929fc15b858b0d5748
+ * +-- Schema for "Users", hash: 698b626d9959c4ee04993fea28a5263d
  *  CREATE TABLE "Users" (
  * @@ -1228,2 +1226,3 @@ CREATE TABLE "Users" (
  *      "notificationDialogueMatch" jsonb DEFAULT '{"channel":"both","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}' ::jsonb,
@@ -31,19 +31,19 @@
  * - [x] Uncomment `acceptsSchemaHash` below
  * - [x] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "f0c8207e63f19948cbc99d609bf283b2";
+export const acceptsSchemaHash = "6ee0467b3cdea6d954c14e9bee545c42";
 
-import Users from "../../lib/collections/users/collection";
-import { addField, dropField } from "./meta/utils";
+import Users from "../../lib/collections/users/collection"
+import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
   if (Users.isPostgres()) {
-    await addField(db, Users, "notificationNewDialogueChecks");
+    await addField(db, Users, "notificationNewDialogueChecks")
   }
 }
 
 export const down = async ({db}: MigrationContext) => {
   if (Users.isPostgres()) {
-    await dropField(db, Users, "notificationNewDialogueChecks");
+    await dropField(db, Users, "notificationNewDialogueChecks")
   }
 }
