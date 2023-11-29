@@ -49,18 +49,23 @@ import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
+import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 
-class ApolloServerLogging {
-  requestDidStart({ request, context }: { request: AnyBecauseTodo, context: ResolverContext }) {
-    const {operationName, query, variables} = request;
-    logGraphqlQueryStarted(operationName, query, variables);
-
+class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
+  requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
     const startTime = new Date()
+    const {operationName = 'unknownGqlOperation', query, variables} = request;
+    if (query) {
+      logGraphqlQueryStarted(operationName, query, variables);
+    }
     
     return {
-      willSendResponse({ context }: {context: ResolverContext}) { // hook for transaction finished
-        logGraphqlQueryFinished(operationName, query);
-        logGraphQLToAnalyticsDB(context, operationName, query, variables, startTime)
+      willSendResponse({ context }) { // hook for transaction finished
+        const endTime = new Date()
+        if (query) {
+          logGraphqlQueryFinished(operationName, query);
+        }
+        logGraphQLToAnalyticsDB(context, operationName, startTime, endTime)
       }
     };
   }

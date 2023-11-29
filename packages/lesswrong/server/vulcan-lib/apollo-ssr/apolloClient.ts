@@ -20,7 +20,7 @@ export const createClient = async (context: ResolverContext | null, foreign = fa
     links.push(createHttpLink(fmCrosspostBaseUrlSetting.get() ?? "/"));
   } else if (context) {
     const schema = getExecutableSchema();
-        // schemaLink will fetch data directly based on the executable schema
+    // schemaLink will fetch data directly based on the executable schema
     // context here is the resolver context
     links.push(createSchemaLink(schema, context));
   }

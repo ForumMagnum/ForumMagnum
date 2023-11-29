@@ -171,9 +171,7 @@ function logInFlightStuff() {
 }
 Globals.logInFlightStuff = logInFlightStuff;
 
-export function logGraphQLToAnalyticsDB(context: ResolverContext, operationName: string, queryString: string, variables: any, startTime: Date) {
-  const view = variables?.input?.terms?.view;
-  const endTime = new Date();
+export function logGraphQLToAnalyticsDB(context: ResolverContext, operationName: string, startTime: Date, endTime: Date) {
   const path = context.headers['request-origin-path']
-  captureEvent("GraphQLRequest", { startTime, endTime, queryString, path });
+  captureEvent("GraphQLRequest", {operationName, startTime, endTime, path });
 }
