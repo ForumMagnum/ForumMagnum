@@ -85,7 +85,7 @@ const EAVotingPortalSelectCandidatesPage = ({
               <Link to={processLink} target="_blank" rel="noopener noreferrer">
                 Read this post
               </Link>{" "}
-              for more info about how the voting system works.
+              for more info about the voting system.
             </div>
           </div>
           <ElectionCandidatesList

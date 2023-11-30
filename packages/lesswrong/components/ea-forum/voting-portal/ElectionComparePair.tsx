@@ -59,7 +59,7 @@ const styles = (theme: ThemeType) => ({
   switchOrderButton: {
     gap: "6px",
     display: "flex",
-    fontSize: 14,
+    fontSize: 16,
     color: theme.palette.givingPortal[1000],
     cursor: "pointer",
     userSelect: "none",
@@ -152,7 +152,7 @@ const ElectionComparePair = ({
           setValue({ multiplier: invertedMultiplier, AtoB: !value.AtoB })
         }}
       >
-        <ForumIcon icon="ArrowCircle" className={classes.switchOrderIcon} /> Switch order
+        <ForumIcon icon="ArrowCircle" className={classes.switchOrderIcon} /> Reverse order
       </div>
     </div>
   );
