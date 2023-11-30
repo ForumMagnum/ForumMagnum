@@ -1,16 +1,78 @@
-import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib";
+import React, { useCallback, useState } from "react";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { votingPortalStyles } from "./styles";
 import { useCurrentUser } from "../../common/withUser";
 import { isAdmin } from "../../../lib/vulcan-users";
+import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
+import { useElectionVote } from "./hooks";
+import difference from "lodash/difference";
+import { useMessages } from "../../common/withMessages";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
 });
 
-// TODO: implement
-const EAVotingPortalSelectCandidatesPage = ({classes}: {classes: ClassesType}) => {
+const EAVotingPortalSelectCandidatesPageLoader = ({ classes }: { classes: ClassesType }) => {
+  const { electionVote, updateVote } = useElectionVote("givingSeason23");
+
+  if (!electionVote?.vote) return null;
+
+  return (
+    <EAVotingPortalSelectCandidatesPage
+      electionVote={electionVote}
+      updateVote={updateVote}
+      classes={classes}
+    />
+  );
+};
+
+const EAVotingPortalSelectCandidatesPage = ({
+  electionVote,
+  updateVote,
+  classes,
+}: {
+  electionVote: ElectionVoteInfo;
+  updateVote: (newVote: NullablePartial<DbElectionVote>) => Promise<void>;
+  classes: ClassesType;
+}) => {
+  const { ElectionCandidatesList, VotingPortalFooter } = Components;
+  const [selectedIds, setSelectedCandidateIds] = useState<string[]>(Object.keys(electionVote.vote));
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const navigate = useNavigate();
+  const { flash } = useMessages();
+
+  const saveSelection = useCallback(async () => {
+    if (selectedIds.length === 0) {
+      flash("You must select at least one candidate");
+      return;
+    }
+    const isSingleCandidate = selectedIds.length === 1;
+
+    try {
+      const newVote = isSingleCandidate
+        ? { [selectedIds[0]]: 1 } // If there is only one candidate, give them all the votes
+        : selectedIds.reduce((acc, id) => ({ ...acc, [id]: electionVote.vote[id] ?? null }), {});
+      // In case they are redoing this step, clear the compare state
+      await updateVote({vote: newVote, compareState: null});
+    } catch (e) {
+      flash(e.message);
+      return;
+    }
+
+    const nextStep = isSingleCandidate ? "/voting-portal/submit" : "/voting-portal/compare";
+    navigate({ pathname: nextStep });
+  }, [electionVote.vote, flash, navigate, selectedIds, updateVote]);
+
+  const onSelect = useCallback((candidateIds: string[]) => {
+    setSelectedCandidateIds((prev) => {
+      const newIds = difference(candidateIds, prev);
+      const carriedIds = difference(prev, candidateIds);
+
+      return [...newIds, ...carriedIds];
+    });
+  }, []);
+
   // TODO un-admin-gate when the voting portal is ready
   const currentUser = useCurrentUser();
   if (!isAdmin(currentUser)) return null;
@@ -18,20 +80,39 @@ const EAVotingPortalSelectCandidatesPage = ({classes}: {classes: ClassesType}) =
   return (
     <AnalyticsContext pageContext="eaVotingPortalSelectCandidates">
       <div className={classes.root}>
-        <div className={classes.content} id="top">
-          <div className={classes.h1}>
-            Select projects
+        <div className={classes.content}>
+          <div className={classes.h2}>1. Select projects you want to vote for</div>
+          <div className={classes.subtitle}>
+            You'll allocate votes to these projects in the next steps.{" "}
+            <Link to="/posts/dYhKfsNuQX2sznfxe/donation-election-how-voting-will-work">
+              See what we'll do for projects you don't vote on.
+            </Link>
           </div>
+          <ElectionCandidatesList
+            type="select"
+            selectedCandidateIds={selectedIds}
+            onSelect={onSelect}
+            setTotalCount={setTotalCount}
+          />
         </div>
+        <VotingPortalFooter
+          leftText="Go back"
+          leftHref="/voting-portal"
+          middleNode={<div>Selected {selectedIds.length}/{totalCount} candidates</div>}
+          buttonProps={{
+            onClick: saveSelection,
+            disabled: selectedIds.length === 0 || !!electionVote.submittedAt,
+          }}
+        />
       </div>
     </AnalyticsContext>
   );
-}
+};
 
 const EAVotingPortalSelectCandidatesPageComponent = registerComponent(
   "EAVotingPortalSelectCandidatesPage",
-  EAVotingPortalSelectCandidatesPage,
-  {styles},
+  EAVotingPortalSelectCandidatesPageLoader,
+  { styles }
 );
 
 declare global {
@@ -39,4 +120,3 @@ declare global {
     EAVotingPortalSelectCandidatesPage: typeof EAVotingPortalSelectCandidatesPageComponent;
   }
 }
-

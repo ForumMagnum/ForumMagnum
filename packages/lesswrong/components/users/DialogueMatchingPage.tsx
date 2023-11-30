@@ -84,7 +84,7 @@ interface CommonDialogueUserRowProps {
   showPostsYouveRead: boolean | undefined;
 }
 
-type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueUserRowProps & {
+export type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueUserRowProps & {
   targetUser: UpvotedUser;
   showKarma: boolean;
   showAgreement: boolean;
@@ -93,7 +93,6 @@ type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueU
   showKarma: false;
   showAgreement: false;
 });
-
 
 type RowUser = UsersOptedInToDialogueFacilitation & {
   [k in keyof Omit<UpvotedUser, '_id' | 'username' | 'displayName'>]?: never;
@@ -670,7 +669,7 @@ const Headers = ({ titles, classes, headerClasses }: { titles: string[], headerC
   );
 };
 
-type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No", recommendationReason: string, theirVote?: string, yourVote?: string}
+export type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No", recommendationReason: string, theirVote?: string, yourVote?: string}
 
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes, dialogueCheck }: NextStepsDialogProps) => {
   const { LWDialog, ReactionIcon, LWTooltip } = Components;
@@ -1237,7 +1236,7 @@ export const DialogueMatchingPage = ({classes}: {
     matchedUsersQueryResult: { data: matchedUsersResult },
     userDialogueChecksResult: { results: userDialogueChecks },
     usersOptedInResult: { results: usersOptedInToDialogueFacilitation, loadMoreProps: optedInUsersLoadMoreProps }
-  } = useDialogueMatchmaking({ getMatchedUsers: true, getOptedInUsers: true, getUserDialogueChecks: true });
+  } = useDialogueMatchmaking({ getMatchedUsers: true, getRecommendedUsers: false, getOptedInUsers: true, getUserDialogueChecks: true });
 
   const { loading, error, data } = useQuery(gql`
     query getDialogueUsers {
@@ -1284,7 +1283,7 @@ export const DialogueMatchingPage = ({classes}: {
   const activeDialogueMatchSeekers = userDialogueUsefulData?.activeDialogueMatchSeekers.filter(user => !matchedUserIds.includes(user._id) && !(user._id === currentUser._id));
   
   if (loading) return <Loading />
-  if (error ?? !userDialogueChecks ?? userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
+  if (error || !userDialogueChecks || userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
   if (userDialogueChecks?.length > 1000) {
     throw new Error(`Warning: userDialogueChecks.length > 1000, seems user has checked more than a thousand boxes? how is that even possible? let a dev know and we'll fix it...`);
   }

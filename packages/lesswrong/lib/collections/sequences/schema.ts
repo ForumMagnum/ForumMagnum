@@ -220,7 +220,7 @@ const schema: SchemaType<DbSequence> = {
     type: Boolean,
     optional: true,
     label: "Alignment Forum",
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['alignmentVoters'],
     canCreate: ['alignmentVoters'],

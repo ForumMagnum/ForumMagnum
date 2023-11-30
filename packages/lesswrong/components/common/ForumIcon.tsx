@@ -58,6 +58,7 @@ import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
+import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
@@ -111,6 +112,7 @@ import { CloseMenuIcon } from "../icons/closeMenuIcon";
 import { BoldLinkIcon } from "../icons/boldLink";
 import { QIcon } from "../icons/qIcon";
 import { FilterAlt } from "../icons/filteralt";
+import { VotedIcon } from "../icons/votedIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -183,6 +185,7 @@ export type ForumIconName =
   "DocumentFilled" |
   "SoftUpArrow" |
   "ArrowRight" |
+  "ArrowCircle" |
   "EllipsisVertical" |
   "Share" |
   "ClipboardDocumentList" |
@@ -194,7 +197,8 @@ export type ForumIconName =
   "CloseMenu" |
   "Q" |
   "BarChart" |
-  "Funnel";
+  "Funnel" |
+  "Voted";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -262,6 +266,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
+    ArrowCircle: ArrowCircleIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
     Share: MuiShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
@@ -274,6 +279,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Q: QIcon,
     BarChart: ChartBarIcon,
     Funnel: FilterAlt,
+    Voted: VotedIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -340,6 +346,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
+    ArrowCircle: ArrowCircleIcon,
     EllipsisVertical: EllipsisVerticalIcon,
     Share: ShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
@@ -352,6 +359,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Q: QIcon,
     BarChart: ChartBarIcon,
     Funnel: FunnelIcon,
+    Voted: VotedIcon,
   },
 };
 

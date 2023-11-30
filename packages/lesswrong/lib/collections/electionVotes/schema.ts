@@ -1,26 +1,6 @@
 import { foreignKeyField } from "../../utils/schemaUtils";
 import { userOwns } from "../../vulcan-users";
-
-const validateVote = ({data}: {data: Partial<DbElectionVote>}) => {
-  if (data.vote && typeof data.vote !== 'object') {
-    throw new Error("Invalid vote value");
-  }
-  for (let key in data.vote) {
-    if (typeof data.vote[key] !== 'number' && data.vote[key] !== null) {
-      throw new Error("Invalid vote value");
-    }
-    if (data.vote[key] !== null && data.vote[key] < 0) {
-      throw new Error("Invalid vote value: allocation cannot be negative");
-    }
-  }
-  return data.vote;
-};
-
-// TODO the current version of this file is WIP, and is just here to generate the migrations.
-// This function will be implemented in the final version
-const validateCompareState = ({data}: {data: Partial<DbElectionVote>}) => {
-  return data.compareState;
-};
+import { validateCompareState, validateVote } from "./helpers";
 
 const schema: SchemaType<DbElectionVote> = {
   /** The name of the election */
