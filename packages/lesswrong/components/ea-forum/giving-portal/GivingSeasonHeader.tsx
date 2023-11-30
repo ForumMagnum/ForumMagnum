@@ -11,7 +11,7 @@ import {
 } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { headerImageId, heroImageId, userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import { headerImageId, heroImageId, userCanVoteInDonationElection, votingHeaderImageId } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
@@ -24,25 +24,29 @@ export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
 const BACKGROUND_ASPECT = 3160 / 800;
 const BACKGROUND_WIDTH = Math.round(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT * BACKGROUND_ASPECT);
 
-const GIVING_SEASON_HEADER_IMAGE = makeCloudinaryImageUrl(headerImageId, {
-  h: String(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT),
-  w: String(BACKGROUND_WIDTH),
-  q: "100",
-  f: "auto",
-  c: "fill",
-  g: "center",
-});
-
 export const givingSeasonImageBackground = (
   theme: ThemeType,
   position: "top" | "bottom",
+  isVotingImg?: boolean
 ) => {
+  const imgUrl = makeCloudinaryImageUrl(
+    isVotingImg ? votingHeaderImageId : headerImageId,
+    {
+      h: String(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT),
+      w: String(BACKGROUND_WIDTH),
+      q: "100",
+      f: "auto",
+      c: "fill",
+      g: "center",
+    }
+  )
+  
   const width = BACKGROUND_WIDTH;
   const height = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT;
   return {
     transition: "box-shadow 0.2s ease-in-out",
     backgroundColor: theme.palette.givingPortal.homepageHeader.dark,
-    backgroundImage: `url(${GIVING_SEASON_HEADER_IMAGE})`,
+    backgroundImage: `url(${imgUrl})`,
     backgroundPosition: position,
     backgroundRepeat: "no-repeat",
     backgroundSize: `${width}px ${height}px`,
@@ -98,6 +102,9 @@ const styles = (theme: ThemeType) => ({
   },
   homePageBackground: {
     ...givingSeasonImageBackground(theme, "top"),
+  },
+  homePageVotingBackground: {
+    ...givingSeasonImageBackground(theme, "top", true),
   },
   solidBackground: {
     background: theme.palette.givingPortal.homepageHeader.dark,
@@ -298,10 +305,10 @@ const GivingSeasonHeader = ({
           <header
             className={classNames(
               classes.appBarGivingSeason,
-              (advertiseVoting || isVotingPortal) ? classes.solidBackground : classes.homePageBackground
+              isVotingPortal ? classes.solidBackground : advertiseVoting ? classes.homePageVotingBackground : classes.homePageBackground
             )}
           >
-            {!advertiseVoting && !isVotingPortal && <div className={classes.givingSeasonGradient} />}
+            {!isVotingPortal && <div className={classes.givingSeasonGradient} />}
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
               <div className={classes.leftHeaderItems}>
                 <NavigationMenuButton />

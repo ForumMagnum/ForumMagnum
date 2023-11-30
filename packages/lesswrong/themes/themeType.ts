@@ -485,6 +485,7 @@ declare global {
         light2: ColorString,
         light2Opaque: ColorString,
         light1: ColorString,
+        light1Opaque: ColorString,
         main: ColorString,
         dark: ColorString,
         secondary: ColorString,

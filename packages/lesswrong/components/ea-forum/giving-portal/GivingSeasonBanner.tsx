@@ -45,9 +45,12 @@ const styles = (theme: ThemeType) => ({
     },
   },
   votingRoot: {
-    backgroundImage: 'none',
+    ...givingSeasonImageBackground(theme, "bottom", true),
     display: 'block',
     padding: "12px 0 30px",
+    [theme.breakpoints.down("sm")]: {
+      backgroundImage: "none",
+    },
     ["@media (max-width: 300px)"]: {
       display: "none",
     },
@@ -70,6 +73,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   votingOverview: {
+    position: 'relative',
     padding: "0 20px 0 48px",
     [theme.breakpoints.down("sm")]: {
       padding: '0 20px 0 25px',
@@ -185,6 +189,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   votingTimeline: {
+    position: 'relative',
     display: 'flex',
     alignItems: 'center',
     columnGap: 12,
@@ -216,6 +221,10 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.givingPortal.homepageHeader.main,
     fontSize: 13,
     fontWeight: 600,
+    "&:hover": {
+      backgroundColor: theme.palette.givingPortal.homepageHeader.light1Opaque,
+      opacity: 1
+    },
   },
   votingTimelineSpace: {
     width: 42
@@ -299,7 +308,7 @@ const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
       <div className={classNames(classes.root, {[classes.votingRoot]: advertiseVoting})}>
         <div className={classes.cover} />
-        {!advertiseVoting && <div className={classes.givingSeasonGradient} />}
+        <div className={classes.givingSeasonGradient} />
         <div className={classNames(classes.overview, {[classes.votingOverview]: advertiseVoting})}>
           <Typography
             variant="display1"
@@ -322,12 +331,12 @@ const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
         {advertiseVoting ? (
           <div className={classes.votingTimeline}>
             {spans.map(span => (
-              <div key={span.description} className={classes.votingTimelineSpan}>
+              <Link key={span.description} to={span.href ?? "#"} className={classes.votingTimelineSpan}>
                 {span.description}
-              </div>
+              </Link>
             ))}
             <div className={classes.votingTimelineSpace}></div>
-            <Link to="/voting-portal" className={classes.votingTimelineBtn}>
+            <Link to="/giving-portal" className={classes.votingTimelineBtn}>
               <span className={classes.voteBtnText}>Vote in the Donation Election</span>
               <span className={classes.voteBtnTextMobile}>Vote</span>
             </Link>

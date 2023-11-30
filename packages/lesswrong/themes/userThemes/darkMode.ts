@@ -282,6 +282,7 @@ export const darkModeTheme: UserThemeSpecification = {
         light2: "#f8e7e2",
         light2Opaque: "rgba(248, 231, 226, 0.30)",
         light1: "#EDD3CE",
+        light1Opaque: "rgba(237, 211, 206, 0.30)",
         main: "#862115",
         dark: "#6C0C00",
         secondary: "#b44c42",
