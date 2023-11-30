@@ -137,6 +137,12 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+type PostYouveRead = {
+  _id: string;
+  title: string;
+  slug: string;
+}
+
 interface DialogueRecommendationRowProps {
   rowProps: DialogueUserRowProps<boolean>; 
   classes: ClassesType<typeof styles>; 
@@ -173,9 +179,9 @@ const TopicSuggestion = ({reactIconName, prefix, Content, classes, isExpanded}: 
         [classes.debateTopicExpanded]: isExpanded,
         [classes.debateTopicCollapsed]: !isExpanded
       })}>
-          <ReactionIcon key={"1"} size={13} react={reactIconName} />
+          <ReactionIcon key="1" size={13} react={reactIconName} />
           {" "}
-          <span key={"2"} className={classNames(classes.agreeText, { [classes.agreeTextCollapsedMobile]: !isExpanded})}>
+          <span key="2" className={classNames(classes.agreeText, { [classes.agreeTextCollapsedMobile]: !isExpanded})}>
             {prefix}
           </span>
           {Content}
@@ -197,7 +203,7 @@ const ExpandCollapseText = ({classes, isExpanded, numHidden, toggleExpansion}: E
     text = <>▲ hide</>;
   } else {
     text = <>
-      ▼<span key={"1"} className={classes.bigScreenExpandNote}>
+      ▼<span key="1" className={classes.bigScreenExpandNote}>
         ...{numHidden > 0 ? ` ${numHidden} ` : ``}more
       </span>
     </>
@@ -263,6 +269,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
       UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
         _id
         title
+        slug
       }
     }
   `, {
@@ -270,33 +277,16 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   });
 
   const topTags:[TagWithCommentCount] = tagData?.UserTopTags;
-  const readPosts:DbPost[] = postsData?.UsersReadPostsOfTargetUser
+  const readPosts:PostYouveRead[] = postsData?.UsersReadPostsOfTargetUser
   const preTopicRecommendations: TopicRecommendationWithContents[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
   const topicRecommendations = preTopicRecommendations?.filter(topic => ['agree', 'disagree'].includes(topic.theirVote) ); // todo: might want better type checking here in future for values of theirVote
  
   if (!currentUser || !topTags || !topicRecommendations || !readPosts) return <></>;
   const tagsSentence = topTags.slice(0, 4).map(tag => tag.tag.name).join(', ');
-  const numRecommendations = topicRecommendations?.length + readPosts?.length + 1 ?? 0;
+  const numTagRecommendations = tagsSentence === "" ? 0 : 1;
+  const numRecommendations = (topicRecommendations?.length + readPosts?.length ?? 0) + numTagRecommendations;
   const numShown = isExpanded ? numRecommendations : 2
   const numHidden = Math.max(0, numRecommendations - numShown);
-
-  const getTopicSuggestion = (reactIconName:string, prefix:string, Content:JSX.Element) => {
-    return (
-      <div className={classes.suggestionRow}>
-        <p className={classNames({
-          [classes.debateTopicExpanded]: isExpanded,
-          [classes.debateTopicCollapsed]: !isExpanded
-        })}>
-            <ReactionIcon key={"1"} size={13} react={reactIconName} />
-            {" "}
-            <span key={"2"} className={classNames(classes.agreeText, { [classes.agreeTextCollapsedMobile]: !isExpanded})}>
-              {prefix}
-            </span>
-            {Content}
-        </p>
-      </div>
-    )
-  }
 
   const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = [
     ...topicRecommendations.map(topic => ({reactIconName: topic.theirVote, prefix: topic.theirVote+": ", Content: <>{topic.comment.contents.plaintextMainText}</>})), 
