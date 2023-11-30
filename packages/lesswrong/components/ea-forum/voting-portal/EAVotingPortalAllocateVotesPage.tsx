@@ -12,6 +12,7 @@ const styles = (theme: ThemeType) => ({
   tipsBox: {
     position: "absolute",
     top: 48,
+    fontSize: 14,
     left: 'min(56vw, 820px)',
     backgroundColor: theme.palette.givingPortal.thankYouBackground,
     borderRadius: theme.borderRadius.default,
@@ -25,7 +26,7 @@ const styles = (theme: ThemeType) => ({
       paddingInlineStart: "20px",
     },
     '& li': {
-      marginBottom: 6,
+      marginBottom: 8,
       '&:last-child': {
         marginBottom: 0,
       },
