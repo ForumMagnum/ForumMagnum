@@ -317,6 +317,15 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
                       AND type = 'newDialogueChecks'
               )
           )
+          AND (
+            NOW() - INTERVAL '12 hours' > COALESCE((
+              SELECT MAX("createdAt")
+              FROM "Notifications"
+              WHERE
+                "userId" = "Users"._id
+                AND type = 'newDialogueChecks'
+            ), '1970-01-01')
+        )
     `, [minutes])
   }
 
