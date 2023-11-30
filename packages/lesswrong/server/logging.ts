@@ -47,6 +47,7 @@ onStartup(() => {
         new SentryIntegrations.Dedupe(),
         new SentryIntegrations.ExtraErrorData(),
       ],
+      tracesSampleRate: 1
     });
   } else {
     if (!isAnyTest) {

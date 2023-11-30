@@ -64,6 +64,35 @@ class ApolloServerLogging {
   }
 }
 
+const ApolloTransactionMonitoring = {
+  requestDidStart({ request, context }: { request: AnyBecauseTodo, context: ResolverContext }) {
+    const path = context.headers['request-origin-path']
+    if (!!path) { // set the transaction Name if we have named queries
+      context.sentryTransanction?.setName(path)
+    }
+    // add the path from the request to sentryTransaction
+    return {
+      willSendResponse({ context }: {context: ResolverContext}) { // hook for transaction finished
+        context.sentryTransanction?.finish()
+      },
+      executionDidStart() {
+        return {
+          willResolveField({ context, info }: { context: ResolverContext, info: AnyBecauseTodo }) { // hook for each new resolver
+            const span = context.sentryTransanction?.startChild({
+              op: "resolver",
+              description: `${info.parentType.name}.${info.fieldName}`,
+            })
+            return () => { // this will execute once the resolver is finished
+              span?.finish()
+            }
+          },
+        }
+      },
+    }
+  },
+}
+
+
 export type AddMiddlewareType = typeof app.use;
 
 export function startWebserver() {
@@ -138,7 +167,7 @@ export function startWebserver() {
       configureSentryScope(context);
       return context;
     },
-    plugins: [new ApolloServerLogging()]
+    plugins: [new ApolloServerLogging(), ApolloTransactionMonitoring]
   });
 
   app.use('/graphql', express.json({ limit: '50mb' }));
