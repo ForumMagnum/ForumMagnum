@@ -7,6 +7,7 @@ import { DialogueUserRowProps, TagWithCommentCount } from '../users/DialogueMatc
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import {useSingle} from '../../lib/crud/withSingle';
 
 const styles = (theme: ThemeType) => ({
   dialogueUserRow: { 
@@ -134,6 +135,9 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       display: 'none'
     }
+  },
+  commentSourcePost: {
+    color: theme.palette.text.dim3,
   }
 });
 
@@ -141,6 +145,15 @@ type PostYouveRead = {
   _id: string;
   title: string;
   slug: string;
+}
+
+type CommentYouveRead = {
+  _id: string;
+  postId: string;
+  contents: {
+    html: string;
+    plaintextMainText: string;
+  };
 }
 
 interface DialogueRecommendationRowProps {
@@ -218,6 +231,39 @@ const ExpandCollapseText = ({classes, isExpanded, numHidden, toggleExpansion}: E
   )
 };
 
+interface CommentViewProps {
+  comment: {
+    _id: string;
+    postId: string;
+    contents: {
+      html: string;
+      plaintextMainText: string;
+    };
+  };
+  classes: ClassesType<typeof styles>;
+}
+
+const CommentView: React.FC<CommentViewProps> = ({ comment, classes }) => {
+
+  const { PostsTooltip } = Components
+
+  const { document: post, loading, error } = useSingle({
+    collectionName: "Posts",
+    fragmentName: 'PostsPage',
+    documentId: comment.postId,
+    allowNull: true,
+  });
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <PostsTooltip postId={comment.postId} commentId={comment._id}>
+      {comment.contents.plaintextMainText.slice(0,200)}...
+      <Link className={classes.commentSourcePost} to={postGetPageUrl(post)}> on "{post.title}" </Link> 
+    </PostsTooltip>
+  );
+};
 const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: DialogueRecommendationRowProps) => {
   const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, ReactionIcon, PostsTooltip } = Components
 
@@ -276,24 +322,43 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
     variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 3 },
   });
 
+  const { loading: commentsLoading, error: commentsError, data: commentsData } = useQuery(gql`
+    query UsersRecommendedCommentsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int) {
+      UsersRecommendedCommentsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
+        _id
+        postId
+        contents {
+          html
+          plaintextMainText
+        }
+      }
+    }
+  `, {
+    variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 3 },
+  });
+
   const topTags:[TagWithCommentCount] = tagData?.UserTopTags;
   const readPosts:PostYouveRead[] = postsData?.UsersReadPostsOfTargetUser
+  const recommendedComments:CommentYouveRead[] = commentsData?.UsersRecommendedCommentsOfTargetUser
+
   const preTopicRecommendations: TopicRecommendationWithContents[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
   const topicRecommendations = preTopicRecommendations?.filter(topic => ['agree', 'disagree'].includes(topic.theirVote) ); // todo: might want better type checking here in future for values of theirVote
  
   if (!currentUser || !topTags || !topicRecommendations || !readPosts) return <></>;
   const tagsSentence = topTags.slice(0, 4).map(tag => tag.tag.name).join(', ');
   const numTagRecommendations = tagsSentence === "" ? 0 : 1;
-  const numRecommendations = (topicRecommendations?.length + readPosts?.length ?? 0) + numTagRecommendations;
+  const numRecommendations = (topicRecommendations?.length + readPosts?.length + recommendedComments?.length ?? 0) + numTagRecommendations;
   const numShown = isExpanded ? numRecommendations : 2
   const numHidden = Math.max(0, numRecommendations - numShown);
 
   const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = [
     ...topicRecommendations.map(topic => ({reactIconName: topic.theirVote, prefix: topic.theirVote+": ", Content: <>{topic.comment.contents.plaintextMainText}</>})), 
-    {reactIconName: "elaborate", prefix: "top tags: ", Content: <>{tagsSentence}</>},
-    ...readPosts.map(post => ({reactIconName: "seen", prefix: "you read: ", Content: <PostsTooltip postId={post._id}>
-      <Link to={postGetPageUrl(post)}> {post.title} </Link>
-    </PostsTooltip>}))
+    {reactIconName: "examples", prefix: "top tags: ", Content: <>{tagsSentence}</>},
+    ...readPosts.map(post => ({reactIconName: "elaborate", prefix: "post: ", Content: 
+      <PostsTooltip postId={post._id}>
+        <Link to={postGetPageUrl(post)}> {post.title} </Link>
+      </PostsTooltip>})),
+    ...recommendedComments.map(comment => ({reactIconName: "elaborate", prefix: "comment: ", Content: <CommentView comment={comment} classes={classes} />}))
   ]
 
   return (

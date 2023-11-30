@@ -153,3 +153,19 @@ defineQuery({
     return recommendedComments
   },
 });
+
+defineQuery({
+  name: "UsersRecommendedCommentsOfTargetUser",
+  resultType: "[Comment]",
+  argTypes: "(userId: String!, targetUserId: String!, limit: Int!)",
+  fn: async (root: void, {userId, targetUserId, limit}: {userId: string, targetUserId: string, limit: number}, context: ResolverContext) => {
+    const { currentUser, repos } = context
+    if (!currentUser) {
+      throw new Error('Must be logged in to view recommended comments of target user')
+    }
+
+    let comments = await repos.comments.getUsersRecommendedCommentsOfTargetUser(userId, targetUserId, limit)
+    comments = await accessFilterMultiple(currentUser, Comments, comments, context)
+    return comments
+  },
+});
