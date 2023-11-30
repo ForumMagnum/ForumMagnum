@@ -1,16 +1,17 @@
-import React, { Dispatch, SetStateAction, useCallback, useState } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useElectionCandidates } from "../giving-portal/hooks";
-import { isElectionCandidateSort } from "../../../lib/collections/electionCandidates/views";
 import classNames from "classnames";
-import { sortOptions } from "../giving-portal/ElectionCandidatesList";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { imageSize } from "../giving-portal/ElectionCandidate";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
 import { numberToEditableString } from "../../../lib/collections/electionVotes/helpers";
+import { votingPortalStyles } from "./styles";
+import stringify from "json-stringify-deterministic";
 
 const styles = (theme: ThemeType) => ({
+  ...votingPortalStyles(theme),
   root: {
     display: "flex",
     flexDirection: "column",
@@ -100,6 +101,10 @@ const styles = (theme: ThemeType) => ({
       width: "100%",
     },
   },
+  sortButton: {
+    padding: "6px 12px",
+    marginLeft: 6,
+  }
 });
 
 const AllocateVoteRow = ({
@@ -125,11 +130,13 @@ const AllocateVoteRow = ({
       <div className={classes.allocateVoteRow}>
         <div className={classes.details}>
           <div className={classes.imageContainer}>
-            <Link to={fundraiserLink || ""}>
+            <Link to={fundraiserLink || ""} target="_blank" rel="noopener noreferrer">
               <img src={logoSrc} className={classes.image} />
             </Link>
           </div>
-          <div className={classes.candidateName}>{name}</div>
+          <Link to={fundraiserLink || ""} className={classes.candidateName} target="_blank" rel="noopener noreferrer">
+            {name}
+          </Link>
         </div>
         <OutlinedInput
           className={classes.allocateInput}
@@ -150,6 +157,8 @@ const AllocateVoteRow = ({
   );
 };
 
+const sortBy = "random";
+
 const ElectionAllocateVote = ({
   voteState,
   setVoteState,
@@ -161,26 +170,62 @@ const ElectionAllocateVote = ({
   className?: string;
   classes: ClassesType<typeof styles>;
 }) => {
-  const [sortBy, setSortBy] = useState<ElectionCandidatesSort | "random">("random");
   const { results, loading } = useElectionCandidates(sortBy);
+  const [displayedResults, setDisplayedResults] = useState<ElectionCandidateBasicInfo[]>([]);
 
-  const selectedResults = results?.filter((candidate) => voteState[candidate._id] !== undefined);
+  const selectedResults = useMemo(
+    () => results?.filter((candidate) => voteState[candidate._id] !== undefined),
+    [results, voteState]
+  );
+  const sortedResults = useMemo(
+    () =>
+      selectedResults?.slice().sort((a, b) => {
+        const numericalVoteState = Object.fromEntries(
+          // Treate 0, "0", null etc all as null
+          Object.entries(voteState).map(([id, value]) => [id, value ? parseFloat(value as string) : null])
+        );
 
-  const onSelectSort = useCallback((value: string) => {
-    if (isElectionCandidateSort(value) || value === "random") {
-      setSortBy(value);
+        const aValue = numericalVoteState[a._id] ?? 0;
+        const bValue = numericalVoteState[b._id] ?? 0;
+
+        return bValue - aValue;
+      }),
+    [selectedResults, voteState]
+  );
+  const canUpdateSort = useMemo(
+    () => stringify(sortedResults?.map((r) => r._id)) !== stringify(displayedResults?.map((r) => r._id)),
+    [sortedResults, displayedResults]
+  );
+
+  const updateSort = useCallback(() => {
+    if (!sortedResults) return;
+
+    setDisplayedResults(sortedResults);
+  }, [sortedResults]);
+
+  useEffect(() => {
+    if (!displayedResults.length && sortedResults?.length) {
+      updateSort();
     }
-  }, []);
+  }, [displayedResults, sortedResults, updateSort]);
 
-  const { Loading, ForumDropdown } = Components;
+  const { Loading } = Components;
   return (
     <div className={classNames(classes.root, className)}>
       <div className={classes.controls}>
-        <ForumDropdown value={sortBy} options={sortOptions} onSelect={onSelectSort} className={classes.dropdown} />
+        <button
+          className={classNames(classes.button, classes.sortButton, {
+            [classes.buttonDisabled]: !canUpdateSort,
+          })}
+          disabled={!canUpdateSort}
+          onClick={updateSort}
+        >
+          Sort high to low
+        </button>
       </div>
       <div className={classes.table}>
         {loading && <Loading />}
-        {selectedResults?.map((candidate, index) => (
+        {displayedResults?.map((candidate, index) => (
           <React.Fragment key={candidate._id}>
             <AllocateVoteRow
               candidate={candidate}
@@ -188,7 +233,7 @@ const ElectionAllocateVote = ({
               setVoteState={setVoteState}
               classes={classes}
             />
-            {index < selectedResults.length - 1 && <hr className={classes.hr} />}
+            {index < displayedResults.length - 1 && <hr className={classes.hr} />}
           </React.Fragment>
         ))}
       </div>

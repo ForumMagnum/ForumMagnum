@@ -13,6 +13,11 @@ export type CompareStateUI = Record<string, {multiplier: number | string, AtoB: 
  */
 export type CompareState = Record<string, {multiplier: number, AtoB: boolean}>;
 
+/** Latest midnight on 2023-12-15 */
+const VOTING_DEADLINE = new Date("2023-12-15T23:59:59-12:00");
+
+export const isPastVotingDeadline = () => new Date() > VOTING_DEADLINE;
+
 export const getCompareKey = (candidate1: ElectionCandidateBasicInfo, candidate2: ElectionCandidateBasicInfo) => {
   return `${candidate1._id}-${candidate2._id}`;
 }
@@ -115,7 +120,7 @@ export const convertCompareStateToVote = (compareState: CompareState): Record<st
     throw new Error("Vote ids don't match expected ids");
   }
 
-  // Normalize (to 1) and round
+  // Normalize (to 1) and round to 4 sf
   const total = Object.values(vote).reduce((sum, value) => sum + value, 0);
   const normalizedVote = Object.fromEntries(
     Object.entries(vote).map(([id, value]) => [id, Number((value / total).toPrecision(4))])
