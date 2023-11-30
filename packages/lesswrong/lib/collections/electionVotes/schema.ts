@@ -78,6 +78,13 @@ const schema: SchemaType<DbElectionVote> = {
     canRead: [userOwns, "sunshineRegiment", "admins"],
     canCreate: ["members"],
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    onUpdate: ({ oldDocument, newDocument }) => {
+      if (oldDocument.submittedAt?.toISOString() !== newDocument.submittedAt?.toISOString()) {
+        // To avoid timezone issues, set it to the server time it is saved
+        return new Date();
+      }
+      return oldDocument.submittedAt;
+    }
   },
   userExplanation: {
     type: String,
