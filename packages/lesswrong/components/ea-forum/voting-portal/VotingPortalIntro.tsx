@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
     gap: "32px",
     borderRadius: 12,
     background: theme.palette.grey[0],
-    width: 800,
+    width: 780,
     maxWidth: "100%",
     lineHeight: "24px",
     fontSize: 16,
@@ -25,6 +25,9 @@ const styles = (theme: ThemeType) => ({
         textDecoration: "none",
         opacity: 1,
       },
+    },
+    [theme.breakpoints.down("md")]: {
+      padding: 16,
     },
     [theme.breakpoints.down("xs")]: {
       width: "100%",
@@ -136,10 +139,10 @@ const VotingPortalIntro = ({classes}: {
         <div className={classes.h2}>How voting works</div>
         <div className={classes.h3}>1. Select candidates you want to vote for</div>
         <div>
-          These are the candidates you’ll allocate points to; you’ll give 0 points to the ones you don’t select.
+          These are the candidates you’ll allocate points to. The ones you don’t select will automatically get 0 points.
         </div>
         <div className={classes.h3}>2. Compare candidates</div>
-        <div>You'll compare pairs of candidates to create a draft point allocation. (You can skip this).</div>
+        <div>You'll compare pairs of candidates to create a draft point allocation. (You can skip this step).</div>
         <div className={classes.h3}>3. Allocate your points</div>
         <div>
           Finalize your point allocation, which should represent how you’d distribute funding between the candidates if
