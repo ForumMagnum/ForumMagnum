@@ -8,6 +8,8 @@ import { useElectionCandidates } from "../giving-portal/hooks";
 import classNames from "classnames";
 import { CompareStateUI, convertCompareStateToVote, getCompareKey, getInitialCompareState, validateCompareState } from "../../../lib/collections/electionVotes/helpers";
 import { useMessages } from "../../common/withMessages";
+import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import { useCurrentUser } from "../../common/withUser";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -85,6 +87,24 @@ const styles = (theme: ThemeType) => ({
 const EAVotingPortalComparePageLoader = ({ classes }: { classes: ClassesType }) => {
   const { electionVote, updateVote } = useElectionVote("givingSeason23");
   const { results } = useElectionCandidates("random");
+
+  const currentUser = useCurrentUser();
+  const { LoginForm } = Components;
+
+  if (!currentUser) {
+    return (
+      <div className={classes.noPermissionFallback}>
+        <LoginForm />
+      </div>
+    );
+  }
+  if (!userCanVoteInDonationElection(currentUser)) {
+    return (
+      <p className={classes.noPermissionFallback}>
+        You are not eligible to vote as your account was created after 22nd Oct 2023
+      </p>
+    );
+  }
 
   if (!electionVote?.vote || Object.keys(electionVote.vote).length < 2 || !results) return null;
 

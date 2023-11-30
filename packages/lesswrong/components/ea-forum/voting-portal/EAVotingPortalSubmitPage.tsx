@@ -10,6 +10,8 @@ import { useMessages } from "../../common/withMessages";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import Radio from "@material-ui/core/Radio";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import { useCurrentUser } from "../../common/withUser";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -83,6 +85,24 @@ const styles = (theme: ThemeType) => ({
 
 const EAVotingPortalSubmitPageLoader = ({ classes }: { classes: ClassesType }) => {
   const { electionVote, updateVote } = useElectionVote("givingSeason23");
+
+  const currentUser = useCurrentUser();
+  const { LoginForm } = Components;
+
+  if (!currentUser) {
+    return (
+      <div className={classes.noPermissionFallback}>
+        <LoginForm />
+      </div>
+    );
+  }
+  if (!userCanVoteInDonationElection(currentUser)) {
+    return (
+      <p className={classes.noPermissionFallback}>
+        You are not eligible to vote as your account was created after 22nd Oct 2023
+      </p>
+    );
+  }
 
   if (!electionVote?.vote) return null;
 

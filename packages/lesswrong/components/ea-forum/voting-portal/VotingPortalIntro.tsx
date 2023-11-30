@@ -3,9 +3,16 @@ import { registerComponent } from "../../../lib/vulcan-lib";
 import { HEADER_HEIGHT } from "../../common/Header";
 import { Link } from "../../../lib/reactRouterWrapper";
 import classNames from "classnames";
+import { useCurrentUser } from "../../common/withUser";
+import { useDialog } from "../../common/withDialog";
+import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import { isPastVotingDeadline } from "../../../lib/collections/electionVotes/helpers";
+import { votingPortalStyles } from "./styles";
+import { useMessages } from "../../common/withMessages";
 
 const styles = (theme: ThemeType) => ({
   // TODO combine these with votingPortalStyles
+  ...votingPortalStyles(theme),
   root: {
     margin: "60px 0",
     display: "flex",
@@ -76,6 +83,9 @@ const styles = (theme: ThemeType) => ({
     '& a': {
       flexBasis: "50%",
     },
+    '& button': {
+      flexBasis: "50%",
+    },
     [theme.breakpoints.down("xs")]: {
       flexDirection: "column",
     },
@@ -123,6 +133,29 @@ const votingNormsLink = "/posts/hAzhyikPnLnMXweXG/participate-in-the-donation-el
 const VotingPortalIntro = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
+  const { flash } = useMessages();
+
+  const isLoggedIn = !!currentUser;
+  const userCanVote = userCanVoteInDonationElection(currentUser);
+  const votingClosed = isPastVotingDeadline();
+
+  const linkEnabled = isLoggedIn && userCanVote && !votingClosed;
+
+  const handleDisabledLinkClick = () => {
+    if (!isLoggedIn) {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {}
+      });
+    } else if (!userCanVote) {
+      flash("Accounts created after 22nd Oct 2023 cannot vote in this election");
+    } else if (votingClosed) {
+      flash("Voting has closed");
+    }
+  }
+
   return (
     <div className={classes.root}>
       <div className={classes.h1}>Welcome to the voting portal</div>
@@ -156,13 +189,18 @@ const VotingPortalIntro = ({classes}: {
         closes on <span className={classes.bold}>December 15</span>, we'll use{" "}
         <Link to={processLink}>the process outlined here</Link> to determine the winners.
       </div>
+      {isLoggedIn && !userCanVote && <div>
+        <b>You are not eligible to vote as your account was created after 22nd Oct 2023</b>
+      </div>}
       <div className={classes.buttonRow}>
         <Link to={candidatesLink} className={classNames(classes.button, classes.greyButton)}>
           Read about the candidates
         </Link>
-        <Link to={getStartedLink} className={classes.button}>
+        {linkEnabled ? <Link to={getStartedLink} className={classes.button}>
           Get started -&gt;
-        </Link>
+        </Link> : <button className={classes.button} onClick={handleDisabledLinkClick}>
+          Get started
+        </button>}
       </div>
     </div>
   );

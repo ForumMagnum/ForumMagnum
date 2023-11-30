@@ -6,6 +6,8 @@ import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import { useElectionVote } from "./hooks";
 import { useMessages } from "../../common/withMessages";
 import { processLink } from "./VotingPortalIntro";
+import { useCurrentUser } from "../../common/withUser";
+import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -45,6 +47,24 @@ const styles = (theme: ThemeType) => ({
 
 const EAVotingPortalAllocateVotesPageLoader = ({ classes }: { classes: ClassesType }) => {
   const { electionVote, updateVote } = useElectionVote("givingSeason23");
+
+  const currentUser = useCurrentUser();
+  const { LoginForm } = Components;
+
+  if (!currentUser) {
+    return (
+      <div className={classes.noPermissionFallback}>
+        <LoginForm />
+      </div>
+    );
+  }
+  if (!userCanVoteInDonationElection(currentUser)) {
+    return (
+      <p className={classes.noPermissionFallback}>
+        You are not eligible to vote as your account was created after 22nd Oct 2023
+      </p>
+    );
+  }
 
   if (!electionVote?.vote) return null;
 

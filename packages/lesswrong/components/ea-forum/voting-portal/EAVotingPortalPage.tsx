@@ -5,7 +5,7 @@ import { votingPortalStyles } from "./styles";
 import { useCurrentUser } from "../../common/withUser";
 import { useLocation } from "../../../lib/routeUtil";
 import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
-import { votingThankYouImageId } from "../../../lib/eaGivingSeason";
+import { userCanVoteInDonationElection, votingThankYouImageId } from "../../../lib/eaGivingSeason";
 import Helmet from "react-helmet";
 import classNames from "classnames";
 import { useElectionVote } from "./hooks";
@@ -42,11 +42,10 @@ const EAVotingPortalPage = ({classes}: {
   const { electionVote, loading } = useElectionVote("givingSeason23");
   const currentUser = useCurrentUser();
 
-  if (loading) return <Loading />;
-  if (!currentUser) return null;
+  if (loading && userCanVoteInDonationElection(currentUser)) return <Loading />;
 
   const thankyouParam = params.get("thankyou");
-  const isThankYouPage = thankyouParam === "true" || (!thankyouParam && !!electionVote?.submittedAt)
+  const isThankYouPage = currentUser && (thankyouParam === "true" || (!thankyouParam && !!electionVote?.submittedAt))
 
   return (
     <AnalyticsContext
