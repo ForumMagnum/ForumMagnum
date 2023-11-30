@@ -3400,6 +3400,7 @@ interface ElectionVoteInfo { // fragment on ElectionVotes
   readonly _id: string,
   readonly electionName: string,
   readonly userId: string,
+  readonly compareState: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly submittedAt: Date | null,
   readonly userExplanation: string | null,
