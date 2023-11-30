@@ -23,11 +23,6 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap",
     width: "100%",
   },
-  controls: {
-    display: "flex",
-    justifyContent: "space-between",
-    width: "100%",
-  },
   dropdown: {
     "& .ForumDropdownMultiselect-button": {
       color: theme.palette.givingPortal[1000],
@@ -101,10 +96,29 @@ const styles = (theme: ThemeType) => ({
       width: "100%",
     },
   },
-  sortButton: {
-    padding: "6px 12px",
-    marginLeft: 6,
-  }
+  controls: {
+    display: "flex",
+    justifyContent: "flex-end",
+    width: "100%",
+    height: 22, // Fixed height because the sort button may or may not be there
+  },
+  sort: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 600,
+    color: theme.palette.givingPortal[1000],
+    fontSize: 16,
+    marginRight: 12,
+    backgroundColor: "inherit",
+    display: "flex",
+    alignItems: "center",
+  },
+  sortIcon: {
+    width: 18,
+    height: 18,
+  },
+  hidden: {
+    display: "none",
+  },
 });
 
 const AllocateVoteRow = ({
@@ -193,7 +207,9 @@ const ElectionAllocateVote = ({
     [selectedResults, voteState]
   );
   const canUpdateSort = useMemo(
-    () => stringify(sortedResults?.map((r) => r._id)) !== stringify(displayedResults?.map((r) => r._id)),
+    () =>
+      displayedResults?.length &&
+      stringify(sortedResults?.map((r) => r._id)) !== stringify(displayedResults?.map((r) => r._id)),
     [sortedResults, displayedResults]
   );
 
@@ -209,18 +225,18 @@ const ElectionAllocateVote = ({
     }
   }, [displayedResults, sortedResults, updateSort]);
 
-  const { Loading } = Components;
+  const { Loading, ForumIcon } = Components;
   return (
     <div className={classNames(classes.root, className)}>
       <div className={classes.controls}>
         <button
-          className={classNames(classes.button, classes.sortButton, {
-            [classes.buttonDisabled]: !canUpdateSort,
+          className={classNames(classes.sort, {
+            [classes.hidden]: !canUpdateSort,
           })}
           disabled={!canUpdateSort}
           onClick={updateSort}
         >
-          Sort high to low
+          <ForumIcon icon="NarrowArrowDown" className={classes.sortIcon} /> Sort descending
         </button>
       </div>
       <div className={classes.table}>
@@ -237,6 +253,17 @@ const ElectionAllocateVote = ({
           </React.Fragment>
         ))}
       </div>
+      {displayedResults.length > 10 && <div className={classes.controls}>
+        <button
+          className={classNames(classes.sort, {
+            [classes.hidden]: !canUpdateSort,
+          })}
+          disabled={!canUpdateSort}
+          onClick={updateSort}
+        >
+          <ForumIcon icon="NarrowArrowDown" className={classes.sortIcon} /> Sort descending
+        </button>
+      </div>}
     </div>
   );
 };
