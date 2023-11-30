@@ -6,7 +6,6 @@ import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
 import {pgPromiseLib, getAnalyticsConnection, getMirrorAnalyticsConnection} from './analytics/postgresConnection'
 import chunk from 'lodash/chunk';
-import type { VariableValues } from 'apollo-server-types'
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
@@ -111,17 +110,6 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
       console.error(err);
     }
   }
-}
-
-export interface PerfMetric {
-  trace_id: string;
-  op_type: string;
-  op_name: string;
-  started_at: Date;
-  ended_at: Date;
-  parent_trace_id?: string;
-  client_path?: string;
-  variables?: VariableValues
 }
 
 const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'gql_variables', 'environment'], {table: 'perf_metrics'});

@@ -9,6 +9,7 @@ import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type PgCollection from "../sql/PgCollection";
+import type { VariableValues } from 'apollo-server-types'
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -225,6 +226,19 @@ export type AlgoliaDocument = {
   [key: string]: any,
 }
 
+interface PerfMetric {
+  trace_id: string;
+  op_type: string;
+  op_name: string;
+  started_at: Date;
+  ended_at: Date;
+  parent_trace_id?: string;
+  client_path?: string;
+  variables?: VariableValues
+}
+
+type IncompletePerfMetric = Omit<PerfMetric, 'ended_at'>;
+
 interface ResolverContext extends CollectionsByName {
   headers: any,
   userId: string|null,
@@ -246,7 +260,7 @@ interface ResolverContext extends CollectionsByName {
   req?: Request & {logIn: any, logOut: any, cookies: any, headers: any},
   res?: Response,
   repos: Repos,
-  traceId: string,
+  perfMetric?: IncompletePerfMetric,
 }
 
 type FragmentName = keyof FragmentTypes;

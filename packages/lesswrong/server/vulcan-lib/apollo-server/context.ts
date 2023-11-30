@@ -130,7 +130,7 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
     clientId,
     visitorActivity,
     ...await setupAuthToken(user),
-    traceId: (req?.headers['trace-id'] ?? generateTraceId()) as string ,
+    perfMetric: (req as any).perfMetric,
   };
 
   if (user) {

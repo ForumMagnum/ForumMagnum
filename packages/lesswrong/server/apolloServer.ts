@@ -50,9 +50,7 @@ import { getClientBundle } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener, GraphQLRequestExecutionListener } from 'apollo-server-plugin-base';
-import { closePerfMetric, generateTraceId, openPerfMetric } from './perfMetrics';
-import { create } from 'underscore';
-import { createTable } from './migrations/meta/utils';
+import { closePerfMetric, openPerfMetric } from './perfMetrics';
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
@@ -61,7 +59,7 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
     const startedRequestMetric = openPerfMetric({
       op_type: 'query',
       op_name: operationName,
-      parent_trace_id: context.traceId,
+      parent_trace_id: context.perfMetric?.trace_id,
       context,
       variables
     });
@@ -157,8 +155,10 @@ export function startWebserver() {
       return context;
     },
     plugins: [new ApolloServerLogging()],
-    formatResponse: (response, requestContext) => {
-      
+    formatResponse: (response, { context }: GraphQLRequestContext<ResolverContext>) => {
+      if (context.perfMetric) {
+        closePerfMetric(context.perfMetric);
+      }
       return response;
     }
   });
@@ -166,8 +166,14 @@ export function startWebserver() {
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
   app.use('/graphql', (req, _, next) => {
-    req.headers['trace-id'] = generateTraceId()
-    next()
+    const perfMetric = openPerfMetric({
+      op_type: 'request',
+      op_name: '???', // TODO: what should the name for the top-level http request be?  Not obvious...
+      context: { headers: req.headers }
+    });
+
+    Object.assign(req, { perfMetric });
+    next();
   })
   apolloServer.applyMiddleware({ app })
 
