@@ -116,7 +116,7 @@ const EAVotingPortalSelectCandidatesPage = ({
           />
         </div>
         <VotingPortalFooter
-          leftText={electionVote.submittedAt ? "Go back to intro" : "Go back"}
+          leftText={electionVote.submittedAt ? "Go back to start" : "Go back"}
           leftHref={electionVote.submittedAt ? "/voting-portal?thankyou=false" : "/voting-portal"}
           middleNode={
             <div>
