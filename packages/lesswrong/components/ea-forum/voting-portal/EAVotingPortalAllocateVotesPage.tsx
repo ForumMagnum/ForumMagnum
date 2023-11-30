@@ -111,7 +111,7 @@ const EAVotingPortalAllocateVotesPage = ({
           leftHref={selectedCandidateIds.length > 1 ? "/voting-portal/compare" : "/voting-portal/select-candidates"}
           middleNode={
             <div>
-              Allocated to {allocatedCandidateIds.length}/{selectedCandidateIds.length} projects
+              Allocated to {allocatedCandidateIds.length}/{selectedCandidateIds.length} candidates
             </div>
           }
           buttonProps={{
