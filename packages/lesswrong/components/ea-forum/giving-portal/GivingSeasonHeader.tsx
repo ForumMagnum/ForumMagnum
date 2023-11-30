@@ -250,8 +250,8 @@ const GivingSeasonHeader = ({
       disabled: !compareAllowed,
     },
     {
-      label: '3. Allocate votes',
-      href: '/voting-portal/allocate-votes',
+      label: '3. Finalize points',
+      href: '/voting-portal/allocate-points',
       disabled: !allocateAllowed,
     },
     {
@@ -269,7 +269,7 @@ const GivingSeasonHeader = ({
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
       {isVotingPortal && (
         <HeadTags
-          title="Donation Election: voting portal"
+          title="Voting portal"
           description="Vote in the EA Forum Donation Election"
           image={makeCloudinaryImageUrl(heroImageId, votingPortalSocialImageProps)}
         />
@@ -310,7 +310,7 @@ const GivingSeasonHeader = ({
                             {lightbulbIcon}
                           </div>
                         )}
-                        {isVotingPortal ? "Donation Election: Voting portal" : forumHeaderTitleSetting.get()}
+                        {isVotingPortal ? "Voting portal" : forumHeaderTitleSetting.get()}
                       </Link>
                     </div>
                   </div>

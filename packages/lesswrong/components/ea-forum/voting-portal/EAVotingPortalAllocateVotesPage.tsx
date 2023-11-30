@@ -15,38 +15,6 @@ const styles = (theme: ThemeType) => ({
   mb2: {
     marginBottom: 12,
   },
-  tipsBox: {
-    position: "absolute",
-    top: 48,
-    fontSize: 14,
-    left: 'min(56vw, 820px)',
-    backgroundColor: theme.palette.givingPortal.thankYouBackground,
-    borderRadius: theme.borderRadius.default,
-    color: theme.palette.givingPortal[1000],
-    width: "100%",
-    maxWidth: 300,
-    padding: 16,
-    fontWeight: 500,
-    marginBottom: 20,
-    '& ul': {
-      paddingInlineStart: "20px",
-    },
-    '& li': {
-      marginBottom: 8,
-      '&:last-child': {
-        marginBottom: 0,
-      },
-    },
-    [theme.breakpoints.down("lg")]: {
-      marginTop: -6,
-      position: "relative",
-      top: 0,
-      left: 0,
-      maxWidth: 600,
-      marginLeft: "auto",
-      marginRight: "auto",
-    }
-  }
 })
 
 const EAVotingPortalAllocateVotesPageLoader = ({ classes }: { classes: ClassesType }) => {
@@ -124,7 +92,7 @@ const EAVotingPortalAllocateVotesPage = ({
     <AnalyticsContext pageContext="eaVotingPortalAllocateVotes">
       <div className={classes.root}>
         <div className={classes.content} id="top">
-          <div className={classes.h2}>3. Allocate your votes</div>
+          <div className={classes.h2}>3. Finalize point allocation</div>
           <div className={classNames(classes.subtitle, classes.mb2)}>
             <div className={classes.subtitleParagraph}>
               {subtitleStart}{" "}
@@ -134,9 +102,9 @@ const EAVotingPortalAllocateVotesPage = ({
               </b>
             </div>
             <div>
-              As a reminder,{" "}
+            Points you assign to candidates you don’t think will win are not wasted — if a candidate you assigned points to is eliminated, your other points will count for more.{" "}
               <Link to={processLink} target="_blank" rel="noopener noreferrer">
-                this post
+                This post
               </Link>{" "}
               describes how we’ll use the scores to determine the winners in the Donation Election.
             </div>
@@ -147,7 +115,7 @@ const EAVotingPortalAllocateVotesPage = ({
           leftHref={selectedCandidateIds.length > 1 ? "/voting-portal/compare" : "/voting-portal/select-candidates"}
           middleNode={
             <div>
-              Allocated to {allocatedCandidateIds.length}/{selectedCandidateIds.length} projects
+              Allocated to {allocatedCandidateIds.length}/{selectedCandidateIds.length} candidates
             </div>
           }
           buttonProps={{

@@ -12,7 +12,7 @@ import Radio from "@material-ui/core/Radio";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 import { useCurrentUser } from "../../common/withUser";
-import { ELECTION_EFFECT_OPTIONS, ELECTION_EFFECT_QUESTION, ELECTION_NOTE_QUESTION, formStateToSubmissionComments, submissionCommentsToFomState } from "../../../lib/collections/electionVotes/helpers";
+import { ELECTION_EFFECT_OPTIONS, ELECTION_EFFECT_QUESTION, ELECTION_NOTE_QUESTION, formStateToSubmissionComments, submissionCommentsToFormState } from "../../../lib/collections/electionVotes/helpers";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -129,7 +129,7 @@ const EAVotingPortalSubmitPage = ({
   const navigate = useNavigate();
   const { flash } = useMessages();
 
-  const {electionEffect: dbElectionEffect, note: dbNote} = submissionCommentsToFomState(electionVote.submissionComments);
+  const {electionEffect: dbElectionEffect, note: dbNote} = submissionCommentsToFormState(electionVote.submissionComments);
 
   const [electionEffect, setElectionEffect] = useState<string>(dbElectionEffect);
   const [note, setNote] = useState<string>(dbNote);
@@ -156,7 +156,8 @@ const EAVotingPortalSubmitPage = ({
           </div>
           <div className={classes.explanationRow}>
             <div className={classes.questionTitle}>
-              {ELECTION_EFFECT_QUESTION} <span className={classes.greyedOut}>(Optional)</span>
+              {ELECTION_EFFECT_QUESTION}{" "}
+              <span className={classes.greyedOut}>(Optional)</span>
               <LWTooltip
                 title="This will help us understand the impact of the event, and we might share aggregated information about this question in our public summary of the Election results."
                 placement="bottom"
@@ -187,8 +188,15 @@ const EAVotingPortalSubmitPage = ({
           </div>
           <div className={classes.explanationRow}>
             <div className={classes.questionTitle}>
-              {ELECTION_NOTE_QUESTION}{" "}
-              <span className={classes.greyedOut}>(Optional)</span>
+              {ELECTION_NOTE_QUESTION} <span className={classes.greyedOut}>(Optional)</span>{" "}
+              <LWTooltip
+                title="We might share anonymized answers in the writeup on the results. If you prefer, you can write a different note about the election here."
+                placement="bottom"
+                className={classes.tooltip}
+                popperClassName={classes.tooltipPopper}
+              >
+                <ForumIcon icon="InfoCircle" className={classes.infoIcon} />
+              </LWTooltip>
             </div>
             <TextField
               multiline
@@ -197,11 +205,12 @@ const EAVotingPortalSubmitPage = ({
               className={classes.textField}
               value={note}
               onChange={(event) => setNote(event.target.value)}
+              placeholder="Consider sharing why you picked the candidates you selected, writing a note about your experience with the Donation Election, etc."
             />
           </div>
         </div>
         <VotingPortalFooter
-          leftHref="/voting-portal/allocate-votes"
+          leftHref="/voting-portal/allocate-points"
           middleNode={<></>}
           buttonText={"Submit your vote"}
           buttonProps={{

@@ -16,12 +16,12 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
-    gap: "16px",
   },
   table: {
     display: "flex",
     flexWrap: "wrap",
     width: "100%",
+    marginBottom: 16,
   },
   dropdown: {
     "& .ForumDropdownMultiselect-button": {
@@ -116,23 +116,37 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "flex-end",
     width: "100%",
     height: 22, // Fixed height because the sort button may or may not be there
+    [theme.breakpoints.down("xs")]: {
+      marginBottom: 6,
+    },
   },
   sort: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 600,
     color: theme.palette.givingPortal[1000],
     fontSize: 16,
-    marginRight: 12,
+    marginRight: 18,
+    padding: 0,
     backgroundColor: "inherit",
     display: "flex",
     alignItems: "center",
   },
   sortIcon: {
-    width: 18,
-    height: 18,
+    width: 22,
+    height: 22,
+    position: "relative",
+    top: 2,
+    marginRight: 2,
   },
   hidden: {
     display: "none",
+  },
+  normalizedWarning: {
+    color: theme.palette.grey[600],
+    fontSize: 14,
+    fontStyle: 'italic',
+    fontWeight: 500,
+    margin: '2px 0'
   },
 });
 
@@ -256,8 +270,11 @@ const ElectionAllocateVote = ({
           disabled={!canUpdateSort}
           onClick={updateSort}
         >
-          <ForumIcon icon="NarrowArrowDown" className={classes.sortIcon} /> Sort descending
+          <ForumIcon icon="BarsArrowDown" className={classes.sortIcon} /> Sort descending
         </button>
+      </div>
+      <div className={classes.normalizedWarning}>
+        Don't worry about the total point score; points will be normalized.
       </div>
       <div className={classes.table}>
         {loading && <Loading />}
@@ -281,7 +298,7 @@ const ElectionAllocateVote = ({
           disabled={!canUpdateSort}
           onClick={updateSort}
         >
-          <ForumIcon icon="NarrowArrowDown" className={classes.sortIcon} /> Sort descending
+          <ForumIcon icon="BarsArrowDown" className={classes.sortIcon} /> Sort descending
         </button>
       </div>}
     </div>
