@@ -12,6 +12,7 @@ import Radio from "@material-ui/core/Radio";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 import { useCurrentUser } from "../../common/withUser";
+import { ELECTION_EFFECT_OPTIONS, ELECTION_EFFECT_QUESTION, ELECTION_NOTE_QUESTION, formStateToSubmissionComments, submissionCommentsToFomState } from "../../../lib/collections/electionVotes/helpers";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -115,25 +116,6 @@ const EAVotingPortalSubmitPageLoader = ({ classes }: { classes: ClassesType }) =
   );
 };
 
-const ELECTION_EFFECT_OPTIONS = [
-  {
-    value: "noChange",
-    label: "Didn’t change my donation priorities",
-  },
-  {
-    value: "smChange",
-    label: "Changed my donation priorities a bit",
-  },
-  {
-    value: "lgChange",
-    label: "Noticeably changed my donation priorities",
-  },
-  {
-    value: "xlChange",
-    label: "Totally changed my donation priorities ",
-  },
-]
-
 const EAVotingPortalSubmitPage = ({
   electionVote,
   updateVote,
@@ -147,20 +129,22 @@ const EAVotingPortalSubmitPage = ({
   const navigate = useNavigate();
   const { flash } = useMessages();
 
-  const [electionEffect, setElectionEffect] = useState<string>("");
-  const [note, setNote] = useState<string>("");
+  const {electionEffect: dbElectionEffect, note: dbNote} = submissionCommentsToFomState(electionVote.submissionComments);
+
+  const [electionEffect, setElectionEffect] = useState<string>(dbElectionEffect);
+  const [note, setNote] = useState<string>(dbNote);
 
   const handleSubmit = useCallback(async () => {
     try {
-      // TODO submit answers
-      await updateVote({ submittedAt: new Date() });
+      const submissionComments = formStateToSubmissionComments({electionEffect, note});
+      await updateVote({ submittedAt: new Date(), submissionComments });
     } catch (e) {
       flash(e.message);
       return;
     }
 
     navigate({ pathname: "/voting-portal" });
-  }, [flash, navigate, updateVote]);
+  }, [electionEffect, flash, navigate, note, updateVote]);
 
   return (
     <AnalyticsContext pageContext="eaVotingPortalSubmit">
@@ -172,8 +156,7 @@ const EAVotingPortalSubmitPage = ({
           </div>
           <div className={classes.explanationRow}>
             <div className={classes.questionTitle}>
-              How much did you change your mind about where to donate and/or how to vote, as a result of the Donation
-              Election or other Giving Season activities? <span className={classes.greyedOut}>(Optional)</span>
+              {ELECTION_EFFECT_QUESTION} <span className={classes.greyedOut}>(Optional)</span>
               <LWTooltip
                 title="This will help us understand the impact of the event, and we might share aggregated information about this question in our public summary of the Election results."
                 placement="bottom"
@@ -204,7 +187,7 @@ const EAVotingPortalSubmitPage = ({
           </div>
           <div className={classes.explanationRow}>
             <div className={classes.questionTitle}>
-              Share a note about your vote, which might get shared (anonymously) in the public writeup of the results{" "}
+              {ELECTION_NOTE_QUESTION}{" "}
               <span className={classes.greyedOut}>(Optional)</span>
             </div>
             <TextField

@@ -86,6 +86,35 @@ const schema: SchemaType<DbElectionVote> = {
       return oldDocument.submittedAt;
     }
   },
+  /**
+   * Json blob storing the answers to the questions in the submission form,
+   * along with the exact wording of the questions. See ./helpers:
+   * ```
+   * export type SubmissionComments = {
+   *   rawFormValues: {
+   *     electionEffect: string;
+   *     note: string;
+   *   };
+   *   questions: {
+   *     question: string;
+   *     answer: string;
+   *     answerValue?: string;
+   *   }[];
+   * }
+   * ```
+   */
+  submissionComments: {
+    type: Object,
+    blackbox: true,
+    optional: true,
+    nullable: true,
+    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+  },
+  /**
+   * DEPRECATED: Use submissionComments instead
+   */
   userExplanation: {
     type: String,
     optional: true,
@@ -94,6 +123,9 @@ const schema: SchemaType<DbElectionVote> = {
     canCreate: ["members"],
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
   },
+  /**
+   * DEPRECATED: Use submissionComments instead
+   */
   userOtherComments: {
     type: String,
     optional: true,

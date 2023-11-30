@@ -128,3 +128,71 @@ export const convertCompareStateToVote = (compareState: CompareState): Record<st
 
   return normalizedVote;
 }
+
+export const ELECTION_EFFECT_QUESTION = "How much did you change your mind about where to donate and/or how to vote, as a result of the Donation Election or other Giving Season activities?"
+export const ELECTION_EFFECT_OPTIONS = [
+  {
+    value: "noChange",
+    label: "Didn’t change my donation priorities",
+  },
+  {
+    value: "smChange",
+    label: "Changed my donation priorities a bit",
+  },
+  {
+    value: "lgChange",
+    label: "Noticeably changed my donation priorities",
+  },
+  {
+    value: "xlChange",
+    label: "Totally changed my donation priorities ",
+  },
+]
+
+export const ELECTION_NOTE_QUESTION = "Share a note about your vote, which might get shared (anonymously) in the public writeup of the results"
+
+export type SubmissionComments = {
+  rawFormValues: {
+    electionEffect: string;
+    note: string;
+  };
+  questions: {
+    question: string;
+    answer: string;
+    answerValue?: string;
+  }[];
+}
+
+/**
+ * Convert the values we get from the UI in the submission form to a json blob that can be stored in
+ * the database
+ */
+export const formStateToSubmissionComments = ({ electionEffect, note }: { electionEffect: string; note: string }): SubmissionComments => {
+  return {
+    rawFormValues: {
+      electionEffect,
+      note,
+    },
+    questions: [
+      {
+        question: ELECTION_EFFECT_QUESTION,
+        answer: electionEffect,
+        answerValue: ELECTION_EFFECT_OPTIONS.find(({ value }) => value === electionEffect)?.label,
+      },
+      {
+        question: ELECTION_NOTE_QUESTION,
+        answer: note,
+      },
+    ]
+  }
+};
+
+/*
+ * Convert the json blob we get from the database to the values we need to populate the submission form
+ */
+export const submissionCommentsToFomState = (submissionComments?: SubmissionComments): { electionEffect: string; note: string } => {
+  return {
+    electionEffect: submissionComments?.rawFormValues.electionEffect ?? "",
+    note: submissionComments?.rawFormValues.note ?? "",
+  }
+}
