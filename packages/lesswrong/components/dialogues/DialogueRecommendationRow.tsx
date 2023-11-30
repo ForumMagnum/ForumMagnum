@@ -243,16 +243,13 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
     )
   }
 
-  const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = []
-  topicRecommendations.forEach(topic => {
-    allRecommendations.push({reactIconName: topic.theirVote, prefix: topic.theirVote+": ", Content: <>{topic.comment.contents.plaintextMainText}</>})
-  })
-  allRecommendations.push({reactIconName: "elaborate", prefix: "top tags: ", Content: <>{tagsSentence}</>})
-  readPosts.forEach(post => {
-    allRecommendations.push({reactIconName: "seen", prefix: "you read: ", Content: <PostsTooltip postId={post._id}>
+  const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = [
+    ...topicRecommendations.map(topic => ({reactIconName: topic.theirVote, prefix: topic.theirVote+": ", Content: <>{topic.comment.contents.plaintextMainText}</>})), 
+    {reactIconName: "elaborate", prefix: "top tags: ", Content: <>{tagsSentence}</>},
+    ...readPosts.map(post => ({reactIconName: "seen", prefix: "you read: ", Content: <PostsTooltip postId={post._id}>
       <Link to={postGetPageUrl(post)}> {post.title} </Link>
-    </PostsTooltip>})
-  })
+    </PostsTooltip>}))
+  ]
 
   const renderExpandCollapseText = () => {
     if (!allRecommendations || allRecommendations.length === 0) return '';
