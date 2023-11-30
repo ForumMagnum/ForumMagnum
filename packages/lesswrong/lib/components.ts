@@ -75,6 +75,7 @@ importComponent("VotingPortalIntro", () => require('../components/ea-forum/votin
 importComponent("VotingPortalThankYou", () => require('../components/ea-forum/voting-portal/VotingPortalThankYou'));
 importComponent("VotingPortalFooter", () => require('../components/ea-forum/voting-portal/VotingPortalFooter'));
 importComponent("ElectionAllocateVote", () => require('../components/ea-forum/voting-portal/ElectionAllocateVote'));
+importComponent("ElectionComparePair", () => require('../components/ea-forum/voting-portal/ElectionComparePair'));
 importComponent("AdminElectionCandidates", () => require('../components/ea-forum/giving-portal/AdminElectionCandidates'));
 importComponent("EditElectionCandidate", () => require('../components/ea-forum/giving-portal/EditElectionCandidate'));
 importComponent("DeleteElectionCandidateDialog", () => require('../components/ea-forum/giving-portal/DeleteElectionCandidateDialog'));

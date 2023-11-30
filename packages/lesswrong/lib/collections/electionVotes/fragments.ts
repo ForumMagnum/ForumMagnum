@@ -5,6 +5,7 @@ registerFragment(`
     _id
     electionName
     userId
+    compareState
     vote
     submittedAt
     userExplanation

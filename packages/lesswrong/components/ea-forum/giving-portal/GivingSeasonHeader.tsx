@@ -244,6 +244,7 @@ const GivingSeasonHeader = ({
   const { electionVote } = useElectionVote("givingSeason23");
   const currentUser = useCurrentUser();
 
+  const compareAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 1;
   const allocateAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 0;
   const submitAllowed = electionVote?.vote && Object.values(electionVote.vote).some((value) => value);
   // We only advertise voting for users who are eligible -
@@ -258,7 +259,7 @@ const GivingSeasonHeader = ({
     {
       label: '2. Compare',
       href: '/voting-portal/compare',
-      disabled: !allocateAllowed,
+      disabled: !compareAllowed,
     },
     {
       label: '3. Allocate votes',
