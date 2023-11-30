@@ -8,6 +8,7 @@ import { localeSetting } from '../../lib/publicSettings';
 import { getExecutableSchema } from './apollo-server/initGraphQL';
 import { getCollectionsByName, generateDataLoaders } from './apollo-server/context';
 import { getAllRepos } from '../repos';
+import { generateTraceId } from '../perfMetrics';
 
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
@@ -55,6 +56,7 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
     ...getCollectionsByName(),
     ...generateDataLoaders(),
     ...options,
+    traceId: generateTraceId()
   };
   
   return queryContext;

@@ -71,7 +71,7 @@ export const createHttpLink = (baseUrl = '/') => {
   });
 }
 
-export const createHeaderLink = new ApolloLink((operation, forward) => {
+export const headerLink = new ApolloLink((operation, forward) => {
   if (!isServer) {
     const url = new URL(window.location.href)
     const path = url.pathname + url.search

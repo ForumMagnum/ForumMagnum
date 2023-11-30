@@ -246,6 +246,7 @@ interface ResolverContext extends CollectionsByName {
   req?: Request & {logIn: any, logOut: any, cookies: any, headers: any},
   res?: Response,
   repos: Repos,
+  traceId: string,
 }
 
 type FragmentName = keyof FragmentTypes;
