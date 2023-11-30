@@ -70,10 +70,25 @@ const styles = (theme: ThemeType) => ({
     width: imageSize,
     height: imageSize,
   },
+  descriptionTooltip: {
+    maxWidth: 320,
+    marginTop: 8,
+    textAlign: "left",
+    borderRadius: `${theme.borderRadius.default}px !important`,
+    // FIXME setting this background color breaks unrelated styles for some reason
+    // backgroundColor: `${theme.palette.grey[900]} !important}`,
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 12, // Just stop it from really overflowing
+  },
   candidateName: {
     fontWeight: 600,
     fontSize: 18,
     color: theme.palette.givingPortal[1000],
+    '&:hover': {
+      textUnderlineOffset: '3px',
+      textDecoration: 'underline',
+    }
   },
   allocateInput: {
     width: 150,
@@ -132,7 +147,9 @@ const AllocateVoteRow = ({
   setVoteState: Dispatch<SetStateAction<Record<string, number | string | null>>>;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { _id: candidateId, name, logoSrc, fundraiserLink } = candidate;
+  const { LWTooltip } = Components;
+
+  const { _id: candidateId, name, logoSrc, href, description } = candidate;
   const naiveValue = voteState[candidateId];
   const formattedValue =
     typeof naiveValue === "number"
@@ -144,13 +161,15 @@ const AllocateVoteRow = ({
       <div className={classes.allocateVoteRow}>
         <div className={classes.details}>
           <div className={classes.imageContainer}>
-            <Link to={fundraiserLink || ""} target="_blank" rel="noopener noreferrer">
+            <Link to={href || ""} target="_blank" rel="noopener noreferrer">
               <img src={logoSrc} className={classes.image} />
             </Link>
           </div>
-          <Link to={fundraiserLink || ""} className={classes.candidateName} target="_blank" rel="noopener noreferrer">
-            {name}
-          </Link>
+          <LWTooltip title={description} placement="bottom" popperClassName={classes.descriptionTooltip}>
+            <Link to={href || ""} className={classes.candidateName} target="_blank" rel="noopener noreferrer">
+              {name}
+            </Link>
+          </LWTooltip>
         </div>
         <OutlinedInput
           className={classes.allocateInput}
@@ -160,7 +179,8 @@ const AllocateVoteRow = ({
             const value = e.target.value;
             if (value === "" || value === null) {
               setVoteState((prev) => ({ ...prev, [candidateId]: null } as Record<string, number | string | null>));
-            } else if (/^\d*\.?\d*$/.test(value) && value.length < 15) { // Only allow positive (decimal) numbers up to 15 characters
+            } else if (/^\d*\.?\d*$/.test(value) && value.length < 15) {
+              // Only allow positive (decimal) numbers up to 15 characters
               setVoteState((prev) => ({ ...prev, [candidateId]: value } as Record<string, number | string | null>));
             }
           }}

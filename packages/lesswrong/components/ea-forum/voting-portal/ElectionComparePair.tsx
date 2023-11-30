@@ -51,10 +51,25 @@ const styles = (theme: ThemeType) => ({
     width: imageSize,
     height: imageSize,
   },
+  descriptionTooltip: {
+    maxWidth: 320,
+    marginTop: 8,
+    textAlign: "left",
+    borderRadius: `${theme.borderRadius.default}px !important`,
+    // FIXME setting this background color breaks unrelated styles for some reason
+    // backgroundColor: `${theme.palette.grey[900]} !important}`,
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 12, // Just stop it from really overflowing
+  },
   candidateName: {
     color: theme.palette.givingPortal[1000],
     fontSize: 16,
     fontWeight: 600,
+    '&:hover': {
+      textUnderlineOffset: '3px',
+      textDecoration: 'underline',
+    }
   },
   switchOrderButton: {
     gap: "6px",
@@ -80,19 +95,25 @@ const CandidateDetails = ({
   candidate: ElectionCandidateBasicInfo;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { name, logoSrc, fundraiserLink } = candidate;
+  const { name, logoSrc, href, description } = candidate;
+  const { LWTooltip } = Components;
 
   return (
     <div className={classes.candidateDetails}>
       <div className={classes.imageContainer}>
-        <Link to={fundraiserLink || ""} target="_blank" rel="noopener noreferrer">
+        <Link to={href || ""} target="_blank" rel="noopener noreferrer">
           <img src={logoSrc} className={classes.image} />
         </Link>
       </div>
-      {/* TODO tooltip */}
-      <Link to={fundraiserLink || ""} target="_blank" rel="noopener noreferrer" className={classes.candidateName}>
-        {name}
-      </Link>
+      <LWTooltip
+        title={description}
+        placement="bottom"
+        popperClassName={classes.descriptionTooltip}
+      >
+        <Link to={href || ""} target="_blank" rel="noopener noreferrer" className={classes.candidateName}>
+          {name}
+        </Link>
+      </LWTooltip>
     </div>
   );
 }
