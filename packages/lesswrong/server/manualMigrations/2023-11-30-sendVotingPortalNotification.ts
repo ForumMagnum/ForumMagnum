@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import Conversations from "../../lib/collections/conversations/collection";
 import Messages from "../../lib/collections/messages/collection";
 import Users from "../../lib/collections/users/collection";
