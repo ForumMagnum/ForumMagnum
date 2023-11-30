@@ -209,13 +209,14 @@ const EAVotingPortalSubmitPage = ({
             />
           </div>
         </div>
-        <VotingPortalFooter
+      <VotingPortalFooter
           leftHref="/voting-portal/allocate-points"
           middleNode={<></>}
           buttonText={"Submit your vote"}
           buttonProps={{
             onClick: handleSubmit,
           }}
+          arrow={false}
           electionVote={electionVote}
           updateVote={updateVote}
         />
