@@ -314,7 +314,7 @@ const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
             variant="display1"
             className={classNames(classes.heading, {[classes.votingHeading]: advertiseVoting})}
           >
-            {advertiseVoting ? 'Vote in the Donation Election 2023' : 'Giving season 2023'}
+            {advertiseVoting ? 'Where should we donate?' : 'Giving season 2023'}
           </Typography>
           {!advertiseVoting && <Typography
             variant="body2"
