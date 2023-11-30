@@ -409,11 +409,13 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     const upvotedUserIds = upvotedUsers.map(user => user._id);
 
     return this.any(`
+    (
       SELECT u.*
       FROM unnest($2::text[]) AS uv(_id)
       INNER JOIN "Users" AS u ON uv._id = u._id
       WHERE
-        -- Exclude users that the current user has already checked
+      -- Exclude users that the current user has already checked
+
         (
           SELECT COUNT(*)
           FROM "DialogueChecks"
@@ -422,6 +424,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         AND
         (
           -- Don't recommend users who've never commented on your posts
+
           (
             SELECT COUNT(*)
             FROM public."Comments" AS c
@@ -430,6 +433,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
           ) >= 1
           OR 
           -- Don't recommend users who've never replied to your comments 
+
           (
             SELECT COUNT(*)
             FROM public."Comments"
@@ -442,7 +446,22 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
               )
           ) >= 1
         )
-      LIMIT $3  
+      LIMIT $3
+    )
+    -- If the above query doesn't return enough users, then fill in the rest with users who you've upvoted
+      UNION ALL
+      (
+        SELECT u.*
+        FROM unnest($2::text[]) AS uv(_id)
+        INNER JOIN "Users" AS u ON uv._id = u._id
+        WHERE
+          (
+            SELECT COUNT(*)
+            FROM "DialogueChecks"
+            WHERE "userId" = $1 AND "targetUserId" = uv._id AND "checked" IS TRUE
+          ) = 0
+        LIMIT $3
+      )
     `, [userId, upvotedUserIds, limit]);
   }
 
