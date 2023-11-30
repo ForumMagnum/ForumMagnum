@@ -164,8 +164,7 @@ defineQuery({
       throw new Error('Must be logged in to view recommended comments of target user')
     }
 
-    let comments = await repos.comments.getUsersRecommendedCommentsOfTargetUser(userId, targetUserId, limit)
-    comments = await accessFilterMultiple(currentUser, Comments, comments, context)
-    return comments
+    const comments = await repos.comments.getUsersRecommendedCommentsOfTargetUser(userId, targetUserId, limit)
+    return await accessFilterMultiple(currentUser, Comments, comments, context)
   },
 });
