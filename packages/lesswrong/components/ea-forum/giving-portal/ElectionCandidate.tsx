@@ -92,6 +92,22 @@ const styles = (theme: ThemeType) => ({
       textDecoration: "underline",
     },
   },
+  descriptionTooltip: {
+    maxWidth: 320,
+    marginTop: 8,
+    textAlign: "left",
+    borderRadius: `${theme.borderRadius.default}px !important`,
+    backgroundColor: `${theme.palette.grey[900]} !important}`,
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 12, // Just stop it from really overflowing
+  },
+  hoverUnderline: {
+    '&:hover': {
+      textUnderlineOffset: '3px',
+      textDecoration: 'underline',
+    }
+  },
   tooltip: {
     maxWidth: 200,
     textAlign: "center",
@@ -116,7 +132,7 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
   );
 
   const {
-    name, logoSrc, fundraiserLink, postCount, tag, extendedScore, currentUserExtendedVote,
+    name, logoSrc, fundraiserLink, href, postCount, tag, extendedScore, currentUserExtendedVote, description,
   } = votingProps.document;
   const preVoteCount = extendedScore?.preVoteCount ?? 0;
   const hasVoted = !!currentUserExtendedVote?.preVote;
@@ -128,6 +144,8 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
   // We don't want to accidentally navigate away from the page if the user is selecting candidates
   const newTabProps = { target: "_blank", rel: "noopener noreferrer" };
   const linkProps = isSelect ? newTabProps : {};
+
+  const linkUrl = isSelect ? href : fundraiserLink;
 
   const {PreVoteButton, ForumIcon, LWTooltip} = Components;
   return (
@@ -147,14 +165,28 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
           />
         )}
         <div className={classes.imageContainer}>
-          <Link to={fundraiserLink || ""} {...linkProps}>
+          <Link to={linkUrl || ""} {...linkProps}>
             <img src={logoSrc} className={classes.image} />
           </Link>
         </div>
         <div className={classes.details}>
-          <div className={classes.name}>
-            <Link to={fundraiserLink || ""} {...linkProps}>{name}</Link>
-          </div>
+          <LWTooltip
+            disabled={!isSelect}
+            className={classes.name}
+            title={description}
+            placement="bottom"
+            popperClassName={classes.descriptionTooltip}
+          >
+            <Link
+              to={linkUrl || ""}
+              className={classNames({
+                [classes.hoverUnderline]: isSelect,
+              })}
+              {...linkProps}
+            >
+              {name}
+            </Link>
+          </LWTooltip>
           <div className={classes.metaInfo}>
             {!isSelect && (
               <span className={classes.preVotes}>
