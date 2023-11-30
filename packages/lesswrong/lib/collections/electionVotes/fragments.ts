@@ -8,6 +8,7 @@ registerFragment(`
     compareState
     vote
     submittedAt
+    submissionComments
     userExplanation
     userOtherComments
   }
