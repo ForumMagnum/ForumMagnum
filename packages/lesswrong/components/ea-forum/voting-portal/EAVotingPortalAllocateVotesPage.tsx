@@ -166,6 +166,8 @@ const EAVotingPortalAllocateVotesPage = ({
             onClick: saveAllocation,
             disabled: allocatedCandidateIds.length === 0,
           }}
+          electionVote={electionVote}
+          updateVote={updateVote}
         />
       </div>
     </AnalyticsContext>

@@ -220,10 +220,12 @@ const EAVotingPortalSubmitPage = ({
         <VotingPortalFooter
           leftHref="/voting-portal/allocate-votes"
           middleNode={<></>}
-          buttonText={electionVote.submittedAt ? "Update your vote" : "Submit your vote"}
+          buttonText={"Submit your vote"}
           buttonProps={{
             onClick: handleSubmit,
           }}
+          electionVote={electionVote}
+          updateVote={updateVote}
         />
       </div>
     </AnalyticsContext>

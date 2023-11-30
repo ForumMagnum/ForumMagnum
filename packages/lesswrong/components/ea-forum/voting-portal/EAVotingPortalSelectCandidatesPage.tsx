@@ -127,6 +127,8 @@ const EAVotingPortalSelectCandidatesPage = ({
             onClick: saveSelection,
             disabled: selectedIds.length === 0,
           }}
+          electionVote={electionVote}
+          updateVote={updateVote}
         />
       </div>
     </AnalyticsContext>

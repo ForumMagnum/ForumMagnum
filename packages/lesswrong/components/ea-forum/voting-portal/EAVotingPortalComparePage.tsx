@@ -257,6 +257,8 @@ const EAVotingPortalComparePage = ({
             onClick: saveComparison,
             disabled: !reachedEndRef.current && !doneBefore,
           }}
+          electionVote={electionVote}
+          updateVote={updateVote}
         />
       </div>
     </AnalyticsContext>
