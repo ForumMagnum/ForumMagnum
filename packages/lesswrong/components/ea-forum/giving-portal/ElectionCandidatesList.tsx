@@ -42,6 +42,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     color: theme.palette.givingPortal[1000],
     fontSize: 16,
+    marginRight: 16,
   },
   checkbox: {
     padding: '4px 6px',

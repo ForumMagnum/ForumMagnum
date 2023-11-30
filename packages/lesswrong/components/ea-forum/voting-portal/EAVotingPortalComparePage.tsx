@@ -188,18 +188,17 @@ const EAVotingPortalComparePage = ({
       return;
     }
 
-    navigate({ pathname: "/voting-portal/allocate-votes" });
+    navigate({ pathname: "/voting-portal/allocate-points" });
   }, [compareState, flash, navigate, updateVote]);
 
   return (
     <AnalyticsContext pageContext="eaVotingPortalCompare">
       <div className={classes.root}>
         <div className={classes.content} id="top">
-          <div className={classes.h2}>2. Compare projects</div>
+          <div className={classes.h2}>2. Compare candidates to get a draft point allocation</div>
           <div className={classes.subtitle}>
             <div className={classes.subtitleParagraph}>
-              Use pairwise comparisons to get an initial allocation of your points. You’ll be able to change and
-              finalize the allocation in the next step.
+            We'll auto-generate a point allocation based on your comparisons here, which you'll finalize in the next step.
             </div>
             <div>You can skip this step if you prefer to allocate points manually.</div>
           </div>
@@ -251,7 +250,7 @@ const EAVotingPortalComparePage = ({
         </div>
         <VotingPortalFooter
           leftHref="/voting-portal/select-candidates"
-          middleNode={<Link to="/voting-portal/allocate-votes">Skip this step</Link>}
+          middleNode={<Link to="/voting-portal/allocate-points">Skip this step</Link>}
           buttonText={doneBefore ? "Recalculate allocation" : "Continue"}
           buttonProps={{
             onClick: saveComparison,

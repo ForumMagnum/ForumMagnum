@@ -261,6 +261,22 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [postIds, startDate, endDate]);
   }
 
+  async getUsersRecommendedCommentsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbComment[]> {
+    return this.any(`
+      SELECT c.*
+      FROM "ReadStatuses" AS rs
+      INNER JOIN "Posts" AS p ON rs."postId" = p._id
+      INNER JOIN "Comments" AS c ON c."postId" = p._id
+      WHERE
+          rs."userId" = $1
+          AND c."userId" = $2
+          AND rs."isRead" IS TRUE
+          AND c."baseScore" > 7
+      ORDER BY rs."lastUpdated" DESC
+      LIMIT $3
+    `, [userId, targetUserId, limit]);
+  }
+
   async getCommentsWithElicitData(): Promise<DbComment[]> {
     return await this.any(`
       SELECT *

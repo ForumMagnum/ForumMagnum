@@ -129,7 +129,7 @@ export const convertCompareStateToVote = (compareState: CompareState): Record<st
   return normalizedVote;
 }
 
-export const ELECTION_EFFECT_QUESTION = "How much did you change your mind about where to donate and/or how to vote, as a result of the Donation Election or other Giving Season activities?"
+export const ELECTION_EFFECT_QUESTION = "Did you change your donation priorities as a result of the Forum's Giving Season activities?"
 export const ELECTION_EFFECT_OPTIONS = [
   {
     value: "noChange",
@@ -145,11 +145,11 @@ export const ELECTION_EFFECT_OPTIONS = [
   },
   {
     value: "xlChange",
-    label: "Totally changed my donation priorities ",
+    label: "Totally changed my donation priorities",
   },
 ]
 
-export const ELECTION_NOTE_QUESTION = "Share a note about your vote, which might get shared (anonymously) in the public writeup of the results"
+export const ELECTION_NOTE_QUESTION = "Why did you vote the way you did?"
 
 export type SubmissionComments = {
   rawFormValues: {
@@ -190,7 +190,7 @@ export const formStateToSubmissionComments = ({ electionEffect, note }: { electi
 /*
  * Convert the json blob we get from the database to the values we need to populate the submission form
  */
-export const submissionCommentsToFomState = (submissionComments?: SubmissionComments): { electionEffect: string; note: string } => {
+export const submissionCommentsToFormState = (submissionComments?: SubmissionComments): { electionEffect: string; note: string } => {
   return {
     electionEffect: submissionComments?.rawFormValues.electionEffect ?? "",
     note: submissionComments?.rawFormValues.note ?? "",
