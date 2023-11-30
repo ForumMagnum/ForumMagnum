@@ -209,11 +209,10 @@ const ElectionAllocateVote = ({
     }
   }, [displayedResults, sortedResults, updateSort]);
 
-  const { Loading, ForumDropdown } = Components;
+  const { Loading } = Components;
   return (
     <div className={classNames(classes.root, className)}>
       <div className={classes.controls}>
-        {/* <ForumDropdown value={sortBy} options={sortOptions} onSelect={onSelectSort} className={classes.dropdown} /> */}
         <button
           className={classNames(classes.button, classes.sortButton, {
             [classes.buttonDisabled]: !canUpdateSort,

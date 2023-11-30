@@ -91,7 +91,6 @@ import MuiSearchIcon from '@material-ui/icons/Search';
 import MuiMenuIcon from "@material-ui/icons/Menu";
 import MuiForumIcon from '@material-ui/icons/Forum';
 
-
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
  * the props using React.HTMLAttributes otherwise you will have bugs. See the
