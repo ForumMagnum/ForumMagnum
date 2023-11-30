@@ -56,6 +56,14 @@ export const validateCompareState = ({data}: {data: Partial<DbElectionVote>}) =>
   return compareState;
 };
 
+/**
+ * Convert a number to a string in a way that doesn't use scientific notation, so that the
+ * result comes out the same as what the user entered.
+ */
+export const numberToEditableString = (num: number, maxLength = 10): string => {
+  return num.toFixed(maxLength).replace(/\.?0+$/, "");
+}
+
 export const convertCompareStateToVote = (compareState: CompareState): Record<string, number> => {
   const pairs = Object.keys(compareState).map(key => {
     const [candidate1Id, candidate2Id] = key.split("-");
@@ -107,10 +115,10 @@ export const convertCompareStateToVote = (compareState: CompareState): Record<st
     throw new Error("Vote ids don't match expected ids");
   }
 
-  // Normalize (to a total of 100_000) and round
+  // Normalize (to 1) and round
   const total = Object.values(vote).reduce((sum, value) => sum + value, 0);
   const normalizedVote = Object.fromEntries(
-    Object.entries(vote).map(([id, value]) => [id, Math.round((value / total) * 100_000)])
+    Object.entries(vote).map(([id, value]) => [id, Number((value / total).toPrecision(4))])
   );
 
   return normalizedVote;
