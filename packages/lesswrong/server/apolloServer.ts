@@ -50,17 +50,20 @@ import { getClientBundle } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener, GraphQLRequestExecutionListener } from 'apollo-server-plugin-base';
-import { closePerfMetric, openPerfMetric } from './perfMetrics';
+import { closePerfMetric, generateTraceId, openPerfMetric } from './perfMetrics';
+import { create } from 'underscore';
+import { createTable } from './migrations/meta/utils';
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
     const { operationName = 'unknownGqlOperation', query, variables } = request;
 
     const startedRequestMetric = openPerfMetric({
-      op_type: 'request',
+      op_type: 'query',
       op_name: operationName,
       parent_trace_id: context.traceId,
-      context
+      context,
+      variables
     });
 
     if (query) {
@@ -153,11 +156,19 @@ export function startWebserver() {
       configureSentryScope(context);
       return context;
     },
-    plugins: [new ApolloServerLogging()]
+    plugins: [new ApolloServerLogging()],
+    formatResponse: (response, requestContext) => {
+      
+      return response;
+    }
   });
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
+  app.use('/graphql', (req, _, next) => {
+    req.headers['trace-id'] = generateTraceId()
+    next()
+  })
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
