@@ -1,10 +1,12 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
-import {useCurrentUser} from '../common/withUser';
-import {gql, useQuery} from '@apollo/client';
-import {DialogueUserRowProps} from '../users/DialogueMatchingPage';
+import { useCurrentUser } from '../common/withUser';
+import { gql, useQuery } from '@apollo/client';
+import { DialogueUserRowProps, TagWithCommentCount } from '../users/DialogueMatchingPage';
 import classNames from 'classnames';
+import { Link } from '../../lib/reactRouterWrapper';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType) => ({
   dialogueUserRow: { 
@@ -50,6 +52,11 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
     width: 'auto',
     flexShrink: 'unset!important',
+  },
+  dialogueMatchUsernameExpandedMobile: {
+    [theme.breakpoints.down('xs')]: {
+      overflow: 'visible',
+    }
   },
   dialogueMatchCheckbox: {
     marginLeft: 6,
@@ -130,6 +137,12 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
+type PostYouveRead = {
+  _id: string;
+  title: string;
+  slug: string;
+}
+
 interface DialogueRecommendationRowProps {
   rowProps: DialogueUserRowProps<boolean>; 
   classes: ClassesType<typeof styles>; 
@@ -150,8 +163,63 @@ interface TopicRecommendationWithContents {
   theirVote: string;
 }
 
+interface TopicSuggestionProps {
+  reactIconName:string; 
+  prefix:string;
+  Content:JSX.Element;
+  classes: ClassesType<typeof styles>; 
+  isExpanded: boolean;
+}
+
+const TopicSuggestion = ({reactIconName, prefix, Content, classes, isExpanded}: TopicSuggestionProps) => {
+  const { ReactionIcon } = Components
+  return (
+    <div className={classes.suggestionRow}>
+      <p className={classNames({
+        [classes.debateTopicExpanded]: isExpanded,
+        [classes.debateTopicCollapsed]: !isExpanded
+      })}>
+          <ReactionIcon key="1" size={13} react={reactIconName} />
+          {" "}
+          <span key="2" className={classNames(classes.agreeText, { [classes.agreeTextCollapsedMobile]: !isExpanded})}>
+            {prefix}
+          </span>
+          {Content}
+      </p>
+    </div>
+  )
+}
+
+interface ExpandCollapseTextProps {
+  classes: ClassesType<typeof styles>; 
+  isExpanded: boolean;
+  numHidden: number;
+  toggleExpansion: () => void;
+}
+
+const ExpandCollapseText = ({classes, isExpanded, numHidden, toggleExpansion}: ExpandCollapseTextProps) => {
+  let text 
+  if (isExpanded) {
+    text = <>▲ hide</>;
+  } else {
+    text = <>
+      ▼<span key="1" className={classes.bigScreenExpandNote}>
+        ...{numHidden > 0 ? ` ${numHidden} ` : ``}more
+      </span>
+    </>
+  }
+  return (
+    <span className={classNames({
+      [classes.hideIcon]: isExpanded,
+      [classes.expandIcon]: !isExpanded
+    })} onClick={toggleExpansion}>
+      { text }
+    </span>
+  )
+};
+
 const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: DialogueRecommendationRowProps) => {
-  const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, LWTooltip, ReactionIcon } = Components
+  const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, ReactionIcon, PostsTooltip } = Components
 
   const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
@@ -182,39 +250,61 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
     skip: !currentUser
   });
 
-  if (!currentUser) return <></>;
+  const { loading: tagLoading, error: tagError, data: tagData } = useQuery(gql`
+    query UserTopTags($userId: String!) {
+      UserTopTags(userId: $userId) {
+        tag {
+          name
+          _id
+        }
+        commentCount
+      }
+    }
+  `, {
+    variables: { userId: targetUser._id },
+  });
+
+  const { loading: postsLoading, error: postsError, data: postsData } = useQuery(gql`
+    query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int) {
+      UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
+        _id
+        title
+        slug
+      }
+    }
+  `, {
+    variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 3 },
+  });
+
+  const topTags:[TagWithCommentCount] = tagData?.UserTopTags;
+  const readPosts:PostYouveRead[] = postsData?.UsersReadPostsOfTargetUser
   const preTopicRecommendations: TopicRecommendationWithContents[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
-  const topicRecommendations = preTopicRecommendations?.filter(topic => topic.theirVote !== null);
-  const numRecommendations = topicRecommendations?.length ?? 0;
-  const numShown = isExpanded ? numRecommendations : 1
+  const topicRecommendations = preTopicRecommendations?.filter(topic => ['agree', 'disagree'].includes(topic.theirVote) ); // todo: might want better type checking here in future for values of theirVote
+ 
+  if (!currentUser || !topTags || !topicRecommendations || !readPosts) return <></>;
+  const tagsSentence = topTags.slice(0, 4).map(tag => tag.tag.name).join(', ');
+  const numTagRecommendations = tagsSentence === "" ? 0 : 1;
+  const numRecommendations = (topicRecommendations?.length + readPosts?.length ?? 0) + numTagRecommendations;
+  const numShown = isExpanded ? numRecommendations : 2
   const numHidden = Math.max(0, numRecommendations - numShown);
 
-  const renderExpandCollapseText = () => {
-    if (isExpanded) {
-      return '▲ hide';
-    }
-  
-    if (numHidden > 0) {
-      return [
-        '▼',
-        <span key={targetUser._id} className={classes.bigScreenExpandNote}>
-          ... {numHidden} more
-        </span>,
-      ];
-    }
-  
-    return '';
-  };
+  const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = [
+    ...topicRecommendations.map(topic => ({reactIconName: topic.theirVote, prefix: topic.theirVote+": ", Content: <>{topic.comment.contents.plaintextMainText}</>})), 
+    {reactIconName: "elaborate", prefix: "top tags: ", Content: <>{tagsSentence}</>},
+    ...readPosts.map(post => ({reactIconName: "seen", prefix: "you read: ", Content: <PostsTooltip postId={post._id}>
+      <Link to={postGetPageUrl(post)}> {post.title} </Link>
+    </PostsTooltip>}))
+  ]
 
   return (
     <div>
       <div key={targetUser._id} className={classNames(classes.dialogueUserRow, {
           [classes.dialogueUserRowExpandedMobile]: isExpanded
         })}>
-          <div className={classNames(classes.dialogueLeftContainer, {
-            [classes.dialogueLeftContainerExpandedMobile]: isExpanded,
-            [classes.dialogueLeftContainerNoTopics]: isExpanded || numRecommendations === 0
-          })}>
+        <div className={classNames(classes.dialogueLeftContainer, {
+          [classes.dialogueLeftContainerExpandedMobile]: isExpanded,
+          [classes.dialogueLeftContainerNoTopics]: numRecommendations === 0
+        })}>
           <div className={ classes.dialogueMatchCheckbox }>
             <DialogueCheckBox
               targetUserId={targetUser._id}
@@ -224,60 +314,41 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
               isMatched={userIsMatched}
             />
           </div>
-          <PostsItem2MetaInfo className={classes.dialogueMatchUsername}>
+          <PostsItem2MetaInfo className={classNames(classes.dialogueMatchUsername, {
+              [classes.dialogueMatchUsernameExpandedMobile]: isExpanded
+            })}>
             <UsersName
               documentId={targetUser._id}
               simple={false}
             />
           </PostsItem2MetaInfo>
         </div>
-        {showSuggestedTopics && <div className={classes.topicRecommendationsList}>
-          {topicRecommendations?.slice(0,numShown).map((topic, index) => (
-            <div key={index} className={classes.suggestionRow}>
-              <p key={index} className={classNames({
-                [classes.debateTopicExpanded]: isExpanded,
-                [classes.debateTopicCollapsed]: !isExpanded
-              })}>
-                {topic.theirVote === 'agree' && [
-                  <ReactionIcon key={index} size={13} react={"agree"} />,
-                  <span key={index} className={classNames(classes.agreeText, {
-                    [classes.agreeTextCollapsedMobile]: !isExpanded
-                  })}>agrees: </span>,
-                  `"${topic.comment.contents.plaintextMainText}"`
-                ]} 
-                {topic.theirVote === 'disagree' && [
-                  <ReactionIcon key={index} size={13} react={"disagree"} />,
-                  <span key={index} className={classNames(classes.agreeText, {
-                    [classes.agreeTextCollapsedMobile]: !isExpanded
-                  })}>disagrees: </span>,
-                  `"${topic.comment.contents.plaintextMainText}"`
-                ]}
-              </p>
-            </div>
-          ))}
-          
-      </div>}
-      <div className={classes.dialogueRightContainer}>
-        {<span className={classNames({
-          [classes.hideIcon]: isExpanded,
-          [classes.expandIcon]: !isExpanded
-        })} onClick={toggleExpansion}>
-          {renderExpandCollapseText()}
-        </span>}
-      </div>
-      {!showSuggestedTopics && 
-        <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
-          <div className={classes.dialogueMatchNote}>Check to maybe dialogue, if you find a topic</div>
-        </PostsItem2MetaInfo>}
+        {showSuggestedTopics && (<>
+          <div className={classes.topicRecommendationsList}>
+            {allRecommendations.slice(0, numShown).map( (item, index) => <TopicSuggestion key={index} reactIconName={item.reactIconName} prefix={item.prefix} Content={item.Content} isExpanded={isExpanded} classes={classes}/>) } 
+          </div>
+          <div className={classes.dialogueRightContainer}>
+            {(allRecommendations && allRecommendations.length > 0) && <ExpandCollapseText isExpanded={isExpanded} numHidden={numHidden} toggleExpansion={toggleExpansion} classes={classes} />}
+          </div>
+        </>)}
+        {!showSuggestedTopics && 
+          <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+            <div className={classes.dialogueMatchNote}>Check to maybe dialogue, if you find a topic</div>
+          </PostsItem2MetaInfo>}
       </div>
     </div>
   );
 };
 
 const DialogueRecommendationRowComponent = registerComponent('DialogueRecommendationRow', DialogueRecommendationRow, {styles});
+const TopicSuggestionComponent = registerComponent('TopicSuggestion', TopicSuggestion, {styles});
+const ExpandCollapseComponent = registerComponent('ExpandCollapseText', ExpandCollapseText, {styles});
+
 
 declare global {
   interface ComponentTypes {
-    DialogueRecommendationRow: typeof DialogueRecommendationRowComponent
+    DialogueRecommendationRow: typeof DialogueRecommendationRowComponent,
+    TopicSuggestion: typeof TopicSuggestionComponent,
+    ExpandCollapseText: typeof ExpandCollapseComponent,
   }
 }
