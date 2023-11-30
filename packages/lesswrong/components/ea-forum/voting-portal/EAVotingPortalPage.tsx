@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
   thankYouBackground: {
     backgroundImage: `url(${BACKGROUND_IMAGE})`,
     backgroundPosition: "center",
-    backgroundRepeat: "no-repeat",
+    backgroundRepeat: "repeat",
     backgroundSize: "auto",
   },
 });
