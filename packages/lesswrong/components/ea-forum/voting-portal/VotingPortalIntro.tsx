@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { HEADER_HEIGHT } from "../../common/Header";
 import { Link } from "../../../lib/reactRouterWrapper";
 import classNames from "classnames";
@@ -121,7 +121,18 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.grey[200],
     },
   },
+  imageWrapper: {
+    maxWidth: 700,
+    width: "100%",
+    margin: "0 auto",
+  },
+  image: {
+    width: "100%",
+    borderRadius: theme.borderRadius.default,
+  },
 });
+
+const imageId = 'voting-portal-intro-image';
 
 const fundLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
 const exploreLink = "/giving-portal";
@@ -136,6 +147,8 @@ const VotingPortalIntro = ({classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { flash } = useMessages();
+
+  const { CloudinaryImage2 } = Components;
 
   const isLoggedIn = !!currentUser;
   const userCanVote = userCanVoteInDonationElection(currentUser);
@@ -168,20 +181,8 @@ const VotingPortalIntro = ({classes}: {
           </span>{" "}
         </div>
       </div>
-      <div className={classes.inset}>
-        <div className={classes.h2}>How voting works</div>
-        <div className={classes.h3}>1. Select candidates you want to vote for</div>
-        <div>
-          These are the candidates you’ll allocate points to. The ones you don’t select will automatically get 0 points.
-        </div>
-        <div className={classes.h3}>2. Compare candidates</div>
-        <div>You'll compare pairs of candidates to create a draft point allocation. (You can skip this step).</div>
-        <div className={classes.h3}>3. Allocate your points</div>
-        <div>
-          Finalize your point allocation, which should represent how you’d distribute funding between the candidates if
-          it were up to you.
-        </div>
-        <div className={classes.h3}>4. Submit your votes</div>
+      <div className={classes.imageWrapper}>
+        <CloudinaryImage2 publicId={imageId} className={classes.image}/>
       </div>
       <div>
         Your vote is anonymous to other users. If we have reason to believe you've committed{" "}
