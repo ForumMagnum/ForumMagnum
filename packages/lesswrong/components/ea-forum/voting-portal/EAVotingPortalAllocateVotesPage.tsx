@@ -98,9 +98,9 @@ const EAVotingPortalAllocateVotesPage = ({
               </b>
             </div>
             <div>
-              As a reminder,{" "}
+            Points you assign to candidates you don’t think will win are not wasted — if a candidate you assigned points to is eliminated, your other points will count for more.{" "}
               <Link to={processLink} target="_blank" rel="noopener noreferrer">
-                this post
+                This post
               </Link>{" "}
               describes how we’ll use the scores to determine the winners in the Donation Election.
             </div>
