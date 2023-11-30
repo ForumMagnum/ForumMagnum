@@ -448,5 +448,10 @@
     "acceptsSchemaHash": "ea10555b6fef67efb7ab0cbbdfdb8772",
     "acceptedByMigration": "20231130T012654.changeDefaultNewCheckNotificationFrequencyRealtime.ts",
     "timestamp": "2023-11-30T01:26:54.000Z"
+  },
+  {
+    "acceptsSchemaHash": "edca7fde4fce09bf9031f2f3f9b18fda",
+    "acceptedByMigration": "20231130T140404.add_submissionComments.ts",
+    "timestamp": "2023-11-30T14:04:04.000Z"
   }
 ]

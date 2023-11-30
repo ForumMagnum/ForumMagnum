@@ -2,14 +2,14 @@ import React, { useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { votingPortalStyles } from "./styles";
-import { isAdmin } from "../../../lib/vulcan-users";
-import { useCurrentUser } from "../../common/withUser";
 import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import { useElectionVote } from "./hooks";
 import { useElectionCandidates } from "../giving-portal/hooks";
 import classNames from "classnames";
 import { CompareStateUI, convertCompareStateToVote, getCompareKey, getInitialCompareState, validateCompareState } from "../../../lib/collections/electionVotes/helpers";
 import { useMessages } from "../../common/withMessages";
+import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import { useCurrentUser } from "../../common/withUser";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
     margin: "6px auto",
     padding: 20,
     fontWeight: 500,
-    fontSize: 14,
+    fontSize: 16,
     gap: "16px"
   },
   controls: {
@@ -87,6 +87,24 @@ const styles = (theme: ThemeType) => ({
 const EAVotingPortalComparePageLoader = ({ classes }: { classes: ClassesType }) => {
   const { electionVote, updateVote } = useElectionVote("givingSeason23");
   const { results } = useElectionCandidates("random");
+
+  const currentUser = useCurrentUser();
+  const { LoginForm } = Components;
+
+  if (!currentUser) {
+    return (
+      <div className={classes.noPermissionFallback}>
+        <LoginForm />
+      </div>
+    );
+  }
+  if (!userCanVoteInDonationElection(currentUser)) {
+    return (
+      <p className={classes.noPermissionFallback}>
+        You are not eligible to vote as your account was created after 22nd Oct 2023
+      </p>
+    );
+  }
 
   if (!electionVote?.vote || Object.keys(electionVote.vote).length < 2 || !results) return null;
 
@@ -170,21 +188,19 @@ const EAVotingPortalComparePage = ({
       return;
     }
 
-    navigate({ pathname: "/voting-portal/allocate-votes" });
+    navigate({ pathname: "/voting-portal/allocate-points" });
   }, [compareState, flash, navigate, updateVote]);
-
-  // TODO un-admin-gate when the voting portal is ready
-  const currentUser = useCurrentUser();
-  if (!isAdmin(currentUser)) return null;
 
   return (
     <AnalyticsContext pageContext="eaVotingPortalCompare">
       <div className={classes.root}>
         <div className={classes.content} id="top">
-          <div className={classes.h2}>2. Compare projects</div>
+          <div className={classes.h2}>2. Compare candidates to get a draft point allocation</div>
           <div className={classes.subtitle}>
-            Use pairwise comparisons to get an initial allocation of your votes. You can still change the allocation
-            manually in the next step.
+            <div className={classes.subtitleParagraph}>
+            We'll auto-generate a point allocation based on your comparisons here, which you'll finalize in the next step.
+            </div>
+            <div>You can skip this step if you prefer to allocate points manually.</div>
           </div>
           <div className={classes.comparisonSection}>
             <ElectionComparePair
@@ -204,18 +220,19 @@ const EAVotingPortalComparePage = ({
                     setCurrentPairIndex((prev) => prev - 1);
                   }}
                 >
-                  <ForumIcon icon="ArrowRight" className={classNames(classes.arrowIcon, classes.arrowLeft)} /> Back
+                  <ForumIcon icon="ArrowRight" className={classNames(classes.arrowIcon, classes.arrowLeft)} /> Previous
+                  pair
                 </div>
                 <div className={classes.pairCounter}>
                   Pair {currentPairIndex + 1}/{candidatePairs.length}
                 </div>
               </div>
               <LWTooltip
-                  title={`Click "${continueMessage}" below to continue to the next step`}
-                  placement="top"
-                  disabled={!nextDisabled}
-                  popperClassName={classes.tooltipPopper}
-                >
+                title={`Click "${continueMessage}" below to continue to the next step`}
+                placement="top"
+                disabled={!nextDisabled}
+                popperClassName={classes.tooltipPopper}
+              >
                 <button
                   className={classNames(classes.button, classes.nextButton, {
                     [classes.buttonDisabled]: nextDisabled,
@@ -233,12 +250,14 @@ const EAVotingPortalComparePage = ({
         </div>
         <VotingPortalFooter
           leftHref="/voting-portal/select-candidates"
-          middleNode={<Link to="/voting-portal/allocate-votes">Skip this step and allocate votes manually</Link>}
+          middleNode={<Link to="/voting-portal/allocate-points">Skip this step</Link>}
           buttonText={doneBefore ? "Recalculate allocation" : "Continue"}
           buttonProps={{
             onClick: saveComparison,
-            disabled: (!reachedEndRef.current && !doneBefore) || !!electionVote.submittedAt,
+            disabled: !reachedEndRef.current && !doneBefore,
           }}
+          electionVote={electionVote}
+          updateVote={updateVote}
         />
       </div>
     </AnalyticsContext>
