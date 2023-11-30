@@ -280,16 +280,31 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   const numShown = isExpanded ? numRecommendations : 2
   const numHidden = Math.max(0, numRecommendations - numShown);
 
-  const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = []
-  topicRecommendations.forEach(topic => {
-    allRecommendations.push({reactIconName: topic.theirVote, prefix: topic.theirVote+": ", Content: <>{topic.comment.contents.plaintextMainText}</>})
-  })
-  allRecommendations.push({reactIconName: "elaborate", prefix: "top tags: ", Content: <>{tagsSentence}</>})
-  readPosts.forEach(post => {
-    allRecommendations.push({reactIconName: "seen", prefix: "you read: ", Content: <PostsTooltip postId={post._id}>
+  const getTopicSuggestion = (reactIconName:string, prefix:string, Content:JSX.Element) => {
+    return (
+      <div className={classes.suggestionRow}>
+        <p className={classNames({
+          [classes.debateTopicExpanded]: isExpanded,
+          [classes.debateTopicCollapsed]: !isExpanded
+        })}>
+            <ReactionIcon key={"1"} size={13} react={reactIconName} />
+            {" "}
+            <span key={"2"} className={classNames(classes.agreeText, { [classes.agreeTextCollapsedMobile]: !isExpanded})}>
+              {prefix}
+            </span>
+            {Content}
+        </p>
+      </div>
+    )
+  }
+
+  const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = [
+    ...topicRecommendations.map(topic => ({reactIconName: topic.theirVote, prefix: topic.theirVote+": ", Content: <>{topic.comment.contents.plaintextMainText}</>})), 
+    {reactIconName: "elaborate", prefix: "top tags: ", Content: <>{tagsSentence}</>},
+    ...readPosts.map(post => ({reactIconName: "seen", prefix: "you read: ", Content: <PostsTooltip postId={post._id}>
       <Link to={postGetPageUrl(post)}> {post.title} </Link>
-    </PostsTooltip>})
-  })
+    </PostsTooltip>}))
+  ]
 
   return (
     <div>
