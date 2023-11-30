@@ -152,7 +152,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   
   const submitFunction = async (e: AnyBecauseTodo) => {
     e.preventDefault();
-    const signupAbTestKey = getUserABTestKey(null, clientId);
+    const signupAbTestKey = getUserABTestKey({clientId});
 
     if (currentAction === 'login') {
       const { data, errors } = await loginMutation({

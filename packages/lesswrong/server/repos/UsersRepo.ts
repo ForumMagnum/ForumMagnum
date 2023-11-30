@@ -284,6 +284,31 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `)
   }  
 
+  async getUsersWithNewDialogueChecks(minutes: number): Promise<DbUser[]> {
+    return this.manyOrNone(`
+      SELECT "Users".*
+      FROM "Users"
+      INNER JOIN "DialogueChecks" ON "Users"._id = "DialogueChecks"."targetUserId"
+      WHERE
+          "DialogueChecks"."checkedAt" > NOW() - INTERVAL '$1 minutes'
+          AND "DialogueChecks".checked IS TRUE
+          AND NOT EXISTS (
+              SELECT 1
+              FROM "DialogueChecks" AS dc
+              WHERE
+                  "DialogueChecks"."userId" = dc."targetUserId"
+                  AND "DialogueChecks"."targetUserId" = dc."userId"
+                  AND dc.checked IS TRUE
+          )
+          AND "DialogueChecks"."checkedAt"
+          > (
+              SELECT MAX("checkedAt")
+              FROM "DialogueChecks"
+              WHERE "DialogueChecks"."userId" = "Users"._id
+          )
+    `, [minutes])
+  }
+
   async getUsersTopUpvotedUsers(user:DbUser, limit = 20, recencyLimitDays = 10): Promise<UpvotedUser[]> {
     const karma = user?.karma ?? 0
     const smallVotePower = calculateVotePower(karma, "smallUpvote");
@@ -383,7 +408,6 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       `, [user._id, smallVotePower, bigVotePower, limit, recencyLimitDays])
   }
 
-
   async getDialogueMatchedUsers(userId: string): Promise<DbUser[]> {
     return this.any(`
       SELECT DISTINCT(u.*)
@@ -404,6 +428,66 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         AND current_user_checks."userId" = $1
       )
     `, [userId]);
+  }
+
+  async getDialogueRecommendedUsers(userId: string, upvotedUsers:UpvotedUser[], limit = 100): Promise<DbUser[]> {
+    const upvotedUserIds = upvotedUsers.map(user => user._id);
+
+    return this.any(`
+    (
+      SELECT u.*
+      FROM unnest($2::text[]) AS uv(_id)
+      INNER JOIN "Users" AS u ON uv._id = u._id
+      WHERE
+      -- Exclude users that the current user has already checked
+
+        (
+          SELECT COUNT(*)
+          FROM "DialogueChecks"
+          WHERE "userId" = $1 AND "targetUserId" = uv._id AND "checked" IS TRUE
+        ) = 0
+        AND
+        (
+          -- Don't recommend users who've never commented on your posts
+
+          (
+            SELECT COUNT(*)
+            FROM public."Comments" AS c
+            INNER JOIN "Posts" AS p ON c."postId" = p._id
+            WHERE c."userId" = uv._id AND p."userId" = $1
+          ) >= 1
+          OR 
+          -- Don't recommend users who've never replied to your comments 
+
+          (
+            SELECT COUNT(*)
+            FROM public."Comments"
+            WHERE
+              "userId" = uv._id
+              AND "parentCommentId" IN (
+                SELECT _id
+                FROM "Comments"
+                WHERE "userId" = $1
+              )
+          ) >= 1
+        )
+      LIMIT $3
+    )
+    -- If the above query doesn't return enough users, then fill in the rest with users who you've upvoted
+      UNION ALL
+      (
+        SELECT u.*
+        FROM unnest($2::text[]) AS uv(_id)
+        INNER JOIN "Users" AS u ON uv._id = u._id
+        WHERE
+          (
+            SELECT COUNT(*)
+            FROM "DialogueChecks"
+            WHERE "userId" = $1 AND "targetUserId" = uv._id AND "checked" IS TRUE
+          ) = 0
+        LIMIT $3
+      )
+    `, [userId, upvotedUserIds, limit]);
   }
 
   async getActiveDialogueMatchSeekers(limit: number): Promise<DbUser[]> {

@@ -216,6 +216,11 @@ registerFragment(`
     hideDialogueFacilitation
     optedInToDialogueFacilitation
     revealChecksToAdmins
+
+    showDialoguesList
+    showMyDialogues
+    showMatches
+    showRecommendedPartners
   }
 `);
 
@@ -489,6 +494,7 @@ registerFragment(`
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+    notificationNewDialogueChecks
 
     givingSeasonNotifyForVoting
 

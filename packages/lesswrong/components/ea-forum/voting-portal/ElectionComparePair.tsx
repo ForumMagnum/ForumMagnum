@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { imageSize } from "../giving-portal/ElectionCandidate";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
+import { numberToEditableString } from "../../../lib/collections/electionVotes/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -112,6 +113,10 @@ const ElectionComparePair = ({
   const firstCandidate = value.AtoB ? candidateA : candidateB;
   const secondCandidate = value.AtoB ? candidateB : candidateA;
 
+  // If multiplier is a number, convert it to a string NOT using scientific notation
+  const multiplierString =
+    typeof value.multiplier === "string" ? value.multiplier : numberToEditableString(value.multiplier)
+
   const { ForumIcon } = Components;
   return (
     <div className={classes.root}>
@@ -121,18 +126,18 @@ const ElectionComparePair = ({
         <OutlinedInput
           className={classes.compareInput}
           labelWidth={0}
-          value={value.multiplier}
+          value={multiplierString}
           onChange={(e) => {
             const newValue = e.target.value;
             if (newValue === "" || newValue === null) {
               setValue({ multiplier: "", AtoB: value.AtoB });
-            } else if (/^\d*\.?\d*$/.test(newValue) && !newValue.includes("-")) {
-              // Only allow (decimal) numbers. To handle typing, we do allow 0 to be
+            } else if (/^\d*\.?\d*$/.test(newValue) && newValue.length < 10) {
+              // Only allow (decimal) numbers, and up to 10 characters. To handle typing, we do allow 0 to be
               // entered, but it will throw an error on submit
               setValue({ multiplier: newValue, AtoB: value.AtoB });
             }
           }}
-          type="number"
+          type="string"
         />
         times as much money as
       </div>

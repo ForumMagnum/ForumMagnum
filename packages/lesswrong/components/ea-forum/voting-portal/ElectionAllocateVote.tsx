@@ -8,6 +8,7 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { imageSize } from "../giving-portal/ElectionCandidate";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
+import { numberToEditableString } from "../../../lib/collections/electionVotes/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -113,6 +114,11 @@ const AllocateVoteRow = ({
   classes: ClassesType<typeof styles>;
 }) => {
   const { _id: candidateId, name, logoSrc, fundraiserLink } = candidate;
+  const naiveValue = voteState[candidateId];
+  const formattedValue =
+    typeof naiveValue === "number"
+      ? numberToEditableString(naiveValue, 15)
+      : voteState[candidateId] ?? "";
 
   return (
     <AnalyticsContext pageElementContext="allocateVoteRow">
@@ -130,17 +136,16 @@ const AllocateVoteRow = ({
         <OutlinedInput
           className={classes.allocateInput}
           labelWidth={0}
-          value={voteState[candidateId] ?? ""}
+          value={formattedValue}
           onChange={(e) => {
             const value = e.target.value;
             if (value === "" || value === null) {
               setVoteState((prev) => ({ ...prev, [candidateId]: null } as Record<string, number | string | null>));
-            } else if (/^\d*\.?\d*$/.test(value) && !value.includes("-")) {
-              // Only allow positive (decimal) numbers
+            } else if (/^\d*\.?\d*$/.test(value) && value.length < 15) { // Only allow positive (decimal) numbers up to 15 characters
               setVoteState((prev) => ({ ...prev, [candidateId]: value } as Record<string, number | string | null>));
             }
           }}
-          type="number"
+          type="string"
         />
       </div>
     </AnalyticsContext>

@@ -58,6 +58,12 @@ type ABTestGroup = {
   weight: number,
 }
 
+type ABKeyInfo = {
+  clientId: string
+} | {
+  user: DbUser | UsersCurrent
+}
+
 // The generic permits type-safe checks for group assignment with `useABTest`
 export class ABTest<T extends string = string> {
   name: string;
@@ -118,33 +124,33 @@ export function getABTestsMetadata(): Record<string,ABTest> {
   return allABTests;
 }
 
-export function getUserABTestKey(user: UsersCurrent|DbUser|null, clientId: string) {
-  if (user?.abTestKey) {
-    return user.abTestKey;
+export function getUserABTestKey(abKeyInfo: ABKeyInfo): string {
+  if ('user' in abKeyInfo) {
+    return abKeyInfo.user.abTestKey;
   } else {
-    return clientId;
+    return abKeyInfo.clientId;
   }
 }
 
-export function getUserABTestGroup<Groups extends string>(user: UsersCurrent|DbUser|null, clientId: string, abTest: ABTest<Groups>): Groups {
-  const abTestKey = getUserABTestKey(user, clientId);
+export function getUserABTestGroup<Groups extends string>(abKeyInfo: ABKeyInfo, abTest: ABTest<Groups>): Groups {
+  const abTestKey = getUserABTestKey(abKeyInfo);
   const groupWeights = Object.fromEntries(
     Object
       .entries(abTest.groups)
       .map(([groupName, group]: [Groups, ABTestGroup]) => [groupName, group.weight] as const)
   ) as Record<Groups, number>;
 
-  if (user?.abTestOverrides && user.abTestOverrides[abTest.name]) {
-    return user.abTestOverrides[abTest.name];
+  if ('user' in abKeyInfo && abKeyInfo.user.abTestOverrides && abKeyInfo.user.abTestOverrides[abTest.name]) {
+    return abKeyInfo.user.abTestOverrides[abTest.name];
   } else {
     return weightedRandomPick(groupWeights, `${abTest.name}-${abTestKey}`);
   }
 }
 
-export function getAllUserABTestGroups(user: UsersCurrent|DbUser|null, clientId: string): CompleteTestGroupAllocation {
+export function getAllUserABTestGroups(abKeyInfo: ABKeyInfo): CompleteTestGroupAllocation {
   let abTestGroups: CompleteTestGroupAllocation = {};
   for (let abTestName in allABTests)
-    abTestGroups[abTestName] = getUserABTestGroup(user, clientId, allABTests[abTestName]);
+    abTestGroups[abTestName] = getUserABTestGroup(abKeyInfo, allABTests[abTestName]);
   return abTestGroups;
 }
 
@@ -171,7 +177,7 @@ export function useABTest<Groups extends string>(abtest: ABTest<Groups>): Groups
   const currentUser = useCurrentUser();
   const clientId = useClientId();
   const abTestGroupsUsed = useContext(ABTestGroupsUsedContext);
-  const group = getUserABTestGroup(currentUser, clientId, abtest);
+  const group = getUserABTestGroup(currentUser ? {user: currentUser} : {clientId}, abtest);
   
   abTestGroupsUsed[abtest.name] = group;
   return group;
@@ -204,7 +210,7 @@ export function useAllABTests(): CompleteTestGroupAllocation {
   
   const abTestGroupsUsed: CompleteTestGroupAllocation = useContext(ABTestGroupsUsedContext);
   
-  const testGroups = getAllUserABTestGroups(currentUser, clientId);
+  const testGroups = getAllUserABTestGroups(currentUser ? {user: currentUser} : {clientId});
   for (let abTestKey in testGroups)
     abTestGroupsUsed[abTestKey] = testGroups[abTestKey];
   
