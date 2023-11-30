@@ -230,6 +230,11 @@ const VotingPortalThankYou = ({currentUser, classes}: {
             Explore other giving opportunities
           </Link>
         </li>
+        <li>
+          <Link to="/voting-portal/select-candidates">
+            Edit your vote <em>(until 15th December)</em>
+          </Link>
+        </li>
       </ul>
     </div>
   );

@@ -125,6 +125,10 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
   const postCountString = `${postCount} post${postCount === 1 ? "" : "s"}`;
   const postsLink = `/search?query=&tags[0]=${donationElectionTagId}&tags[1]=${tag?._id}`;
 
+  // We don't want to accidentally navigate away from the page if the user is selecting candidates
+  const newTabProps = { target: "_blank", rel: "noopener noreferrer" };
+  const linkProps = isSelect ? newTabProps : {};
+
   const {PreVoteButton, ForumIcon, LWTooltip} = Components;
   return (
     <AnalyticsContext pageElementContext="electionCandidate">
@@ -143,13 +147,13 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
           />
         )}
         <div className={classes.imageContainer}>
-          <Link to={fundraiserLink || ""}>
+          <Link to={fundraiserLink || ""} {...linkProps}>
             <img src={logoSrc} className={classes.image} />
           </Link>
         </div>
         <div className={classes.details}>
           <div className={classes.name}>
-            <Link to={fundraiserLink || ""}>{name}</Link>
+            <Link to={fundraiserLink || ""} {...linkProps}>{name}</Link>
           </div>
           <div className={classes.metaInfo}>
             {!isSelect && (
@@ -166,7 +170,7 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
                   placement="bottom"
                   popperClassName={classes.tooltip}
                 >
-                  <a href={postsLink} className={classes.postCount}>
+                  <a href={postsLink} className={classes.postCount} {...newTabProps}>
                     {postCountString}
                   </a>
                 </LWTooltip>

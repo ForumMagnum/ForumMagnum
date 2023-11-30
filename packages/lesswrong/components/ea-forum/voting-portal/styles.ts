@@ -7,6 +7,19 @@ export const votingPortalStyles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
   },
+  noPermissionFallback: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[1000],
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    minHeight: "100%",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    fontSize: 16,
+    fontWeight: 500,
+    marginTop: 0,
+    paddingTop: 48,
+  },
   content: {
     display: "flex",
     flexDirection: "column",
@@ -23,20 +36,28 @@ export const votingPortalStyles = (theme: ThemeType) => ({
     fontSize: 48,
     fontWeight: 700,
     lineHeight: "normal",
-    letterSpacing: "-1.2px",
+    letterSpacing: "-1px",
     textAlign: "center",
     color: theme.palette.givingPortal[1000],
   },
   h2: {
-    fontSize: 40,
+    fontSize: 34,
     fontWeight: 700,
     lineHeight: "normal",
-    letterSpacing: "-1.2px",
+    letterSpacing: "-0.5px",
     color: theme.palette.givingPortal[1000],
-    marginBottom: 15,
+    marginBottom: 16,
     [theme.breakpoints.down("xs")]: {
       fontSize: 32,
     },
+  },
+  h3: {
+    fontSize: 16,
+    fontWeight: 700,
+    lineHeight: "normal",
+    letterSpacing: "-0.5px",
+    color: theme.palette.givingPortal[1000],
+    marginBottom: 12,
   },
   subtitle: {
     fontWeight: 500,
@@ -50,6 +71,9 @@ export const votingPortalStyles = (theme: ThemeType) => ({
         textDecoration: "underline",
       }
     }
+  },
+  subtitleParagraph: {
+    marginBottom: 16,
   },
   button: {
     display: "flex",

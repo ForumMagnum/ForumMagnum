@@ -13,6 +13,11 @@ export type CompareStateUI = Record<string, {multiplier: number | string, AtoB: 
  */
 export type CompareState = Record<string, {multiplier: number, AtoB: boolean}>;
 
+/** Latest midnight on 2023-12-15 */
+const VOTING_DEADLINE = new Date("2023-12-15T23:59:59-12:00");
+
+export const isPastVotingDeadline = () => new Date() > VOTING_DEADLINE;
+
 export const getCompareKey = (candidate1: ElectionCandidateBasicInfo, candidate2: ElectionCandidateBasicInfo) => {
   return `${candidate1._id}-${candidate2._id}`;
 }
@@ -115,11 +120,79 @@ export const convertCompareStateToVote = (compareState: CompareState): Record<st
     throw new Error("Vote ids don't match expected ids");
   }
 
-  // Normalize (to 1) and round
+  // Normalize (to 1) and round to 4 sf
   const total = Object.values(vote).reduce((sum, value) => sum + value, 0);
   const normalizedVote = Object.fromEntries(
     Object.entries(vote).map(([id, value]) => [id, Number((value / total).toPrecision(4))])
   );
 
   return normalizedVote;
+}
+
+export const ELECTION_EFFECT_QUESTION = "Did you change your donation priorities as a result of the Forum's Giving Season activities?"
+export const ELECTION_EFFECT_OPTIONS = [
+  {
+    value: "noChange",
+    label: "Didn’t change my donation priorities",
+  },
+  {
+    value: "smChange",
+    label: "Changed my donation priorities a bit",
+  },
+  {
+    value: "lgChange",
+    label: "Noticeably changed my donation priorities",
+  },
+  {
+    value: "xlChange",
+    label: "Totally changed my donation priorities",
+  },
+]
+
+export const ELECTION_NOTE_QUESTION = "Why did you vote the way you did?"
+
+export type SubmissionComments = {
+  rawFormValues: {
+    electionEffect: string;
+    note: string;
+  };
+  questions: {
+    question: string;
+    answer: string;
+    answerValue?: string;
+  }[];
+}
+
+/**
+ * Convert the values we get from the UI in the submission form to a json blob that can be stored in
+ * the database
+ */
+export const formStateToSubmissionComments = ({ electionEffect, note }: { electionEffect: string; note: string }): SubmissionComments => {
+  return {
+    rawFormValues: {
+      electionEffect,
+      note,
+    },
+    questions: [
+      {
+        question: ELECTION_EFFECT_QUESTION,
+        answer: electionEffect,
+        answerValue: ELECTION_EFFECT_OPTIONS.find(({ value }) => value === electionEffect)?.label,
+      },
+      {
+        question: ELECTION_NOTE_QUESTION,
+        answer: note,
+      },
+    ]
+  }
+};
+
+/*
+ * Convert the json blob we get from the database to the values we need to populate the submission form
+ */
+export const submissionCommentsToFormState = (submissionComments?: SubmissionComments): { electionEffect: string; note: string } => {
+  return {
+    electionEffect: submissionComments?.rawFormValues.electionEffect ?? "",
+    note: submissionComments?.rawFormValues.note ?? "",
+  }
 }
