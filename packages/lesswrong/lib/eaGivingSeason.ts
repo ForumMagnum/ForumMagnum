@@ -23,7 +23,7 @@ export const votingThankYouImageId = "voting_portal_hero";
 
 const votingAccountCreationCutoff = new Date("2023/10/23");
 
-const userCanVoteInDonationElection = (
+export const userCanVoteInDonationElection = (
   user: UsersCurrent | DbUser | null,
 ) =>
   !!user && new Date(user.createdAt).getTime() < votingAccountCreationCutoff.getTime();

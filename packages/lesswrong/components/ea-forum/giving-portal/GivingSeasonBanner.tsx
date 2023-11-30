@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { TimelineSpan, timelineSpec } from "../../../lib/eaGivingSeason";
+import { TimelineSpan, timelineSpec, userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 import { useCurrentTime } from "../../../lib/utils/timeUtil";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import {
@@ -12,6 +12,8 @@ import {
 import classNames from "classnames";
 import moment from "moment";
 import { HEADER_HEIGHT } from "../../common/Header";
+import { useCurrentUser } from "../../common/withUser";
+import { useElectionVote } from "../voting-portal/hooks";
 
 const BANNER_HEIGHT = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT - HEADER_HEIGHT;
 const MAX_SPANS = 3;
@@ -42,6 +44,14 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
+  votingRoot: {
+    backgroundImage: 'none',
+    display: 'block',
+    padding: "12px 0 30px",
+    ["@media (max-width: 300px)"]: {
+      display: "none",
+    },
+  },
   cover: {
     position: "absolute",
     width: "100vw",
@@ -59,6 +69,15 @@ const styles = (theme: ThemeType) => ({
       padding: 0,
     },
   },
+  votingOverview: {
+    padding: "0 20px 0 48px",
+    [theme.breakpoints.down("sm")]: {
+      padding: '0 20px 0 25px',
+    },
+    [theme.breakpoints.down("xs")]: {
+      padding: '0 18px',
+    },
+  },
   heading: {
     color: theme.palette.givingPortal.homepageHeader.light4,
     fontSize: 40,
@@ -70,6 +89,18 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 16,
       fontSize: 30,
       lineHeight: "30px",
+    },
+  },
+  votingHeading: {
+    fontSize: 36,
+    lineHeight: "44px",
+    [theme.breakpoints.down("sm")]: {
+      fontSize: 30,
+      lineHeight: "38px",
+    },
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 26,
+      lineHeight: "34px",
     },
   },
   description: {
@@ -153,6 +184,78 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
+  votingTimeline: {
+    display: 'flex',
+    alignItems: 'center',
+    columnGap: 12,
+    height: 30,
+    width: '100%',
+    backgroundColor: theme.palette.givingPortal.homepageHeader.light3Opaque,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    paddingLeft: 48,
+    paddingRight: 24,
+    marginTop: 25,
+    [theme.breakpoints.down("sm")]: {
+      height: 25,
+      justifyContent: 'flex-end',
+      paddingRight: 14,
+    },
+    [theme.breakpoints.down("xs")]: {
+      paddingRight: 12,
+    }
+  },
+  votingTimelineSpan: {
+    height: '100%',
+    width: 226,
+    minWidth: 185,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: "center",
+    textAlign: "center",
+    backgroundColor: theme.palette.givingPortal.homepageHeader.light2Opaque,
+    color: theme.palette.givingPortal.homepageHeader.main,
+    fontSize: 13,
+    fontWeight: 600,
+  },
+  votingTimelineSpace: {
+    width: 42
+  },
+  votingTimelineBtn: {
+    flex: 'none',
+    height: 45,
+    width: 282,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: "center",
+    textAlign: "center",
+    backgroundColor: theme.palette.givingPortal.homepageHeader.light3,
+    color: theme.palette.givingPortal.homepageHeader.main,
+    fontSize: 16,
+    fontWeight: 600,
+    borderRadius: theme.borderRadius.default,
+    padding: '0 14px',
+    '&:hover': {
+      backgroundColor: theme.palette.givingPortal.homepageHeader.light2,
+      opacity: 1
+    },
+    [theme.breakpoints.down("sm")]: {
+      height: 36,
+    },
+    [theme.breakpoints.down("xs")]: {
+      width: 'auto'
+    }
+  },
+  voteBtnText: {
+    [theme.breakpoints.down("xs")]: {
+      display: 'none'
+    }
+  },
+  voteBtnTextMobile: {
+    display: 'none',
+    [theme.breakpoints.down("xs")]: {
+      display: 'inline'
+    }
+  }
 });
 
 const BannerSpan: FC<{
@@ -180,6 +283,13 @@ const BannerDate: FC<{
 );
 
 const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
+  const { electionVote } = useElectionVote("givingSeason23");
+  const currentUser = useCurrentUser();
+  // We only advertise voting for users who are eligible -
+  // i.e. those that created their accounts before Oct 23 and haven't voted yet.
+  // This involves changing some copy, hiding the banner image, and moving the timeline.
+  const advertiseVoting = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
+  
   const spans = timelineSpec.spans
     .filter(({hatched}) => !hatched) // Ignore the voting time period
     .slice(0, MAX_SPANS);
@@ -187,17 +297,17 @@ const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
   const {Typography} = Components;
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
-      <div className={classes.root}>
+      <div className={classNames(classes.root, {[classes.votingRoot]: advertiseVoting})}>
         <div className={classes.cover} />
-        <div className={classes.givingSeasonGradient} />
-        <div className={classes.overview}>
+        {!advertiseVoting && <div className={classes.givingSeasonGradient} />}
+        <div className={classNames(classes.overview, {[classes.votingOverview]: advertiseVoting})}>
           <Typography
             variant="display1"
-            className={classes.heading}
+            className={classNames(classes.heading, {[classes.votingHeading]: advertiseVoting})}
           >
-            Giving season 2023
+            {advertiseVoting ? 'Vote in the Donation Election 2023' : 'Giving season 2023'}
           </Typography>
-          <Typography
+          {!advertiseVoting && <Typography
             variant="body2"
             className={classes.description}
             component="div"
@@ -207,16 +317,31 @@ const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
             <Link to="/giving-portal" className={classes.givingSeasonLink}>
               Learn more in the Giving portal.
             </Link>
-          </Typography>
+          </Typography>}
         </div>
-        <div className={classes.timeline}>
-          {spans.map((span, i) =>
-            <BannerSpan span={span} classes={classes} key={i} />
-          )}
-          {spans.map((span, i) =>
-            <BannerDate span={span} classes={classes} key={i} />
-          )}
-        </div>
+        {advertiseVoting ? (
+          <div className={classes.votingTimeline}>
+            {spans.map(span => (
+              <div key={span.description} className={classes.votingTimelineSpan}>
+                {span.description}
+              </div>
+            ))}
+            <div className={classes.votingTimelineSpace}></div>
+            <Link to="/voting-portal" className={classes.votingTimelineBtn}>
+              <span className={classes.voteBtnText}>Vote in the Donation Election</span>
+              <span className={classes.voteBtnTextMobile}>Vote</span>
+            </Link>
+          </div>
+        ) : (
+          <div className={classes.timeline}>
+            {spans.map((span, i) =>
+              <BannerSpan span={span} classes={classes} key={i} />
+            )}
+            {spans.map((span, i) =>
+              <BannerDate span={span} classes={classes} key={i} />
+            )}
+          </div>
+        )}
       </div>
     </AnalyticsContext>
   );

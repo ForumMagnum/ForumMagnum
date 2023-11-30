@@ -11,13 +11,14 @@ import {
 } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { headerImageId, heroImageId } from "../../../lib/eaGivingSeason";
+import { headerImageId, heroImageId, userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
 import { useLocation } from "../../../lib/routeUtil";
 import { useElectionVote } from "../voting-portal/hooks";
+import { useCurrentUser } from "../../common/withUser";
 
 export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
 const BACKGROUND_ASPECT = 3160 / 800;
@@ -98,7 +99,7 @@ const styles = (theme: ThemeType) => ({
   homePageBackground: {
     ...givingSeasonImageBackground(theme, "top"),
   },
-  votingPortalBackground: {
+  solidBackground: {
     background: theme.palette.givingPortal.homepageHeader.dark,
   },
   appBarGivingSeason: {
@@ -234,9 +235,13 @@ const GivingSeasonHeader = ({
   const isDesktop = useIsAboveBreakpoint("md");
   const { pathname } = useLocation();
   const { electionVote } = useElectionVote("givingSeason23");
+  const currentUser = useCurrentUser();
 
   const allocateAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 0;
   const submitAllowed = electionVote?.vote && Object.values(electionVote.vote).some((value) => value);
+  // We only advertise voting for users who are eligible -
+  // i.e. those that created their accounts before Oct 23 and haven't voted yet.
+  const advertiseVoting = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
 
   const votingSteps = [
     {
@@ -293,10 +298,10 @@ const GivingSeasonHeader = ({
           <header
             className={classNames(
               classes.appBarGivingSeason,
-              isVotingPortal ? classes.votingPortalBackground : classes.homePageBackground
+              (advertiseVoting || isVotingPortal) ? classes.solidBackground : classes.homePageBackground
             )}
           >
-            <div className={isVotingPortal ? "" : classes.givingSeasonGradient} />
+            {!advertiseVoting && !isVotingPortal && <div className={classes.givingSeasonGradient} />}
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
               <div className={classes.leftHeaderItems}>
                 <NavigationMenuButton />

@@ -278,7 +278,9 @@ export const darkModeTheme: UserThemeSpecification = {
       homepageHeader: {
         light4: "#fdfcfc",
         light3: "#fcf5f3",
+        light3Opaque: "rgba(252, 245, 243, 0.20)",
         light2: "#f8e7e2",
+        light2Opaque: "rgba(248, 231, 226, 0.30)",
         light1: "#EDD3CE",
         main: "#862115",
         dark: "#6C0C00",
