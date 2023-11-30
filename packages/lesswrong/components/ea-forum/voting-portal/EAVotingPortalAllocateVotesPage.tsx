@@ -11,38 +11,6 @@ import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
-  tipsBox: {
-    position: "absolute",
-    top: 48,
-    fontSize: 14,
-    left: 'min(56vw, 820px)',
-    backgroundColor: theme.palette.givingPortal.thankYouBackground,
-    borderRadius: theme.borderRadius.default,
-    color: theme.palette.givingPortal[1000],
-    width: "100%",
-    maxWidth: 300,
-    padding: 16,
-    fontWeight: 500,
-    marginBottom: 20,
-    '& ul': {
-      paddingInlineStart: "20px",
-    },
-    '& li': {
-      marginBottom: 8,
-      '&:last-child': {
-        marginBottom: 0,
-      },
-    },
-    [theme.breakpoints.down("lg")]: {
-      marginTop: -6,
-      position: "relative",
-      top: 0,
-      left: 0,
-      maxWidth: 600,
-      marginLeft: "auto",
-      marginRight: "auto",
-    }
-  }
 })
 
 const EAVotingPortalAllocateVotesPageLoader = ({ classes }: { classes: ClassesType }) => {
@@ -120,7 +88,7 @@ const EAVotingPortalAllocateVotesPage = ({
     <AnalyticsContext pageContext="eaVotingPortalAllocateVotes">
       <div className={classes.root}>
         <div className={classes.content} id="top">
-          <div className={classes.h2}>3. Allocate your votes</div>
+          <div className={classes.h2}>3. Finalize point allocation</div>
           <div className={classes.subtitle}>
             <div className={classes.subtitleParagraph}>
               {subtitleStart}{" "}
@@ -136,22 +104,6 @@ const EAVotingPortalAllocateVotesPage = ({
               </Link>{" "}
               describes how we’ll use the scores to determine the winners in the Donation Election.
             </div>
-          </div>
-          <div className={classes.tipsBox}>
-            <div className={classes.h3}>Tips</div>
-            <ul>
-              <li>
-                Make sure the relative point assignments are reasonable to you; if you give Project A twice the points
-                as Project B, you should think that Project A should get twice the funding as Project B.
-              </li>
-              <li>
-                Any points you assign to candidates you don’t think will win are not wasted — if a candidate you
-                assigned points to is eliminated, your other points will count for more.
-              </li>
-              <li>
-                Don’t worry about your total point score, the points will be normalised before being counted.
-              </li>
-            </ul>
           </div>
           <ElectionAllocateVote voteState={voteState} setVoteState={setVoteState} />
         </div>

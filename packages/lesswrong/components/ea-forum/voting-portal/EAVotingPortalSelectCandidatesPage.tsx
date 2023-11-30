@@ -98,15 +98,23 @@ const EAVotingPortalSelectCandidatesPage = ({
         <div className={classes.content}>
           <div className={classes.h2}>1. Select candidates you want to vote for</div>
           <div className={classes.subtitle}>
-            <div className={classes.subtitleParagraph}>You'll give points to these projects in the next steps.</div>
-            <div>
-              If all the projects you select end up being eliminated, your vote will count as if you’d assigned equal
-              points to the remaining projects.{" "}
-              <Link to={processLink} target="_blank" rel="noopener noreferrer">
-                Read this post
-              </Link>{" "}
-              for more info about the voting system.
+            <div className={classes.subtitleParagraph}>You'll assign points in the next steps. 
             </div>
+            <div>
+            If all the candidates you select get eliminated later, your vote will count as if you’d assigned equal points to the remaining ones. For more information, read 
+              {" "}
+              <Link to={processLink} target="_blank" rel="noopener noreferrer">
+                this post
+              </Link>{" "}
+              .
+            </div>
+            <div>
+            {" "}
+              <Link to={processLink} target="_blank" rel="noopener noreferrer">
+                Read about the candidates
+              </Link>{" "}
+            and what they would do with more funding.
+              </div>
           </div>
           <ElectionCandidatesList
             type="select"
