@@ -286,12 +286,11 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   async getUsersWithNewDialogueChecks(minutes: number): Promise<DbUser[]> {
     return this.manyOrNone(`
-      SELECT "Users".*
+      SELECT DISTINCT ON ("Users"._id) "Users".*
       FROM "Users"
       INNER JOIN "DialogueChecks" ON "Users"._id = "DialogueChecks"."targetUserId"
       WHERE
-          "DialogueChecks"."checkedAt" > NOW() - INTERVAL '$1 minutes'
-          AND "DialogueChecks".checked IS TRUE
+          "DialogueChecks".checked IS TRUE
           AND NOT EXISTS (
               SELECT 1
               FROM "DialogueChecks" AS dc
@@ -300,11 +299,23 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
                   AND "DialogueChecks"."targetUserId" = dc."userId"
                   AND dc.checked IS TRUE
           )
-          AND "DialogueChecks"."checkedAt"
-          > (
-              SELECT MAX("checkedAt")
-              FROM "DialogueChecks"
-              WHERE "DialogueChecks"."userId" = "Users"._id
+          AND (
+              "DialogueChecks"."checkedAt" > COALESCE((
+                  SELECT MAX("checkedAt")
+                  FROM "DialogueChecks"
+                  WHERE "DialogueChecks"."userId" = "Users"._id
+              ), '1970-01-01')
+          )
+          AND (
+              "DialogueChecks"."checkedAt" > NOW() - INTERVAL '$1 minutes'
+              OR
+              NOT EXISTS (
+                  SELECT 1
+                  FROM "Notifications"
+                  WHERE
+                      "userId" = "Users"._id
+                      AND type = 'newDialogueChecks'
+              )
           )
     `, [minutes])
   }
