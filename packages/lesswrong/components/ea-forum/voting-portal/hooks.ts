@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useMulti } from "../../../lib/crud/withMulti";
 import { useUpdate } from "../../../lib/crud/withUpdate";
 import { useCurrentUser } from "../../common/withUser";
+import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 
 export const useElectionVote = (electionName: string) => {
   const currentUser = useCurrentUser();
@@ -14,7 +15,7 @@ export const useElectionVote = (electionName: string) => {
     collectionName: "ElectionVotes",
     fragmentName: "ElectionVoteInfo",
     limit: 1,
-    skip: !currentUser,
+    skip: !currentUser || !userCanVoteInDonationElection(currentUser),
     createIfMissing: {
       electionName,
       userId: currentUser?._id,

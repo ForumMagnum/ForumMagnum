@@ -21,9 +21,10 @@ export const headerImageId = "giving_portal_23_hero";
 /** Cloudinary ID for the voting portal thank you page background image */
 export const votingThankYouImageId = "voting_portal_hero";
 
-const votingAccountCreationCutoff = new Date("2023/10/23");
+/** Approximately the time the election was accounced: https://forum.effectivealtruism.org/posts/x2KfyNe8oPR4dqGkf/ea-forum-plans-for-giving-season-2023 */
+const votingAccountCreationCutoff = new Date("2023-10-23T19:00:00Z");
 
-const userCanVoteInDonationElection = (
+export const userCanVoteInDonationElection = (
   user: UsersCurrent | DbUser | null,
 ) =>
   !!user && new Date(user.createdAt).getTime() < votingAccountCreationCutoff.getTime();
