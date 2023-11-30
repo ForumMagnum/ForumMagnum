@@ -157,6 +157,61 @@ interface TopicRecommendationWithContents {
   theirVote: string;
 }
 
+interface TopicSuggestionProps {
+  reactIconName:string; 
+  prefix:string;
+  Content:JSX.Element;
+  classes: ClassesType<typeof styles>; 
+  isExpanded: boolean;
+}
+
+const TopicSuggestion = ({reactIconName, prefix, Content, classes, isExpanded}: TopicSuggestionProps) => {
+  const { ReactionIcon } = Components
+  return (
+    <div className={classes.suggestionRow}>
+      <p className={classNames({
+        [classes.debateTopicExpanded]: isExpanded,
+        [classes.debateTopicCollapsed]: !isExpanded
+      })}>
+          <ReactionIcon key={"1"} size={13} react={reactIconName} />
+          {" "}
+          <span key={"2"} className={classNames(classes.agreeText, { [classes.agreeTextCollapsedMobile]: !isExpanded})}>
+            {prefix}
+          </span>
+          {Content}
+      </p>
+    </div>
+  )
+}
+
+interface ExpandCollapseTextProps {
+  classes: ClassesType<typeof styles>; 
+  isExpanded: boolean;
+  numHidden: number;
+  toggleExpansion: () => void;
+}
+
+const ExpandCollapseText = ({classes, isExpanded, numHidden, toggleExpansion}: ExpandCollapseTextProps) => {
+  let text 
+  if (isExpanded) {
+    text = <>▲ hide</>;
+  } else {
+    text = <>
+      ▼<span key={"1"} className={classes.bigScreenExpandNote}>
+        ...{numHidden > 0 ? ` ${numHidden} ` : ``}more
+      </span>
+    </>
+  }
+  return (
+    <span className={classNames({
+      [classes.hideIcon]: isExpanded,
+      [classes.expandIcon]: !isExpanded
+    })} onClick={toggleExpansion}>
+      { text }
+    </span>
+  )
+};
+
 const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: DialogueRecommendationRowProps) => {
   const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, ReactionIcon, PostsTooltip } = Components
 
@@ -225,24 +280,6 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   const numShown = isExpanded ? numRecommendations : 2
   const numHidden = Math.max(0, numRecommendations - numShown);
 
-  const getTopicSuggestion = (reactIconName:string, prefix:string, Content:JSX.Element) => {
-    return (
-      <div className={classes.suggestionRow}>
-        <p className={classNames({
-          [classes.debateTopicExpanded]: isExpanded,
-          [classes.debateTopicCollapsed]: !isExpanded
-        })}>
-            <ReactionIcon key={"1"} size={13} react={reactIconName} />
-            {" "}
-            <span key={"2"} className={classNames(classes.agreeText, { [classes.agreeTextCollapsedMobile]: !isExpanded})}>
-              {prefix}
-            </span>
-            {Content}
-        </p>
-      </div>
-    )
-  }
-
   const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = []
   topicRecommendations.forEach(topic => {
     allRecommendations.push({reactIconName: topic.theirVote, prefix: topic.theirVote+": ", Content: <>{topic.comment.contents.plaintextMainText}</>})
@@ -253,19 +290,6 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
       <Link to={postGetPageUrl(post)}> {post.title} </Link>
     </PostsTooltip>})
   })
-
-  const renderExpandCollapseText = () => {
-    if (!allRecommendations || allRecommendations.length === 0) return '';
-    if (isExpanded) {
-      return '▲ hide';
-    }  
-    return [
-      '▼',
-      <span key={targetUser._id} className={classes.bigScreenExpandNote}>
-        ...{numHidden > 0 ? ` ${numHidden} ` : ``}more
-      </span>,
-      ];
-  };
 
   return (
     <div>
@@ -294,31 +318,32 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
             />
           </PostsItem2MetaInfo>
         </div>
-        
-        {showSuggestedTopics && <div className={classes.topicRecommendationsList}>
-          {allRecommendations.slice(0, numShown).map( (item, index) => getTopicSuggestion(item.reactIconName, item.prefix, item.Content)) }
-        </div>}
-      {showSuggestedTopics && <div className={classes.dialogueRightContainer}>
-        {<span className={classNames({
-          [classes.hideIcon]: isExpanded,
-          [classes.expandIcon]: !isExpanded
-        })} onClick={toggleExpansion}>
-          {renderExpandCollapseText()}
-        </span>}
-      </div>}
-      {!showSuggestedTopics && 
-        <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
-          <div className={classes.dialogueMatchNote}>Check to maybe dialogue, if you find a topic</div>
-        </PostsItem2MetaInfo>}
+        {showSuggestedTopics && (<>
+          <div className={classes.topicRecommendationsList}>
+            {allRecommendations.slice(0, numShown).map( (item, index) => <TopicSuggestion key={index} reactIconName={item.reactIconName} prefix={item.prefix} Content={item.Content} isExpanded={isExpanded} classes={classes}/>) } 
+          </div>
+          <div className={classes.dialogueRightContainer}>
+            {(allRecommendations && allRecommendations.length > 0) && <ExpandCollapseText isExpanded={isExpanded} numHidden={numHidden} toggleExpansion={toggleExpansion} classes={classes} />}
+          </div>
+        </>)}
+        {!showSuggestedTopics && 
+          <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+            <div className={classes.dialogueMatchNote}>Check to maybe dialogue, if you find a topic</div>
+          </PostsItem2MetaInfo>}
       </div>
     </div>
   );
 };
 
 const DialogueRecommendationRowComponent = registerComponent('DialogueRecommendationRow', DialogueRecommendationRow, {styles});
+const TopicSuggestionComponent = registerComponent('TopicSuggestion', TopicSuggestion, {styles});
+const ExpandCollapseComponent = registerComponent('ExpandCollapseText', ExpandCollapseText, {styles});
+
 
 declare global {
   interface ComponentTypes {
-    DialogueRecommendationRow: typeof DialogueRecommendationRowComponent
+    DialogueRecommendationRow: typeof DialogueRecommendationRowComponent,
+    TopicSuggestion: typeof TopicSuggestionComponent,
+    ExpandCollapseText: typeof ExpandCollapseComponent,
   }
 }
