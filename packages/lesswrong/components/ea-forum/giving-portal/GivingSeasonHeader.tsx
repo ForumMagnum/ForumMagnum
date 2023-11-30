@@ -245,7 +245,7 @@ const GivingSeasonHeader = ({
       href: '/voting-portal/select-candidates',
     },
     {
-      label: '2. Comparison tool',
+      label: '2. Compare',
       href: '/voting-portal/compare',
       disabled: !compareAllowed,
     },

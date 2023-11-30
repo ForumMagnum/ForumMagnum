@@ -172,7 +172,8 @@ const EAVotingPortalSubmitPage = ({
           </div>
           <div className={classes.explanationRow}>
             <div className={classes.questionTitle}>
-            Did you change your donation priorities as a result of the Forum's Giving Season activities? <span className={classes.greyedOut}>(Optional)</span>
+              Did you change your donation priorities as a result of the Forum's Giving Season activities?{" "}
+              <span className={classes.greyedOut}>(Optional)</span>
               <LWTooltip
                 title="This will help us understand the impact of the event, and we might share aggregated information about this question in our public summary of the Election results."
                 placement="bottom"
@@ -203,8 +204,15 @@ const EAVotingPortalSubmitPage = ({
           </div>
           <div className={classes.explanationRow}>
             <div className={classes.questionTitle}>
-            Why did you vote the way you did?{" "}
-              <span className={classes.greyedOut}>(Optional)</span>
+              Why did you vote the way you did? <span className={classes.greyedOut}>(Optional)</span>{" "}
+              <LWTooltip
+                title="We might share anonymized answers in the writeup on the results. If you prefer, you can write a different note about the election here."
+                placement="bottom"
+                className={classes.tooltip}
+                popperClassName={classes.tooltipPopper}
+              >
+                <ForumIcon icon="InfoCircle" className={classes.infoIcon} />
+              </LWTooltip>
             </div>
             <TextField
               multiline

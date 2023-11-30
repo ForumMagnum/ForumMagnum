@@ -126,7 +126,7 @@ const styles = (theme: ThemeType) => ({
 const fundLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
 const exploreLink = "/giving-portal";
 export const processLink = "/posts/dYhKfsNuQX2sznfxe/donation-election-how-voting-will-work";
-const candidatesLink = "/posts/bBm64htDSKn3ZKiQ5/meet-the-candidates-in-the-forum-s-donation-election-2023";
+export const candidatesLink = "/posts/bBm64htDSKn3ZKiQ5/meet-the-candidates-in-the-forum-s-donation-election-2023";
 const getStartedLink = "/voting-portal/select-candidates";
 const votingNormsLink = "/posts/hAzhyikPnLnMXweXG/participate-in-the-donation-election-and-the-first-weekly#Who_can_vote___voting_norms";
 

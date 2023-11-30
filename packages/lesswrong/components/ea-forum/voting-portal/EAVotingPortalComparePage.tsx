@@ -198,7 +198,7 @@ const EAVotingPortalComparePage = ({
           <div className={classes.h2}>2. Compare candidates to get a draft point allocation</div>
           <div className={classes.subtitle}>
             <div className={classes.subtitleParagraph}>
-            We'll auto-generate a point allocation based on your comparisons here, which you'll finalize in step 3.
+            We'll auto-generate a point allocation based on your comparisons here, which you'll finalize in the next step.
             </div>
             <div>You can skip this step if you prefer to allocate points manually.</div>
           </div>
