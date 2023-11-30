@@ -7,14 +7,13 @@ import classNames from "classnames";
 const styles = (theme: ThemeType) => ({
   // TODO combine these with votingPortalStyles
   root: {
-    margin: "80px 0",
+    margin: "60px 0",
     display: "flex",
     flexDirection: "column",
-    gap: "40px",
+    gap: "32px",
     borderRadius: 12,
     background: theme.palette.grey[0],
-    padding: 40,
-    width: 730,
+    width: 800,
     maxWidth: "100%",
     lineHeight: "24px",
     fontSize: 16,
@@ -46,22 +45,22 @@ const styles = (theme: ThemeType) => ({
   inset: {
     borderRadius: theme.borderRadius.default,
     background: theme.palette.grey[100],
-    padding: 32,
+    padding: 24,
   },
   h1: {
     color: theme.palette.givingPortal[1000],
-    fontSize: 40,
+    fontSize: 48,
     fontWeight: 700,
     lineHeight: "normal",
   },
   h2: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 700,
-    marginBottom: 32,
+    marginBottom: 24,
     lineHeight: "normal",
   },
   h3: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 700,
     marginTop: 24,
     marginBottom: 4,
@@ -104,7 +103,10 @@ const styles = (theme: ThemeType) => ({
   },
   greyButton: {
     background: theme.palette.grey[100],
-    color: theme.palette.grey[1000]
+    color: theme.palette.grey[1000],
+    "&:hover": {
+      background: theme.palette.grey[200],
+    },
   },
 });
 
@@ -128,7 +130,6 @@ const VotingPortalIntro = ({classes}: {
           <span className={classes.bold}>
             Your vote should represent how you’d allocate funding between the candidates.
           </span>{" "}
-          <Link to={exploreLink}>Explore the candidates</Link> before you vote.
         </div>
       </div>
       <div className={classes.inset}>
