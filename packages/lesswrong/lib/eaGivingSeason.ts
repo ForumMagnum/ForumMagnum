@@ -6,6 +6,7 @@ export const donationElectionLink = "/posts/hAzhyikPnLnMXweXG/participate-in-the
 export const donationElectionFundraiserLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
 export const setupFundraiserLink = "https://www.givingwhatwecan.org/fundraisers";
 export const postsAboutElectionLink = "/topics/donation-election-2023";
+export const electionCandidatesPostLink = "/posts/bBm64htDSKn3ZKiQ5/meet-the-candidates-in-the-forum-s-donation-election-2023"
 
 export const votingOpensDate = new Date("2023-12-01");
 
@@ -58,6 +59,7 @@ export type TimelineSpec = {
   end: Date,
   points: TimelinePoint[],
   spans: TimelineSpan[],
+  handleVote?: () => void,
   divisionToPercent?: (division: number, divisions: number) => number,
 }
 
@@ -96,7 +98,6 @@ export const timelineSpec: TimelineSpec = {
       start: new Date("2023-12-01"),
       end: new Date("2023-12-15"),
       description: "Vote in the Election",
-      href: `${donationElectionLink}#Voting_opens_December_1___more_information`,
       hideDates: true,
       hatched: true,
     },
