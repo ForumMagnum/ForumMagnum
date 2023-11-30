@@ -35,18 +35,24 @@
 export const acceptsSchemaHash = "ea10555b6fef67efb7ab0cbbdfdb8772";
 
 import Users from "../../lib/collections/users/collection"
-import { addField, dropField } from "./meta/utils"
+import UpdateQuery from "../../lib/sql/UpdateQuery";
+import { updateDefaultValue } from "./meta/utils"
+
+const newDefaultValue = {"channel":"onsite","batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}
+const oldDefaultValue = {"channel":"onsite","batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}
 
 export const up = async ({db}: MigrationContext) => {
   if (Users.isPostgres()) {
-    await dropField(db, Users, "notificationNewDialogueChecks")
-    await addField(db, Users, "notificationNewDialogueChecks")
+    await updateDefaultValue(db, Users, "notificationNewDialogueChecks")
+    const {sql, args} = new UpdateQuery(Users.getTable(), {}, {$set: {"notificationNewDialogueChecks": newDefaultValue} }).compile()
+    await db.manyOrNone(sql, args)
   }
 }
 
 export const down = async ({db}: MigrationContext) => {
   if (Users.isPostgres()) {
-    await dropField(db, Users, "notificationNewDialogueChecks")
-    await addField(db, Users, "notificationNewDialogueChecks")
+    await updateDefaultValue(db, Users, "notificationNewDialogueChecks")
+    const {sql, args} = new UpdateQuery(Users.getTable(), {}, {$set: {"notificationNewDialogueChecks": oldDefaultValue} }).compile()
+    await db.manyOrNone(sql, args)
   }
 }
