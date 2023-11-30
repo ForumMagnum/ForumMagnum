@@ -24,9 +24,6 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "center",
   },
-  introBackground: {
-    backgroundColor: theme.palette.givingPortal.votingPortalIntroBackground,
-  },
   thankYouBackground: {
     backgroundImage: `url(${BACKGROUND_IMAGE})`,
     backgroundPosition: "center",
@@ -60,7 +57,6 @@ const EAVotingPortalPage = ({classes}: {
         <link rel="preload" as="image" href={BACKGROUND_IMAGE} />
       </Helmet>
       <div className={classNames(classes.root, classes.layout, {
-        [classes.introBackground]: !isThankYouPage,
         [classes.thankYouBackground]: isThankYouPage,
       })}>
         {isThankYouPage

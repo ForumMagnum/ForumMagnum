@@ -7,14 +7,13 @@ import classNames from "classnames";
 const styles = (theme: ThemeType) => ({
   // TODO combine these with votingPortalStyles
   root: {
-    margin: "80px 0",
+    margin: "60px 0",
     display: "flex",
     flexDirection: "column",
-    gap: "40px",
+    gap: "32px",
     borderRadius: 12,
     background: theme.palette.grey[0],
-    padding: 40,
-    width: 730,
+    width: 780,
     maxWidth: "100%",
     lineHeight: "24px",
     fontSize: 16,
@@ -26,6 +25,9 @@ const styles = (theme: ThemeType) => ({
         textDecoration: "none",
         opacity: 1,
       },
+    },
+    [theme.breakpoints.down("md")]: {
+      padding: 16,
     },
     [theme.breakpoints.down("xs")]: {
       width: "100%",
@@ -46,22 +48,22 @@ const styles = (theme: ThemeType) => ({
   inset: {
     borderRadius: theme.borderRadius.default,
     background: theme.palette.grey[100],
-    padding: 32,
+    padding: 24,
   },
   h1: {
     color: theme.palette.givingPortal[1000],
-    fontSize: 40,
+    fontSize: 48,
     fontWeight: 700,
     lineHeight: "normal",
   },
   h2: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 700,
-    marginBottom: 32,
+    marginBottom: 24,
     lineHeight: "normal",
   },
   h3: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 700,
     marginTop: 24,
     marginBottom: 4,
@@ -104,7 +106,10 @@ const styles = (theme: ThemeType) => ({
   },
   greyButton: {
     background: theme.palette.grey[100],
-    color: theme.palette.grey[1000]
+    color: theme.palette.grey[1000],
+    "&:hover": {
+      background: theme.palette.grey[200],
+    },
   },
 });
 
@@ -128,17 +133,16 @@ const VotingPortalIntro = ({classes}: {
           <span className={classes.bold}>
             Your vote should represent how you’d allocate funding between the candidates.
           </span>{" "}
-          <Link to={exploreLink}>Explore the candidates</Link> before you vote.
         </div>
       </div>
       <div className={classes.inset}>
         <div className={classes.h2}>How voting works</div>
         <div className={classes.h3}>1. Select candidates you want to vote for</div>
         <div>
-          These are the candidates you’ll allocate points to; you’ll give 0 points to the ones you don’t select.
+          These are the candidates you’ll allocate points to. The ones you don’t select will automatically get 0 points.
         </div>
         <div className={classes.h3}>2. Compare candidates</div>
-        <div>You'll compare pairs of candidates to create a draft point allocation. (You can skip this).</div>
+        <div>You'll compare pairs of candidates to create a draft point allocation. (You can skip this step).</div>
         <div className={classes.h3}>3. Allocate your points</div>
         <div>
           Finalize your point allocation, which should represent how you’d distribute funding between the candidates if

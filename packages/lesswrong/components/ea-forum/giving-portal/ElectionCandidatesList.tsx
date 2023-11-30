@@ -50,7 +50,7 @@ const styles = (theme: ThemeType) => ({
 
 const selectSortOptions: Record<Exclude<ElectionCandidatesSort, "mostPreVoted"> | "random", SettingsOption> = {
   random: {
-    label: "Random (per user)",
+    label: "Random",
   },
   name: {
     label: "Name A-Z",
