@@ -476,7 +476,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
           </ContentStyles>}
           <EAUsersMetaInfo user={user} />
-          {currentUser?._id != user._id && <div className={classes.btns}>
+          {currentUser?._id !== user._id && <div className={classes.btns}>
             <NewConversationButton
               user={user}
               currentUser={currentUser}

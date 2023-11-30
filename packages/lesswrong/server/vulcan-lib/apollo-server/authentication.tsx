@@ -276,7 +276,7 @@ const authenticationResolvers = {
       let recaptchaScore : number | undefined = undefined
       if (reCaptchaResponse) {
         const reCaptchaData = JSON.parse(reCaptchaResponse)
-        if (reCaptchaData.success && reCaptchaData.action == "login/signup") {
+        if (reCaptchaData.success && reCaptchaData.action === "login/signup") {
           recaptchaScore = reCaptchaData.score
         } else {
           // eslint-disable-next-line no-console

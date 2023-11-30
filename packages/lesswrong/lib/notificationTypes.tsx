@@ -223,7 +223,7 @@ export const NewEventNotification = registerNotificationType({
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId);
     let group: DbLocalgroup|null = null
-    if (documentType == "post") {
+    if (documentType === "post") {
       const post = document as DbPost
       if (post.groupId) {
         group = await Localgroups.findOne(post.groupId);
@@ -245,7 +245,7 @@ export const NewGroupPostNotification = registerNotificationType({
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId);
     let group: DbLocalgroup|null = null
-    if (documentType == "post") {
+    if (documentType === "post") {
       const post = document as DbPost
       if (post.groupId) {
         group = await Localgroups.findOne(post.groupId);
