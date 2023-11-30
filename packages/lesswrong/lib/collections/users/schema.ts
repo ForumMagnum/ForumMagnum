@@ -1413,7 +1413,7 @@ const schema: SchemaType<DbUser> = {
   },
   notificationNewDialogueChecks: {
     label: "You have new people interested in dialogue-ing with you",
-    ...notificationTypeSettingsField({ batchingFrequency: "daily" }),
+    ...notificationTypeSettingsField(),
     hidden: !dialoguesEnabled,
   },
 
