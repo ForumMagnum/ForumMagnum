@@ -216,11 +216,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       green: "#1b5e20",
     },
 
-    debateComment: '#1192e8',
-    debateComment2: '#198038',
-    debateComment3: '#b28600',
-    debateComment4: '#9f1853',
-    debateComment5: '#a56eff',
+    debateComment: {
+      [1]: '#1192e8',
+      [2]: '#198038',
+      [3]: '#b28600',
+      [4]: '#9f1853',
+      [5]: '#a56eff',
+      [6]: '#6C7BFF',
+    },
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -310,6 +313,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   background: {
     default: shades.grey[60],
     paper: shades.grey[0], //Used by MUI
+    contrastInDarkMode: shades.grey[0],
     pageActiveAreaBackground: shades.grey[0],
     translucentBackground: "rgba(255,255,255,.5)",
     diffInserted: "#d4ead4",
@@ -512,10 +516,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     [1000]: "#862115",
     candidate: "#fef4ef",
     votedCandidate: "#fff",
+    selectedCandidate: "#F7E5DD",
     ctaBackground: "#fdfcfc",
+    thankYouBackground: "#fcf5f3",
     ctaText: "#757575",
     rhsLink: '#862115',
     secondary: '#E7714E',
+    votingPortalIntroBackground: "#fff6f2",
     button: {
       alwaysDark: "#862115",
       dark: "#862115",

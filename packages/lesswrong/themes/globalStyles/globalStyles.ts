@@ -188,6 +188,29 @@ const commentsStyle = (theme: ThemeType): JssStyles => ({
   },
 });
 
+
+type Enumerate<N extends number, Acc extends number[] = []> =
+  Acc["length"] extends N
+    ? Acc[number]
+    : Enumerate<N, [...Acc, Acc["length"]]>;
+
+type IntRange<F extends number, T extends number> =
+  Exclude<Enumerate<T>, Enumerate<F>>;
+
+const makeDialogueCommentStyles = (
+  theme: ThemeType,
+  selector: (i: number) => string,
+  style: (color: string) => JssStyles,
+) => {
+  const count = 6;
+  const result: JssStyles = {};
+  for (let i = 1 as IntRange<1, 7>; i <= count; i++) {
+    const color = theme.palette.text.debateComment[`${i}`];
+    result[selector(i)] = style(color);
+  }
+  return result;
+}
+
 const dialogueStyle = (theme: ThemeType): JssStyles => ({
   '.dialogue-message-input-wrapper': {
     display: 'flex',
@@ -208,40 +231,24 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
         },
         borderRadius: theme.borderRadius.small,
         border: "2px solid transparent",
-        '&[user-order="1"]': {
-          borderColor: `${theme.palette.text.debateComment} !important`,
-        },
-        '&[user-order="2"]': {
-          borderColor: `${theme.palette.text.debateComment2} !important`,
-        },
-        '&[user-order="3"]': {
-          borderColor: `${theme.palette.text.debateComment3} !important`,
-        },
-        '&[user-order="4"]': {
-          borderColor: `${theme.palette.text.debateComment4} !important`,
-        },
-        '&[user-order="5"]': {
-          borderColor: `${theme.palette.text.debateComment5} !important`,
-        },
+        ...makeDialogueCommentStyles(
+          theme,
+          (i) => `&[user-order="${i}"]`,
+          (color) => ({
+            borderColor: `${color} !important`,
+          }),
+        ),
       }
       : {
         borderRadius: 3,
         border: '2px solid !important',
-        '&[user-order="1"] .dialogue-message-input-header': {
-          color: `${theme.palette.text.debateComment} !important`,
-        },
-        '&[user-order="2"] .dialogue-message-input-header': {
-          color: `${theme.palette.text.debateComment2} !important`,
-        },
-        '&[user-order="3"] .dialogue-message-input-header': {
-          color: `${theme.palette.text.debateComment3} !important`,
-        },
-        '&[user-order="4"] .dialogue-message-input-header': {
-          color: `${theme.palette.text.debateComment4} !important`,
-        },
-        '&[user-order="5"] .dialogue-message-input-header': {
-          color: `${theme.palette.text.debateComment5} !important`,
-        },
+        ...makeDialogueCommentStyles(
+          theme,
+          (i) => `&[user-order="${i}"] .dialogue-message-input-header`,
+          (color) => ({
+            color: `${color} !important`,
+          }),
+        ),
       }),
   },
 
@@ -260,6 +267,7 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
     ...(isFriendlyUI
       ? {
         right: 12,
+        bottom: 5,
         color: theme.palette.grey[1000],
         backgroundColor: theme.palette.grey[250],
         "&:hover": {
@@ -296,42 +304,26 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
           height: "calc(100% - 3px)",
           borderRight: "2px solid transparent",
         },
-        '&[user-order="1"]:after': {
-          borderColor: theme.palette.text.debateComment,
-        },
-        '&[user-order="2"]:after': {
-          borderColor: theme.palette.text.debateComment2,
-        },
-        '&[user-order="3"]:after': {
-          borderColor: theme.palette.text.debateComment3,
-        },
-        '&[user-order="4"]:after': {
-          borderColor: theme.palette.text.debateComment4,
-        },
-        '&[user-order="5"]:after': {
-          borderColor: theme.palette.text.debateComment5,
-        },
         '& .dialogue-message-header b': {
           fontWeight: 700,
         },
+        ...makeDialogueCommentStyles(
+          theme,
+          (i) => `&[user-order="${i}"]:after`,
+          (color) => ({
+            borderColor: color,
+          }),
+        ),
       }
       : {
         padding: '22px 8px 8px 0px',
-        '&[user-order="1"] .dialogue-message-header': {
-          color: `${theme.palette.text.debateComment} !important`,
-        },
-        '&[user-order="2"] .dialogue-message-header': {
-          color: `${theme.palette.text.debateComment2} !important`,
-        },
-        '&[user-order="3"] .dialogue-message-header': {
-          color: `${theme.palette.text.debateComment3} !important`,
-        },
-        '&[user-order="4"] .dialogue-message-header': {
-          color: `${theme.palette.text.debateComment4} !important`,
-        },
-        '&[user-order="5"] .dialogue-message-header': {
-          color: `${theme.palette.text.debateComment5} !important`,
-        },
+        ...makeDialogueCommentStyles(
+          theme,
+          (i) => `&[user-order="${i}"] .dialogue-message-header`,
+          (color) => ({
+            color: `${color} !important`,
+          }),
+        ),
       }),
   },
 

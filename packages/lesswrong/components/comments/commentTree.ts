@@ -168,4 +168,11 @@ export interface CommentTreeOptions {
    * Used to prevent us displaying quick takes multiple times
    */
   hideParentCommentToggleForTopLevel?: boolean,
+  
+  /**
+   * Comments have backgrounds in alternating colors, depending whether their
+   * nesting level is even or odd. If set, toggle which nesting level gets which
+   * background.
+   */
+  switchAlternatingHighlights?: boolean,
 }

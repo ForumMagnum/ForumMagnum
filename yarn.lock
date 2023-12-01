@@ -3142,6 +3142,11 @@
   resolved "https://registry.yarnpkg.com/@types/diff-match-patch/-/diff-match-patch-1.0.34.tgz#a4c1bbf2f992ac272047a76f3de4da6f867fde18"
   integrity sha512-GPT65LkqMpttT0BrYBzSv4FYgiEh7TXYxxFW8ufxn3+d6PhEJKdD4OAS4s0n8reeEku1ki56J2zj5FIPi5unVQ==
 
+"@types/domhandler@^2.4.3":
+  version "2.4.5"
+  resolved "https://registry.yarnpkg.com/@types/domhandler/-/domhandler-2.4.5.tgz#600961de950e090bcd8a6eb324c354466e25eaa0"
+  integrity sha512-lANhC2grmFG1gBac/8sDAKdIXx+TzAdkJIAjEOSMA+qW3297ybACEbacJnG15aNYfrzDO6fdcoouokqAKsy6aQ==
+
 "@types/domutils@*":
   version "1.7.3"
   resolved "https://registry.yarnpkg.com/@types/domutils/-/domutils-1.7.3.tgz"
@@ -3348,6 +3353,16 @@
   version "9.0.0"
   resolved "https://registry.yarnpkg.com/@types/html-to-text/-/html-to-text-9.0.0.tgz#28a676984c281a67478773519da6b5c2bdfb22ed"
   integrity sha512-FnF3p2FJZ1kJT/0C/lmBzw7HSlH3RhtACVYyrwUsJoCmFNuiLpusWT2FWWB7P9A48CaYpvD6Q2fprn7sZeffpw==
+
+"@types/htmlparser2@*":
+  version "3.10.7"
+  resolved "https://registry.yarnpkg.com/@types/htmlparser2/-/htmlparser2-3.10.7.tgz#861a7609bdc9468ce55751fe6f737abfbd584f73"
+  integrity sha512-ycBs4PNr9rY9XFFp4WkP+M1UcO49ahn0+9b24cmIY6KWy0w35rW0G8+JTTe9Rp6Wnyqn5SEHZrhCBMa0TIOxBw==
+  dependencies:
+    "@types/domhandler" "^2.4.3"
+    "@types/domutils" "*"
+    "@types/node" "*"
+    domhandler "^2.4.0"
 
 "@types/htmlparser2@^3.10.1":
   version "3.10.2"
@@ -3814,6 +3829,14 @@
   resolved "https://registry.yarnpkg.com/@types/react-helmet/-/react-helmet-5.0.16.tgz"
   integrity sha512-++KMqwodVBg75hT2ZT4jobvDPi6iPUl/Lhrn0nP1XTcmFLtccaDb4FTAxzrj3egL7WQYTDnpHuPj52FSFkJqzA==
   dependencies:
+    "@types/react" "*"
+
+"@types/react-html-parser@^2.0.6":
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/@types/react-html-parser/-/react-html-parser-2.0.6.tgz#b57174bb738e3432e3df1b9f485c106ed9fd8b4e"
+  integrity sha512-xqo8u7iqr5eOIulM1BFAlpoBgdhVleLcDHySy8/k7Le9wgdRgZY1UdKtEcdlc2jMS8cqEx8+U4Mz/e5Ves66Fg==
+  dependencies:
+    "@types/htmlparser2" "*"
     "@types/react" "*"
 
 "@types/react-instantsearch-core@*":
@@ -9417,7 +9440,7 @@ htmlencode@^0.0.4:
   resolved "https://registry.yarnpkg.com/htmlencode/-/htmlencode-0.0.4.tgz"
   integrity sha1-9+LWr74YqHp45jujMI51N2Z0Dj8=
 
-htmlparser2@^3.9.1, htmlparser2@^3.9.2:
+htmlparser2@^3.9.0, htmlparser2@^3.9.1, htmlparser2@^3.9.2:
   version "3.10.1"
   resolved "https://registry.yarnpkg.com/htmlparser2/-/htmlparser2-3.10.1.tgz"
   integrity sha512-IgieNijUMbkDovyoKObU1DUhm1iwNYE/fuifEoEHfd1oZKZDaONBSkal7Y01shxsM49R4XaMdGez3WnF9UfiCQ==
@@ -13673,6 +13696,13 @@ react-helmet@^6.1.0:
     prop-types "^15.7.2"
     react-fast-compare "^3.1.1"
     react-side-effect "^2.1.0"
+
+react-html-parser@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/react-html-parser/-/react-html-parser-2.0.2.tgz#6dbe1ddd2cebc1b34ca15215158021db5fc5685e"
+  integrity sha512-XeerLwCVjTs3njZcgCOeDUqLgNIt/t+6Jgi5/qPsO/krUWl76kWKXMeVs2LhY2gwM6X378DkhLjur0zUQdpz0g==
+  dependencies:
+    htmlparser2 "^3.9.0"
 
 react-instantsearch-core@^6.8.1, react-instantsearch-core@^6.8.2:
   version "6.8.2"

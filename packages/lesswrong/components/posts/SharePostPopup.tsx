@@ -4,7 +4,7 @@ import Popper from "@material-ui/core/Popper";
 import Paper from "@material-ui/core/Paper";
 import Button from "@material-ui/core/Button";
 import { useForceRerender } from "../hooks/useFirstRender";
-import { postGetUrlWithSourceParam } from "../../lib/collections/posts/helpers";
+import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useMessages } from "../common/withMessages";
 import { forumTitleSetting } from "../../lib/instanceSettings";
@@ -208,7 +208,6 @@ const SharePostPopup = ({
   classes: ClassesType;
 }) => {
   const anchorEl = useRef<HTMLDivElement | null>(null);
-  const postUrl = postGetUrlWithSourceParam(post, "publish_share");
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
   const [isClosing, setIsClosing] = useState(false);
@@ -236,9 +235,11 @@ const SharePostPopup = ({
     };
   }, []);
 
+  const postUrl = (source: string) => `${postGetPageUrl(post, true)}?utm_campaign=publish_share&utm_source=${source}`
+
   const copyLink = () => {
     captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "copyLink" });
-    void navigator.clipboard.writeText(postUrl);
+    void navigator.clipboard.writeText(postUrl('link'));
     flash("Link copied to clipboard");
   };
 
@@ -251,20 +252,20 @@ const SharePostPopup = ({
 
   const shareToTwitter = () => {
     captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "twitter" });
-    const tweetText = `${linkTitle} ${postUrl}`;
+    const tweetText = `${linkTitle} ${postUrl('twitter')}`;
     const destinationUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     openLinkInNewTab(destinationUrl);
   };
   const shareToFacebook = () => {
     captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "facebook" });
     const destinationUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-      postUrl
+      postUrl('facebook')
     )}&t=${encodeURIComponent(linkTitle)}`;
     openLinkInNewTab(destinationUrl);
   };
   const shareToLinkedIn = () => {
     captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "linkedIn" });
-    const destinationUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl)}`;
+    const destinationUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postUrl('linkedin'))}`;
     openLinkInNewTab(destinationUrl);
   };
 

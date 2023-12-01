@@ -1,5 +1,6 @@
 import { foreignKeyField } from "../../utils/schemaUtils";
 import SimpleSchema from "simpl-schema";
+import { schemaDefaultValue } from "../../collectionUtils";
 
 export const schema: SchemaType<DbPostRecommendation> = {
   /** The user who the recommendation was generated for. */
@@ -78,7 +79,7 @@ export const schema: SchemaType<DbPostRecommendation> = {
    */
   recommendationCount: {
     type: SimpleSchema.Integer,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     optional: false,
     nullable: false,
     canRead: ["admins"],

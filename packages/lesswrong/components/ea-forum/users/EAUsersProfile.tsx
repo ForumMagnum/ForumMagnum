@@ -6,7 +6,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { showDonatedIcon, userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
+import { showDonatedFlair, showVotedFlair, userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taglineSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
@@ -160,9 +160,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
     marginBottom: 20
   },
-  donationIcon: {
+  donatedIcon: {
     position: "relative",
     bottom: 1,
+    color: theme.palette.givingPortal[1000],
+    fontSize: 24,
+    marginLeft: 8
+  },
+  votedIcon: {
+    position: "relative",
+    bottom: -3,
     color: theme.palette.givingPortal[1000],
     fontSize: 24,
     marginLeft: 8
@@ -462,13 +469,22 @@ const EAUsersProfile = ({terms, slug, classes}: {
           <EAUsersProfileImage user={user} />
           <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
             {username}{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
-            {showDonatedIcon(user) &&
+            {showDonatedFlair(user) &&
               <LWTooltip
                 placement="bottom-start"
-                title={`Donated to the Donation Election fund`}
+                title={`Donated to the Donation Election`}
                 className={classes.iconWrapper}
               >
-                <ForumIcon icon="GivingHand" className={classes.donationIcon} />
+                <ForumIcon icon="GivingHand" className={classes.donatedIcon} />
+              </LWTooltip>
+            }
+            {showVotedFlair(user) &&
+              <LWTooltip
+                placement="bottom-start"
+                title={`Voted in the Donation Election`}
+                className={classes.iconWrapper}
+              >
+                <ForumIcon icon="Voted" className={classes.votedIcon} />
               </LWTooltip>
             }
           </Typography>
