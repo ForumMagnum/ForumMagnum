@@ -1,19 +1,26 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { HEADER_HEIGHT } from "../../common/Header";
 import { Link } from "../../../lib/reactRouterWrapper";
+import classNames from "classnames";
+import { useCurrentUser } from "../../common/withUser";
+import { useDialog } from "../../common/withDialog";
+import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import { isPastVotingDeadline } from "../../../lib/collections/electionVotes/helpers";
+import { votingPortalStyles } from "./styles";
+import { useMessages } from "../../common/withMessages";
 
 const styles = (theme: ThemeType) => ({
   // TODO combine these with votingPortalStyles
+  ...votingPortalStyles(theme),
   root: {
-    margin: "80px 0",
+    margin: "60px 0",
     display: "flex",
     flexDirection: "column",
-    gap: "40px",
+    gap: "32px",
     borderRadius: 12,
     background: theme.palette.grey[0],
-    padding: 40,
-    width: 730,
+    width: 780,
     maxWidth: "100%",
     lineHeight: "24px",
     fontSize: 16,
@@ -25,6 +32,9 @@ const styles = (theme: ThemeType) => ({
         textDecoration: "none",
         opacity: 1,
       },
+    },
+    [theme.breakpoints.down("md")]: {
+      padding: 16,
     },
     [theme.breakpoints.down("xs")]: {
       width: "100%",
@@ -45,25 +55,40 @@ const styles = (theme: ThemeType) => ({
   inset: {
     borderRadius: theme.borderRadius.default,
     background: theme.palette.grey[100],
-    padding: 32,
+    padding: 24,
   },
   h1: {
     color: theme.palette.givingPortal[1000],
-    fontSize: 40,
+    fontSize: 48,
     fontWeight: 700,
     lineHeight: "normal",
   },
   h2: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 700,
-    marginBottom: 32,
+    marginBottom: 24,
     lineHeight: "normal",
   },
   h3: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 700,
     marginTop: 24,
+    marginBottom: 4,
     lineHeight: "normal",
+  },
+  buttonRow: {
+    display: "flex",
+    flexDirection: "row",
+    gap: "20px",
+    '& a': {
+      flexBasis: "50%",
+    },
+    '& button': {
+      flexBasis: "50%",
+    },
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+    },
   },
   button: {
     display: "flex",
@@ -89,70 +114,132 @@ const styles = (theme: ThemeType) => ({
       opacity: "0.7 !important",
     },
   },
+  greyButton: {
+    background: theme.palette.grey[100],
+    color: theme.palette.grey[1000],
+    "&:hover": {
+      background: theme.palette.grey[200],
+    },
+  },
+  imageWrapper: {
+    maxWidth: 700,
+    width: "100%",
+    margin: "0 auto",
+  },
+  image: {
+    width: "100%",
+    borderRadius: theme.borderRadius.default,
+  },
+  smallText: {
+    color: theme.palette.grey[600],
+    fontSize: 14,
+    fontStyle: 'italic',
+    fontWeight: 500,
+    lineHeight: "140%",
+  }
 });
+
+const imageId = 'voting-portal-intro-image';
+const newTabProps = { target: "_blank", rel: "noopener noreferrer" };
 
 const fundLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
 const exploreLink = "/giving-portal";
-const processLink = "/posts/dYhKfsNuQX2sznfxe/donation-election-how-voting-will-work";
+export const processLink = "/posts/dYhKfsNuQX2sznfxe/donation-election-how-voting-will-work";
+export const candidatesLink = "/posts/bBm64htDSKn3ZKiQ5/meet-the-candidates-in-the-forum-s-donation-election-2023";
 const getStartedLink = "/voting-portal/select-candidates";
+const votingNormsLink = "/posts/hAzhyikPnLnMXweXG/participate-in-the-donation-election-and-the-first-weekly#Who_can_vote___voting_norms";
 
 const VotingPortalIntro = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const currentUser = useCurrentUser();
+  const { openDialog } = useDialog();
+  const { flash } = useMessages();
+
+  const { CloudinaryImage2 } = Components;
+
+  const isLoggedIn = !!currentUser;
+  const userCanVote = userCanVoteInDonationElection(currentUser);
+  const votingClosed = isPastVotingDeadline();
+
+  const linkEnabled = isLoggedIn && userCanVote && !votingClosed;
+
+  const handleDisabledLinkClick = () => {
+    if (!isLoggedIn) {
+      openDialog({
+        componentName: "LoginPopup",
+        componentProps: {}
+      });
+    } else if (!userCanVote) {
+      flash("Accounts created after 22nd Oct 2023 cannot vote in this election");
+    } else if (votingClosed) {
+      flash("Voting has closed");
+    }
+  }
+
   return (
     <div className={classes.root}>
       <div className={classes.h1}>Welcome to the voting portal</div>
       <div className={classes.description}>
         <div>
-          The <Link to={fundLink}>Donation Election Fund</Link> will be designated
-          for the top 3 winners, in proportion to the election results.{" "}
+          The Donation Election is about allocating money across different projects. The{" "}
+          <Link to={fundLink} {...newTabProps}>
+            Donation Election Fund
+          </Link>{" "}
+          will be designated for the top 3{" "}
+          <Link to={candidatesLink} {...newTabProps}>
+            candidates
+          </Link>
+          , in proportion to the election results.{" "}
           <span className={classes.bold}>
-            Your vote should represent how you’d allocate funding between the
-            candidates.
+            Your vote should represent how you’d allocate funding between the candidates.
           </span>{" "}
-          <Link to={exploreLink}>Explore the candidates</Link> before you vote.
-        </div>
-        <div>
-          Your vote is anonymous. You won’t be able to change your vote after
-          submitting it. When votes are in, we’ll use{" "}
-          <Link to={processLink} className={classes.bold}>the process outlined here</Link>{" "}
-          to determine the election results.
         </div>
       </div>
-      <div className={classes.inset}>
-        <div className={classes.h2}>How voting works</div>
-        <div className={classes.h3}>
-          1. Select candidates you want to vote for
-        </div>
-        <div>
-          These are the candidates you’ll allocate points to; you’ll give 0
-          points to the ones you don’t select.
-        </div>
-        <div className={classes.h3}>
-          2. Compare candidates using a tool
-        </div>
-        <div>
-          The tool will prompt you to compare pairs of candidates and share how
-          much more funding you’d give to one candidate than the other. You can
-          skip this step if you want to.
-        </div>
-        <div className={classes.h3}>
-          3. Allocate your points
-        </div>
-        <div>
-          Finalize your point allocation, which should represent how you’d
-          distribute funding between the candidates if it were up to you.
-        </div>
-        <div className={classes.h3}>
-          4. Submit your votes
-        </div>
-        <div>
-          Share a note if you want to, and submit your vote!
-        </div>
+      <div className={classes.imageWrapper}>
+        <CloudinaryImage2 publicId={imageId} className={classes.image} />
       </div>
-      <Link to={getStartedLink} className={classes.button}>
-        Get started -&gt;
-      </Link>
+      <div>
+        Your vote is anonymous to other users. If we have reason to believe you've committed{" "}
+        <Link to={votingNormsLink} {...newTabProps}>
+          voter fraud
+        </Link>{" "}
+        we may nullify your vote and involve the moderators.
+      </div>
+      <div className={classes.smallText}>
+        When voting closes on December 15, we’ll use{" "}
+        <Link to={processLink} {...newTabProps}>
+          the process outlined here
+        </Link>{" "}
+        to determine the election results. In brief, we’ll normalize points from each voter (to make sure everyone’s
+        vote counts the same), then remove the candidate with the fewest points from the election. Then we’ll
+        renormalize votes (if you assigned some points to the now-removed candidates, your other points will count for
+        more), and remove the lowest-scoring candidate. We’ll repeat that until we’re down to three candidates. (More in
+        the{" "}
+        <Link to={processLink} {...newTabProps}>
+          full post
+        </Link>
+        .)
+      </div>
+      {isLoggedIn && !userCanVote && (
+        <div>
+          <b>You are not eligible to vote as your account was created after 22nd Oct 2023</b>
+        </div>
+      )}
+      <div className={classes.buttonRow}>
+        <Link to={candidatesLink} className={classNames(classes.button, classes.greyButton)}>
+          Read about the candidates
+        </Link>
+        {linkEnabled ? (
+          <Link to={getStartedLink} className={classes.button}>
+            Get started -&gt;
+          </Link>
+        ) : (
+          <button className={classes.button} onClick={handleDisabledLinkClick}>
+            Get started
+          </button>
+        )}
+      </div>
     </div>
   );
 }

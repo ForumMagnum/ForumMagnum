@@ -374,7 +374,7 @@ export const NewDialogueCheckNotification = registerNotificationType({
   userSettingField: "notificationNewDialogueChecks",
   allowedChannels: ["onsite", "none"],
   async getMessage(props: GetMessageProps) {
-    return `People have expressed interest in dialogue-ing with you since you last checked!`
+    return `New users interested in dialoguing with you (not a match yet)`
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>
