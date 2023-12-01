@@ -65,21 +65,39 @@ registerMigration({
 
     console.log(`About to send messages to ${users.length} users`);
 
-    const buildMessage = (user: DbUser) => {
-      return `<p>
-              Voting in the <a href="https://forum.effectivealtruism.org/giving-portal#election">Donation Election</a> is now open! You can go to the <a href="https://forum.effectivealtruism.org/voting-portal">voting portal</a>
-              to cast your vote. The portal should explain what to do, but if you have any questions, feel free to reply to this message.
-            </p>
-            <p>
-              Thanks, and happy voting!
-              <br><a href="https://forum.effectivealtruism.org/users/will-howard-1">Will</a>, on behalf of the Forum team
-            </p>
-            `;
-    };
+
+    // Voting in the Forum’s Donation Election has opened!
+    //
+    // To vote, go to the Voting Portal. You’ll be able to change your vote until voting closes on December 15.
+    //
+    // The Voting Portal should explain what to do, but feel free to reply to this message if you have any questions.
+    //
+    // Thanks, and happy voting!
+    //
+    // SIGNOFF
+    // P.S. You’re getting this message because you signed up to get notified when voting opens. If something went wrong, please let me know!
+    const message = `
+      <p>
+        Voting in the Forum’s <a href="https://forum.effectivealtruism.org/giving-portal#election">Donation Election</a> has opened!
+      </p>
+      <p>
+        To vote, go to the <a href="https://forum.effectivealtruism.org/voting-portal">Voting portal</a>. You’ll be able to change your vote until voting closes on December 15.
+      </p>
+      <p>
+        The Voting Portal should explain what to do, but feel free to reply to this message if you have any questions.
+      </p>
+      <p>
+        Thanks, and happy voting!
+        <br><a href="https://forum.effectivealtruism.org/users/will-howard-1">Will</a>, on behalf of the Forum team
+      </p>
+      <p>
+        <em>P.S. You’re getting this message because you signed up to get notified when voting opens.</em>
+      </p>
+    `;
 
     for (const user of users) {
       console.log(`Sending to ${user.displayName}`);
-      await sendMessageTo(user._id, buildMessage(user));
+      await sendMessageTo(user._id, message);
 
       // The sleep here is just to give a chance to notice something going horribly wrong,
       // there are only about 50 users with this flag set, so it should take about a minute in total
