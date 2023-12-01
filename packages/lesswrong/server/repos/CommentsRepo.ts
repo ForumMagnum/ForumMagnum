@@ -108,24 +108,25 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
 
   async getPopularPollCommentsWithTwoUserVotes (userId:string, targetUserId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
     return await this.getRawDb().manyOrNone(`
-      WITH votes_filtered AS (
-        SELECT *
-        FROM public."Votes"
-        WHERE "extendedVoteType"->'reacts'->0->>'vote' = 'created'
-          AND cancelled IS NOT TRUE
-          AND "isUnvote" IS NOT TRUE
-      )
-      SELECT c.*, v1."extendedVoteType"->'reacts'->0->>'react' AS "yourVote", v2."extendedVoteType"->'reacts'->0->>'react' AS "theirVote"
-      FROM public."Comments" AS c
-      INNER JOIN votes_filtered AS v1 ON c._id = v1."documentId"
-      INNER JOIN votes_filtered AS v2 ON c._id = v2."documentId"
-      WHERE
-        c."parentCommentId" = $4
-        AND v1."userId" = $1
-        AND v2."userId" = $2
-        AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
-      ORDER BY c."baseScore" DESC
-      LIMIT $3
+    SELECT c.*, 
+        v1."extendedVoteType"->'reacts'->0->>'react' AS "yourVote", 
+        v2."extendedVoteType"->'reacts'->0->>'react' AS "theirVote"
+    FROM public."Comments" AS c
+    LEFT JOIN public."Votes" AS v1 ON c._id = v1."documentId"
+    LEFT JOIN public."Votes" AS v2 ON c._id = v2."documentId"
+    WHERE
+      c."parentCommentId" = $4
+      AND v1."userId" = $1
+      AND v1."extendedVoteType"->'reacts'->0->>'vote' = 'created'
+      AND v1.cancelled IS NOT TRUE
+      AND v1."isUnvote" IS NOT TRUE
+      AND v2."userId" = $2
+      AND v2."extendedVoteType"->'reacts'->0->>'vote' = 'created'
+      AND v2.cancelled IS NOT TRUE
+      AND v2."isUnvote" IS NOT TRUE
+      AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
+    ORDER BY c."baseScore" DESC
+    LIMIT $3
     `, [userId, targetUserId, limit, pollCommentId]);
   }
 
