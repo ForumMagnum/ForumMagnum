@@ -96,12 +96,10 @@ const EAVotingPortalSelectCandidatesPage = ({
     <AnalyticsContext pageContext="eaVotingPortalSelectCandidates">
       <div className={classes.root}>
         <div className={classes.content}>
-          <div className={classes.h2}>1. Select candidates you want to vote for</div>
+          <div className={classes.h2}>1. Select candidates you want to give points to</div>
           <div className={classes.subtitle}>
-            <div className={classes.subtitleParagraph}>You'll assign points in the next steps.</div>
-            <div className={classes.subtitleParagraph}>
-              If all the candidates you select get eliminated later, your vote will count as if you’d assigned equal
-              points to the remaining ones. For more information, read{" "}
+            <div className={classes.subtitleParagraph}>You'll assign points in the next steps.
+            For information about how voting works, check{" "}
               <Link to={processLink} target="_blank" rel="noopener noreferrer">
                 this post
               </Link>
@@ -111,7 +109,7 @@ const EAVotingPortalSelectCandidatesPage = ({
               <Link to={candidatesLink} target="_blank" rel="noopener noreferrer">
                 Read about the candidates
               </Link>{" "}
-              and what they would do with more funding.
+              (and what they would do with more funding).
             </div>
           </div>
           <ElectionCandidatesList

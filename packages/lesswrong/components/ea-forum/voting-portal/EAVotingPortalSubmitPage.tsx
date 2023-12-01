@@ -27,6 +27,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 32,
   },
   questionTitle: {
+    lineHeight: '1.4em',
     fontSize: 16,
     fontWeight: 600,
     marginBottom: 12,
@@ -40,6 +41,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[1000],
       zIndex: theme.zIndexes.singleColumnSection,
       fontSize: 16,
+      lineHeight: '1.4em',
       fontWeight: 500,
     },
     "& .MuiNotchedOutline-focused": {

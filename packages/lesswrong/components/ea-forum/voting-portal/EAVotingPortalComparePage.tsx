@@ -195,7 +195,7 @@ const EAVotingPortalComparePage = ({
     <AnalyticsContext pageContext="eaVotingPortalCompare">
       <div className={classes.root}>
         <div className={classes.content} id="top">
-          <div className={classes.h2}>2. Compare candidates to get a draft point allocation</div>
+          <div className={classes.h2}>2. Compare candidates to get a suggested point allocation</div>
           <div className={classes.subtitle}>
             <div className={classes.subtitleParagraph}>
             We'll auto-generate a point allocation based on your comparisons here, which you'll finalize in the next step.

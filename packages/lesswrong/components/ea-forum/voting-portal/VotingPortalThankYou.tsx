@@ -28,7 +28,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   election: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 800,
     letterSpacing: "0.54px",
     textAlign: "center",
