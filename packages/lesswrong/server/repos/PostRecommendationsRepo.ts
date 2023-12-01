@@ -5,7 +5,6 @@ import type {
   RecommendationStrategyName,
   StrategySettings,
 } from "../../lib/collections/users/recommendationSettings";
-import type { JsonRecord } from "../sqlConnection";
 
 export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommendation> {
   constructor() {
