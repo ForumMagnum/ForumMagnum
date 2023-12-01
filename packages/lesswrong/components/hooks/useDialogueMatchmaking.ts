@@ -47,12 +47,12 @@ export const useDialogueMatchmaking = <T extends MatchmakingProps>(props: T): Us
   `, { skip: skipByDefault || !getMatchedUsers });
 
   const recommendedUsersQueryResult = useQuery(gql`
-  query GetDialogueRecommendedUsers {
-    GetDialogueRecommendedUsers {
-      _id
-      displayName
+    query GetDialogueRecommendedUsers {
+      GetDialogueRecommendedUsers {
+        _id
+        displayName
+      }
     }
-  }
   `, { skip: skipByDefault || !getRecommendedUsers || !dialogueMatchmakingEnabled.get() });
 
   const userDialogueChecksResult = useMulti({

@@ -146,13 +146,7 @@ const styles = (theme: ThemeType) => ({
   closeIcon: { 
     color: theme.palette.grey[500],
     opacity: 0.5,
-  //  position: 'absolute', 
-  //  right: '8px',
-  //  top: '8px',
     padding: '2px',
-    [theme.breakpoints.down('xs')]: {
-      //display: 'none'
-    }
   },
 });
 

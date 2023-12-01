@@ -33,7 +33,7 @@
  * - [X] Write a migration to represent these changes
  * - [X] Rename this file to something more readable
  * - [X] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [X] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
 export const acceptsSchemaHash = "2d5747e2acdbe83c754cbbda258623ed";
 

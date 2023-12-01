@@ -9,11 +9,10 @@ import { useCurrentUser } from '../common/withUser';
 import { DialogueUserRowProps, getRowProps, getUserCheckInfo } from '../users/DialogueMatchingPage';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import MuiPeopleIcon from "@material-ui/icons/People";
-import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
-import {useABTest} from '../../lib/abTestImpl';
-import {frontpageDialogueReciprocityRecommendations, showTopicsInReciprocity} from '../../lib/abTests';
-import {useUpdate} from '../../lib/crud/withUpdate';
-import {gql, useMutation} from '@apollo/client';
+import { dialogueMatchmakingEnabled } from '../../lib/publicSettings';
+import { useABTest } from '../../lib/abTestImpl';
+import { frontpageDialogueReciprocityRecommendations, showTopicsInReciprocity } from '../../lib/abTests';
+import { gql, useMutation } from '@apollo/client';
 import { randomId } from '../../lib/random';
 
 
@@ -212,11 +211,6 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   const { captureEvent } = useTracking();
   const showReciprocityRecommendations = (useABTest(frontpageDialogueReciprocityRecommendations) === "show")
   const showTopics = (useABTest(showTopicsInReciprocity) === "show")
-
-  const { mutate: updateDialogueCheck } = useUpdate({
-    collectionName: 'DialogueChecks',
-    fragmentName: 'DialogueCheckInfo',
-  })
 
   const { results: dialoguePosts } = usePaginatedResolver({
     fragmentName: "PostsListWithVotes",
