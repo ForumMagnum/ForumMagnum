@@ -9,7 +9,6 @@ import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type PgCollection from "../sql/PgCollection";
-import type { VariableValues } from 'apollo-server-types'
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).

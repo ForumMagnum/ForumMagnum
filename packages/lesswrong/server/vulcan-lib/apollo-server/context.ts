@@ -25,7 +25,6 @@ import UserActivities from '../../../lib/collections/useractivities/collection';
 import { getCookieFromReq } from '../../utils/httpUtil';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { userChangedCallback } from '../../../lib/vulcan-lib/callbacks';
-import { generateTraceId } from '../../perfMetrics';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {

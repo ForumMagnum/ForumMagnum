@@ -170,8 +170,3 @@ function logInFlightStuff() {
   printInProgressCallbacks();
 }
 Globals.logInFlightStuff = logInFlightStuff;
-
-export function logGraphQLToAnalyticsDB(context: ResolverContext, operationName: string, startTime: Date, endTime: Date) {
-  const path = context.headers['request-origin-path']
-  captureEvent("GraphQLRequest", {operationName, startTime, endTime, path });
-}
