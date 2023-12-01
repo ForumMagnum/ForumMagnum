@@ -9,7 +9,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import {useSingle} from '../../lib/crud/withSingle';
 import {truncatise} from '../../lib/truncatise';
-import Loading from '../vulcan-core/Loading';
 
 const styles = (theme: ThemeType) => ({
   dialogueUserRow: { 
