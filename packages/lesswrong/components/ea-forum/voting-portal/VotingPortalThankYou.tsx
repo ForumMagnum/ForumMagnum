@@ -227,7 +227,7 @@ const VotingPortalThankYou = ({currentUser, classes}: {
       <ul className={classes.list}>
         <li>
           <Link to="/posts/rszgfHdkmzCDDPM9k/where-are-you-donating-this-year-and-why-open-thread-1">
-            Share that you voted — and why!
+            Share that you voted or where you're donating
           </Link>
         </li>
         <li>
