@@ -276,8 +276,8 @@ const styles = (theme: ThemeType) => ({
   },
   votingBannerHeading: {
     color: theme.palette.givingPortal.homepageHeader.light4,
-    fontSize: 50,
-    lineHeight: "56px",
+    fontSize: 40,
+    lineHeight: "48px",
     marginTop: 0,
     marginBottom: 8,
     [theme.breakpoints.down("sm")]: {
@@ -396,6 +396,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     limit: 8,
   });
 
+  const fundLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
   const totalRaisedFormatted = formatDollars(amountRaised.totalRaised);
   const raisedForElectionFundFormatted = formatDollars(amountRaised.raisedForElectionFund);
   const targetPercent = amountRaised.electionFundTarget > 0 ? (amountRaised.raisedForElectionFund / amountRaised.electionFundTarget) * 100 : 0;
@@ -424,7 +425,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 Decide how you're voting
               </Typography>
               <div className={classNames(classes.text, classes.textWide)}>
-                Vote to help determine how the Donation Election Fund should be distributed.{" "}
+                Vote to help determine how the {" "}
+                <Link to={fundLink}>
+                  Donation Election Fund
+                </Link>{" "}should be distributed.{" "}
                 <span className={classes.votingBannerDeadline}>Deadline: December 15</span>
               </div>
             </div>
