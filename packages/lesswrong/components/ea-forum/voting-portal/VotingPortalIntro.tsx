@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { HEADER_HEIGHT } from "../../common/Header";
 import { Link } from "../../../lib/reactRouterWrapper";
 import classNames from "classnames";
@@ -9,6 +9,7 @@ import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 import { isPastVotingDeadline } from "../../../lib/collections/electionVotes/helpers";
 import { votingPortalStyles } from "./styles";
 import { useMessages } from "../../common/withMessages";
+import { DatabasePublicSetting } from "../../../lib/publicSettings";
 
 const styles = (theme: ThemeType) => ({
   // TODO combine these with votingPortalStyles
@@ -17,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     margin: "60px 0",
     display: "flex",
     flexDirection: "column",
-    gap: "32px",
+    gap: "24px",
     borderRadius: 12,
     background: theme.palette.grey[0],
     width: 780,
@@ -121,7 +122,26 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.grey[200],
     },
   },
+  imageWrapper: {
+    maxWidth: 700,
+    width: "100%",
+    margin: "0 auto",
+  },
+  image: {
+    width: "100%",
+    borderRadius: theme.borderRadius.default,
+  },
+  smallText: {
+    color: theme.palette.grey[600],
+    fontSize: 14,
+    fontWeight: 500,
+    lineHeight: "140%",
+  }
 });
+
+const introImageIdSetting = new DatabasePublicSetting<string>("votingPortalIntroImageId", 'voting-portal-intro-image-2023-12-01_1');
+
+const newTabProps = { target: "_blank", rel: "noopener noreferrer" };
 
 const fundLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
 const exploreLink = "/giving-portal";
@@ -136,6 +156,8 @@ const VotingPortalIntro = ({classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { flash } = useMessages();
+
+  const { CloudinaryImage2 } = Components;
 
   const isLoggedIn = !!currentUser;
   const userCanVote = userCanVoteInDonationElection(currentUser);
@@ -161,46 +183,68 @@ const VotingPortalIntro = ({classes}: {
       <div className={classes.h1}>Welcome to the voting portal</div>
       <div className={classes.description}>
         <div>
-          The <Link to={fundLink}>Donation Election Fund</Link> will be designated for the top 3{" "}
-          <Link to={candidatesLink}>candidates</Link>, in proportion to the election results.{" "}
+        The {" "}
+        <Link to={exploreLink} {...newTabProps}>
+            Donation Election
+          </Link>{" "}
+          is about allocating money based on Forum users’ votes.
+          The{" "}
+          <Link to={fundLink} {...newTabProps}>
+            Donation Election Fund
+          </Link>{" "}
+          will be designated for the top 3{" "}
+          <Link to={candidatesLink} {...newTabProps}>
+            candidates
+          </Link>
+          , in proportion to the election results.{" "}
           <span className={classes.bold}>
             Your vote should represent how you’d allocate funding between the candidates.
           </span>{" "}
         </div>
       </div>
-      <div className={classes.inset}>
-        <div className={classes.h2}>How voting works</div>
-        <div className={classes.h3}>1. Select candidates you want to vote for</div>
-        <div>
-          These are the candidates you’ll allocate points to. The ones you don’t select will automatically get 0 points.
-        </div>
-        <div className={classes.h3}>2. Compare candidates</div>
-        <div>You'll compare pairs of candidates to create a draft point allocation. (You can skip this step).</div>
-        <div className={classes.h3}>3. Allocate your points</div>
-        <div>
-          Finalize your point allocation, which should represent how you’d distribute funding between the candidates if
-          it were up to you.
-        </div>
-        <div className={classes.h3}>4. Submit your votes</div>
+      <div className={classes.imageWrapper}>
+        <CloudinaryImage2 publicId={introImageIdSetting.get()} className={classes.image} />
       </div>
       <div>
         Your vote is anonymous to other users. If we have reason to believe you've committed{" "}
-        <Link to={votingNormsLink}>voter fraud</Link> we may nullify your vote and involve the moderators. When the election
-        closes on <span className={classes.bold}>December 15</span>, we'll use{" "}
-        <Link to={processLink}>the process outlined here</Link> to determine the winners.
+        <Link to={votingNormsLink} {...newTabProps}>
+          voter fraud
+        </Link>{" "}
+        we may nullify your vote and involve the moderators.
       </div>
-      {isLoggedIn && !userCanVote && <div>
-        <b>You are not eligible to vote as your account was created after 22nd Oct 2023</b>
-      </div>}
+      <div className={classes.smallText}>
+        When voting closes on December 15, we’ll use{" "}
+        <Link to={processLink} {...newTabProps}>
+          the process outlined here
+        </Link>{" "}
+        to determine the election results. In brief, we’ll normalize points from each voter (to make sure everyone’s
+        vote counts the same), then remove the candidate with the fewest points from the election. Then we’ll
+        renormalize votes (if you assigned some points to the now-removed candidates, your other points will count for
+        more), and remove the lowest-scoring candidate. We’ll repeat that until we’re down to three candidates. (More in
+        the{" "}
+        <Link to={processLink} {...newTabProps}>
+          full post
+        </Link>
+        .)
+      </div>
+      {isLoggedIn && !userCanVote && (
+        <div>
+          <b>You are not eligible to vote as your account was created after 22nd Oct 2023</b>
+        </div>
+      )}
       <div className={classes.buttonRow}>
         <Link to={candidatesLink} className={classNames(classes.button, classes.greyButton)}>
           Read about the candidates
         </Link>
-        {linkEnabled ? <Link to={getStartedLink} className={classes.button}>
-          Get started -&gt;
-        </Link> : <button className={classes.button} onClick={handleDisabledLinkClick}>
-          Get started
-        </button>}
+        {linkEnabled ? (
+          <Link to={getStartedLink} className={classes.button}>
+            Get started -&gt;
+          </Link>
+        ) : (
+          <button className={classes.button} onClick={handleDisabledLinkClick}>
+            Get started
+          </button>
+        )}
       </div>
     </div>
   );

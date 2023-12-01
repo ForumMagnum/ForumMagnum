@@ -27,6 +27,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 32,
   },
   questionTitle: {
+    lineHeight: '1.4em',
     fontSize: 16,
     fontWeight: 600,
     marginBottom: 12,
@@ -40,6 +41,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[1000],
       zIndex: theme.zIndexes.singleColumnSection,
       fontSize: 16,
+      lineHeight: '1.4em',
       fontWeight: 500,
     },
     "& .MuiNotchedOutline-focused": {
@@ -62,8 +64,11 @@ const styles = (theme: ThemeType) => ({
     top: 4,
   },
   tooltipPopper: {
-    marginTop: 4,
-    textAlign: "center",
+    maxWidth: 320,
+    marginTop: 8,
+    textAlign: "left",
+    borderRadius: `${theme.borderRadius.default}px !important`,
+    backgroundColor: `${theme.palette.grey[900]} !important`,
   },
   radioWrapper: {
     // Without this the options start wrapped on page load before some js runs to unwrap them
@@ -158,14 +163,6 @@ const EAVotingPortalSubmitPage = ({
             <div className={classes.questionTitle}>
               {ELECTION_EFFECT_QUESTION}{" "}
               <span className={classes.greyedOut}>(Optional)</span>
-              <LWTooltip
-                title="This will help us understand the impact of the event, and we might share aggregated information about this question in our public summary of the Election results."
-                placement="bottom"
-                className={classes.tooltip}
-                popperClassName={classes.tooltipPopper}
-              >
-                <ForumIcon icon="InfoCircle" className={classes.infoIcon} />
-              </LWTooltip>
             </div>
             <div className={classes.radioWrapper}>
               <RadioGroup
@@ -209,13 +206,14 @@ const EAVotingPortalSubmitPage = ({
             />
           </div>
         </div>
-        <VotingPortalFooter
+      <VotingPortalFooter
           leftHref="/voting-portal/allocate-points"
           middleNode={<></>}
           buttonText={"Submit your vote"}
           buttonProps={{
             onClick: handleSubmit,
           }}
+          arrow={false}
           electionVote={electionVote}
           updateVote={updateVote}
         />

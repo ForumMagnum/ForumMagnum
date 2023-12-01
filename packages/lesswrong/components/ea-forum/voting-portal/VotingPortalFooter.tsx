@@ -77,6 +77,7 @@ export const VotingPortalFooter = ({
   middleNode,
   buttonText="Continue",
   buttonTooltip,
+  arrow=true,
   buttonProps,
   electionVote,
   updateVote,
@@ -87,6 +88,7 @@ export const VotingPortalFooter = ({
   middleNode: React.ReactNode,
   buttonText?: string,
   buttonTooltip?: string,
+  arrow?: boolean,
   buttonProps: React.ButtonHTMLAttributes<HTMLButtonElement>,
   electionVote: ElectionVoteInfo,
   updateVote: (newVote: NullablePartial<DbElectionVote>) => Promise<void>,
@@ -101,7 +103,7 @@ export const VotingPortalFooter = ({
     "Unsubmit vote (to edit)"
   ) : (
     <>
-      {buttonText} <ForumIcon icon="ArrowRight" className={classes.arrowIcon} />
+      {buttonText} {arrow && <ForumIcon icon="ArrowRight" className={classes.arrowIcon} />}
     </>
   );
 

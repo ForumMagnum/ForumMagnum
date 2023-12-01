@@ -24,6 +24,7 @@ import TextField from '@material-ui/core/TextField';
 import {SYNC_PREFERENCE_VALUES, SyncPreference } from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
+import { useUpsertDialogueCheck } from '../hooks/useUpsertDialogueCheck';
 import keyBy from 'lodash/keyBy';
 import merge from 'lodash/merge';
 import mergeWith from 'lodash/mergeWith';
@@ -76,6 +77,7 @@ export type TopicRecommendationData = DbComment[]
 
 interface CommonDialogueUserRowProps {
   checkId: string;
+  hideInRecommendations?: boolean;
   userIsChecked: boolean;
   userIsMatched: boolean;
   currentUser: UsersCurrent;
@@ -495,6 +497,10 @@ const useScrollGradient = (ref: React.RefObject<HTMLDivElement>) => {
   return { isScrolledToTop, isScrolledToBottom };
 };
 
+const isHideInRecommendations = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
+  return userDialogueChecks.find(check => check.targetUserId === targetUserId)?.hideInRecommendations ?? false;
+}
+
 const isMatched = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
   return userDialogueChecks.some(check => check.targetUserId === targetUserId && check.match);
 };
@@ -503,12 +509,14 @@ const isChecked = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string
   return userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked ?? false;
 };
 
-const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
+export const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
   const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id;
+  const hideInRecommendations = isHideInRecommendations(userDialogueChecks, targetUser._id);
   const userIsChecked = isChecked(userDialogueChecks, targetUser._id);
   const userIsMatched = isMatched(userDialogueChecks, targetUser._id);
   return {
     checkId,
+    hideInRecommendations,
     userIsChecked,
     userIsMatched
   };
@@ -921,21 +929,12 @@ const DialogueCheckBox: React.FC<{
   checkId?: string;
   isChecked: boolean, 
   isMatched: boolean;
+  hideInRecommendations?: boolean;
   classes: ClassesType<typeof styles>;
-}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, classes}) => {
+}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, hideInRecommendations, classes}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { openDialog } = useDialog();
-
-  const [upsertDialogueCheck] = useMutation(gql`
-    mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
-      upsertUserDialogueCheck(targetUserId: $targetUserId, checked: $checked) {
-          ...DialogueCheckInfo
-        }
-      }
-    ${getFragmentText('DialogueCheckInfo')}
-    ${getFragmentText('DialogueMatchPreferencesDefaultFragment')}
-    `)
   
   async function handleNewMatchAnonymisedAnalytics() {
     captureEvent("newDialogueReciprocityMatch", {}) // we only capture match metadata and don't pass anything else
@@ -944,56 +943,15 @@ const DialogueCheckBox: React.FC<{
     const webhookURL = isProduction ? "https://hooks.slack.com/triggers/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" : "https://hooks.slack.com/triggers/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"  //
     const data = {} // Not sending any data for now 
     void pingSlackWebhook(webhookURL, data)
-    
   }
 
   const [showConfetti, setShowConfetti] = useState(false);
-
+  const upsertUserDialogueCheck = useUpsertDialogueCheck();
 
   async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId: string, checkId?: string) {
     if (!currentUser) return;
 
-    const response = await upsertDialogueCheck({
-      variables: {
-        targetUserId: targetUserId, 
-        checked: event.target.checked
-      },
-      update(cache, { data }) {
-        if (!checkId) {
-          cache.modify({
-            fields: {
-              dialogueChecks(existingChecksRef) {
-                const newCheckRef = cache.writeFragment({
-                  data: data.upsertUserDialogueCheck,
-                  fragment: gql`
-                    ${getFragmentText('DialogueCheckInfo')}
-                    ${getFragmentText('DialogueMatchPreferencesDefaultFragment')}
-                  `,
-                  fragmentName: 'DialogueCheckInfo'
-                });
-                return {
-                  ...existingChecksRef,
-                  results: [...existingChecksRef.results, newCheckRef]
-                }
-              }
-            }
-          });
-        }
-      },
-      optimisticResponse: {
-        upsertUserDialogueCheck: {
-          _id: checkId ?? randomId(),
-          __typename: 'DialogueCheck',
-          userId: currentUser._id,
-          targetUserId: targetUserId,
-          checked: event.target.checked,
-          checkedAt: new Date(),
-          match: false,
-          matchPreference: null,
-          reciprocalMatchPreference: null
-        }
-      }
-    })
+    const response = await upsertUserDialogueCheck({ targetUserId, checked: event.target.checked, checkId });
     
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()

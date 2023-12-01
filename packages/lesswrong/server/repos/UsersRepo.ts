@@ -35,14 +35,6 @@ WHERE _id IN (
 LIMIT 1
 `;
 
-type UserData = {
-  _id: string;
-  username: string;
-  displayName: string;
-  name: string;
-  post_comment_count: number;
-};
-
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 export default class UsersRepo extends AbstractRepo<DbUser> {
   constructor() {
@@ -464,7 +456,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         (
           SELECT COUNT(*)
           FROM "DialogueChecks"
-          WHERE "userId" = $1 AND "targetUserId" = uv._id AND "checked" IS TRUE
+          WHERE "userId" = $1 AND "targetUserId" = uv._id AND ("checked" IS TRUE OR "hideInRecommendations" IS TRUE)
         ) = 0
         AND
         (
@@ -503,7 +495,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
           (
             SELECT COUNT(*)
             FROM "DialogueChecks"
-            WHERE "userId" = $1 AND "targetUserId" = uv._id AND "checked" IS TRUE
+            WHERE "userId" = $1 AND "targetUserId" = uv._id AND ("checked" IS TRUE OR "hideInRecommendations" IS TRUE)
           ) = 0
         LIMIT $3
       )
