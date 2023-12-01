@@ -171,8 +171,12 @@ function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> 
   return new Promise((resolve) => {
     requestQueue.push({
       callback: async () => {
-        const result = await renderRequest(params);
-        inFlightRenderCount--;
+        let result: RenderResult;
+        try {
+          result = await renderRequest(params);
+        } finally {
+          inFlightRenderCount--;
+        }
         resolve(result);
         maybeStartQueuedRequests();
       }
