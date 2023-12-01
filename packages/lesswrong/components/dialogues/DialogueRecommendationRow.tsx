@@ -336,14 +336,14 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
 
   const topTags:[TagWithCommentCount] = tagData?.UserTopTags;
   const readPosts:PostYouveRead[] = postsData?.UsersReadPostsOfTargetUser
-  const RecommendedComments:RecommendedComment[] = commentsData?.UsersRecommendedCommentsOfTargetUser
+  const recommendedComments:RecommendedComment[] = commentsData?.UsersRecommendedCommentsOfTargetUser ?? []
 
   const preTopicRecommendations: TopicRecommendationWithContents[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
   const topicRecommendations = preTopicRecommendations?.filter(topic => ['agree', 'disagree'].includes(topic.theirVote) ); // todo: might want better type checking here in future for values of theirVote
  
-  if (!currentUser || !topTags || !topicRecommendations || !readPosts) return <></>;
+  if (!currentUser || !topTags || !topicRecommendations || !readPosts || !recommendedComments) return <></>;
   const tagsSentence = topTags.slice(0, 4).map(tag => tag.tag.name).join(', ');
-  const numRecommendations = (topicRecommendations?.length ?? 0) + (readPosts?.length ?? 0) + (RecommendedComments?.length ?? 0) + (tagsSentence === "" ? 0 : 1);
+  const numRecommendations = (topicRecommendations?.length ?? 0) + (readPosts?.length ?? 0) + (recommendedComments?.length ?? 0) + (tagsSentence === "" ? 0 : 1);
   const numShown = isExpanded ? numRecommendations : 2
   const numHidden = Math.max(0, numRecommendations - numShown);
 
@@ -354,7 +354,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
       <PostsTooltip postId={post._id}>
         <Link to={postGetPageUrl(post)}> {post.title} </Link>
       </PostsTooltip>})),
-    ...RecommendedComments.map(comment => ({reactIconName: "elaborate", prefix: "comment: ", Content: <CommentView comment={comment} classes={classes} />}))
+    ...recommendedComments.map(comment => ({reactIconName: "elaborate", prefix: "comment: ", Content: <CommentView comment={comment} classes={classes} />}))
   ]
 
   return (
