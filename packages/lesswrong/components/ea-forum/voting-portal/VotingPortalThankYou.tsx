@@ -226,8 +226,8 @@ const VotingPortalThankYou = ({currentUser, classes}: {
       <div className={classes.hr} />
       <ul className={classes.list}>
         <li>
-          <Link to="/quicktakes">
-            Share that you voted — and why!
+          <Link to="/posts/rszgfHdkmzCDDPM9k/where-are-you-donating-this-year-and-why-open-thread-1">
+            Share that you voted or where you're donating
           </Link>
         </li>
         <li>
