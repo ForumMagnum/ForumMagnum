@@ -3,7 +3,7 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { gql, useQuery } from '@apollo/client';
-import { DialogueUserRowProps, TagWithCommentCount } from '../users/DialogueMatchingPage';
+import { TagWithCommentCount } from '../users/DialogueMatchingPage';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -146,7 +146,7 @@ const styles = (theme: ThemeType) => ({
   closeIcon: { 
     color: theme.palette.grey[500],
     opacity: 0.5,
-    padding: '2px',
+    padding: 2,
   },
 });
 
@@ -166,16 +166,13 @@ type RecommendedComment = {
 }
 
 interface DialogueRecommendationRowProps {
-  rowProps: {
-    targetUser: DialogueUserResult;
-    checkId: string | undefined;
-    hideInRecommendations: boolean;
-    userIsChecked: boolean;
-    userIsMatched: boolean;
-  }
+  targetUser: DialogueUserResult;
+  checkId: string | undefined;
+  userIsChecked: boolean;
+  userIsMatched: boolean;
   classes: ClassesType<typeof styles>; 
   showSuggestedTopics: boolean;
-  onHide: (dialogueCheckId:string|undefined, checked:boolean, targetUserId:string) => void;
+  onHide: ({ dialogueCheckId, targetUserId }: { dialogueCheckId: string|undefined; targetUserId: string; }) => void;
 }
 
 // Future TODO: unify this with the server type TopicRecommendation? The problem is that returns a whole DbComment, rather than just contents and id. 
@@ -276,9 +273,8 @@ const CommentView: React.FC<CommentViewProps> = ({ comment, classes }) => {
     </PostsTooltip>
   );
 };
-const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics, onHide }: DialogueRecommendationRowProps) => {
-  const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, Loading, PostsTooltip,  } = Components
-  const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
+const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsMatched, classes, showSuggestedTopics, onHide }: DialogueRecommendationRowProps) => {
+  const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, Loading, PostsTooltip } = Components
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const currentUser = useCurrentUser();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -319,6 +315,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics, onH
     }
   `, {
     variables: { userId: targetUser._id },
+    skip: !currentUser
   });
 
   const { loading: postsLoading, error: postsError, data: postsData } = useQuery(gql`
@@ -331,6 +328,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics, onH
     }
   `, {
     variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 3 },
+    skip: !currentUser
   });
 
   const { loading: commentsLoading, error: commentsError, data: commentsData } = useQuery(gql`
@@ -346,6 +344,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics, onH
     }
   `, {
     variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 2 },
+    skip: !currentUser
   });
 
   const topTags:TagWithCommentCount[] | undefined = tagData?.UserTopTags;
@@ -410,7 +409,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics, onH
           <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
             <div className={classes.dialogueMatchNote}>Check to maybe dialogue, if you find a topic</div>
           </PostsItem2MetaInfo>}
-        <IconButton className={classes.closeIcon} onClick={() => onHide(checkId, userIsChecked, targetUser._id)}>
+        <IconButton className={classes.closeIcon} onClick={() => onHide({dialogueCheckId: checkId, targetUserId: targetUser._id})}>
           <CloseIcon />
         </IconButton>
       </div>

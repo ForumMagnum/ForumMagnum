@@ -12,8 +12,7 @@ import MuiPeopleIcon from "@material-ui/icons/People";
 import { dialogueMatchmakingEnabled } from '../../lib/publicSettings';
 import { useABTest } from '../../lib/abTestImpl';
 import { frontpageDialogueReciprocityRecommendations, showTopicsInReciprocity } from '../../lib/abTests';
-import { gql, useMutation } from '@apollo/client';
-import { randomId } from '../../lib/random';
+import {useUpsertDialogueCheck} from '../hooks/useUpsertDialogueCheck';
 
 
 const styles = (theme: ThemeType) => ({
@@ -230,60 +229,12 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
     userDialogueChecksResult: { results: userDialogueChecks = [] },
   } = useDialogueMatchmaking({ getMatchedUsers: true, getRecommendedUsers: true, getOptedInUsers: false, getUserDialogueChecks: true });
 
-  const [upsertCheckHideInRecommendations] = useMutation(gql`
-    mutation upsertCheckHideInRecommendations($targetUserId: String!, $hideInRecommendations: Boolean!) {
-      upsertCheckHideInRecommendations(targetUserId: $targetUserId, hideInRecommendations: $hideInRecommendations) {
-          ...DialogueCheckInfo
-        }
-      }
-    ${getFragmentText('DialogueCheckInfo')}
-    ${getFragmentText('DialogueMatchPreferencesDefaultFragment')}
-    `)
+  const upsertUserDialogueCheck = useUpsertDialogueCheck();
 
-  const hideRecommendation = (dialogueCheckId:string|undefined, checked:boolean, targetUserId:string) => {
+  const hideRecommendation = ({dialogueCheckId, targetUserId}: {dialogueCheckId:string|undefined, targetUserId:string}) => {
     captureEvent("hide_dialogue_recommendation")
-    void upsertCheckHideInRecommendations({
-      variables: {
-        targetUserId: targetUserId, 
-        hideInRecommendations: true
-      },
-      update(cache, { data }) {
-        if (!dialogueCheckId) {
-          cache.modify({
-            fields: {
-              dialogueChecks(existingChecksRef) {
-                const newCheckRef = cache.writeFragment({
-                  data: data.upsertCheckHideInRecommendations,
-                  fragment: gql`
-                    ${getFragmentText('DialogueCheckInfo')}
-                    ${getFragmentText('DialogueMatchPreferencesDefaultFragment')}
-                  `,
-                  fragmentName: 'DialogueCheckInfo'
-                });
-                return {
-                  ...existingChecksRef,
-                  results: [...existingChecksRef.results, newCheckRef]
-                }
-              }
-            }
-          });
-        }
-      },
-      optimisticResponse: {
-        upsertCheckHideInRecommendations: {
-          _id: dialogueCheckId ?? randomId(),
-          __typename: 'DialogueCheck',
-          userId: currentUser?._id,
-          targetUserId: targetUserId,
-          checked: checked,
-          checkedAt: new Date(),
-          hideInRecommendations: true,
-          match: false,
-          matchPreference: null,
-          reciprocalMatchPreference: null
-        }
-      }
-    })
+    void upsertUserDialogueCheck({ targetUserId, hideInRecommendations: true, checkId: dialogueCheckId });
+
   }
 
   const matchedUsers: DialogueUserResult[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
@@ -372,7 +323,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
             <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
           ))}
           {showReciprocityRecommendations && currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
-            !rowProps.hideInRecommendations && <DialogueRecommendationRow key={index} rowProps={rowProps} showSuggestedTopics={showTopics} onHide={hideRecommendation} />
+            !rowProps.hideInRecommendations && <DialogueRecommendationRow key={index} targetUser={rowProps.targetUser} checkId={rowProps.checkId} userIsChecked={rowProps.userIsChecked} userIsMatched={rowProps.userIsMatched} showSuggestedTopics={showTopics} onHide={hideRecommendation} />
           ))}
         </div>}
       </AnalyticsContext>}

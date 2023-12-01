@@ -41,7 +41,6 @@ const schema: SchemaType<DbDialogueCheck> = {
     ...schemaDefaultValue(false),
     canRead: ['members'],
     canCreate: ['members'],
-    canUpdate: [userOwns],
   },
   matchPreference: resolverOnlyField({
     type: 'DialogueMatchPreference',

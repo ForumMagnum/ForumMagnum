@@ -3,24 +3,6 @@ import {ensureIndex} from "../../collectionIndexUtils";
 import {addUniversalFields, getDefaultResolvers, schemaDefaultValue} from "../../collectionUtils";
 import {createCollection} from "../../vulcan-lib";
 import schema from "./schema";
-import {userCanDo, userOwns} from "../../vulcan-users";
-
-const options: MutationOptions<DbDialogueCheck> = {
-  newCheck: (user: DbUser|null, document: DbDialogueCheck|null) => {
-    if (!user || !document) return false;
-    return false // Covered by upsert functionality elsewhere
-  },
-
-  editCheck: (user: DbUser|null, document: DbDialogueCheck|null) => {
-    if (!user || !document) return false;
-    return userOwns(user, document)
-  },
-
-  removeCheck: (user: DbUser|null, document: DbDialogueCheck|null) => {
-    if (!user || !document) return false;
-    return false
-  },
-}
 
 export const DialogueChecks: DialogueChecksCollection = createCollection({
   collectionName: 'DialogueChecks',
@@ -28,7 +10,6 @@ export const DialogueChecks: DialogueChecksCollection = createCollection({
   collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('DialogueChecks'),
-  mutations: getDefaultMutations('DialogueChecks', options),
   logChanges: true,
 })
 
