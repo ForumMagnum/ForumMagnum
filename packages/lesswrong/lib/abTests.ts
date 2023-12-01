@@ -106,7 +106,7 @@ export const frontpageDialogueReciprocityRecommendations = new ABTest({
     },
     noShow: {
       description: "Don't show",
-      weight: 3,
+      weight: 1,
     },
   },
 });
@@ -117,7 +117,7 @@ export const showTopicsInReciprocity = new ABTest({
   groups: {
     show: {
       description: "Show topics",
-      weight: 1,
+      weight: 2,
     },
     noShow: {
       description: "Don't show topics",

@@ -3396,6 +3396,7 @@ interface ElectionVotesDefaultFragment { // fragment on ElectionVotes
   readonly compareState: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly submittedAt: Date | null,
+  readonly submissionComments: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly userExplanation: string | null,
   readonly userOtherComments: string | null,
 }
@@ -3404,8 +3405,10 @@ interface ElectionVoteInfo { // fragment on ElectionVotes
   readonly _id: string,
   readonly electionName: string,
   readonly userId: string,
+  readonly compareState: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly submittedAt: Date | null,
+  readonly submissionComments: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly userExplanation: string | null,
   readonly userOtherComments: string | null,
 }

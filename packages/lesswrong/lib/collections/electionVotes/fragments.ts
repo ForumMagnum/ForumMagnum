@@ -5,8 +5,10 @@ registerFragment(`
     _id
     electionName
     userId
+    compareState
     vote
     submittedAt
+    submissionComments
     userExplanation
     userOtherComments
   }
