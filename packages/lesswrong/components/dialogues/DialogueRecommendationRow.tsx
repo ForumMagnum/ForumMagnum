@@ -9,6 +9,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import {useSingle} from '../../lib/crud/withSingle';
 import {truncatise} from '../../lib/truncatise';
+import Loading from '../vulcan-core/Loading';
 
 const styles = (theme: ThemeType) => ({
   dialogueUserRow: { 
@@ -262,7 +263,7 @@ const CommentView: React.FC<CommentViewProps> = ({ comment, classes }) => {
   );
 };
 const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: DialogueRecommendationRowProps) => {
-  const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, ReactionIcon, PostsTooltip } = Components
+  const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, Loading, PostsTooltip } = Components
 
   const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
@@ -334,14 +335,14 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
     variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 3 },
   });
 
-  const topTags:[TagWithCommentCount] = tagData?.UserTopTags;
-  const readPosts:PostYouveRead[] = postsData?.UsersReadPostsOfTargetUser
-  const recommendedComments:RecommendedComment[] = commentsData?.UsersRecommendedCommentsOfTargetUser ?? []
+  const topTags:[TagWithCommentCount] | undefined = tagData?.UserTopTags;
+  const readPosts:PostYouveRead[] | undefined = postsData?.UsersReadPostsOfTargetUser
+  const recommendedComments:RecommendedComment[] | undefined = commentsData?.UsersRecommendedCommentsOfTargetUser
 
   const preTopicRecommendations: TopicRecommendationWithContents[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
   const topicRecommendations = preTopicRecommendations?.filter(topic => ['agree', 'disagree'].includes(topic.theirVote) ); // todo: might want better type checking here in future for values of theirVote
  
-  if (!currentUser || !topTags || !topicRecommendations || !readPosts || !recommendedComments) return <></>;
+  if (!currentUser || !topTags || !topicRecommendations || !readPosts || !recommendedComments) return <Loading />;
   const tagsSentence = topTags.slice(0, 4).map(tag => tag.tag.name).join(', ');
   const numRecommendations = (topicRecommendations?.length ?? 0) + (readPosts?.length ?? 0) + (recommendedComments?.length ?? 0) + (tagsSentence === "" ? 0 : 1);
   const numShown = isExpanded ? numRecommendations : 2
