@@ -276,8 +276,8 @@ const styles = (theme: ThemeType) => ({
   },
   votingBannerHeading: {
     color: theme.palette.givingPortal.homepageHeader.light4,
-    fontSize: 50,
-    lineHeight: "56px",
+    fontSize: 40,
+    lineHeight: "48px",
     marginTop: 0,
     marginBottom: 8,
     [theme.breakpoints.down("sm")]: {
