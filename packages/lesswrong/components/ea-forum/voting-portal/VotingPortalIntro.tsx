@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     margin: "60px 0",
     display: "flex",
     flexDirection: "column",
-    gap: "32px",
+    gap: "24px",
     borderRadius: 12,
     background: theme.palette.grey[0],
     width: 780,
@@ -134,7 +134,6 @@ const styles = (theme: ThemeType) => ({
   smallText: {
     color: theme.palette.grey[600],
     fontSize: 14,
-    fontStyle: 'italic',
     fontWeight: 500,
     lineHeight: "140%",
   }
@@ -184,7 +183,12 @@ const VotingPortalIntro = ({classes}: {
       <div className={classes.h1}>Welcome to the voting portal</div>
       <div className={classes.description}>
         <div>
-          The Donation Election is about allocating money across different projects. The{" "}
+        The {" "}
+        <Link to={exploreLink} {...newTabProps}>
+            Donation Election
+          </Link>{" "}
+          is about allocating money based on Forum users’ votes.
+          The{" "}
           <Link to={fundLink} {...newTabProps}>
             Donation Election Fund
           </Link>{" "}

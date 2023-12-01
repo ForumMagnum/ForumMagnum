@@ -142,10 +142,13 @@ const styles = (theme: ThemeType) => ({
   },
   normalizedWarning: {
     color: theme.palette.grey[600],
-    fontSize: 14,
+    fontSize: 16,
     fontStyle: 'italic',
     fontWeight: 500,
-    margin: '2px 0'
+    margin: '2px 0',
+    [theme.breakpoints.down("xs")]: {
+      fontSize: 14,
+    },
   },
 });
 
