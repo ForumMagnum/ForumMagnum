@@ -335,7 +335,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
     variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 3 },
   });
 
-  const topTags:[TagWithCommentCount] | undefined = tagData?.UserTopTags;
+  const topTags:TagWithCommentCount[] | undefined = tagData?.UserTopTags;
   const readPosts:PostYouveRead[] | undefined = postsData?.UsersReadPostsOfTargetUser
   const recommendedComments:RecommendedComment[] | undefined = commentsData?.UsersRecommendedCommentsOfTargetUser
 
