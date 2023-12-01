@@ -130,9 +130,17 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     borderRadius: theme.borderRadius.default,
   },
+  smallText: {
+    color: theme.palette.grey[600],
+    fontSize: 14,
+    fontStyle: 'italic',
+    fontWeight: 500,
+    lineHeight: "140%",
+  }
 });
 
 const imageId = 'voting-portal-intro-image';
+const newTabProps = { target: "_blank", rel: "noopener noreferrer" };
 
 const fundLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
 const exploreLink = "/giving-portal";
@@ -174,34 +182,63 @@ const VotingPortalIntro = ({classes}: {
       <div className={classes.h1}>Welcome to the voting portal</div>
       <div className={classes.description}>
         <div>
-          The <Link to={fundLink}>Donation Election Fund</Link> will be designated for the top 3{" "}
-          <Link to={candidatesLink}>candidates</Link>, in proportion to the election results.{" "}
+          The Donation Election is about allocating money across different projects. The{" "}
+          <Link to={fundLink} {...newTabProps}>
+            Donation Election Fund
+          </Link>{" "}
+          will be designated for the top 3{" "}
+          <Link to={candidatesLink} {...newTabProps}>
+            candidates
+          </Link>
+          , in proportion to the election results.{" "}
           <span className={classes.bold}>
             Your vote should represent how you’d allocate funding between the candidates.
           </span>{" "}
         </div>
       </div>
       <div className={classes.imageWrapper}>
-        <CloudinaryImage2 publicId={imageId} className={classes.image}/>
+        <CloudinaryImage2 publicId={imageId} className={classes.image} />
       </div>
       <div>
         Your vote is anonymous to other users. If we have reason to believe you've committed{" "}
-        <Link to={votingNormsLink}>voter fraud</Link> we may nullify your vote and involve the moderators. When the election
-        closes on <span className={classes.bold}>December 15</span>, we'll use{" "}
-        <Link to={processLink}>the process outlined here</Link> to determine the winners.
+        <Link to={votingNormsLink} {...newTabProps}>
+          voter fraud
+        </Link>{" "}
+        we may nullify your vote and involve the moderators.
       </div>
-      {isLoggedIn && !userCanVote && <div>
-        <b>You are not eligible to vote as your account was created after 22nd Oct 2023</b>
-      </div>}
+      <div className={classes.smallText}>
+        When voting closes on December 15, we’ll use{" "}
+        <Link to={processLink} {...newTabProps}>
+          the process outlined here
+        </Link>{" "}
+        to determine the election results. In brief, we’ll normalize points from each voter (to make sure everyone’s
+        vote counts the same), then remove the candidate with the fewest points from the election. Then we’ll
+        renormalize votes (if you assigned some points to the now-removed candidates, your other points will count for
+        more), and remove the lowest-scoring candidate. We’ll repeat that until we’re down to three candidates. (More in
+        the{" "}
+        <Link to={processLink} {...newTabProps}>
+          full post
+        </Link>
+        .)
+      </div>
+      {isLoggedIn && !userCanVote && (
+        <div>
+          <b>You are not eligible to vote as your account was created after 22nd Oct 2023</b>
+        </div>
+      )}
       <div className={classes.buttonRow}>
         <Link to={candidatesLink} className={classNames(classes.button, classes.greyButton)}>
           Read about the candidates
         </Link>
-        {linkEnabled ? <Link to={getStartedLink} className={classes.button}>
-          Get started -&gt;
-        </Link> : <button className={classes.button} onClick={handleDisabledLinkClick}>
-          Get started
-        </button>}
+        {linkEnabled ? (
+          <Link to={getStartedLink} className={classes.button}>
+            Get started -&gt;
+          </Link>
+        ) : (
+          <button className={classes.button} onClick={handleDisabledLinkClick}>
+            Get started
+          </button>
+        )}
       </div>
     </div>
   );
