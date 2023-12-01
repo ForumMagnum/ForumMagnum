@@ -22,8 +22,8 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: 'center',
     gap: "16px",
-    width: 360,
-    maxWidth: "100%",
+    width: "100%",
+    maxWidth: 360,
     minHeight: 68,
   },
   rootVoted: {
