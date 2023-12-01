@@ -658,7 +658,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     },
     {
       name: 'VotingPortalAllocateVotes',
-      path: '/voting-portal/allocate-votes',
+      path: '/voting-portal/allocate-points',
       componentName: 'EAVotingPortalAllocateVotesPage',
       title: 'Voting portal',
       unspacedGrid: true,

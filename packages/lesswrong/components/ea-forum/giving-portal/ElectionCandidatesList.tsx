@@ -42,6 +42,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     color: theme.palette.givingPortal[1000],
     fontSize: 16,
+    marginRight: 16,
   },
   checkbox: {
     padding: '4px 6px',
@@ -50,7 +51,7 @@ const styles = (theme: ThemeType) => ({
 
 const selectSortOptions: Record<Exclude<ElectionCandidatesSort, "mostPreVoted"> | "random", SettingsOption> = {
   random: {
-    label: "Random (per user)",
+    label: "Random",
   },
   name: {
     label: "Name A-Z",
@@ -80,7 +81,7 @@ const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect,
   classes: ClassesType,
 }) => {
   const isSelect = type === "select";
-  const [sortBy, setSortBy] = useState<ElectionCandidatesSort | "random">("mostPreVoted");
+  const [sortBy, setSortBy] = useState<ElectionCandidatesSort | "random">(isSelect ? "random" : "mostPreVoted");
   const {results, loading} = useElectionCandidates(sortBy);
 
   const allSelected = useMemo(
