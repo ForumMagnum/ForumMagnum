@@ -209,7 +209,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   const currentUser = useCurrentUser()
   const [showSettings, setShowSettings] = useState(false);
   const { captureEvent } = useTracking();
-  const showReciprocityRecommendations = (useABTest(frontpageDialogueReciprocityRecommendations) === "show")
+  const showReciprocityRecommendations = (useABTest(frontpageDialogueReciprocityRecommendations) === "show") && (currentUser?.karma ?? 0) > 100 // hide reciprocity recommendations if user has less than 100 karma
   const showTopics = (useABTest(showTopicsInReciprocity) === "show")
 
   const { results: dialoguePosts } = usePaginatedResolver({
@@ -356,8 +356,8 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
         />}
 
       {dialogueMatchmakingEnabled.get() && <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
-        {showReciprocityRecommendations && <div>
-          { (currentUser?.showMatches || currentUser?.showRecommendedPartners ) && recommendedDialoguePartnersRowPropsList.length > 0 &&
+        {<div>
+          { currentUser?.showRecommendedPartners && showReciprocityRecommendations && recommendedDialoguePartnersRowPropsList.length > 0 &&
             <div className={classes.explanatoryNoteBox}>
               <Typography
                 component='span'
@@ -371,7 +371,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
           {currentUser?.showMatches && matchRowPropsList?.map((rowProps, index) => (
             <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
           ))}
-          {currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
+          {showReciprocityRecommendations && currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
             !rowProps.hideInRecommendations && <DialogueRecommendationRow key={index} rowProps={rowProps} showSuggestedTopics={showTopics} onHide={hideRecommendation} />
           ))}
         </div>}
