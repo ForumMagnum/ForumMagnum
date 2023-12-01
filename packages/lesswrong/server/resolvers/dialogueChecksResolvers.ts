@@ -37,6 +37,18 @@ defineMutation({
   } 
 })
 
+defineMutation({
+  name: "upsertCheckHideInRecommendations",
+  resultType: "DialogueCheck",
+  argTypes: "(targetUserId: String!, hideInRecommendations: Boolean!)",
+  fn: async (_, {targetUserId, hideInRecommendations}:{targetUserId:string, hideInRecommendations:boolean}, {currentUser, repos}) => {
+    if (!currentUser) throw new Error("No check user was provided")
+    if (!targetUserId) throw new Error("No target user was provided")    
+    const dialogueCheck = await repos.dialogueChecks.upsertDialogueHideInRecommendations(currentUser._id, targetUserId, hideInRecommendations) 
+    return dialogueCheck
+  } 
+})
+
 export const getMatchingDialogueCheck = async (dialogueCheck : DbDialogueCheck) => {
   return await new DialogueChecksRepo().checkForMatch(dialogueCheck.userId, dialogueCheck.targetUserId) 
 }

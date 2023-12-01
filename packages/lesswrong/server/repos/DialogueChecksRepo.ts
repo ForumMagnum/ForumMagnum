@@ -26,6 +26,24 @@ export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
     `, [randomId(), userId, targetUserId, checked, checkedAt])
   }
 
+  async upsertDialogueHideInRecommendations(userId: string, targetUserId: string, hideInRecommendations: boolean) {
+    const checkedAt = new Date() // now
+    return this.one(`
+      INSERT INTO "DialogueChecks" (
+        "_id",
+        "userId",
+        "targetUserId",
+        "checked",
+        "checkedAt",
+        "hideInRecommendations"
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6
+      ) ON CONFLICT ("userId", "targetUserId") DO UPDATE SET 
+        "hideInRecommendations" = $6
+      RETURNING *
+    `, [randomId(), userId, targetUserId, false, checkedAt, hideInRecommendations])
+  }
+
   async checkForMatch(userId1: string, userId2: string): Promise<DbDialogueCheck | null> {
     return this.oneOrNone(`
       SELECT 

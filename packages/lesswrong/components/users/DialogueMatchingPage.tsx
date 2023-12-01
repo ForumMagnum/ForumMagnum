@@ -508,7 +508,7 @@ const isChecked = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string
   return userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked ?? false;
 };
 
-const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
+export const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
   const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id;
   const hideInRecommendations = isHideInRecommendations(userDialogueChecks, targetUser._id);
   const userIsChecked = isChecked(userDialogueChecks, targetUser._id);

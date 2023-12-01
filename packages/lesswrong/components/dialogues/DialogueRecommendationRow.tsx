@@ -11,7 +11,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { truncatise } from '../../lib/truncatise';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
-import {useUpdate} from '../../lib/crud/withUpdate';
+import {DialogueUserResult} from './DialoguesList';
 
 const styles = (theme: ThemeType) => ({
   dialogueUserRow: { 
@@ -172,9 +172,16 @@ type RecommendedComment = {
 }
 
 interface DialogueRecommendationRowProps {
-  rowProps: DialogueUserRowProps<boolean>; 
+  rowProps: {
+    targetUser: DialogueUserResult;
+    checkId: string | undefined;
+    hideInRecommendations: boolean;
+    userIsChecked: boolean;
+    userIsMatched: boolean;
+  }
   classes: ClassesType<typeof styles>; 
   showSuggestedTopics: boolean;
+  onHide: (dialogueCheckId:string|undefined, checked:boolean, targetUserId:string) => void;
 }
 
 // Future TODO: unify this with the server type TopicRecommendation? The problem is that returns a whole DbComment, rather than just contents and id. 
@@ -275,31 +282,17 @@ const CommentView: React.FC<CommentViewProps> = ({ comment, classes }) => {
     </PostsTooltip>
   );
 };
-const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: DialogueRecommendationRowProps) => {
+const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics, onHide }: DialogueRecommendationRowProps) => {
   const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, PostsTooltip,  } = Components
 
-  const { targetUser, checkId, userIsChecked, userIsMatched, hideInRecommendations } = rowProps;
+  const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const currentUser = useCurrentUser();
-  const { mutate: updateDialogueCheck } = useUpdate({
-    collectionName: 'DialogueChecks',
-    fragmentName: 'DialogueCheckInfo',
-  })
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleExpansion = () => {
     setIsExpanded(!isExpanded);
     captureEvent("toggle_expansion_reciprocity")
   };
-
-  const [isHidden, setIsHidden] = useState(false);
-
-  const hideRecommendation = (dialogueCheckId:string) => {
-    captureEvent("recommended_user_hidden")
-    console.log("checkId", checkId)
-    const result = updateDialogueCheck({selector: {_id: dialogueCheckId}, data: {hideInRecommendations: true}})
-    console.log("result", result)
-    setIsHidden(true)
-  }
 
   const { loading, error, data: topicData } = useQuery(gql`
     query getTopicRecommendations($userId: String!, $targetUserId: String!, $limit: Int!) {
@@ -369,7 +362,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   const preTopicRecommendations: TopicRecommendationWithContents[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
   const topicRecommendations = preTopicRecommendations?.filter(topic => ['agree', 'disagree'].includes(topic.theirVote) ); // todo: might want better type checking here in future for values of theirVote
  
-  if (!currentUser || !topTags || !topicRecommendations || !readPosts ) return <></>;
+  if (!currentUser || !topTags || !topicRecommendations || !readPosts) return <></>;
   const tagsSentence = topTags.slice(0, 4).map(tag => tag.tag.name).join(', ');
   const numRecommendations = (topicRecommendations?.length ?? 0) + (readPosts?.length ?? 0) + (recommendedComments?.length ?? 0) + (tagsSentence === "" ? 0 : 1);
   const numShown = isExpanded ? numRecommendations : 2
@@ -384,10 +377,6 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
       </PostsTooltip>})),
     ...recommendedComments.map(comment => ({reactIconName: "elaborate", prefix: "comment: ", Content: <CommentView comment={comment} classes={classes} />}))
   ]
-
-  console.log("isHidden", isHidden, "hideInRecommendations", hideInRecommendations)
-
-  if (isHidden || hideInRecommendations) return <></>
 
   return (
     <div>
@@ -428,7 +417,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
           <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
             <div className={classes.dialogueMatchNote}>Check to maybe dialogue, if you find a topic</div>
           </PostsItem2MetaInfo>}
-        <IconButton className={classes.closeIcon} onClick={() => hideRecommendation(checkId)}>
+        <IconButton className={classes.closeIcon} onClick={() => onHide(checkId, userIsChecked, targetUser._id)}>
           <CloseIcon />
         </IconButton>
       </div>
