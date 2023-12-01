@@ -300,7 +300,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
     }
   `, {
     variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit: 4 },
-    skip: !currentUser
+    skip: !currentUser || !showSuggestedTopics
   });
 
   const { loading: tagLoading, error: tagError, data: tagData } = useQuery(gql`
@@ -315,7 +315,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
     }
   `, {
     variables: { userId: targetUser._id },
-    skip: !currentUser
+    skip: !currentUser || !showSuggestedTopics
   });
 
   const { loading: postsLoading, error: postsError, data: postsData } = useQuery(gql`
@@ -328,7 +328,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
     }
   `, {
     variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 3 },
-    skip: !currentUser
+    skip: !currentUser || !showSuggestedTopics
   });
 
   const { loading: commentsLoading, error: commentsError, data: commentsData } = useQuery(gql`
@@ -344,7 +344,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
     }
   `, {
     variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 2 },
-    skip: !currentUser
+    skip: !currentUser || !showSuggestedTopics
   });
 
   const topTags:TagWithCommentCount[] | undefined = tagData?.UserTopTags;
