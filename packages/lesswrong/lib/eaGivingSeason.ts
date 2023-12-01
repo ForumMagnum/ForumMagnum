@@ -112,7 +112,7 @@ export const otherDonationOpportunities = [
     _id: '1',
     name: 'Centre for Effective Altruism',
     description: 'CEA helps to build and nurture the EA community; running EA conferences, the EA Forum, supporting groups, writing newsletters and content, and more.',
-    logoSrc: 'https://res.cloudinary.com/cea/image/upload/q_auto,f_auto/v1643318287/ea-logo-square-1200x1200__1_',
+    logoSrc: 'https://res.cloudinary.com/cea/image/upload/q_auto,f_auto/v1701460414/Screen_Shot_2023-12-01_at_2.53.11_PM',
     href: 'https://www.centreforeffectivealtruism.org/',
     fundraiserLink: 'https://www.centreforeffectivealtruism.org/donate',
   },
