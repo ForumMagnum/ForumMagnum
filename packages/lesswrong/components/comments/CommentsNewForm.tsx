@@ -20,6 +20,11 @@ import moment from 'moment';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { getUserCheckInfo } from '../users/DialogueMatchingPage';
+import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
+import { showMatchBoxesInCommentReplyFormABTest } from '../../lib/abTests';
+import { getUserABTestGroup, useABTest } from '../../lib/abTestImpl';
+import { useMulti } from '../../lib/crud/withMulti';
 
 export type CommentFormDisplayMode = "default" | "minimalist"
 
@@ -58,7 +63,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim2,
   },
   submit: {
-    textAlign: 'right',
+    display: 'flex'
   },
   formButton: isFriendlyUI ? {
     fontSize: 14,
@@ -79,6 +84,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   cancelButton: {
     color: isFriendlyUI ? undefined : theme.palette.grey[400],
+    leftMargin: 'auto',
   },
   submitButton: isFriendlyUI ? {
     backgroundColor: theme.palette.buttons.alwaysPrimary,
@@ -110,6 +116,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   moderationGuidelinesWrapper: {
     backgroundColor: theme.palette.panelBackground.newCommentFormModerationGuidelines,
+  },
+  dialogueMatchCheckbox: {
+    display: 'inline-block',
+    marginLeft: 6,
+    width: 29,
+    '& label': {
+      marginRight: 0
+    }
   }
 });
 
@@ -137,7 +151,7 @@ export type CommentsNewFormProps = {
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
-  parentComment?: any,
+  parentComment?: CommentsList,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
   type: string,
@@ -284,8 +298,51 @@ const CommentsNewForm = ({
     if (formDisabledDueToRateLimit) {
       submitBtnProps.disabled = true
     }
-    
+
+    const { DialogueCheckBox } = Components
+
+    const targetUserId = parentComment?.userId
+    const targetUserDisplayName = parentComment?.user?.displayName
+
+    const {
+      userDialogueChecksResult: { results: userDialogueChecks = [] },
+    } = useDialogueMatchmaking({ getMatchedUsers: false, getRecommendedUsers: false, getOptedInUsers: false, getUserDialogueChecks: true });
+
+    const { checkId, userIsChecked, userIsMatched } = parentComment?.user ? getUserCheckInfo(parentComment?.user, userDialogueChecks) : { checkId: null, userIsChecked: null, userIsMatched: null }
+    console.log(document, targetUserId, targetUserDisplayName, checkId, userIsChecked, userIsMatched)
+
+    const { LWHelpIcon, LWTooltip } = Components
+
+    const test = useABTest(showMatchBoxesInCommentReplyFormABTest)
+
+    const topLevelCommentId = parentComment?.topLevelCommentId ?? parentComment?._id
+
+    const { count } = useMulti({
+      terms: {view: "oneReplyInThreadByUser", topLevelCommentId, userId: currentUser?._id},
+      collectionName: "Comments",
+      fragmentName: 'CommentId',
+      skip: !topLevelCommentId || !currentUser,
+    });
+
+    const showDialogueCheckbox = targetUserId && targetUserDisplayName && test === "experiment" && count && count > 0
+
     return <div className={classNames(classes.submit, {[classes.submitMinimalist]: isMinimalist})}>
+    {showDialogueCheckbox ? (
+        <div style={{ marginRight: "auto", display: "inline-block" }}>
+          <div className={ classes.dialogueMatchCheckbox }>
+              <DialogueCheckBox
+                targetUserId={targetUserId}
+                targetUserDisplayName={targetUserDisplayName}
+                checkId={checkId || undefined}
+                isChecked={userIsChecked || false}
+                isMatched={userIsMatched || false}
+              />
+          </div>
+          <span style={{ fontFamily: `GreekFallback,Calibri,"Gill Sans","Gill Sans MT",Myriad Pro,Myriad,"Liberation Sans","Nimbus Sans L",Tahoma,Geneva,"Helvetica Neue",Helvetica,Arial,sans-serif`}}>Dialogue with {targetUserDisplayName}?</span>
+          <LWTooltip title={`Check this box if you'd be interested in dialoguing with ${targetUserDisplayName}. They won't be notified unless they check you too. If you match, you both get to enter topics and then choose whether to dialogue.`} clickable={true}><LWHelpIcon/></LWTooltip>
+        </div>
+      ) : <></>}
+
       {(type === "reply" && !isMinimalist) && <Button
         onClick={cancelCallback}
         className={classNames(formButtonClass, classes.cancelButton)}

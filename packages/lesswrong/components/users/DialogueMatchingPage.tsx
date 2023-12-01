@@ -503,7 +503,7 @@ const isChecked = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string
   return userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked ?? false;
 };
 
-const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
+export const getUserCheckInfo = (targetUser: RowUser | UpvotedUser | UsersMinimumInfo, userDialogueChecks: DialogueCheckInfo[]) => {
   const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id;
   const userIsChecked = isChecked(userDialogueChecks, targetUser._id);
   const userIsMatched = isMatched(userDialogueChecks, targetUser._id);

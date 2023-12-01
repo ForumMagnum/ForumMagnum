@@ -1659,6 +1659,10 @@ interface CommentsListWithModGPTAnalysis extends CommentsList { // fragment on C
   readonly modGPTAnalysis: string | null,
 }
 
+interface CommentId { // fragment on Comments
+  readonly _id: string,
+}
+
 interface RevisionDisplay { // fragment on Revisions
   readonly _id: string,
   readonly version: string,
@@ -3570,6 +3574,7 @@ interface FragmentTypes {
   WithVoteComment: WithVoteComment
   CommentsListWithModerationMetadata: CommentsListWithModerationMetadata
   CommentsListWithModGPTAnalysis: CommentsListWithModGPTAnalysis
+  CommentId: CommentId
   RevisionDisplay: RevisionDisplay
   RevisionEdit: RevisionEdit
   RevisionMetadata: RevisionMetadata
@@ -3793,6 +3798,7 @@ interface CollectionNamesByFragmentName {
   WithVoteComment: "Comments"
   CommentsListWithModerationMetadata: "Comments"
   CommentsListWithModGPTAnalysis: "Comments"
+  CommentId: "Comments"
   RevisionDisplay: "Revisions"
   RevisionEdit: "Revisions"
   RevisionMetadata: "Revisions"

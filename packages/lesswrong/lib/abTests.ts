@@ -156,3 +156,18 @@ export const newDialogueChecksNotificationABTest = new ABTest({
     },
   },
 });
+
+export const showMatchBoxesInCommentReplyFormABTest = new ABTest({
+  name: "showMatchBoxesInCommentReplyForm",
+  description: "Show dialogue reciprocity checkboxes in the comment reply editor",
+  groups: {
+    control: {
+      description: "Don't show checkboxes",
+      weight: 8,
+    },
+    experiment: {
+      description: "Show checkboxes",
+      weight: 1,
+    },
+  },
+});

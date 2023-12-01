@@ -745,3 +745,13 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
     options: {sort: {postedAt: -1}, limit: terms.limit || 7},
   };
 });
+
+Comments.addView('oneReplyInThreadByUser', (terms: CommentsViewTerms) => {
+  return {
+    selector: {
+      _id: terms.topLevelCommentId,
+      userId: terms.userId
+    },
+    options: {limit: 1}
+  }
+});
