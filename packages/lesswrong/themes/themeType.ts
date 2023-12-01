@@ -481,8 +481,11 @@ declare global {
       homepageHeader: {
         light4: ColorString,
         light3: ColorString,
+        light3Opaque: ColorString,
         light2: ColorString,
+        light2Opaque: ColorString,
         light1: ColorString,
+        light1Opaque: ColorString,
         main: ColorString,
         dark: ColorString,
         secondary: ColorString,

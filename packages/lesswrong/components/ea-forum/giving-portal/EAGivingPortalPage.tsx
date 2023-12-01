@@ -15,10 +15,12 @@ import {
   donationElectionTagId,
   eaGivingSeason23ElectionName,
   effectiveGivingTagId,
+  electionCandidatesPostLink,
   heroImageId,
   postsAboutElectionLink,
   setupFundraiserLink,
   timelineSpec,
+  userCanVoteInDonationElection,
 } from "../../../lib/eaGivingSeason";
 import { DiscussIcon, DonateIcon, VoteIcon } from "../../icons/givingSeasonIcons";
 import classNames from "classnames";
@@ -27,6 +29,7 @@ import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
+import { useElectionVote } from "../voting-portal/hooks";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -146,12 +149,10 @@ const styles = (theme: ThemeType) => ({
       textDecoration: "none",
     },
   },
-  buttonDisabled: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
+  button: {
     textAlign: "center",
     fontSize: 16,
+    lineHeight: '24px',
     fontWeight: 600,
     background: theme.palette.givingPortal.button.dark,
     color: theme.palette.givingPortal.button.light,
@@ -159,9 +160,21 @@ const styles = (theme: ThemeType) => ({
     padding: "12px 48px",
     border: "none",
     outline: "none",
-    userSelect: "none",
-    cursor: "not-allowed",
-    opacity: 0.65,
+    '&:hover': {
+      opacity: 0.9,
+    }
+  },
+  votingBannerButtonLightOpaque: {
+    background: theme.palette.givingPortal.homepageHeader.light3Opaque,
+    color: theme.palette.text.alwaysWhite,
+    borderRadius: theme.borderRadius.default,
+    padding: "14px 20px",
+  },
+  votingBannerButtonLight: {
+    background: theme.palette.givingPortal.homepageHeader.light3,
+    color: theme.palette.givingPortal.homepageHeader.main,
+    borderRadius: theme.borderRadius.default,
+    padding: "14px 20px",
   },
   tooltip: {
     background: theme.palette.panelBackground.tooltipBackground2,
@@ -248,6 +261,40 @@ const styles = (theme: ThemeType) => ({
   mb80: { marginBottom: 80 },
   mb100: { marginBottom: 100 },
   w100: { width: "100%" },
+  
+  votingBanner: {
+    backgroundColor: theme.palette.givingPortal.homepageHeader.main,
+    color: theme.palette.text.alwaysWhite,
+  },
+  votingBannerContent: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '30px',
+    flexWrap: 'wrap',
+    padding: '32px 32px 42px',
+  },
+  votingBannerHeading: {
+    color: theme.palette.givingPortal.homepageHeader.light4,
+    fontSize: 50,
+    lineHeight: "56px",
+    marginTop: 0,
+    marginBottom: 8,
+    [theme.breakpoints.down("sm")]: {
+      marginBottom: 12,
+      fontSize: 36,
+      lineHeight: "44px",
+    },
+  },
+  votingBannerDeadline: {
+    fontWeight: 700,
+    textWrap: 'nowrap',
+  },
+  votingBannerButtons: {
+    display: 'flex',
+    gap: '16px',
+    flexWrap: 'wrap',
+  }
 });
 
 const getListTerms = ({ tagId, sortedBy, limit, after }: {
@@ -321,26 +368,27 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   });
    */
   const currentUser = useCurrentUser();
-  const updateCurrentUser = useUpdateCurrentUser();
-  const [notifyForVotingOn, setNotifyForVotingOn] = useState(currentUser?.givingSeasonNotifyForVoting ?? false);
   const {flash} = useMessages();
   const {openDialog} = useDialog();
-  const { captureEvent } = useTracking({ eventProps: { pageContext: "eaGivingPortal" } });
+  const { electionVote } = useElectionVote("givingSeason23");
+  // We only show the voting banner for users who are eligible -
+  // i.e. those that created their accounts before Oct 23 and haven't voted yet.
+  const showVotingBanner = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
 
-  const toggleNotifyWhenVotingOpens = useCallback(() => {
-    captureEvent('toggleNotifyWhenVotingOpens', { notifyForVotingOn: !notifyForVotingOn })
-
+  const handleVote = useCallback(() => {
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",
         componentProps: {},
-      })
+      });
       return;
     }
-    setNotifyForVotingOn(!notifyForVotingOn);
-    void updateCurrentUser({givingSeasonNotifyForVoting: !notifyForVotingOn});
-    flash(`Notifications ${notifyForVotingOn ? "disabled" : "enabled"}`);
-  }, [captureEvent, notifyForVotingOn, currentUser, updateCurrentUser, flash, openDialog]);
+    if (!userCanVoteInDonationElection(currentUser)) {
+      flash("You are not eligible to vote as your account was created after 22nd Oct 2023");
+      return;
+    }
+    window.location.href = '/voting-portal';
+  }, [currentUser, flash, openDialog]);
 
   const donationElectionPostsTerms = getListTerms({
     tagId: donationElectionTagId,
@@ -353,9 +401,8 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const targetPercent = amountRaised.electionFundTarget > 0 ? (amountRaised.raisedForElectionFund / amountRaised.electionFundTarget) * 100 : 0;
 
   const {
-    Loading, LoadMore, HeadTags, Timeline, ElectionFundCTA, ForumIcon, PostsList2,
+    Loading, LoadMore, HeadTags, Timeline, ElectionFundCTA, Typography, PostsList2,
     ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, QuickTakesList,
-    LWTooltip,
   } = Components;
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
@@ -367,6 +414,30 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
           description={pageDescription}
           image={makeCloudinaryImageUrl(heroImageId, socialImageProps)}
         />
+        {showVotingBanner && <div className={classes.votingBanner}>
+          <div className={classes.votingBannerContent} id="votingBanner">
+            <div>
+              <Typography
+                variant="display1"
+                className={classes.votingBannerHeading}
+              >
+                Decide how you're voting
+              </Typography>
+              <div className={classNames(classes.text, classes.textWide)}>
+                Vote to help determine how the Donation Election Fund should be distributed.{" "}
+                <span className={classes.votingBannerDeadline}>Deadline: December 15</span>
+              </div>
+            </div>
+            <div className={classes.votingBannerButtons}>
+              <Link to={electionCandidatesPostLink} className={classNames(classes.button, classes.votingBannerButtonLightOpaque)}>
+                Read about the candidates
+              </Link>
+              <Link to='/voting-portal' className={classNames(classes.button, classes.votingBannerButtonLight)}>
+                Vote in the Donation Election
+              </Link>
+            </div>
+          </div>
+        </div>}
         <div className={classNames(classes.content, classes.mb20)} id="top">
           <div className={classNames(classes.h1, classes.center, classes.mt30)}>
             Giving portal
@@ -381,7 +452,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
           )}>
             Timeline
           </div>
-          <Timeline {...timelineSpec} className={classes.hideOnMobile} />
+          <Timeline {...timelineSpec} className={classes.hideOnMobile} handleVote={handleVote} />
         </div>
         <div className={classes.sectionSplit}>
           <div className={classes.content} id="election">
@@ -442,10 +513,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 <ElectionFundCTA
                   image={<VoteIcon />}
                   title="Vote"
-                  description="Voting opens December 1. You can already pre-vote below to show which candidates you’re likely to vote for."
-                  buttonText={notifyForVotingOn ? "You'll be notified when voting opens" : "Get notified when voting opens"}
-                  buttonIcon={notifyForVotingOn ? undefined : "BellAlert"}
-                  onButtonClick={toggleNotifyWhenVotingOpens}
+                  description="Voting is open until Dec 15. Select candidates and distribute your votes using a ranked-choice method."
+                  buttonText="Vote in the Election"
+                  onButtonClick={handleVote}
+                  solidButton
                 />
               </div>
             </div>
@@ -477,15 +548,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 classes.mt10,
                 classes.mb80,
               )}>
-                <LWTooltip
-                  title="The deadline for adding candidates has now passed"
-                  placement="right"
-                  popperClassName={classes.tooltip}
-                  className={classes.buttonDisabled}
-                >
-                  <ForumIcon icon="Plus" />
-                  Add candidate
-                </LWTooltip>
+                <button onClick={handleVote} className={classes.button}>Vote in the Election</button>
               </div>
             </div>
           </div>
