@@ -3,8 +3,9 @@ import { randomId } from '../lib/random';
 import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
-import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import {pgPromiseLib, getAnalyticsConnection, getMirrorAnalyticsConnection} from './analytics/postgresConnection'
+import chunk from 'lodash/chunk';
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
@@ -95,6 +96,49 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
         return;
       }
       
+      
+      inFlightRequestCounter.inFlightRequests++;
+      try {
+        await connection?.none(query);
+      } finally {
+        inFlightRequestCounter.inFlightRequests--;
+      }
+    } catch (err){
+      //eslint-disable-next-line no-console
+      console.error("Error sending events to analytics DB:");
+      //eslint-disable-next-line no-console
+      console.error(err);
+    }
+  }
+}
+
+const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'environment'], {table: 'perf_metrics'});
+
+const queuedPerfMetrics: PerfMetric[] = []; 
+
+export function queuePerfMetric(perfMetric: PerfMetric) {
+  queuedPerfMetrics.push(perfMetric);
+  void flushPerfMetrics();
+}
+
+async function flushPerfMetrics() {
+  if (queuedPerfMetrics.length < 100) return;
+
+  const connection = getAnalyticsConnection();
+  if (!connection) return;
+   
+  const metricsToWrite = queuedPerfMetrics.splice(0);
+  for (const batch of chunk(metricsToWrite, 100)) {
+    try {
+      const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get()
+      const valuesToInsert = batch.map(perfMetric => ({
+        ...perfMetric,
+        environment: environmentDescription,
+        parent_trace_id: perfMetric.parent_trace_id ?? null,
+        client_path: perfMetric.client_path ?? null,
+        extra_data: perfMetric.extra_data ?? null
+      }));
+      const query = pgPromiseLib.helpers.insert(valuesToInsert, perfMetricsColumnSet);
       
       inFlightRequestCounter.inFlightRequests++;
       try {
