@@ -1,19 +1,17 @@
 import { v4 } from 'uuid';
 import { queuePerfMetric } from './analyticsWriter';
 
-type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'variables'> & { context: Partial<ResolverContext> };
+type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path'>;
 
 export function generateTraceId() {
   return v4();
 }
 
 export function openPerfMetric(props: IncompletePerfMetricProps): IncompletePerfMetric {
-  const { context, ...rest } = props;
   return {
-    ...rest,
+    ...props,
     started_at: new Date(),
     trace_id: v4(),
-    client_path: context.headers?.['request-origin-path']
   };
 }
 

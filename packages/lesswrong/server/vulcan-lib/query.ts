@@ -8,7 +8,6 @@ import { localeSetting } from '../../lib/publicSettings';
 import { getExecutableSchema } from './apollo-server/initGraphQL';
 import { getCollectionsByName, generateDataLoaders } from './apollo-server/context';
 import { getAllRepos } from '../repos';
-import { generateTraceId, openPerfMetric } from '../perfMetrics';
 
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {

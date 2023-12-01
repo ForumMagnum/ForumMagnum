@@ -112,7 +112,7 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
   }
 }
 
-const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'gql_variables', 'environment'], {table: 'perf_metrics'});
+const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'environment'], {table: 'perf_metrics'});
 
 const queuedPerfMetrics: PerfMetric[] = []; 
 
@@ -136,7 +136,7 @@ async function flushPerfMetrics() {
         environment: environmentDescription,
         parent_trace_id: perfMetric.parent_trace_id ?? null,
         client_path: perfMetric.client_path ?? null,
-        gql_variables: perfMetric.variables ?? null
+        extra_data: perfMetric.extra_data ?? null
       }));
       const query = pgPromiseLib.helpers.insert(valuesToInsert, perfMetricsColumnSet);
       

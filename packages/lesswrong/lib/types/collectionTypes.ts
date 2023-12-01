@@ -234,7 +234,7 @@ interface PerfMetric {
   ended_at: Date;
   parent_trace_id?: string;
   client_path?: string;
-  variables?: VariableValues
+  extra_data?: Json;
 }
 
 type IncompletePerfMetric = Omit<PerfMetric, 'ended_at'>;

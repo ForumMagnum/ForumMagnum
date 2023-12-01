@@ -60,8 +60,7 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
       op_type: 'query',
       op_name: operationName,
       parent_trace_id: context.perfMetric?.trace_id,
-      context,
-      variables
+      extra_data: variables
     });
 
     if (query) {
@@ -155,24 +154,21 @@ export function startWebserver() {
       return context;
     },
     plugins: [new ApolloServerLogging()],
-    formatResponse: (response, { context }: GraphQLRequestContext<ResolverContext>) => {
-      if (context.perfMetric) {
-        closePerfMetric(context.perfMetric);
-      }
-      return response;
-    }
   });
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
-  app.use('/graphql', (req, _, next) => {
+  app.use('/graphql', (req, res, next) => {
     const perfMetric = openPerfMetric({
       op_type: 'request',
-      op_name: '???', // TODO: what should the name for the top-level http request be?  Not obvious...
-      context: { headers: req.headers }
+      op_name: req.originalUrl,
+      client_path: req.headers['request-origin-path'] as string
     });
 
     Object.assign(req, { perfMetric });
+    res.on('finish', () => {
+      closePerfMetric(perfMetric);
+    })
     next();
   })
   apolloServer.applyMiddleware({ app })
