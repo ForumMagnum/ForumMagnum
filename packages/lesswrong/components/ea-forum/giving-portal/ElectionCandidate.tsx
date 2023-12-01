@@ -97,8 +97,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 8,
     textAlign: "left",
     borderRadius: `${theme.borderRadius.default}px !important`,
-    // FIXME setting this background color breaks unrelated styles for some reason
-    // backgroundColor: `${theme.palette.grey[900]} !important}`,
+    backgroundColor: `${theme.palette.grey[900]} !important`,
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 12, // Just stop it from really overflowing
