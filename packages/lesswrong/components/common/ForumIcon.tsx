@@ -60,6 +60,7 @@ import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
+import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
@@ -200,7 +201,8 @@ export type ForumIconName =
   "BarChart" |
   "Funnel" |
   "Voted" |
-  "InfoCircle";
+  "InfoCircle" |
+  "BarsArrowDown";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -283,6 +285,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Funnel: FilterAlt,
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
+    BarsArrowDown: BarsArrowDown,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -364,6 +367,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Funnel: FunnelIcon,
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
+    BarsArrowDown: BarsArrowDown,
   },
 };
 
