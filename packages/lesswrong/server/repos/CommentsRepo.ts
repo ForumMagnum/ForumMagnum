@@ -112,20 +112,18 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
         v1."extendedVoteType"->'reacts'->0->>'react' AS "yourVote", 
         v2."extendedVoteType"->'reacts'->0->>'react' AS "theirVote"
     FROM public."Comments" AS c
-    INNER JOIN public."Votes" AS v1 
-      ON c._id = v1."documentId" 
+    LEFT JOIN public."Votes" AS v1 ON c._id = v1."documentId"
+    LEFT JOIN public."Votes" AS v2 ON c._id = v2."documentId"
+    WHERE
+      c."parentCommentId" = $4
+      AND v1."userId" = $1
       AND v1."extendedVoteType"->'reacts'->0->>'vote' = 'created'
       AND v1.cancelled IS NOT TRUE
       AND v1."isUnvote" IS NOT TRUE
-      AND v1."userId" = $1
-    INNER JOIN public."Votes" AS v2 
-      ON c._id = v2."documentId" 
+      AND v2."userId" = $2
       AND v2."extendedVoteType"->'reacts'->0->>'vote' = 'created'
       AND v2.cancelled IS NOT TRUE
       AND v2."isUnvote" IS NOT TRUE
-      AND v2."userId" = $2
-    WHERE
-      c."parentCommentId" = $4
       AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
     ORDER BY c."baseScore" DESC
     LIMIT $3
