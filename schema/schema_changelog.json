@@ -453,5 +453,10 @@
     "acceptsSchemaHash": "edca7fde4fce09bf9031f2f3f9b18fda",
     "acceptedByMigration": "20231130T140404.add_submissionComments.ts",
     "timestamp": "2023-11-30T14:04:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2d5747e2acdbe83c754cbbda258623ed",
+    "acceptedByMigration": "20231201T022744.add_field_for_hiding_specific_users_in_reciprocity.ts",
+    "timestamp": "2023-12-01T02:27:44.000Z"
   }
 ]

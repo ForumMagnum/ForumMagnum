@@ -1,5 +1,5 @@
 import {ensureIndex} from "../../collectionIndexUtils";
-import {addUniversalFields, getDefaultMutations, getDefaultResolvers, schemaDefaultValue} from "../../collectionUtils";
+import {addUniversalFields, getDefaultResolvers, schemaDefaultValue} from "../../collectionUtils";
 import {createCollection} from "../../vulcan-lib";
 import schema from "./schema";
 
