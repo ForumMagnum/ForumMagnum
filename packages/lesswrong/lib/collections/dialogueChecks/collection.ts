@@ -1,4 +1,3 @@
-import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import {ensureIndex} from "../../collectionIndexUtils";
 import {addUniversalFields, getDefaultResolvers, schemaDefaultValue} from "../../collectionUtils";
 import {createCollection} from "../../vulcan-lib";

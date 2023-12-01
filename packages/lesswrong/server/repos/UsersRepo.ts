@@ -35,14 +35,6 @@ WHERE _id IN (
 LIMIT 1
 `;
 
-type UserData = {
-  _id: string;
-  username: string;
-  displayName: string;
-  name: string;
-  post_comment_count: number;
-};
-
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 export default class UsersRepo extends AbstractRepo<DbUser> {
   constructor() {

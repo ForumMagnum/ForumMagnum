@@ -3,42 +3,36 @@ import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
 import {randomId} from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
 
+const BASE_UPSERT_QUERY = `
+    INSERT INTO "DialogueChecks" (
+      "_id",
+      "userId",
+      "targetUserId",
+      "checked",
+      "checkedAt",
+      "hideInRecommendations"
+    ) VALUES (
+      $1, $2, $3, $4, $5, $6
+    ) ON CONFLICT ("userId", "targetUserId")`;
+
 export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
   constructor() {
     super(DialogueChecks);
   }
-
   async upsertDialogueCheck(userId: string, targetUserId: string, checked: boolean) {
     const checkedAt = new Date() // now
     return this.one(`
-      INSERT INTO "DialogueChecks" (
-        "_id",
-        "userId",
-        "targetUserId",
-        "checked",
-        "checkedAt"
-      ) VALUES (
-        $1, $2, $3, $4, $5
-      ) ON CONFLICT ("userId", "targetUserId") DO UPDATE SET 
+      ${BASE_UPSERT_QUERY} DO UPDATE SET 
         "checked" = $4,
         "checkedAt" = $5
       RETURNING *
-    `, [randomId(), userId, targetUserId, checked, checkedAt])
+    `, [randomId(), userId, targetUserId, checked, checkedAt, false])
   }
 
   async upsertDialogueHideInRecommendations(userId: string, targetUserId: string, hideInRecommendations: boolean) {
     const checkedAt = new Date() // now
     return this.one(`
-      INSERT INTO "DialogueChecks" (
-        "_id",
-        "userId",
-        "targetUserId",
-        "checked",
-        "checkedAt",
-        "hideInRecommendations"
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6
-      ) ON CONFLICT ("userId", "targetUserId") DO UPDATE SET 
+      ${BASE_UPSERT_QUERY} DO UPDATE SET 
         "hideInRecommendations" = $6
       RETURNING *
     `, [randomId(), userId, targetUserId, false, checkedAt, hideInRecommendations])

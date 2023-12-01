@@ -28,7 +28,7 @@ defineMutation({
   fn: async (_, {targetUserId, checked, hideInRecommendations}:{targetUserId:string, checked?:boolean, hideInRecommendations?:boolean}, {currentUser, repos}) => {
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")    
-    if ( typeof checked === typeof hideInRecommendations ) {     //(checked === undefined && hideInRecommendations === undefined) || (checked !== undefined && hideInRecommendations !== undefined)) {
+    if ( typeof checked === typeof hideInRecommendations ) {   
       throw new Error("Exactly one of checked or hideInRecommendations must be provided")
     }    
 
