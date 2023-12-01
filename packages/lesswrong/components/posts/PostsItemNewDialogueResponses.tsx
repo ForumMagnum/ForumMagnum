@@ -12,7 +12,7 @@ const PostsItemNewDialogueResponses = ({postId, unreadCount} : {postId: string, 
     }
   `, {variables: {dialogueId: postId, unreadCount  }});
 
-  return loading ? <Loading /> : data ? data.length ? <ContentItemBody
+  return loading ? <Loading /> : data ? data.latestDialogueMessages && data.latestDialogueMessages.length ? <ContentItemBody
     dangerouslySetInnerHTML={{__html: data.latestDialogueMessages.join('')}} />
     : <NoContent>No new responses found</NoContent> : <div></div>
 }

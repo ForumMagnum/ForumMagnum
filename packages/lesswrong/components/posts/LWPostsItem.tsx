@@ -477,7 +477,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             </PostsItem2MetaInfo>}
 
             {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo className={classes.unreadDebateResponseContainer}>
-              <div className={classes.unreadDebateResponseCount} onClick={toggleDialogueMessages}>
+              <div className={classes.unreadDebateResponseCount} onClick={!!post.collabEditorDialogue ? toggleDialogueMessages : toggleComments}>
                 <DebateIcon className={classes.unreadDebateResponsesIcon}/>
                 {post.unreadDebateResponseCount}
               </div>

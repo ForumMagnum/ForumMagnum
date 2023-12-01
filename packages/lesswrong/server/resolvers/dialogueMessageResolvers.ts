@@ -1,11 +1,9 @@
-import { handleDialogueHtml } from "../editor/conversionUtils";
 import { cheerioParse } from "../utils/htmlUtil";
 import { defineQuery } from "../utils/serverGraphqlUtil";
 
 const extractLatestDialogueMessages = async (dialogueHtml: string, numMessages: number): Promise<String[]> => {
   if (numMessages <= 0) return Promise.resolve([])
-  const html = await handleDialogueHtml(dialogueHtml)
-  const $ = cheerioParse(html);
+  const $ = cheerioParse(dialogueHtml);
   const messages = $('.dialogue-message');
   return messages.toArray().slice(-numMessages).map(message => $(message).toString());
 };
