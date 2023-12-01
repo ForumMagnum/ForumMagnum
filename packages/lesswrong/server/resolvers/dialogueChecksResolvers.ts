@@ -25,7 +25,7 @@ defineMutation({
   name: "upsertUserDialogueCheck",
   resultType: "DialogueCheck",
   argTypes: "(targetUserId: String!, checked: Boolean, hideInRecommendations: Boolean)",
-  fn: async (_, {targetUserId, checked, hideInRecommendations}:{targetUserId:string, checked?:boolean, hideInRecommendations?:boolean}, {currentUser, repos}) => {
+  fn: async (_, {targetUserId, checked, hideInRecommendations}:{targetUserId:string, checked:boolean|null, hideInRecommendations:boolean|null}, {currentUser, repos}) => {
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")    
     if ( typeof checked === typeof hideInRecommendations ) {   
@@ -41,9 +41,7 @@ defineMutation({
       }
     } else if (typeof hideInRecommendations === 'boolean') {
       dialogueCheck = await repos.dialogueChecks.upsertDialogueHideInRecommendations(currentUser._id, targetUserId, hideInRecommendations) 
-    } else {
-      throw new Error("strange error.... strange type received... in upsertUserDialogueCheck")
-    }
+    } 
 
     return dialogueCheck
   } 
