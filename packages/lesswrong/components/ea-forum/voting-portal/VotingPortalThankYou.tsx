@@ -6,6 +6,7 @@ import { useWindowSize } from "../../hooks/useScreenWidth";
 import ReactConfetti from "react-confetti";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useTracking } from "../../../lib/analyticsEvents";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,7 +17,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.givingPortal[1000],
     background: theme.palette.givingPortal.thankYouBackground,
     borderRadius: 12,
-    padding: "48px 32px",
+    padding: "48px 32px 24px 32px",
     width: 550,
     maxWidth: "100%",
     [theme.breakpoints.down("xs")]: {
@@ -135,6 +136,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     lineHeight: "24px",
     paddingLeft: 20,
+    marginBottom: 0,
     "& li:not(:first-child)": {
       marginTop: 8,
     },
@@ -145,6 +147,15 @@ const styles = (theme: ThemeType) => ({
         opacity: 1,
       },
     },
+  },
+  whiteButton: {
+    background: theme.palette.grey[0],
+    color: theme.palette.givingPortal[1000],
+    border: theme.palette.border.grey200,
+    borderRadius: theme.borderRadius.default,
+    margin: "0 auto",
+    width: "fit-content",
+    padding: "12px 20px",
   },
 });
 
@@ -230,12 +241,10 @@ const VotingPortalThankYou = ({currentUser, classes}: {
             Explore other giving opportunities
           </Link>
         </li>
-        <li>
-          <Link to="/voting-portal/select-candidates">
-            Edit your vote <em>(until 15th December)</em>
-          </Link>
-        </li>
       </ul>
+      <Link to="/voting-portal/select-candidates" className={classNames(classes.button, classes.whiteButton)}>
+        Edit your vote (until Dec 15)
+      </Link>
     </div>
   );
 }

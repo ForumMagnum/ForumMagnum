@@ -66,7 +66,15 @@ export const validateCompareState = ({data}: {data: Partial<DbElectionVote>}) =>
  * result comes out the same as what the user entered.
  */
 export const numberToEditableString = (num: number, maxLength = 10): string => {
-  return num.toFixed(maxLength).replace(/\.?0+$/, "");
+  const naiveString = num.toString();
+  const definitelyNotScientificNotation = num.toFixed(maxLength).replace(/\.?0+$/, "");
+
+  if (naiveString.includes("e")) return definitelyNotScientificNotation;
+  // The definitelyNotScientificNotation version sometimes results in weird rounding
+  // (e.g. 11.11.toFixed(10) = "11.109999999999999") so prefer not using it if the simple
+  // toString version doesn't result in e.g. 1e9
+  if (naiveString.length <= definitelyNotScientificNotation.length) return naiveString;
+  return definitelyNotScientificNotation;
 }
 
 export const convertCompareStateToVote = (compareState: CompareState): Record<string, number> => {
@@ -120,10 +128,10 @@ export const convertCompareStateToVote = (compareState: CompareState): Record<st
     throw new Error("Vote ids don't match expected ids");
   }
 
-  // Normalize (to 1) and round to 4 sf
+  // Normalize (to 100) and round to 2 sf
   const total = Object.values(vote).reduce((sum, value) => sum + value, 0);
   const normalizedVote = Object.fromEntries(
-    Object.entries(vote).map(([id, value]) => [id, Number((value / total).toPrecision(4))])
+    Object.entries(vote).map(([id, value]) => [id, Number(((value / total) * 100).toPrecision(2))])
   );
 
   return normalizedVote;

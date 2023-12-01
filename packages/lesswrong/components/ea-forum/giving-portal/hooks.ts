@@ -36,6 +36,8 @@ export const useElectionCandidates = (
       sortBy: sortBy === "random" ? "name" : sortBy,
     },
     limit: 30,
+    // There is an SSR mismatch bug that occurs on safari when using the random sort
+    ssr: false,
     ...options,
   });
 

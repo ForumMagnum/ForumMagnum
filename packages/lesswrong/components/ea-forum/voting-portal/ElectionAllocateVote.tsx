@@ -16,17 +16,12 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
-    gap: "16px",
   },
   table: {
     display: "flex",
     flexWrap: "wrap",
     width: "100%",
-  },
-  controls: {
-    display: "flex",
-    justifyContent: "space-between",
-    width: "100%",
+    marginBottom: 16,
   },
   dropdown: {
     "& .ForumDropdownMultiselect-button": {
@@ -75,10 +70,24 @@ const styles = (theme: ThemeType) => ({
     width: imageSize,
     height: imageSize,
   },
+  descriptionTooltip: {
+    maxWidth: 320,
+    marginTop: 8,
+    textAlign: "left",
+    borderRadius: `${theme.borderRadius.default}px !important`,
+    backgroundColor: `${theme.palette.grey[900]} !important`,
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 12, // Just stop it from really overflowing
+  },
   candidateName: {
     fontWeight: 600,
     fontSize: 18,
     color: theme.palette.givingPortal[1000],
+    '&:hover': {
+      textUnderlineOffset: '3px',
+      textDecoration: 'underline',
+    }
   },
   allocateInput: {
     width: 150,
@@ -101,10 +110,43 @@ const styles = (theme: ThemeType) => ({
       width: "100%",
     },
   },
-  sortButton: {
-    padding: "6px 12px",
-    marginLeft: 6,
-  }
+  controls: {
+    display: "flex",
+    justifyContent: "flex-end",
+    width: "100%",
+    height: 22, // Fixed height because the sort button may or may not be there
+    [theme.breakpoints.down("xs")]: {
+      marginBottom: 6,
+    },
+  },
+  sort: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 600,
+    color: theme.palette.givingPortal[1000],
+    fontSize: 16,
+    marginRight: 18,
+    padding: 0,
+    backgroundColor: "inherit",
+    display: "flex",
+    alignItems: "center",
+  },
+  sortIcon: {
+    width: 22,
+    height: 22,
+    position: "relative",
+    top: 2,
+    marginRight: 2,
+  },
+  hidden: {
+    display: "none",
+  },
+  normalizedWarning: {
+    color: theme.palette.grey[600],
+    fontSize: 14,
+    fontStyle: 'italic',
+    fontWeight: 500,
+    margin: '2px 0'
+  },
 });
 
 const AllocateVoteRow = ({
@@ -118,7 +160,9 @@ const AllocateVoteRow = ({
   setVoteState: Dispatch<SetStateAction<Record<string, number | string | null>>>;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { _id: candidateId, name, logoSrc, fundraiserLink } = candidate;
+  const { LWTooltip } = Components;
+
+  const { _id: candidateId, name, logoSrc, href, description } = candidate;
   const naiveValue = voteState[candidateId];
   const formattedValue =
     typeof naiveValue === "number"
@@ -130,13 +174,15 @@ const AllocateVoteRow = ({
       <div className={classes.allocateVoteRow}>
         <div className={classes.details}>
           <div className={classes.imageContainer}>
-            <Link to={fundraiserLink || ""} target="_blank" rel="noopener noreferrer">
+            <Link to={href || ""} target="_blank" rel="noopener noreferrer">
               <img src={logoSrc} className={classes.image} />
             </Link>
           </div>
-          <Link to={fundraiserLink || ""} className={classes.candidateName} target="_blank" rel="noopener noreferrer">
-            {name}
-          </Link>
+          <LWTooltip title={description} placement="bottom" popperClassName={classes.descriptionTooltip}>
+            <Link to={href || ""} className={classes.candidateName} target="_blank" rel="noopener noreferrer">
+              {name}
+            </Link>
+          </LWTooltip>
         </div>
         <OutlinedInput
           className={classes.allocateInput}
@@ -146,7 +192,8 @@ const AllocateVoteRow = ({
             const value = e.target.value;
             if (value === "" || value === null) {
               setVoteState((prev) => ({ ...prev, [candidateId]: null } as Record<string, number | string | null>));
-            } else if (/^\d*\.?\d*$/.test(value) && value.length < 15) { // Only allow positive (decimal) numbers up to 15 characters
+            } else if (/^\d*\.?\d*$/.test(value) && value.length < 15) {
+              // Only allow positive (decimal) numbers up to 15 characters
               setVoteState((prev) => ({ ...prev, [candidateId]: value } as Record<string, number | string | null>));
             }
           }}
@@ -193,7 +240,9 @@ const ElectionAllocateVote = ({
     [selectedResults, voteState]
   );
   const canUpdateSort = useMemo(
-    () => stringify(sortedResults?.map((r) => r._id)) !== stringify(displayedResults?.map((r) => r._id)),
+    () =>
+      displayedResults?.length &&
+      stringify(sortedResults?.map((r) => r._id)) !== stringify(displayedResults?.map((r) => r._id)),
     [sortedResults, displayedResults]
   );
 
@@ -209,19 +258,22 @@ const ElectionAllocateVote = ({
     }
   }, [displayedResults, sortedResults, updateSort]);
 
-  const { Loading } = Components;
+  const { Loading, ForumIcon } = Components;
   return (
     <div className={classNames(classes.root, className)}>
       <div className={classes.controls}>
         <button
-          className={classNames(classes.button, classes.sortButton, {
-            [classes.buttonDisabled]: !canUpdateSort,
+          className={classNames(classes.sort, {
+            [classes.hidden]: !canUpdateSort,
           })}
           disabled={!canUpdateSort}
           onClick={updateSort}
         >
-          Sort high to low
+          <ForumIcon icon="BarsArrowDown" className={classes.sortIcon} /> Sort descending
         </button>
+      </div>
+      <div className={classes.normalizedWarning}>
+        Don't worry about the total point score; points will be normalized.
       </div>
       <div className={classes.table}>
         {loading && <Loading />}
@@ -237,6 +289,17 @@ const ElectionAllocateVote = ({
           </React.Fragment>
         ))}
       </div>
+      {displayedResults.length > 10 && <div className={classes.controls}>
+        <button
+          className={classNames(classes.sort, {
+            [classes.hidden]: !canUpdateSort,
+          })}
+          disabled={!canUpdateSort}
+          onClick={updateSort}
+        >
+          <ForumIcon icon="BarsArrowDown" className={classes.sortIcon} /> Sort descending
+        </button>
+      </div>}
     </div>
   );
 };

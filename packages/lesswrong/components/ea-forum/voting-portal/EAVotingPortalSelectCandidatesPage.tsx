@@ -122,8 +122,8 @@ const EAVotingPortalSelectCandidatesPage = ({
           />
         </div>
         <VotingPortalFooter
-          leftText="Go back"
-          leftHref="/voting-portal"
+          leftText={electionVote.submittedAt ? "Go back to start" : "Go back"}
+          leftHref={electionVote.submittedAt ? "/voting-portal?thankyou=false" : "/voting-portal"}
           middleNode={
             <div>
               Selected {selectedIds.length}/{totalCount} candidates

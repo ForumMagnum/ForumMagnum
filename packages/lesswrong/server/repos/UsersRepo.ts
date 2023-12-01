@@ -284,7 +284,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `)
   }  
 
-  async getUsersWithNewDialogueChecks(minutes: number): Promise<DbUser[]> {
+  async getUsersWithNewDialogueChecks(): Promise<DbUser[]> {
     return this.manyOrNone(`
       SELECT DISTINCT ON ("Users"._id) "Users".*
       FROM "Users"
@@ -307,7 +307,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
               ), '1970-01-01')
           )
           AND (
-              "DialogueChecks"."checkedAt" > NOW() - INTERVAL '$1 minutes'
+              "DialogueChecks"."checkedAt" > NOW() - INTERVAL '1 week'
               OR
               NOT EXISTS (
                   SELECT 1
@@ -318,7 +318,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
               )
           )
           AND (
-            NOW() - INTERVAL '12 hours' > COALESCE((
+            NOW() - INTERVAL '1 week' > COALESCE((
               SELECT MAX("createdAt")
               FROM "Notifications"
               WHERE
@@ -326,7 +326,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
                 AND type = 'newDialogueChecks'
             ), '1970-01-01')
         )
-    `, [minutes])
+    `)
   }
 
   async getUsersTopUpvotedUsers(user:DbUser, limit = 20, recencyLimitDays = 10): Promise<UpvotedUser[]> {
