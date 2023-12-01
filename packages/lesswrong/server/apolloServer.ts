@@ -51,13 +51,14 @@ import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener, GraphQLRequestExecutionListener } from 'apollo-server-plugin-base';
 import { closePerfMetric, openPerfMetric, perfMetricMiddleware } from './perfMetrics';
+import { performanceMetricLoggingEnabled } from '../lib/publicSettings';
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
     const { operationName = 'unknownGqlOperation', query, variables } = request;
 
     let startedRequestMetric: IncompletePerfMetric;
-    if (isLWorAF) {
+    if (performanceMetricLoggingEnabled.get()) {
       startedRequestMetric = openPerfMetric({
         op_type: 'query',
         op_name: operationName,
@@ -72,7 +73,7 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
     
     return {
       willSendResponse() { // hook for transaction finished
-        if (isLWorAF) {
+        if (performanceMetricLoggingEnabled.get()) {
           closePerfMetric(startedRequestMetric);
         }
 
@@ -163,9 +164,7 @@ export function startWebserver() {
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
-  if (isLWorAF) {
-    app.use('/graphql', perfMetricMiddleware);
-  }
+  app.use('/graphql', perfMetricMiddleware);
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {

@@ -122,3 +122,5 @@ export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasPr
 export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)
 
 export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('dialogueMatchmakingEnabled', false)
+
+export const performanceMetricLoggingEnabled = new DatabasePublicSetting<boolean>('performanceMetricLoggingEnabled', false)
