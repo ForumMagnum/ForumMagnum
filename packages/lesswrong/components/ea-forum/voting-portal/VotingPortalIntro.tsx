@@ -9,6 +9,7 @@ import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 import { isPastVotingDeadline } from "../../../lib/collections/electionVotes/helpers";
 import { votingPortalStyles } from "./styles";
 import { useMessages } from "../../common/withMessages";
+import { DatabasePublicSetting } from "../../../lib/publicSettings";
 
 const styles = (theme: ThemeType) => ({
   // TODO combine these with votingPortalStyles
@@ -138,7 +139,8 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const imageId = 'voting-portal-intro-image';
+const introImageIdSetting = new DatabasePublicSetting<string>("votingPortalIntroImageId", 'voting-portal-intro-image-2023-12-01_1');
+
 const newTabProps = { target: "_blank", rel: "noopener noreferrer" };
 
 const fundLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
@@ -201,7 +203,7 @@ const VotingPortalIntro = ({classes}: {
         </div>
       </div>
       <div className={classes.imageWrapper}>
-        <CloudinaryImage2 publicId={imageId} className={classes.image} />
+        <CloudinaryImage2 publicId={introImageIdSetting.get()} className={classes.image} />
       </div>
       <div>
         Your vote is anonymous to other users. If we have reason to believe you've committed{" "}

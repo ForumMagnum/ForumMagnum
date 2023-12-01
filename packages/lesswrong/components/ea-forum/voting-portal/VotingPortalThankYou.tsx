@@ -226,9 +226,9 @@ const VotingPortalThankYou = ({currentUser, classes}: {
       <div className={classes.hr} />
       <ul className={classes.list}>
         <li>
-        <a href="https://forum.effectivealtruism.org/posts/rszgfHdkmzCDDPM9k/where-are-you-donating-this-year-and-why-open-thread-1" target="_blank" rel="noopener noreferrer">
-          Share that you voted or where you're donating
-          </a>
+          <Link to="/posts/rszgfHdkmzCDDPM9k/where-are-you-donating-this-year-and-why-open-thread-1">
+            Share that you voted or where you're donating
+          </Link>
         </li>
         <li>
           {/* TODO get this from the election candidate */}
