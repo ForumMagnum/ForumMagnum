@@ -212,4 +212,4 @@ export const otherDonationOpportunities = [
     href: 'https://vidaplena.global/',
     fundraiserLink: 'https://vidaplena.global/?form=give',
   },
-]
+];
