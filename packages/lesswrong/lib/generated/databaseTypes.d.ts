@@ -260,6 +260,7 @@ interface DbDialogueCheck extends DbObject {
   targetUserId: string
   checked: boolean
   checkedAt: Date
+  hideInRecommendations: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

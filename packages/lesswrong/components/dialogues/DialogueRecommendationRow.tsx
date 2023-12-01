@@ -7,8 +7,11 @@ import { DialogueUserRowProps, TagWithCommentCount } from '../users/DialogueMatc
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import {useSingle} from '../../lib/crud/withSingle';
-import {truncatise} from '../../lib/truncatise';
+import { useSingle } from '../../lib/crud/withSingle';
+import { truncatise } from '../../lib/truncatise';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+import {useUpdate} from '../../lib/crud/withUpdate';
 
 const styles = (theme: ThemeType) => ({
   dialogueUserRow: { 
@@ -139,7 +142,18 @@ const styles = (theme: ThemeType) => ({
   },
   commentSourcePost: {
     color: theme.palette.text.dim3,
-  }
+  },
+  closeIcon: { 
+    color: theme.palette.grey[500],
+    opacity: 0.5,
+  //  position: 'absolute', 
+  //  right: '8px',
+  //  top: '8px',
+    padding: '2px',
+    [theme.breakpoints.down('xs')]: {
+      //display: 'none'
+    }
+  },
 });
 
 type PostYouveRead = {
@@ -262,16 +276,30 @@ const CommentView: React.FC<CommentViewProps> = ({ comment, classes }) => {
   );
 };
 const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: DialogueRecommendationRowProps) => {
-  const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, ReactionIcon, PostsTooltip } = Components
+  const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, PostsTooltip,  } = Components
 
-  const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
+  const { targetUser, checkId, userIsChecked, userIsMatched, hideInRecommendations } = rowProps;
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const currentUser = useCurrentUser();
+  const { mutate: updateDialogueCheck } = useUpdate({
+    collectionName: 'DialogueChecks',
+    fragmentName: 'DialogueCheckInfo',
+  })
   const [isExpanded, setIsExpanded] = useState(false);
   const toggleExpansion = () => {
     setIsExpanded(!isExpanded);
     captureEvent("toggle_expansion_reciprocity")
   };
+
+  const [isHidden, setIsHidden] = useState(false);
+
+  const hideRecommendation = (dialogueCheckId:string) => {
+    captureEvent("recommended_user_hidden")
+    console.log("checkId", checkId)
+    const result = updateDialogueCheck({selector: {_id: dialogueCheckId}, data: {hideInRecommendations: true}})
+    console.log("result", result)
+    setIsHidden(true)
+  }
 
   const { loading, error, data: topicData } = useQuery(gql`
     query getTopicRecommendations($userId: String!, $targetUserId: String!, $limit: Int!) {
@@ -289,7 +317,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
       }
     }
   `, {
-    variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit:4 },
+    variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit: 4 },
     skip: !currentUser
   });
 
@@ -308,7 +336,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   });
 
   const { loading: postsLoading, error: postsError, data: postsData } = useQuery(gql`
-    query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int) {
+    query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
       UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
         _id
         title
@@ -320,7 +348,7 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
   });
 
   const { loading: commentsLoading, error: commentsError, data: commentsData } = useQuery(gql`
-    query UsersRecommendedCommentsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int) {
+    query UsersRecommendedCommentsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
       UsersRecommendedCommentsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
         _id
         postId
@@ -331,19 +359,19 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
       }
     }
   `, {
-    variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 3 },
+    variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 2 },
   });
 
   const topTags:[TagWithCommentCount] = tagData?.UserTopTags;
   const readPosts:PostYouveRead[] = postsData?.UsersReadPostsOfTargetUser
-  const RecommendedComments:RecommendedComment[] = commentsData?.UsersRecommendedCommentsOfTargetUser
+  const recommendedComments:RecommendedComment[] = commentsData?.UsersRecommendedCommentsOfTargetUser ?? []
 
   const preTopicRecommendations: TopicRecommendationWithContents[] | undefined = topicData?.GetTwoUserTopicRecommendations; 
   const topicRecommendations = preTopicRecommendations?.filter(topic => ['agree', 'disagree'].includes(topic.theirVote) ); // todo: might want better type checking here in future for values of theirVote
  
-  if (!currentUser || !topTags || !topicRecommendations || !readPosts) return <></>;
+  if (!currentUser || !topTags || !topicRecommendations || !readPosts ) return <></>;
   const tagsSentence = topTags.slice(0, 4).map(tag => tag.tag.name).join(', ');
-  const numRecommendations = (topicRecommendations?.length ?? 0) + (readPosts?.length ?? 0) + (RecommendedComments?.length ?? 0) + (tagsSentence === "" ? 0 : 1);
+  const numRecommendations = (topicRecommendations?.length ?? 0) + (readPosts?.length ?? 0) + (recommendedComments?.length ?? 0) + (tagsSentence === "" ? 0 : 1);
   const numShown = isExpanded ? numRecommendations : 2
   const numHidden = Math.max(0, numRecommendations - numShown);
 
@@ -354,8 +382,12 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
       <PostsTooltip postId={post._id}>
         <Link to={postGetPageUrl(post)}> {post.title} </Link>
       </PostsTooltip>})),
-    ...RecommendedComments.map(comment => ({reactIconName: "elaborate", prefix: "comment: ", Content: <CommentView comment={comment} classes={classes} />}))
+    ...recommendedComments.map(comment => ({reactIconName: "elaborate", prefix: "comment: ", Content: <CommentView comment={comment} classes={classes} />}))
   ]
+
+  console.log("isHidden", isHidden, "hideInRecommendations", hideInRecommendations)
+
+  if (isHidden || hideInRecommendations) return <></>
 
   return (
     <div>
@@ -396,6 +428,9 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
           <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
             <div className={classes.dialogueMatchNote}>Check to maybe dialogue, if you find a topic</div>
           </PostsItem2MetaInfo>}
+        <IconButton className={classes.closeIcon} onClick={() => hideRecommendation(checkId)}>
+          <CloseIcon />
+        </IconButton>
       </div>
     </div>
   );

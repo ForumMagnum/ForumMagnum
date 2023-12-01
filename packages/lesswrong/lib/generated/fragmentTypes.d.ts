@@ -534,6 +534,7 @@ interface DialogueChecksDefaultFragment { // fragment on DialogueChecks
   readonly checked: boolean,
   readonly checkedAt: Date,
   readonly match: boolean,
+  readonly hideInRecommendations: boolean,
 }
 
 interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
@@ -3446,6 +3447,7 @@ interface DialogueCheckInfo { // fragment on DialogueChecks
   readonly checked: boolean,
   readonly checkedAt: Date,
   readonly match: boolean,
+  readonly hideInRecommendations: boolean,
   readonly matchPreference: DialogueMatchPreferencesDefaultFragment|null,
   readonly reciprocalMatchPreference: DialogueMatchPreferencesDefaultFragment|null,
 }

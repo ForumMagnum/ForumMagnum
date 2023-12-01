@@ -76,6 +76,7 @@ export type TopicRecommendationData = DbComment[]
 
 interface CommonDialogueUserRowProps {
   checkId: string;
+  hideInRecommendations?: boolean;
   userIsChecked: boolean;
   userIsMatched: boolean;
   currentUser: UsersCurrent;
@@ -495,6 +496,10 @@ const useScrollGradient = (ref: React.RefObject<HTMLDivElement>) => {
   return { isScrolledToTop, isScrolledToBottom };
 };
 
+const isHideInRecommendations = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
+  return userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.hideInRecommendations ?? false;
+}
+
 const isMatched = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
   return userDialogueChecks.some(check => check.targetUserId === targetUserId && check.match);
 };
@@ -505,10 +510,12 @@ const isChecked = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string
 
 const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
   const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id;
+  const hideInRecommendations = isHideInRecommendations(userDialogueChecks, targetUser._id);
   const userIsChecked = isChecked(userDialogueChecks, targetUser._id);
   const userIsMatched = isMatched(userDialogueChecks, targetUser._id);
   return {
     checkId,
+    hideInRecommendations,
     userIsChecked,
     userIsMatched
   };
@@ -921,8 +928,9 @@ const DialogueCheckBox: React.FC<{
   checkId?: string;
   isChecked: boolean, 
   isMatched: boolean;
+  hideInRecommendations?: boolean;
   classes: ClassesType<typeof styles>;
-}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, classes}) => {
+}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, hideInRecommendations, classes}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { openDialog } = useDialog();
@@ -988,6 +996,7 @@ const DialogueCheckBox: React.FC<{
           targetUserId: targetUserId,
           checked: event.target.checked,
           checkedAt: new Date(),
+          hideInRecommendations: hideInRecommendations ? hideInRecommendations : false,
           match: false,
           matchPreference: null,
           reciprocalMatchPreference: null

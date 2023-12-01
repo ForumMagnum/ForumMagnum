@@ -47,7 +47,7 @@ export const useDialogueMatchmaking = <T extends MatchmakingProps>(props: T): Us
   `, { skip: skipByDefault || !getMatchedUsers });
 
   const recommendedUsersQueryResult = useQuery(gql`
-  query GetDialogueMatchedUsers {
+  query GetDialogueRecommendedUsers {
     GetDialogueRecommendedUsers {
       _id
       displayName

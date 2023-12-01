@@ -448,5 +448,10 @@
     "acceptsSchemaHash": "ea10555b6fef67efb7ab0cbbdfdb8772",
     "acceptedByMigration": "20231130T012654.changeDefaultNewCheckNotificationFrequencyRealtime.ts",
     "timestamp": "2023-11-30T01:26:54.000Z"
+  },
+  {
+    "acceptsSchemaHash": "9d8e4b7e7411e789f2a9a193fd78ce2b",
+    "acceptedByMigration": "20231130T205641.add_field_for_hiding_specific_users_in_reciprocity.ts",
+    "timestamp": "2023-11-30T20:56:41.000Z"
   }
 ]

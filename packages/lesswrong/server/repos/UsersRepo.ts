@@ -444,7 +444,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         (
           SELECT COUNT(*)
           FROM "DialogueChecks"
-          WHERE "userId" = $1 AND "targetUserId" = uv._id AND "checked" IS TRUE
+          WHERE "userId" = $1 AND "targetUserId" = uv._id AND ("checked" IS TRUE OR "hideInRecommendations" IS TRUE)
         ) = 0
         AND
         (
