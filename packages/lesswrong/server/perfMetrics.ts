@@ -1,5 +1,6 @@
 import { v4 } from 'uuid';
 import { queuePerfMetric } from './analyticsWriter';
+import type { Request, Response, NextFunction } from 'express';
 
 type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path'>;
 
@@ -22,4 +23,18 @@ export function closePerfMetric(openPerfMetric: IncompletePerfMetric) {
   };
 
   queuePerfMetric(perfMetric);
+}
+
+export function perfMetricMiddleware(req: Request, res: Response, next: NextFunction) {
+  const perfMetric = openPerfMetric({
+    op_type: 'request',
+    op_name: req.originalUrl,
+    client_path: req.headers['request-origin-path'] as string
+  });
+
+  Object.assign(req, { perfMetric });
+  res.on('finish', () => {
+    closePerfMetric(perfMetric);
+  });
+  next();
 }

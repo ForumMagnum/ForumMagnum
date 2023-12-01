@@ -3,7 +3,7 @@ import { randomId } from '../lib/random';
 import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
-import { addGraphQLMutation, addGraphQLResolvers } from './vulcan-lib';
+import { addGraphQLMutation, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
 import {pgPromiseLib, getAnalyticsConnection, getMirrorAnalyticsConnection} from './analytics/postgresConnection'
 import chunk from 'lodash/chunk';
 

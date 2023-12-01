@@ -33,7 +33,7 @@ import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { faviconUrlSetting, isEAForum, testServerSetting } from '../lib/instanceSettings';
+import { faviconUrlSetting, isEAForum, isLWorAF, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './testingSqlClient';
@@ -50,18 +50,21 @@ import { getClientBundle } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener, GraphQLRequestExecutionListener } from 'apollo-server-plugin-base';
-import { closePerfMetric, openPerfMetric } from './perfMetrics';
+import { closePerfMetric, openPerfMetric, perfMetricMiddleware } from './perfMetrics';
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
     const { operationName = 'unknownGqlOperation', query, variables } = request;
 
-    const startedRequestMetric = openPerfMetric({
-      op_type: 'query',
-      op_name: operationName,
-      parent_trace_id: context.perfMetric?.trace_id,
-      extra_data: variables
-    });
+    let startedRequestMetric: IncompletePerfMetric;
+    if (isLWorAF) {
+      startedRequestMetric = openPerfMetric({
+        op_type: 'query',
+        op_name: operationName,
+        parent_trace_id: context.perfMetric?.trace_id,
+        extra_data: variables
+      });  
+    }
 
     if (query) {
       logGraphqlQueryStarted(operationName, query, variables);
@@ -69,7 +72,9 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
     
     return {
       willSendResponse() { // hook for transaction finished
-        closePerfMetric(startedRequestMetric);
+        if (isLWorAF) {
+          closePerfMetric(startedRequestMetric);
+        }
 
         if (query) {
           logGraphqlQueryFinished(operationName, query);
@@ -158,19 +163,9 @@ export function startWebserver() {
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
-  app.use('/graphql', (req, res, next) => {
-    const perfMetric = openPerfMetric({
-      op_type: 'request',
-      op_name: req.originalUrl,
-      client_path: req.headers['request-origin-path'] as string
-    });
-
-    Object.assign(req, { perfMetric });
-    res.on('finish', () => {
-      closePerfMetric(perfMetric);
-    })
-    next();
-  })
+  if (isLWorAF) {
+    app.use('/graphql', perfMetricMiddleware);
+  }
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
