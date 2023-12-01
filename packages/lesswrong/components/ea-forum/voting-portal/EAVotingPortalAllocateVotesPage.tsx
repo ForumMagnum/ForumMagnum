@@ -8,9 +8,13 @@ import { useMessages } from "../../common/withMessages";
 import { processLink } from "./VotingPortalIntro";
 import { useCurrentUser } from "../../common/withUser";
 import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
+  mb2: {
+    marginBottom: 12,
+  },
 })
 
 const EAVotingPortalAllocateVotesPageLoader = ({ classes }: { classes: ClassesType }) => {
@@ -89,7 +93,7 @@ const EAVotingPortalAllocateVotesPage = ({
       <div className={classes.root}>
         <div className={classes.content} id="top">
           <div className={classes.h2}>3. Finalize point allocation</div>
-          <div className={classes.subtitle}>
+          <div className={classNames(classes.subtitle, classes.mb2)}>
             <div className={classes.subtitleParagraph}>
               {subtitleStart}{" "}
               <b>
