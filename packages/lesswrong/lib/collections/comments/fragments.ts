@@ -208,3 +208,9 @@ registerFragment(`
     modGPTAnalysis
   }
 `);
+
+registerFragment(`
+  fragment CommentId on Comment {
+    _id
+  }
+`);
