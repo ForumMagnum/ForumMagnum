@@ -1,3 +1,4 @@
+import { closePerfMetric, openPerfMetric } from "../perfMetrics";
 import CollectionsRepo from "./CollectionsRepo";
 import CommentsRepo from "./CommentsRepo";
 import ConversationsRepo from "./ConversationsRepo";
@@ -37,6 +38,54 @@ const getAllRepos = () => ({
   users: new UsersRepo(),
   votes: new VotesRepo(),
 } as const);
+
+const repoClasses = [
+  CommentsRepo,
+  ConversationsRepo,
+  DatabaseMetadataRepo,
+  DebouncerEventsRepo,
+  DialogueChecksRepo,
+  ElectionCandidatesRepo,
+  LocalgroupsRepo,
+  PostEmbeddingsRepo,
+  PostRecommendationsRepo,
+  PostRelationsRepo,
+  PostsRepo,
+  SequencesRepo,
+  TagsRepo,
+  UsersRepo,
+  VotesRepo,
+];
+
+function wrapMethods<T extends typeof repoClasses[number]>(targetClass: T) {
+  const methodNames = Object.getOwnPropertyNames(targetClass.prototype);
+
+  methodNames.forEach(methodName => {
+      // @ts-ignore - TS really doesn't like index access on unions of multiple class prototypes
+      const originalMethod = targetClass.prototype[methodName];
+
+      if (typeof originalMethod === 'function' && methodName !== 'constructor') {
+        // @ts-ignore - TS really doesn't like index access on unions of multiple class prototypes
+        targetClass.prototype[methodName] = wrapWithPerfMetrics(originalMethod, methodName);
+      }
+  });
+}
+
+function wrapWithPerfMetrics(method: Function, methodName: string) {
+  return async function (this: AnyBecauseHard, ...args: AnyBecauseHard[]) {
+    const startedDbRepoMetric = openPerfMetric({
+      op_type: 'db_repo_method',
+      op_name: methodName
+    });
+    const results = await method.apply(this, args);
+    closePerfMetric(startedDbRepoMetric);
+    return results;
+  };
+}
+
+repoClasses.forEach(repo => {
+  wrapMethods(repo);
+});
 
 export {
   CommentsRepo,

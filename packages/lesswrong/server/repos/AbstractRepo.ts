@@ -1,5 +1,6 @@
 import { getSqlClient } from "../../lib/sql/sqlClient";
 import PgCollection from "../../lib/sql/PgCollection";
+// import { closePerfMetric, openPerfMetric } from "../perfMetrics";
 
 /**
  * abstractRepo provides the superclass from which all of our collection
@@ -21,6 +22,26 @@ export default abstract class AbstractRepo<T extends DbObject> {
     } else {
       throw new Error("Instantiating repo without a SQL client");
     }
+
+    // const methodNames = (Object.getOwnPropertyNames(Object.getPrototypeOf(this)) as (string & keyof this)[]).filter(f => typeof this[f] === 'function' && f !== 'constructor');
+    // console.log({ this: this, methodNames });
+    // methodNames.forEach((methodName) => {
+    //   const method = this[methodName] as Function;
+    //   console.log({ method });
+    //   const wrappedMethod = async (...args: AnyBecauseHard[]) => {
+    //     const startedDbRepoMetric = openPerfMetric({
+    //       op_type: 'db_repo_method',
+    //       op_name: methodName
+    //     });
+    //     const results = await method(...args);
+    //     closePerfMetric(startedDbRepoMetric);
+    //     return results;
+    //   }
+
+    //   this[methodName] = wrappedMethod as AnyBecauseHard;
+    // });
+
+    // console.log({ this: this });
   }
 
   protected getCollection(): PgCollection<T> {

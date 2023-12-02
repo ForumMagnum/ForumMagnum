@@ -5,7 +5,7 @@ import { getPublicSettings, getServerSettingsCache, getServerSettingsLoaded, reg
 import groupBy from 'lodash/groupBy';
 import get from 'lodash/get'
 import { ensureIndex } from '../lib/collectionIndexUtils';
-import { refreshSettingsCaches } from './loadDatabaseSettings';
+// import { refreshSettingsCaches } from './loadDatabaseSettings';
 
 const runValidateSettings = false
 
@@ -15,8 +15,8 @@ ensureIndex(DatabaseMetadata, {
   unique: true
 })
 
-if (!getServerSettingsLoaded())
-  void refreshSettingsCaches()
+// if (!getServerSettingsLoaded())
+//   void refreshSettingsCaches()
 
 if (isDevelopment && runValidateSettings) {
   // On development we validate the settings files, but wait 30 seconds to make sure that everything has really been loaded
@@ -24,9 +24,9 @@ if (isDevelopment && runValidateSettings) {
 }
 
 // We use Meteor.setInterval to make sure the code runs in a Fiber
-if (!isAnyTest) {
-  setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
-}
+// if (!isAnyTest) {
+//   setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
+// }
 
 /* 
   A setting which is stored in the database in the "databasemetadata" collection, with the key "serverSettings"
