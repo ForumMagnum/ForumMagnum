@@ -931,7 +931,8 @@ const DialogueCheckBox: React.FC<{
   isMatched: boolean;
   hideInRecommendations?: boolean;
   classes: ClassesType<typeof styles>;
-}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, hideInRecommendations, classes}) => {
+  sourceForAnalytics?: string
+}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, hideInRecommendations, classes, sourceForAnalytics="unspecified"}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { openDialog } = useDialog();
@@ -952,6 +953,10 @@ const DialogueCheckBox: React.FC<{
     if (!currentUser) return;
 
     const response = await upsertUserDialogueCheck({ targetUserId, checked: event.target.checked, checkId });
+
+    if (event.target.checked) {
+      captureEvent("newDialogueCheck", {source: sourceForAnalytics}) // we only capture match metadata and don't pass anything else
+    }
     
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()
@@ -1097,6 +1102,7 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
       checkId={checkId}
       isChecked={userIsChecked}
       isMatched={userIsMatched}
+      sourceForAnalytics={'matching_homepage'}
     />
     <UsersName
       className={classes.displayName}

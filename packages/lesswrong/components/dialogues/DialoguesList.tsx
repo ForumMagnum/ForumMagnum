@@ -10,8 +10,6 @@ import { DialogueUserRowProps, getRowProps, getUserCheckInfo } from '../users/Di
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import MuiPeopleIcon from "@material-ui/icons/People";
 import { dialogueMatchmakingEnabled } from '../../lib/publicSettings';
-import { useABTest } from '../../lib/abTestImpl';
-import { frontpageDialogueReciprocityRecommendations, showTopicsInReciprocity } from '../../lib/abTests';
 import {useUpsertDialogueCheck} from '../hooks/useUpsertDialogueCheck';
 
 
@@ -208,8 +206,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   const currentUser = useCurrentUser()
   const [showSettings, setShowSettings] = useState(false);
   const { captureEvent } = useTracking();
-  const showReciprocityRecommendations = (useABTest(frontpageDialogueReciprocityRecommendations) === "show") && (currentUser?.karma ?? 0) > 100 // hide reciprocity recommendations if user has less than 100 karma
-  const showTopics = (useABTest(showTopicsInReciprocity) === "show")
+  const showReciprocityRecommendations = (currentUser?.karma ?? 0) > 100 // hide reciprocity recommendations if user has less than 100 karma
 
   const { results: dialoguePosts } = usePaginatedResolver({
     fragmentName: "PostsListWithVotes",
@@ -323,7 +320,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
             <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
           ))}
           {showReciprocityRecommendations && currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
-            !rowProps.hideInRecommendations && <DialogueRecommendationRow key={index} targetUser={rowProps.targetUser} checkId={rowProps.checkId} userIsChecked={rowProps.userIsChecked} userIsMatched={rowProps.userIsMatched} showSuggestedTopics={showTopics} onHide={hideRecommendation} />
+            !rowProps.hideInRecommendations && <DialogueRecommendationRow key={index} targetUser={rowProps.targetUser} checkId={rowProps.checkId} userIsChecked={rowProps.userIsChecked} userIsMatched={rowProps.userIsMatched} showSuggestedTopics={true} onHide={hideRecommendation} />
           ))}
         </div>}
       </AnalyticsContext>}

@@ -386,6 +386,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
               checkId={checkId}
               isChecked={userIsChecked}
               isMatched={userIsMatched}
+              sourceForAnalytics={"recommendation_row"}
             />
           </div>
           <PostsItem2MetaInfo className={classNames(classes.dialogueMatchUsername, {
