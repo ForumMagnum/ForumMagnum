@@ -104,12 +104,28 @@ const DialogueSubmit = ({
     })
   }
 
+  const dialogueMatchPreferencesResults = useMulti({
+    terms: {
+      view: "dialogueMatchPreferencesByDialogue",
+      generatedDialogueId: document._id,
+      limit: 1,
+    },
+    fragmentName: "DialogueMatchPreferenceInfo",
+    collectionName: "DialogueMatchPreferences",
+  })
+
+  const matchForm = dialogueMatchPreferencesResults?.results
+
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (confirm('Warning!  This will publish your dialogue and make it visible to other users.')) {
       if (collectionName === "Posts") { 
         await updateCurrentValues({draft: false})
-        void resetUserGroupChecks(allAuthorCrossChecks);
+       // void resetUserGroupChecks(allAuthorCrossChecks);
+       if (matchForm && matchForm?.length > 0) {
+        // obtain targetUserId from the dialogueCheckId 
+        void upsertUserDialogueCheck({ targetUserId: check.targetUserId, checked: false, checkId: check._id });
+       }
       }
       await submitForm();
     }

@@ -1,19 +1,34 @@
 import {ensureIndex} from '../../collectionIndexUtils';
 import { DialogueMatchPreferences } from './collection';
 
-declare global {
-  interface DialogueMatchPreferencesViewTerms extends ViewTermsBase {
-    view?: DialogueMatchPreferencesViewName,
-    dialogueCheckId?: string,
-  }
+type DialogueMatchPreferencesByCheckIdViewTerms = {
+  view: "dialogueMatchPreferences",
+  dialogueCheckId?: string,
 }
 
-DialogueMatchPreferences.addView('dialogueMatchPreferences', (terms: DialogueMatchPreferencesViewTerms) => {
+type DialogueMatchPreferencesByDialogueViewTerms = {
+  view: 'dialogueMatchPreferencesByDialogue',
+  generatedDialogueId?: string
+}
+
+declare global {
+  type DialogueMatchPreferencesViewTerms = ViewTermsBase & ( DialogueMatchPreferencesByCheckIdViewTerms | DialogueMatchPreferencesByDialogueViewTerms ) 
+}
+
+DialogueMatchPreferences.addView('dialogueMatchPreferences', (terms: DialogueMatchPreferencesByCheckIdViewTerms) => {
   return {
     selector: {
-        dialogueCheckId: terms.dialogueCheckId,
+      dialogueCheckId: terms.dialogueCheckId,
     },
   };
 });
 
 ensureIndex(DialogueMatchPreferences, { dialogueCheckId: 1 });
+
+DialogueMatchPreferences.addView('dialogueMatchPreferencesByDialogue', (terms: DialogueMatchPreferencesByDialogueViewTerms) => {
+  return {
+    selector: {
+      generatedDialogueId: terms.generatedDialogueId,
+    },
+  };
+});
