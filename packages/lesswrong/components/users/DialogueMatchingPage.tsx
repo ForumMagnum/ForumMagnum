@@ -954,7 +954,7 @@ const DialogueCheckBox: React.FC<{
 
     const response = await upsertUserDialogueCheck({ targetUserId, checked: event.target.checked, checkId });
 
-    if (event.target.checked) {
+    if (response.data.upsertUserDialogueCheck.checked) {
       captureEvent("newDialogueCheck", {source: sourceForAnalytics}) // we only capture match metadata and don't pass anything else
     }
     
