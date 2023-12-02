@@ -234,7 +234,6 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   const hideRecommendation = ({dialogueCheckId, targetUserId}: {dialogueCheckId:string|undefined, targetUserId:string}) => {
     captureEvent("hide_dialogue_recommendation")
     void upsertUserDialogueCheck({ targetUserId, hideInRecommendations: true, checkId: dialogueCheckId });
-
   }
 
   const matchedUsers: DialogueUserResult[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;

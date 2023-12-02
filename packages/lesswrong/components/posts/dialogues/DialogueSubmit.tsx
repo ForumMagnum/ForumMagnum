@@ -8,6 +8,8 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { EditorContext } from '../PostsEditForm';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
+import {useMulti} from '../../../lib/crud/withMulti';
+import {useUpsertDialogueCheck} from '../../hooks/useUpsertDialogueCheck';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
@@ -72,17 +74,55 @@ const DialogueSubmit = ({
 
   const navigate = useNavigate();
 
+  const creationDate:Date = document.createdAt;
+  const coauthorStatuses:{
+      userId: string,
+      confirmed: boolean,
+      requested: boolean
+    }[] = document.coauthorStatuses
+
+  const upsertUserDialogueCheck = useUpsertDialogueCheck();
+  const userIds = [currentUser._id, ...coauthorStatuses.map((coauthorStatus) => coauthorStatus.userId)]
+  const userDialogueChecksResult = useMulti({
+    terms: {
+      view: "dialogueCohortToResetReciprocity",
+      userIds: userIds,
+      targetUserIds: userIds,
+      checked: true,
+      checkedAt: creationDate,
+      limit: 1000,
+    },
+    fragmentName: "DialogueCheckInfo",
+    collectionName: "DialogueChecks",
+  });
+
+  const allAuthorCrossChecks = userDialogueChecksResult?.results
+
+  const resetUserGroupChecks = async (userGroupChecks:DialogueCheckInfo[] | undefined) => {
+    userGroupChecks?.forEach((check) => { 
+      void upsertUserDialogueCheck({ targetUserId: check.targetUserId, checked: false, checkId: check._id });
+    })
+  }
+
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (confirm('Warning!  This will publish your dialogue and make it visible to other users.')) {
-      collectionName === "Posts" && await updateCurrentValues({draft: false});
+      if (collectionName === "Posts") { 
+        await updateCurrentValues({draft: false})
+        void resetUserGroupChecks(allAuthorCrossChecks);
+      }
       await submitForm();
     }
   };
 
-  const submitWithoutConfirmation = () => collectionName === "Posts" && updateCurrentValues({draft: false});
+  const submitWithoutConfirmation = () => {
+    if (collectionName === "Posts") {
+      void updateCurrentValues({draft: false});
+      void resetUserGroupChecks(allAuthorCrossChecks);
+    }
+  };
 
-  const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate;
+  const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate; // This check only applies to legacy dialogues, TODO remove?
   const showShortformButton = !!userShortformId && !isFriendlyUI;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;

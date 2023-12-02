@@ -1,10 +1,21 @@
 import { DialogueChecks } from './collection';
 
+type UserDialogueChecksViewTerms = {
+  view: "userDialogueChecks",
+  userId?: string
+}
+
+type DialogueCohortToResetReciprocityViewTerms = {
+  view: 'dialogueCohortToResetReciprocity',
+  userIds: string[],
+  targetUserIds: string[],
+  checked: boolean,
+  checkedAt: Date
+}
+
 declare global {
-  interface DialogueChecksViewTerms extends ViewTermsBase {
-    view?: DialogueChecksViewName
-    userId?: string
-  }
+  type DialogueChecksViewTerms = 
+    ViewTermsBase & (UserDialogueChecksViewTerms | DialogueCohortToResetReciprocityViewTerms)
 }
 
 DialogueChecks.addView('userDialogueChecks', (terms: DialogueChecksViewTerms) => {
@@ -14,3 +25,15 @@ DialogueChecks.addView('userDialogueChecks', (terms: DialogueChecksViewTerms) =>
     },
   };
 });
+
+DialogueChecks.addView('dialogueCohortToResetReciprocity', function (terms: DialogueCohortToResetReciprocityViewTerms) {
+  return {
+    selector: { 
+      userId: { $in: terms.userIds },
+      targetUserId: { $in: terms.targetUserIds },
+      checkedAt: { $gt: terms.date },
+      checked: terms.checked
+    },
+    options: { sort: { createdAt: -1 } }
+  };
+})
