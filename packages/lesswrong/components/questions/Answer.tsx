@@ -256,7 +256,7 @@ const Answer = ({ comment, post, childComments, classes }: {
               <div className={classes.editor}>
                 <CommentsNewForm
                   post={post}
-                  parentComment={comment._id}
+                  parentComment={comment}
                   prefilledProps={{
                     parentAnswerId: comment._id,
                   }}
