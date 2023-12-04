@@ -4,7 +4,7 @@ import SwitchingCollection from "../lib/SwitchingCollection";
 import CreateIndexQuery from "../lib/sql/CreateIndexQuery";
 import CreateTableQuery from "../lib/sql/CreateTableQuery";
 import { Collections } from "./vulcan-lib";
-import { expectedIndexes } from "../lib/collectionIndexUtils";
+import { ensureIndex, expectedIndexes } from "../lib/collectionIndexUtils";
 import { ensurePostgresViewsExist } from "./postgresView";
 import { ensureMongo2PgLockTableExists } from "../lib/mongo2PgLock";
 import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "../lib/sql/sqlClient";
@@ -24,6 +24,10 @@ import seedConversations from "../../../cypress/fixtures/conversations";
 import seedMessages from "../../../cypress/fixtures/messages";
 import seedLocalGroups from "../../../cypress/fixtures/localgroups";
 import seedUsers from "../../../cypress/fixtures/users";
+import { DatabaseMetadata } from "../lib/collections/databaseMetadata/collection";
+import DebouncerEvents from "../lib/collections/debouncerEvents/collection";
+import PageCache from "../lib/collections/pagecache/collection";
+import ReadStatuses from "../lib/collections/readStatus/collection";
 
 export const preparePgTables = () => {
   for (let collection of Collections) {
@@ -38,10 +42,33 @@ export const preparePgTables = () => {
   }
 }
 
+/**
+ * This is part of the nullability PR.
+ * We're creating some indexes in the migration itself, rather than with ensureIndex.
+ * So we need to ensure those indexes also exist in the test db for cypress tests, until we fix the whole index situation.
+ */
+const ensureMigratedIndexes = () => {
+  ensureIndex(DatabaseMetadata, { name: 1 }, { unique: true, name: 'idx_DatabaseMetadata_name' });
+  ensureIndex(
+    DebouncerEvents,
+    { dispatched: 1, af: 1, key: 1, name: 1 },
+    {
+      unique: true,
+      partialFilterExpression: {
+        dispatched: false,
+      },
+      name: 'idx_DebouncerEvents_dispatched_af_key_name_filtered'
+    },
+  );
+  ensureIndex(PageCache, {path: 1, abTestGroups: 1, bundleHash: 1}, {unique: true, name: 'idx_PageCache_path_abTestGroups_bundleHash'});
+  ensureIndex(ReadStatuses, {userId:1, postId:1, tagId:1}, {unique: true, name: 'idx_ReadStatuses_userId_postId_tagId'});
+}
+
 const buildTables = async (client: SqlClient) => {
   await ensureMongo2PgLockTableExists(client);
 
   preparePgTables();
+  ensureMigratedIndexes();
 
   for (let collection of Collections) {
     if (collection instanceof SwitchingCollection) {
