@@ -86,15 +86,7 @@ export const ensureCustomPgIndex = async (sql: string, runImmediately = false, s
   }
   expectedCustomPgIndexes.push(sql);
 
-  // eslint-disable-next-line no-console
-  console.log({
-    canEnsureIndexes: canEnsureIndexes(),
-    isServer,
-    isAnyTest,
-    isMigrations,
-    disableEnsureIndexSetting: disableEnsureIndexSetting.get()
-  });
-  if (!canEnsureIndexes())
+  if (!canEnsureIndexes() && !runImmediately)
     return;
 
   await createOrDeferIndex(async () => {
