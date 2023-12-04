@@ -31,25 +31,17 @@ export const DialogueEditorFeedback = ({ classes, post }: {
   const [clickState, setClickState] = useState<ClickState>('unclicked');
   const user = useCurrentUser()
 
-  const feedbackButtonClicked = async () => {
-    const data = { title: post.title,
-      id: post._id,
-      url: getSiteUrl() + "posts/" + post._id,
-      coauthors: post.coauthors.map(c => c.displayName).join(', '),
-      author: post.user?.displayName,
-      requester: user?.displayName
-    }
-    const response = await fetch('https://hooks.slack.com/triggers/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', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
-    if (response.status === 200) setClickState('success')
-    else setClickState('failure')
-  }
-
   return <div className={classes.root}>
     <div className={classes.feedbackRow}>{clickState === 'unclicked'
-      ? <Button className={classes.button} onClick={async _ => { await feedbackButtonClicked() }}>
+      ? <Button className={classes.button} onClick={async _ => { 
+        // eslint-disable-next-line
+        window.Intercom(
+          'trackEvent',
+          'requested-feedback',
+          {title: post.title, _id: post._id, url: getSiteUrl() + "posts/" + post._id}
+        );
+        setClickState('success')
+        }}>
           Get feedback or editing help from the {forumTitleSetting.get()} team.
         </Button>
       : clickState === 'success'
