@@ -88,7 +88,7 @@ export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, docume
     return (
       document.sharingSettings?.anyoneWithLinkCan
       && document.sharingSettings.anyoneWithLinkCan !== "none"
-      && ((document as DbPost).linkSharingKeyUsedBy)?.includes(currentUser._id) //TODO: Robert, check this one especially
+      && ((document as DbPost).linkSharingKeyUsedBy)?.includes(currentUser._id)
     )
   }
 }

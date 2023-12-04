@@ -8,9 +8,6 @@ export default class ReadStatusesRepo extends AbstractRepo<DbReadStatus> {
   }
 
   upsertReadStatus(userId: string, postId: string, isRead: boolean): Promise<null> {
-    // TODO: check if updating the userId column to NOT NULL also updates the corresponding `COALESCE` in the index definition
-    // If so, figure out if we keep this to a zero-downtime migration where the ON CONFLICT call will always have a matching index
-    // My hope is that it doesn't update it, and we can create a second index without the COALESCE
     return this.none(`
       INSERT INTO "ReadStatuses" (
         "_id",
