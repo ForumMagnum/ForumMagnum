@@ -51,25 +51,25 @@ const ensureMigratedIndexes = async () => {
   // eslint-disable-next-line no-console
   console.log('Creating custom migrated indexes');
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_DatabaseMetadata_name_new"
+    CREATE UNIQUE INDEX "idx_DatabaseMetadata_name_old"
     ON public."DatabaseMetadata" USING btree
-    (name);
+    (COALESCE(name, ''));
   `);
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered_new"
+    CREATE UNIQUE INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered_old"
     ON public."DebouncerEvents" USING btree
-    (dispatched, af, key, name)
+    (dispatched, af, COALESCE(key, ''), COALESCE(name, ''))
     WHERE (dispatched IS FALSE);
   `);
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_PageCache_path_abTestGroups_bundleHash_new"
+    CREATE UNIQUE INDEX "idx_PageCache_path_abTestGroups_bundleHash_old"
     ON public."PageCache" USING btree
-    (path, "abTestGroups", "bundleHash");
+    (COALESCE(path, ''), "abTestGroups", COALESCE("bundleHash", ''));
   `);
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_ReadStatuses_userId_postId_tagId_new"
+    CREATE UNIQUE INDEX "idx_ReadStatuses_userId_postId_tagId_old"
     ON public."ReadStatuses" USING btree
-    ("userId", COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
+    (COALESCE("userId", ''), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
   `);
 }
 
