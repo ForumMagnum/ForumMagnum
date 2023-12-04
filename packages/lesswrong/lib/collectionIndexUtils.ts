@@ -80,7 +80,7 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
   });
 }
 
-export const ensureCustomPgIndex = async (sql: string) => {
+export const ensureCustomPgIndex = async (sql: string, runImmediately = false) => {
   if (expectedCustomPgIndexes.includes(sql)) {
     return;
   }
@@ -92,7 +92,7 @@ export const ensureCustomPgIndex = async (sql: string) => {
   await createOrDeferIndex(async () => {
     const db = getSqlClientOrThrow();
     await db.any(sql);
-  });
+  }, runImmediately);
 }
 
 // Given an index partial definition for a collection's default view,
@@ -144,8 +144,8 @@ let deferredIndexesTimer: NodeJS.Timeout|null = null;
  * don't exist yet, and (b) building indexes in the middle of a later test
  * risks making that test time out.
  */
-const createOrDeferIndex = async (buildIndex: () => Promise<void>) => {
-  if (isAnyTest) {
+const createOrDeferIndex = async (buildIndex: () => Promise<void>, runImmediately = false) => {
+  if (isAnyTest || runImmediately) {
     await buildIndex();
   } else {
     deferredIndexes.push(buildIndex);
