@@ -1438,7 +1438,7 @@ const schema: SchemaType<DbPost> = {
     control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
     order: 4,
-    hidden: ({document}) => isLWorAF && !!document.collabEditorDialogue,
+    hidden: ({document}) => (isLWorAF && !!document.collabEditorDialogue) || (isEAForum && document.isEvent),
   },
 
   fmCrosspost: {
