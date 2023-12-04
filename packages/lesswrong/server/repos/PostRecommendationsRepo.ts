@@ -27,6 +27,7 @@ export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommen
     }
     const settings = strategySettings as unknown as JsonRecord;
     await Promise.all(posts.map(({_id: postId}) => this.none(`
+      -- PostRecommendationsRepo.recordRecommendations
       INSERT INTO "PostRecommendations" (
         "_id",
         "userId",
@@ -57,12 +58,14 @@ export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommen
   ): Promise<void> {
     if (userId) {
       await this.none(`
+        -- PostRecommendationsRepo.markRecommendationAsObserved
         UPDATE "PostRecommendations"
         SET "recommendationCount" = "recommendationCount" + 1
         WHERE "userId" = $1 AND "postId" = $2
       `, [userId, postId]);
     } else if (clientId) {
       await this.none(`
+        -- PostRecommendationsRepo.markRecommendationAsObserved
         UPDATE "PostRecommendations"
         SET "recommendationCount" = "recommendationCount" + 1
         WHERE "clientId" = $1 AND "postId" = $2
@@ -77,12 +80,14 @@ export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommen
   ): Promise<void> {
     if (userId) {
       await this.none(`
+        -- PostRecommendationsRepo.markRecommendationAsClicked
         UPDATE "PostRecommendations"
         SET "clickedAt" = CURRENT_TIMESTAMP
         WHERE "userId" = $1 AND "postId" = $2
       `, [userId, postId]);
     } else if (clientId) {
       await this.none(`
+        -- PostRecommendationsRepo.markRecommendationAsClicked
         UPDATE "PostRecommendations"
         SET "clickedAt" = CURRENT_TIMESTAMP
         WHERE "clientId" = $1 AND "postId" = $2
@@ -94,6 +99,7 @@ export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommen
     // Delete all recommedations that are at least 1 day old and that
     // never appeared above the fold
     await this.none(`
+      -- PostRecommendationsRepo.clearStaleRecommendations
       DELETE
       FROM "PostRecommendations"
       WHERE
@@ -108,6 +114,7 @@ export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommen
     // deleting it.
     /*
     await this.none(`
+      -- PostRecommendationsRepo.clearStaleRecommendations
       DELETE
       FROM "PostRecommendations"
       WHERE

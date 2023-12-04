@@ -20,6 +20,7 @@ export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
     // abTestGroups in the db that are a subset of the completeAbTestGroups. In this case it shouldn't
     // matter which one we use, so we just take the first one.
     const cacheResult = await this.getRawDb().any(`
+      -- PageCacheRepo.lookupCacheEntry
       SELECT * FROM "PageCache"
       WHERE "path" = $1
       AND "bundleHash" = $2
@@ -32,6 +33,7 @@ export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
 
   async clearExpiredEntries(): Promise<void> {
     await this.getRawDb().none(`
+      -- PageCacheRepo.clearExpiredEntries
       DELETE FROM "PageCache"
       WHERE "expiresAt" < NOW()`);
   }

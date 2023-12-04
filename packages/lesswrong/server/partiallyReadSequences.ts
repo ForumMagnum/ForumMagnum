@@ -133,6 +133,7 @@ getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartial
 
 const getReadPostIds = async (user: DbUser, postIDs: Array<string>): Promise<string[]> => {
   const result = await runSqlQuery(`
+    -- partiallyReadSequences.getReadPostIds
     SELECT "Posts"."_id" FROM "Posts"
     JOIN "ReadStatuses" ON
       "Posts"."_id" = "ReadStatuses"."postId" AND

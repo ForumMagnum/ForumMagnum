@@ -13,6 +13,7 @@ export default class ElectionCandidatesRepo extends AbstractRepo<DbElectionCandi
     electionTagId: string,
   ): Promise<void> {
     await this.none(`
+      -- ElectionCandidatesRepo.updatePostCounts
       UPDATE "ElectionCandidates"
       SET "postCount" = (
         SELECT COUNT(*)
@@ -30,6 +31,7 @@ export default class ElectionCandidatesRepo extends AbstractRepo<DbElectionCandi
 
   async getAmountRaised(electionName: string): Promise<ElectionAmountRaised> {
     const result = await this.getRawDb().oneOrNone<ElectionAmountRaised>(`
+      -- ElectionCandidatesRepo.getAmountRaised
       SELECT
         SUM(CASE WHEN "isElectionFundraiser" = TRUE THEN "amountRaised" ELSE 0 END) as "raisedForElectionFund",
         SUM(CASE WHEN "isElectionFundraiser" = TRUE THEN "targetAmount" ELSE 0 END) as "electionFundTarget",
