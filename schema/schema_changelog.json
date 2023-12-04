@@ -410,8 +410,53 @@
     "timestamp": "2023-11-16T19:57:24.000Z"
   },
   {
-    "acceptsSchemaHash": "46cb69b82a73d56236575ea2f03a4b5d",
-    "acceptedByMigration": "20231118T000042.make_fields_not_nullable.ts",
-    "timestamp": "2023-11-18T00:00:42.000Z"
+    "acceptsSchemaHash": "cdea3c2caa55eb651988dcb30e827b07",
+    "acceptedByMigration": "20231117T215406.addNotificationKarmaPowersGainedSetting.ts",
+    "timestamp": "2023-11-17T21:54:06.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6d8270f44805a1ee0b363924964776e7",
+    "acceptedByMigration": "20231121T121251.add_givingSeason2023DonatedFlair.ts",
+    "timestamp": "2023-11-21T12:12:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2e28d7576d143428c88b6c5a8ece4690",
+    "acceptedByMigration": "20231124T200925.move_on_connect_queries_into_migration.ts",
+    "timestamp": "2023-11-24T20:09:25.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7db476f93913b50f646a44166768ced6",
+    "acceptedByMigration": "20231128T152304.add_ElectionVotes.ts",
+    "timestamp": "2023-11-28T15:23:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8b861e3bf25c8edf6522b62bea9bf389",
+    "acceptedByMigration": "20231129T080701.add_givingSeason2023VotedFlair.ts",
+    "timestamp": "2023-11-29T08:07:01.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5cb40349b3ff94014c31fb0418ffa6ea",
+    "acceptedByMigration": "20231129T190047.add_four_fields_for_frontpage_dialogue_widget_customisation.ts",
+    "timestamp": "2023-11-29T19:00:47.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6ee0467b3cdea6d954c14e9bee545c42",
+    "acceptedByMigration": "20231129T200215.addNotificationNewDialogueChecks.ts",
+    "timestamp": "2023-11-29T20:02:15.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ea10555b6fef67efb7ab0cbbdfdb8772",
+    "acceptedByMigration": "20231130T012654.changeDefaultNewCheckNotificationFrequencyRealtime.ts",
+    "timestamp": "2023-11-30T01:26:54.000Z"
+  },
+  {
+    "acceptsSchemaHash": "edca7fde4fce09bf9031f2f3f9b18fda",
+    "acceptedByMigration": "20231130T140404.add_submissionComments.ts",
+    "timestamp": "2023-11-30T14:04:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2d5747e2acdbe83c754cbbda258623ed",
+    "acceptedByMigration": "20231201T022744.add_field_for_hiding_specific_users_in_reciprocity.ts",
+    "timestamp": "2023-12-01T02:27:44.000Z"
   }
 ]
