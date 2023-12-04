@@ -75,7 +75,6 @@ const buildTables = async (client: SqlClient) => {
   await ensureMongo2PgLockTableExists(client);
 
   preparePgTables();
-  await ensureMigratedIndexes();
 
   for (let collection of Collections) {
     if (collection instanceof SwitchingCollection) {
@@ -106,6 +105,8 @@ const buildTables = async (client: SqlClient) => {
       }
     }
   }
+
+  await ensureMigratedIndexes();
 
   await ensurePostgresViewsExist(client);
 }
