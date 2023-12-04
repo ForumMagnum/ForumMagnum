@@ -306,7 +306,7 @@ const Header = ({
   </div>
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
-  const RightHeaderItems = () => <div className={classes.rightHeaderItems}>
+  const rightHeaderItemsNode = <div className={classes.rightHeaderItems}>
     <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
       <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     </NoSSR>
@@ -352,7 +352,7 @@ const Header = ({
         unFixed={unFixed}
         setUnFixed={setUnFixed}
         NavigationMenuButton={NavigationMenuButton}
-        RightHeaderItems={RightHeaderItems}
+        RightHeaderItems={() => rightHeaderItemsNode}
         HeaderNavigationDrawer={HeaderNavigationDrawer}
         HeaderNotificationsMenu={HeaderNotificationsMenu}
       />
@@ -393,7 +393,7 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
-              <RightHeaderItems />
+              {rightHeaderItemsNode}
             </Toolbar>
           </header>
           <HeaderNavigationDrawer />
