@@ -80,18 +80,26 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
   });
 }
 
-export const ensureCustomPgIndex = async (sql: string, runImmediately = false) => {
+export const ensureCustomPgIndex = async (sql: string, runImmediately = false, sqlClient?: SqlClient) => {
   if (expectedCustomPgIndexes.includes(sql)) {
     return;
   }
   expectedCustomPgIndexes.push(sql);
 
+  // eslint-disable-next-line no-console
+  console.log({
+    canEnsureIndexes: canEnsureIndexes(),
+    isServer,
+    isAnyTest,
+    isMigrations,
+    disableEnsureIndexSetting: disableEnsureIndexSetting.get()
+  });
   if (!canEnsureIndexes())
     return;
 
   await createOrDeferIndex(async () => {
-    const db = getSqlClientOrThrow();
-    await db.any(sql);
+    sqlClient ??= getSqlClientOrThrow();
+    await sqlClient.any(sql);
   }, runImmediately);
 }
 
