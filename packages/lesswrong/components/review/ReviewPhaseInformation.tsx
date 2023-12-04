@@ -22,7 +22,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
   },
   faqQuestion: {
-    // color: theme.palette.primary.main
     textDecorationLine: 'underline',
     textDecorationStyle: 'dashed',
     textDecorationColor: theme.palette.text.dim4,
@@ -70,12 +69,10 @@ export const ReviewPhaseInformation = ({classes, reviewYear, reviewPhase}: {
   }
 
   if (reviewPhase === "VOTING") {
-    // TODO: address books situation (see commented out line)
     return <ContentStyles contentType="comment" className={classes.root}>
       <p><b>Final Voting Phase</b></p>
       <p>We just spent a month reviewing posts. Now it's time to look at posts that got at least one review, look over any reviews you think might have useful context, and cast your final vote.</p>
       <p>Vote positively for posts that you think have stood the tests of time as particularly important. Vote negatively for posts you think are misleading, harmful, or seem overrated/unimportant.</p>
-      {/* <p>Highly upvoted posts will be printed into a physical book, and included in the <Link to="/bestoflesswrong">Best of LessWrong</Link> page. (The LessWrong Team may make some judgment calls on the exact cutoff of which posts appear in the physical book).</p> */}
       <p>
         <ReviewVotingProgressBar reviewYear={reviewYear} />
       </p>
