@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, getFragmentText, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
-import { gql, useQuery, useMutation } from "@apollo/client";
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { gql, useQuery } from "@apollo/client";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
 import { randomId } from '../../lib/random';
@@ -952,6 +952,8 @@ const DialogueCheckBox: React.FC<{
     if (!currentUser) return;
 
     const response = await upsertUserDialogueCheck({ targetUserId, checked: event.target.checked, checkId });
+
+    captureEvent("newDialogueCheck", {checked: response.data.upsertUserDialogueCheck.checked}) 
     
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()
@@ -970,7 +972,7 @@ const DialogueCheckBox: React.FC<{
   }
 
   return (
-    <>
+    <AnalyticsContext pageElementContext={"dialogueCheckBox"}>
       {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} onConfettiComplete={() => setShowConfetti(false)} />}
       <FormControlLabel
         control={ 
@@ -989,7 +991,8 @@ const DialogueCheckBox: React.FC<{
         }
         label=""
       />
-    </>
+    </AnalyticsContext>
+    
   );
 };
 
