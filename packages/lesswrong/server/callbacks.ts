@@ -38,12 +38,6 @@ getCollectionHooks("Messages").newAsync.add(async function updateConversationAct
   });
 });
 
-getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
-  if (user.nullifyVotes && !oldUser.nullifyVotes) {
-    await nullifyVotesForUser(user);
-  }
-});
-
 getCollectionHooks("Users").editAsync.add(async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldUser: DbUser) {
   // if the user is setting up their profile and their username changes from that form,
   // we don't want this action to count toward their one username change
@@ -59,7 +53,10 @@ getCollectionHooks("Users").editAsync.add(async function userEditChangeDisplayNa
   }
 });
 
-getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
+getCollectionHooks("Users").updateAsync.add(async function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
+  if (newDocument.nullifyVotes && !oldDocument.nullifyVotes) {
+    await nullifyVotesForUser(newDocument);
+  }
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
     void userDeleteContent(newDocument, currentUser);
   }
