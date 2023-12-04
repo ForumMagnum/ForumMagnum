@@ -136,7 +136,23 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
     lineHeight: "140%",
-  }
+  },
+  warningBox: {
+    border: `2px solid ${theme.palette.text.warning}`,
+    borderRadius: theme.borderRadius.small,
+    backgroundColor: theme.palette.background.warningTranslucent,
+    fontWeight: 600,
+    fontSize: 16,
+    padding: "12px 24px",
+    margin: "0 auto",
+    color: theme.palette.text.warning,
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    [theme.breakpoints.down("xs")]: {
+      padding: "12px 12px",
+    },
+  },
 });
 
 const introImageIdSetting = new DatabasePublicSetting<string>("votingPortalIntroImageId", 'voting-portal-intro-image-2023-12-01_1');
@@ -157,7 +173,7 @@ const VotingPortalIntro = ({classes}: {
   const { openDialog } = useDialog();
   const { flash } = useMessages();
 
-  const { CloudinaryImage2 } = Components;
+  const { CloudinaryImage2, ForumIcon } = Components;
 
   const isLoggedIn = !!currentUser;
   const userCanVote = userCanVoteInDonationElection(currentUser);
@@ -181,6 +197,10 @@ const VotingPortalIntro = ({classes}: {
   return (
     <div className={classes.root}>
       <div className={classes.h1}>Welcome to the voting portal</div>
+      {!userCanVote && <div className={classes.warningBox}>
+        <ForumIcon icon="Warning" />
+        {isLoggedIn ? "You are not eligible to vote as your account was created after 22nd Oct 2023" : "You must be logged in to vote"}
+      </div>}
       <div className={classes.description}>
         <div>
         The {" "}
@@ -227,11 +247,6 @@ const VotingPortalIntro = ({classes}: {
         </Link>
         .)
       </div>
-      {isLoggedIn && !userCanVote && (
-        <div>
-          <b>You are not eligible to vote as your account was created after 22nd Oct 2023</b>
-        </div>
-      )}
       <div className={classes.buttonRow}>
         <Link to={candidatesLink} className={classNames(classes.button, classes.greyButton)}>
           Read about the candidates

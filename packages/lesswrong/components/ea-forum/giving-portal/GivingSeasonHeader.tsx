@@ -238,7 +238,7 @@ const GivingSeasonHeader = ({
   HeaderNotificationsMenu: FC,
   classes: ClassesType,
 }) => {
-  const { Typography, HeadTags } = Components;
+  const { Typography, HeadTags, HeaderSubtitle } = Components;
   const isDesktop = useIsAboveBreakpoint("md");
   const { pathname } = useLocation();
   const { electionVote } = useElectionVote("givingSeason23");
@@ -322,8 +322,9 @@ const GivingSeasonHeader = ({
                             {lightbulbIcon}
                           </div>
                         )}
-                        {isVotingPortal ? "Voting portal" : forumHeaderTitleSetting.get()}
+                        {isVotingPortal ? forumShortTitleSetting.get() : forumHeaderTitleSetting.get()}
                       </Link>
+                      <span className={classes.hideMdDown}><HeaderSubtitle /></span>
                     </div>
                   </div>
                   <div className={isVotingPortal ? classes.hideLgUp : classes.hideMdUp}>
@@ -334,8 +335,9 @@ const GivingSeasonHeader = ({
                             {lightbulbIcon}
                           </div>
                         )}
-                        {isVotingPortal ? "Voting portal" : forumShortTitleSetting.get()}
+                        {forumShortTitleSetting.get()}
                       </Link>
+                      <span className={classes.hideMdDown}><HeaderSubtitle /></span>
                     </div>
                   </div>
                 </Typography>
