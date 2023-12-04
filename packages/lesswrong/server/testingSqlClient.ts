@@ -4,7 +4,7 @@ import SwitchingCollection from "../lib/SwitchingCollection";
 import CreateIndexQuery from "../lib/sql/CreateIndexQuery";
 import CreateTableQuery from "../lib/sql/CreateTableQuery";
 import { Collections } from "./vulcan-lib";
-import { ensureIndex, expectedIndexes } from "../lib/collectionIndexUtils";
+import { ensureCustomPgIndex, ensureIndex, expectedIndexes } from "../lib/collectionIndexUtils";
 import { ensurePostgresViewsExist } from "./postgresView";
 import { ensureMongo2PgLockTableExists } from "../lib/mongo2PgLock";
 import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "../lib/sql/sqlClient";
@@ -47,28 +47,35 @@ export const preparePgTables = () => {
  * We're creating some indexes in the migration itself, rather than with ensureIndex.
  * So we need to ensure those indexes also exist in the test db for cypress tests, until we fix the whole index situation.
  */
-const ensureMigratedIndexes = () => {
-  ensureIndex(DatabaseMetadata, { name: 1 }, { unique: true, name: 'idx_DatabaseMetadata_name' });
-  ensureIndex(
-    DebouncerEvents,
-    { dispatched: 1, af: 1, key: 1, name: 1 },
-    {
-      unique: true,
-      partialFilterExpression: {
-        dispatched: false,
-      },
-      name: 'idx_DebouncerEvents_dispatched_af_key_name_filtered'
-    },
-  );
-  ensureIndex(PageCache, {path: 1, abTestGroups: 1, bundleHash: 1}, {unique: true, name: 'idx_PageCache_path_abTestGroups_bundleHash'});
-  ensureIndex(ReadStatuses, {userId:1, postId:1, tagId:1}, {unique: true, name: 'idx_ReadStatuses_userId_postId_tagId'});
+const ensureMigratedIndexes = async () => {
+  await ensureCustomPgIndex(`
+    CREATE UNIQUE INDEX "idx_DatabaseMetadata_name_new"
+    ON public."DatabaseMetadata" USING btree
+    (name);
+  `);
+  await ensureCustomPgIndex(`
+    CREATE UNIQUE INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered_new"
+    ON public."DebouncerEvents" USING btree
+    (dispatched, af, key, name)
+    WHERE (dispatched IS FALSE);
+  `);
+  await ensureCustomPgIndex(`
+    CREATE UNIQUE INDEX "idx_PageCache_path_abTestGroups_bundleHash_new"
+    ON public."PageCache" USING btree
+    (path, "abTestGroups", "bundleHash");
+  `);
+  await ensureCustomPgIndex(`
+    CREATE UNIQUE INDEX "idx_ReadStatuses_userId_postId_tagId_new"
+    ON public."ReadStatuses" USING btree
+    ("userId", COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
+  `);
 }
 
 const buildTables = async (client: SqlClient) => {
   await ensureMongo2PgLockTableExists(client);
 
   preparePgTables();
-  ensureMigratedIndexes();
+  await ensureMigratedIndexes();
 
   for (let collection of Collections) {
     if (collection instanceof SwitchingCollection) {
