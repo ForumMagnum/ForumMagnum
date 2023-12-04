@@ -54,23 +54,23 @@ const ensureMigratedIndexes = async () => {
     CREATE UNIQUE INDEX "idx_DatabaseMetadata_name_old"
     ON public."DatabaseMetadata" USING btree
     (COALESCE(name, ''));
-  `);
+  `, true);
   await ensureCustomPgIndex(`
     CREATE UNIQUE INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered_old"
     ON public."DebouncerEvents" USING btree
     (dispatched, af, COALESCE(key, ''), COALESCE(name, ''))
     WHERE (dispatched IS FALSE);
-  `);
+  `, true);
   await ensureCustomPgIndex(`
     CREATE UNIQUE INDEX "idx_PageCache_path_abTestGroups_bundleHash_old"
     ON public."PageCache" USING btree
     (COALESCE(path, ''), "abTestGroups", COALESCE("bundleHash", ''));
-  `);
+  `, true);
   await ensureCustomPgIndex(`
     CREATE UNIQUE INDEX "idx_ReadStatuses_userId_postId_tagId_old"
     ON public."ReadStatuses" USING btree
     (COALESCE("userId", ''), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
-  `);
+  `, true);
 }
 
 const buildTables = async (client: SqlClient) => {
