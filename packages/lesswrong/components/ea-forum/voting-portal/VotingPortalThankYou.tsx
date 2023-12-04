@@ -107,7 +107,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: 20,
     flexBasis: "50%",
     gap: "8px",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 600,
     background: theme.palette.givingPortal.button.dark,
     color: theme.palette.givingPortal.button.light,
@@ -234,7 +234,7 @@ const VotingPortalThankYou = ({currentUser, classes}: {
           {loadingFlair
             ? <Loading white />
             : <><ForumIcon icon="ArrowRight" className={classes.arrowIcon} /> {currentUser.givingSeason2023VotedFlair
-              ? "Remove icon from your profile"
+              ? "Remove icon from profile"
               : "Add icon to your profile"}</>
           }
         </div>
