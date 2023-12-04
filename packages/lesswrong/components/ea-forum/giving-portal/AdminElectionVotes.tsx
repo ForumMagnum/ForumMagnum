@@ -13,11 +13,11 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     display: "flex",
     flexDirection: "column",
-    gap: "16px"
+    gap: "16px",
   },
   numWinners: {
     display: "flex",
-    gap: "16px"
+    gap: "16px",
   },
   table: {
     borderCollapse: "collapse",
@@ -66,8 +66,7 @@ const normaliseVotes = (
   }
 
   for (const vote of normalisedVotes) {
-    // Use different way of aggregating to be extra careful
-    const totalValue = Object.values(vote).reduce((acc, val) => acc + val, 0);
+    const totalValue = sum(Object.values(vote));
 
     if (!approximatelyEqual(totalValue, 1)) {
       throw new Error(`Vote has not been normalised to 1: ${JSON.stringify(vote)}`);
@@ -87,7 +86,7 @@ const aggregateVotes = (votes: Record<string, number>[]): Record<string, number>
 
   // Assert:
   // 1. The sum of the aggregated vote is equal to the number of votes
-  const totalValue = Object.values(aggregatedVote).reduce((acc, val) => acc + val, 0);
+  const totalValue = sum(Object.values(aggregatedVote));
   if (!approximatelyEqual(totalValue, votes.length)) {
     throw new Error(`Vote has not been aggregated correctly: ${JSON.stringify(aggregatedVote)}`);
   }
@@ -197,7 +196,11 @@ const AdminElectionVotes = ({ classes }: { classes: ClassesType<typeof styles> }
         <tbody>
           {displayedVote.map(([candidate, val]) => (
             <tr key={candidate._id}>
-              <td>{candidate.name}</td>
+              <td>
+                <a href={candidate.gwwcLink ?? ""} target="_blank" rel="noopener noreferrer">
+                  {candidate.name}
+                </a>
+              </td>
               <td>{(val * 100).toFixed(1)}</td>
               <td>{parseFloat((val * amountRaised.raisedForElectionFund).toFixed(2)).toLocaleString()}</td>
             </tr>
