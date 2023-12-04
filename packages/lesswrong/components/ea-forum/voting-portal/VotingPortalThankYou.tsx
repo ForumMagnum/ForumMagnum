@@ -82,10 +82,12 @@ const styles = (theme: ThemeType) => ({
   },
   arrowIcon: {
     fontSize: 18,
-    transform: "rotate(180deg)",
     [theme.breakpoints.down("xs")]: {
       display: "none",
     },
+  },
+  arrowLeft: {
+    transform: "rotate(180deg)",
   },
   tooltipRow: {
     display: "flex",
@@ -127,6 +129,15 @@ const styles = (theme: ThemeType) => ({
       marginRight: 0,
     },
   },
+  outlineButton: {
+    color: theme.palette.givingPortal.button.dark,
+    border: `1.5px solid ${theme.palette.givingPortal.button.borderColor}`,
+    backgroundColor: "transparent",
+    "&:hover": {
+      backgroundColor: theme.palette.givingPortal.button.hoverOutlined,
+      opacity: 1,
+    },
+  },
   hr: {
     borderTop: `1px solid ${theme.palette.givingPortal[1000]}`,
     opacity: 0.3,
@@ -135,9 +146,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: 16,
     fontWeight: 600,
     lineHeight: "24px",
-    paddingLeft: 20,
+    paddingLeft: 2,
     marginBottom: 0,
-    "& li:not(:first-child)": {
+    "& div:not(:first-child)": {
       marginTop: 8,
     },
     "& a": {
@@ -147,6 +158,11 @@ const styles = (theme: ThemeType) => ({
         opacity: 1,
       },
     },
+  },
+  listRow: {
+    display: "flex",
+    gap: "8px",
+    alignItems: "center",
   },
   whiteButton: {
     background: theme.palette.grey[0],
@@ -214,34 +230,38 @@ const VotingPortalThankYou = ({currentUser, classes}: {
             </div>
           </div>
         </div>
-        <div className={classes.button} role="button" onClick={toggleFlair}>
+        <div className={classNames(classes.button, {
+              [classes.outlineButton]: currentUser.givingSeason2023VotedFlair,
+            })} role="button" onClick={toggleFlair}>
           {loadingFlair
             ? <Loading white />
-            : <><ForumIcon icon="ArrowRight" className={classes.arrowIcon} /> {currentUser.givingSeason2023VotedFlair
+            : <><ForumIcon icon="ArrowRight" className={classNames(classes.arrowIcon, classes.arrowLeft)} /> {currentUser.givingSeason2023VotedFlair
               ? "Remove icon from your profile"
               : "Add icon to your profile"}</>
           }
         </div>
       </div>
       <div className={classes.hr} />
-      <ul className={classes.list}>
-        <li>
+      <div className={classes.list}>
+        <div className={classes.listRow}>
+          -&gt;
           <Link to="/posts/rszgfHdkmzCDDPM9k/where-are-you-donating-this-year-and-why-open-thread-1">
             Share that you voted or where you're donating
           </Link>
-        </li>
-        <li>
-          {/* TODO get this from the election candidate */}
+        </div>
+        <div className={classes.listRow}>
+          -&gt;
           <a href="https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023" target="_blank" rel="noopener noreferrer">
             Donate to the Donation Election Fund
           </a>
-        </li>
-        <li>
+        </div>
+        <div className={classes.listRow}>
+          -&gt;
           <Link to="/giving-portal">
             Explore other giving opportunities
           </Link>
-        </li>
-      </ul>
+        </div>
+      </div>
       <Link to="/voting-portal/select-candidates" className={classNames(classes.button, classes.whiteButton)}>
         Edit your vote (until Dec 15)
       </Link>
