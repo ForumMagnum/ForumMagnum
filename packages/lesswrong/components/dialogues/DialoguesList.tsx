@@ -169,7 +169,6 @@ const DialogueMatchRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRow
             checkId={checkId}
             isChecked={userIsChecked}
             isMatched={userIsMatched}
-            pageContext={"frontpage_match_row"}
           />
         </div>
         <PostsItem2MetaInfo className={classes.dialogueMatchUsername}>

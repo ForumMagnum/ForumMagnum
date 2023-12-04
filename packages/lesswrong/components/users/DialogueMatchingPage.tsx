@@ -931,8 +931,7 @@ const DialogueCheckBox: React.FC<{
   isMatched: boolean;
   hideInRecommendations?: boolean;
   classes: ClassesType<typeof styles>;
-  pageContext?: string
-}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, hideInRecommendations, classes, pageContext="unspecified"}) => {
+}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, hideInRecommendations, classes}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { openDialog } = useDialog();
@@ -975,28 +974,27 @@ const DialogueCheckBox: React.FC<{
   }
 
   return (
-    <>
+    <AnalyticsContext pageElementContext={"dialogueCheckBox"}>
       {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} onConfettiComplete={() => setShowConfetti(false)} />}
-      <AnalyticsContext pageContext={pageContext}>
-        <FormControlLabel
-          control={ 
-            <Checkbox 
-              classes={{
-                root: classNames({
-                  [classes.checkbox]: !isChecked,
-                  [classes.checkboxCheckedMatched]: isChecked && isMatched,
-                  [classes.checkboxCheckedNotMatched]: isChecked && !isMatched
-                }),
-                checked: classes.checked
-              }}
-              onChange={event => updateDatabase(event, targetUserId, checkId) } 
-              checked={isChecked}
-            />
-          }
-          label=""
-        />
-      </AnalyticsContext>
-    </>
+      <FormControlLabel
+        control={ 
+          <Checkbox 
+            classes={{
+              root: classNames({
+                [classes.checkbox]: !isChecked,
+                [classes.checkboxCheckedMatched]: isChecked && isMatched,
+                [classes.checkboxCheckedNotMatched]: isChecked && !isMatched
+              }),
+              checked: classes.checked
+            }}
+            onChange={event => updateDatabase(event, targetUserId, checkId) } 
+            checked={isChecked}
+          />
+        }
+        label=""
+      />
+    </AnalyticsContext>
+    
   );
 };
 
@@ -1104,7 +1102,6 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
       checkId={checkId}
       isChecked={userIsChecked}
       isMatched={userIsMatched}
-      pageContext={'matching_homepage'}
     />
     <UsersName
       className={classes.displayName}
