@@ -30,6 +30,7 @@ import MapPinIcon from "@heroicons/react/24/solid/MapPinIcon";
 import CommentIcon from "@heroicons/react/24/outline/ChatBubbleLeftIcon";
 import CommentFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftIcon";
 import ChatBubbleLeftRightIcon from "@heroicons/react/24/outline/ChatBubbleLeftRightIcon";
+import ChatBubbleLeftRightFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftRightIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
 import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
@@ -57,7 +58,10 @@ import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
+import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
+import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
+import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -86,6 +90,7 @@ import MuiEllipsisVerticalIcon from "@material-ui/icons/MoreVert";
 import MuiShareIcon from "@material-ui/icons/Share";
 import MuiSearchIcon from '@material-ui/icons/Search';
 import MuiMenuIcon from "@material-ui/icons/Menu";
+import MuiForumIcon from '@material-ui/icons/Forum';
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -95,6 +100,7 @@ import MuiMenuIcon from "@material-ui/icons/Menu";
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
+import { GivingHand } from "../icons/givingHand";
 import { StickyIcon } from "../icons/stickyIcon";
 import { ThickChevronLeftIcon } from "../icons/thickChevronLeftIcon";
 import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
@@ -108,6 +114,7 @@ import { CloseMenuIcon } from "../icons/closeMenuIcon";
 import { BoldLinkIcon } from "../icons/boldLink";
 import { QIcon } from "../icons/qIcon";
 import { FilterAlt } from "../icons/filteralt";
+import { VotedIcon } from "../icons/votedIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -136,6 +143,7 @@ export type ForumIconName =
   "Pin" |
   "Author" |
   "Sprout" |
+  "GivingHand" |
   "Close" |
   "Calendar" |
   "CalendarDays" |
@@ -147,6 +155,7 @@ export type ForumIconName =
   "Comment" |
   "CommentFilled" |
   "ChatBubbleLeftRight" |
+  "ChatBubbleLeftRightFilled" |
   "Shortform" |
   "Warning" |
   "Report" |
@@ -178,6 +187,7 @@ export type ForumIconName =
   "DocumentFilled" |
   "SoftUpArrow" |
   "ArrowRight" |
+  "ArrowCircle" |
   "EllipsisVertical" |
   "Share" |
   "ClipboardDocumentList" |
@@ -189,7 +199,10 @@ export type ForumIconName =
   "CloseMenu" |
   "Q" |
   "BarChart" |
-  "Funnel";
+  "Funnel" |
+  "Voted" |
+  "InfoCircle" |
+  "BarsArrowDown";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -213,6 +226,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: StickyIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
+    GivingHand: GivingHand,
     Close: CloseIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
@@ -224,6 +238,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
     ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
+    ChatBubbleLeftRightFilled: MuiForumIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
     ListBullet: ListBulletIcon,
@@ -255,6 +270,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
+    ArrowCircle: ArrowCircleIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
     Share: MuiShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
@@ -267,6 +283,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Q: QIcon,
     BarChart: ChartBarIcon,
     Funnel: FilterAlt,
+    Voted: VotedIcon,
+    InfoCircle: InformationCircleIcon,
+    BarsArrowDown: BarsArrowDown,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -289,6 +308,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: PinIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
+    GivingHand: GivingHand,
     Close: CloseIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
@@ -300,6 +320,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Comment: CommentIcon,
     CommentFilled: CommentFilledIcon,
     ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
+    ChatBubbleLeftRightFilled: ChatBubbleLeftRightFilledIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
     ListBullet: ListBulletIcon,
@@ -331,6 +352,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
+    ArrowCircle: ArrowCircleIcon,
     EllipsisVertical: EllipsisVerticalIcon,
     Share: ShareIcon,
     ClipboardDocumentList: ClipboardDocumentListIcon,
@@ -343,6 +365,9 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Q: QIcon,
     BarChart: ChartBarIcon,
     Funnel: FunnelIcon,
+    Voted: VotedIcon,
+    InfoCircle: InformationCircleIcon,
+    BarsArrowDown: BarsArrowDown,
   },
 };
 

@@ -39,7 +39,13 @@ export default class ElectionCandidatesRepo extends AbstractRepo<DbElectionCandi
       WHERE "electionName" = $1
     `, [electionName]);
 
-    return result || {
+    return result ? {
+      ...result,
+      // We matched $5000 that isn't included in the amount we get from GWWC
+      // TODO: remove the 5000 if we run another election
+      raisedForElectionFund: result.raisedForElectionFund + 5_000,
+      totalRaised: result.totalRaised + 5_000,
+     } : {
       raisedForElectionFund: 0,
       electionFundTarget: 0,
       totalRaised: 0,

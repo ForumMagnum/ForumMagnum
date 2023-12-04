@@ -91,7 +91,7 @@ export async function getPredictionDataFromElicit(questionId:string) {
       'Authorization': `API_KEY ${elicitAPIKey.get()}`
     }
   })
-  if (response.status !== 200) throw new Error(`Cannot get elicit prediction, got: ${response.status}: ${response.statusText}`)
+  if (response.status !== 200) throw new Error(`Cannot get elicit prediction for questionId ${questionId}, got: ${response.status}: ${response.statusText}`)
   const responseText = await response.text()
   if (!responseText) return null
   return JSON.parse(responseText)

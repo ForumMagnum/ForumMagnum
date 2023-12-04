@@ -29,6 +29,7 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { isPostAllowedType3Audio, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../embeddings';
+import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -375,8 +376,14 @@ async function extractSocialPreviewImage (post: DbPost) {
   if (post.contents?.html) {
     const $ = cheerioParse(post.contents?.html)
     const firstImg = $('img').first()
-    if (firstImg) {
-      socialPreviewImageAutoUrl = firstImg.attr('src') || ''
+    const firstImgSrc = firstImg?.attr('src')
+    if (firstImg && firstImgSrc) {
+      try {
+        socialPreviewImageAutoUrl = await moveImageToCloudinary(firstImgSrc, post._id) ?? firstImgSrc
+      } catch (e) {
+        captureException(e);
+        socialPreviewImageAutoUrl = firstImgSrc
+      }
     }
   }
   

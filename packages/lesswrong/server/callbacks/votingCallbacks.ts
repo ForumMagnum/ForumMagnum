@@ -1,11 +1,17 @@
+import moment from 'moment';
+import Notifications from '../../lib/collections/notifications/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import { userSmallVotePower } from '../../lib/voting/voteTypes';
 import { postPublishedCallback } from '../notificationCallbacks';
+import { createNotification } from '../notificationCallbacksHelpers';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
+
+export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
 /**
  * @summary Update the karma of the item's owner
@@ -14,19 +20,44 @@ import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
  * @param {object} collection - The collection the item belongs to
  * @param {string} operation - The operation being performed
  */
-export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser, context) {
   // Only update user karma if the operation isn't done by one of the item's current authors.
   // We don't want to let any of the authors give themselves or another author karma for this item.
   // We need to await it so that the subsequent check for whether any stricter rate limits apply can do a proper comparison between old and new karma
   if (vote.authorIds && !vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
+  // if (!vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
+    const users = await Users.find({_id: {$in: vote.authorIds}}).fetch();
     await Users.rawUpdateMany({_id: {$in: vote.authorIds}}, {$inc: {karma: vote.power}});
+    
+    if (newDocument.userId) {
+      for (let user of users) {
+        const oldKarma = user.karma;
+        const newKarma = oldKarma + vote.power;
+        void userKarmaChangedFrom(newDocument.userId, oldKarma, newKarma, context);
+      }  
+    }
   }
 
   if (!!newDocument.userId && isLWorAF && ['Posts', 'Comments'].includes(vote.collectionName)) {
     void checkForStricterRateLimits(newDocument.userId, context);
   }
 });
+
+async function userKarmaChangedFrom(userId: string, oldKarma: number, newKarma: number, context: ResolverContext) {
+  if (userSmallVotePower(oldKarma, 1) < userSmallVotePower(newKarma, 1)) {
+    const yesterday = moment().subtract(1, 'days').toDate();
+    const existingNotificationCount = await Notifications.find({userId, type: 'karmaPowersGained', createdAt: {$gt: yesterday}}).count();
+    if (existingNotificationCount === 0) {
+      await createNotification({
+        userId,
+        notificationType: 'karmaPowersGained',
+        documentType: null,
+        documentId: null,
+        context
+      })
+    }
+  }
+};
 
 voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
   // Only update user karma if the operation isn't done by one of the item's authors at the time of the original vote.

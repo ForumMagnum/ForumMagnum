@@ -4,6 +4,10 @@ import { eaGivingSeason23ElectionName, timelineSpec } from "../../../lib/eaGivin
 import { isEAForum } from "../../../lib/instanceSettings";
 import { useCurrentTime } from "../../../lib/utils/timeUtil";
 import moment from "moment";
+import { useCurrentUser } from "../../common/withUser";
+import seedrandom from "../../../lib/seedrandom";
+import { useCookiesWithConsent } from "../../hooks/useCookiesWithConsent";
+import { CLIENT_ID_COOKIE } from "../../../lib/cookies/cookies";
 
 export type ElectionAmountRaised = {
   raisedForElectionFund: number,
@@ -17,19 +21,36 @@ export type ElectionAmountRaisedQueryResult = {
 }
 
 export const useElectionCandidates = (
-  sortBy: ElectionCandidatesSort = "mostPreVoted",
+  sortBy: ElectionCandidatesSort | "random" = "mostPreVoted",
   options?: Partial<UseMultiOptions<"ElectionCandidateBasicInfo", "ElectionCandidates">>,
 ) => {
-  return useMulti({
+  const currentUser = useCurrentUser();
+  const [cookies] = useCookiesWithConsent([CLIENT_ID_COOKIE]);
+  const clientId = cookies[CLIENT_ID_COOKIE];
+
+  const {results, ...retVal} = useMulti({
     collectionName: "ElectionCandidates",
     fragmentName: "ElectionCandidateBasicInfo",
     terms: {
       electionName: eaGivingSeason23ElectionName,
-      sortBy,
+      sortBy: sortBy === "random" ? "name" : sortBy,
     },
     limit: 30,
+    // There is an SSR mismatch bug that occurs on safari when using the random sort
+    ssr: false,
     ...options,
   });
+
+  let resultsCopy = results ? [...results] : undefined;
+  if (sortBy === "random") {
+    const rng = seedrandom(currentUser?.abTestKey ?? clientId);
+    resultsCopy?.sort(() => rng() - 0.5);
+  }
+
+  return {
+    results: resultsCopy,
+    ...retVal,
+  };
 }
 
 export const useDonationOpportunities = useElectionCandidates;

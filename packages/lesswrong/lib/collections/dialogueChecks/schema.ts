@@ -21,20 +21,25 @@ const schema: SchemaType<DbDialogueCheck> = {
     ...schemaDefaultValue(false),
     canRead: ['members'],
     canCreate: ['members'],
-    canUpdate: [userOwns],
   },
   checkedAt: {
     type: Date,
     nullable: false,
     canRead: ['members'],
     canCreate: ['members'],
-    canUpdate: [userOwns],
   },
   match: {
     type: Boolean,
     nullable: false,
     canRead: ['members'],
     // Defined in server/resolvers/dialogueChecksResolvers.ts
+  },
+  hideInRecommendations: {
+    type: Boolean,
+    nullable: false,
+    ...schemaDefaultValue(false),
+    canRead: ['members'],
+    canCreate: ['members'],
   },
   matchPreference: resolverOnlyField({
     type: 'DialogueMatchPreference',

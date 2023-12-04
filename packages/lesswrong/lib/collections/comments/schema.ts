@@ -454,7 +454,7 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     nullable: false,
     hidden: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],

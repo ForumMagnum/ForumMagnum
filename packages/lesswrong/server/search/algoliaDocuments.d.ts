@@ -64,8 +64,8 @@ interface AlgoliaUser {
   groups: Array<string>,
   af: boolean,
   _geoloc?: {
-    lat: number,
-    lng: number
+    type: "Point",
+    coordinates: number[],
   },
   mapLocationAddress?: string,
   tags: Array<string>,

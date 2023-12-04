@@ -221,7 +221,7 @@ const schema: SchemaType<DbSequence> = {
     optional: true,
     nullable: false,
     label: "Alignment Forum",
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['alignmentVoters'],
     canCreate: ['alignmentVoters'],

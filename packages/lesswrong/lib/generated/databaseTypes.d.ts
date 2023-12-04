@@ -65,7 +65,7 @@ interface DbChapter extends DbObject {
   subtitle: string | null
   number: number | null
   sequenceId: string | null
-  postIds: Array<string>
+  postIds: Array<string> | null
   contents: EditableFieldContents
   contents_latest: string | null
   createdAt: Date
@@ -166,7 +166,7 @@ interface DbComment extends DbObject {
   hideModeratorHat: boolean | null
   isPinnedOnProfile: boolean
   title: string | null
-  relevantTagIds: Array<string>
+  relevantTagIds: Array<string> | null
   debateResponse: boolean | null
   rejected: boolean
   modGPTAnalysis: string | null
@@ -174,7 +174,7 @@ interface DbComment extends DbObject {
   rejectedReason: string | null
   rejectedByUserId: string | null
   af: boolean
-  suggestForAlignmentUserIds: Array<string>
+  suggestForAlignmentUserIds: Array<string> | null
   reviewForAlignmentUserId: string | null
   afDate: Date | null
   moveToAlignmentUserId: string | null
@@ -201,7 +201,7 @@ interface ConversationsCollection extends CollectionBase<DbConversation, "Conver
 interface DbConversation extends DbObject {
   __collectionName?: "Conversations"
   title: string | null
-  participantIds: Array<string>
+  participantIds: Array<string> | null
   latestActivity: Date | null
   af: boolean | null
   messageCount: number
@@ -260,6 +260,7 @@ interface DbDialogueCheck extends DbObject {
   targetUserId: string
   checked: boolean
   checkedAt: Date
+  hideInRecommendations: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -339,6 +340,23 @@ interface DbElectionCandidate extends DbObject {
   afBaseScore: number | null
   afExtendedScore: any /*{"definitions":[{"type":"JSON"}]}*/
   afVoteCount: number | null
+}
+
+interface ElectionVotesCollection extends CollectionBase<DbElectionVote, "ElectionVotes"> {
+}
+
+interface DbElectionVote extends DbObject {
+  __collectionName?: "ElectionVotes"
+  electionName: string
+  userId: string | null
+  compareState: any /*{"definitions":[{"blackbox":true}]}*/
+  vote: any /*{"definitions":[{"blackbox":true}]}*/
+  submittedAt: Date | null
+  submissionComments: any /*{"definitions":[{"blackbox":true}]}*/
+  userExplanation: string | null
+  userOtherComments: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 interface ElicitQuestionPredictionsCollection extends CollectionBase<DbElicitQuestionPrediction, "ElicitQuestionPredictions"> {
@@ -468,9 +486,9 @@ interface DbLocalgroup extends DbObject {
   __collectionName?: "Localgroups"
   name: string | null
   nameInAnotherLanguage: string | null
-  organizerIds: Array<string>
+  organizerIds: Array<string> | null
   lastActivity: Date | null
-  types: Array<string> | null
+  types: Array<string>
   categories: Array<string> | null
   isOnline: boolean
   mongoLocation: any /*{"definitions":[{"blackbox":true}]}*/
@@ -797,7 +815,7 @@ interface DbPost extends DbObject {
   bannedUserIds: Array<string> | null
   commentsLocked: boolean | null
   commentsLockedToAccountsCreatedAfter: Date | null
-  organizerIds: Array<string>
+  organizerIds: Array<string> | null
   groupId: string | null
   eventType: string | null
   isEvent: boolean
@@ -822,7 +840,7 @@ interface DbPost extends DbObject {
   types: Array<string> | null
   metaSticky: boolean
   sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
-  shareWithUsers: Array<string>
+  shareWithUsers: Array<string> | null
   linkSharingKey: string | null
   linkSharingKeyUsedBy: Array<string> | null
   commentSortOrder: string | null
@@ -847,7 +865,7 @@ interface DbPost extends DbObject {
   afCommentCount: number
   afLastCommentedAt: Date | null
   afSticky: boolean
-  suggestForAlignmentUserIds: Array<string>
+  suggestForAlignmentUserIds: Array<string> | null
   reviewForAlignmentUserId: string | null
   agentFoundationsId: string | null
   createdAt: Date
@@ -1113,7 +1131,7 @@ interface DbTag extends DbObject {
   wikiOnly: boolean
   bannerImageId: string | null
   squareImageId: string | null
-  tagFlagsIds: Array<string>
+  tagFlagsIds: Array<string> | null
   lesswrongWikiImportRevision: string | null
   lesswrongWikiImportSlug: string | null
   lesswrongWikiImportCompleted: boolean | null
@@ -1123,10 +1141,10 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string | null
   canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null
   isSubforum: boolean
-  subforumModeratorIds: Array<string>
+  subforumModeratorIds: Array<string> | null
   subforumIntroPostId: string | null
   parentTagId: string | null
-  subTagIds: Array<string>
+  subTagIds: Array<string> | null
   autoTagModel: string | null
   autoTagPrompt: string | null
   noindex: boolean
@@ -1255,7 +1273,7 @@ interface DbUser extends DbObject {
   } | null
   showCommunityInRecentDiscussion: boolean
   hidePostsRecommendations: boolean
-  petrovOptOut: boolean | null
+  petrovOptOut: boolean
   acceptedTos: boolean
   hideNavigationSidebar: boolean | null
   currentFrontpageFilter: string | null
@@ -1279,8 +1297,8 @@ interface DbUser extends DbObject {
   collapseModerationGuidelines: boolean | null
   bannedUserIds: Array<string> | null
   bannedPersonalUserIds: Array<string> | null
-  bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>
-  hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>
+  bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/> | null
+  hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/> | null
   legacyId: string | null
   deleted: boolean
   voteBanned: boolean | null
@@ -1351,6 +1369,12 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   notificationEventInRadius: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationKarmaPowersGained: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
@@ -1428,9 +1452,19 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  notificationNewDialogueChecks: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
   hideDialogueFacilitation: boolean
   revealChecksToAdmins: boolean
   optedInToDialogueFacilitation: boolean
+  showDialoguesList: boolean
+  showMyDialogues: boolean
+  showMatches: boolean
+  showRecommendedPartners: boolean
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -1532,8 +1566,8 @@ interface DbUser extends DbObject {
   facebookProfileURL: string | null
   twitterProfileURL: string | null
   githubProfileURL: string | null
-  profileTagIds: Array<string>
-  organizerOfGroupIds: Array<string>
+  profileTagIds: Array<string> | null
+  organizerOfGroupIds: Array<string> | null
   programParticipation: Array<string> | null
   postingDisabled: boolean | null
   allCommentingDisabled: boolean | null
@@ -1551,6 +1585,8 @@ interface DbUser extends DbObject {
   reviewForAlignmentForumUserId: string | null
   afApplicationText: string | null
   afSubmittedApplication: boolean | null
+  givingSeason2023DonatedFlair: boolean
+  givingSeason2023VotedFlair: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents
@@ -1635,6 +1671,7 @@ interface CollectionsByName {
   DigestPosts: DigestPostsCollection
   Digests: DigestsCollection
   ElectionCandidates: ElectionCandidatesCollection
+  ElectionVotes: ElectionVotesCollection
   ElicitQuestionPredictions: ElicitQuestionPredictionsCollection
   ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
@@ -1696,6 +1733,7 @@ interface ObjectsByCollectionName {
   DigestPosts: DbDigestPost
   Digests: DbDigest
   ElectionCandidates: DbElectionCandidate
+  ElectionVotes: DbElectionVote
   ElicitQuestionPredictions: DbElicitQuestionPrediction
   ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
@@ -1757,6 +1795,7 @@ interface ObjectsByTypeName {
   DigestPost: DbDigestPost
   Digest: DbDigest
   ElectionCandidate: DbElectionCandidate
+  ElectionVote: DbElectionVote
   ElicitQuestionPrediction: DbElicitQuestionPrediction
   ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens

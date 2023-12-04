@@ -1,5 +1,6 @@
 import React, { FC } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { useIsAboveBreakpoint } from "../../hooks/useScreenWidth";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import {
@@ -8,37 +9,44 @@ import {
   forumShortTitleSetting,
   HEADER_HEIGHT,
 } from "../../common/Header";
-import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
+import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { headerImageId } from "../../../lib/eaGivingSeason";
+import { headerImageId, heroImageId, userCanVoteInDonationElection, votingHeaderImageId } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
+import { useLocation } from "../../../lib/routeUtil";
+import { useElectionVote } from "../voting-portal/hooks";
+import { useCurrentUser } from "../../common/withUser";
 
 export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
 const BACKGROUND_ASPECT = 3160 / 800;
 const BACKGROUND_WIDTH = Math.round(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT * BACKGROUND_ASPECT);
 
-const GIVING_SEASON_HEADER_IMAGE = makeCloudinaryImageUrl(headerImageId, {
-  h: String(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT),
-  w: String(BACKGROUND_WIDTH),
-  q: "100",
-  f: "auto",
-  c: "fill",
-  g: "center",
-});
-
 export const givingSeasonImageBackground = (
   theme: ThemeType,
   position: "top" | "bottom",
+  isVotingImg?: boolean
 ) => {
+  const imgUrl = makeCloudinaryImageUrl(
+    isVotingImg ? votingHeaderImageId : headerImageId,
+    {
+      h: String(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT),
+      w: String(BACKGROUND_WIDTH),
+      q: "100",
+      f: "auto",
+      c: "fill",
+      g: "center",
+    }
+  )
+  
   const width = BACKGROUND_WIDTH;
   const height = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT;
   return {
     transition: "box-shadow 0.2s ease-in-out",
     backgroundColor: theme.palette.givingPortal.homepageHeader.dark,
-    backgroundImage: `url(${GIVING_SEASON_HEADER_IMAGE})`,
+    backgroundImage: `url(${imgUrl})`,
     backgroundPosition: position,
     backgroundRepeat: "no-repeat",
     backgroundSize: `${width}px ${height}px`,
@@ -63,7 +71,7 @@ export const givingSeasonGradient = (
     height,
     margin: "0 auto",
     "@media (max-width: 1200px)": {
-      background: `linear-gradient(76deg, ${theme.palette.givingPortal.homepageHeader.dark} 10%, ${theme.palette.givingPortal.homepageHeader.main} 40%, ${theme.palette.background.transparent} 70%, ${theme.palette.givingPortal.homepageHeader.main})`,
+      background: `linear-gradient(to right, ${theme.palette.givingPortal.homepageHeader.dark} 10%, ${theme.palette.givingPortal.homepageHeader.main} 40%, ${theme.palette.background.transparent} 70%, ${theme.palette.givingPortal.homepageHeader.main})`,
     },
     [theme.breakpoints.down("sm")]: {
       display: "none",
@@ -88,8 +96,20 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-  appBarGivingSeason: {
+  leftHeaderItems: {
+    display: "flex",
+    alignItems: "center",
+  },
+  homePageBackground: {
     ...givingSeasonImageBackground(theme, "top"),
+  },
+  homePageVotingBackground: {
+    ...givingSeasonImageBackground(theme, "top", true),
+  },
+  solidBackground: {
+    background: theme.palette.givingPortal.homepageHeader.dark,
+  },
+  appBarGivingSeason: {
     color: theme.palette.givingPortal.homepageHeader.light4,
     position: "static",
     width: "100%",
@@ -149,6 +169,7 @@ const styles = (theme: ThemeType) => ({
   },
   toolbarGivingSeason: {
     zIndex: theme.zIndexes.spotlightItem,
+    justifyContent: "space-between",
   },
   siteLogoGivingSeason: {
     width: 34,
@@ -160,7 +181,41 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.givingPortal.homepageHeader.light4,
   },
   givingSeasonGradient: givingSeasonGradient(theme),
+  navigationSteps: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.text.alwaysWhite,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '24px',
+    fontSize: 16,
+    fontWeight: 500,
+    whiteSpace: 'nowrap',
+    [theme.breakpoints.down('md')]: {
+      gap: '16px',
+    }
+  },
+  activeStepLink: {
+    textUnderlineOffset: '6px',
+    textDecoration: 'underline',
+    '&:hover': {
+      textDecoration: 'underline',
+    }
+  },
+  disabledStepLink: {
+    opacity: 0.7,
+  }
 });
+
+const votingPortalSocialImageProps: CloudinaryPropsType = {
+  dpr: "auto",
+  ar: "16:9",
+  w: "1200",
+  c: "fill",
+  g: "center",
+  q: "auto",
+  f: "auto",
+};
 
 const GivingSeasonHeader = ({
   searchOpen,
@@ -183,48 +238,136 @@ const GivingSeasonHeader = ({
   HeaderNotificationsMenu: FC,
   classes: ClassesType,
 }) => {
-  const {Typography} = Components;
+  const { Typography, HeadTags, HeaderSubtitle } = Components;
+  const isDesktop = useIsAboveBreakpoint("md");
+  const { pathname } = useLocation();
+  const { electionVote } = useElectionVote("givingSeason23");
+  const currentUser = useCurrentUser();
+
+  const compareAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 1;
+  const allocateAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 0;
+  const submitAllowed = electionVote?.vote && Object.values(electionVote.vote).some((value) => value);
+  // We only advertise voting for users who are eligible -
+  // i.e. those that created their accounts before Oct 23 and haven't voted yet.
+  const advertiseVoting = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
+
+  const votingSteps = [
+    {
+      label: '1. Select candidates',
+      href: '/voting-portal/select-candidates',
+    },
+    {
+      label: '2. Compare',
+      href: '/voting-portal/compare',
+      disabled: !compareAllowed,
+    },
+    {
+      label: '3. Finalize points',
+      href: '/voting-portal/allocate-points',
+      disabled: !allocateAllowed,
+    },
+    {
+      label: '4. Submit',
+      href: '/voting-portal/submit',
+      disabled: !submitAllowed,
+    },
+  ]
+
+  const isVotingPortal = pathname.startsWith("/voting-portal");
+  // Show voting steps if we are on a path like /voting-portal/compare (with anything after /voting-portal/)
+  const showVotingSteps = isVotingPortal && /\/voting-portal\/\w/.test(pathname);
+
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
-      <div className={classNames(classes.root, classes.rootGivingSeason, {
-        [classes.rootScrolled]: !unFixed,
-      })}>
+      {isVotingPortal && (
+        <HeadTags
+          title="Voting portal"
+          description="Vote in the EA Forum Donation Election"
+          image={makeCloudinaryImageUrl(heroImageId, votingPortalSocialImageProps)}
+        />
+      )}
+      <div
+        className={classNames(classes.root, classes.rootGivingSeason, {
+          [classes.rootScrolled]: !unFixed,
+        })}
+      >
         <Headroom
           disableInlineStyles
-          downTolerance={10} upTolerance={10}
+          downTolerance={10}
+          upTolerance={10}
           height={HEADER_HEIGHT}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
           })}
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
+          disable={isDesktop}
         >
-          <header className={classes.appBarGivingSeason}>
-            <div className={classes.givingSeasonGradient} />
+          <header
+            className={classNames(
+              classes.appBarGivingSeason,
+              isVotingPortal ? classes.solidBackground : advertiseVoting ? classes.homePageVotingBackground : classes.homePageBackground
+            )}
+          >
+            {!isVotingPortal && <div className={classes.givingSeasonGradient} />}
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
-              <NavigationMenuButton />
-              <Typography className={classes.title} variant="title">
-                <div className={classes.hideSmDown}>
-                  <div className={classes.titleSubtitleContainer}>
-                    <Link to="/" className={classNames(classes.titleLink, classes.titleLinkGivingSeason)}>
-                      {hasLogo && <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>
-                        {lightbulbIcon}
-                      </div>}
-                      {forumHeaderTitleSetting.get()}
-                    </Link>
+              <div className={classes.leftHeaderItems}>
+                <NavigationMenuButton />
+                <Typography className={classes.title} variant="title">
+                  <div className={isVotingPortal ? classes.hideMdDown : classes.hideSmDown}>
+                    <div className={classes.titleSubtitleContainer}>
+                      <Link to={"/"} className={classNames(classes.titleLink, classes.titleLinkGivingSeason)}>
+                        {hasLogo && (
+                          <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>
+                            {lightbulbIcon}
+                          </div>
+                        )}
+                        {isVotingPortal ? forumShortTitleSetting.get() : forumHeaderTitleSetting.get()}
+                      </Link>
+                      <span className={classes.hideMdDown}><HeaderSubtitle /></span>
+                    </div>
                   </div>
-                </div>
-                <div className={classes.hideMdUp}>
-                  <div className={classes.titleSubtitleContainer}>
-                    <Link to="/" className={classNames(classes.titleLink, classes.titleLinkGivingSeason)}>
-                      {hasLogo && <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>
-                        {lightbulbIcon}
-                      </div>}
-                      {forumShortTitleSetting.get()}
-                    </Link>
+                  <div className={isVotingPortal ? classes.hideLgUp : classes.hideMdUp}>
+                    <div className={classes.titleSubtitleContainer}>
+                      <Link to={"/"} className={classNames(classes.titleLink, classes.titleLinkGivingSeason)}>
+                        {hasLogo && (
+                          <div className={classNames(classes.siteLogo, classes.siteLogoGivingSeason)}>
+                            {lightbulbIcon}
+                          </div>
+                        )}
+                        {forumShortTitleSetting.get()}
+                      </Link>
+                      <span className={classes.hideMdDown}><HeaderSubtitle /></span>
+                    </div>
                   </div>
+                </Typography>
+              </div>
+              {showVotingSteps && (
+                <div className={classNames(classes.navigationSteps, classes.hideSmDown)}>
+                  {votingSteps.map(({ label, href, disabled }) =>
+                    disabled ? (
+                      <span
+                        key={href}
+                        className={classNames(classes.stepLink, classes.disabledStepLink, {
+                          [classes.activeStepLink]: pathname === href,
+                        })}
+                      >
+                        {label}
+                      </span>
+                    ) : (
+                      <Link
+                        key={href}
+                        to={href}
+                        className={classNames(classes.stepLink, {
+                          [classes.activeStepLink]: pathname === href,
+                        })}
+                      >
+                        {label}
+                      </Link>
+                    )
+                  )}
                 </div>
-              </Typography>
+              )}
               <RightHeaderItems />
             </Toolbar>
           </header>

@@ -220,10 +220,11 @@ const PostsNewForm = ({classes}: {
   });
 
   const {
-    PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox,
+    PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
     RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
     NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
   } = Components;
+
   const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
   const debateForm = !!(query && query.debate);
 
@@ -271,7 +272,7 @@ const PostsNewForm = ({classes}: {
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
 
   if (!currentUser) {
-    return (<WrappedLoginForm />);
+    return (<LoginForm />);
   }
 
   if (!userCanPost(currentUser)) {

@@ -133,7 +133,6 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     baseScore: {
       type: Number,
       optional: true,
-      nullable: false,
       canRead: customBaseScoreReadAccess || ['guests'],
       ...schemaDefaultValue(0),
     },
@@ -146,9 +145,8 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     score: {
       type: Number,
       optional: true,
-      nullable: false,
-      canRead: ['guests'],
       ...schemaDefaultValue(0),
+      canRead: ['guests'],
     },
     // Whether the document is inactive. Inactive documents see their score
     // recalculated less often

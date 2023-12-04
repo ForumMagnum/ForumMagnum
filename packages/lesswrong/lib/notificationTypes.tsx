@@ -27,6 +27,7 @@ import { userGetDisplayName } from './collections/users/helpers'
 import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
 import DialogueChecks from './collections/dialogueChecks/collection';
+import { taggingNamePluralSetting } from './instanceSettings';
 
 export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
@@ -367,6 +368,22 @@ export const NewDialogueMatchNotification = registerNotificationType({
   }
 });
 
+// Notification that you have new interested parties for dialogues
+export const NewDialogueCheckNotification = registerNotificationType({
+  name: "newDialogueChecks",
+  userSettingField: "notificationNewDialogueChecks",
+  allowedChannels: ["onsite", "none"],
+  async getMessage(props: GetMessageProps) {
+    return `New users interested in dialoguing with you (not a match yet)`
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  },
+  getLink() {
+    return "/dialogueMatching"
+  }
+});
+
 //NOTIFICATION FOR OLD DIALOGUE FORMAT
 //TO-DO: clean up eventually
 // New debate comment on a debate post you're subscribed to.  For readers explicitly subscribed to the debate.
@@ -624,6 +641,19 @@ export const NewRSVPNotification = registerNotificationType({
   }
 })
 
+export const KarmaPowersGainedNotification = registerNotificationType({
+  name: "karmaPowersGained",
+  userSettingField: "notificationKarmaPowersGained",
+  async getMessage() {
+    return "Your votes are stronger because your karma went up!"
+  },
+  getLink() {
+    return `/tag/vote-strength`;
+  },
+  getIcon() {
+    return <Components.ForumIcon icon="Bell" style={iconStyles} />
+  }
+})
 export const CancelledRSVPNotification = registerNotificationType({
   name: "cancelledRSVP",
   userSettingField: "notificationRSVPs",

@@ -87,7 +87,7 @@ const schema: SchemaType<DbLocalgroup> = {
     canUpdate: ['members'],
     control: 'MultiSelectButtons',
     label: "Group Type:",
-    defaultValue: ["LW"],
+    ...schemaDefaultValue(["LW"]),
     minCount: 1, // Ensure that at least one type is selected
     form: {
       options: localGroupTypeFormOptions

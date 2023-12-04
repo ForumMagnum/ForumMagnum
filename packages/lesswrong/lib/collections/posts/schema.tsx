@@ -259,7 +259,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: false,
     canRead: ['admins'],
-    defaultValue: 0
+    ...schemaDefaultValue(0),
   },
   // Timestamp of the last comment
   lastCommentedAt: {
@@ -276,7 +276,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: false,
     canRead: ['admins'],
-    defaultValue: 0
+    ...schemaDefaultValue(0),
   },
 
   deletedDraft: {
@@ -752,7 +752,6 @@ const schema: SchemaType<DbPost> = {
   reviewVoteCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
     ...denormalizedCountOfReferences({
       fieldName: "reviewVoteCount",
       collectionName: "Posts",
@@ -766,7 +765,6 @@ const schema: SchemaType<DbPost> = {
   positiveReviewVoteCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
     ...denormalizedCountOfReferences({
       fieldName: "positiveReviewVoteCount",
       collectionName: "Posts",
@@ -782,15 +780,13 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreAF: {
     type: Number, 
     optional: true,
-    nullable: false,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   reviewVotesAF: {
     type: Array,
     optional: true,
-    nullable: false,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'reviewVotesAF.$': {
@@ -801,16 +797,14 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
-    nullable: false,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   // A list of each individual user's calculated quadratic vote, for users with >1000 karma
   reviewVotesHighKarma: {
     type: Array,
     optional: true,
-    nullable: false,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'reviewVotesHighKarma.$': {
@@ -821,16 +815,14 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
-    nullable: false,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   // A list of each individual user's calculated quadratic vote, for all users
   reviewVotesAllKarma: {
     type: Array,
     optional: true,
-    nullable: false,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'reviewVotesAllKarma.$': {
@@ -842,15 +834,13 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
-    nullable: false,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   finalReviewVotesHighKarma: {
     type: Array,
     optional: true,
-    nullable: false,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'finalReviewVotesHighKarma.$': {
@@ -861,15 +851,13 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
-    nullable: false,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   finalReviewVotesAllKarma: {
     type: Array,
     optional: true,
-    nullable: false,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'finalReviewVotesAllKarma.$': {
@@ -880,15 +868,13 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreAF: {
     type: Number, 
     optional: true,
-    nullable: false,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   finalReviewVotesAF: {
     type: Array,
     optional: true,
-    nullable: false,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'finalReviewVotesAF.$': {
@@ -952,7 +938,8 @@ const schema: SchemaType<DbPost> = {
     blackbox: true,
     group: formGroups.tags,
     control: "FormComponentPostEditorTagging",
-    hidden: (props) => props.eventForm,
+    hidden: ({eventForm, document}) => eventForm ||
+      (isLWorAF && !!document.collabEditorDialogue),
   },
   "tagRelevance.$": {
     type: Number,
@@ -1160,7 +1147,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: false,
     hidden: false,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
@@ -1174,7 +1161,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     nullable: false,
     hidden: false,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
@@ -1198,8 +1185,7 @@ const schema: SchemaType<DbPost> = {
   legacySpam: {
     type: Boolean,
     optional: true,
-    nullable: false,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     hidden: true,
     canRead: ['guests'],
     canUpdate: ['admins'],
@@ -1462,6 +1448,7 @@ const schema: SchemaType<DbPost> = {
     control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
     order: 4,
+    hidden: ({document}) => (isLWorAF && !!document.collabEditorDialogue) || (isEAForum && document.isEvent),
   },
 
   fmCrosspost: {
@@ -2433,6 +2420,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
+    hidden: ({document}) => !!document.collabEditorDialogue,
     resolveAs: {
       type: 'Boolean',
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
@@ -2470,6 +2458,7 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
+    hidden: ({document}) => !!document.collabEditorDialogue,
     form: {
       options: function () { // options for the select form control
         return [
@@ -2486,7 +2475,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     nullable: true,
-    hidden: isEAForum,
+    hidden: ({document}) => isEAForum || !!document.collabEditorDialogue,
     tooltip: "Allow rate-limited users to comment freely on this post",
     group: formGroups.moderationGroup,
     canRead: ["guests"],
@@ -2511,8 +2500,6 @@ const schema: SchemaType<DbPost> = {
   commentCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
-    
     ...denormalizedCountOfReferences({
       fieldName: "commentCount",
       collectionName: "Posts",
@@ -2527,8 +2514,6 @@ const schema: SchemaType<DbPost> = {
   topLevelCommentCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
-    
     ...denormalizedCountOfReferences({
       fieldName: "topLevelCommentCount",
       collectionName: "Posts",

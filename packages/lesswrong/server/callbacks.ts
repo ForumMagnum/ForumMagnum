@@ -9,7 +9,6 @@ import { clearVotesServer } from './voteServer';
 import { Posts } from '../lib/collections/posts/collection';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { Comments } from '../lib/collections/comments'
-import { ReadStatuses } from '../lib/collections/readStatus/collection';
 import { VoteableCollections } from '../lib/make_voteable';
 
 import { getCollection, createMutator, updateMutator, deleteMutator, runQuery, getCollectionsByName } from './vulcan-lib';
@@ -22,6 +21,7 @@ import Revisions from '../lib/collections/revisions/collection';
 import { syncDocumentWithLatestRevision } from './editor/utils';
 import { createAdminContext } from './vulcan-lib/query';
 import ReadStatusesRepo from './repos/ReadStatusesRepo';
+import Sequences from '../lib/collections/sequences/collection';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -36,12 +36,6 @@ getCollectionHooks("Messages").newAsync.add(async function updateConversationAct
     currentUser: user,
     validate: false,
   });
-});
-
-getCollectionHooks("Users").editAsync.add(async function userEditNullifyVotesCallbacksAsync(user: DbUser, oldUser: DbUser) {
-  if (user.nullifyVotes && !oldUser.nullifyVotes) {
-    await nullifyVotesForUser(user);
-  }
 });
 
 getCollectionHooks("Users").editAsync.add(async function userEditChangeDisplayNameCallbacksAsync(user: DbUser, oldUser: DbUser) {
@@ -59,7 +53,10 @@ getCollectionHooks("Users").editAsync.add(async function userEditChangeDisplayNa
   }
 });
 
-getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
+getCollectionHooks("Users").updateAsync.add(async function userEditDeleteContentCallbacksAsync({newDocument, oldDocument, currentUser}) {
+  if (newDocument.nullifyVotes && !oldDocument.nullifyVotes) {
+    await nullifyVotesForUser(newDocument);
+  }
   if (newDocument.deleteContent && !oldDocument.deleteContent && currentUser) {
     void userDeleteContent(newDocument, currentUser);
   }
@@ -240,6 +237,20 @@ export async function userDeleteContent(user: DbUser, deletingUser: DbUser, dele
     }
 
     await commentReportPurgeAsSpam(comment);
+  }
+  
+  const sequences = await Sequences.find({userId: user._id}).fetch();
+  //eslint-disable-next-line no-console
+  console.info("Deleting sequences: ", sequences);
+  for (let sequence of sequences) {
+    await updateMutator({
+      collection: Sequences,
+      documentId: sequence._id,
+      set: {isDeleted: true},
+      unset: {},
+      currentUser: deletingUser,
+      validate: false,
+    })
   }
   
   if (deleteTags) {

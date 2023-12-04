@@ -240,6 +240,11 @@ import './collections/electionCandidates/collection';
 import './collections/electionCandidates/fragments';
 import './collections/electionCandidates/views';
 
+// ElectionVotes
+import './collections/electionVotes/collection';
+import './collections/electionVotes/fragments';
+import './collections/electionVotes/views';
+
 // Collections supporting vendored libraries
 import './collections/cronHistories';
 import './collections/sessions';

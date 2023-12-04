@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, getFragmentText, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
-import { gql, useQuery, useMutation } from "@apollo/client";
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { gql, useQuery } from "@apollo/client";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
 import { randomId } from '../../lib/random';
@@ -24,11 +24,15 @@ import TextField from '@material-ui/core/TextField';
 import {SYNC_PREFERENCE_VALUES, SyncPreference } from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
+import { useUpsertDialogueCheck } from '../hooks/useUpsertDialogueCheck';
 import keyBy from 'lodash/keyBy';
 import merge from 'lodash/merge';
 import mergeWith from 'lodash/mergeWith';
 import partition from 'lodash/partition';
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
+import NoSSR from 'react-no-ssr';
+import { useABTest } from '../../lib/abTestImpl';
+import { dialogueMatchingPageNoSSRABTest } from '../../lib/abTests';
 
 export type UpvotedUser = {
   _id: string;
@@ -73,6 +77,7 @@ export type TopicRecommendationData = DbComment[]
 
 interface CommonDialogueUserRowProps {
   checkId: string;
+  hideInRecommendations?: boolean;
   userIsChecked: boolean;
   userIsMatched: boolean;
   currentUser: UsersCurrent;
@@ -81,7 +86,7 @@ interface CommonDialogueUserRowProps {
   showPostsYouveRead: boolean | undefined;
 }
 
-type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueUserRowProps & {
+export type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueUserRowProps & {
   targetUser: UpvotedUser;
   showKarma: boolean;
   showAgreement: boolean;
@@ -90,7 +95,6 @@ type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueU
   showKarma: false;
   showAgreement: false;
 });
-
 
 type RowUser = UsersOptedInToDialogueFacilitation & {
   [k in keyof Omit<UpvotedUser, '_id' | 'username' | 'displayName'>]?: never;
@@ -268,7 +272,7 @@ const styles = (theme: ThemeType) => ({
     maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.light,
-    color: 'white',
+    color: theme.palette.grey[0],
     whiteSpace: 'nowrap',
     borderRadius: 5,
     [theme.breakpoints.down("xs")]: {
@@ -280,7 +284,7 @@ const styles = (theme: ThemeType) => ({
     maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
     backgroundColor: theme.palette.primary.main ,
-    color: 'white',
+    color: theme.palette.grey[0],
     whiteSpace: 'nowrap',
     borderRadius: 5
   },
@@ -288,8 +292,8 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 200,
     maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    backgroundColor: 'white',
-    color: 'black',
+    backgroundColor: theme.palette.grey[0],
+    color: theme.palette.grey[1000],
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
@@ -309,19 +313,19 @@ const styles = (theme: ThemeType) => ({
     position: 'relative',
     maxHeight: 70, 
     overflow: 'auto',
-    color: 'grey', 
+    color: theme.palette.grey[600],
     fontSize: 14,
     lineHeight: '1.15em',
-    WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
+    WebkitMaskImage: `linear-gradient(to bottom, transparent 0%, ${theme.palette.text.alwaysBlack} 20%, ${theme.palette.text.alwaysBlack} 80%, transparent 100%)`,
     '&.scrolled-to-bottom': {
-      WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 100%)',
+      WebkitMaskImage: `linear-gradient(to bottom, transparent 0%, ${theme.palette.text.alwaysBlack} 20%, ${theme.palette.text.alwaysBlack} 100%)`,
     },
     '&.scrolled-to-top': {
-      WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 80%, transparent 100%)',
+      WebkitMaskImage: `linear-gradient(to bottom, ${theme.palette.text.alwaysBlack} 0%, ${theme.palette.text.alwaysBlack} 80%, transparent 100%)`,
     }
   },
   privacyNote: {
-    color: 'grey',
+    color: theme.palette.grey[600],
     fontSize: '1rem',
     maxWidth: 1300
   },
@@ -344,9 +348,9 @@ const styles = (theme: ThemeType) => ({
   },
   checkboxCheckedNotMatched: {
     height: 10, 
-    color: '#ADD8E6',
+    color: theme.palette.dialogueMatching.checkedNotMatched,
     '&$checked': {
-      color: '#00000038',
+      color: theme.palette.dialogueMatching.checkedMatched,
     },
   },
   centeredText: {
@@ -362,7 +366,7 @@ const styles = (theme: ThemeType) => ({
 
   // mobile warning stuff
   mobileWarning: {
-    backgroundColor: 'yellow',
+    backgroundColor: theme.palette.dialogueMatching.warning,
     padding: 10,
     marginBottom: 20,
     maxWidth: '40vw',
@@ -381,7 +385,7 @@ const styles = (theme: ThemeType) => ({
   optInCheckbox: {
     height: 10,
     width: 30,
-    color: "#9a9a9a",
+    color: theme.palette.dialogueMatching.optIn,
     marginRight: '-10px', // to get the prompt to line up closer
   },
   dialogueTopicList: {
@@ -441,7 +445,7 @@ const styles = (theme: ThemeType) => ({
     paddingBottom: 4,
     marginLeft: 'auto',
     borderRadius: 5,
-    backgroundColor: "rgba(0,0,0,0.05)",
+    backgroundColor: theme.palette.greyAlpha(0.05),
     whiteSpace: 'nowrap'
   }
 });
@@ -493,6 +497,10 @@ const useScrollGradient = (ref: React.RefObject<HTMLDivElement>) => {
   return { isScrolledToTop, isScrolledToBottom };
 };
 
+const isHideInRecommendations = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
+  return userDialogueChecks.find(check => check.targetUserId === targetUserId)?.hideInRecommendations ?? false;
+}
+
 const isMatched = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
   return userDialogueChecks.some(check => check.targetUserId === targetUserId && check.match);
 };
@@ -501,12 +509,14 @@ const isChecked = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string
   return userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked ?? false;
 };
 
-const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
+export const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
   const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id;
+  const hideInRecommendations = isHideInRecommendations(userDialogueChecks, targetUser._id);
   const userIsChecked = isChecked(userDialogueChecks, targetUser._id);
   const userIsMatched = isMatched(userDialogueChecks, targetUser._id);
   return {
     checkId,
+    hideInRecommendations,
     userIsChecked,
     userIsMatched
   };
@@ -667,7 +677,7 @@ const Headers = ({ titles, classes, headerClasses }: { titles: string[], headerC
   );
 };
 
-type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No", recommendationReason: string, theirVote?: string, yourVote?: string}
+export type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No", recommendationReason: string, theirVote?: string, yourVote?: string}
 
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes, dialogueCheck }: NextStepsDialogProps) => {
   const { LWDialog, ReactionIcon, LWTooltip } = Components;
@@ -919,21 +929,12 @@ const DialogueCheckBox: React.FC<{
   checkId?: string;
   isChecked: boolean, 
   isMatched: boolean;
+  hideInRecommendations?: boolean;
   classes: ClassesType<typeof styles>;
-}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, classes}) => {
+}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, hideInRecommendations, classes}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { openDialog } = useDialog();
-
-  const [upsertDialogueCheck] = useMutation(gql`
-    mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
-      upsertUserDialogueCheck(targetUserId: $targetUserId, checked: $checked) {
-          ...DialogueCheckInfo
-        }
-      }
-    ${getFragmentText('DialogueCheckInfo')}
-    ${getFragmentText('DialogueMatchPreferencesDefaultFragment')}
-    `)
   
   async function handleNewMatchAnonymisedAnalytics() {
     captureEvent("newDialogueReciprocityMatch", {}) // we only capture match metadata and don't pass anything else
@@ -942,56 +943,17 @@ const DialogueCheckBox: React.FC<{
     const webhookURL = isProduction ? "https://hooks.slack.com/triggers/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" : "https://hooks.slack.com/triggers/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"  //
     const data = {} // Not sending any data for now 
     void pingSlackWebhook(webhookURL, data)
-    
   }
 
   const [showConfetti, setShowConfetti] = useState(false);
-
+  const upsertUserDialogueCheck = useUpsertDialogueCheck();
 
   async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId: string, checkId?: string) {
     if (!currentUser) return;
 
-    const response = await upsertDialogueCheck({
-      variables: {
-        targetUserId: targetUserId, 
-        checked: event.target.checked
-      },
-      update(cache, { data }) {
-        if (!checkId) {
-          cache.modify({
-            fields: {
-              dialogueChecks(existingChecksRef) {
-                const newCheckRef = cache.writeFragment({
-                  data: data.upsertUserDialogueCheck,
-                  fragment: gql`
-                    ${getFragmentText('DialogueCheckInfo')}
-                    ${getFragmentText('DialogueMatchPreferencesDefaultFragment')}
-                  `,
-                  fragmentName: 'DialogueCheckInfo'
-                });
-                return {
-                  ...existingChecksRef,
-                  results: [...existingChecksRef.results, newCheckRef]
-                }
-              }
-            }
-          });
-        }
-      },
-      optimisticResponse: {
-        upsertUserDialogueCheck: {
-          _id: checkId ?? randomId(),
-          __typename: 'DialogueCheck',
-          userId: currentUser._id,
-          targetUserId: targetUserId,
-          checked: event.target.checked,
-          checkedAt: new Date(),
-          match: false,
-          matchPreference: null,
-          reciprocalMatchPreference: null
-        }
-      }
-    })
+    const response = await upsertUserDialogueCheck({ targetUserId, checked: event.target.checked, checkId });
+
+    captureEvent("newDialogueCheck", {checked: response.data.upsertUserDialogueCheck.checked}) 
     
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()
@@ -1010,7 +972,7 @@ const DialogueCheckBox: React.FC<{
   }
 
   return (
-    <>
+    <AnalyticsContext pageElementContext={"dialogueCheckBox"}>
       {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} onConfettiComplete={() => setShowConfetti(false)} />}
       <FormControlLabel
         control={ 
@@ -1029,7 +991,8 @@ const DialogueCheckBox: React.FC<{
         }
         label=""
       />
-    </>
+    </AnalyticsContext>
+    
   );
 };
 
@@ -1234,7 +1197,7 @@ export const DialogueMatchingPage = ({classes}: {
     matchedUsersQueryResult: { data: matchedUsersResult },
     userDialogueChecksResult: { results: userDialogueChecks },
     usersOptedInResult: { results: usersOptedInToDialogueFacilitation, loadMoreProps: optedInUsersLoadMoreProps }
-  } = useDialogueMatchmaking({ getMatchedUsers: true, getOptedInUsers: true, getUserDialogueChecks: true });
+  } = useDialogueMatchmaking({ getMatchedUsers: true, getRecommendedUsers: false, getOptedInUsers: true, getUserDialogueChecks: true });
 
   const { loading, error, data } = useQuery(gql`
     query getDialogueUsers {
@@ -1270,17 +1233,18 @@ export const DialogueMatchingPage = ({classes}: {
 
   const userDialogueUsefulData: UserDialogueUsefulData = data?.GetUserDialogueUsefulData;
 
-  const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
+  const matchedUsersWithSelf: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers
+  const matchedUsers = matchedUsersWithSelf?.filter(user => user._id !== currentUser._id)
   const matchedUserIds = matchedUsers?.map(user => user._id) ?? [];
   const topUsers = userDialogueUsefulData?.topUsers.filter(user => !matchedUserIds.includes(user._id));
   const recentlyActiveTopUsers = topUsers.filter(user => user.recently_active_matchmaking)
   const nonRecentlyActiveTopUsers = topUsers.filter(user => !user.recently_active_matchmaking)
-  const dialogueUsers = userDialogueUsefulData?.dialogueUsers.filter(user => !matchedUserIds.includes(user._id));
-  const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id));
-  const activeDialogueMatchSeekers = userDialogueUsefulData?.activeDialogueMatchSeekers.filter(user => !matchedUserIds.includes(user._id));
+  const dialogueUsers = userDialogueUsefulData?.dialogueUsers.filter(user => !matchedUserIds.includes(user._id) && !(user._id === currentUser._id));
+  const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id) && !(user._id === currentUser._id));
+  const activeDialogueMatchSeekers = userDialogueUsefulData?.activeDialogueMatchSeekers.filter(user => !matchedUserIds.includes(user._id) && !(user._id === currentUser._id));
   
   if (loading) return <Loading />
-  if (error ?? !userDialogueChecks ?? userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
+  if (error || !userDialogueChecks || userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
   if (userDialogueChecks?.length > 1000) {
     throw new Error(`Warning: userDialogueChecks.length > 1000, seems user has checked more than a thousand boxes? how is that even possible? let a dev know and we'll fix it...`);
   }
@@ -1304,9 +1268,6 @@ export const DialogueMatchingPage = ({classes}: {
   return (
   <div className={classes.root}>
     <div className={classes.container}>
-      <div className={classes.mobileWarning}>
-        Dialogues matching doesn't render well on narrow screens right now. <br/> <br /> Please view on laptop or tablet!
-      </div>
 
       <h1>Dialogue Matching</h1>
       <ul>
@@ -1465,11 +1426,16 @@ export const DialogueMatchingPage = ({classes}: {
   </div>)
 }
 
+const NoSSRMatchingPage = (props: {classes: ClassesType<typeof styles>}) =>
+  useABTest(dialogueMatchingPageNoSSRABTest) === 'noSSR'
+  ? <NoSSR><DialogueMatchingPage {...props} /></NoSSR>
+  : <DialogueMatchingPage {...props} />
+
 const DialogueNextStepsButtonComponent = registerComponent('DialogueNextStepsButton', DialogueNextStepsButton, {styles});
 const MessageButtonComponent = registerComponent('MessageButton', MessageButton, {styles});
 const DialogueCheckBoxComponent = registerComponent('DialogueCheckBox', DialogueCheckBox, {styles});
 const DialogueUserRowComponent = registerComponent('DialogueUserRow', DialogueUserRow, {styles});
-const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', DialogueMatchingPage, {styles});
+const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', NoSSRMatchingPage, {styles});
 
 declare global {
   interface ComponentTypes {

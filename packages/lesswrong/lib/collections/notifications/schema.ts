@@ -57,7 +57,7 @@ const schema: SchemaType<DbNotification> = {
   viewed: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['members'],
     canCreate: ['members'],
     canUpdate: ['members'],

@@ -45,8 +45,7 @@ const schema: SchemaType<DbGardenCode> = {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     label: "Event Name",
-    defaultValue: "Guest Day Pass",
-    nullable: false,
+    ...schemaDefaultValue("Guest Day Pass"),
     order: 10
   },
   userId: {

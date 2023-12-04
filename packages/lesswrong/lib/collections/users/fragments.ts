@@ -25,6 +25,8 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
+    givingSeason2023DonatedFlair # TODO: Remove after giving season
+    givingSeason2023VotedFlair   # TODO: Remove after giving season
   }
 `);
 
@@ -214,6 +216,11 @@ registerFragment(`
     hideDialogueFacilitation
     optedInToDialogueFacilitation
     revealChecksToAdmins
+
+    showDialoguesList
+    showMyDialogues
+    showMatches
+    showRecommendedPartners
   }
 `);
 
@@ -260,6 +267,10 @@ registerFragment(`
         scoreChange
         title
         slug
+        addedReacts {
+          reactionType
+          userId
+        }
       }
       comments {
         _id
@@ -268,6 +279,10 @@ registerFragment(`
         postId
         tagSlug
         tagCommentType
+        addedReacts {
+          reactionType
+          userId
+        }
       }
       tagRevisions {
         _id
@@ -275,6 +290,10 @@ registerFragment(`
         tagId
         tagSlug
         tagName
+        addedReacts {
+          reactionType
+          userId
+        }
       }
     }
   }
@@ -475,6 +494,7 @@ registerFragment(`
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+    notificationNewDialogueChecks
 
     givingSeasonNotifyForVoting
 

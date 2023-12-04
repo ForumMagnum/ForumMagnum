@@ -1,13 +1,5 @@
-import { getSqlClient, logIfSlow } from "../../lib/sql/sqlClient";
+import { getSqlClient } from "../../lib/sql/sqlClient";
 import PgCollection from "../../lib/sql/PgCollection";
-import type { Json } from "fp-ts/lib/Either";
-
-/**
- * By default most args are passed in as an array of values,
- * but you can also pass in named args as a record with field names corresponding to the named parameters in the query.
- * Those should use the $() syntax - e.g. `$(postId)`
- */
-type SqlQueryArgs = unknown[] | Record<string, Json | Date>;
 
 /**
  * abstractRepo provides the superclass from which all of our collection
@@ -52,45 +44,27 @@ export default abstract class AbstractRepo<T extends DbObject> {
   }
 
   protected none(sql: string, args: SqlQueryArgs = []): Promise<null> {
-    return logIfSlow(
-      () => this.db.none(sql, args),
-      () => `${sql}: ${JSON.stringify(args)}`
-    );
+    return this.db.none(sql, args, () => `${sql}: ${JSON.stringify(args)}`);
   }
 
   protected one(sql: string, args: SqlQueryArgs = []): Promise<T> {
-    return logIfSlow(
-      () => this.postProcess(this.db.one(sql, args)),
-      () => `${sql}: ${JSON.stringify(args)}`
-    );
+    return this.postProcess(this.db.one(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
   protected oneOrNone(sql: string, args: SqlQueryArgs = []): Promise<T | null> {
-    return logIfSlow(
-      () => this.postProcess(this.db.oneOrNone(sql, args)),
-      () => `${sql}: ${JSON.stringify(args)}`
-    );
+    return this.postProcess(this.db.oneOrNone(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
   protected any(sql: string, args: SqlQueryArgs = []): Promise<T[]> {
-    return logIfSlow(
-      () => this.postProcess(this.db.any(sql, args)),
-      () => `${sql}: ${JSON.stringify(args)}`
-    );
+    return this.postProcess(this.db.any(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
   protected many(sql: string, args: SqlQueryArgs = []): Promise<T[]> {
-    return logIfSlow(
-      () => this.postProcess(this.db.many(sql, args)),
-      () => `${sql}: ${JSON.stringify(args)}`
-    );
+    return this.postProcess(this.db.many(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
   protected manyOrNone(sql: string, args: SqlQueryArgs = []): Promise<T[]> {
-    return logIfSlow(
-      () => this.postProcess(this.db.manyOrNone(sql, args)),
-      () => `${sql}: ${JSON.stringify(args)}`
-    );
+    return this.postProcess(this.db.manyOrNone(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
   private postProcess(promise: Promise<T>): Promise<T>;

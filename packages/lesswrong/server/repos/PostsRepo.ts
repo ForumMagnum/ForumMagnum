@@ -1,7 +1,6 @@
 import Posts from "../../lib/collections/posts/collection";
 import { ensureIndex } from '../../lib/collectionIndexUtils';
 import AbstractRepo from "./AbstractRepo";
-import { logIfSlow } from "../../lib/sql/sqlClient";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
@@ -46,7 +45,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   }
 
   async getMeanKarmaByInterval(startDate: Date, averagingWindowMs: number): Promise<MeanPostKarma[]> {
-    return await logIfSlow(async () => this.getRawDb().any(`
+    return this.getRawDb().any(`
       SELECT "_id", AVG("baseScore") AS "meanKarma"
       FROM (
         SELECT
@@ -57,34 +56,32 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       ) Q
       GROUP BY "_id"
       ORDER BY "_id"
-    `, [startDate, averagingWindowMs]),
-      "getMeanKarmaByInterval"
-    );
+    `, [startDate, averagingWindowMs], "getMeanKarmaByInterval");
   }
 
   async getMeanKarmaOverall(): Promise<number> {
-    const result = await logIfSlow(async () => await this.getRawDb().oneOrNone(`
+    const result = await this.getRawDb().oneOrNone(`
       SELECT AVG("baseScore") AS "meanKarma"
       FROM "Posts"
       WHERE ${getViewablePostsSelector()}
-    `), "getMeanKarmaOverall");
+    `, [], "getMeanKarmaOverall");
     return result?.meanKarma ?? 0;
   }
 
   async getReadHistoryForUser(userId: string, limit: number): Promise<Array<DbPost & {lastUpdated: Date}>> {
-    return await logIfSlow(async () => await this.getRawDb().manyOrNone(`
+    return await this.getRawDb().manyOrNone(`
       SELECT p.*, rs."lastUpdated"
       FROM "Posts" p
       JOIN "ReadStatuses" rs ON rs."postId" = p."_id"
       WHERE rs."userId" = '${userId}'
       ORDER BY rs."lastUpdated" desc
       LIMIT $1
-    `, [limit]), "getReadHistoryForUser");
+    `, [limit], "getReadHistoryForUser");
   }
-  
+
   async getEligiblePostsForDigest(digestId: string, startDate: Date, endDate?: Date): Promise<Array<PostAndDigestPost>> {
     const end = endDate ?? new Date()
-    return await logIfSlow(async () => await this.getRawDb().manyOrNone(`
+    return this.getRawDb().manyOrNone(`
       SELECT p.*, dp._id as "digestPostId", dp."emailDigestStatus", dp."onsiteDigestStatus"
       FROM "Posts" p
       LEFT JOIN "DigestPosts" dp ON dp."postId" = p."_id" AND dp."digestId" = $1
@@ -98,7 +95,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         p."draft" is not true
       ORDER BY p."baseScore" desc
       LIMIT 200
-    `, [digestId, startDate, end]), "getEligiblePostsForDigest");
+    `, [digestId, startDate, end], "getEligiblePostsForDigest");
   }
 
   async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {

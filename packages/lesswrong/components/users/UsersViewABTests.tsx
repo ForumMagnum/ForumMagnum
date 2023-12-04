@@ -44,7 +44,7 @@ const UsersViewABTests = ({classes}: {
     
     <div className={classes.explanatoryText}>
       <p>
-        Your A/B test key is {getUserABTestKey(currentUser, clientId)}. This is used to randomize your test group in future A/B tests. You can see which A/B tests are active and which group you are in below, and override your group allocation. (This may cause data you generate to not be counted in certain experiments.)
+        Your A/B test key is {getUserABTestKey(currentUser ? {user:currentUser} : {clientId})}. This is used to randomize your test group in future A/B tests. You can see which A/B tests are active and which group you are in below, and override your group allocation. (This may cause data you generate to not be counted in certain experiments.)
       </p>
       
       {!currentUser && <p>

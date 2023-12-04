@@ -54,15 +54,6 @@ interface WithGlobalKeydownProps {
   addKeydownListener: any,
 }
 
-interface WithHoverProps {
-  hover: boolean,
-  anchorEl: HTMLElement|null,
-}
-
-interface WithApolloProps {
-  client: any;
-}
-
 // This is a bit arcane. I think of this basically as a type "function" that
 // says, for a given collection base, I am the DbObject extension it is using.
 // https://stackoverflow.com/questions/63631364/infer-nested-generic-types-in-typescript/63631544#63631544

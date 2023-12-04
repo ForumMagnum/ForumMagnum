@@ -42,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: 4,
     "& svg": {
       width: 18,
-      height: 18.
+      height: 18,
     },
   },
 });
