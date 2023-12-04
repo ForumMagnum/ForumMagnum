@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, getFragmentText, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
-import { gql, useQuery, useMutation } from "@apollo/client";
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { gql, useQuery } from "@apollo/client";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
 import { randomId } from '../../lib/random';
@@ -931,8 +931,8 @@ const DialogueCheckBox: React.FC<{
   isMatched: boolean;
   hideInRecommendations?: boolean;
   classes: ClassesType<typeof styles>;
-  sourceForAnalytics?: string
-}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, hideInRecommendations, classes, sourceForAnalytics="unspecified"}) => {
+  pageContext?: string
+}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, hideInRecommendations, classes, pageContext="unspecified"}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { openDialog } = useDialog();
@@ -955,7 +955,7 @@ const DialogueCheckBox: React.FC<{
     const response = await upsertUserDialogueCheck({ targetUserId, checked: event.target.checked, checkId });
 
     if (response.data.upsertUserDialogueCheck.checked) {
-      captureEvent("newDialogueCheck", {source: sourceForAnalytics}) // we only capture match metadata and don't pass anything else
+      captureEvent("newDialogueCheck") 
     }
     
     if (response.data.upsertUserDialogueCheck.match) {
@@ -977,23 +977,25 @@ const DialogueCheckBox: React.FC<{
   return (
     <>
       {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} onConfettiComplete={() => setShowConfetti(false)} />}
-      <FormControlLabel
-        control={ 
-          <Checkbox 
-            classes={{
-              root: classNames({
-                [classes.checkbox]: !isChecked,
-                [classes.checkboxCheckedMatched]: isChecked && isMatched,
-                [classes.checkboxCheckedNotMatched]: isChecked && !isMatched
-              }),
-              checked: classes.checked
-            }}
-            onChange={event => updateDatabase(event, targetUserId, checkId) } 
-            checked={isChecked}
-          />
-        }
-        label=""
-      />
+      <AnalyticsContext pageContext={pageContext}>
+        <FormControlLabel
+          control={ 
+            <Checkbox 
+              classes={{
+                root: classNames({
+                  [classes.checkbox]: !isChecked,
+                  [classes.checkboxCheckedMatched]: isChecked && isMatched,
+                  [classes.checkboxCheckedNotMatched]: isChecked && !isMatched
+                }),
+                checked: classes.checked
+              }}
+              onChange={event => updateDatabase(event, targetUserId, checkId) } 
+              checked={isChecked}
+            />
+          }
+          label=""
+        />
+      </AnalyticsContext>
     </>
   );
 };
@@ -1102,7 +1104,7 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
       checkId={checkId}
       isChecked={userIsChecked}
       isMatched={userIsMatched}
-      sourceForAnalytics={'matching_homepage'}
+      pageContext={'matching_homepage'}
     />
     <UsersName
       className={classes.displayName}
