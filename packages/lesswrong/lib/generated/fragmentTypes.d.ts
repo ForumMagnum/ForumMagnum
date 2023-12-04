@@ -860,6 +860,13 @@ interface ModeratorClientIDInfo { // fragment on ClientIds
   readonly users: Array<UsersMinimumInfo>,
 }
 
+interface SessionsDefaultFragment { // fragment on Sessions
+  readonly _id: string,
+  readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly expires: Date | null,
+  readonly lastModified: Date | null,
+}
+
 interface CronHistoriesDefaultFragment { // fragment on CronHistories
   readonly _id: string,
   readonly intendedAt: Date,
@@ -873,13 +880,6 @@ interface MessagesDefaultFragment { // fragment on Messages
   readonly userId: string,
   readonly conversationId: string,
   readonly noEmail: boolean,
-}
-
-interface SessionsDefaultFragment { // fragment on Sessions
-  readonly _id: string,
-  readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly expires: Date | null,
-  readonly lastModified: Date | null,
 }
 
 interface NotificationsDefaultFragment { // fragment on Notifications
@@ -3465,9 +3465,9 @@ interface FragmentTypes {
   emailHistoryFragment: emailHistoryFragment
   ClientIdsDefaultFragment: ClientIdsDefaultFragment
   ModeratorClientIDInfo: ModeratorClientIDInfo
+  SessionsDefaultFragment: SessionsDefaultFragment
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
-  SessionsDefaultFragment: SessionsDefaultFragment
   NotificationsDefaultFragment: NotificationsDefaultFragment
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
@@ -3686,9 +3686,9 @@ interface CollectionNamesByFragmentName {
   emailHistoryFragment: "LWEvents"
   ClientIdsDefaultFragment: "ClientIds"
   ModeratorClientIDInfo: "ClientIds"
+  SessionsDefaultFragment: "Sessions"
   CronHistoriesDefaultFragment: "CronHistories"
   MessagesDefaultFragment: "Messages"
-  SessionsDefaultFragment: "Sessions"
   NotificationsDefaultFragment: "Notifications"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
   RSSFeedsDefaultFragment: "RSSFeeds"

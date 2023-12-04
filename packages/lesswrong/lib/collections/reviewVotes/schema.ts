@@ -1,6 +1,4 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils';
-
+import { schemaDefaultValue, foreignKeyField } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 
 export const DEFAULT_QUALITATIVE_VOTE = 4

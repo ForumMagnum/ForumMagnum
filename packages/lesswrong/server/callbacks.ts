@@ -21,6 +21,7 @@ import Tags from '../lib/collections/tags/collection';
 import Revisions from '../lib/collections/revisions/collection';
 import { syncDocumentWithLatestRevision } from './editor/utils';
 import { createAdminContext } from './vulcan-lib/query';
+import ReadStatusesRepo from './repos/ReadStatusesRepo';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -65,7 +66,13 @@ getCollectionHooks("Users").updateAsync.add(function userEditDeleteContentCallba
 });
 
 getCollectionHooks("Users").editAsync.add(function userEditBannedCallbacksAsync(user: DbUser, oldUser: DbUser) {
-  if (new Date(user.banned) > new Date() && !(new Date(oldUser.banned) > new Date())) {
+  const currentBanDate = user.banned
+  const previousBanDate = oldUser.banned
+  const now = new Date()
+  const updatedUserIsBanned = !!(currentBanDate && new Date(currentBanDate) > now)
+  const previousUserWasBanned = !!(previousBanDate && new Date(previousBanDate) > now)
+  
+  if (updatedUserIsBanned && !previousUserWasBanned) {
     void userIPBanAndResetLoginTokens(user);
   }
 });
@@ -274,7 +281,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   for (let revision of tagRevisions) {
     const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>
     const document = await collection.findOne({_id: revision.documentId})
-    if (document) {
+    if (document && revision.fieldName) {
       await syncDocumentWithLatestRevision(
         collection,
         document,
@@ -328,7 +335,7 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
 
 
 getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event: DbLWEvent) {
-  if (event.userId && event.documentId) {
+  if (event.userId && event.documentId && event.name === "post-view") {
     // Upsert. This operation is subtle and fragile! We have a unique index on
     // (postId,userId,tagId). If two copies of a page-view event fire at the
     // same time, this creates a race condition. In order to not have this throw
@@ -338,18 +345,7 @@ getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event
     // index's keys.
     //
     // EDIT 2022-09-16: This is still the case in postgres ^
-    await ReadStatuses.rawUpdateOne({
-      postId: event.documentId,
-      userId: event.userId,
-      tagId: null,
-    }, {
-      $set: {
-        isRead: true,
-        lastUpdated: event.createdAt
-      }
-    }, {
-      upsert: true
-    });
+    await new ReadStatusesRepo().upsertReadStatus(event.userId, event.documentId, true);    
   }
   return event;
 });

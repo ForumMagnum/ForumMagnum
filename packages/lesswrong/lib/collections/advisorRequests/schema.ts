@@ -1,5 +1,4 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils';
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
 import { userOwns } from '../../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema';
 

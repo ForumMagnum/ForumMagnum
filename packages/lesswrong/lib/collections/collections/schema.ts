@@ -1,6 +1,5 @@
-import { schemaDefaultValue } from '../../collectionUtils';
 import { getWithCustomLoader } from '../../loaders';
-import { foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, accessFilterMultiple, schemaDefaultValue } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbCollection> = {
 

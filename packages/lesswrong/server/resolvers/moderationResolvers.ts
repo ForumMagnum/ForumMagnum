@@ -97,6 +97,7 @@ defineMutation({
       if (parentComment
         && parentComment._id!=rootOfLocking._id
         && parentComment.repliesBlockedUntil
+        && startComment.repliesBlockedUntil
         && parentComment.repliesBlockedUntil.toISOString()===startComment.repliesBlockedUntil.toISOString()
       ) {
         rootOfLocking = parentComment;

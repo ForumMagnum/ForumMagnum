@@ -1,5 +1,4 @@
-import { schemaDefaultValue } from '../../collectionUtils';
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { userOwns } from '../../vulcan-users/permissions';
 
 const schema: SchemaType<DbUserMostValuablePost> = {

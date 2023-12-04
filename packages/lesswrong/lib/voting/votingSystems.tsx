@@ -428,7 +428,7 @@ export async function getVotingSystemNameForDocument(document: VoteableType, con
     return "twoAxis";
   }
   if ((document as DbComment).postId) {
-    const post = await context.loaders.Posts.load((document as DbComment).postId);
+    const post = await context.loaders.Posts.load((document as DbComment).postId!);
     if (post?.votingSystem) {
       return post.votingSystem;
     }

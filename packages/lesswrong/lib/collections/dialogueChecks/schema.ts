@@ -1,5 +1,4 @@
-import {schemaDefaultValue} from "../../collectionUtils";
-import { accessFilterSingle, resolverOnlyField } from "../../utils/schemaUtils";
+import { accessFilterSingle, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 import {userOwns} from "../../vulcan-users/permissions";
 
 const schema: SchemaType<DbDialogueCheck> = {

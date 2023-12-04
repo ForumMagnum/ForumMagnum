@@ -8,9 +8,7 @@ import { isValidSerializedThemeOptions, getDefaultThemeOptions } from '../../../
 import sumBy from 'lodash/sumBy';
 import { dogstatsd } from '../../datadog/tracer';
 import { healthCheckUserAgentSetting } from './renderUtil';
-import PageCache from '../../../lib/collections/pagecache/collection';
-import { getServerBundleHash } from '../../utils/bundleUtils';
-import PageCacheRepo from '../../repos/PageCacheRepo';
+import PageCacheRepo, { maxCacheAgeMs } from '../../repos/PageCacheRepo';
 import { DatabaseServerSetting } from '../../databaseSettings';
 
 // Page cache. This applies only to logged-out requests, and exists primarily
@@ -29,7 +27,6 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 const dbPageCacheEnabledSetting = new DatabaseServerSetting<boolean>("dbPageCacheEnabled", true);
 
 const maxPageCacheSizeBytes = 32*1024*1024; //32MB
-const maxCacheAgeMs = 90*1000;
 
 const pageCache = new LRU<string,RenderResult>({
   max: maxPageCacheSizeBytes,
@@ -225,26 +222,7 @@ const cacheStoreLocal = (cacheKey: string, abTestGroups: RelevantTestGroupAlloca
 }
 
 const cacheStoreDB = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {
-  const bundleHash = getServerBundleHash();
-
-  void PageCache.rawUpdateOne(
-    {
-      path: cacheKey,
-      abTestGroups: abTestGroups,
-      bundleHash,
-    },
-    {
-      $set: {
-        ttlMs: maxCacheAgeMs,
-        renderedAt: new Date(),
-        expiresAt: new Date(Date.now() + maxCacheAgeMs),
-        renderResult: rendered,
-      },
-    },
-    {
-      upsert: true,
-    }
-  );
+  void new PageCacheRepo().upsertPageCacheEntry(cacheKey, abTestGroups, rendered);
 }
 
 const cacheStore = (cacheKey: string, abTestGroups: RelevantTestGroupAllocation, rendered: RenderResult): void => {

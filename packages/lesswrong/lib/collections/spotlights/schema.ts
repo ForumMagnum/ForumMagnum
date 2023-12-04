@@ -1,7 +1,6 @@
 import range from "lodash/range";
 import SimpleSchema from "simpl-schema";
-import { schemaDefaultValue } from "../../collectionUtils";
-import { resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
+import { schemaDefaultValue, resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { getCollectionName } from "../../vulcan-lib";
 import { isLWorAF } from "../../instanceSettings";
 

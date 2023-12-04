@@ -1,6 +1,5 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { schemaDefaultValue, } from '../../collectionUtils';
-import { resolverOnlyField } from '../../../lib/utils/schemaUtils';
+import { schemaDefaultValue, resolverOnlyField } from '../../utils/schemaUtils';
 import GraphQLJSON from 'graphql-type-json';
 
 //
@@ -62,7 +61,7 @@ const schema: SchemaType<DbVote> = {
     type: String,
     graphQLtype: 'String',
     canRead: ['guests'],
-    resolver: (vote: DbVote): string => vote.authorIds[0],
+    resolver: (vote: DbVote) => vote.authorIds?.[0],
   }),
 
   // The type of vote, eg smallDownvote, bigUpvote. If this is an unvote, then

@@ -154,7 +154,7 @@ const schema: SchemaType<DbRevision> = {
         // suggestion. Original contents is only visible to people who are invited 
         // to collaborative editing. (This is only relevant for posts, but supporting
         // it means we need originalContents to default to unviewable)
-        if (document.collectionName === "Posts") {
+        if (document.collectionName === "Posts" && document.documentId) {
           const post = await context.loaders["Posts"].load(document.documentId)
           return getOriginalContents(context.currentUser, post, document.originalContents)
         }
@@ -224,6 +224,8 @@ const schema: SchemaType<DbRevision> = {
       const {currentUser, Tags} = context;
       if (revision.collectionName !== "Tags")
         return null;
+      if (!revision.documentId)
+        return null;
       const tag = await context.loaders.Tags.load(revision.documentId);
       return await accessFilterSingle(currentUser, Tags, tag, context);
     }
@@ -235,6 +237,8 @@ const schema: SchemaType<DbRevision> = {
     resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
       const {currentUser, Posts} = context;
       if (revision.collectionName !== "Posts")
+        return null;
+      if (!revision.documentId)
         return null;
       const post = await context.loaders.Posts.load(revision.documentId);
       return await accessFilterSingle(currentUser, Posts, post, context);

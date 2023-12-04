@@ -4,6 +4,7 @@ import './vulcan-users/index';
 
 // schema utils
 import './utils/schemaUtils'
+
 // Permissions
 import './permissions';
 

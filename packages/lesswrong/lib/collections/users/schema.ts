@@ -5,9 +5,8 @@ import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
-import { schemaDefaultValue } from '../../collectionUtils';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
-import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
+import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
@@ -1916,8 +1915,8 @@ const schema: SchemaType<DbUser> = {
 
       if (user.deleteContent && user.banned) return 0.0;
       else if (userIsAdmin(user)) return 1.0;
-      else if (isReviewed && karma>=20) return 1.0;
-      else if (isReviewed && karma>=0) return 0.9;
+      else if (isReviewed && karma >=20) return 1.0;
+      else if (isReviewed && karma >=0) return 0.9;
       else if (isReviewed) return 0.8;
       else if (signUpReCaptchaRating !== null && 
               signUpReCaptchaRating !== undefined && 

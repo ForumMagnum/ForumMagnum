@@ -8,7 +8,7 @@ import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 import { loggerConstructor } from './logging';
-import { schemaDefaultValue } from '../collectionUtils';
+import { DeferredForumSelect } from '../forumTypeUtils';
 
 export const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
   collectionName, fieldName, nullable
@@ -393,4 +393,36 @@ export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
     type: "Point",
     coordinates: [gmaps.geometry.location.lng, gmaps.geometry.location.lat]
   }
+}
+export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Partial<CollectionFieldSpecification<T>> {
+  // Used for both onCreate and onUpdate
+  const fillIfMissing = ({ newDocument, fieldName }: {
+    newDocument: T;
+    fieldName: string;
+  }) => {
+    if (newDocument[fieldName as keyof T] === undefined) {
+      return defaultValue instanceof DeferredForumSelect ? defaultValue.get() : defaultValue;
+    } else {
+      return undefined;
+    }
+  };
+  const throwIfSetToNull = ({ oldDocument, document, fieldName }: {
+    oldDocument: T;
+    document: T;
+    fieldName: string;
+  }) => {
+    const wasValid = (oldDocument[fieldName as keyof T] !== undefined && oldDocument[fieldName as keyof T] !== null);
+    const isValid = (document[fieldName as keyof T] !== undefined && document[fieldName as keyof T] !== null);
+    if (wasValid && !isValid) {
+      throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
+    }
+  };
+
+  return {
+    defaultValue: defaultValue,
+    onCreate: fillIfMissing,
+    onUpdate: throwIfSetToNull,
+    canAutofillDefault: true,
+    nullable: false
+  };
 }
