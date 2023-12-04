@@ -3,12 +3,15 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { gql, useQuery } from '@apollo/client';
-import { DialogueUserRowProps, TagWithCommentCount } from '../users/DialogueMatchingPage';
+import { TagWithCommentCount } from '../users/DialogueMatchingPage';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import {useSingle} from '../../lib/crud/withSingle';
-import {truncatise} from '../../lib/truncatise';
+import { useSingle } from '../../lib/crud/withSingle';
+import { truncatise } from '../../lib/truncatise';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+import {DialogueUserResult} from './DialoguesList';
 
 const styles = (theme: ThemeType) => ({
   dialogueUserRow: { 
@@ -139,7 +142,12 @@ const styles = (theme: ThemeType) => ({
   },
   commentSourcePost: {
     color: theme.palette.text.dim3,
-  }
+  },
+  closeIcon: { 
+    color: theme.palette.grey[500],
+    opacity: 0.5,
+    padding: 2,
+  },
 });
 
 type PostYouveRead = {
@@ -158,9 +166,13 @@ type RecommendedComment = {
 }
 
 interface DialogueRecommendationRowProps {
-  rowProps: DialogueUserRowProps<boolean>; 
+  targetUser: DialogueUserResult;
+  checkId: string | undefined;
+  userIsChecked: boolean;
+  userIsMatched: boolean;
   classes: ClassesType<typeof styles>; 
   showSuggestedTopics: boolean;
+  onHide: ({ dialogueCheckId, targetUserId }: { dialogueCheckId: string|undefined; targetUserId: string; }) => void;
 }
 
 // Future TODO: unify this with the server type TopicRecommendation? The problem is that returns a whole DbComment, rather than just contents and id. 
@@ -261,10 +273,8 @@ const CommentView: React.FC<CommentViewProps> = ({ comment, classes }) => {
     </PostsTooltip>
   );
 };
-const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: DialogueRecommendationRowProps) => {
+const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsMatched, classes, showSuggestedTopics, onHide }: DialogueRecommendationRowProps) => {
   const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, Loading, PostsTooltip } = Components
-
-  const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const currentUser = useCurrentUser();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -289,8 +299,8 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
       }
     }
   `, {
-    variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit:4 },
-    skip: !currentUser
+    variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit: 4 },
+    skip: !currentUser || !showSuggestedTopics
   });
 
   const { loading: tagLoading, error: tagError, data: tagData } = useQuery(gql`
@@ -305,10 +315,11 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
     }
   `, {
     variables: { userId: targetUser._id },
+    skip: !currentUser || !showSuggestedTopics
   });
 
   const { loading: postsLoading, error: postsError, data: postsData } = useQuery(gql`
-    query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int) {
+    query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
       UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
         _id
         title
@@ -317,10 +328,11 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
     }
   `, {
     variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 3 },
+    skip: !currentUser || !showSuggestedTopics
   });
 
   const { loading: commentsLoading, error: commentsError, data: commentsData } = useQuery(gql`
-    query UsersRecommendedCommentsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int) {
+    query UsersRecommendedCommentsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
       UsersRecommendedCommentsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
         _id
         postId
@@ -331,7 +343,8 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
       }
     }
   `, {
-    variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 3 },
+    variables: { userId: currentUser?._id, targetUserId: targetUser._id, limit : 2 },
+    skip: !currentUser || !showSuggestedTopics
   });
 
   const topTags:TagWithCommentCount[] | undefined = tagData?.UserTopTags;
@@ -396,6 +409,9 @@ const DialogueRecommendationRow = ({ rowProps, classes, showSuggestedTopics }: D
           <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
             <div className={classes.dialogueMatchNote}>Check to maybe dialogue, if you find a topic</div>
           </PostsItem2MetaInfo>}
+        <IconButton className={classes.closeIcon} onClick={() => onHide({dialogueCheckId: checkId, targetUserId: targetUser._id})}>
+          <CloseIcon />
+        </IconButton>
       </div>
     </div>
   );

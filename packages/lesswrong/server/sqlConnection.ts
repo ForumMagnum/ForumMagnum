@@ -8,10 +8,6 @@ import { logAllQueries } from "../lib/sql/sqlClient";
 
 const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
-export interface JsonArray extends ReadonlyArray<Json> {};
-export interface JsonRecord extends Record<string, Json> {};
-export type Json = boolean | number | string | null | JsonArray | JsonRecord;
-
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
 let vectorTypeOidPromise: Promise<number | null> | null = null;
