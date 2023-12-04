@@ -48,6 +48,8 @@ export const preparePgTables = () => {
  * So we need to ensure those indexes also exist in the test db for cypress tests, until we fix the whole index situation.
  */
 const ensureMigratedIndexes = async () => {
+  // eslint-disable-next-line no-console
+  console.log('Creating custom migrated indexes');
   await ensureCustomPgIndex(`
     CREATE UNIQUE INDEX "idx_DatabaseMetadata_name_new"
     ON public."DatabaseMetadata" USING btree
