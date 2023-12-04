@@ -34,13 +34,13 @@ export const DialogueEditorFeedback = ({ classes, post }: {
   return <div className={classes.root}>
     <div className={classes.feedbackRow}>{clickState === 'unclicked'
       ? <Button className={classes.button} onClick={async _ => { 
-        // eslint-disable-next-line
-        window.Intercom(
-          'trackEvent',
-          'requested-feedback',
-          {title: post.title, _id: post._id, url: getSiteUrl() + "posts/" + post._id}
-        );
-        setClickState('success')
+          // eslint-disable-next-line
+          window.Intercom(
+            'trackEvent',
+            'requested-feedback',
+            {title: post.title, _id: post._id, url: getSiteUrl() + "posts/" + post._id}
+          );
+          setClickState('success')
         }}>
           Get feedback or editing help from the {forumTitleSetting.get()} team.
         </Button>
