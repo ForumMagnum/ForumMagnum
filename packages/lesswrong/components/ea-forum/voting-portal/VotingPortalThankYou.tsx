@@ -82,12 +82,10 @@ const styles = (theme: ThemeType) => ({
   },
   arrowIcon: {
     fontSize: 18,
+    transform: "rotate(180deg)",
     [theme.breakpoints.down("xs")]: {
       display: "none",
     },
-  },
-  arrowLeft: {
-    transform: "rotate(180deg)",
   },
   tooltipRow: {
     display: "flex",
@@ -235,7 +233,7 @@ const VotingPortalThankYou = ({currentUser, classes}: {
             })} role="button" onClick={toggleFlair}>
           {loadingFlair
             ? <Loading white />
-            : <><ForumIcon icon="ArrowRight" className={classNames(classes.arrowIcon, classes.arrowLeft)} /> {currentUser.givingSeason2023VotedFlair
+            : <><ForumIcon icon="ArrowRight" className={classes.arrowIcon} /> {currentUser.givingSeason2023VotedFlair
               ? "Remove icon from your profile"
               : "Add icon to your profile"}</>
           }
@@ -250,8 +248,7 @@ const VotingPortalThankYou = ({currentUser, classes}: {
           </Link>
         </div>
         <div className={classes.listRow}>
-          -&gt;
-          <a href="https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023" target="_blank" rel="noopener noreferrer">
+          -&gt; <a href="https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023" target="_blank" rel="noopener noreferrer">
             Donate to the Donation Election Fund
           </a>
         </div>
