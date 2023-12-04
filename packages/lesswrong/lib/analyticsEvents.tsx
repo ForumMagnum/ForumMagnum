@@ -206,8 +206,12 @@ export const AnalyticsContext = ({children, ...props}: AnalyticsProps & {
   // (As long as they captured the context in the obvious way, they'll still get
   // the newest values of these props when they actually log an event.)
   const newContextData = useRef<TrackingContext>({...existingContextData});
-  for (let key of Object.keys(props))
+  for (let key of Object.keys(props)) {
+    if (key in existingContextData) {
+      throw new Error(`AnalyticsContext: Attempt to overwrite existing context key ${key}=${existingContextData[key]} with new value: ${props[key as keyof typeof props]}.`)
+    }
     newContextData.current[key] = props[key as keyof typeof props];
+  }
 
   return <ReactTrackingContext.Provider value={newContextData.current}>
     {children}
