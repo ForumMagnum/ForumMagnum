@@ -953,9 +953,7 @@ const DialogueCheckBox: React.FC<{
 
     const response = await upsertUserDialogueCheck({ targetUserId, checked: event.target.checked, checkId });
 
-    if (response.data.upsertUserDialogueCheck.checked) {
-      captureEvent("newDialogueCheck") 
-    }
+    captureEvent("newDialogueCheck", {checked: response.data.upsertUserDialogueCheck.checked}) 
     
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()
