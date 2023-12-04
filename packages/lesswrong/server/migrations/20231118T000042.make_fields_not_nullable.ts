@@ -704,24 +704,17 @@ const setNotnullCommands = `
 
   ALTER TABLE "DigestPosts"
     ALTER COLUMN "digestId" SET NOT NULL,
-    ALTER COLUMN "emailDigestStatus" SET NOT NULL,
-    ALTER COLUMN "onsiteDigestStatus" SET NOT NULL,
     ALTER COLUMN "postId" SET NOT NULL;
 
   ALTER TABLE "ElectionCandidates"
     ALTER COLUMN "afBaseScore" SET NOT NULL,
     ALTER COLUMN "afExtendedScore" SET NOT NULL,
     ALTER COLUMN "afVoteCount" SET NOT NULL,
-    ALTER COLUMN "amountRaised" SET NOT NULL,
     ALTER COLUMN "baseScore" SET NOT NULL,
     ALTER COLUMN "extendedScore" SET NOT NULL,
-    ALTER COLUMN "fundraiserLink" SET NOT NULL,
-    ALTER COLUMN "gwwcId" SET NOT NULL,
-    ALTER COLUMN "gwwcLink" SET NOT NULL,
     ALTER COLUMN "inactive" SET NOT NULL,
     ALTER COLUMN "isElectionFundraiser" SET NOT NULL,
     ALTER COLUMN "score" SET NOT NULL,
-    ALTER COLUMN "targetAmount" SET NOT NULL,
     ALTER COLUMN "voteCount" SET NOT NULL;
 
   ALTER TABLE "EmailTokens"
@@ -1187,24 +1180,17 @@ const dropNotnullCommands = `
 
   ALTER TABLE "DigestPosts"
     ALTER COLUMN "digestId" DROP NOT NULL,
-    ALTER COLUMN "emailDigestStatus" DROP NOT NULL,
-    ALTER COLUMN "onsiteDigestStatus" DROP NOT NULL,
     ALTER COLUMN "postId" DROP NOT NULL;
 
   ALTER TABLE "ElectionCandidates"
     ALTER COLUMN "afBaseScore" DROP NOT NULL,
     ALTER COLUMN "afExtendedScore" DROP NOT NULL,
     ALTER COLUMN "afVoteCount" DROP NOT NULL,
-    ALTER COLUMN "amountRaised" DROP NOT NULL,
     ALTER COLUMN "baseScore" DROP NOT NULL,
     ALTER COLUMN "extendedScore" DROP NOT NULL,
-    ALTER COLUMN "fundraiserLink" DROP NOT NULL,
-    ALTER COLUMN "gwwcId" DROP NOT NULL,
-    ALTER COLUMN "gwwcLink" DROP NOT NULL,
     ALTER COLUMN "inactive" DROP NOT NULL,
     ALTER COLUMN "isElectionFundraiser" DROP NOT NULL,
     ALTER COLUMN "score" DROP NOT NULL,
-    ALTER COLUMN "targetAmount" DROP NOT NULL,
     ALTER COLUMN "voteCount" DROP NOT NULL;
 
   ALTER TABLE "EmailTokens"
