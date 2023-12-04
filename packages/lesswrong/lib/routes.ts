@@ -810,6 +810,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       title: 'Edit Election Candidate',
     },
     {
+      name: 'ElectionVotes',
+      path: '/admin/election-votes',
+      componentName: 'AdminElectionVotes',
+      title: 'Election Votes',
+    },
+    {
       name: 'EditDigest',
       path: '/admin/digests/:num',
       componentName: 'EditDigest',

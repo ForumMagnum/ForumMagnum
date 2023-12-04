@@ -370,7 +370,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const currentUser = useCurrentUser();
   const {flash} = useMessages();
   const {openDialog} = useDialog();
-  const { electionVote } = useElectionVote("givingSeason23");
+  const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   // We only show the voting banner for users who are eligible -
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
   const showVotingBanner = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt

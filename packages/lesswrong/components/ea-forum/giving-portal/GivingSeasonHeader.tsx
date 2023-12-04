@@ -11,7 +11,7 @@ import {
 } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { headerImageId, heroImageId, userCanVoteInDonationElection, votingHeaderImageId } from "../../../lib/eaGivingSeason";
+import { eaGivingSeason23ElectionName, headerImageId, heroImageId, userCanVoteInDonationElection, votingHeaderImageId } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
@@ -241,7 +241,7 @@ const GivingSeasonHeader = ({
   const { Typography, HeadTags } = Components;
   const isDesktop = useIsAboveBreakpoint("md");
   const { pathname } = useLocation();
-  const { electionVote } = useElectionVote("givingSeason23");
+  const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   const currentUser = useCurrentUser();
 
   const compareAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 1;

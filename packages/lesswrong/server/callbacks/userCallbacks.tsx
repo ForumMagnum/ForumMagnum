@@ -32,6 +32,7 @@ import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
 import ElectionVotes from '../../lib/collections/electionVotes/collection';
+import { eaGivingSeason23ElectionName } from '../../lib/eaGivingSeason';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -499,7 +500,7 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateGivingSeason20
 
   if (data.givingSeason2023VotedFlair && data.givingSeason2023VotedFlair !== oldDocument.givingSeason2023VotedFlair) {
     const vote = await ElectionVotes.findOne({
-      electionName: "givingSeason23",
+      electionName: eaGivingSeason23ElectionName,
       userId: oldDocument._id,
       submittedAt: { $exists: true },
     });
