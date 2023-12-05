@@ -414,7 +414,7 @@ interface DbFeaturedResource extends DbObject {
   body: string | null
   ctaText: string
   ctaUrl: string
-  expiresAt: Date
+  expiresAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

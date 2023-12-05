@@ -3183,7 +3183,7 @@ interface FeaturedResourcesDefaultFragment { // fragment on FeaturedResources
   readonly body: string | null,
   readonly ctaText: string,
   readonly ctaUrl: string,
-  readonly expiresAt: Date,
+  readonly expiresAt: Date | null,
 }
 
 interface FeaturedResourcesFragment { // fragment on FeaturedResources
@@ -3192,7 +3192,7 @@ interface FeaturedResourcesFragment { // fragment on FeaturedResources
   readonly body: string | null,
   readonly ctaText: string,
   readonly ctaUrl: string,
-  readonly expiresAt: Date,
+  readonly expiresAt: Date | null,
 }
 
 interface TagRelVotes { // fragment on Votes

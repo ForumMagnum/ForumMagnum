@@ -37,7 +37,7 @@ const schema: SchemaType<DbFeaturedResource> = {
     canCreate: ['admins'],
     canUpdate: ['admins'],
     optional: true,
-    nullable: false,
+    nullable: true,
     control: 'datetime',
   },
 }
