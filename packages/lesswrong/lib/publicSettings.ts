@@ -124,3 +124,4 @@ export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCo
 export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('dialogueMatchmakingEnabled', false)
 
 export const performanceMetricLoggingEnabled = new DatabasePublicSetting<boolean>('performanceMetricLoggingEnabled', false)
+export const performanceMetricLoggingBatchSize = new DatabasePublicSetting<number>('performanceMetricLoggingBatchSize', 100)

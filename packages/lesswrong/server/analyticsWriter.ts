@@ -13,6 +13,8 @@ import { filterNonnull } from '../lib/utils/typeGuardUtils';
 import SelectQuery from '../lib/sql/SelectQuery';
 import uniq from 'lodash/uniq';
 import md5 from 'md5';
+import { performanceMetricLoggingBatchSize } from '../lib/publicSettings';
+import LRU from 'lru-cache';
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
@@ -128,30 +130,31 @@ interface PerfMetricGqlString {
 }
 
 const perfMetricsGqlStringsTable = new Table('perf_metrics_gql_strings');
-// perfMetricsGqlStringsTable.addField('id', new NotNullType(new IntType()));
 perfMetricsGqlStringsTable.addField('gql_hash', new NotNullType(new StringType()));
 perfMetricsGqlStringsTable.addField('gql_string', new NotNullType(new StringType()));
 
-const GQL_STRING_ID_CACHE: Record<string, number> = {};
+const GQL_STRING_ID_CACHE = new LRU<string, number>({max: 10000});
 
 function cacheQueryStringRecords(queryStringRecords: PerfMetricGqlString[]) {
   queryStringRecords.forEach(({ id, gql_string }) => {
-    GQL_STRING_ID_CACHE[gql_string] = id;
+    const gqlHash = md5(gql_string);
+    GQL_STRING_ID_CACHE.set(gqlHash, id);
   });
 }
 
 function getGqlStringIdFromCache(gqlString?: string): { gql_string_id: number | null } {
   if (!gqlString) return { gql_string_id: null };
-  return { gql_string_id: GQL_STRING_ID_CACHE[gqlString] };
+  const gqlHash = md5(gqlString);
+  return { gql_string_id: GQL_STRING_ID_CACHE.get(gqlHash) ?? null };
 }
 
 async function insertAndCacheGqlStringRecords(gqlStrings: string[], connection: AnalyticsConnectionPool) {
-  const previouslyCachedGqlStrings = gqlStrings.filter((gql_string) => GQL_STRING_ID_CACHE[gql_string]);
-  const newGqlStrings = gqlStrings.filter((gql_string) => !GQL_STRING_ID_CACHE[gql_string]);
+  const gqlRecords = gqlStrings.map((gql_string) => ({gql_hash: md5(gql_string), gql_string}));
+  const previouslyCachedGqlStrings = gqlRecords.filter(({ gql_hash }) => GQL_STRING_ID_CACHE.has(gql_hash));
+  const newGqlRecords = gqlRecords.filter(({ gql_hash }) => !GQL_STRING_ID_CACHE.has(gql_hash))
   
   // Insert and cache all the new query strings we don't already have cached
-  const gqlStringsToInsert = newGqlStrings.map((gql_string) => ({ gql_string, gql_hash: md5(gql_string) }));
-  const { sql, args } = new InsertQuery(perfMetricsGqlStringsTable, gqlStringsToInsert as AnyBecauseHard, undefined, { conflictStrategy: 'ignore', returnInserted: true }).compile();
+  const { sql, args } = new InsertQuery(perfMetricsGqlStringsTable, newGqlRecords as AnyBecauseHard, undefined, { conflictStrategy: 'ignore', returnInserted: true }).compile();
   const insertedQueryStringRecords = await connection.any<PerfMetricGqlString>(sql, args);
   cacheQueryStringRecords(insertedQueryStringRecords);
 
@@ -175,13 +178,15 @@ export function queuePerfMetric(perfMetric: PerfMetric) {
 }
 
 async function flushPerfMetrics() {
-  if (queuedPerfMetrics.length < 10) return;
+  const batchSize = performanceMetricLoggingBatchSize.get()
+
+  if (queuedPerfMetrics.length < batchSize) return;
 
   const connection = getAnalyticsConnection();
   if (!connection) return;
    
   const metricsToWrite = queuedPerfMetrics.splice(0);
-  for (const batch of chunk(metricsToWrite, 10)) {
+  for (const batch of chunk(metricsToWrite, batchSize)) {
     try {
       const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get();
 
