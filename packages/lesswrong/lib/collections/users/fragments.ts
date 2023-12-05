@@ -85,7 +85,9 @@ registerFragment(`
     petrovPressedButtonDate
     petrovOptOut
     sortDraftsBy
-    ...SunshineUsersList
+    email
+    emails
+    banned
     ...SharedUserBooleans
     noindex
     paymentEmail
