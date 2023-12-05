@@ -1443,7 +1443,8 @@ Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
       positiveReviewVoteCount: { $gte: getPositiveVoteThreshold(terms.reviewPhase) },
-      reviewCount: { $gte: INITIAL_REVIEW_THRESHOLD },
+      // This $or is only valid while `INITIAL_REVIEW_THRESHOLD` is 0.  This probably used to "work" when we were on mongo, but doesn't work on postgres (prior to the nullability migration)
+      $or: [{ reviewCount: null }, { reviewCount: { $gte: INITIAL_REVIEW_THRESHOLD } }],
       _id: { $nin: reviewExcludedPostIds }
     },
     options: {
@@ -1466,7 +1467,7 @@ ensureIndex(Posts,
 Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
   return {
     selector: {
-      reviewCount: 0,
+      $or: [{ reviewCount: null }, { reviewCount: 0 }],
       positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD },
       reviewVoteScoreAllKarma: { $gte: QUICK_REVIEW_SCORE_THRESHOLD }
     },
