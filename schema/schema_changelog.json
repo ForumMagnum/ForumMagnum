@@ -458,5 +458,10 @@
     "acceptsSchemaHash": "2d5747e2acdbe83c754cbbda258623ed",
     "acceptedByMigration": "20231201T022744.add_field_for_hiding_specific_users_in_reciprocity.ts",
     "timestamp": "2023-12-01T02:27:44.000Z"
+  },
+  {
+    "acceptsSchemaHash": "53db1ce13cf45da5386c25794f3e68d1",
+    "acceptedByMigration": "20231205T002147.make_fields_not_nullable.ts",
+    "timestamp": "2023-12-05T00:21:47.000Z"
   }
 ]
