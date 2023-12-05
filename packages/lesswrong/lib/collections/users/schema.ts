@@ -2317,6 +2317,7 @@ const schema: SchemaType<DbUser> = {
   abTestKey: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
