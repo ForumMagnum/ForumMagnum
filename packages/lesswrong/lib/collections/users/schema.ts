@@ -19,6 +19,7 @@ import { getCommentViewOptions } from '../../commentViewOptions';
 import { dialoguesEnabled, hasPostRecommendations } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { randomId } from '../../random';
+import { getUserABTestKey } from '../../abTestImpl';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -2324,7 +2325,7 @@ const schema: SchemaType<DbUser> = {
     group: formGroups.adminOptions,
     onCreate: ({ document, context }) => {
       if (!document.abTestKey) {
-        return context.clientId ?? randomId();
+        return getUserABTestKey({clientId: context.clientId ?? randomId()});
       }
     }
   },
