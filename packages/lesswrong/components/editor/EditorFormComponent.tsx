@@ -31,8 +31,9 @@ export function isCollaborative(post: DbPost, fieldName: string): boolean {
     if (post.collabEditorDialogue) return true;
     return false;  
   } catch (err) {
-    console.error({ err, post });
-    return false;
+    throw post;
+    // console.error({ err, post });
+    // return false;
   }
 }
 
