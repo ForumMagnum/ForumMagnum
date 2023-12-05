@@ -1546,7 +1546,7 @@ interface DbUser extends DbObject {
   commentCount: number
   maxCommentCount: number
   tagRevisionCount: number
-  abTestKey: string | null
+  abTestKey: string
   abTestOverrides: any /*{"definitions":[{"type":"JSON","blackbox":true}]}*/
   reenableDraftJs: boolean | null
   walledGardenInvite: boolean | null
