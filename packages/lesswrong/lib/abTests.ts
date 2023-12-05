@@ -1,4 +1,7 @@
-import { ABTest, useABTest, useABTestProperties } from './abTestImpl';
+import { ABTest, getUserABTestGroup, useABTest, useABTestProperties } from './abTestImpl';
+import Users from './collections/users/collection';
+import { Globals } from './vulcan-lib';
+import _ from  'underscore';
 export { useABTest, useABTestProperties };
 
 // An A/B test which doesn't do anything (other than randomize you), for testing
@@ -141,3 +144,4 @@ export const dialogueMatchingPageNoSSRABTest = new ABTest({
     },
   },
 });
+

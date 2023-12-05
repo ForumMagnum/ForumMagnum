@@ -47,6 +47,10 @@ export const up = async ({db}: MigrationContext) => {
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
+  await db.none(`
+    ALTER TABLE "Users"
+      ALTER COLUMN "abTestKey" DROP NOT NULL;
+  `)
 }
+
 
