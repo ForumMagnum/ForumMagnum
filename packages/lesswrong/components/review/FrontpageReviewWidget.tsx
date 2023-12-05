@@ -176,46 +176,53 @@ export function getReviewAlgorithm(): RecommendationsAlgorithm {
   }
 }
 
-  
-const nominationStartDate = moment.utc(annualReviewStart.get())
-const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
-const reviewEndDate = moment.utc(annualReviewReviewPhaseEnd.get())
-const voteEndDate = moment.utc(annualReviewEnd.get())
-
-const forumTitle = forumTitleSetting.get()
-
-const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} – {nominationEndDate.format('MMM Do')}</span>
-const reviewPhaseDateRange = <span>{nominationEndDate.clone().format('MMM Do')} – {reviewEndDate.format('MMM Do')}</span>
-const votingPhaseDateRange = <span>{reviewEndDate.clone().format('MMM Do')} – {voteEndDate.format('MMM Do')}</span>
-
 // EA will use LW text next year, so I've kept the forumType genericization
-export const overviewTooltip = isEAForum ?
-  <div>
-    <div>The EA Forum is reflecting on the best EA writing, in three phases</div>
-    <ul>
-      <li><em>Nomination</em> ({nominationPhaseDateRange})</li>
-      <li><em>Review</em> ({reviewPhaseDateRange})</li>
-      <li><em>Voting</em> ({votingPhaseDateRange})</li>
-    </ul>
-    <div>To be eligible, posts must have been posted before January 1st, 2021.</div>
-    <br/>
-    {/* TODO:(Review) this won't be true in other phases */}
-    <div>(Currently this section shows a random sample of eligible posts, weighted by karma)</div>
-  </div> :
-  <div>
-    <div>The {forumTitle} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases:</div>
-    <ul>
-      <li><em>Nomination Voting</em> ({nominationPhaseDateRange})</li>
-      <li><em>Review</em> ({reviewPhaseDateRange})</li>
-      <li><em>Final Voting</em> ({votingPhaseDateRange})</li>
-    </ul>
-    <div>The {forumTitle} moderation team will incorporate that information, along with their judgment, into a "Best of {REVIEW_YEAR}" sequence.</div>
-    <p>We're currently in the nomination voting phase. Nominate posts by casting a nomination vote, or vote on existing nominations to help us prioritize them during the Review Phase.</p>
-  </div>
+export function ReviewOverviewTooltip() {
+  const forumTitle = forumTitleSetting.get()
+  
+  const nominationStartDate = moment.utc(annualReviewStart.get())
+  const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
+  const reviewEndDate = moment.utc(annualReviewReviewPhaseEnd.get())
+  const voteEndDate = moment.utc(annualReviewEnd.get())
+  const nominationPhaseDateRange = <span>{nominationStartDate.format('MMM Do')} – {nominationEndDate.format('MMM Do')}</span>
+  const reviewPhaseDateRange = <span>{nominationEndDate.clone().format('MMM Do')} – {reviewEndDate.format('MMM Do')}</span>
+  const votingPhaseDateRange = <span>{reviewEndDate.clone().format('MMM Do')} – {voteEndDate.format('MMM Do')}</span>
+  
+  if (isEAForum) {
+    return <div>
+      <div>The EA Forum is reflecting on the best EA writing, in three phases</div>
+      <ul>
+        <li><em>Nomination</em> ({nominationPhaseDateRange})</li>
+        <li><em>Review</em> ({reviewPhaseDateRange})</li>
+        <li><em>Voting</em> ({votingPhaseDateRange})</li>
+      </ul>
+      <div>To be eligible, posts must have been posted before January 1st, 2021.</div>
+      <br/>
+      {/* TODO:(Review) this won't be true in other phases */}
+      <div>(Currently this section shows a random sample of eligible posts, weighted by karma)</div>
+    </div>
+  } else {
+    return <div>
+      <div>The {forumTitle} community is reflecting on the best posts from {REVIEW_YEAR}, in three phases:</div>
+      <ul>
+        <li><em>Nomination Voting</em> ({nominationPhaseDateRange})</li>
+        <li><em>Review</em> ({reviewPhaseDateRange})</li>
+        <li><em>Final Voting</em> ({votingPhaseDateRange})</li>
+      </ul>
+      <div>The {forumTitle} moderation team will incorporate that information, along with their judgment, into a "Best of {REVIEW_YEAR}" sequence.</div>
+      <p>We're currently in the nomination voting phase. Nominate posts by casting a nomination vote, or vote on existing nominations to help us prioritize them during the Review Phase.</p>
+    </div>
+  }
+}
 
 const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {classes: ClassesType, showFrontpageItems?: boolean, reviewYear: ReviewYear}) => {
   const { SectionTitle, SettingsButton, LWTooltip, PostsList2, UserReviewsProgressBar, ReviewVotingProgressBar, FrontpageBestOfLWWidget } = Components
   const currentUser = useCurrentUser();
+
+  const nominationStartDate = moment.utc(annualReviewStart.get())
+  const nominationEndDate = moment.utc(annualReviewNominationPhaseEnd.get())
+  const reviewEndDate = moment.utc(annualReviewReviewPhaseEnd.get())
+  const voteEndDate = moment.utc(annualReviewEnd.get())
 
   // These should be calculated at render
   const currentDate = moment.utc()
@@ -279,11 +286,6 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       </ul>
       {activeRange === "REVIEWS" && <div><em>{voteEndDate.fromNow()} remaining</em></div>}
     </>
-
-  const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, endDate: moment.Moment) => {
-    if (fractionDate < startDate) return 0
-    return ((fractionDate.unix() - startDate.unix())/(endDate.unix() - startDate.unix())*100).toFixed(2)
-  }
 
   const allEligiblePostsUrl = 
     isEAForum ? `/allPosts?timeframe=yearly&before=${reviewYear+1}-01-01&limit=25&sortedBy=top&filter=unnominated&includeShortform=false`
@@ -425,13 +427,13 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
     <AnalyticsContext pageSectionContext="frontpageReviewWidget">
       <div>
         <SectionTitle 
-          title={<LWTooltip title={overviewTooltip} placement="bottom-start">
+          title={<LWTooltip title={<ReviewOverviewTooltip/>} placement="bottom-start">
             <Link to={"/reviewVoting"}>
               {getReviewTitle(reviewYear)}
             </Link>
           </LWTooltip>}
         >
-          <LWTooltip title={overviewTooltip} className={classes.hideOnMobile}>
+          <LWTooltip title={<ReviewOverviewTooltip/>} className={classes.hideOnMobile}>
             <Link to={reviewPostPath || ""}>
               <SettingsButton showIcon={false} label={`How does the ${REVIEW_NAME_IN_SITU} work?`}/>
             </Link>
@@ -449,6 +451,27 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
       </div>
     </AnalyticsContext>
   )
+}
+
+/**
+ * Given a moment datetime and a date range that contains it, return the fraction of the time through
+ * the range which the date is, as a string from 0 to 100. Eg
+ *    `dateFraction(2000-01-01, 2000-01-03, 2000-01-10)`
+ * whould be ~30.
+ *
+ * If the date is outside the range, clips the result, returning 0 or 100.
+ */
+const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, endDate: moment.Moment) => {
+  if (fractionDate < startDate) return 0
+  if (startDate >= endDate) console.error(`In dateFraction: start and end dates are reversed`);
+  const result = (
+    (fractionDate.unix() - startDate.unix())
+    / (endDate.unix() - startDate.unix())
+  ) * 100;
+  if (result > 100) {
+    return "100";
+  }
+  return result.toFixed(2)
 }
 
 const FrontpageReviewWidgetComponent = registerComponent('FrontpageReviewWidget', FrontpageReviewWidget, {styles});
