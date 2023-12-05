@@ -3,7 +3,7 @@ import { queuePerfMetric } from './analyticsWriter';
 import type { Request, Response, NextFunction } from 'express';
 import { performanceMetricLoggingEnabled } from '../lib/publicSettings';
 
-type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path'>;
+type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string'>;
 
 export function generateTraceId() {
   return v4();
