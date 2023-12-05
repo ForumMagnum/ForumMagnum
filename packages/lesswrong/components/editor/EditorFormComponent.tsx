@@ -21,14 +21,19 @@ import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicT
 const autosaveInterval = 3000; //milliseconds
 
 export function isCollaborative(post: DbPost, fieldName: string): boolean {
-  if (!post) return false;
-  if (!post._id) return false;
-  if (fieldName !== "contents") return false;
-  if (post.shareWithUsers.length > 0) return true;
-  if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
-    return true;
-  if (post.collabEditorDialogue) return true;
-  return false;
+  try {
+    if (!post) return false;
+    if (!post._id) return false;
+    if (fieldName !== "contents") return false;
+    if (post.shareWithUsers.length > 0) return true;
+    if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
+      return true;
+    if (post.collabEditorDialogue) return true;
+    return false;  
+  } catch (err) {
+    console.log({ err, post });
+    return false;
+  }
 }
 
 const getPostPlaceholder = (post: PostsBase) => {
