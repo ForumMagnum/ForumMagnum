@@ -12,7 +12,7 @@ import { Link, useNavigate } from "../../lib/reactRouterWrapper";
 
 const MAX_WIDTH = 1100;
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     height: "100%",
     display: "flex",
@@ -51,7 +51,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     minHeight: 0,
     display: "flex",
     flexDirection: "row",
-    flex: 1
+    flex: 1,
+    overflow: "hidden", // to simplify border radius
+    border: theme.palette.border.grey200,
+    borderRadius: `${theme.borderRadius.default}px ${theme.borderRadius.default}px 0px 0px`,
+    [theme.breakpoints.down('xs')]: {
+      border: "none",
+    },
   },
   column: {
     display: "flex",
@@ -59,6 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   leftColumn: {
     flex: "0 0 360px",
+    borderRight: theme.palette.border.grey200,
     maxWidth: 360,
     [theme.breakpoints.down('sm')]: {
       flex: "0 0 280px",
@@ -80,15 +87,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   navigation: {
     overflowY: "auto",
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
-    borderLeft: theme.palette.border.grey200,
-    borderRight: theme.palette.border.grey200,
     borderBottom: theme.palette.border.grey200,
     height: "100%",
   },
   conversation: {
     overflowY: "auto",
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
-    borderRight: theme.palette.border.grey200,
     borderBottom: theme.palette.border.grey200,
     padding: "0px 16px",
     flex: "1 1 auto",
@@ -98,7 +102,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   columnHeader: {
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
-    border: theme.palette.border.grey200,
+    borderBottom: theme.palette.border.grey200,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -107,20 +111,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: "1.4rem",
     fontWeight: 600,
     padding: 16,
-  },
-  columnHeaderLeft: {
-    borderTopLeftRadius: theme.borderRadius.default,
-    [theme.breakpoints.down('xs')]: {
-      borderTopLeftRadius: 0,
-    },
-  },
-  columnHeaderRight: {
-    borderLeft: "none",
-    borderTopRightRadius: theme.borderRadius.default,
-    [theme.breakpoints.down('xs')]: {
-      borderTopRightRadius: 0,
-      borderrRight: "none",
-    },
   },
   headerText: {
     overflow: "hidden",
@@ -139,14 +129,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const EmptyState = () => {
+  return (
+    <div>
+      <div>You have no open conversations.</div>
+    </div>
+  );
+}
+
 const FriendlyInbox = ({
   currentUser,
   terms,
   conversationId,
   isModInbox = false,
   classes,
-}: InboxComponentProps & {
+}: Omit<InboxComponentProps, "classes"> & {
   conversationId?: string;
+  classes: ClassesType<typeof styles>;
 }) => {
   const { openDialog } = useDialog();
   const { location } = useLocation();
@@ -178,7 +177,8 @@ const FriendlyInbox = ({
     fragmentName: "ConversationsList",
     limit: 500,
   });
-  const { results: conversations } = conversationsResult;
+  const { results: conversations, loading: conversationsLoading } = conversationsResult;
+  const isEmpty = !conversations?.length && !conversationsLoading;
 
   // The conversationId need not appear in the sidebar (e.g. if it is a new conversation). If it does,
   // use the conversation from the list to load the title faster, if not, fetch it directly.
@@ -223,7 +223,7 @@ const FriendlyInbox = ({
             [classes.hideColumnSm]: conversationId,
           })}
         >
-          <div className={classNames(classes.columnHeader, classes.columnHeaderLeft)}>
+          <div className={classes.columnHeader}>
             <div className={classes.headerText}>All messages</div>
             <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
           </div>
@@ -241,27 +241,37 @@ const FriendlyInbox = ({
             [classes.hideColumnSm]: !conversationId,
           })}
         >
-          <div className={classNames(classes.columnHeader, classes.columnHeaderRight)}>
-            <div className={classes.headerText}>{title}</div>
-            {conversationId && (
-              <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
-            )}
-          </div>
-          <div className={classes.conversation} ref={selectedConversationRef}>
-            {selectedConversation ? (
-              <>
-                <Link to="/inbox" className={classes.backButton}> Go back to Inbox </Link>
-                <ConversationDetails conversation={selectedConversation} hideOptions />
-                <ConversationContents
-                  currentUser={currentUser}
-                  conversation={selectedConversation}
-                  scrollRef={selectedConversationRef}
-                />
-              </>
-            ) : (
-              <></>
-            )}
-          </div>
+          {!isEmpty ? (
+            <>
+              <div className={classes.columnHeader}>
+                <div className={classes.headerText}>{title}</div>
+                {conversationId ? (
+                  <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
+                ) : (
+                  <div className={classes.actionIcon} />
+                )}
+              </div>
+              <div className={classes.conversation} ref={selectedConversationRef}>
+                {selectedConversation ? (
+                  <>
+                    <Link to="/inbox" className={classes.backButton}>
+                      Go back to Inbox
+                    </Link>
+                    <ConversationDetails conversation={selectedConversation} hideOptions />
+                    <ConversationContents
+                      currentUser={currentUser}
+                      conversation={selectedConversation}
+                      scrollRef={selectedConversationRef}
+                    />
+                  </>
+                ) : (
+                  <></>
+                )}
+              </div>
+            </>
+          ) : (
+            <EmptyState />
+          )}
         </div>
       </div>
     </div>
