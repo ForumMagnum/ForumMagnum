@@ -55,6 +55,7 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden", // to simplify border radius
     border: theme.palette.border.grey200,
     borderRadius: `${theme.borderRadius.default}px ${theme.borderRadius.default}px 0px 0px`,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
     [theme.breakpoints.down('xs')]: {
       border: "none",
     },
@@ -86,13 +87,11 @@ const styles = (theme: ThemeType) => ({
   },
   navigation: {
     overflowY: "auto",
-    backgroundColor: theme.palette.background.pageActiveAreaBackground,
     borderBottom: theme.palette.border.grey200,
     height: "100%",
   },
   conversation: {
     overflowY: "auto",
-    backgroundColor: theme.palette.background.pageActiveAreaBackground,
     borderBottom: theme.palette.border.grey200,
     padding: "0px 16px",
     flex: "1 1 auto",
@@ -101,7 +100,6 @@ const styles = (theme: ThemeType) => ({
     },
   },
   columnHeader: {
-    backgroundColor: theme.palette.background.pageActiveAreaBackground,
     borderBottom: theme.palette.border.grey200,
     display: "flex",
     alignItems: "center",
@@ -126,16 +124,48 @@ const styles = (theme: ThemeType) => ({
     width: 24,
     height: 24,
     cursor: "pointer",
-  }
+  },
+  emptyState: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    display: "flex",
+    flexDirection: "column",
+    gap: "25px",
+    margin: "auto auto",
+    alignItems: "center",
+    width: "fit-content",
+    // The below two lines make it look more visually centered
+    position: "relative",
+    bottom: "10%",
+  },
+  emptyStateIcon: {
+    width: 100,
+    height: 100,
+    color: theme.palette.grey[600],
+  },
+  emptyStateActionIcon: {
+    width: 22,
+    height: 22,
+    marginRight: 4,
+    position: "relative",
+    top: -1,
+  },
+  emptyStateTitle: {
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: 600,
+    marginBottom: 8,
+  },
+  emptyStateSubtitle: {
+    color: theme.palette.grey[600],
+    fontSize: 14,
+    fontWeight: 500,
+    textAlign: "center",
+  },
+  emptyStateButton: {
+    color: theme.palette.text.alwaysWhite,
+    fontSize: 14,
+  },
 });
-
-const EmptyState = () => {
-  return (
-    <div>
-      <div>You have no open conversations.</div>
-    </div>
-  );
-}
 
 const FriendlyInbox = ({
   currentUser,
@@ -169,7 +199,7 @@ const FriendlyInbox = ({
     });
   }, [isModInbox, openDialog]);
 
-  const { FriendlyInboxNavigation, ConversationContents, ForumIcon, ConversationDetails } = Components;
+  const { FriendlyInboxNavigation, ConversationContents, ForumIcon, ConversationDetails, EAButton } = Components;
 
   const conversationsResult: UseMultiResult<"ConversationsList"> = useMulti({
     terms,
@@ -178,7 +208,6 @@ const FriendlyInbox = ({
     limit: 500,
   });
   const { results: conversations, loading: conversationsLoading } = conversationsResult;
-  const isEmpty = !conversations?.length && !conversationsLoading;
 
   // The conversationId need not appear in the sidebar (e.g. if it is a new conversation). If it does,
   // use the conversation from the list to load the title faster, if not, fetch it directly.
@@ -241,7 +270,7 @@ const FriendlyInbox = ({
             [classes.hideColumnSm]: !conversationId,
           })}
         >
-          {!isEmpty ? (
+          {!!selectedConversation && (
             <>
               <div className={classes.columnHeader}>
                 <div className={classes.headerText}>{title}</div>
@@ -252,25 +281,31 @@ const FriendlyInbox = ({
                 )}
               </div>
               <div className={classes.conversation} ref={selectedConversationRef}>
-                {selectedConversation ? (
-                  <>
-                    <Link to="/inbox" className={classes.backButton}>
-                      Go back to Inbox
-                    </Link>
-                    <ConversationDetails conversation={selectedConversation} hideOptions />
-                    <ConversationContents
-                      currentUser={currentUser}
-                      conversation={selectedConversation}
-                      scrollRef={selectedConversationRef}
-                    />
-                  </>
-                ) : (
-                  <></>
-                )}
+                <Link to="/inbox" className={classes.backButton}>
+                  Go back to Inbox
+                </Link>
+                <ConversationDetails conversation={selectedConversation} hideOptions />
+                <ConversationContents
+                  currentUser={currentUser}
+                  conversation={selectedConversation}
+                  scrollRef={selectedConversationRef}
+                />
               </div>
             </>
-          ) : (
-            <EmptyState />
+          )}
+          {!conversationsLoading && !selectedConversation && (
+            <div className={classes.emptyState}>
+              <div>
+                <ForumIcon icon="LightbulbChat" className={classes.emptyStateIcon} />
+              </div>
+              <div>
+                <div className={classes.emptyStateTitle}>No message selected</div>
+                <div className={classes.emptyStateSubtitle}>Connect with other users on the forum</div>
+              </div>
+              <EAButton onClick={openNewConversationDialog} className={classes.emptyStateButton}>
+                <ForumIcon icon="PencilSquare" className={classes.emptyStateActionIcon} /> Start a new conversation
+              </EAButton>
+            </div>
           )}
         </div>
       </div>
