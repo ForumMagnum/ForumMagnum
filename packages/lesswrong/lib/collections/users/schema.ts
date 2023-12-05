@@ -17,6 +17,8 @@ import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
 import { dialoguesEnabled, hasPostRecommendations } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { randomId } from '../../random';
+import { getUserABTestKey } from '../../abTestImpl';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -2324,9 +2326,15 @@ const schema: SchemaType<DbUser> = {
   abTestKey: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
+    onCreate: ({ document, context }) => {
+      if (!document.abTestKey) {
+        return getUserABTestKey({clientId: context.clientId ?? randomId()});
+      }
+    }
   },
   abTestOverrides: {
     type: GraphQLJSON, //Record<string,number>
