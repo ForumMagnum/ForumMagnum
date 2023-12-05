@@ -463,12 +463,17 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
  */
 const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, endDate: moment.Moment) => {
   if (fractionDate < startDate) return 0
-  if (startDate >= endDate) console.error(`In dateFraction: start and end dates are reversed`);
+  if (startDate >= endDate) {
+    // eslint-disable-next-line no-console
+    console.error(`In dateFraction: start and end dates are reversed`);
+  }
   const result = (
     (fractionDate.unix() - startDate.unix())
     / (endDate.unix() - startDate.unix())
   ) * 100;
   if (result > 100) {
+    // eslint-disable-next-line no-console
+    console.error(`Out of range in dateFraction: ${fractionDate}, ${startDate}, ${endDate}`);
     return "100";
   }
   return result.toFixed(2)
