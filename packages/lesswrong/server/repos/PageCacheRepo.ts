@@ -10,6 +10,11 @@ export type MeanPostKarma = {
   meanKarma: number,
 }
 
+/**
+ * Omit all fields which can be undefined (which is unfortunately not accomplished by Required<T>, since that only omits *optional* fields)
+ */
+type SanitizedRenderResult = Omit<RenderResult, Exclude<keyof RenderResult, undefined>>;
+
 export const maxCacheAgeMs = 90*1000;
 
 export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
@@ -40,7 +45,7 @@ export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
       WHERE "expiresAt" < NOW()`);
   }
 
-  async upsertPageCacheEntry(path: string, abTestGroups: RelevantTestGroupAllocation, renderResult: RenderResult): Promise<null> {
+  async upsertPageCacheEntry(path: string, abTestGroups: RelevantTestGroupAllocation, renderResult: SanitizedRenderResult): Promise<null> {
     const bundleHash = getServerBundleHash();
     const now = new Date();
 

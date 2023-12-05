@@ -149,7 +149,7 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
       }
     },
     canAutofillDefault: true,
-
+    nullable: false,
     resolveAs: {
       fieldName: resolverName,
       type: `[${type}!]!`,

@@ -65,7 +65,7 @@ interface DbChapter extends DbObject {
   subtitle: string | null
   number: number | null
   sequenceId: string | null
-  postIds: Array<string> | null
+  postIds: Array<string>
   contents: EditableFieldContents
   contents_latest: string | null
   createdAt: Date
@@ -166,7 +166,7 @@ interface DbComment extends DbObject {
   hideModeratorHat: boolean | null
   isPinnedOnProfile: boolean
   title: string | null
-  relevantTagIds: Array<string> | null
+  relevantTagIds: Array<string>
   debateResponse: boolean | null
   rejected: boolean
   modGPTAnalysis: string | null
@@ -174,7 +174,7 @@ interface DbComment extends DbObject {
   rejectedReason: string | null
   rejectedByUserId: string | null
   af: boolean
-  suggestForAlignmentUserIds: Array<string> | null
+  suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string | null
   afDate: Date | null
   moveToAlignmentUserId: string | null
@@ -201,7 +201,7 @@ interface ConversationsCollection extends CollectionBase<DbConversation, "Conver
 interface DbConversation extends DbObject {
   __collectionName?: "Conversations"
   title: string | null
-  participantIds: Array<string> | null
+  participantIds: Array<string>
   latestActivity: Date | null
   af: boolean | null
   messageCount: number
@@ -486,7 +486,7 @@ interface DbLocalgroup extends DbObject {
   __collectionName?: "Localgroups"
   name: string | null
   nameInAnotherLanguage: string | null
-  organizerIds: Array<string> | null
+  organizerIds: Array<string>
   lastActivity: Date | null
   types: Array<string>
   categories: Array<string> | null
@@ -815,7 +815,7 @@ interface DbPost extends DbObject {
   bannedUserIds: Array<string> | null
   commentsLocked: boolean | null
   commentsLockedToAccountsCreatedAfter: Date | null
-  organizerIds: Array<string> | null
+  organizerIds: Array<string>
   groupId: string | null
   eventType: string | null
   isEvent: boolean
@@ -840,7 +840,7 @@ interface DbPost extends DbObject {
   types: Array<string> | null
   metaSticky: boolean
   sharingSettings: any /*{"definitions":[{"blackbox":true}]}*/
-  shareWithUsers: Array<string> | null
+  shareWithUsers: Array<string>
   linkSharingKey: string | null
   linkSharingKeyUsedBy: Array<string> | null
   commentSortOrder: string | null
@@ -865,7 +865,7 @@ interface DbPost extends DbObject {
   afCommentCount: number
   afLastCommentedAt: Date | null
   afSticky: boolean
-  suggestForAlignmentUserIds: Array<string> | null
+  suggestForAlignmentUserIds: Array<string>
   reviewForAlignmentUserId: string | null
   agentFoundationsId: string | null
   createdAt: Date
@@ -1131,7 +1131,7 @@ interface DbTag extends DbObject {
   wikiOnly: boolean
   bannerImageId: string | null
   squareImageId: string | null
-  tagFlagsIds: Array<string> | null
+  tagFlagsIds: Array<string>
   lesswrongWikiImportRevision: string | null
   lesswrongWikiImportSlug: string | null
   lesswrongWikiImportCompleted: boolean | null
@@ -1141,10 +1141,10 @@ interface DbTag extends DbObject {
   postsDefaultSortOrder: string | null
   canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins"> | null
   isSubforum: boolean
-  subforumModeratorIds: Array<string> | null
+  subforumModeratorIds: Array<string>
   subforumIntroPostId: string | null
   parentTagId: string | null
-  subTagIds: Array<string> | null
+  subTagIds: Array<string>
   autoTagModel: string | null
   autoTagPrompt: string | null
   noindex: boolean
@@ -1297,8 +1297,8 @@ interface DbUser extends DbObject {
   collapseModerationGuidelines: boolean | null
   bannedUserIds: Array<string> | null
   bannedPersonalUserIds: Array<string> | null
-  bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/> | null
-  hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/> | null
+  bookmarkedPostsMetadata: Array<any /*{"definitions":[{}]}*/>
+  hiddenPostsMetadata: Array<any /*{"definitions":[{}]}*/>
   legacyId: string | null
   deleted: boolean
   voteBanned: boolean | null
@@ -1566,8 +1566,8 @@ interface DbUser extends DbObject {
   facebookProfileURL: string | null
   twitterProfileURL: string | null
   githubProfileURL: string | null
-  profileTagIds: Array<string> | null
-  organizerOfGroupIds: Array<string> | null
+  profileTagIds: Array<string>
+  organizerOfGroupIds: Array<string>
   programParticipation: Array<string> | null
   postingDisabled: boolean | null
   allCommentingDisabled: boolean | null
