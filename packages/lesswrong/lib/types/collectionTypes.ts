@@ -124,6 +124,7 @@ type MongoFindOptions<T extends DbObject> = Partial<{
   skip: number,
   projection: MongoProjection<T>,
   collation: CollationDocument,
+  comment?: string,
 }>;
 type MongoFindOneOptions<T extends DbObject> = any; //TODO
 type MongoUpdateOptions<T extends DbObject> = any; //TODO
