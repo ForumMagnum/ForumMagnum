@@ -112,7 +112,7 @@ defineQuery({
       return result
     }
 
-    const getUserVotesOnPoll = async (userId: string, pollCommentId: string, recommendationReason:string, whoseVote:string) => {
+    const getUserVotesOnPoll = async (userId: string, pollCommentId: string, recommendationReason:string, whoseVote:"you"|"they") => {
       const comments = await context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit * 3, pollCommentId)
       const sampled = sampleSize(comments, Math.round(limit / 2))
       const result = sampled.map(comment => {
