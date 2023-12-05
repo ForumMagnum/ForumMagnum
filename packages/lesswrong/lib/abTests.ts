@@ -1,4 +1,4 @@
-import { ABTest, getUserABTestGroup, useABTest, useABTestProperties } from './abTestImpl';
+import { ABTest, useABTest, useABTestProperties } from './abTestImpl';
 export { useABTest, useABTestProperties };
 
 // An A/B test which doesn't do anything (other than randomize you), for testing
