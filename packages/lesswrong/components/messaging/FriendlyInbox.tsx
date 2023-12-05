@@ -299,7 +299,7 @@ const FriendlyInbox = ({
                 <ForumIcon icon="LightbulbChat" className={classes.emptyStateIcon} />
               </div>
               <div>
-                <div className={classes.emptyStateTitle}>No message selected</div>
+                <div className={classes.emptyStateTitle}>No conversation selected</div>
                 <div className={classes.emptyStateSubtitle}>Connect with other users on the forum</div>
               </div>
               <EAButton onClick={openNewConversationDialog} className={classes.emptyStateButton}>
