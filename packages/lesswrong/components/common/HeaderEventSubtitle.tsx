@@ -35,7 +35,9 @@ type CurrentEvent = {
 }
 
 const useCurrentEvent = (): CurrentEvent | null => {
-  const spotlight = useCurrentFrontpageSpotlight();
+  const spotlight = useCurrentFrontpageSpotlight({
+    fragmentName: "SpotlightHeaderEventSubtitle",
+  });
   const { pathname } = useLocation()
   
   // special case for EA Forum Giving Season 2023
