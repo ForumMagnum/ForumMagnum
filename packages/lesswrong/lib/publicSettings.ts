@@ -91,8 +91,7 @@ export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | 
 
 export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false)
 
-// You will need to restart your server after changing these at present;
-// FrontpageReviewWidget reads them at startup.
+export const showReviewOnFrontPageIfActive = new DatabasePublicSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true)
 export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-30")
 // The following dates cut off their phase at the end of the day
 export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
