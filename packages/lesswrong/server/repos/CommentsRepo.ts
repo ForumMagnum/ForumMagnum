@@ -11,6 +11,10 @@ type ExtendedCommentWithReactions = DbComment & {
   theirVote?: string,
 }
 
+type ExtendedCommentWithUserReaction = DbComment & {
+  userVote?: string,
+}
+
 export default class CommentsRepo extends AbstractRepo<DbComment> {
   constructor() {
     super(Comments);
@@ -90,9 +94,9 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [limit, pollCommentId]);
   }
 
-  async getPopularPollCommentsWithUserVotes (userId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
+  async getPopularPollCommentsWithUserVotes (userId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithUserReaction)[]> {
     return await this.getRawDb().manyOrNone(`
-    SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "yourVote"
+    SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "userVote"
     FROM public."Comments" AS c
     INNER JOIN public."Votes" AS v ON c._id = v."documentId"
     WHERE
