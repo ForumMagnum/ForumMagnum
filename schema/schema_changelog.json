@@ -460,8 +460,8 @@
     "timestamp": "2023-12-01T02:27:44.000Z"
   },
   {
-    "acceptsSchemaHash": "53db1ce13cf45da5386c25794f3e68d1",
-    "acceptedByMigration": "20231205T002147.make_fields_not_nullable.ts",
-    "timestamp": "2023-12-05T00:21:47.000Z"
+    "acceptsSchemaHash": "2ace126a36fc6b5cdb4e4a0264fec6f9",
+    "acceptedByMigration": "20231204T235404.fill_in_AbTestKey_and_make_nonnullable.ts",
+    "timestamp": "2023-12-04T23:54:04.000Z"
   }
 ]
