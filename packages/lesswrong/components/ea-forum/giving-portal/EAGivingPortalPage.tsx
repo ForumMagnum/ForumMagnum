@@ -32,6 +32,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { useElectionVote } from "../voting-portal/hooks";
+import { isPastVotingDeadline } from "../../../lib/collections/electionVotes/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -529,7 +530,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                   onButtonClick={handleVote}
                   solidButton
                 >
-                  {submittedVoteCount && <div className={classes.voteCount}>{submittedVoteCount} people have voted so far</div>}
+                  {submittedVoteCount && (
+                    <div className={classes.voteCount}>
+                      {submittedVoteCount} people have voted{isPastVotingDeadline() ? "" : " so far"}.
+                    </div>
+                  )}
                 </ElectionFundCTA>
               </div>
             </div>

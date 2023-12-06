@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   tooltip: {
-    background: `${theme.palette.panelBackground.tooltipBackground2} !important}`,
+    background: `${theme.palette.panelBackground.tooltipBackground2} !important`,
     maxWidth: 300,
     textAlign: "center",
   },
