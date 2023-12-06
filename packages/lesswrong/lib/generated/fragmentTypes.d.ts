@@ -3264,6 +3264,15 @@ interface SpotlightMinimumInfo { // fragment on Spotlights
   readonly imageFade: boolean,
 }
 
+interface SpotlightHeaderEventSubtitle extends SpotlightMinimumInfo { // fragment on Spotlights
+  readonly document: SpotlightHeaderEventSubtitle_document,
+}
+
+interface SpotlightHeaderEventSubtitle_document { // fragment on Posts
+  readonly _id: string,
+  readonly slug: string,
+}
+
 interface SpotlightDisplay extends SpotlightMinimumInfo { // fragment on Spotlights
   readonly document: SpotlightDisplay_document,
   readonly sequenceChapters: Array<ChaptersFragment>,
@@ -3373,6 +3382,15 @@ interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly voteCount: number,
   readonly currentUserVote: string,
   readonly currentUserExtendedVote: any,
+}
+
+interface ElectionCandidateSimple { // fragment on ElectionCandidates
+  readonly _id: string,
+  readonly name: string,
+  readonly logoSrc: string,
+  readonly href: string,
+  readonly fundraiserLink: string | null,
+  readonly description: string,
 }
 
 interface WithVoteElectionCandidate { // fragment on ElectionCandidates
@@ -3696,6 +3714,7 @@ interface FragmentTypes {
   UserVotesWithDocument: UserVotesWithDocument
   SpotlightsDefaultFragment: SpotlightsDefaultFragment
   SpotlightMinimumInfo: SpotlightMinimumInfo
+  SpotlightHeaderEventSubtitle: SpotlightHeaderEventSubtitle
   SpotlightDisplay: SpotlightDisplay
   SpotlightEditQueryFragment: SpotlightEditQueryFragment
   ModeratorActionDisplay: ModeratorActionDisplay
@@ -3706,6 +3725,7 @@ interface FragmentTypes {
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
+  ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
   ElectionVotesDefaultFragment: ElectionVotesDefaultFragment
   ElectionVoteInfo: ElectionVoteInfo
@@ -3716,6 +3736,59 @@ interface FragmentTypes {
   DialogueMatchPreferencesDefaultFragment: DialogueMatchPreferencesDefaultFragment
   DialogueMatchPreferenceInfo: DialogueMatchPreferenceInfo
   SuggestAlignmentComment: SuggestAlignmentComment
+}
+
+interface FragmentTypesByCollection {
+  Collections: "CollectionsDefaultFragment"|"CollectionContinueReadingFragment"|"CollectionsPageFragment"|"CollectionsEditFragment"|"CollectionsBestOfFragment"
+  Localgroups: "LocalgroupsDefaultFragment"|"localGroupsBase"|"localGroupsHomeFragment"|"localGroupsEdit"|"localGroupsIsOnline"
+  Users: "UsersDefaultFragment"|"SuggestAlignmentUser"|"UsersMinimumInfo"|"UsersProfile"|"UsersCurrent"|"UsersCurrentCommentRateLimit"|"UsersCurrentPostRateLimit"|"UserBookmarkedPosts"|"UserKarmaChanges"|"UsersBannedFromUsersModerationLog"|"SunshineUsersList"|"UserAltAccountsFragment"|"SharedUserBooleans"|"UsersMapEntry"|"UsersEdit"|"UsersAdmin"|"UsersWithReviewInfo"|"UsersProfileEdit"|"UsersCrosspostInfo"|"UsersOptedInToDialogueFacilitation"
+  Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"SuggestAlignmentComment"
+  UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
+  Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"
+  Conversations: "ConversationsDefaultFragment"|"newConversationFragment"|"conversationsListFragment"|"conversationIdFragment"|"ConversationsMinimumInfo"|"ConversationsList"
+  DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
+  ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
+  PostEmbeddings: "PostEmbeddingsDefaultFragment"
+  PostRecommendations: "PostRecommendationsDefaultFragment"
+  PostRelations: "PostRelationsDefaultFragment"
+  TagRels: "TagRelsDefaultFragment"|"TagRelBasicInfo"|"TagRelFragment"|"TagRelHistoryFragment"|"TagRelCreationFragment"|"TagRelMinimumFragment"|"WithVoteTagRel"
+  Books: "BooksDefaultFragment"|"BookPageFragment"|"BookEdit"
+  Sequences: "SequencesDefaultFragment"|"SequencesPageTitleFragment"|"SequencesPageFragment"|"SequenceContinueReadingFragment"|"SequencesPageWithChaptersFragment"|"SequencesEdit"
+  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
+  Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
+  LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
+  ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
+  CronHistories: "CronHistoriesDefaultFragment"
+  Messages: "MessagesDefaultFragment"|"messageListFragment"
+  Sessions: "SessionsDefaultFragment"
+  Notifications: "NotificationsDefaultFragment"|"NotificationsList"
+  TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
+  RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
+  Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
+  ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
+  Reports: "ReportsDefaultFragment"|"unclaimedReportsList"
+  TagFlags: "TagFlagFragment"|"TagFlagEditFragment"|"TagFlagsDefaultFragment"
+  GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
+  Bans: "BansDefaultFragment"|"BansAdminPageFragment"
+  Chapters: "ChaptersDefaultFragment"|"ChaptersFragment"|"ChaptersEdit"
+  ReviewVotes: "ReviewVotesDefaultFragment"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
+  AdvisorRequests: "AdvisorRequestsDefaultFragment"|"AdvisorRequestsMinimumInfo"
+  UserMostValuablePosts: "UserMostValuablePostsDefaultFragment"|"UserMostValuablePostInfo"
+  DigestPosts: "DigestPostsDefaultFragment"|"DigestPostsMinimumInfo"
+  Digests: "DigestsDefaultFragment"|"DigestsMinimumInfo"
+  Subscriptions: "SubscriptionsDefaultFragment"|"SubscriptionState"
+  Podcasts: "PodcastsDefaultFragment"|"PodcastSelect"
+  PodcastEpisodes: "PodcastEpisodesDefaultFragment"|"PodcastEpisodeFull"
+  PetrovDayLaunchs: "PetrovDayLaunchsDefaultFragment"|"PetrovDayLaunch"
+  FeaturedResources: "FeaturedResourcesDefaultFragment"|"FeaturedResourcesFragment"
+  Spotlights: "SpotlightsDefaultFragment"|"SpotlightMinimumInfo"|"SpotlightHeaderEventSubtitle"|"SpotlightDisplay"|"SpotlightEditQueryFragment"
+  CommentModeratorActions: "CommentModeratorActionsDefaultFragment"|"CommentModeratorActionDisplay"
+  ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
+  UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
+  ElectionVotes: "ElectionVotesDefaultFragment"|"ElectionVoteInfo"
+  ElicitQuestions: "ElicitQuestionsDefaultFragment"
+  ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
+  DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
 }
 
 interface CollectionNamesByFragmentName {
@@ -3919,6 +3992,7 @@ interface CollectionNamesByFragmentName {
   UserVotesWithDocument: "Votes"
   SpotlightsDefaultFragment: "Spotlights"
   SpotlightMinimumInfo: "Spotlights"
+  SpotlightHeaderEventSubtitle: "Spotlights"
   SpotlightDisplay: "Spotlights"
   SpotlightEditQueryFragment: "Spotlights"
   ModeratorActionDisplay: "ModeratorActions"
@@ -3929,6 +4003,7 @@ interface CollectionNamesByFragmentName {
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
   ElectionCandidateBasicInfo: "ElectionCandidates"
+  ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
   ElectionVotesDefaultFragment: "ElectionVotes"
   ElectionVoteInfo: "ElectionVotes"

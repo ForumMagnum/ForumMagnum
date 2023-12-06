@@ -226,6 +226,22 @@ export type AlgoliaDocument = {
   [key: string]: any,
 }
 
+interface PerfMetric {
+  trace_id: string;
+  op_type: string;
+  op_name: string;
+  started_at: Date;
+  ended_at: Date;
+  parent_trace_id?: string;
+  client_path?: string;
+  extra_data?: Json;
+  gql_string?: string;
+  ip?: string;
+  user_agent?: string;
+}
+
+type IncompletePerfMetric = Omit<PerfMetric, 'ended_at'>;
+
 interface ResolverContext extends CollectionsByName {
   headers: any,
   userId: string|null,
@@ -247,6 +263,7 @@ interface ResolverContext extends CollectionsByName {
   req?: Request & {logIn: any, logOut: any, cookies: any, headers: any},
   res?: Response,
   repos: Repos,
+  perfMetric?: IncompletePerfMetric,
 }
 
 type FragmentName = keyof FragmentTypes;

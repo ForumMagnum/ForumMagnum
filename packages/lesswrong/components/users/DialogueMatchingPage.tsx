@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, getFragmentText, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
-import { gql, useQuery, useMutation } from "@apollo/client";
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { gql, useQuery } from "@apollo/client";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
 import { randomId } from '../../lib/random';
@@ -901,7 +901,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               multiline
               rows={2}
               variant="outlined"
-              label="Anything else to add?"
+              label="Anything else to add? It could be helpful to add a calendly or similar."
               fullWidth
               value={formatNotes}
               onChange={event => setFormatNotes(event.target.value)}
@@ -952,6 +952,8 @@ const DialogueCheckBox: React.FC<{
     if (!currentUser) return;
 
     const response = await upsertUserDialogueCheck({ targetUserId, checked: event.target.checked, checkId });
+
+    captureEvent("newDialogueCheck", {checked: response.data.upsertUserDialogueCheck.checked}) 
     
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()
@@ -970,7 +972,7 @@ const DialogueCheckBox: React.FC<{
   }
 
   return (
-    <>
+    <AnalyticsContext pageElementContext={"dialogueCheckBox"}>
       {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} onConfettiComplete={() => setShowConfetti(false)} />}
       <FormControlLabel
         control={ 
@@ -989,7 +991,8 @@ const DialogueCheckBox: React.FC<{
         }
         label=""
       />
-    </>
+    </AnalyticsContext>
+    
   );
 };
 
@@ -1263,43 +1266,109 @@ export const DialogueMatchingPage = ({classes}: {
   const prompt = "Opt-in to LessWrong team viewing your checks, to help proactively suggest and facilitate dialogues" 
 
   return (
-  <div className={classes.root}>
-    <div className={classes.container}>
+  <AnalyticsContext pageContext={"dialogueMatchingPage"}>
+    <div className={classes.root}>
+      <div className={classes.container}>
 
-      <h1>Dialogue Matching</h1>
-      <ul>
-        <li>Check a user you'd maybe be interested in having a dialogue with, if they were too</li>
-        <li>They can't see your checks unless you match</li>
-        <li>If you match, you'll both get a tiny form to enter topic ideas</li>
-        <li>You can then see each other's answers, and choose whether start a dialogue</li>
-      </ul>
-      
-      <div className={classes.optInContainer}>
-        <FormControlLabel className={classes.optInLabel}
-          control={
-            <Checkbox
-              checked={optIn}
-              onChange={event => handleOptInToRevealDialogueChecks(event)}
-              name="optIn"
-              color="primary"
-              className={classes.optInCheckbox}
-            />
-          }
-          label={null}
-        />{prompt}
+        <h1>Dialogue Matching</h1>
+        <ul>
+          <li>Check a user you'd maybe be interested in having a dialogue with, if they were too</li>
+          <li>They can't see your checks unless you match</li>
+          <li>If you match, you'll both get a tiny form to enter topic ideas</li>
+          <li>You can then see each other's answers, and choose whether start a dialogue</li>
+        </ul>
+        
+        <div className={classes.optInContainer}>
+          <FormControlLabel className={classes.optInLabel}
+            control={
+              <Checkbox
+                checked={optIn}
+                onChange={event => handleOptInToRevealDialogueChecks(event)}
+                name="optIn"
+                color="primary"
+                className={classes.optInCheckbox}
+              />
+            }
+            label={null}
+          />{prompt}
+        </div> 
       </div> 
-    </div> 
-    <p className={classes.privacyNote}>On privacy: LessWrong team does not look at user’s checks unless you opted in. We do track metadata, like “Two users just matched”, 
-      to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless 
-      the other part of the match has also opted in.
-    </p>
-    { !(matchedUsers?.length) ?  null : <>
+      <p className={classes.privacyNote}>On privacy: LessWrong team does not look at user’s checks unless you opted in. We do track metadata, like “Two users just matched”, 
+        to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless 
+        the other part of the match has also opted in.
+      </p>
+      { !(matchedUsers?.length) ?  null : <>
+        <div className={classes.rootFlex}>
+          <div className={classes.matchContainer}>
+            <h3>Matches</h3>
+            <UserTable
+              users={matchedUsers ?? []}
+              tableContext={'match'}
+              classes={classes}
+              gridClassName={classes.matchContainerGridV2}
+              currentUser={currentUser}
+              userDialogueChecks={userDialogueChecks}
+              showBio={true}
+              showKarma={false}
+              showAgreement={false}
+              showPostsYouveRead={true}
+              showFrequentCommentedTopics={true}
+              showHeaders={true}
+            />
+          </div>
+        </div>
+        <br />
+        <br />
+      </> }
+      { !topUsers.length ? null : <>
+        <div className={classes.rootFlex}>
+          <div className={classes.matchContainer}>
+            <h3>Your Top Voted Users (Last 18 Months)</h3>
+            { recentlyActiveTopUsers.length == 0 ? null : <>
+            <h4>Recently active on dialogue matching (last 10 days)</h4>
+            <UserTable
+              users={recentlyActiveTopUsers}
+              tableContext={'upvoted'}
+              classes={classes}
+              gridClassName={classes.matchContainerGridV1}
+              currentUser={currentUser}
+              userDialogueChecks={userDialogueChecks}
+              showBio={false}
+              showKarma={true}
+              showAgreement={true}
+              showPostsYouveRead={true}
+              showFrequentCommentedTopics={true}
+              showHeaders={true}
+            />
+          <br />
+          </> }
+        { nonRecentlyActiveTopUsers.length == 0 ? null : <>
+              <h4>Not recently active on dialogue matching</h4>
+              <UserTable
+                users={nonRecentlyActiveTopUsers}
+                tableContext={'upvoted'}
+                classes={classes}
+                gridClassName={classes.matchContainerGridV1}
+                currentUser={currentUser}
+                userDialogueChecks={userDialogueChecks}
+                showBio={false}
+                showKarma={true}
+                showAgreement={true}
+                showPostsYouveRead={true}
+                showFrequentCommentedTopics={true}
+                showHeaders={!recentlyActiveTopUsers.length}
+              />
+            </>}
+            </div>
+        </div>
+        <br />
+      </> }
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
-          <h3>Matches</h3>
+          <h3>Published dialogues</h3>
           <UserTable
-            users={matchedUsers ?? []}
-            tableContext={'match'}
+            users={dialogueUsers}
+            tableContext={'other'}
             classes={classes}
             gridClassName={classes.matchContainerGridV2}
             currentUser={currentUser}
@@ -1314,113 +1383,49 @@ export const DialogueMatchingPage = ({classes}: {
         </div>
       </div>
       <br />
-      <br />
-    </> }
-    { !topUsers.length ? null : <>
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
-          <h3>Your Top Voted Users (Last 18 Months)</h3>
-          { recentlyActiveTopUsers.length == 0 ? null : <>
-          <h4>Recently active on dialogue matching (last 10 days)</h4>
+          <h3>Opted in to matchmaking</h3>
           <UserTable
-            users={recentlyActiveTopUsers}
-            tableContext={'upvoted'}
+            users={optedInUsers}
+            tableContext={'other'}
             classes={classes}
-            gridClassName={classes.matchContainerGridV1}
+            gridClassName={classes.matchContainerGridV2}
             currentUser={currentUser}
             userDialogueChecks={userDialogueChecks}
-            showBio={false}
-            showKarma={true}
-            showAgreement={true}
+            showBio={true}
+            showKarma={false}
+            showAgreement={false}
             showPostsYouveRead={true}
             showFrequentCommentedTopics={true}
             showHeaders={true}
           />
-        <br />
-        </> }
-      { nonRecentlyActiveTopUsers.length == 0 ? null : <>
-            <h4>Not recently active on dialogue matching</h4>
-            <UserTable
-              users={nonRecentlyActiveTopUsers}
-              tableContext={'upvoted'}
-              classes={classes}
-              gridClassName={classes.matchContainerGridV1}
-              currentUser={currentUser}
-              userDialogueChecks={userDialogueChecks}
-              showBio={false}
-              showKarma={true}
-              showAgreement={true}
-              showPostsYouveRead={true}
-              showFrequentCommentedTopics={true}
-              showHeaders={!recentlyActiveTopUsers.length}
-            />
-          </>}
-          </div>
+          <LoadMore {...optedInUsersLoadMoreProps} loadMore={() => optedInUsersLoadMoreProps.loadMore(50)} />
+        </div>
       </div>
       <br />
-    </> }
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h3>Published dialogues</h3>
-        <UserTable
-          users={dialogueUsers}
-          tableContext={'other'}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV2}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          showBio={true}
-          showKarma={false}
-          showAgreement={false}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-          showHeaders={true}
-        />
+      <div className={classes.rootFlex}>
+        <div className={classes.matchContainer}>
+          <h3>Recently active on dialogue matching</h3>
+          <UserTable
+            users={activeDialogueMatchSeekers}
+            tableContext={'other'}
+            classes={classes}
+            gridClassName={classes.matchContainerGridV2}
+            currentUser={currentUser}
+            userDialogueChecks={userDialogueChecks}
+            showBio={true}
+            showKarma={false}
+            showAgreement={false}
+            showPostsYouveRead={true}
+            showFrequentCommentedTopics={true}
+            showHeaders={true}
+          />
+        </div>
       </div>
+      <IntercomWrapper />
     </div>
-    <br />
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h3>Opted in to matchmaking</h3>
-        <UserTable
-          users={optedInUsers}
-          tableContext={'other'}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV2}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          showBio={true}
-          showKarma={false}
-          showAgreement={false}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-          showHeaders={true}
-        />
-        <LoadMore {...optedInUsersLoadMoreProps} loadMore={() => optedInUsersLoadMoreProps.loadMore(50)} />
-      </div>
-    </div>
-    <br />
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h3>Recently active on dialogue matching</h3>
-        <UserTable
-          users={activeDialogueMatchSeekers}
-          tableContext={'other'}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV2}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          showBio={true}
-          showKarma={false}
-          showAgreement={false}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-          showHeaders={true}
-        />
-      </div>
-    </div>
-    <IntercomWrapper />
-  </div>)
+  </AnalyticsContext>)
 }
 
 const NoSSRMatchingPage = (props: {classes: ClassesType<typeof styles>}) =>

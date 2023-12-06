@@ -17,6 +17,7 @@ import {
   effectiveGivingTagId,
   electionCandidatesPostLink,
   heroImageId,
+  otherDonationOpportunities,
   postsAboutElectionLink,
   setupFundraiserLink,
   timelineSpec,
@@ -263,7 +264,7 @@ const styles = (theme: ThemeType) => ({
   w100: { width: "100%" },
   
   votingBanner: {
-    backgroundColor: theme.palette.givingPortal.homepageHeader.main,
+    backgroundColor: theme.palette.givingPortal.homepageHeader.dark,
     color: theme.palette.text.alwaysWhite,
   },
   votingBannerContent: {
@@ -348,7 +349,6 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const {
     results: donationOpportunities,
     loading: donationOpportunitiesLoading,
-    loadMoreProps: donationOpportunitiesLoadMoreProps,
   } = useDonationOpportunities();
   const {document: donationElectionTag} = useSingle({
     documentId: donationElectionTagId,
@@ -370,7 +370,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const currentUser = useCurrentUser();
   const {flash} = useMessages();
   const {openDialog} = useDialog();
-  const { electionVote } = useElectionVote("givingSeason23");
+  const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   // We only show the voting banner for users who are eligible -
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
   const showVotingBanner = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
@@ -400,11 +400,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const totalRaisedFormatted = formatDollars(amountRaised.totalRaised);
   const raisedForElectionFundFormatted = formatDollars(amountRaised.raisedForElectionFund);
   const targetPercent = amountRaised.electionFundTarget > 0 ? (amountRaised.raisedForElectionFund / amountRaised.electionFundTarget) * 100 : 0;
+  const allDonationOpportunities = !!donationOpportunities?.length ? [...donationOpportunities, ...otherDonationOpportunities] : []
 
   const {
-    Loading, LoadMore, HeadTags, Timeline, ElectionFundCTA, Typography, PostsList2,
+    Loading, HeadTags, Timeline, ElectionFundCTA, Typography, PostsList2,
     ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, QuickTakesList,
   } = Components;
+
   return (
     <AnalyticsContext pageContext="eaGivingPortal">
       <div className={classes.root}>
@@ -610,12 +612,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
             </div>
           }
           <div className={classNames(classes.grid, classes.mt10)}>
-            {donationOpportunities?.map((candidate) => (
+            {allDonationOpportunities.map((candidate) => (
               <DonationOpportunity candidate={candidate} key={candidate._id} />
             ))}
             {donationOpportunitiesLoading && <Loading />}
           </div>
-          <LoadMore className={classes.loadMore} {...donationOpportunitiesLoadMoreProps} />
         </div>
         {/* TODO add in these sequences once more of them exist */}
         {/* <div className={classNames(classes.content, classes.mb100)}>
