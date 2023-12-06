@@ -40,7 +40,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
 
   const hasVoted = !!document.currentUserExtendedVote?.preVote;
   const icon = hasVoted || (hover && !isMobile()) ? "Heart" : "HeartOutline";
-  const tooltip = hasVoted ? "Remove pre-vote" : "Pre-vote";
+  const tooltip = "Pre-voting has closed";
 
   const onVote = useCallback(async () => {
     if (currentUser) {

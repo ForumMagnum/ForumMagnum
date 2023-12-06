@@ -176,6 +176,7 @@ import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/electionCandidateResolvers';
+import './server/resolvers/electionVoteResolvers';
 
 
 import './server/intercomSetup';

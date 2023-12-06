@@ -8,6 +8,7 @@ import { formatStat } from "../../users/EAUserTooltipContent";
 import {
   useAmountRaised,
   useDonationOpportunities,
+  useSubmittedVoteCount,
 } from "./hooks";
 import {
   donationElectionFundraiserLink,
@@ -295,6 +296,9 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     gap: '16px',
     flexWrap: 'wrap',
+  },
+  voteCount: {
+    fontStyle: 'italic',
   }
 });
 
@@ -355,6 +359,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",
   });
+  const { submittedVoteCount } = useSubmittedVoteCount(eaGivingSeason23ElectionName);
   /*
   const {
     results: relevantSequences,
@@ -523,7 +528,9 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                   buttonText="Vote in the Election"
                   onButtonClick={handleVote}
                   solidButton
-                />
+                >
+                  {submittedVoteCount && <div className={classes.voteCount}>{submittedVoteCount} people have voted so far</div>}
+                </ElectionFundCTA>
               </div>
             </div>
           </div>
