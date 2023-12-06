@@ -4,7 +4,7 @@ import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { addGraphQLMutation, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
-import {pgPromiseLib, getAnalyticsConnection, getMirrorAnalyticsConnection, AnalyticsConnectionPool} from './analytics/postgresConnection'
+import { pgPromiseLib, getAnalyticsConnection, AnalyticsConnectionPool } from './analytics/postgresConnection'
 import chunk from 'lodash/chunk';
 import Table from '../lib/sql/Table';
 import { NotNullType, StringType, IntType } from '../lib/sql/Type';
@@ -121,7 +121,7 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
   }
 }
 
-const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'gql_string_id', 'environment'], {table: 'perf_metrics'});
+const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'gql_string_id', 'ip', 'user_agent', 'environment'], {table: 'perf_metrics'});
 
 interface PerfMetricGqlString {
   id: number;
@@ -203,6 +203,8 @@ async function flushPerfMetrics() {
           parent_trace_id: perfMetric.parent_trace_id ?? null,
           client_path: perfMetric.client_path ?? null,
           extra_data: perfMetric.extra_data ?? null,
+          ip: perfMetric.ip ?? null,
+          user_agent: perfMetric.user_agent ?? null,
           ...gqlStringId
         }
       });

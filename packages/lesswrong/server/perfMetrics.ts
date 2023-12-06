@@ -2,8 +2,9 @@ import { v4 } from 'uuid';
 import { queuePerfMetric } from './analyticsWriter';
 import type { Request, Response, NextFunction } from 'express';
 import { performanceMetricLoggingEnabled } from '../lib/publicSettings';
+import { getForwardedWhitelist } from './forwarded_whitelist';
 
-type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string'>;
+type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'ip' | 'user_agent'>;
 
 export function generateTraceId() {
   return v4();
@@ -31,7 +32,9 @@ export function perfMetricMiddleware(req: Request, res: Response, next: NextFunc
     const perfMetric = openPerfMetric({
       op_type: 'request',
       op_name: req.originalUrl,
-      client_path: req.headers['request-origin-path'] as string
+      client_path: req.headers['request-origin-path'] as string,
+      ip: getForwardedWhitelist().getClientIP(req),
+      user_agent: req.headers["user-agent"]
     });
 
     Object.assign(req, { perfMetric });
