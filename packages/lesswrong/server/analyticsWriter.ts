@@ -4,8 +4,17 @@ import { AnalyticsUtil } from '../lib/analyticsEvents';
 import { PublicInstanceSetting } from '../lib/instanceSettings';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { addGraphQLMutation, addGraphQLResolvers } from '../lib/vulcan-lib/graphql';
-import {pgPromiseLib, getAnalyticsConnection, getMirrorAnalyticsConnection} from './analytics/postgresConnection'
+import { pgPromiseLib, getAnalyticsConnection, AnalyticsConnectionPool } from './analytics/postgresConnection'
 import chunk from 'lodash/chunk';
+import Table from '../lib/sql/Table';
+import { NotNullType, StringType, IntType } from '../lib/sql/Type';
+import InsertQuery from '../lib/sql/InsertQuery';
+import { filterNonnull } from '../lib/utils/typeGuardUtils';
+import SelectQuery from '../lib/sql/SelectQuery';
+import uniq from 'lodash/uniq';
+import md5 from 'md5';
+import { performanceMetricLoggingBatchSize } from '../lib/publicSettings';
+import LRU from 'lru-cache';
 
 // Since different environments are connected to the same DB, this setting cannot be moved to the database
 export const environmentDescriptionSetting = new PublicInstanceSetting<string>("analytics.environment", "misconfigured", "warning")
@@ -112,9 +121,56 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
   }
 }
 
-const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'environment'], {table: 'perf_metrics'});
+const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'gql_string_id', 'ip', 'user_agent', 'environment'], {table: 'perf_metrics'});
 
-const queuedPerfMetrics: PerfMetric[] = []; 
+interface PerfMetricGqlString {
+  id: number;
+  gql_hash: string;
+  gql_string: string;
+}
+
+const perfMetricsGqlStringsTable = new Table('perf_metrics_gql_strings');
+perfMetricsGqlStringsTable.addField('gql_hash', new NotNullType(new StringType()));
+perfMetricsGqlStringsTable.addField('gql_string', new NotNullType(new StringType()));
+
+const GQL_STRING_ID_CACHE = new LRU<string, number>({max: 10000});
+
+function cacheQueryStringRecords(queryStringRecords: PerfMetricGqlString[]) {
+  queryStringRecords.forEach(({ id, gql_string }) => {
+    const gqlHash = md5(gql_string);
+    GQL_STRING_ID_CACHE.set(gqlHash, id);
+  });
+}
+
+function getGqlStringIdFromCache(gqlString?: string): { gql_string_id: number | null } {
+  if (!gqlString) return { gql_string_id: null };
+  const gqlHash = md5(gqlString);
+  return { gql_string_id: GQL_STRING_ID_CACHE.get(gqlHash) ?? null };
+}
+
+async function insertAndCacheGqlStringRecords(gqlStrings: string[], connection: AnalyticsConnectionPool) {
+  const gqlRecords = gqlStrings.map((gql_string) => ({gql_hash: md5(gql_string), gql_string}));
+  const previouslyCachedGqlStrings = gqlRecords.filter(({ gql_hash }) => GQL_STRING_ID_CACHE.has(gql_hash));
+  const newGqlRecords = gqlRecords.filter(({ gql_hash }) => !GQL_STRING_ID_CACHE.has(gql_hash))
+  
+  // Insert and cache all the new query strings we don't already have cached
+  const { sql, args } = new InsertQuery(perfMetricsGqlStringsTable, newGqlRecords as AnyBecauseHard, undefined, { conflictStrategy: 'ignore', returnInserted: true }).compile();
+  const insertedQueryStringRecords = await connection.any<PerfMetricGqlString>(sql, args);
+  cacheQueryStringRecords(insertedQueryStringRecords);
+
+  // The insert query has a RETURNING * but that doesn't return anything for the ON CONFLICT DO NOTHING cases, so we need to fetch those separately
+  const insertedQueryStrings = insertedQueryStringRecords.map(record => record.gql_string);
+  const cachedQueryStrings = new Set([...previouslyCachedGqlStrings, ...insertedQueryStrings]);
+  const missingQueryStrings = gqlStrings.filter(queryString => !cachedQueryStrings.has(queryString));
+
+  if (missingQueryStrings.length > 0) {
+    const { sql, args } = new SelectQuery(perfMetricsGqlStringsTable, { gql_string: { $in: missingQueryStrings } }).compile();
+    const remainingQueryStringRecords = await connection.any(sql, args);
+    cacheQueryStringRecords(remainingQueryStringRecords);
+  }
+}
+
+const queuedPerfMetrics: PerfMetric[] = [];
 
 export function queuePerfMetric(perfMetric: PerfMetric) {
   queuedPerfMetrics.push(perfMetric);
@@ -122,22 +178,36 @@ export function queuePerfMetric(perfMetric: PerfMetric) {
 }
 
 async function flushPerfMetrics() {
-  if (queuedPerfMetrics.length < 100) return;
+  const batchSize = performanceMetricLoggingBatchSize.get()
+
+  if (queuedPerfMetrics.length < batchSize) return;
 
   const connection = getAnalyticsConnection();
   if (!connection) return;
    
   const metricsToWrite = queuedPerfMetrics.splice(0);
-  for (const batch of chunk(metricsToWrite, 100)) {
+  for (const batch of chunk(metricsToWrite, batchSize)) {
     try {
-      const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get()
-      const valuesToInsert = batch.map(perfMetric => ({
-        ...perfMetric,
-        environment: environmentDescription,
-        parent_trace_id: perfMetric.parent_trace_id ?? null,
-        client_path: perfMetric.client_path ?? null,
-        extra_data: perfMetric.extra_data ?? null
-      }));
+      const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get();
+
+      const queryStringsInBatch = uniq(filterNonnull(batch.map(metric => metric.gql_string)));
+      await insertAndCacheGqlStringRecords(queryStringsInBatch, connection);
+
+      const valuesToInsert = batch.map(perfMetric => {
+        const { gql_string, ...rest } = perfMetric;
+        const gqlStringId = getGqlStringIdFromCache(gql_string);
+
+        return {
+          ...rest,
+          environment: environmentDescription,
+          parent_trace_id: perfMetric.parent_trace_id ?? null,
+          client_path: perfMetric.client_path ?? null,
+          extra_data: perfMetric.extra_data ?? null,
+          ip: perfMetric.ip ?? null,
+          user_agent: perfMetric.user_agent ?? null,
+          ...gqlStringId
+        }
+      });
       const query = pgPromiseLib.helpers.insert(valuesToInsert, perfMetricsColumnSet);
       
       inFlightRequestCounter.inFlightRequests++;

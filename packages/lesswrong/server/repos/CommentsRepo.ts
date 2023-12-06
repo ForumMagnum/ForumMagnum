@@ -9,6 +9,7 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collecti
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
   theirVote?: string,
+  userVote?: string,
 }
 
 export default class CommentsRepo extends AbstractRepo<DbComment> {
@@ -92,7 +93,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
 
   async getPopularPollCommentsWithUserVotes (userId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
     return await this.getRawDb().manyOrNone(`
-    SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "yourVote"
+    SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "userVote"
     FROM public."Comments" AS c
     INNER JOIN public."Votes" AS v ON c._id = v."documentId"
     WHERE

@@ -205,17 +205,6 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   }
 });
 
-// When creating a new account, populate their A/B test group key from their
-// client ID, so that their A/B test groups will persist from when they were
-// logged out.
-getCollectionHooks("Users").newAsync.add(async function setABTestKeyOnSignup (user: DbInsertion<DbUser>) {
-  // FIXME totally broken
-  if (!user.abTestKey) {
-    const abTestKey = user.profile?.clientId || randomId();
-    await Users.rawUpdateOne(user._id, {$set: {abTestKey: abTestKey}});
-  }
-});
-
 getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost (newUser: DbUser, oldUser: DbUser) {
   if (newUser.shortformFeedId !== oldUser.shortformFeedId)
   {
@@ -247,7 +236,6 @@ getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost 
     });
   }
 });
-
 
 getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbUser) {
   if (isAnyTest) return user;

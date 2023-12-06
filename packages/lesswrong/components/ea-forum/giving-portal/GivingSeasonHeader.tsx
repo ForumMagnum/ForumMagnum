@@ -238,9 +238,9 @@ const GivingSeasonHeader = ({
   HeaderNotificationsMenu: FC,
   classes: ClassesType,
 }) => {
-  const { Typography, HeadTags } = Components;
+  const { Typography, HeadTags, HeaderSubtitle } = Components;
   const isDesktop = useIsAboveBreakpoint("md");
-  const { pathname } = useLocation();
+  const { pathname, currentRoute } = useLocation();
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   const currentUser = useCurrentUser();
 
@@ -276,6 +276,7 @@ const GivingSeasonHeader = ({
   const isVotingPortal = pathname.startsWith("/voting-portal");
   // Show voting steps if we are on a path like /voting-portal/compare (with anything after /voting-portal/)
   const showVotingSteps = isVotingPortal && /\/voting-portal\/\w/.test(pathname);
+  const solidHeader = currentRoute?.path !== "/";
 
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
@@ -306,10 +307,10 @@ const GivingSeasonHeader = ({
           <header
             className={classNames(
               classes.appBarGivingSeason,
-              isVotingPortal ? classes.solidBackground : advertiseVoting ? classes.homePageVotingBackground : classes.homePageBackground
+              solidHeader ? classes.solidBackground : advertiseVoting ? classes.homePageVotingBackground : classes.homePageBackground
             )}
           >
-            {!isVotingPortal && <div className={classes.givingSeasonGradient} />}
+            {!solidHeader && <div className={classes.givingSeasonGradient} />}
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
               <div className={classes.leftHeaderItems}>
                 <NavigationMenuButton />
@@ -322,8 +323,9 @@ const GivingSeasonHeader = ({
                             {lightbulbIcon}
                           </div>
                         )}
-                        {isVotingPortal ? "Voting portal" : forumHeaderTitleSetting.get()}
+                        {isVotingPortal ? forumShortTitleSetting.get() : forumHeaderTitleSetting.get()}
                       </Link>
+                      <span className={classes.hideMdDown}><HeaderSubtitle /></span>
                     </div>
                   </div>
                   <div className={isVotingPortal ? classes.hideLgUp : classes.hideMdUp}>
@@ -334,8 +336,9 @@ const GivingSeasonHeader = ({
                             {lightbulbIcon}
                           </div>
                         )}
-                        {isVotingPortal ? "Voting portal" : forumShortTitleSetting.get()}
+                        {forumShortTitleSetting.get()}
                       </Link>
+                      <span className={classes.hideMdDown}><HeaderSubtitle /></span>
                     </div>
                   </div>
                 </Typography>

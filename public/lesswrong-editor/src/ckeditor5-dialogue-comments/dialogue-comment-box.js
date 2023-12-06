@@ -10,6 +10,9 @@ export default class DialogueCommentBox extends Plugin {
     }
 }
 
+/**
+ * @deprecated Deprecated in favor of the insert-paragraph arrows on message blocks
+ */
 class SimpleBoxUI extends Plugin {
     init() {
         /**
@@ -55,6 +58,7 @@ class SimpleBoxEditing extends Plugin {
         this._defineSchema();
         this._defineConverters();
 
+        // `insertRootParagraphBox` is deprecated in favor of the insert-paragraph arrows on message blocks
         this.editor.commands.add( 'insertRootParagraphBox', new InsertRootParagraphBoxCommand( this.editor ) );
         this.editor.commands.add( 'submitDialogueMessage', new SubmitDialogueMessageCommand( this.editor ) );
 
@@ -277,6 +281,9 @@ class SimpleBoxEditing extends Plugin {
     }
 }
 
+/**
+ * @deprecated Deprecated in favor of the insert-paragraph arrows on message blocks
+ */
 class InsertRootParagraphBoxCommand extends Command {
     execute() {
         const model = this.editor.model;
