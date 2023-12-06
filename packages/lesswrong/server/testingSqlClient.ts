@@ -1,6 +1,5 @@
 import { Application, json, Request, Response } from "express";
 import PgCollection from "../lib/sql/PgCollection";
-import SwitchingCollection from "../lib/SwitchingCollection";
 import CreateIndexQuery from "../lib/sql/CreateIndexQuery";
 import CreateTableQuery from "../lib/sql/CreateTableQuery";
 import { Collections } from "./vulcan-lib";
@@ -28,9 +27,6 @@ import seedUsers from "../../../cypress/fixtures/users";
 
 export const preparePgTables = () => {
   for (let collection of Collections) {
-    if (collection instanceof SwitchingCollection) {
-      collection = collection.getPgCollection() as unknown as CollectionBase<any>;
-    }
     if (collection instanceof PgCollection) {
       if (!collection.table) {
         collection.buildPostgresTable();
@@ -46,9 +42,6 @@ const buildTables = async (client: SqlClient) => {
   preparePgTables();
 
   for (let collection of Collections) {
-    if (collection instanceof SwitchingCollection) {
-      collection = collection.getPgCollection() as unknown as CollectionBase<any>;
-    }
     if (collection instanceof PgCollection) {
       const {table} = collection;
       const createTableQuery = new CreateTableQuery(table);

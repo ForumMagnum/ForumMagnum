@@ -1,6 +1,5 @@
 import { MongoCollection } from '../mongoCollection';
 import PgCollection from '../sql/PgCollection';
-import SwitchingCollection from '../SwitchingCollection';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { registerCollection } from './getCollection';
 import { addGraphQLCollection } from './graphql';
@@ -35,8 +34,6 @@ const pickCollectionType = (collectionType?: CollectionType) => {
   switch (collectionType) {
   case "pg":
     return PgCollection;
-  case "switching":
-    return SwitchingCollection;
   default:
     return MongoCollection;
   }
