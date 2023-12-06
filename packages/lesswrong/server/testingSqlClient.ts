@@ -5,7 +5,6 @@ import CreateTableQuery from "../lib/sql/CreateTableQuery";
 import { Collections } from "./vulcan-lib";
 import { expectedIndexes } from "../lib/collectionIndexUtils";
 import { ensurePostgresViewsExist } from "./postgresView";
-import { ensureMongo2PgLockTableExists } from "../lib/mongo2PgLock";
 import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "../lib/sql/sqlClient";
 import { createSqlConnection } from "./sqlConnection";
 import { inspect } from "util";
@@ -36,7 +35,6 @@ export const preparePgTables = () => {
 }
 
 const buildTables = async (client: SqlClient) => {
-  await ensureMongo2PgLockTableExists(client);
   await installExtensions(client);
 
   preparePgTables();
