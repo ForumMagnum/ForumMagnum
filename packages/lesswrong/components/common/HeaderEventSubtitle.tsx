@@ -3,7 +3,7 @@ import { useCurrentFrontpageSpotlight } from "../hooks/useCurrentFrontpageSpotli
 import { registerComponent } from "../../lib/vulcan-lib";
 import { getSpotlightUrl } from "../../lib/collections/spotlights/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
-import { userCanVoteInDonationElection } from "../../lib/eaGivingSeason";
+import { eaGivingSeason23ElectionName, userCanVoteInDonationElection } from "../../lib/eaGivingSeason";
 import { useLocation } from "../../lib/routeUtil";
 import { useCurrentUser } from "./withUser";
 import { useElectionVote } from "../ea-forum/voting-portal/hooks";
@@ -40,7 +40,7 @@ const useCurrentEvent = (): CurrentEvent | null => {
   
   // special case for EA Forum Giving Season 2023
   const isGivingSeason = useIsGivingSeason();
-  const { electionVote } = useElectionVote("givingSeason23");
+  const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   const currentUser = useCurrentUser();
   // We only advertise voting for users who are eligible -
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
