@@ -23,6 +23,8 @@ const styles = (theme: ThemeType) => ({
   },
   tooltip: {
     background: `${theme.palette.panelBackground.tooltipBackground2} !important}`,
+    maxWidth: 300,
+    textAlign: "center",
   },
 });
 
@@ -40,28 +42,31 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
 
   const hasVoted = !!document.currentUserExtendedVote?.preVote;
   const icon = hasVoted || (hover && !isMobile()) ? "Heart" : "HeartOutline";
-  const tooltip = "Pre-voting has closed";
+  const tooltip = 'Pre-voting has closed. Click "Vote in the Election" above if you would like to cast your real vote';
 
   const onVote = useCallback(async () => {
-    if (currentUser) {
-      captureEvent('preVote', {documentId: document._id, preVote: !hasVoted});
-      try {
-        await vote({
-          document,
-          voteType: null,
-          extendedVote: {preVote: !hasVoted},
-          currentUser,
-        });
-      } catch (e) {
-        flash(e.message);
-      }
-    } else {
-      openDialog({
-        componentName: "LoginPopup",
-        componentProps: {},
-      });
-    }
-  }, [currentUser, captureEvent, document, hasVoted, vote, flash, openDialog]);
+    flash(tooltip);
+
+    // TODO: Uncomment below if we run another election and want to allow pre-voting
+    // if (currentUser) {
+    //   captureEvent('preVote', {documentId: document._id, preVote: !hasVoted});
+    //   try {
+    //     await vote({
+    //       document,
+    //       voteType: null,
+    //       extendedVote: {preVote: !hasVoted},
+    //       currentUser,
+    //     });
+    //   } catch (e) {
+    //     flash(e.message);
+    //   }
+    // } else {
+    //   openDialog({
+    //     componentName: "LoginPopup",
+    //     componentProps: {},
+    //   });
+    // }
+  }, [flash]);
 
   const {LWPopper, ForumIcon} = Components;
   return (
