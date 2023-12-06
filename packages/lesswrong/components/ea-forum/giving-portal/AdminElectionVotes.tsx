@@ -32,7 +32,7 @@ function approximatelyEqual(a: number, b: number, fractionalError = 1e-6) {
   return Math.abs(a - b) < Math.max(Math.abs(a), Math.abs(b)) * fractionalError;
 }
 
-const normaliseVotes = (
+const normalizeVotes = (
   votes: Record<string, number | null>[],
   remainingCandidates: ElectionCandidateBasicInfo[]
 ): Record<string, number>[] => {
@@ -41,51 +41,50 @@ const normaliseVotes = (
     return acc;
   }, {} as Record<string, number>);
 
-  const normalisedVotes = votes.map((vote) => {
+  const normalizedVotes = votes.map((vote) => {
     const totalValue = sum(Object.values(vote).filter((val) => val !== null)) ?? 0;
 
     // If all the candidates they voted for have been eliminated, give them a vote that
     // is uniform across all candidates
     if (!totalValue) return uniformVote;
 
-    const normalisedVote = Object.entries(vote).reduce((acc, [candidate, val]) => {
+    const normalizedVote = Object.entries(vote).reduce((acc, [candidate, val]) => {
       if (!val) return acc; // Filter out null or zero values
 
       acc[candidate] = val / totalValue;
       return acc;
     }, {} as Record<string, number>);
 
-    return normalisedVote;
+    return normalizedVote;
   });
 
   // Assert:
-  // 1. The vote has been normalised to 1
+  // 1. The vote has been normalized to 1
   // 2. No votes have been added or removed
-  if (normalisedVotes.length !== votes.length) {
+  if (normalizedVotes.length !== votes.length) {
     throw new Error("Votes have been added or removed");
   }
 
-  for (const vote of normalisedVotes) {
+  for (const vote of normalizedVotes) {
     const totalValue = sum(Object.values(vote));
 
     if (!approximatelyEqual(totalValue, 1)) {
-      throw new Error(`Vote has not been normalised to 1: ${JSON.stringify(vote)}`);
+      throw new Error(`Vote has not been normalized to 1: ${JSON.stringify(vote)}`);
     }
   }
 
-  return normalisedVotes;
+  return normalizedVotes;
 };
 
 const aggregateVotes = (votes: Record<string, number>[]): Record<string, number> => {
   const aggregatedVote = votes.reduce((acc, vote) => {
-    Object.entries(vote).forEach(([candidate, val]) => {
+    for (const [candidate, val] of Object.entries(vote)) {
       acc[candidate] = (acc[candidate] ?? 0) + val;
-    });
+    }
     return acc;
   }, {} as Record<string, number>);
 
-  // Assert:
-  // 1. The sum of the aggregated vote is equal to the number of votes
+  // Assert the sum of the aggregated vote is equal to the number of votes
   const totalValue = sum(Object.values(aggregatedVote));
   if (!approximatelyEqual(totalValue, votes.length)) {
     throw new Error(`Vote has not been aggregated correctly: ${JSON.stringify(aggregatedVote)}`);
@@ -106,11 +105,11 @@ const getSortedWinners = (
   let i = 0;
 
   do {
-    const normalisedVotes = normaliseVotes(votesWithEliminatedCandidates, remainingCandidates);
-    const aggregatedVote = aggregateVotes(normalisedVotes);
-    calculatedVote = normaliseVotes([aggregatedVote], remainingCandidates)[0];
+    const normalizedVotes = normalizeVotes(votesWithEliminatedCandidates, remainingCandidates);
+    const aggregatedVote = aggregateVotes(normalizedVotes);
+    calculatedVote = normalizeVotes([aggregatedVote], remainingCandidates)[0];
 
-    sortedVote = Object.entries(calculatedVote).sort(([, a], [, b]) => b - a);
+    sortedVote = Object.entries(calculatedVote).sort(([, voteAmountA], [, voteAmountB]) => voteAmountB - voteAmountA);
     const eliminatedCandidateId = sortedVote[sortedVote.length - 1][0];
 
     // Remove eliminated candidate from input votes
