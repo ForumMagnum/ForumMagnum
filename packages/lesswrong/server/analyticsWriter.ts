@@ -191,7 +191,9 @@ async function flushPerfMetrics() {
       const environmentDescription = isDevelopment ? "development" : environmentDescriptionSetting.get();
 
       const queryStringsInBatch = uniq(filterNonnull(batch.map(metric => metric.gql_string)));
-      await insertAndCacheGqlStringRecords(queryStringsInBatch, connection);
+      if (queryStringsInBatch.length > 0) {
+        await insertAndCacheGqlStringRecords(queryStringsInBatch, connection);
+      }
 
       const valuesToInsert = batch.map(perfMetric => {
         const { gql_string, ...rest } = perfMetric;
