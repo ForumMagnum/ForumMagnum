@@ -1324,7 +1324,7 @@ export const DialogueMatchingPage = ({classes}: {
         <div className={classes.rootFlex}>
           <div className={classes.matchContainer}>
             <h3>Your Top Voted Users (Last 18 Months)</h3>
-            { recentlyActiveTopUsers.length == 0 ? null : <>
+            { recentlyActiveTopUsers.length === 0 ? null : <>
             <h4>Recently active on dialogue matching (last 10 days)</h4>
             <UserTable
               users={recentlyActiveTopUsers}
@@ -1342,7 +1342,7 @@ export const DialogueMatchingPage = ({classes}: {
             />
           <br />
           </> }
-        { nonRecentlyActiveTopUsers.length == 0 ? null : <>
+        { nonRecentlyActiveTopUsers.length === 0 ? null : <>
               <h4>Not recently active on dialogue matching</h4>
               <UserTable
                 users={nonRecentlyActiveTopUsers}
