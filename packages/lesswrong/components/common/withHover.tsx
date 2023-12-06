@@ -6,18 +6,6 @@ function datesDifference(a:Date, b:Date): number {
   return (a as any)-(b as any);
 }
 
-export const withHover = (trackingData?: any, propsToTrackingData?: any) => {
-  return <P extends {}>(WrappedComponent: React.FunctionComponent<P>) => (props: P) => {
-    const eventProps = {...trackingData, ...(propsToTrackingData || ((props: P)=>{}))(props)};
-    const { eventHandlers, hover, anchorEl } = useHover(eventProps);
-    return (
-      <span {...eventHandlers}>
-        <WrappedComponent {...props} hover={hover} anchorEl={anchorEl}/>
-      </span>
-    );
-  }
-}
-
 export const useHover = (eventProps?: Record<string,any>) => {
   const [hover, setHover] = useState(false)
   const [everHovered, setEverHovered] = useState(false)
@@ -80,5 +68,3 @@ export const useHover = (eventProps?: Record<string,any>) => {
     forceUnHover,
   }
 }
-
-export default withHover

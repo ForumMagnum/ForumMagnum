@@ -1,17 +1,16 @@
 import React, {useState} from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components, getFragmentText } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
-import { DialogueUserRowProps, getRowProps } from '../users/DialogueMatchingPage';
+import { DialogueUserRowProps, getRowProps, getUserCheckInfo } from '../users/DialogueMatchingPage';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
 import MuiPeopleIcon from "@material-ui/icons/People";
-import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
-import {useABTest} from '../../lib/abTestImpl';
-import {frontpageDialogueReciprocityRecommendations, showTopicsInReciprocity} from '../../lib/abTests';
+import { dialogueMatchmakingEnabled } from '../../lib/publicSettings';
+import {useUpsertDialogueCheck} from '../hooks/useUpsertDialogueCheck';
 
 
 const styles = (theme: ThemeType) => ({
@@ -197,7 +196,7 @@ const DialogueMatchRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRow
   );
 };
 
-interface DialogueUserResult {
+export interface DialogueUserResult {
   _id: string;
   displayName: string;
 }
@@ -206,8 +205,8 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   const { PostsItem, SectionButton, SettingsButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle, DialoguesSectionFrontpageSettings, DialogueRecommendationRow, Typography } = Components
   const currentUser = useCurrentUser()
   const [showSettings, setShowSettings] = useState(false);
-  const showReciprocityRecommendations = (useABTest(frontpageDialogueReciprocityRecommendations) === "show")
-  const showTopics = (useABTest(showTopicsInReciprocity) === "show")
+  const { captureEvent } = useTracking();
+  const showReciprocityRecommendations = (currentUser?.karma ?? 0) > 100 // hide reciprocity recommendations if user has less than 100 karma
 
   const { results: dialoguePosts } = usePaginatedResolver({
     fragmentName: "PostsListWithVotes",
@@ -227,6 +226,14 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
     userDialogueChecksResult: { results: userDialogueChecks = [] },
   } = useDialogueMatchmaking({ getMatchedUsers: true, getRecommendedUsers: true, getOptedInUsers: false, getUserDialogueChecks: true });
 
+  const upsertUserDialogueCheck = useUpsertDialogueCheck();
+
+  const hideRecommendation = ({dialogueCheckId, targetUserId}: {dialogueCheckId:string|undefined, targetUserId:string}) => {
+    captureEvent("hide_dialogue_recommendation")
+    void upsertUserDialogueCheck({ targetUserId, hideInRecommendations: true, checkId: dialogueCheckId });
+
+  }
+
   const matchedUsers: DialogueUserResult[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
 
   const matchRowPropsList = currentUser && getRowProps({
@@ -243,19 +250,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
 
   const manyRecommendedUsers: DialogueUserResult[] | undefined = recommendedUsersResult?.GetDialogueRecommendedUsers;
 
-  const recommendedDialoguePartnersRowPropsList = currentUser && getRowProps({
-    currentUser,
-    tableContext: 'other', 
-    showAgreement: false,
-    showBio: false,
-    showFrequentCommentedTopics: false,
-    showKarma: false,
-    showPostsYouveRead: false,
-    userDialogueChecks,
-    users: manyRecommendedUsers ?? []
-  });
-
-  if (!recommendedDialoguePartnersRowPropsList) return <></>;
+  const recommendedDialoguePartnersRowPropsList = currentUser && manyRecommendedUsers?.map(targetUser => ({targetUser, ...getUserCheckInfo(targetUser, userDialogueChecks)}) )
 
   const dialoguesTooltip = (<div>
     <p>Dialogues between a small group of users. Click to see more.</p>
@@ -307,8 +302,8 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
         />}
 
       {dialogueMatchmakingEnabled.get() && <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
-        {showReciprocityRecommendations && <div>
-          { (currentUser?.showMatches || currentUser?.showRecommendedPartners ) && recommendedDialoguePartnersRowPropsList.length > 0 &&
+        {<div>
+          { currentUser?.showRecommendedPartners && showReciprocityRecommendations && !!recommendedDialoguePartnersRowPropsList && recommendedDialoguePartnersRowPropsList.length > 0 &&
             <div className={classes.explanatoryNoteBox}>
               <Typography
                 component='span'
@@ -322,8 +317,8 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
           {currentUser?.showMatches && matchRowPropsList?.map((rowProps, index) => (
             <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
           ))}
-          {currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
-            <DialogueRecommendationRow key={index} rowProps={rowProps} showSuggestedTopics={showTopics} />
+          {showReciprocityRecommendations && currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
+            !rowProps.hideInRecommendations && <DialogueRecommendationRow key={index} targetUser={rowProps.targetUser} checkId={rowProps.checkId} userIsChecked={rowProps.userIsChecked} userIsMatched={rowProps.userIsMatched} showSuggestedTopics={true} onHide={hideRecommendation} />
           ))}
         </div>}
       </AnalyticsContext>}

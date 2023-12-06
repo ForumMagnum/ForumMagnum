@@ -260,6 +260,7 @@ interface DbDialogueCheck extends DbObject {
   targetUserId: string
   checked: boolean
   checkedAt: Date
+  hideInRecommendations: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -351,6 +352,7 @@ interface DbElectionVote extends DbObject {
   compareState: any /*{"definitions":[{"blackbox":true}]}*/
   vote: any /*{"definitions":[{"blackbox":true}]}*/
   submittedAt: Date | null
+  submissionComments: any /*{"definitions":[{"blackbox":true}]}*/
   userExplanation: string | null
   userOtherComments: string | null
   createdAt: Date

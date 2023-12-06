@@ -6,6 +6,7 @@ import { useWindowSize } from "../../hooks/useScreenWidth";
 import ReactConfetti from "react-confetti";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useTracking } from "../../../lib/analyticsEvents";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,7 +17,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.givingPortal[1000],
     background: theme.palette.givingPortal.thankYouBackground,
     borderRadius: 12,
-    padding: "48px 32px",
+    padding: "48px 32px 24px 32px",
     width: 550,
     maxWidth: "100%",
     [theme.breakpoints.down("xs")]: {
@@ -27,7 +28,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   election: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 800,
     letterSpacing: "0.54px",
     textAlign: "center",
@@ -106,7 +107,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: 20,
     flexBasis: "50%",
     gap: "8px",
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 600,
     background: theme.palette.givingPortal.button.dark,
     color: theme.palette.givingPortal.button.light,
@@ -126,6 +127,15 @@ const styles = (theme: ThemeType) => ({
       marginRight: 0,
     },
   },
+  outlineButton: {
+    color: theme.palette.givingPortal.button.dark,
+    border: `1.5px solid ${theme.palette.givingPortal.button.borderColor}`,
+    backgroundColor: "transparent",
+    "&:hover": {
+      backgroundColor: theme.palette.givingPortal.button.hoverOutlined,
+      opacity: 1,
+    },
+  },
   hr: {
     borderTop: `1px solid ${theme.palette.givingPortal[1000]}`,
     opacity: 0.3,
@@ -134,8 +144,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: 16,
     fontWeight: 600,
     lineHeight: "24px",
-    paddingLeft: 20,
-    "& li:not(:first-child)": {
+    paddingLeft: 2,
+    marginBottom: 0,
+    "& div:not(:first-child)": {
       marginTop: 8,
     },
     "& a": {
@@ -145,6 +156,20 @@ const styles = (theme: ThemeType) => ({
         opacity: 1,
       },
     },
+  },
+  listRow: {
+    display: "flex",
+    gap: "8px",
+    alignItems: "center",
+  },
+  whiteButton: {
+    background: theme.palette.grey[0],
+    color: theme.palette.givingPortal[1000],
+    border: theme.palette.border.grey200,
+    borderRadius: theme.borderRadius.default,
+    margin: "0 auto",
+    width: "fit-content",
+    padding: "12px 20px",
   },
 });
 
@@ -203,34 +228,40 @@ const VotingPortalThankYou = ({currentUser, classes}: {
             </div>
           </div>
         </div>
-        <div className={classes.button} role="button" onClick={toggleFlair}>
+        <div className={classNames(classes.button, {
+              [classes.outlineButton]: currentUser.givingSeason2023VotedFlair,
+            })} role="button" onClick={toggleFlair}>
           {loadingFlair
             ? <Loading white />
             : <><ForumIcon icon="ArrowRight" className={classes.arrowIcon} /> {currentUser.givingSeason2023VotedFlair
-              ? "Remove icon from your profile"
+              ? "Remove icon from profile"
               : "Add icon to your profile"}</>
           }
         </div>
       </div>
       <div className={classes.hr} />
-      <ul className={classes.list}>
-        <li>
-          <Link to="/quicktakes">
-            Share that you voted — and why!
+      <div className={classes.list}>
+        <div className={classes.listRow}>
+          -&gt;
+          <Link to="/posts/rszgfHdkmzCDDPM9k/where-are-you-donating-this-year-and-why-open-thread-1">
+            Share that you voted or where you're donating
           </Link>
-        </li>
-        <li>
-          {/* TODO get this from the election candidate */}
-          <a href="https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023" target="_blank" rel="noopener noreferrer">
+        </div>
+        <div className={classes.listRow}>
+          -&gt; <a href="https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023" target="_blank" rel="noopener noreferrer">
             Donate to the Donation Election Fund
           </a>
-        </li>
-        <li>
+        </div>
+        <div className={classes.listRow}>
+          -&gt;
           <Link to="/giving-portal">
             Explore other giving opportunities
           </Link>
-        </li>
-      </ul>
+        </div>
+      </div>
+      <Link to="/voting-portal/select-candidates" className={classNames(classes.button, classes.whiteButton)}>
+        Edit your vote (until Dec 15)
+      </Link>
     </div>
   );
 }

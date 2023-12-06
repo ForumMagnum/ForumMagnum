@@ -534,6 +534,7 @@ interface DialogueChecksDefaultFragment { // fragment on DialogueChecks
   readonly checked: boolean,
   readonly checkedAt: Date,
   readonly match: boolean,
+  readonly hideInRecommendations: boolean,
 }
 
 interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
@@ -3374,6 +3375,15 @@ interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
   readonly currentUserExtendedVote: any,
 }
 
+interface ElectionCandidateSimple { // fragment on ElectionCandidates
+  readonly _id: string,
+  readonly name: string,
+  readonly logoSrc: string,
+  readonly href: string,
+  readonly fundraiserLink: string | null,
+  readonly description: string,
+}
+
 interface WithVoteElectionCandidate { // fragment on ElectionCandidates
   readonly __typename: string,
   readonly _id: string,
@@ -3392,6 +3402,7 @@ interface ElectionVotesDefaultFragment { // fragment on ElectionVotes
   readonly compareState: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly submittedAt: Date | null,
+  readonly submissionComments: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly userExplanation: string | null,
   readonly userOtherComments: string | null,
 }
@@ -3403,6 +3414,7 @@ interface ElectionVoteInfo { // fragment on ElectionVotes
   readonly compareState: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly submittedAt: Date | null,
+  readonly submissionComments: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly userExplanation: string | null,
   readonly userOtherComments: string | null,
 }
@@ -3447,6 +3459,7 @@ interface DialogueCheckInfo { // fragment on DialogueChecks
   readonly checked: boolean,
   readonly checkedAt: Date,
   readonly match: boolean,
+  readonly hideInRecommendations: boolean,
   readonly matchPreference: DialogueMatchPreferencesDefaultFragment|null,
   readonly reciprocalMatchPreference: DialogueMatchPreferencesDefaultFragment|null,
 }
@@ -3702,6 +3715,7 @@ interface FragmentTypes {
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
+  ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
   ElectionVotesDefaultFragment: ElectionVotesDefaultFragment
   ElectionVoteInfo: ElectionVoteInfo
@@ -3925,6 +3939,7 @@ interface CollectionNamesByFragmentName {
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
   ElectionCandidateBasicInfo: "ElectionCandidates"
+  ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
   ElectionVotesDefaultFragment: "ElectionVotes"
   ElectionVoteInfo: "ElectionVotes"

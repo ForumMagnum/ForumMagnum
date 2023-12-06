@@ -578,7 +578,12 @@ export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): 
   return { fail: false };
 };
 
-export const showDonatedIcon = (user: UsersMinimumInfo|DbUser|null): boolean => {
+export const showDonatedFlair = (user: UsersMinimumInfo|DbUser|null): boolean => {
   // Fundraiser closes on 2023-12-20
   return isEAForum && !!user?.givingSeason2023DonatedFlair && new Date() < new Date('2023-12-21');
+}
+
+export const showVotedFlair = (user: UsersMinimumInfo|DbUser|null): boolean => {
+  // Fundraiser closes on 2023-12-20
+  return isEAForum && !!user?.givingSeason2023VotedFlair && new Date() < new Date('2023-12-21');
 }

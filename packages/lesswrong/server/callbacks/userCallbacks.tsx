@@ -1,7 +1,7 @@
 import React from 'react';
 import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
-import { userGetGroups } from '../../lib/vulcan-users/permissions';
+import { isAdmin, userGetGroups } from '../../lib/vulcan-users/permissions';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
@@ -31,6 +31,7 @@ import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
+import ElectionVotes from '../../lib/collections/electionVotes/collection';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -203,17 +204,6 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   }
 });
 
-// When creating a new account, populate their A/B test group key from their
-// client ID, so that their A/B test groups will persist from when they were
-// logged out.
-getCollectionHooks("Users").newAsync.add(async function setABTestKeyOnSignup (user: DbInsertion<DbUser>) {
-  // FIXME totally broken
-  if (!user.abTestKey) {
-    const abTestKey = user.profile?.clientId || randomId();
-    await Users.rawUpdateOne(user._id, {$set: {abTestKey: abTestKey}});
-  }
-});
-
 getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost (newUser: DbUser, oldUser: DbUser) {
   if (newUser.shortformFeedId !== oldUser.shortformFeedId)
   {
@@ -245,7 +235,6 @@ getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost 
     });
   }
 });
-
 
 getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbUser) {
   if (isAnyTest) return user;
@@ -485,6 +474,26 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(da
     }
     if (await Users.findOne({displayName: data.displayName})) {
       throw new Error("This display name is already taken");
+    }
+  }
+  return data;
+});
+
+/**
+ * Only allow users to update givingSeason2023VotedFlair if they have voted in the 2023 donation election
+ */
+getCollectionHooks("Users").updateBefore.add(async function UpdateGivingSeason2023VotedFlair(data: DbUser, {oldDocument}) {
+  if (isAdmin(oldDocument)) return data;
+
+  if (data.givingSeason2023VotedFlair && data.givingSeason2023VotedFlair !== oldDocument.givingSeason2023VotedFlair) {
+    const vote = await ElectionVotes.findOne({
+      electionName: "givingSeason23",
+      userId: oldDocument._id,
+      submittedAt: { $exists: true },
+    });
+
+    if (!vote) {
+      throw new Error("You must vote in the 2023 donation election to set this flair");
     }
   }
   return data;

@@ -35,14 +35,6 @@ WHERE _id IN (
 LIMIT 1
 `;
 
-type UserData = {
-  _id: string;
-  username: string;
-  displayName: string;
-  name: string;
-  post_comment_count: number;
-};
-
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 export default class UsersRepo extends AbstractRepo<DbUser> {
   constructor() {
@@ -284,7 +276,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `)
   }  
 
-  async getUsersWithNewDialogueChecks(minutes: number): Promise<DbUser[]> {
+  async getUsersWithNewDialogueChecks(): Promise<DbUser[]> {
     return this.manyOrNone(`
       SELECT DISTINCT ON ("Users"._id) "Users".*
       FROM "Users"
@@ -307,7 +299,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
               ), '1970-01-01')
           )
           AND (
-              "DialogueChecks"."checkedAt" > NOW() - INTERVAL '$1 minutes'
+              "DialogueChecks"."checkedAt" > NOW() - INTERVAL '1 week'
               OR
               NOT EXISTS (
                   SELECT 1
@@ -317,7 +309,16 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
                       AND type = 'newDialogueChecks'
               )
           )
-    `, [minutes])
+          AND (
+            NOW() - INTERVAL '1 week' > COALESCE((
+              SELECT MAX("createdAt")
+              FROM "Notifications"
+              WHERE
+                "userId" = "Users"._id
+                AND type = 'newDialogueChecks'
+            ), '1970-01-01')
+        )
+    `)
   }
 
   async getUsersTopUpvotedUsers(user:DbUser, limit = 20, recencyLimitDays = 10): Promise<UpvotedUser[]> {
@@ -455,7 +456,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         (
           SELECT COUNT(*)
           FROM "DialogueChecks"
-          WHERE "userId" = $1 AND "targetUserId" = uv._id AND "checked" IS TRUE
+          WHERE "userId" = $1 AND "targetUserId" = uv._id AND ("checked" IS TRUE OR "hideInRecommendations" IS TRUE)
         ) = 0
         AND
         (
@@ -494,7 +495,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
           (
             SELECT COUNT(*)
             FROM "DialogueChecks"
-            WHERE "userId" = $1 AND "targetUserId" = uv._id AND "checked" IS TRUE
+            WHERE "userId" = $1 AND "targetUserId" = uv._id AND ("checked" IS TRUE OR "hideInRecommendations" IS TRUE)
           ) = 0
         LIMIT $3
       )

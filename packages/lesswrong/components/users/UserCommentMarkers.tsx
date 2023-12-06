@@ -1,6 +1,6 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { isNewUser, showDonatedIcon } from "../../lib/collections/users/helpers";
+import { isNewUser, showDonatedFlair, showVotedFlair } from "../../lib/collections/users/helpers";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isFriendlyUI } from "../../themes/forumTheme";
 
@@ -19,9 +19,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.icon.sprout,
     fontSize: 16,
   },
-  donationIcon: {
+  donatedIcon: {
     position: "relative",
     bottom: -1,
+    color: theme.palette.givingPortal[1000],
+    fontSize: 16,
+  },
+  votedIcon: {
+    position: "relative",
+    bottom: -3,
     color: theme.palette.givingPortal[1000],
     fontSize: 16,
   },
@@ -44,9 +50,10 @@ const UserCommentMarkers = ({
 
   const showAuthorIcon = isFriendlyUI && isPostAuthor;
   const showNewUserIcon = isNewUser(user);
-  const _showDonatedIcon = showDonatedIcon(user);
+  const showDonatedIcon = showDonatedFlair(user);
+  const showVotedIcon = showVotedFlair(user);
 
-  if (!showAuthorIcon && !showNewUserIcon && !_showDonatedIcon) {
+  if (!showAuthorIcon && !showNewUserIcon && !showDonatedIcon && !showVotedIcon) {
     return null;
   }
 
@@ -71,13 +78,22 @@ const UserCommentMarkers = ({
           <ForumIcon icon="Sprout" className={classes.sproutIcon} />
         </LWTooltip>
       }
-      {_showDonatedIcon &&
+      {showDonatedIcon &&
         <LWTooltip
           placement="bottom-start"
-          title={`Donated to the Donation Election fund`}
+          title={`Donated to the Donation Election`}
           className={classes.iconWrapper}
         >
-          <ForumIcon icon="GivingHand" className={classes.donationIcon} />
+          <ForumIcon icon="GivingHand" className={classes.donatedIcon} />
+        </LWTooltip>
+      }
+      {showVotedIcon &&
+        <LWTooltip
+          placement="bottom-start"
+          title={`Voted in the Donation Election`}
+          className={classes.iconWrapper}
+        >
+          <ForumIcon icon="Voted" className={classes.votedIcon} />
         </LWTooltip>
       }
     </span>

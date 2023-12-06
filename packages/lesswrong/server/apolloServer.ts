@@ -63,7 +63,8 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
         op_type: 'query',
         op_name: operationName,
         parent_trace_id: context.perfMetric?.trace_id,
-        extra_data: variables
+        extra_data: variables,
+        gql_string: query
       });  
     }
 

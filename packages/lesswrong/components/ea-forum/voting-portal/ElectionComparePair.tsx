@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   compareInput: {
     width: 90,
     height: 48,
-    margin: "0 6px",
+    margin: "0 6px 0 0",
     "& input": {
       textAlign: "right",
       fontSize: 16,
@@ -51,15 +51,29 @@ const styles = (theme: ThemeType) => ({
     width: imageSize,
     height: imageSize,
   },
+  descriptionTooltip: {
+    maxWidth: 320,
+    marginTop: 8,
+    textAlign: "left",
+    borderRadius: `${theme.borderRadius.default}px !important`,
+    backgroundColor: `${theme.palette.grey[900]} !important`,
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 12, // Just stop it from really overflowing
+  },
   candidateName: {
     color: theme.palette.givingPortal[1000],
     fontSize: 16,
     fontWeight: 600,
+    '&:hover': {
+      textUnderlineOffset: '3px',
+      textDecoration: 'underline',
+    }
   },
   switchOrderButton: {
     gap: "6px",
     display: "flex",
-    fontSize: 14,
+    fontSize: 16,
     color: theme.palette.givingPortal[1000],
     cursor: "pointer",
     userSelect: "none",
@@ -80,16 +94,25 @@ const CandidateDetails = ({
   candidate: ElectionCandidateBasicInfo;
   classes: ClassesType<typeof styles>;
 }) => {
-  const { name, logoSrc, fundraiserLink } = candidate;
+  const { name, logoSrc, href, description } = candidate;
+  const { LWTooltip } = Components;
 
   return (
     <div className={classes.candidateDetails}>
       <div className={classes.imageContainer}>
-        <Link to={fundraiserLink || ""} target="_blank" rel="noopener noreferrer">
+        <Link to={href || ""} target="_blank" rel="noopener noreferrer">
           <img src={logoSrc} className={classes.image} />
         </Link>
       </div>
-      <div className={classes.candidateName}>{name}</div>
+      <LWTooltip
+        title={description}
+        placement="bottom"
+        popperClassName={classes.descriptionTooltip}
+      >
+        <Link to={href || ""} target="_blank" rel="noopener noreferrer" className={classes.candidateName}>
+          {name}
+        </Link>
+      </LWTooltip>
     </div>
   );
 }
@@ -117,10 +140,9 @@ const ElectionComparePair = ({
   const { ForumIcon } = Components;
   return (
     <div className={classes.root}>
-      <div>A dollar donated to...</div>
+      <div>We should give</div>
       <CandidateDetails candidate={firstCandidate} classes={classes} />
       <div>
-        is
         <OutlinedInput
           className={classes.compareInput}
           labelWidth={0}
@@ -137,7 +159,7 @@ const ElectionComparePair = ({
           }}
           type="string"
         />
-        times more valuable than
+        times as much money as
       </div>
       <CandidateDetails candidate={secondCandidate} classes={classes} />
       <div
@@ -150,7 +172,7 @@ const ElectionComparePair = ({
           setValue({ multiplier: invertedMultiplier, AtoB: !value.AtoB })
         }}
       >
-        <ForumIcon icon="ArrowCircle" className={classes.switchOrderIcon} /> Switch order
+        <ForumIcon icon="ArrowCircle" className={classes.switchOrderIcon} /> Reverse order
       </div>
     </div>
   );
