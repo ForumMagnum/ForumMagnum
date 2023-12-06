@@ -901,7 +901,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               multiline
               rows={2}
               variant="outlined"
-              label="Anything else to add?"
+              label="Anything else to add? It's often helpful to add a calendly or similar."
               fullWidth
               value={formatNotes}
               onChange={event => setFormatNotes(event.target.value)}
