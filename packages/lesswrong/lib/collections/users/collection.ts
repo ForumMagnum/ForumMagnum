@@ -6,15 +6,9 @@ import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
 import { isEAForum } from '../../instanceSettings';
 
-interface ExtendedUsersCollection extends UsersCollection {
-  // Fron search/utils.ts
-  toAlgolia: (user: DbUser) => Promise<Array<AlgoliaDocument>|null>
-}
-
-export const Users: ExtendedUsersCollection = createCollection({
+export const Users = createCollection({
   collectionName: 'Users',
   typeName: 'User',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Users'),
   mutations: getDefaultMutations('Users', {
@@ -37,7 +31,6 @@ export const Users: ExtendedUsersCollection = createCollection({
   }),
   logChanges: true,
 });
-
 
 addGraphQLResolvers({
   Query: {

@@ -29,8 +29,6 @@ import './server/ckEditor/ckEditorCallbacks';
 // Scripts
 import './server/scripts/sscImport';
 import './server/scripts/hpmorImport';
-import './server/scripts/algoliaExport';
-import './server/scripts/algoliaConfigureIndexes';
 import './server/scripts/backfillParentTags';
 import './server/scripts/brokenLinksReport';
 import './server/scripts/bestOfLessWrongTagUpdate';
@@ -197,11 +195,7 @@ import './server/styleGeneration';
 
 import './server/embeddings';
 
-// Algolia Search Integration
-import './server/search/utils';
-import './server/search/callbacks';
-import './server/search/algoliaCron';
-
+// Elasticsearch integration
 import './server/search/elastic/ElasticExporter';
 import './server/search/elastic/elasticCallbacks';
 import './server/search/elastic/elasticGraphQL';

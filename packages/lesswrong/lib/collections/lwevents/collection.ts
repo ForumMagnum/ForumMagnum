@@ -25,7 +25,6 @@ const options: MutationOptions<DbLWEvent> = {
 export const LWEvents: LWEventsCollection = createCollection({
   collectionName: 'LWEvents',
   typeName: 'LWEvent',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('LWEvents'),
   mutations: getDefaultMutations('LWEvents', options),

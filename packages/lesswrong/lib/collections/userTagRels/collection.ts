@@ -69,7 +69,6 @@ const schema: SchemaType<DbUserTagRel> = {
 export const UserTagRels: UserTagRelsCollection = createCollection({
   collectionName: 'UserTagRels',
   typeName: 'UserTagRel',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('UserTagRels'),
   mutations: getDefaultMutations('UserTagRels', {

@@ -6,7 +6,6 @@ import { recalculateScore } from '../lib/scoring';
 import { voteTypes } from '../lib/voting/voteTypes';
 import { voteCallbacks, VoteDocTuple, getVotePower } from '../lib/voting/vote';
 import { getVotingSystemForDocument, VotingSystem } from '../lib/voting/votingSystems';
-import { algoliaExportById } from './search/utils';
 import { createAnonymousContext } from './vulcan-lib/query';
 import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
@@ -21,7 +20,7 @@ import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
-import { collectionIsAlgoliaIndexed, isAlgoliaEnabled } from '../lib/search/algoliaUtil';
+import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import {Posts} from '../lib/collections/posts';
 
@@ -75,13 +74,8 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  if (isElasticEnabled) {
-    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
-      void elasticSyncDocument(collection.collectionName, newDocument._id);
-    }
-  }
-  if (isAlgoliaEnabled()) {
-    void algoliaExportById(collection as any, newDocument._id);
+  if (isElasticEnabled && collectionIsAlgoliaIndexed(collection.collectionName)) {
+    void elasticSyncDocument(collection.collectionName, newDocument._id);
   }
   return {newDocument, vote};
 }
@@ -207,13 +201,8 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
-  if (isElasticEnabled) {
-    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
-      void elasticSyncDocument(collection.collectionName, newDocument._id);
-    }
-  }
-  if (isAlgoliaEnabled()) {
-    void algoliaExportById(collection as any, newDocument._id);
+  if (isElasticEnabled && collectionIsAlgoliaIndexed(collection.collectionName)) {
+    void elasticSyncDocument(collection.collectionName, newDocument._id);
   }
   return newDocument;
 }

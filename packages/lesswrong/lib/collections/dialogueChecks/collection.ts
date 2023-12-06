@@ -6,7 +6,6 @@ import schema from "./schema";
 export const DialogueChecks: DialogueChecksCollection = createCollection({
   collectionName: 'DialogueChecks',
   typeName: 'DialogueCheck',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('DialogueChecks'),
   logChanges: true,

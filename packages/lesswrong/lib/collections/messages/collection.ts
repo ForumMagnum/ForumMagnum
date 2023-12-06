@@ -32,7 +32,6 @@ const options: MutationOptions<DbMessage> = {
 export const Messages: MessagesCollection = createCollection({
   collectionName: 'Messages',
   typeName: 'Message',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Messages'),
   mutations: getDefaultMutations('Messages', options),

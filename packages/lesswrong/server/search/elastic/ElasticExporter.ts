@@ -4,12 +4,10 @@ import ElasticClient from "./ElasticClient";
 import { collectionNameToConfig, Mappings } from "./ElasticConfig";
 import {
   AlgoliaIndexCollectionName,
-  algoliaIndexedCollectionNames,
-} from "../../../lib/search/algoliaUtil";
-import {
   AlgoliaIndexedCollection,
+  algoliaIndexedCollectionNames,
   AlgoliaIndexedDbObject,
-} from "../utils";
+} from "../../../lib/search/algoliaUtil";
 import {
   CommentsRepo,
   PostsRepo,

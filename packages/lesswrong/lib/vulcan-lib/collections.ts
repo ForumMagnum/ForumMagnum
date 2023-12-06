@@ -1,11 +1,9 @@
-import { MongoCollection } from '../mongoCollection';
 import PgCollection from '../sql/PgCollection';
 import { getDefaultFragmentText, registerFragment } from './fragments';
 import { registerCollection } from './getCollection';
 import { addGraphQLCollection } from './graphql';
 import { camelCaseify } from './utils';
 import { pluralize } from './pluralize';
-import { forceCollectionTypeSetting } from '../instanceSettings';
 export * from './getCollection';
 
 // When used in a view, set the query so that it returns rows where a field is
@@ -25,56 +23,39 @@ export const getCollectionName = (typeName: string): CollectionNameString => plu
 // TODO: find more reliable way to get type name from collection name?
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
-declare global {
-  type CollectionType = "mongo" | "pg" | "switching";
-}
-
-const pickCollectionType = (collectionType?: CollectionType) => {
-  collectionType = forceCollectionTypeSetting.get() ?? collectionType;
-  switch (collectionType) {
-  case "pg":
-    return PgCollection;
-  default:
-    return MongoCollection;
-  }
-}
+type CreateCollectionOptions <
+  N extends CollectionNameString,
+  T extends DbObject = ObjectsByCollectionName[N]
+>= Omit<
+  CollectionOptions<N, T>,
+  "singleResolverName" | "multiResolverName" | "interfaces" | "description"
+>;
 
 export const createCollection = <
-  N extends CollectionNameString
->(options: {
-  typeName: string,
-  collectionName: N,
-  collectionType?: CollectionType,
-  schema: SchemaType<ObjectsByCollectionName[N]>,
-  generateGraphQLSchema?: boolean,
-  dbCollectionName?: string,
-  collection?: any,
-  resolvers?: any,
-  mutations?: any,
-  logChanges?: boolean,
-}): any => {
+  N extends CollectionNameString,
+  T extends DbObject = ObjectsByCollectionName[N],
+>(options: CreateCollectionOptions<N, T>): CollectionBase<T, N> => {
   const {
     typeName,
     collectionName,
-    collectionType,
     schema,
     generateGraphQLSchema = true,
     dbCollectionName,
   } = options;
 
-  const Collection = pickCollectionType(collectionType);
-
   // initialize new Mongo collection
-  const collection = new Collection(dbCollectionName ? dbCollectionName : collectionName.toLowerCase(), { _suppressSameNameError: true }) as unknown as CollectionBase<ObjectsByCollectionName[N]>;
-
-  // decorate collection with options
-  collection.options = options as any;
+  const collection = new PgCollection<T, N>(
+    dbCollectionName ?? collectionName.toLowerCase(),
+    {
+      ...options,
+      singleResolverName: camelCaseify(typeName),
+      multiResolverName: camelCaseify(pluralize(typeName)),
+    },
+  );
 
   // add typeName if missing
   collection.typeName = typeName;
   collection.options.typeName = typeName;
-  collection.options.singleResolverName = camelCaseify(typeName);
-  collection.options.multiResolverName = camelCaseify(pluralize(typeName));
 
   // add collectionName if missing
   collection.collectionName = collectionName;

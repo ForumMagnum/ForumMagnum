@@ -6,7 +6,6 @@ import { ensureIndex } from '../../collectionIndexUtils'
 export const DebouncerEvents: DebouncerEventsCollection = createCollection({
   collectionName: 'DebouncerEvents',
   typeName: 'DebouncerEvents',
-  collectionType: 'pg',
   schema,
 });
 

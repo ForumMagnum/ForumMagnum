@@ -185,7 +185,6 @@ const schema: SchemaType<DbGardenCode> = {
 export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('GardenCodes'),
   mutations: getDefaultMutations('GardenCodes'), //, options),

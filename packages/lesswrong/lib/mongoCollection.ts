@@ -103,7 +103,7 @@ export class MongoCollection<T extends DbObject> {
     return databaseIsConnected();
   }
 
-  getTable = () => {
+  getTable() {
     if (bundleIsServer) {
       if (!this.table)
         this.table = db.collection(this.tableName);
@@ -287,7 +287,7 @@ export class MongoCollection<T extends DbObject> {
    * @summary Add a default view function.
    * @param {Function} view
    */
-  addDefaultView = (view: Function) => {
+  addDefaultView(view: Function) {
     this.defaultView = view;
   }
 
@@ -296,7 +296,7 @@ export class MongoCollection<T extends DbObject> {
    * @param {String} viewName
    * @param {Function} view
    */
-  addView = (viewName: string, view: Function) => {
+  addView(viewName: string, view: Function) {
     this.views[viewName] = view;
   }
 }

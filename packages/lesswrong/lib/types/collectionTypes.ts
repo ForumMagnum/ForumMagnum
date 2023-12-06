@@ -8,13 +8,21 @@
 import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import type PgCollection from "../sql/PgCollection";
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
 declare global {
 
-// See mongoCollection.ts for implementation
+type CheckAccessFunction<T extends DbObject> = (
+  user: DbUser|null,
+  obj: T,
+  context: ResolverContext|null,
+  outReasonDenied?: {reason?: string},
+) => Promise<boolean>;
+
+// See PgCollection.ts for implementation
 interface CollectionBase<
   T extends DbObject,
   N extends CollectionNameString = CollectionNameString
@@ -22,7 +30,7 @@ interface CollectionBase<
   collectionName: N
   postProcess?: (data: T) => T;
   typeName: string,
-  options: CollectionOptions
+  options: CollectionOptions<N, T>,
   addDefaultView: (view: ViewFunction<N>) => void
   addView: (viewName: string, view: ViewFunction<N>) => void
   defaultView?: ViewFunction<N>
@@ -35,7 +43,7 @@ interface CollectionBase<
   isConnected: () => boolean
 
   rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
-  checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null, outReasonDenied?: {reason?: string}) => Promise<boolean>
+  checkAccess: CheckAccessFunction<T>;
   find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
   findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => Promise<T|null>
   findOneArbitrary: () => Promise<T|null>
@@ -67,24 +75,35 @@ interface CollectionBase<
   _ensureIndex: any
 }
 
-interface CollectionOptions {
-  typeName: string
-  collectionName: CollectionNameString
-  singleResolverName: string
-  multiResolverName: string
-  mutations: any
-  resolvers: any
-  interfaces: Array<string>
-  description: string
-  logChanges: boolean
-}
+type CollectionOptions<
+  N extends CollectionNameString,
+  T extends DbObject = ObjectsByCollectionName[N]
+> = {
+  typeName: string,
+  collectionName: N,
+  dbCollectionName?: string,
+  schema: SchemaType<T>,
+  generateGraphQLSchema?: boolean,
+  collection?: any,
+  singleResolverName: string,
+  multiResolverName: string,
+  resolvers?: any,
+  mutations?: any,
+  interfaces?: string[],
+  description?: string,
+  logChanges?: boolean,
+};
 
 interface FindResult<T> {
   fetch: ()=>Promise<Array<T>>
   count: ()=>Promise<number>
 }
 
-type ViewFunction<N extends CollectionNameString> = (terms: ViewTermsByCollectionName[N], apolloClient?: any, context?: ResolverContext)=>ViewQueryAndOptions<N>
+type ViewFunction<N extends CollectionNameString = CollectionNameString> = (
+  terms: ViewTermsByCollectionName[N],
+  apolloClient?: ApolloClient<NormalizedCacheObject>,
+  context?: ResolverContext,
+) => ViewQueryAndOptions<N>;
 
 
 type ViewQueryAndOptions<

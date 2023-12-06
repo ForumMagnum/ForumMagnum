@@ -6,7 +6,6 @@ import { ensureIndex } from '../../collectionIndexUtils';
 export const PageCache: PageCacheCollection = createCollection({
   collectionName: 'PageCache',
   typeName: 'PageCacheEntry',
-  collectionType: 'pg',
   schema,
   logChanges: false,
 });

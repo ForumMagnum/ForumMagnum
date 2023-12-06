@@ -9,7 +9,6 @@ import schema from "./schema";
 const ElectionVotes: ElectionVotesCollection = createCollection({
   collectionName: "ElectionVotes",
   typeName: "ElectionVote",
-  collectionType: "pg",
   schema,
   resolvers: getDefaultResolvers("ElectionVotes"),
   mutations: getDefaultMutations("ElectionVotes", {

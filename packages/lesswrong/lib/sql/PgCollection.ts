@@ -1,4 +1,3 @@
-import { MongoCollection } from "../mongoCollection";
 import { getSqlClient, getSqlClientOrThrow } from "../sql/sqlClient";
 import Table from "./Table";
 import Query from "./Query";
@@ -39,18 +38,27 @@ type ExecuteQueryData<T extends DbObject> = {
 
 /**
  * PgCollection is the main external interface for other parts of the codebase to
- * access data inside of Postgres. It's the Postgres equivalent of our MongoCollection
- * class.
- *
- * For now, we extend MongoCollection explitely because there's a lot of magic
- * happening there, but the eventual goal is to remove MongoCollection completely and
- * to instead implement CollectionBase.
+ * access data inside of Postgres.
  */
-class PgCollection<T extends DbObject> extends MongoCollection<T> {
+class PgCollection<
+  T extends DbObject,
+  N extends CollectionNameString = CollectionNameString,
+> implements CollectionBase<T, N> {
+  collectionName: N;
+  tableName: string;
   table: Table<T>;
+  defaultView: ViewFunction<N> | undefined;
+  views: Record<string, ViewFunction<N>> = {};
+  postProcess?: (data: T) => T;
+  typeName: string;
+  options: CollectionOptions<N, T>;
+  _schemaFields: SchemaType<T>;
+  _simpleSchema: any;
+  checkAccess: CheckAccessFunction<T>;
 
-  constructor(tableName: string, options?: { _suppressSameNameError?: boolean }) {
-    super(tableName, options);
+  constructor(tableName: string, options: CollectionOptions<N, T>) {
+    this.tableName = tableName;
+    this.options = options;
   }
 
   isPostgres() {
@@ -112,7 +120,7 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     return this.executeQuery(query, data, "write");
   }
 
-  getTable = () => {
+  getTable() {
     if (bundleIsServer) {
       return this.table;
     } else {
@@ -303,6 +311,20 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
       };
     },
   });
+
+  /**
+   * Add a default view function.
+   */
+  addDefaultView(view: ViewFunction<N>) {
+    this.defaultView = view;
+  }
+
+  /**
+   * Add a named view function.
+   */
+  addView(viewName: string, view: ViewFunction<N>) {
+    this.views[viewName] = view;
+  }
 }
 
 export default PgCollection;

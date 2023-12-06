@@ -24,7 +24,6 @@ const options: MutationOptions<DbBan> = {
 export const Bans: BansCollection = createCollection({
   collectionName: 'Bans',
   typeName: 'Ban',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Bans'),
   mutations: getDefaultMutations('Bans', options),

@@ -12,7 +12,6 @@ export const PLAINTEXT_DESCRIPTION_LENGTH = 2000
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
   typeName: 'Revision',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Revisions'),
   // No mutations (revisions are insert-only immutable, and are created as a

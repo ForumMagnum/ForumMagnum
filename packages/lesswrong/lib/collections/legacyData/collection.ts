@@ -14,7 +14,6 @@ const schema: SchemaType<DbLegacyData> = {
 export const LegacyData: LegacyDataCollection = createCollection({
   collectionName: "LegacyData",
   typeName: "LegacyData",
-  collectionType: 'pg',
   schema
 });
 

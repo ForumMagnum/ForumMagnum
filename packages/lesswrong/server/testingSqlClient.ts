@@ -41,7 +41,7 @@ const buildTables = async (client: SqlClient) => {
 
   for (let collection of Collections) {
     if (collection instanceof PgCollection) {
-      const {table} = collection;
+      const {table, collectionName} = collection;
       const createTableQuery = new CreateTableQuery(table);
       const {sql, args} = createTableQuery.compile();
       try {
@@ -50,7 +50,7 @@ const buildTables = async (client: SqlClient) => {
         throw new Error(`Create table query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
       }
 
-      const rawIndexes = expectedIndexes[collection.options.collectionName] ?? [];
+      const rawIndexes = expectedIndexes[collectionName as CollectionNameString] ?? [];
       for (const rawIndex of rawIndexes) {
         const {key, ...options} = rawIndex;
         const fields: MongoIndexKeyObj<any> = typeof key === "string" ? {[key]: 1} : key;

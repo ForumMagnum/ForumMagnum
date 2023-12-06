@@ -98,8 +98,11 @@ export const editableCollectionsFieldOptions: Record<CollectionNameString,Record
 let editableFieldsSealed = false;
 export function sealEditableFields() { editableFieldsSealed=true }
 
-export const makeEditable = <T extends DbObject>({collection, options = {}}: {
-  collection: CollectionBase<T>,
+export const makeEditable = <
+  N extends CollectionNameString,
+  T extends DbObject = ObjectsByCollectionName[N]
+>({collection, options = {}}: {
+  collection: CollectionBase<T, N>,
   options: MakeEditableOptions,
 }) => {
   if (editableFieldsSealed)
