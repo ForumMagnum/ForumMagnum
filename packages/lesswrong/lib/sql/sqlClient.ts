@@ -1,6 +1,6 @@
 import type { DbTarget } from "./PgCollection";
 
-export const logAllQueries = true;
+export const logAllQueries = false;
 
 /** Main sql client which is safe to use for all queries */
 let sql: SqlClient | null = null;
