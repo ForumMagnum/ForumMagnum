@@ -115,6 +115,7 @@ import { BoldLinkIcon } from "../icons/boldLink";
 import { QIcon } from "../icons/qIcon";
 import { FilterAlt } from "../icons/filteralt";
 import { VotedIcon } from "../icons/votedIcon";
+import { LightbulbChatIcon } from "../icons/lightbulbChatIcon";
 
 /**
  * This exists to allow us to easily use different icon sets on different
@@ -202,7 +203,8 @@ export type ForumIconName =
   "Funnel" |
   "Voted" |
   "InfoCircle" |
-  "BarsArrowDown";
+  "BarsArrowDown" |
+  "LightbulbChat";
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -286,6 +288,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
+    LightbulbChat: LightbulbChatIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -368,6 +371,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
+    LightbulbChat: LightbulbChatIcon,
   },
 };
 

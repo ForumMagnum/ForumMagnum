@@ -264,7 +264,7 @@ const styles = (theme: ThemeType) => ({
   w100: { width: "100%" },
   
   votingBanner: {
-    backgroundColor: theme.palette.givingPortal.homepageHeader.main,
+    backgroundColor: theme.palette.givingPortal.homepageHeader.dark,
     color: theme.palette.text.alwaysWhite,
   },
   votingBannerContent: {

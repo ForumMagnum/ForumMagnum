@@ -184,7 +184,7 @@ export const otherDonationOpportunities = [
     _id: '10',
     name: 'Maternal Health Initiative',
     description: 'MHI is a charity that helps Ghanaian women access family planning help and resources.',
-    logoSrc: 'https://give.cornerstone.cc/assets/merchant/maternalhealthinitiative/images/logo.png?1662921546',
+    logoSrc: 'https://res.cloudinary.com/cea/image/upload/v1701782736/mhi_image.png',
     href: 'https://maternalhealthinitiative.org/',
     fundraiserLink: 'https://give.cornerstone.cc/maternalhealthinitiative',
   },

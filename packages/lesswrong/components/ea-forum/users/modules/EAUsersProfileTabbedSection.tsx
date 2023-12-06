@@ -152,7 +152,7 @@ const EAUsersProfileTabbedSection = ({tabs, classes}: {
             })}
           >
             {tab.label}
-            {tab.count && <div className={classes.tabCount}>{tab.count}</div>}
+            {!!tab.count && <div className={classes.tabCount}>{tab.count}</div>}
           </Typography>
         })}
         <div className={classes.tabRowAction}>
