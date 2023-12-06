@@ -274,11 +274,7 @@ const FriendlyInbox = ({
             <>
               <div className={classes.columnHeader}>
                 <div className={classes.headerText}>{title}</div>
-                {conversationId ? (
-                  <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
-                ) : (
-                  <div className={classes.actionIcon} />
-                )}
+                <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
               </div>
               <div className={classes.conversation} ref={selectedConversationRef}>
                 <Link to="/inbox" className={classes.backButton}>
