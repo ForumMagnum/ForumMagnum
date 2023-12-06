@@ -112,10 +112,14 @@ defineQuery({
       return result
     }
 
-    const getUserVotesOnPoll = async (userId: string, pollCommentId: string, recommendationReason:string) => {
+    const getUserVotesOnPoll = async (userId: string, pollCommentId: string, recommendationReason:string, whoseVote:"you"|"they") => {
       const comments = await context.repos.comments.getPopularPollCommentsWithUserVotes(userId, limit * 3, pollCommentId)
       const sampled = sampleSize(comments, Math.round(limit / 2))
-      const result = sampled.map(comment => ({comment, recommendationReason: recommendationReason, yourVote: comment.yourVote, theirVote: comment.theirVote}));
+      const result = sampled.map(comment => {
+        return whoseVote === "you" 
+          ? {comment, recommendationReason: recommendationReason, yourVote: comment.userVote }
+          : {comment, recommendationReason: recommendationReason, theirVote: comment.userVote};
+      });
       return result
     }
 
@@ -130,9 +134,9 @@ defineQuery({
     async function* commentSources() {
       yield await getIntersectingUsersVotesOnPoll(userId, targetUserId, bensInterestingDisagreementsCommentId);
       yield await getIntersectingUsersVotesOnPoll(userId, targetUserId, worthwhileOpenAIDisagreementsCommentId);
-      yield await getUserVotesOnPoll(targetUserId, bensInterestingDisagreementsCommentId, "They reacted on this comment"); 
-      yield await getUserVotesOnPoll(targetUserId, worthwhileOpenAIDisagreementsCommentId, "They reacted on this comment");
-      yield await getUserVotesOnPoll(userId, bensInterestingDisagreementsCommentId, "You reacted on this comment");
+      yield await getUserVotesOnPoll(targetUserId, bensInterestingDisagreementsCommentId, "They reacted on this comment", "they"); 
+      yield await getUserVotesOnPoll(targetUserId, worthwhileOpenAIDisagreementsCommentId, "They reacted on this comment", "they");
+      yield await getUserVotesOnPoll(userId, bensInterestingDisagreementsCommentId, "You reacted on this comment", "you");
       yield await getPopularVotesOnPoll(bensInterestingDisagreementsCommentId, "This comment is popular");
     }
     
@@ -151,5 +155,20 @@ defineQuery({
     }
 
     return recommendedComments
+  },
+});
+
+defineQuery({
+  name: "UsersRecommendedCommentsOfTargetUser",
+  resultType: "[Comment]",
+  argTypes: "(userId: String!, targetUserId: String!, limit: Int!)",
+  fn: async (root: void, {userId, targetUserId, limit}: {userId: string, targetUserId: string, limit: number}, context: ResolverContext) => {
+    const { currentUser, repos } = context
+    if (!currentUser) {
+      throw new Error('Must be logged in to view recommended comments of target user')
+    }
+
+    const comments = await repos.comments.getUsersRecommendedCommentsOfTargetUser(userId, targetUserId, limit)
+    return await accessFilterMultiple(currentUser, Comments, comments, context)
   },
 });

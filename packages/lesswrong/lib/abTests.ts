@@ -106,7 +106,7 @@ export const frontpageDialogueReciprocityRecommendations = new ABTest({
     },
     noShow: {
       description: "Don't show",
-      weight: 3,
+      weight: 1,
     },
   },
 });
@@ -117,7 +117,7 @@ export const showTopicsInReciprocity = new ABTest({
   groups: {
     show: {
       description: "Show topics",
-      weight: 1,
+      weight: 2,
     },
     noShow: {
       description: "Don't show topics",
@@ -137,21 +137,6 @@ export const dialogueMatchingPageNoSSRABTest = new ABTest({
     },
     noSSR: {
       description: "Non-SSR version",
-      weight: 1,
-    },
-  },
-});
-
-export const newDialogueChecksNotificationABTest = new ABTest({
-  name: "newDialogueChecksNotification",
-  description: "Get notifications when you get new dialogue checks",
-  groups: {
-    control: {
-      description: "Control version",
-      weight: 1,
-    },
-    notification: {
-      description: "Notification version",
       weight: 1,
     },
   },

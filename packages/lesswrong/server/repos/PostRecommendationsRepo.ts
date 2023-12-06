@@ -24,6 +24,7 @@ export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommen
     } else if (!clientId) {
       return;
     }
+    const settings = strategySettings as unknown as JsonRecord;
     await Promise.all(posts.map(({_id: postId}) => this.none(`
       INSERT INTO "PostRecommendations" (
         "_id",
@@ -45,7 +46,7 @@ export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommen
         "strategyName" = $5,
         "strategySettings" = $6,
         "lastRecommendedAt" = CURRENT_TIMESTAMP
-    `, [randomId(), userId, clientId, postId, strategyName, strategySettings])));
+    `, [randomId(), userId, clientId, postId, strategyName, settings])));
   }
 
   async markRecommendationAsObserved(

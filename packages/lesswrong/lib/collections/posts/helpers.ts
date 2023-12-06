@@ -87,14 +87,18 @@ ${postGetLink(post, true, false)}
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
-// Select the social preview image for the post, using the manually-set
-// cloudinary image if available, or the auto-set from the post contents. If
-// neither of those are available, it will return null.
+// Select the social preview image for the post.
+// For events, we use their event image if that is set.
+// For other posts, we use the manually-set cloudinary image if available,
+// or the auto-set from the post contents. If neither of those are available,
+// it will return null.
 export const getSocialPreviewImage = (post: DbPost): string => {
   // Note: in case of bugs due to failed migration of socialPreviewImageId -> socialPreview.imageId,
   // edit this to support the old field "socialPreviewImageId", which still has the old data
-  const manualId = post.socialPreview?.imageId
-  if (manualId) return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
+  const manualId = (post.isEvent && post.eventImageId) ? post.eventImageId : post.socialPreview?.imageId
+  if (manualId) {
+    return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
+  }
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''
 }

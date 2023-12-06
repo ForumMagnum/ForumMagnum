@@ -588,7 +588,7 @@ Comments.addView('nominations2018', ({userId, postId, sortBy="top"}: CommentsVie
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -602,7 +602,7 @@ Comments.addView('nominations2019', function ({userId, postId, sortBy="top"}) {
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -621,7 +621,7 @@ Comments.addView('reviews2018', ({userId, postId, sortBy="top"}: CommentsViewTer
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -635,7 +635,7 @@ Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -651,7 +651,7 @@ Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });

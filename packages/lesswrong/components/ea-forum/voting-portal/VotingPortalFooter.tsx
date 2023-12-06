@@ -3,6 +3,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { votingPortalStyles } from './styles';
 import { Link } from '../../../lib/reactRouterWrapper';
+import { useMessages } from '../../common/withMessages';
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
@@ -76,7 +77,10 @@ export const VotingPortalFooter = ({
   middleNode,
   buttonText="Continue",
   buttonTooltip,
+  arrow=true,
   buttonProps,
+  electionVote,
+  updateVote,
   classes,
 }: {
   leftText?: string,
@@ -84,10 +88,31 @@ export const VotingPortalFooter = ({
   middleNode: React.ReactNode,
   buttonText?: string,
   buttonTooltip?: string,
+  arrow?: boolean,
   buttonProps: React.ButtonHTMLAttributes<HTMLButtonElement>,
+  electionVote: ElectionVoteInfo,
+  updateVote: (newVote: NullablePartial<DbElectionVote>) => Promise<void>,
   classes: ClassesType<typeof styles>,
 }) => {
   const { ForumIcon, LWTooltip } = Components;
+  const { flash } = useMessages();
+
+  const hasSubmitted = !!electionVote?.submittedAt;
+
+  const buttonInner = hasSubmitted ? (
+    "Unsubmit vote (to edit)"
+  ) : (
+    <>
+      {buttonText} {arrow && <ForumIcon icon="ArrowRight" className={classes.arrowIcon} />}
+    </>
+  );
+
+  const buttonDisplayTooltip = hasSubmitted ? "After you unsubmit you can edit your answers. You must then resubmit for your vote to be counted" : buttonTooltip;
+
+  const onClick = hasSubmitted ? async () => {
+    await updateVote({ submittedAt: null });
+    flash("Your vote has been unsubmitted, you can now edit and resubmit it");
+  } : buttonProps.onClick;
 
   return (
     <div className={classes.footer}>
@@ -99,19 +124,20 @@ export const VotingPortalFooter = ({
           {middleNode}
         </div>
         <LWTooltip
-          title={buttonTooltip}
+          title={buttonDisplayTooltip}
           placement="top"
-          disabled={!buttonTooltip}
+          disabled={!buttonDisplayTooltip}
           className={classes.tooltip}
           popperClassName={classes.tooltipPopper}
         >
           <button
             {...buttonProps}
+            onClick={onClick}
             className={classNames(classes.button, classes.continueButton, {
               [classes.buttonDisabled]: buttonProps.disabled,
             })}
           >
-            {buttonText} <ForumIcon icon="ArrowRight" className={classes.arrowIcon} />
+            {buttonInner}
           </button>
         </LWTooltip>
       </div>

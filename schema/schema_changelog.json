@@ -443,5 +443,25 @@
     "acceptsSchemaHash": "6ee0467b3cdea6d954c14e9bee545c42",
     "acceptedByMigration": "20231129T200215.addNotificationNewDialogueChecks.ts",
     "timestamp": "2023-11-29T20:02:15.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ea10555b6fef67efb7ab0cbbdfdb8772",
+    "acceptedByMigration": "20231130T012654.changeDefaultNewCheckNotificationFrequencyRealtime.ts",
+    "timestamp": "2023-11-30T01:26:54.000Z"
+  },
+  {
+    "acceptsSchemaHash": "edca7fde4fce09bf9031f2f3f9b18fda",
+    "acceptedByMigration": "20231130T140404.add_submissionComments.ts",
+    "timestamp": "2023-11-30T14:04:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2d5747e2acdbe83c754cbbda258623ed",
+    "acceptedByMigration": "20231201T022744.add_field_for_hiding_specific_users_in_reciprocity.ts",
+    "timestamp": "2023-12-01T02:27:44.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2ace126a36fc6b5cdb4e4a0264fec6f9",
+    "acceptedByMigration": "20231204T235404.fill_in_AbTestKey_and_make_nonnullable.ts",
+    "timestamp": "2023-12-04T23:54:04.000Z"
   }
 ]

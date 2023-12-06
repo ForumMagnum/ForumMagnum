@@ -23,7 +23,7 @@ const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecr
 // Given a URL which (probably) points to an image, download that image,
 // re-upload it to cloudinary, and return a cloudinary URL for that image. If
 // the URL is already Cloudinary or can't be downloaded, returns null instead.
-async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): Promise<string|null> {
+export async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): Promise<string|null> {
   const logger = loggerConstructor("image-conversion")
   const alreadyRehosted = await findAlreadyMovedImage(oldUrl);
   if (alreadyRehosted) return alreadyRehosted;

@@ -2,7 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
 import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
-import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
+import { userGroups, userOwns, userIsAdmin, userHasntChangedName, isAdmin } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { schemaDefaultValue } from '../../collectionUtils';
@@ -18,6 +18,8 @@ import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
 import { dialoguesEnabled, hasPostRecommendations } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { randomId } from '../../random';
+import { getUserABTestKey } from '../../abTestImpl';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -576,7 +578,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     hidden: true,
     canCreate: ['members'],
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns],
   },
 
@@ -736,7 +738,7 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     ...schemaDefaultValue(false),
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     group: formGroups.siteCustomizations,
@@ -748,7 +750,7 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     ...schemaDefaultValue(false),
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     group: formGroups.siteCustomizations,
@@ -1413,7 +1415,7 @@ const schema: SchemaType<DbUser> = {
   },
   notificationNewDialogueChecks: {
     label: "You have new people interested in dialogue-ing with you",
-    ...notificationTypeSettingsField({ batchingFrequency: "daily" }),
+    ...notificationTypeSettingsField(),
     hidden: !dialoguesEnabled,
   },
 
@@ -1777,7 +1779,7 @@ const schema: SchemaType<DbUser> = {
 
   nearbyEventsNotificationsMongoLocation: {
     type: Object,
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
     optional: true,
     ...denormalizedField({
@@ -2116,7 +2118,7 @@ const schema: SchemaType<DbUser> = {
 
   partiallyReadSequences: {
     type: Array,
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns],
     optional: true,
     hidden: true,
@@ -2317,14 +2319,20 @@ const schema: SchemaType<DbUser> = {
   abTestKey: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
+    onCreate: ({ document, context }) => {
+      if (!document.abTestKey) {
+        return getUserABTestKey({clientId: context.clientId ?? randomId()});
+      }
+    }
   },
   abTestOverrides: {
     type: GraphQLJSON, //Record<string,number>
     optional: true, hidden: true,
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
   },
@@ -2906,11 +2914,17 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
-    canUpdate: ['admins'],
-    canCreate: ['admins'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     group: formGroups.adminOptions,
     label: '"I Voted" flair for 2023 giving season',
-    hidden: !isEAForum,
+    hidden: ({ currentUser }) => {
+      if (!isEAForum) return true;
+      // Only admins can set this in the edit user form, but users can set it on themselves
+      // from the voting portal (if they have voted)
+      if (!isAdmin(currentUser)) return true;
+      return false;
+    },
     ...schemaDefaultValue(false),
   },
 };

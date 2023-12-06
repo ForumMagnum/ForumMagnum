@@ -9,6 +9,7 @@ import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collecti
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
   theirVote?: string,
+  userVote?: string,
 }
 
 export default class CommentsRepo extends AbstractRepo<DbComment> {
@@ -92,7 +93,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
 
   async getPopularPollCommentsWithUserVotes (userId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
     return await this.getRawDb().manyOrNone(`
-    SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "yourVote"
+    SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "userVote"
     FROM public."Comments" AS c
     INNER JOIN public."Votes" AS v ON c._id = v."documentId"
     WHERE
@@ -108,24 +109,25 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
 
   async getPopularPollCommentsWithTwoUserVotes (userId:string, targetUserId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
     return await this.getRawDb().manyOrNone(`
-      WITH votes_filtered AS (
-        SELECT *
-        FROM public."Votes"
-        WHERE "extendedVoteType"->'reacts'->0->>'vote' = 'created'
-          AND cancelled IS NOT TRUE
-          AND "isUnvote" IS NOT TRUE
-      )
-      SELECT c.*, v1."extendedVoteType"->'reacts'->0->>'react' AS "yourVote", v2."extendedVoteType"->'reacts'->0->>'react' AS "theirVote"
-      FROM public."Comments" AS c
-      INNER JOIN votes_filtered AS v1 ON c._id = v1."documentId"
-      INNER JOIN votes_filtered AS v2 ON c._id = v2."documentId"
-      WHERE
-        c."parentCommentId" = $4
-        AND v1."userId" = $1
-        AND v2."userId" = $2
-        AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
-      ORDER BY c."baseScore" DESC
-      LIMIT $3
+    SELECT c.*, 
+        v1."extendedVoteType"->'reacts'->0->>'react' AS "yourVote", 
+        v2."extendedVoteType"->'reacts'->0->>'react' AS "theirVote"
+    FROM public."Comments" AS c
+    LEFT JOIN public."Votes" AS v1 ON c._id = v1."documentId"
+    LEFT JOIN public."Votes" AS v2 ON c._id = v2."documentId"
+    WHERE
+      c."parentCommentId" = $4
+      AND v1."userId" = $1
+      AND v1."extendedVoteType"->'reacts'->0->>'vote' = 'created'
+      AND v1.cancelled IS NOT TRUE
+      AND v1."isUnvote" IS NOT TRUE
+      AND v2."userId" = $2
+      AND v2."extendedVoteType"->'reacts'->0->>'vote' = 'created'
+      AND v2.cancelled IS NOT TRUE
+      AND v2."isUnvote" IS NOT TRUE
+      AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
+    ORDER BY c."baseScore" DESC
+    LIMIT $3
     `, [userId, targetUserId, limit, pollCommentId]);
   }
 
@@ -259,6 +261,22 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       ORDER BY
         window_start_key;
     `, [postIds, startDate, endDate]);
+  }
+
+  async getUsersRecommendedCommentsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbComment[]> {
+    return this.any(`
+      SELECT c.*
+      FROM "ReadStatuses" AS rs
+      INNER JOIN "Posts" AS p ON rs."postId" = p._id
+      INNER JOIN "Comments" AS c ON c."postId" = p._id
+      WHERE
+          rs."userId" = $1
+          AND c."userId" = $2
+          AND rs."isRead" IS TRUE
+          AND c."baseScore" > 7
+      ORDER BY rs."lastUpdated" DESC
+      LIMIT $3
+    `, [userId, targetUserId, limit]);
   }
 
   async getCommentsWithElicitData(): Promise<DbComment[]> {

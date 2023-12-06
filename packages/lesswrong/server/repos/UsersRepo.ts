@@ -35,14 +35,6 @@ WHERE _id IN (
 LIMIT 1
 `;
 
-type UserData = {
-  _id: string;
-  username: string;
-  displayName: string;
-  name: string;
-  post_comment_count: number;
-};
-
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 export default class UsersRepo extends AbstractRepo<DbUser> {
   constructor() {
@@ -284,14 +276,13 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `)
   }  
 
-  async getUsersWithNewDialogueChecks(minutes: number): Promise<DbUser[]> {
+  async getUsersWithNewDialogueChecks(): Promise<DbUser[]> {
     return this.manyOrNone(`
-      SELECT "Users".*
+      SELECT DISTINCT ON ("Users"._id) "Users".*
       FROM "Users"
       INNER JOIN "DialogueChecks" ON "Users"._id = "DialogueChecks"."targetUserId"
       WHERE
-          "DialogueChecks"."checkedAt" > NOW() - INTERVAL '$1 minutes'
-          AND "DialogueChecks".checked IS TRUE
+          "DialogueChecks".checked IS TRUE
           AND NOT EXISTS (
               SELECT 1
               FROM "DialogueChecks" AS dc
@@ -300,13 +291,34 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
                   AND "DialogueChecks"."targetUserId" = dc."userId"
                   AND dc.checked IS TRUE
           )
-          AND "DialogueChecks"."checkedAt"
-          > (
-              SELECT MAX("checkedAt")
-              FROM "DialogueChecks"
-              WHERE "DialogueChecks"."userId" = "Users"._id
+          AND (
+              "DialogueChecks"."checkedAt" > COALESCE((
+                  SELECT MAX("checkedAt")
+                  FROM "DialogueChecks"
+                  WHERE "DialogueChecks"."userId" = "Users"._id
+              ), '1970-01-01')
           )
-    `, [minutes])
+          AND (
+              "DialogueChecks"."checkedAt" > NOW() - INTERVAL '1 week'
+              OR
+              NOT EXISTS (
+                  SELECT 1
+                  FROM "Notifications"
+                  WHERE
+                      "userId" = "Users"._id
+                      AND type = 'newDialogueChecks'
+              )
+          )
+          AND (
+            NOW() - INTERVAL '1 week' > COALESCE((
+              SELECT MAX("createdAt")
+              FROM "Notifications"
+              WHERE
+                "userId" = "Users"._id
+                AND type = 'newDialogueChecks'
+            ), '1970-01-01')
+        )
+    `)
   }
 
   async getUsersTopUpvotedUsers(user:DbUser, limit = 20, recencyLimitDays = 10): Promise<UpvotedUser[]> {
@@ -434,19 +446,22 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     const upvotedUserIds = upvotedUsers.map(user => user._id);
 
     return this.any(`
+    (
       SELECT u.*
       FROM unnest($2::text[]) AS uv(_id)
       INNER JOIN "Users" AS u ON uv._id = u._id
       WHERE
-        -- Exclude users that the current user has already checked
+      -- Exclude users that the current user has already checked
+
         (
           SELECT COUNT(*)
           FROM "DialogueChecks"
-          WHERE "userId" = $1 AND "targetUserId" = uv._id AND "checked" IS TRUE
+          WHERE "userId" = $1 AND "targetUserId" = uv._id AND ("checked" IS TRUE OR "hideInRecommendations" IS TRUE)
         ) = 0
         AND
         (
           -- Don't recommend users who've never commented on your posts
+
           (
             SELECT COUNT(*)
             FROM public."Comments" AS c
@@ -455,6 +470,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
           ) >= 1
           OR 
           -- Don't recommend users who've never replied to your comments 
+
           (
             SELECT COUNT(*)
             FROM public."Comments"
@@ -467,7 +483,22 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
               )
           ) >= 1
         )
-      LIMIT $3  
+      LIMIT $3
+    )
+    -- If the above query doesn't return enough users, then fill in the rest with users who you've upvoted
+      UNION ALL
+      (
+        SELECT u.*
+        FROM unnest($2::text[]) AS uv(_id)
+        INNER JOIN "Users" AS u ON uv._id = u._id
+        WHERE
+          (
+            SELECT COUNT(*)
+            FROM "DialogueChecks"
+            WHERE "userId" = $1 AND "targetUserId" = uv._id AND ("checked" IS TRUE OR "hideInRecommendations" IS TRUE)
+          ) = 0
+        LIMIT $3
+      )
     `, [userId, upvotedUserIds, limit]);
   }
 
