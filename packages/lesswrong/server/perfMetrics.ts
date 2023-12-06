@@ -1,10 +1,14 @@
 import { v4 } from 'uuid';
+import { AsyncLocalStorage } from 'async_hooks';
+
 import { queuePerfMetric } from './analyticsWriter';
 import type { Request, Response, NextFunction } from 'express';
 import { performanceMetricLoggingEnabled } from '../lib/publicSettings';
 import { getForwardedWhitelist } from './forwarded_whitelist';
 
 type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'ip' | 'user_agent'>;
+
+export const asyncLocalStorage = new AsyncLocalStorage<Map<'context', ResolverContext>>();
 
 export function generateTraceId() {
   return v4();
@@ -42,5 +46,7 @@ export function perfMetricMiddleware(req: Request, res: Response, next: NextFunc
       closePerfMetric(perfMetric);
     });
   }
-  next();
+  // TODO: forum-gate this
+  asyncLocalStorage.run<void, []>(new Map(), next);
+  // next();
 }

@@ -50,7 +50,7 @@ import { getClientBundle } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { closePerfMetric, openPerfMetric, perfMetricMiddleware } from './perfMetrics';
+import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware } from './perfMetrics';
 import { performanceMetricLoggingEnabled } from '../lib/publicSettings';
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
@@ -133,6 +133,14 @@ export function startWebserver() {
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
+
+  // app.use('/graphql', (req, res, next) => {
+  //   asyncLocalStorage.run<void, []>(new Map(), next);
+  // });
+
+  // app.use('/graphql', (req, res, next) => {
+  //   asyncLocalStorage.run<void, []>(new Map(), next);
+  // });
   
   // create server
   // given options contains the schema
@@ -158,6 +166,8 @@ export function startWebserver() {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
       const context = await getContextFromReqAndRes(req, res);
       configureSentryScope(context);
+      // TODO: forum-gate this
+      asyncLocalStorage.getStore()?.set('context', context);
       return context;
     },
     plugins: [new ApolloServerLogging()],
@@ -310,7 +320,8 @@ export function startWebserver() {
       response.write(prefetchPrefix);
     }
     
-    const renderResult = await renderWithCache(request, response, user);
+    // TODO: forum-gate this
+    const renderResult = await asyncLocalStorage.run(new Map(), () => renderWithCache(request, response, user));
     
     const {
       ssrBody,

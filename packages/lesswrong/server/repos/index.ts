@@ -1,4 +1,4 @@
-import { closePerfMetric, openPerfMetric } from "../perfMetrics";
+import { asyncLocalStorage, closePerfMetric, openPerfMetric } from "../perfMetrics";
 import CollectionsRepo from "./CollectionsRepo";
 import CommentsRepo from "./CommentsRepo";
 import ConversationsRepo from "./ConversationsRepo";
@@ -42,7 +42,8 @@ const getAllRepos = () => ({
 const repoClasses = [
   CommentsRepo,
   ConversationsRepo,
-  DatabaseMetadataRepo,
+  // TODO - explain why this isn't included
+  // DatabaseMetadataRepo,
   DebouncerEventsRepo,
   DialogueChecksRepo,
   ElectionCandidatesRepo,
@@ -66,19 +67,35 @@ function wrapMethods<T extends typeof repoClasses[number]>(targetClass: T) {
 
       if (typeof originalMethod === 'function' && methodName !== 'constructor') {
         // @ts-ignore - TS really doesn't like index access on unions of multiple class prototypes
-        targetClass.prototype[methodName] = wrapWithPerfMetrics(originalMethod, methodName);
+        targetClass.prototype[methodName] = wrapWithPerfMetrics(originalMethod, methodName, targetClass.name);
       }
   });
 }
 
-function wrapWithPerfMetrics(method: Function, methodName: string) {
-  return async function (this: AnyBecauseHard, ...args: AnyBecauseHard[]) {
+function wrapWithPerfMetrics(method: Function, methodName: string, repoName: string) {
+  return function (this: AnyBecauseHard, ...args: AnyBecauseHard[]) {
+    const asyncContext = asyncLocalStorage.getStore();
+    if (!asyncContext) {
+      console.log('async request context does not exist', repoName, methodName);
+    }
+    if (asyncContext && !asyncContext.has('context')) {
+      console.log('async request context exists, but missing ResolverContext in map', repoName, methodName);
+    }
+    const parentTraceId = asyncContext ? { parent_trace_id: asyncContext.get('context')?.perfMetric?.trace_id } : {};
     const startedDbRepoMetric = openPerfMetric({
       op_type: 'db_repo_method',
-      op_name: methodName
+      op_name: `${repoName}.${methodName}`,
+      ...parentTraceId
     });
-    const results = await method.apply(this, args);
-    closePerfMetric(startedDbRepoMetric);
+    const results = method.apply(this, args);
+    // TODO - document this
+    if (results instanceof Promise) {
+      return results.then(res => {
+        closePerfMetric(startedDbRepoMetric);
+        return res;
+      });
+    }
+
     return results;
   };
 }

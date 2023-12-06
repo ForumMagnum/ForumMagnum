@@ -29,6 +29,7 @@ import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { isLWorAF } from '../../../lib/instanceSettings';
+import { asyncLocalStorage } from '../../perfMetrics';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -196,6 +197,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: {
 }): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
   configureSentryScope(requestContext);
+  asyncLocalStorage.getStore()?.set('context', requestContext);
   
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
