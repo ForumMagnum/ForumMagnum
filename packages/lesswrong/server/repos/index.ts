@@ -7,7 +7,7 @@ import DebouncerEventsRepo from "./DebouncerEventsRepo";
 import DialogueChecksRepo from "./DialogueChecksRepo";
 import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
-import { PageCacheRepo } from "./PageCacheRepo";
+import PageCacheRepo from "./PageCacheRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
 import PostRelationsRepo from "./PostRelationsRepo";

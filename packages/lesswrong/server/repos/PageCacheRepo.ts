@@ -10,7 +10,7 @@ export type MeanPostKarma = {
 }
 
 @RecordPerfMetrics
-export class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
+export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
   constructor() {
     super(PageCache);
   }

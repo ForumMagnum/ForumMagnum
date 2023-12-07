@@ -152,7 +152,7 @@ async function insertAndCacheGqlStringRecords(gqlStrings: string[], connection: 
   const gqlRecords = gqlStrings.map((gql_string) => ({gql_hash: md5(gql_string), gql_string}));
   const previouslyCachedGqlStrings = gqlRecords.filter(({ gql_hash }) => GQL_STRING_ID_CACHE.has(gql_hash));
   const newGqlRecords = gqlRecords.filter(({ gql_hash }) => !GQL_STRING_ID_CACHE.has(gql_hash));
-  
+
   if (newGqlRecords.length === 0) {
     return;
   }
@@ -196,7 +196,7 @@ async function flushPerfMetrics() {
 
       const queryStringsInBatch = uniq(filterNonnull(batch.map(metric => metric.gql_string)));
       if (queryStringsInBatch.length > 0) {
-        await insertAndCacheGqlStringRecords(queryStringsInBatch, connection);        
+        await insertAndCacheGqlStringRecords(queryStringsInBatch, connection);
       }
 
       const valuesToInsert = batch.map(perfMetric => {
