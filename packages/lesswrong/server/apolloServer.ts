@@ -133,14 +133,6 @@ export function startWebserver() {
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);
-
-  // app.use('/graphql', (req, res, next) => {
-  //   asyncLocalStorage.run<void, []>(new Map(), next);
-  // });
-
-  // app.use('/graphql', (req, res, next) => {
-  //   asyncLocalStorage.run<void, []>(new Map(), next);
-  // });
   
   // create server
   // given options contains the schema

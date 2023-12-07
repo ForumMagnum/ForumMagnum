@@ -2,6 +2,7 @@ import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
 import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueMatchingPage";
 import {calculateVotePower} from "../../lib/voting/voteTypes";
+import { RecordPerfMetrics } from "./perfMetricDecorator";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 SELECT *
@@ -36,6 +37,8 @@ LIMIT 1
 `;
 
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
+
+@RecordPerfMetrics
 export default class UsersRepo extends AbstractRepo<DbUser> {
   constructor() {
     super(Users);

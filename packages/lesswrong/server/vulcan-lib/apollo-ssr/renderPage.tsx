@@ -28,10 +28,8 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
-import { isLWorAF } from '../../../lib/instanceSettings';
-import { asyncLocalStorage } from '../../perfMetrics';
 import { performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
-import { closePerfMetric, openPerfMetric } from '../../perfMetrics';
+import { asyncLocalStorage, closePerfMetric, openPerfMetric } from '../../perfMetrics';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
