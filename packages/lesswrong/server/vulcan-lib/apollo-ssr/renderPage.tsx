@@ -30,6 +30,9 @@ import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { isLWorAF } from '../../../lib/instanceSettings';
 import { asyncLocalStorage } from '../../perfMetrics';
+import { performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
+import { closePerfMetric, openPerfMetric } from '../../perfMetrics';
+import { getForwardedWhitelist } from '../../forwarded_whitelist';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -95,6 +98,20 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     const rendered = await renderRequest({
       req, user, startTime, res, clientId, userAgent,
     });
+
+    if (performanceMetricLoggingEnabled.get()) {
+      const perfMetric = openPerfMetric({
+        op_type: "ssr",
+        op_name: "skipCache",
+        client_path: req.originalUrl,
+        //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
+        ip: getForwardedWhitelist().getClientIP(req),
+        user_agent: userAgent
+      }, startTime)      
+
+      closePerfMetric(perfMetric)
+    }
+
     if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
       Vulcan.captureEvent("ssr", {
         ...ssrEventParams,
@@ -124,6 +141,19 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     } else {
       // eslint-disable-next-line no-console
       console.log(`Rendered ${url} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
+    }
+
+    if (performanceMetricLoggingEnabled.get()) {
+      const perfMetric = openPerfMetric({
+        op_type: "ssr",
+        op_name: rendered.cached ? "cacheHit" : "cacheMiss",
+        client_path: req.originalUrl,
+        //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
+        ip: getForwardedWhitelist().getClientIP(req),
+        user_agent: userAgent
+      }, startTime)      
+
+      closePerfMetric(perfMetric)
     }
 
     if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {

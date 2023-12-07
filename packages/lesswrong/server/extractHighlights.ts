@@ -5,7 +5,7 @@ export function htmlStartingAtHash(html: string, hash: string): string {
     // Find the given anchor, if present
     const $ = cheerioParse(html);
     const matchesWithID = $(`#${hash}`);
-    if (matchesWithID.length==0)
+    if (matchesWithID.length===0)
       return html;
     const sectionElement = matchesWithID[0];
     

@@ -1,6 +1,5 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import Tooltip from '@material-ui/core/Tooltip';
 import type { ToCAnswer } from '../../../lib/tableOfContents';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -41,21 +40,22 @@ const AnswerTocRow = ({classes, answer}: {
   classes: ClassesType,
   answer: ToCAnswer,
 }) => {
-  const { FormatDate } = Components
+  const { LWTooltip, FormatDate } = Components
 
   const tooltip = <div>
-      <div className={classes.tooltipKarma}>
-        <div>
-          { answer.baseScore } karma ({answer.voteCount} votes)
-        </div>
-        <div>
-          Posted <FormatDate date={answer.postedAt} tooltip={false} /> ago
-        </div>
+    <div className={classes.tooltipKarma}>
+      <div>
+        { answer.baseScore } karma ({answer.voteCount} votes)
       </div>
-      <div dangerouslySetInnerHTML={{__html:answer.highlight}} className={classes.tooltip} />
+      <div>
+        Posted <FormatDate date={answer.postedAt} tooltip={false} /> ago
+      </div>
     </div>
+    <div dangerouslySetInnerHTML={{__html:answer.highlight}} className={classes.tooltip} />
+  </div>
+
   return <div>
-    <Tooltip title={tooltip} placement="right-start">
+    <LWTooltip title={tooltip} placement="right-start">
       <span className={classes.root}>
         <span className={classes.karma}>
           {answer.baseScore}
@@ -67,8 +67,8 @@ const AnswerTocRow = ({classes, answer}: {
           </div>
         </span>
       </span>
-    </Tooltip>
-    </div>
+    </LWTooltip>
+  </div>
 }
 
 const AnswerTocRowComponent = registerComponent('AnswerTocRow', AnswerTocRow, {styles});

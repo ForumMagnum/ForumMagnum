@@ -10,7 +10,7 @@ import { useMessages } from "../../common/withMessages";
 import RadioGroup from "@material-ui/core/RadioGroup";
 import Radio from "@material-ui/core/Radio";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import { eaGivingSeason23ElectionName, userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 import { useCurrentUser } from "../../common/withUser";
 import { ELECTION_EFFECT_OPTIONS, ELECTION_EFFECT_QUESTION, ELECTION_NOTE_QUESTION, formStateToSubmissionComments, submissionCommentsToFormState } from "../../../lib/collections/electionVotes/helpers";
 
@@ -90,7 +90,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const EAVotingPortalSubmitPageLoader = ({ classes }: { classes: ClassesType }) => {
-  const { electionVote, updateVote } = useElectionVote("givingSeason23");
+  const { electionVote, updateVote } = useElectionVote(eaGivingSeason23ElectionName);
 
   const currentUser = useCurrentUser();
   const { LoginForm } = Components;

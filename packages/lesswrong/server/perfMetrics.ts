@@ -14,10 +14,10 @@ export function generateTraceId() {
   return v4();
 }
 
-export function openPerfMetric(props: IncompletePerfMetricProps): IncompletePerfMetric {
+export function openPerfMetric(props: IncompletePerfMetricProps, startedAtOverride?: Date): IncompletePerfMetric {
   return {
     ...props,
-    started_at: new Date(),
+    started_at: startedAtOverride ?? new Date(),
     trace_id: v4(),
   };
 }

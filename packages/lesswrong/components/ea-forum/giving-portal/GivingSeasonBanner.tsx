@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { TimelineSpan, timelineSpec, userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import { TimelineSpan, eaGivingSeason23ElectionName, timelineSpec, userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 import { useCurrentTime } from "../../../lib/utils/timeUtil";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import {
@@ -292,7 +292,7 @@ const BannerDate: FC<{
 );
 
 const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
-  const { electionVote } = useElectionVote("givingSeason23");
+  const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   const currentUser = useCurrentUser();
   // We only advertise voting for users who are eligible -
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
