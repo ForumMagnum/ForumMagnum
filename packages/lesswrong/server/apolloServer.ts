@@ -57,13 +57,22 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
     const { operationName = 'unknownGqlOperation', query, variables } = request;
 
+    //remove sensitive data from variables such as password
+    let filteredVariables = variables;
+    if (variables) {
+      filteredVariables =  Object.keys(variables).reduce((acc, key) => {
+        return (key === 'password') ?  acc : { ...acc, [key]: variables[key] };
+      }, {});
+    }
+      
+
     let startedRequestMetric: IncompletePerfMetric;
     if (performanceMetricLoggingEnabled.get()) {
       startedRequestMetric = openPerfMetric({
         op_type: 'query',
         op_name: operationName,
         parent_trace_id: context.perfMetric?.trace_id,
-        extra_data: variables,
+        extra_data: filteredVariables,
         gql_string: query
       });  
     }
