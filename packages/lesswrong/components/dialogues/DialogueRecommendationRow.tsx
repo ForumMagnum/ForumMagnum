@@ -287,7 +287,7 @@ export const CommentView: React.FC<CommentViewProps> = ({ comment, classes }) =>
 };
 
 const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsMatched, classes, showSuggestedTopics, onHide }: DialogueRecommendationRowProps) => {
-  const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, Loading, PostsTooltip } = Components
+  const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, Loading, PostsTooltip, CommentView } = Components
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const currentUser = useCurrentUser();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -380,7 +380,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
       <PostsTooltip postId={post._id}>
         <Link to={postGetPageUrl(post)}> {post.title} </Link>
       </PostsTooltip>})),
-    ...recommendedComments.map(comment => ({reactIconName: "elaborate", prefix: "comment: ", Content: <CommentView comment={comment} classes={classes} />}))
+    ...recommendedComments.map(comment => ({reactIconName: "elaborate", prefix: "comment: ", Content: <CommentView comment={comment} />}))
   ]
 
   return (
