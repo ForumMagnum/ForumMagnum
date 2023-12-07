@@ -38,7 +38,7 @@ export const sequenceGetAllPostIDs = async (sequenceId: string, context: Resolve
   // Filter by user access
   const posts = await loadByIds(context, "Posts", validPostIds);
   const accessiblePosts = await accessFilterMultiple(context.currentUser, context.Posts, posts, context);
-  return accessiblePosts.map(post => post._id);
+  return accessiblePosts.map(post => post._id!);
 }
 
 export const sequenceGetAllPosts = async (sequenceId: string, context: ResolverContext): Promise<Array<DbPost>> => {

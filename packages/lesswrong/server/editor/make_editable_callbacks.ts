@@ -116,8 +116,8 @@ export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string): 
   return false;
 }
 
-function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
-  collection: CollectionBase<T>,
+function addEditableCallbacks<N extends CollectionNameString>({collection, options = {}}: {
+  collection: CollectionBase<N>,
   options: MakeEditableOptions
 }) {
   const {
@@ -147,7 +147,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const originalContents: DbRevision["originalContents"] = doc[fieldName].originalContents
 
       if (isFirstDebatePostComment) {
-        const createFirstCommentParams: CreateMutatorParams<DbComment> = {
+        const createFirstCommentParams: CreateMutatorParams<"Comments"> = {
           collection: Comments,
           document: {
             userId,
@@ -313,7 +313,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           document: {
             userId: currentUser._id,
             postId: newDoc._id,
-            contents: newDoc[fieldName as keyof DbPost],
+            contents: (newDoc as DbPost)[fieldName as keyof DbPost],
             debateResponse: true,
           },
           context,
@@ -353,7 +353,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
     await Globals.convertImagesInObject(collectionName, doc._id, fieldName)
   })
   if (collectionName === 'Posts') {
-    getCollectionHooks(collectionName).newAsync.add(async (doc: DbPost) => {
+    getCollectionHooks("Posts").newAsync.add(async (doc: DbPost) => {
       await Globals.rehostPostMetaImages(doc);
     })
   }

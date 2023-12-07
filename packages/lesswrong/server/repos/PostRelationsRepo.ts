@@ -1,7 +1,7 @@
 import PostRelations from "../../lib/collections/postRelations/collection";
 import AbstractRepo from "./AbstractRepo";
 
-export default class PostRelationsRepo extends AbstractRepo<DbPostRelation> {
+export default class PostRelationsRepo extends AbstractRepo<"PostRelations"> {
   constructor() {
     super(PostRelations);
   }

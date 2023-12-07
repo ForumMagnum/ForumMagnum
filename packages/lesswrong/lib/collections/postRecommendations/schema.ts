@@ -2,7 +2,7 @@ import { foreignKeyField } from "../../utils/schemaUtils";
 import SimpleSchema from "simpl-schema";
 import { schemaDefaultValue } from "../../collectionUtils";
 
-export const schema: SchemaType<DbPostRecommendation> = {
+export const schema: SchemaType<"PostRecommendations"> = {
   /** The user who the recommendation was generated for. */
   userId: {
     ...foreignKeyField({

@@ -1,7 +1,7 @@
 import SimpleSchema from 'simpl-schema';
 import { foreignKeyField } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbBan> = {
+const schema: SchemaType<"Bans"> = {
   expirationDate: {
     type: Date,
     optional: true,

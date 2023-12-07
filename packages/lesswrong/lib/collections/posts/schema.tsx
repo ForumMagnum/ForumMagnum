@@ -156,7 +156,7 @@ const schemaDefaultValueFmCrosspost = schemaDefaultValue({
   isCrosspost: false,
 })
 
-const schema: SchemaType<DbPost> = {
+const schema: SchemaType<"Posts"> = {
   // Timestamp of post first appearing on the site (i.e. being approved)
   postedAt: {
     type: Date,
@@ -1063,7 +1063,7 @@ const schema: SchemaType<DbPost> = {
     type: "ReviewVote",
     graphQLtype: "ReviewVote",
     canRead: ['members'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbReviewVote|null> => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbReviewVote>|null> => {
       const { ReviewVotes, currentUser } = context;
       if (!currentUser) return null;
       const votes = await getWithLoader(context, ReviewVotes,
@@ -1518,7 +1518,7 @@ const schema: SchemaType<DbPost> = {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbCollection|null> => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbCollection>|null> => {
         if (!post.canonicalCollectionSlug) return null;
         const collection = await context.Collections.findOne({slug: post.canonicalCollectionSlug})
         return await accessFilterSingle(context.currentUser, context.Collections, collection, context);

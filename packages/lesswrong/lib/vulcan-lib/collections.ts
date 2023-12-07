@@ -23,18 +23,14 @@ export const getCollectionName = (typeName: string): CollectionNameString => plu
 // TODO: find more reliable way to get type name from collection name?
 export const getTypeName = (collectionName: CollectionNameString) => collectionName.slice(0, -1);
 
-type CreateCollectionOptions <
-  N extends CollectionNameString,
-  T extends DbObject = ObjectsByCollectionName[N]
->= Omit<
-  CollectionOptions<N, T>,
+type CreateCollectionOptions <N extends CollectionNameString> = Omit<
+  CollectionOptions<N>,
   "singleResolverName" | "multiResolverName" | "interfaces" | "description"
 >;
 
-export const createCollection = <
-  N extends CollectionNameString,
-  T extends DbObject = ObjectsByCollectionName[N],
->(options: CreateCollectionOptions<N, T>): CollectionBase<T, N> => {
+export const createCollection = <N extends CollectionNameString>(
+  options: CreateCollectionOptions<N>,
+): CollectionsByName[N] => {
   const {
     typeName,
     collectionName,
@@ -43,8 +39,8 @@ export const createCollection = <
     dbCollectionName,
   } = options;
 
-  // initialize new Mongo collection
-  const collection = new PgCollection<T, N>(
+  // initialize new collection
+  const collection = new PgCollection<N>(
     dbCollectionName ?? collectionName.toLowerCase(),
     {
       ...options,
@@ -81,8 +77,8 @@ export const createCollection = <
   const defaultFragment = getDefaultFragmentText(collection, schema);
   if (defaultFragment) registerFragment(defaultFragment);
 
-
   registerCollection(collection);
 
-  return collection;
+  // TODO: This type should coerce better?
+  return collection as unknown as CollectionsByName[N];
 };

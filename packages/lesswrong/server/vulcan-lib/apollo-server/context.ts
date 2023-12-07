@@ -12,7 +12,7 @@
 
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import { Collections } from '../../../lib/vulcan-lib/collections';
+import { Collections, getCollectionsByName } from '../../../lib/vulcan-lib/collections';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
 import Users from '../../../lib/collections/users/collection';
@@ -157,14 +157,6 @@ export function configureSentryScope(context: ResolverContext) {
       });
     });
   }
-}
-
-export const getCollectionsByName = (): CollectionsByName => {
-  const result: any = {};
-  Collections.forEach((collection: CollectionBase<DbObject>) => {
-    result[collection.collectionName] = collection;
-  });
-  return result as CollectionsByName;
 }
 
 export const getUserFromReq = async (req: AnyBecauseTodo): Promise<DbUser|null> => {

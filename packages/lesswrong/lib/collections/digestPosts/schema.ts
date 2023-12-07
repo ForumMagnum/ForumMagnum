@@ -4,7 +4,7 @@ import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 export const DIGEST_STATUSES = new TupleSet(['yes', 'maybe', 'no'] as const)
 export type InDigestStatus = UnionOf<typeof DIGEST_STATUSES>
 
-const schema: SchemaType<DbDigestPost> = {
+const schema: SchemaType<"DigestPosts"> = {
   digestId: {
     ...foreignKeyField({
       idFieldName: "digestId",

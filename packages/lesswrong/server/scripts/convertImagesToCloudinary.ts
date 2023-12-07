@@ -190,8 +190,8 @@ function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
  * @param urlFilterFn - A function that takes a URL and returns true if it should be mirrored, by default all URLs are mirrored except those in getImageUrlWhitelist()
  * @returns The number of images that were mirrored
  */
-export async function convertImagesInObject(
-  collectionName: CollectionNameString,
+export async function convertImagesInObject<N extends CollectionNameString>(
+  collectionName: N,
   _id: string,
   fieldName = "contents",
   urlFilterFn: (url: string)=>boolean = ()=>true
@@ -221,7 +221,7 @@ export async function convertImagesInObject(
     const now = new Date();
     // NOTE: we use the post contents rather than the revision contents because we don't
     // create a revision for no-op edits (this is arguably a bug)
-    const oldHtml = obj?.[fieldName]?.html;
+    const oldHtml = (obj as AnyBecauseHard)?.[fieldName]?.html;
     if (!oldHtml) {
       return 0;
     }
@@ -248,7 +248,7 @@ export async function convertImagesInObject(
       $set: {
         [`${fieldName}_latest`]: insertedRevisionId,
         [fieldName]: {
-          ...obj[fieldName],
+          ...(obj as AnyBecauseHard)[fieldName],
           html: newHtml,
           version: newVersion,
           editedAt: now,

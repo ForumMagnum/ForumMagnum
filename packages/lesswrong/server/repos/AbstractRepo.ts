@@ -9,11 +9,11 @@ import PgCollection from "../../lib/sql/PgCollection";
  * To make the repo available in GraphQL resolvers, add it to `getAllRepos`
  * in index.ts
  */
-export default abstract class AbstractRepo<T extends DbObject> {
-  protected collection: CollectionBase<T>;
+export default abstract class AbstractRepo<N extends CollectionNameString> {
+  protected collection: CollectionBase<N>;
   private db: SqlClient;
 
-  constructor(collection: CollectionBase<T>, sqlClient?: SqlClient) {
+  constructor(collection: CollectionBase<N>, sqlClient?: SqlClient) {
     this.collection = collection;
     const db = sqlClient ?? getSqlClient();
     if (db) {
@@ -23,13 +23,13 @@ export default abstract class AbstractRepo<T extends DbObject> {
     }
   }
 
-  protected getCollection(): PgCollection<T> {
+  protected getCollection(): PgCollection<N> {
     // TODO: This check can be moved into the constructor once LessWrong
     // are on Postgres
     if (!this.collection.isPostgres()) {
       throw new Error("Collecton is not a Postgres collection");
     }
-    return this.collection as unknown as PgCollection<T>;
+    return this.collection;
   }
 
   /**
@@ -47,31 +47,33 @@ export default abstract class AbstractRepo<T extends DbObject> {
     return this.db.none(sql, args, () => `${sql}: ${JSON.stringify(args)}`);
   }
 
-  protected one(sql: string, args: SqlQueryArgs = []): Promise<T> {
+  protected one(sql: string, args: SqlQueryArgs = []): Promise<ObjectsByCollectionName[N]> {
     return this.postProcess(this.db.one(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
-  protected oneOrNone(sql: string, args: SqlQueryArgs = []): Promise<T | null> {
+  protected oneOrNone(sql: string, args: SqlQueryArgs = []): Promise<ObjectsByCollectionName[N] | null> {
     return this.postProcess(this.db.oneOrNone(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
-  protected any(sql: string, args: SqlQueryArgs = []): Promise<T[]> {
+  protected any(sql: string, args: SqlQueryArgs = []): Promise<ObjectsByCollectionName[N][]> {
     return this.postProcess(this.db.any(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
-  protected many(sql: string, args: SqlQueryArgs = []): Promise<T[]> {
+  protected many(sql: string, args: SqlQueryArgs = []): Promise<ObjectsByCollectionName[N][]> {
     return this.postProcess(this.db.many(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
-  protected manyOrNone(sql: string, args: SqlQueryArgs = []): Promise<T[]> {
+  protected manyOrNone(sql: string, args: SqlQueryArgs = []): Promise<ObjectsByCollectionName[N][]> {
     return this.postProcess(this.db.manyOrNone(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
-  private postProcess(promise: Promise<T>): Promise<T>;
-  private postProcess(promise: Promise<T | null>): Promise<T | null>;
-  private postProcess(promise: Promise<T[]>): Promise<T[]>;
-  private postProcess(promise: Promise<T[] | null>): Promise<T[] | null>;
-  private async postProcess(promise: Promise<T | T[] | null>): Promise<T | T[] | null> {
+  private postProcess(promise: Promise<ObjectsByCollectionName[N]>): Promise<ObjectsByCollectionName[N]>;
+  private postProcess(promise: Promise<ObjectsByCollectionName[N] | null>): Promise<ObjectsByCollectionName[N] | null>;
+  private postProcess(promise: Promise<ObjectsByCollectionName[N][]>): Promise<ObjectsByCollectionName[N][]>;
+  private postProcess(promise: Promise<ObjectsByCollectionName[N][] | null>): Promise<ObjectsByCollectionName[N][] | null>;
+  private async postProcess(
+    promise: Promise<ObjectsByCollectionName[N] | ObjectsByCollectionName[N][] | null>,
+  ): Promise<ObjectsByCollectionName[N] | ObjectsByCollectionName[N][] | null> {
     const data = await promise;
     const {postProcess} = this.getCollection();
     if (data && postProcess) {

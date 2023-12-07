@@ -49,12 +49,12 @@ export function getDefaultViewSelector<N extends CollectionNameString>(collectio
  * Given a set of terms describing a view, translate them into a mongodb selector
  * and options, which is ready to execute (but don't execute it yet).
  */
-function getParameters<N extends CollectionNameString, T extends DbObject=ObjectsByCollectionName[N]>(
-  collection: CollectionBase<T>,
+function getParameters<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
   terms: ViewTermsByCollectionName[N] = {},
   apolloClient?: any,
   context?: ResolverContext
-): MergedViewQueryAndOptions<N,T> {
+): MergedViewQueryAndOptions<ObjectsByCollectionName[N]> {
   const collectionName = collection.collectionName;
   const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
   logger('getParameters(), terms:', terms);
@@ -159,8 +159,8 @@ export function replaceSpecialFieldSelectors(selector: any): any {
   return result;
 }
 
-export const jsonArrayContainsSelector = <T extends DbObject>(
-  collection: CollectionBase<T>,
+export const jsonArrayContainsSelector = <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
   field: string,
   value: any,
 ) => collection.isPostgres()

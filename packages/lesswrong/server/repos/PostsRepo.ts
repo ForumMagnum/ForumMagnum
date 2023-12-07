@@ -29,7 +29,7 @@ const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>(
   updateAgeOnGet: false,
 });
 
-export default class PostsRepo extends AbstractRepo<DbPost> {
+export default class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
   }

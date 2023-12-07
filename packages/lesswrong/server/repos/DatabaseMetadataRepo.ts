@@ -1,7 +1,7 @@
 import AbstractRepo from "./AbstractRepo";
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
 
-export default class DatabaseMetadataRepo extends AbstractRepo<DbDatabaseMetadata> {
+export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata"> {
   constructor() {
     super(DatabaseMetadata);
   }

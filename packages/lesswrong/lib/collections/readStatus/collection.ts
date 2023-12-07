@@ -3,7 +3,7 @@ import { addUniversalFields } from '../../collectionUtils';
 import { ensureIndex } from '../../collectionIndexUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbReadStatus> = {
+const schema: SchemaType<"ReadStatuses"> = {
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",

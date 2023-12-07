@@ -17,7 +17,7 @@ export const subscriptionTypes = {
 
 export type SubscriptionType = typeof subscriptionTypes[keyof typeof subscriptionTypes];
 
-const schema: SchemaType<DbSubscription> = {
+const schema: SchemaType<"Subscriptions"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

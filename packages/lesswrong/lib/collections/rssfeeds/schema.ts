@@ -1,7 +1,7 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 import { schemaDefaultValue } from '../../collectionUtils';
 
-const schema: SchemaType<DbRSSFeed> = {
+const schema: SchemaType<"RSSFeeds"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

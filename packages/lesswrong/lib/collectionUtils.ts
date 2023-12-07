@@ -50,30 +50,34 @@ declare module "simpl-schema" {
 }
 
 
-export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Partial<CollectionFieldSpecification<T>> {
+export function schemaDefaultValue<N extends CollectionNameString>(
+  defaultValue: any,
+): Partial<CollectionFieldSpecification<N>> {
   // Used for both onCreate and onUpdate
   const fillIfMissing = ({newDocument, fieldName}: {
-    newDocument: T,
+    newDocument: ObjectsByCollectionName[N],
     fieldName: string,
   }) => {
-    if (newDocument[fieldName as keyof T] === undefined) {
+    if (newDocument[fieldName as keyof ObjectsByCollectionName[N]] === undefined) {
       return defaultValue instanceof DeferredForumSelect ? defaultValue.get() : defaultValue;
     } else {
       return undefined;
     }
   };
   const throwIfSetToNull = ({oldDocument, document, fieldName}: {
-    oldDocument: T,
-    document: T,
+    oldDocument: ObjectsByCollectionName[N],
+    document: ObjectsByCollectionName[N],
     fieldName: string,
   }) => {
-    const wasValid = (oldDocument[fieldName as keyof T] !== undefined && oldDocument[fieldName as keyof T] !== null);
-    const isValid = (document[fieldName as keyof T] !== undefined && document[fieldName as keyof T] !== null);
+    const wasValid = oldDocument[fieldName as keyof ObjectsByCollectionName[N]] !== undefined &&
+      oldDocument[fieldName as keyof ObjectsByCollectionName[N]] !== null;
+    const isValid = document[fieldName as keyof ObjectsByCollectionName[N]] !== undefined &&
+      document[fieldName as keyof ObjectsByCollectionName[N]] !== null;
     if (wasValid && !isValid) {
       throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
     }
   };
-  
+
   return {
     defaultValue: defaultValue,
     onCreate: fillIfMissing,
@@ -82,12 +86,12 @@ export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Parti
   }
 }
 
-export function addUniversalFields<T extends DbObject>({
+export function addUniversalFields<N extends CollectionNameString>({
   collection,
   schemaVersion = 1,
   createdAtOptions = {},
 }: {
-  collection: CollectionBase<T>,
+  collection: CollectionBase<N>,
   schemaVersion?: number
   createdAtOptions?: Partial<CollectionFieldPermissions>,
 }): void {
@@ -130,8 +134,9 @@ export function isUniversalField(fieldName: string): boolean {
   return fieldName=="_id" || fieldName=="schemaVersion";
 }
 
-export function isUnbackedCollection<T extends DbObject>(collection: CollectionBase<T>): boolean
-{
+export function isUnbackedCollection<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+): boolean {
   const collectionName: string = collection.collectionName;
   if (collectionName === 'Settings' || collectionName === 'Callbacks') {
     // Vulcan collections with no backing database table

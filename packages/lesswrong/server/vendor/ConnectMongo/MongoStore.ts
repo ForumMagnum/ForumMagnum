@@ -12,7 +12,7 @@ import { loggerConstructor } from '../../../lib/utils/logging';
 
 const debug = loggerConstructor('connect-mongo');
 
-type ConnectMongoCollection = CollectionBase<DbSession>;
+type ConnectMongoCollection = CollectionBase<"Sessions">;
 
 type RequiredConnectMongoOptions = {
   collection: ConnectMongoCollection;

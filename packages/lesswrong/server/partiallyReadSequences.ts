@@ -3,7 +3,6 @@ import Users from '../lib/collections/users/collection';
 import { getUser } from '../lib/vulcan-users/helpers';
 import { Sequences } from '../lib/collections/sequences/collection';
 import { sequenceGetAllPostIDs } from '../lib/collections/sequences/helpers';
-import Posts from '../lib/collections/posts/collection';
 import { Collections } from '../lib/collections/collections/collection';
 import { collectionGetAllPostIDs } from '../lib/collections/collections/helpers';
 import findIndex from 'lodash/findIndex';
@@ -114,7 +113,7 @@ const userHasPartiallyReadSequence = (user: DbUser, sequenceId: string): boolean
   return _.some(user.partiallyReadSequences, s=>s.sequenceId === sequenceId);
 }
 
-getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartialReadStatusCallback(props: CreateCallbackProperties<DbLWEvent>) {
+getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartialReadStatusCallback(props: CreateCallbackProperties<"LWEvents">) {
   const {document: event, context} = props;
   if (event.name === 'post-view' && event.properties.sequenceId) {
     const user = await Users.findOne({_id: event.userId});

@@ -4,7 +4,7 @@ export const ALLOWABLE_COLLECTIONS: TemplateType[] = ['Messages', 'Comments', 'R
 
 export type TemplateType = 'Messages' | 'Comments' | 'Rejections';
 
-const schema: SchemaType<DbModerationTemplate> = {
+const schema: SchemaType<"ModerationTemplates"> = {
   name: {
     type: String,
     canRead: ['guests'],

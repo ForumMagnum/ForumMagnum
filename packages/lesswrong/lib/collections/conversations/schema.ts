@@ -5,7 +5,7 @@ import { getWithCustomLoader } from '../../loaders';
 import { schemaDefaultValue } from '../../collectionUtils';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const schema: SchemaType<DbConversation> = {
+const schema: SchemaType<"Conversations"> = {
   title: {
     type: String,
     canRead: ['members'],

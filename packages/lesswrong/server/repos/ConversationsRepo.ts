@@ -2,7 +2,7 @@ import AbstractRepo from "./AbstractRepo";
 import Conversations from "../../lib/collections/conversations/collection";
 import keyBy from "lodash/keyBy";
 
-export default class ConversationsRepo extends AbstractRepo<DbConversation> {
+export default class ConversationsRepo extends AbstractRepo<"Conversations"> {
   constructor() {
     super(Conversations);
   }

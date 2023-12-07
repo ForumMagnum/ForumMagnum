@@ -8,7 +8,7 @@ import reject from 'lodash/reject'
 addGraphQLMutation('setIsHidden(postId: String!, isHidden: Boolean!): User!');
 addGraphQLResolvers({
   Mutation: {
-    async setIsHidden(root: void, {postId,isHidden: isHidden}: {postId: string, isHidden: boolean}, context: ResolverContext): Promise<DbUser> {
+    async setIsHidden(root: void, {postId,isHidden: isHidden}: {postId: string, isHidden: boolean}, context: ResolverContext): Promise<Partial<DbUser>> {
       const {currentUser} = context;
       if (!currentUser)
         throw new Error("Log in to hide posts");

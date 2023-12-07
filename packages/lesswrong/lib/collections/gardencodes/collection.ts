@@ -29,7 +29,7 @@ export const eventTypes = [
   }
 ]
 
-const schema: SchemaType<DbGardenCode> = {
+const schema: SchemaType<"GardenCodes"> = {
   code: {
     type: String,
     optional: true,

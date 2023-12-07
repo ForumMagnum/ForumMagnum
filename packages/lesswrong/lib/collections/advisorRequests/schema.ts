@@ -24,7 +24,7 @@ const jobAdsType = new SimpleSchema({
   },
 })
 
-const schema: SchemaType<DbAdvisorRequest> = {
+const schema: SchemaType<"AdvisorRequests"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

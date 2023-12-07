@@ -3,7 +3,7 @@ import Sequences from "../../lib/collections/sequences/collection";
 import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector } from "./helpers";
 
-export default class SequencesRepo extends AbstractRepo<DbSequence> {
+export default class SequencesRepo extends AbstractRepo<"Sequences"> {
   constructor() {
     super(Sequences);
   }

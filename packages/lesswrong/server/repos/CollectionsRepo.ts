@@ -3,7 +3,7 @@ import Collections from "../../lib/collections/collections/collection";
 import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector } from "./helpers";
 
-export default class CollectionsRepo extends AbstractRepo<DbCollection> {
+export default class CollectionsRepo extends AbstractRepo<"Collections"> {
   constructor() {
     super(Collections);
   }

@@ -8,7 +8,7 @@ export type MeanPostKarma = {
   meanKarma: number,
 }
 
-export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
+export default class PageCacheRepo extends AbstractRepo<"PageCache"> {
   constructor() {
     super(PageCache);
   }

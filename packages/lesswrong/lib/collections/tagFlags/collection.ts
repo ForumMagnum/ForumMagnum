@@ -6,7 +6,7 @@ import { makeEditable } from '../../editor/make_editable';
 import './fragments'
 import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
 
-const schema: SchemaType<DbTagFlag> = {
+const schema: SchemaType<"TagFlags"> = {
   name: {
     type: String,
     canRead: ['guests'],

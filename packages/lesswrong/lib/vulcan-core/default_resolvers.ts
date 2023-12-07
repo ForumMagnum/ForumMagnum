@@ -177,7 +177,11 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
   };
 }
 
-const performQueryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
+const performQueryFromViewParameters = async <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  terms: ViewTermsBase,
+  parameters: AnyBecauseTodo,
+): Promise<ObjectsByCollectionName[N][]> => {
   const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
   const selector = parameters.selector;
   

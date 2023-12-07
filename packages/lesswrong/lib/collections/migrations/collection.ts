@@ -13,7 +13,7 @@ import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 // finished, and whether it succeeded. This can be cross-checked against the
 // set of available migrations to find ones that need running.
 
-const schema: SchemaType<DbMigration> = {
+const schema: SchemaType<"Migrations"> = {
   name: {
     type: String,
   },

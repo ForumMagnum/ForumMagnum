@@ -31,11 +31,11 @@ import { VotesRepo, TagsRepo } from '../repos';
 import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import UserTagRels from '../../lib/collections/userTagRels/collection';
 import { createMutator, updateMutator } from '../vulcan-lib';
-import { asyncFilter } from '../../lib/utils/asyncUtils';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 
-
-// DEPRECATED: here for backwards compatibility
+/**
+ * @deprecated: here for backwards compatibility
+ */
 export async function recordSubforumView(userId: string, tagId: string) {
   const existingRel = await UserTagRels.findOne({userId, tagId});
   if (existingRel) {
@@ -290,7 +290,7 @@ addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [Ta
 addGraphQLQuery('RandomTag: Tag!');
 
 type ContributorWithStats = {
-  user: DbUser,
+  user: Partial<DbUser>,
   contributionScore: number,
   numCommits: number,
   voteCount: number,
@@ -315,7 +315,7 @@ augmentFieldsDict(Tags, {
         const contributorUserIds = Object.keys(contributionStatsByUserId);
         const contributorUsersUnfiltered = await loadByIds(context, "Users", contributorUserIds);
         const contributorUsers = await accessFilterMultiple(context.currentUser, Users, contributorUsersUnfiltered, context);
-        const usersById = keyBy(contributorUsers, u => u._id);
+        const usersById = keyBy(contributorUsers, u => u._id) as Record<string, Partial<DbUser>>;
   
         const sortedContributors = orderBy(contributorUserIds, userId => -contributionStatsByUserId[userId]!.contributionScore);
         

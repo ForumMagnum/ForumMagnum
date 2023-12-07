@@ -2,18 +2,21 @@ import { LWEvents } from '../lib/collections/lwevents/collection';
 import { getSchema } from '../lib/utils/getSchema';
 import { Utils } from '../lib/vulcan-lib/utils';
 
-export const logFieldChanges = async <T extends DbObject>({currentUser, collection, oldDocument, data}: {
+export const logFieldChanges = async <
+  N extends CollectionNameString
+>({currentUser, collection, oldDocument, data}: {
   currentUser: DbUser|null,
-  collection: CollectionBase<T>,
-  oldDocument: T,
-  data: Partial<T>,
+  collection: CollectionBase<N>,
+  oldDocument: ObjectsByCollectionName[N],
+  data: Partial<ObjectsByCollectionName[N]>,
 }) => {
   let loggedChangesBefore: any = {};
   let loggedChangesAfter: any = {};
   let schema = getSchema(collection);
   
   for (let key of Object.keys(data)) {
-    let before = oldDocument[key as keyof T], after = data[key as keyof T];
+    let before = oldDocument[key as keyof ObjectsByCollectionName[N]];
+    let after = data[key as keyof ObjectsByCollectionName[N]];
     // Don't log if:
     //  * The field didn't change
     //  * It's a denormalized field

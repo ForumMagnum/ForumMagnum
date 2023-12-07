@@ -8,7 +8,7 @@ import { ForumTypeString } from "../instanceSettings";
 const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight", "originalContents", "description", "subforumWelcomeText", "howOthersCanHelpMe", "howICanHelpOthers", "biography"];
 
 export const isResolverOnly =
-  <T extends DbObject>(fieldName: string, schema: CollectionFieldSpecification<T>) =>
+  <N extends CollectionNameString>(fieldName: string, schema: CollectionFieldSpecification<N>) =>
     schema.resolveAs && !schema.resolveAs.addOriginalField && forceNonResolverFields.indexOf(fieldName) < 0;
 
 /**
@@ -47,10 +47,10 @@ export abstract class Type {
     return null;
   }
 
-  static fromSchema<T extends DbObject>(
+  static fromSchema<N extends CollectionNameString>(
     fieldName: string,
-    schema: CollectionFieldSpecification<T>,
-    indexSchema: CollectionFieldSpecification<T> | undefined,
+    schema: CollectionFieldSpecification<N>,
+    indexSchema: CollectionFieldSpecification<N> | undefined,
     forumType: ForumTypeString,
   ): Type {
     if (isResolverOnly(fieldName, schema)) {

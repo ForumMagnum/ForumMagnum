@@ -1,6 +1,6 @@
 import { arrayOfForeignKeysField } from '../../utils/schemaUtils';
 
-const schema: SchemaType<DbClientId> = {
+const schema: SchemaType<"ClientIds"> = {
   clientId: {
     type: String,
     canRead: ['sunshineRegiment','admins'],

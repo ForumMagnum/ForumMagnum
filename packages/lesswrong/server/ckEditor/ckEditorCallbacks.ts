@@ -130,7 +130,7 @@ defineMutation({
   name: "revertPostToRevision",
   resultType: "Post",
   argTypes: "(postId: String!, revisionId: String!)",
-  fn: async (root: void, {postId, revisionId}: {postId: string, revisionId: string}, context: ResolverContext): Promise<DbPost> => {
+  fn: async (root: void, {postId, revisionId}: {postId: string, revisionId: string}, context: ResolverContext): Promise<Partial<DbPost>> => {
     // Check permissions
     const { currentUser } = context;
     if (!currentUser) {

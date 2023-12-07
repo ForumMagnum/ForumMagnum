@@ -41,7 +41,11 @@ const isSharable = (document: any) : document is SharableDocument => {
   return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document
 }
 
-export const getOriginalContents = (currentUser: DbUser|null, document: DbObject, originalContents: EditableFieldContents["originalContents"]) => {
+export const getOriginalContents = <N extends CollectionNameString>(
+  currentUser: DbUser|null,
+  document: ObjectsByCollectionName[N],
+  originalContents: EditableFieldContents["originalContents"],
+) => {
   const canViewOriginalContents = (user: DbUser|null, doc: DbObject) => isSharable(doc) ? userIsSharedOn(user, doc) : true
 
   const returnOriginalContents = userCanReadField(
@@ -55,7 +59,7 @@ export const getOriginalContents = (currentUser: DbUser|null, document: DbObject
   return returnOriginalContents ? originalContents : null
 }
 
-const schema: SchemaType<DbRevision> = {
+const schema: SchemaType<"Revisions"> = {
   documentId: {
     type: String,
     canRead: ['guests'],

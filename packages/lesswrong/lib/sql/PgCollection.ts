@@ -41,22 +41,22 @@ type ExecuteQueryData<T extends DbObject> = {
  * access data inside of Postgres.
  */
 class PgCollection<
-  T extends DbObject,
-  N extends CollectionNameString = CollectionNameString,
-> implements CollectionBase<T, N> {
+  N extends CollectionNameString = CollectionNameString
+> implements CollectionBase<N> {
   collectionName: N;
   tableName: string;
-  table: Table<T>;
+  table: Table<ObjectsByCollectionName[N]>;
   defaultView: ViewFunction<N> | undefined;
   views: Record<string, ViewFunction<N>> = {};
-  postProcess?: (data: T) => T;
+  postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string;
-  options: CollectionOptions<N, T>;
-  _schemaFields: SchemaType<T>;
+  options: CollectionOptions<N>;
+  _schemaFields: SchemaType<N>;
   _simpleSchema: any;
-  checkAccess: CheckAccessFunction<T>;
+  checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
+  private voteable = false;
 
-  constructor(tableName: string, options: CollectionOptions<N, T>) {
+  constructor(tableName: string, options: CollectionOptions<N>) {
     this.tableName = tableName;
     this.options = options;
   }
@@ -69,8 +69,20 @@ class PgCollection<
     return !!getSqlClient();
   }
 
+  isVoteable() {
+    return this.voteable;
+  }
+
+  makeVoteable() {
+    this.voteable = true;
+  }
+
+  hasSlug() {
+    return !!this._schemaFields.slug;
+  }
+
   buildPostgresTable() {
-    this.table = Table.fromCollection<T>(this as unknown as CollectionBase<T>);
+    this.table = Table.fromCollection<N>(this);
   }
 
   /**
@@ -80,8 +92,8 @@ class PgCollection<
    * logging by setting `data.options.quiet` to `true`.
    */
   async executeQuery(
-    query: Query<T>,
-    data?: Partial<ExecuteQueryData<T>>,
+    query: Query<ObjectsByCollectionName[N]>,
+    data?: Partial<ExecuteQueryData<ObjectsByCollectionName[N]>>,
     target: DbTarget = "write"
   ): Promise<any[]> {
     executingQueries++;
@@ -112,11 +124,17 @@ class PgCollection<
       : result;
   }
 
-  async executeReadQuery(query: Query<T>, data?: Partial<ExecuteQueryData<T>>): Promise<any[]> {
+  async executeReadQuery(
+    query: Query<ObjectsByCollectionName[N]>,
+    data?: Partial<ExecuteQueryData<ObjectsByCollectionName[N]>>,
+  ): Promise<any[]> {
     return this.executeQuery(query, data, "read");
   }
 
-  async executeWriteQuery(query: Query<T>, data?: Partial<ExecuteQueryData<T>>): Promise<any[]> {
+  async executeWriteQuery(
+    query: Query<ObjectsByCollectionName[N]>,
+    data?: Partial<ExecuteQueryData<ObjectsByCollectionName[N]>>,
+  ): Promise<any[]> {
     return this.executeQuery(query, data, "write");
   }
 
@@ -128,12 +146,15 @@ class PgCollection<
     }
   }
 
-  find = (selector?: MongoSelector<T>, options?: MongoFindOptions<T>): FindResult<T> => {
+  find(
+    selector?: MongoSelector<ObjectsByCollectionName[N]>,
+    options?: MongoFindOptions<ObjectsByCollectionName[N]>,
+  ): FindResult<ObjectsByCollectionName[N]> {
     return {
       fetch: async () => {
-        const select = new SelectQuery<T>(this.getTable(), selector, options);
+        const select = new SelectQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, options);
         const result = await this.executeReadQuery(select, {selector, options});
-        return result as unknown as T[];
+        return result;
       },
       count: async () => {
         const select = new SelectQuery(this.getTable(), selector, options, {count: true});
@@ -143,40 +164,43 @@ class PgCollection<
     };
   }
 
-  findOne = async (
-    selector?: string | MongoSelector<T>,
-    options?: MongoFindOneOptions<T>,
-    projection?: MongoProjection<T>,
-  ): Promise<T|null> => {
-    const select = new SelectQuery<T>(this.getTable(), selector, {limit: 1, ...options, projection});
+  async findOne(
+    selector?: string | MongoSelector<ObjectsByCollectionName[N]>,
+    options?: MongoFindOneOptions<ObjectsByCollectionName[N]>,
+    projection?: MongoProjection<ObjectsByCollectionName[N]>,
+  ): Promise<ObjectsByCollectionName[N]|null> {
+    const select = new SelectQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, {limit: 1, ...options, projection});
     const result = await this.executeReadQuery(select, {selector, options, projection});
-    return result ? result[0] as unknown as T : null;
+    return result ? result[0] : null;
   }
 
-  findOneArbitrary = async (): Promise<T|null> => {
-    const select = new SelectQuery<T>(this.getTable(), undefined, {limit: 1});
+  async findOneArbitrary(): Promise<ObjectsByCollectionName[N]|null> {
+    const select = new SelectQuery<ObjectsByCollectionName[N]>(this.getTable(), undefined, {limit: 1});
     const result = await this.executeReadQuery(select, undefined);
-    return result ? result[0] as unknown as T : null;
+    return result ? result[0] : null;
   }
 
-  rawInsert = async (data: T, options: MongoInsertOptions<T>) => {
-    const insert = new InsertQuery<T>(this.getTable(), data, options, {returnInserted: true});
+  async rawInsert(
+    data: ObjectsByCollectionName[N],
+    options: MongoInsertOptions<ObjectsByCollectionName[N]>,
+  ) {
+    const insert = new InsertQuery<ObjectsByCollectionName[N]>(this.getTable(), data, options, {returnInserted: true});
     const result = await this.executeWriteQuery(insert, {data, options});
     return result[0]._id;
   }
 
   private async upsert(
-    selector: string | MongoSelector<T>,
-    modifier: MongoModifier<T>,
-    options: MongoUpdateOptions<T> & {upsert: true},
+    selector: string | MongoSelector<ObjectsByCollectionName[N]>,
+    modifier: MongoModifier<ObjectsByCollectionName[N]>,
+    options: MongoUpdateOptions<ObjectsByCollectionName[N]> & {upsert: true},
   ) {
     const {$set, ...rest} = modifier;
     const data = {
       ...$set,
       ...rest,
       ...selector,
-    } as T;
-    const upsert = new InsertQuery<T>(this.getTable(), data, options, {
+    };
+    const upsert = new InsertQuery<ObjectsByCollectionName[N]>(this.getTable(), data, options, {
       conflictStrategy: "upsert",
       upsertSelector: selector,
     });
@@ -196,52 +220,58 @@ class PgCollection<
     }
   }
 
-  rawUpdateOne = async (
-    selector: string | MongoSelector<T>,
-    modifier: MongoModifier<T>,
-    options: MongoUpdateOptions<T>,
-  ) => {
+  async rawUpdateOne(
+    selector: string | MongoSelector<ObjectsByCollectionName[N]>,
+    modifier: MongoModifier<ObjectsByCollectionName[N]>,
+    options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
+  ) {
     if (options?.upsert) {
       return this.upsert(selector, modifier, options);
     }
-    const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1});
+    const update = new UpdateQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, modifier, options, {limit: 1});
     const result = await this.executeWriteQuery(update, {selector, modifier, options});
     return result.length;
   }
 
-  rawUpdateMany = async (
-    selector: string | MongoSelector<T>,
-    modifier: MongoModifier<T>,
-    options: MongoUpdateOptions<T>,
-  ) => {
-    const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options);
+  async rawUpdateMany(
+    selector: string | MongoSelector<ObjectsByCollectionName[N]>,
+    modifier: MongoModifier<ObjectsByCollectionName[N]>,
+    options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
+  ) {
+    const update = new UpdateQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, modifier, options);
     const result = await this.executeWriteQuery(update, {selector, modifier, options});
     return result.length;
   }
 
-  rawRemove = async (selector: string | MongoSelector<T>, options?: MongoRemoveOptions<T>) => {
+  async rawRemove(
+    selector: string | MongoSelector<ObjectsByCollectionName[N]>,
+    options?: MongoRemoveOptions<ObjectsByCollectionName[N]>,
+  ) {
     options = Object.assign({noSafetyHarness: true}, options);
-    const query = new DeleteQuery<T>(this.getTable(), selector, options, options);
+    const query = new DeleteQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, options, options);
     const result = await this.executeWriteQuery(query, {selector, options});
     return {deletedCount: result.length};
   }
 
-  _ensureIndex = async (fieldOrSpec: MongoIndexFieldOrKey<T>, options?: MongoEnsureIndexOptions<T>) => {
-    const key: MongoIndexKeyObj<T> = typeof fieldOrSpec === "string"
-      ? {[fieldOrSpec as keyof T]: 1 as const} as MongoIndexKeyObj<T>
+  async _ensureIndex(
+    fieldOrSpec: MongoIndexFieldOrKey<ObjectsByCollectionName[N]>,
+    options?: MongoEnsureIndexOptions<ObjectsByCollectionName[N]>,
+  ) {
+    const key: MongoIndexKeyObj<ObjectsByCollectionName[N]> = typeof fieldOrSpec === "string"
+      ? {[fieldOrSpec as keyof ObjectsByCollectionName[N]]: 1 as const} as MongoIndexKeyObj<ObjectsByCollectionName[N]>
       : fieldOrSpec;
     const index = this.table.getIndex(Object.keys(key), options) ?? this.getTable().addIndex(key, options);
     const query = new CreateIndexQuery(this.getTable(), index, true);
     await this.executeWriteQuery(query, {fieldOrSpec, options})
   }
 
-  aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions) => {
+  aggregate(pipeline: MongoAggregationPipeline<ObjectsByCollectionName[N]>, options?: MongoAggregationOptions) {
     return {
       toArray: async () => {
         try {
-          const query = new Pipeline<T>(this.getTable(), pipeline, options).toQuery();
+          const query = new Pipeline<ObjectsByCollectionName[N]>(this.getTable(), pipeline, options).toQuery();
           const result = await this.executeReadQuery(query, {pipeline, options});
-          return result as unknown as T[];
+          return result;
         } catch (e) {
           const {collectionName} = this;
           // If you see this, you probably built a bad aggregation pipeline, or
@@ -256,7 +286,10 @@ class PgCollection<
   }
 
   rawCollection = () => ({
-    bulkWrite: async (operations: MongoBulkWriteOperations<T>, options: MongoBulkWriteOptions) => {
+    bulkWrite: async (
+      operations: MongoBulkWriteOperations<ObjectsByCollectionName[N]>,
+      options: MongoBulkWriteOptions,
+    ) => {
       executingQueries++;
       let result: BulkWriterResult;
       try {
@@ -269,11 +302,11 @@ class PgCollection<
       return result;
     },
     findOneAndUpdate: async (
-      selector: string | MongoSelector<T>,
-      modifier: MongoModifier<T>,
-      options: MongoUpdateOptions<T>,
+      selector: string | MongoSelector<ObjectsByCollectionName[N]>,
+      modifier: MongoModifier<ObjectsByCollectionName[N]>,
+      options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
     ) => {
-      const update = new UpdateQuery<T>(this.getTable(), selector, modifier, options, {limit: 1, returnUpdated: true});
+      const update = new UpdateQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, modifier, options, {limit: 1, returnUpdated: true});
       const result = await this.executeWriteQuery(update, {selector, modifier, options});
       return {
         ok: 1,
@@ -288,9 +321,9 @@ class PgCollection<
       return Promise.resolve(this.getTable().getIndexes().map((index) => index.getDetails()));
     },
     updateOne: async (
-      selector: string | MongoSelector<T>,
-      modifier: MongoModifier<T>,
-      options: MongoUpdateOptions<T>,
+      selector: string | MongoSelector<ObjectsByCollectionName[N]>,
+      modifier: MongoModifier<ObjectsByCollectionName[N]>,
+      options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
     ) => {
       const result = await this.rawUpdateOne(selector, modifier, options);
       return {
@@ -300,9 +333,9 @@ class PgCollection<
       };
     },
     updateMany: async (
-      selector: string | MongoSelector<T>,
-      modifier: MongoModifier<T>,
-      options: MongoUpdateOptions<T>,
+      selector: string | MongoSelector<ObjectsByCollectionName[N]>,
+      modifier: MongoModifier<ObjectsByCollectionName[N]>,
+      options: MongoUpdateOptions<ObjectsByCollectionName[N]>,
     ) => {
       await this.rawUpdateMany(selector, modifier, options);
       return {

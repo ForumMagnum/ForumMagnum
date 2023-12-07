@@ -6,7 +6,6 @@ import {
   AlgoliaIndexCollectionName,
   AlgoliaIndexedCollection,
   algoliaIndexedCollectionNames,
-  AlgoliaIndexedDbObject,
 } from "../../../lib/search/algoliaUtil";
 import {
   CommentsRepo,
@@ -110,8 +109,7 @@ class ElasticExporter {
    */
   async configureIndex(collectionName: AlgoliaIndexCollectionName) {
     const client = this.client.getClient();
-    const collection = getCollection(collectionName) as
-      AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+    const collection = getCollection(collectionName) as AlgoliaIndexedCollection;
 
     const aliasName = this.getIndexName(collection);
     const newIndexName = `${aliasName}_${Date.now()}`;
@@ -163,8 +161,7 @@ class ElasticExporter {
   }
 
   async deleteIndex(collectionName: AlgoliaIndexCollectionName) {
-    const collection = getCollection(collectionName) as
-      AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+    const collection = getCollection(collectionName) as AlgoliaIndexedCollection;
     const aliasName = this.getIndexName(collection);
     const indexName = await this.getExistingAliasTarget(aliasName);
     if (!indexName) {
@@ -357,8 +354,7 @@ class ElasticExporter {
   }
 
   async exportCollection(collectionName: AlgoliaIndexCollectionName) {
-    const collection = getCollection(collectionName) as
-      AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+    const collection = getCollection(collectionName) as AlgoliaIndexedCollection;
     const repo = this.getRepoByCollectionName(collectionName);
 
     const indexName = this.getIndexName(collection);
@@ -396,12 +392,12 @@ class ElasticExporter {
     }
   }
 
-  private getIndexName(collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>) {
+  private getIndexName(collection: AlgoliaIndexedCollection) {
     return collection.collectionName.toLowerCase();
   }
 
   private async createDocuments(
-    collection: AlgoliaIndexedCollection<AlgoliaIndexedDbObject>,
+    collection: AlgoliaIndexedCollection,
     documents: AlgoliaDocument[],
   ): Promise<OnDropDocument<AlgoliaDocument>[]> {
     if (!documents.length) {
@@ -451,8 +447,7 @@ class ElasticExporter {
     collectionName: AlgoliaIndexCollectionName,
     synonyms: string[],
   ) {
-    const collection = getCollection(collectionName) as
-      AlgoliaIndexedCollection<AlgoliaIndexedDbObject>;
+    const collection = getCollection(collectionName) as AlgoliaIndexedCollection;
     const index = this.getIndexName(collection);
     await this.updateSynonymsForIndex(index, synonyms);
   }

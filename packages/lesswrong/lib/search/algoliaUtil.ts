@@ -7,7 +7,7 @@ import { isAnyTest } from "../executionEnvironment";
 export const algoliaIndexedCollectionNames = ["Comments", "Posts", "Users", "Sequences", "Tags"] as const
 export type AlgoliaIndexCollectionName = typeof algoliaIndexedCollectionNames[number]
 export type AlgoliaIndexedDbObject = DbComment | DbPost | DbUser | DbSequence | DbTag;
-export interface AlgoliaIndexedCollection<T extends AlgoliaIndexedDbObject> extends CollectionBase<T, AlgoliaIndexCollectionName> {}
+export interface AlgoliaIndexedCollection extends CollectionBase<AlgoliaIndexCollectionName> {}
 
 export const getAlgoliaIndexName = (collectionName: AlgoliaIndexCollectionName): string => {
   const ALGOLIA_PREFIX = algoliaPrefixSetting.get()

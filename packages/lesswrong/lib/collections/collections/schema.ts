@@ -2,7 +2,7 @@ import { schemaDefaultValue } from '../../collectionUtils';
 import { getWithCustomLoader } from '../../loaders';
 import { foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbCollection> = {
+const schema: SchemaType<"Collections"> = {
 
   // default properties
   userId: {

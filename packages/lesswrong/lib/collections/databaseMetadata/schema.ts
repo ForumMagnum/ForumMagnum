@@ -4,7 +4,7 @@
 // connect to a production database without using the corresponding config
 // file.)
 
-const schema: SchemaType<DbDatabaseMetadata> = {
+const schema: SchemaType<"DatabaseMetadata"> = {
   name: {
     type: String,
   },

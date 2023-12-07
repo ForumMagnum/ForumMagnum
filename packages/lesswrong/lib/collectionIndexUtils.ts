@@ -11,7 +11,11 @@ export const expectedCustomPgIndexes: string[] = [];
 
 // Returns true if the specified index has a name, and the collection has an
 // existing index with the same name but different columns or options.
-async function conflictingIndexExists<T extends DbObject>(collection: CollectionBase<T>, index: any, options: any) {
+async function conflictingIndexExists<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  index: any,
+  options: any,
+) {
   if (!options.name)
     return false;
   
@@ -43,7 +47,11 @@ async function conflictingIndexExists<T extends DbObject>(collection: Collection
   return false;
 }
 
-export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={}): void {
+export function ensureIndex<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  index: any,
+  options: any={},
+): void {
   if (!expectedIndexes[collection.collectionName])
     expectedIndexes[collection.collectionName] = [];
   expectedIndexes[collection.collectionName]!.push({
@@ -57,7 +65,11 @@ const canEnsureIndexes = () =>
   isServer && !isAnyTest && !isMigrations && !disableEnsureIndexSetting.get();
 
 
-export async function ensureIndexAsync<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={}) {
+export async function ensureIndexAsync<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  index: any,
+  options: any={},
+) {
   if (!canEnsureIndexes())
     return;
 

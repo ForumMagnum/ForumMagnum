@@ -89,7 +89,7 @@ const transferEditableField = async ({documentId, sourceUserId, targetUserId, co
   documentId: string,
   sourceUserId: string,
   targetUserId: string,
-  collection: CollectionBase<DbObject>,
+  collection: CollectionBase<CollectionNameString>,
   fieldName: string
 }) => {
   // Update the denormalized revision on the document

@@ -6,13 +6,13 @@ import { isAnyQueryPending as isAnyMongoQueryPending } from '../mongoCollection'
 import { isAnyQueryPending as isAnyPostgresQueryPending } from '../sql/PgCollection';
 import { loggerConstructor } from '../utils/logging'
 
-export interface CallbackPropertiesBase<T extends DbObject> {
+export interface CallbackPropertiesBase<N extends CollectionNameString> {
   // TODO: Many of these are empirically optional, but setting them to optional
   // causes a bajillion type errors, so we will not be fixing today
   currentUser: DbUser|null
-  collection: CollectionBase<T>
+  collection: CollectionBase<N>
   context: ResolverContext
-  schema: SchemaType<T>
+  schema: SchemaType<N>
 }
 
 export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
@@ -140,11 +140,11 @@ const removeCallback = function (hookName: string, callback: AnyBecauseTodo) {
  *   will be rethrown.
  * @returns {Object} Returns the item after it's been through all the callbacks for this hook
  */
-export const runCallbacks = function <T extends DbObject> (this: any, options: {
+export const runCallbacks = function <N extends CollectionNameString> (this: any, options: {
   name: string,
   iterator?: any,
   // A bit of a mess. If you stick to non-deprecated hooks, you'll get the typed version
-  properties: [CallbackPropertiesBase<T>]|any[],
+  properties: [CallbackPropertiesBase<N>]|any[],
   ignoreExceptions?: boolean,
 }) {
   const logger = loggerConstructor(`callbacks-${options.properties[0]?.collection?.collectionName.toLowerCase()}`)
@@ -308,10 +308,10 @@ export const runCallbacksList = function (this: any, options: {
  * @param {String} hook - First argument: the name of the hook
  * @param {Any} args - Other arguments will be passed to each successive iteration
  */
-export const runCallbacksAsync = function <T extends DbObject> (options: {
+export const runCallbacksAsync = function <N extends CollectionNameString> (options: {
   name: string,
   // A bit of a mess. If you stick to non-deprecated hooks, you'll get the typed version
-  properties: [CallbackPropertiesBase<T>]|any[]
+  properties: [CallbackPropertiesBase<N>]|any[]
 }) {
   const logger = loggerConstructor(`callbacks-${options.properties[0]?.collection?.collectionName.toLowerCase()}`)
   const hook = formatHookName(options.name);

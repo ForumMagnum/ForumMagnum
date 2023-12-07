@@ -41,7 +41,7 @@ const getExistingVote = async ({ document, user }: {
 // Add a vote of a specific type on the server
 const addVoteServer = async ({ document, collection, voteType, extendedVote, user, voteId, context }: {
   document: DbVoteableType,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<VoteableCollectionName>,
   voteType: string,
   extendedVote: any,
   user: DbUser,
@@ -114,7 +114,7 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
 export const clearVotesServer = async ({ document, user, collection, excludeLatest, silenceNotification=false, context }: {
   document: DbVoteableType,
   user: DbUser,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<VoteableCollectionName>,
   // If true, clears all votes except the latest (ie, only clears duplicate
   // votes). If false, clears all votes (including the latest).
   excludeLatest?: boolean,
@@ -213,7 +213,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   document?: DbVoteableType|null,
   voteType: string,
   extendedVote?: any,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<VoteableCollectionName>,
   voteId?: string,
   user: DbUser,
   toggleIfAlreadyVoted?: boolean,
@@ -225,7 +225,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   showVotingPatternWarning: boolean,
 }> => {
   if (!context)
-    context = await createAnonymousContext();
+    context = createAnonymousContext();
 
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
@@ -332,12 +332,6 @@ async function wasVotingPatternWarningDeliveredRecently(user: DbUser, moderatorA
   return warningAgeMinutes < 60;
 }
 
-interface VotingRateLimitSet {
-  perDay: number,
-  perHour: number,
-  perUserPerDay: number
-}
-
 // TODO consequences to add, not yet implemented: blockVotingFor24Hours, revertRecentVotes
 type Consequence = "warningPopup" | "denyThisVote" | "flagForModeration"
 
@@ -410,9 +404,9 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
  * May also add apply voting-related consequences such as flagging the user for
  * moderation, as side effects.
  */
-const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
+const checkVotingRateLimits = async ({ document, user }: {
   document: DbVoteableType,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<VoteableCollectionName>,
   voteType: string,
   user: DbUser
 }): Promise<{

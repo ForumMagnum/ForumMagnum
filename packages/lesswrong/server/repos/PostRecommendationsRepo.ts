@@ -6,7 +6,7 @@ import type {
   StrategySettings,
 } from "../../lib/collections/users/recommendationSettings";
 
-export default class PostRecommendationsRepo extends AbstractRepo<DbPostRecommendation> {
+export default class PostRecommendationsRepo extends AbstractRepo<"PostRecommendations"> {
   constructor() {
     super(PostRecommendations);
   }

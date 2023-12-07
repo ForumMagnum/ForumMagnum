@@ -22,7 +22,7 @@ const options: MutationOptions<DbLWEvent> = {
 }
 
 
-export const LWEvents: LWEventsCollection = createCollection({
+export const LWEvents = createCollection({
   collectionName: 'LWEvents',
   typeName: 'LWEvent',
   schema,

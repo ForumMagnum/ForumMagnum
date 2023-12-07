@@ -1,18 +1,10 @@
 import range from "lodash/range";
-import SimpleSchema from "simpl-schema";
 import { schemaDefaultValue } from "../../collectionUtils";
 import { resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { getCollectionName } from "../../vulcan-lib";
 import { isLWorAF } from "../../instanceSettings";
 
 const DOCUMENT_TYPES = ['Sequence', 'Post'];
-
-const SpotlightDocumentType = new SimpleSchema({
-  documentType: {
-    type: String,
-    allowedValues: DOCUMENT_TYPES,
-  }
-});
 
 interface ShiftSpotlightItemParams {
   startBound: number;
@@ -39,7 +31,7 @@ const shiftSpotlightItems = async ({ startBound, endBound, offset, context }: Sh
   await context.Spotlights.rawUpdateMany({ position: { $in: shiftRange } }, { $inc: { position: offset } }, { multi:true });
 };
 
-const schema: SchemaType<DbSpotlight> = {
+const schema: SchemaType<"Spotlights"> = {
   documentId: {
     type: String,
     canRead: ['guests'],
@@ -51,7 +43,7 @@ const schema: SchemaType<DbSpotlight> = {
       addOriginalField: true,
       // TODO: try a graphql union type?
       type: 'Post!',
-      resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbPost | DbSequence | DbCollection | null> => {
+      resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbPost | DbSequence | DbCollection> | null> => {
         const collectionName = getCollectionName(spotlight.documentType) as "Posts"|"Sequences";
         const collection = context[collectionName];
         const document = await collection.findOne(spotlight.documentId);
@@ -253,7 +245,7 @@ const schema: SchemaType<DbSpotlight> = {
     type: Array,
     graphQLtype: '[Chapter]',
     canRead: ['guests'],
-    resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<DbChapter[]|null> => {
+    resolver: async (spotlight: DbSpotlight, args: void, context: ResolverContext): Promise<Partial<DbChapter>[]|null> => {
       if (!spotlight.documentId || spotlight.documentType !== "Sequence") {
         return null;
       }

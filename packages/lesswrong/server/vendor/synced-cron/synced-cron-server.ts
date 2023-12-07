@@ -190,7 +190,7 @@ SyncedCron.stop = function() {
 }
 
 const isDuplicateKeyError = (
-  collection: CollectionBase<DbCronHistory>,
+  collection: CollectionBase<"CronHistories">,
   error: Error & {code?: number | string},
 ) =>
   collection.isPostgres()

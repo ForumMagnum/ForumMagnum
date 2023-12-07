@@ -7,7 +7,7 @@ import { canVoteOnTagAsync } from '../../voting/tagRelVoteRules';
 import { isEAForum } from '../../instanceSettings';
 import { userOwns } from '../../vulcan-users/permissions';
 
-const schema: SchemaType<DbTagRel> = {
+const schema: SchemaType<"TagRels"> = {
   tagId: {
     ...foreignKeyField({
       idFieldName: "tagId",

@@ -20,7 +20,7 @@ export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
  * @param {object} collection - The collection the item belongs to
  * @param {string} operation - The operation being performed
  */
-voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser, context) {
+voteCallbacks.castVoteAsync.add(async function updateKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser, context) {
   // Only update user karma if the operation isn't done by one of the item's current authors.
   // We don't want to let any of the authors give themselves or another author karma for this item.
   // We need to await it so that the subsequent check for whether any stricter rate limits apply can do a proper comparison between old and new karma
@@ -56,7 +56,7 @@ async function userKarmaChangedFrom(userId: string, oldKarma: number, newKarma: 
   }
 };
 
-voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<DbVoteableType>, user: DbUser) {
+voteCallbacks.cancelAsync.add(function cancelVoteKarma({newDocument, vote}: VoteDocTuple, collection: CollectionBase<VoteableCollectionName>, user: DbUser) {
   // Only update user karma if the operation isn't done by one of the item's authors at the time of the original vote.
   // We expect vote.authorIds here to be the same as the authorIds of the original vote.
   if (!vote.authorIds.includes(vote.userId) && collectionsThatAffectKarma.includes(vote.collectionName)) {
