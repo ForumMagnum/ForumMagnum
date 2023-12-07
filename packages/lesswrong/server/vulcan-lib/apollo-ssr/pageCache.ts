@@ -10,7 +10,7 @@ import { dogstatsd } from '../../datadog/tracer';
 import { healthCheckUserAgentSetting } from './renderUtil';
 import PageCache from '../../../lib/collections/pagecache/collection';
 import { getServerBundleHash } from '../../utils/bundleUtils';
-import PageCacheRepo from '../../repos/PageCacheRepo';
+import { PageCacheRepo } from '../../repos/PageCacheRepo';
 import { DatabaseServerSetting } from '../../databaseSettings';
 
 // Page cache. This applies only to logged-out requests, and exists primarily

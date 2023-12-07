@@ -1,6 +1,8 @@
 import PostRelations from "../../lib/collections/postRelations/collection";
 import AbstractRepo from "./AbstractRepo";
+import { RecordPerfMetrics } from "./perfMetricDecorator";
 
+@RecordPerfMetrics
 export default class PostRelationsRepo extends AbstractRepo<DbPostRelation> {
   constructor() {
     super(PostRelations);

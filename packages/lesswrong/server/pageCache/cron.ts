@@ -1,5 +1,5 @@
 import { addCronJob } from '../cronUtil';
-import PageCacheRepo from '../repos/PageCacheRepo';
+import { PageCacheRepo } from '../repos/PageCacheRepo';
 
 addCronJob({
   name: 'clearExpiredPageCacheEntries',

@@ -1,3 +1,4 @@
+import { performanceMetricLoggingEnabled } from "../../lib/publicSettings";
 import { asyncLocalStorage, closePerfMetric, openPerfMetric } from "../perfMetrics";
 import type AbstractRepo from "./AbstractRepo";
 
@@ -7,6 +8,12 @@ type Constructor<TResult, TParams extends any[] = any[]> = new (
 
 function wrapWithPerfMetrics(method: Function, repoName: string, methodName: string) {
   return function (this: AnyBecauseHard, ...args: AnyBecauseHard[]) {
+    // Most other places we might try to put this check would cause us to run into the problem that the database settings haven't loaded yet (so .get() would throw an error)
+    // But if we're already calling a (wrapped) repo method, presumably we're talking to a database, which means the settings should have loaded by now
+    if (!performanceMetricLoggingEnabled.get()) {
+      return method.apply(this, args);
+    }
+
     const asyncContext = asyncLocalStorage.getStore();
 
     let parentTraceIdField;
@@ -45,22 +52,15 @@ function wrapMethods<T extends Constructor<AbstractRepo<DbObject>>>(targetClass:
   const methodNames = Object.getOwnPropertyNames(targetClass.prototype);
 
   methodNames.forEach(methodName => {
-      // @ts-ignore - TS really doesn't like index access on unions of multiple class prototypes
       const originalMethod = targetClass.prototype[methodName];
 
       if (typeof originalMethod === 'function' && methodName !== 'constructor') {
-        // @ts-ignore - TS really doesn't like index access on unions of multiple class prototypes
         targetClass.prototype[methodName] = wrapWithPerfMetrics(originalMethod, targetClass.name, methodName);
       }
   });
 }
 
-export function RecordPerfMetrics<T extends Constructor<AbstractRepo<DbObject>>>(value: T, decoratorContext: ClassDecoratorContext) {
-  return class extends value {
-    constructor(...args: any[]) {
-      super(...args);
-
-      wrapMethods(Object.getPrototypeOf(this));
-    }
-  }
+export function RecordPerfMetrics<T extends Constructor<AbstractRepo<DbObject>>>(value: T, _: ClassDecoratorContext) {
+  wrapMethods(value);
+  return value;
 }

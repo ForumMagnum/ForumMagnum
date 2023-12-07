@@ -1,6 +1,9 @@
 import AbstractRepo from "./AbstractRepo";
 import Tags from "../../lib/collections/tags/collection";
 import { TagWithCommentCount } from "../../components/users/DialogueMatchingPage";
+import { RecordPerfMetrics } from "./perfMetricDecorator";
+
+@RecordPerfMetrics
 export default class TagsRepo extends AbstractRepo<DbTag> {
   constructor() {
     super(Tags);

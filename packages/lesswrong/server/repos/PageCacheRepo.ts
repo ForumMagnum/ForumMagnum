@@ -2,13 +2,15 @@ import type { CompleteTestGroupAllocation } from "../../lib/abTestImpl";
 import PageCache from "../../lib/collections/pagecache/collection";
 import { getServerBundleHash } from "../utils/bundleUtils";
 import AbstractRepo from "./AbstractRepo";
+import { RecordPerfMetrics } from "./perfMetricDecorator";
 
 export type MeanPostKarma = {
   _id: number,
   meanKarma: number,
 }
 
-export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
+@RecordPerfMetrics
+export class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
   constructor() {
     super(PageCache);
   }

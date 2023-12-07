@@ -1,6 +1,8 @@
 import AbstractRepo from "./AbstractRepo";
 import Localgroups from "../../lib/collections/localgroups/collection";
+import { RecordPerfMetrics } from "./perfMetricDecorator";
 
+@RecordPerfMetrics
 export default class LocalgroupsRepo extends AbstractRepo<DbLocalgroup> {
   constructor() {
     super(Localgroups);
