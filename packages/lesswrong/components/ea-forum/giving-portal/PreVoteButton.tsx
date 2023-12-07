@@ -45,8 +45,6 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
   const tooltip = 'Pre-voting has closed. Click "Vote in the Election" above if you would like to cast your real vote';
 
   const onVote = useCallback(async () => {
-    flash(tooltip);
-
     // TODO: Uncomment below if we run another election and want to allow pre-voting
     // if (currentUser) {
     //   captureEvent('preVote', {documentId: document._id, preVote: !hasVoted});
@@ -66,7 +64,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
     //     componentProps: {},
     //   });
     // }
-  }, [flash]);
+  }, []);
 
   const {LWPopper, ForumIcon} = Components;
   return (
