@@ -258,7 +258,7 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
     const truncatedStartDate = new Date(truncated[0]?.date ?? utcPropsStartDate);
     const truncatedEndDate = new Date(truncated[truncated.length - 1]?.date ?? utcPropsEndDate);
 
-    if (truncatedStartDate == utcPropsStartDate && truncatedEndDate == utcPropsEndDate) return truncated;
+    if (truncatedStartDate === utcPropsStartDate && truncatedEndDate === utcPropsEndDate) return truncated;
     
     const startPaddingLength = Math.floor(moment.duration(moment(truncatedStartDate).utc().diff(utcPropsStartDate)).asDays());
     const endPaddingLength = Math.floor(moment.duration(moment(utcPropsEndDate).utc().diff(truncatedEndDate)).asDays());

@@ -38,7 +38,7 @@ export async function getUserActivityData(
   if (endDate.getMinutes() !== 0 || endDate.getSeconds() !== 0) {
     throw new Error('endDate must be an exact hour');
   }
-  if (startDate == endDate) {
+  if (startDate === endDate) {
     return [];
   }
   if (startDate > endDate) {

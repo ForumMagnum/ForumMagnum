@@ -17,7 +17,7 @@ export const useOnSearchHotkey = (keyboardHandlerFn: ()=>void) => {
   useGlobalKeydown((event) => {
     // Is this Cmd+F/Alt+F/etc?
     const F_Key = 'F'.charCodeAt(0);
-    if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
+    if ((event.metaKey || event.ctrlKey) && event.keyCode === F_Key) {
       keyboardHandlerFn();
     }
   });

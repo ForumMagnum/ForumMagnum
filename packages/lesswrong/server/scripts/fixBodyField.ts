@@ -16,7 +16,7 @@ if (runFix) { void (async ()=>{
       const excerpt =  plaintextBody.slice(0,140);
       await Posts.rawUpdateOne(post._id, {$set: {body: plaintextBody, excerpt: excerpt}});
       postCount++;
-      if (postCount % 100 == 0) {
+      if (postCount % 100 === 0) {
         //eslint-disable-next-line no-console
         console.log("Fixed n posts: ", postCount);
       }

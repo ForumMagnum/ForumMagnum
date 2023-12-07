@@ -12,7 +12,7 @@ Vulcan.rerunAFVotes = async () => {
   //eslint-disable-next-line no-console
   console.log(afVotes.length)
   await asyncForeachSequential(afVotes, async (vote, i) => {
-    if (i%20 == 0) {
+    if (i%20 === 0) {
       //eslint-disable-next-line no-console
       console.log(i)
     }

@@ -37,7 +37,7 @@ async function wrapQuery<T>(description: string, queryFn: ()=>Promise<T>): Promi
     // eslint-disable-next-line no-console
     console.log(`Starting ${description}`);
     
-    if (inProgressQueries == 0) {
+    if (inProgressQueries === 0) {
       onBatchFinished = new Promise((resolve, reject) => {
         finishBatch = resolve;
       });
