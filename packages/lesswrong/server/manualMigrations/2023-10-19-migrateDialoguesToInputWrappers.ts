@@ -24,9 +24,9 @@ registerMigration({
       }
 
       // If there's no remote session for a dialogue, fall back to migrating the latest revision, then fall back to migrating the post contents
-      html ??= (await latestRevisionPromise)?.originalContents.data ?? dialogue.contents.originalContents.data;
+      html ??= (await latestRevisionPromise)?.originalContents?.data ?? dialogue.contents.originalContents?.data;
 
-      const migratedHtml = await backfillDialogueMessageInputAttributes(html, postId);
+      const migratedHtml = await backfillDialogueMessageInputAttributes(html!, postId);
       await documentHelpers.saveOrUpdateDocumentRevision(postId, migratedHtml);
     
       try {

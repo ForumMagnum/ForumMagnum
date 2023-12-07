@@ -66,7 +66,7 @@ export type TopCommentedTagUser = {
 export type UserDialogueUsefulData = {
   dialogueUsers: UsersOptedInToDialogueFacilitation[],
   topUsers: UpvotedUser[],
-  activeDialogueMatchSeekers: DbUser[]
+  activeDialogueMatchSeekers: UsersOptedInToDialogueFacilitation[]
 }
 
 export type TopicRecommendationData = DbComment[]

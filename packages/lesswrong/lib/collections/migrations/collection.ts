@@ -1,5 +1,6 @@
 import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
+import { addUniversalFields } from '../../collectionUtils'
+import { schemaDefaultValue } from '../../utils/schemaUtils';
 
 /*
  * NOTE: This collection only tracks the use of migrations located in
@@ -16,9 +17,11 @@ import { addUniversalFields, schemaDefaultValue } from '../../collectionUtils'
 const schema: SchemaType<DbMigration> = {
   name: {
     type: String,
+    nullable: false,
   },
   started: {
     type: Date,
+    nullable: false,
   },
   finished: {
     type: Boolean,
