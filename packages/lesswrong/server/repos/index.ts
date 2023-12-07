@@ -59,6 +59,7 @@ export {
   PostsRepo,
   SequencesRepo,
   TagsRepo,
+  TypingIndicatorsRepo,
   UsersRepo,
   VotesRepo,
   getAllRepos,
