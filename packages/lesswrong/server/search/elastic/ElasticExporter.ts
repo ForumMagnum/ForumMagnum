@@ -177,7 +177,7 @@ class ElasticExporter {
     });
   }
 
-  private formatDocument(document: AlgoliaDocument) {
+  private formatDocument(document: SearchDocument) {
     const id = document._id;
     // @ts-ignore
     delete document._id;
@@ -370,7 +370,7 @@ class ElasticExporter {
 
     const batchSize = 1000;
     const totalBatches = Math.ceil(total / batchSize);
-    const totalErrors: OnDropDocument<AlgoliaDocument>[] = [];
+    const totalErrors: OnDropDocument<SearchDocument>[] = [];
     for (let i = 0; ; i++) {
       const offset = batchSize * i;
       // eslint-disable-next-line no-console
@@ -398,16 +398,16 @@ class ElasticExporter {
 
   private async createDocuments(
     collection: AlgoliaIndexedCollection,
-    documents: AlgoliaDocument[],
-  ): Promise<OnDropDocument<AlgoliaDocument>[]> {
+    documents: SearchDocument[],
+  ): Promise<OnDropDocument<SearchDocument>[]> {
     if (!documents.length) {
       return [];
     }
     const _index = this.getIndexName(collection);
-    const erroredDocuments: OnDropDocument<AlgoliaDocument>[] = [];
+    const erroredDocuments: OnDropDocument<SearchDocument>[] = [];
     await this.client.getClient().helpers.bulk({
       datasource: documents,
-      onDocument: (document: AlgoliaDocument) => {
+      onDocument: (document: SearchDocument) => {
         const {id: _id} = this.formatDocument(document);
         return [
           {

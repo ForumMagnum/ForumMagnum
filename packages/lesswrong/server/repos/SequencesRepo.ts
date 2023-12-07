@@ -32,14 +32,14 @@ export default class SequencesRepo extends AbstractRepo<"Sequences"> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaSequence> {
+  getSearchDocumentById(id: string): Promise<SearchSequence> {
     return this.getRawDb().one(`
       ${this.getSearchDocumentQuery()}
       WHERE s."_id" = $1
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaSequence[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchSequence[]> {
     return this.getRawDb().any(`
       ${this.getSearchDocumentQuery()}
       ORDER BY s."createdAt" DESC

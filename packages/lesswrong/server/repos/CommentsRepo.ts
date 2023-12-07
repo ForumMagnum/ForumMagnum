@@ -223,14 +223,14 @@ export default class CommentsRepo extends AbstractRepo<"Comments"> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaComment> {
+  getSearchDocumentById(id: string): Promise<SearchComment> {
     return this.getRawDb().one(`
       ${this.getSearchDocumentQuery()}
       WHERE c."_id" = $1
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaComment[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchComment[]> {
     return this.getRawDb().any(`
       ${this.getSearchDocumentQuery()}
       ORDER BY c."createdAt" DESC

@@ -31,14 +31,14 @@ export default class TagsRepo extends AbstractRepo<"Tags"> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaTag> {
+  getSearchDocumentById(id: string): Promise<SearchTag> {
     return this.getRawDb().one(`
       ${this.getSearchDocumentQuery()}
       WHERE t."_id" = $1
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaTag[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchTag[]> {
     return this.getRawDb().any(`
       ${this.getSearchDocumentQuery()}
       ORDER BY t."createdAt" DESC

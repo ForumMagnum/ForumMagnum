@@ -84,7 +84,7 @@ const ExpandedUsersConversationSearchHit = ({
   classes: ClassesType;
 }) => {
   const { FormatDate, UsersProfileImage, ForumIcon } = Components;
-  const user = hit as AlgoliaUser;
+  const user = hit as SearchUser;
 
   const navigate = useNavigate();
   const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: isModInbox });

@@ -9,7 +9,7 @@ const TagsSearchAutoComplete = ({
   facetFilters,
   isVotingContext,
 }:{
-  clickAction: (id: string, tag: AlgoliaTag | null) => void,
+  clickAction: (id: string, tag: SearchTag | null) => void,
   placeholder?: string,
   hidePostCount?: boolean,
   facetFilters?: Record<string, boolean>,

@@ -188,14 +188,14 @@ export default class UsersRepo extends AbstractRepo<"Users"> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaUser> {
+  getSearchDocumentById(id: string): Promise<SearchUser> {
     return this.getRawDb().one(`
       ${this.getSearchDocumentQuery()}
       WHERE u."_id" = $1
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaUser[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchUser[]> {
     return this.getRawDb().any(`
       ${this.getSearchDocumentQuery()}
       WHERE u."displayName" IS NOT NULL

@@ -349,14 +349,14 @@ export default class PostsRepo extends AbstractRepo<"Posts"> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaPost> {
+  getSearchDocumentById(id: string): Promise<SearchPost> {
     return this.getRawDb().one(`
       ${this.getSearchDocumentQuery()}
       WHERE p."_id" = $1
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaPost[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchPost[]> {
     return this.getRawDb().any(`
       ${this.getSearchDocumentQuery()}
       ORDER BY p."createdAt" DESC

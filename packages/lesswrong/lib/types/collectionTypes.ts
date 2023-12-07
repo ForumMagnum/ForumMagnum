@@ -252,7 +252,7 @@ interface HasCreatedAtType extends DbObject {
   createdAt: Date
 }
 
-export type AlgoliaDocument = {
+export type SearchDocument = {
   _id: string,
   [key: string]: any,
 }

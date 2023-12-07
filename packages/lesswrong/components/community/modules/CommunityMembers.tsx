@@ -229,7 +229,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   const CustomStateResults = connectStateResults(StateResults)
   
   const CommunityMember = ({hit}: {
-    hit: AlgoliaUser,
+    hit: SearchUser,
   }) => {
     // the distance from the user's location to the person's location
     let distanceToPerson;
