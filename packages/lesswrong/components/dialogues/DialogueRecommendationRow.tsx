@@ -141,7 +141,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   caret: {
-    fontSize: '0.7em',
+    fontSize: '0.83em',
   },
   commentSourcePost: {
     color: theme.palette.text.dim3,
