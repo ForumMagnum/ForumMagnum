@@ -1,3 +1,4 @@
+import { userGetDisplayName } from "../../lib/collections/users/helpers";
 import { getCollectionHooks } from "../mutationCallbacks";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
@@ -196,12 +197,12 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
   const formDataSourceUser = {
     ...userMatchPreferences,
     userId: userId, 
-    displayName: currentUser.displayName,
+    displayName: userGetDisplayName(currentUser),
   }
   const formDataTargetUser = {
     ...reciprocalMatchPreferences,
     userId: targetUserId,
-    displayName: targetUser.displayName,
+    displayName: userGetDisplayName(targetUser),
   }
  
   const result = await createMutator({

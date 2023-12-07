@@ -1,6 +1,6 @@
 import { userCanUseTags } from "../../betas";
-import { addUniversalFields, getDefaultMutations, getDefaultResolvers, schemaDefaultValue } from "../../collectionUtils";
-import { foreignKeyField } from "../../utils/schemaUtils";
+import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "../../collectionUtils";
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { createCollection } from '../../vulcan-lib';
 import { userIsAdmin, userOwns } from "../../vulcan-users";
 
@@ -16,6 +16,7 @@ const schema: SchemaType<DbUserTagRel> = {
     canCreate: ['members'],
   },
   userId: {
+    nullable: false,
     ...foreignKeyField({
       idFieldName: "userId",
       resolverName: "user",

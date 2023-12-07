@@ -1,7 +1,7 @@
 import { createCollection } from '../../vulcan-lib';
 import { Utils, slugify } from '../../vulcan-lib/utils';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import './fragments';
 import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
@@ -34,6 +34,7 @@ const schema: SchemaType<DbGardenCode> = {
     type: String,
     optional: true,
     canRead: ['guests'],
+    nullable: false,
     onInsert: (gardenCode) => {
       return generateCode(4)
     },
@@ -57,7 +58,8 @@ const schema: SchemaType<DbGardenCode> = {
     }),
     onCreate: ({currentUser}) => currentUser!._id,
     canRead: ['guests'],
-    optional: true
+    optional: true,
+    nullable: false,
   },
   // gatherTownUsername: {
   //   optional: true,
@@ -71,6 +73,7 @@ const schema: SchemaType<DbGardenCode> = {
     type: String,
     optional: true,
     canRead: ['guests'],
+    nullable: false,
     onInsert: async (gardenCode) => {
       return await Utils.getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
     },
@@ -94,6 +97,7 @@ const schema: SchemaType<DbGardenCode> = {
     control: 'datetime',
     label: "End Time",
     optional: true,
+    nullable: false,
     order: 25,
     onInsert: (gardenCode) => {
       return moment(gardenCode.startTime).add(12, 'hours').toDate()
