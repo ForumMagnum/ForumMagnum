@@ -32,21 +32,23 @@ export function closePerfMetric(openPerfMetric: IncompletePerfMetric) {
 }
 
 export function perfMetricMiddleware(req: Request, res: Response, next: NextFunction) {
-  if (performanceMetricLoggingEnabled.get()) {
-    const perfMetric = openPerfMetric({
-      op_type: 'request',
-      op_name: req.originalUrl,
-      client_path: req.headers['request-origin-path'] as string,
-      ip: getForwardedWhitelist().getClientIP(req),
-      user_agent: req.headers["user-agent"]
-    });
-
-    Object.assign(req, { perfMetric });
-    res.on('finish', () => {
-      closePerfMetric(perfMetric);
-    });
+  if (!performanceMetricLoggingEnabled.get()) {
+    return next();
   }
-  // TODO: forum-gate this
+
+  const perfMetric = openPerfMetric({
+    op_type: 'request',
+    op_name: req.originalUrl,
+    client_path: req.headers['request-origin-path'] as string,
+    ip: getForwardedWhitelist().getClientIP(req),
+    user_agent: req.headers["user-agent"]
+  });
+
+  Object.assign(req, { perfMetric });
+  res.on('finish', () => {
+    closePerfMetric(perfMetric);
+  });
+  
+  // This starts an async context for requests that pass through this middleware
   asyncLocalStorage.run<void, []>(new Map(), next);
-  // next();
 }

@@ -158,8 +158,9 @@ export function startWebserver() {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
       const context = await getContextFromReqAndRes(req, res);
       configureSentryScope(context);
-      // TODO: forum-gate this
-      asyncLocalStorage.getStore()?.set('context', context);
+      if (performanceMetricLoggingEnabled.get()) {
+        asyncLocalStorage.getStore()?.set('context', context);
+      }
       return context;
     },
     plugins: [new ApolloServerLogging()],
@@ -312,8 +313,9 @@ export function startWebserver() {
       response.write(prefetchPrefix);
     }
     
-    // TODO: forum-gate this
-    const renderResult = await asyncLocalStorage.run(new Map(), () => renderWithCache(request, response, user));
+    const renderResult = performanceMetricLoggingEnabled.get()
+      ? await asyncLocalStorage.run(new Map(), () => renderWithCache(request, response, user))
+      : await renderWithCache(request, response, user);
     
     const {
       ssrBody,
