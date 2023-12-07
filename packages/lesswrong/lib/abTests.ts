@@ -141,3 +141,19 @@ export const dialogueMatchingPageNoSSRABTest = new ABTest({
     },
   },
 });
+
+// Does showing people recommended content in the form increase conversion ratio?
+export const showRecommendedContentInMatchForm = new ABTest({
+  name: "showRecommendedContentInMatchForm",
+  description: "Include a little card in the dialogue matchmaking form that lists a matched user's recent comments and posts, and potentially other user content",
+  groups: {
+    show: {
+      description: "Show",
+      weight: 1,
+    },
+    noShow: {
+      description: "Don't show",
+      weight: 1,
+    },
+  },
+});

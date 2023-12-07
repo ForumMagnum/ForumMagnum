@@ -635,7 +635,8 @@ importComponent("DialoguesPage", () => require('../components/dialogues/Dialogue
 importComponent("DialogueMatchingPage", () => require('../components/users/DialogueMatchingPage'));
 importComponent("DialoguesSectionFrontpageSettings", () => require('../components/dialogues/DialoguesSectionFrontpageSettings'));
 importComponent("DialogueRecommendationRow", () => require('../components/dialogues/DialogueRecommendationRow'));
-
+importComponent("TopicSuggestion", () => require('../components/dialogues/DialogueRecommendationRow'));
+importComponent("CommentView", () => require('../components/dialogues/DialogueRecommendationRow'));
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
 importComponent("ModerationGuidelinesBox", () => require('../components/comments/ModerationGuidelines/ModerationGuidelinesBox'));
