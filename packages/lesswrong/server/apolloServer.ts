@@ -64,7 +64,6 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
         return (key === 'password') ?  acc : { ...acc, [key]: variables[key] };
       }, {});
     }
-      
 
     let startedRequestMetric: IncompletePerfMetric;
     if (performanceMetricLoggingEnabled.get()) {
