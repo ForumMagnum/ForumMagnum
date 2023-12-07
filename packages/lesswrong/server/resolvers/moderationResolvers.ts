@@ -95,7 +95,7 @@ defineMutation({
     while (rootOfLocking.parentCommentId) {
       const parentComment = await Comments.findOne({_id: rootOfLocking.parentCommentId});
       if (parentComment
-        && parentComment._id!=rootOfLocking._id
+        && parentComment._id!==rootOfLocking._id
         && parentComment.repliesBlockedUntil
         && parentComment.repliesBlockedUntil.toISOString()===startComment.repliesBlockedUntil.toISOString()
       ) {

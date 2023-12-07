@@ -9,7 +9,7 @@ export const conversationGetTitle = (conversation: ConversationsList, currentUse
     return conversation.title
   } else if (conversation.participants) {
     const usernames = _.pluck(conversation.participants, 'displayName')
-    const otherParticipantNames = _.filter(usernames, (u)=>u != currentUser.displayName)
+    const otherParticipantNames = _.filter(usernames, (u)=>u !== currentUser.displayName)
     return `Conversation with ${otherParticipantNames.join(' and ')}`
   } else {
     throw Error(`Can't create title for conversation ${conversation._id} for user ${currentUser._id} – missing participant info`)

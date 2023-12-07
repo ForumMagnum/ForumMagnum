@@ -18,7 +18,10 @@ export const DismissibleSpotlightItem = ({
   const { SpotlightItem } = Components
   const { captureEvent } = useTracking()
 
-  const currentSpotlight = useCurrentFrontpageSpotlight({skip: !current});
+  const currentSpotlight = useCurrentFrontpageSpotlight({
+    fragmentName: "SpotlightDisplay",
+    skip: !current,
+  });
   const displaySpotlight = currentSpotlight ?? spotlight;
 
   const cookieName = useMemo(() => `${HIDE_SPOTLIGHT_ITEM_PREFIX}${displaySpotlight?.document._id}`, [displaySpotlight]); //hiding in one place, hides everywhere
