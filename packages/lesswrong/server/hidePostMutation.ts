@@ -20,7 +20,7 @@ addGraphQLResolvers({
 
       let newHiddenList:Array<{postId:string}>;
       if (isHidden) {
-        const alreadyHidden = some(oldHiddenList, hiddenMetadata => hiddenMetadata.postId == postId)
+        const alreadyHidden = some(oldHiddenList, hiddenMetadata => hiddenMetadata.postId === postId)
         if (alreadyHidden) {
           newHiddenList = oldHiddenList;
         } else {

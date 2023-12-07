@@ -54,10 +54,10 @@ const AgreementVoteAxis = ({ document, hideKarma=false, voteProps, classes }: {
   const canVote = !fail;
 
   let documentTypeName = "comment";
-  if (collection == Posts) {
+  if (collection === Posts) {
     documentTypeName = "post";
   }
-  if (collection == Revisions) {
+  if (collection === Revisions) {
     documentTypeName = "revision";
   }
   

@@ -61,7 +61,8 @@ const AdminHome = ({ classes }: {
       <h3>Site Admin</h3>
       <ul>
         {hasDigests && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
-        {isEAForum && <li><Link className={classes.link} to="/admin/election-candidates">Election Candidates</Link></li>}
+        {isEAForum && <li><Link className={classes.link} to="/admin/election-candidates">Donation Election Candidates</Link></li>}
+        {isEAForum && <li><Link className={classes.link} to="/admin/election-votes">Donation Election results</Link></li>}
         <li><Link className={classes.link} to="/spotlights">Spotlights</Link></li>
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>
         <li><Link className={classes.link} to="/admin/migrations">Migrations</Link></li>

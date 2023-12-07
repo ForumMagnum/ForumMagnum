@@ -99,14 +99,14 @@ const OverallVoteAxis = ({
 
   let moveToAlignnmentUserId = ""
   let documentTypeName = "comment";
-  if (collection == Comments) {
+  if (collection === Comments) {
     const comment = document as CommentsList
     moveToAlignnmentUserId = comment.moveToAlignmentUserId
   }
-  if (collection == Posts) {
+  if (collection === Posts) {
     documentTypeName = "post";
   }
-  if (collection == Revisions) {
+  if (collection === Revisions) {
     documentTypeName = "revision";
   }
 
@@ -122,7 +122,7 @@ const OverallVoteAxis = ({
 
   const karmaTooltipTitle = hideKarma
     ? 'This post has disabled karma visibility'
-    : <div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount == 1 ? "Vote" : "Votes"})</div>
+    : <div>This {documentTypeName} has {karma} <b>overall</b> karma ({voteCount} {voteCount === 1 ? "Vote" : "Votes"})</div>
 
   const TooltipIfDisabled = (canVote
     ? ({children}: {children: React.ReactNode}) => <>{children}</>

@@ -1,4 +1,4 @@
-export const getSpotlightUrl = ({document, documentType}: SpotlightDisplay) => {
+export const getSpotlightUrl = ({document, documentType}: SpotlightHeaderEventSubtitle) => {
   switch (documentType) {
     case "Sequence":
       return `/s/${document._id}`;

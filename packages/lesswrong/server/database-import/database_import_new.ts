@@ -205,7 +205,7 @@ const upsertProcessedUsers = async (users: AnyBecauseObsolete, userMap: AnyBecau
     for(let key in usersToInsert) {
       await insertUser(usersToInsert[key]);
       userCounter++;
-      if(userCounter % 1000 == 0){
+      if(userCounter % 1000 === 0){
         //eslint-disable-next-line no-console
         console.log("UserCounter: " + userCounter);
       }
@@ -246,7 +246,7 @@ const insertUser = async (user: DbUser) => {
       validate: false
     })
   } catch(err) {
-    if (err.code == 11000) {
+    if (err.code === 11000) {
       const newUser = {...user, username: user.username + "_duplicate" + Math.random().toString(), emails: []}
       try {
         await createMutator({

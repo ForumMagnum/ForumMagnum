@@ -131,7 +131,7 @@ export function addUniversalFields<N extends CollectionNameString>({
 }
 
 export function isUniversalField(fieldName: string): boolean {
-  return fieldName=="_id" || fieldName=="schemaVersion";
+  return fieldName==="_id" || fieldName==="schemaVersion";
 }
 
 export function isUnbackedCollection<N extends CollectionNameString>(

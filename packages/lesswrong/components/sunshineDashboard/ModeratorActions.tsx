@@ -100,7 +100,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   const getModSignatureWithNote = (note: string) => getSignatureWithNote(currentUser.displayName, note);
   
   const handleNotes = () => {
-    if (notes != user.sunshineNotes) {
+    if (notes !== user.sunshineNotes) {
       void updateUser({
         selector: {_id: user._id},
         data: {
@@ -126,7 +126,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   
   const handleClick = () => {
     const signedNotes = signAndDate(notes)
-    if (signedNotes != notes) {
+    if (signedNotes !== notes) {
       setNotes(signedNotes)
     }
   }

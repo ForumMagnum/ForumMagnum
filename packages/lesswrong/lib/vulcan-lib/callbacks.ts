@@ -456,7 +456,7 @@ function callbacksArePending(): boolean
 export function printInProgressCallbacks() {
   const callbacksInProgress = Object.keys(pendingCallbackDescriptions);
   // eslint-disable-next-line no-console
-  console.log(`Callbacks in progress: ${callbacksInProgress.map(c => pendingCallbackDescriptions[c]!=1 ? `${c}(${pendingCallbackDescriptions[c]})` : c).join(", ")}`);
+  console.log(`Callbacks in progress: ${callbacksInProgress.map(c => pendingCallbackDescriptions[c]!==1 ? `${c}(${pendingCallbackDescriptions[c]})` : c).join(", ")}`);
 }
 
 export const userChangedCallback = new CallbackChainHook<UsersCurrent|DbUser|null,[]>("events.identify");
