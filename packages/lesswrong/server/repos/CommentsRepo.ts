@@ -13,7 +13,7 @@ type ExtendedCommentWithReactions = DbComment & {
   userVote?: string,
 }
 
-
+@RecordPerfMetrics
 export default class CommentsRepo extends AbstractRepo<DbComment> {
   constructor() {
     super(Comments);
