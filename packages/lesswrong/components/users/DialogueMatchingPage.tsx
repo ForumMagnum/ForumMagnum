@@ -32,7 +32,7 @@ import partition from 'lodash/partition';
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
 import NoSSR from 'react-no-ssr';
 import { useABTest } from '../../lib/abTestImpl';
-import { dialogueMatchingPageNoSSRABTest } from '../../lib/abTests';
+import { dialogueMatchingPageNoSSRABTest, showRecommendedContentInMatchForm } from '../../lib/abTests';
 import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialogues/DialogueRecommendationRow';
 
 export type UpvotedUser = {
@@ -842,6 +842,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   const [formatSync, setFormatSync] = useState<SyncPreference>(dialogueCheck.matchPreference?.syncPreference ?? "Meh");
   const [formatAsync, setFormatAsync] = useState<SyncPreference>(dialogueCheck.matchPreference?.asyncPreference ?? "Meh");
   const [formatNotes, setFormatNotes] = useState(dialogueCheck.matchPreference?.formatNotes ?? "");
+  const showRecommendedContent = useABTest(showRecommendedContentInMatchForm);
 
   const { create, called, loading: loadingCreatedMatchPreference, data: newMatchPreference } = useCreate({
     collectionName: "DialogueMatchPreferences",
@@ -961,7 +962,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
           </DialogActions>
       </LWDialog>
   )}
-
+ 
   const ScheduleLabels = ({extraClass}: {extraClass?: string}) => <>
     <label className={classNames(classes.dialogueFormatLabel, extraClass)}>Great</label>
     <label className={classNames(classes.dialogueFormatLabel, extraClass)}>Okay</label>
@@ -973,11 +974,10 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
       <div className={classes.dialogBox}>
         <DialogTitle className={classes.dialogueTitle}><span className={classes.matchHeader}>(Match)</span> {targetUserDisplayName}</DialogTitle>
         <DialogContent >
-          <UserRecommendedContent targetUserId={targetUserId} classes={classes} />
+          {showRecommendedContent === "show" &&  <UserRecommendedContent targetUserId={targetUserId} classes={classes} />}
           <h3 className={classes.sectionHeader}>Topics</h3>
-          {/* <div>Check any suggestion you're interested in, or add your own.</div> */}
           {userSuggestedTopics.length > 0 && <>
-            <div className={classes.topicsOrigin} >{targetUserDisplayName} was interested in</div>
+            <div className={classes.topicsOrigin} >{targetUserDisplayName} was interested in the below. Check ones you like.</div>
             <div className={classes.dialogueTopicList}>
               {userSuggestedTopics.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
                 <Checkbox 
