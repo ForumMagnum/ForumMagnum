@@ -2,7 +2,6 @@ import { isServer } from '../executionEnvironment';
 import * as _ from 'underscore';
 
 import { isPromise } from './utils';
-import { isAnyQueryPending as isAnyMongoQueryPending } from '../mongoCollection';
 import { isAnyQueryPending as isAnyPostgresQueryPending } from '../sql/PgCollection';
 import { loggerConstructor } from '../utils/logging'
 
@@ -382,7 +381,7 @@ export const runCallbacksAsync = function <N extends CollectionNameString> (opti
 export const waitUntilCallbacksFinished = () => {
   return new Promise<void>(resolve => {
     function finishOrWait() {
-      if (callbacksArePending() || isAnyMongoQueryPending() || isAnyPostgresQueryPending()) {
+      if (callbacksArePending() || isAnyPostgresQueryPending()) {
         setTimeout(finishOrWait, 20);
       } else {
         resolve();
