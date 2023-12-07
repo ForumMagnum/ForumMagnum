@@ -828,7 +828,7 @@ return (
           {allRecommendations.slice(0, numShown).map( (item, index) => <TopicSuggestion key={index} reactIconName={item.reactIconName} prefix={item.prefix} Content={item.Content} isExpanded={isExpanded} />) } 
         </div>
         <div className={classes.recommendedContentRightContainer}>
-          {(allRecommendations && allRecommendations.length > 0) && <ExpandCollapseText isExpanded={isExpanded} numHidden={numHidden} toggleExpansion={toggleExpansion} />}
+          <ExpandCollapseText isExpanded={isExpanded} numHidden={numHidden} toggleExpansion={toggleExpansion} />
         </div>
       </div>
     </div>
