@@ -418,6 +418,7 @@ importComponent("EAKarmaDisplay", () => require('../components/common/EAKarmaDis
 importComponent("PostsItemMetaInfo", () => require('../components/posts/PostsItemMetaInfo'));
 importComponent("PostsItemNewCommentsWrapper", () => require('../components/posts/PostsItemNewCommentsWrapper'));
 importComponent("PostsItemNewCommentsList", () => require('../components/posts/PostsItemNewCommentsList'));
+importComponent("PostsItemNewDialogueResponses", () => require('../components/posts/PostsItemNewDialogueResponses'));
 importComponent("PostsDialogItemNewCommentsList", () => require('../components/posts/PostsDialogItemNewCommentsList'));
 importComponent("PostsItemNewCommentsListNode", () => require('../components/posts/PostsItemNewCommentsListNode'));
 importComponent("PostsItemIcons", () => require('../components/posts/PostsItemIcons'));
