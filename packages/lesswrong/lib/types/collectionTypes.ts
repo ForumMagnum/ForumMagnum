@@ -234,6 +234,9 @@ interface PerfMetric {
   parent_trace_id?: string;
   client_path?: string;
   extra_data?: Json;
+  gql_string?: string;
+  ip?: string;
+  user_agent?: string;
 }
 
 type IncompletePerfMetric = Omit<PerfMetric, 'ended_at'>;

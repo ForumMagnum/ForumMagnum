@@ -60,7 +60,7 @@ export function addUniversalFields<T extends DbObject>({
 }
 
 export function isUniversalField(fieldName: string): boolean {
-  return fieldName=="_id" || fieldName=="schemaVersion";
+  return fieldName==="_id" || fieldName==="schemaVersion";
 }
 
 export function isUnbackedCollection<T extends DbObject>(collection: CollectionBase<T>): boolean

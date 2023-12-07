@@ -578,7 +578,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     hidden: true,
     canCreate: ['members'],
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns],
   },
 
@@ -738,7 +738,7 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     ...schemaDefaultValue(false),
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     group: formGroups.siteCustomizations,
@@ -750,7 +750,7 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     ...schemaDefaultValue(false),
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     group: formGroups.siteCustomizations,
@@ -1785,7 +1785,7 @@ const schema: SchemaType<DbUser> = {
 
   nearbyEventsNotificationsMongoLocation: {
     type: Object,
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
     optional: true,
     ...denormalizedField({
@@ -2125,7 +2125,7 @@ const schema: SchemaType<DbUser> = {
 
   partiallyReadSequences: {
     type: Array,
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns],
     optional: true,
     hidden: true,
@@ -2339,7 +2339,7 @@ const schema: SchemaType<DbUser> = {
   abTestOverrides: {
     type: GraphQLJSON, //Record<string,number>
     optional: true, hidden: true,
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
   },

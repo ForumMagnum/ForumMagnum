@@ -20,4 +20,13 @@ ElectionVotes.addDefaultView(({
   };
 });
 
+ElectionVotes.addView('allSubmittedVotes', (terms: ElectionVotesViewTerms) => {
+  return {
+    selector: {
+      electionName: terms.electionName,
+      submittedAt: {$exists: true},
+    },
+  };
+});
+
 ensureIndex(ElectionVotes, {electionName: 1});

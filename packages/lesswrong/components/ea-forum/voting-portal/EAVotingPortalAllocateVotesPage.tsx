@@ -7,7 +7,7 @@ import { useElectionVote } from "./hooks";
 import { useMessages } from "../../common/withMessages";
 import { processLink } from "./VotingPortalIntro";
 import { useCurrentUser } from "../../common/withUser";
-import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import { eaGivingSeason23ElectionName, userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
 })
 
 const EAVotingPortalAllocateVotesPageLoader = ({ classes }: { classes: ClassesType }) => {
-  const { electionVote, updateVote } = useElectionVote("givingSeason23");
+  const { electionVote, updateVote } = useElectionVote(eaGivingSeason23ElectionName);
 
   const currentUser = useCurrentUser();
   const { LoginForm } = Components;

@@ -5,6 +5,7 @@ import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
 import DialogueChecksRepo from "./DialogueChecksRepo";
 import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
+import ElectionVotesRepo from "./ElectionVotesRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
@@ -28,6 +29,7 @@ const getAllRepos = () => ({
   debouncerEvents: new DebouncerEventsRepo(),
   dialogueChecks: new DialogueChecksRepo(),
   electionCandidates: new ElectionCandidatesRepo(),
+  electionVotes: new ElectionVotesRepo(),
   localgroups: new LocalgroupsRepo(),
   PostEmbeddingsRepo: new PostEmbeddingsRepo(),
   postRecommendations: new PostRecommendationsRepo(),
@@ -47,6 +49,7 @@ export {
   DebouncerEventsRepo,
   DialogueChecksRepo,
   ElectionCandidatesRepo,
+  ElectionVotesRepo,
   LocalgroupsRepo,
   PostEmbeddingsRepo,
   PostRecommendationsRepo,

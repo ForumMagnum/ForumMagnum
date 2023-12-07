@@ -8,6 +8,7 @@ import { formatStat } from "../../users/EAUserTooltipContent";
 import {
   useAmountRaised,
   useDonationOpportunities,
+  useSubmittedVoteCount,
 } from "./hooks";
 import {
   donationElectionFundraiserLink,
@@ -31,6 +32,7 @@ import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { useElectionVote } from "../voting-portal/hooks";
+import { isPastVotingDeadline } from "../../../lib/collections/electionVotes/helpers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -295,6 +297,9 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     gap: '16px',
     flexWrap: 'wrap',
+  },
+  voteCount: {
+    fontStyle: 'italic',
   }
 });
 
@@ -355,6 +360,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",
   });
+  const { submittedVoteCount } = useSubmittedVoteCount(eaGivingSeason23ElectionName);
   /*
   const {
     results: relevantSequences,
@@ -370,7 +376,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const currentUser = useCurrentUser();
   const {flash} = useMessages();
   const {openDialog} = useDialog();
-  const { electionVote } = useElectionVote("givingSeason23");
+  const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   // We only show the voting banner for users who are eligible -
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
   const showVotingBanner = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
@@ -523,7 +529,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                   buttonText="Vote in the Election"
                   onButtonClick={handleVote}
                   solidButton
-                />
+                >
+                  {submittedVoteCount && (
+                    <div className={classes.voteCount}>
+                      {submittedVoteCount} people have voted{isPastVotingDeadline() ? "" : " so far"}.
+                    </div>
+                  )}
+                </ElectionFundCTA>
               </div>
             </div>
           </div>
