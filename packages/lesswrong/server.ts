@@ -127,6 +127,7 @@ import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/resolvers/notificationResolvers';
+import './server/resolvers/dialogueMessageResolvers';
 import './server/callbacks/postCallbacks';
 import './server/posts/validatePost';
 import './server/callbacks/chapterCallbacks';
@@ -176,6 +177,7 @@ import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/electionCandidateResolvers';
+import './server/resolvers/electionVoteResolvers';
 
 
 import './server/intercomSetup';

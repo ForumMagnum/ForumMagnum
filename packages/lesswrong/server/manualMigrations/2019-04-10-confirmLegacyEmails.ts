@@ -38,7 +38,7 @@ registerMigration({
               && user.emails && user.emails[i].address === legacyData.email)
             {
               const shouldBeVerified = legacyData.email_validated;
-              if(user.emails[i].verified != shouldBeVerified) {
+              if(user.emails[i].verified !== shouldBeVerified) {
                 updates.push({
                   updateOne: {
                     filter: {_id: user._id},
