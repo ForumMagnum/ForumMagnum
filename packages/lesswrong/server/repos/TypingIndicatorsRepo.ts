@@ -1,7 +1,6 @@
 import TypingIndicators from "../../lib/collections/typingIndicators/collection";
 import {randomId} from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
-import { RecordPerfMetrics } from "./perfMetricDecorator";
 
 interface TypingIndicatorPostInfo extends DbTypingIndicator {
   postUserId: string,
@@ -9,7 +8,6 @@ interface TypingIndicatorPostInfo extends DbTypingIndicator {
   coauthorStatuses: DbPost['coauthorStatuses']
 }
 
-@RecordPerfMetrics
 export default class TypingIndicatorsRepo extends AbstractRepo<DbTypingIndicator> {
   constructor() {
     super(TypingIndicators);

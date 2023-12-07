@@ -50,7 +50,7 @@ import { getClientBundle } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
-import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware } from './perfMetrics';
+import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setStoreValue } from './perfMetrics';
 import { performanceMetricLoggingEnabled } from '../lib/publicSettings';
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
@@ -159,7 +159,7 @@ export function startWebserver() {
       const context = await getContextFromReqAndRes(req, res);
       configureSentryScope(context);
       if (performanceMetricLoggingEnabled.get()) {
-        asyncLocalStorage.getStore()?.set('context', context);
+        setStoreValue('resolverContext', context);
       }
       return context;
     },
@@ -314,7 +314,7 @@ export function startWebserver() {
     }
     
     const renderResult = performanceMetricLoggingEnabled.get()
-      ? await asyncLocalStorage.run(new Map(), () => renderWithCache(request, response, user))
+      ? await asyncLocalStorage.run({}, () => renderWithCache(request, response, user))
       : await renderWithCache(request, response, user);
     
     const {

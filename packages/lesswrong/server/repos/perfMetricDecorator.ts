@@ -1,6 +1,5 @@
 import { performanceMetricLoggingEnabled } from "../../lib/publicSettings";
 import { asyncLocalStorage, closePerfMetric, openPerfMetric } from "../perfMetrics";
-import type AbstractRepo from "./AbstractRepo";
 
 type Constructor<TResult, TParams extends any[] = any[]> = new (
   ...params: TParams
@@ -18,12 +17,25 @@ function wrapWithPerfMetrics(method: Function, repoName: string, methodName: str
 
     let parentTraceIdField;
     if (asyncContext) {
-      parentTraceIdField = { parent_trace_id: asyncContext.get('context')?.perfMetric?.trace_id }
+      parentTraceIdField = { parent_trace_id: asyncContext.resolverContext?.perfMetric?.trace_id }
     } else {
       parentTraceIdField = {};
     }
 
     const opName = `${repoName}.${methodName}`;
+
+    if (!parentTraceIdField.parent_trace_id) {
+      console.log(`Missing parent_trace_id for ${opName}`);
+      if (!asyncContext) {
+        console.log('-- Missing async context entirely');
+      } else if (!asyncContext.resolverContext) {
+        console.log('-- Missing resolver context in async context');
+      } else if (!asyncContext.resolverContext?.perfMetric) {
+        console.log('-- Missing perf metric in resolver context');
+      } else {
+        console.log('-- Missing trace_id in perf metric in resolver context');
+      }
+    }
 
     const startedDbRepoMetric = openPerfMetric({
       op_type: 'db_repo_method',
@@ -48,7 +60,7 @@ function wrapWithPerfMetrics(method: Function, repoName: string, methodName: str
   };
 }
 
-function wrapMethods<T extends Constructor<AbstractRepo<DbObject>>>(targetClass: T) {
+function wrapMethods<T extends Constructor<any, any>>(targetClass: T) {
   const methodNames = Object.getOwnPropertyNames(targetClass.prototype);
 
   methodNames.forEach(methodName => {
@@ -60,7 +72,7 @@ function wrapMethods<T extends Constructor<AbstractRepo<DbObject>>>(targetClass:
   });
 }
 
-export function RecordPerfMetrics<T extends Constructor<AbstractRepo<DbObject>>>(value: T, _: ClassDecoratorContext) {
+export function RecordPerfMetrics<T extends Constructor<any, any>>(value: T, _: ClassDecoratorContext): T {
   wrapMethods(value);
   return value;
 }

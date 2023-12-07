@@ -25,6 +25,7 @@ import UserActivities from '../../../lib/collections/useractivities/collection';
 import { getCookieFromReq } from '../../utils/httpUtil';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { userChangedCallback } from '../../../lib/vulcan-lib/callbacks';
+import { asyncLocalStorage } from '../../perfMetrics';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -129,7 +130,7 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
     clientId,
     visitorActivity,
     ...await setupAuthToken(user),
-    perfMetric: (req as any)?.perfMetric,
+    perfMetric: asyncLocalStorage.getStore()?.requestPerfMetric,
   };
 
   if (user) {

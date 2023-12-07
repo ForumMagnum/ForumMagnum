@@ -8,7 +8,23 @@ import { getForwardedWhitelist } from './forwarded_whitelist';
 
 type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'ip' | 'user_agent'>;
 
-export const asyncLocalStorage = new AsyncLocalStorage<Map<'context', ResolverContext>>();
+interface AsyncLocalStorageContext {
+  resolverContext?: ResolverContext;
+  requestPerfMetric?: IncompletePerfMetric;
+}
+
+export const asyncLocalStorage = new AsyncLocalStorage<AsyncLocalStorageContext>();
+
+export function setStoreValue<T extends keyof AsyncLocalStorageContext>(key: T, value: AsyncLocalStorageContext[T] | ((previousValue: AsyncLocalStorageContext[T]) => AsyncLocalStorageContext[T])) {
+  const store = asyncLocalStorage.getStore();
+  if (store) {
+    if (typeof value === 'function') {
+      store[key] = value(store[key]);
+    } else {
+      store[key] = value;
+    }
+  }
+};
 
 export function generateTraceId() {
   return v4();
@@ -31,6 +47,24 @@ export function closePerfMetric(openPerfMetric: IncompletePerfMetric) {
   queuePerfMetric(perfMetric);
 }
 
+export function closeRequestPerfMetric() {
+  const store = asyncLocalStorage.getStore();
+  if (!store) {
+    // eslint-disable-next-line no-console
+    console.log('Missing asyncLocalStorage context when trying to close the perf metric for the current request!');
+    return;
+  }
+
+  if (!store.requestPerfMetric) {
+    // eslint-disable-next-line no-console
+    console.log('Missing perf metric for the current request in the asyncLocalStorage context when trying to close it!');
+    return;
+  }
+
+  closePerfMetric(store.requestPerfMetric);
+  setStoreValue('requestPerfMetric', undefined);
+}
+
 export function perfMetricMiddleware(req: Request, res: Response, next: NextFunction) {
   if (!performanceMetricLoggingEnabled.get()) {
     return next();
@@ -44,11 +78,10 @@ export function perfMetricMiddleware(req: Request, res: Response, next: NextFunc
     user_agent: req.headers["user-agent"]
   });
 
-  Object.assign(req, { perfMetric });
   res.on('finish', () => {
-    closePerfMetric(perfMetric);
+    closeRequestPerfMetric();
   });
   
   // This starts an async context for requests that pass through this middleware
-  asyncLocalStorage.run<void, []>(new Map(), next);
+  asyncLocalStorage.run<void, []>({ requestPerfMetric: perfMetric }, next);
 }
