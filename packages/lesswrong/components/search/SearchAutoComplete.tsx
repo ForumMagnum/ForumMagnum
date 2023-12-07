@@ -53,7 +53,7 @@ const SearchAutoComplete = ({
   facetFilters?: Record<string, boolean>,
 }) => {
   if (!isSearchEnabled()) {
-    // Fallback for when Algolia is unavailable (ie, local development installs).
+    // Fallback for when search is unavailable (ie, local development installs).
     // This isn't a particularly nice UI, but it's functional enough to be able
     // to test other things.
     return <input type="text" placeholder={noSearchPlaceholder} onKeyPress={ev => {

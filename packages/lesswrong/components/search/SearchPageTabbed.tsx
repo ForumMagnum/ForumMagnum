@@ -247,7 +247,7 @@ const SearchPageTabbed = ({classes}:{
 
   const onSortingChange = (newSorting: string) => {
     if (!isValidElasticSorting(newSorting)) {
-      throw new Error("Invalid algolia sorting: " + newSorting);
+      throw new Error("Invalid search sorting: " + newSorting);
     }
     setSorting(newSorting);
     navigate({

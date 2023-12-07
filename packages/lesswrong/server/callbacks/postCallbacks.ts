@@ -496,7 +496,7 @@ async function bulkApplyPostTags ({postId, tagsToApply, currentUser, context}: {
       });
     } catch(e) {
       // This can throw if there's a tag applied which doesn't exist, which
-      // can happen if there are issues with the Algolia index.
+      // can happen if there are issues with the search index.
       //
       // If we fail to add a tag, capture the exception in Sentry but don't
       // throw from the form-submission callback. From the user perspective
