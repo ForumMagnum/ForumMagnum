@@ -225,6 +225,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: {
 }): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
   configureSentryScope(requestContext);
+  // TODO: forum-gate this
   asyncLocalStorage.getStore()?.set('context', requestContext);
   
   // according to the Apollo doc, client needs to be recreated on every request
