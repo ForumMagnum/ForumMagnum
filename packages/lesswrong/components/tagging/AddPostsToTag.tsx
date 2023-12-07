@@ -7,7 +7,7 @@ import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
 import { InstantSearch, SearchBox, Configure, Hits } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, getSearchClient } from '../../lib/search/algoliaUtil';
+import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@material-ui/icons/Close';
@@ -147,7 +147,7 @@ const AddPostsToTag = ({classes, tag}: {
     </span> }
     {searchOpen && <div className={classes.search}>
       <InstantSearch
-        indexName={getAlgoliaIndexName("Posts")}
+        indexName={getSearchIndexName("Posts")}
         searchClient={getSearchClient()}
       > 
         <div className={classes.searchHeader}>

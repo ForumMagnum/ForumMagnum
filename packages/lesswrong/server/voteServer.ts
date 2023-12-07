@@ -20,7 +20,7 @@ import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
-import { collectionIsAlgoliaIndexed } from '../lib/search/algoliaUtil';
+import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import {Posts} from '../lib/collections/posts';
 
@@ -74,7 +74,7 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  if (isElasticEnabled && collectionIsAlgoliaIndexed(collection.collectionName)) {
+  if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
     void elasticSyncDocument(collection.collectionName, newDocument._id);
   }
   return {newDocument, vote};
@@ -201,7 +201,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
-  if (isElasticEnabled && collectionIsAlgoliaIndexed(collection.collectionName)) {
+  if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
     void elasticSyncDocument(collection.collectionName, newDocument._id);
   }
   return newDocument;
