@@ -554,6 +554,17 @@ interface ElectionCandidatesDefaultFragment { // fragment on ElectionCandidates
   readonly targetAmount: number | null,
 }
 
+interface ElectionVotesDefaultFragment { // fragment on ElectionVotes
+  readonly electionName: string,
+  readonly userId: string,
+  readonly compareState: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly submittedAt: Date | null,
+  readonly submissionComments: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly userExplanation: string | null,
+  readonly userOtherComments: string | null,
+}
+
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
   readonly postId: string,
   readonly postHash: string,
@@ -947,7 +958,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly originalContents: any /*ContentType*/,
   readonly html: string,
   readonly markdown: string,
-  readonly draftJS: any,
+  readonly draftJS: any /*JSON*/,
   readonly ckEditorMarkup: string,
   readonly wordCount: number | null,
   readonly htmlHighlight: string,
@@ -1681,7 +1692,7 @@ interface RevisionEdit { // fragment on Revisions
   readonly originalContents: any,
   readonly html: string,
   readonly markdown: string,
-  readonly draftJS: any,
+  readonly draftJS: any /*JSON*/,
   readonly ckEditorMarkup: string,
   readonly wordCount: number | null,
   readonly htmlHighlight: string,
@@ -3405,17 +3416,6 @@ interface WithVoteElectionCandidate { // fragment on ElectionCandidates
   readonly currentUserExtendedVote: any,
 }
 
-interface ElectionVotesDefaultFragment { // fragment on ElectionVotes
-  readonly electionName: string,
-  readonly userId: string,
-  readonly compareState: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly vote: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly submittedAt: Date | null,
-  readonly submissionComments: any /*{"definitions":[{"blackbox":true}]}*/,
-  readonly userExplanation: string | null,
-  readonly userOtherComments: string | null,
-}
-
 interface ElectionVoteInfo { // fragment on ElectionVotes
   readonly _id: string,
   readonly electionName: string,
@@ -3484,6 +3484,7 @@ interface DialogueMatchPreferencesDefaultFragment { // fragment on DialogueMatch
   readonly syncPreference: "Yes" | "Meh" | "No",
   readonly asyncPreference: "Yes" | "Meh" | "No",
   readonly formatNotes: string,
+  readonly calendlyLink: string | null,
   readonly generatedDialogueId: string | null,
 }
 
@@ -3523,6 +3524,7 @@ interface FragmentTypes {
   ConversationsDefaultFragment: ConversationsDefaultFragment
   DialogueChecksDefaultFragment: DialogueChecksDefaultFragment
   ElectionCandidatesDefaultFragment: ElectionCandidatesDefaultFragment
+  ElectionVotesDefaultFragment: ElectionVotesDefaultFragment
   PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostRelationsDefaultFragment: PostRelationsDefaultFragment
@@ -3727,7 +3729,6 @@ interface FragmentTypes {
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
-  ElectionVotesDefaultFragment: ElectionVotesDefaultFragment
   ElectionVoteInfo: ElectionVoteInfo
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
@@ -3748,6 +3749,7 @@ interface FragmentTypesByCollection {
   Conversations: "ConversationsDefaultFragment"|"newConversationFragment"|"conversationsListFragment"|"conversationIdFragment"|"ConversationsMinimumInfo"|"ConversationsList"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
+  ElectionVotes: "ElectionVotesDefaultFragment"|"ElectionVoteInfo"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   PostRelations: "PostRelationsDefaultFragment"
@@ -3758,9 +3760,9 @@ interface FragmentTypesByCollection {
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
+  Sessions: "SessionsDefaultFragment"
   CronHistories: "CronHistoriesDefaultFragment"
   Messages: "MessagesDefaultFragment"|"messageListFragment"
-  Sessions: "SessionsDefaultFragment"
   Notifications: "NotificationsDefaultFragment"|"NotificationsList"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
@@ -3785,7 +3787,6 @@ interface FragmentTypesByCollection {
   CommentModeratorActions: "CommentModeratorActionsDefaultFragment"|"CommentModeratorActionDisplay"
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  ElectionVotes: "ElectionVotesDefaultFragment"|"ElectionVoteInfo"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
@@ -3801,6 +3802,7 @@ interface CollectionNamesByFragmentName {
   ConversationsDefaultFragment: "Conversations"
   DialogueChecksDefaultFragment: "DialogueChecks"
   ElectionCandidatesDefaultFragment: "ElectionCandidates"
+  ElectionVotesDefaultFragment: "ElectionVotes"
   PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostRelationsDefaultFragment: "PostRelations"
@@ -4005,7 +4007,6 @@ interface CollectionNamesByFragmentName {
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
-  ElectionVotesDefaultFragment: "ElectionVotes"
   ElectionVoteInfo: "ElectionVotes"
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
