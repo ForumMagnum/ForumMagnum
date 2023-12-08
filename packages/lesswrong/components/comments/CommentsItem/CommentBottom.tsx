@@ -29,7 +29,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   answer: {
     display: "flex",
     alignItems: "baseline",
-    justifyContent: "flex-end",
   },
 })
 
