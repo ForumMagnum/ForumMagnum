@@ -947,7 +947,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly originalContents: any /*ContentType*/,
   readonly html: string,
   readonly markdown: string,
-  readonly draftJS: any,
+  readonly draftJS: any /*JSON*/,
   readonly ckEditorMarkup: string,
   readonly wordCount: number,
   readonly htmlHighlight: string,
@@ -1681,7 +1681,7 @@ interface RevisionEdit { // fragment on Revisions
   readonly originalContents: any,
   readonly html: string,
   readonly markdown: string,
-  readonly draftJS: any,
+  readonly draftJS: any /*JSON*/,
   readonly ckEditorMarkup: string,
   readonly wordCount: number,
   readonly htmlHighlight: string,
@@ -3484,6 +3484,7 @@ interface DialogueMatchPreferencesDefaultFragment { // fragment on DialogueMatch
   readonly syncPreference: "Yes" | "Meh" | "No",
   readonly asyncPreference: "Yes" | "Meh" | "No",
   readonly formatNotes: string,
+  readonly calendlyLink: string | null,
   readonly generatedDialogueId: string | null,
 }
 

@@ -1,6 +1,8 @@
+import { renderToString } from "react-dom/server";
 import { getCollectionHooks } from "../mutationCallbacks";
 import { createNotifications } from "../notificationCallbacksHelpers";
-import { createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
+import { Components, createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
+import { createElement } from "react";
 
 interface MatchPreferenceFormData extends DbDialogueMatchPreference {
   displayName: string;
@@ -39,6 +41,8 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
       .filter(({ preference }) => preference === "Yes")
       .map(({ text }) => text);
   }
+
+  const { CalendlyIFrame } = Components
 
   const sourceUserYesTopics = getUserTopics(formDataSourceUser);
   const targetUserYesTopics = getUserTopics(formDataTargetUser);
@@ -160,9 +164,18 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   }
 
   
+  const sourceCalendly = formDataSourceUser.calendlyLink ? (
+    `<p><strong>${formDataSourceUser.displayName}</strong> <strong>shared a Calendly</strong></p>
+    ${renderToString(createElement(CalendlyIFrame, {url: formDataSourceUser.calendlyLink}))}`
+  ) : ''
+  const targetCalendly = formDataTargetUser.calendlyLink ? (
+    `<p><strong>${formDataTargetUser.displayName}</strong> <strong>shared a Calendly</strong></p>
+    ${renderToString(createElement(CalendlyIFrame, {url: formDataTargetUser.calendlyLink}))}`
+  ) : ''
 
+  const calendlys = sourceCalendly + targetCalendly
 
-  const messagesCombined = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `${topicMessageContent}${formatPreferenceContent}${nextAction}`)
+  const messagesCombined = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `${topicMessageContent}${formatPreferenceContent}${nextAction}${calendlys}`)
 
   return `<div>${messagesCombined}</div>`
 }
