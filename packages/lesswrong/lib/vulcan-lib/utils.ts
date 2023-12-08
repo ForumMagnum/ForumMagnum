@@ -377,6 +377,7 @@ export const sanitize = function(s: string): string {
       'strawpoll.com',
       'estimaker.app',
       'viewpoints.xyz',
+      'calendly.com'
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
