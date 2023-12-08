@@ -1,4 +1,4 @@
-import { createMutator } from '../vulcan-lib';
+import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
@@ -30,6 +30,8 @@ import { isPostAllowedType3Audio, postGetPageUrl } from '../../lib/collections/p
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../embeddings';
 import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
+import DialogueChecks from '../../lib/collections/dialogueChecks/collection';
+import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPreferences/collection';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -563,3 +565,26 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCa
   return post;
 });
 
+
+getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCallbackProperties<DbPost>) => {
+  const { oldDocument: oldPost } = props;
+  const adminContext = createAdminContext();
+
+  if (post.collabEditorDialogue && post.draft === false && oldPost.draft) {
+    const matchForms = await DialogueMatchPreferences.find({generatedDialogueId: post._id}).fetch()
+    for (const matchForm of matchForms) {
+      const dialogueCheck = await DialogueChecks.findOne(matchForm.dialogueCheckId);
+      if (dialogueCheck) {
+        await updateMutator({
+          collection: DialogueChecks,
+          documentId: dialogueCheck._id,
+          set: { checked: false },
+          currentUser: adminContext.currentUser,
+          context: adminContext,
+          validate: false
+        });
+      }
+    }
+  }
+  return post;
+});
