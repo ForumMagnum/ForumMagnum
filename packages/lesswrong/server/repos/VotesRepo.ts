@@ -78,6 +78,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
     ].join(" OR ");
 
     const reactionVotesQuery = `
+        -- VotesRepo.getKarmaChanges.reactionVotesQuery
         SELECT
           v.*
         FROM
@@ -94,6 +95,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
 
     const [allScoreChanges, allReactionVotes] = await Promise.all([
       this.getRawDb().any(`
+        -- VotesRepo.getKarmaChanges.allScoreChanges
         SELECT
           v.*,
           comment."contents"->'html' AS "commentHtml",
@@ -296,6 +298,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
 
   getSelfVotes(tagRevisionIds: string[]): Promise<DbVote[]> {
     return this.any(`
+      -- VotesRepo.getSelfVotes
       SELECT * FROM "Votes" WHERE
         $1::TEXT[] @> ARRAY["documentId"]::TEXT[] AND
         "collectionName" = 'Revisions' AND
@@ -307,6 +310,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
 
   transferVotesTargetingUser(oldUserId: string, newUserId: string): Promise<null> {
     return this.none(`
+      -- VotesRepo.transferVotesTargetingUser
       UPDATE "Votes"
       SET "authorIds" = ARRAY_APPEND(ARRAY_REMOVE("authorIds", $1), $2)
       WHERE ARRAY_POSITION("authorIds", $1) IS NOT NULL
@@ -335,6 +339,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   // it doesn't skip posts with no other votes)
   async getVotesOnRecentContent(userId: string): Promise<RecentVoteInfo[]> {
     const votes = await this.getRawDb().any(`
+      -- VotesRepo.getVotesOnRecentContent
       (
         ${this.selectVotesOnPostsJoin}
         WHERE
@@ -375,6 +380,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
   async getVotesOnPreviousContentItem(userId: string, collectionName: 'Posts' | 'Comments', before: Date) {
     if (collectionName === 'Posts') {
       return this.getRawDb().any(`
+        -- VotesRepo.getVotesOnPreviousContentItem
         ${this.selectVotesOnPostsJoin}
         WHERE
           "Votes"."documentId" in (
@@ -394,6 +400,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
       `, [userId, before]);
     } else {
       return this.getRawDb().any(`
+        -- VotesRepo.getVotesOnPreviousContentItem
         ${this.selectVotesOnCommentsJoin}
         WHERE
           "Votes"."documentId" in (
@@ -414,6 +421,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
 
   async getDigestPlannerVotesForPosts(postIds: string[]): Promise<Array<PostVoteCounts>> {
     return this.getRawDb().manyOrNone(`
+      -- VotesRepo.getDigestPlannerVotesForPosts
       SELECT p._id as "postId",
         count(v._id) FILTER(WHERE v."voteType" = 'smallUpvote') as "smallUpvoteCount",
         count(v._id) FILTER(WHERE v."voteType" = 'bigUpvote') as "bigUpvoteCount",
@@ -430,6 +438,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
 
   async getPostKarmaChangePerDay({ postIds, startDate, endDate }: { postIds: string[]; startDate?: Date; endDate: Date; }): Promise<{ window_start_key: string; karma_change: string }[]> {
     return await this.getRawDb().any<{window_start_key: string, karma_change: string}>(`
+      -- VotesRepo.getPostKarmaChangePerDay
       SELECT
         -- Format as YYYY-MM-DD to make grouping easier
         to_char(v."createdAt", 'YYYY-MM-DD') AS window_start_key,
@@ -453,7 +462,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
    */
   async getSharedVoteIds({ user1Id, user2Id }: { user1Id: string; user2Id: string; }): Promise<string[]> {
     const results = await this.getRawDb().any<{vote_id: string}>(
-      `
+      `-- VotesRepo.getSharedVoteIds
       WITH JoinedVotes AS (
         SELECT
           v1._id AS v1_id,

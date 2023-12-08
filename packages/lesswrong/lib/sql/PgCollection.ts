@@ -227,11 +227,11 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     await this.executeWriteQuery(query, {fieldOrSpec, options})
   }
 
-  aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions) => {
+  aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions, comment?: string) => {
     return {
       toArray: async () => {
         try {
-          const query = new Pipeline<T>(this.getTable(), pipeline, options).toQuery();
+          const query = new Pipeline<T>(this.getTable(), pipeline, options, comment).toQuery();
           const result = await this.executeReadQuery(query, {pipeline, options});
           return result as unknown as T[];
         } catch (e) {

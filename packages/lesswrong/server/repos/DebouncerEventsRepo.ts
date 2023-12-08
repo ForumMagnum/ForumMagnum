@@ -16,6 +16,7 @@ export default class DebouncerEventsRepo extends AbstractRepo<DbDebouncerEvents>
     data?: string,
   ): Promise<null> {
     return this.none(`
+      -- DebouncerEventsRepo.recordEvent
       INSERT INTO "DebouncerEvents" (
         "_id",
         "name",

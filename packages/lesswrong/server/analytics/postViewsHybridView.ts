@@ -3,6 +3,7 @@ import { registerHybridAnalyticsView } from "./hybridViews";
 export const POST_VIEWS_IDENTIFIER = "post_views";
 
 const viewQuery = (crossoverTime: Date, materialized = false) => `
+    -- postViewsHybridView.viewQuery
     SELECT
       count(*) AS view_count,
       count(DISTINCT client_id) AS unique_view_count,
@@ -20,23 +21,28 @@ const viewQuery = (crossoverTime: Date, materialized = false) => `
 `;
 
 const uniqueIndexGenerator = (viewName: string) => `
+  -- postViewsHybridView.uniqueIndexGenerator
   CREATE UNIQUE INDEX IF NOT EXISTS "${viewName}_unique_index" ON "${viewName}" (post_id, window_end);
 `;
 
 const postIndexGenerator = (viewName: string) => `
+  -- postViewsHybridView.postIndexGenerator
   CREATE INDEX IF NOT EXISTS "${viewName}_post_index" ON "${viewName}" (post_id);
 `;
 
 
 const windowEndIndexGenerator = (viewName: string) => `
+  -- postViewsHybridView.windowEndIndexGenerator
   CREATE INDEX IF NOT EXISTS "${viewName}_time_index" ON "${viewName}" (window_end);
 `;
 
 const windowStartIndexGenerator = (viewName: string) => `
+  -- postViewsHybridView.windowStartIndexGenerator
   CREATE INDEX IF NOT EXISTS "${viewName}_window_start_index" ON "${viewName}" (window_start);
 `;
 
 const compositeIndexGenerator = (viewName: string) => `
+  -- postViewsHybridView.compositeIndexGenerator
   CREATE UNIQUE INDEX IF NOT EXISTS "${viewName}_composite_index" ON "${viewName}" (post_id, window_end, window_start);
 `;
 
