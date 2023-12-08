@@ -92,19 +92,27 @@ export async function ensureIndexAsync<N extends CollectionNameString>(
   });
 }
 
-export const ensureCustomPgIndex = async (sql: string) => {
+interface EnsureCustomPgIndexOptions {
+  overrideCanEnsureIndexes?: boolean;
+  runImmediately?: boolean;
+  client?: SqlClient;
+}
+
+export const ensureCustomPgIndex = async (sql: string, options: EnsureCustomPgIndexOptions = {}) => {
   if (expectedCustomPgIndexes.includes(sql)) {
     return;
   }
   expectedCustomPgIndexes.push(sql);
 
-  if (!canEnsureIndexes())
+  let { runImmediately = false, overrideCanEnsureIndexes = false, client } = options;
+
+  if (!canEnsureIndexes() && !overrideCanEnsureIndexes)
     return;
 
   await createOrDeferIndex(async () => {
-    const db = getSqlClientOrThrow();
-    await db.any(sql);
-  });
+    client ??= getSqlClientOrThrow();
+    await client.any(sql);
+  }, runImmediately);
 }
 
 // Given an index partial definition for a collection's default view,
@@ -156,8 +164,8 @@ let deferredIndexesTimer: NodeJS.Timeout|null = null;
  * don't exist yet, and (b) building indexes in the middle of a later test
  * risks making that test time out.
  */
-const createOrDeferIndex = async (buildIndex: () => Promise<void>) => {
-  if (isAnyTest) {
+const createOrDeferIndex = async (buildIndex: () => Promise<void>, runImmediately = false) => {
+  if (isAnyTest || runImmediately) {
     await buildIndex();
   } else {
     deferredIndexes.push(buildIndex);

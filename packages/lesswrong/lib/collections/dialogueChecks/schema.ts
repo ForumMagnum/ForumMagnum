@@ -1,5 +1,4 @@
-import {schemaDefaultValue} from "../../collectionUtils";
-import { accessFilterSingle, resolverOnlyField } from "../../utils/schemaUtils";
+import { accessFilterSingle, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 
 const schema: SchemaType<"DialogueChecks"> = {
   // permissions enforced via collection-level checkAccess

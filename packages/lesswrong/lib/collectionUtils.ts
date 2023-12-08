@@ -1,44 +1,8 @@
-import SimpleSchema from 'simpl-schema';
 import * as _ from 'underscore';
 import { ensureIndex } from './collectionIndexUtils';
-import { DeferredForumSelect } from './forumTypeUtils';
-import { addFieldsDict } from './utils/schemaUtils';
+import { addFieldsDict, schemaDefaultValue } from './utils/schemaUtils';
 export { getDefaultMutations } from './vulcan-core/default_mutations';
 export { getDefaultResolvers } from './vulcan-core/default_resolvers';
-
-// canAutofillDefault: Marks a field where, if its value is null, it should
-// be auto-replaced with defaultValue in migration scripts.
-SimpleSchema.extendOptions([ 'canAutofillDefault' ]);
-
-// denormalized: In a schema entry, denormalized:true means that this field can
-// (in principle) be regenerated from other fields. For now, it's a glorified
-// machine-readable comment; in the future, it may have other infrastructure
-// attached.
-SimpleSchema.extendOptions([ 'denormalized' ]);
-
-// foreignKey: In a schema entry, this is either an object {collection,field},
-// or just a string, in which case the string is the collection name and field
-// is _id. Indicates that if this field is present and not null, its value
-// must correspond to an existing row in the named collection. For example,
-//
-//   foreignKey: 'Users'
-//   means that the value of this field must be the _id of a user;
-//
-//   foreignKey: {
-//     collection: 'Posts',
-//     field: 'slug'
-//   }
-//   means that the value of this field must be the slug of a post.
-//
-SimpleSchema.extendOptions([ 'foreignKey' ]);
-
-// nullable: In a schema entry, this boolean indicates whether the type system
-// should treat this field as nullable 
-SimpleSchema.extendOptions([ 'nullable' ]);
-
-// Define a static vector size for use in Postgres - this should only be
-// used on array fields
-SimpleSchema.extendOptions([ 'vectorSize' ]);
 
 declare module "simpl-schema" {
   interface SchemaDefinition {
@@ -46,43 +10,6 @@ declare module "simpl-schema" {
     denormalized?: boolean
     foreignKey?: CollectionNameString | {collection:CollectionNameString,field:string}
     nullable?: boolean
-  }
-}
-
-
-export function schemaDefaultValue<N extends CollectionNameString>(
-  defaultValue: any,
-): Partial<CollectionFieldSpecification<N>> {
-  // Used for both onCreate and onUpdate
-  const fillIfMissing = ({newDocument, fieldName}: {
-    newDocument: ObjectsByCollectionName[N],
-    fieldName: string,
-  }) => {
-    if (newDocument[fieldName as keyof ObjectsByCollectionName[N]] === undefined) {
-      return defaultValue instanceof DeferredForumSelect ? defaultValue.get() : defaultValue;
-    } else {
-      return undefined;
-    }
-  };
-  const throwIfSetToNull = ({oldDocument, document, fieldName}: {
-    oldDocument: ObjectsByCollectionName[N],
-    document: ObjectsByCollectionName[N],
-    fieldName: string,
-  }) => {
-    const wasValid = oldDocument[fieldName as keyof ObjectsByCollectionName[N]] !== undefined &&
-      oldDocument[fieldName as keyof ObjectsByCollectionName[N]] !== null;
-    const isValid = document[fieldName as keyof ObjectsByCollectionName[N]] !== undefined &&
-      document[fieldName as keyof ObjectsByCollectionName[N]] !== null;
-    if (wasValid && !isValid) {
-      throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
-    }
-  };
-
-  return {
-    defaultValue: defaultValue,
-    onCreate: fillIfMissing,
-    onUpdate: throwIfSetToNull,
-    canAutofillDefault: true,
   }
 }
 
@@ -98,6 +25,7 @@ export function addUniversalFields<N extends CollectionNameString>({
   addFieldsDict(collection, {
     _id: {
       optional: true,
+      nullable: false,
       type: String,
       canRead: ['guests'],
     },
@@ -111,6 +39,7 @@ export function addUniversalFields<N extends CollectionNameString>({
     createdAt: {
       type: Date,
       optional: true,
+      nullable: false,
       hidden: true,
       canRead: ['guests'],
       onInsert: () => new Date(),

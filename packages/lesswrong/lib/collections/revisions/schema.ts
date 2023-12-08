@@ -106,6 +106,7 @@ const schema: SchemaType<"Revisions"> = {
   version: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: ['guests']
   },
   commitMessage: {
@@ -157,7 +158,7 @@ const schema: SchemaType<"Revisions"> = {
         // suggestion. Original contents is only visible to people who are invited 
         // to collaborative editing. (This is only relevant for posts, but supporting
         // it means we need originalContents to default to unviewable)
-        if (document.collectionName === "Posts") {
+        if (document.collectionName === "Posts" && document.documentId) {
           const post = await context.loaders["Posts"].load(document.documentId)
           return getOriginalContents(context.currentUser, post, document.originalContents)
         }
@@ -189,7 +190,8 @@ const schema: SchemaType<"Revisions"> = {
     type: Number,
     canRead: ['guests'],
     optional: true,
-    // resolveAs defined in resolvers.js
+    nullable: true, //not really used, EA Forum has missing values
+    // resolveAs defined in resolvers.js //does not actually exist
   },
   htmlHighlight: {
     type: String, 
@@ -213,6 +215,7 @@ const schema: SchemaType<"Revisions"> = {
   },
   changeMetrics: {
     type: Object,
+    nullable: false,
     blackbox: true,
     canRead: ['guests']
   },
@@ -225,6 +228,8 @@ const schema: SchemaType<"Revisions"> = {
       const {currentUser, Tags} = context;
       if (revision.collectionName !== "Tags")
         return null;
+      if (!revision.documentId)
+        return null;
       const tag = await context.loaders.Tags.load(revision.documentId);
       return await accessFilterSingle(currentUser, Tags, tag, context);
     }
@@ -236,6 +241,8 @@ const schema: SchemaType<"Revisions"> = {
     resolver: async (revision: DbRevision, args: void, context: ResolverContext) => {
       const {currentUser, Posts} = context;
       if (revision.collectionName !== "Posts")
+        return null;
+      if (!revision.documentId)
         return null;
       const post = await context.loaders.Posts.load(revision.documentId);
       return await accessFilterSingle(currentUser, Posts, post, context);

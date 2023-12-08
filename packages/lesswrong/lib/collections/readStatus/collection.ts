@@ -30,12 +30,15 @@ const schema: SchemaType<"ReadStatuses"> = {
       type: "User",
       nullable: false,
     }),
+    nullable: false,
   },
   isRead: {
     type: Boolean,
+    nullable: false,
   },
   lastUpdated: {
     type: Date,
+    nullable: false,
   },
 };
 

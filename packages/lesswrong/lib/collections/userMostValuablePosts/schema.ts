@@ -1,9 +1,9 @@
-import { schemaDefaultValue } from '../../collectionUtils';
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { userOwns } from '../../vulcan-users/permissions';
 
 const schema: SchemaType<"UserMostValuablePosts"> = {
   userId: {
+    nullable: false,
     ...foreignKeyField({
       idFieldName: "userId",
       resolverName: "user",
@@ -16,6 +16,7 @@ const schema: SchemaType<"UserMostValuablePosts"> = {
     canUpdate: [userOwns, 'admins'],
   },
   postId: {
+    nullable: false,
     ...foreignKeyField({
       idFieldName: "postId",
       resolverName: "post",

@@ -33,7 +33,7 @@ export const Tags = createCollection({
       if (!user.isAdmin) {  // skip further checks for admins
         // If canEditUserIds is set only those users can edit the tag
         const restricted = tag && tag.canEditUserIds
-        if (restricted && !tag.canEditUserIds.includes(user._id)) return false;
+        if (restricted && !tag.canEditUserIds?.includes(user._id)) return false;
         if (!restricted && !tagUserHasSufficientKarma(user, "edit")) return false
       }
       return userCanCreateTags(user);

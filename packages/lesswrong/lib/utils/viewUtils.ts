@@ -16,13 +16,13 @@ const maxDocumentsPerRequestSetting = new DatabasePublicSetting<number>('maxDocu
  * that when we see slow queries in the profiler, we can easily identify the
  * source.
  */
-export function describeTerms(terms: ViewTermsBase) {
+export function describeTerms(collectionName: CollectionNameString, terms: ViewTermsBase) {
   const viewName = terms.view || "defaultView";
   const otherTerms = Object.keys(terms).filter(key => key!=='view').join(',');
   if (otherTerms.length>0)
-    return `${viewName}(${otherTerms})`;
+    return `${collectionName}.${viewName}(${otherTerms})`;
   else
-    return viewName;
+    return `${collectionName}.${viewName}`;
 }
 
 /**

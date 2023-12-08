@@ -8,6 +8,7 @@ import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 import { loggerConstructor } from './logging';
+import { DeferredForumSelect } from '../forumTypeUtils';
 
 export const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
   collectionName, fieldName, nullable
@@ -106,6 +107,10 @@ export const accessFilterMultiple = async <N extends CollectionNameString>(
 /**
  * This field is stored in the database as a string, but resolved as the
  * referenced document
+ * 
+ * @param {Object=} params
+ * @param {boolean} params.nullable
+ * whether the resolver field is nullable, not the original database field
  */
 export const foreignKeyField = <CollectionName extends CollectionNameString>({idFieldName, resolverName, collectionName, type, nullable=true}: {
   idFieldName: string,
@@ -156,7 +161,7 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
       }
     },
     canAutofillDefault: true,
-
+    nullable: false,
     resolveAs: {
       fieldName: resolverName,
       type: `[${type}!]!`,
@@ -398,7 +403,7 @@ export function denormalizedCountOfReferences<
   return {
     type: Number,
     optional: true,
-
+    nullable: false,
     defaultValue: 0,
     onCreate: ()=>0,
     canAutofillDefault: true,
@@ -431,4 +436,39 @@ export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
     type: "Point",
     coordinates: [gmaps.geometry.location.lng, gmaps.geometry.location.lat]
   }
+}
+export function schemaDefaultValue<N extends CollectionNameString>(
+  defaultValue: any,
+): Partial<CollectionFieldSpecification<N>> {
+  // Used for both onCreate and onUpdate
+  const fillIfMissing = ({ newDocument, fieldName }: {
+    newDocument: ObjectsByCollectionName[N];
+    fieldName: string;
+  }) => {
+    if (newDocument[fieldName as keyof ObjectsByCollectionName[N]] === undefined) {
+      return defaultValue instanceof DeferredForumSelect ? defaultValue.get() : defaultValue;
+    } else {
+      return undefined;
+    }
+  };
+  const throwIfSetToNull = ({ oldDocument, document, fieldName }: {
+    oldDocument: ObjectsByCollectionName[N];
+    document: ObjectsByCollectionName[N];
+    fieldName: string;
+  }) => {
+    const typedName = fieldName as keyof ObjectsByCollectionName[N];
+    const wasValid = oldDocument[typedName] !== undefined && oldDocument[typedName] !== null;
+    const isValid = document[typedName] !== undefined && document[typedName] !== null;
+    if (wasValid && !isValid) {
+      throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
+    }
+  };
+
+  return {
+    defaultValue: defaultValue,
+    onCreate: fillIfMissing,
+    onUpdate: throwIfSetToNull,
+    canAutofillDefault: true,
+    nullable: false
+  };
 }

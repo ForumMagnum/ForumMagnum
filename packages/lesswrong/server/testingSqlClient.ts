@@ -3,7 +3,7 @@ import PgCollection from "../lib/sql/PgCollection";
 import CreateIndexQuery from "../lib/sql/CreateIndexQuery";
 import CreateTableQuery from "../lib/sql/CreateTableQuery";
 import { Collections } from "./vulcan-lib";
-import { expectedIndexes } from "../lib/collectionIndexUtils";
+import { ensureCustomPgIndex, ensureIndex, expectedIndexes } from "../lib/collectionIndexUtils";
 import { ensurePostgresViewsExist } from "./postgresView";
 import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "../lib/sql/sqlClient";
 import { createSqlConnection } from "./sqlConnection";
@@ -23,6 +23,10 @@ import seedConversations from "../../../cypress/fixtures/conversations";
 import seedMessages from "../../../cypress/fixtures/messages";
 import seedLocalGroups from "../../../cypress/fixtures/localgroups";
 import seedUsers from "../../../cypress/fixtures/users";
+import { DatabaseMetadata } from "../lib/collections/databaseMetadata/collection";
+import DebouncerEvents from "../lib/collections/debouncerEvents/collection";
+import PageCache from "../lib/collections/pagecache/collection";
+import ReadStatuses from "../lib/collections/readStatus/collection";
 
 export const preparePgTables = () => {
   for (let collection of Collections) {
@@ -32,6 +36,38 @@ export const preparePgTables = () => {
       }
     }
   }
+}
+
+/**
+ * This is part of the nullability PR.
+ * We need to keep around the old indexes for use in the ON CONFLICT constraints in the rewritten upsert queries.
+ * So we need to ensure those indexes also exist in the test db for cypress tests, until we fix the whole index situation in a follow-up PR.
+ */
+const ensureMigratedIndexes = async (client: SqlClient) => {
+  const options = { overrideCanEnsureIndexes: true, runImmediately: true, client };
+  // eslint-disable-next-line no-console
+  console.log('Creating custom indexes');
+  await ensureCustomPgIndex(`
+    CREATE UNIQUE INDEX "idx_DatabaseMetadata_name_old"
+    ON public."DatabaseMetadata" USING btree
+    (COALESCE(name, ''));
+  `, options);
+  await ensureCustomPgIndex(`
+    CREATE UNIQUE INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered_old"
+    ON public."DebouncerEvents" USING btree
+    (dispatched, af, COALESCE(key, ''), COALESCE(name, ''))
+    WHERE (dispatched IS FALSE);
+  `, options);
+  await ensureCustomPgIndex(`
+    CREATE UNIQUE INDEX "idx_PageCache_path_abTestGroups_bundleHash_old"
+    ON public."PageCache" USING btree
+    (COALESCE(path, ''), "abTestGroups", COALESCE("bundleHash", ''));
+  `, options);
+  await ensureCustomPgIndex(`
+    CREATE UNIQUE INDEX "idx_ReadStatuses_userId_postId_tagId_old"
+    ON public."ReadStatuses" USING btree
+    (COALESCE("userId", ''), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
+  `, options);
 }
 
 const buildTables = async (client: SqlClient) => {
@@ -66,6 +102,7 @@ const buildTables = async (client: SqlClient) => {
     }
   }
 
+  await ensureMigratedIndexes(client);
   await updateFunctions(client);
   await ensurePostgresViewsExist(client);
 }

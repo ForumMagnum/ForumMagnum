@@ -265,11 +265,15 @@ class PgCollection<
     await this.executeWriteQuery(query, {fieldOrSpec, options})
   }
 
-  aggregate(pipeline: MongoAggregationPipeline<ObjectsByCollectionName[N]>, options?: MongoAggregationOptions) {
+  aggregate = (
+    pipeline: MongoAggregationPipeline<ObjectsByCollectionName[N]>,
+    options?: MongoAggregationOptions,
+    comment?: string,
+  ) => {
     return {
       toArray: async () => {
         try {
-          const query = new Pipeline<ObjectsByCollectionName[N]>(this.getTable(), pipeline, options).toQuery();
+          const query = new Pipeline(this.getTable(), pipeline, options, comment).toQuery();
           const result = await this.executeReadQuery(query, {pipeline, options});
           return result;
         } catch (e) {

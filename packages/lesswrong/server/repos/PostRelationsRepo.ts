@@ -8,6 +8,7 @@ export default class PostRelationsRepo extends AbstractRepo<"PostRelations"> {
 
   getPostRelationsByPostId(postId: string, depth = 3): Promise<DbPostRelation[]> {
     return this.any(`
+      -- PostRelationsRepo.getPostRelationsByPostId
       WITH RECURSIVE search_tree(
         "_id", "createdAt", "type", "sourcePostId", "targetPostId", "order", "schemaVersion", "depth"
       ) AS (

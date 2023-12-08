@@ -17,6 +17,7 @@ const schema: SchemaType<"DigestPosts"> = {
     canCreate: ['admins'],
     canUpdate: ['admins'],
     hidden: true,
+    nullable: false
   },
   postId: {
     ...foreignKeyField({
@@ -30,6 +31,7 @@ const schema: SchemaType<"DigestPosts"> = {
     canCreate: ['admins'],
     canUpdate: ['admins'],
     hidden: true,
+    nullable: false,
   },
   // is this post in the email digest?
   emailDigestStatus: {

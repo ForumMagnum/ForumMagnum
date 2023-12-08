@@ -1,6 +1,5 @@
 import range from "lodash/range";
-import { schemaDefaultValue } from "../../collectionUtils";
-import { resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
+import { schemaDefaultValue, resolverOnlyField, accessFilterSingle, accessFilterMultiple } from "../../utils/schemaUtils";
 import { getCollectionName } from "../../vulcan-lib";
 import { isLWorAF } from "../../instanceSettings";
 
@@ -34,6 +33,7 @@ const shiftSpotlightItems = async ({ startBound, endBound, offset, context }: Sh
 const schema: SchemaType<"Spotlights"> = {
   documentId: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'],
@@ -77,6 +77,7 @@ const schema: SchemaType<"Spotlights"> = {
     canCreate: ['admins', 'sunshineRegiment'],
     order: 30,
     optional: true,
+    nullable: false,
     onCreate: async ({ newDocument, context }) => {
       const [currentSpotlight, lastSpotlightByPosition] = await Promise.all([
         context.Spotlights.findOne({}, { sort: { lastPromotedAt: -1 } }),

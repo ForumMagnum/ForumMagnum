@@ -10,6 +10,7 @@ export default class SequencesRepo extends AbstractRepo<"Sequences"> {
 
   private getSearchDocumentQuery(): string {
     return `
+      -- SequencesRepo.getSearchDocumentQuery
       SELECT
         s."_id",
         s."_id" AS "objectID",
@@ -34,6 +35,7 @@ export default class SequencesRepo extends AbstractRepo<"Sequences"> {
 
   getSearchDocumentById(id: string): Promise<SearchSequence> {
     return this.getRawDb().one(`
+      -- SequencesRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
       WHERE s."_id" = $1
     `, [id]);
@@ -41,6 +43,7 @@ export default class SequencesRepo extends AbstractRepo<"Sequences"> {
 
   getSearchDocuments(limit: number, offset: number): Promise<SearchSequence[]> {
     return this.getRawDb().any(`
+      -- SequencesRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
       ORDER BY s."createdAt" DESC
       LIMIT $1
@@ -58,6 +61,7 @@ export default class SequencesRepo extends AbstractRepo<"Sequences"> {
    */
   async postsCount(sequenceIds: string[]): Promise<number[]> {
     const query = `
+      -- SequencesRepo.postsCount
       SELECT
         s._id as _id,
         count(*) as total_count
@@ -86,6 +90,7 @@ export default class SequencesRepo extends AbstractRepo<"Sequences"> {
     const userIds = params.map(p => p.userId);
   
     const query = `
+      -- SequencesRepo.readPostsCount
       SELECT
         s._id || '-' || rs."userId" as composite_id,
         count(*) AS read_count

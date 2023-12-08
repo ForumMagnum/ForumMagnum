@@ -416,9 +416,9 @@ addGraphQLResolvers({
       const { currentUser } = context;
       if (!currentUser) return false;
 
-      if (_.some(currentUser.partiallyReadSequences, (s:any)=>s.nextPostId===postId)) {
+      if (currentUser.partiallyReadSequences?.some((s)=>s.nextPostId===postId)) {
         const newPartiallyRead = _.filter(currentUser.partiallyReadSequences,
-          (s:any)=>s.nextPostId !== postId);
+          (s)=>s.nextPostId !== postId);
         await setUserPartiallyReadSequences(currentUser._id, newPartiallyRead);
         return true;
       }

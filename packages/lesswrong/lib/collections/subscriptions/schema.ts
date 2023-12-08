@@ -1,6 +1,5 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { foreignKeyField } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils'
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
 
 export const subscriptionTypes = {
   newComments: 'newComments',
@@ -29,9 +28,11 @@ const schema: SchemaType<"Subscriptions"> = {
     onCreate: ({currentUser}) => currentUser!._id,
     canRead: [userOwns],
     optional: true,
+    nullable: false,
   },
   state: {
     type: String,
+    nullable: false,
     allowedValues: ['subscribed', 'suppressed'],
     canCreate: ['members'],
     canRead: [userOwns],
@@ -43,6 +44,7 @@ const schema: SchemaType<"Subscriptions"> = {
   },
   collectionName: {
     type: String, 
+    nullable: false,
     typescriptType: "CollectionNameString",
     canRead: [userOwns],
     canCreate: ['members']
@@ -55,6 +57,7 @@ const schema: SchemaType<"Subscriptions"> = {
   },
   type: {
     type: String,
+    nullable: false,
     allowedValues: Object.values(subscriptionTypes),
     canCreate: ['members'],
     canRead: [userOwns]

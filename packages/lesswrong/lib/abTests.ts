@@ -157,3 +157,41 @@ export const showRecommendedContentInMatchForm = new ABTest({
     },
   },
 });
+
+export const checkNotificationMessageContent = new ABTest({
+  name: "checkNotificationMessageContent",
+  description: "Send different wording of the notification message upon a user receiving new checks",
+  groups: {
+    v1: {
+      description: "Wording version 1",
+      weight: 1,
+    },
+    v2: {
+      description: "Wording version 2",
+      weight: 1,
+    },
+    v3: {
+      description: "Wording version 3",
+      weight: 1,
+    },
+    v4: {
+      description: "Wording version 4",
+      weight: 1,
+    },
+  },
+});
+
+export const offerToAddCalendlyLink = new ABTest({
+  name: "offerToAddCalendlyLink",
+  description: "Offer to add a Calendly link on dialogue match",
+  groups: {
+    show: {
+      description: "Show field",
+      weight: 2,
+    },
+    noShow: {
+      description: "Don't show field",
+      weight: 1,
+    },
+  },
+});

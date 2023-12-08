@@ -1,8 +1,7 @@
-import { accessFilterSingle, arrayOfForeignKeysField, denormalizedCountOfReferences, resolverOnlyField } from '../../utils/schemaUtils'
+import { accessFilterSingle, arrayOfForeignKeysField, denormalizedCountOfReferences, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils'
 import * as _ from 'underscore';
 import { isLWorAF } from '../../instanceSettings';
 import { getWithCustomLoader } from '../../loaders';
-import { schemaDefaultValue } from '../../collectionUtils';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const schema: SchemaType<"Conversations"> = {

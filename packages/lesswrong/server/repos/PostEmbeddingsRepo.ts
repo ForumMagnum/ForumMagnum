@@ -18,6 +18,7 @@ export default class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
     }
     const now = new Date();
     return this.none(`
+      -- PostEmbeddingsRepo.setPostEmbeddings
       INSERT INTO "PostEmbeddings" (
         "_id",
         "postId",

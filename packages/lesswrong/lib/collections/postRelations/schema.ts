@@ -5,6 +5,7 @@ const schema: SchemaType<"PostRelations"> = {
     // "subQuestion"
     type: String,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
@@ -17,6 +18,7 @@ const schema: SchemaType<"PostRelations"> = {
       type: "Post",
       nullable: true
     }),
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
   },
@@ -28,6 +30,7 @@ const schema: SchemaType<"PostRelations"> = {
       type: "Post",
       nullable: true
     }),
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
   },

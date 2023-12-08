@@ -47,6 +47,11 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   const { major: majorVersion } = extractVersionsFromSemver(revision.version)
   const collection: CollectionBase<CollectionNameString> = getCollection(collectionName);
   const documentId = revision.documentId;
+
+  if (!documentId) {
+    return false
+  }
+  
   const document = context
     ? await context.loaders[collectionName].load(documentId)
     : await collection.findOne(documentId);

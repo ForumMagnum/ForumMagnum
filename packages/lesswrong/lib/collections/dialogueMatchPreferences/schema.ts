@@ -1,6 +1,5 @@
 import SimpleSchema from "simpl-schema";
-import {schemaDefaultValue} from "../../collectionUtils";
-import { foreignKeyField } from "../../utils/schemaUtils";
+import { foreignKeyField, schemaDefaultValue } from "../../utils/schemaUtils";
 
 export const SYNC_PREFERENCE_VALUES = ['Yes', 'Meh', 'No'] as const;
 export type SyncPreference = typeof SYNC_PREFERENCE_VALUES[number];
@@ -79,6 +78,14 @@ const schema: SchemaType<"DialogueMatchPreferences"> = {
     canRead: ['members', 'admins'],
     canUpdate: ['members', 'admins'],
     ...schemaDefaultValue('')
+  },
+  calendlyLink: {
+    type: String,
+    nullable: true,
+    optional: true,
+    canCreate: ['members', 'admins'],
+    canRead: ['members', 'admins'],
+    canUpdate: ['members', 'admins'],
   },
   generatedDialogueId: {
     type: String,

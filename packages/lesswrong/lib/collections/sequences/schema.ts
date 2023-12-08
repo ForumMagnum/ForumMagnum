@@ -1,5 +1,4 @@
-import { foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue, foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '../../loaders';
 
 const schema: SchemaType<"Sequences"> = {
@@ -12,6 +11,7 @@ const schema: SchemaType<"Sequences"> = {
       nullable: true,
     }),
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -219,6 +219,7 @@ const schema: SchemaType<"Sequences"> = {
   af: {
     type: Boolean,
     optional: true,
+    nullable: false,
     label: "Alignment Forum",
     ...schemaDefaultValue(false),
     canRead: ['guests'],

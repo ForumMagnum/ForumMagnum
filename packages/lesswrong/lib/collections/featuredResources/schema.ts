@@ -1,6 +1,7 @@
 const schema: SchemaType<"FeaturedResources"> = {
   title: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -8,6 +9,7 @@ const schema: SchemaType<"FeaturedResources"> = {
   },
   body: {
     type: String,
+    nullable: true, //at request of EA Forum since they had missing values
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -15,6 +17,7 @@ const schema: SchemaType<"FeaturedResources"> = {
   },
   ctaText: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -22,6 +25,7 @@ const schema: SchemaType<"FeaturedResources"> = {
   },
   ctaUrl: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
@@ -33,6 +37,7 @@ const schema: SchemaType<"FeaturedResources"> = {
     canCreate: ['admins'],
     canUpdate: ['admins'],
     optional: true,
+    nullable: true,
     control: 'datetime',
   },
 }

@@ -1,5 +1,4 @@
-import { schemaDefaultValue } from "../../collectionUtils";
-import { foreignKeyField } from "../../utils/schemaUtils";
+import { foreignKeyField, schemaDefaultValue } from "../../utils/schemaUtils";
 import { eaGivingSeason23ElectionName } from "../../eaGivingSeason";
 
 const schema: SchemaType<"ElectionCandidates"> = {

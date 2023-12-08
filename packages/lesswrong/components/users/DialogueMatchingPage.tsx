@@ -4,7 +4,6 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { gql, useQuery } from "@apollo/client";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
-import { randomId } from '../../lib/random';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCreate } from '../../lib/crud/withCreate';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -32,8 +31,10 @@ import partition from 'lodash/partition';
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
 import NoSSR from 'react-no-ssr';
 import { useABTest } from '../../lib/abTestImpl';
-import { dialogueMatchingPageNoSSRABTest, showRecommendedContentInMatchForm } from '../../lib/abTests';
+import { dialogueMatchingPageNoSSRABTest, offerToAddCalendlyLink, showRecommendedContentInMatchForm } from '../../lib/abTests';
 import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialogues/DialogueRecommendationRow';
+import { validatedCalendlyUrl } from '../dialogues/CalendlyIFrame';
+import { initial } from 'underscore';
 
 export type UpvotedUser = {
   _id: string;
@@ -66,7 +67,7 @@ export type TopCommentedTagUser = {
 export type UserDialogueUsefulData = {
   dialogueUsers: UsersOptedInToDialogueFacilitation[],
   topUsers: UpvotedUser[],
-  activeDialogueMatchSeekers: DbUser[]
+  activeDialogueMatchSeekers: UsersOptedInToDialogueFacilitation[]
 }
 
 export type TopicRecommendationData = DbComment[]
@@ -629,7 +630,7 @@ const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, use
 
 const UserPostsYouveRead = ({ classes, targetUserId, hideAtSm, limit = 20}: { classes: ClassesType<typeof styles>, targetUserId: string, hideAtSm: boolean, limit?: number }) => {
   const currentUser = useCurrentUser();
-  const { Loading, PostsTooltip, LWDialog } = Components;
+  const { Loading, PostsTooltip } = Components;
 
 
   const { loading, error, data } = useQuery(gql`
@@ -836,13 +837,17 @@ return (
 }
 
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes, dialogueCheck }: NextStepsDialogProps) => {
-  const { LWDialog, ReactionIcon, LWTooltip } = Components;
+  const { LWDialog, ReactionIcon, LWTooltip, CalendlyIFrame } = Components;
 
   const [topicNotes, setTopicNotes] = useState(dialogueCheck.matchPreference?.topicNotes ?? "");
   const [formatSync, setFormatSync] = useState<SyncPreference>(dialogueCheck.matchPreference?.syncPreference ?? "Meh");
   const [formatAsync, setFormatAsync] = useState<SyncPreference>(dialogueCheck.matchPreference?.asyncPreference ?? "Meh");
   const [formatNotes, setFormatNotes] = useState(dialogueCheck.matchPreference?.formatNotes ?? "");
   const showRecommendedContent = useABTest(showRecommendedContentInMatchForm);
+  const initialCalendlyLink = validatedCalendlyUrl(dialogueCheck.matchPreference?.calendlyLink ?? "");
+  const [calendlyLink, setCalendlyLink] = useState(initialCalendlyLink);
+
+  const calendlyAB = useABTest(offerToAddCalendlyLink);
 
   const { create, called, loading: loadingCreatedMatchPreference, data: newMatchPreference } = useCreate({
     collectionName: "DialogueMatchPreferences",
@@ -882,6 +887,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
         syncPreference: formatSync,
         asyncPreference: formatAsync,
         formatNotes: formatNotes,
+        calendlyLink: calendlyLink.valid ? calendlyLink.url : undefined,
       }
     });
 
@@ -1054,11 +1060,26 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                     onChange={event => setFormatAsync(value as SyncPreference)}
                 />)}
             </div>      
+            { calendlyAB === "show" && <TextField
+              variant="outlined"
+              label="You can share a calendly link for easier scheduling"
+              rows={2}
+              error={!calendlyLink.valid}
+              helperText={!calendlyLink.valid && "Please enter a valid calendly link"}
+              fullWidth
+              value={calendlyLink.url ?? ""}
+              margin="normal"
+              onChange={event => setCalendlyLink(validatedCalendlyUrl(event.target.value))}
+            /> }
+            { calendlyLink.valid && calendlyLink.url && <>
+              <h3 className={classes.sectionHeader}>A preview of what we'll show your partner</h3>
+              <CalendlyIFrame url={calendlyLink.url} />
+            </>}
             <TextField
               multiline
               rows={2}
               variant="outlined"
-              label="Anything else to add? It could be helpful to add a calendly or similar."
+              label="Anything else to add?"
               fullWidth
               value={formatNotes}
               onChange={event => setFormatNotes(event.target.value)}

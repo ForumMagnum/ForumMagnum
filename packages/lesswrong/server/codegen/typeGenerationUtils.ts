@@ -25,8 +25,12 @@ export function simplSchemaTypeToTypescript(
   fieldName: string,
   simplSchemaType: AnyBecauseTodo,
   indent = 2,
+  DbType = false,
 ): string {
-  const nullable = !!schema[fieldName]?.nullable;
+  let nullable = !!schema[fieldName]?.nullable;
+  if (DbType) {
+    nullable = schema[fieldName]?.nullable !== false
+  }
   if (simplSchemaType.singleType === Array) {
     const elementFieldName = `${fieldName}.$`;
     if (!(elementFieldName in schema)) {

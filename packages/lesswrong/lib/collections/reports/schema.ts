@@ -13,6 +13,7 @@ const schema: SchemaType<"Reports"> = {
     canCreate: ['members'],
     hidden: true,
     optional: true,
+    nullable: false
   },
   reportedUserId: {
     ...foreignKeyField({
@@ -85,6 +86,7 @@ const schema: SchemaType<"Reports"> = {
   },
   closedAt: {
     optional: true,
+    nullable: true,
     type: Date,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],

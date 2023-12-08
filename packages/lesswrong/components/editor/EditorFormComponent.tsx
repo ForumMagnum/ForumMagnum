@@ -24,11 +24,11 @@ export function isCollaborative(post: DbPost, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
   if (fieldName !== "contents") return false;
-  if (post.shareWithUsers?.length > 0) return true;
+  if (post.shareWithUsers.length > 0) return true;
   if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
     return true;
   if (post.collabEditorDialogue) return true;
-  return false;
+  return false;  
 }
 
 const getPostPlaceholder = (post: PostsBase) => {
@@ -61,7 +61,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
-  const isCollabEditor = isCollaborative(document, fieldName);
+  const isCollabEditor = collectionName === 'Posts' && isCollaborative(document, fieldName);
   const { captureEvent } = useTracking()
   const editableFieldOptions = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName];
 
@@ -362,7 +362,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       hasCommitMessages={hasCommitMessages ?? undefined}
       document={document}
     />
-    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
+    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
       <Components.PostVersionHistoryButton
         post={document}

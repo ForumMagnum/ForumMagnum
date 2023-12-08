@@ -183,7 +183,7 @@ addGraphQLResolvers({
       // Maybe check for karma level here?
       if (
         !canUserEditPostMetadata(currentUser, post) &&
-        !currentUser.groups.includes("sunshineRegiment")
+        !currentUser.groups?.includes("sunshineRegiment")
       ) {
         throw new Error("Permission denied");
       }
