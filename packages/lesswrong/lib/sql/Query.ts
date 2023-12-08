@@ -137,6 +137,12 @@ abstract class Query<T extends DbObject> {
   compileAtoms(atoms: Atom<T>[], argOffset = 0, subqueryOffset = 'A'.charCodeAt(0)): {sql: string, args: any[]} {
     const strings: string[] = [];
     let args: any[] = [];
+    
+    const comment = this.getSqlComment();
+    if (comment) {
+      strings.push(`-- ${comment}\n`);
+    }
+    
     for (const atom of atoms) {
       if (atom instanceof Arg) {
         strings.push(`$${++argOffset}${atom.typehint}`);
@@ -159,6 +165,10 @@ abstract class Query<T extends DbObject> {
       sql: strings.join(" "),
       args,
     };
+  }
+  
+  getSqlComment(): string|null {
+    return null;
   }
 
   /**
@@ -718,6 +728,10 @@ abstract class Query<T extends DbObject> {
       ];
     }
   }
+}
+
+export function sanitizeSqlComment(comment: string): string {
+  return comment.replace(/\n/g, '_');
 }
 
 export default Query;
