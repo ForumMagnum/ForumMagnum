@@ -510,7 +510,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       LIMIT $3
     )
     -- If the above query doesn't return enough users, then fill in the rest with users who you've upvoted
-      UNION ALL
+      UNION
       (
         SELECT u.*
         FROM unnest($2::text[]) AS uv(_id)
