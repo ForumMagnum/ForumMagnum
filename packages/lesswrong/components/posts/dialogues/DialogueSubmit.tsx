@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, getFragmentText, registerComponent } from '../../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
@@ -8,6 +8,10 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { EditorContext } from '../PostsEditForm';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
+import {useMulti} from '../../../lib/crud/withMulti';
+import {useUpsertDialogueCheck} from '../../hooks/useUpsertDialogueCheck';
+import {useSingle} from '../../../lib/crud/withSingle';
+import {gql, useMutation} from '@apollo/client';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
@@ -72,17 +76,53 @@ const DialogueSubmit = ({
 
   const navigate = useNavigate();
 
+  const [resetCheck] = useMutation(gql`
+    mutation resetCheck($dialogueCheckId: String!) {
+      resetCheck(dialogueCheckId: $dialogueCheckId) {
+        ...DialogueCheckInfo
+      }
+    }
+    ${getFragmentText('DialogueCheckInfo')}
+  `);
+
+  const dialogueMatchPreferencesResults = useMulti({
+    terms: {
+      view: "dialogueMatchPreferencesByDialogue",
+      generatedDialogueId: document._id,
+      limit: 2,
+    },
+    fragmentName: "DialogueMatchPreferenceInfo",
+    collectionName: "DialogueMatchPreferences",
+  })
+
+  const matchForms = dialogueMatchPreferencesResults?.results
+
+  const resetChecks = (dialogueCheckIds: string[]) => {
+    dialogueCheckIds?.forEach(id => {
+      void resetCheck({ variables: { dialogueCheckId: id } });
+    });
+  };
+
+  const causeSubmitSideEffects = async () => {
+    if (collectionName === "Posts") { 
+      await updateCurrentValues({draft: false})
+      if (!!matchForms) { resetChecks(matchForms.map((form) => form.dialogueCheckId)) }
+    }
+  }
+
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (confirm('Warning!  This will publish your dialogue and make it visible to other users.')) {
-      collectionName === "Posts" && await updateCurrentValues({draft: false});
+      await causeSubmitSideEffects();
       await submitForm();
     }
   };
 
-  const submitWithoutConfirmation = () => collectionName === "Posts" && updateCurrentValues({draft: false});
+  const submitWithoutConfirmation = async () => {
+    await causeSubmitSideEffects();
+  };
 
-  const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate;
+  const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate; // This check only applies to legacy dialogues, TODO remove?
   const showShortformButton = !!userShortformId && !isFriendlyUI;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
