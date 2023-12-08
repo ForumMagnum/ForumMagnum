@@ -236,13 +236,18 @@ export function startWebserver() {
     }
     
     const currentUser = await getUserFromReq(req)
-    if (!currentUser || !getUserEmail(currentUser)){
-      res.status(403).send("Not logged in or current user has no email address")
+    if (!currentUser) {
+      res.status(403).send("Not logged in")
+      return
+    }
+
+    const userEmail = getUserEmail(currentUser)
+    if (!userEmail) {
+      res.status(403).send("User does not have email")
       return
     }
     
-    const eagApp = await getEAGApplicationData(currentUser.email)
-    res.send(eagApp)
+    const eagApp = await getEAGApplicationData(userEmail)
   })
 
   addCrosspostRoutes(app);

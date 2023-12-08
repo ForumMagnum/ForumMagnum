@@ -153,7 +153,7 @@ const RecentlyActiveUsers = ({ classes }: {
 
   function usersSortByKarma (users: SunshineUsersList[]) {
     return [...users].sort((a, b) => {
-      return (a.karma ?? 0) - (b.karma ?? 0)
+      return (a.karma) - (b.karma)
     })
   };
 
