@@ -192,7 +192,7 @@ const performQueryFromViewParameters = async <N extends CollectionNameString>(
   }
   
   const description = describeTerms(collection.collectionName, terms);
-  const options: MongoFindOptions<T> = {
+  const options: MongoFindOptions<ObjectsByCollectionName[N]> = {
     ...parameters.options,
     skip: terms.offset,
     comment: description

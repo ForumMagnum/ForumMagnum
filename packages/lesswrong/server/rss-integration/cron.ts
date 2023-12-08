@@ -170,7 +170,7 @@ defineQuery({
       throw new Error("Could not find matching post");
     }
     
-    if (!post.contents.originalContents) { 
+    if (!post.contents?.originalContents) { 
       throw new Error("Post has no original contents.")
     }
     
