@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, getFragmentText, registerComponent } from '../../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
@@ -10,6 +10,8 @@ import { EditorContext } from '../PostsEditForm';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import {useMulti} from '../../../lib/crud/withMulti';
 import {useUpsertDialogueCheck} from '../../hooks/useUpsertDialogueCheck';
+import {useSingle} from '../../../lib/crud/withSingle';
+import {gql, useMutation} from '@apollo/client';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
@@ -74,68 +76,50 @@ const DialogueSubmit = ({
 
   const navigate = useNavigate();
 
-  const creationDate:Date = document.createdAt;
-  const coauthorStatuses:{
-      userId: string,
-      confirmed: boolean,
-      requested: boolean
-    }[] = document.coauthorStatuses
-
-  const upsertUserDialogueCheck = useUpsertDialogueCheck();
-  const userIds = [currentUser._id, ...coauthorStatuses.map((coauthorStatus) => coauthorStatus.userId)]
-  const userDialogueChecksResult = useMulti({
-    terms: {
-      view: "dialogueCohortToResetReciprocity",
-      userIds: userIds,
-      targetUserIds: userIds,
-      checked: true,
-      checkedAt: creationDate,
-      limit: 1000,
-    },
-    fragmentName: "DialogueCheckInfo",
-    collectionName: "DialogueChecks",
-  });
-
-  const allAuthorCrossChecks = userDialogueChecksResult?.results
-
-  const resetUserGroupChecks = async (userGroupChecks:DialogueCheckInfo[] | undefined) => {
-    userGroupChecks?.forEach((check) => { 
-      void upsertUserDialogueCheck({ targetUserId: check.targetUserId, checked: false, checkId: check._id });
-    })
-  }
+  const [resetCheck] = useMutation(gql`
+    mutation resetCheck($dialogueCheckId: String!) {
+      resetCheck(dialogueCheckId: $dialogueCheckId) {
+        ...DialogueCheckInfo
+      }
+    }
+    ${getFragmentText('DialogueCheckInfo')}
+  `);
 
   const dialogueMatchPreferencesResults = useMulti({
     terms: {
       view: "dialogueMatchPreferencesByDialogue",
       generatedDialogueId: document._id,
-      limit: 1,
+      limit: 2,
     },
     fragmentName: "DialogueMatchPreferenceInfo",
     collectionName: "DialogueMatchPreferences",
   })
 
-  const matchForm = dialogueMatchPreferencesResults?.results
+  const matchForms = dialogueMatchPreferencesResults?.results
+
+  const resetChecks = (dialogueCheckIds: string[]) => {
+    dialogueCheckIds?.forEach(id => {
+      void resetCheck({ variables: { dialogueCheckId: id } });
+    });
+  };
+
+  const causeSubmitSideEffects = async () => {
+    if (collectionName === "Posts") { 
+      await updateCurrentValues({draft: false})
+      if (!!matchForms) { resetChecks(matchForms.map((form) => form.dialogueCheckId)) }
+    }
+  }
 
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (confirm('Warning!  This will publish your dialogue and make it visible to other users.')) {
-      if (collectionName === "Posts") { 
-        await updateCurrentValues({draft: false})
-       // void resetUserGroupChecks(allAuthorCrossChecks);
-       if (matchForm && matchForm?.length > 0) {
-        // obtain targetUserId from the dialogueCheckId 
-        void upsertUserDialogueCheck({ targetUserId: check.targetUserId, checked: false, checkId: check._id });
-       }
-      }
+      await causeSubmitSideEffects();
       await submitForm();
     }
   };
 
-  const submitWithoutConfirmation = () => {
-    if (collectionName === "Posts") {
-      void updateCurrentValues({draft: false});
-      void resetUserGroupChecks(allAuthorCrossChecks);
-    }
+  const submitWithoutConfirmation = async () => {
+    await causeSubmitSideEffects();
   };
 
   const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate; // This check only applies to legacy dialogues, TODO remove?

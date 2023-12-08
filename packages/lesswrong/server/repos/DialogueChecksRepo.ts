@@ -38,6 +38,17 @@ export default class DialogueChecksRepo extends AbstractRepo<DbDialogueCheck> {
     `, [randomId(), userId, targetUserId, false, checkedAt, hideInRecommendations])
   }
 
+  async resetDialogueCheck(dialogueCheckId: string) {
+    const checkedAt = new Date() // now
+    return this.one(`
+      UPDATE "DialogueChecks" SET 
+        "checked" = $1,
+        "checkedAt" = $2,
+      WHERE "_id" = $3
+      RETURNING *
+    `, [false, checkedAt, dialogueCheckId])
+  }
+
   async checkForMatch(userId1: string, userId2: string): Promise<DbDialogueCheck | null> {
     return this.oneOrNone(`
       SELECT 

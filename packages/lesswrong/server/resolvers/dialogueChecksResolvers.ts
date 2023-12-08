@@ -47,6 +47,17 @@ defineMutation({
   } 
 })
 
+defineMutation({
+  name: "resetCheck",
+  resultType: "DialogueCheck",
+  argTypes: "(dialogueCheckId: String!)",
+  fn: async (_, {dialogueCheckId}:{dialogueCheckId:string}, {currentUser, repos}) => {
+    const dialogueCheck = await repos.dialogueChecks.resetDialogueCheck(dialogueCheckId)
+    // TODO: add a notification saying "we unchecked you from this person, as you published"
+    return dialogueCheck
+  } 
+})
+
 export const getMatchingDialogueCheck = async (dialogueCheck : DbDialogueCheck) => {
   return await new DialogueChecksRepo().checkForMatch(dialogueCheck.userId, dialogueCheck.targetUserId) 
 }
