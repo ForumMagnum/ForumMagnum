@@ -31,7 +31,7 @@ import partition from 'lodash/partition';
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
 import NoSSR from 'react-no-ssr';
 import { useABTest } from '../../lib/abTestImpl';
-import { dialogueMatchingPageNoSSRABTest, showRecommendedContentInMatchForm } from '../../lib/abTests';
+import { dialogueMatchingPageNoSSRABTest, offerToAddCalendlyLink, showRecommendedContentInMatchForm } from '../../lib/abTests';
 import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialogues/DialogueRecommendationRow';
 import { validatedCalendlyUrl } from '../dialogues/CalendlyIFrame';
 import { initial } from 'underscore';
@@ -847,6 +847,8 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   const initialCalendlyLink = validatedCalendlyUrl(dialogueCheck.matchPreference?.calendlyLink ?? "");
   const [calendlyLink, setCalendlyLink] = useState(initialCalendlyLink);
 
+  const calendlyAB = useABTest(offerToAddCalendlyLink);
+
   const { create, called, loading: loadingCreatedMatchPreference, data: newMatchPreference } = useCreate({
     collectionName: "DialogueMatchPreferences",
     fragmentName: "DialogueMatchPreferencesDefaultFragment",
@@ -1058,7 +1060,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                     onChange={event => setFormatAsync(value as SyncPreference)}
                 />)}
             </div>      
-            <TextField
+            { calendlyAB === "show" && <TextField
               variant="outlined"
               label="You can share a calendly link for easier scheduling"
               rows={2}
@@ -1068,7 +1070,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
               value={calendlyLink.url ?? ""}
               margin="normal"
               onChange={event => setCalendlyLink(validatedCalendlyUrl(event.target.value))}
-            />
+            /> }
             { calendlyLink.valid && calendlyLink.url && <>
               <h3 className={classes.sectionHeader}>A preview of what we'll show your partner</h3>
               <CalendlyIFrame url={calendlyLink.url} />
