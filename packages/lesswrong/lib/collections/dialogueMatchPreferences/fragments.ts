@@ -10,5 +10,6 @@ registerFragment(`
     asyncPreference
     formatNotes
     generatedDialogueId
+    deleted
   }
 `);

@@ -47,7 +47,7 @@ const schema: SchemaType<DbDialogueCheck> = {
     canRead: ['members', 'admins'],
     resolver: async (dialogueCheck: DbDialogueCheck, args: void, context: ResolverContext) => {
       const { DialogueMatchPreferences, DialogueChecks } = context;
-      const matchPreference = await DialogueMatchPreferences.findOne({dialogueCheckId: dialogueCheck._id});
+      const matchPreference = await DialogueMatchPreferences.findOne({dialogueCheckId: dialogueCheck._id, deleted: {$ne: true}});
       return await accessFilterSingle(context.currentUser, DialogueMatchPreferences, matchPreference, context);
     }
   }),
@@ -59,7 +59,7 @@ const schema: SchemaType<DbDialogueCheck> = {
       const { DialogueMatchPreferences, DialogueChecks } = context;
       const matchingDialogueCheck = await DialogueChecks.findOne({userId: dialogueCheck.targetUserId, targetUserId: dialogueCheck.userId});
       if (!matchingDialogueCheck) return null;
-      const reciprocalMatchPreference = await DialogueMatchPreferences.findOne({dialogueCheckId: matchingDialogueCheck._id});
+      const reciprocalMatchPreference = await DialogueMatchPreferences.findOne({dialogueCheckId: matchingDialogueCheck._id, deleted: {$ne: true}});
       return await accessFilterSingle(context.currentUser, DialogueMatchPreferences, reciprocalMatchPreference, context);
     }
   }),

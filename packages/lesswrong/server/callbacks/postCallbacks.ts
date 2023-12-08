@@ -571,14 +571,22 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
   const adminContext = createAdminContext();
 
   if (post.collabEditorDialogue && post.draft === false && oldPost.draft) {
-    const matchForms = await DialogueMatchPreferences.find({generatedDialogueId: post._id}).fetch()
+    const matchForms = await DialogueMatchPreferences.find({generatedDialogueId: post._id, deleted: {$ne: true}}).fetch()
     for (const matchForm of matchForms) {
       const dialogueCheck = await DialogueChecks.findOne(matchForm.dialogueCheckId);
       if (dialogueCheck) {
-        await updateMutator({
+        await updateMutator({ // reset check
           collection: DialogueChecks,
           documentId: dialogueCheck._id,
           set: { checked: false },
+          currentUser: adminContext.currentUser,
+          context: adminContext,
+          validate: false
+        });
+        await updateMutator({ // soft delete topic form
+          collection: DialogueMatchPreferences,
+          documentId: matchForm._id,
+          set: { deleted: true },
           currentUser: adminContext.currentUser,
           context: adminContext,
           validate: false

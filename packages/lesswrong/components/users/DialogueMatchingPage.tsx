@@ -34,7 +34,6 @@ import { useABTest } from '../../lib/abTestImpl';
 import { dialogueMatchingPageNoSSRABTest, showRecommendedContentInMatchForm } from '../../lib/abTests';
 import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialogues/DialogueRecommendationRow';
 import { validatedCalendlyUrl } from '../dialogues/CalendlyIFrame';
-import { initial } from 'underscore';
 
 export type UpvotedUser = {
   _id: string;
@@ -1185,7 +1184,7 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
 
   const navigate = useNavigate();
 
-  const {loading: userLoading, results} = useMulti({
+  const {loading: userLoading, results: matchFormResults} = useMulti({
     terms: {
       view: "dialogueMatchPreferences",
       dialogueCheckId: checkId,
@@ -1203,7 +1202,7 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
 
   if (!isMatched) return <div className={classes.hideAtXs}></div>; // need this instead of null to keep the table columns aligned
 
-  const userMatchPreferences = results?.[0]
+  const userMatchPreferences = matchFormResults?.[0]
   const generatedDialogueId = userMatchPreferences?.generatedDialogueId;
 
   if (!!generatedDialogueId) {
