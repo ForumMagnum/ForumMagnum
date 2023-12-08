@@ -1,6 +1,6 @@
-import {ensureIndex} from "../../collectionIndexUtils";
-import {addUniversalFields, getDefaultResolvers, schemaDefaultValue} from "../../collectionUtils";
-import {createCollection} from "../../vulcan-lib";
+import { ensureIndex } from "../../collectionIndexUtils";
+import { addUniversalFields, getDefaultResolvers } from "../../collectionUtils";
+import { createCollection } from "../../vulcan-lib";
 import schema from "./schema";
 
 export const DialogueChecks: DialogueChecksCollection = createCollection({

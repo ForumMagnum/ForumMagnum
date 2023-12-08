@@ -136,7 +136,7 @@ const addFragmentDependencies = (fragments: Array<FragmentName>): Array<Fragment
     const dependencies = Fragments[result[i]].subFragments;
     if (dependencies) {
       _.forEach(dependencies, (subfragment: FragmentName) => {
-        if (!_.find(result, (s: FragmentName)=>s==subfragment))
+        if (!_.find(result, (s: FragmentName)=>s===subfragment))
           result.push(subfragment);
       });
     }

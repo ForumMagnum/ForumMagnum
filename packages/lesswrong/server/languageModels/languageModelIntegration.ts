@@ -110,8 +110,10 @@ export async function wikiSlugToTemplate(slug: string): Promise<LanguageModelTem
 export function wikiPageToTemplate(wikiPage: DbTag): LanguageModelTemplate {
   let header: Record<string,string> = {};
   let body = "";
+
+  if (!wikiPage.description?.originalContents?.type) throw new Error("Missing description type")
   
-  const descriptionMarkdown = dataToMarkdown(wikiPage.description?.originalContents?.data, wikiPage.description?.originalContents?.type);
+  const descriptionMarkdown = dataToMarkdown(wikiPage.description?.originalContents?.data, wikiPage.description.originalContents.type);
   const lines = descriptionMarkdown
     .trim()
     .split('\n')

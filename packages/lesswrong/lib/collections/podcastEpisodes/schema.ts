@@ -10,6 +10,7 @@ const schema: SchemaType<DbPodcastEpisode> = {
       nullable: false
     }),
     optional: true, // ???
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['podcasters', 'admins']
   },

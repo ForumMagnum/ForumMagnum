@@ -87,3 +87,19 @@ export const useIsGivingSeason = () => {
     moment.utc(timelineSpec.start).isBefore(now) &&
     moment.utc(timelineSpec.end).isAfter(now);
 }
+
+export const useSubmittedVoteCount = (electionName: string) => {
+  const { data, loading, error } = useQuery<{SubmittedVoteCount: number}>(gql`
+    query SubmittedVoteCount($electionName: String!) {
+      SubmittedVoteCount(electionName: $electionName)
+    }
+  `, {
+    variables: { electionName },
+  });
+
+  return {
+    submittedVoteCount: data?.SubmittedVoteCount,
+    loading,
+    error
+  };
+}

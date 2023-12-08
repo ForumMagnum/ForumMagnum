@@ -3,7 +3,6 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { gql, useQuery } from '@apollo/client';
-import { TagWithCommentCount } from '../users/DialogueMatchingPage';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -11,7 +10,6 @@ import { useSingle } from '../../lib/crud/withSingle';
 import { truncatise } from '../../lib/truncatise';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
-import {DialogueUserResult} from './DialoguesList';
 
 const styles = (theme: ThemeType) => ({
   dialogueUserRow: { 
@@ -83,12 +81,14 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+    paddingBottom: '5px',
   },
   reactIcon: {
     paddingRight: "4px",
   },
   suggestionRow: {
     display: 'flex',
+    lineHeight: '1.15em',
   },
   agreeText: {
     color: theme.palette.text.dim3,
@@ -138,7 +138,10 @@ const styles = (theme: ThemeType) => ({
   bigScreenExpandNote: {
     [theme.breakpoints.down('xs')]: {
       display: 'none'
-    }
+    },
+  },
+  caret: {
+    fontSize: '0.83em',
   },
   commentSourcePost: {
     color: theme.palette.text.dim3,
@@ -150,19 +153,29 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-type PostYouveRead = {
+export type PostYouveRead = {
   _id: string;
   title: string;
   slug: string;
 }
 
-type RecommendedComment = {
+export type RecommendedComment = {
   _id: string;
   postId: string;
   contents: {
     html: string;
     plaintextMainText: string;
   };
+}
+
+export type TagWithCommentCount = {
+  tag: DbTag,
+  commentCount: number
+}
+
+export interface DialogueUserResult {
+  _id: string;
+  displayName: string;
 }
 
 interface DialogueRecommendationRowProps {
@@ -197,7 +210,7 @@ interface TopicSuggestionProps {
   isExpanded: boolean;
 }
 
-const TopicSuggestion = ({reactIconName, prefix, Content, classes, isExpanded}: TopicSuggestionProps) => {
+export const TopicSuggestion = ({reactIconName, prefix, Content, classes, isExpanded}: TopicSuggestionProps) => {
   const { ReactionIcon } = Components
   return (
     <div className={classes.suggestionRow}>
@@ -226,10 +239,10 @@ interface ExpandCollapseTextProps {
 const ExpandCollapseText = ({classes, isExpanded, numHidden, toggleExpansion}: ExpandCollapseTextProps) => {
   let text 
   if (isExpanded) {
-    text = <>▲ hide</>;
+    text = <><span className={classes.caret}>▲</span> hide</>;
   } else {
     text = <>
-      ▼<span key="1" className={classes.bigScreenExpandNote}>
+      <span className={classes.caret} >▼</span><span key="1" className={classes.bigScreenExpandNote}>
         ...{numHidden > 0 ? ` ${numHidden} ` : ``}more
       </span>
     </>
@@ -249,8 +262,7 @@ interface CommentViewProps {
   classes: ClassesType<typeof styles>;
 }
 
-const CommentView: React.FC<CommentViewProps> = ({ comment, classes }) => {
-
+export const CommentView: React.FC<CommentViewProps> = ({ comment, classes }) => {
   const { PostsTooltip, Loading } = Components
 
   const { document: post, loading, error } = useSingle({
@@ -273,8 +285,9 @@ const CommentView: React.FC<CommentViewProps> = ({ comment, classes }) => {
     </PostsTooltip>
   );
 };
+
 const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsMatched, classes, showSuggestedTopics, onHide }: DialogueRecommendationRowProps) => {
-  const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, Loading, PostsTooltip } = Components
+  const { DialogueCheckBox, UsersName, PostsItem2MetaInfo, Loading, PostsTooltip, CommentView } = Components
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const currentUser = useCurrentUser();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -367,7 +380,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
       <PostsTooltip postId={post._id}>
         <Link to={postGetPageUrl(post)}> {post.title} </Link>
       </PostsTooltip>})),
-    ...recommendedComments.map(comment => ({reactIconName: "elaborate", prefix: "comment: ", Content: <CommentView comment={comment} classes={classes} />}))
+    ...recommendedComments.map(comment => ({reactIconName: "elaborate", prefix: "comment: ", Content: <CommentView comment={comment} />}))
   ]
 
   return (
@@ -419,6 +432,7 @@ const DialogueRecommendationRow = ({ targetUser, checkId, userIsChecked, userIsM
 
 const DialogueRecommendationRowComponent = registerComponent('DialogueRecommendationRow', DialogueRecommendationRow, {styles});
 const TopicSuggestionComponent = registerComponent('TopicSuggestion', TopicSuggestion, {styles});
+const CommentViewComponent = registerComponent('CommentView', CommentView, {styles});
 const ExpandCollapseComponent = registerComponent('ExpandCollapseText', ExpandCollapseText, {styles});
 
 
@@ -426,6 +440,7 @@ declare global {
   interface ComponentTypes {
     DialogueRecommendationRow: typeof DialogueRecommendationRowComponent,
     TopicSuggestion: typeof TopicSuggestionComponent,
+    CommentView: typeof CommentViewComponent,
     ExpandCollapseText: typeof ExpandCollapseComponent,
   }
 }

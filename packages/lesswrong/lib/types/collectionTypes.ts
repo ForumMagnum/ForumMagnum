@@ -185,7 +185,7 @@ interface HasIdType {
 
 // Common base type for everything with a userId field
 interface HasUserIdType {
-  userId: string
+  userId: string | null
 }
 
 interface VoteableType extends HasIdType {
@@ -194,9 +194,9 @@ interface VoteableType extends HasIdType {
   extendedScore: any,
   voteCount: number
   af?: boolean
-  afBaseScore?: number
+  afBaseScore?: number | null
   afExtendedScore?: any,
-  afVoteCount?: number
+  afVoteCount?: number | null
 }
 
 interface VoteableTypeClient extends VoteableType {
@@ -214,7 +214,7 @@ interface DbObject extends HasIdType {
 }
 
 interface HasSlugType extends DbObject {
-  slug: string
+  slug: string | null
 }
 
 interface HasCreatedAtType extends DbObject {
@@ -272,7 +272,7 @@ type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"ElectionCandidates";
 
 interface EditableFieldContents {
   html: string
-  wordCount: number
+  wordCount: number | null
   originalContents: DbRevision["originalContents"]
   editedAt: Date
   userId: string

@@ -79,7 +79,7 @@ const BottomNavigation = ({post, classes}: {
   
   if (!post?.sequence)
     return null;
-  if (post.sequence.draft && (!currentUser || currentUser._id!=post.sequence.userId) && !currentUser?.isAdmin) {
+  if (post.sequence.draft && (!currentUser || currentUser._id!==post.sequence.userId) && !currentUser?.isAdmin) {
     return null;
   }
   

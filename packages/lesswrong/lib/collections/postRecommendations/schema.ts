@@ -1,6 +1,5 @@
-import { foreignKeyField } from "../../utils/schemaUtils";
+import { foreignKeyField, schemaDefaultValue } from "../../utils/schemaUtils";
 import SimpleSchema from "simpl-schema";
-import { schemaDefaultValue } from "../../collectionUtils";
 
 export const schema: SchemaType<DbPostRecommendation> = {
   /** The user who the recommendation was generated for. */
@@ -99,7 +98,7 @@ export const schema: SchemaType<DbPostRecommendation> = {
   clickedAt: {
     type: Date,
     optional: true,
-    nullable: true,
+    nullable: true, //TODO not-null, confirm that this nullability is intended
     canRead: ["admins"],
     canUpdate: ["admins"],
     canCreate: ["admins"],

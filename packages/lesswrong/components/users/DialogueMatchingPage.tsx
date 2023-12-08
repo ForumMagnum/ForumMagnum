@@ -4,7 +4,6 @@ import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { gql, useQuery } from "@apollo/client";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
-import { randomId } from '../../lib/random';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCreate } from '../../lib/crud/withCreate';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -32,7 +31,10 @@ import partition from 'lodash/partition';
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
 import NoSSR from 'react-no-ssr';
 import { useABTest } from '../../lib/abTestImpl';
-import { dialogueMatchingPageNoSSRABTest } from '../../lib/abTests';
+import { dialogueMatchingPageNoSSRABTest, showRecommendedContentInMatchForm } from '../../lib/abTests';
+import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialogues/DialogueRecommendationRow';
+import { validatedCalendlyUrl } from '../dialogues/CalendlyIFrame';
+import { initial } from 'underscore';
 
 export type UpvotedUser = {
   _id: string;
@@ -65,12 +67,7 @@ export type TopCommentedTagUser = {
 export type UserDialogueUsefulData = {
   dialogueUsers: UsersOptedInToDialogueFacilitation[],
   topUsers: UpvotedUser[],
-  activeDialogueMatchSeekers: DbUser[]
-}
-
-export type TagWithCommentCount = {
-  tag: DbTag,
-  commentCount: number
+  activeDialogueMatchSeekers: UsersOptedInToDialogueFacilitation[]
 }
 
 export type TopicRecommendationData = DbComment[]
@@ -254,6 +251,11 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
   },
   schedulingQuestion: {
+    lineHeight: '1.15em',
+  },
+  schedulingRow: {
+    marginTop: 5,
+    marginBottom: 5,
   },
   messageButton: {
     maxHeight: minRowHeight,
@@ -389,8 +391,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: '-10px', // to get the prompt to line up closer
   },
   dialogueTopicList: {
-    marginTop: 16,
-    marginBottom: 16
+    marginBottom: 10
   },
   dialogueTopicRow: {
     display: 'flex',
@@ -415,16 +416,23 @@ const styles = (theme: ThemeType) => ({
     }
   },
   dialogueTitle: {
+    color: theme.palette.lwTertiary.main,
     paddingBottom: 8
   },
   dialogueFormatGrid: {
     display: 'grid',
     grid: 'auto-flow / 1fr 40px 40px 40px',
     alignItems: 'center',
-    marginBottom: 8
+    marginBottom: 16,
+    rowGap: '6px',
   },
-  dialogueFormatHeader: {
-    marginBottom: 8,
+  sectionHeader: {
+    color: theme.palette.lwTertiary.main,
+    marginBottom: 3,
+    marginTop: 13
+  },
+  matchHeader: {
+    color: theme.palette.lwTertiary.main
   },
   dialogueFormatLabel: {
     textAlign: 'center',
@@ -447,6 +455,54 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5,
     backgroundColor: theme.palette.greyAlpha(0.05),
     whiteSpace: 'nowrap'
+  },
+  contentRecommendationsCard: {
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingBottom: 4,
+    paddingTop: 5,
+    borderRadius: 5,
+    backgroundColor: theme.palette.greyAlpha(0.05),
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  cardTitle: {
+    color: theme.palette.text.dim3,
+    marginBottom: 3,
+    fontSize: "0.9em"
+  },
+  recommendedContentContainer: {
+    display: 'flex',
+  },
+  recommendedContentContainerExpandedMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'block',
+    },
+  },
+  contentRecommendationsList: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.text.primary,
+    fontSize: 'small',
+    overflow: 'hidden',
+    justifyContent: 'space-between'
+  },
+  recommendedContentRightContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginLeft: 'auto',
+  },
+  topicsOrigin: {
+    color: theme.palette.text.dim3,
+    marginBottom: 7,
+  },
+  mobileBreak: {
+    display: 'none',
+    [theme.breakpoints.down('xs')]: {
+      display: 'block',
+    },
+  },
+  syncText: {
+    color: theme.palette.text.dim3,
   }
 });
 
@@ -574,7 +630,7 @@ const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, use
 
 const UserPostsYouveRead = ({ classes, targetUserId, hideAtSm, limit = 20}: { classes: ClassesType<typeof styles>, targetUserId: string, hideAtSm: boolean, limit?: number }) => {
   const currentUser = useCurrentUser();
-  const { Loading, PostsTooltip, LWDialog } = Components;
+  const { Loading, PostsTooltip } = Components;
 
 
   const { loading, error, data } = useQuery(gql`
@@ -679,13 +735,117 @@ const Headers = ({ titles, classes, headerClasses }: { titles: string[], headerC
 
 export type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No", recommendationReason: string, theirVote?: string, yourVote?: string}
 
+type UserRecommendedContentProps = {
+  classes: ClassesType<typeof styles>;
+  targetUserId: string;
+}
+
+const UserRecommendedContent = ({ classes, targetUserId }: UserRecommendedContentProps ) => {
+  const { PostsTooltip, Loading, CommentView, TopicSuggestion, ExpandCollapseText } = Components;
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking()
+
+  const { loading: tagLoading, error: tagError, data: tagData } = useQuery(gql`
+  query UserTopTags($userId: String!) {
+    UserTopTags(userId: $userId) {
+      tag {
+        name
+        _id
+      }
+      commentCount
+    }
+  }
+`, {
+  variables: { userId: targetUserId },
+  skip: !currentUser
+});
+
+const { loading: postsLoading, error: postsError, data: postsData } = useQuery(gql`
+  query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
+    UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
+      _id
+      title
+      slug
+    }
+  }
+`, {
+  variables: { userId: currentUser?._id, targetUserId: targetUserId, limit : 4 },
+  skip: !currentUser
+});
+
+const { loading: commentsLoading, error: commentsError, data: commentsData } = useQuery(gql`
+  query UsersRecommendedCommentsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
+    UsersRecommendedCommentsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
+      _id
+      postId
+      contents {
+        html
+        plaintextMainText
+      }
+    }
+  }
+`, {
+  variables: { userId: currentUser?._id, targetUserId: targetUserId, limit : 3 },
+  skip: !currentUser
+});
+
+const topTags:TagWithCommentCount[] | undefined = tagData?.UserTopTags;
+const readPosts:PostYouveRead[] | undefined = postsData?.UsersReadPostsOfTargetUser
+const recommendedComments:RecommendedComment[] | undefined = commentsData?.UsersRecommendedCommentsOfTargetUser
+
+if (!currentUser || !topTags || !readPosts || !recommendedComments) return <Loading />;
+const tagsSentence = topTags.slice(0, 4).map(tag => tag.tag.name).join(', ');
+const numRecommendations = (readPosts?.length ?? 0) + (recommendedComments?.length ?? 0) + (tagsSentence === "" ? 0 : 1);
+const numShown = isExpanded ? numRecommendations : 2
+const numHidden = Math.max(0, numRecommendations - numShown);
+
+const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = [
+  ...(topTags.length > 0 ? [{reactIconName: "examples", prefix: "top tags: ", Content: <>{tagsSentence}</>}] : []),
+  ...readPosts.map(post => ({reactIconName: "elaborate", prefix: "post: ", Content: 
+    <PostsTooltip postId={post._id}>
+      <Link to={postGetPageUrl(post)}> {post.title} </Link>
+    </PostsTooltip>})),
+  ...recommendedComments.map(comment => ({reactIconName: "elaborate", prefix: "comment: ", Content: <CommentView comment={comment} />}))
+]
+
+const toggleExpansion = () => {
+  setIsExpanded(!isExpanded);
+  captureEvent("toggle_expansion_inside_match_form")
+};
+
+if (allRecommendations.length === 0) return null;
+
+return (
+  <AnalyticsContext pageElementContext={'userRecommendedContent'} >
+    <div className={classes.contentRecommendationsCard} >
+      <div className={classes.cardTitle}>
+        Recommended content
+      </div>
+      <div className={classNames(classes.recommendedContentContainer, {
+        [classes.recommendedContentContainerExpandedMobile]: isExpanded})}>
+        <div className={classes.contentRecommendationsList}>
+          {allRecommendations.slice(0, numShown).map( (item, index) => <TopicSuggestion key={index} reactIconName={item.reactIconName} prefix={item.prefix} Content={item.Content} isExpanded={isExpanded} />) } 
+        </div>
+        <div className={classes.recommendedContentRightContainer}>
+          <ExpandCollapseText isExpanded={isExpanded} numHidden={numHidden} toggleExpansion={toggleExpansion} />
+        </div>
+      </div>
+    </div>
+  </AnalyticsContext>)
+}
+
 const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes, dialogueCheck }: NextStepsDialogProps) => {
-  const { LWDialog, ReactionIcon, LWTooltip } = Components;
+  const { LWDialog, ReactionIcon, LWTooltip, CalendlyIFrame } = Components;
 
   const [topicNotes, setTopicNotes] = useState(dialogueCheck.matchPreference?.topicNotes ?? "");
   const [formatSync, setFormatSync] = useState<SyncPreference>(dialogueCheck.matchPreference?.syncPreference ?? "Meh");
   const [formatAsync, setFormatAsync] = useState<SyncPreference>(dialogueCheck.matchPreference?.asyncPreference ?? "Meh");
   const [formatNotes, setFormatNotes] = useState(dialogueCheck.matchPreference?.formatNotes ?? "");
+  const showRecommendedContent = useABTest(showRecommendedContentInMatchForm);
+  const initialCalendlyLink = validatedCalendlyUrl(dialogueCheck.matchPreference?.calendlyLink ?? "");
+  const [calendlyLink, setCalendlyLink] = useState(initialCalendlyLink);
 
   const { create, called, loading: loadingCreatedMatchPreference, data: newMatchPreference } = useCreate({
     collectionName: "DialogueMatchPreferences",
@@ -725,6 +885,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
         syncPreference: formatSync,
         asyncPreference: formatAsync,
         formatNotes: formatNotes,
+        calendlyLink: calendlyLink.valid ? calendlyLink.url : undefined,
       }
     });
 
@@ -786,6 +947,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   }), [topicRecommendations])
 
   const [recommendedTopics, userSuggestedTopics]  = partition(topicPreferences, topic => topic.matchedPersonPreference !== "Yes")
+
   if (called && !loadingCreatedMatchPreference && !(newMatchPreference as any)?.createDialogueMatchPreference?.data?.generatedDialogueId) {
     return (
       <LWDialog open onClose={onClose}>
@@ -804,7 +966,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
           </DialogActions>
       </LWDialog>
   )}
-
+ 
   const ScheduleLabels = ({extraClass}: {extraClass?: string}) => <>
     <label className={classNames(classes.dialogueFormatLabel, extraClass)}>Great</label>
     <label className={classNames(classes.dialogueFormatLabel, extraClass)}>Okay</label>
@@ -814,10 +976,12 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   return (
     <LWDialog open onClose={onClose} className={classes.mobileDialog}>
       <div className={classes.dialogBox}>
-        <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
+        <DialogTitle className={classes.dialogueTitle}><span className={classes.matchHeader}>(Match)</span> {targetUserDisplayName}</DialogTitle>
         <DialogContent >
+          {showRecommendedContent === "show" &&  <UserRecommendedContent targetUserId={targetUserId} classes={classes} />}
+          <h3 className={classes.sectionHeader}>Topics</h3>
           {userSuggestedTopics.length > 0 && <>
-            <div>Here are some topics {targetUserDisplayName} was interested in:</div>
+            <div className={classes.topicsOrigin} >{targetUserDisplayName} was interested in the below. Check ones you like.</div>
             <div className={classes.dialogueTopicList}>
               {userSuggestedTopics.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
                 <Checkbox 
@@ -836,8 +1000,8 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                     {topic.text}
                   </div>
               </div>)}
-          </div></>}
-            <div>Topic suggestions. Check any you're interested in discussing.</div>
+            </div></>}
+            <div className={classes.topicsOrigin}>Suggested</div>
             <div className={classes.dialogueTopicList}>
               {recommendedTopics.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
                 <Checkbox 
@@ -875,33 +1039,45 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                 Add Topic
               </Button>
             </div>
-            <br />
+            <br className={classes.mobileBreak} />
             <div className={classes.dialogueFormatGrid}>
-              <h3 className={classes.dialogueFormatHeader}>What Format Do You Prefer?</h3>
+              <h3 className={classes.sectionHeader}>Format</h3>
               <ScheduleLabels />
-              
-              <div className={classes.schedulingQuestion}><strong>Sync:</strong> Find a synchronous 1-3hr block to sit down and dialogue</div>
-              {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
-                  key={value}
-                  checked={formatSync === value}
-                  className={classes.dialogSchedulingCheckbox}
-                  onChange={event => setFormatSync(value as SyncPreference)}
-                  />)}
-
-              <div className={classes.schedulingQuestion}><strong>Async:</strong> Have an asynchronous dialogue where you reply where convenient</div>
-              {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
-                  key={value}
-                  checked={formatAsync === value}
-                  className={classes.dialogSchedulingCheckbox}
-                  onChange={event => setFormatAsync(value as SyncPreference)}
-              />)}
-              
+                <div className={classes.schedulingQuestion}><span className={classes.syncText}>Sync:</span> Find a synchronous 1-3hr block to sit down and dialogue</div>
+                {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                    key={value}
+                    checked={formatSync === value}
+                    className={classes.dialogSchedulingCheckbox}
+                    onChange={event => setFormatSync(value as SyncPreference)}
+                    />)}
+                <div className={classes.schedulingQuestion}><span className={classes.syncText}>Async:</span> Have an asynchronous dialogue where you reply where convenient</div>
+                {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                    key={value}
+                    checked={formatAsync === value}
+                    className={classes.dialogSchedulingCheckbox}
+                    onChange={event => setFormatAsync(value as SyncPreference)}
+                />)}
             </div>      
+            <TextField
+              variant="outlined"
+              label="You can share a calendly link for easier scheduling"
+              rows={2}
+              error={!calendlyLink.valid}
+              helperText={!calendlyLink.valid && "Please enter a valid calendly link"}
+              fullWidth
+              value={calendlyLink.url ?? ""}
+              margin="normal"
+              onChange={event => setCalendlyLink(validatedCalendlyUrl(event.target.value))}
+            />
+            { calendlyLink.valid && calendlyLink.url && <>
+              <h3 className={classes.sectionHeader}>A preview of what we'll show your partner</h3>
+              <CalendlyIFrame url={calendlyLink.url} />
+            </>}
             <TextField
               multiline
               rows={2}
               variant="outlined"
-              label="Anything else to add? It could be helpful to add a calendly or similar."
+              label="Anything else to add?"
               fullWidth
               value={formatNotes}
               onChange={event => setFormatNotes(event.target.value)}
@@ -1324,7 +1500,7 @@ export const DialogueMatchingPage = ({classes}: {
         <div className={classes.rootFlex}>
           <div className={classes.matchContainer}>
             <h3>Your Top Voted Users (Last 18 Months)</h3>
-            { recentlyActiveTopUsers.length == 0 ? null : <>
+            { recentlyActiveTopUsers.length === 0 ? null : <>
             <h4>Recently active on dialogue matching (last 10 days)</h4>
             <UserTable
               users={recentlyActiveTopUsers}
@@ -1342,7 +1518,7 @@ export const DialogueMatchingPage = ({classes}: {
             />
           <br />
           </> }
-        { nonRecentlyActiveTopUsers.length == 0 ? null : <>
+        { nonRecentlyActiveTopUsers.length === 0 ? null : <>
               <h4>Not recently active on dialogue matching</h4>
               <UserTable
                 users={nonRecentlyActiveTopUsers}

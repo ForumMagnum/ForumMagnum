@@ -4,7 +4,7 @@ import { accessFilterMultiple, augmentFieldsDict, denormalizedField } from '../.
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
-import {getUserEmail} from "../../lib/collections/users/helpers";
+import {getUserEmail, userGetDisplayName} from "../../lib/collections/users/helpers";
 import {userFindOneByEmail} from "../commonQueries";
 import { isEAForum } from '../../lib/instanceSettings';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
@@ -432,7 +432,7 @@ function getAlignment(results: AnyBecauseTodo) {
   } else if  (ratio > 6) {
     lawfulChaotic = 'Lawful'
   }
-  if (lawfulChaotic == 'Neutral' && goodEvil  == 'neutral') {
+  if (lawfulChaotic === 'Neutral' && goodEvil  === 'neutral') {
     return 'True neutral'
   }
   return lawfulChaotic + ' ' + goodEvil
@@ -514,9 +514,9 @@ defineQuery({
     ]);
 
     const results: UserDialogueUsefulData = {
-      dialogueUsers: dialogueUsers,
+      dialogueUsers: dialogueUsers.map(user => ({ ...user, displayName: userGetDisplayName(user) })),
       topUsers: topUsers,
-      activeDialogueMatchSeekers: activeDialogueMatchSeekers,
+      activeDialogueMatchSeekers: activeDialogueMatchSeekers.map(user => ({ ...user, displayName: userGetDisplayName(user) })),
     }
     return results
   }
@@ -545,7 +545,7 @@ defineQuery({
       throw new Error('User must be logged in to get recommended users');
     }
 
-    const upvotedUsers = await context.repos.users.getUsersTopUpvotedUsers(currentUser, 100, 720)
+    const upvotedUsers = await context.repos.users.getUsersTopUpvotedUsers(currentUser, 35, 720)
     const recommendedUsers = await context.repos.users.getDialogueRecommendedUsers(currentUser._id, upvotedUsers);
 
     // Shuffle and limit the list to 2 users
