@@ -69,16 +69,8 @@ async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbV
         $addToSet: {groups: 'alignmentVoters'}
       })
     } else {
-      // Splitting this because $pull isn't implemented in postgres
-      if (Users.isPostgres()) {
-        // Need to use Math.abs since the multiplier is -1 for downvotes (which is almost certainly what's triggering this)
-        await new UsersRepo().removeAlignmentGroupAndKarma(newDocument.userId!, Math.abs(karmaUpdate));
-      } else {
-        await Users.rawUpdateOne({_id:newDocument.userId}, {
-          $set: {afKarma: newAfKarma },
-          $pull: {groups: 'alignmentVoters'}
-        });  
-      }
+      // Need to use Math.abs since the multiplier is -1 for downvotes (which is almost certainly what's triggering this)
+      await new UsersRepo().removeAlignmentGroupAndKarma(newDocument.userId!, Math.abs(karmaUpdate));
     }
   }
 }
@@ -118,16 +110,8 @@ async function MoveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocume
     if (newAfKarma > 0) {
       await Users.rawUpdateOne({_id:document.userId}, {$inc: {afKarma: karmaUpdate}})
     } else {
-      // Splitting this because $pull isn't implemented in postgres
-      if (Users.isPostgres()) {
-        // Need to use Math.abs since the multiplier is -1 for downvotes (which is almost certainly what's triggering this)
-        await new UsersRepo().removeAlignmentGroupAndKarma(document.userId, Math.abs(karmaUpdate));
-      } else {
-        await Users.rawUpdateOne({_id:document.userId}, {
-          $inc: {afKarma: karmaUpdate},
-          $pull: {groups: 'alignmentVoters'}
-        })
-      }
+      // Need to use Math.abs since the multiplier is -1 for downvotes (which is almost certainly what's triggering this)
+      await new UsersRepo().removeAlignmentGroupAndKarma(document.userId, Math.abs(karmaUpdate));
     }
     await Votes.rawUpdateMany({documentId: document._id}, {
       $set: {documentIsAf: false}

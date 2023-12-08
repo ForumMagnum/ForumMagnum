@@ -159,13 +159,8 @@ export function replaceSpecialFieldSelectors(selector: any): any {
   return result;
 }
 
-export const jsonArrayContainsSelector = <N extends CollectionNameString>(
-  collection: CollectionBase<N>,
-  field: string,
-  value: any,
-) => collection.isPostgres()
-  ? {$expr: {$jsonArrayContains: [field, value]}}
-  : {[field]: value};
+export const jsonArrayContainsSelector = (field: string, value: AnyBecauseTodo) =>
+  ({$expr: {$jsonArrayContains: [field, value]}});
 
 const removeAndOr = <T extends DbObject>(selector: MongoSelector<T>) => {
   const copy = {...selector}

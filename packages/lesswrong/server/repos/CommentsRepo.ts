@@ -38,7 +38,7 @@ export default class CommentsRepo extends AbstractRepo<"Comments"> {
   }
 
   async getRecentCommentsOnPosts(postIds: string[], limit: number, filter: MongoSelector<DbComment>): Promise<DbComment[][]> {
-    const selectQuery = new SelectQuery(this.getCollection().table, filter)
+    const selectQuery = new SelectQuery(this.getCollection().getTable(), filter)
     const selectQueryAtoms = selectQuery.compileSelector(filter);
     const {sql: filterWhereClause, args: filterArgs} = selectQuery.compileAtoms(selectQueryAtoms, 2);
 

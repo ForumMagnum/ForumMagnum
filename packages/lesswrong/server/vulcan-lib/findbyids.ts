@@ -14,14 +14,12 @@ const findByIds = async <N extends CollectionNameString>(
   }
   
   // get documents
-  const documents = collection.isPostgres()
-    ? await runSqlQuery(
-        // `:csv' tells pg-promise to format the ids as comma-separated values
-        ` SELECT * FROM "${collection.collectionName}" WHERE _id IN ( $1:csv )`,
-        [ids],
-        "read"
-      )
-    : await collection.find({ _id: { $in: ids }}).fetch();
+  const documents = await runSqlQuery(
+    // `:csv' tells pg-promise to format the ids as comma-separated values
+    ` SELECT * FROM "${collection.collectionName}" WHERE _id IN ( $1:csv )`,
+    [ids],
+    "read"
+  );
 
   // order documents in the same order as the ids passed as argument
   let docsByID: Record<string, ObjectsByCollectionName[N]> = {};

@@ -31,7 +31,7 @@ import ReadStatuses from "../lib/collections/readStatus/collection";
 export const preparePgTables = () => {
   for (let collection of Collections) {
     if (collection instanceof PgCollection) {
-      if (!collection.table) {
+      if (!collection.getTable()) {
         collection.buildPostgresTable();
       }
     }
@@ -77,7 +77,8 @@ const buildTables = async (client: SqlClient) => {
 
   for (let collection of Collections) {
     if (collection instanceof PgCollection) {
-      const {table, collectionName} = collection;
+      const {collectionName} = collection;
+      const table = collection.getTable();
       const createTableQuery = new CreateTableQuery(table);
       const {sql, args} = createTableQuery.compile();
       try {

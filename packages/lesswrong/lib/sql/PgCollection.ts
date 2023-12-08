@@ -45,7 +45,6 @@ class PgCollection<
 > implements CollectionBase<N> {
   collectionName: N;
   tableName: string;
-  table: Table<ObjectsByCollectionName[N]>;
   defaultView: ViewFunction<N> | undefined;
   views: Record<string, ViewFunction<N>> = {};
   postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
@@ -54,15 +53,12 @@ class PgCollection<
   _schemaFields: SchemaType<N>;
   _simpleSchema: any;
   checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
+  private table: Table<ObjectsByCollectionName[N]>;
   private voteable = false;
 
   constructor(tableName: string, options: CollectionOptions<N>) {
     this.tableName = tableName;
     this.options = options;
-  }
-
-  isPostgres() {
-    return true;
   }
 
   isConnected() {
@@ -79,6 +75,14 @@ class PgCollection<
 
   hasSlug() {
     return !!this._schemaFields.slug;
+  }
+
+  getTable() {
+    if (bundleIsServer) {
+      return this.table;
+    } else {
+      throw new Error("Attempted to run postgres query on the client");
+    }
   }
 
   buildPostgresTable() {
@@ -136,14 +140,6 @@ class PgCollection<
     data?: Partial<ExecuteQueryData<ObjectsByCollectionName[N]>>,
   ): Promise<any[]> {
     return this.executeQuery(query, data, "write");
-  }
-
-  getTable() {
-    if (bundleIsServer) {
-      return this.table;
-    } else {
-      throw new Error("Attempted to run postgres query on the client");
-    }
   }
 
   find(

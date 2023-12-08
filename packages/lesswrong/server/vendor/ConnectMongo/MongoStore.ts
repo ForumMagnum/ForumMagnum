@@ -77,15 +77,10 @@ export default class MongoStore extends session.Store {
   }
 
   private getTransformFunctions() {
-    return this.collection.isPostgres()
-      ? {
-        serialize: identity,
-        unserialize: identity,
-      }
-      : {
-        serialize: JSON.stringify,
-        unserialize: JSON.parse,
-      };
+    return {
+      serialize: identity,
+      unserialize: identity,
+    };
   }
 
   private async setAutoRemove(collection: ConnectMongoCollection): Promise<void> {

@@ -9,7 +9,8 @@ import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import type PgCollection from "../sql/PgCollection";
+import Table from '../sql/Table';
+import PgCollection from '../sql/PgCollection';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -36,7 +37,6 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
   _schemaFields: SchemaType<N>
   _simpleSchema: any
 
-  isPostgres: () => this is PgCollection<N>
   isConnected: () => boolean
 
   isVoteable: () => this is PgCollection<VoteableCollectionName>
@@ -45,6 +45,8 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
   hasSlug: () => this is PgCollection<CollectionNameWithSlug>
 
   checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
+
+  getTable: () => Table<ObjectsByCollectionName[N]>;
 
   rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
   find: (

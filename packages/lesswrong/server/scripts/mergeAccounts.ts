@@ -220,15 +220,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
     if (!dryRun) {
       // Transfer conversations
-      if (Conversations.isPostgres()) {
-        await new ConversationsRepo().moveUserConversationsToNewUser(sourceUserId, targetUserId);
-      } else {
-        await Conversations.rawUpdateMany(
-          {participantIds: sourceUserId},
-          {$set: {"participantIds.$": targetUserId}},
-          {multi: true},
-        );
-      }
+      await new ConversationsRepo().moveUserConversationsToNewUser(sourceUserId, targetUserId);
     }
   } catch (err) {
     // eslint-disable-next-line no-console
@@ -277,15 +269,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
 
   // Transfer localgroups
   if (!dryRun) {
-    if (Localgroups.isPostgres()) {
-      await new LocalgroupsRepo().moveUserLocalgroupsToNewUser(sourceUserId, targetUserId);
-    } else {
-      await Localgroups.rawUpdateMany(
-        {organizerIds: sourceUserId},
-        {$set: {"organizerIds.$": targetUserId}},
-        {multi: true},
-      );
-    }
+    await new LocalgroupsRepo().moveUserLocalgroupsToNewUser(sourceUserId, targetUserId);
   }
 
   // Transfer review votes
@@ -304,16 +288,7 @@ Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
       // Transfer votes that target content from source user (authorId)
       // eslint-disable-next-line no-console
       console.log("Transferring votes that target source user")
-      if (Votes.isPostgres()) {
-        await new VotesRepo().transferVotesTargetingUser(sourceUserId, targetUserId);
-      } else {
-        // https://www.mongodb.com/docs/manual/reference/operator/update/positional/
-        await Votes.rawUpdateMany(
-          {authorIds: sourceUserId},
-          {$set: {"authorIds.$": targetUserId}},
-          {multi: true},
-        );
-      }
+      await new VotesRepo().transferVotesTargetingUser(sourceUserId, targetUserId);
 
       // Transfer votes cast by source user
       // eslint-disable-next-line no-console

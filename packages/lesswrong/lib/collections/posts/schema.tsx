@@ -16,7 +16,7 @@ import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { documentIsNotDeleted, userOverNKarmaOrApproved, userOwns, userOwnsAndOnLW } from '../../vulcan-users/permissions';
+import { documentIsNotDeleted, userOverNKarmaOrApproved, userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { userOverNKarmaFunc } from "../../vulcan-users";
@@ -627,39 +627,10 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: '[PostRelation!]!',
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      const { Posts, currentUser, repos } = context;
-      let postRelations: DbPostRelation[] = [];
-      if (Posts.isPostgres()) {
-        postRelations = await repos.postRelations.getPostRelationsByPostId(post._id);
-      } else {
-        postRelations = await Posts.aggregate([
-          { $match: { _id: post._id }},
-          { $graphLookup: {
-            from: "postrelations",
-            as: "relatedQuestions",
-            startWith: post._id,
-            connectFromField: "targetPostId",
-            connectToField: "sourcePostId",
-            maxDepth: 3
-          }
-          },
-          {
-            $project: {
-              relatedQuestions: 1
-            }
-          },
-          {
-            $unwind: "$relatedQuestions"
-          },
-          {
-            $replaceRoot: {
-              newRoot: "$relatedQuestions"
-            }
-          }
-        ]).toArray()
-      }
-     if (!postRelations || postRelations.length < 1) return []
-     return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
+      const {currentUser, repos} = context;
+      const postRelations = await repos.postRelations.getPostRelationsByPostId(post._id);
+      if (!postRelations || postRelations.length < 1) return []
+      return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
     }
   }),
   'targetPostRelations.$': {

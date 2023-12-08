@@ -10,10 +10,13 @@ import PgCollection from "../../lib/sql/PgCollection";
  * in index.ts
  */
 export default abstract class AbstractRepo<N extends CollectionNameString> {
-  protected collection: CollectionBase<N>;
+  protected collection: PgCollection<N>;
   private db: SqlClient;
 
   constructor(collection: CollectionBase<N>, sqlClient?: SqlClient) {
+    if (!(collection instanceof PgCollection)) {
+      throw new Error(`${collection.collectionName} is not a Postgres collection`);
+    }
     this.collection = collection;
     const db = sqlClient ?? getSqlClient();
     if (db) {
@@ -24,11 +27,6 @@ export default abstract class AbstractRepo<N extends CollectionNameString> {
   }
 
   protected getCollection(): PgCollection<N> {
-    // TODO: This check can be moved into the constructor once LessWrong
-    // are on Postgres
-    if (!this.collection.isPostgres()) {
-      throw new Error("Collecton is not a Postgres collection");
-    }
     return this.collection;
   }
 

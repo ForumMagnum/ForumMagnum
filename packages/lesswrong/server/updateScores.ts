@@ -81,11 +81,7 @@ const getBatchItemsPg = async <N extends CollectionNameString>(collection: Colle
 }
 
 const getBatchItems = <N extends CollectionNameString>(collection: CollectionBase<N>, inactive: boolean, forceUpdate: boolean) => {
-  if (Posts.isPostgres()) {
-    return getBatchItemsPg(collection, inactive, forceUpdate)
-  } else {
-    throw new Error("Posts is not a Postgres collection");
-  }
+  return getBatchItemsPg(collection, inactive, forceUpdate)
 }
 
 export const batchUpdateScore = async ({collection, inactive = false, forceUpdate = false}: BatchUpdateParams & { collection: CollectionBase<CollectionNameString> }) => {
