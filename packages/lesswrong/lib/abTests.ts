@@ -180,3 +180,18 @@ export const checkNotificationMessageContent = new ABTest({
     },
   },
 });
+
+export const offerToAddCalendlyLink = new ABTest({
+  name: "offerToAddCalendlyLink",
+  description: "Offer to add a Calendly link on dialogue match",
+  groups: {
+    show: {
+      description: "Show field",
+      weight: 2,
+    },
+    noShow: {
+      description: "Don't show field",
+      weight: 1,
+    },
+  },
+});
