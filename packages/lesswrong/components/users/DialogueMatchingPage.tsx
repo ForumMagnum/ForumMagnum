@@ -34,6 +34,7 @@ import { useABTest } from '../../lib/abTestImpl';
 import { dialogueMatchingPageNoSSRABTest, showRecommendedContentInMatchForm } from '../../lib/abTests';
 import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialogues/DialogueRecommendationRow';
 import { validatedCalendlyUrl } from '../dialogues/CalendlyIFrame';
+import { initial } from 'underscore';
 
 export type UpvotedUser = {
   _id: string;
@@ -843,7 +844,8 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   const [formatAsync, setFormatAsync] = useState<SyncPreference>(dialogueCheck.matchPreference?.asyncPreference ?? "Meh");
   const [formatNotes, setFormatNotes] = useState(dialogueCheck.matchPreference?.formatNotes ?? "");
   const showRecommendedContent = useABTest(showRecommendedContentInMatchForm);
-  const [calendlyLink, setCalendlyLink] = useState({valid: true, url: dialogueCheck.matchPreference?.calendlyLink});
+  const initialCalendlyLink = validatedCalendlyUrl(dialogueCheck.matchPreference?.calendlyLink ?? "");
+  const [calendlyLink, setCalendlyLink] = useState(initialCalendlyLink);
 
   const { create, called, loading: loadingCreatedMatchPreference, data: newMatchPreference } = useCreate({
     collectionName: "DialogueMatchPreferences",
@@ -1069,7 +1071,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
             />
             { calendlyLink.valid && calendlyLink.url && <>
               <h3 className={classes.sectionHeader}>A preview of what we'll show your partner</h3>
-              <CalendlyIFrame url={calendlyLink.url}></CalendlyIFrame>
+              <CalendlyIFrame url={calendlyLink.url} />
             </>}
             <TextField
               multiline

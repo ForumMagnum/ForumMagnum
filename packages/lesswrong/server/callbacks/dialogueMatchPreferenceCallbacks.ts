@@ -4,11 +4,20 @@ import { getCollectionHooks } from "../mutationCallbacks";
 import { createNotifications } from "../notificationCallbacksHelpers";
 import { Components, createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
 import { createElement } from "react";
+import { validatedCalendlyUrl } from "../../components/dialogues/CalendlyIFrame";
 
 interface MatchPreferenceFormData extends DbDialogueMatchPreference {
   displayName: string;
   userId: string
 }
+
+getCollectionHooks("DialogueMatchPreferences").createValidate.add((validationErrors: Array<any>, {document: preference}: {document: DbDialogueMatchPreference}) => {
+  const valid = preference.calendlyLink === null ? true : validatedCalendlyUrl(preference.calendlyLink).valid
+  if (!valid)
+    throw new Error("Calendly link is not valid");
+
+  return validationErrors;
+});
 
 function convertTimestamp(timestamp: number) {
   const date = new Date(timestamp);

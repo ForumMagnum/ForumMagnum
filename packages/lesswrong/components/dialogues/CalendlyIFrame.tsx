@@ -13,8 +13,9 @@ export const validatedCalendlyUrl = (url: string) => {
   if (url === "") return {valid: true, url: ""}
   let calendlyUrl = null
   try {
+    // new URL("www.calendly.com") is a type error, so we want to add the protocol to the front if it's not there
     calendlyUrl = new URL(url.slice(0,4) === "http" ? url : `https://${url}`)
-    const valid = calendlyUrl.hostname.match(/^(www\.)?calendly.com$/) != null
+    const valid = calendlyUrl.hostname.match(/^(www\.)?calendly.com$/) !== null
     return {valid, url: valid ? calendlyUrl.toString() : url}
   } catch (e) {
     return {valid: false, url: url}
