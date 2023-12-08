@@ -80,6 +80,14 @@ const schema: SchemaType<DbDialogueMatchPreference> = {
     canUpdate: ['members', 'admins'],
     ...schemaDefaultValue('')
   },
+  calendlyLink: {
+    type: String,
+    nullable: true,
+    optional: true,
+    canCreate: ['members', 'admins'],
+    canRead: ['members', 'admins'],
+    canUpdate: ['members', 'admins'],
+  },
   generatedDialogueId: {
     type: String,
     nullable: true,
