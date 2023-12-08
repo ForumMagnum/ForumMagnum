@@ -1,6 +1,5 @@
-import { schemaDefaultValue } from '../../collectionUtils';
 import { getWithCustomLoader } from '../../loaders';
-import { foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField, accessFilterMultiple, schemaDefaultValue } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbCollection> = {
 
@@ -14,6 +13,7 @@ const schema: SchemaType<DbCollection> = {
       nullable: true
     }),
     optional: true,
+    nullable: false,
     canRead: ['guests'],
   },
 
@@ -112,6 +112,8 @@ const schema: SchemaType<DbCollection> = {
   firstPageLink: {
     type: String,
     optional: true,
+    // TODO not-null: not clear whether this one should be set to nullable: false or not.  LW doesn't have any empty values, but it doesn't have a default value.
+    nullable: false,
     canRead: ["guests"],
     canUpdate: ["admins"],
     canCreate: ["admins"],

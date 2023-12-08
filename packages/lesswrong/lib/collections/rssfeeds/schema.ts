@@ -1,5 +1,4 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue, foreignKeyField } from '../../utils/schemaUtils'
 
 const schema: SchemaType<DbRSSFeed> = {
   userId: {
@@ -15,6 +14,7 @@ const schema: SchemaType<DbRSSFeed> = {
     canCreate: ['members'],
     canUpdate: ['admins'],
     optional: true,
+    nullable: false,
   },
   ownedByUser: {
     type: Boolean,
@@ -23,6 +23,7 @@ const schema: SchemaType<DbRSSFeed> = {
     canUpdate: ['admins'],
     control: "checkbox",
     optional: true,
+    nullable: false,
     order: 30,
     ...schemaDefaultValue(false),
   },
@@ -33,6 +34,7 @@ const schema: SchemaType<DbRSSFeed> = {
     canUpdate: ['admins'],
     control: "checkbox",
     optional: true,
+    nullable: false,
     order: 40,
     ...schemaDefaultValue(false),
   },
@@ -42,6 +44,7 @@ const schema: SchemaType<DbRSSFeed> = {
     canCreate: ['members'],
     canUpdate: ['admins'],
     optional: true,
+    nullable: false,
     order: 10,
   },
   url: {
@@ -50,6 +53,7 @@ const schema: SchemaType<DbRSSFeed> = {
     canCreate: ['members'],
     canUpdate: ['admins'],
     optional: true,
+    nullable: false,
     order: 20,
   },
   // Set to 'inactive' to prevent posting
@@ -66,6 +70,7 @@ const schema: SchemaType<DbRSSFeed> = {
     canCreate: ['members'],
     canUpdate: ['admins'],
     optional: true,
+    nullable: false,
     logChanges: false,
   },
   setCanonicalUrl: {

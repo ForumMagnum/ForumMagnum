@@ -465,8 +465,13 @@
     "timestamp": "2023-12-04T23:54:04.000Z"
   },
   {
-    "acceptsSchemaHash": "f9ed62b00bc021de9a603a6bcb5f7367",
-    "acceptedByMigration": "20231207T023416.addCalendlyLinkToDialogueMatchPreferences.ts",
-    "timestamp": "2023-12-07T02:34:16.000Z"
+    "acceptsSchemaHash": "d8ecd5f29746164d6bf5b3e064f241ac",
+    "acceptedByMigration": "20231205T204412.make_fields_not_nullable.ts",
+    "timestamp": "2023-12-05T20:44:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a09712836b72d69f7456155ccc81ac83",
+    "acceptedByMigration": "20231208T004014.addCalendlyLinkDialogueMatchPreferencesField.ts",
+    "timestamp": "2023-12-08T00:40:14.000Z"
   }
 ]

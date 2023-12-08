@@ -1,6 +1,6 @@
 import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
+import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils'
 import { makeVoteable } from '../../make_voteable';
 import { userCanUseTags } from '../../betas';
 import { canVoteOnTagAsync } from '../../voting/tagRelVoteRules';
@@ -9,6 +9,7 @@ import { userOwns } from '../../vulcan-users/permissions';
 
 const schema: SchemaType<DbTagRel> = {
   tagId: {
+    nullable: false,
     ...foreignKeyField({
       idFieldName: "tagId",
       resolverName: "tag",
@@ -20,6 +21,7 @@ const schema: SchemaType<DbTagRel> = {
     canCreate: ['members'],
   },
   postId: {
+    nullable: false,
     ...foreignKeyField({
       idFieldName: "postId",
       resolverName: "post",
@@ -47,6 +49,7 @@ const schema: SchemaType<DbTagRel> = {
       type: "User",
       nullable: true,
     }),
+    nullable: true,
     // Hide who applied the tag on the EA Forum
     canRead: isEAForum ? [userOwns, 'sunshineRegiment', 'admins'] : ['guests'],
     canCreate: ['members'],

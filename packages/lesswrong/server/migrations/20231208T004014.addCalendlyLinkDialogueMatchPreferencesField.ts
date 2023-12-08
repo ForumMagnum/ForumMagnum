@@ -1,25 +1,22 @@
-import DialogueMatchPreferences from "../../lib/collections/dialogueMatchPreferences/collection";
-import { addField, dropField } from "./meta/utils";
-
 /**
- * Generated on 2023-12-07T02:34:16.283Z by `yarn makemigrations`
+ * Generated on 2023-12-08T00:40:14.291Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
- * diff --git a/proj/LWystuff/ForumMagnum/schema/accepted_schema.sql b/proj/LWystuff/ForumMagnum/schema/schema_to_accept.sql
- * index 358900abfc..6fd9b51671 100644
- * --- a/proj/LWystuff/ForumMagnum/schema/accepted_schema.sql
- * +++ b/proj/LWystuff/ForumMagnum/schema/schema_to_accept.sql
+ * diff --git a/ForumMagnum/schema/accepted_schema.sql b/ForumMagnum/schema/schema_to_accept.sql
+ * index 6f07da63d1..63b16b0761 100644
+ * --- a/ForumMagnum/schema/accepted_schema.sql
+ * +++ b/ForumMagnum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
  *  --
- * --- Overall schema hash: 2ace126a36fc6b5cdb4e4a0264fec6f9
+ * --- Overall schema hash: d8ecd5f29746164d6bf5b3e064f241ac
  * -
- * --- Accepted on 2023-12-04T23:54:04.000Z by 20231204T235404.fill_in_AbTestKey_and_make_nonnullable.ts
- * +-- Overall schema hash: f9ed62b00bc021de9a603a6bcb5f7367
+ * --- Accepted on 2023-12-05T20:44:12.000Z by 20231205T204412.make_fields_not_nullable.ts
+ * +-- Overall schema hash: a09712836b72d69f7456155ccc81ac83
  *  
  * @@ -264,3 +262,3 @@ CREATE TABLE "DialogueChecks" (
  *  
- * --- Schema for "DialogueMatchPreferences", hash: 8094e1a80428d3d3a5e6afcfd47e40ee
- * +-- Schema for "DialogueMatchPreferences", hash: 5086d9eb7832f42b1669fab949b865d2
+ * --- Schema for "DialogueMatchPreferences", hash: 325410e7914d56531d839fc137cf22f0
+ * +-- Schema for "DialogueMatchPreferences", hash: 9dd09046585554d903ea22ac959ca687
  *  CREATE TABLE "DialogueMatchPreferences" (
  * @@ -273,2 +271,3 @@ CREATE TABLE "DialogueMatchPreferences" (
  *      "formatNotes" text NOT NULL DEFAULT '',
@@ -34,7 +31,10 @@ import { addField, dropField } from "./meta/utils";
  * - [x] Uncomment `acceptsSchemaHash` below
  * - [x] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "f9ed62b00bc021de9a603a6bcb5f7367";
+export const acceptsSchemaHash = "a09712836b72d69f7456155ccc81ac83";
+
+import DialogueMatchPreferences from "../../lib/collections/dialogueMatchPreferences/collection";
+import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
   if (DialogueMatchPreferences.isPostgres()) {

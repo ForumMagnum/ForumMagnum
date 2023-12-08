@@ -24,7 +24,7 @@ const checkForDuplicateClientIds = async (voterIds: string[]): Promise<string[]>
   const suspiciousClientIds = new Set<string>()
   for (let clientId of clientIds) {
     // Check if >1 voter is associated with this client ID
-    if (clientId.userIds && intersection(clientId.userIds, voterIds).length > 1)
+    if (clientId.clientId && clientId.userIds && intersection(clientId.userIds, voterIds).length > 1)
       suspiciousClientIds.add(clientId.clientId)
   }
   

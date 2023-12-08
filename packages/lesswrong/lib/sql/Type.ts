@@ -271,6 +271,10 @@ export class DefaultValueType extends Type {
     return `${this.type.toString()} DEFAULT ${this.getDefaultValueString()}`;
   }
 
+  getDefaultValue(): AnyBecauseHard {
+    return this.value
+  }
+
   getDefaultValueString(): string | null {
     return valueToString(this.value, this.type.isArray() ? this.type.subtype : undefined);
   }
@@ -281,6 +285,10 @@ export class DefaultValueType extends Type {
 
   isArray(): this is ArrayType {
     return this.type.isArray();
+  }
+
+  isNotNull(): boolean {
+    return this.type instanceof NotNullType;
   }
 }
 

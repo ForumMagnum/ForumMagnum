@@ -1,3 +1,4 @@
+import { userGetDisplayName } from "../../lib/collections/users/helpers";
 import { renderToString } from "react-dom/server";
 import { getCollectionHooks } from "../mutationCallbacks";
 import { createNotifications } from "../notificationCallbacksHelpers";
@@ -209,12 +210,12 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
   const formDataSourceUser = {
     ...userMatchPreferences,
     userId: userId, 
-    displayName: currentUser.displayName,
+    displayName: userGetDisplayName(currentUser),
   }
   const formDataTargetUser = {
     ...reciprocalMatchPreferences,
     userId: targetUserId,
-    displayName: targetUser.displayName,
+    displayName: userGetDisplayName(targetUser),
   }
  
   const result = await createMutator({

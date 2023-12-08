@@ -41,4 +41,9 @@ module.exports = {
     contents_latest: "B5n47EvitY4zqSid3",
     voteCount: 1,
     needsReview: true,
+    legacyPoll: false,
+    tagCommentType: "DISCUSSION",
+    rejected:false,
+    isPinnedOnProfile: false,
+
 }

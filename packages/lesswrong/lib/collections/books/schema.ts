@@ -65,6 +65,7 @@ const schema: SchemaType<DbBook> = {
       type: "Post"
     }),
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canUpdate: ['members'],
     canCreate: ['members'],
@@ -84,6 +85,7 @@ const schema: SchemaType<DbBook> = {
       type: "Sequence"
     }),
     optional: true,
+    nullable: false,
     canRead: ["guests"],
     canUpdate: ['members'],
     canCreate: ['members'],
