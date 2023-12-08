@@ -79,9 +79,14 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
 export const calendlyPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.calendly-preview": {
     "& iframe": {
-      width: "100%",
-      height: 750,
-      border: "1px solid",
+      "width": "calc(100% - 10px)",
+      "height": 750,
+      border: "2px solid",
+      borderRadius: 10,
+      borderColor: "rgba(0,0,0,0.2)",
+      padding: 0,
+      marginRight: 5,
+      marginLeft: 5
     },
   },
 });
