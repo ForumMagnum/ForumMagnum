@@ -83,7 +83,7 @@ export const calendlyPreviewStyles = (theme: ThemeType): JssStyles => ({
       "height": 750,
       border: "2px solid",
       borderRadius: 10,
-      borderColor: "rgba(0,0,0,0.2)",
+      borderColor: theme.palette.grey[200],
       padding: 0,
       marginRight: 5,
       marginLeft: 5
