@@ -27,7 +27,8 @@ import { userGetDisplayName } from './collections/users/helpers'
 import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
 import DialogueChecks from './collections/dialogueChecks/collection';
-import { taggingNamePluralSetting } from './instanceSettings';
+import { getUserABTestGroup } from './abTestImpl';
+import { checkNotificationMessageContent } from './abTests';
 
 export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
@@ -374,7 +375,24 @@ export const NewDialogueCheckNotification = registerNotificationType({
   userSettingField: "notificationNewDialogueChecks",
   allowedChannels: ["onsite", "none"],
   async getMessage(props: GetMessageProps) {
-    return `New users interested in dialoguing with you (not a match yet)`
+    let notificationAbGroup = ""
+    const userId = props.extraData?.userId
+    if (userId) { 
+      const user = await getDocument("user", userId) as DbUser
+      notificationAbGroup = getUserABTestGroup({user}, checkNotificationMessageContent)
+    }
+    switch (notificationAbGroup) {
+      case "v1":
+        return `New users interested in dialoguing with you (not a match yet)`
+      case "v2":
+        return `You got new checks in dialogue matching`
+      case "v3":
+        return `New users want to dialogue with you, since last you checked`
+      case "v4":
+        return `You got new users who checked you for dialogues`
+      default:
+        return `New users interested in dialoguing with you (not a match yet)`
+    }    
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>
