@@ -53,23 +53,23 @@ const ensureMigratedIndexes = async (client: SqlClient) => {
   // eslint-disable-next-line no-console
   console.log('Creating custom indexes');
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_DatabaseMetadata_name"
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name"
     ON public."DatabaseMetadata" USING btree
     (name);
   `, options);
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered"
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered"
     ON public."DebouncerEvents" USING btree
     (dispatched, af, key, name)
     WHERE (dispatched IS FALSE);
   `, options);
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_PageCache_path_abTestGroups_bundleHash"
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash"
     ON public."PageCache" USING btree
     (path, "abTestGroups", "bundleHash");
   `, options);
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_ReadStatuses_userId_postId_tagId"
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId"
     ON public."ReadStatuses" USING btree
     (COALESCE("userId", ''), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
   `, options);
