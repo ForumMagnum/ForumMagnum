@@ -44,9 +44,9 @@ export const preparePgTables = () => {
 }
 
 /**
- * This is part of the nullability PR.
- * We need to keep around the old indexes for use in the ON CONFLICT constraints in the rewritten upsert queries.
- * So we need to ensure those indexes also exist in the test db for cypress tests, until we fix the whole index situation in a follow-up PR.
+ * These are custom indexes we created during the nullability PR for various ON CONFLICT queries.
+ * We need to run them here but with options to ensure they actually get run, because the calls to create them in the codebase don't get run during test setup.
+ * We need a better way to handle `ensureCustomPgIndex` properly for indexes required by tests.
  */
 const ensureMigratedIndexes = async (client: SqlClient) => {
   const options = { overrideCanEnsureIndexes: true, runImmediately: true, client };
