@@ -111,7 +111,7 @@ const buildTables = async (client: SqlClient) => {
     }
   }
 
-  await ensureMigratedIndexes(client);
+  // await ensureMigratedIndexes(client);
   await updateFunctions(client);
   await ensurePostgresViewsExist(client);
 }
