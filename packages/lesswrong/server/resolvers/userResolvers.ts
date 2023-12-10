@@ -324,7 +324,7 @@ addGraphQLResolvers({
   // - [-] And less on X (core topic) than other users
   // - [X] Your most-read author was Y
   // - [X] Your top 5 most-read authors are A, B, C, D, E
-  // - [-] You’re in the top x% of Y’s readers (one of your top 5 most-read authors)
+  // - [X] You’re in the top x% of Y’s readers (one of your top 5 most-read authors)
   // - [X] Your highest-karma post in 2023 was N
   // - [X] You wrote X posts in total this year.
   // - [X] This means you're in the top Y% of post authors.
@@ -335,8 +335,8 @@ addGraphQLResolvers({
   // - [X] You wrote X quick takes in total this year.
   // - [X] This means you're in the top Y% of quick takes authors
   // - [X] Your overall karma change this year was X (Y from comments, Z from posts)
-  // - [-] Others gave you X [most received react] reacts
-  // - [-] And X reacts in total (X insightful, Y helpful, Z changed my mind)
+  // - [X] Others gave you X [most received react] reacts
+  // - [X] And X reacts in total (X insightful, Y helpful, Z changed my mind)
   // - [-] Your Forum [TBD what this consists]
   //
   // The rest to be handled separately:
