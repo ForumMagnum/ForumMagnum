@@ -412,5 +412,69 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
     `);
   }
+
+  /**
+   * Returns the number of posts that a user has authored in a given year, and their percentile among all users who
+   * authored at least one post in that year. This is currently used for Wrapped.
+   */
+  async getAuthorshipStats({ userId, year }: { userId: string; year: number; }): Promise<{totalCount: number, percentile: number}> {
+    const startPostedAt = new Date(year, 0).toISOString();
+    const endPostedAt = new Date(year + 1, 0).toISOString();
+
+    const result = await this.getRawDb().oneOrNone<{total_count: string, percentile: number}>(`
+      -- PostsRepo.getAuthorshipStats
+      WITH visible_posts AS (
+        SELECT
+          "userId",
+          "coauthorStatuses"
+        FROM
+          "Posts"
+        WHERE
+          ${getViewablePostsSelector()}
+          AND "postedAt" > $1
+          AND "postedAt" < $2
+      ),
+      authorships AS ((
+          SELECT
+            "userId"
+          FROM
+            visible_posts)
+        UNION ALL (
+          SELECT
+            unnest("coauthorStatuses") ->> 'userId' AS "userId"
+          FROM
+            visible_posts)
+      ),
+      authorship_counts AS (
+        SELECT
+          "userId",
+          count(*) AS total_count
+        FROM
+          authorships
+        GROUP BY
+          "userId"
+      ),
+      authorship_percentiles AS (
+        SELECT
+          "userId",
+          total_count,
+          percent_rank() OVER (ORDER BY total_count ASC) percentile
+        FROM
+          authorship_counts
+      )
+      SELECT
+        total_count,
+        percentile
+      FROM
+        authorship_percentiles
+      WHERE
+        "userId" = $3;
+    `, [startPostedAt, endPostedAt, userId]);
+
+    return {
+      totalCount: result?.total_count ? parseInt(result.total_count) : 0,
+      percentile: result?.percentile ?? 0,
+    };
+  }
 }
 ensureIndex(Posts, {debate:-1})
