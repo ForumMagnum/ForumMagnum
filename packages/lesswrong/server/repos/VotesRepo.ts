@@ -436,7 +436,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
     `, [postIds], "getDigestPlannerVotesForPosts");
   }
 
-  async getPostKarmaChangePerDay({ postIds, startDate, endDate }: { postIds: string[]; startDate?: Date; endDate: Date; }): Promise<{ window_start_key: string; karma_change: string }[]> {
+  async getDocumentKarmaChangePerDay({ documentIds, startDate, endDate }: { documentIds: string[]; startDate?: Date; endDate: Date; }): Promise<{ window_start_key: string; karma_change: string }[]> {
     return await this.getRawDb().any<{window_start_key: string, karma_change: string}>(`
       -- VotesRepo.getPostKarmaChangePerDay
       SELECT
@@ -453,7 +453,7 @@ export default class VotesRepo extends AbstractRepo<DbVote> {
         window_start_key
       ORDER BY
         window_start_key;
-    `, [postIds, startDate, endDate]);
+    `, [documentIds, startDate, endDate]);
   }
 
   /**

@@ -450,6 +450,11 @@ addGraphQLResolvers({
         context.repos.comments.getAuthorshipStats({ userId: user._id, year, shortform: true }),
       ]);
 
+      const [postKarmaChanges, commentKarmaChanges] = await Promise.all([
+        context.repos.votes.getDocumentKarmaChangePerDay({ documentIds: userPosts.map(({ _id }) => _id), startDate: start, endDate: end }),
+        context.repos.votes.getDocumentKarmaChangePerDay({ documentIds: [...userComments.map(({ _id }) => _id), ...userShortforms.map(({ _id }) => _id)], startDate: start, endDate: end }),
+      ]);
+
       let totalKarmaChange
       if (context.repos?.votes) {
         const karmaQueryArgs = {
@@ -510,8 +515,8 @@ addGraphQLResolvers({
         shortformCount: shortformAuthorshipStats.totalCount,
         shortformPercentile: shortformAuthorshipStats.percentile,
         karmaChange: totalKarmaChange,
-        postKarmaChanges: [], // TODO
-        commentKarmaChanges: [], // TODO
+        postKarmaChanges: postKarmaChanges.map(({ window_start_key, karma_change }) => ({ date: window_start_key, value: karma_change })),
+        commentKarmaChanges: commentKarmaChanges.map(({ window_start_key, karma_change }) => ({ date: window_start_key, value: karma_change })),
         mostReceivedReacts: [], // TODO
       }
       // TODO change alignment for 2023
