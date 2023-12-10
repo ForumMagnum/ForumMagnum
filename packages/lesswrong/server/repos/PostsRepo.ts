@@ -476,5 +476,61 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       percentile: result?.percentile ?? 0,
     };
   }
+
+  /**
+   * Returns the number of posts that a user has read that were authored by a given user in a given year, and their
+   * percentile among all users who read at least one post by that author in that year. This is currently used for Wrapped.
+   */
+  async getReadAuthorStats({ userId, authorUserId, year }: { userId: string; authorUserId: string; year: number; }): Promise<{totalCount: number, percentile: number}> {
+    const startPostedAt = new Date(year, 0, 1);
+    const endPostedAt = new Date(year + 1, 0, 1);
+
+    const result = await this.getRawDb().oneOrNone<{total_count: string, percentile: number}>(`
+      -- PostsRepo.getReadAuthorStats
+      WITH authored_posts AS (
+        SELECT DISTINCT
+          _id AS "postId"
+        FROM
+          "Posts" p
+          LEFT JOIN LATERAL UNNEST(p."coauthorStatuses") AS unnested ON true
+        WHERE
+          ${getViewablePostsSelector('p')}
+          AND (p."userId" = $3 OR unnested ->> 'userId' = $3)
+      ),
+      read_counts AS (
+        SELECT
+          "userId",
+          count(*) AS total_count
+        FROM
+          authored_posts
+          INNER JOIN "ReadStatuses" rs ON authored_posts."postId" = rs."postId"
+        WHERE
+          "lastUpdated" >= $1
+          AND "lastUpdated" < $2
+        GROUP BY
+          "userId"
+      ),
+      reader_percentiles AS (
+        SELECT
+          "userId",
+          total_count,
+          percent_rank() OVER (ORDER BY total_count ASC) percentile
+        FROM
+          read_counts
+      )
+      SELECT
+        total_count,
+        percentile
+      FROM
+        reader_percentiles
+      WHERE
+        "userId" = $4;
+    `, [startPostedAt, endPostedAt, authorUserId, userId]);
+
+    return {
+      totalCount: result?.total_count ? parseInt(result.total_count) : 0,
+      percentile: result?.percentile ?? 0,
+    };
+  }
 }
 ensureIndex(Posts, {debate:-1})

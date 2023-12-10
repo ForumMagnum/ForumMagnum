@@ -327,14 +327,14 @@ addGraphQLResolvers({
   // - [-] You’re in the top x% of Y’s readers (one of your top 5 most-read authors)
   // - [X] Your highest-karma post in 2023 was N
   // - [X] You wrote X posts in total this year.
-  // - [-] This means you're in the top Y% of post authors.
+  // - [X] This means you're in the top Y% of post authors.
   // - [X] Your highest-karma comment in 2023 was N
   // - [X] You wrote X comments in total this year.
-  // - [-] This means you're in the top Y% of commenters.
+  // - [X] This means you're in the top Y% of commenters.
   // - [X] Your highest-karma quick take in 2023 was N
   // - [X] You wrote X quick takes in total this year.
-  // - [-] This means you're in the top Y% of quick takes authors
-  // - [-] Your overall karma change this year was X (Y from comments, Z from posts)
+  // - [X] This means you're in the top Y% of quick takes authors
+  // - [X] Your overall karma change this year was X (Y from comments, Z from posts)
   // - [-] Others gave you X [most received react] reacts
   // - [-] And X reacts in total (X insightful, Y helpful, Z changed my mind)
   // - [-] Your Forum [TBD what this consists]
@@ -381,7 +381,14 @@ addGraphQLResolvers({
         return authors
       }).flat()
       const authorCounts = countBy(userIds)
-      const topAuthors = sortBy(entries(authorCounts), last).slice(-5).map(a => a![0])
+      const topAuthors = sortBy(entries(authorCounts), last).slice(-5).map(a => a![0]) as string[]
+
+      const readAuthorStatsPromise = Promise.all(
+        topAuthors.map(async (id) => ({
+          authorUserId: id,
+          ...(await context.repos.posts.getReadAuthorStats({ userId: user._id, authorUserId: id, year })),
+        }))
+      );
 
       // Get the top 3 topics that the user has read (filtering out the Community topic)
       const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat().filter(t => t !== EA_FORUM_COMMUNITY_TOPIC_ID)
@@ -399,6 +406,7 @@ addGraphQLResolvers({
         postAuthorshipStats,
         commentAuthorshipStats,
         shortformAuthorshipStats,
+        readAuthorStats,
       ] = await Promise.all([
         Users.find(
           {
@@ -448,6 +456,7 @@ addGraphQLResolvers({
         context.repos.posts.getAuthorshipStats({ userId: user._id, year }),
         context.repos.comments.getAuthorshipStats({ userId: user._id, year, shortform: false }),
         context.repos.comments.getAuthorshipStats({ userId: user._id, year, shortform: true }),
+        readAuthorStatsPromise
       ]);
 
       const [postKarmaChanges, commentKarmaChanges] = await Promise.all([
@@ -456,6 +465,7 @@ addGraphQLResolvers({
       ]);
 
       let totalKarmaChange
+      let mostReceivedReacts: { name: string, count: number }[] = []
       if (context.repos?.votes) {
         const karmaQueryArgs = {
           userId: user._id,
@@ -469,6 +479,14 @@ addGraphQLResolvers({
           sumBy(changedPosts, (doc: any)=>doc.scoreChange)
         + sumBy(changedComments, (doc: any)=>doc.scoreChange)
         + sumBy(changedTagRevisions, (doc: any)=>doc.scoreChange)
+
+        const allAddedReacts = [
+          ...changedComments.map(({ addedReacts }) => addedReacts).flat(),
+          ...changedPosts.map(({ addedReacts }) => addedReacts).flat(),
+        ].flat();
+
+        const reactCounts = countBy(allAddedReacts, 'reactionType');
+        mostReceivedReacts = (sortBy(entries(reactCounts), last) as [string, number][]).reverse().map(([name, count]) => ({ name, count }));
       }
 
       const { engagementPercentile, totalSeconds, daysVisited }  = await getEngagementV2(user._id, year);
@@ -485,13 +503,17 @@ addGraphQLResolvers({
             : null;
         })
         .filter((t) => !!t);
-      const mostReadAuthors = topAuthors.reverse().map(id => {
+
+      const mostReadAuthors = topAuthors.reverse().map(async id => {
         const author = authors.find(a => a._id === id)
+        const authorStats = readAuthorStats.find(s => s.authorUserId === id)
+
         return author
           ? {
               displayName: author.displayName,
               slug: author.slug,
               count: authorCounts[author._id],
+              engagementPercentile: authorStats?.percentile ?? 0.0,
             }
           : null;
       }).filter(a => !!a);
@@ -517,7 +539,7 @@ addGraphQLResolvers({
         karmaChange: totalKarmaChange,
         postKarmaChanges: postKarmaChanges.map(({ window_start_key, karma_change }) => ({ date: window_start_key, value: karma_change })),
         commentKarmaChanges: commentKarmaChanges.map(({ window_start_key, karma_change }) => ({ date: window_start_key, value: karma_change })),
-        mostReceivedReacts: [], // TODO
+        mostReceivedReacts,
       }
       // TODO change alignment for 2023
       results['alignment'] = getAlignment(results)
