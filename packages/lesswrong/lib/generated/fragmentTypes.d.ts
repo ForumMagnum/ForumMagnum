@@ -3486,6 +3486,7 @@ interface DialogueMatchPreferencesDefaultFragment { // fragment on DialogueMatch
   readonly formatNotes: string,
   readonly calendlyLink: string | null,
   readonly generatedDialogueId: string | null,
+  readonly deleted: boolean,
 }
 
 interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
@@ -3501,6 +3502,7 @@ interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
   readonly asyncPreference: "Yes" | "Meh" | "No",
   readonly formatNotes: string,
   readonly generatedDialogueId: string | null,
+  readonly deleted: boolean,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments

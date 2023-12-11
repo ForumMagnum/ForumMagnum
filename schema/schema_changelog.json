@@ -473,5 +473,10 @@
     "acceptsSchemaHash": "a09712836b72d69f7456155ccc81ac83",
     "acceptedByMigration": "20231208T004014.addCalendlyLinkDialogueMatchPreferencesField.ts",
     "timestamp": "2023-12-08T00:40:14.000Z"
+  },
+  {
+    "acceptsSchemaHash": "989958afb8a5cef47f6f8bd33d5a499f",
+    "acceptedByMigration": "20231208T021726.add_soft_delete_to_forms.ts",
+    "timestamp": "2023-12-08T02:17:26.000Z"
   }
 ]
