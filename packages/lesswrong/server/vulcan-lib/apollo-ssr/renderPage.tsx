@@ -29,7 +29,7 @@ import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
-import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setStoreValue } from '../../perfMetrics';
+import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
@@ -103,7 +103,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
         user_agent: userAgent
       }, startTime);
 
-      setStoreValue('requestPerfMetric', perfMetric);
+      setAsyncStoreValue('requestPerfMetric', perfMetric);
     }
 
     const rendered = await renderRequest({
@@ -143,7 +143,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
         user_agent: userAgent
       }, startTime);
 
-      setStoreValue('requestPerfMetric', perfMetric);
+      setAsyncStoreValue('requestPerfMetric', perfMetric);
     }
 
     const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => renderRequest({
@@ -159,7 +159,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     }
 
     if (performanceMetricLoggingEnabled.get()) {
-      setStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+      setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
         if (!incompletePerfMetric) return;
         return {
           ...incompletePerfMetric,
@@ -242,7 +242,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: {
   const requestContext = await computeContextFromUser(user, req, res);
   configureSentryScope(requestContext);
   if (performanceMetricLoggingEnabled.get()) {
-    setStoreValue('resolverContext', requestContext);
+    setAsyncStoreValue('resolverContext', requestContext);
   }
   
   // according to the Apollo doc, client needs to be recreated on every request

@@ -7,7 +7,6 @@ interface TypingIndicatorPostInfo extends DbTypingIndicator {
   hasCoauthorPermission: DbPost['hasCoauthorPermission'],
   coauthorStatuses: DbPost['coauthorStatuses']
 }
-
 export default class TypingIndicatorsRepo extends AbstractRepo<DbTypingIndicator> {
   constructor() {
     super(TypingIndicators);

@@ -15,7 +15,7 @@ interface AsyncLocalStorageContext {
 
 export const asyncLocalStorage = new AsyncLocalStorage<AsyncLocalStorageContext>();
 
-export function setStoreValue<T extends keyof AsyncLocalStorageContext>(key: T, value: AsyncLocalStorageContext[T] | ((previousValue: AsyncLocalStorageContext[T]) => AsyncLocalStorageContext[T])) {
+export function setAsyncStoreValue<T extends keyof AsyncLocalStorageContext>(key: T, value: AsyncLocalStorageContext[T] | ((previousValue: AsyncLocalStorageContext[T]) => AsyncLocalStorageContext[T])) {
   const store = asyncLocalStorage.getStore();
   if (store) {
     if (typeof value === 'function') {
@@ -47,6 +47,11 @@ export function closePerfMetric(openPerfMetric: IncompletePerfMetric) {
   queuePerfMetric(perfMetric);
 }
 
+/**
+ * We have a dedicated function to send off the perf metric for the top-level request
+ * This is because we track it in the async local storage context,
+ * and we want to be careful not to send it multiple times, or leave it accessible after it's been sent off
+ */
 export function closeRequestPerfMetric() {
   const store = asyncLocalStorage.getStore();
   if (!store) {
@@ -62,7 +67,7 @@ export function closeRequestPerfMetric() {
   }
 
   closePerfMetric(store.requestPerfMetric);
-  setStoreValue('requestPerfMetric', undefined);
+  setAsyncStoreValue('requestPerfMetric', undefined);
 }
 
 export function perfMetricMiddleware(req: Request, res: Response, next: NextFunction) {

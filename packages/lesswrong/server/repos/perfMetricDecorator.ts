@@ -24,19 +24,6 @@ function wrapWithPerfMetrics(method: Function, repoName: string, methodName: str
 
     const opName = `${repoName}.${methodName}`;
 
-    if (!parentTraceIdField.parent_trace_id) {
-      console.log(`Missing parent_trace_id for ${opName}`);
-      if (!asyncContext) {
-        console.log('-- Missing async context entirely');
-      } else if (!asyncContext.resolverContext) {
-        console.log('-- Missing resolver context in async context');
-      } else if (!asyncContext.resolverContext?.perfMetric) {
-        console.log('-- Missing perf metric in resolver context');
-      } else {
-        console.log('-- Missing trace_id in perf metric in resolver context');
-      }
-    }
-
     const startedDbRepoMetric = openPerfMetric({
       op_type: 'db_repo_method',
       op_name: opName,
@@ -56,6 +43,8 @@ function wrapWithPerfMetrics(method: Function, repoName: string, methodName: str
       });
     }
 
+    // Similarly, we don't really care about recording perf metrics for anything that isn't a promise
+    // So we don't close those
     return results;
   };
 }
