@@ -23,7 +23,7 @@ WITH normalized AS (
     AND raw.environment = 'production'
     -- DEBUG: Uncomment below to run over a shorter time period for faster testing
     -- AND raw."timestamp" >= '2023-12-01 00:00:00'::timestamp WITHOUT time zone
-    AND raw."timestamp" < '2023-01-01 00:00:00'::timestamp WITHOUT time zone
+    AND raw."timestamp" >= '2023-01-01 00:00:00'::timestamp WITHOUT time zone
 ),
 by_date AS (
   SELECT
