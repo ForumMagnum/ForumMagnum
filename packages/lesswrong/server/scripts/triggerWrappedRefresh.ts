@@ -3,6 +3,14 @@
 import { getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
 import { Globals } from "../vulcan-lib";
 
+// Run the following SQL to check on the progress of this script:
+// SELECT
+//   pid,
+//   now() - pg_stat_activity.query_start AS duration,
+//   query,
+//   state
+// FROM pg_stat_activity order by duration desc;
+
 const USER_ENGAGEMENT_VIEW_NAME = 'user_engagement_wrapped_2023';
 const USER_ENGAGEMENT_VIEWDEF = `
 WITH normalized AS (
