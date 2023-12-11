@@ -20,6 +20,7 @@ export default class PostEmbeddingsRepo extends AbstractRepo<DbPostEmbedding> {
     }
     const now = new Date();
     return this.none(`
+      -- PostEmbeddingsRepo.setPostEmbeddings
       INSERT INTO "PostEmbeddings" (
         "_id",
         "postId",

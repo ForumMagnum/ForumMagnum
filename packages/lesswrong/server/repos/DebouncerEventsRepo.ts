@@ -18,6 +18,7 @@ export default class DebouncerEventsRepo extends AbstractRepo<DbDebouncerEvents>
     data?: string,
   ): Promise<null> {
     return this.none(`
+      -- DebouncerEventsRepo.recordEvent
       INSERT INTO "DebouncerEvents" (
         "_id",
         "name",
@@ -32,8 +33,8 @@ export default class DebouncerEventsRepo extends AbstractRepo<DbDebouncerEvents>
       ) ON CONFLICT (
         "dispatched",
         "af",
-        COALESCE("key", ''),
-        COALESCE("name", '')
+        "key",
+        "name"
       ) WHERE "dispatched" IS FALSE
       DO UPDATE SET
         "delayTime" = GREATEST("DebouncerEvents"."delayTime", $4),

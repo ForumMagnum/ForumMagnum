@@ -14,7 +14,7 @@ export type CompareStateUI = Record<string, {multiplier: number | string, AtoB: 
 export type CompareState = Record<string, {multiplier: number, AtoB: boolean}>;
 
 /** Latest midnight on 2023-12-15 */
-const VOTING_DEADLINE = new Date("2023-12-15T23:59:59-12:00");
+export const VOTING_DEADLINE = new Date("2023-12-15T23:59:59-12:00");
 
 export const isPastVotingDeadline = () => new Date() > VOTING_DEADLINE;
 

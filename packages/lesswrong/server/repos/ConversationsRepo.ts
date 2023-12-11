@@ -11,6 +11,7 @@ export default class ConversationsRepo extends AbstractRepo<DbConversation> {
 
   moveUserConversationsToNewUser(oldUserId: string, newUserId: string): Promise<null> {
     return this.none(`
+      -- ConversationsRepo.moveUserConversationsToNewUser
       UPDATE "Conversations"
       SET "participantIds" = ARRAY_APPEND(ARRAY_REMOVE("participantIds", $1), $2)
       WHERE ARRAY_POSITION("participantIds", $1) IS NOT NULL
@@ -19,6 +20,7 @@ export default class ConversationsRepo extends AbstractRepo<DbConversation> {
 
   async getLatestMessages(conversationIds: string[]): Promise<(DbMessage | null)[]> {
     const messages = await this.getRawDb().manyOrNone<DbMessage>(`
+      -- ConversationsRepo.getLatestMessages
       SELECT m.*
       FROM "Messages" m
       JOIN (

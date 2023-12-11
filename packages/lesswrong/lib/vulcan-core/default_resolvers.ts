@@ -187,16 +187,18 @@ const performQueryFromViewParameters = async <T extends DbObject>(collection: Co
     throw new Error("Exceeded maximum value for skip");
   }
   
-  const options = {
+  const description = describeTerms(collection.collectionName, terms);
+  const options: MongoFindOptions<T> = {
     ...parameters.options,
     skip: terms.offset,
+    comment: description
   };
   if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
     const pipeline = [
       // First stage: Filter by selector
       { $match: {
         ...selector,
-        $comment: describeTerms(terms),
+        $comment: description,
       }},
       // Second stage: Add computed fields
       { $addFields: parameters.syntheticFields },
@@ -221,7 +223,6 @@ const performQueryFromViewParameters = async <T extends DbObject>(collection: Co
     logger('performQueryFromViewParameters connector find', selector, terms, options);
     return await collection.find({
       ...selector,
-      $comment: describeTerms(terms),
     }, options).fetch();
   }
 }

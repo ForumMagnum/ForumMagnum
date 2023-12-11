@@ -57,13 +57,21 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
     const { operationName = 'unknownGqlOperation', query, variables } = request;
 
+    //remove sensitive data from variables such as password
+    let filteredVariables = variables;
+    if (variables) {
+      filteredVariables =  Object.keys(variables).reduce((acc, key) => {
+        return (key === 'password') ?  acc : { ...acc, [key]: variables[key] };
+      }, {});
+    }
+
     let startedRequestMetric: IncompletePerfMetric;
     if (performanceMetricLoggingEnabled.get()) {
       startedRequestMetric = openPerfMetric({
         op_type: 'query',
         op_name: operationName,
         parent_trace_id: context.perfMetric?.trace_id,
-        extra_data: variables,
+        extra_data: filteredVariables,
         gql_string: query
       });  
     }
@@ -231,13 +239,18 @@ export function startWebserver() {
     }
     
     const currentUser = await getUserFromReq(req)
-    if (!currentUser || !getUserEmail(currentUser)){
-      res.status(403).send("Not logged in or current user has no email address")
+    if (!currentUser) {
+      res.status(403).send("Not logged in")
+      return
+    }
+
+    const userEmail = getUserEmail(currentUser)
+    if (!userEmail) {
+      res.status(403).send("User does not have email")
       return
     }
     
-    const eagApp = await getEAGApplicationData(currentUser.email)
-    res.send(eagApp)
+    const eagApp = await getEAGApplicationData(userEmail)
   })
 
   addCrosspostRoutes(app);

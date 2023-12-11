@@ -23,6 +23,7 @@ const mongo2PgLock = new class {
 
     await db.tx(async (transaction) => {
       await transaction.none(`
+      -- mongo2PgLock.ensureTableExists
       CREATE TABLE IF NOT EXISTS ${this.tableName} (
         collection_name TEXT PRIMARY KEY,
         read_target TEXT DEFAULT 'mongo',
@@ -30,22 +31,27 @@ const mongo2PgLock = new class {
       );
       `);
       await transaction.none(`
+        -- mongo2PgLock.ensureTableExists
         ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.readConstraint};
       `);
       await transaction.none(`
+        -- mongo2PgLock.ensureTableExists
         ALTER TABLE ${this.tableName} DROP CONSTRAINT IF EXISTS ${this.writeConstraint};
       `);
       await transaction.none(`
+        -- mongo2PgLock.ensureTableExists
         ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.readConstraint}
         CHECK (read_target IN ('mongo', 'pg'));
       `);
       await transaction.none(`
+        -- mongo2PgLock.ensureTableExists
         ALTER TABLE ${this.tableName} ADD CONSTRAINT ${this.writeConstraint}
         CHECK (write_target IN ('mongo', 'pg', 'both'));
       `);
 
       const collectionNames = Collections.map(({options: {collectionName}}) => `('${collectionName}')`);
       await transaction.none(`
+        -- mongo2PgLock.ensureTableExists
         INSERT INTO ${this.tableName} (collection_name) VALUES
         ${collectionNames.join(", ")}
         ON CONFLICT DO NOTHING;
@@ -59,6 +65,7 @@ const mongo2PgLock = new class {
   ): Promise<ReadWriteTargets> {
     await this.ensureTableExists(db);
     const result = await db.one(`
+      -- mongo2PgLock.getCollectionType
       SELECT read_target AS read, write_target AS write
       FROM ${this.tableName}
       WHERE collection_name = $1;
@@ -74,6 +81,7 @@ const mongo2PgLock = new class {
   ): Promise<void> {
     await this.ensureTableExists(db);
     await db.none(`
+      -- mongo2PgLock.setCollectionType
       UPDATE ${this.tableName}
       SET read_target = $1, write_target = $2
       WHERE collection_name= $3;

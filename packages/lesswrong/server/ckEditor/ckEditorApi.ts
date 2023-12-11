@@ -382,6 +382,15 @@ const ckEditorApiHelpers = {
     // So we just flush the session and delete the document *contents* from storage, but it takes two operations.)
     await ckEditorApi.flushCkEditorCollaboration(ckEditorId);
     await ckEditorApi.deleteCkEditorCloudStorageDocument(ckEditorId);
+
+    // CKEditor's api isn't very good.
+    // Attempting to create another collaborative session after the previous flush + delete often fails with 409 (indicating that the document already/still exists).
+    // For some reason flushing a second time fixes this.
+    try {
+      await ckEditorApi.flushCkEditorCollaboration(ckEditorId);
+    } catch (err) {
+      // Swallow any errors - we won't always get one, but if we do it's almost certainly because the first attempt succeeded.
+    }
     
     // Push the selected revision
     await ckEditorApi.createCollaborativeSession(ckEditorId, html);

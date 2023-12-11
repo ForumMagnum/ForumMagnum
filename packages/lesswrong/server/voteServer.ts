@@ -335,7 +335,7 @@ async function wasVotingPatternWarningDeliveredRecently(user: DbUser, moderatorA
   }, {
     sort: {createdAt: -1}
   });
-  if (!mostRecentWarning) {
+  if (!mostRecentWarning?.createdAt) {
     return false;
   }
   const warningAgeMS = new Date().getTime() - mostRecentWarning.createdAt.getTime()
@@ -496,7 +496,7 @@ function getRelevantVotes(rateLimit: VotingRateLimit, document: DbVoteableType, 
 
     if (ageInMinutes > rateLimit.periodInMinutes)
       return false;
-    if (rateLimit.users === "singleUser" && !vote.authorIds?.includes(document.userId))
+    if (rateLimit.users === "singleUser" && !!document.userId &&!vote.authorIds?.includes(document.userId))
       return false;
 
     const isStrong = (vote.voteType === "bigDownvote" || vote.voteType === "bigUpvote");
@@ -542,7 +542,7 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
   
   const baseScore = sumBy(votes, v=>v.power)
-  const afBaseScore = sumBy(afVotes, v=>v.afPower)
+  const afBaseScore = sumBy(afVotes, v=>v.afPower ?? 0)
   
   const voteCount = _.filter(votes, v=>voteHasAnyEffect(votingSystem, v, false)).length;
   const afVoteCount = _.filter(afVotes, v=>voteHasAnyEffect(votingSystem, v, true)).length;

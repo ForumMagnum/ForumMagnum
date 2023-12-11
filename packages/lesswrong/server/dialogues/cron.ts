@@ -15,6 +15,7 @@ addCronJob({
         notificationType: "newDialogueChecks",
         documentType: null,
         documentId: null,
+        extraData: {userId: user._id}, // passed for the AB test
         context,
       })
     })

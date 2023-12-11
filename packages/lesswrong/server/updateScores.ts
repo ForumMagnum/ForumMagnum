@@ -165,6 +165,7 @@ const getBatchItemsPg = async <T extends DbObject>(collection: CollectionBase<T>
 
   const ageHours = 'EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - "postedAt") / 3600';
   return runSqlQuery(`
+    -- updateScores.getBatchItemsPg
     SELECT
       q.*,
       ns."newScore",

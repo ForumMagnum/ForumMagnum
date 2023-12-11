@@ -1,11 +1,23 @@
+import { userGetDisplayName } from "../../lib/collections/users/helpers";
+import { renderToString } from "react-dom/server";
 import { getCollectionHooks } from "../mutationCallbacks";
 import { createNotifications } from "../notificationCallbacksHelpers";
-import { createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
+import { Components, createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
+import { createElement } from "react";
+import { validatedCalendlyUrl } from "../../components/dialogues/CalendlyIFrame";
 
 interface MatchPreferenceFormData extends DbDialogueMatchPreference {
   displayName: string;
   userId: string
 }
+
+getCollectionHooks("DialogueMatchPreferences").createValidate.add((validationErrors: Array<any>, {document: preference}: {document: DbDialogueMatchPreference}) => {
+  const valid = preference.calendlyLink === null ? true : validatedCalendlyUrl(preference.calendlyLink).valid
+  if (!valid)
+    throw new Error("Calendly link is not valid");
+
+  return validationErrors;
+});
 
 function convertTimestamp(timestamp: number) {
   const date = new Date(timestamp);
@@ -39,6 +51,8 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
       .filter(({ preference }) => preference === "Yes")
       .map(({ text }) => text);
   }
+
+  const { CalendlyIFrame } = Components
 
   const sourceUserYesTopics = getUserTopics(formDataSourceUser);
   const targetUserYesTopics = getUserTopics(formDataTargetUser);
@@ -160,9 +174,18 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   }
 
   
+  const sourceCalendly = formDataSourceUser.calendlyLink ? (
+    `<p><strong>${formDataSourceUser.displayName}</strong> <strong>shared a Calendly</strong></p>
+    ${renderToString(createElement(CalendlyIFrame, {url: formDataSourceUser.calendlyLink}))}`
+  ) : ''
+  const targetCalendly = formDataTargetUser.calendlyLink ? (
+    `<p><strong>${formDataTargetUser.displayName}</strong> <strong>shared a Calendly</strong></p>
+    ${renderToString(createElement(CalendlyIFrame, {url: formDataTargetUser.calendlyLink}))}`
+  ) : ''
 
+  const calendlys = sourceCalendly + targetCalendly
 
-  const messagesCombined = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `${topicMessageContent}${formatPreferenceContent}${nextAction}`)
+  const messagesCombined = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `${topicMessageContent}${formatPreferenceContent}${nextAction}${calendlys}`)
 
   return `<div>${messagesCombined}</div>`
 }
@@ -183,7 +206,7 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
     throw new Error(`Can't find reciprocal check for dialogue match preferences!`);
   }
 
-  const reciprocalMatchPreferences = await context.DialogueMatchPreferences.findOne({dialogueCheckId: reciprocalDialogueCheck._id});
+  const reciprocalMatchPreferences = await context.DialogueMatchPreferences.findOne({dialogueCheckId: reciprocalDialogueCheck._id, deleted: {$ne: true}});
   // This can probably cause a race condition if two user submit their match preferences at the same time, where neither of them realize the other is about to exist
   // Should basically never happen, though
   if (!reciprocalMatchPreferences) {
@@ -196,12 +219,12 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
   const formDataSourceUser = {
     ...userMatchPreferences,
     userId: userId, 
-    displayName: currentUser.displayName,
+    displayName: userGetDisplayName(currentUser),
   }
   const formDataTargetUser = {
     ...reciprocalMatchPreferences,
     userId: targetUserId,
-    displayName: targetUser.displayName,
+    displayName: userGetDisplayName(targetUser),
   }
  
   const result = await createMutator({

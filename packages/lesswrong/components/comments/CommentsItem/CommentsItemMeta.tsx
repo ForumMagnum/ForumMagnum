@@ -214,6 +214,8 @@ export const CommentsItemMeta = ({
     relevantTagsTruncated = relevantTagsTruncated.slice(0, 1);
   }
 
+
+
   const {
     CommentShortformIcon, CommentDiscussionIcon, ShowParentComment, CommentUserName,
     CommentsItemDate, SmallSideVote, CommentOutdatedWarning, FooterTag, LoadMore,
@@ -233,8 +235,11 @@ export const CommentsItemMeta = ({
           !(hideParentCommentToggleForTopLevel &&
             comment.parentCommentId === comment.topLevelCommentId
           ) &&
-          parentCommentId !== comment.parentCommentId &&
-          parentAnswerId !== comment.parentCommentId &&
+          /* We're often comparing null to undefined, so we need to explicitly use a double-eq-negation */
+          /* eslint-disable-next-line eqeqeq */
+          parentCommentId != comment.parentCommentId &&
+          /* eslint-disable-next-line eqeqeq */
+          parentAnswerId != comment.parentCommentId &&
         <ShowParentComment
           comment={comment}
           active={showParentState}

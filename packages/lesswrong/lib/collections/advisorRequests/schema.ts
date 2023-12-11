@@ -1,5 +1,4 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils';
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
 import { userOwns } from '../../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema';
 
@@ -31,8 +30,10 @@ const schema: SchemaType<DbAdvisorRequest> = {
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      // TODO not-null: is this collection being used at all?
       nullable: true,
     }),
+    nullable: false,
     hidden: true,
     canCreate: ['members', 'admins'],
     canRead: [userOwns, 'admins'],
@@ -41,6 +42,7 @@ const schema: SchemaType<DbAdvisorRequest> = {
   interestedInMetaculus: {
     type: Boolean,
     optional: true,
+    // TODO not-null: is this collection being used at all?
     hidden: true,
     canCreate: ['members', 'admins'],
     canRead: [userOwns, 'admins'],
@@ -50,6 +52,8 @@ const schema: SchemaType<DbAdvisorRequest> = {
   jobAds: {
     type: Object,
     optional: true,
+    nullable: true,
+    // TODO not-null: is this collection being used at all?
     hidden: true,
     blackbox: true,
     canCreate: ['members', 'admins'],

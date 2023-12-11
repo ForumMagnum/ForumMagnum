@@ -1,8 +1,7 @@
-import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple } from './utils/schemaUtils'
+import { addFieldsDict, denormalizedCountOfReferences, accessFilterMultiple, schemaDefaultValue } from './utils/schemaUtils'
 import { getWithLoader } from './loaders'
 import { userIsAdminOrMod } from './vulcan-users/permissions';
 import GraphQLJSON from 'graphql-type-json';
-import { schemaDefaultValue } from './collectionUtils';
 
 export type PermissionResult = {
   fail: false,
@@ -134,8 +133,8 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     baseScore: {
       type: Number,
       optional: true,
-      ...schemaDefaultValue(0),
       canRead: customBaseScoreReadAccess || ['guests'],
+      ...schemaDefaultValue(0),
     },
     extendedScore: {
       type: GraphQLJSON,
@@ -154,7 +153,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
     inactive: {
       type: Boolean,
       optional: true,
-      onInsert: () => false
+      ...schemaDefaultValue(false),
     },
     afBaseScore: {
       type: Number,
