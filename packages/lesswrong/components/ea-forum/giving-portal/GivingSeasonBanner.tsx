@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { TimelineSpan, eaGivingSeason23ElectionName, timelineSpec, userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
-import { useCurrentTime } from "../../../lib/utils/timeUtil";
+import { relativeTimeToLongFormat, useCurrentTime } from "../../../lib/utils/timeUtil";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import {
   EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
@@ -307,35 +307,6 @@ const BannerDate: FC<{
   </div>
 );
 
-/**
- * Convert from e.g. 1d to "1 day"
- */
-function convertToLongFormat(time: string): string {
-  if (time === 'now') {
-      return 'a few seconds';
-  }
-
-  const timeUnit = time.slice(time.search(/\D/));
-  const timeValue = parseInt(time.slice(0, -1));
-
-  switch(timeUnit) {
-      case 's':
-          return timeValue + ' second' + (timeValue > 1 ? 's' : '');
-      case 'm':
-          return timeValue + ' minute' + (timeValue > 1 ? 's' : '');
-      case 'h':
-          return timeValue + ' hour' + (timeValue > 1 ? 's' : '');
-      case 'd':
-          return timeValue + ' day' + (timeValue > 1 ? 's' : '');
-      case 'mo':
-          return timeValue + ' month' + (timeValue > 1 ? 's' : '');
-      case 'y':
-          return timeValue + ' year' + (timeValue > 1 ? 's' : '');
-      default:
-          return time;
-  }
-}
-
 const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   const currentUser = useCurrentUser();
@@ -343,7 +314,7 @@ const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
   // This involves changing some copy, hiding the banner image, and moving the timeline.
   const advertiseVoting = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
-  const voteTimeRemaining = convertToLongFormat(moment(VOTING_DEADLINE).toNow())
+  const voteTimeRemaining = relativeTimeToLongFormat(moment(VOTING_DEADLINE).toNow())
   
   const spans = timelineSpec.spans
     .filter(({hatched}) => !hatched) // Ignore the voting time period
