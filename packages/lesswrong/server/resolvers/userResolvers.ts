@@ -765,7 +765,7 @@ async function getEngagementV2(userId: string, year: number): Promise<{
   `;
 
   const daysActiveQuery = `
-    SELECT view_date::text FROM user_engagement_wrapped_2023 WHERE view_year = $2 AND user_id = $1;
+    SELECT view_date::text FROM user_engagement_wrapped_2023 WHERE view_year = $2 AND user_id = $1 ORDER BY view_date ASC;
   `;
 
   const [totalResult, daysActiveResult] = await Promise.all([

@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
 const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser()
 
-  const { data, loading } = useForumWrappedV2({
+  const { data } = useForumWrappedV2({
     userId: currentUser?._id,
     year: 2023
   })
