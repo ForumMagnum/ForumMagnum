@@ -100,7 +100,6 @@ const schema: SchemaType<DbDialogueMatchPreference> = {
   // deleted: Indicates whether a form has been soft deleted, after a dialogue was published and the form was reset
   deleted: {
     type: Boolean,
-    nullable: false,
     optional: true,
     canRead: ['guests'],
     canCreate: ['members'],
