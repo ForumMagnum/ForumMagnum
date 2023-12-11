@@ -18,18 +18,16 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   // Comment or post hovered
   "@global": {
-    ".CommentsItem-body:hover .InlineReactHoverableHighlight-highlight": {
+    [
+      ".CommentsItem-body:hover .InlineReactHoverableHighlight-highlight"
+      +", .Answer-answer:hover .InlineReactHoverableHighlight-highlight"
+      +", .PostsPage-postContent:hover .InlineReactHoverableHighlight-highlight"
+    ]: {
       textDecorationLine: 'underline',
       textDecorationStyle: 'dashed',
       textDecorationColor: theme.palette.text.dim4,
       textUnderlineOffset: '3px'
     },
-    ".PostsPage-postContent:hover .InlineReactHoverableHighlight-highlight": {
-      textDecorationLine: 'underline',
-      textDecorationStyle: 'dashed',
-      textDecorationColor: theme.palette.text.dim4,
-      textUnderlineOffset: '3px'
-    }
   }
 })
 
