@@ -2843,6 +2843,12 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideDialogueFacilitation: boolean,
   readonly optedInToDialogueFacilitation: boolean,
   readonly revealChecksToAdmins: boolean,
+  readonly notificationNewDialogueChecks: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly showDialoguesList: boolean,
   readonly showMyDialogues: boolean,
   readonly showMatches: boolean,
