@@ -46,7 +46,8 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   }
 
   async getMeanKarmaByInterval(startDate: Date, averagingWindowMs: number): Promise<MeanPostKarma[]> {
-    return this.getRawDb().any(`
+    return this.getRawDb().any(
+      `
       -- PostsRepo.getMeanKarmaByInterval
       SELECT "_id", AVG("baseScore") AS "meanKarma"
       FROM (
@@ -58,21 +59,29 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       ) Q
       GROUP BY "_id"
       ORDER BY "_id"
-    `, [startDate, averagingWindowMs], "getMeanKarmaByInterval");
+    `,
+      [startDate, averagingWindowMs],
+      "getMeanKarmaByInterval"
+    );
   }
 
   async getMeanKarmaOverall(): Promise<number> {
-    const result = await this.getRawDb().oneOrNone(`
+    const result = await this.getRawDb().oneOrNone(
+      `
       -- PostsRepo.getMeanKarmaOverall
       SELECT AVG("baseScore") AS "meanKarma"
       FROM "Posts"
       WHERE ${getViewablePostsSelector()}
-    `, [], "getMeanKarmaOverall");
+    `,
+      [],
+      "getMeanKarmaOverall"
+    );
     return result?.meanKarma ?? 0;
   }
 
-  async getReadHistoryForUser(userId: string, limit: number): Promise<Array<DbPost & {lastUpdated: Date}>> {
-    return await this.getRawDb().manyOrNone(`
+  async getReadHistoryForUser(userId: string, limit: number): Promise<Array<DbPost & { lastUpdated: Date }>> {
+    return await this.getRawDb().manyOrNone(
+      `
       -- PostsRepo.getReadHistoryForUser
       SELECT p.*, rs."lastUpdated"
       FROM "Posts" p
@@ -80,12 +89,20 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       WHERE rs."userId" = '${userId}'
       ORDER BY rs."lastUpdated" desc
       LIMIT $1
-    `, [limit], "getReadHistoryForUser");
+    `,
+      [limit],
+      "getReadHistoryForUser"
+    );
   }
 
-  async getEligiblePostsForDigest(digestId: string, startDate: Date, endDate?: Date): Promise<Array<PostAndDigestPost>> {
-    const end = endDate ?? new Date()
-    return this.getRawDb().manyOrNone(`
+  async getEligiblePostsForDigest(
+    digestId: string,
+    startDate: Date,
+    endDate?: Date
+  ): Promise<Array<PostAndDigestPost>> {
+    const end = endDate ?? new Date();
+    return this.getRawDb().manyOrNone(
+      `
       -- PostsRepo.getEligiblePostsForDigest
       SELECT p.*, dp._id as "digestPostId", dp."emailDigestStatus", dp."onsiteDigestStatus"
       FROM "Posts" p
@@ -100,11 +117,15 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         p."draft" is not true
       ORDER BY p."baseScore" desc
       LIMIT 200
-    `, [digestId, startDate, end], "getEligiblePostsForDigest");
+    `,
+      [digestId, startDate, end],
+      "getEligiblePostsForDigest"
+    );
   }
 
   async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {
-    const {emojiReactors} = await this.getRawDb().one(`
+    const { emojiReactors } = await this.getRawDb().one(
+      `
       -- PostsRepo.getPostEmojiReactors
       SELECT JSON_OBJECT_AGG("key", "displayNames") AS "emojiReactors"
       FROM (
@@ -130,7 +151,9 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         WHERE "key" IN ($2:csv) AND "value" = TO_JSONB(TRUE)
         GROUP BY "key"
       ) q
-    `, [postId, eaPublicEmojiNames]);
+    `,
+      [postId, eaPublicEmojiNames]
+    );
     return emojiReactors;
   }
 
@@ -145,7 +168,8 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   }
 
   async getCommentEmojiReactors(postId: string): Promise<CommentEmojiReactors> {
-    const {emojiReactors} = await this.getRawDb().one(`
+    const { emojiReactors } = await this.getRawDb().one(
+      `
       -- PostsRepo.getCommentEmojiReactors
       SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
       FROM (
@@ -182,7 +206,9 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         ) q
         GROUP BY "commentId"
       ) q
-    `, [postId, eaPublicEmojiNames]);
+    `,
+      [postId, eaPublicEmojiNames]
+    );
     return emojiReactors;
   }
 
@@ -197,7 +223,8 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   }
 
   getTopWeeklyDigestPosts(limit = 3): Promise<DbPost[]> {
-    return this.any(`
+    return this.any(
+      `
       -- PostsRepo.getTopWeeklyDigestPosts
       SELECT p.*
       FROM "Posts" p
@@ -205,22 +232,28 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       JOIN "Digests" d ON d."_id" = dp."digestId"
       ORDER BY d."num" DESC, p."baseScore" DESC
       LIMIT $1
-    `, [limit]);
+    `,
+      [limit]
+    );
   }
 
   getRecentlyActiveDialogues(limit = 3): Promise<DbPost[]> {
-    return this.any(`
+    return this.any(
+      `
       -- PostsRepo.getRecentlyActiveDialogues
       SELECT p.*
       FROM "Posts" p
       WHERE p."collabEditorDialogue" IS TRUE AND p.draft IS NOT TRUE
       ORDER BY GREATEST(p."postedAt", p."mostRecentPublishedDialogueResponseDate") DESC
       LIMIT $1
-    `, [limit]);
+    `,
+      [limit]
+    );
   }
 
   getMyActiveDialogues(userId: string, limit = 3): Promise<DbPost[]> {
-    return this.any(`
+    return this.any(
+      `
       -- PostsRepo.getMyActiveDialogues
       SELECT * 
       FROM (
@@ -231,7 +264,9 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       ) dialogues
       ORDER BY "modifiedAt" DESC
       LIMIT $2
-    `, [userId, limit]);
+    `,
+      [userId, limit]
+    );
   }
 
   async getPostIdsWithoutEmbeddings(): Promise<string[]> {
@@ -244,15 +279,12 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         pe."embeddings" IS NULL AND
         COALESCE((p."contents"->'wordCount')::INTEGER, 0) > 0
     `);
-    return results.map(({_id}) => _id);
+    return results.map(({ _id }) => _id);
   }
 
-  getDigestHighlights({
-    maxAgeInDays = 31,
-    numPostsPerDigest = 2,
-    limit = 10,
-  }): Promise<DbPost[]> {
-    return this.any(`
+  getDigestHighlights({ maxAgeInDays = 31, numPostsPerDigest = 2, limit = 10 }): Promise<DbPost[]> {
+    return this.any(
+      `
       -- PostsRepo.getDigestHighlights
       SELECT p.*
       FROM (
@@ -272,26 +304,33 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       WHERE q."rowNum" <= $2
       ORDER BY q."digestNum" DESC, q."rowNum" ASC
       LIMIT $3
-    `, [maxAgeInDays, numPostsPerDigest, limit]);
+    `,
+      [maxAgeInDays, numPostsPerDigest, limit]
+    );
   }
 
-  getCuratedAndPopularPosts({currentUser, days = 7, limit = 3}: {
-    currentUser?: DbUser | null,
-    days?: number,
-    limit?: number,
+  getCuratedAndPopularPosts({
+    currentUser,
+    days = 7,
+    limit = 3,
+  }: {
+    currentUser?: DbUser | null;
+    days?: number;
+    limit?: number;
   } = {}) {
     const postFilter = getViewablePostsSelector("p");
     const readFilter = currentUser
       ? {
-        join: `
+          join: `
           LEFT JOIN "ReadStatuses" rs ON
             p."_id" = rs."postId" AND
             rs."userId" = $3
         `,
-        filter: `rs."isRead" IS NOT TRUE AND`,
-      }
-      : {join: "", filter: ""};
-    return this.any(`
+          filter: `rs."isRead" IS NOT TRUE AND`,
+        }
+      : { join: "", filter: "" };
+    return this.any(
+      `
       -- PostsRepo.getCuratedAndPopularPosts
       SELECT p.*
       FROM "Posts" p
@@ -320,7 +359,9 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         ${postFilter}
       ORDER BY "curatedDate" DESC NULLS LAST, "baseScore" DESC
       LIMIT $2
-    `, [String(days), limit, currentUser?._id]);
+    `,
+      [String(days), limit, currentUser?._id]
+    );
   }
 
   private getSearchDocumentQuery(): string {
@@ -364,24 +405,30 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   }
 
   getSearchDocumentById(id: string): Promise<AlgoliaPost> {
-    return this.getRawDb().one(`
+    return this.getRawDb().one(
+      `
       ${this.getSearchDocumentQuery()}
       WHERE p."_id" = $1
-    `, [id]);
+    `,
+      [id]
+    );
   }
 
   getSearchDocuments(limit: number, offset: number): Promise<AlgoliaPost[]> {
-    return this.getRawDb().any(`
+    return this.getRawDb().any(
+      `
       -- PostsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
       ORDER BY p."createdAt" DESC
       LIMIT $1
       OFFSET $2
-    `, [limit, offset]);
+    `,
+      [limit, offset]
+    );
   }
 
   async countSearchDocuments(): Promise<number> {
-    const {count} = await this.getRawDb().one(`
+    const { count } = await this.getRawDb().one(`
       -- PostsRepo.countSearchDocuments
       SELECT COUNT(*) FROM "Posts"
     `);
@@ -389,7 +436,8 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   }
 
   async getUsersReadPostsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbPost[]> {
-    return this.any(`
+    return this.any(
+      `
       -- PostsRepo.getUsersReadPostsOfTargetUser
       SELECT p.*
       FROM "ReadStatuses" rs
@@ -401,7 +449,9 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
           AND rs."isRead" IS TRUE
       ORDER BY rs."lastUpdated" DESC
       LIMIT $3
-    `, [userId, targetUserId, limit]);
+    `,
+      [userId, targetUserId, limit]
+    );
   }
 
   async getPostsWithElicitData(): Promise<DbPost[]> {
@@ -417,11 +467,18 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
    * Returns the number of posts that a user has authored in a given year, and their percentile among all users who
    * authored at least one post in that year. This is currently used for Wrapped.
    */
-  async getAuthorshipStats({ userId, year }: { userId: string; year: number; }): Promise<{totalCount: number, percentile: number}> {
+  async getAuthorshipStats({
+    userId,
+    year,
+  }: {
+    userId: string;
+    year: number;
+  }): Promise<{ totalCount: number; percentile: number }> {
     const startPostedAt = new Date(year, 0).toISOString();
     const endPostedAt = new Date(year + 1, 0).toISOString();
 
-    const result = await this.getRawDb().oneOrNone<{total_count: string, percentile: number}>(`
+    const result = await this.getRawDb().oneOrNone<{ total_count: string; percentile: number }>(
+      `
       -- PostsRepo.getAuthorshipStats
       WITH visible_posts AS (
         SELECT
@@ -469,7 +526,9 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         authorship_percentiles
       WHERE
         "userId" = $3;
-    `, [startPostedAt, endPostedAt, userId]);
+    `,
+      [startPostedAt, endPostedAt, userId]
+    );
 
     return {
       totalCount: result?.total_count ? parseInt(result.total_count) : 0,
@@ -481,11 +540,20 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
    * Returns the number of posts that a user has read that were authored by a given user in a given year, and their
    * percentile among all users who read at least one post by that author in that year. This is currently used for Wrapped.
    */
-  async getReadAuthorStats({ userId, authorUserId, year }: { userId: string; authorUserId: string; year: number; }): Promise<{totalCount: number, percentile: number}> {
+  async getReadAuthorStats({
+    userId,
+    authorUserId,
+    year,
+  }: {
+    userId: string;
+    authorUserId: string;
+    year: number;
+  }): Promise<{ totalCount: number; percentile: number }> {
     const startPostedAt = new Date(year, 0, 1);
     const endPostedAt = new Date(year + 1, 0, 1);
 
-    const result = await this.getRawDb().oneOrNone<{total_count: string, percentile: number}>(`
+    const result = await this.getRawDb().oneOrNone<{ total_count: string; percentile: number }>(
+      `
       -- PostsRepo.getReadAuthorStats
       WITH authored_posts AS (
         SELECT DISTINCT
@@ -494,7 +562,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
           "Posts" p
           LEFT JOIN LATERAL UNNEST(p."coauthorStatuses") AS unnested ON true
         WHERE
-          ${getViewablePostsSelector('p')}
+          ${getViewablePostsSelector("p")}
           AND (p."userId" = $3 OR unnested ->> 'userId' = $3)
       ),
       read_counts AS (
@@ -525,12 +593,101 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         reader_percentiles
       WHERE
         "userId" = $4;
-    `, [startPostedAt, endPostedAt, authorUserId, userId]);
+    `,
+      [startPostedAt, endPostedAt, authorUserId, userId]
+    );
 
     return {
       totalCount: result?.total_count ? parseInt(result.total_count) : 0,
       percentile: result?.percentile ?? 0,
     };
+  }
+
+  /**
+   * Get stats on how much the given user reads each core topic, relative to the average user. This is currently used
+   * for Wrapped.
+   */
+  async getReadCoreTagStats({
+    userId,
+    year,
+  }: {
+    userId: string;
+    year: number;
+  }): Promise<{ tagId: string; tagName: string; readLikelihoodRatio: number }[]> {
+    const startPostedAt = new Date(year, 0, 1);
+    const endPostedAt = new Date(year + 1, 0, 1);
+
+    const results = await this.getRawDb().any<{ tagId: string; name: string; ratio: number }>(
+      `
+      WITH core_tags AS (
+          SELECT _id
+          FROM tags
+          WHERE core IS TRUE
+          AND _id <> '${EA_FORUM_COMMUNITY_TOPIC_ID}'
+      ),
+      read_posts AS (
+          SELECT
+              *
+          FROM
+              "ReadStatuses" rs
+          WHERE
+              rs."lastUpdated" >= $1
+              AND rs."lastUpdated" < $2
+      ),
+      total_reads_by_tag AS (
+          SELECT
+              tr."tagId",
+              count(*) AS read_count
+          FROM
+              read_posts
+              INNER JOIN "TagRels" tr ON read_posts."postId" = tr."postId"
+          WHERE
+              tr."tagId" IN (SELECT _id FROM core_tags)
+          GROUP BY
+              tr."tagId"
+      ),
+      user_reads_by_tag AS (
+          SELECT
+              tr."tagId",
+              count(*) AS read_count
+          FROM
+              read_posts
+              INNER JOIN "TagRels" tr ON read_posts."postId" = tr."postId"
+          WHERE
+              read_posts."userId" = $3
+              AND tr."tagId" IN (SELECT _id FROM core_tags)
+          GROUP BY
+              tr."tagId"
+      ),
+      total_reads AS (
+          SELECT
+              sum(read_count) AS total_count
+          FROM
+              total_reads_by_tag
+      ),
+      user_reads AS (
+          SELECT
+              sum(read_count) AS total_count
+          FROM
+              user_reads_by_tag
+      )
+      SELECT
+          tr."tagId",
+          t.name,
+          (coalesce(ur.read_count::float, 0.0) / user_reads.total_count) / (tr.read_count::float / total_reads.total_count) AS ratio
+      FROM
+          total_reads_by_tag tr
+          LEFT JOIN user_reads_by_tag ur ON tr."tagId" = ur."tagId"
+          INNER JOIN "Tags" t ON tr."tagId" = t._id,
+          total_reads,
+          user_reads
+      ORDER BY
+          ratio DESC;
+    `,
+      [startPostedAt, endPostedAt, userId]
+    );
+
+    return results.map(({ tagId, name, ratio }) => ({ tagId, tagName: name, readLikelihoodRatio: ratio }));
   }
 }
 ensureIndex(Posts, {debate:-1})

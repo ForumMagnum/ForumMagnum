@@ -171,6 +171,11 @@ addGraphQLSchema(`
 
 // TODO remove all the V2s when done
 addGraphQLSchema(`
+  type TagReadLikelihoodRatio {
+    tagId: String,
+    tagName: String,
+    readLikelihoodRatio: Float
+  }
   type MostReadAuthorV2 {
     slug: String,
     displayName: String,
@@ -191,8 +196,7 @@ addGraphQLSchema(`
     totalSeconds: Int,
     daysVisited: [String],
     mostReadTopics: [MostReadTopic],
-    relativeMostReadTopics: [JSON]
-    relativeLeastReadTopics: [JSON]
+    relativeMostReadCoreTopics: [TagReadLikelihoodRatio]
     mostReadAuthors: [MostReadAuthorV2],
     topPost: Post,
     postCount: Int,
@@ -407,6 +411,7 @@ addGraphQLResolvers({
         commentAuthorshipStats,
         shortformAuthorshipStats,
         readAuthorStats,
+        readCoreTagStats,
       ] = await Promise.all([
         Users.find(
           {
@@ -456,7 +461,8 @@ addGraphQLResolvers({
         context.repos.posts.getAuthorshipStats({ userId: user._id, year }),
         context.repos.comments.getAuthorshipStats({ userId: user._id, year, shortform: false }),
         context.repos.comments.getAuthorshipStats({ userId: user._id, year, shortform: true }),
-        readAuthorStatsPromise
+        readAuthorStatsPromise,
+        context.repos.posts.getReadCoreTagStats({ userId: user._id, year }),
       ]);
 
       const [postKarmaChanges, commentKarmaChanges] = await Promise.all([
@@ -524,8 +530,7 @@ addGraphQLResolvers({
         totalSeconds,
         daysVisited,
         mostReadTopics,
-        relativeMostReadTopics: [], // TODO
-        relativeLeastReadTopics: [], // TODO
+        relativeMostReadCoreTopics: readCoreTagStats,
         mostReadAuthors,
         topPost: userPosts.shift() ?? null,
         postCount: postAuthorshipStats.totalCount,
