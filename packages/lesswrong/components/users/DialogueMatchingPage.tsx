@@ -164,7 +164,7 @@ const xsGridBaseStyles = (theme: ThemeType) => ({
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 20,
-    ...commentBodyStyles(theme),
+    ...commentBodyStyles(theme, true),
     background: theme.palette.background.default,
     [theme.breakpoints.up('md')]: {
       marginTop: -50
@@ -380,10 +380,10 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'flex-start',
   },
-  optInLabel: {
+  optionControlLabel: {
     paddingLeft: 8,
   },
-  optInCheckbox: {
+  optionControlCheckbox: {
     height: 10,
     width: 30,
     color: theme.palette.dialogueMatching.optIn,
@@ -502,6 +502,9 @@ const styles = (theme: ThemeType) => ({
   },
   syncText: {
     color: theme.palette.text.dim3,
+  },
+  checkNotificationControl: {
+    marginBottom: 4
   }
 });
 
@@ -602,6 +605,42 @@ const headerTexts = {
   bio: "Bio",
   tags: "Frequent commented topics",
   postsRead: "Posts you've read"
+}
+
+const CheckNotificationControl = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+  const updateCurrentUser = useUpdateCurrentUser();
+  const currentUser = useCurrentUser();
+  const [currentChannel, setCurrentChannel] = useState(currentUser?.notificationNewDialogueChecks.channel);
+  if (currentUser === null || currentChannel == null) return null;
+
+
+  const handleToggle = async () => {
+    const newChannel = currentChannel === "none" ? "onsite" : "none";
+    setCurrentChannel(newChannel)
+    await updateCurrentUser({
+      notificationNewDialogueChecks: {
+        ...currentUser.notificationNewDialogueChecks,
+        channel: newChannel,
+      }
+    })
+  }
+
+  return (
+    <div className={classes.checkNotificationControl}>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={currentChannel !== "none"}
+            onChange={handleToggle}
+            className={classes.optionControlCheckbox}
+          />
+        }
+        label={null}
+        className={classes.optionControlLabel}
+      />{"Receive notifications when someone you've not yet checked checks you"}
+    </div>
+  )
+
 }
 
 const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, userId: string }) => {
@@ -1455,15 +1494,16 @@ export const DialogueMatchingPage = ({classes}: {
           <li>You can then see each other's answers, and choose whether start a dialogue</li>
         </ul>
         
+        <CheckNotificationControl classes={classes} />
         <div className={classes.optInContainer}>
-          <FormControlLabel className={classes.optInLabel}
+          <FormControlLabel className={classes.optionControlLabel}
             control={
               <Checkbox
                 checked={optIn}
                 onChange={event => handleOptInToRevealDialogueChecks(event)}
                 name="optIn"
                 color="primary"
-                className={classes.optInCheckbox}
+                className={classes.optionControlCheckbox}
               />
             }
             label={null}
