@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useContext } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
 import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
@@ -14,10 +14,13 @@ import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
+import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { gql, useMutation } from "@apollo/client";
 import type { Editor } from '@ckeditor/ckeditor5-core';
-import type { Node, RootElement, Writer, Element as CKElement, Selection } from '@ckeditor/ckeditor5-engine';
+import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
+import { EditorContext } from '../posts/PostsEditForm';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -53,11 +56,12 @@ type InputWrapper = ElementOfType<typeof DIALOGUE_MESSAGE_INPUT_WRAPPER>;
 type Input = ElementOfType<typeof DIALOGUE_MESSAGE_INPUT>;
 
 function isElementOfType<T extends string>(type: T) {
-  return function(node: Node | undefined): node is ElementOfType<T> {
+  return function(node: Node | DocumentFragment | undefined): node is ElementOfType<T> {
     return !!(node?.is('element', type));
   }
 }
 
+const isInput = isElementOfType(DIALOGUE_MESSAGE_INPUT);
 const isInputWrapper = isElementOfType(DIALOGUE_MESSAGE_INPUT_WRAPPER);
 
 function areInputsInCorrectOrder(dialogueMessageInputs: Node[], sortedCoauthors: UsersMinimumInfo[]) {
@@ -293,6 +297,24 @@ const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null 
   }
 }
 
+function handleSubmitWithoutNewline(editor: Editor, currentUser: UsersCurrent | null, event: KeyboardEvent) {
+  const selectedBlocks = Array.from(editor.model.document.selection.getSelectedBlocks());
+  const ancestors = selectedBlocks.flatMap((block) => block.getAncestors({ includeSelf: true }));
+  const parentInputElement = ancestors.find(isInput);
+
+  if (parentInputElement) {
+    const owner = getBlockUserId(parentInputElement);
+    if (owner === currentUser?._id) {
+      // This looks a bit deprecated but it's the same way we handle it in `Form.tsx` for form submission
+      if ((event.ctrlKey || event.metaKey) && event.keyCode === 13 && parentInputElement) {
+        event.stopPropagation();
+        event.preventDefault();
+        editor.execute('submitDialogueMessage');
+      }
+    }
+  }
+}
+
 export type ConnectedUserInfo = {
   _id: string
   name: string
@@ -339,7 +361,7 @@ const CKPostEditor = ({
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
   
-  const { EditorTopBar, DialogueEditorGuidelines } = Components;
+  const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
   const { PostEditor, PostEditorCollaboration } = getCkEditor();
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
@@ -352,26 +374,12 @@ const CKPostEditor = ({
   }
   const initialCollaborationMode = getInitialCollaborationMode()
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
+  const collaborationModeRef = useRef(collaborationMode)
   const [connectedUsers,setConnectedUsers] = useState<ConnectedUserInfo[]>([]);
 
   // Get the linkSharingKey, if it exists
   const { query : { key } } = useSubscribedLocation();
   
-  const [sendNewDialogueMessageNotification] = useMutation(gql`
-    mutation sendNewDialogueMessageNotification($postId: String!) {
-      sendNewDialogueMessageNotification(postId: $postId)
-    }
-  `);
-  const dialogueParticipantNotificationCallback = async () => {
-    await sendNewDialogueMessageNotification({
-      variables: {
-        postId: post._id
-      }
-    });
-  }
-  
-  const dialogueConfiguration = { dialogueParticipantNotificationCallback }
-    
     // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
@@ -385,6 +393,28 @@ const CKPostEditor = ({
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
   const initData = typeof(data) === "string" ? data : ""
+
+  const [sendNewDialogueMessageNotification] = useMutation(gql`
+    mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {
+      sendNewDialogueMessageNotification(postId: $postId, dialogueHtml: $dialogueHtml)
+    }
+  `);
+
+  const dialogueParticipantNotificationCallback = async () => {
+  const editorContents =  editorRef?.current?.editor.getData()
+
+    await sendNewDialogueMessageNotification({
+      variables: {
+        postId: post._id,
+        dialogueHtml: editorContents
+      }
+    });
+  }
+  
+  const dialogueConfiguration = { dialogueParticipantNotificationCallback }
+    
+  
+  const [_, setEditor] = useContext(EditorContext);
   
   const applyCollabModeToCkEditor = (editor: Editor, mode: CollaborationMode) => {
     const trackChanges = editor.commands.get('trackChanges')!;
@@ -398,6 +428,7 @@ const CKPostEditor = ({
         trackChanges.value = true;
         break;
       case "Editing":
+      case "Editing (override)":
         editor.isReadOnly = false;
         trackChanges.value = false;
         break;
@@ -409,6 +440,7 @@ const CKPostEditor = ({
       applyCollabModeToCkEditor(editor, mode);
     }
     setCollaborationMode(mode);
+    collaborationModeRef.current = mode;
   }
 
   return <div>
@@ -461,12 +493,22 @@ const CKPostEditor = ({
           applyCollabModeToCkEditor(editor, collaborationMode);
           
           editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
+
+          editorRef.current?.domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
+            handleSubmitWithoutNewline(editor, currentUser, event);
+          }, { capture: true });
+          
+          // We need this context for Dialogues, which should always be collaborative.
+          setEditor(editor);
         }
 
         const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
         if (post.collabEditorDialogue) {
           const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
-          const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
+          const coauthors = uniqBy(
+            rawAuthors.filter(coauthor => userIds.includes(coauthor._id)),
+            (user) => user._id,
+          );
           editor.model.document.registerPostFixer( createDialoguePostFixer(editor, coauthors) );
 
           // This is just to trigger the postFixer when the editor is initialized
@@ -514,7 +556,7 @@ const CKPostEditor = ({
                   return ancestor.is('element', DIALOGUE_MESSAGE) || ancestor.is('element', DIALOGUE_MESSAGE_INPUT);
                 })
                 if (parentDialogueElement) {
-                  const owner = getBlockUserId(parentDialogueElement);  
+                  const owner = getBlockUserId(parentDialogueElement);
                   if (owner && userIds.includes(owner)) {
                     blockOwners.push(owner);
                   }
@@ -522,10 +564,12 @@ const CKPostEditor = ({
               }
             }
             
-            if (blockOwners.some(blockOwner => blockOwner !== currentUser?._id)) {
-              changeCollaborationMode("Commenting");
-            } else {
-              changeCollaborationMode("Editing");
+            if (collaborationModeRef.current !== "Editing (override)") {
+              if (blockOwners.some(blockOwner => blockOwner !== currentUser?._id)) {
+                changeCollaborationMode("Commenting");
+              } else {
+                changeCollaborationMode("Editing");
+              }
             }
 
             const acceptCommand = editor.commands.get('acceptSuggestion');
@@ -538,7 +582,7 @@ const CKPostEditor = ({
                   for (let suggestionId of suggestionIds) {
                     const suggestion = (trackChangesPlugin as any).getSuggestion(suggestionId);
                     const suggesterUserId = suggestion.author.id;
-                    if (!currentUser || (suggesterUserId === currentUser?._id)) {
+                    if ((!currentUser || (suggesterUserId === currentUser?._id)) && collaborationModeRef.current !== "Editing (override)") {
                       flash("You cannot accept your own changes");
                       command.stop();
                     }
@@ -561,7 +605,6 @@ const CKPostEditor = ({
           'mathDisplay',
           'mediaEmbed',
           'footnote',
-          'dialogueMessageInput'
         ]} : {}),
         autosave: {
           save (editor: any) {
@@ -590,6 +633,7 @@ const CKPostEditor = ({
         dialogues: dialogueConfiguration
       }}
     />}
+    {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
   </div>
 }
 

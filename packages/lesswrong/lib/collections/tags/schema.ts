@@ -1,5 +1,4 @@
-import { schemaDefaultValue } from '../../collectionUtils'
-import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
+import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
@@ -7,15 +6,15 @@ import { getWithLoader } from '../../loaders';
 import GraphQLJSON from 'graphql-type-json';
 import moment from 'moment';
 import { captureException } from '@sentry/core';
-import { forumTypeSetting, isEAForum, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
+import { isEAForum, taggingNamePluralSetting, taggingNameSetting } from '../../instanceSettings';
 import { SORT_ORDER_OPTIONS, SettingsOption } from '../posts/dropdownOptions';
 import { formGroups } from './formGroups';
 import Comments from '../comments/collection';
 import UserTagRels from '../userTagRels/collection';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
-import { preferredHeadingCase } from '../../forumTypeUtils';
 import { permissionGroups } from '../../permissions';
 import type { TagCommentType } from '../comments/types';
+import { preferredHeadingCase } from '../../../themes/forumTheme';
 
 addGraphQLSchema(`
   type TagContributor {
@@ -38,6 +37,7 @@ export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
 const schema: SchemaType<DbTag> = {
   name: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
@@ -64,6 +64,7 @@ const schema: SchemaType<DbTag> = {
   slug: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
@@ -327,7 +328,7 @@ const schema: SchemaType<DbTag> = {
     control: "ImageUpload",
     tooltip: "Minimum 200x600 px",
     group: formGroups.advancedOptions,
-    hidden: forumTypeSetting.get() !== 'EAForum',
+    hidden: isEAForum,
   },
   // Cloudinary image id for the square image which shows up in the all topics page, this will usually be a cropped version of the banner image
   squareImageId: {
@@ -340,7 +341,7 @@ const schema: SchemaType<DbTag> = {
     control: "ImageUpload",
     tooltip: "Minimum 200x200 px",
     group: formGroups.advancedOptions,
-    hidden: forumTypeSetting.get() !== 'EAForum',
+    hidden: isEAForum,
   },
 
   tagFlagsIds: {
@@ -654,7 +655,7 @@ const schema: SchemaType<DbTag> = {
   noindex: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,

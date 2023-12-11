@@ -7,7 +7,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import ReactMapGL from 'react-map-gl';
 import { Helmet } from 'react-helmet';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
 import { useMessages } from "../common/withMessages";
@@ -221,7 +220,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
             <Link className={classes.karmaThreshold} to={"/posts/" + petrovPostIdSetting.get()}>
               <div>{`Karma Threshold: ${currentKarmaThreshold}`}</div>
               <div className={classes.usersAboveThreshold}>{`Users above threshold: ${usersAboveKarmaThresholdHardcoded20220922[currentKarmaThreshold]}`}</div>
-              {!!currentUser && <div className={classes.yourKarma}>{`Your Karma: ${currentUser.karma ?? 0}`}</div>}
+              {!!currentUser && <div className={classes.yourKarma}>{`Your Karma: ${currentUser.karma}`}</div>}
             </Link>
           </Typography>
           {currentUser ? 

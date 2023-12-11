@@ -128,7 +128,9 @@ class Pipeline<T extends DbObject> {
     private table: Table<T>,
     private stages: MongoAggregationPipeline<T> = [],
     private options?: MongoAggregationOptions, // TODO: What can options be?
-  ) {}
+    private sqlComment?: string
+  ) {
+  }
 
   compile(): {sql: string, args: any[]} {
     return this.toQuery().compile();
@@ -160,6 +162,11 @@ class Pipeline<T extends DbObject> {
 
     return unit.toQuery();
   }
+
+  getSqlComment() {
+    return this.sqlComment;
+  }
+
 }
 
 export default Pipeline;

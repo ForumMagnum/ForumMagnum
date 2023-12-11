@@ -1,12 +1,12 @@
 import { markdownToHtml, dataToMarkdown } from '../editor/conversionUtils';
 import Users from '../../lib/collections/users/collection';
-import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
+import { accessFilterMultiple, augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
-import {getUserEmail} from "../../lib/collections/users/helpers";
+import {getUserEmail, userGetDisplayName} from "../../lib/collections/users/helpers";
 import {userFindOneByEmail} from "../commonQueries";
-import {forumTypeSetting} from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import moment from 'moment';
 import Posts from '../../lib/collections/posts/collection';
@@ -23,6 +23,38 @@ import { getRecentKarmaInfo, rateLimitDateWhenUserNextAbleToComment, rateLimitDa
 import { RateLimitInfo, RecentKarmaInfo } from '../../lib/rateLimits/types';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { UsersRepo } from '../repos';
+import { defineQuery } from '../utils/serverGraphqlUtil';
+import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
+
+addGraphQLSchema(`
+  type CommentCountTag {
+    name: String!
+    comment_count: Int!
+  }
+  type TopCommentedTagUser {
+    _id: ID!
+    username: String!
+    displayName: String!
+    total_power: Float!
+    tag_comment_counts: [CommentCountTag!]!
+  }
+  type UpvotedUser {
+    _id: ID!
+    username: String!
+    displayName: String!
+    total_power: Float!
+    power_values: String!
+    vote_counts: Int!
+    total_agreement: Float!
+    agreement_values: String!
+    recently_active_matchmaking: Boolean!
+  }
+  type UserDialogueUsefulData {
+    dialogueUsers: [User]
+    topUsers: [UpvotedUser]
+    activeDialogueMatchSeekers: [User]
+  }
+`)
 
 augmentFieldsDict(Users, {
   htmlMapMarkerText: {
@@ -145,7 +177,7 @@ addGraphQLResolvers({
         throw new Error('Cannot change username without being logged in')
       }
       // Check they accepted the terms of use
-      if (forumTypeSetting.get() === "EAForum" && !acceptedTos) {
+      if (isEAForum && !acceptedTos) {
         throw new Error("You must accept the terms of use to continue");
       }
       // Only for new users. Existing users should need to contact support to
@@ -400,7 +432,7 @@ function getAlignment(results: AnyBecauseTodo) {
   } else if  (ratio > 6) {
     lawfulChaotic = 'Lawful'
   }
-  if (lawfulChaotic == 'Neutral' && goodEvil  == 'neutral') {
+  if (lawfulChaotic === 'Neutral' && goodEvil  === 'neutral') {
     return 'True neutral'
   }
   return lawfulChaotic + ' ' + goodEvil
@@ -465,3 +497,61 @@ addGraphQLMutation(
 )
 addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
+
+defineQuery({
+  name: "GetUserDialogueUsefulData",
+  resultType: "UserDialogueUsefulData",
+  fn: async (root:void, _:any, context: ResolverContext) => {
+    const { currentUser } = context
+    if (!currentUser) {
+      throw new Error('User must be logged in to get top upvoted users');
+    }
+
+    const [dialogueUsers, topUsers, activeDialogueMatchSeekers] = await Promise.all([
+      new UsersRepo().getUsersWhoHaveMadeDialogues(),
+      new UsersRepo().getUsersTopUpvotedUsers(currentUser),
+      new UsersRepo().getActiveDialogueMatchSeekers(100),
+    ]);
+
+    const results: UserDialogueUsefulData = {
+      dialogueUsers: dialogueUsers.map(user => ({ ...user, displayName: userGetDisplayName(user) })),
+      topUsers: topUsers,
+      activeDialogueMatchSeekers: activeDialogueMatchSeekers.map(user => ({ ...user, displayName: userGetDisplayName(user) })),
+    }
+    return results
+  }
+});
+
+defineQuery({
+  name: "GetDialogueMatchedUsers",
+  resultType: "[User]!",
+  fn: async (root, _, context) => {
+    const { currentUser } = context
+    if (!currentUser) {
+      throw new Error('User must be logged in to get matched users');
+    }
+
+    const matchedUsers = await new UsersRepo().getDialogueMatchedUsers(currentUser._id);
+    return accessFilterMultiple(currentUser, Users, matchedUsers, context);
+  }
+});
+
+defineQuery({
+  name: "GetDialogueRecommendedUsers",
+  resultType: "[User]!",
+  fn: async (root, _, context) => {
+    const { currentUser } = context
+    if (!currentUser) {
+      throw new Error('User must be logged in to get recommended users');
+    }
+
+    const upvotedUsers = await context.repos.users.getUsersTopUpvotedUsers(currentUser, 35, 720)
+    const recommendedUsers = await context.repos.users.getDialogueRecommendedUsers(currentUser._id, upvotedUsers);
+
+    // Shuffle and limit the list to 2 users
+    const shuffled = recommendedUsers.sort(() => 0.5 - Math.random());
+    const sampleSize = 2;
+
+    return accessFilterMultiple(currentUser, Users, shuffled.slice(0, sampleSize), context);
+  }
+}); 

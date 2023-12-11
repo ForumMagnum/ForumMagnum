@@ -3,7 +3,8 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import sortBy from 'lodash/sortBy';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   grid: {
@@ -124,7 +125,7 @@ export const ReviewQuickPage = ({classes}: {
     }
   }
 
-  const loadMoreText = `<a>(${preferredHeadingCase("Load More")})</a>`;
+  const loadMoreText = preferredHeadingCase("Load More");
 
   return <div className={classes.grid}>
     <div className={classes.leftColumn}>
@@ -147,7 +148,7 @@ export const ReviewQuickPage = ({classes}: {
       <div className={classes.menu}>
         Top Unreviewed Posts
       </div>
-      <div className={loading ? classes.loading : null}>
+      <div className={loading ? classes.loading : undefined}>
         {truncatedPostsResults.map(post => {
           return <div key={post._id} onClick={() => setExpandedPost(post)} className={classes.postRoot}>
             <PostsItem 
@@ -176,4 +177,3 @@ declare global {
     ReviewQuickPage: typeof ReviewQuickPageComponent
   }
 }
-

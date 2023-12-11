@@ -1,6 +1,6 @@
 import React from 'react';
-import { userCanVote } from '../../lib/collections/users/helpers';
 import { isEAForum, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useVote } from '../votes/withVote';
@@ -45,7 +45,7 @@ const TagRelCard = ({tagRel, classes}: {
   const newlyVoted = !!(tagRel.currentUserVote==="smallUpvote" && voteProps.voteCount === 1)
 
   // We check both whether the current user can vote at all, and whether they can specifically vote on this tagrel
-  const {fail, reason: whyYouCantVote} = userCanVote(currentUser);
+  const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
   const canVote = tagRel.currentUserCanVote && !fail;
   
   const TooltipIfDisabled = (canVote

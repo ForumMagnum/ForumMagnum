@@ -19,11 +19,10 @@ import * as _ from 'underscore';
 import sumBy from 'lodash/sumBy'
 import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
-import { userCanVote } from '../lib/collections/users/helpers';
+import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsAlgoliaIndexed, isAlgoliaEnabled } from '../lib/search/algoliaUtil';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
-import { isEAForum } from '../lib/instanceSettings';
 import {Posts} from '../lib/collections/posts';
 
 
@@ -118,13 +117,18 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
 };
 
 // Clear all votes for a given document and user (server)
-export const clearVotesServer = async ({ document, user, collection, excludeLatest, context }: {
+export const clearVotesServer = async ({ document, user, collection, excludeLatest, silenceNotification=false, context }: {
   document: DbVoteableType,
   user: DbUser,
   collection: CollectionBase<DbVoteableType>,
   // If true, clears all votes except the latest (ie, only clears duplicate
   // votes). If false, clears all votes (including the latest).
   excludeLatest?: boolean,
+  /**
+   * If true, notifies the user of the karma changes from this vote. This will be true
+   * except for votes being nullified by mods.
+   */
+  silenceNotification?: boolean,
   context: ResolverContext,
 }) => {
   let newDocument = _.clone(document);
@@ -175,6 +179,7 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
       isUnvote: true,
       power: -vote.power,
       votedAt: new Date(),
+      silenceNotification,
     };
     await createMutator({
       collection: Votes,
@@ -243,7 +248,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   if (!user) throw new Error("Error casting vote: Not logged in.");
   
   // Check whether the user is allowed to vote at all, in full generality
-  const { fail: cannotVote, reason } = userCanVote(user);
+  const { fail: cannotVote, reason } = voteButtonsDisabledForUser(user);
   if (!selfVote && cannotVote) {
     throw new Error(reason);
   }
@@ -330,7 +335,7 @@ async function wasVotingPatternWarningDeliveredRecently(user: DbUser, moderatorA
   }, {
     sort: {createdAt: -1}
   });
-  if (!mostRecentWarning) {
+  if (!mostRecentWarning?.createdAt) {
     return false;
   }
   const warningAgeMS = new Date().getTime() - mostRecentWarning.createdAt.getTime()
@@ -491,7 +496,7 @@ function getRelevantVotes(rateLimit: VotingRateLimit, document: DbVoteableType, 
 
     if (ageInMinutes > rateLimit.periodInMinutes)
       return false;
-    if (rateLimit.users === "singleUser" && !vote.authorIds?.includes(document.userId))
+    if (rateLimit.users === "singleUser" && !!document.userId &&!vote.authorIds?.includes(document.userId))
       return false;
 
     const isStrong = (vote.voteType === "bigDownvote" || vote.voteType === "bigUpvote");
@@ -537,7 +542,7 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
   
   const baseScore = sumBy(votes, v=>v.power)
-  const afBaseScore = sumBy(afVotes, v=>v.afPower)
+  const afBaseScore = sumBy(afVotes, v=>v.afPower ?? 0)
   
   const voteCount = _.filter(votes, v=>voteHasAnyEffect(votingSystem, v, false)).length;
   const afVoteCount = _.filter(afVotes, v=>voteHasAnyEffect(votingSystem, v, true)).length;

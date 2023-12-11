@@ -1,10 +1,11 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { truncate } from '../../lib/editor/ellipsize';
-import { useNavigation } from '../../lib/routeUtil';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
-import { isEAForum, isLW } from '../../lib/instanceSettings';
+import { isLW } from '../../lib/instanceSettings';
+import { useNavigate } from '../../lib/reactRouterWrapper';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -47,13 +48,13 @@ const TagPreviewDescription = ({tag, hash, classes}: {
   hash?: string,
   classes: ClassesType
 }) => {
-  const {history} = useNavigation();
+  const navigate = useNavigate();
 
   if (!tag) {
     return null
   }
 
-  if (isEAForum) {
+  if (isFriendlyUI) {
     const {TagExcerpt} = Components;
     return (
       <TagExcerpt
@@ -92,7 +93,7 @@ const TagPreviewDescription = ({tag, hash, classes}: {
       onClick={(ev: React.MouseEvent) => {
         if ((ev.target as any)?.className==="read-more-button") {
           ev.preventDefault();
-          history.push(tagUrl);
+          navigate(tagUrl);
           hashLinkOnClick(ev as React.MouseEvent<HTMLAnchorElement>);
         }
       }}

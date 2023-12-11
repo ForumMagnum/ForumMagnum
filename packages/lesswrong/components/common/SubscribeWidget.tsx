@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { withTracking } from "../../lib/analyticsEvents";
 import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     "&:hover": {
-      opacity: isEAForum ? 1 : undefined,
-      color: isEAForum ? theme.palette.grey[800] : undefined,
+      opacity: isFriendlyUI ? 1 : undefined,
+      color: isFriendlyUI ? theme.palette.grey[800] : undefined,
     },
   },
 });

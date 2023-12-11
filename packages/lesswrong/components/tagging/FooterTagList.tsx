@@ -12,8 +12,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { sortBy } from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
-import { isEAForum, isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -28,12 +29,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: "hidden",
   },
   postTypeLink: {
-    "&:hover": isEAForum ? {opacity: 1} : {},
+    "&:hover": isFriendlyUI ? {opacity: 1} : {},
   },
   frontpageOrPersonal: {
     ...tagStyle(theme),
     backgroundColor: theme.palette.tag.hollowTagBackground,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         marginBottom: 0,
         "&:hover": {
@@ -53,7 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   card: {
     padding: 16,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         paddingTop: 12,
       }
@@ -79,7 +80,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|undefined): Array<T> {
   return sortBy(
     list,
-    isEAForum ? (item) => !toTag(item)?.core : (item) => toTag(item)?.core,
+    isFriendlyUI ? (item) => !toTag(item)?.core : (item) => toTag(item)?.core,
   );
 }
 

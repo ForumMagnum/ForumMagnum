@@ -22,6 +22,15 @@ registerFragment(`
 `)
 
 registerFragment(`
+  fragment SpotlightHeaderEventSubtitle on Spotlight {
+    ...SpotlightMinimumInfo
+    document {
+      _id
+      slug
+    }
+  }
+`);
+registerFragment(`
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo
     document {

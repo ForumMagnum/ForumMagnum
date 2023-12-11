@@ -11,7 +11,11 @@ const styles = (_theme: ThemeType): JssStyles => ({
     display: "inline-block",
   },
   tooltip: {
-    maxWidth: 300
+    maxWidth: 300,
+    
+    "& img": {
+      maxWidth: "100%",
+    },
   }
 })
 

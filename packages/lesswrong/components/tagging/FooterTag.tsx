@@ -7,8 +7,8 @@ import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { RobotIcon } from '../icons/RobotIcon';
 import { useCurrentUser } from '../common/withUser';
-import { isEAForum } from '../../lib/instanceSettings';
 import { coreTagIconMap } from './CoreTagIcon';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
 
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
@@ -26,7 +26,7 @@ export const tagStyle = (theme: ThemeType): JssStyles => ({
   borderRadius: 3,
   ...theme.typography.commentStyle,
   cursor: "pointer",
-  whiteSpace: isEAForum ? "nowrap": undefined,
+  whiteSpace: isFriendlyUI ? "nowrap": undefined,
 })
 
 const newTagStyle = (theme: ThemeType): JssStyles => ({
@@ -68,14 +68,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1,
       backgroundColor: theme.palette.tag.backgroundHover,
     },
-    "& a:hover": isEAForum ? {opacity: 1} : {},
-    ...(useExperimentalTagStyleSetting.get() && !isEAForum
+    "& a:hover": isFriendlyUI ? {opacity: 1} : {},
+    ...(useExperimentalTagStyleSetting.get() && isBookUI
       ? newTagStyle(theme)
       : tagStyle(theme)
     )
   },
   tooltip: {
-    transform: isEAForum ? "translateY(8px)" : undefined,
+    transform: isFriendlyUI ? "translateY(8px)" : undefined,
   },
   core: {
     ...coreTagStyle(theme),
@@ -84,7 +84,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: "relative",
     display: "inline-block",
     minWidth: 20,
-    margin: isEAForum ? "0 3px 0 6px" : undefined,
+    margin: isFriendlyUI ? "0 3px 0 6px" : undefined,
     "& svg": {
       position: "absolute",
       top: -13,
@@ -144,7 +144,7 @@ const FooterTag = ({
 
   const showIcon = Boolean(tag.core && !smallText && coreTagIconMap[tag.slug]);
 
-  const tagName = isEAForum && smallText
+  const tagName = isFriendlyUI && smallText
     ? tag.shortName || tag.name
     : tag.name;
 

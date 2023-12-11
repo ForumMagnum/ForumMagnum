@@ -4,7 +4,14 @@ import SelectQuery from "../../lib/sql/SelectQuery";
 import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
+import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
+
+type ExtendedCommentWithReactions = DbComment & {
+  yourVote?: string,
+  theirVote?: string,
+  userVote?: string,
+}
 
 export default class CommentsRepo extends AbstractRepo<DbComment> {
   constructor() {
@@ -12,7 +19,8 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   }
 
   async getPromotedCommentsOnPosts(postIds: string[]): Promise<(DbComment|null)[]> {
-    const comments = await this.manyOrNone(`
+    const rawComments = await this.manyOrNone(`
+      -- CommentsRepo.getPromotedCommentsOnPosts
       SELECT c.*
       FROM "Comments" c
       JOIN (
@@ -24,6 +32,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       ON c."postId" = sq."postId" AND c."promotedAt" = sq.max_promotedAt;
     `, [postIds]);
     
+    const comments = filterWhereFieldsNotNull(rawComments, "postId");
     const commentsByPost = keyBy(comments, c=>c.postId);
     return postIds.map(postId => commentsByPost[postId] ?? null);
   }
@@ -34,6 +43,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     const {sql: filterWhereClause, args: filterArgs} = selectQuery.compileAtoms(selectQueryAtoms, 2);
 
     const comments = await this.manyOrNone(`
+      -- CommentsRepo.getRecentCommentsOnPosts
       WITH cte AS (
         SELECT
           comment_with_rownumber.*,
@@ -60,6 +70,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   
   async getCommentsWithReacts(limit: number): Promise<(DbComment|null)[]> {
     return await this.manyOrNone(`
+      -- CommentsRepo.getCommentsWithReacts
       SELECT c.*
       FROM "Comments" c
       JOIN (
@@ -73,6 +84,59 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       ON c._id = v."documentId"
       ORDER BY v.most_recent_react DESC;
     `, [limit]);
+  }
+
+  async getPopularPollComments (limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
+    return await this.getRawDb().manyOrNone(`
+      -- CommentsRepo.getPopularPollComments
+      SELECT c.*
+      FROM public."Comments" AS c
+      WHERE c."parentCommentId" = $2
+      ORDER BY c."baseScore" DESC
+      LIMIT $1
+    `, [limit, pollCommentId]);
+  }
+
+  async getPopularPollCommentsWithUserVotes (userId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
+    return await this.getRawDb().manyOrNone(`
+    -- CommentsRepo.getPopularPollCommentsWithUserVotes
+    SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "yourVote"
+    FROM public."Comments" AS c
+    INNER JOIN public."Votes" AS v ON c._id = v."documentId"
+    WHERE
+      c."parentCommentId" = $3
+      AND v."userId" = $1
+      AND v."extendedVoteType"->'reacts'->0->>'vote' = 'created'
+      AND v.cancelled IS NOT TRUE
+      AND v."isUnvote" IS NOT TRUE
+    ORDER BY c."baseScore" DESC
+    LIMIT $2
+    `, [userId, limit, pollCommentId]);
+  }
+
+  async getPopularPollCommentsWithTwoUserVotes (userId:string, targetUserId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
+    return await this.getRawDb().manyOrNone(`
+    -- CommentsRepo.getPopularPollCommentsWithTwoUserVotes
+    SELECT c.*, 
+        v1."extendedVoteType"->'reacts'->0->>'react' AS "yourVote", 
+        v2."extendedVoteType"->'reacts'->0->>'react' AS "theirVote"
+    FROM public."Comments" AS c
+    LEFT JOIN public."Votes" AS v1 ON c._id = v1."documentId"
+    LEFT JOIN public."Votes" AS v2 ON c._id = v2."documentId"
+    WHERE
+      c."parentCommentId" = $4
+      AND v1."userId" = $1
+      AND v1."extendedVoteType"->'reacts'->0->>'vote' = 'created'
+      AND v1.cancelled IS NOT TRUE
+      AND v1."isUnvote" IS NOT TRUE
+      AND v2."userId" = $2
+      AND v2."extendedVoteType"->'reacts'->0->>'vote' = 'created'
+      AND v2.cancelled IS NOT TRUE
+      AND v2."isUnvote" IS NOT TRUE
+      AND v1."extendedVoteType"->'reacts'->0->>'react' != v2."extendedVoteType"->'reacts'->0->>'react'
+    ORDER BY c."baseScore" DESC
+    LIMIT $3
+    `, [userId, targetUserId, limit, pollCommentId]);
   }
 
   async getPopularComments({
@@ -92,6 +156,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     recencyBias?: number,
   }): Promise<DbComment[]> {
     return this.any(`
+      -- CommentsRepo.getPopularComments
       SELECT c.*
       FROM (
         SELECT DISTINCT ON ("postId") "_id"
@@ -126,6 +191,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
 
   private getSearchDocumentQuery(): string {
     return `
+      -- CommentsRepo.getSearchDocumentQuery
       SELECT
         c."_id",
         c."_id" AS "objectID",
@@ -169,6 +235,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
 
   getSearchDocumentById(id: string): Promise<AlgoliaComment> {
     return this.getRawDb().one(`
+      -- CommentsRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
       WHERE c."_id" = $1
     `, [id]);
@@ -176,6 +243,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
 
   getSearchDocuments(limit: number, offset: number): Promise<AlgoliaComment[]> {
     return this.getRawDb().any(`
+      -- CommentsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
       ORDER BY c."createdAt" DESC
       LIMIT $1
@@ -184,12 +252,16 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   }
 
   async countSearchDocuments(): Promise<number> {
-    const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Comments"`);
+    const {count} = await this.getRawDb().one(`
+      -- CommentsRepo.countSearchDocuents
+      SELECT COUNT(*) FROM "Comments"
+    `);
     return count;
   }
 
   async getCommentsPerDay({ postIds, startDate, endDate }: { postIds: string[]; startDate?: Date; endDate: Date; }): Promise<{ window_start_key: string; comment_count: string }[]> {
     return await this.getRawDb().any<{window_start_key: string, comment_count: string}>(`
+      -- CommentsRepo.getCommentsPerDay
       SELECT
         -- Format as YYYY-MM-DD to make grouping easier
         to_char(c."postedAt", 'YYYY-MM-DD') AS window_start_key,
@@ -205,5 +277,31 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       ORDER BY
         window_start_key;
     `, [postIds, startDate, endDate]);
+  }
+
+  async getUsersRecommendedCommentsOfTargetUser(userId: string, targetUserId: string, limit = 20): Promise<DbComment[]> {
+    return this.any(`
+      -- CommentsRepo.getUsersRecommendedCommentsOfTargetUser
+      SELECT c.*
+      FROM "ReadStatuses" AS rs
+      INNER JOIN "Posts" AS p ON rs."postId" = p._id
+      INNER JOIN "Comments" AS c ON c."postId" = p._id
+      WHERE
+          rs."userId" = $1
+          AND c."userId" = $2
+          AND rs."isRead" IS TRUE
+          AND c."baseScore" > 7
+      ORDER BY rs."lastUpdated" DESC
+      LIMIT $3
+    `, [userId, targetUserId, limit]);
+  }
+
+  async getCommentsWithElicitData(): Promise<DbComment[]> {
+    return await this.any(`
+      -- CommentsRepo.getCommentsWithElicitData
+      SELECT *
+      FROM "Comments"
+      WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
+    `);
   }
 }

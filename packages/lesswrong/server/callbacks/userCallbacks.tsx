@@ -1,7 +1,7 @@
 import React from 'react';
 import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
-import { userGetGroups } from '../../lib/vulcan-users/permissions';
+import { isAdmin, userGetGroups } from '../../lib/vulcan-users/permissions';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
@@ -12,7 +12,7 @@ import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbac
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
 import { sendVerificationEmail } from "../vulcan-lib/apollo-server/authentication";
-import {forumTypeSetting, isLW } from "../../lib/instanceSettings";
+import { isEAForum, isLW, verifyEmailsSetting } from "../../lib/instanceSettings";
 import { mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting } from "../../lib/publicSettings";
 import { mailchimpAPIKeySetting } from "../../server/serverSettings";
 import {userGetLocation, getUserEmail} from "../../lib/collections/users/helpers";
@@ -30,13 +30,16 @@ import { FilterSettings, FilterTag, getDefaultFilterSettings } from '../../lib/f
 import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../commonQueries";
+import { hasDigests } from '../../lib/betas';
+import ElectionVotes from '../../lib/collections/electionVotes/collection';
+import { eaGivingSeason23ElectionName } from '../../lib/eaGivingSeason';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
 
 voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
-  if (user && user.karma >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
+  if (user && (user?.karma) >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
     await Users.rawUpdateOne(user._id, {$push: {groups: 'trustLevel1'}});
     const updatedUser = await Users.findOne(newDocument.userId)
     //eslint-disable-next-line no-console
@@ -47,7 +50,7 @@ voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument
 voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
   if (!user) throw Error("Couldn't find user")
-  if (user.karma >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
+  if ((user.karma) >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
     await Users.rawUpdateOne(user._id, {$push: {groups: 'canModeratePersonal'}});
     const updatedUser = await Users.findOne(newDocument.userId)
     if (!updatedUser) throw Error("Couldn't find user to update")
@@ -59,7 +62,7 @@ voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDoc
 getCollectionHooks("Users").editBefore.add(async function UpdateAuth0Email(modifier: MongoModifier<DbUser>, user: DbUser) {
   const newEmail = modifier.$set?.email;
   const oldEmail = user.email;
-  if (newEmail && newEmail !== oldEmail && forumTypeSetting.get() === "EAForum") {
+  if (newEmail && newEmail !== oldEmail && isEAForum) {
     await updateAuth0Email(user, newEmail);
     /*
      * Be careful here: DbUser does NOT includes services, so overwriting
@@ -196,20 +199,9 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   // Regardless of the config setting, try to confirm the user's email address
   // (But not in unit-test contexts, where this function is unavailable and sending
   // emails doesn't make sense.)
-  if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
+  if (!isAnyTest && verifyEmailsSetting.get()) {
     void sendVerificationEmail(user);
     await bellNotifyEmailVerificationRequired(user);
-  }
-});
-
-// When creating a new account, populate their A/B test group key from their
-// client ID, so that their A/B test groups will persist from when they were
-// logged out.
-getCollectionHooks("Users").newAsync.add(async function setABTestKeyOnSignup (user: DbInsertion<DbUser>) {
-  // FIXME totally broken
-  if (!user.abTestKey) {
-    const abTestKey = user.profile?.clientId || randomId();
-    await Users.rawUpdateOne(user._id, {$set: {abTestKey: abTestKey}});
   }
 });
 
@@ -245,7 +237,6 @@ getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost 
   }
 });
 
-
 getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbUser) {
   if (isAnyTest) return user;
   // if this is not a dummy account, and is the first user ever, make them an admin
@@ -258,7 +249,7 @@ getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbU
 });
 
 const sendVerificationEmailConditional = async  (user: DbUser) => {
-  if (!isAnyTest && forumTypeSetting.get() !== 'EAForum') {
+  if (!isAnyTest && verifyEmailsSetting.get()) {
     void sendVerificationEmail(user);
     await bellNotifyEmailVerificationRequired(user);
   }
@@ -295,7 +286,7 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
 getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest (newUser: DbUser, oldUser: DbUser) {
   if (
     isAnyTest ||
-    forumTypeSetting.get() !== 'EAForum' ||
+    !hasDigests ||
     newUser.subscribedToDigest === oldUser.subscribedToDigest
   ) {
     return;
@@ -346,7 +337,7 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
  * (as of 2021-08-11) drip campaign.
  */
 getCollectionHooks("Users").newAsync.add(async function subscribeToEAForumAudience(user: DbUser) {
-  if (isAnyTest || forumTypeSetting.get() !== 'EAForum') {
+  if (isAnyTest || !isEAForum) {
     return;
   }
   const mailchimpAPIKey = mailchimpAPIKeySetting.get();
@@ -429,6 +420,9 @@ async function sendWelcomeMessageTo(userId: string) {
   let adminsAccount = adminUserId ? await Users.findOne({_id: adminUserId}) : null
   if (!adminsAccount) {
     adminsAccount = await getAdminTeamAccount()
+    if (!adminsAccount) {
+      throw new Error("Could not find admin account")
+    }
   }
   
   const subjectLine = welcomePost.title;
@@ -465,7 +459,7 @@ async function sendWelcomeMessageTo(userId: string) {
   
   // the EA Forum has a separate "welcome email" series that is sent via mailchimp,
   // so we're not sending the email notification for this welcome PM
-  if (forumTypeSetting.get() !== 'EAForum') {
+  if (!isEAForum) {
     await wrapAndSendEmail({
       user,
       subject: subjectLine,
@@ -481,6 +475,26 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(da
     }
     if (await Users.findOne({displayName: data.displayName})) {
       throw new Error("This display name is already taken");
+    }
+  }
+  return data;
+});
+
+/**
+ * Only allow users to update givingSeason2023VotedFlair if they have voted in the 2023 donation election
+ */
+getCollectionHooks("Users").updateBefore.add(async function UpdateGivingSeason2023VotedFlair(data: DbUser, {oldDocument}) {
+  if (isAdmin(oldDocument)) return data;
+
+  if (data.givingSeason2023VotedFlair && data.givingSeason2023VotedFlair !== oldDocument.givingSeason2023VotedFlair) {
+    const vote = await ElectionVotes.findOne({
+      electionName: eaGivingSeason23ElectionName,
+      userId: oldDocument._id,
+      submittedAt: { $exists: true },
+    });
+
+    if (!vote) {
+      throw new Error("You must vote in the 2023 donation election to set this flair");
     }
   }
   return data;

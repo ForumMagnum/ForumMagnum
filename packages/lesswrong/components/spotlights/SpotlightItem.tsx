@@ -5,19 +5,19 @@ import MoreVertIcon from '@material-ui/icons/MoreVert';
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 
 
-export const descriptionStyles = (theme: JssStyles) => ({
+export const descriptionStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
-  ...(!isEAForum ? theme.typography.body2 : {}),
+  ...(isBookUI ? theme.typography.body2 : {}),
   lineHeight: '1.65rem',
   '& p': {
     marginTop: ".5em",
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 12,
     boxShadow: theme.palette.boxShadow.default,
     // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       maxWidth: SECTION_WIDTH,
       marginLeft: "auto",
       marginRight: "auto",
@@ -113,7 +113,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       display: "none"
     },
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       fontSize: 13,
       fontFamily: theme.palette.fonts.sansSerifStack,
       color: theme.palette.grey[700],
@@ -123,7 +123,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.headerStyle,
     fontSize: 20,
-    ...(isEAForum ?
+    ...(isFriendlyUI ?
       {fontWeight: 600} :
       {fontVariant: "small-caps"}
     ),
@@ -135,7 +135,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     color: theme.palette.grey[700],
     ...theme.typography.italic,
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       fontSize: 13,
       fontFamily: theme.palette.fonts.sansSerifStack,
       marginTop: 8,
@@ -145,7 +145,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }),
   },
   startOrContinue: {
-    marginTop: isEAForum ? 16 : 4,
+    marginTop: isFriendlyUI ? 16 : 4,
   },
   image: {
     height: "100%",
@@ -155,11 +155,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderTopRightRadius: theme.borderRadius.default,
     borderBottomRightRadius: theme.borderRadius.default,
     // TODO these were added to fix an urgent bug, hence the forum gating. Maybe they could be un-gated
-    ...(isEAForum && {width: "100%", objectFit: "cover"}),
+    ...(isFriendlyUI && {width: "100%", objectFit: "cover"}),
   },
   imageFade: {
-    mask: "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 80%,#fff 100%)",
-    "-webkit-mask-image": "linear-gradient(to right, transparent 0,rgb(255, 255, 255) 80%,#fff 100%)",
+    mask: `linear-gradient(to right, transparent 0, ${theme.palette.text.alwaysWhite} 80%, ${theme.palette.text.alwaysWhite} 100%)`,
+    "-webkit-mask-image": `linear-gradient(to right, transparent 0, ${theme.palette.text.alwaysWhite} 80%, ${theme.palette.text.alwaysWhite} 100%)`,
   },
   author: {
     marginTop: 4,
@@ -294,7 +294,7 @@ export const SpotlightItem = ({
           {spotlight.customSubtitle && <div className={classes.subtitle}>
             {spotlight.customSubtitle}
           </div>}
-          {(spotlight.description?.html || isLWorAF) && <div className={classes.description}>
+          {(spotlight.description?.html || isBookUI) && <div className={classes.description}>
             {editDescription ? 
               <div className={classes.editDescription}>
                 <WrappedSmartForm

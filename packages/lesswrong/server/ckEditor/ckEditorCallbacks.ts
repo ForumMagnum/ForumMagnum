@@ -4,7 +4,6 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { constantTimeCompare } from '../../lib/helpers';
-import { forumTypeSetting } from '../../lib/instanceSettings';
 import { randomSecret } from '../../lib/random';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { restrictViewableFields, userCanDo } from '../../lib/vulcan-users/permissions';
@@ -12,7 +11,7 @@ import { revisionIsChange } from '../editor/make_editable_callbacks';
 import { getCollectionHooks } from '../mutationCallbacks';
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { updateMutator } from '../vulcan-lib/mutators';
-import { pushRevisionToCkEditor } from './ckEditorWebhook';
+import { ckEditorApiHelpers } from './ckEditorApi';
 
 export function generateLinkSharingKey(): string {
   return randomSecret();
@@ -59,7 +58,7 @@ defineMutation({
       throw new Error("Incorrect link-sharing key");
     }
     
-    if (!_.contains(post.linkSharingKeyUsedBy, currentUser._id)) {
+    if (post.linkSharingKeyUsedBy && !(post.linkSharingKeyUsedBy?.includes(currentUser._id))) {
       await Posts.rawUpdateOne(
         {_id: postId},
         {$set: {
@@ -96,11 +95,17 @@ defineQuery({
     //    the past
     //  * The logged-in user is the post author
     //  * The logged in user is an admin or moderator (or otherwise has edit permissions)
+
+    // User must exist
+    if (!currentUser?._id) {
+      throw new Error("No current user with _id");
+    }
+
     if (
       (post.shareWithUsers && _.contains(post.shareWithUsers, currentUser?._id))
       || (linkSharingEnabled(post)
           && (!canonicalLinkSharingKey || keysMatch))
-      || (linkSharingEnabled(post) && _.contains(post.linkSharingKeyUsedBy, currentUser?._id))
+      || (linkSharingEnabled(post) && post.linkSharingKeyUsedBy?.includes(currentUser?._id))
       || currentUser?._id === post.userId
       || userCanDo(currentUser, 'posts.edit.all')
     ) {
@@ -153,13 +158,14 @@ defineMutation({
     // Revision must exist and be a revision of the right post
     const revision = await Revisions.findOne({_id: revisionId});
     if (!revision) throw new Error("Invalid revision ID");
+    if (!revision.originalContents) throw new Error("Missing originalContents");
     if (revision.documentId !== post._id) throw new Error("Revision is not for this post");
     
     // Is the selected revision a CkEditor collaborative editing revision?
     if (revision.originalContents.type === "ckEditorMarkup" && isCollaborative(post, "contents")) {
       // eslint-disable-next-line no-console
       console.log("Reverting to a CkEditor collaborative revision");
-      await pushRevisionToCkEditor(post._id, revision.originalContents.data);
+      await ckEditorApiHelpers.pushRevisionToCkEditor(post._id, revision.originalContents.data);
     } else {
       // eslint-disable-next-line no-console
       console.log("Reverting to a non-collaborative revision");

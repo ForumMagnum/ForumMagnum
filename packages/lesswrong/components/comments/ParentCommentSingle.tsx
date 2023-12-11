@@ -32,7 +32,7 @@ const ParentCommentSingle = ({
         {
           "comments-node-root" : nestingLevel === 1,
           "comments-node-even" : nestingLevel % 2 === 0,
-          "comments-node-odd"  : nestingLevel % 2 != 0,
+          "comments-node-odd"  : nestingLevel % 2 !== 0,
         }
       )}>
         <Components.CommentsItem

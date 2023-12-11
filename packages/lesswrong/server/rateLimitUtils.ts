@@ -132,7 +132,7 @@ async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: stri
   // right now, filtering out coauthors doesn't work (due to a bug in our query builder), so we're doing that manually
   const postsNotCoauthoredByCommenter = postsNotAuthoredByCommenter.filter(post => !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId))
   const postsNotAuthoredByCommenterIds = postsNotCoauthoredByCommenter.map(post => post._id)
-  const commentsOnNonauthorPosts = comments.filter(comment => postsNotAuthoredByCommenterIds.includes(comment.postId))
+  const commentsOnNonauthorPosts = comments.filter(comment => comment.postId && postsNotAuthoredByCommenterIds.includes(comment.postId))
   return commentsOnNonauthorPosts
 }
 
@@ -207,9 +207,11 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
     getRecentKarmaInfo(user._id)
   ]);
 
+  const userCommentRateLimitHours = getUserRateLimitIntervalHours(userCommentRateLimit);
+
   // what's the longest rate limit timeframe being evaluated?
   const maxCommentAutolimitHours = getMaxAutoLimitHours(forumSelect(autoCommentRateLimits))
-  const maxHours = Math.max(modRateLimitHours, modPostSpecificRateLimitHours, maxCommentAutolimitHours);
+  const maxHours = Math.max(modRateLimitHours, modPostSpecificRateLimitHours, maxCommentAutolimitHours, userCommentRateLimitHours);
 
   // fetch the comments from within the maxTimeframe
   const commentsInTimeframe = await getCommentsInTimeframe(user._id, maxHours);

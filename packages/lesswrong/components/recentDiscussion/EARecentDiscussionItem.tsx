@@ -109,10 +109,7 @@ const EARecentDiscussionItem = ({
   children: ReactNode,
   classes: ClassesType,
 }) => {
-  const {
-    ForumIcon, UsersNameDisplay, FormatDate, PostsItemTooltipWrapper,
-    TagsTooltip,
-  } = Components;
+  const {ForumIcon, UsersNameDisplay, FormatDate, TagsTooltip} = Components;
   return (
     <AnalyticsContext pageSubSectionContext={pageSubSectionContext}>
       <div className={classes.root}>
@@ -130,15 +127,13 @@ const EARecentDiscussionItem = ({
             {action}
             {" "}
             {post &&
-              <PostsItemTooltipWrapper post={post} placement="bottom" As="span">
-                <Link
-                  to={postUrlOverride ?? postGetPageUrl(post)}
-                  className={classes.primaryText}
-                  eventProps={postUrlOverride ? undefined : {intent: 'expandPost'}}
-                >
-                  {postTitleOverride ?? post.title}
-                </Link>
-              </PostsItemTooltipWrapper>
+              <Link
+                to={postUrlOverride ?? postGetPageUrl(post)}
+                className={classes.primaryText}
+                eventProps={postUrlOverride ? undefined : {intent: 'expandPost'}}
+              >
+                {postTitleOverride ?? post.title}
+              </Link>
             }
             {tag &&
               <TagsTooltip tag={tag} As="span">

@@ -5,7 +5,6 @@ import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "../../vulcan-lib";
-import moment from "moment";
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -270,3 +269,18 @@ Users.addView("walledGardenInvitees", function () {
   }
 })
 ensureIndex(Users, {walledGardenInvite: 1})
+
+Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersViewTerms) {
+  return {
+    selector: {
+      optedInToDialogueFacilitation: true
+    },
+    options: {
+      sort: {
+        karma: -1
+      }
+    }
+  }
+})
+
+ensureIndex(Users, { optedInToDialogueFacilitation: 1, karma: -1 });

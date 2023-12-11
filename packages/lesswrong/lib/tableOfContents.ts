@@ -2,7 +2,7 @@ export interface ToCAnswer {
   baseScore: number,
   voteCount: number,
   postedAt: Date | string, // Date on server, string on client
-  author: string,
+  author: string | null,
   highlight: string,
   shortHighlight: string,
 }

@@ -5,7 +5,7 @@ import { sortBy } from 'underscore';
 import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
-import { isEAForum } from "../../lib/instanceSettings";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */
@@ -56,9 +56,10 @@ export type PostsListConfig = {
   showFinalBottomBorder?: boolean,
   hideHiddenFrontPagePosts?: boolean
   hideShortform?: boolean,
+  loadMoreMessage?: string,
 }
 
-const defaultTooltipPlacement = isEAForum
+const defaultTooltipPlacement = isFriendlyUI
   ? "bottom-start"
   : "bottom-end";
 
@@ -91,6 +92,7 @@ export const usePostsList = ({
   showFinalBottomBorder = false,
   hideHiddenFrontPagePosts = false,
   hideShortform = false,
+  loadMoreMessage,
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
 
@@ -174,8 +176,8 @@ export const usePostsList = ({
   let orderedResults = results;
   if (defaultToShowUnreadComments && results) {
     orderedResults = sortBy(results, (post) => {
-      return !post.lastVisitedAt ||
-        (post.lastVisitedAt >=  postGetLastCommentedAt(post));
+      const postLastCommentedAt = postGetLastCommentedAt(post)
+      return !post.lastVisitedAt || !postLastCommentedAt || (post.lastVisitedAt >= postLastCommentedAt);
     })
   }
 
@@ -228,7 +230,10 @@ export const usePostsList = ({
     loading,
     error,
     loadMore: onLoadMore,
-    loadMoreProps,
+    loadMoreProps: {
+      ...loadMoreProps,
+      message: loadMoreMessage,
+    },
     maybeMorePosts,
     orderedResults,
     itemProps,

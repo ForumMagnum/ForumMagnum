@@ -4,17 +4,18 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPage';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, isEAForum } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
 import { EA_HOVER_OVER_WIDTH } from '../ea-forum/EAHoverOver';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     paddingTop: 8,
     paddingLeft: 16,
     paddingRight: 16,
-    ...(!isEAForum && {
+    ...(!isFriendlyUI && {
       width: 500,
       paddingBottom: 6,
     }),
@@ -28,15 +29,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   relatedTagWrapper: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     fontSize: "1.1rem",
     color: theme.palette.grey[900],
     display: '-webkit-box',
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": 'vertical',
     overflow: 'hidden',
-    ...(isEAForum && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
   },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
@@ -95,7 +94,7 @@ const TagPreview = ({
   autoApplied?: boolean,
   classes: ClassesType,
 }) => {
-  const showPosts = postCount > 0 && !!tag?._id && !isEAForum;
+  const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
   const {results} = useMulti({
     skip: !showPosts,
     terms: tagPostTerms(tag, {}),
@@ -113,7 +112,7 @@ const TagPreview = ({
   }
 
   const showRelatedTags =
-    !isEAForum &&
+    !isFriendlyUI &&
     !hideRelatedTags &&
     !!(tag.parentTag || tag.subTags.length);
 
@@ -129,7 +128,7 @@ const TagPreview = ({
   const {TagPreviewDescription, TagSmallPostLink, Loading} = Components;
   return (
     <div className={classNames(classes.root, {
-      [classes.rootEAWidth]: isEAForum && hasDescription,
+      [classes.rootEAWidth]: isFriendlyUI && hasDescription,
     })}>
       <TagPreviewDescription tag={tag} hash={hash} />
       {showRelatedTags &&
@@ -201,7 +200,7 @@ const TagPreview = ({
           }
         </>
       }
-      {isEAForum &&
+      {isFriendlyUI &&
         <div className={classNames(classes.footerCount, {
           [classes.footerMarginTop]: hasDescription,
         })}>

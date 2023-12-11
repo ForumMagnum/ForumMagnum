@@ -116,6 +116,7 @@ export const usePostsItem = ({
 }: PostsItemConfig) => {
   const [showComments, setShowComments] = useState(defaultToShowComments);
   const [readComments, setReadComments] = useState(false);
+  const [showDialogueMessages, setShowDialogueMessages] = useState(false);
   const {isRead, recordPostView} = useRecordPostView(post);
   const {isPostRepeated, addPost} = useHideRepeatedPosts();
 
@@ -128,6 +129,14 @@ export const usePostsItem = ({
       setReadComments(true);
     },
     [post, recordPostView, setShowComments, showComments, setReadComments],
+  );
+
+  const toggleDialogueMessages = useCallback(
+    () => {
+      recordPostView({post, extraEventProperties: {type: "toggleDialogueMessages"}})
+      setShowDialogueMessages(!showDialogueMessages);
+    },
+    [post, recordPostView, setShowDialogueMessages, showDialogueMessages],
   );
 
   const compareVisitedAndCommentedAt = (
@@ -149,7 +158,8 @@ export const usePostsItem = ({
     : postGetPageUrl(post, false, sequenceId || chapter?.sequenceId);
 
   const showDismissButton = Boolean(currentUser && resumeReading);
-  const showArchiveButton = Boolean(currentUser && post.draft && postCanDelete(currentUser, post));
+  const onArchive = toggleDeleteDraft && (() => toggleDeleteDraft(post));
+  const showArchiveButton = Boolean(currentUser && post.draft && postCanDelete(currentUser, post) && onArchive);
 
   const commentTerms: CommentsViewTerms = {
     view: "postsItemComments",
@@ -179,8 +189,10 @@ export const usePostsItem = ({
     resumeReading,
     sticky: forceSticky || isSticky(post, terms),
     renderComments: showComments || (defaultToShowUnreadComments && hadUnreadComments),
+    renderDialogueMessages: showDialogueMessages,
     condensedAndHiddenComments: defaultToShowUnreadComments && !showComments,
     toggleComments,
+    toggleDialogueMessages,
     showAuthor: !post.isEvent && !hideAuthor,
     showDate: showPostedAt && !resumeReading,
     showTrailingButtons: !hideTrailingButtons,
@@ -196,7 +208,7 @@ export const usePostsItem = ({
     showDismissButton,
     showArchiveButton,
     onDismiss: dismissRecommendation,
-    onArchive: toggleDeleteDraft?.bind(null, post),
+    onArchive,
     hasUnreadComments,
     hasNewPromotedComments,
     commentTerms,

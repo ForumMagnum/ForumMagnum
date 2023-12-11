@@ -79,3 +79,119 @@ export const twoLineEventsSidebarABTest = new ABTest({
     },
   },
 });
+
+// not active anymore since picked the best option, but leaving around as a record of AB tests that were previously run
+export const dialogueFacilitationMessagesABTest = new ABTest({
+  name: "dialogueFacilitationMessages",
+  description: "Different wording",
+  groups: {
+    getHelp: {
+      description: "Get help version",
+      weight: 1,
+    },
+    optIn: {
+      description: "Opt-in version",
+      weight: 1,
+    },
+  },
+});
+
+export const frontpageDialogueReciprocityRecommendations = new ABTest({
+  name: "frontpageDialogueReciprocityRecommendations",
+  description: "Show frontpage reciprocity recommendations or not",
+  groups: {
+    show: {
+      description: "Show on frontpage",
+      weight: 1,
+    },
+    noShow: {
+      description: "Don't show",
+      weight: 1,
+    },
+  },
+});
+
+export const showTopicsInReciprocity = new ABTest({
+  name: "showOpinionsInReciprocity",
+  description: "Show suggested topics in the reciprocity dialogue frontpage suggestions",
+  groups: {
+    show: {
+      description: "Show topics",
+      weight: 2,
+    },
+    noShow: {
+      description: "Don't show topics",
+      weight: 1,
+    },
+  },
+});
+
+// Does non-SSR rendering of the DialogueMatchingPage help with anything?
+export const dialogueMatchingPageNoSSRABTest = new ABTest({
+  name: "dialogueMatchingPageNoSSR",
+  description: "Different rendering of the DialogueMatchingPage",
+  groups: {
+    control: {
+      description: "Control version",
+      weight: 1,
+    },
+    noSSR: {
+      description: "Non-SSR version",
+      weight: 1,
+    },
+  },
+});
+
+// Does showing people recommended content in the form increase conversion ratio?
+export const showRecommendedContentInMatchForm = new ABTest({
+  name: "showRecommendedContentInMatchForm",
+  description: "Include a little card in the dialogue matchmaking form that lists a matched user's recent comments and posts, and potentially other user content",
+  groups: {
+    show: {
+      description: "Show",
+      weight: 1,
+    },
+    noShow: {
+      description: "Don't show",
+      weight: 1,
+    },
+  },
+});
+
+export const checkNotificationMessageContent = new ABTest({
+  name: "checkNotificationMessageContent",
+  description: "Send different wording of the notification message upon a user receiving new checks",
+  groups: {
+    v1: {
+      description: "Wording version 1",
+      weight: 1,
+    },
+    v2: {
+      description: "Wording version 2",
+      weight: 1,
+    },
+    v3: {
+      description: "Wording version 3",
+      weight: 1,
+    },
+    v4: {
+      description: "Wording version 4",
+      weight: 1,
+    },
+  },
+});
+
+export const offerToAddCalendlyLink = new ABTest({
+  name: "offerToAddCalendlyLink",
+  description: "Offer to add a Calendly link on dialogue match",
+  groups: {
+    show: {
+      description: "Show field",
+      weight: 2,
+    },
+    noShow: {
+      description: "Don't show field",
+      weight: 1,
+    },
+  },
+});

@@ -84,6 +84,9 @@ export async function buildRevision({ originalContents, currentUser, dataWithDis
   currentUser: DbUser,
   dataWithDiscardedSuggestions?: string
 }) {
+
+  if (!originalContents) throw new Error ("Can't build revision without originalContents")
+
   const { data, type } = originalContents;
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
   const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)

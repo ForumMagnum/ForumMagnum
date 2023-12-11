@@ -1,4 +1,4 @@
-import { isEAForum } from "../lib/instanceSettings";
+import { isFriendlyUI } from "./forumTheme";
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
@@ -76,6 +76,21 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+export const calendlyPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.calendly-preview": {
+    "& iframe": {
+      "width": "calc(100% - 10px)",
+      "height": 750,
+      border: "2px solid",
+      borderRadius: 10,
+      borderColor: theme.palette.grey[200],
+      padding: 0,
+      marginRight: 5,
+      marginLeft: 5
+    },
+  },
+});
+
 const strawpollPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.strawpoll-embed": {
     "& iframe": {
@@ -112,6 +127,17 @@ const estimakerPreviewStyles = (theme: ThemeType): JssStyles => ({
     '& iframe': {
       width: '100%',
       height: 400,
+      border: 'none'
+    }
+  }
+})
+
+const viewpointsPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& div.viewpoints-preview': {
+    display: 'flex',
+    '& iframe': {
+      width: '100%',
+      height: 300,
       border: 'none'
     }
   }
@@ -283,10 +309,10 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
-  '& a:visited': isEAForum ? {
+  '& a:visited': isFriendlyUI ? {
     color: theme.palette.link.visited,
   } : {},
-  '& a:visited:hover, & a:visited:active': isEAForum ? {
+  '& a:visited:hover, & a:visited:active': isFriendlyUI ? {
     color: theme.palette.link.visitedHover,
   } : {},
   '& table': {
@@ -327,6 +353,9 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& ol > li > ol > li > ol': {
     listStyle: 'lower-roman',
   },
+  "& u": {
+    textDecoration: "none",
+  },
 })
 
 export const postBodyStyles = (theme: ThemeType): JssStyles => {
@@ -335,10 +364,12 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...calendlyPreviewStyles(theme),
     ...strawpollPreviewStyles(theme),
     ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),
     ...estimakerPreviewStyles(theme),
+    ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
@@ -346,7 +377,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: isEAForum ? theme.palette.border.grey300 : theme.palette.border.normal,
+      borderTop: isFriendlyUI ? theme.palette.border.grey300 : theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -436,7 +467,7 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: isEAForum ? "1.1rem" : "1.28rem",
+    fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
     lineHeight: "1.75rem",
     ...theme.typography.postStyle,
     '& blockquote': {
@@ -449,7 +480,7 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: isEAForum ? "1.1rem" : "1.28rem",
+      fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
       lineHeight: "1.8rem",
     }
   };

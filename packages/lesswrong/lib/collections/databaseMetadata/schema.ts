@@ -7,10 +7,12 @@
 const schema: SchemaType<DbDatabaseMetadata> = {
   name: {
     type: String,
+    nullable: false
   },
   value: {
     type: Object,
-    blackbox: true
+    blackbox: true,
+    nullable: false
   },
 };
 

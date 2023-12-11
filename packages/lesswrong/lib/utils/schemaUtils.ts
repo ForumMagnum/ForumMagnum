@@ -1,5 +1,5 @@
 import { addCallback, getCollection } from '../vulcan-lib';
-import { restrictViewableFields } from '../vulcan-users/permissions';
+import { restrictViewableFieldsSingle, restrictViewableFieldsMultiple } from '../vulcan-users/permissions';
 import SimpleSchema from 'simpl-schema'
 import { loadByIds, getWithLoader } from "../loaders";
 import { isServer } from '../executionEnvironment';
@@ -8,6 +8,7 @@ import type { GraphQLScalarType } from 'graphql';
 import DataLoader from 'dataloader';
 import * as _ from 'underscore';
 import { loggerConstructor } from './logging';
+import { DeferredForumSelect } from '../forumTypeUtils';
 
 export const generateIdResolverSingle = <CollectionName extends CollectionNameString>({
   collectionName, fieldName, nullable
@@ -67,7 +68,7 @@ export const accessFilterSingle = async <T extends DbObject>(currentUser: DbUser
   const { checkAccess } = collection
   if (!document) return null;
   if (checkAccess && !(await checkAccess(currentUser, document, context))) return null
-  const restrictedDoc = restrictViewableFields(currentUser, collection, document)
+  const restrictedDoc = restrictViewableFieldsSingle(currentUser, collection, document)
   return restrictedDoc;
 }
 
@@ -86,7 +87,7 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
   // Apply the collection's checkAccess function, if it has one, to filter out documents
   const filteredDocs = checkAccess ? await asyncFilter(existingDocs, async (d: T) => await checkAccess(currentUser, d, context)) : existingDocs
   // Apply field-level permissions
-  const restrictedDocs = restrictViewableFields(currentUser, collection, filteredDocs)
+  const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collection, filteredDocs)
   
   return restrictedDocs;
 }
@@ -94,6 +95,10 @@ export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUs
 /**
  * This field is stored in the database as a string, but resolved as the
  * referenced document
+ * 
+ * @param {Object=} params
+ * @param {boolean} params.nullable
+ * whether the resolver field is nullable, not the original database field
  */
 export const foreignKeyField = <CollectionName extends CollectionNameString>({idFieldName, resolverName, collectionName, type, nullable=true}: {
   idFieldName: string,
@@ -133,7 +138,18 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
   
   return {
     type: Array,
+
     defaultValue: [],
+    onCreate: ({newDocument, fieldName}: {
+      newDocument: DbObject,
+      fieldName: string,
+    }) => {
+      if (newDocument[fieldName as keyof DbObject] === undefined) {
+        return [];
+      }
+    },
+    canAutofillDefault: true,
+    nullable: false,
     resolveAs: {
       fieldName: resolverName,
       type: `[${type}!]!`,
@@ -361,7 +377,10 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
   return {
     type: Number,
     optional: true,
+    nullable: false,
     defaultValue: 0,
+    onCreate: ()=>0,
+    canAutofillDefault: true,
     
     denormalized: true,
     canAutoDenormalize: true,
@@ -387,4 +406,36 @@ export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
     type: "Point",
     coordinates: [gmaps.geometry.location.lng, gmaps.geometry.location.lat]
   }
+}
+export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Partial<CollectionFieldSpecification<T>> {
+  // Used for both onCreate and onUpdate
+  const fillIfMissing = ({ newDocument, fieldName }: {
+    newDocument: T;
+    fieldName: string;
+  }) => {
+    if (newDocument[fieldName as keyof T] === undefined) {
+      return defaultValue instanceof DeferredForumSelect ? defaultValue.get() : defaultValue;
+    } else {
+      return undefined;
+    }
+  };
+  const throwIfSetToNull = ({ oldDocument, document, fieldName }: {
+    oldDocument: T;
+    document: T;
+    fieldName: string;
+  }) => {
+    const wasValid = (oldDocument[fieldName as keyof T] !== undefined && oldDocument[fieldName as keyof T] !== null);
+    const isValid = (document[fieldName as keyof T] !== undefined && document[fieldName as keyof T] !== null);
+    if (wasValid && !isValid) {
+      throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
+    }
+  };
+
+  return {
+    defaultValue: defaultValue,
+    onCreate: fillIfMissing,
+    onUpdate: throwIfSetToNull,
+    canAutofillDefault: true,
+    nullable: false
+  };
 }

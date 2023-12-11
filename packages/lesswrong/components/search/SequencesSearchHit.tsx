@@ -4,8 +4,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
 import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
 import { Snippet } from 'react-instantsearch-dom';
-import { isEAForum } from '../../lib/instanceSettings';
 import { SearchHitComponentProps } from './types';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     fontSize: "1.25rem",
     ...theme.typography.smallCaps,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
     marginRight: 8,

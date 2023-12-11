@@ -13,11 +13,12 @@ import { DatabaseServerSetting } from './databaseSettings';
 import { createMutator, updateMutator } from './vulcan-lib/mutators';
 import { combineUrls, getSiteUrl, slugify, Utils } from '../lib/vulcan-lib/utils';
 import pick from 'lodash/pick';
-import { forumTypeSetting, siteUrlSetting } from '../lib/instanceSettings';
+import { isEAForum, siteUrlSetting } from '../lib/instanceSettings';
 import { userFromAuth0Profile } from './authentication/auth0Accounts';
 import { captureException } from '@sentry/core';
 import moment from 'moment';
 import {userFindOneByEmail, usersFindAllByEmail} from "./commonQueries";
+import type { AddMiddlewareType } from './apolloServer';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -155,7 +156,7 @@ async function syncOAuthUser(user: DbUser, profile: Profile): Promise<DbUser> {
   // one given by their OAuth provider. Probably their OAuth provider will only
   // ever report one email, in which case this is over-thought.
   const profileEmails = profile.emails.map(emailObj => emailObj.value)
-  if (!profileEmails.includes(user.email)) {
+  if (user.email && !profileEmails.includes(user.email)) {
     // Attempt to update the email field on the account to match the OAuth-provided
     // email. This will fail if the user has both an OAuth and a non-OAuth account
     // with the same email.
@@ -255,7 +256,7 @@ async function deserializeUserPassport(id: AnyBecauseTodo, done: AnyBecauseTodo)
 passport.serializeUser((user, done) => done(null, user._id))
 passport.deserializeUser(deserializeUserPassport)
 
-export const addAuthMiddlewares = (addConnectHandler: AnyBecauseTodo) => {
+export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
   addConnectHandler(passport.initialize())
   passport.use(cookieAuthStrategy)
   
@@ -292,7 +293,7 @@ export const addAuthMiddlewares = (addConnectHandler: AnyBecauseTodo) => {
       // Need to log the user out of their Auth0 account. Otherwise when they
       // next try to login they won't be given a choice, just auto-resumed to
       // the same Auth0 account.
-      if (auth0DomainSetting.get() && auth0ClientIdSetting.get() && forumTypeSetting.get() === 'EAForum') {
+      if (auth0DomainSetting.get() && auth0ClientIdSetting.get() && isEAForum) {
         // Will redirect to our homepage, and is a noop if they're not logged in
         // to an Auth0 account, so this is very non-disruptive
         const returnUrl = encodeURIComponent(siteUrlSetting.get());

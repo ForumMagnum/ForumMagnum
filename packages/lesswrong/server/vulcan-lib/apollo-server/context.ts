@@ -129,6 +129,7 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
     clientId,
     visitorActivity,
     ...await setupAuthToken(user),
+    perfMetric: (req as any)?.perfMetric,
   };
 
   if (user) {
@@ -146,7 +147,7 @@ export function configureSentryScope(context: ResolverContext) {
       scope.setUser({
         id: user._id,
         email: getUserEmail(user),
-        username: context.isGreaterWrong ? `${user.username} (via GreaterWrong)` : user.username,
+        username: context.isGreaterWrong ? `${user.username} (via GreaterWrong)` : user.username ?? undefined,
       });
     });
   } else if (context.isGreaterWrong) {

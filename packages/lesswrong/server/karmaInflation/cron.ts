@@ -6,6 +6,7 @@ import { addCronJob } from '../cronUtil';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { Vulcan } from '../vulcan-lib';
 import PostsRepo, { MeanPostKarma } from '../repos/PostsRepo';
+import DatabaseMetadataRepo from '../repos/DatabaseMetadataRepo';
 
 const AVERAGING_WINDOW_MS = 1000 * 60 * 60 * 24 * 28; // 28 days
 
@@ -95,9 +96,12 @@ export async function refreshKarmaInflation() {
   };
 
   // insert the new series into the db
-  await DatabaseMetadata.rawUpdateOne({ name: "karmaInflationSeries" }, {
-    $set: { value: karmaInflationSeries }
-  }, { upsert: true });
+  try {
+    await new DatabaseMetadataRepo().upsertKarmaInflationSeries(karmaInflationSeries);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(err);
+  }
 
   // refresh the cache after every update
   // it's a bit wasteful to immediately go and fetch the thing we just calculated from the db again,

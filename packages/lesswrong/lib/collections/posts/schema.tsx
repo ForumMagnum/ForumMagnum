@@ -1,7 +1,6 @@
 import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
-import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { PostRelations } from "../postRelations/collection"
 import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
@@ -13,7 +12,7 @@ import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting, isLW } from '../../instanceSettings';
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
@@ -23,14 +22,9 @@ import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, get
 import { userOverNKarmaFunc } from "../../vulcan-users";
 import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
-import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
-
-const isEAForum = (forumTypeSetting.get() === 'EAForum')
-
-
 
 const urlHintText = isEAForum
     ? 'UrlHintText'
@@ -166,6 +160,7 @@ const schema: SchemaType<DbPost> = {
   postedAt: {
     type: Date,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -233,6 +228,7 @@ const schema: SchemaType<DbPost> = {
   title: {
     type: String,
     optional: false,
+    nullable: false,
     max: 500,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -246,6 +242,7 @@ const schema: SchemaType<DbPost> = {
   slug: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     onInsert: async (post) => {
       return await Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
@@ -260,8 +257,9 @@ const schema: SchemaType<DbPost> = {
   viewCount: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['admins'],
-    defaultValue: 0
+    ...schemaDefaultValue(0),
   },
   // Timestamp of the last comment
   lastCommentedAt: {
@@ -276,8 +274,9 @@ const schema: SchemaType<DbPost> = {
   clickCount: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['admins'],
-    defaultValue: 0
+    ...schemaDefaultValue(0),
   },
 
   deletedDraft: {
@@ -299,6 +298,7 @@ const schema: SchemaType<DbPost> = {
   status: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins', 'sunshineRegiment'],
@@ -321,6 +321,7 @@ const schema: SchemaType<DbPost> = {
   isFuture: {
     type: Boolean,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     onInsert: (post) => {
       // Set the post's isFuture to true if necessary
@@ -425,6 +426,7 @@ const schema: SchemaType<DbPost> = {
       nullable: true
     }),
     optional: true,
+    nullable: false,
     control: 'text',
     canRead: [documentIsNotDeleted],
     canUpdate: ['admins'],
@@ -750,7 +752,6 @@ const schema: SchemaType<DbPost> = {
   reviewVoteCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
     ...denormalizedCountOfReferences({
       fieldName: "reviewVoteCount",
       collectionName: "Posts",
@@ -764,7 +765,6 @@ const schema: SchemaType<DbPost> = {
   positiveReviewVoteCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
     ...denormalizedCountOfReferences({
       fieldName: "positiveReviewVoteCount",
       collectionName: "Posts",
@@ -780,13 +780,13 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreAF: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   reviewVotesAF: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'reviewVotesAF.$': {
@@ -797,14 +797,14 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   // A list of each individual user's calculated quadratic vote, for users with >1000 karma
   reviewVotesHighKarma: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'reviewVotesHighKarma.$': {
@@ -815,14 +815,14 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   // A list of each individual user's calculated quadratic vote, for all users
   reviewVotesAllKarma: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'reviewVotesAllKarma.$': {
@@ -834,13 +834,13 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   finalReviewVotesHighKarma: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'finalReviewVotesHighKarma.$': {
@@ -851,13 +851,13 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   finalReviewVotesAllKarma: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'finalReviewVotesAllKarma.$': {
@@ -868,13 +868,13 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreAF: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   finalReviewVotesAF: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'finalReviewVotesAF.$': {
@@ -938,7 +938,8 @@ const schema: SchemaType<DbPost> = {
     blackbox: true,
     group: formGroups.tags,
     control: "FormComponentPostEditorTagging",
-    hidden: (props) => props.eventForm,
+    hidden: ({eventForm, document}) => eventForm ||
+      (isLWorAF && !!document.collabEditorDialogue),
   },
   "tagRelevance.$": {
     type: Number,
@@ -1144,8 +1145,9 @@ const schema: SchemaType<DbPost> = {
   forceAllowType3Audio: {
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: false,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
@@ -1157,8 +1159,9 @@ const schema: SchemaType<DbPost> = {
   legacy: {
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: false,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
@@ -1182,7 +1185,7 @@ const schema: SchemaType<DbPost> = {
   legacySpam: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     hidden: true,
     canRead: ['guests'],
     canUpdate: ['admins'],
@@ -1280,6 +1283,7 @@ const schema: SchemaType<DbPost> = {
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
         // did a hacky thing.
+        if (!post.suggestForCuratedUserIds) return null;
         const users = await Promise.all(_.map(post.suggestForCuratedUserIds,
           async userId => {
             const user = await context.loaders.Users.load(userId)
@@ -1444,6 +1448,7 @@ const schema: SchemaType<DbPost> = {
     control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
     order: 4,
+    hidden: ({document}) => (isLWorAF && !!document.collabEditorDialogue) || (isEAForum && document.isEvent),
   },
 
   fmCrosspost: {
@@ -1453,7 +1458,6 @@ const schema: SchemaType<DbPost> = {
       foreignPostId: { type: String, optional: true, nullable: true },
     }),
     optional: true,
-    nullable: true,
     canRead: [documentIsNotDeleted],
     canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), 'admins'],
     canCreate: [userPassesCrosspostingKarmaThreshold, 'admins'],
@@ -1830,9 +1834,10 @@ const schema: SchemaType<DbPost> = {
   maxBaseScore: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     hidden: true,
-    onInsert: (document) => document.baseScore || 0,
+    onInsert: (document) => document.baseScore ?? 0,
   },
   // The timestamp when the post's maxBaseScore first exceeded 2
   scoreExceeded2Date: {
@@ -2229,7 +2234,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    hidden: (props) => isEAForum || !props.eventForm,
+    hidden: (props) => !isLWorAF || !props.eventForm,
     control: 'MultiSelectButtons',
     label: "Group Type:",
     group: formGroups.event,
@@ -2415,6 +2420,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
+    hidden: ({document}) => !!document.collabEditorDialogue,
     resolveAs: {
       type: 'Boolean',
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
@@ -2452,6 +2458,7 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
+    hidden: ({document}) => !!document.collabEditorDialogue,
     form: {
       options: function () { // options for the select form control
         return [
@@ -2468,7 +2475,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     nullable: true,
-    hidden: isEAForum,
+    hidden: ({document}) => isEAForum || !!document.collabEditorDialogue,
     tooltip: "Allow rate-limited users to comment freely on this post",
     group: formGroups.moderationGroup,
     canRead: ["guests"],
@@ -2493,8 +2500,6 @@ const schema: SchemaType<DbPost> = {
   commentCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
-    
     ...denormalizedCountOfReferences({
       fieldName: "commentCount",
       collectionName: "Posts",
@@ -2509,8 +2514,6 @@ const schema: SchemaType<DbPost> = {
   topLevelCommentCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
-    
     ...denormalizedCountOfReferences({
       fieldName: "topLevelCommentCount",
       collectionName: "Posts",
@@ -2718,6 +2721,14 @@ const schema: SchemaType<DbPost> = {
       return firstComment.contents.html;
     }
   }),
+
+  dialogueMessageContents: {
+    type: Object,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+    //implementation in postResolvers.ts
+  },
 
   /* subforum-related fields */
 

@@ -1,39 +1,36 @@
 import React from 'react';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useMulti } from '../../lib/crud/withMulti';
 import qs from 'qs'
-import { forumTypeSetting } from '../../lib/instanceSettings';
-import { Link } from '../../lib/reactRouterWrapper';
+import { isLWorAF } from '../../lib/instanceSettings';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+import type { InboxComponentProps } from './InboxWrapper';
 
 // The Navigation for the Inbox components
 const InboxNavigation = ({
   terms,
   currentUser,
   title=preferredHeadingCase("Your Conversations"),
-}: {
-  terms: ConversationsViewTerms,
-  currentUser: UsersCurrent,
-  title?: JSX.Element | String
-}) => {
+}: InboxComponentProps) => {
   const location = useLocation();
   const { currentRoute, query } = location;
-  const { history } = useNavigation();
-  
+  const navigate = useNavigate();
+
   const { results, loading, loadMoreProps } = useMulti({
     terms,
     collectionName: "Conversations",
-    fragmentName: 'conversationsListFragment',
+    fragmentName: 'ConversationsList',
     fetchPolicy: 'cache-and-network',
     limit: 50,
   });
   
   const { mutate: updateConversation } = useUpdate({
     collectionName: "Conversations",
-    fragmentName: 'conversationsListFragment',
+    fragmentName: 'ConversationsList',
   });
   
   const { SectionTitle, SingleColumnSection, ConversationItem, Loading, SectionFooter, SectionFooterCheckbox, Typography, LoadMore } = Components
@@ -42,11 +39,11 @@ const InboxNavigation = ({
   const expanded = query?.expanded === "true"
 
   const showArchiveCheckboxClick = () => {
-    history.push({...location, search: `?${qs.stringify({showArchive: !showArchive})}`})
+    navigate({...location, search: `?${qs.stringify({showArchive: !showArchive})}`})
   }
 
   const expandCheckboxClick = () => {
-    history.push({...location, search: `?${qs.stringify({expanded: !expanded})}`})
+    navigate({...location, search: `?${qs.stringify({expanded: !expanded})}`})
   }
 
   const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && currentRoute?.name !== "moderatorInbox"
@@ -66,7 +63,7 @@ const InboxNavigation = ({
         {results?.length ?
           results.map(conversation => <ConversationItem key={conversation._id} conversation={conversation} updateConversation={updateConversation} currentUser={currentUser} expanded={expanded}/>
           ) :
-          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations.{forumTypeSetting.get() !== "EAForum" && " Go and be free."}</Typography>
+          loading ? <Loading /> : <Typography variant="body2">You are all done! You have no more open conversations.{isLWorAF && " Go and be free."}</Typography>
         }
         <SectionFooter>
           <LoadMore {...loadMoreProps} sectionFooterStyles/>
