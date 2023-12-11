@@ -1,6 +1,5 @@
 import SimpleSchema from "simpl-schema";
-import {schemaDefaultValue} from "../../collectionUtils";
-import { accessFilterSingle, foreignKeyField, resolverOnlyField } from "../../utils/schemaUtils";
+import { accessFilterSingle, foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 import DialogueChecks from "../dialogueChecks/collection";
 
 export const SYNC_PREFERENCE_VALUES = ['Yes', 'Meh', 'No'] as const;
@@ -80,6 +79,14 @@ const schema: SchemaType<DbDialogueMatchPreference> = {
     canRead: ['members', 'admins'],
     canUpdate: ['members', 'admins'],
     ...schemaDefaultValue('')
+  },
+  calendlyLink: {
+    type: String,
+    nullable: true,
+    optional: true,
+    canCreate: ['members', 'admins'],
+    canRead: ['members', 'admins'],
+    canUpdate: ['members', 'admins'],
   },
   generatedDialogueId: {
     type: String,

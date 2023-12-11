@@ -1,7 +1,6 @@
 import SimpleSchema from 'simpl-schema';
-import { arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
+import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedField, googleLocationToMongoLocation } from '../../utils/schemaUtils'
 import { localGroupTypeFormOptions } from './groupTypes';
-import { schemaDefaultValue } from '../../collectionUtils';
 import { isEAForum, isLW } from '../../instanceSettings';
 import { isFriendlyUI, preferredHeadingCase } from '../../../themes/forumTheme';
 
@@ -88,7 +87,7 @@ const schema: SchemaType<DbLocalgroup> = {
     canUpdate: ['members'],
     control: 'MultiSelectButtons',
     label: "Group Type:",
-    defaultValue: ["LW"],
+    ...schemaDefaultValue(["LW"]),
     minCount: 1, // Ensure that at least one type is selected
     form: {
       options: localGroupTypeFormOptions

@@ -1,5 +1,5 @@
 import { MongoCollection } from "../mongoCollection";
-import { getSqlClient, getSqlClientOrThrow, logIfSlow } from "../sql/sqlClient";
+import { getSqlClient, getSqlClientOrThrow } from "../sql/sqlClient";
 import Table from "./Table";
 import Query from "./Query";
 import InsertQuery from "./InsertQuery";
@@ -82,8 +82,8 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     try {
       const {sql, args} = query.compile();
       const client = getSqlClientOrThrow(target);
-      
-      result = await logIfSlow(() => client.any(sql, args), () => `${sql}: ${JSON.stringify(args)}`, quiet);
+
+      result = await client.any(sql, args, () => `${sql}: ${JSON.stringify(args)}`, quiet);
 
     } catch (error) {
       // If this error gets triggered, you probably generated a malformed query
@@ -227,11 +227,11 @@ class PgCollection<T extends DbObject> extends MongoCollection<T> {
     await this.executeWriteQuery(query, {fieldOrSpec, options})
   }
 
-  aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions) => {
+  aggregate = (pipeline: MongoAggregationPipeline<T>, options?: MongoAggregationOptions, comment?: string) => {
     return {
       toArray: async () => {
         try {
-          const query = new Pipeline<T>(this.getTable(), pipeline, options).toQuery();
+          const query = new Pipeline<T>(this.getTable(), pipeline, options, comment).toQuery();
           const result = await this.executeReadQuery(query, {pipeline, options});
           return result as unknown as T[];
         } catch (e) {

@@ -4,6 +4,7 @@ import './vulcan-users/index';
 
 // schema utils
 import './utils/schemaUtils'
+
 // Permissions
 import './permissions';
 
@@ -241,6 +242,7 @@ import './collections/electionCandidates/views';
 
 // ElectionVotes
 import './collections/electionVotes/collection';
+import './collections/electionVotes/fragments';
 import './collections/electionVotes/views';
 
 // Collections supporting vendored libraries

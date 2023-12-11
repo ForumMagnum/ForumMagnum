@@ -41,10 +41,10 @@ const PostsTopSequencesNav = ({post, classes}: {
       // selected) or is an <a> tag (a spurious selection because you opened
       // a link in a new tab, usually).
       if (ev.target === document.body || (ev.target && (ev.target as any).tagName === 'A')) {
-        if (ev.keyCode == 37) { // Left
+        if (ev.keyCode === 37) { // Left
           if (post.prevPost)
             navigate(postGetPageUrl(post.prevPost, false, post.prevPost.sequence?._id));
-        } else if (ev.keyCode == 39) { // Right
+        } else if (ev.keyCode === 39) { // Right
           if (post.nextPost)
             navigate(postGetPageUrl(post.nextPost, false, post.nextPost.sequence?._id));
         }
@@ -56,7 +56,7 @@ const PostsTopSequencesNav = ({post, classes}: {
   if (!post?.sequence)
     return null;
 
-  if (post.sequence.draft && (!currentUser || currentUser._id!=post.sequence.userId) && !currentUser?.isAdmin) {
+  if (post.sequence.draft && (!currentUser || currentUser._id!==post.sequence.userId) && !currentUser?.isAdmin) {
     return null;
   }
   

@@ -428,5 +428,50 @@
     "acceptsSchemaHash": "7db476f93913b50f646a44166768ced6",
     "acceptedByMigration": "20231128T152304.add_ElectionVotes.ts",
     "timestamp": "2023-11-28T15:23:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8b861e3bf25c8edf6522b62bea9bf389",
+    "acceptedByMigration": "20231129T080701.add_givingSeason2023VotedFlair.ts",
+    "timestamp": "2023-11-29T08:07:01.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5cb40349b3ff94014c31fb0418ffa6ea",
+    "acceptedByMigration": "20231129T190047.add_four_fields_for_frontpage_dialogue_widget_customisation.ts",
+    "timestamp": "2023-11-29T19:00:47.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6ee0467b3cdea6d954c14e9bee545c42",
+    "acceptedByMigration": "20231129T200215.addNotificationNewDialogueChecks.ts",
+    "timestamp": "2023-11-29T20:02:15.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ea10555b6fef67efb7ab0cbbdfdb8772",
+    "acceptedByMigration": "20231130T012654.changeDefaultNewCheckNotificationFrequencyRealtime.ts",
+    "timestamp": "2023-11-30T01:26:54.000Z"
+  },
+  {
+    "acceptsSchemaHash": "edca7fde4fce09bf9031f2f3f9b18fda",
+    "acceptedByMigration": "20231130T140404.add_submissionComments.ts",
+    "timestamp": "2023-11-30T14:04:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2d5747e2acdbe83c754cbbda258623ed",
+    "acceptedByMigration": "20231201T022744.add_field_for_hiding_specific_users_in_reciprocity.ts",
+    "timestamp": "2023-12-01T02:27:44.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2ace126a36fc6b5cdb4e4a0264fec6f9",
+    "acceptedByMigration": "20231204T235404.fill_in_AbTestKey_and_make_nonnullable.ts",
+    "timestamp": "2023-12-04T23:54:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d8ecd5f29746164d6bf5b3e064f241ac",
+    "acceptedByMigration": "20231205T204412.make_fields_not_nullable.ts",
+    "timestamp": "2023-12-05T20:44:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a09712836b72d69f7456155ccc81ac83",
+    "acceptedByMigration": "20231208T004014.addCalendlyLinkDialogueMatchPreferencesField.ts",
+    "timestamp": "2023-12-08T00:40:14.000Z"
   }
 ]

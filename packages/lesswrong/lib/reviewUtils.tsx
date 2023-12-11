@@ -4,11 +4,12 @@ import moment from "moment"
 import { forumTypeSetting } from "./instanceSettings"
 import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart, annualReviewVotingPhaseEnd } from "./publicSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
+import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
 
 const isEAForum = forumTypeSetting.get() === "EAForum"
 const isLWForum = forumTypeSetting.get() === "LessWrong"
 
-export const reviewYears = [2018, 2019, 2020, 2021] as const
+export const reviewYears = [2018, 2019, 2020, 2021, 2022] as const
 const years = new TupleSet(reviewYears);
 export type ReviewYear = UnionOf<typeof years>;
 
@@ -21,7 +22,7 @@ export function getReviewYearFromString(yearParam: string): ReviewYear {
 }
 
 /** Review year is the year under review, not the year in which the review takes place. */
-export const REVIEW_YEAR: ReviewYear = 2021
+export const REVIEW_YEAR: ReviewYear = 2022
 
 // Deprecated in favor of getReviewTitle and getReviewShortTitle 
 export const REVIEW_NAME_TITLE = isEAForum ? 'Effective Altruism: The First Decade' : `The ${REVIEW_YEAR} Review`
@@ -40,7 +41,17 @@ export function getReviewShortTitle(reviewYear: ReviewYear): string {
 const reviewPhases = new TupleSet(['UNSTARTED', 'NOMINATIONS', 'REVIEWS', 'VOTING', 'RESULTS', 'COMPLETE'] as const);
 export type ReviewPhase = UnionOf<typeof reviewPhases>;
 
+const reviewPhaseCache = memoizeWithExpiration<ReviewPhase>(() => recomputeReviewPhase(), 1000);
+
 export function getReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
+  if (reviewYear) {
+    return recomputeReviewPhase(reviewYear);
+  } else {
+    return reviewPhaseCache.get();
+  }
+}
+
+function recomputeReviewPhase(reviewYear?: ReviewYear): ReviewPhase {
   if (reviewYear && reviewYear !== REVIEW_YEAR) {
     return "COMPLETE"
   }

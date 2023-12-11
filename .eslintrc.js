@@ -45,6 +45,7 @@ module.exports = {
     "eol-last": 1,
     "no-await-in-loop": 0,
     "comma-dangle": 0,
+    "eqeqeq": [1, "always", {"null": "ignore"}],
     "key-spacing": 0,
     "no-extra-boolean-cast": 0,
     "no-undef": 1,

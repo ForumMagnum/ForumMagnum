@@ -137,7 +137,7 @@ export type CommentsNewFormProps = {
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
-  parentComment?: any,
+  parentComment?: CommentsList,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
   type: string,

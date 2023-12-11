@@ -132,7 +132,7 @@ async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: stri
   // right now, filtering out coauthors doesn't work (due to a bug in our query builder), so we're doing that manually
   const postsNotCoauthoredByCommenter = postsNotAuthoredByCommenter.filter(post => !post.coauthorStatuses || post.coauthorStatuses.every(coauthorStatus => coauthorStatus.userId !== userId))
   const postsNotAuthoredByCommenterIds = postsNotCoauthoredByCommenter.map(post => post._id)
-  const commentsOnNonauthorPosts = comments.filter(comment => postsNotAuthoredByCommenterIds.includes(comment.postId))
+  const commentsOnNonauthorPosts = comments.filter(comment => comment.postId && postsNotAuthoredByCommenterIds.includes(comment.postId))
   return commentsOnNonauthorPosts
 }
 
