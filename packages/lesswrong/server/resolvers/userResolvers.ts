@@ -319,13 +319,14 @@ addGraphQLResolvers({
       return updatedUser
     },
   },
+  // Statistics to include:
   // - [X (pending updating to full time range)] You’re a top X% reader of the EA Forum
   // - [X] You read X posts this year
   // - [X (pending updating to full time range)] You spend N hours on the EA Forum (Which is about the same as X reads of Scout mindset (estimated at 3,5h), Y episodes of 80k podcast episodes (estimated at 3h?), Z hours of EAG(x) conferences (estimated at 40h?))
   // - [X (pending updating to full time range)] You visited the EA Forum on X days in 2023
   // - [X] You spent the most time on X (core topic) (use post count initially)
-  // - [-] Compared to  other users, you read more posts about TOPIC
-  // - [-] And less on X (core topic) than other users
+  // - [X] Compared to  other users, you read more posts about TOPIC
+  // - [X] And less on X (core topic) than other users
   // - [X] Your most-read author was Y
   // - [X] Your top 5 most-read authors are A, B, C, D, E
   // - [X] You’re in the top x% of Y’s readers (one of your top 5 most-read authors)
@@ -341,7 +342,7 @@ addGraphQLResolvers({
   // - [X] Your overall karma change this year was X (Y from comments, Z from posts)
   // - [X] Others gave you X [most received react] reacts
   // - [X] And X reacts in total (X insightful, Y helpful, Z changed my mind)
-  // - [-] Your Forum [TBD what this consists]
+  // - [ ] Your Forum [TBD what this consists, last year was 'alignment']
   //
   // The rest to be handled separately:
   // - [ ] A summary of all stats at the end
