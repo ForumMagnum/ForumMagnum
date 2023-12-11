@@ -27,7 +27,6 @@ import {
 import { DiscussIcon, DonateIcon, VoteIcon } from "../../icons/givingSeasonIcons";
 import classNames from "classnames";
 import { useMessages } from "../../common/withMessages";
-import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from "../../common/withUser";
 import { useDialog } from "../../common/withDialog";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
@@ -379,7 +378,8 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   // We only show the voting banner for users who are eligible -
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
-  const showVotingBanner = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
+  const showVotingBanner =
+    currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt && !isPastVotingDeadline();
 
   const handleVote = useCallback(() => {
     if (!currentUser) {
@@ -407,6 +407,8 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const raisedForElectionFundFormatted = formatDollars(amountRaised.raisedForElectionFund);
   const targetPercent = amountRaised.electionFundTarget > 0 ? (amountRaised.raisedForElectionFund / amountRaised.electionFundTarget) * 100 : 0;
   const allDonationOpportunities = !!donationOpportunities?.length ? [...donationOpportunities, ...otherDonationOpportunities] : []
+
+  const voteMessage = isPastVotingDeadline() ? "Voting has closed. You can still donate to the Election Fund until Dec 20" : "Voting is open until Dec 15. Select candidates and distribute your votes using a ranked-choice method."
 
   const {
     Loading, HeadTags, Timeline, ElectionFundCTA, Typography, PostsList2,
@@ -525,10 +527,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 <ElectionFundCTA
                   image={<VoteIcon />}
                   title="Vote"
-                  description="Voting is open until Dec 15. Select candidates and distribute your votes using a ranked-choice method."
+                  description={voteMessage}
                   buttonText="Vote in the Election"
                   onButtonClick={handleVote}
                   solidButton
+                  disabled={isPastVotingDeadline()}
                 >
                   {submittedVoteCount && (
                     <div className={classes.voteCount}>

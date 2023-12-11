@@ -14,6 +14,7 @@ import moment from "moment";
 import { HEADER_HEIGHT } from "../../common/Header";
 import { useCurrentUser } from "../../common/withUser";
 import { useElectionVote } from "../voting-portal/hooks";
+import { isPastVotingDeadline } from "../../../lib/collections/electionVotes/helpers";
 
 const BANNER_HEIGHT = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT - HEADER_HEIGHT;
 const MAX_SPANS = 3;
@@ -297,7 +298,7 @@ const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
   // We only advertise voting for users who are eligible -
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
   // This involves changing some copy, hiding the banner image, and moving the timeline.
-  const advertiseVoting = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
+  const advertiseVoting = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt && !isPastVotingDeadline();
   
   const spans = timelineSpec.spans
     .filter(({hatched}) => !hatched) // Ignore the voting time period
