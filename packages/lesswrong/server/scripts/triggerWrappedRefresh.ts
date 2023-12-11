@@ -21,7 +21,9 @@ WITH normalized AS (
   WHERE
     raw.event_type = 'timerEvent'
     AND raw.environment = 'production'
-    AND raw."timestamp" >= '2023-12-01 00:00:00'::timestamp WITHOUT time zone
+    -- DEBUG: Uncomment below to run over a shorter time period for faster
+    -- AND raw."timestamp" >= '2023-12-01 00:00:00'::timestamp WITHOUT time zone
+    AND raw."timestamp" < '2023-01-01 00:00:00'::timestamp WITHOUT time zone
 ),
 by_date AS (
   SELECT
