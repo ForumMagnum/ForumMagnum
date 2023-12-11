@@ -320,10 +320,10 @@ addGraphQLResolvers({
     },
   },
   // Statistics to include:
-  // - [X (pending updating to full time range)] You’re a top X% reader of the EA Forum
+  // - [X] You’re a top X% reader of the EA Forum
   // - [X] You read X posts this year
-  // - [X (pending updating to full time range)] You spend N hours on the EA Forum (Which is about the same as X reads of Scout mindset (estimated at 3,5h), Y episodes of 80k podcast episodes (estimated at 3h?), Z hours of EAG(x) conferences (estimated at 40h?))
-  // - [X (pending updating to full time range)] You visited the EA Forum on X days in 2023
+  // - [X] You spend N hours on the EA Forum (Which is about the same as X reads of Scout mindset (estimated at 3,5h), Y episodes of 80k podcast episodes (estimated at 3h?), Z hours of EAG(x) conferences (estimated at 40h?))
+  // - [X] You visited the EA Forum on X days in 2023
   // - [X] You spent the most time on X (core topic) (use post count initially)
   // - [X] Compared to  other users, you read more posts about TOPIC
   // - [X] And less on X (core topic) than other users
@@ -345,7 +345,7 @@ addGraphQLResolvers({
   // - [ ] Your Forum [TBD what this consists, last year was 'alignment']
   //
   // The rest to be handled separately:
-  // - [ ] A summary of all stats at the end
+  // - [ ] A summary of all stats at the end (probably nothing extra required)
   // - [ ] A list of your upvotes in 2023
   // - [ ] (Maybe) recommended posts you missed
   Query: {
