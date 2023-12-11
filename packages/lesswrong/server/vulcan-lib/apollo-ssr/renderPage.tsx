@@ -29,8 +29,7 @@ import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { isLWorAF } from '../../../lib/instanceSettings';
-import { maxRenderQueueSize } from '../../../lib/publicSettings';
-import { performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
+import { maxRenderQueueSize, performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
 import { closePerfMetric, openPerfMetric } from '../../perfMetrics';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
 
