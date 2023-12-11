@@ -12,6 +12,7 @@ DialogueMatchPreferences.addView('dialogueMatchPreferences', (terms: DialogueMat
   return {
     selector: {
         dialogueCheckId: terms.dialogueCheckId,
+        deleted: {$ne: true},
     },
   };
 });

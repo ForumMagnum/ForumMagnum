@@ -282,6 +282,7 @@ interface DbDialogueMatchPreference extends DbObject {
   formatNotes: string
   calendlyLink: string | null
   generatedDialogueId: string | null
+  deleted: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
