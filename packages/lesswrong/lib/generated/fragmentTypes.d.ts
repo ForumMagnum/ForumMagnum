@@ -2843,6 +2843,12 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideDialogueFacilitation: boolean,
   readonly optedInToDialogueFacilitation: boolean,
   readonly revealChecksToAdmins: boolean,
+  readonly notificationNewDialogueChecks: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly showDialoguesList: boolean,
   readonly showMyDialogues: boolean,
   readonly showMatches: boolean,
@@ -3486,6 +3492,7 @@ interface DialogueMatchPreferencesDefaultFragment { // fragment on DialogueMatch
   readonly formatNotes: string,
   readonly calendlyLink: string | null,
   readonly generatedDialogueId: string | null,
+  readonly deleted: boolean,
 }
 
 interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
@@ -3501,6 +3508,7 @@ interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
   readonly asyncPreference: "Yes" | "Meh" | "No",
   readonly formatNotes: string,
   readonly generatedDialogueId: string | null,
+  readonly deleted: boolean,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
