@@ -419,7 +419,7 @@ export const StaleDialoguePingNotification = registerNotificationType({
       case "v1":
         return `You've an unpublished dialogue with ${targetUserDisplayName}. Follow-up?`
       case "v2":
-        return `Reminder: dialogue with ${targetUserDisplayName} started`
+        return `Reminder: Dialogue with ${targetUserDisplayName}. Click here to resume`
       case "v3":
         return `Consider continuing the dialogue with  ${targetUserDisplayName}, if you're still keen`
       case "v4":

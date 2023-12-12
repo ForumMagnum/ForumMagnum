@@ -30,7 +30,6 @@ export const getDialogueMessageHTML = (userId:string, displayName:string, order:
   return html
 }
 
-
 export function getUserTopics (formData: MatchPreferenceFormData|DbDialogueMatchPreference) {
   return formData.topicPreferences
     .filter(({ preference }) => preference === "Yes")
@@ -54,7 +53,6 @@ export function getPreferenceMatches(userPreferences: {sync: string, async: stri
   const syncMatch = isYesOrOkay(userPreferences.sync) && isYesOrOkay(targetUserPreferences.sync);
   const asyncMatch = isYesOrOkay(userPreferences.async) && isYesOrOkay(targetUserPreferences.async);
   const formatPreferenceMatch = syncMatch ?? asyncMatch;
-
   return { syncMatch, asyncMatch, formatPreferenceMatch };
 }
 
