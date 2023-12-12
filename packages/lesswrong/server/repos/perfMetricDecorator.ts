@@ -5,6 +5,14 @@ type Constructor<TResult, TParams extends any[] = any[]> = new (
   ...params: TParams
 ) => TResult;
 
+type PromiseMethodNames<T extends InstanceType<any>> = {
+  [k in keyof T & string]: T[k] extends ((...args: any[]) => any) ? ReturnType<T[k]> extends Promise<any> ? k : never : never;
+}[keyof T & string];
+
+interface PerfMetricsDecoratorOptions<T extends Constructor<any, any>> {
+  excludeMethods?: PromiseMethodNames<InstanceType<T>>[]
+}
+
 function wrapWithPerfMetrics(method: Function, repoName: string, methodName: string) {
   return function (this: AnyBecauseHard, ...args: AnyBecauseHard[]) {
     // Most other places we might try to put this check would cause us to run into the problem that the database settings haven't loaded yet (so .get() would throw an error)
@@ -49,10 +57,15 @@ function wrapWithPerfMetrics(method: Function, repoName: string, methodName: str
   };
 }
 
-function wrapMethods<T extends Constructor<any, any>>(targetClass: T) {
+function wrapMethods<T extends Constructor<any, any>>(targetClass: T, options?: PerfMetricsDecoratorOptions<T>) {
   const methodNames = Object.getOwnPropertyNames(targetClass.prototype);
 
-  methodNames.forEach(methodName => {
+  let wrappedMethodNames = methodNames;
+  if (options?.excludeMethods) {
+    wrappedMethodNames = wrappedMethodNames.filter(methodName => !options.excludeMethods?.includes(methodName as PromiseMethodNames<InstanceType<T>>));
+  }
+
+  wrappedMethodNames.forEach(methodName => {
       const originalMethod = targetClass.prototype[methodName];
 
       if (typeof originalMethod === 'function' && methodName !== 'constructor') {
@@ -61,7 +74,6 @@ function wrapMethods<T extends Constructor<any, any>>(targetClass: T) {
   });
 }
 
-export function RecordPerfMetrics<T extends Constructor<any, any>>(value: T, _: ClassDecoratorContext): T {
-  wrapMethods(value);
-  return value;
+export function recordPerfMetrics<T extends Constructor<any, any>>(value: T, options?: PerfMetricsDecoratorOptions<T>) {
+  wrapMethods(value, options);
 }

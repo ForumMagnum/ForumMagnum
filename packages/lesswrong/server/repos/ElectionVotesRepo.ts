@@ -1,7 +1,8 @@
 import ElectionVotes from "../../lib/collections/electionVotes/collection";
 import AbstractRepo from "./AbstractRepo";
+import { recordPerfMetrics } from "./perfMetricDecorator";
 
-export default class ElectionVotesRepo extends AbstractRepo<DbElectionVote> {
+class ElectionVotesRepo extends AbstractRepo<DbElectionVote> {
   constructor() {
     super(ElectionVotes);
   }
@@ -17,3 +18,7 @@ export default class ElectionVotesRepo extends AbstractRepo<DbElectionVote> {
     return res ? parseInt(res.submitted_count) : 0;
   }
 }
+
+recordPerfMetrics(ElectionVotesRepo);
+
+export default ElectionVotesRepo;

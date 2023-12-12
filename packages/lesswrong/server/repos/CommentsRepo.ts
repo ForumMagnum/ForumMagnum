@@ -6,7 +6,7 @@ import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
-import { RecordPerfMetrics } from "./perfMetricDecorator";
+import { recordPerfMetrics } from "./perfMetricDecorator";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -14,8 +14,7 @@ type ExtendedCommentWithReactions = DbComment & {
   userVote?: string,
 }
 
-@RecordPerfMetrics
-export default class CommentsRepo extends AbstractRepo<DbComment> {
+class CommentsRepo extends AbstractRepo<DbComment> {
   constructor() {
     super(Comments);
   }
@@ -307,3 +306,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `);
   }
 }
+
+recordPerfMetrics(CommentsRepo);
+
+export default CommentsRepo;

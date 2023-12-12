@@ -2,10 +2,9 @@ import AbstractRepo from "./AbstractRepo";
 import Sequences from "../../lib/collections/sequences/collection";
 import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector } from "./helpers";
-import { RecordPerfMetrics } from "./perfMetricDecorator";
+import { recordPerfMetrics } from "./perfMetricDecorator";
 
-@RecordPerfMetrics
-export default class SequencesRepo extends AbstractRepo<DbSequence> {
+class SequencesRepo extends AbstractRepo<DbSequence> {
   constructor() {
     super(Sequences);
   }
@@ -116,3 +115,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
     });
   }
 }
+
+recordPerfMetrics(SequencesRepo);
+
+export default SequencesRepo;
