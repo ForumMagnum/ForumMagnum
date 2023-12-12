@@ -1407,22 +1407,22 @@ const schema: SchemaType<DbUser> = {
   notificationDebateCommentsOnSubscribedPost: {
     label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField({ batchingFrequency: 'daily' }),
-    hidden: !dialoguesEnabled,
+    hidden: !isLW,
   },
   notificationDebateReplies: {
     label: "[Old Style] New dialogue content in a dialogue I'm participating in",
     ...notificationTypeSettingsField(),
-    hidden: !dialoguesEnabled,
+    hidden: !isLW,
   },
   notificationDialogueMatch: {
     label: "Another user and I have matched for a dialogue",
     ...notificationTypeSettingsField({ channel: "both" }),
-    hidden: !dialoguesEnabled,
+    hidden: !isLW,
   },
   notificationNewDialogueChecks: {
     label: "You have new people interested in dialogue-ing with you",
     ...notificationTypeSettingsField(),
-    hidden: !dialoguesEnabled,
+    hidden: !isLW,
   },
 
   hideDialogueFacilitation: {
