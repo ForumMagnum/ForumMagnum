@@ -429,7 +429,6 @@ export const StaleDialoguePingNotification = registerNotificationType({
       default:
         return `Click to resume: unpublished Dialogue with ${targetUserDisplayName}`
     }    
-        
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>
