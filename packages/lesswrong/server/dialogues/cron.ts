@@ -53,7 +53,6 @@ addCronJob({
   interval: 'every 30 seconds', // `every 12 hours`,
   async job() {
     const context = createAdminContext();
-    console.log("Running stale dialogue reminders cron job...")
 
     const staleDialogues = await context.repos.posts.getStaleDialogues()
     // filter for compatible (format and topic match)
