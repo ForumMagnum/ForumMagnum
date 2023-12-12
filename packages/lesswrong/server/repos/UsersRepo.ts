@@ -534,9 +534,9 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         MAX(dc."checkedAt") AS "mostRecentCheckedAt"
       FROM public."Users" AS u
       LEFT JOIN public."DialogueChecks" AS dc ON u._id = dc."userId"
-      WHERE u."optedInToDialogueFacilitation" IS TRUE OR dc."userId" IS NOT NULL
+      WHERE dc."userId" IS NOT NULL
       GROUP BY u._id
-      ORDER BY "mostRecentCheckedAt" ASC
+      ORDER BY "mostRecentCheckedAt" DESC
       LIMIT $1;
     `, [limit])
   }

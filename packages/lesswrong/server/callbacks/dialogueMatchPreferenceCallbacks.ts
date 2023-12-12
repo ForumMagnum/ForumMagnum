@@ -206,7 +206,7 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
     throw new Error(`Can't find reciprocal check for dialogue match preferences!`);
   }
 
-  const reciprocalMatchPreferences = await context.DialogueMatchPreferences.findOne({dialogueCheckId: reciprocalDialogueCheck._id});
+  const reciprocalMatchPreferences = await context.DialogueMatchPreferences.findOne({dialogueCheckId: reciprocalDialogueCheck._id, deleted: {$ne: true}});
   // This can probably cause a race condition if two user submit their match preferences at the same time, where neither of them realize the other is about to exist
   // Should basically never happen, though
   if (!reciprocalMatchPreferences) {

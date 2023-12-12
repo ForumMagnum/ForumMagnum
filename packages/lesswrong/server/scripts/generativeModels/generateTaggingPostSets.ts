@@ -5,14 +5,12 @@ import { truncate } from '../../../lib/editor/ellipsize';
 import { postStatuses } from '../../../lib/collections/posts/constants';
 import { dataToMarkdown, htmlToMarkdown } from '../../editor/conversionUtils';
 import { getOpenAI, wikiSlugToTemplate } from '../../languageModels/languageModelIntegration';
-import { cheerioParse } from '../../utils/htmlUtil';
 import { postToPrompt, checkTags, getAutoAppliedTags, generatePostBodyCache, PostBodyCache } from '../../languageModels/autoTagCallbacks';
 import shuffle from 'lodash/shuffle';
 import take from 'lodash/take';
 import drop from 'lodash/drop';
 import sum from 'lodash/sum';
 import keyBy from 'lodash/keyBy';
-import mapValues from 'lodash/mapValues';
 import filter from 'lodash/filter';
 import fs from 'fs';
 import { getSiteUrl } from '../../vulcan-lib';
@@ -51,14 +49,15 @@ function weightedPartition<T>(list: T[], weights: number[]): T[][]
 }
 
 async function generateCandidateSetsForTagClassification(): Promise<void> {
-  const startDate = new Date("2021-01-01");
-  const endDate = new Date("2022-11-01");
+  const startDate = new Date("2022-11-01");
+  const endDate = new Date("2023-11-01");
   
   console.log(`Finding posts from ${startDate} to ${endDate}`); //eslint-disable-line no-console
   const posts = await Posts.find({
     draft: false, status: postStatuses.STATUS_APPROVED,
     isFuture: false, unlisted: false, shortform: false, authorIsUnreviewed: false,
     question: false, isEvent: false,
+    contents: {$ne: null},
     baseScore: {$gte: 10},
     tagRelevance: {$exists: true},
     postedAt: {$gte: startDate, $lte: endDate},
