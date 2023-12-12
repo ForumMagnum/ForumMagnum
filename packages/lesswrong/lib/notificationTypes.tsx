@@ -416,17 +416,20 @@ export const StaleDialoguePingNotification = registerNotificationType({
 
     const targetUserDisplayName = props.extraData?.targetUserDisplayName
     switch (notificationAbGroup) {
+      // Reference length of how much text is displayed: 
+     // return `steven byrnes left a new comment on "How do you feel about`
       case "v1":
-        return `You've an unpublished dialogue with ${targetUserDisplayName}. Follow-up?`
+        return `If you're keen to resume: Dialogue with ${targetUserDisplayName}`
       case "v2":
-        return `Reminder: Dialogue with ${targetUserDisplayName}. Click here to resume`
+        return `Reminder: open Dialogue with ${targetUserDisplayName}. Resume`
       case "v3":
-        return `Consider continuing the dialogue with  ${targetUserDisplayName}, if you're still keen`
+        return `Heads-up, you've a lingering dialogue with ${targetUserDisplayName}`
       case "v4":
         return `In case you forgot: you started a dialogue with ${targetUserDisplayName}`
       default:
-        return `You've an unpublished dialogue with ${targetUserDisplayName}. Follow-up?`
+        return `Dialogue with ${targetUserDisplayName}. Follow-up?`
     }    
+        
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>
