@@ -3,6 +3,11 @@ import ProjectionContext, { CustomResolver, PrefixGenerator } from "./Projection
 import FragmentLexer from "./FragmentLexer";
 import PgCollection from "./PgCollection";
 
+type SqlFragmentArg = {
+  inName: string,
+  outName: string,
+}
+
 type SqlFragmentField = {
   type: "field",
   name: string,
@@ -16,6 +21,7 @@ type SqlFragmentSpread = {
 type SqlFragmentPick = {
   type: "pick",
   name: string,
+  args: SqlFragmentArg[],
   entries: SqlFragmentEntryMap,
 }
 
@@ -65,6 +71,18 @@ class SqlFragment {
     return this.lexer.getBaseTypeName();
   }
 
+  private parseArgs(argsString: string = ""): SqlFragmentArg[] {
+    const args: SqlFragmentArg[] = [];
+    const matches = argsString.matchAll(/([a-zA-Z0-9_]+)\s*:\s*\$([a-zA-Z0-9_]+)/g);
+    for (const match of matches) {
+      args.push({
+        inName: match[2],
+        outName: match[1],
+      });
+    }
+    return args;
+  }
+
   parseEntries(): SqlFragmentEntryMap {
     const entries: SqlFragmentEntryMap = {};
     let line: string | null;
@@ -87,12 +105,14 @@ class SqlFragment {
         continue;
       }
 
-      match = line.match(/^([a-zA-Z0-9-_]+)\s*{$/);
+      match = line.match(/^([a-zA-Z0-9-_]+)(\(.*\))?\s*{$/);
       if (match?.[1]) {
         const name = match[1];
+        const args = match[2];
         entries[name] = {
           type: "pick",
           name,
+          args: this.parseArgs(args),
           entries: this.parseEntries(),
         };
         continue;
