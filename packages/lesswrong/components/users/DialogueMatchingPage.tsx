@@ -1582,6 +1582,25 @@ export const DialogueMatchingPage = ({classes}: {
       </> }
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
+          <h3>Recently active on dialogue matching</h3>
+          <UserTable
+            users={activeDialogueMatchSeekers}
+            tableContext={'other'}
+            classes={classes}
+            gridClassName={classes.matchContainerGridV2}
+            currentUser={currentUser}
+            userDialogueChecks={userDialogueChecks}
+            showBio={true}
+            showKarma={false}
+            showAgreement={false}
+            showPostsYouveRead={true}
+            showFrequentCommentedTopics={true}
+            showHeaders={true}
+          />
+        </div>
+      </div>
+      <div className={classes.rootFlex}>
+        <div className={classes.matchContainer}>
           <h3>Published dialogues</h3>
           <UserTable
             users={dialogueUsers}
@@ -1621,25 +1640,6 @@ export const DialogueMatchingPage = ({classes}: {
         </div>
       </div>
       <br />
-      <div className={classes.rootFlex}>
-        <div className={classes.matchContainer}>
-          <h3>Recently active on dialogue matching</h3>
-          <UserTable
-            users={activeDialogueMatchSeekers}
-            tableContext={'other'}
-            classes={classes}
-            gridClassName={classes.matchContainerGridV2}
-            currentUser={currentUser}
-            userDialogueChecks={userDialogueChecks}
-            showBio={true}
-            showKarma={false}
-            showAgreement={false}
-            showPostsYouveRead={true}
-            showFrequentCommentedTopics={true}
-            showHeaders={true}
-          />
-        </div>
-      </div>
       <IntercomWrapper />
     </div>
   </AnalyticsContext>)
