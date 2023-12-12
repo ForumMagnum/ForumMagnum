@@ -419,7 +419,7 @@ export const StaleDialoguePingNotification = registerNotificationType({
       // Reference length of how much text is displayed: 
      // return `steven byrnes left a new comment on "How do you feel about`
       case "v1":
-        return `If you're keen to resume: Dialogue with ${targetUserDisplayName}`
+        return `Click to resume: unpublished Dialogue with ${targetUserDisplayName}`
       case "v2":
         return `Reminder: open Dialogue with ${targetUserDisplayName}. Resume`
       case "v3":
@@ -427,7 +427,7 @@ export const StaleDialoguePingNotification = registerNotificationType({
       case "v4":
         return `In case you forgot: you started a dialogue with ${targetUserDisplayName}`
       default:
-        return `Dialogue with ${targetUserDisplayName}. Follow-up?`
+        return `Click to resume: unpublished Dialogue with ${targetUserDisplayName}`
     }    
         
   },
