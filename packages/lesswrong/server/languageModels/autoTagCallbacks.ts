@@ -86,6 +86,7 @@ import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
       Substituting in ${TAG}, and repeat for each tag.
       You can check each job with:
           openai api fine_tunes.follow -i ${id}
+      Update on 2023-11-27: You can now just do this all via their web UI, see https://platform.openai.com/docs/guides/fine-tuning
  *
  * 9. Retrieve the fine-tuned model IDs. Run
  *        openai api fine_tunes.list
@@ -277,11 +278,11 @@ export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boo
   
   const template = await wikiSlugToTemplate("lm-config-autotag")
   const promptSuffix = 'Is this post critically examining the work, projects, or methodologies of specific individuals, organizations, or initiatives affiliated with the effective altruism (EA) movement or community?'
-  // This model was trained on ~2400 posts, generated using generateCandidateSetsForTagClassification
-  // (posts published from May 1 2022 - May 1 2023 combined with *all* posts tagged with "criticism of work in effective altruism").
-  // Since it's not super accurate, we may want to fine-tune it more in the future.
+  // This model was trained on ~2500 posts, generated using generateCandidateSetsForTagClassification
+  // (posts published from Nov 1 2022 - Nov 1 2023 combined with *all* posts tagged with "criticism of work in effective altruism").
+  // Since it's not super accurate, we may want to fine-tune a new version in the future.
   const languageModelResult = await api.completions.create({
-    model: 'curie:ft-centre-for-effective-altruism-2023-05-11-23-15-52',
+    model: 'ft:davinci-002:centre-for-effective-altruism::8PxrFevH',
     prompt: await postToPrompt({
       template,
       post,
