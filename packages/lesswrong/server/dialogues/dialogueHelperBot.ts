@@ -30,28 +30,6 @@ export const getDialogueMessageHTML = (userId:string, displayName:string, order:
   return html
 }
 
-// TODO: cleanup
-export const appendDialogueMessage = (html: string, newMessageHtml: string):string => {
-  // Find the last occurrence of 'class="dialogue-message"' and the first occurrence of 'class="dialogue-message-input"'
-  const lastDialogueMessageIndex = html.lastIndexOf('class="dialogue-message"');
-  const firstDialogueMessageInputIndex = html.indexOf('class="dialogue-message-input"');
-
-  // If both classes are found and the last 'class="dialogue-message"' is before the first 'class="dialogue-message-input"'
-  if (lastDialogueMessageIndex !== -1 && firstDialogueMessageInputIndex !== -1 && lastDialogueMessageIndex < firstDialogueMessageInputIndex) {
-    // Find the end of the last 'class="dialogue-message"' section by searching for the next '</section>' after 'class="dialogue-message"'
-    const endOfLastDialogueMessageIndex = html.indexOf('</section>', lastDialogueMessageIndex);
-
-    // If the end of the last 'class="dialogue-message"' section is found and it's before the first 'class="dialogue-message-input"'
-    if (endOfLastDialogueMessageIndex !== -1 && endOfLastDialogueMessageIndex < firstDialogueMessageInputIndex) {
-      // Insert the new string after the end of the last 'class="dialogue-message"' section
-      return html.slice(0, endOfLastDialogueMessageIndex + '</section>'.length) + newMessageHtml + html.slice(endOfLastDialogueMessageIndex + '</section>'.length);
-    }
-  }
-
-  // If the classes are not found or not in the correct order, return the original string
-  return html;
-}
-
 
 export function getUserTopics (formData: MatchPreferenceFormData|DbDialogueMatchPreference) {
   return formData.topicPreferences
