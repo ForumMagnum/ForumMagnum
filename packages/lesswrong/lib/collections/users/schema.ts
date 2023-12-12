@@ -1424,6 +1424,12 @@ const schema: SchemaType<DbUser> = {
     ...notificationTypeSettingsField(),
     hidden: !dialoguesEnabled,
   },
+  notificationDialogueHelperBotPing: {
+    label: "You have a dialogue you might want to follow up on",
+    ...notificationTypeSettingsField(),
+    hidden: !dialoguesEnabled,
+  },
+
 
   hideDialogueFacilitation: {
     type: Boolean,
