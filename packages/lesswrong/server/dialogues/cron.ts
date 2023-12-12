@@ -53,21 +53,22 @@ addCronJob({
   interval: 'every 30 seconds', // `every 12 hours`,
   async job() {
     const context = createAdminContext();
-    console.log("Running dialogue helper bot cron job...")
-
+    console.log("Running stale dialogue reminders cron job...")
 
     const staleDialogues = await context.repos.posts.getStaleDialogues()
     // filter for compatible (format and topic match)
-    const compatibleDialogues = await Promise.all(staleDialogues.filter(async (dialogue) => {
+    const compatibleDialogues = [];
+    for (const dialogue of staleDialogues) {
       const dialogueMatchPreferences = await DialogueMatchPreferences.find({
         generatedDialogueId: dialogue._id,
         deleted: false
       }).fetch();
-    
-      return checkCompatible(dialogueMatchPreferences); // todo: debug
-    }));
-    
-    console.log("Compatible dialogues: ", compatibleDialogues.length, " out of ", staleDialogues.length, " stale dialogues")
+
+      const isCompatible = checkCompatible(dialogueMatchPreferences); // todo: debug
+      if (isCompatible) {
+        compatibleDialogues.push(dialogue);
+      }
+    }
 
     if (compatibleDialogues.length > 0) {
       void Promise.all(compatibleDialogues.map(async dialogue => {
@@ -81,59 +82,24 @@ addCronJob({
             type: "sendDialogueHelperBotPing",
           })
 
-         // if (previousNotification) { //todo revert back to "not"
+        if (!previousNotification) { 
             const authors = await Users.find({_id: {$in: dialogueAuthorIds}}).fetch();
-            const displayNames = authors.filter(author => author._id === userId).map(author => author.displayName);
+            const displayNames = authors.filter(author => author._id !== userId).map(author => author.displayName);
   
             const last = displayNames.length > 0 ? displayNames.pop() : "";
             const dialogueAuthorNamesString = displayNames.join(', ') + (displayNames.length > 0 ? ', and ' : '') + last;
-            console.log("names string: ", dialogueAuthorNamesString)
   
-            // void createNotification({
-            //   userId,
-            //   notificationType: "sendDialogueHelperBotPing",
-            //   documentType: null,
-            //   documentId: null,
-            //   extraData: {userId, targetUserDisplayName: dialogueAuthorNamesString, dialogueId: dialogue._id }, // userId passed for the AB test
-            //   context,
-            // })
-     //     }
-      })
-
-        // console.log("skimming dialogue: ", dialogue.title, dialogue._id)
-        // if (dialogue?.contents?.originalContents?.data) {
-        //   console.log("Found data.")
-        //   const previousHtml = dialogue.contents.originalContents.data
-        //   const newMessageHtml = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `May joy be with you all.`)
-        //   const newHtml = appendDialogueMessage( previousHtml, newMessageHtml );
-        //   if (["sZwqk7wrLjmbnzCLC", "RgHkbqMo69zBZpSGp", "rbM58eXKkMLRHngKi", "APoWyrJJTCoP8Wj6T" ].includes(dialogue._id)) {
-        //     console.log("trying to update... ", dialogue.title, dialogue._id)
-        //     // const response = await updateMutator({
-        //     //   collection: Posts,
-        //     //   documentId: dialogue._id,
-        //     //   data: { 
-        //     //     contents: {
-        //     //       originalContents: {
-        //     //         type: "ckEditorMarkup",
-        //     //         data: newMessageHtml
-        //     //       }
-        //     //     } 
-        //     //   },
-        //     //   context: adminContext,
-        //     //   validate: false, 
-        //     //   currentUser: adminContext.currentUser
-        //     // });
-        //     console.log("response: ", response)
-            
-        //   }
-        // }
+            void createNotification({
+              userId,
+              notificationType: "sendDialogueHelperBotPing",
+              documentType: null,
+              documentId: null,
+              extraData: {userId, targetUserDisplayName: dialogueAuthorNamesString, dialogueId: dialogue._id }, // userId passed for the AB test
+              context,
+            })
+          }
+        })
       }))
     }
-
-    
-
-
-    // if necessary, send a notification
-    
   }
-});
+})    

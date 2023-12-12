@@ -414,7 +414,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
   }
 
   async getStaleDialogues(): Promise<DbPost[]> {
-    const tenDaysAgo = new Date(Date.now() - (1000));// (10 * 24 * 60 * 60 * 1000));
+    const twoWeeksAgo = new Date(Date.now() - (14 * 24 * 60 * 60 * 1000));
     return this.getRawDb().any(`
       -- PostsRepo.getStaleDialogues
       SELECT p.*
@@ -425,7 +425,7 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
         p."collabEditorDialogue" = TRUE AND
         r."editedAt" < $1
       GROUP BY p."_id"
-    `, [tenDaysAgo]);
+    `, [twoWeeksAgo]);
   }
 }
 ensureIndex(Posts, {debate:-1})
