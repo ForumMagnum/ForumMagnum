@@ -219,20 +219,6 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `, [limit]);
   }
 
-  getUserDialogues(userId: string): Promise<DbPost[]> {
-    return this.any(`
-      -- PostsRepo.getUserDialogues
-      SELECT * 
-      FROM (
-          SELECT DISTINCT ON (p._id) p.* 
-          FROM "Posts" p, UNNEST("coauthorStatuses") unnested
-          WHERE p."collabEditorDialogue" IS TRUE 
-          AND ((UNNESTED->>'userId' = $1) OR (p."userId" = $1))
-      ) dialogues
-      ORDER BY "modifiedAt" DESC
-    `, [userId]);
-  }
-
   getMyActiveDialogues(userId: string, limit = 3): Promise<DbPost[]> {
     return this.any(`
       -- PostsRepo.getMyActiveDialogues

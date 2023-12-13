@@ -157,15 +157,15 @@ async function handleCkEditorWebhook(message: any) {
       const userConnectedPayload = payload as CkEditorUserConnectionChange;
       const userId = userConnectedPayload?.user?.id;
       const documentId = userConnectedPayload?.document?.id;
-
-      const result = await createMutator({
-        collection: CkEditorUserSessions,
-        document: {
-          userId,
-          documentId
-        },
-        validate: false,
-      });
+      if (!!userId && !!documentId) {
+        await createMutator({
+          collection: CkEditorUserSessions,
+          document: {
+            userId,
+            documentId
+          },
+        })
+      }
 
       break
     }
@@ -174,24 +174,20 @@ async function handleCkEditorWebhook(message: any) {
       const userDisconnectedPayload = payload as CkEditorUserConnectionChange;
       const userId = userDisconnectedPayload?.user?.id;
       const documentId = userDisconnectedPayload?.document?.id;
-      const userSession = await CkEditorUserSessions.findOne({userId, documentId }, {sort:{createdAt: -1}});
-
-      if (userSession) {
-        const result = await updateMutator({
-          collection: CkEditorUserSessions,
-          documentId: userSession._id, 
-          set: { endedAt: new Date(sent_at) },
-          validate: false,
-        });
+      if (userId && documentId) {
+        const userSession = await CkEditorUserSessions.findOne({userId, documentId }, {sort:{createdAt: -1}});
+        if (userSession) {
+          await updateMutator({
+            collection: CkEditorUserSessions,
+            documentId: userSession._id, 
+            set: { endedAt: new Date(sent_at) },
+          });
+        }
       }
+      
       break
     }
     case "document.user.disconnected": {
-      interface CkEditorUserConnectionChange {
-        user: { id: string },
-        document: { id: string },
-        connected_users: Array<{ id: string }>,
-      }
       const userDisconnectedPayload = payload as CkEditorUserConnectionChange;
       const userId = userDisconnectedPayload?.user?.id;
       const ckEditorDocumentId = userDisconnectedPayload?.document?.id;

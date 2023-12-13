@@ -11,6 +11,7 @@ import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
 import CkEditorUserSessions from '../lib/collections/ckEditorUserSessions/collection';
 import Users from '../lib/collections/users/collection';
 import { PostsRepo } from './repos';
+import Posts from '../lib/collections/posts/collection';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -216,7 +217,11 @@ async function checkForActiveDialoguePartners() {
   }
 
   for (let userId of Object.keys(openConnections)) {
-    const userDialogues = await new PostsRepo().getUserDialogues(userId);
+    const userDialogues = await Posts.find({
+      $or: [{ userId }, { 'coauthorStatuses.userId': userId }],
+      deletedDraft: false,
+      collabEditorDialogue: true
+    }).fetch();
     const userDialoguesCkEditorIds = userDialogues.map(d => d._id+"-edit");
 
     const dialoguesData = [];
