@@ -1,24 +1,21 @@
 import { accessFilterSingle, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
-import {userOwns} from "../../vulcan-users/permissions";
+import { userOwns } from "../../vulcan-users/permissions";
 
 const schema: SchemaType<DbCkEditorUserSession> = {
   documentId: {
     type: String,
     nullable: false,
-    canRead: ['members'],
-    canCreate: ['members'],
+    canRead: ['admins'],
   },
   userId: {
     type: String,
     nullable: false,
-    canRead: ['members'], 
-    canCreate: ['members'],
+    canRead: ['admins'], 
   },
   endedAt: {
     type: Date,
     optional: true,
-    canRead: ['members'],
-    canCreate: ['members'],
+    canRead: ['admins'],
   },
 }
 
