@@ -397,7 +397,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     order: 11,
     group: formGroups.default,
   },
