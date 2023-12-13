@@ -614,6 +614,7 @@ importComponent("EARecentDiscussionThread", () => require('../components/recentD
 importComponent("EARecentDiscussionQuickTake", () => require('../components/recentDiscussion/EARecentDiscussionQuickTake'));
 importComponent("EARecentDiscussionTagRevision", () => require('../components/recentDiscussion/EARecentDiscussionTagRevision'));
 importComponent("EARecentDiscussionTagCommented", () => require('../components/recentDiscussion/EARecentDiscussionTagCommented'));
+importComponent("EARecentDiscussionElectionVote", () => require('../components/recentDiscussion/EARecentDiscussionElectionVote'));
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
 importComponent("CommentsEditForm", () => require('../components/comments/CommentsEditForm'));
 importComponent("CommentsListSection", () => require('../components/comments/CommentsListSection'));
