@@ -3434,6 +3434,12 @@ interface ElectionVoteInfo { // fragment on ElectionVotes
   readonly userOtherComments: string | null,
 }
 
+interface ElectionVoteRecentDiscussion { // fragment on ElectionVotes
+  readonly _id: string,
+  readonly electionName: string,
+  readonly submittedAt: Date | null,
+}
+
 interface TypingIndicatorInfo { // fragment on TypingIndicators
   readonly _id: string,
   readonly userId: string,
@@ -3738,6 +3744,7 @@ interface FragmentTypes {
   ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
   ElectionVoteInfo: ElectionVoteInfo
+  ElectionVoteRecentDiscussion: ElectionVoteRecentDiscussion
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
@@ -3757,7 +3764,7 @@ interface FragmentTypesByCollection {
   Conversations: "ConversationsDefaultFragment"|"newConversationFragment"|"conversationsListFragment"|"conversationIdFragment"|"ConversationsMinimumInfo"|"ConversationsList"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
-  ElectionVotes: "ElectionVotesDefaultFragment"|"ElectionVoteInfo"
+  ElectionVotes: "ElectionVotesDefaultFragment"|"ElectionVoteInfo"|"ElectionVoteRecentDiscussion"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   PostRelations: "PostRelationsDefaultFragment"
@@ -4016,6 +4023,7 @@ interface CollectionNamesByFragmentName {
   ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
   ElectionVoteInfo: "ElectionVotes"
+  ElectionVoteRecentDiscussion: "ElectionVotes"
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"

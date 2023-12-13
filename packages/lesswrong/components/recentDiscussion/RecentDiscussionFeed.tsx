@@ -155,6 +155,13 @@ const RecentDiscussionFeed = ({
                   />}
                 </div>,
               },
+              electionVoted: {
+                fragmentName: "ElectionVoteRecentDiscussion",
+                render: (electionVote: ElectionVoteRecentDiscussion) => {
+                  console.log("MARK", electionVote);
+                  return null;
+                }
+              },
               subscribeReminder: {
                 fragmentName: null,
                 render: () => <SubscribeReminderComponent />
