@@ -352,7 +352,7 @@ const Header = ({
         unFixed={unFixed}
         setUnFixed={setUnFixed}
         NavigationMenuButton={NavigationMenuButton}
-        RightHeaderItems={() => rightHeaderItemsNode}
+        rightHeaderItems={rightHeaderItemsNode}
         HeaderNavigationDrawer={HeaderNavigationDrawer}
         HeaderNotificationsMenu={HeaderNotificationsMenu}
       />
