@@ -71,7 +71,7 @@ class SqlFragment {
     return this.lexer.getBaseTypeName();
   }
 
-  private parseArgs(argsString: string = ""): SqlFragmentArg[] {
+  private parseArgs(argsString = ""): SqlFragmentArg[] {
     const args: SqlFragmentArg[] = [];
     const matches = argsString.matchAll(/([a-zA-Z0-9_]+)\s*:\s*\$([a-zA-Z0-9_]+)/g);
     for (const match of matches) {
