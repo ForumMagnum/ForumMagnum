@@ -295,7 +295,7 @@ const Header = ({
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    GivingSeasonHeader,
+    GivingSeasonHeader, ActiveDialogues
   } = Components;
   
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
@@ -393,6 +393,7 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
+              <ActiveDialogues />
               {rightHeaderItemsNode}
             </Toolbar>
           </header>
