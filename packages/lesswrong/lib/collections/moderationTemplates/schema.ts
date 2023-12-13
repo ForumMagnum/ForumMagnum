@@ -1,4 +1,4 @@
-import {schemaDefaultValue} from "../../collectionUtils";
+import { schemaDefaultValue } from '../../utils/schemaUtils';
 
 export const ALLOWABLE_COLLECTIONS: TemplateType[] = ['Messages', 'Comments', 'Rejections'];
 
@@ -11,10 +11,12 @@ const schema: SchemaType<DbModerationTemplate> = {
     canCreate: ['members'],
     canUpdate: ['members'],
     order: 1,
+    nullable: false,
   },
   // This field is misnamed - it doesn't have anything to do with objects on foreign collections.  It's just a "type".
   collectionName: {
     type: String,
+    nullable: false,
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canRead: ['guests'],

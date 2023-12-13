@@ -60,7 +60,7 @@ export class HybridView {
   protected indexQueryGenerators: ((viewName: string) => string)[];
   protected versionHash: string;
   protected identifier: string;
-  private viewSqlClient: RawSqlClient;
+  private viewSqlClient: RawSqlClient | SqlClient;
   private matViewName: string;
 
   constructor({
@@ -88,6 +88,7 @@ export class HybridView {
   async viewExists() {
     // Check if materialized view exists
     return this.viewSqlClient.oneOrNone(`
+      -- HybridView.viewExists
       SELECT
         1
       FROM
@@ -100,6 +101,7 @@ export class HybridView {
   async refreshInProgress() {
     // Check if materialized view refresh is in progress
     return this.viewSqlClient.oneOrNone<{duration: string}>(`
+      -- HybridView.refreshInProgress
       SELECT
         now() - pg_stat_activity.query_start AS duration
       FROM pg_stat_activity
@@ -112,6 +114,7 @@ export class HybridView {
   async createInProgress() {
     // Check if materialized view creation is in progress
     return this.viewSqlClient.oneOrNone<{duration: string}>(`
+      -- HybridView.createInProgress
       SELECT
         pid,
         now() - pg_stat_activity.query_start AS duration,
@@ -126,9 +129,10 @@ export class HybridView {
   async dropOldVersions() {
     // Drop older versions of this view, if this fails just continue
     try {
-      const olderViews = await this.viewSqlClient.manyOrNone<{matviewname: string}>(
-        `SELECT matviewname FROM pg_matviews WHERE matviewname LIKE 'hv_${this.identifier}_%' AND matviewname <> '${this.matViewName}'`
-      );
+      const olderViews = await this.viewSqlClient.manyOrNone<{matviewname: string}>(`
+        -- HybridView.dropOldVersions
+        SELECT matviewname FROM pg_matviews WHERE matviewname LIKE 'hv_${this.identifier}_%' AND matviewname <> '${this.matViewName}'
+      `);
       for (let view of olderViews) {
         await this.viewSqlClient.none(`DROP MATERIALIZED VIEW IF EXISTS "${view.matviewname}"`);
       }
@@ -212,6 +216,7 @@ export class HybridView {
     const getCrossoverTime = async () => {
       try {
         const res = await this.viewSqlClient.oneOrNone<{window_end: string}>(`
+          -- HybridView.virtualTable.getCrossoverTime
           SELECT window_end::text
           FROM (
             SELECT DISTINCT window_end
@@ -242,6 +247,7 @@ export class HybridView {
       }
 
       return `
+        -- HybridView.virtualTable
         SELECT
             *,
             'live' AS source
@@ -251,6 +257,7 @@ export class HybridView {
     }
 
     return `
+        -- HybridView.virtualTable
         (
             SELECT
                 *,

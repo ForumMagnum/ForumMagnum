@@ -13,6 +13,7 @@ export default class CollectionsRepo extends AbstractRepo<DbCollection> {
    */
   async postsCount(collectionIds: string[]): Promise<number[]> {
     const query = `
+      -- CollectionsRepo.postsCount
       SELECT
         cols._id as _id,
         count(*) as total_count
@@ -43,6 +44,7 @@ export default class CollectionsRepo extends AbstractRepo<DbCollection> {
     const userIds = params.map(p => p.userId);
   
     const query = `
+      -- CollectionsRepo.postsCount
       SELECT
         cols._id || '-' || rs."userId" as composite_id,
         count(*) as read_count

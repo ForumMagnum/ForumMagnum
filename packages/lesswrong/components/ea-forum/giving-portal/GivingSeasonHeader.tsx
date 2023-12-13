@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useIsAboveBreakpoint } from "../../hooks/useScreenWidth";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -11,36 +11,42 @@ import {
 } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { headerImageId, heroImageId } from "../../../lib/eaGivingSeason";
+import { eaGivingSeason23ElectionName, headerImageId, heroImageId, userCanVoteInDonationElection, votingHeaderImageId } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
 import { useLocation } from "../../../lib/routeUtil";
+import { useElectionVote } from "../voting-portal/hooks";
+import { useCurrentUser } from "../../common/withUser";
 
 export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
 const BACKGROUND_ASPECT = 3160 / 800;
 const BACKGROUND_WIDTH = Math.round(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT * BACKGROUND_ASPECT);
 
-const GIVING_SEASON_HEADER_IMAGE = makeCloudinaryImageUrl(headerImageId, {
-  h: String(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT),
-  w: String(BACKGROUND_WIDTH),
-  q: "100",
-  f: "auto",
-  c: "fill",
-  g: "center",
-});
-
 export const givingSeasonImageBackground = (
   theme: ThemeType,
   position: "top" | "bottom",
+  isVotingImg?: boolean
 ) => {
+  const imgUrl = makeCloudinaryImageUrl(
+    isVotingImg ? votingHeaderImageId : headerImageId,
+    {
+      h: String(EA_FORUM_GIVING_SEASON_HEADER_HEIGHT),
+      w: String(BACKGROUND_WIDTH),
+      q: "100",
+      f: "auto",
+      c: "fill",
+      g: "center",
+    }
+  )
+  
   const width = BACKGROUND_WIDTH;
   const height = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT;
   return {
     transition: "box-shadow 0.2s ease-in-out",
     backgroundColor: theme.palette.givingPortal.homepageHeader.dark,
-    backgroundImage: `url(${GIVING_SEASON_HEADER_IMAGE})`,
+    backgroundImage: `url(${imgUrl})`,
     backgroundPosition: position,
     backgroundRepeat: "no-repeat",
     backgroundSize: `${width}px ${height}px`,
@@ -97,7 +103,10 @@ const styles = (theme: ThemeType) => ({
   homePageBackground: {
     ...givingSeasonImageBackground(theme, "top"),
   },
-  votingPortalBackground: {
+  homePageVotingBackground: {
+    ...givingSeasonImageBackground(theme, "top", true),
+  },
+  solidBackground: {
     background: theme.palette.givingPortal.homepageHeader.dark,
   },
   appBarGivingSeason: {
@@ -183,7 +192,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     whiteSpace: 'nowrap',
     [theme.breakpoints.down('md')]: {
-      gap: '12px',
+      gap: '16px',
     }
   },
   activeStepLink: {
@@ -208,32 +217,13 @@ const votingPortalSocialImageProps: CloudinaryPropsType = {
   f: "auto",
 };
 
-const VOTING_STEPS = [
-  {
-    label: '1. Select candidates',
-    href: '/voting-portal/select-candidates',
-  },
-  {
-    label: '2. Compare',
-    href: '/voting-portal/compare',
-  },
-  {
-    label: '3. Allocate votes',
-    href: '/voting-portal/allocate-votes',
-  },
-  {
-    label: '4. Submit',
-    href: '/voting-portal/submit',
-  },
-] as const;
-
 const GivingSeasonHeader = ({
   searchOpen,
   hasLogo,
   unFixed,
   setUnFixed,
   NavigationMenuButton,
-  RightHeaderItems,
+  rightHeaderItems,
   HeaderNavigationDrawer,
   HeaderNotificationsMenu,
   classes,
@@ -243,26 +233,60 @@ const GivingSeasonHeader = ({
   unFixed: boolean
   setUnFixed: (value: boolean) => void,
   NavigationMenuButton: FC,
-  RightHeaderItems: FC,
+  rightHeaderItems: ReactNode,
   HeaderNavigationDrawer: FC,
   HeaderNotificationsMenu: FC,
   classes: ClassesType,
 }) => {
-  const { Typography, HeadTags } = Components;
+  const { Typography, HeadTags, HeaderSubtitle } = Components;
   const isDesktop = useIsAboveBreakpoint("md");
-  const { pathname } = useLocation();
+  const { pathname, currentRoute } = useLocation();
+  const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
+  const currentUser = useCurrentUser();
+
+  const compareAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 1;
+  const allocateAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 0;
+  const submitAllowed = electionVote?.vote && Object.values(electionVote.vote).some((value) => value);
+  // We only advertise voting for users who are eligible -
+  // i.e. those that created their accounts before Oct 23 and haven't voted yet.
+  const advertiseVoting = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
+
+  const votingSteps = [
+    {
+      label: '1. Select candidates',
+      href: '/voting-portal/select-candidates',
+    },
+    {
+      label: '2. Compare',
+      href: '/voting-portal/compare',
+      disabled: !compareAllowed,
+    },
+    {
+      label: '3. Finalize points',
+      href: '/voting-portal/allocate-points',
+      disabled: !allocateAllowed,
+    },
+    {
+      label: '4. Submit',
+      href: '/voting-portal/submit',
+      disabled: !submitAllowed,
+    },
+  ]
 
   const isVotingPortal = pathname.startsWith("/voting-portal");
   // Show voting steps if we are on a path like /voting-portal/compare (with anything after /voting-portal/)
   const showVotingSteps = isVotingPortal && /\/voting-portal\/\w/.test(pathname);
+  const solidHeader = currentRoute?.path !== "/";
 
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
-      {isVotingPortal && <HeadTags
-        title="Donation Election: voting portal"
-        description="Vote in the EA Forum Donation Election"
-        image={makeCloudinaryImageUrl(heroImageId, votingPortalSocialImageProps)}
-      />}
+      {isVotingPortal && (
+        <HeadTags
+          title="Voting portal"
+          description="Vote in the EA Forum Donation Election"
+          image={makeCloudinaryImageUrl(heroImageId, votingPortalSocialImageProps)}
+        />
+      )}
       <div
         className={classNames(classes.root, classes.rootGivingSeason, {
           [classes.rootScrolled]: !unFixed,
@@ -283,10 +307,10 @@ const GivingSeasonHeader = ({
           <header
             className={classNames(
               classes.appBarGivingSeason,
-              isVotingPortal ? classes.votingPortalBackground : classes.homePageBackground
+              solidHeader ? classes.solidBackground : advertiseVoting ? classes.homePageVotingBackground : classes.homePageBackground
             )}
           >
-            <div className={isVotingPortal ? "" : classes.givingSeasonGradient} />
+            {!solidHeader && <div className={classes.givingSeasonGradient} />}
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
               <div className={classes.leftHeaderItems}>
                 <NavigationMenuButton />
@@ -299,8 +323,9 @@ const GivingSeasonHeader = ({
                             {lightbulbIcon}
                           </div>
                         )}
-                        {isVotingPortal ? "Donation Election: Voting portal" : forumHeaderTitleSetting.get()}
+                        {isVotingPortal ? forumShortTitleSetting.get() : forumHeaderTitleSetting.get()}
                       </Link>
+                      <span className={classes.hideMdDown}><HeaderSubtitle /></span>
                     </div>
                   </div>
                   <div className={isVotingPortal ? classes.hideLgUp : classes.hideMdUp}>
@@ -311,30 +336,40 @@ const GivingSeasonHeader = ({
                             {lightbulbIcon}
                           </div>
                         )}
-                        {isVotingPortal ? "Voting portal" : forumShortTitleSetting.get()}
+                        {forumShortTitleSetting.get()}
                       </Link>
+                      <span className={classes.hideMdDown}><HeaderSubtitle /></span>
                     </div>
                   </div>
                 </Typography>
               </div>
               {showVotingSteps && (
                 <div className={classNames(classes.navigationSteps, classes.hideSmDown)}>
-                  {VOTING_STEPS.map(({ label, href }) => (
-                    <Link
-                      key={href}
-                      to={href}
-                      className={classNames(classes.stepLink, {
-                        [classes.activeStepLink]: pathname === href,
-                        // TODO: make this based on what they have completed so far
-                        [classes.disabledStepLink]: label === "4. Submit",
-                      })}
-                    >
-                      {label}
-                    </Link>
-                  ))}
+                  {votingSteps.map(({ label, href, disabled }) =>
+                    disabled ? (
+                      <span
+                        key={href}
+                        className={classNames(classes.stepLink, classes.disabledStepLink, {
+                          [classes.activeStepLink]: pathname === href,
+                        })}
+                      >
+                        {label}
+                      </span>
+                    ) : (
+                      <Link
+                        key={href}
+                        to={href}
+                        className={classNames(classes.stepLink, {
+                          [classes.activeStepLink]: pathname === href,
+                        })}
+                      >
+                        {label}
+                      </Link>
+                    )
+                  )}
                 </div>
               )}
-              <RightHeaderItems />
+              {rightHeaderItems}
             </Toolbar>
           </header>
           <HeaderNavigationDrawer />

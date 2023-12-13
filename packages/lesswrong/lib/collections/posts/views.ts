@@ -1435,12 +1435,15 @@ ensureIndex(Posts,
 );
 
 
+// Exclude IDs that should not be included, e.g. were republished and postedAt date isn't actually in current review
+const reviewExcludedPostIds = ['MquvZCGWyYinsN49c'];
+
 // Nominations for the (≤)2020 review are determined by the number of votes
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
       positiveReviewVoteCount: { $gte: getPositiveVoteThreshold(terms.reviewPhase) },
-      reviewCount: { $gte: INITIAL_REVIEW_THRESHOLD }
+      _id: { $nin: reviewExcludedPostIds }
     },
     options: {
       // This sorts the posts deterministically, which is important for the
@@ -1462,7 +1465,7 @@ ensureIndex(Posts,
 Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
   return {
     selector: {
-      reviewCount: 0,
+      $or: [{ reviewCount: null }, { reviewCount: 0 }],
       positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD },
       reviewVoteScoreAllKarma: { $gte: QUICK_REVIEW_SCORE_THRESHOLD }
     },
@@ -1480,7 +1483,8 @@ Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
       reviewCount: { $gte: VOTING_PHASE_REVIEW_THRESHOLD },
-      positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD }
+      positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD },
+      _id: { $nin: reviewExcludedPostIds }
     },
     options: {
       // This sorts the posts deterministically, which is important for the

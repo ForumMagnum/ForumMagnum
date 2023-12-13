@@ -49,16 +49,46 @@ import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
+import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
+import { closePerfMetric, openPerfMetric, perfMetricMiddleware } from './perfMetrics';
+import { performanceMetricLoggingEnabled } from '../lib/publicSettings';
 
-class ApolloServerLogging {
-  requestDidStart(context: any) {
-    const {request} = context;
-    const {operationName, query, variables} = request;
-    logGraphqlQueryStarted(operationName, query, variables);
+class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
+  requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
+    const { operationName = 'unknownGqlOperation', query, variables } = request;
+
+    //remove sensitive data from variables such as password
+    let filteredVariables = variables;
+    if (variables) {
+      filteredVariables =  Object.keys(variables).reduce((acc, key) => {
+        return (key === 'password') ?  acc : { ...acc, [key]: variables[key] };
+      }, {});
+    }
+
+    let startedRequestMetric: IncompletePerfMetric;
+    if (performanceMetricLoggingEnabled.get()) {
+      startedRequestMetric = openPerfMetric({
+        op_type: 'query',
+        op_name: operationName,
+        parent_trace_id: context.perfMetric?.trace_id,
+        extra_data: filteredVariables,
+        gql_string: query
+      });  
+    }
+
+    if (query) {
+      logGraphqlQueryStarted(operationName, query, variables);
+    }
     
     return {
-      willSendResponse(props: AnyBecauseTodo) {
-        logGraphqlQueryFinished(operationName, query);
+      willSendResponse() { // hook for transaction finished
+        if (performanceMetricLoggingEnabled.get()) {
+          closePerfMetric(startedRequestMetric);
+        }
+
+        if (query) {
+          logGraphqlQueryFinished(operationName, query);
+        }
       }
     };
   }
@@ -138,11 +168,12 @@ export function startWebserver() {
       configureSentryScope(context);
       return context;
     },
-    plugins: [new ApolloServerLogging()]
+    plugins: [new ApolloServerLogging()],
   });
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
+  app.use('/graphql', perfMetricMiddleware);
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
@@ -205,13 +236,18 @@ export function startWebserver() {
     }
     
     const currentUser = await getUserFromReq(req)
-    if (!currentUser || !getUserEmail(currentUser)){
-      res.status(403).send("Not logged in or current user has no email address")
+    if (!currentUser) {
+      res.status(403).send("Not logged in")
+      return
+    }
+
+    const userEmail = getUserEmail(currentUser)
+    if (!userEmail) {
+      res.status(403).send("User does not have email")
       return
     }
     
-    const eagApp = await getEAGApplicationData(currentUser.email)
-    res.send(eagApp)
+    const eagApp = await getEAGApplicationData(userEmail)
   })
 
   addCrosspostRoutes(app);
@@ -229,6 +265,16 @@ export function startWebserver() {
   }
 
   addServerSentEventsEndpoint(app);
+
+  app.get('/node_modules/*', (req, res) => {
+    // Under some circumstances (I'm not sure exactly what the trigger is), the
+    // Chrome JS debugger tries to load a bunch of /node_modules/... paths
+    // (presumably for some sort of source mapping). If these were treated as
+    // normal pageloads, this would produce a ton of console-log spam, which is
+    // disruptive. So instead just serve a minimal 404.
+    res.status(404);
+    res.end("");
+  });
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression

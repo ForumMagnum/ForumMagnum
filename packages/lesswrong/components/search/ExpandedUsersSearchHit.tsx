@@ -82,7 +82,7 @@ const ExpandedUsersSearchHit = ({hit, classes}: {
           </span>
           <FormatDate date={user.createdAt} />
           <span className={classes.metaInfo}>
-            <ForumIcon icon="Star" className={classes.metaInfoIcon} /> {user.karma ?? 0}
+            <ForumIcon icon="Star" className={classes.metaInfoIcon} /> {user.karma}
           </span>
           {user.mapLocationAddress && <span className={classes.metaInfo}>
             <LocationIcon className={classes.metaInfoIcon} /> {user.mapLocationAddress}

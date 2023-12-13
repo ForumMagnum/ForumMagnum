@@ -1,4 +1,4 @@
-import Query, { Atom } from "./Query";
+import Query, { Atom, sanitizeSqlComment } from "./Query";
 import Table from "./Table";
 import { IdType, UnknownType } from "./Type";
 import { getCollectionByTableName } from "../vulcan-lib/getCollection";
@@ -106,6 +106,7 @@ export const isGroupByAggregateExpression = (value: any) => {
  */
 class SelectQuery<T extends DbObject> extends Query<T> {
   private hasLateralJoin = false;
+  private sqlComment: string|null
 
   constructor(
     table: Table<T> | Query<T>,
@@ -124,6 +125,10 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     if (sqlOptions?.group) {
       this.appendGroup(sqlOptions.group);
       return;
+    }
+    
+    if (options?.comment) {
+      this.sqlComment = sanitizeSqlComment(options.comment);
     }
 
     if (!deferInit) {
@@ -176,6 +181,10 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     if (sqlOptions?.forUpdate) {
       this.atoms.push("FOR UPDATE");
     }
+  }
+  
+  getSqlComment() {
+    return this.sqlComment;
   }
 
   private selectorIsEmpty(selector?: string | MongoSelector<T>): boolean {

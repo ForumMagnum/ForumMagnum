@@ -80,7 +80,7 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
       </LWTooltip>
       <LWTooltip title={recentKarmaTooltip(user)}>
         <MetaInfo className={classNames(classes.info, {[classes.negativeRecentKarma]: user.recentKarmaInfo.last20Karma < 0, [classes.lowRecentKarma]: user.recentKarmaInfo.last20Karma < 5})}>
-          <StarBorderIcon className={classes.icon}/>{user.recentKarmaInfo.last20Karma ?? 0}
+          <StarBorderIcon className={classes.icon}/>{user.recentKarmaInfo.last20karma}
         </MetaInfo>
       </LWTooltip>
       <LWTooltip title={downvoterTooltip(user)}>

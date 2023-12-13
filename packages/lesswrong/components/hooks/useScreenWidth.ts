@@ -61,3 +61,28 @@ export const useIsDesktop = () => {
 export const useIsMobile = () => {
   return !useIsAboveBreakpoint('sm');
 }
+
+/**
+ * WARNING: This hook is not SSR safe!
+ *
+ * It assumes you're on the desktop and can cause layout shift on load for mobile
+ * users if you're not careful.
+ */
+export const useWindowSize = () => {
+  const [size, setSize] = useState<{width: number, height: number}>(
+    isClient
+      ? {width: window.innerWidth, height: window.innerHeight}
+      : {width: 4000, height: 2000}
+  );
+
+  useEffect(() => {
+    const handleResize = () => setSize({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [])
+
+  return size;
+}

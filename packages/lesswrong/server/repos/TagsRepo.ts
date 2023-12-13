@@ -1,6 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Tags from "../../lib/collections/tags/collection";
-import { TagWithCommentCount } from "../../components/users/DialogueMatchingPage";
+import { TagWithCommentCount } from "../../components/dialogues/DialogueRecommendationRow";
 export default class TagsRepo extends AbstractRepo<DbTag> {
   constructor() {
     super(Tags);
@@ -8,6 +8,7 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
 
   private getSearchDocumentQuery(): string {
     return `
+      -- TagsRepo.getSearchDocumentQuery
       SELECT
         t."_id",
         t."_id" AS "objectID",
@@ -32,6 +33,7 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
 
   getSearchDocumentById(id: string): Promise<AlgoliaTag> {
     return this.getRawDb().one(`
+      -- TagsRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
       WHERE t."_id" = $1
     `, [id]);
@@ -39,6 +41,7 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
 
   getSearchDocuments(limit: number, offset: number): Promise<AlgoliaTag[]> {
     return this.getRawDb().any(`
+      -- TagsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
       ORDER BY t."createdAt" DESC
       LIMIT $1
@@ -53,6 +56,7 @@ export default class TagsRepo extends AbstractRepo<DbTag> {
 
   async getUserTopTags(userId: string, limit = 15): Promise<TagWithCommentCount[]> {
     const tags = await this.getRawDb().any(`
+      -- TagsRepo.getUserTopTags
       SELECT
         t.*,
         COUNT(*) AS "commentCount"

@@ -1,5 +1,4 @@
-import { schemaDefaultValue } from '../../collectionUtils'
-import { arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
+import { schemaDefaultValue, arrayOfForeignKeysField, denormalizedCountOfReferences, foreignKeyField, resolverOnlyField, accessFilterMultiple } from '../../utils/schemaUtils';
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify } from '../../vulcan-lib/utils';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
@@ -38,6 +37,7 @@ export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
 const schema: SchemaType<DbTag> = {
   name: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members'],
@@ -64,6 +64,7 @@ const schema: SchemaType<DbTag> = {
   slug: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
     canUpdate: ['admins', 'sunshineRegiment'],
@@ -654,7 +655,7 @@ const schema: SchemaType<DbTag> = {
   noindex: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,

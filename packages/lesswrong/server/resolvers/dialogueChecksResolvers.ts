@@ -24,15 +24,25 @@ async function notifyUsersMatchingDialogueChecks (dialogueCheck: DbDialogueCheck
 defineMutation({
   name: "upsertUserDialogueCheck",
   resultType: "DialogueCheck",
-  argTypes: "(targetUserId: String!, checked: Boolean!)",
-  fn: async (_, {targetUserId, checked}:{targetUserId:string, checked:boolean}, {currentUser, repos}) => {
+  argTypes: "(targetUserId: String!, checked: Boolean, hideInRecommendations: Boolean)",
+  fn: async (_, {targetUserId, checked, hideInRecommendations}:{targetUserId:string, checked:boolean|null, hideInRecommendations:boolean|null}, {currentUser, repos}) => {
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")    
-    const dialogueCheck = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked) 
-    const matchingDialogueCheck = await getMatchingDialogueCheck(dialogueCheck)
-    if (matchingDialogueCheck) {
-      void notifyUsersMatchingDialogueChecks(dialogueCheck, matchingDialogueCheck)   
-    }
+    if ( typeof checked === typeof hideInRecommendations ) {   
+      throw new Error("Exactly one of checked or hideInRecommendations must be provided")
+    }    
+
+    let dialogueCheck;
+    if (typeof checked === 'boolean') {
+      dialogueCheck = await repos.dialogueChecks.upsertDialogueCheck(currentUser._id, targetUserId, checked) 
+      const matchingDialogueCheck = await getMatchingDialogueCheck(dialogueCheck)
+      if (matchingDialogueCheck) {
+        void notifyUsersMatchingDialogueChecks(dialogueCheck, matchingDialogueCheck)   
+      }
+    } else if (typeof hideInRecommendations === 'boolean') {
+      dialogueCheck = await repos.dialogueChecks.upsertDialogueHideInRecommendations(currentUser._id, targetUserId, hideInRecommendations) 
+    } 
+
     return dialogueCheck
   } 
 })

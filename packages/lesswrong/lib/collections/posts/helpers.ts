@@ -24,8 +24,10 @@ export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false, i
   const foreignId = "fmCrosspost" in post && post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere
     ? post.fmCrosspost.foreignPostId
     : undefined;
-  const url = isRedirected ? getOutgoingUrl(post.url, foreignId ?? undefined) : post.url;
-  return !!post.url ? url : postGetPageUrl(post, isAbsolute);
+  if (post.url) {
+    return isRedirected ? getOutgoingUrl(post.url, foreignId ?? undefined) : post.url;
+  }
+  return postGetPageUrl(post, isAbsolute);
 };
 
 // Whether a post's link should open in a new tab or not
@@ -38,12 +40,12 @@ export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
 ///////////////////
 
 // Get a post author's name
-export const postGetAuthorName = async function (post: DbPost) {
+export const postGetAuthorName = async function (post: DbPost): Promise<string> {
   var user = await mongoFindOne("Users", post.userId);
   if (user) {
     return userGetDisplayName(user);
   } else {
-    return post.author;
+    return post.author ?? "[unknown author]";
   }
 };
 
@@ -87,14 +89,18 @@ ${postGetLink(post, true, false)}
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
-// Select the social preview image for the post, using the manually-set
-// cloudinary image if available, or the auto-set from the post contents. If
-// neither of those are available, it will return null.
+// Select the social preview image for the post.
+// For events, we use their event image if that is set.
+// For other posts, we use the manually-set cloudinary image if available,
+// or the auto-set from the post contents. If neither of those are available,
+// it will return null.
 export const getSocialPreviewImage = (post: DbPost): string => {
   // Note: in case of bugs due to failed migration of socialPreviewImageId -> socialPreview.imageId,
   // edit this to support the old field "socialPreviewImageId", which still has the old data
-  const manualId = post.socialPreview?.imageId
-  if (manualId) return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
+  const manualId = (post.isEvent && post.eventImageId) ? post.eventImageId : post.socialPreview?.imageId
+  if (manualId) {
+    return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
+  }
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''
 }
@@ -105,7 +111,7 @@ export interface PostsMinimumForGetPageUrl {
   _id: string
   slug: string
   isEvent?: boolean
-  groupId?: string|undefined
+  groupId?: string | undefined | null
 }
 
 // Get URL of a post page.
@@ -122,11 +128,6 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   }
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
-
-export const postGetUrlWithSourceParam = (
-  post: PostsMinimumForGetPageUrl,
-  source: string,
-) => `${postGetPageUrl(post, true)}&source=${source}`;
 
 export const postGetCommentsUrl = (
   post: PostsMinimumForGetPageUrl,
@@ -186,7 +187,7 @@ export const postGetAnswerCountStr = (count: number): string => {
   }
 }
 
-export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
+export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
   if (isAF) {
     return post.afLastCommentedAt;
   } else {

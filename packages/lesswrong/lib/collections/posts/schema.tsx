@@ -1,7 +1,6 @@
 import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
-import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { PostRelations } from "../postRelations/collection"
 import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
@@ -164,6 +163,7 @@ const schema: SchemaType<DbPost> = {
   postedAt: {
     type: Date,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -231,6 +231,7 @@ const schema: SchemaType<DbPost> = {
   title: {
     type: String,
     optional: false,
+    nullable: false,
     max: 500,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -244,6 +245,7 @@ const schema: SchemaType<DbPost> = {
   slug: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     onInsert: async (post) => {
       return await Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
@@ -258,8 +260,9 @@ const schema: SchemaType<DbPost> = {
   viewCount: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['admins'],
-    defaultValue: 0
+    ...schemaDefaultValue(0),
   },
   // Timestamp of the last comment
   lastCommentedAt: {
@@ -274,8 +277,9 @@ const schema: SchemaType<DbPost> = {
   clickCount: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['admins'],
-    defaultValue: 0
+    ...schemaDefaultValue(0),
   },
 
   deletedDraft: {
@@ -297,6 +301,7 @@ const schema: SchemaType<DbPost> = {
   status: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins', 'sunshineRegiment'],
@@ -319,6 +324,7 @@ const schema: SchemaType<DbPost> = {
   isFuture: {
     type: Boolean,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     onInsert: (post) => {
       // Set the post's isFuture to true if necessary
@@ -423,6 +429,7 @@ const schema: SchemaType<DbPost> = {
       nullable: true
     }),
     optional: true,
+    nullable: false,
     control: 'text',
     canRead: [documentIsNotDeleted],
     canUpdate: ['admins'],
@@ -752,7 +759,6 @@ const schema: SchemaType<DbPost> = {
   reviewVoteCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
     ...denormalizedCountOfReferences({
       fieldName: "reviewVoteCount",
       collectionName: "Posts",
@@ -766,7 +772,6 @@ const schema: SchemaType<DbPost> = {
   positiveReviewVoteCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
     ...denormalizedCountOfReferences({
       fieldName: "positiveReviewVoteCount",
       collectionName: "Posts",
@@ -782,13 +787,13 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreAF: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   reviewVotesAF: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'reviewVotesAF.$': {
@@ -799,14 +804,14 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   // A list of each individual user's calculated quadratic vote, for users with >1000 karma
   reviewVotesHighKarma: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'reviewVotesHighKarma.$': {
@@ -817,14 +822,14 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   // A list of each individual user's calculated quadratic vote, for all users
   reviewVotesAllKarma: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'reviewVotesAllKarma.$': {
@@ -836,13 +841,13 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   finalReviewVotesHighKarma: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'finalReviewVotesHighKarma.$': {
@@ -853,13 +858,13 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   finalReviewVotesAllKarma: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'finalReviewVotesAllKarma.$': {
@@ -870,13 +875,13 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreAF: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   finalReviewVotesAF: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'finalReviewVotesAF.$': {
@@ -1147,8 +1152,9 @@ const schema: SchemaType<DbPost> = {
   forceAllowType3Audio: {
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: false,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
@@ -1160,8 +1166,9 @@ const schema: SchemaType<DbPost> = {
   legacy: {
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: false,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
@@ -1185,7 +1192,7 @@ const schema: SchemaType<DbPost> = {
   legacySpam: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     hidden: true,
     canRead: ['guests'],
     canUpdate: ['admins'],
@@ -1301,6 +1308,7 @@ const schema: SchemaType<DbPost> = {
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
         // did a hacky thing.
+        if (!post.suggestForCuratedUserIds) return null;
         const users = await Promise.all(_.map(post.suggestForCuratedUserIds,
           async userId => {
             const user = await context.loaders.Users.load(userId)
@@ -1470,7 +1478,7 @@ const schema: SchemaType<DbPost> = {
     control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
     order: 4,
-    hidden: ({document}) => isLWorAF && !!document.collabEditorDialogue,
+    hidden: ({document}) => (isLWorAF && !!document.collabEditorDialogue) || (isEAForum && document.isEvent),
   },
 
   fmCrosspost: {
@@ -1480,7 +1488,6 @@ const schema: SchemaType<DbPost> = {
       foreignPostId: { type: String, optional: true, nullable: true },
     }),
     optional: true,
-    nullable: true,
     canRead: [documentIsNotDeleted],
     canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), 'admins'],
     canCreate: [userPassesCrosspostingKarmaThreshold, 'admins'],
@@ -1857,9 +1864,10 @@ const schema: SchemaType<DbPost> = {
   maxBaseScore: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     hidden: true,
-    onInsert: (document) => document.baseScore || 0,
+    onInsert: (document) => document.baseScore ?? 0,
   },
   // The timestamp when the post's maxBaseScore first exceeded 2
   scoreExceeded2Date: {
@@ -2522,8 +2530,6 @@ const schema: SchemaType<DbPost> = {
   commentCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
-    
     ...denormalizedCountOfReferences({
       fieldName: "commentCount",
       collectionName: "Posts",
@@ -2538,8 +2544,6 @@ const schema: SchemaType<DbPost> = {
   topLevelCommentCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
-    
     ...denormalizedCountOfReferences({
       fieldName: "topLevelCommentCount",
       collectionName: "Posts",

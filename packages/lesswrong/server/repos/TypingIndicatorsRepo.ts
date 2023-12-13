@@ -15,6 +15,7 @@ export default class TypingIndicatorsRepo extends AbstractRepo<DbTypingIndicator
   async upsertTypingIndicator(userId: string, documentId: string) {
     const now  = new Date()
     return this.none(`
+      -- TypingIndicatorsRepo.upsertTypingIndicator
       INSERT INTO "TypingIndicators" (
         "_id",
         "userId",
@@ -29,6 +30,7 @@ export default class TypingIndicatorsRepo extends AbstractRepo<DbTypingIndicator
 
   getRecentTypingIndicators(since: Date): Promise<TypingIndicatorPostInfo[]> {
     return this.getRawDb().any(`
+      -- TypingIndicatorsRepo.getRecentTypingIndicators
       SELECT t.*, p."userId" as "postUserId", p."coauthorStatuses", p."hasCoauthorPermission"
       FROM "TypingIndicators" t
       JOIN "Posts" p

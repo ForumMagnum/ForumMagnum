@@ -92,6 +92,8 @@ const CommentsListSection = ({
   startThreadTruncated,
   newForm=true,
   newFormProps={},
+  highlightDate,
+  setHighlightDate,
   classes,
 }: {
   post?: PostsDetails,
@@ -106,6 +108,8 @@ const CommentsListSection = ({
   startThreadTruncated?: boolean,
   newForm: boolean,
   newFormProps?: Partial<CommentsNewFormProps>,
+  highlightDate: Date|undefined,
+  setHighlightDate: (newValue: Date|undefined) => void,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -116,7 +120,6 @@ const CommentsListSection = ({
     CommentsNewForm, QuickTakesEntry,
   } = Components;
 
-  const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const [anchorEl,setAnchorEl] = useState<HTMLElement|null>(null);
   const newCommentsSinceDate = highlightDate
     ? filter(

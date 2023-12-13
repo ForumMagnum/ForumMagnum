@@ -5,9 +5,11 @@ import { ensureIndex } from '../../collectionIndexUtils';
 const schema: SchemaType<DbImages> = {
   originalUrl: {
     type: String,
+    nullable: false,
   },
   cdnHostedUrl: {
     type: String,
+    nullable: false,
   },
 };
 

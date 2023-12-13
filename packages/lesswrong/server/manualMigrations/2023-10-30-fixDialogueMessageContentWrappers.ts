@@ -40,7 +40,7 @@ function fixMessageContents(html: string) {
 }
 
 function revisionHasContentWrapper(revision: DbRevision) {
-  const $ = cheerioParse(revision.originalContents.data);
+  const $ = cheerioParse(revision.originalContents?.data ?? '');
   return $('.dialogue-message-content').length > 0;
 }
 
@@ -80,10 +80,10 @@ async function migrateDialogue(dialogue: DbPost) {
 
   if (revisions.length === 0) return;
 
-  if (revisions[0].editedAt > new Date("2023-10-30 21:48:16.529+00")) {
+  if (revisions[0].editedAt! > new Date("2023-10-30 21:48:16.529+00")) {
     // Do something else
-    const originalHtml = revisions[0].originalContents.data;
-    const migratedHtml = fixMessageContents(originalHtml);
+    const originalHtml = revisions[0].originalContents?.data;
+    const migratedHtml = fixMessageContents(originalHtml!);
 
     if (originalHtml !== migratedHtml) {
       await saveFlushAndPush(postId, ckEditorId, migratedHtml);
@@ -98,8 +98,8 @@ async function migrateDialogue(dialogue: DbPost) {
     return;
   }
 
-  const originalHtml = lastRevisionWithoutContentWrapper.originalContents.data;
-  const migratedHtml = wrapMessageContents(originalHtml);
+  const originalHtml = lastRevisionWithoutContentWrapper.originalContents?.data;
+  const migratedHtml = wrapMessageContents(originalHtml!);
 
   if (originalHtml !== migratedHtml) {
     await saveFlushAndPush(postId, ckEditorId, migratedHtml);

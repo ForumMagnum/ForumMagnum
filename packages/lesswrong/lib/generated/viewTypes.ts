@@ -15,6 +15,7 @@ type DialogueMatchPreferencesViewName = "dialogueMatchPreferences";
 type DigestPostsViewName = never
 type DigestsViewName = "findByNum"|"all";
 type ElectionCandidatesViewName = never
+type ElectionVotesViewName = "allSubmittedVotes";
 type ElicitQuestionPredictionsViewName = never
 type ElicitQuestionsViewName = never
 type EmailTokensViewName = never
@@ -75,6 +76,7 @@ interface ViewTermsByCollectionName {
   DigestPosts: ViewTermsBase
   Digests: DigestsViewTerms
   ElectionCandidates: ElectionCandidatesViewTerms
+  ElectionVotes: ElectionVotesViewTerms
   ElicitQuestionPredictions: ViewTermsBase
   ElicitQuestions: ViewTermsBase
   EmailTokens: ViewTermsBase
@@ -119,4 +121,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "AdvisorRequests"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"DialogueChecks"|"DialogueMatchPreferences"|"Digests"|"ElectionVotes"|"FeaturedResources"|"GardenCodes"|"LWEvents"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

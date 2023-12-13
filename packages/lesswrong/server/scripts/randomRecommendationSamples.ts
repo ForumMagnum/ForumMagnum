@@ -24,7 +24,7 @@ const randomRecommendationSamples = async () => {
       "isEvent" IS NOT TRUE
     ORDER BY RANDOM()
     LIMIT 50
-  `, cutoff);
+  `, [cutoff]);
 
   const service = new RecommendationService();
   const count = 3;

@@ -169,6 +169,8 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const displayHoverOver = hover && (comment.baseScore > -5) && !isMobile() && enableHoverPreview
   const renderHighlight = (comment.baseScore > -5) && !comment.deleted
   const actuallyDisplayTagIcon = !!(displayTagIcon && comment.tag && coreTagIconMap[comment.tag.slug])
+  
+  const effectiveNestingLevel = nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -176,7 +178,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         contentType={comment.answer ? "post" : "comment"}
         className={classNames(classes.commentInfo, {
           [classes.isAnswer]: comment.answer, 
-          [classes.odd]:((nestingLevel%2) !== 0),
+          [classes.odd]:((effectiveNestingLevel%2) !== 0),
         })}
       >
         {post && <div className={classes.shortformIcon}><CommentShortformIcon comment={comment} post={post} simple={true} /></div>}
@@ -184,6 +186,8 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           <CoreTagIcon tag={comment.tag} />
         </div>}
 
+        {/* We're often comparing null to undefined, so we need to explicitly use a double-eq-negation */}
+        {/* eslint-disable-next-line eqeqeq */}
         {!hideParentCommentToggle && parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
           <ShowParentComment comment={comment} />
         </span>}
@@ -223,7 +227,13 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
               truncated
               nestingLevel={1}
               comment={comment}
-              treeOptions={{...treeOptions, hideReply: true, forceSingleLine: false, forceNotSingleLine: true}}
+              treeOptions={{
+                ...treeOptions,
+                hideReply: true,
+                forceSingleLine: false,
+                forceNotSingleLine: true,
+                switchAlternatingHighlights: false,
+              }}
               hoverPreview
             />
           </div>

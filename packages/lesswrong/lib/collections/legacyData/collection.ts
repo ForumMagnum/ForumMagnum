@@ -5,9 +5,11 @@ import { ensureIndex } from '../../collectionIndexUtils'
 const schema: SchemaType<DbLegacyData> = {
   objectId: {
     type: String,
+    nullable: false,
   },
   collectionName: {
     type: String,
+    nullable: false,
   },
 };
 

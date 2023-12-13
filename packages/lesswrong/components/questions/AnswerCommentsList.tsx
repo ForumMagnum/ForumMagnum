@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import classNames from 'classnames';
+import type { CommentTreeOptions } from '../comments/commentTree';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   commentsList: {
-    marginLeft: -theme.spacing.unit*1.5,
-    marginRight: -theme.spacing.unit*1.5,
+    marginLeft: -4,
+    marginRight: -12,
+    marginBottom: 16,
+    marginTop: 8,
   },
   noComments: {
     position: "relative",
@@ -34,64 +38,34 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const AnswerCommentsList = ({classes, post, parentAnswer, commentTree}: {
-  classes: ClassesType,
+const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions, classes}: {
   post: PostsList,
   commentTree: CommentTreeNode<CommentsList>[],
+  treeOptions: CommentTreeOptions,
   parentAnswer: CommentsList,
+  classes: ClassesType,
 }) => {
-  const [commenting, setCommenting] = React.useState(false);
-  const [loadedMore, setLoadedMore] = React.useState(false);
   const totalCount = parentAnswer.descendentCount;
+  const now = useCurrentTime();
   
-  const highlightDate =
-    (post?.lastVisitedAt
-      && new Date(post.lastVisitedAt))
-    || new Date();
-
-  const closeCommentNewForm = React.useCallback(
-    () => setCommenting(false),
-    [setCommenting]
-  );
-
-  const { CommentsList, CommentsNewForm, Typography } = Components
+  const { CommentsList, } = Components
   
-  return (
-    <div>
-      {!commenting && <Typography variant="body2" onClick={()=>setCommenting(true)} className={classNames(classes.newComment)}>
-          <a>Add Comment</a>
-        </Typography>
-      }
-      {commenting &&
-        <div className={classes.editor}>
-          <CommentsNewForm
-            post={post}
-            parentComment={parentAnswer}
-            prefilledProps={{
-              parentAnswerId: parentAnswer._id,
-            }}
-            successCallback={closeCommentNewForm}
-            cancelCallback={closeCommentNewForm}
-            type="reply"
-          />
-        </div>
-      }
-      <CommentsList
-        treeOptions={{
-          postPage: true,
-          showCollapseButtons: true,
-          post: post,
-          highlightDate: highlightDate,
-        }}
-        totalComments={totalCount}
-        comments={commentTree}
-        parentCommentId={parentAnswer._id}
-        parentAnswerId={parentAnswer._id}
-        defaultNestingLevel={2}
-        startThreadTruncated
-      />
-    </div>
-  );
+  const treeOptionsWithHighlight = useMemo(() => ({
+    ...treeOptions,
+    highlightDate: post?.lastVisitedAt ? new Date(post.lastVisitedAt) : now,
+  }), [treeOptions, post?.lastVisitedAt, now]);
+  
+  return <div className={classes.commentsList}>
+    <CommentsList
+      treeOptions={treeOptionsWithHighlight}
+      totalComments={totalCount}
+      comments={commentTree}
+      parentCommentId={parentAnswer._id}
+      parentAnswerId={parentAnswer._id}
+      defaultNestingLevel={1}
+      startThreadTruncated
+    />
+  </div>
 }
 
 const AnswerCommentsListComponent = registerComponent('AnswerCommentsList', AnswerCommentsList, {styles});

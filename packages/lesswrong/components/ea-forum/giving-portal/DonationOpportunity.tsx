@@ -28,13 +28,13 @@ const styles = (theme: ThemeType) => ({
   },
   imageContainer: {
     borderRadius: theme.borderRadius.small,
-    backgroundColor: theme.palette.grey[0],
+    backgroundColor: theme.palette.text.alwaysWhite,
     width: imageWidth,
     height: imageHeight,
   },
   image: {
     borderRadius: theme.borderRadius.small,
-    objectFit: "cover",
+    objectFit: "contain",
     width: imageWidth,
     height: imageHeight,
   },
@@ -95,7 +95,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const DonationOpportunity = ({candidate, classes}: {
-  candidate: ElectionCandidateBasicInfo,
+  candidate: ElectionCandidateSimple,
   classes: ClassesType,
 }) => {
   const {name, logoSrc, description} = candidate;

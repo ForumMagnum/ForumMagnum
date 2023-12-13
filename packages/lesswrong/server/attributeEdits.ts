@@ -54,12 +54,12 @@ export async function annotateAuthors(documentId: string, collectionName: string
   
   for (let i=1; i<revsByDate.length; i++) {
     const rev = revsByDate[i];
-    const prevHtml = revsByDate[i-1].html;
-    const newHtml = rev.html;
-    attributions = attributeEdits(prevHtml, newHtml, rev.userId, attributions);
+    const prevHtml = revsByDate[i-1].html ?? "";
+    const newHtml = rev.html ?? "";
+    attributions = attributeEdits(prevHtml, newHtml, rev.userId!, attributions);
   }
   
-  return attributionsToSpans(finalRev.html, attributions);
+  return attributionsToSpans(finalRev.html!, attributions);
 }
 
 function annotateInsDel(root: cheerio.Root): InsDelUnc[] {
