@@ -105,11 +105,15 @@ class ProjectionContext<T extends DbObject = DbObject> {
     return this.prefixGenerator;
   }
 
+  absoluteField(name: string) {
+    const absoluteField = `"${this.primaryPrefix}"."${name}"`;
+    return name.indexOf("*") > -1
+      ? `ROW_TO_JSON(${absoluteField})`
+      : absoluteField;
+  }
+
   field(name: string) {
-    let absoluteField = `"${this.primaryPrefix}"."${name}"`;
-    if (name.indexOf("*") > -1) {
-      absoluteField = `ROW_TO_JSON(${absoluteField})`;
-    }
+    const absoluteField = this.absoluteField(name);
     return this.isAggregate ? `'${name}', ${absoluteField}` : absoluteField;
   }
 
@@ -175,7 +179,7 @@ class ProjectionContext<T extends DbObject = DbObject> {
 
   getSqlResolverArgs(): SqlResolverArgs {
     return {
-      field: this.field.bind(this),
+      field: this.absoluteField.bind(this),
       currentUserField: this.currentUserField.bind(this),
       join: this.addJoin.bind(this),
       arg: this.addArg.bind(this),
