@@ -216,6 +216,7 @@ registerFragment(`
     hideDialogueFacilitation
     optedInToDialogueFacilitation
     revealChecksToAdmins
+    notificationNewDialogueChecks
 
     showDialoguesList
     showMyDialogues

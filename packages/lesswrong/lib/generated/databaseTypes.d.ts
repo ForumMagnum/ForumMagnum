@@ -72,6 +72,18 @@ interface DbChapter extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+interface CkEditorUserSessionsCollection extends CollectionBase<DbCkEditorUserSession, "CkEditorUserSessions"> {
+}
+
+interface DbCkEditorUserSession extends DbObject {
+  __collectionName?: "CkEditorUserSessions"
+  documentId: string
+  userId: string
+  endedAt: Date | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 interface ClientIdsCollection extends CollectionBase<DbClientId, "ClientIds"> {
 }
 
@@ -282,6 +294,7 @@ interface DbDialogueMatchPreference extends DbObject {
   formatNotes: string
   calendlyLink: string | null
   generatedDialogueId: string | null
+  deleted: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1659,6 +1672,7 @@ interface CollectionsByName {
   Bans: BansCollection
   Books: BooksCollection
   Chapters: ChaptersCollection
+  CkEditorUserSessions: CkEditorUserSessionsCollection
   ClientIds: ClientIdsCollection
   Collections: CollectionsCollection
   CommentModeratorActions: CommentModeratorActionsCollection
@@ -1721,6 +1735,7 @@ interface ObjectsByCollectionName {
   Bans: DbBan
   Books: DbBook
   Chapters: DbChapter
+  CkEditorUserSessions: DbCkEditorUserSession
   ClientIds: DbClientId
   Collections: DbCollection
   CommentModeratorActions: DbCommentModeratorAction
@@ -1783,6 +1798,7 @@ interface ObjectsByTypeName {
   Ban: DbBan
   Book: DbBook
   Chapter: DbChapter
+  CkEditorUserSession: DbCkEditorUserSession
   ClientId: DbClientId
   Collection: DbCollection
   CommentModeratorAction: DbCommentModeratorAction

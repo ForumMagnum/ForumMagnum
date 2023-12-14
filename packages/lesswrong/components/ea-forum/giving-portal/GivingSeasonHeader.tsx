@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useIsAboveBreakpoint } from "../../hooks/useScreenWidth";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -224,7 +224,7 @@ const GivingSeasonHeader = ({
   unFixed,
   setUnFixed,
   NavigationMenuButton,
-  RightHeaderItems,
+  rightHeaderItems,
   HeaderNavigationDrawer,
   HeaderNotificationsMenu,
   classes,
@@ -234,7 +234,7 @@ const GivingSeasonHeader = ({
   unFixed: boolean
   setUnFixed: (value: boolean) => void,
   NavigationMenuButton: FC,
-  RightHeaderItems: FC,
+  rightHeaderItems: ReactNode,
   HeaderNavigationDrawer: FC,
   HeaderNotificationsMenu: FC,
   classes: ClassesType,
@@ -371,7 +371,7 @@ const GivingSeasonHeader = ({
                   )}
                 </div>
               )}
-              <RightHeaderItems />
+              {rightHeaderItems}
             </Toolbar>
           </header>
           <HeaderNavigationDrawer />

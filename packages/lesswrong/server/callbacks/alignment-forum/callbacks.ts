@@ -15,7 +15,7 @@ export const recalculateAFBaseScore = async (document: VoteableType): Promise<nu
     afPower: {$exists: true},
     cancelled: false,
   }).fetch()
-  return votes ? votes.reduce((sum, vote) => { return vote.afPower ?? 0 + sum}, 0) : 0
+  return votes ? votes.reduce((sum, vote) => { return (vote.afPower ?? 0) + sum }, 0) : 0
 }
 
 async function updateAlignmentKarmaServer (newDocument: DbVoteableType, vote: DbVote): Promise<VoteDocTuple> {

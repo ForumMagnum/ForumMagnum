@@ -2843,6 +2843,12 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideDialogueFacilitation: boolean,
   readonly optedInToDialogueFacilitation: boolean,
   readonly revealChecksToAdmins: boolean,
+  readonly notificationNewDialogueChecks: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly showDialoguesList: boolean,
   readonly showMyDialogues: boolean,
   readonly showMatches: boolean,
@@ -3486,6 +3492,7 @@ interface DialogueMatchPreferencesDefaultFragment { // fragment on DialogueMatch
   readonly formatNotes: string,
   readonly calendlyLink: string | null,
   readonly generatedDialogueId: string | null,
+  readonly deleted: boolean,
 }
 
 interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
@@ -3501,6 +3508,20 @@ interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
   readonly asyncPreference: "Yes" | "Meh" | "No",
   readonly formatNotes: string,
   readonly generatedDialogueId: string | null,
+  readonly deleted: boolean,
+}
+
+interface CkEditorUserSessionsDefaultFragment { // fragment on CkEditorUserSessions
+  readonly documentId: string,
+  readonly userId: string,
+  readonly endedAt: Date,
+}
+
+interface CkEditorUserSessionInfo { // fragment on CkEditorUserSessions
+  readonly _id: string,
+  readonly userId: string,
+  readonly documentId: string,
+  readonly endedAt: Date,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
@@ -3736,6 +3757,8 @@ interface FragmentTypes {
   DialogueCheckInfo: DialogueCheckInfo
   DialogueMatchPreferencesDefaultFragment: DialogueMatchPreferencesDefaultFragment
   DialogueMatchPreferenceInfo: DialogueMatchPreferenceInfo
+  CkEditorUserSessionsDefaultFragment: CkEditorUserSessionsDefaultFragment
+  CkEditorUserSessionInfo: CkEditorUserSessionInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3790,6 +3813,7 @@ interface FragmentTypesByCollection {
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
+  CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
 }
 
 interface CollectionNamesByFragmentName {
@@ -4014,8 +4038,10 @@ interface CollectionNamesByFragmentName {
   DialogueCheckInfo: "DialogueChecks"
   DialogueMatchPreferencesDefaultFragment: "DialogueMatchPreferences"
   DialogueMatchPreferenceInfo: "DialogueMatchPreferences"
+  CkEditorUserSessionsDefaultFragment: "CkEditorUserSessions"
+  CkEditorUserSessionInfo: "CkEditorUserSessions"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 

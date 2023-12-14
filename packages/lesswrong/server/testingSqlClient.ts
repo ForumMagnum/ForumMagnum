@@ -44,32 +44,32 @@ export const preparePgTables = () => {
 }
 
 /**
- * This is part of the nullability PR.
- * We need to keep around the old indexes for use in the ON CONFLICT constraints in the rewritten upsert queries.
- * So we need to ensure those indexes also exist in the test db for cypress tests, until we fix the whole index situation in a follow-up PR.
+ * These are custom indexes we created during the nullability PR for various ON CONFLICT queries.
+ * We need to run them here but with options to ensure they actually get run, because the calls to create them in the codebase don't get run during test setup.
+ * We need a better way to handle `ensureCustomPgIndex` properly for indexes required by tests.
  */
 const ensureMigratedIndexes = async (client: SqlClient) => {
   const options = { overrideCanEnsureIndexes: true, runImmediately: true, client };
   // eslint-disable-next-line no-console
   console.log('Creating custom indexes');
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_DatabaseMetadata_name_old"
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name"
     ON public."DatabaseMetadata" USING btree
-    (COALESCE(name, ''));
+    (name);
   `, options);
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered_old"
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered"
     ON public."DebouncerEvents" USING btree
-    (dispatched, af, COALESCE(key, ''), COALESCE(name, ''))
+    (dispatched, af, key, name)
     WHERE (dispatched IS FALSE);
   `, options);
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_PageCache_path_abTestGroups_bundleHash_old"
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash"
     ON public."PageCache" USING btree
-    (COALESCE(path, ''), "abTestGroups", COALESCE("bundleHash", ''));
+    (path, "abTestGroups", "bundleHash");
   `, options);
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_ReadStatuses_userId_postId_tagId_old"
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId"
     ON public."ReadStatuses" USING btree
     (COALESCE("userId", ''), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
   `, options);
@@ -206,7 +206,7 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
       pg_catalog.pg_get_userbyid(datdba) = CURRENT_USER
   `);
   const secondsPerDay = 1000 * 60 * 60 * 24;
-  olderThan = new Date(olderThan ?? Date.now() - secondsPerDay);
+  olderThan = new Date(olderThan ?? (Date.now() - secondsPerDay));
   for (const database of databases) {
     const {datname} = database;
     if (!datname.match(/^unittest_\d{4}_\d{2}_\d{2}t\d{2}_\d{2}_\d{2}_\d{3}z.*$/)) {

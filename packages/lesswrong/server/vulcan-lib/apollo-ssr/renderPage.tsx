@@ -29,7 +29,7 @@ import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { isLWorAF } from '../../../lib/instanceSettings';
-import { performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
+import { maxRenderQueueSize, performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
 import { closePerfMetric, openPerfMetric } from '../../perfMetrics';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
 
@@ -54,6 +54,19 @@ export type RenderResult = {
   themeOptions: AbstractThemeOptions,
   renderedAt: Date,
   timings: RenderTimings
+}
+
+interface RenderRequestParams {
+  req: Request,
+  user: DbUser|null,
+  startTime: Date,
+  res: Response,
+  clientId: string,
+  userAgent?: string,
+}
+
+interface RenderQueueSlot {
+  callback: () => Promise<void>
 }
 
 export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
@@ -94,7 +107,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     //eslint-disable-next-line no-console
-    const rendered = await renderRequest({
+    const rendered = await queueRenderRequest({
       req, user, startTime, res, clientId, userAgent,
     });
 
@@ -130,7 +143,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     };
   } else {
-    const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => renderRequest({
+    const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => queueRenderRequest({
       req, user: null, startTime, res, clientId, userAgent
     }));
     
@@ -175,6 +188,43 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   }
 };
 
+let inFlightRenderCount = 0;
+const requestQueue: RenderQueueSlot[] = [];
+
+/**
+ * We (maybe) have a problem where too many concurrently rendering requests cause our servers to fall over
+ * To solve this, we introduce a queue for incoming requests, such that we have a maximum number of requests being rendered at the same time
+ * See {@link maybeStartQueuedRequests} for the part that kicks off requests when appropriate
+ */
+function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
+  return new Promise((resolve) => {
+    requestQueue.push({
+      callback: async () => {
+        let result: RenderResult;
+        try {
+          result = await renderRequest(params);
+        } finally {
+          inFlightRenderCount--;
+        }
+        resolve(result);
+        maybeStartQueuedRequests();
+      }
+    });
+
+    maybeStartQueuedRequests();
+  });
+}
+
+function maybeStartQueuedRequests() {
+  while (inFlightRenderCount < maxRenderQueueSize.get() && requestQueue.length > 0) {
+    let requestToStartRendering = requestQueue.shift();
+    if (requestToStartRendering) {
+      inFlightRenderCount++;
+      void requestToStartRendering.callback();
+    }
+  }
+}
+
 function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
   if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
   return false
@@ -216,14 +266,7 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
   return `${prefix}<div id="react-app">${htmlContent}</div>`;
 }
 
-const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: {
-  req: Request,
-  user: DbUser|null,
-  startTime: Date,
-  res: Response,
-  clientId: string,
-  userAgent?: string,
-}): Promise<RenderResult> => {
+const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
   configureSentryScope(requestContext);
   

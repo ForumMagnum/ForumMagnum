@@ -1,7 +1,8 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
 import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueMatchingPage";
-import {calculateVotePower} from "../../lib/voting/voteTypes";
+import { calculateVotePower } from "../../lib/voting/voteTypes";
+import { ActiveDialogueData } from "../../components/hooks/useUnreadNotifications";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -534,10 +535,34 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         MAX(dc."checkedAt") AS "mostRecentCheckedAt"
       FROM public."Users" AS u
       LEFT JOIN public."DialogueChecks" AS dc ON u._id = dc."userId"
-      WHERE u."optedInToDialogueFacilitation" IS TRUE OR dc."userId" IS NOT NULL
+      WHERE dc."userId" IS NOT NULL
       GROUP BY u._id
-      ORDER BY "mostRecentCheckedAt" ASC
+      ORDER BY "mostRecentCheckedAt" DESC
       LIMIT $1;
     `, [limit])
+  }
+
+  async getActiveDialogues(userIds: string[]): Promise<{_id: string, userId: string, title: string, coauthorStatuses:{userId: string, confirmed: string, rejected: string}[], activeUserIds:string[]}[]> {
+    const result = await this.getRawDb().any(`
+    SELECT
+        p._id,
+        p.title,
+        p."userId",
+        p."coauthorStatuses",
+        ARRAY_AGG(DISTINCT s."userId") AS "activeUserIds"
+    FROM "Posts" AS p
+    INNER JOIN public."CkEditorUserSessions" AS s ON p._id = s."documentId",
+        unnest(p."coauthorStatuses") AS coauthors
+    WHERE
+        (
+            coauthors ->> 'userId' = any($1)
+            OR p."userId" = any($1)
+        )
+        AND s."endedAt" IS NULL
+        AND s."createdAt" > CURRENT_TIMESTAMP - INTERVAL '8 hours'
+    GROUP BY p._id
+    `, [userIds]);
+  
+    return result;
   }
 }
