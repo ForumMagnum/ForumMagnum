@@ -28,7 +28,7 @@ import {
 } from './graphqlTemplates';
 import type { GraphQLScalarType, GraphQLSchema } from 'graphql';
 import { pluralize, camelCaseify, camelToSpaces } from '../../../lib/vulcan-lib';
-import { userCanReadField } from '../../../lib/vulcan-users/permissions';
+import { fieldIsGuestReadable, userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
 import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
@@ -256,18 +256,20 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
           });
         }
       } else {
-        addedResolvers.push({
-          [typeName]: {
-            [fieldName]: (document: T, args: any, context: ResolverContext, info: any) => {
-              const { currentUser } = context;
-              // check that current user has permission to access the original non-resolved field
-              const canReadField = userCanReadField(currentUser, field, document);
-              return canReadField
-                ? (document as any)?.[fieldName] as any
-                : null;
+        if (!fieldIsGuestReadable(field)) {
+          addedResolvers.push({
+            [typeName]: {
+              [fieldName]: (document: T, args: any, context: ResolverContext, info: any) => {
+                const { currentUser } = context;
+                // check that current user has permission to access the original non-resolved field
+                const canReadField = userCanReadField(currentUser, field, document);
+                return canReadField
+                  ? (document as any)?.[fieldName] as any
+                  : null;
+              },
             },
-          },
-        });
+          });
+        }
         // try to guess GraphQL type
         if (fieldType) {
           fields.mainType.push({

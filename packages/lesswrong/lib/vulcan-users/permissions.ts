@@ -203,6 +203,28 @@ export const userCanReadField = <T extends DbObject>(user: UsersCurrent|DbUser|n
   return false;
 };
 
+export const fieldIsGuestReadable = (field: CollectionFieldSpecification<T>): boolean => {
+  const canRead = field.canRead;
+  if (!canRead) return false;
+  return fieldPermissionsAllowGuest(canRead);
+}
+
+export const fieldPermissionsAllowGuest = (canRead: FieldPermissions): boolean => {
+  if (typeof canRead === 'string') {
+    return canRead === 'guests';
+  } else if (Array.isArray(canRead) && canRead.length > 0) {
+    // if canRead is an array, we do a recursion on every item and return true if one of the items return true
+    for (const group of canRead) {
+      if (fieldPermissionsAllowGuest(group)) {
+        return true;
+      }
+    }
+    return false;
+  } else {
+    return false;
+  }
+}
+
 const userHasFieldPermissions = <T extends DbObject>(user: UsersCurrent|DbUser|null, canRead: FieldPermissions, document: T): boolean => {
   if (typeof canRead === 'string') {
     // if canRead is just a string, we assume it's the name of a group and pass it to isMemberOf
