@@ -49,6 +49,7 @@ ${queries.map(q =>
 }
 
 `;
+
 const mutationsToGraphQL = (mutations: MutationAndDescription[]): string =>
   mutations.length > 0
     ? `
@@ -219,7 +220,7 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
         });
 
         // then build actual resolver object and pass it to addGraphQLResolvers
-        const resolver = {
+        addedResolvers.push({
           [typeName]: {
             [resolverName]: (document: T, args: any, context: ResolverContext, info: any) => {
               const { currentUser } = context;
@@ -230,8 +231,7 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
                 : null;
             },
           },
-        };
-        addedResolvers.push(resolver);
+        });
 
         // if addOriginalField option is enabled, also add original field to schema
         if (field.resolveAs.addOriginalField && fieldType) {
@@ -242,8 +242,32 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
             type: fieldType,
             directive: fieldDirective,
           });
+          addedResolvers.push({
+            [typeName]: {
+              [fieldName]: (document: T, args: any, context: ResolverContext, info: any) => {
+                const { currentUser } = context;
+                // check that current user has permission to access the original non-resolved field
+                const canReadField = userCanReadField(currentUser, field, document);
+                return canReadField
+                  ? (document as any)?.[fieldName] as any
+                  : null;
+              },
+            },
+          });
         }
       } else {
+        addedResolvers.push({
+          [typeName]: {
+            [fieldName]: (document: T, args: any, context: ResolverContext, info: any) => {
+              const { currentUser } = context;
+              // check that current user has permission to access the original non-resolved field
+              const canReadField = userCanReadField(currentUser, field, document);
+              return canReadField
+                ? (document as any)?.[fieldName] as any
+                : null;
+            },
+          },
+        });
         // try to guess GraphQL type
         if (fieldType) {
           fields.mainType.push({
