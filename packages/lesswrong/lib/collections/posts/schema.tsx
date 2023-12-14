@@ -915,7 +915,16 @@ const schema: SchemaType<DbPost> = {
       if (filteredTagRels?.length) {
         return filteredTagRels[0]
       }
-    }
+    },
+    sqlResolver: ({field, resolverArg, join}) => join({
+      table: "TagRels",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        tagId: resolverArg("tagId"),
+      },
+      resolver: (tagRelField) => tagRelField("*"),
+    }),
   }),
 
   tags: resolverOnlyField({

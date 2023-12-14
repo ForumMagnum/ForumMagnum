@@ -1,7 +1,7 @@
 import { registerCollection } from "../../vulcan-lib/getCollection";
 import Table from "../Table";
 import Query from "../Query";
-import { foreignKeyField } from "../../utils/schemaUtils";
+import { foreignKeyField, resolverOnlyField } from "../../utils/schemaUtils";
 import { registerFragment } from "../../vulcan-lib";
 
 export type DbTestObject = {
@@ -80,6 +80,13 @@ export const TestCollection2 = {
   },
 } as unknown as CollectionBase<DbTestObject2>;
 
+registerFragment(`
+  fragment TestCollection2DefaultFragment on TestCollection2 {
+    _id
+    data
+  }
+`);
+
 export const testTable2 = Table.fromCollection(TestCollection2);
 (TestCollection2 as any).table = testTable2;
 registerCollection(TestCollection2);
@@ -142,6 +149,20 @@ export const TestCollection4 = {
         nullable: true,
       }),
     },
+    testCollection2: resolverOnlyField({
+      type: "TestCollection2",
+      graphQLtype: "TestCollection2",
+      graphqlArguments: "testCollection2Id: String",
+      resolver: async () => null,
+      sqlResolver: ({resolverArg, join}) => join({
+        table: "TestCollection2",
+        type: "left",
+        on: {
+          _id: resolverArg("testCollection2Id"),
+        },
+        resolver: (testCollection2Field) => testCollection2Field("*"),
+      }),
+    }),
     schemaVersion: {
       type: Number,
     },
@@ -158,6 +179,15 @@ registerFragment(`
     testCollection3Id
     testCollection3 {
       ...TestCollection3DefaultFragment
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TestCollection4ArgFragment on TestCollection4 {
+    _id
+    testCollection2(testCollection2Id: $testCollection2Id) {
+      ...TestCollection2DefaultFragment
     }
   }
 `);

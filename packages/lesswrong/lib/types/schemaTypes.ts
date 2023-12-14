@@ -44,6 +44,7 @@ type SqlResolverArgs = {
   currentUserField: SqlFieldFunction,
   join: (args: SqlResolverJoin) => string,
   arg: (value: unknown) => string,
+  resolverArg: (name: string) => string,
 }
 
 type SqlResolver = (args: SqlResolverArgs) => string;

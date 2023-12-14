@@ -161,12 +161,18 @@ class ProjectionContext<T extends DbObject = DbObject> {
     this.codeResolvers[name] = resolver;
   }
 
+  getResolverArg(name: string): string {
+    const index = this.resolverArgIndexes[name];
+    return index ? `$${index}` : "NULL";
+  }
+
   getSqlResolverArgs(): SqlResolverArgs {
     return {
       field: this.field.bind(this),
       currentUserField: this.currentUserField.bind(this),
       join: this.addJoin.bind(this),
       arg: this.addArg.bind(this),
+      resolverArg: this.getResolverArg.bind(this),
     };
   }
 
