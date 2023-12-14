@@ -156,13 +156,14 @@ async function handleCkEditorWebhook(message: any) {
     case "collaboration.user.connected": {
       const userConnectedPayload = payload as CkEditorUserConnectionChange;
       const userId = userConnectedPayload?.user?.id;
-      const documentId = userConnectedPayload?.document?.id;
+      const ckEditorDocumentId = userConnectedPayload?.document?.id;
+      const documentId = ckEditorDocumentId.replace(/-edit$/, '')
       if (!!userId && !!documentId) {
         await createMutator({
           collection: CkEditorUserSessions,
           document: {
             userId,
-            documentId
+            documentId,
           },
         })
       }

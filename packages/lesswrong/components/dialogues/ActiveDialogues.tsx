@@ -5,32 +5,35 @@ import { ActiveDialogue, useOnNotificationsChanged } from '../hooks/useUnreadNot
 import { useCurrentUser } from '../common/withUser';
 import { postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import {truncate} from '../../lib/editor/ellipsize';
+import { truncate } from '../../lib/editor/ellipsize';
+import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    position: 'absolute',
-    top: "50%",
-    left: "50%",
-    transform: 'translate(-50%, -50%)',
+    marginLeft: "1%",
+    display: "flex",
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     }
   },
   activeDot: {
-    height: 10,
-    width: 10,
-    backgroundColor: theme.palette.lwTertiary.main,
+    height: 8,
+    width: 8,
+    backgroundColor: theme.palette.secondary.light,
     borderRadius: '50%',
     display: 'inline-block',
-    boxShadow: `0 0 10px ${theme.palette.lwTertiary.main}, 0 0 20px ${theme.palette.lwTertiary.main}, 0 0 30px ${theme.palette.lwTertiary.main}, 0 0 40px ${theme.palette.lwTertiary.main}`,
-    marginRight: 15,
+    boxShadow: `0 0 5px ${theme.palette.secondary.light}, 0 0 8px ${theme.palette.secondary.light}, 0 0 11px ${theme.palette.secondary.light}`,
+    marginRight: 11,
+    marginLeft: 15
   },
   activeAuthorNames: {
-      
+    color: theme.palette.header.text,
+    fontSize: 16
   },
   activeDialogueTitle: {
-
+    marginLeft: 5,
+    color: theme.palette.text.dim3,
+    fontSize: 16,
   },
   activeDialogueContainer: {
     display: "flex",
@@ -39,8 +42,11 @@ const styles = (theme: ThemeType) => ({
   },
   dialogueDetailsContainer: {
     display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   }
 });
 
@@ -48,16 +54,18 @@ const styles = (theme: ThemeType) => ({
 export const ActiveDialogues = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PostsTooltip, PostsItem2MetaInfo } = Components
+  const { PostsTooltip, Typography } = Components
 
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const [activeDialogues, setActiveDialogues] = useState<ActiveDialogue[]>([]);
 
   const currentUser = useCurrentUser();
+  const location = useLocation();
 
   useOnNotificationsChanged(currentUser, (message) => {
-    if (message.eventType === 'activeDialoguePartners') {  
-      setActiveDialogues(message.data);
+    if (message.eventType === 'activeDialoguePartners' && currentUser?._id) {  
+      const otherActiveDialogues = message.data.filter((dialogue) => !location.pathname.includes(dialogue.postId) && !(location.query.postId === dialogue.postId)) // don't show a dialogue as active on its own page
+      setActiveDialogues(otherActiveDialogues);
     }
   });
 
@@ -65,19 +73,24 @@ export const ActiveDialogues = ({classes}: {
 
   return (
     <div className={classes.root}>
-      {activeDialogues.map((dialogue) => {
-        return (
-          <div className={classes.activeDialogueContainer} key={dialogue.postId}>
-             <div className={classes.activeDot}></div>
-             <div className={classes.dialogueDetailsContainer}> 
-              <PostsItem2MetaInfo className={classes.activeAuthorNames}> {dialogue.displayNames} </PostsItem2MetaInfo> 
-              <div className={classes.activeDialogueTitle}> 
-                <PostsTooltip postId={dialogue.postId}><Link to={postGetEditUrl(dialogue.postId)}> {truncate(dialogue.title, 30)} </Link></PostsTooltip> 
-              </div>
-             </div>
+      {activeDialogues.map((dialogue) => (
+        <div className={classes.activeDialogueContainer} key={dialogue.postId}>
+          <div className={classes.activeDot}>
           </div>
-        );
-      })}
+          <PostsTooltip postId={dialogue.postId}>
+            <Link to={postGetEditUrl(dialogue.postId)}> 
+              <div className={classes.dialogueDetailsContainer}> 
+                <Typography variant='body2' className={classes.activeAuthorNames}> 
+                  {dialogue.displayNames.join(', ')} 
+                </Typography> 
+                <Typography variant='body2' className={classes.activeDialogueTitle}> 
+                  {truncate(dialogue.title, 30)} 
+                </Typography> 
+              </div>
+            </Link>
+          </PostsTooltip> 
+        </div>
+      ))}
     </div>
   );
 }

@@ -27,6 +27,10 @@ export type ActiveDialogue = {
   title: string,
 }
 
+export type ActiveDialogueData = {
+  [userId: string]: ActiveDialogue[];
+};
+
 export type ActiveDialoguePartnersMessage = {
   eventType: 'activeDialoguePartners',
   data: ActiveDialogue[]

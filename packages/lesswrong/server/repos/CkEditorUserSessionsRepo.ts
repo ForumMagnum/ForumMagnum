@@ -16,7 +16,7 @@ export default class CkEditorUserSessionsRepo extends AbstractRepo<DbCkEditorUse
       c."createdAt",
       c."endedAt"
     FROM "CkEditorUserSessions" AS c
-    INNER JOIN public."Posts" AS p ON POSITION(p._id IN c."documentId") > 0 -- TODO deal with these strings
+    INNER JOIN public."Posts" AS p ON p._id = c."documentId"
     WHERE
       (c."createdAt" > $1 AND c."endedAt" IS NULL)
       AND p."collabEditorDialogue" IS TRUE

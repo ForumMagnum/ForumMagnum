@@ -8,10 +8,7 @@ import moment from 'moment';
 import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
 import {ServerSentEventsMessage, TypingIndicatorMessage} from '../components/hooks/useUnreadNotifications';
 import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
-import CkEditorUserSessions from '../lib/collections/ckEditorUserSessions/collection';
-import Users from '../lib/collections/users/collection';
-import { PostsRepo } from './repos';
-import Posts from '../lib/collections/posts/collection';
+import UsersRepo from './repos/UsersRepo';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -80,7 +77,7 @@ export function addServerSentEventsEndpoint(app: Express) {
   
   setInterval(checkForNotifications, 1000);
   setInterval(checkForTypingIndicators, 1000);
-  setInterval(checkForActiveDialoguePartners, 5000);
+  setInterval(checkForActiveDialoguePartners, 1000);
 }
 
 let lastNotificationCheck = new Date();
@@ -216,67 +213,19 @@ async function checkForActiveDialoguePartners() {
     return;
   }
 
-  for (let userId of Object.keys(openConnections)) {
-    const userDialogues = await Posts.find({
-      $or: [{ userId }, { 'coauthorStatuses.userId': userId }],
-      deletedDraft: false,
-      collabEditorDialogue: true
-    }).fetch();
-    const userDialoguesCkEditorIds = userDialogues.map(d => d._id+"-edit");
+  // Get all user IDs from open connections
+  const userIds = Object.keys(openConnections);
 
-    const dialoguesData = [];
+  // Fetch active dialogues data for all users in one SQL query
+  const allUsersDialoguesData = await new UsersRepo().getActiveDialogueData(userIds);
 
-    // Find the farthest-ago newestNotificationTimestamp across all the user's connections
-    const earliestTimestamp = openConnections[userId].reduce((earliest, connection) => {
-      return connection.newestNotificationTimestamp && connection.newestNotificationTimestamp < earliest
-        ? connection.newestNotificationTimestamp
-        : earliest;
-    }, new Date());
+  for (let userId of userIds) {
+    const userDialoguesData = allUsersDialoguesData[userId];
 
-    let toSendNewMessage = null;
-
-    if (openConnections[userId].some(connection => connection.newestNotificationTimestamp === null)) {
-      toSendNewMessage = true;
-    } else {
-      toSendNewMessage = await CkEditorUserSessions.findOne({
-        documentId: { $in: userDialoguesCkEditorIds },
-        $or: [
-          { createdAt: { $gt: earliestTimestamp } },
-          { endedAt: { $gt: earliestTimestamp } }
-        ]
-      });
-    }
-
-    if (toSendNewMessage) {
-
-      for (let dialogue of userDialogues) {
-
-        const activeUserSessions = await CkEditorUserSessions.find({
-          documentId: dialogue._id+"-edit",
-          endedAt: { $exists: false }
-        }).fetch();
-
-        if (activeUserSessions.length > 0) {
-          const activeUserIds = activeUserSessions.map(s => s.userId).filter(id => id !== userId);
-          const activeUserDisplayNames = await Promise.all(
-            activeUserIds.map(async (id) => {
-              const user = await Users.findOne({ _id: id });
-              return user ? user.displayName : null;
-            })
-          );
-
-          dialoguesData.push({
-            userIds: activeUserIds,
-            displayNames: activeUserDisplayNames,
-            postId: dialogue._id,
-            title: dialogue.title,
-          }); 
-        } 
-      }
-
+    if (!!userDialoguesData && userDialoguesData.length > 0) {
       const message = {
         eventType: "activeDialoguePartners",
-        data: dialoguesData
+        data: userDialoguesData
       };
 
       const messageString = `data: ${JSON.stringify(message)}\n\n`;

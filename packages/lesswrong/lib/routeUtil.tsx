@@ -17,7 +17,7 @@ import { ForumOptions, forumSelect } from './forumTypeUtils';
 //     The react-router location. Inconsistent between client and SSR.
 //   pathname
 //     All of the URL after the domain. ie if the URL is
-//     "http://lesswrong.com/foo?x=1&y=abc" then pathname is "/foo?x=1&y=abc".
+//     "http://lesswrong.com/foo?x=1&y=abc" then pathname is "/foo?x=1&y=abc". <-- this documentatino might be false! pathname does not return this, and oli says it shouldn't
 //   hash
 //     The within-page location part of a URL. Ie if the URL is
 //     "http://lesswrong.com/foo#abc", the hash is "#abc".

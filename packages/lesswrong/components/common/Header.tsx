@@ -69,6 +69,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     top: 3,
     paddingRight: theme.spacing.unit,
     color: theme.palette.text.secondary,
+    maxWidth: 130,
   },
   titleLink: {
     color: theme.palette.header.text,
@@ -120,6 +121,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
+    marginLeft: "auto",
     display: "flex",
     alignItems: isFriendlyUI ? 'center' : undefined,
   },

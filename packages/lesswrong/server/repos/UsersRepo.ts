@@ -1,7 +1,8 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
 import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueMatchingPage";
-import {calculateVotePower} from "../../lib/voting/voteTypes";
+import { calculateVotePower } from "../../lib/voting/voteTypes";
+import { ActiveDialogueData } from "../../components/hooks/useUnreadNotifications";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -539,5 +540,72 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       ORDER BY "mostRecentCheckedAt" DESC
       LIMIT $1;
     `, [limit])
+  }
+
+  async getActiveDialogueData(userIds: string[]): Promise<ActiveDialogueData> {
+    const result = await this.getRawDb().any(`
+      WITH "InputUserIds" AS (
+        SELECT UNNEST($1) AS "userId"
+      ),
+      
+      "activeDialogues" AS (
+          SELECT
+              p._id AS "postId",
+              p.title AS title,
+              ARRAY[p."userId"] || ARRAY(
+                  SELECT (ca ->> 'userId')::text
+                  FROM UNNEST(p."coauthorStatuses") AS ca
+              ) AS "coauthorUserIds",
+              ARRAY_AGG(s."userId") FILTER (
+                  WHERE s."userId" IS NOT NULL
+              ) AS "activeUserIds",
+              ARRAY_AGG(u."displayName") FILTER (
+                  WHERE u."displayName" IS NOT NULL
+              ) AS "activeDisplayNames"
+          FROM public."Posts" AS p
+          INNER JOIN public."CkEditorUserSessions" AS s ON p._id = s."documentId"
+          INNER JOIN public."Users" AS u ON s."userId" = u._id
+          WHERE
+              (
+                  p."userId" IN (SELECT "userId" FROM "InputUserIds")
+                  OR EXISTS (
+                      SELECT 1
+                      FROM UNNEST(p."coauthorStatuses") AS ca
+                      WHERE
+                          (ca ->> 'userId')::text IN (
+                              SELECT "userId" FROM "InputUserIds"
+                          )
+                  )
+              )
+              AND p."collabEditorDialogue" IS TRUE
+              AND p."deletedDraft" IS FALSE
+              AND s."endedAt" IS NULL
+          GROUP BY p._id
+      )
+      
+      SELECT
+          i."userId",
+          COALESCE(
+              ARRAY_AGG(
+                  JSON_BUILD_OBJECT(
+                      'postId', ud."postId",
+                      'title', ud.title,
+                      'userIds', ud."activeUserIds",
+                      'displayNames', ud."activeDisplayNames"
+                  )
+              ) FILTER (WHERE ud."postId" IS NOT NULL),
+              ARRAY[]::json []
+          ) AS "dialoguesData"
+      FROM "InputUserIds" AS i
+      LEFT JOIN "activeDialogues" AS ud ON i."userId" = ANY(ud."coauthorUserIds")
+      GROUP BY i."userId"
+    `, [userIds]);
+  
+    // Convert the result to a dictionary
+    const dialoguesData: ActiveDialogueData = {};
+    for (let row of result) {
+      dialoguesData[row.userId] = row.dialoguesData;
+    }
+    return dialoguesData;
   }
 }
