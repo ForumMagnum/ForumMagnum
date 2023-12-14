@@ -18,26 +18,26 @@ const testWebHookLocally = async () => {
   // eslint-disable-next-line no-console
   console.log("Running local CK Editor webhook test... ")
   const syntheticData = [
-    // {
-    //   "environment_id": "rQvD3VnunXZu34m86e5f",
-    //   "event": "collaboration.user.disconnected",
-    //   "payload": {
-    //     "user": { "id": "PvfS86fQfr2Zx8Lsj" },
-    //     "document": { "id": "i5THpCMGhEGfSi2p9-edit" },
-    //     "connected_users": []
-    //   },
-    //   "sent_at": "2023-12-12T22:00:33.357Z"
-    // },
     {
       "environment_id": "rQvD3VnunXZu34m86e5f",
-      "event": "collaboration.user.connected",
+      "event": "collaboration.user.disconnected",
       "payload": {
         "user": { "id": "gXeEWGjTWyqgrQTzR" },
         "document": { "id": "D5mCL6dTSGnNedy4d-edit" },
-        "connected_users": [{ "id": "gXeEWGjTWyqgrQTzR" }]
+        "connected_users": []
       },
-      "sent_at": "2023-12-11T22:00:33.357Z"
+      "sent_at": "2023-12-12T22:00:33.357Z"
     },
+    // {
+    //   "environment_id": "rQvD3VnunXZu34m86e5f",
+    //   "event": "collaboration.user.connected",
+    //   "payload": {
+    //     "user": { "id": "gXeEWGjTWyqgrQTzR" },
+    //     "document": { "id": "D5mCL6dTSGnNedy4d-edit" },
+    //     "connected_users": [{ "id": "gXeEWGjTWyqgrQTzR" }]
+    //   },
+    //   "sent_at": "2023-12-11T22:00:33.357Z"
+    // },
     // {
     //   "environment_id": "rQvD3VnunXZu34m86e5f",
     //   "event": "collaboration.user.connected",
@@ -181,14 +181,18 @@ async function handleCkEditorWebhook(message: any) {
       if (ckEditorUserSessionsEnabled) {
         const userDisconnectedPayload = payload as CkEditorUserConnectionChange;
         const userId = userDisconnectedPayload?.user?.id;
-        const documentId = userDisconnectedPayload?.document?.id;
-        if (userId && documentId) {
+        const ckEditorDocumentId = userDisconnectedPayload?.document?.id;
+        if (!!userId && !!ckEditorDocumentId) {
+          const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
           const userSession = await CkEditorUserSessions.findOne({userId, documentId, endedAt: {$exists: false}}, {sort:{createdAt: -1}});
+          const adminContext = await createAdminContext()
           if (userSession) {
             await updateMutator({
               collection: CkEditorUserSessions,
               documentId: userSession._id, 
               set: { endedAt: new Date(sent_at) },
+              context: adminContext,
+              currentUser: adminContext.currentUser,
             });
           }
         }
