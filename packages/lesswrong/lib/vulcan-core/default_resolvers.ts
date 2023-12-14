@@ -2,13 +2,11 @@ import { Utils, getTypeName, getCollection } from '../vulcan-lib';
 import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
-import { describeTerms, viewTermsToQuery } from '../utils/viewUtils';
+import { viewTermsToQuery } from '../utils/viewUtils';
 import type { FieldNode, GraphQLResolveInfo } from 'graphql';
 import { FragmentSpreadNode } from 'graphql';
 import SelectFragmentQuery from '../sql/SelectFragmentQuery';
 import { getSqlClientOrThrow } from '../sql/sqlClient';
-
-const maxAllowedSkip = 2000;
 
 interface DefaultResolverOptions {
   cacheMaxAge: number
@@ -18,13 +16,16 @@ const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
 };
 
-const getFragmentNameFromInfo = ({fieldName, fieldNodes}: GraphQLResolveInfo) => {
+const getFragmentNameFromInfo = (
+  {fieldName, fieldNodes}: GraphQLResolveInfo,
+  resultFieldName: string,
+) => {
   const query = fieldNodes.find(
     ({name: {value}}) => value === fieldName,
   );
   const mainSelections = query?.selectionSet?.selections;
   const results = mainSelections?.find(
-    (node) => node.kind === "Field" && node.name.value === "results",
+    (node) => node.kind === "Field" && node.name.value === resultFieldName,
   ) as FieldNode | undefined;
   const resultSelections = results?.selectionSet?.selections;
   const fragmentSpread = resultSelections?.find(
@@ -39,7 +40,10 @@ const getFragmentNameFromInfo = ({fieldName, fieldNodes}: GraphQLResolveInfo) =>
 
 // Default resolvers. Provides `single` and `multi` resolvers, which power the
 // useSingle and useMulti hooks.
-export function getDefaultResolvers<N extends CollectionNameString>(collectionName: N, options?: Partial<DefaultResolverOptions>) {
+export function getDefaultResolvers<N extends CollectionNameString>(
+  collectionName: N,
+  options?: Partial<DefaultResolverOptions>,
+) {
   type T = ObjectsByCollectionName[N]
   const typeName = getTypeName(collectionName);
   const resolverOptions = {...defaultOptions, options};
@@ -52,11 +56,16 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
 
       async resolver(
         root: void,
-        args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>} },
+        args: {input: {
+          terms: ViewTermsBase,
+          enableCache?: boolean,
+          enableTotal?: boolean,
+          createIfMissing?: Partial<T>,
+        }},
         context: ResolverContext,
         info: GraphQLResolveInfo,
       ) {
-        const startResolve = Date.now()
+        // const startResolve = Date.now()
         const input = args?.input || {};
         const { terms={}, enableCache = false, enableTotal = false } = input;
         const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
@@ -76,7 +85,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         const collection = getCollection(collectionName);
 
         // get fragment from GraphQL AST
-        const fragmentName = getFragmentNameFromInfo(info);
+        const fragmentName = getFragmentNameFromInfo(info, "results");
 
         // Get selector and options from terms and perform Mongo query
         // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
@@ -126,7 +135,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
           }
         }
   
-        const timeElapsed = Date.now() - startResolve;
+        // const timeElapsed = Date.now() - startResolve;
         // Temporarily disabled to investigate performance issues
         // captureEvent("resolveMultiCompleted", {documentIds: restrictedDocs.map((d: DbObject) => d._id), collectionName, timeElapsed, terms}, true);
         // return results
@@ -139,8 +148,13 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     single: {
       description: `A single ${typeName} document fetched by ID or slug`,
 
-      async resolver(root: void, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }: AnyBecauseTodo) {
-        const startResolve = Date.now();
+      async resolver(
+        _root: void,
+        {input = {}}: {input: AnyBecauseTodo},
+        context: ResolverContext,
+        info: GraphQLResolveInfo,
+      ) {
+        // const startResolve = Date.now();
         const { enableCache = false, allowNull = false } = input;
         // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
         // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
@@ -157,6 +171,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         logger(`Options: ${JSON.stringify(resolverOptions)}`);
         logger(`Selector: ${JSON.stringify(selector)}`);
 
+        const {cacheControl} = info;
         if (cacheControl && enableCache) {
           const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
           cacheControl.setCacheHint({ maxAge });
@@ -165,11 +180,27 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         const { currentUser }: {currentUser: DbUser|null} = context;
         const collection = getCollection(collectionName);
 
+        // get fragment from GraphQL AST
+        const fragmentName = getFragmentNameFromInfo(info, "result");
+
         // use Dataloader if doc is selected by documentId/_id
         const documentId = selector.documentId || selector._id;
-        const doc = documentId
-          ? await context.loaders[collectionName].load(documentId)
-          : await Utils.Connectors.get(collection, selector);
+
+        let doc: T | null;
+        if (documentId) {
+          doc = await context.loaders[collectionName].load(documentId);
+        } else {
+          const query = new SelectFragmentQuery(
+            fragmentName as FragmentName,
+            currentUser,
+            {}, // TODO: Should there be some args here?
+            selector,
+            {limit: 1},
+          );
+          const compiledQuery = query.compile();
+          const db = getSqlClientOrThrow();
+          doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
+        }
 
         if (!doc) {
           if (allowNull) {
@@ -207,7 +238,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
         logger('');
         
-        const timeElapsed = Date.now() - startResolve;
+        // const timeElapsed = Date.now() - startResolve;
         // Temporarily disabled to investigate performance issues
         // captureEvent("resolveSingleCompleted", {documentId: restrictedDoc._id, collectionName, timeElapsed}, true);
         
@@ -216,54 +247,4 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
       },
     },
   };
-}
-
-const performQueryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
-  const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
-  const selector = parameters.selector;
-  
-  // Don't allow API requests with an offset provided >2000. This prevents some
-  // extremely-slow queries.
-  if (terms.offset && (terms.offset > maxAllowedSkip)) {
-    throw new Error("Exceeded maximum value for skip");
-  }
-  
-  const description = describeTerms(collection.collectionName, terms);
-  const options: MongoFindOptions<T> = {
-    ...parameters.options,
-    skip: terms.offset,
-    comment: description
-  };
-  if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
-    const pipeline = [
-      // First stage: Filter by selector
-      { $match: {
-        ...selector,
-        $comment: description,
-      }},
-      // Second stage: Add computed fields
-      { $addFields: parameters.syntheticFields },
-      
-      // Third stage: Filter by computed fields (if applicable)
-      ...(parameters.syntheticFieldSelector || []),
-      
-      // Fourth stage: Sort
-      { $sort: parameters.options.sort },
-    ];
-    
-    // Apply skip and limit (if applicable)
-    if (parameters.options.skip) {
-      pipeline.push({ $skip: parameters.options.skip });
-    }
-    if (parameters.options.limit) {
-      pipeline.push({ $limit: parameters.options.limit });
-    }
-    logger('aggregation pipeline', pipeline);
-    return await collection.aggregate(pipeline).toArray();
-  } else {
-    logger('performQueryFromViewParameters connector find', selector, terms, options);
-    return await collection.find({
-      ...selector,
-    }, options).fetch();
-  }
 }
