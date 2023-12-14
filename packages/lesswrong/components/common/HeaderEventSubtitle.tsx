@@ -8,6 +8,7 @@ import { useLocation } from "../../lib/routeUtil";
 import { useCurrentUser } from "./withUser";
 import { useElectionVote } from "../ea-forum/voting-portal/hooks";
 import { useIsGivingSeason } from "../ea-forum/giving-portal/hooks";
+import { isPastVotingDeadline } from "../../lib/collections/electionVotes/helpers";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -46,7 +47,8 @@ const useCurrentEvent = (): CurrentEvent | null => {
   const currentUser = useCurrentUser();
   // We only advertise voting for users who are eligible -
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
-  const advertiseVoting = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
+  const advertiseVoting =
+    currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt && !isPastVotingDeadline();
   // home page has its own unique header for giving season
   if (!spotlight && isGivingSeason && pathname !== '/') {
     return {

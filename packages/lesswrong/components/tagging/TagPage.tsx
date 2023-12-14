@@ -24,7 +24,8 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 export const tagPageHeaderStyles = (theme: ThemeType) => ({
   postListMeta: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "baseline",
+    marginBottom: 8,
   },
   relevance: {
     fontFamily: theme.palette.fonts.sansSerifStack,
