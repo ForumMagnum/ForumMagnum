@@ -11,7 +11,7 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { PublicInstanceSetting } from '../../lib/instanceSettings';
+import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasProminentLogoSetting } from '../../lib/publicSettings';
@@ -69,7 +69,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     top: 3,
     paddingRight: theme.spacing.unit,
     color: theme.palette.text.secondary,
-    maxWidth: 130,
+  //  maxWidth: 130,
   },
   titleLink: {
     color: theme.palette.header.text,
@@ -395,7 +395,7 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
-              <ActiveDialogues />
+              {!isEAForum &&<ActiveDialogues />}
               {rightHeaderItemsNode}
             </Toolbar>
           </header>
