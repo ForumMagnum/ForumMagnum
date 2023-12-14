@@ -24,7 +24,7 @@ describe("SelectFragmentQuery", () => {
         FROM "TestCollection4" "t"
         LEFT JOIN "Users" "currentUser" ON "currentUser"."_id" = $1
         LEFT JOIN "TestCollection3" "q" ON "q"."_id" = "t"."testCollection3Id"
-        WHERE "_id" =  $2
+        WHERE "t"."_id" =  $2
       `,
       expectedArgs: ["test-user-id", "test-document-id"],
     },
@@ -48,7 +48,7 @@ describe("SelectFragmentQuery", () => {
         FROM "TestCollection4" "t"
         LEFT JOIN "Users" "currentUser" ON "currentUser"."_id" = $1
         LEFT JOIN "TestCollection2" "q" ON "q"."_id" = $2
-        WHERE "_id" =  $3
+        WHERE "t"."_id" =  $3
       `,
       expectedArgs: ["test-user-id", "some-test-id", "test-document-id"],
     },

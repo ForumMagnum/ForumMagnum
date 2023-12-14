@@ -20,7 +20,10 @@ class SelectFragmentQuery<T extends DbObject> extends SelectQuery<T> {
       prefixGenerator,
     );
     const table = projection.getCollection().table;
-    super(table, selector, options, {deferInit: true});
+    super(table, selector, options, {
+      deferInit: true,
+      primaryPrefix: projection.getPrimaryPrefix(),
+    });
     const {sql, args} = projection.compileQuery();
     this.atoms.push(sql);
     this.projectionArgs = args;

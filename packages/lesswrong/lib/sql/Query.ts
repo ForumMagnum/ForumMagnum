@@ -114,6 +114,7 @@ abstract class Query<T extends DbObject> {
   protected constructor(
     protected table: Table<T> | Query<T>,
     protected atoms: Atom<T>[] = [],
+    protected primaryPrefix: string | null = null,
   ) {}
 
   /**
@@ -265,6 +266,8 @@ abstract class Query<T extends DbObject> {
       throw new Error("`.$` array fields not implemented");
     }
 
+    const prefix = this.primaryPrefix ? `"${this.primaryPrefix}".` : "";
+
     const jsonIndex = field.indexOf(".");
     if (jsonIndex > -1) {
       const [first, ...rest] = field.split(".");
@@ -273,7 +276,7 @@ abstract class Query<T extends DbObject> {
         throw new NonScalarArrayAccessError(first, rest);
       } else if (fieldType) {
         const hint = this.getTypeHint(typeHint);
-        const result = `("${first}"` +
+        const result = `(${prefix}"${first}"` +
           rest.map((element) => element.match(/^\d+$/) ? `[${element}]` : `->'${element}'`).join("") +
           `)${hint}`;
         return hint === "::TEXT"
@@ -283,7 +286,7 @@ abstract class Query<T extends DbObject> {
     }
 
     if (this.getField(field) || this.syntheticFields[field]) {
-      return `"${field}"`;
+      return `${prefix}"${field}"`;
     }
 
     throw new Error(`Cannot resolve field name: ${field}`);

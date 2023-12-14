@@ -90,6 +90,10 @@ class ProjectionContext<T extends DbObject = DbObject> {
     return this.args;
   }
 
+  getPrimaryPrefix() {
+    return this.primaryPrefix;
+  }
+
   getCodeResolvers() {
     return this.codeResolvers;
   }

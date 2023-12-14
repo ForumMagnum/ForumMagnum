@@ -75,6 +75,10 @@ export type SelectSqlOptions = Partial<{
    * Don't initialize the query in the constructor
    */
   deferInit: boolean,
+  /**
+   * Table prefix for the primary table
+   */
+  primaryPrefix?: string,
 }>
 
 /**
@@ -115,7 +119,8 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     sqlOptions?: SelectSqlOptions,
   ) {
     const deferInit = sqlOptions?.deferInit ?? false;
-    super(table, deferInit ? [] : ["SELECT"]);
+    const primaryPrefix = sqlOptions?.primaryPrefix ?? null;
+    super(table, deferInit ? [] : ["SELECT"], primaryPrefix);
 
     if (options?.collation) {
       const collation = getCollationType(options.collation);
