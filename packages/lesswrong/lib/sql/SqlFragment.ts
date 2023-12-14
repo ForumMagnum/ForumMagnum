@@ -220,6 +220,7 @@ class SqlFragment {
 
   buildProjection<T extends DbObject = DbObject>(
     currentUser: DbUser | UsersCurrent | null,
+    resolverArgs?: Record<string, unknown> | null,
     prefixGenerator?: PrefixGenerator,
   ): ProjectionContext<T> {
     const baseTypeName = this.getBaseTypeName();
@@ -229,6 +230,7 @@ class SqlFragment {
     }
     const context = new ProjectionContext(collection, undefined, prefixGenerator);
     context.setCurrentUser(currentUser);
+    context.addResolverArgs(resolverArgs ?? {});
     this.compileProjection(context);
     return context;
   }

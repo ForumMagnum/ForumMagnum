@@ -13,6 +13,7 @@ interface CodeResolverMap extends Record<string, CodeResolver | CodeResolverMap>
 export type PrefixGenerator = () => string;
 
 class ProjectionContext<T extends DbObject = DbObject> {
+  private resolverArgIndexes: Record<string, number> = {};
   private resolvers: Record<string, CustomResolver> = {};
   private projections: string[] = [];
   private joins: SqlJoinSpec[] = [];
@@ -120,6 +121,18 @@ class ProjectionContext<T extends DbObject = DbObject> {
     });
   }
 
+  addResolverArgs(resolverArgs: Record<string, unknown>) {
+    const keys = Object.keys(resolverArgs);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      if (this.resolverArgIndexes[key] !== undefined) {
+        throw new Error(`Duplicate resolver arg: "${key}"`);
+      }
+      const value = resolverArgs[key];
+      this.resolverArgIndexes[key] = this.addArgInternal(value);
+    }
+  }
+
   addProjection(name: string, expression?: string) {
     if (expression) {
       const normalizedExpression = expression.trim().replace(/\s+/g, " ");
@@ -135,9 +148,13 @@ class ProjectionContext<T extends DbObject = DbObject> {
     return resolver(subField);
   }
 
-  addArg(value: unknown) {
+  private addArgInternal(value: unknown) {
     this.args.push(value);
-    return `$${this.args.length + this.argOffset}`;
+    return this.args.length + this.argOffset;
+  }
+
+  addArg(value: unknown) {
+    return `$${this.addArgInternal(value)}`;
   }
 
   addCodeResolver(name: string, resolver: CodeResolver) {

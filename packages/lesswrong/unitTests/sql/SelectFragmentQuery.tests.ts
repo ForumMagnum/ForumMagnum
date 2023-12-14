@@ -8,6 +8,7 @@ describe("SelectFragmentQuery", () => {
       getQuery: () => new SelectFragmentQuery(
         "TestCollection4DefaultFragment" as FragmentName,
         {_id: "test-user-id"} as DbUser,
+        null,
         {_id: "test-document-id"},
         {},
         () => "q",
