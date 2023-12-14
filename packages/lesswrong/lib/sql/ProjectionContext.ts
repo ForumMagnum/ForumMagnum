@@ -51,8 +51,11 @@ class ProjectionContext<T extends DbObject = DbObject> {
   aggregate(subcontext: ProjectionContext, name: string) {
     const test = `"${subcontext.primaryPrefix}"."_id"`;
     const obj = `JSONB_BUILD_OBJECT( ${subcontext.projections.join(", ")} )`;
-    const proj = `CASE WHEN ${test} IS NULL THEN NULL ELSE ${obj} END "${name}"`;
-    this.projections.push(proj);
+    const proj = `CASE WHEN ${test} IS NULL THEN NULL ELSE ${obj} END`;
+    const namedProj = this.isAggregate
+      ? `'${name}', ${proj}`
+      : `${proj} "${name}"`;
+    this.projections.push(namedProj);
     this.joins = this.joins.concat(subcontext.joins);
     this.args = this.args.concat(subcontext.args);
     if (Object.keys(subcontext.codeResolvers).length) {
