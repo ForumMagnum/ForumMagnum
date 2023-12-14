@@ -542,70 +542,25 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `, [limit])
   }
 
-  async getActiveDialogueData(userIds: string[]): Promise<ActiveDialogueData> {
+  async getActiveDialogues(userIds: string[]): Promise<any[]> {
     const result = await this.getRawDb().any(`
-      WITH "InputUserIds" AS (
-        SELECT UNNEST($1) AS "userId"
-      ),
-      
-      "activeDialogues" AS (
-          SELECT
-              p._id AS "postId",
-              p.title AS title,
-              ARRAY[p."userId"] || ARRAY(
-                  SELECT (ca ->> 'userId')::text
-                  FROM UNNEST(p."coauthorStatuses") AS ca
-              ) AS "coauthorUserIds",
-              ARRAY_AGG(s."userId") FILTER (
-                  WHERE s."userId" IS NOT NULL
-              ) AS "activeUserIds",
-              ARRAY_AGG(u."displayName") FILTER (
-                  WHERE u."displayName" IS NOT NULL
-              ) AS "activeDisplayNames"
-          FROM public."Posts" AS p
-          INNER JOIN public."CkEditorUserSessions" AS s ON p._id = s."documentId"
-          INNER JOIN public."Users" AS u ON s."userId" = u._id
-          WHERE
-              (
-                  p."userId" IN (SELECT "userId" FROM "InputUserIds")
-                  OR EXISTS (
-                      SELECT 1
-                      FROM UNNEST(p."coauthorStatuses") AS ca
-                      WHERE
-                          (ca ->> 'userId')::text IN (
-                              SELECT "userId" FROM "InputUserIds"
-                          )
-                  )
-              )
-              AND p."collabEditorDialogue" IS TRUE
-              AND p."deletedDraft" IS FALSE
-              AND s."endedAt" IS NULL
-          GROUP BY p._id
-      )
-      
-      SELECT
-          i."userId",
-          COALESCE(
-              ARRAY_AGG(
-                  JSON_BUILD_OBJECT(
-                      'postId', ud."postId",
-                      'title', ud.title,
-                      'userIds', ud."activeUserIds",
-                      'displayNames', ud."activeDisplayNames"
-                  )
-              ) FILTER (WHERE ud."postId" IS NOT NULL),
-              ARRAY[]::json []
-          ) AS "dialoguesData"
-      FROM "InputUserIds" AS i
-      LEFT JOIN "activeDialogues" AS ud ON i."userId" = ANY(ud."coauthorUserIds")
-      GROUP BY i."userId"
+    SELECT
+        p._id,
+        p.title,
+        p."coauthorStatuses"
+    FROM "Posts" AS p
+    LEFT JOIN public."CkEditorUserSessions" AS s ON p._id = s."documentId",
+        unnest(p."coauthorStatuses") AS coauthors
+    WHERE
+        (
+            coauthors ->> 'userId' = any($1)
+            OR p."userId" = any($1)
+        )
+        AND s._id IS NOT NULL
+        AND s."endedAt" IS NULL
+    GROUP BY p._id
     `, [userIds]);
   
-    // Convert the result to a dictionary
-    const dialoguesData: ActiveDialogueData = {};
-    for (let row of result) {
-      dialoguesData[row.userId] = row.dialoguesData;
-    }
-    return dialoguesData;
+    return result;
   }
 }

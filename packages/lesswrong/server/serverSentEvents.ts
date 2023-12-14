@@ -217,7 +217,23 @@ async function checkForActiveDialoguePartners() {
   const userIds = Object.keys(openConnections);
 
   // Fetch active dialogues data for all users in one SQL query
-  const allUsersDialoguesData = await new UsersRepo().getActiveDialogueData(userIds);
+  const activeDialogues = await new UsersRepo().getActiveDialogues(userIds);
+
+  // Process the result to get the same structure as before
+  const allUsersDialoguesData: Record<string, any[]> = {};
+  for (let dialogue of activeDialogues) {
+    const coauthorUserIds = dialogue.coauthorStatuses.map((status: any) => status.userId);
+    const allUserIds = [dialogue.userId, ...coauthorUserIds];
+    for (let userId of dialogue.coauthorUserIds) {
+      if (allUsersDialoguesData[userId]) {
+        allUsersDialoguesData[userId].push({
+          postId: dialogue.postId,
+          title: dialogue.title,
+          userIds: allUserIds,
+        });
+      }
+    }
+  }
 
   const testUserIds = ["gXeEWGjTWyqgrQTzR", "XtphY3uYHwruKqDyG", "grecHJcgkb3KW5wnM", "EQNTWXLKMeWMp2FQS"];
 

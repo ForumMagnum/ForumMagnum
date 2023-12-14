@@ -5,7 +5,6 @@ import { ActiveDialogue, useOnNotificationsChanged } from '../hooks/useUnreadNot
 import { useCurrentUser } from '../common/withUser';
 import { postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { truncate } from '../../lib/editor/ellipsize';
 import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType) => ({
@@ -54,7 +53,7 @@ const styles = (theme: ThemeType) => ({
 export const ActiveDialogues = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const { PostsTooltip, Typography } = Components
+  const { PostsTooltip, Typography, UsersName } = Components
 
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const [activeDialogues, setActiveDialogues] = useState<ActiveDialogue[]>([]);
@@ -81,10 +80,10 @@ export const ActiveDialogues = ({classes}: {
             <Link to={postGetEditUrl(dialogue.postId)}> 
               <div className={classes.dialogueDetailsContainer}> 
                 <Typography variant='body2' className={classes.activeAuthorNames}> 
-                  {dialogue.displayNames.filter(name => name !== currentUser.displayName).join(', ')} 
+                  {dialogue.userIds.filter(id => id !== currentUser._id).map(id => <UsersName key={dialogue.postId} documentId={id} simple={true}></UsersName>)} 
                 </Typography> 
                 <Typography variant='body2' className={classes.activeDialogueTitle}> 
-                  {truncate(dialogue.title, 30)} 
+                  {dialogue.title.length < 30 ? dialogue.title : dialogue.title.substring(0, 30)+"..." } 
                 </Typography> 
               </div>
             </Link>

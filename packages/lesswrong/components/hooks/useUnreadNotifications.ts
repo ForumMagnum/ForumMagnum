@@ -22,7 +22,6 @@ export const serverSentEventsAPI: ServerSentEventsAPI = {
 
 export type ActiveDialogue = {
   userIds: string[],
-  displayNames: string[],
   postId: string,
   title: string,
 }
