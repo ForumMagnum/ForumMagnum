@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useIsAboveBreakpoint } from "../../hooks/useScreenWidth";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -19,6 +19,7 @@ import classNames from "classnames";
 import { useLocation } from "../../../lib/routeUtil";
 import { useElectionVote } from "../voting-portal/hooks";
 import { useCurrentUser } from "../../common/withUser";
+import { isPastVotingDeadline } from "../../../lib/collections/electionVotes/helpers";
 
 export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
 const BACKGROUND_ASPECT = 3160 / 800;
@@ -223,7 +224,7 @@ const GivingSeasonHeader = ({
   unFixed,
   setUnFixed,
   NavigationMenuButton,
-  RightHeaderItems,
+  rightHeaderItems,
   HeaderNavigationDrawer,
   HeaderNotificationsMenu,
   classes,
@@ -233,7 +234,7 @@ const GivingSeasonHeader = ({
   unFixed: boolean
   setUnFixed: (value: boolean) => void,
   NavigationMenuButton: FC,
-  RightHeaderItems: FC,
+  rightHeaderItems: ReactNode,
   HeaderNavigationDrawer: FC,
   HeaderNotificationsMenu: FC,
   classes: ClassesType,
@@ -249,7 +250,8 @@ const GivingSeasonHeader = ({
   const submitAllowed = electionVote?.vote && Object.values(electionVote.vote).some((value) => value);
   // We only advertise voting for users who are eligible -
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
-  const advertiseVoting = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
+  const advertiseVoting =
+    currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt && !isPastVotingDeadline();
 
   const votingSteps = [
     {
@@ -369,7 +371,7 @@ const GivingSeasonHeader = ({
                   )}
                 </div>
               )}
-              <RightHeaderItems />
+              {rightHeaderItems}
             </Toolbar>
           </header>
           <HeaderNavigationDrawer />
