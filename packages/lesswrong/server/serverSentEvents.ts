@@ -9,6 +9,7 @@ import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
 import {ServerSentEventsMessage, TypingIndicatorMessage} from '../components/hooks/useUnreadNotifications';
 import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
 import UsersRepo from './repos/UsersRepo';
+import {isEAForum} from '../lib/instanceSettings';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -77,7 +78,9 @@ export function addServerSentEventsEndpoint(app: Express) {
   
   setInterval(checkForNotifications, 1000);
   setInterval(checkForTypingIndicators, 1000);
-  setInterval(checkForActiveDialoguePartners, 1000);
+  if (!isEAForum) {
+    setInterval(checkForActiveDialoguePartners, 1000);
+  }
 }
 
 let lastNotificationCheck = new Date();
