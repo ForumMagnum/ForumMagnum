@@ -551,15 +551,15 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
         p."coauthorStatuses",
         ARRAY_AGG(DISTINCT s."userId") AS "activeUserIds"
     FROM "Posts" AS p
-    LEFT JOIN public."CkEditorUserSessions" AS s ON p._id = s."documentId",
+    INNER JOIN public."CkEditorUserSessions" AS s ON p._id = s."documentId",
         unnest(p."coauthorStatuses") AS coauthors
     WHERE
         (
             coauthors ->> 'userId' = any($1)
             OR p."userId" = any($1)
         )
-        AND s._id IS NOT NULL
         AND s."endedAt" IS NULL
+        AND s."createdAt" > CURRENT_TIMESTAMP - INTERVAL '8 hours'
     GROUP BY p._id
     `, [userIds]);
   
