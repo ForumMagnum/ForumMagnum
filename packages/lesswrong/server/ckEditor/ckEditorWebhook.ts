@@ -3,6 +3,60 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
+import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib';
+import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
+import { ckEditorUserSessionsEnabled } from '../../lib/betas';
+
+interface CkEditorUserConnectionChange {
+  user: { id: string },
+  document: { id: string },
+  connected_users: Array<{ id: string }>,
+}
+
+// Hacky lil' solution for now 
+const testWebHookLocally = async () => {
+  // eslint-disable-next-line no-console
+  console.log("Running local CK Editor webhook test... ")
+  const syntheticData = [
+    {
+      "environment_id": "rQvD3VnunXZu34m86e5f",
+      "event": "collaboration.user.disconnected",
+      "payload": {
+        "user": { "id": "gXeEWGjTWyqgrQTzR" },
+        "document": { "id": "D5mCL6dTSGnNedy4d-edit" },
+        "connected_users": []
+      },
+      "sent_at": "2023-12-12T22:00:33.357Z"
+    },
+    // {
+    //   "environment_id": "rQvD3VnunXZu34m86e5f",
+    //   "event": "collaboration.user.connected",
+    //   "payload": {
+    //     "user": { "id": "gXeEWGjTWyqgrQTzR" },
+    //     "document": { "id": "D5mCL6dTSGnNedy4d-edit" },
+    //     "connected_users": [{ "id": "gXeEWGjTWyqgrQTzR" }]
+    //   },
+    //   "sent_at": "2023-12-11T22:00:33.357Z"
+    // },
+    // {
+    //   "environment_id": "rQvD3VnunXZu34m86e5f",
+    //   "event": "collaboration.user.connected",
+    //   "payload": {
+    //     "user": { "id": "c4BywbHytbB5zLdA4" },
+    //     "document": { "id": "BsAt7bhGJqgsi7vpo-edit" },
+    //     "connected_users": [{ "id": "c4BywbHytbB5zLdA4" }]
+    //   },
+    //   "sent_at": "2023-12-12T22:02:39.523Z"
+    // }
+  ];
+
+  for (let i = 0; i < syntheticData.length; i++) {
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    await handleCkEditorWebhook(syntheticData[i]);
+    // eslint-disable-next-line no-console
+    console.log("Sent webhook test " + i)
+  }
+}
 
 addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   if (req.method !== "POST") {
@@ -99,20 +153,60 @@ async function handleCkEditorWebhook(message: any) {
     case "comment.removed":
     case "commentthread.removed":
     case "commentthread.restored":
-    case "document.user.connected":
-      break;
-    case "document.user.disconnected": {
-      interface CkEditorUserDisconnected {
-        user: { id: string },
-        document: { id: string },
-        connected_users: Array<{ id: string }>,
+      break
+    case "collaboration.user.connected": {
+      if (ckEditorUserSessionsEnabled) {
+        const userConnectedPayload = payload as CkEditorUserConnectionChange;
+        const userId = userConnectedPayload?.user?.id;
+        const ckEditorDocumentId = userConnectedPayload?.document?.id;
+        const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
+        if (!!userId && !!documentId) {
+          const adminContext = await createAdminContext()
+          await createMutator({
+            collection: CkEditorUserSessions,
+            document: {
+              userId,
+              documentId,
+            },
+            context: adminContext,
+            currentUser: adminContext.currentUser,
+          })
+        }
       }
-      const userDisconnectedPayload = payload as CkEditorUserDisconnected;
+      break
+    }
+    case "document.user.connected":
+      break
+    case "collaboration.user.disconnected": {
+      if (ckEditorUserSessionsEnabled) {
+        const userDisconnectedPayload = payload as CkEditorUserConnectionChange;
+        const userId = userDisconnectedPayload?.user?.id;
+        const ckEditorDocumentId = userDisconnectedPayload?.document?.id;
+        if (!!userId && !!ckEditorDocumentId) {
+          const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
+          const userSession = await CkEditorUserSessions.findOne({userId, documentId, endedAt: {$exists: false}}, {sort:{createdAt: -1}});
+          const adminContext = await createAdminContext()
+          if (userSession) {
+            await updateMutator({
+              collection: CkEditorUserSessions,
+              documentId: userSession._id, 
+              set: { endedAt: new Date(sent_at) },
+              context: adminContext,
+              currentUser: adminContext.currentUser,
+            });
+          }
+        }
+      }
+      break
+    }
+    case "document.user.disconnected": {
+      const userDisconnectedPayload = payload as CkEditorUserConnectionChange;
       const userId = userDisconnectedPayload?.user?.id;
       const ckEditorDocumentId = userDisconnectedPayload?.document?.id;
       const documentContents = await ckEditorApiHelpers.fetchCkEditorCloudStorageDocumentHtml(ckEditorDocumentId);
       const postId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId);
       await documentHelpers.saveDocumentRevision(userId, postId, documentContents);
+
       break;
     }
     case "document.removed":

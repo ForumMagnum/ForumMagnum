@@ -508,6 +508,8 @@ declare global {
   
   type ThemeType = {
     forumType: ForumTypeString,
+
+    baseFontSize: number,
     
     breakpoints: {
       /** Down is *inclusive* - down(sm) will go up to the md breakpoint */

@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { hasDigests } from '../../lib/betas';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 
 // Also used in ModerationLog
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -56,12 +56,14 @@ const AdminHome = ({ classes }: {
         <li><Link className={classes.link} to="/admin/random-user">Random User</Link></li>
         <li><Link className={classes.link} to="/moderatorComments">Moderator Comments</Link></li>
         <li><Link className={classes.link} to="/moderation">Moderation Log</Link></li>
+        <li><Link className={classes.link} to={`/${taggingNamePluralSetting.get()}/dashboard`}>{taggingNamePluralCapitalSetting.get()} Dashboard</Link></li>
       </ul>
 
       <h3>Site Admin</h3>
       <ul>
         {hasDigests && <li><Link className={classes.link} to="/admin/digests">Digests</Link></li>}
-        {isEAForum && <li><Link className={classes.link} to="/admin/election-candidates">Election Candidates</Link></li>}
+        {isEAForum && <li><Link className={classes.link} to="/admin/election-candidates">Donation Election Candidates</Link></li>}
+        {isEAForum && <li><Link className={classes.link} to="/admin/election-votes">Donation Election results</Link></li>}
         <li><Link className={classes.link} to="/spotlights">Spotlights</Link></li>
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>
         <li><Link className={classes.link} to="/admin/migrations">Migrations</Link></li>

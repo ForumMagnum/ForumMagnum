@@ -8,7 +8,7 @@ import { useElectionCandidates } from "../giving-portal/hooks";
 import classNames from "classnames";
 import { CompareStateUI, convertCompareStateToVote, getCompareKey, getInitialCompareState, validateCompareState } from "../../../lib/collections/electionVotes/helpers";
 import { useMessages } from "../../common/withMessages";
-import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import { eaGivingSeason23ElectionName, userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 import { useCurrentUser } from "../../common/withUser";
 
 const styles = (theme: ThemeType) => ({
@@ -85,7 +85,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const EAVotingPortalComparePageLoader = ({ classes }: { classes: ClassesType }) => {
-  const { electionVote, updateVote } = useElectionVote("givingSeason23");
+  const { electionVote, updateVote } = useElectionVote(eaGivingSeason23ElectionName);
   const { results } = useElectionCandidates("random");
 
   const currentUser = useCurrentUser();

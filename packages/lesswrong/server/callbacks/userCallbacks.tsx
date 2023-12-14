@@ -32,13 +32,14 @@ import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
 import ElectionVotes from '../../lib/collections/electionVotes/collection';
+import { eaGivingSeason23ElectionName } from '../../lib/eaGivingSeason';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
 
 voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
-  if (user && user.karma >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
+  if (user && (user?.karma) >= TRUSTLEVEL1_THRESHOLD && (!userGetGroups(user).includes('trustLevel1'))) {
     await Users.rawUpdateOne(user._id, {$push: {groups: 'trustLevel1'}});
     const updatedUser = await Users.findOne(newDocument.userId)
     //eslint-disable-next-line no-console
@@ -49,7 +50,7 @@ voteCallbacks.castVoteAsync.add(async function updateTrustedStatus ({newDocument
 voteCallbacks.castVoteAsync.add(async function updateModerateOwnPersonal({newDocument, vote}: VoteDocTuple) {
   const user = await Users.findOne(newDocument.userId)
   if (!user) throw Error("Couldn't find user")
-  if (user.karma >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
+  if ((user.karma) >= MODERATE_OWN_PERSONAL_THRESHOLD && (!userGetGroups(user).includes('canModeratePersonal'))) {
     await Users.rawUpdateOne(user._id, {$push: {groups: 'canModeratePersonal'}});
     const updatedUser = await Users.findOne(newDocument.userId)
     if (!updatedUser) throw Error("Couldn't find user to update")
@@ -204,17 +205,6 @@ getCollectionHooks("Users").newAsync.add(async function subscribeOnSignup (user:
   }
 });
 
-// When creating a new account, populate their A/B test group key from their
-// client ID, so that their A/B test groups will persist from when they were
-// logged out.
-getCollectionHooks("Users").newAsync.add(async function setABTestKeyOnSignup (user: DbInsertion<DbUser>) {
-  // FIXME totally broken
-  if (!user.abTestKey) {
-    const abTestKey = user.profile?.clientId || randomId();
-    await Users.rawUpdateOne(user._id, {$set: {abTestKey: abTestKey}});
-  }
-});
-
 getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost (newUser: DbUser, oldUser: DbUser) {
   if (newUser.shortformFeedId !== oldUser.shortformFeedId)
   {
@@ -246,7 +236,6 @@ getCollectionHooks("Users").editAsync.add(async function handleSetShortformPost 
     });
   }
 });
-
 
 getCollectionHooks("Users").newSync.add(async function usersMakeAdmin (user: DbUser) {
   if (isAnyTest) return user;
@@ -499,7 +488,7 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateGivingSeason20
 
   if (data.givingSeason2023VotedFlair && data.givingSeason2023VotedFlair !== oldDocument.givingSeason2023VotedFlair) {
     const vote = await ElectionVotes.findOne({
-      electionName: "givingSeason23",
+      electionName: eaGivingSeason23ElectionName,
       userId: oldDocument._id,
       submittedAt: { $exists: true },
     });

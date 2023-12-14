@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useIsAboveBreakpoint } from "../../hooks/useScreenWidth";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -11,7 +11,7 @@ import {
 } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { headerImageId, heroImageId, userCanVoteInDonationElection, votingHeaderImageId } from "../../../lib/eaGivingSeason";
+import { eaGivingSeason23ElectionName, headerImageId, heroImageId, userCanVoteInDonationElection, votingHeaderImageId } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
@@ -223,7 +223,7 @@ const GivingSeasonHeader = ({
   unFixed,
   setUnFixed,
   NavigationMenuButton,
-  RightHeaderItems,
+  rightHeaderItems,
   HeaderNavigationDrawer,
   HeaderNotificationsMenu,
   classes,
@@ -233,15 +233,15 @@ const GivingSeasonHeader = ({
   unFixed: boolean
   setUnFixed: (value: boolean) => void,
   NavigationMenuButton: FC,
-  RightHeaderItems: FC,
+  rightHeaderItems: ReactNode,
   HeaderNavigationDrawer: FC,
   HeaderNotificationsMenu: FC,
   classes: ClassesType,
 }) => {
   const { Typography, HeadTags, HeaderSubtitle } = Components;
   const isDesktop = useIsAboveBreakpoint("md");
-  const { pathname } = useLocation();
-  const { electionVote } = useElectionVote("givingSeason23");
+  const { pathname, currentRoute } = useLocation();
+  const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   const currentUser = useCurrentUser();
 
   const compareAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 1;
@@ -276,6 +276,7 @@ const GivingSeasonHeader = ({
   const isVotingPortal = pathname.startsWith("/voting-portal");
   // Show voting steps if we are on a path like /voting-portal/compare (with anything after /voting-portal/)
   const showVotingSteps = isVotingPortal && /\/voting-portal\/\w/.test(pathname);
+  const solidHeader = currentRoute?.path !== "/";
 
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
@@ -306,10 +307,10 @@ const GivingSeasonHeader = ({
           <header
             className={classNames(
               classes.appBarGivingSeason,
-              isVotingPortal ? classes.solidBackground : advertiseVoting ? classes.homePageVotingBackground : classes.homePageBackground
+              solidHeader ? classes.solidBackground : advertiseVoting ? classes.homePageVotingBackground : classes.homePageBackground
             )}
           >
-            {!isVotingPortal && <div className={classes.givingSeasonGradient} />}
+            {!solidHeader && <div className={classes.givingSeasonGradient} />}
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
               <div className={classes.leftHeaderItems}>
                 <NavigationMenuButton />
@@ -368,7 +369,7 @@ const GivingSeasonHeader = ({
                   )}
                 </div>
               )}
-              <RightHeaderItems />
+              {rightHeaderItems}
             </Toolbar>
           </header>
           <HeaderNavigationDrawer />

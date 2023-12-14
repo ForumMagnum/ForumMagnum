@@ -313,6 +313,7 @@ const CommentLinkPreviewWithComment = ({classes, href, comment, post, id, childr
       comment={comment}
       placement="bottom-start"
       As="span"
+      clickable={!isFriendlyUI}
     >
       <Link className={classes.link} to={href} id={id}>
         {children}

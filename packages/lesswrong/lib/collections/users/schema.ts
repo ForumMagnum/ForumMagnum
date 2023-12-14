@@ -5,9 +5,8 @@ import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName, isAdmin } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
-import { schemaDefaultValue } from '../../collectionUtils';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
-import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField } from '../../utils/schemaUtils';
+import { accessFilterMultiple, arrayOfForeignKeysField, denormalizedCountOfReferences, denormalizedField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { postStatuses } from '../posts/constants';
 import GraphQLJSON from 'graphql-type-json';
 import { REVIEW_NAME_IN_SITU, REVIEW_YEAR } from '../../reviewUtils';
@@ -18,6 +17,8 @@ import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
 import { dialoguesEnabled, hasPostRecommendations } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { randomId } from '../../random';
+import { getUserABTestKey } from '../../abTestImpl';
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -338,6 +339,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['admins'],
     canUpdate: ['admins','realAdmins'],
     canRead: ['guests'],
+    ...schemaDefaultValue(false),
     group: adminGroup,
   },
   profile: {
@@ -395,7 +397,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
-    canRead: ['guests'],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     order: 11,
     group: formGroups.default,
   },
@@ -576,7 +578,7 @@ const schema: SchemaType<DbUser> = {
     optional: true,
     hidden: true,
     canCreate: ['members'],
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns],
   },
 
@@ -736,7 +738,7 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     ...schemaDefaultValue(false),
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     group: formGroups.siteCustomizations,
@@ -748,7 +750,7 @@ const schema: SchemaType<DbUser> = {
     type: Boolean,
     optional: true,
     ...schemaDefaultValue(false),
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     control: 'checkbox',
     group: formGroups.siteCustomizations,
@@ -760,6 +762,7 @@ const schema: SchemaType<DbUser> = {
     order: 91,
     type: Boolean,
     optional: true,
+    nullable: false,
     group: formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
     canRead: ['guests'],
@@ -773,6 +776,7 @@ const schema: SchemaType<DbUser> = {
     order: 92,
     type: Boolean,
     optional: true,
+    nullable: false,
     group: formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
     canRead: ['guests'],
@@ -786,6 +790,7 @@ const schema: SchemaType<DbUser> = {
     order: 93,
     type: Boolean,
     optional: true,
+    nullable: false,
     group: formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
     canRead: ['guests'],
@@ -799,6 +804,7 @@ const schema: SchemaType<DbUser> = {
     order: 93,
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: !isEAForum,
     group: formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
@@ -824,6 +830,7 @@ const schema: SchemaType<DbUser> = {
     order: 94,
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: !isEAForum,
     group: formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
@@ -838,6 +845,7 @@ const schema: SchemaType<DbUser> = {
     order: 95,
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: !hasPostRecommendations,
     group: formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
@@ -852,7 +860,7 @@ const schema: SchemaType<DbUser> = {
     order: 96,
     type: Boolean,
     optional: true,
-    nullable: true,
+    nullable: true,//TODO not-null – examine this
     group: formGroups.siteCustomizations,
     ...schemaDefaultValue(false),
     canRead: ['guests'],
@@ -869,7 +877,7 @@ const schema: SchemaType<DbUser> = {
   acceptedTos: {
     type: Boolean,
     optional: true,
-    nullable: true,
+    nullable: false,
     hidden: true,
     ...schemaDefaultValue(false),
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
@@ -1399,22 +1407,22 @@ const schema: SchemaType<DbUser> = {
   notificationDebateCommentsOnSubscribedPost: {
     label: "[Old Style] New dialogue content in a dialogue I'm subscribed to",
     ...notificationTypeSettingsField({ batchingFrequency: 'daily' }),
-    hidden: !dialoguesEnabled,
+    hidden: !isLW,
   },
   notificationDebateReplies: {
     label: "[Old Style] New dialogue content in a dialogue I'm participating in",
     ...notificationTypeSettingsField(),
-    hidden: !dialoguesEnabled,
+    hidden: !isLW,
   },
   notificationDialogueMatch: {
     label: "Another user and I have matched for a dialogue",
     ...notificationTypeSettingsField({ channel: "both" }),
-    hidden: !dialoguesEnabled,
+    hidden: !isLW,
   },
   notificationNewDialogueChecks: {
     label: "You have new people interested in dialogue-ing with you",
     ...notificationTypeSettingsField(),
-    hidden: !dialoguesEnabled,
+    hidden: !isLW,
   },
 
   hideDialogueFacilitation: {
@@ -1777,7 +1785,7 @@ const schema: SchemaType<DbUser> = {
 
   nearbyEventsNotificationsMongoLocation: {
     type: Object,
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
     optional: true,
     ...denormalizedField({
@@ -1960,8 +1968,8 @@ const schema: SchemaType<DbUser> = {
 
       if (user.deleteContent && user.banned) return 0.0;
       else if (userIsAdmin(user)) return 1.0;
-      else if (isReviewed && karma>=20) return 1.0;
-      else if (isReviewed && karma>=0) return 0.9;
+      else if (isReviewed && karma >=20) return 1.0;
+      else if (isReviewed && karma >=0) return 0.9;
       else if (isReviewed) return 0.8;
       else if (signUpReCaptchaRating !== null && 
               signUpReCaptchaRating !== undefined && 
@@ -1998,6 +2006,7 @@ const schema: SchemaType<DbUser> = {
   afKarma: {
     type: Number,
     optional: true,
+    nullable: false,
     label: "Alignment Base Score",
     ...schemaDefaultValue(0),
     canRead: ['guests'],
@@ -2116,7 +2125,7 @@ const schema: SchemaType<DbUser> = {
 
   partiallyReadSequences: {
     type: Array,
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns],
     optional: true,
     hidden: true,
@@ -2317,14 +2326,20 @@ const schema: SchemaType<DbUser> = {
   abTestKey: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
+    onCreate: ({ document, context }) => {
+      if (!document.abTestKey) {
+        return getUserABTestKey({clientId: context.clientId ?? randomId()});
+      }
+    }
   },
   abTestOverrides: {
     type: GraphQLJSON, //Record<string,number>
     optional: true, hidden: true,
-    canRead: [userOwns],
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     blackbox: true,
   },
@@ -2778,7 +2793,6 @@ const schema: SchemaType<DbUser> = {
   allowDatadogSessionReplay: {
     type: Boolean,
     optional: true,
-    nullable: true,
     hidden: !isEAForum,
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],

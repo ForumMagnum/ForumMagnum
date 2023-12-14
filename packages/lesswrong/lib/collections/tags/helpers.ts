@@ -74,7 +74,7 @@ export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: strin
 export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit"): boolean => {
   if (!user) return false
   if (user.isAdmin) return true
-  if ((user.karma ?? 0) >= tagMinimumKarmaPermissions[action]) return true
+  if ((user.karma) >= tagMinimumKarmaPermissions[action]) return true
   return false
 }
 

@@ -47,6 +47,7 @@ export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabl
 
 // Non-user-specific features
 export const dialoguesEnabled = true;
+export const ckEditorUserSessionsEnabled = isLWorAF;
 export const inlineReactsHoverEnabled = isLWorAF;
 /** On the post page, do we show users other content they might want to read */
 export const hasPostRecommendations = isEAForum;

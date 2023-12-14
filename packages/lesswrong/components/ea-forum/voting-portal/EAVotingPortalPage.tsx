@@ -5,7 +5,7 @@ import { votingPortalStyles } from "./styles";
 import { useCurrentUser } from "../../common/withUser";
 import { useLocation } from "../../../lib/routeUtil";
 import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
-import { userCanVoteInDonationElection, votingThankYouImageId } from "../../../lib/eaGivingSeason";
+import { eaGivingSeason23ElectionName, userCanVoteInDonationElection, votingThankYouImageId } from "../../../lib/eaGivingSeason";
 import Helmet from "react-helmet";
 import classNames from "classnames";
 import { useElectionVote } from "./hooks";
@@ -39,7 +39,7 @@ const EAVotingPortalPage = ({classes}: {
 
   const {location: {search}} = useLocation();
   const params = new URLSearchParams(search);
-  const { electionVote, loading } = useElectionVote("givingSeason23");
+  const { electionVote, loading } = useElectionVote(eaGivingSeason23ElectionName);
   const currentUser = useCurrentUser();
 
   if (loading && userCanVoteInDonationElection(currentUser)) return <Loading />;

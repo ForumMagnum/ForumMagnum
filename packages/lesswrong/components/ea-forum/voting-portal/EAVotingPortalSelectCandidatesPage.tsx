@@ -8,14 +8,14 @@ import difference from "lodash/difference";
 import { useMessages } from "../../common/withMessages";
 import { candidatesLink, processLink } from "./VotingPortalIntro";
 import { useCurrentUser } from "../../common/withUser";
-import { userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import { eaGivingSeason23ElectionName, userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
 
 const styles = (theme: ThemeType) => ({
   ...votingPortalStyles(theme),
 });
 
 const EAVotingPortalSelectCandidatesPageLoader = ({ classes }: { classes: ClassesType }) => {
-  const { electionVote, updateVote } = useElectionVote("givingSeason23");
+  const { electionVote, updateVote } = useElectionVote(eaGivingSeason23ElectionName);
 
   const currentUser = useCurrentUser();
   const { LoginForm } = Components;

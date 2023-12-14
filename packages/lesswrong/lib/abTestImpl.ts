@@ -18,10 +18,11 @@ import { useCookiesWithConsent } from '../components/hooks/useCookiesWithConsent
 // Logged-out users are assigned an A/B test group based on their ClientID. If
 // they create a new account, that account inherits the test groups of the
 // ClientID through which the account was created. Users created before A/B
-// tests were created have their test groups instead assigned based on a hash
-// of their username. On pageload, which group a user is in is fixed for that
-// tab; logging out and logging in as a different user doesn't switch them to
-// that user's A/B test group until they refresh or open a new tab.
+// tests (and anyone missing AB test key for some other reason) had their AB tesk 
+// key populated with their userId on 2023-12-05 for LW. On pageload, which group a user 
+// is in is fixed for that tab; logging out and logging in as a different user 
+// doesn't switch them to that user's A/B test group until they refresh or open 
+// a new tab.
 //
 // A/B tests can be overridden server-wide, eg to end an A/B test and put
 // everyone in the winning group, by writing an abTestOverride value into the

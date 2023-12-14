@@ -1,9 +1,11 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
 import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueMatchingPage";
-import {calculateVotePower} from "../../lib/voting/voteTypes";
+import { calculateVotePower } from "../../lib/voting/voteTypes";
+import { ActiveDialogueData } from "../../components/hooks/useUnreadNotifications";
 
 const GET_USERS_BY_EMAIL_QUERY = `
+-- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
 SELECT *
 FROM "Users"
 WHERE LOWER(email) = LOWER($1)
@@ -17,6 +19,7 @@ WHERE _id IN (
 )`;
 
 const GET_USER_BY_USERNAME_OR_EMAIL_QUERY = `
+-- UsersRepo.GET_USER_BY_USERNAME_OR_EMAIL_QUERY
 SELECT *
 FROM "Users"
 WHERE username = $1
@@ -43,6 +46,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   getUserByLoginToken(hashedToken: string): Promise<DbUser | null> {
     return this.oneOrNone(`
+      -- UsersRepo.getUserByLoginToken
       SELECT *
       FROM "Users"
       WHERE "services"->'resume'->'loginTokens' @> ('[{"hashedToken": "' || $1 || '"}]')::JSONB
@@ -52,6 +56,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
     // the notification radius is in miles, so we convert the EARTH_DISTANCE from meters to miles
     return this.any(`
+      -- UsersRepo.getUsersWhereLocationIsInNotificationRadius
       SELECT *
       FROM "Users"
       WHERE (
@@ -68,6 +73,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   getUserByEmail(email: string): Promise<DbUser | null> {
     return this.oneOrNone(`
+      -- UsersRepo.getUserByEmail
       ${GET_USERS_BY_EMAIL_QUERY}
       LIMIT 1
     `, [email]);
@@ -83,6 +89,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   clearLoginTokens(userId: string): Promise<null> {
     return this.none(`
+      -- UsersRepo.clearLoginTokens
       UPDATE "Users"
       SET services = jsonb_set(
         services,
@@ -96,6 +103,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   resetPassword(userId: string, hashedPassword: string): Promise<null> {
     return this.none(`
+      -- UsersRepo.resetPassword
       UPDATE "Users"
       SET services = jsonb_set(
         CASE WHEN services -> 'password' IS NULL THEN
@@ -123,6 +131,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   verifyEmail(userId: string): Promise<null> {
     return this.none(`
+      -- UsersRepo.verifyEmail
       UPDATE "Users"
       SET emails[1] = jsonb_set(emails[1], '{verified}', 'true'::JSONB, true)
       WHERE _id = $1
@@ -131,6 +140,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   setExpandFrontpageSection(userId: string, section: string, expanded: boolean): Promise<null> {
     return this.none(`
+      -- UsersRepo.setExpandFrontpageSection
       UPDATE "Users"
       SET "expandedFrontpageSections" =
         COALESCE("expandedFrontpageSections", '{}'::JSONB) ||
@@ -141,6 +151,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   removeAlignmentGroupAndKarma(userId: string, reduceAFKarma: number): Promise<null> {
     return this.none(`
+      -- UsersRepo.removeAlignmentGroupAndKarma
       UPDATE "Users"
       SET
         "groups" = array_remove("groups", 'alignmentVoters'),
@@ -151,6 +162,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   private getSearchDocumentQuery(): string {
     return `
+      -- UsersRepo.getSearchDocumentQuery
       SELECT
         u."_id",
         u."_id" AS "objectID",
@@ -189,6 +201,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   getSearchDocumentById(id: string): Promise<AlgoliaUser> {
     return this.getRawDb().one(`
+      -- UsersRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
       WHERE u."_id" = $1
     `, [id]);
@@ -196,6 +209,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   getSearchDocuments(limit: number, offset: number): Promise<AlgoliaUser[]> {
     return this.getRawDb().any(`
+      -- UsersRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
       WHERE u."displayName" IS NOT NULL
       ORDER BY u."createdAt" DESC
@@ -205,12 +219,16 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   }
 
   async countSearchDocuments(): Promise<number> {
-    const {count} = await this.getRawDb().one(`SELECT COUNT(*) FROM "Users"`);
+    const {count} = await this.getRawDb().one(`
+      -- UsersRepo.countSearchDocuments
+      SELECT COUNT(*) FROM "Users"
+    `);
     return count;
   }
   
   async getRandomActiveUser(): Promise<DbUser> {
     return this.one(`
+      -- UsersRepo.getRandomActiveUser
       SELECT u.*
       FROM "Users" u
       JOIN (
@@ -228,6 +246,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
   
   async getRandomActiveAuthor(): Promise<DbUser> {
     return this.one(`
+      -- UsersRepo.getRandomActiveAuthor
       SELECT u.*
       FROM "Users" u
       JOIN (
@@ -251,6 +270,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   async getUsersWhoHaveMadeDialogues(): Promise<DbUser[]> {
     return this.getRawDb().any(`
+      -- UsersRepo.getUsersWhoHaveMadeDialogues
       WITH all_dialogue_authors AS
         (SELECT (UNNESTED->>'userId') AS _id
             FROM "Posts" p, UNNEST("coauthorStatuses") unnested
@@ -270,6 +290,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   async getUsersWhoHaveOptedInToDialogueFacilitation(): Promise<DbUser[]> {
     return this.getRawDb().any(`
+        -- UsersRepo.getUsersWhoHaveOptedInToDialogueFacilitation
         SELECT *
         FROM "Users" u
         WHERE u."optedInToDialogueFacilitation" IS TRUE
@@ -278,6 +299,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   async getUsersWithNewDialogueChecks(): Promise<DbUser[]> {
     return this.manyOrNone(`
+      -- UsersRepo.getUsersWithNewDialogueChecks
       SELECT DISTINCT ON ("Users"._id) "Users".*
       FROM "Users"
       INNER JOIN "DialogueChecks" ON "Users"._id = "DialogueChecks"."targetUserId"
@@ -327,6 +349,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     const bigVotePower = calculateVotePower(karma, "bigUpvote");
     
     return this.getRawDb().any(`
+      -- UsersRepo.getUsersTopUpvotedUsers
       WITH "CombinedVotes" AS (
       -- Joining Users with Posts and Votes
       SELECT
@@ -422,6 +445,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   async getDialogueMatchedUsers(userId: string): Promise<DbUser[]> {
     return this.any(`
+      -- UsersRepo.getDialogueMatchedUsers
       SELECT DISTINCT(u.*)
       FROM "DialogueChecks" other_users_checks
       JOIN "DialogueChecks" current_user_checks
@@ -446,6 +470,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     const upvotedUserIds = upvotedUsers.map(user => user._id);
 
     return this.any(`
+    -- UsersRepo.getDialogueRecommendedUsers
     (
       SELECT u.*
       FROM unnest($2::text[]) AS uv(_id)
@@ -486,7 +511,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       LIMIT $3
     )
     -- If the above query doesn't return enough users, then fill in the rest with users who you've upvoted
-      UNION ALL
+      UNION
       (
         SELECT u.*
         FROM unnest($2::text[]) AS uv(_id)
@@ -504,15 +529,40 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
 
   async getActiveDialogueMatchSeekers(limit: number): Promise<DbUser[]> {
     return this.manyOrNone(`
+      -- UsersRepo.getActiveDialogueMatchSeekers
       SELECT  
         u.*,
         MAX(dc."checkedAt") AS "mostRecentCheckedAt"
       FROM public."Users" AS u
       LEFT JOIN public."DialogueChecks" AS dc ON u._id = dc."userId"
-      WHERE u."optedInToDialogueFacilitation" IS TRUE OR dc."userId" IS NOT NULL
+      WHERE dc."userId" IS NOT NULL
       GROUP BY u._id
-      ORDER BY "mostRecentCheckedAt" ASC
+      ORDER BY "mostRecentCheckedAt" DESC
       LIMIT $1;
     `, [limit])
+  }
+
+  async getActiveDialogues(userIds: string[]): Promise<{_id: string, userId: string, title: string, coauthorStatuses:{userId: string, confirmed: string, rejected: string}[], activeUserIds:string[]}[]> {
+    const result = await this.getRawDb().any(`
+    SELECT
+        p._id,
+        p.title,
+        p."userId",
+        p."coauthorStatuses",
+        ARRAY_AGG(DISTINCT s."userId") AS "activeUserIds"
+    FROM "Posts" AS p
+    INNER JOIN public."CkEditorUserSessions" AS s ON p._id = s."documentId",
+        unnest(p."coauthorStatuses") AS coauthors
+    WHERE
+        (
+            coauthors ->> 'userId' = any($1)
+            OR p."userId" = any($1)
+        )
+        AND s."endedAt" IS NULL
+        AND s."createdAt" > CURRENT_TIMESTAMP - INTERVAL '8 hours'
+    GROUP BY p._id
+    `, [userIds]);
+  
+    return result;
   }
 }

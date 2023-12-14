@@ -8,6 +8,8 @@ import moment from 'moment';
 import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
 import {ServerSentEventsMessage, TypingIndicatorMessage} from '../components/hooks/useUnreadNotifications';
 import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
+import UsersRepo from './repos/UsersRepo';
+import {isEAForum} from '../lib/instanceSettings';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -76,10 +78,14 @@ export function addServerSentEventsEndpoint(app: Express) {
   
   setInterval(checkForNotifications, 1000);
   setInterval(checkForTypingIndicators, 1000);
+  if (!isEAForum) {
+    setInterval(checkForActiveDialoguePartners, 1000);
+  }
 }
 
 let lastNotificationCheck = new Date();
 let lastTypingIndicatorsCheck = new Date();
+let lastActiveDialoguePartnersMessage = new Date();
 
 async function checkForNotifications() {
   const numOpenConnections = Object.keys(openConnections).length;
@@ -199,6 +205,59 @@ async function checkForTypingIndicators() {
           typingIndicators: results[userId],
         }
         connection.res.write(`data: ${JSON.stringify(message)}\n\n`)
+      }
+    }
+  }
+}
+
+async function checkForActiveDialoguePartners() {
+  const numOpenConnections = Object.keys(openConnections).length;
+  if (!numOpenConnections) {
+    return;
+  }
+
+  // Get all user IDs from open connections
+  const userIds = Object.keys(openConnections);
+
+  // Fetch active dialogues data for all users in one SQL query
+  const activeDialogues = await new UsersRepo().getActiveDialogues(userIds);
+
+  // Process the result to get the same structure as before
+  const allUsersDialoguesData: Record<string, any[]> = {};
+  for (let dialogue of activeDialogues) {
+    const coauthorUserIds = dialogue.coauthorStatuses.map((status: any) => status.userId);
+    const allUserIds = [dialogue.userId, ...coauthorUserIds];
+    for (let userId of allUserIds) {
+      const data = {
+        postId: dialogue._id,
+        title: dialogue.title,
+        userIds: dialogue.activeUserIds.filter((id => id !== userId)),
+      }
+      if (allUsersDialoguesData[userId]) {
+        allUsersDialoguesData[userId].push(data);
+      } else {
+        allUsersDialoguesData[userId] = [data];
+      }
+    }
+  }
+
+  const testUserIds = ["gXeEWGjTWyqgrQTzR", "XtphY3uYHwruKqDyG", "grecHJcgkb3KW5wnM", "EQNTWXLKMeWMp2FQS"];
+
+  for (let userId of userIds) {
+    if (testUserIds.includes(userId)) { // hardcoded to be able to test feature with live ckEditor data in prod
+      const userDialoguesData = allUsersDialoguesData[userId];
+      if (!!userDialoguesData && userDialoguesData.length > 0) {
+        const message = {
+          eventType: "activeDialoguePartners",
+          data: userDialoguesData
+        };
+
+        const messageString = `data: ${JSON.stringify(message)}\n\n`;
+
+        for (let connection of openConnections[userId]) {
+          connection.res.write(messageString);
+          connection.newestNotificationTimestamp = new Date();
+        } 
       }
     }
   }

@@ -106,7 +106,7 @@ defineMutation({
     if (!feed) {
       throw new Error("Invalid feed ID");
     }
-    if (!userIsAdminOrMod(currentUser) && currentUser._id != feed.userId) {
+    if (!userIsAdminOrMod(currentUser) && currentUser._id !== feed.userId) {
       throw new Error("Only admins and moderators ca manually resync RSS feeds they don't own");
     }
     
@@ -168,6 +168,10 @@ defineQuery({
     }
     if (!matchingPost) {
       throw new Error("Could not find matching post");
+    }
+    
+    if (!post.contents.originalContents) { 
+      throw new Error("Post has no original contents.")
     }
     
     // Diff the contents between the RSS feed and the LW version

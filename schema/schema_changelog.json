@@ -458,5 +458,30 @@
     "acceptsSchemaHash": "2d5747e2acdbe83c754cbbda258623ed",
     "acceptedByMigration": "20231201T022744.add_field_for_hiding_specific_users_in_reciprocity.ts",
     "timestamp": "2023-12-01T02:27:44.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2ace126a36fc6b5cdb4e4a0264fec6f9",
+    "acceptedByMigration": "20231204T235404.fill_in_AbTestKey_and_make_nonnullable.ts",
+    "timestamp": "2023-12-04T23:54:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d8ecd5f29746164d6bf5b3e064f241ac",
+    "acceptedByMigration": "20231205T204412.make_fields_not_nullable.ts",
+    "timestamp": "2023-12-05T20:44:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a09712836b72d69f7456155ccc81ac83",
+    "acceptedByMigration": "20231208T004014.addCalendlyLinkDialogueMatchPreferencesField.ts",
+    "timestamp": "2023-12-08T00:40:14.000Z"
+  },
+  {
+    "acceptsSchemaHash": "989958afb8a5cef47f6f8bd33d5a499f",
+    "acceptedByMigration": "20231208T021726.add_soft_delete_to_forms.ts",
+    "timestamp": "2023-12-08T02:17:26.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e30b5ca4f4989161f627585b747ee83e",
+    "acceptedByMigration": "20231212T223511.add_table_for_ckeditorusersessions.ts",
+    "timestamp": "2023-12-12T22:35:11.000Z"
   }
 ]

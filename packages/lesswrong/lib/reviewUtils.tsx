@@ -1,13 +1,10 @@
 import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
-import { forumTypeSetting } from "./instanceSettings"
+import { isEAForum, isLWorAF } from "./instanceSettings"
 import { annualReviewEnd, annualReviewNominationPhaseEnd, annualReviewReviewPhaseEnd, annualReviewStart, annualReviewVotingPhaseEnd } from "./publicSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
-
-const isEAForum = forumTypeSetting.get() === "EAForum"
-const isLWForum = forumTypeSetting.get() === "LessWrong"
 
 export const reviewYears = [2018, 2019, 2020, 2021, 2022] as const
 const years = new TupleSet(reviewYears);
@@ -106,14 +103,14 @@ export function reviewIsActive(): boolean {
 
 export function eligibleToNominate (currentUser: UsersCurrent|null) {
   if (!currentUser) return false;
-  if (isLWForum && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR}-01-01`)) return false
+  if (isLWorAF && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR}-01-01`)) return false
   if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
   return true
 }
 
 export function postEligibleForReview (post: PostsBase) {
   if (new Date(post.postedAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
-  if (isLWForum && new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
+  if (isLWorAF && new Date(post.postedAt) < new Date(`${REVIEW_YEAR}-01-01`)) return false
   return true
 }
 
@@ -132,7 +129,7 @@ export function canNominate (currentUser: UsersCurrent|null, post: PostsBase) {
 
 export const currentUserCanVote = (currentUser: UsersCurrent|null) => {
   if (!currentUser) return false
-  if (isLWForum && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
+  if (isLWorAF && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR+1}-01-01`)) return false
   if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
   return true
 }

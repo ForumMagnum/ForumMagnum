@@ -107,7 +107,7 @@ const ColoredNumber = ({n, classes}: {
 }) => {
   if (n>0) {
     return <span className={classes.gainedPoints}>{`+${n}`}</span>
-  } else if (n==0) {
+  } else if (n===0) {
     return <span className={classes.zeroPoints}>{n}</span>
   } else {
     return <span className={classes.lostPoints}>{n}</span>

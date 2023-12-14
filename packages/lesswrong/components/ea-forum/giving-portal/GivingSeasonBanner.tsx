@@ -1,8 +1,8 @@
 import React, { FC } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { TimelineSpan, timelineSpec, userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
-import { useCurrentTime } from "../../../lib/utils/timeUtil";
+import { TimelineSpan, eaGivingSeason23ElectionName, timelineSpec, userCanVoteInDonationElection } from "../../../lib/eaGivingSeason";
+import { relativeTimeToLongFormat, useCurrentTime } from "../../../lib/utils/timeUtil";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import {
   EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
@@ -14,6 +14,7 @@ import moment from "moment";
 import { HEADER_HEIGHT } from "../../common/Header";
 import { useCurrentUser } from "../../common/withUser";
 import { useElectionVote } from "../voting-portal/hooks";
+import { VOTING_DEADLINE } from "../../../lib/collections/electionVotes/helpers";
 
 const BANNER_HEIGHT = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT - HEADER_HEIGHT;
 const MAX_SPANS = 3;
@@ -231,7 +232,7 @@ const styles = (theme: ThemeType) => ({
   },
   votingTimelineBtn: {
     flex: 'none',
-    height: 45,
+    height: 50,
     width: 282,
     display: 'flex',
     alignItems: 'center',
@@ -264,6 +265,21 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("xs")]: {
       display: 'inline'
     }
+  },
+  timeRemainingSubheading: {
+    fontSize: 14,
+    fontWeight: 500,
+    marginTop: -12,
+    color: theme.palette.givingPortal.homepageHeader.light4,
+    paddingLeft: 1,
+    [theme.breakpoints.up("sm")]: {
+      display: 'none'
+    }
+  },
+  timeRemainingButton: {
+    fontSize: 13,
+    fontWeight: 500,
+    marginTop: 2
   }
 });
 
@@ -292,12 +308,13 @@ const BannerDate: FC<{
 );
 
 const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
-  const { electionVote } = useElectionVote("givingSeason23");
+  const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   const currentUser = useCurrentUser();
   // We only advertise voting for users who are eligible -
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
   // This involves changing some copy, hiding the banner image, and moving the timeline.
   const advertiseVoting = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
+  const voteTimeRemaining = relativeTimeToLongFormat(moment(VOTING_DEADLINE).toNow())
   
   const spans = timelineSpec.spans
     .filter(({hatched}) => !hatched) // Ignore the voting time period
@@ -316,6 +333,13 @@ const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
           >
             {advertiseVoting ? 'Where should we donate?' : 'Giving season 2023'}
           </Typography>
+          {advertiseVoting && <Typography
+            variant="body2"
+            className={classes.timeRemainingSubheading}
+            component="div"
+          >
+            {voteTimeRemaining} left to vote.
+          </Typography>}
           {!advertiseVoting && <Typography
             variant="body2"
             className={classes.description}
@@ -337,7 +361,10 @@ const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
             ))}
             <div className={classes.votingTimelineSpace}></div>
             <Link to="/giving-portal" className={classes.votingTimelineBtn}>
-              <span className={classes.voteBtnText}>Vote in the Donation Election</span>
+              <div className={classes.voteBtnText}>
+                <div>Vote in the Donation Election</div>
+                <div className={classes.timeRemainingButton}>{voteTimeRemaining} left</div>
+              </div>
               <span className={classes.voteBtnTextMobile}>Vote</span>
             </Link>
           </div>
