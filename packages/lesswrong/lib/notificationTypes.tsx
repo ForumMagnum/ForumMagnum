@@ -28,7 +28,7 @@ import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
 import DialogueChecks from './collections/dialogueChecks/collection';
 import { getUserABTestGroup } from './abTestImpl';
-import { checkNotificationMessageContent } from './abTests';
+import { checkNotificationMessageContent, staleDialogueMessageContent } from './abTests';
 
 export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
@@ -399,6 +399,42 @@ export const NewDialogueCheckNotification = registerNotificationType({
   },
   getLink() {
     return "/dialogueMatching"
+  }
+});
+
+export const StaleDialoguePingNotification = registerNotificationType({
+  name: "sendDialogueHelperBotPing",
+  userSettingField: "notificationDialogueHelperBotPing",
+  allowedChannels: ["onsite", "none"],
+  async getMessage(props: GetMessageProps) {
+    let notificationAbGroup = ""
+    const userId = props.extraData?.userId
+    if (userId) { 
+      const user = await getDocument("user", userId) as DbUser
+      notificationAbGroup = getUserABTestGroup({user}, staleDialogueMessageContent)
+    }
+
+    const targetUserDisplayName = props.extraData?.targetUserDisplayName
+    switch (notificationAbGroup) {
+      // Reference length of how much text is displayed: 
+     // return `steven byrnes left a new comment on "How do you feel about`
+      case "v1":
+        return `Click to resume: unpublished Dialogue with ${targetUserDisplayName}`
+      case "v2":
+        return `Reminder: open Dialogue with ${targetUserDisplayName}. Resume`
+      case "v3":
+        return `Heads-up, you've a lingering dialogue with ${targetUserDisplayName}`
+      case "v4":
+        return `In case you forgot: you started a dialogue with ${targetUserDisplayName}`
+      default:
+        return `Click to resume: unpublished Dialogue with ${targetUserDisplayName}`
+    }    
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  },
+  getLink(props) {
+    return `/posts/${props.extraData.dialogueId}` 
   }
 });
 

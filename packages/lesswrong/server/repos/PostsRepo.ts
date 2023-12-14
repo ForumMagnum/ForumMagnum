@@ -412,5 +412,20 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
     `);
   }
+
+  async getStaleDialogues(): Promise<DbPost[]> {
+    const tenDaysAgo = new Date(Date.now() - (10 * 24 * 60 * 60 * 1000));
+    return this.getRawDb().any(`
+      -- PostsRepo.getStaleDialogues
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "Revisions" r ON p."_id" = r."documentId"
+      WHERE
+        p."draft" = TRUE AND
+        p."collabEditorDialogue" = TRUE AND
+        r."editedAt" < $1
+      GROUP BY p."_id"
+    `, [tenDaysAgo]);
+  }
 }
 ensureIndex(Posts, {debate:-1})

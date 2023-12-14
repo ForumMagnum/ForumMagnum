@@ -496,6 +496,7 @@ registerFragment(`
     notificationSubforumUnread
     notificationNewMention
     notificationNewDialogueChecks
+    notificationDialogueHelperBotPing
 
     givingSeasonNotifyForVoting
 

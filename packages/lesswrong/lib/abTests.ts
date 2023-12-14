@@ -181,6 +181,29 @@ export const checkNotificationMessageContent = new ABTest({
   },
 });
 
+export const staleDialogueMessageContent = new ABTest({
+  name: "staleDialogueMessageContent",
+  description: "Send different wording of the notification message reminding a user about their dialogues",
+  groups: {
+    v1: {
+      description: "Wording version 1",
+      weight: 1,
+    },
+    v2: {
+      description: "Wording version 2",
+      weight: 1,
+    },
+    v3: {
+      description: "Wording version 3",
+      weight: 1,
+    },
+    v4: {
+      description: "Wording version 4",
+      weight: 1,
+    },
+  },
+});
+
 export const offerToAddCalendlyLink = new ABTest({
   name: "offerToAddCalendlyLink",
   description: "Offer to add a Calendly link on dialogue match",
