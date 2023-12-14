@@ -1099,7 +1099,16 @@ const schema: SchemaType<DbPost> = {
       if (!votes.length) return null;
       const vote = await accessFilterSingle(currentUser, ReviewVotes, votes[0], context);
       return vote;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReviewVotes",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (reviewVotesField) => reviewVotesField("*"),
+    }),
   }),
   
   votingSystem: {
