@@ -69,6 +69,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     top: 3,
     paddingRight: theme.spacing.unit,
     color: theme.palette.text.secondary,
+    maxWidth: 130,
   },
   titleLink: {
     color: theme.palette.header.text,
@@ -120,6 +121,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
+    marginLeft: "auto",
     display: "flex",
     alignItems: isFriendlyUI ? 'center' : undefined,
   },
@@ -295,7 +297,7 @@ const Header = ({
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    GivingSeasonHeader,
+    GivingSeasonHeader, ActiveDialogues
   } = Components;
   
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
@@ -352,7 +354,7 @@ const Header = ({
         unFixed={unFixed}
         setUnFixed={setUnFixed}
         NavigationMenuButton={NavigationMenuButton}
-        RightHeaderItems={() => rightHeaderItemsNode}
+        rightHeaderItems={rightHeaderItemsNode}
         HeaderNavigationDrawer={HeaderNavigationDrawer}
         HeaderNotificationsMenu={HeaderNotificationsMenu}
       />
@@ -393,6 +395,7 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
+              <ActiveDialogues />
               {rightHeaderItemsNode}
             </Toolbar>
           </header>
