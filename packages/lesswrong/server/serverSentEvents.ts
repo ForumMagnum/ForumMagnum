@@ -224,13 +224,16 @@ async function checkForActiveDialoguePartners() {
   for (let dialogue of activeDialogues) {
     const coauthorUserIds = dialogue.coauthorStatuses.map((status: any) => status.userId);
     const allUserIds = [dialogue.userId, ...coauthorUserIds];
-    for (let userId of dialogue.coauthorUserIds) {
+    for (let userId of allUserIds) {
+      const data = {
+        postId: dialogue._id,
+        title: dialogue.title,
+        userIds: dialogue.activeUserIds.filter((id => id !== userId)),
+      }
       if (allUsersDialoguesData[userId]) {
-        allUsersDialoguesData[userId].push({
-          postId: dialogue.postId,
-          title: dialogue.title,
-          userIds: allUserIds,
-        });
+        allUsersDialoguesData[userId].push(data);
+      } else {
+        allUsersDialoguesData[userId] = [data];
       }
     }
   }

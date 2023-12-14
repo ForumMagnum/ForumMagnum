@@ -542,12 +542,14 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `, [limit])
   }
 
-  async getActiveDialogues(userIds: string[]): Promise<any[]> {
+  async getActiveDialogues(userIds: string[]): Promise<{_id: string, userId: string, title: string, coauthorStatuses:{userId: string, confirmed: string, rejected: string}[], activeUserIds:string[]}[]> {
     const result = await this.getRawDb().any(`
     SELECT
         p._id,
         p.title,
-        p."coauthorStatuses"
+        p."userId",
+        p."coauthorStatuses",
+        ARRAY_AGG(DISTINCT s."userId") AS "activeUserIds"
     FROM "Posts" AS p
     LEFT JOIN public."CkEditorUserSessions" AS s ON p._id = s."documentId",
         unnest(p."coauthorStatuses") AS coauthors

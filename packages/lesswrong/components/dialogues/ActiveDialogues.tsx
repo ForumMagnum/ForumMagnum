@@ -62,25 +62,31 @@ export const ActiveDialogues = ({classes}: {
   const location = useLocation();
 
   useOnNotificationsChanged(currentUser, (message) => {
-    if (message.eventType === 'activeDialoguePartners' && currentUser?._id) {  
+    if (message.eventType === 'activeDialoguePartners' && currentUser?._id && message.data) {  
       const otherActiveDialogues = message.data.filter((dialogue) => !location.pathname.includes(dialogue.postId) && !(location.query.postId === dialogue.postId)) // don't show a dialogue as active on its own page
       setActiveDialogues(otherActiveDialogues);
     }
   });
 
-  if (!currentUser) return null;
+  if (!currentUser || !activeDialogues) return null;
 
   return (
     <div className={classes.root}>
-      {activeDialogues.map((dialogue) => (
+      {activeDialogues.filter(d => d.userIds.length > 0).map((dialogue) => ( // filter out your own dialogues where only you're active
         <div className={classes.activeDialogueContainer} key={dialogue.postId}>
           <div className={classes.activeDot}>
           </div>
           <PostsTooltip postId={dialogue.postId}>
-            <Link to={postGetEditUrl(dialogue.postId)}> 
+            <Link to={postGetEditUrl(dialogue.postId)} onClick={() => captureEvent("header dialogue clicked")}> 
               <div className={classes.dialogueDetailsContainer}> 
                 <Typography variant='body2' className={classes.activeAuthorNames}> 
-                  {dialogue.userIds.filter(id => id !== currentUser._id).map(id => <UsersName key={dialogue.postId} documentId={id} simple={true}></UsersName>)} 
+                  {
+                    dialogue?.userIds
+                      .map(id => <UsersName key={dialogue.postId} documentId={id} simple={true}></UsersName>)
+                      .reduce((prev, curr, index) => {
+                        return index === 0 ? [curr] : [...prev, ', ', curr]
+                      }, [])
+                  }
                 </Typography> 
                 <Typography variant='body2' className={classes.activeDialogueTitle}> 
                   {dialogue.title.length < 30 ? dialogue.title : dialogue.title.substring(0, 30)+"..." } 
