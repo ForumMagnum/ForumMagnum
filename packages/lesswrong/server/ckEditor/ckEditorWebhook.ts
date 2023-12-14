@@ -3,8 +3,9 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
-import { createMutator, updateMutator } from '../vulcan-lib';
+import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib';
 import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
+import { ckEditorUserSessionsEnabled } from '../../lib/betas';
 
 interface CkEditorUserConnectionChange {
   user: { id: string },
@@ -31,9 +32,9 @@ const testWebHookLocally = async () => {
       "environment_id": "rQvD3VnunXZu34m86e5f",
       "event": "collaboration.user.connected",
       "payload": {
-        "user": { "id": "KynyugbGz9kgFGe4A" },
+        "user": { "id": "gXeEWGjTWyqgrQTzR" },
         "document": { "id": "D5mCL6dTSGnNedy4d-edit" },
-        "connected_users": [{ "id": "KynyugbGz9kgFGe4A" }]
+        "connected_users": [{ "id": "gXeEWGjTWyqgrQTzR" }]
       },
       "sent_at": "2023-12-11T22:00:33.357Z"
     },
@@ -56,7 +57,6 @@ const testWebHookLocally = async () => {
     console.log("Sent webhook test " + i)
   }
 }
-
 
 addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   if (req.method !== "POST") {
@@ -153,39 +153,46 @@ async function handleCkEditorWebhook(message: any) {
     case "comment.removed":
     case "commentthread.removed":
     case "commentthread.restored":
+      break
     case "collaboration.user.connected": {
-      const userConnectedPayload = payload as CkEditorUserConnectionChange;
-      const userId = userConnectedPayload?.user?.id;
-      const ckEditorDocumentId = userConnectedPayload?.document?.id;
-      const documentId = ckEditorDocumentId.replace(/-edit$/, '')
-      if (!!userId && !!documentId) {
-        await createMutator({
-          collection: CkEditorUserSessions,
-          document: {
-            userId,
-            documentId,
-          },
-        })
+      if (ckEditorUserSessionsEnabled) {
+        const userConnectedPayload = payload as CkEditorUserConnectionChange;
+        const userId = userConnectedPayload?.user?.id;
+        const ckEditorDocumentId = userConnectedPayload?.document?.id;
+        const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
+        if (!!userId && !!documentId) {
+          const adminContext = await createAdminContext()
+          await createMutator({
+            collection: CkEditorUserSessions,
+            document: {
+              userId,
+              documentId,
+            },
+            context: adminContext,
+            currentUser: adminContext.currentUser,
+          })
+        }
       }
-
       break
     }
     case "document.user.connected":
+      break
     case "collaboration.user.disconnected": {
-      const userDisconnectedPayload = payload as CkEditorUserConnectionChange;
-      const userId = userDisconnectedPayload?.user?.id;
-      const documentId = userDisconnectedPayload?.document?.id;
-      if (userId && documentId) {
-        const userSession = await CkEditorUserSessions.findOne({userId, documentId }, {sort:{createdAt: -1}});
-        if (userSession) {
-          await updateMutator({
-            collection: CkEditorUserSessions,
-            documentId: userSession._id, 
-            set: { endedAt: new Date(sent_at) },
-          });
+      if (ckEditorUserSessionsEnabled) {
+        const userDisconnectedPayload = payload as CkEditorUserConnectionChange;
+        const userId = userDisconnectedPayload?.user?.id;
+        const documentId = userDisconnectedPayload?.document?.id;
+        if (userId && documentId) {
+          const userSession = await CkEditorUserSessions.findOne({userId, documentId, endedAt: {$exists: false}}, {sort:{createdAt: -1}});
+          if (userSession) {
+            await updateMutator({
+              collection: CkEditorUserSessions,
+              documentId: userSession._id, 
+              set: { endedAt: new Date(sent_at) },
+            });
+          }
         }
       }
-      
       break
     }
     case "document.user.disconnected": {

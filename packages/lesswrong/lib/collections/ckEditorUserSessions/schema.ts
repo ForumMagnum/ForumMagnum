@@ -6,16 +6,19 @@ const schema: SchemaType<DbCkEditorUserSession> = {
     type: String,
     nullable: false,
     canRead: ['admins'],
+    canCreate: ['admins'],
   },
   userId: {
     type: String,
     nullable: false,
     canRead: ['admins'], 
+    canCreate: ['admins'],
   },
   endedAt: {
     type: Date,
     optional: true,
     canRead: ['admins'],
+    canCreate: ['admins'],
   },
 }
 
