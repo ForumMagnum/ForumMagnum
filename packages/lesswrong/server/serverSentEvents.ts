@@ -219,8 +219,10 @@ async function checkForActiveDialoguePartners() {
   // Fetch active dialogues data for all users in one SQL query
   const allUsersDialoguesData = await new UsersRepo().getActiveDialogueData(userIds);
 
+  const testUserIds = ["gXeEWGjTWyqgrQTzR", "XtphY3uYHwruKqDyG", "grecHJcgkb3KW5wnM", "EQNTWXLKMeWMp2FQS"];
+
   for (let userId of userIds) {
-    if (userId === "gXeEWGjTWyqgrQTzR") { // hardcoded to be able to test feature with live ckEditor data in prod
+    if (testUserIds.includes(userId)) { // hardcoded to be able to test feature with live ckEditor data in prod
       const userDialoguesData = allUsersDialoguesData[userId];
       if (!!userDialoguesData && userDialoguesData.length > 0) {
         const message = {
