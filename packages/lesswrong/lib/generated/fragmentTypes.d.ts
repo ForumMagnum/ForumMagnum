@@ -3511,6 +3511,19 @@ interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
   readonly deleted: boolean,
 }
 
+interface CkEditorUserSessionsDefaultFragment { // fragment on CkEditorUserSessions
+  readonly documentId: string,
+  readonly userId: string,
+  readonly endedAt: Date,
+}
+
+interface CkEditorUserSessionInfo { // fragment on CkEditorUserSessions
+  readonly _id: string,
+  readonly userId: string,
+  readonly documentId: string,
+  readonly endedAt: Date,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -3744,6 +3757,8 @@ interface FragmentTypes {
   DialogueCheckInfo: DialogueCheckInfo
   DialogueMatchPreferencesDefaultFragment: DialogueMatchPreferencesDefaultFragment
   DialogueMatchPreferenceInfo: DialogueMatchPreferenceInfo
+  CkEditorUserSessionsDefaultFragment: CkEditorUserSessionsDefaultFragment
+  CkEditorUserSessionInfo: CkEditorUserSessionInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3798,6 +3813,7 @@ interface FragmentTypesByCollection {
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
+  CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
 }
 
 interface CollectionNamesByFragmentName {
@@ -4022,8 +4038,10 @@ interface CollectionNamesByFragmentName {
   DialogueCheckInfo: "DialogueChecks"
   DialogueMatchPreferencesDefaultFragment: "DialogueMatchPreferences"
   DialogueMatchPreferenceInfo: "DialogueMatchPreferences"
+  CkEditorUserSessionsDefaultFragment: "CkEditorUserSessions"
+  CkEditorUserSessionInfo: "CkEditorUserSessions"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 

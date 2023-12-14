@@ -478,5 +478,10 @@
     "acceptsSchemaHash": "989958afb8a5cef47f6f8bd33d5a499f",
     "acceptedByMigration": "20231208T021726.add_soft_delete_to_forms.ts",
     "timestamp": "2023-12-08T02:17:26.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e30b5ca4f4989161f627585b747ee83e",
+    "acceptedByMigration": "20231212T223511.add_table_for_ckeditorusersessions.ts",
+    "timestamp": "2023-12-12T22:35:11.000Z"
   }
 ]

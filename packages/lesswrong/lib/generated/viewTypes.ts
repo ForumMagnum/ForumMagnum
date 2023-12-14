@@ -2,6 +2,7 @@ type AdvisorRequestsViewName = "requestsByUser";
 type BansViewName = never
 type BooksViewName = never
 type ChaptersViewName = "SequenceChapters";
+type CkEditorUserSessionsViewName = never
 type ClientIdsViewName = "getClientId";
 type CollectionsViewName = never
 type CommentModeratorActionsViewName = "activeCommentModeratorActions";
@@ -63,6 +64,7 @@ interface ViewTermsByCollectionName {
   Bans: ViewTermsBase
   Books: ViewTermsBase
   Chapters: ChaptersViewTerms
+  CkEditorUserSessions: ViewTermsBase
   ClientIds: ClientIdsViewTerms
   Collections: CollectionsViewTerms
   CommentModeratorActions: CommentModeratorActionsViewTerms
