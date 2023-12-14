@@ -3,6 +3,10 @@ import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '..
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
 import { describeTerms, viewTermsToQuery } from '../utils/viewUtils';
+import type { FieldNode, GraphQLResolveInfo } from 'graphql';
+import { FragmentSpreadNode } from 'graphql';
+import SelectFragmentQuery from '../sql/SelectFragmentQuery';
+import { getSqlClientOrThrow } from '../sql/sqlClient';
 
 const maxAllowedSkip = 2000;
 
@@ -13,6 +17,25 @@ interface DefaultResolverOptions {
 const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
 };
+
+const getFragmentNameFromInfo = ({fieldName, fieldNodes}: GraphQLResolveInfo) => {
+  const query = fieldNodes.find(
+    ({name: {value}}) => value === fieldName,
+  );
+  const mainSelections = query?.selectionSet?.selections;
+  const results = mainSelections?.find(
+    (node) => node.kind === "Field" && node.name.value === "results",
+  ) as FieldNode | undefined;
+  const resultSelections = results?.selectionSet?.selections;
+  const fragmentSpread = resultSelections?.find(
+    ({kind}) => kind === "FragmentSpread",
+  ) as FragmentSpreadNode | undefined;
+  const fragmentName = fragmentSpread?.name.value;
+  if (!fragmentName) {
+    throw new Error("Fragment name not found");
+  }
+  return fragmentName;
+}
 
 // Default resolvers. Provides `single` and `multi` resolvers, which power the
 // useSingle and useMulti hooks.
@@ -27,7 +50,12 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     multi: {
       description: `A list of ${typeName} documents matching a set of query terms`,
 
-      async resolver(root: void, args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>} }, context: ResolverContext, { cacheControl }: AnyBecauseTodo) {
+      async resolver(
+        root: void,
+        args: { input: {terms: ViewTermsBase, enableCache?: boolean, enableTotal?: boolean, createIfMissing?: Partial<T>} },
+        context: ResolverContext,
+        info: GraphQLResolveInfo,
+      ) {
         const startResolve = Date.now()
         const input = args?.input || {};
         const { terms={}, enableCache = false, enableTotal = false } = input;
@@ -35,6 +63,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         logger('multi resolver()')
         logger('multi terms', terms)
 
+        const {cacheControl} = info;
         if (cacheControl && enableCache) {
           const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
           cacheControl.setCacheHint({ maxAge });
@@ -46,16 +75,28 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
         // get collection based on collectionName argument
         const collection = getCollection(collectionName);
 
+        // get fragment from GraphQL AST
+        const fragmentName = getFragmentNameFromInfo(info);
+
         // Get selector and options from terms and perform Mongo query
         // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
         const parameters = viewTermsToQuery(collectionName, terms as any, {}, context);
-        
-        let docs: Array<T> = await performQueryFromViewParameters(collection, terms, parameters);
+
+        const query = new SelectFragmentQuery(
+          fragmentName as FragmentName,
+          currentUser,
+          args,
+          parameters.selector,
+          parameters.options,
+        );
+        const compiledQuery = query.compile();
+        const db = getSqlClientOrThrow();
+        let docs = await db.any(compiledQuery.sql, compiledQuery.args);
 
         // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
         if (input.createIfMissing && docs.length === 0) {
           await collection.options.mutations.create.mutation(root, {data: input.createIfMissing}, context)
-          docs = await performQueryFromViewParameters(collection, terms, parameters);
+          docs = await db.any(compiledQuery.sql, compiledQuery.args);
         }
         
         // Were there enough results to reach the limit specified in the query?
