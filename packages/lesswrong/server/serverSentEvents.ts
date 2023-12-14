@@ -220,20 +220,21 @@ async function checkForActiveDialoguePartners() {
   const allUsersDialoguesData = await new UsersRepo().getActiveDialogueData(userIds);
 
   for (let userId of userIds) {
-    const userDialoguesData = allUsersDialoguesData[userId];
+    if (userId === "gXeEWGjTWyqgrQTzR") { // hardcoded to be able to test feature with live ckEditor data in prod
+      const userDialoguesData = allUsersDialoguesData[userId];
+      if (!!userDialoguesData && userDialoguesData.length > 0) {
+        const message = {
+          eventType: "activeDialoguePartners",
+          data: userDialoguesData
+        };
 
-    if (!!userDialoguesData && userDialoguesData.length > 0) {
-      const message = {
-        eventType: "activeDialoguePartners",
-        data: userDialoguesData
-      };
+        const messageString = `data: ${JSON.stringify(message)}\n\n`;
 
-      const messageString = `data: ${JSON.stringify(message)}\n\n`;
-
-      for (let connection of openConnections[userId]) {
-        connection.res.write(messageString);
-        connection.newestNotificationTimestamp = new Date();
-      } 
+        for (let connection of openConnections[userId]) {
+          connection.res.write(messageString);
+          connection.newestNotificationTimestamp = new Date();
+        } 
+      }
     }
   }
 }

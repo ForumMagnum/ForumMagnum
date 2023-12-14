@@ -81,7 +81,7 @@ export const ActiveDialogues = ({classes}: {
             <Link to={postGetEditUrl(dialogue.postId)}> 
               <div className={classes.dialogueDetailsContainer}> 
                 <Typography variant='body2' className={classes.activeAuthorNames}> 
-                  {dialogue.displayNames.join(', ')} 
+                  {dialogue.displayNames.filter(name => name !== currentUser.displayName).join(', ')} 
                 </Typography> 
                 <Typography variant='body2' className={classes.activeDialogueTitle}> 
                   {truncate(dialogue.title, 30)} 
