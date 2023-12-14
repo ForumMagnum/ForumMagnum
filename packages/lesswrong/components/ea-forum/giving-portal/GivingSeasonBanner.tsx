@@ -14,8 +14,7 @@ import moment from "moment";
 import { HEADER_HEIGHT } from "../../common/Header";
 import { useCurrentUser } from "../../common/withUser";
 import { useElectionVote } from "../voting-portal/hooks";
-import { isPastVotingDeadline } from "../../../lib/collections/electionVotes/helpers";
-import { VOTING_DEADLINE } from "../../../lib/collections/electionVotes/helpers";
+import { isPastVotingDeadline, VOTING_DEADLINE } from "../../../lib/collections/electionVotes/helpers";
 
 const BANNER_HEIGHT = EA_FORUM_GIVING_SEASON_HEADER_HEIGHT - HEADER_HEIGHT;
 const MAX_SPANS = 3;
