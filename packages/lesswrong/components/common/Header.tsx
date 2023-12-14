@@ -395,7 +395,7 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
-              {isEAForum &&<ActiveDialogues />}
+              {!isEAForum &&<ActiveDialogues />}
               {rightHeaderItemsNode}
             </Toolbar>
           </header>
