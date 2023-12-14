@@ -1055,6 +1055,7 @@ importComponent("Book2020Animation", () => require('../components/books/Book2020
 importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));
 importComponent("Book2019FrontpageWidget", () => require('../components/books/Book2019FrontpageWidget'));
 importComponent("Book2020FrontpageWidget", () => require('../components/books/Book2020FrontpageWidget'));
+importComponent("Books2021SaleAnimation", () => require('../components/books/Books2021SaleAnimation'));
 
 importComponent("AdminPaymentsPage", () => require('../components/payments/AdminPaymentsPage'));
 importComponent("EditPaymentInfoPage", () => require('../components/payments/EditPaymentInfoPage'));
