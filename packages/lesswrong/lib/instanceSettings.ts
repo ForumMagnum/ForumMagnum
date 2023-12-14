@@ -181,9 +181,6 @@ export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<str
 /** Currently LW-only; forum-gated in `userCanVote` */
 export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 1, "optional");
 
-/** Whether to include a Share button. (Forums with no public access, or a more conservative style wouldn't want one.) */
-export const hasShareButtonsSetting = new PublicInstanceSetting<boolean>("hasShareButtons", true, "optional");
-
 /** Whether posts and other content is visible to non-logged-in users (TODO: actually implement this) */
 export const publicAccess = new PublicInstanceSetting<boolean>("publicAccess", true, "optional");
 
