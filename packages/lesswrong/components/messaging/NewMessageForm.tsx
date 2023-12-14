@@ -4,8 +4,8 @@ import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { useSingle } from "../../lib/crud/withSingle";
 import { Components, getFragment, registerComponent } from "../../lib/vulcan-lib";
 import { TemplateQueryStrings } from "./NewConversationButton";
-import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
+import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -14,7 +14,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     fontFamily: theme.typography.fontFamily,
     marginLeft: "5px",
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
           fontSize: 14,
           fontWeight: 500,
@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       background: theme.palette.panelBackground.darken05,
     },
   },
-  submitButton: isEAForum
+  submitButton: isFriendlyUI
     ? {
         background: theme.palette.primary.main,
         color: theme.palette.text.alwaysWhite, // Dark mode independent

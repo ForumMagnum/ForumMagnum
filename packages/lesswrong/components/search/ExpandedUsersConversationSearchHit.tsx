@@ -7,6 +7,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { useNavigate } from '../../lib/reactRouterWrapper';
+import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -99,7 +100,7 @@ const ExpandedUsersConversationSearchHit = ({
   return (
     <div className={classNames(className, classes.root)}>
       <div onClick={() => initiateConversation(user._id)} className={classes.link}>
-        {isEAForum && (
+        {isFriendlyUI && (
           <div className={classes.profilePhotoCol}>
             <UsersProfileImage user={user} size={36} />
           </div>

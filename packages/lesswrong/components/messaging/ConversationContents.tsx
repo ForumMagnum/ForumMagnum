@@ -8,7 +8,7 @@ import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
 import { userCanDo } from "../../lib/vulcan-users";
 import { useOnNotificationsChanged } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
-import { isEAForum } from "../../lib/instanceSettings";
+import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationTitle: {
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       // on mobile. This fixes that.
       display: "flex",
     },
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       borderTop: theme.palette.border.grey200,
     })
   },
