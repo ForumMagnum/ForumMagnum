@@ -1,7 +1,12 @@
 import { getUserABTestGroup, useABTest } from "../../lib/abTestImpl";
+import { getCKEditorDocumentId } from "../../lib/ckEditorUtils";
+import CkEditorUserSessions from "../../lib/collections/ckEditorUserSessions/collection";
+import {ckEditorApi, documentHelpers} from "../ckEditor/ckEditorApi";
 import { addCronJob } from "../cronUtil";
 import { createNotification } from "../notificationCallbacksHelpers";
-import { createAdminContext } from "../vulcan-lib";
+import {endCkEditorUserSession} from "../repos/CkEditorUserSessionsRepo";
+import { createAdminContext, updateMutator } from "../vulcan-lib";
+import groupBy from 'lodash/groupBy';
 
 addCronJob({
   name: 'notifyUsersOfNewDialogueChecks',
@@ -21,3 +26,47 @@ addCronJob({
     })
   }
 });
+
+async function checkActiveUserSession(userId:string, documentId:string) {
+  const ckEditorDocumentId = getCKEditorDocumentId(documentId, userId, "edit");
+
+  const response = await ckEditorApi.getAllConnectedUserIds(ckEditorDocumentId)
+  const connectedUsers = JSON.parse(response);
+  if (connectedUsers.includes(userId)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+addCronJob({
+  name: 'cleanupStaleCkEditoreUserSessions',
+  interval: 'every 2 hours',
+  async job() {
+    const activeUserSessions = await CkEditorUserSessions.find({endedAt: {$exists: false}}, {sort:{createdAt: -1}}).fetch();
+    const groupedSessions = groupBy(activeUserSessions, session => `${session.userId}-${session.documentId}`);
+
+    const superfluousSessionPromises = [];
+    const latestSessions = []
+
+    for (const sessions of Object.values(groupedSessions)) {
+
+      latestSessions.push(sessions[0])
+      // End all sessions except the most recent one
+      for (let i = 1; i < sessions.length; i++) {
+        superfluousSessionPromises.push(
+          endCkEditorUserSession(sessions[i]._id, "cron")
+        );
+      }
+    }
+
+    void Promise.all(superfluousSessionPromises);
+
+    for (const session of latestSessions) {
+      const isActive = await checkActiveUserSession(session.userId, session.documentId);
+      if (!isActive) {
+        void endCkEditorUserSession(session._id, "cron")
+      }
+    }
+  }
+})

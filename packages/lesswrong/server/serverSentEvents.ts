@@ -5,11 +5,11 @@ import { getSiteUrl } from "../lib/vulcan-lib/utils";
 import { DatabaseServerSetting } from './databaseSettings';
 import maxBy from 'lodash/maxBy';
 import moment from 'moment';
-import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
-import {ServerSentEventsMessage, TypingIndicatorMessage} from '../components/hooks/useUnreadNotifications';
+import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
+import { ActiveDialogue, ActiveDialogueServer, ServerSentEventsMessage, TypingIndicatorMessage } from '../components/hooks/useUnreadNotifications';
 import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
 import UsersRepo from './repos/UsersRepo';
-import {isEAForum} from '../lib/instanceSettings';
+import { isEAForum } from '../lib/instanceSettings';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -216,14 +216,11 @@ async function checkForActiveDialoguePartners() {
     return;
   }
 
-  // Get all user IDs from open connections
   const userIds = Object.keys(openConnections);
 
-  // Fetch active dialogues data for all users in one SQL query
-  const activeDialogues = await new UsersRepo().getActiveDialogues(userIds);
+  const activeDialogues:ActiveDialogueServer[] = await new UsersRepo().getActiveDialogues(userIds);
 
-  // Process the result to get the same structure as before
-  const allUsersDialoguesData: Record<string, any[]> = {};
+  const allUsersDialoguesData: Record<string, ActiveDialogue[]> = {};
   for (let dialogue of activeDialogues) {
     const coauthorUserIds = dialogue.coauthorStatuses.map((status: any) => status.userId);
     const allUserIds = [dialogue.userId, ...coauthorUserIds];
@@ -246,19 +243,17 @@ async function checkForActiveDialoguePartners() {
   for (let userId of userIds) {
     if (testUserIds.includes(userId)) { // hardcoded to be able to test feature with live ckEditor data in prod
       const userDialoguesData = allUsersDialoguesData[userId];
-      if (!!userDialoguesData && userDialoguesData.length > 0) {
-        const message = {
-          eventType: "activeDialoguePartners",
-          data: userDialoguesData
-        };
+      const message = {
+        eventType: "activeDialoguePartners",
+        data: !!userDialoguesData && userDialoguesData.length > 0 ? userDialoguesData : []
+      };
 
-        const messageString = `data: ${JSON.stringify(message)}\n\n`;
+      const messageString = `data: ${JSON.stringify(message)}\n\n`;
 
-        for (let connection of openConnections[userId]) {
-          connection.res.write(messageString);
-          connection.newestNotificationTimestamp = new Date();
-        } 
-      }
+      for (let connection of openConnections[userId]) {
+        connection.res.write(messageString);
+        connection.newestNotificationTimestamp = new Date();
+      } 
     }
   }
 }
