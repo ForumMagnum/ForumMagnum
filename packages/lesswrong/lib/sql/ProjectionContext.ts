@@ -1,6 +1,7 @@
 import PgCollection from "./PgCollection";
 import isEqual from "lodash/isEqual";
 import { randomId } from "../random";
+import chunk from "lodash/chunk";
 
 export type CustomResolver<T extends DbObject = DbObject> =
   NonNullable<CollectionFieldSpecification<T>["resolveAs"]>;
@@ -49,17 +50,27 @@ class ProjectionContext<T extends DbObject = DbObject> {
   }
 
   aggregate(subcontext: ProjectionContext, name: string) {
-    const test = `"${subcontext.primaryPrefix}"."_id"`;
-    const obj = `JSONB_BUILD_OBJECT( ${subcontext.projections.join(", ")} )`;
+    const {primaryPrefix, projections, joins, args, codeResolvers} = subcontext;
+
+    // Postgres functions take a maximum of 100 arguments. Each projection item
+    // requires passing 2 arguments to `JSONB_BUILD_OBJECT`, so we need to split
+    // it into chunks of 50 items then concatenate them together.
+    const projChunks = chunk(projections, 50);
+    const projObjs = projChunks.map(
+      (chunk) => `JSONB_BUILD_OBJECT( ${chunk.join(", ")} )`,
+    );
+    const obj = projObjs.join(" || ");
+
+    const test = `"${primaryPrefix}"."_id"`;
     const proj = `CASE WHEN ${test} IS NULL THEN NULL ELSE ${obj} END`;
     const namedProj = this.isAggregate
       ? `'${name}', ${proj}`
       : `${proj} "${name}"`;
     this.projections.push(namedProj);
-    this.joins = this.joins.concat(subcontext.joins);
-    this.args = this.args.concat(subcontext.args);
-    if (Object.keys(subcontext.codeResolvers).length) {
-      this.codeResolvers[name] = subcontext.codeResolvers;
+    this.joins = this.joins.concat(joins);
+    this.args = this.args.concat(args);
+    if (Object.keys(codeResolvers).length) {
+      this.codeResolvers[name] = codeResolvers;
     }
   }
 
