@@ -20,6 +20,14 @@ export const serverSentEventsAPI: ServerSentEventsAPI = {
   setServerSentEventsActive: null,
 };
 
+export type ActiveDialogueServer = {
+  _id: string,
+  userId: string,
+  title: string,
+  coauthorStatuses: {userId: string, confirmed: string, rejected: string}[],
+  activeUserIds: string[],
+}
+
 export type ActiveDialogue = {
   userIds: string[],
   postId: string,

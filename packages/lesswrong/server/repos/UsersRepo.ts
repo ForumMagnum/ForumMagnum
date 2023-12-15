@@ -2,7 +2,7 @@ import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
 import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueMatchingPage";
 import { calculateVotePower } from "../../lib/voting/voteTypes";
-import { ActiveDialogueData } from "../../components/hooks/useUnreadNotifications";
+import { ActiveDialogue, ActiveDialogueData, ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -542,7 +542,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `, [limit])
   }
 
-  async getActiveDialogues(userIds: string[]): Promise<{_id: string, userId: string, title: string, coauthorStatuses:{userId: string, confirmed: string, rejected: string}[], activeUserIds:string[]}[]> {
+  async getActiveDialogues(userIds: string[]): Promise<ActiveDialogueServer[]> {
     const result = await this.getRawDb().any(`
     SELECT
         p._id,
