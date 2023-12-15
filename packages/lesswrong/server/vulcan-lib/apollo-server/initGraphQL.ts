@@ -218,10 +218,26 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
           type: fieldGraphQLType,
         });
 
+        const missingResolvers = new Set<string>();
+
         // then build actual resolver object and pass it to addGraphQLResolvers
         const resolver = {
           [typeName]: {
             [resolverName]: (document: T, args: any, context: ResolverContext, info: any) => {
+              if (field.resolveAs!.sqlResolver) {
+                const existingValue = document[resolverName as keyof T];
+                if (existingValue === undefined) {
+                  const name = `${typeName}.${resolverName}`;
+                  if (!missingResolvers.has(name)) {
+                    missingResolvers.add(name);
+                    // eslint-disable-next-line no-console
+                    console.warn(`Missing SQL resolver: ${name}`);
+                  }
+                } else {
+                  return existingValue;
+                }
+              }
+
               const { currentUser } = context;
               // check that current user has permission to access the original non-resolved field
               const canReadField = userCanReadField(currentUser, field, document);
