@@ -32,11 +32,7 @@ async function checkActiveUserSession(userId:string, documentId:string) {
 
   const response = await ckEditorApi.getAllConnectedUserIds(ckEditorDocumentId)
   const connectedUsers = JSON.parse(response);
-  if (connectedUsers.includes(userId)) {
-    return true;
-  } else {
-    return false;
-  }
+  return connectedUsers.includes(userId)
 }
 
 addCronJob({

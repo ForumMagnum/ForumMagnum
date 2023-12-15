@@ -186,9 +186,8 @@ async function handleCkEditorWebhook(message: any) {
         if (!!userId && !!ckEditorDocumentId) {
           const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
           const userSession = await CkEditorUserSessions.findOne({userId, documentId, endedAt: {$exists: false}}, {sort:{createdAt: -1}});
-          const adminContext = await createAdminContext()
           if (!!userSession) {
-            await endCkEditorUserSession(userSession._id, "ckEditorWebhook", sent_at)
+            await endCkEditorUserSession(userSession._id, "ckEditorWebhook", new Date(sent_at))
           }
         }
       }

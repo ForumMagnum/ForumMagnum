@@ -3,14 +3,14 @@ import {randomId} from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
 import { createAdminContext, updateMutator } from "../vulcan-lib";
 
-export const endCkEditorUserSession = async (documentId:string, endedBy:string, sent_at?:string) => {
+export const endCkEditorUserSession = async (documentId:string, endedBy:string, endedAt:Date = new Date()) => {
 
   const adminContext = await createAdminContext();
 
   return updateMutator({
     collection: CkEditorUserSessions,
     documentId,
-    set: { endedAt: sent_at ? new Date(sent_at) : new Date(), endedBy },
+    set: { endedAt, endedBy },
     context: adminContext,
     currentUser: adminContext.currentUser,
   })

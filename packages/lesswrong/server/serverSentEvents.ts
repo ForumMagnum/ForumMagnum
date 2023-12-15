@@ -245,7 +245,7 @@ async function checkForActiveDialoguePartners() {
       const userDialoguesData = allUsersDialoguesData[userId];
       const message = {
         eventType: "activeDialoguePartners",
-        data: !!userDialoguesData && userDialoguesData.length > 0 ? userDialoguesData : []
+        data: userDialoguesData ?? []
       };
 
       const messageString = `data: ${JSON.stringify(message)}\n\n`;
