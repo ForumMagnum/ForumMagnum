@@ -483,5 +483,10 @@
     "acceptsSchemaHash": "e30b5ca4f4989161f627585b747ee83e",
     "acceptedByMigration": "20231212T223511.add_table_for_ckeditorusersessions.ts",
     "timestamp": "2023-12-12T22:35:11.000Z"
+  },
+  {
+    "acceptsSchemaHash": "592612513ed7bd3260014fe27c8ae328",
+    "acceptedByMigration": "20231215T014943.add_endedby_field_for_ckeditorusersessions.ts",
+    "timestamp": "2023-12-15T01:49:43.000Z"
   }
 ]

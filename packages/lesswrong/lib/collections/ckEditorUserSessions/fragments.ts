@@ -6,5 +6,6 @@ registerFragment(`
     userId
     documentId
     endedAt
+    endedBy
   }
 `);
