@@ -14,6 +14,7 @@ describe("SelectFragmentQuery", () => {
         () => "q",
       ),
       expectedSql: `
+        -- Fragment TestCollection4DefaultFragment
         SELECT
           "t"."_id",
           "t"."testCollection3Id",
@@ -39,6 +40,7 @@ describe("SelectFragmentQuery", () => {
         () => "q",
       ),
       expectedSql: `
+        -- Fragment TestCollection4ArgFragment
         SELECT
           "t"."_id",
           CASE WHEN "q"."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(

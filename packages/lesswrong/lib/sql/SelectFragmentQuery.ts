@@ -8,7 +8,7 @@ class SelectFragmentQuery<T extends DbObject> extends SelectQuery<T> {
   private codeResolvers: CodeResolverMap = {};
 
   constructor(
-    fragmentName: FragmentName,
+    private fragmentName: FragmentName,
     currentUser: DbUser | UsersCurrent | null,
     private resolverArgs?: Record<string, unknown> | null,
     selector?: string | MongoSelector<T>,
@@ -33,10 +33,14 @@ class SelectFragmentQuery<T extends DbObject> extends SelectQuery<T> {
     this.codeResolvers = projection.getCodeResolvers();
   }
 
+  private getCommentLine() {
+    return `-- Fragment ${this.fragmentName}\n`;
+  }
+
   compile() {
     const {sql, args} = super.compile(this.projectionArgs.length);
     return {
-      sql,
+      sql: this.getCommentLine() + sql,
       args: [...this.projectionArgs, ...args],
     };
   }
