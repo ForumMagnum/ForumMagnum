@@ -34,7 +34,7 @@ class FragmentLexer {
   next(): string | null {
     while (this.position < this.lines.length) {
       const line = this.lines[this.position++];
-      const trimmedLine = line.match(/\s*([^#]*)(#.*)?/)?.[1]?.trimEnd();
+      const trimmedLine = line.match(/\s*([^#]+)(#.*)?/)?.[1]?.trimEnd();
       if (!trimmedLine) {
         continue;
       }

@@ -49,6 +49,7 @@ const getResolverCollection = (
 
 class SqlFragment {
   private lexer: FragmentLexer;
+  private parsedEntries: SqlFragmentEntryMap | undefined;
 
   constructor(
     /** The raw source text of the fragment */
@@ -83,7 +84,7 @@ class SqlFragment {
     return args;
   }
 
-  parseEntries(): SqlFragmentEntryMap {
+  private parseEntries(): SqlFragmentEntryMap {
     const entries: SqlFragmentEntryMap = {};
     let line: string | null;
     while ((line = this.lexer.next())) {
@@ -121,6 +122,13 @@ class SqlFragment {
       throw new Error(`Parse error in fragment "${this.getName()}": "${line}"`);
     }
     return entries;
+  }
+
+  getParsedEntries(): SqlFragmentEntryMap {
+    if (!this.parsedEntries) {
+      this.parsedEntries = this.parseEntries();
+    }
+    return this.parsedEntries;
   }
 
   private compileFieldEntry(
@@ -211,7 +219,7 @@ class SqlFragment {
   }
 
   private compileProjection(context: ProjectionContext) {
-    const entries = this.parseEntries();
+    const entries = this.getParsedEntries();
     if (!this.lexer.isFinished()) {
       throw new Error(`Mismatched braces in fragment: "${this.getName()}"`);
     }

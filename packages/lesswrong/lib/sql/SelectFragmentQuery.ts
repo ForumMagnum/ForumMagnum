@@ -1,14 +1,16 @@
 import SelectQuery from "./SelectQuery";
 import { getSqlFragment } from "../vulcan-lib";
-import type { PrefixGenerator } from "./ProjectionContext";
+import type { CodeResolverMap, PrefixGenerator } from "./ProjectionContext";
+import type { GraphQLResolveInfo } from "graphql";
 
 class SelectFragmentQuery<T extends DbObject> extends SelectQuery<T> {
   private projectionArgs: unknown[];
+  private codeResolvers: CodeResolverMap = {};
 
   constructor(
     fragmentName: FragmentName,
     currentUser: DbUser | UsersCurrent | null,
-    resolverArgs?: Record<string, unknown> | null,
+    private resolverArgs?: Record<string, unknown> | null,
     selector?: string | MongoSelector<T>,
     options?: MongoFindOptions<T>,
     prefixGenerator?: PrefixGenerator,
@@ -28,6 +30,7 @@ class SelectFragmentQuery<T extends DbObject> extends SelectQuery<T> {
     this.atoms.push(sql);
     this.projectionArgs = args;
     this.initSelector(selector, options);
+    this.codeResolvers = projection.getCodeResolvers();
   }
 
   compile() {
@@ -36,6 +39,43 @@ class SelectFragmentQuery<T extends DbObject> extends SelectQuery<T> {
       sql,
       args: [...this.projectionArgs, ...args],
     };
+  }
+
+  async executeCodeResolvers<T extends DbObject>(
+    obj: T,
+    context: ResolverContext,
+    info: GraphQLResolveInfo,
+    resolvers = this.codeResolvers,
+  ): Promise<T> {
+    const promises: Promise<unknown>[] = [];
+    const subresolvers: Record<string, CodeResolverMap> = {};
+
+    for (const resolverName in resolvers) {
+      const resolver = resolvers[resolverName];
+      if (typeof resolver === "function") {
+        const generator = async () => {
+          const result = await resolver(obj, this.resolverArgs, context, info);
+          obj[resolverName as keyof T] = result;
+        }
+        promises.push(generator());
+      } else {
+        subresolvers[resolverName] = resolver;
+      }
+    }
+
+    for (const subresolverName in subresolvers) {
+      obj[subresolverName as keyof T] ??= {} as T[keyof T];
+      promises.push(this.executeCodeResolvers(
+        obj[subresolverName as keyof T] as DbObject,
+        context,
+        info,
+        subresolvers[subresolverName],
+      ));
+    }
+
+    await Promise.all(promises);
+
+    return obj;
   }
 }
 

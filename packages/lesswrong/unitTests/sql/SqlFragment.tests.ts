@@ -9,7 +9,7 @@ describe("SqlFragment", () => {
         a
       }
     `, getFragment);
-    const entries = fragment.parseEntries();
+    const entries = fragment.getParsedEntries();
     expect(entries).toStrictEqual({
       _id: {
         type: "field",
@@ -28,7 +28,7 @@ describe("SqlFragment", () => {
         ...SomeOtherFragment
       }
     `, getFragment);
-    const entries = fragment.parseEntries();
+    const entries = fragment.getParsedEntries();
     expect(entries).toStrictEqual({
       SomeOtherFragment: {
         type: "spread",
@@ -45,7 +45,7 @@ describe("SqlFragment", () => {
         }
       }
     `, getFragment);
-    const entries = fragment.parseEntries();
+    const entries = fragment.getParsedEntries();
     expect(entries).toStrictEqual({
       a: {
         type: "pick",
@@ -69,7 +69,7 @@ describe("SqlFragment", () => {
         }
       }
     `, getFragment);
-    const entries = fragment.parseEntries();
+    const entries = fragment.getParsedEntries();
     expect(entries).toStrictEqual({
       a: {
         type: "pick",

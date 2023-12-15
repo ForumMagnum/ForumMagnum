@@ -107,7 +107,13 @@ export function getDefaultResolvers<N extends CollectionNameString>(
           await collection.options.mutations.create.mutation(root, {data: input.createIfMissing}, context)
           docs = await db.any(compiledQuery.sql, compiledQuery.args);
         }
-        
+
+        if (docs?.length) {
+          docs = await Promise.all(docs.map(
+            (doc) => query.executeCodeResolvers(doc, context, info),
+          ));
+        }
+
         // Were there enough results to reach the limit specified in the query?
         const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
         
@@ -200,6 +206,9 @@ export function getDefaultResolvers<N extends CollectionNameString>(
           const compiledQuery = query.compile();
           const db = getSqlClientOrThrow();
           doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
+          if (doc) {
+            await query.executeCodeResolvers(doc, context, info);
+          }
         }
 
         if (!doc) {

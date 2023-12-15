@@ -8,7 +8,7 @@ export type CustomResolver<T extends DbObject = DbObject> =
 export type CodeResolver<T extends DbObject = DbObject> =
   CustomResolver<T>["resolver"];
 
-interface CodeResolverMap extends Record<string, CodeResolver | CodeResolverMap> {}
+export interface CodeResolverMap extends Record<string, CodeResolver | CodeResolverMap> {}
 
 export type PrefixGenerator = () => string;
 
