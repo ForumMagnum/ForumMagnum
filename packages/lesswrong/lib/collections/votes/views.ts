@@ -18,8 +18,7 @@ ensureIndex(Votes, {cancelled:1, documentId:1});
 ensureIndex(Votes, {cancelled:1, userId:1, votedAt:-1});
 
 // Used by getKarmaChanges
-ensureIndex(Votes, {authorIds:1, votedAt:1, userId:1, afPower:1});
-
+ensureIndex(Votes, {authorIds: 1});
 
 Votes.addView("tagVotes", function () {
   return {
