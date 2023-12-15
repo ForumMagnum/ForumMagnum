@@ -6,6 +6,7 @@ import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi'
 import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib';
 import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
+import { endCkEditorUserSession } from '../repos/CkEditorUserSessionsRepo';
 
 interface CkEditorUserConnectionChange {
   user: { id: string },
@@ -185,15 +186,8 @@ async function handleCkEditorWebhook(message: any) {
         if (!!userId && !!ckEditorDocumentId) {
           const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
           const userSession = await CkEditorUserSessions.findOne({userId, documentId, endedAt: {$exists: false}}, {sort:{createdAt: -1}});
-          const adminContext = await createAdminContext()
-          if (userSession) {
-            await updateMutator({
-              collection: CkEditorUserSessions,
-              documentId: userSession._id, 
-              set: { endedAt: new Date(sent_at) },
-              context: adminContext,
-              currentUser: adminContext.currentUser,
-            });
+          if (!!userSession) {
+            await endCkEditorUserSession(userSession._id, "ckEditorWebhook", new Date(sent_at))
           }
         }
       }

@@ -3515,6 +3515,7 @@ interface CkEditorUserSessionsDefaultFragment { // fragment on CkEditorUserSessi
   readonly documentId: string,
   readonly userId: string,
   readonly endedAt: Date,
+  readonly endedBy: string,
 }
 
 interface CkEditorUserSessionInfo { // fragment on CkEditorUserSessions
@@ -3522,6 +3523,7 @@ interface CkEditorUserSessionInfo { // fragment on CkEditorUserSessions
   readonly userId: string,
   readonly documentId: string,
   readonly endedAt: Date,
+  readonly endedBy: string,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
