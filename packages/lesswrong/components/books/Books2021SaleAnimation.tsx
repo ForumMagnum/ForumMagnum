@@ -4,6 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_2021_BOOK_BANNER_COOKIE, HIDE_FEATURED_RESOURCE_COOKIE } from '../../lib/cookies/cookies';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const collapsedStyles = (theme: ThemeType): JssStyles => ({
   '& .book-container': {
@@ -53,10 +54,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: 0.8
     },
-    
-    // [theme.breakpoints.down('xs')]: {
-    //   width: 175,
-    // },
+  
   },
   success: {
     '& .parent-container': {
@@ -137,55 +135,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& .parent-container:not(:hover)': {
       ...collapsedStyles(theme)
     },
-    // [theme.breakpoints.down('md')]: {
-    //   '& .book': {
-    //     'transform': 'rotateY(90deg)'
-    //   },
-    //   '& .book::after': {
-    //     opacity: 0
-    //   },
-    //   '& .parent-container::after': {
-    //     left: '75px',
-    //     opacity: 1,
-    //     top: '25px'
-    //   },
-    //   '& .book-container': {
-    //     left: 'calc(var(--collapsed-position) - 87px)',
-    //     top: 49
-    //   },
-    //   '& .parent-container': {
-    //     paddingLeft: '140px',
-    //     paddingTop: '1px',
-    //     height: 'unset',
-    //     maxWidth: 765,
-    //     minHeight: 375
-    //   }
-    // },
-    // [theme.breakpoints.down('xs')]: {
-    //   '& .parent-container': {
-    //     paddingLeft: 0,
-    //     paddingTop: 15,
-    //     overflow: 'hidden',
-    //     minHeight: 350,
-    //   },
-    //   '& .book-container': {
-    //     transform: "scale(0.6, 0.6)",
-    //     left: 'calc(var(--collapsed-position) / 2)',
-    //     height: 150,
-    //     width: 100,
-    //     top: 60
-    //   },
-    //   '& .parent-container::after': {
-    //     left: 85,
-    //     top: 60,
-    //     height: 140,
-    //     boxShadow: "5px 23px 130px 15px #666",
-    //   },
-    //   '& .book': {
-    //     transition: 'transform 0.0s ease',
-    //     transform: "rotateY(60deg)",
-    //   },
-    // },
     '& .book > .cover': {
       position: 'absolute',
       background: 'white',
@@ -462,7 +411,7 @@ const Books2021SaleAnimation = ({ classes, successContent }: {
             Until Christmas buy the "Best of LessWrong" books for 10% off, or buy all three for 20% off.
           </p>
           <p>
-            We are also actively working on an ebook and audiobook version of the Best of 2021 book.
+            134 essays in 13 books written by 64 authors. Curated by the LessWrong community. 
           </p>
           <div className={classes.buyButton}>
             <a className={classes.amazonButton} href="https://www.amazon.com/Map-that-Reflects-Territory-LessWrong/dp/1736128507/">
