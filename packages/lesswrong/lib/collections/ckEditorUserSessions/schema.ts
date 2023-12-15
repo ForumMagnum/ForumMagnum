@@ -23,6 +23,13 @@ const schema: SchemaType<DbCkEditorUserSession> = {
     canCreate: ['admins'],
     canUpdate: ['admins'],
   },
+  endedBy: {
+    type: String,
+    optional: true,
+    canRead: ['admins'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+  },
 }
 
 export default schema;

@@ -80,6 +80,7 @@ interface DbCkEditorUserSession extends DbObject {
   documentId: string
   userId: string
   endedAt: Date | null
+  endedBy: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
