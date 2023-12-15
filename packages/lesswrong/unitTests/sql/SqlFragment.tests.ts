@@ -22,7 +22,12 @@ describe("SqlFragment", () => {
     });
   });
   it("can parse spread entries", () => {
-    const getFragment = () => null;
+    const getFragment = () => new SqlFragment(`
+      fragment SomeOtherFragment on TestCollection {
+        _id
+        a
+      }
+    `, () => null);
     const fragment = new SqlFragment(`
       fragment TestFragment on TestCollection {
         ...SomeOtherFragment
@@ -30,9 +35,13 @@ describe("SqlFragment", () => {
     `, getFragment);
     const entries = fragment.getParsedEntries();
     expect(entries).toStrictEqual({
-      SomeOtherFragment: {
-        type: "spread",
-        fragmentName: "SomeOtherFragment",
+      _id: {
+        type: "field",
+        name: "_id",
+      },
+      a: {
+        type: "field",
+        name: "a",
       },
     });
   });

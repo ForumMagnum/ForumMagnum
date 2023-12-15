@@ -2,6 +2,7 @@ import { getCollectionByTypeName } from "../vulcan-lib/getCollection";
 import ProjectionContext, { CustomResolver, PrefixGenerator } from "./ProjectionContext";
 import FragmentLexer from "./FragmentLexer";
 import PgCollection from "./PgCollection";
+import merge from "lodash/merge";
 
 type SqlFragmentArg = {
   inName: string,
@@ -13,11 +14,6 @@ type SqlFragmentField = {
   name: string,
 }
 
-type SqlFragmentSpread = {
-  type: "spread",
-  fragmentName: string,
-}
-
 type SqlFragmentPick = {
   type: "pick",
   name: string,
@@ -25,7 +21,7 @@ type SqlFragmentPick = {
   entries: SqlFragmentEntryMap,
 }
 
-type SqlFragmentEntry = SqlFragmentField | SqlFragmentSpread | SqlFragmentPick;
+type SqlFragmentEntry = SqlFragmentField | SqlFragmentPick;
 
 type SqlFragmentEntryMap = Record<string, SqlFragmentEntry>;
 
@@ -85,7 +81,7 @@ class SqlFragment {
   }
 
   private parseEntries(): SqlFragmentEntryMap {
-    const entries: SqlFragmentEntryMap = {};
+    let entries: SqlFragmentEntryMap = {};
     let line: string | null;
     while ((line = this.lexer.next())) {
       if (line === "}") {
@@ -95,14 +91,22 @@ class SqlFragment {
       let match = line.match(/^[a-zA-Z0-9-_]+$/);
       if (match?.[0]) {
         const name = match[0];
-        entries[name] = ({type: "field", name});
+        entries[name] = {type: "field", name};
         continue;
       }
 
       match = line.match(/^\.\.\.([a-zA-Z0-9-_]+)$/)
       if (match?.[1]) {
-        const fragmentName = match[1];
-        entries[fragmentName] = {type: "spread", fragmentName};
+        // `getFragment` takes a `FragmentName` but then checks if it's valid.
+        // It should probably just be typed as taking a string but that might
+        // not a be a totally safe change, so for now we'll just cast.
+        const fragmentName = match[1] as FragmentName;
+        const fragment = this.getFragment(fragmentName);
+        if (!fragment) {
+          throw new Error(`Fragment "${fragmentName}" not found`);
+        }
+        const fragmentEntries = fragment.getParsedEntries();
+        entries = merge(entries, fragmentEntries);
         continue;
       }
 
@@ -110,12 +114,12 @@ class SqlFragment {
       if (match?.[1]) {
         const name = match[1];
         const args = match[2];
-        entries[name] = {
+        entries[name] = merge(entries[name], {
           type: "pick",
           name,
           args: this.parseArgs(args),
           entries: this.parseEntries(),
-        };
+        });
         continue;
       }
 
@@ -149,21 +153,6 @@ class SqlFragment {
       const baseTypeName = this.getBaseTypeName();
       throw new Error(`Field "${name}" doesn't exist on "${baseTypeName}"`);
     }
-  }
-
-  private compileSpreadEntry(
-    context: ProjectionContext,
-    spread: SqlFragmentSpread,
-  ) {
-    // `getFragment` takes a `FragmentName` but then checks if it's valid.
-    // It should probably just be typed as taking a string but that might
-    // not a be a totally safe change, so for now we'll just cast.
-    const fragmentName = spread.fragmentName as FragmentName;
-    const fragment = this.getFragment(fragmentName);
-    if (!fragment) {
-      throw new Error(`Fragment "${fragmentName}" not found`);
-    }
-    fragment.compileProjection(context);
   }
 
   private compilePickEntry(
@@ -207,9 +196,6 @@ class SqlFragment {
       switch (entry.type) {
       case "field":
         this.compileFieldEntry(context, entry);
-        break;
-      case "spread":
-        this.compileSpreadEntry(context, entry);
         break;
       case "pick":
         this.compilePickEntry(context, entry);
