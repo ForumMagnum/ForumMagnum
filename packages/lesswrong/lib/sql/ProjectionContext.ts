@@ -1,6 +1,6 @@
 import PgCollection from "./PgCollection";
 import isEqual from "lodash/isEqual";
-import { randomId } from "../random";
+import { RandIntCallback, randomId, seededRandInt } from "../random";
 import chunk from "lodash/chunk";
 
 export type CustomResolver<T extends DbObject = DbObject> =
@@ -14,6 +14,7 @@ export interface CodeResolverMap extends Record<string, CodeResolver | CodeResol
 export type PrefixGenerator = () => string;
 
 class ProjectionContext<T extends DbObject = DbObject> {
+  private randIntCallback: RandIntCallback;
   private resolverArgIndexes: Record<string, number> = {};
   private resolvers: Record<string, CustomResolver> = {};
   private projections: string[] = [];
@@ -29,6 +30,9 @@ class ProjectionContext<T extends DbObject = DbObject> {
     aggregate?: {prefix: string, argOffset: number},
     private prefixGenerator?: PrefixGenerator,
   ) {
+    const seed = collection.collectionName + (aggregate?.prefix ?? "");
+    this.randIntCallback = seededRandInt(seed);
+
     if (aggregate) {
       this.primaryPrefix = aggregate.prefix;
       this.argOffset = aggregate.argOffset;
@@ -199,7 +203,9 @@ class ProjectionContext<T extends DbObject = DbObject> {
   }
 
   private generateTablePrefix() {
-    return this.prefixGenerator ? this.prefixGenerator() : randomId(5);
+    return this.prefixGenerator
+      ? this.prefixGenerator()
+      : randomId(5, this.randIntCallback);
   }
 
   private getJoinSpec({table, type, on}: SqlJoinBase): SqlJoinSpec {
