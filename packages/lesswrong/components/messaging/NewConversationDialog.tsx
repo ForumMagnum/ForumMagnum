@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Configure, Hits, InstantSearch, SearchBox } from "react-instantsearch-dom";
-import { getElasticIndexNameWithSorting } from "../../lib/search/elasticUtil";
-import { getSearchClient } from "../../lib/search/algoliaUtil";
+import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";
 import InfoIcon from "@material-ui/icons/Info";
 import { useCurrentUser } from "../common/withUser";
 

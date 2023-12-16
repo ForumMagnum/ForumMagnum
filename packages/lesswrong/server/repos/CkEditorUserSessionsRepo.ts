@@ -1,11 +1,9 @@
 import CkEditorUserSessions from "../../lib/collections/ckEditorUserSessions/collection";
-import {randomId} from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
 import { createAdminContext, updateMutator } from "../vulcan-lib";
 
 export const endCkEditorUserSession = async (documentId:string, endedBy:string, endedAt:Date = new Date()) => {
-
-  const adminContext = await createAdminContext();
+  const adminContext = createAdminContext();
 
   return updateMutator({
     collection: CkEditorUserSessions,
@@ -16,7 +14,7 @@ export const endCkEditorUserSession = async (documentId:string, endedBy:string, 
   })
 }
 
-export default class CkEditorUserSessionsRepo extends AbstractRepo<DbCkEditorUserSession> {
+export default class CkEditorUserSessionsRepo extends AbstractRepo<"CkEditorUserSessions"> {
   constructor() {
     super(CkEditorUserSessions);
   }

@@ -37,13 +37,9 @@ import Votes from "../../lib/collections/votes/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Votes.isPostgres()) {
-    await addField(db, Votes, "silenceNotification");
-  }
+  await addField(db, Votes, "silenceNotification");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Votes.isPostgres()) {
-    await dropField(db, Votes, "silenceNotification");
-  }
+  await dropField(db, Votes, "silenceNotification");
 }

@@ -42,13 +42,9 @@ import { createTable, dropTable } from "./meta/utils";
 import CkEditorUserSession from "../../lib/collections/ckEditorUserSessions/collection";
 
 export const up = async ({db}: MigrationContext) => {
-  if (CkEditorUserSession.isPostgres()) {
-    await createTable(db, CkEditorUserSession);
-  }
+  await createTable(db, CkEditorUserSession);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (CkEditorUserSession.isPostgres()) {
-    await dropTable(db, CkEditorUserSession);
-  }
+  await dropTable(db, CkEditorUserSession);
 }

@@ -1,8 +1,8 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
-import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueMatchingPage";
+import { UpvotedUser } from "../../components/users/DialogueMatchingPage";
 import { calculateVotePower } from "../../lib/voting/voteTypes";
-import { ActiveDialogue, ActiveDialogueData, ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
+import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -39,7 +39,8 @@ LIMIT 1
 `;
 
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
-export default class UsersRepo extends AbstractRepo<DbUser> {
+
+export default class UsersRepo extends AbstractRepo<"Users"> {
   constructor() {
     super(Users);
   }
@@ -199,7 +200,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaUser> {
+  getSearchDocumentById(id: string): Promise<SearchUser> {
     return this.getRawDb().one(`
       -- UsersRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
@@ -207,7 +208,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaUser[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchUser[]> {
     return this.getRawDb().any(`
       -- UsersRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}

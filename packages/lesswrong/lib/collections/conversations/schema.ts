@@ -4,7 +4,7 @@ import { isLWorAF } from '../../instanceSettings';
 import { getWithCustomLoader } from '../../loaders';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
-const schema: SchemaType<DbConversation> = {
+const schema: SchemaType<"Conversations"> = {
   title: {
     type: String,
     canRead: ['members'],

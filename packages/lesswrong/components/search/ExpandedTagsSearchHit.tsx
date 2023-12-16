@@ -63,7 +63,7 @@ const ExpandedTagsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
-  const tag = hit as AlgoliaTag
+  const tag = hit as SearchTag
 
   const style = tag.bannerImageId ? {
     background: `linear-gradient(to left, transparent, ${translucentBackground} 70px, ${greyBackground} 140px), no-repeat right url(https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_crop,g_custom/c_fill,h_115,w_140,q_auto,f_auto/${tag.bannerImageId})`

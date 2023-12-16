@@ -18,15 +18,11 @@ import ElicitQuestions from "../../lib/collections/elicitQuestions/collection"
 import { createTable, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (ElicitQuestions.isPostgres() && ElicitQuestionPredictions.isPostgres()) {
-    await createTable(db, ElicitQuestions)
-    await createTable(db, ElicitQuestionPredictions)
-  }
+  await createTable(db, ElicitQuestions)
+  await createTable(db, ElicitQuestionPredictions)
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (ElicitQuestions.isPostgres() && ElicitQuestionPredictions.isPostgres()) {
-    await dropTable(db, ElicitQuestions)
-    await dropTable(db, ElicitQuestionPredictions)
-  }
+  await dropTable(db, ElicitQuestions)
+  await dropTable(db, ElicitQuestionPredictions)
 }

@@ -38,15 +38,11 @@ import UserTagRels from "../../lib/collections/userTagRels/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Tags.isPostgres() || !UserTagRels.isPostgres()) return;
-  
   await addField(db, Tags, "subforumIntroPostId");
   await addField(db, UserTagRels, "subforumHideIntroPost");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!Tags.isPostgres() || !UserTagRels.isPostgres()) return;
-
   await dropField(db, Tags, "subforumIntroPostId");
   await dropField(db, UserTagRels, "subforumHideIntroPost");
 }

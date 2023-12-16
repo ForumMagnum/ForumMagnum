@@ -18,6 +18,7 @@ import { getPositiveVoteThreshold } from '../lib/reviewUtils';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/collection';
 import RecommendationService from './recommendations/RecommendationService';
+import PgCollection from '../lib/sql/PgCollection';
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -188,38 +189,26 @@ const allRecommendablePosts = async ({currentUser, algorithm}: {
   currentUser: DbUser|null,
   algorithm: DefaultRecommendationsAlgorithm,
 }): Promise<Array<DbPost>> => {
-  if (Posts.isPostgres()) {
-    const joinHook = algorithm.onlyUnread && currentUser
-      ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' WHERE rs."isRead" IS NOT TRUE`
-      : undefined;
-    const query = new SelectQuery(
-      new SelectQuery(
-        new SelectQuery(
-          Posts.getTable(),
-          {},
-          {},
-          {joinHook},
-        ),
-        recommendablePostFilter(algorithm),
-      ),
-      {},
-      {projection: scoreRelevantFields},
-    );
-    return Posts.executeReadQuery(query) as Promise<DbPost[]>;
-  } else {
-    return await Posts.aggregate([
-      // Filter to recommendable posts
-      { $match: {
-        ...recommendablePostFilter(algorithm),
-      } },
-
-      // If onlyUnread, filter to just unread posts
-      ...(algorithm.onlyUnread ? pipelineFilterUnread({currentUser}) : []),
-
-      // Project out fields other than _id and scoreRelevantFields
-      { $project: scoreRelevantFields },
-    ]).toArray();
+  if (!(Posts instanceof PgCollection)) {
+    throw new Error("Posts is not a Postgres collection");
   }
+  const joinHook = algorithm.onlyUnread && currentUser
+    ? `LEFT JOIN "ReadStatuses" rs ON rs."postId" = "Posts"._id AND rs."userId" = '${currentUser._id}' WHERE rs."isRead" IS NOT TRUE`
+    : undefined;
+  const query = new SelectQuery(
+    new SelectQuery(
+      new SelectQuery(
+        Posts.getTable(),
+        {},
+        {},
+        {joinHook},
+      ),
+      recommendablePostFilter(algorithm),
+    ),
+    {},
+    {projection: scoreRelevantFields},
+  );
+  return Posts.executeReadQuery(query) as Promise<DbPost[]>;
 }
 
 // Returns the top-rated posts (rated by scoreFn) to recommend to a user.

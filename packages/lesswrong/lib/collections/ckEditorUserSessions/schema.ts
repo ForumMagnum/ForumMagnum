@@ -1,7 +1,4 @@
-import { accessFilterSingle, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
-import { userOwns } from "../../vulcan-users/permissions";
-
-const schema: SchemaType<DbCkEditorUserSession> = {
+const schema: SchemaType<"CkEditorUserSessions"> = {
   documentId: {
     type: String,
     nullable: false,

@@ -3,7 +3,7 @@ import ElectionCandidates from "../../lib/collections/electionCandidates/collect
 import { getViewablePostsSelector } from "./helpers";
 import type { ElectionAmountRaised } from "../../components/ea-forum/giving-portal/hooks";
 
-export default class ElectionCandidatesRepo extends AbstractRepo<DbElectionCandidate> {
+export default class ElectionCandidatesRepo extends AbstractRepo<"ElectionCandidates"> {
   constructor() {
     super(ElectionCandidates);
   }

@@ -60,7 +60,11 @@ const getFragmentObject = (fragmentText: string, subFragments: Array<FragmentNam
 };
 
 // Create default "dumb" gql fragment object for a given collection
-export const getDefaultFragmentText = <T extends DbObject>(collection: CollectionBase<T>, schema: SchemaType<T>, options={onlyViewable: true}): string|null => {
+export const getDefaultFragmentText = <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  schema: SchemaType<N>,
+  options={onlyViewable: true},
+): string|null => {
   const fieldNames = _.reject(_.keys(schema), (fieldName: string) => {
     /*
 
@@ -70,7 +74,7 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
     3. it's not viewable (if onlyViewable option is true)
 
     */
-    const field: CollectionFieldSpecification<T> = schema[fieldName];
+    const field: CollectionFieldSpecification<N> = schema[fieldName];
     // OpenCRUD backwards compatibility
 
     const isResolverField = field.resolveAs && !field.resolveAs.addOriginalField && field.resolveAs.type !== "ContentType";
@@ -90,7 +94,6 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
   } else {
     return null;
   }
-
 };
 
 // Get fragment name from fragment object
