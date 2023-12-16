@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: '50%',
     display: 'inline-block',
     boxShadow: `0 0 5px ${theme.palette.secondary.light}, 0 0 8px ${theme.palette.secondary.light}`,
-    marginRight: 7,
+    marginRight: 4,
     marginLeft: 9
   },
 })

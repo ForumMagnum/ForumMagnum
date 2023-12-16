@@ -1299,8 +1299,10 @@ ensureIndex(Posts,
 Posts.addView("hasEverDialogued", (terms: PostsViewTerms) => {
   return {
     selector: {
-      $or: [{userId: terms.userId},
-        {"coauthorStatuses.userId": terms.userId}],
+      $or: [
+        {userId: terms.userId},
+        {"coauthorStatuses.userId": terms.userId}
+      ],
       collabEditorDialogue: true,
     },
   }
