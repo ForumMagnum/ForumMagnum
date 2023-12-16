@@ -148,7 +148,8 @@ class SqlFragment {
         context.addCodeResolver(resolver.fieldName ?? name, resolver.resolver);
       }
     } else if (context.getSchema()[name]) {
-      context.addProjection(name);
+      // Do nothing - this is a native DB field and will get selected by the
+      // default * selector
     } else {
       const baseTypeName = this.getBaseTypeName();
       throw new Error(`Field "${name}" doesn't exist on "${baseTypeName}"`);
@@ -191,6 +192,10 @@ class SqlFragment {
     context: ProjectionContext,
     entries: SqlFragmentEntryMap,
   ) {
+    if (!context.getIsAggregate()) {
+      context.addProjection("*", undefined, false);
+    }
+
     for (const entryName in entries) {
       const entry = entries[entryName];
       switch (entry.type) {

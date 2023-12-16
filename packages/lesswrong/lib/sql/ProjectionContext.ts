@@ -63,7 +63,10 @@ class ProjectionContext<T extends DbObject = DbObject> {
     const projObjs = projChunks.map(
       (chunk) => `JSONB_BUILD_OBJECT( ${chunk.join(", ")} )`,
     );
-    const obj = projObjs.join(" || ");
+    const baseObj = `TO_JSONB("${primaryPrefix}".*)`;
+    const obj = projObjs.length
+      ? `${baseObj} || ${projObjs.join(" || ")}`
+      : baseObj;
 
     const test = `"${primaryPrefix}"."_id"`;
     const proj = `CASE WHEN ${test} IS NULL THEN NULL ELSE ${obj} END`;
@@ -120,15 +123,22 @@ class ProjectionContext<T extends DbObject = DbObject> {
     return this.prefixGenerator;
   }
 
-  absoluteField(name: string) {
-    const absoluteField = `"${this.primaryPrefix}"."${name}"`;
-    return name.indexOf("*") > -1
+  getIsAggregate() {
+    return this.isAggregate;
+  }
+
+  absoluteField(name: string, jsonifyStarSelector = true) {
+    if (name !== "*") {
+      name = `"${name}"`;
+    }
+    const absoluteField = `"${this.primaryPrefix}".${name}`;
+    return name.indexOf("*") > -1 && jsonifyStarSelector
       ? `ROW_TO_JSON(${absoluteField})`
       : absoluteField;
   }
 
-  field(name: string) {
-    const absoluteField = this.absoluteField(name);
+  field(name: string, jsonifyStarSelector = true) {
+    const absoluteField = this.absoluteField(name, jsonifyStarSelector);
     return this.isAggregate ? `'${name}', ${absoluteField}` : absoluteField;
   }
 
@@ -159,12 +169,12 @@ class ProjectionContext<T extends DbObject = DbObject> {
     }
   }
 
-  addProjection(name: string, expression?: string) {
+  addProjection(name: string, expression?: string, jsonifyStarSelector = true) {
     if (expression) {
       const normalizedExpression = expression.trim().replace(/\s+/g, " ");
       this.projections.push(`${normalizedExpression} "${name}"`);
     } else {
-      this.projections.push(this.field(name));
+      this.projections.push(this.field(name, jsonifyStarSelector));
     }
   }
 

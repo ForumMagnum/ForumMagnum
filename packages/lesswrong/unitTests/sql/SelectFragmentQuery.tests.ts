@@ -16,12 +16,11 @@ describe("SelectFragmentQuery", () => {
       expectedSql: `
         -- Fragment TestCollection4DefaultFragment
         SELECT
-          "t"."_id",
-          "t"."testCollection3Id",
-          CASE WHEN "q"."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
-            '_id', "q"."_id",
-            'notNullData', "q"."notNullData"
-          ) END "testCollection3"
+          "t".*,
+          CASE WHEN "q"."_id" IS NULL
+            THEN NULL
+            ELSE TO_JSONB("q".*)
+          END "testCollection3"
         FROM "TestCollection4" "t"
         LEFT JOIN "Users" "currentUser" ON "currentUser"."_id" = $1
         LEFT JOIN "TestCollection3" "q" ON "q"."_id" = "t"."testCollection3Id"
@@ -42,11 +41,11 @@ describe("SelectFragmentQuery", () => {
       expectedSql: `
         -- Fragment TestCollection4ArgFragment
         SELECT
-          "t"."_id",
-          CASE WHEN "q"."_id" IS NULL THEN NULL ELSE JSONB_BUILD_OBJECT(
-            '_id', "q"."_id",
-            'data', "q"."data"
-          ) END "testCollection2"
+          "t".*,
+          CASE WHEN "q"."_id" IS NULL
+            THEN NULL
+            ELSE TO_JSONB("q".*)
+          END "testCollection2"
         FROM "TestCollection4" "t"
         LEFT JOIN "Users" "currentUser" ON "currentUser"."_id" = $1
         LEFT JOIN "TestCollection2" "q" ON "q"."_id" = $2
