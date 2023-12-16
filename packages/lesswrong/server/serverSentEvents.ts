@@ -238,22 +238,18 @@ async function checkForActiveDialoguePartners() {
     }
   }
 
-  const testUserIds = ["gXeEWGjTWyqgrQTzR", "XtphY3uYHwruKqDyG", "grecHJcgkb3KW5wnM", "EQNTWXLKMeWMp2FQS"];
-
   for (let userId of userIds) {
-    if (testUserIds.includes(userId)) { // hardcoded to be able to test feature with live ckEditor data in prod
-      const userDialoguesData = allUsersDialoguesData[userId];
-      const message = {
-        eventType: "activeDialoguePartners",
-        data: userDialoguesData ?? []
-      };
+    const userDialoguesData = allUsersDialoguesData[userId];
+    const message = {
+      eventType: "activeDialoguePartners",
+      data: userDialoguesData ?? []
+    };
 
-      const messageString = `data: ${JSON.stringify(message)}\n\n`;
+    const messageString = `data: ${JSON.stringify(message)}\n\n`;
 
-      for (let connection of openConnections[userId]) {
-        connection.res.write(messageString);
-        connection.newestNotificationTimestamp = new Date();
-      } 
-    }
+    for (let connection of openConnections[userId]) {
+      connection.res.write(messageString);
+      connection.newestNotificationTimestamp = new Date();
+    }  
   }
 }
