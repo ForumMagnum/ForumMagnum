@@ -2,7 +2,7 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils'
 import { ensureIndex } from '../../collectionIndexUtils';
 
-const schema: SchemaType<DbImages> = {
+const schema: SchemaType<"Images"> = {
   originalUrl: {
     type: String,
     nullable: false,
@@ -17,7 +17,6 @@ const schema: SchemaType<DbImages> = {
 export const Images: ImagesCollection = createCollection({
   collectionName: "Images",
   typeName: "Images",
-  collectionType: 'pg',
   schema,
 });
 addUniversalFields({collection: Images});

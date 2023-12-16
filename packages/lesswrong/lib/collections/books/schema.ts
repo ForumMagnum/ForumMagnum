@@ -1,6 +1,6 @@
 import { arrayOfForeignKeysField } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbBook> = {
+const schema: SchemaType<"Books"> = {
 
   // default properties
 

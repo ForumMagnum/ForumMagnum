@@ -7,7 +7,7 @@ import { makeEditable } from '../../editor/make_editable';
 import './fragments'
 import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
 
-const schema: SchemaType<DbTagFlag> = {
+const schema: SchemaType<"TagFlags"> = {
   name: {
     type: String,
     nullable: false,
@@ -79,7 +79,6 @@ const options: MutationOptions<DbTagFlag> = {
 export const TagFlags: TagFlagsCollection = createCollection({
   collectionName: 'TagFlags',
   typeName: 'TagFlag',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('TagFlags'),
   mutations: getDefaultMutations('TagFlags', options),

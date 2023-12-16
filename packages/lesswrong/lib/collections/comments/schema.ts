@@ -11,7 +11,7 @@ import { viewTermsToQuery } from '../../utils/viewUtils';
 import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
 import GraphQLJSON from 'graphql-type-json';
 
-export const moderationOptionsGroup: FormGroupType = {
+export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
   name: "moderation",
   label: "Moderator Options",
@@ -25,7 +25,7 @@ export const alignmentOptionsGroup = {
   startCollapsed: true
 };
 
-const schema: SchemaType<DbComment> = {
+const schema: SchemaType<"Comments"> = {
   // The `_id` of the parent comment, if there is one
   parentCommentId: {
     ...foreignKeyField({

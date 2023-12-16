@@ -15,7 +15,6 @@ import { getDefaultMutations } from '../../vulcan-core/default_mutations';
 export const UserRateLimits: UserRateLimitsCollection = createCollection({
   collectionName: 'UserRateLimits',
   typeName: 'UserRateLimit',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('UserRateLimits'),
   mutations: getDefaultMutations('UserRateLimits'),

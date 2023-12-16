@@ -52,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
-  const sequence: AlgoliaSequence = hit;
+  const sequence: SearchSequence = hit;
   const { LWTooltip, MetaInfo } = Components
   
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"

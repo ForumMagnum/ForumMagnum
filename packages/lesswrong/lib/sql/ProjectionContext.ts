@@ -1,19 +1,18 @@
-import PgCollection from "./PgCollection";
 import isEqual from "lodash/isEqual";
 import { RandIntCallback, randomId, seededRandInt } from "../random";
 import chunk from "lodash/chunk";
 
-export type CustomResolver<T extends DbObject = DbObject> =
-  NonNullable<CollectionFieldSpecification<T>["resolveAs"]>;
+export type CustomResolver<N extends CollectionNameString = CollectionNameString> =
+  NonNullable<CollectionFieldSpecification<N>["resolveAs"]>;
 
-export type CodeResolver<T extends DbObject = DbObject> =
-  CustomResolver<T>["resolver"];
+export type CodeResolver<N extends CollectionNameString = CollectionNameString> =
+  CustomResolver<N>["resolver"];
 
 export interface CodeResolverMap extends Record<string, CodeResolver | CodeResolverMap> {}
 
 export type PrefixGenerator = () => string;
 
-class ProjectionContext<T extends DbObject = DbObject> {
+class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
   private randIntCallback: RandIntCallback;
   private resolverArgIndexes: Record<string, number> = {};
   private resolvers: Record<string, CustomResolver> = {};
@@ -26,7 +25,7 @@ class ProjectionContext<T extends DbObject = DbObject> {
   private isAggregate: boolean;
 
   constructor(
-    private collection: PgCollection<T>,
+    private collection: CollectionBase<N>,
     aggregate?: {prefix: string, argOffset: number},
     private prefixGenerator?: PrefixGenerator,
   ) {
@@ -38,7 +37,7 @@ class ProjectionContext<T extends DbObject = DbObject> {
       this.argOffset = aggregate.argOffset;
       this.isAggregate = true;
     } else {
-      this.primaryPrefix = collection.table.getName()[0].toLowerCase();
+      this.primaryPrefix = collection.getTable().getName()[0].toLowerCase();
       this.argOffset = 0;
       this.isAggregate = false;
     }
@@ -86,9 +85,7 @@ class ProjectionContext<T extends DbObject = DbObject> {
   }
 
   getSchema() {
-    // *sigh*
-    const collection = this.collection as unknown as CollectionBase<DbObject>;
-    return collection._schemaFields;
+    return this.collection._schemaFields;
   }
 
   getResolver(name: string): CustomResolver | null {
@@ -96,7 +93,7 @@ class ProjectionContext<T extends DbObject = DbObject> {
   }
 
   getTableName() {
-    return `"${this.collection.table.getName()}"`;
+    return `"${this.collection.getTable().getName()}"`;
   }
 
   getProjections() {

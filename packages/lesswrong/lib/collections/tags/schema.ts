@@ -34,7 +34,7 @@ export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
   ...SORT_ORDER_OPTIONS,
 }
 
-const schema: SchemaType<DbTag> = {
+const schema: SchemaType<"Tags"> = {
   name: {
     type: String,
     nullable: false,

@@ -6,7 +6,6 @@ import { makeEditable } from '../../editor/make_editable';
 export const Spotlights: SpotlightsCollection = createCollection({
   collectionName: 'Spotlights',
   typeName: 'Spotlight',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Spotlights'),
   mutations: getDefaultMutations('Spotlights')

@@ -37,13 +37,9 @@ import DialogueMatchPreferences from "../../lib/collections/dialogueMatchPrefere
 import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (DialogueMatchPreferences.isPostgres()) {
-    await addField(db, DialogueMatchPreferences, "deleted")
-  }
+  await addField(db, DialogueMatchPreferences, "deleted")
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (DialogueMatchPreferences.isPostgres()) {
-    await dropField(db, DialogueMatchPreferences, "deleted")
-  }
+  await dropField(db, DialogueMatchPreferences, "deleted")
 }

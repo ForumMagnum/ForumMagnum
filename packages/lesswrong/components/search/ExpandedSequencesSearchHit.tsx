@@ -74,7 +74,7 @@ const ExpandedSequencesSearchHit = ({hit, classes}: {
 }) => {
   const navigate = useNavigate();
   const { FormatDate, UserNameDeleted } = Components
-  const sequence: AlgoliaSequence = hit
+  const sequence: SearchSequence = hit
   
   const handleClick = () => {
     navigate(`/sequences/${sequence._id}`)

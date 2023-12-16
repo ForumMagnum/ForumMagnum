@@ -16,7 +16,7 @@ export const GROUP_CATEGORIES = [
   {value: 'affiliation', label: 'Affiliation'},
 ]
 
-const formGroups: Partial<Record<string,FormGroupType>> = {
+const formGroups: Partial<Record<string, FormGroupType<"Localgroups">>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 2,
@@ -25,7 +25,7 @@ const formGroups: Partial<Record<string,FormGroupType>> = {
   },
 };
 
-const schema: SchemaType<DbLocalgroup> = {
+const schema: SchemaType<"Localgroups"> = {
   name: {
     type: String,
     canRead: ['guests'],

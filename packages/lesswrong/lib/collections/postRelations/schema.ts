@@ -1,6 +1,6 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbPostRelation> = {
+const schema: SchemaType<"PostRelations"> = {
   type: {
     // "subQuestion"
     type: String,

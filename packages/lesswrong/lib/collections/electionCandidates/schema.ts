@@ -1,7 +1,7 @@
 import { foreignKeyField, schemaDefaultValue } from "../../utils/schemaUtils";
 import { eaGivingSeason23ElectionName } from "../../eaGivingSeason";
 
-const schema: SchemaType<DbElectionCandidate> = {
+const schema: SchemaType<"ElectionCandidates"> = {
   /** The name of the election this is a candidate in */
   electionName: {
     type: String,

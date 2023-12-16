@@ -17,8 +17,6 @@ export type DebouncerTiming =
   | { type: "daily", timeOfDayGMT: number }
   | { type: "weekly", timeOfDayGMT: number, dayOfWeekGMT: string }
 
-const formatDate = (date: Date) => DebouncerEvents.isPostgres() ? date : date.getTime();
-
 /**
  * Defines a debouncable event type; that is, an event which, some time after
  * it happens, causes a function call, with events grouped together into a
@@ -213,7 +211,7 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
 }
 
 export const dispatchPendingEvents = async () => {
-  const now = formatDate(new Date());
+  const now = new Date();
   let eventToHandle: any = null;
   
   do {
@@ -275,7 +273,7 @@ export const forcePendingEvents = async (
   // Default time condition is nothing
   let timeCondition: MongoFindOneOptions<DbDebouncerEvents> = {}
   if (upToDate) {
-    const upToDateTime = formatDate(new Date(upToDate));
+    const upToDateTime = new Date(upToDate);
     timeCondition = {
       $or: [
         { delayTime: { $lt: upToDateTime } },

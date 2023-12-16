@@ -71,7 +71,7 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
 }) => {
   const navigate = useNavigate();
   const { FormatDate, UserNameDeleted } = Components
-  const comment: AlgoliaComment = hit
+  const comment: SearchComment = hit
   
   let url = "";
   if (comment.postId && comment.postSlug) {

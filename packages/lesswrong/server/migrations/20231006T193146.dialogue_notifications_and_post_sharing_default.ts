@@ -18,17 +18,13 @@ import {addField, dropField, updateDefaultValue} from "./meta/utils";
 export const acceptsSchemaHash = "ab02d7ee110cc11f4df3b0f16a24905d";
 
 export const up = async ({db}: MigrationContext) => {
-  
-  if (!Users.isPostgres() || !Posts.isPostgres()) return
   await addField(db, Users, "notificationDialogueMessages")
   await addField(db, Users, "notificationPublishedDialogueMessages")
   await updateDefaultValue(db, Posts, "shareWithUsers")
-  
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!Users.isPostgres() || !Posts.isPostgres()) return
   await dropField(db, Users, "notificationDialogueMessages")
   await dropField(db, Users, "notificationPublishedDialogueMessages")
+  await updateDefaultValue(db, Posts, "shareWithUsers")
 }
-

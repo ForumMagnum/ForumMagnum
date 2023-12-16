@@ -3,7 +3,7 @@ import PgCollection from "../../lib/sql/PgCollection";
 import { TestCollection as RawTestCollection } from "../../lib/sql/tests/testHelpers";
 
 describe("ProjectionContext", () => {
-  const TestCollection = RawTestCollection as unknown as PgCollection<DbObject>;
+  const TestCollection = RawTestCollection as PgCollection<CollectionNameString>;
   it("can set current user for logged-out users", () => {
     const context = new ProjectionContext(TestCollection);
     context.setCurrentUser(null);

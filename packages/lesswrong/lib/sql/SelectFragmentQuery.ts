@@ -3,7 +3,9 @@ import { getSqlFragment } from "../vulcan-lib";
 import type { CodeResolverMap, PrefixGenerator } from "./ProjectionContext";
 import type { GraphQLResolveInfo } from "graphql";
 
-class SelectFragmentQuery<T extends DbObject> extends SelectQuery<T> {
+class SelectFragmentQuery<
+  N extends CollectionNameString = CollectionNameString
+> extends SelectQuery<ObjectsByCollectionName[N]> {
   private projectionArgs: unknown[];
   private codeResolvers: CodeResolverMap = {};
 
@@ -11,17 +13,17 @@ class SelectFragmentQuery<T extends DbObject> extends SelectQuery<T> {
     private fragmentName: FragmentName,
     currentUser: DbUser | UsersCurrent | null,
     private resolverArgs?: Record<string, unknown> | null,
-    selector?: string | MongoSelector<T>,
-    options?: MongoFindOptions<T>,
+    selector?: string | MongoSelector<ObjectsByCollectionName[N]>,
+    options?: MongoFindOptions<ObjectsByCollectionName[N]>,
     prefixGenerator?: PrefixGenerator,
   ) {
     const fragment = getSqlFragment(fragmentName);
-    const projection = fragment.buildProjection<T>(
+    const projection = fragment.buildProjection<N>(
       currentUser,
       resolverArgs,
       prefixGenerator,
     );
-    const table = projection.getCollection().table;
+    const table = projection.getCollection().getTable();
     super(table, selector, options, {
       deferInit: true,
       primaryPrefix: projection.getPrimaryPrefix(),
@@ -58,7 +60,12 @@ class SelectFragmentQuery<T extends DbObject> extends SelectQuery<T> {
       const resolver = resolvers[resolverName];
       if (typeof resolver === "function") {
         const generator = async () => {
-          const result = await resolver(obj, this.resolverArgs, context, info);
+          const result = await resolver(
+            obj as AnyBecauseTodo,
+            this.resolverArgs,
+            context,
+            info,
+          );
           obj[resolverName as keyof T] = result;
         }
         promises.push(generator());

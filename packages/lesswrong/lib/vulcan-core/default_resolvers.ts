@@ -192,7 +192,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
         // use Dataloader if doc is selected by documentId/_id
         const documentId = selector.documentId || selector._id;
 
-        let doc: T | null;
+        let doc: ObjectsByCollectionName[N] | null;
         if (documentId) {
           doc = await context.loaders[collectionName].load(documentId);
         } else {
@@ -225,7 +225,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
         // if collection has a checkAccess function defined, use it to perform a check on the current document
         // (will throw an error if check doesn't pass)
         if (collection.checkAccess) {
-          const reasonDenied = {reason:undefined};
+          const reasonDenied: {reason?: string} = {reason: undefined};
           const canAccess = await collection.checkAccess(currentUser, doc, context, reasonDenied)
           if (!canAccess) {
             if (reasonDenied.reason) {

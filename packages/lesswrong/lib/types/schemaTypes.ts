@@ -49,7 +49,7 @@ type SqlResolverArgs = {
 
 type SqlResolver = (args: SqlResolverArgs) => string;
 
-interface CollectionFieldSpecification<T extends DbObject> extends CollectionFieldPermissions {
+interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
   optional?: boolean,
@@ -64,15 +64,15 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
     fieldName?: string,
     addOriginalField?: boolean,
     arguments?: string|null,
-    resolver: (root: T, args: any, context: ResolverContext, info?: any)=>any,
+    resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext, info?: any)=>any,
     sqlResolver?: SqlResolver,
   },
   blackbox?: boolean,
   denormalized?: boolean,
   canAutoDenormalize?: boolean,
   canAutofillDefault?: boolean,
-  needsUpdate?: (doc: Partial<T>) => boolean,
-  getValue?: (doc: T, context: ResolverContext) => any,
+  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
+  getValue?: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
   foreignKey?: any,
   logChanges?: boolean,
   nullable?: boolean,
@@ -120,7 +120,7 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   control?: FormInputType,
   placeholder?: string,
   hidden?: MaybeFunction<boolean,SmartFormProps>,
-  group?: FormGroupType<T>,
+  group?: FormGroupType<N>,
   inputType?: any,
   
   // Field mutation callbacks, invoked from Vulcan mutators. Notes:
@@ -133,25 +133,29 @@ interface CollectionFieldSpecification<T extends DbObject> extends CollectionFie
   //    onUpdate should all return a new value for the field, EXCEPT that if
   //    they return undefined the field value is left unchanged.
   //
-  /** DEPRECATED */
-  onInsert?: (doc: DbInsertion<T>, currentUser: DbUser|null) => any,
-  onCreate?: (args: {data: DbInsertion<T>, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, document: T, newDocument: T, schema: SchemaType<T>, fieldName: string}) => any,
-  /** DEPRECATED */
-  onEdit?: (modifier: any, oldDocument: T, currentUser: DbUser|null, newDocument: T) => any,
-  onUpdate?: (args: {data: Partial<T>, oldDocument: T, newDocument: T, document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>, fieldName: string}) => any,
-  onDelete?: (args: {document: T, currentUser: DbUser|null, collection: CollectionBase<T>, context: ResolverContext, schema: SchemaType<T>}) => Promise<void>,
+  /**
+   * @deprecated
+   */
+  onInsert?: (doc: DbInsertion<ObjectsByCollectionName[N]>, currentUser: DbUser|null) => any,
+  onCreate?: (args: {data: DbInsertion<ObjectsByCollectionName[N]>, currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, document: ObjectsByCollectionName[N], newDocument: ObjectsByCollectionName[N], schema: SchemaType<N>, fieldName: string}) => any,
+  /**
+   * @deprecated
+   */
+  onEdit?: (modifier: any, oldDocument: ObjectsByCollectionName[N], currentUser: DbUser|null, newDocument: ObjectsByCollectionName[N]) => any,
+  onUpdate?: (args: {data: Partial<ObjectsByCollectionName[N]>, oldDocument: ObjectsByCollectionName[N], newDocument: ObjectsByCollectionName[N], document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>, fieldName: string}) => any,
+  onDelete?: (args: {document: ObjectsByCollectionName[N], currentUser: DbUser|null, collection: CollectionBase<N>, context: ResolverContext, schema: SchemaType<N>}) => Promise<void>,
 }
 
 /** Field specification for a Form field, created from the collection schema */
-type FormField<T extends DbObject> = Pick<
-  CollectionFieldSpecification<T>,
+type FormField<N extends CollectionNameString> = Pick<
+  CollectionFieldSpecification<N>,
   typeof formProperties[number]
 > & {
   document: any
   name: string
   datatype: any
   layout: string
-  input: CollectionFieldSpecification<T>["input"] | CollectionFieldSpecification<T>["control"]
+  input: CollectionFieldSpecification<N>["input"] | CollectionFieldSpecification<N>["control"]
   label: string
   help: string
   path: string
@@ -164,7 +168,7 @@ type FormField<T extends DbObject> = Pick<
   nestedFields: any
 }
 
-type FormGroupType<T extends DbObject = DbObject> = {
+type FormGroupType<N extends CollectionNameString> = {
   name: string,
   order: number,
   label?: string,
@@ -175,10 +179,10 @@ type FormGroupType<T extends DbObject = DbObject> = {
   flexStyle?: boolean,
   hideHeader?: boolean,
   flexAlignTopStyle?: boolean,
-  fields?: FormField<T>[]
+  fields?: FormField<N>[]
 }
 
-type SchemaType<T extends DbObject> = Record<string,CollectionFieldSpecification<T>>
-type SimpleSchemaType<T extends DbObject> = SimpleSchema & {_schema: SchemaType<T>};
+type SchemaType<N extends CollectionNameString> = Record<string, CollectionFieldSpecification<N>>
+type SimpleSchemaType<N extends CollectionNameString> = SimpleSchema & {_schema: SchemaType<N>};
 
 }

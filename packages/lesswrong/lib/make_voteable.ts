@@ -23,16 +23,8 @@ interface CollectionVoteOptions {
   ) => PermissionResult|Promise<PermissionResult>,
 }
 
-export const VoteableCollections: Array<CollectionBase<DbVoteableType>> = [];
+export const VoteableCollections: Array<CollectionBase<VoteableCollectionName>> = [];
 export const VoteableCollectionOptions: Partial<Record<CollectionNameString,CollectionVoteOptions>> = {};
-
-export const collectionIsVoteable = (collectionName: CollectionNameString): boolean => {
-  for (let collection of VoteableCollections) {
-    if (collectionName === collection.collectionName)
-      return true;
-  }
-  return false;
-}
 
 export const apolloCacheVoteablePossibleTypes = () => {
   return {
@@ -57,11 +49,16 @@ const currentUserVoteResolver = (
 //   customBaseScoreReadAccess: baseScore can have a customized canRead value.
 //     Option will be bassed directly to the canRead key
 // }
-export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBase<T>, options: CollectionVoteOptions): void => {
+export const makeVoteable = <N extends VoteableCollectionName>(
+  collection: CollectionBase<N>,
+  options: CollectionVoteOptions,
+): void => {
   options = options || {}
   const {customBaseScoreReadAccess} = options
 
-  VoteableCollections.push(collection);
+  collection.makeVoteable();
+
+  VoteableCollections.push(collection as CollectionBase<VoteableCollectionName>);
   VoteableCollectionOptions[collection.collectionName] = options;
 
   addFieldsDict(collection, {
@@ -71,10 +68,10 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       canRead: ['guests'],
       resolveAs: {
         type: 'String',
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
+        resolver: async (document: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<string|null> => {
           const votes = await getCurrentUserVotes(document, context);
           if (!votes.length) return null;
-          return votes[0].voteType;
+          return votes[0].voteType ?? null;
         },
         sqlResolver: currentUserVoteResolver(
           (votesField) => votesField("voteType"),
@@ -88,7 +85,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       canRead: ['guests'],
       resolveAs: {
         type: GraphQLJSON,
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<string|null> => {
+        resolver: async (document: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<string|null> => {
           const votes = await getCurrentUserVotes(document, context);
           if (!votes.length) return null;
           return votes[0].extendedVoteType || null;
@@ -98,16 +95,18 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
         ),
       },
     },
-    
-    // DEPRECATED (but preserved for backwards compatibility): Returns an array
-    // of vote objects, if the user has voted (or an empty array otherwise).
+
+    /**
+     * @deprecated (but preserved for backwards compatibility): Returns an array
+     * of vote objects, if the user has voted (or an empty array otherwise).
+     */
     currentUserVotes: {
       type: Array,
       optional: true,
       canRead: ['guests'],
       resolveAs: {
         type: '[Vote]',
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
+        resolver: async (document: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<Partial<DbVote>[]> => {
           return await getCurrentUserVotes(document, context);
         },
       }
@@ -123,7 +122,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
       canRead: ['guests'],
       resolveAs: {
         type: '[Vote]',
-        resolver: async (document: T, args: void, context: ResolverContext): Promise<Array<DbVote>> => {
+        resolver: async (document: ObjectsByCollectionName[N], args: void, context: ResolverContext): Promise<Partial<DbVote>[]> => {
           const { currentUser } = context;
           if (userIsAdminOrMod(currentUser)) {
             return await getAllVotes(document, context);
@@ -193,7 +192,7 @@ export const makeVoteable = <T extends DbVoteableType>(collection: CollectionBas
   });
 }
 
-async function getCurrentUserVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Array<DbVote>> {
+async function getCurrentUserVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
   const { Votes, currentUser } = context;
   if (!currentUser) return [];
   const votes = await getWithLoader(context, Votes,
@@ -209,7 +208,7 @@ async function getCurrentUserVotes<T extends DbVoteableType>(document: T, contex
   return await accessFilterMultiple(currentUser, Votes, votes, context);
 }
 
-async function getAllVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Array<DbVote>> {
+async function getAllVotes<T extends DbVoteableType>(document: T, context: ResolverContext): Promise<Partial<DbVote>[]> {
   const { Votes, currentUser } = context;
   const votes = await getWithLoader(context, Votes,
     "votesByDocument",
@@ -222,4 +221,3 @@ async function getAllVotes<T extends DbVoteableType>(document: T, context: Resol
   if (!votes.length) return [];
   return await accessFilterMultiple(currentUser, Votes, votes, context);
 }
-

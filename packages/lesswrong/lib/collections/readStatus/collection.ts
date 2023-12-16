@@ -3,7 +3,7 @@ import { addUniversalFields } from '../../collectionUtils';
 import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbReadStatus> = {
+const schema: SchemaType<"ReadStatuses"> = {
   postId: {
     ...foreignKeyField({
       idFieldName: "postId",
@@ -45,7 +45,6 @@ const schema: SchemaType<DbReadStatus> = {
 export const ReadStatuses: ReadStatusesCollection = createCollection({
   collectionName: "ReadStatuses",
   typeName: "ReadStatus",
-  collectionType: 'pg',
   schema,
   logChanges: false,
 });

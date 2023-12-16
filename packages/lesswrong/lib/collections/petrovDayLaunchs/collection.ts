@@ -5,7 +5,6 @@ import { addUniversalFields } from '../../collectionUtils'
 export const PetrovDayLaunchs: PetrovDayLaunchsCollection = createCollection({
   collectionName: 'PetrovDayLaunchs',
   typeName: 'PetrovDayLaunch',
-  collectionType: 'pg',
   schema
 });
 

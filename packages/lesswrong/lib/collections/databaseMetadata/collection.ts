@@ -6,7 +6,6 @@ import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils'
 export const DatabaseMetadata: DatabaseMetadataCollection = createCollection({
   collectionName: "DatabaseMetadata",
   typeName: "DatabaseMetadata",
-  collectionType: 'pg',
   schema,
 });
 addUniversalFields({collection: DatabaseMetadata});

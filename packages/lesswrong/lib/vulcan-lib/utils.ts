@@ -18,9 +18,9 @@ export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl'
 
 interface UtilsType {
   // In lib/helpers.ts
-  getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
+  getUnusedSlug: (collection: CollectionBase<CollectionNameWithSlug>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
+  getUnusedSlugByCollectionName: (collectionName: CollectionNameWithSlug, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
+  slugIsUsed: (collectionName: CollectionNameWithSlug, slug: string) => Promise<boolean>
   
   // In server/vulcan-lib/connectors.ts
   Connectors: any
@@ -38,7 +38,7 @@ interface UtilsType {
   performCheck: <T extends DbObject>(operation: (user: DbUser|null, obj: T, context: any) => Promise<boolean>, user: DbUser|null, checkedObject: T, context: any, documentId: string, operationName: string, collectionName: CollectionNameString) => Promise<void>
   
   // In server/vulcan-lib/errors.ts
-  throwError: any
+  throwError: (error: { id: string; data?: Record<string, any> }) => never,
 }
 
 export const Utils: UtilsType = ({} as UtilsType);

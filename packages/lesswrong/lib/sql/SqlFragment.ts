@@ -1,7 +1,6 @@
 import { getCollectionByTypeName } from "../vulcan-lib/getCollection";
 import ProjectionContext, { CustomResolver, PrefixGenerator } from "./ProjectionContext";
 import FragmentLexer from "./FragmentLexer";
-import PgCollection from "./PgCollection";
 import merge from "lodash/merge";
 
 type SqlFragmentArg = {
@@ -27,7 +26,7 @@ type SqlFragmentEntryMap = Record<string, SqlFragmentEntry>;
 
 const getResolverCollection = (
   resolver: CustomResolver,
-): PgCollection<DbObject> => {
+): CollectionBase<CollectionNameString> => {
   if (typeof resolver.type !== "string") {
     throw new Error(`Resolver "${resolver.fieldName}" has a scalar type`);
   }
@@ -36,11 +35,7 @@ const getResolverCollection = (
   if (exclam >= 0) {
     type = type.substring(0, exclam);
   }
-  const collection = getCollectionByTypeName(type);
-  if (!collection.isPostgres()) {
-    throw new Error(`"${collection.collectionName}" is not in Postgres`);
-  }
-  return collection;
+  return getCollectionByTypeName(type);
 }
 
 class SqlFragment {
@@ -217,16 +212,13 @@ class SqlFragment {
     this.compileEntries(context, entries);
   }
 
-  buildProjection<T extends DbObject = DbObject>(
+  buildProjection<N extends CollectionNameString = CollectionNameString>(
     currentUser: DbUser | UsersCurrent | null,
     resolverArgs?: Record<string, unknown> | null,
     prefixGenerator?: PrefixGenerator,
-  ): ProjectionContext<T> {
+  ): ProjectionContext<N> {
     const baseTypeName = this.getBaseTypeName();
     const collection = getCollectionByTypeName(baseTypeName);
-    if (!collection.isPostgres()) {
-      throw new Error(`Type is not in Postgres: "${baseTypeName}"`);
-    }
     const context = new ProjectionContext(collection, undefined, prefixGenerator);
     context.setCurrentUser(currentUser);
     context.addResolverArgs(resolverArgs ?? {});

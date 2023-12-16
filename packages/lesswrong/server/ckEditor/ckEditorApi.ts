@@ -206,8 +206,12 @@ const ckEditorApi = {
     return await fetchCkEditorRestAPI("GET", "/collaborations");
   },
 
+  async getAllConnectedUserIds(documentId: string) {
+    return await fetchCkEditorRestAPI("GET", `/collaborations/${documentId}/users`);
+  },
+
   async getAllDocuments() {
-    return await fetchCkEditorRestAPI("GET", "/documents");
+    return await fetchCkEditorRestAPI("GET", "/documents"); 
   },
 
   async fetchCkEditorCommentThread(threadId: string): Promise<CkEditorComment[]> {

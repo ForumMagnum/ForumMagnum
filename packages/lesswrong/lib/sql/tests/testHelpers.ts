@@ -45,9 +45,9 @@ export const TestCollection = {
       type: Number,
     },
   },
-} as unknown as CollectionBase<DbTestObject>;
+} as unknown as CollectionBase<CollectionNameString>;
 
-export const testTable = Table.fromCollection<DbTestObject>(TestCollection);
+export const testTable = Table.fromCollection<CollectionNameString, DbTestObject>(TestCollection);
 (TestCollection as any).table = testTable;
 registerCollection(TestCollection);
 
@@ -78,7 +78,7 @@ export const TestCollection2 = {
       type: Number,
     },
   },
-} as unknown as CollectionBase<DbTestObject2>;
+} as unknown as CollectionBase<CollectionNameString>;
 
 registerFragment(`
   fragment TestCollection2DefaultFragment on TestCollection2 {
@@ -87,7 +87,7 @@ registerFragment(`
   }
 `);
 
-export const testTable2 = Table.fromCollection(TestCollection2);
+export const testTable2 = Table.fromCollection<CollectionNameString, DbTestObject2>(TestCollection2);
 (TestCollection2 as any).table = testTable2;
 registerCollection(TestCollection2);
 
@@ -113,9 +113,9 @@ export const TestCollection3 = {
       type: Number,
     }
   }
-} as unknown as CollectionBase<DbTestObject3>;
+} as unknown as CollectionBase<CollectionNameString>;
 
-export const testTable3 = Table.fromCollection(TestCollection3);
+export const testTable3 = Table.fromCollection<CollectionNameString, DbTestObject3>(TestCollection3);
 (TestCollection3 as any).table = testTable3;
 registerCollection(TestCollection3);
 
@@ -167,9 +167,9 @@ export const TestCollection4 = {
       type: Number,
     },
   },
-} as unknown as CollectionBase<DbTestObject4>;
+} as unknown as CollectionBase<CollectionNameString>;
 
-export const testTable4 = Table.fromCollection(TestCollection4);
+export const testTable4 = Table.fromCollection<CollectionNameString, DbTestObject4>(TestCollection4);
 (TestCollection4 as any).table = testTable4;
 registerCollection(TestCollection4);
 

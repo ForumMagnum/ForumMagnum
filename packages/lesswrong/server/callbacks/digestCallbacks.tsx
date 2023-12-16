@@ -13,7 +13,7 @@ getCollectionHooks("Digests").updateAsync.add(async ({newDocument, oldDocument, 
   void createMutator({
     collection: Digests,
     document: {
-      num: newDocument.num ?? 0 + 1,
+      num: (newDocument.num ?? 0) + 1,
       startDate: newDocument.endDate ?? new Date()
     },
     validate: false,
