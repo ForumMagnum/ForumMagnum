@@ -247,9 +247,11 @@ async function checkForActiveDialoguePartners() {
 
     const messageString = `data: ${JSON.stringify(message)}\n\n`;
 
-    for (let connection of openConnections[userId]) {
-      connection.res.write(messageString);
-      connection.newestNotificationTimestamp = new Date();
-    }  
+    if (openConnections[userId]) {
+      for (let connection of openConnections[userId]) {
+        connection.res.write(messageString);
+        connection.newestNotificationTimestamp = new Date();
+      } 
+    }
   }
 }

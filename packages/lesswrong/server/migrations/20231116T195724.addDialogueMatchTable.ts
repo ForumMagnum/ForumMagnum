@@ -38,13 +38,9 @@ import DialogueMatchPreferences from "../../lib/collections/dialogueMatchPrefere
 import { createTable, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (DialogueMatchPreferences.isPostgres()) {
-    await createTable(db, DialogueMatchPreferences);
-  }
+  await createTable(db, DialogueMatchPreferences);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (DialogueMatchPreferences.isPostgres()) {
-    await dropTable(db, DialogueMatchPreferences);
-  }
+  await dropTable(db, DialogueMatchPreferences);
 }

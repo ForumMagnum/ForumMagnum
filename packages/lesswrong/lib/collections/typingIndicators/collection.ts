@@ -8,7 +8,6 @@ import schema from "./schema";
 export const TypingIndicators: TypingIndicatorsCollection = createCollection({
   collectionName: 'TypingIndicators',
   typeName: 'TypingIndicator',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('TypingIndicators'),
   logChanges: true,

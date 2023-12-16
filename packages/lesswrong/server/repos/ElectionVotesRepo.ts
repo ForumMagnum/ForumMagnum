@@ -1,7 +1,7 @@
 import ElectionVotes from "../../lib/collections/electionVotes/collection";
 import AbstractRepo from "./AbstractRepo";
 
-export default class ElectionVotesRepo extends AbstractRepo<DbElectionVote> {
+export default class ElectionVotesRepo extends AbstractRepo<"ElectionVotes"> {
   constructor() {
     super(ElectionVotes);
   }

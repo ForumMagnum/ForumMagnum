@@ -6,7 +6,7 @@ import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 
-export type MeanPostKarma = {
+type MeanPostKarma = {
   _id: number,
   meanKarma: number,
 }
@@ -29,7 +29,7 @@ const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>(
   updateAgeOnGet: false,
 });
 
-export default class PostsRepo extends AbstractRepo<DbPost> {
+export default class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
   }
@@ -363,14 +363,14 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaPost> {
+  getSearchDocumentById(id: string): Promise<SearchPost> {
     return this.getRawDb().one(`
       ${this.getSearchDocumentQuery()}
       WHERE p."_id" = $1
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaPost[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchPost[]> {
     return this.getRawDb().any(`
       -- PostsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}

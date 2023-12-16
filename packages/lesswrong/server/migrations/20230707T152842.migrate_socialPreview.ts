@@ -38,8 +38,6 @@ import Posts from "../../lib/collections/posts/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Posts.isPostgres()) return;
-
   await addField(db, Posts, "socialPreview");
   // migrate socialPreviewImageId to socialPreview = {imageId: socialPreviewImageId}
   await db.any(`
@@ -50,7 +48,5 @@ export const up = async ({db}: MigrationContext) => {
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!Posts.isPostgres()) return;
-
   await dropField(db, Posts, "socialPreview");
 }

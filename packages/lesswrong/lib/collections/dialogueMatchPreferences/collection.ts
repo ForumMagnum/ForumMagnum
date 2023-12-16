@@ -30,7 +30,6 @@ const options: MutationOptions<DbDialogueMatchPreference> = {
 export const DialogueMatchPreferences: DialogueMatchPreferencesCollection = createCollection({
   collectionName: 'DialogueMatchPreferences',
   typeName: 'DialogueMatchPreference',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('DialogueMatchPreferences'),
   mutations: getDefaultMutations('DialogueMatchPreferences', options),

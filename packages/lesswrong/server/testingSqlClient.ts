@@ -1,12 +1,10 @@
 import { Application, json, Request, Response } from "express";
 import PgCollection from "../lib/sql/PgCollection";
-import SwitchingCollection from "../lib/SwitchingCollection";
 import CreateIndexQuery from "../lib/sql/CreateIndexQuery";
 import CreateTableQuery from "../lib/sql/CreateTableQuery";
 import { Collections } from "./vulcan-lib";
 import { ensureCustomPgIndex, ensureIndex, expectedIndexes } from "../lib/collectionIndexUtils";
 import { ensurePostgresViewsExist } from "./postgresView";
-import { ensureMongo2PgLockTableExists } from "../lib/mongo2PgLock";
 import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "../lib/sql/sqlClient";
 import { createSqlConnection } from "./sqlConnection";
 import { inspect } from "util";
@@ -32,11 +30,8 @@ import ReadStatuses from "../lib/collections/readStatus/collection";
 
 export const preparePgTables = () => {
   for (let collection of Collections) {
-    if (collection instanceof SwitchingCollection) {
-      collection = collection.getPgCollection() as unknown as CollectionBase<any>;
-    }
     if (collection instanceof PgCollection) {
-      if (!collection.table) {
+      if (!collection.getTable()) {
         collection.buildPostgresTable();
       }
     }
@@ -76,17 +71,14 @@ const ensureMigratedIndexes = async (client: SqlClient) => {
 }
 
 const buildTables = async (client: SqlClient) => {
-  await ensureMongo2PgLockTableExists(client);
   await installExtensions(client);
 
   preparePgTables();
 
   for (let collection of Collections) {
-    if (collection instanceof SwitchingCollection) {
-      collection = collection.getPgCollection() as unknown as CollectionBase<any>;
-    }
     if (collection instanceof PgCollection) {
-      const {table} = collection;
+      const {collectionName} = collection;
+      const table = collection.getTable();
       const createTableQuery = new CreateTableQuery(table);
       const {sql, args} = createTableQuery.compile();
       try {
@@ -95,7 +87,7 @@ const buildTables = async (client: SqlClient) => {
         throw new Error(`Create table query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
       }
 
-      const rawIndexes = expectedIndexes[collection.options.collectionName] ?? [];
+      const rawIndexes = expectedIndexes[collectionName as CollectionNameString] ?? [];
       for (const rawIndex of rawIndexes) {
         const {key, ...options} = rawIndex;
         const fields: MongoIndexKeyObj<any> = typeof key === "string" ? {[key]: 1} : key;

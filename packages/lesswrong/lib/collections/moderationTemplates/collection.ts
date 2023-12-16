@@ -7,7 +7,6 @@ import {makeEditable} from "../../editor/make_editable";
 export const ModerationTemplates: ModerationTemplatesCollection = createCollection({
   collectionName: 'ModerationTemplates',
   typeName: 'ModerationTemplate',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('ModerationTemplates'),
   mutations: getDefaultMutations('ModerationTemplates'),

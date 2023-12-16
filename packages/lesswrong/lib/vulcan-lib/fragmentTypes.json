@@ -15,10 +15,10 @@
             "name": "Post"
           },
           {
-            "name": "Comment"
+            "name": "Revision"
           },
           {
-            "name": "Revision"
+            "name": "Comment"
           }
         ]
       }

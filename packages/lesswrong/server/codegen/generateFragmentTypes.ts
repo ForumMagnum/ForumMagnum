@@ -20,6 +20,8 @@ export function generateFragmentTypes(): string {
   sb.push(generateFragmentsIndexType());
   sb.push(generateCollectionNamesByFragmentNameType());
   sb.push(generateCollectionNamesIndexType());
+  sb.push(generateCollectionNamesWithCreatedAtIndexType());
+  sb.push(generateCollectionNamesWithSlugIndexType());
   
   return fragmentFileHeader + sb.join('');
 }
@@ -95,9 +97,26 @@ function generateCollectionNamesByFragmentNameType(): string {
   return sb.join('');
 }
 
-function generateCollectionNamesIndexType(): string {
-  return 'type CollectionNameString = ' + getAllCollections().map(c => `"${c.collectionName}"`).join('|') + '\n\n';
-}
+const generateCollectionNameList = (
+  name: string,
+  collections: CollectionBase<CollectionNameString>[],
+): string =>
+  `type ${name} = ${collections.map(c => `"${c.collectionName}"`).join('|')}\n\n`;
+
+const generateCollectionNamesIndexType = () =>
+  generateCollectionNameList("CollectionNameString", getAllCollections());
+
+const generateCollectionNamesWithCreatedAtIndexType = () =>
+  generateCollectionNameList(
+    "CollectionNameWithCreatedAt",
+    getAllCollections().filter((c) => !!c._schemaFields.createdAt),
+  );
+
+const generateCollectionNamesWithSlugIndexType = () =>
+  generateCollectionNameList(
+    "CollectionNameWithSlug",
+    getAllCollections().filter((c) => !!c._schemaFields.slug),
+  );
 
 function fragmentToInterface(interfaceName: string, parsedFragment: ParsedFragmentType, collection: AnyBecauseTodo): string {
   const sb: Array<string> = [];

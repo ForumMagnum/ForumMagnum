@@ -7,7 +7,7 @@ import CloseIcon from '@material-ui/icons/Close';
 import Portal from '@material-ui/core/Portal';
 import IconButton from '@material-ui/core/IconButton';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { getAlgoliaIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/algoliaUtil';
+import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { isAF } from '../../lib/instanceSettings';
 import qs from 'qs'
 import { useSearchAnalytics } from '../search/useSearchAnalytics';
@@ -173,7 +173,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
   return <div className={classes.root} onKeyDown={handleKeyDown}>
     <div className={classes.rootChild}>
       <InstantSearch
-        indexName={getAlgoliaIndexName("Posts")}
+        indexName={getSearchIndexName("Posts")}
         searchClient={getSearchClient()}
         onSearchStateChange={queryStateControl}
       >

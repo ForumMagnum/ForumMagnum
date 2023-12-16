@@ -17,7 +17,7 @@ type SanitizedRenderResult = Omit<RenderResult, Exclude<keyof RenderResult, unde
 
 export const maxCacheAgeMs = 90*1000;
 
-export default class PageCacheRepo extends AbstractRepo<DbPageCacheEntry> {
+export default class PageCacheRepo extends AbstractRepo<"PageCache"> {
   constructor() {
     super(PageCache);
   }

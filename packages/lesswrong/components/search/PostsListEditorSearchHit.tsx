@@ -31,7 +31,7 @@ const PostsListEditorSearchHit = ({hit, classes}: {
   hit: Hit<AnyBecauseTodo>,
   classes: ClassesType,
 }) => {
-  const post = hit as AlgoliaPost;
+  const post = hit as SearchPost;
   const {PostsTooltip, PostsTitle, MetaInfo, FormatDate} = Components;
   return (
     <PostsTooltip postId={post._id} postsList placement="left">

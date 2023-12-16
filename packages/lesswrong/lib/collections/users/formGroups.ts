@@ -1,6 +1,6 @@
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
 
-export const formGroups: Partial<Record<string, FormGroupType>> = {
+export const formGroups: Partial<Record<string, FormGroupType<"Users">>> = {
   default: {
     name: "default",
     order: 0,

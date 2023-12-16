@@ -42,18 +42,14 @@ const grandfatheredUsers = [
 ];
 
 export const up = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await addField(db, Users, "expandedFrontpageSections");
-    await db.none(`
-      UPDATE "Users"
-      SET "expandedFrontpageSections" = '{"community":false}'::JSONB
-      WHERE "_id" IN ($1:csv)
-    `, [grandfatheredUsers]);
-  }
+  await addField(db, Users, "expandedFrontpageSections");
+  await db.none(`
+    UPDATE "Users"
+    SET "expandedFrontpageSections" = '{"community":false}'::JSONB
+    WHERE "_id" IN ($1:csv)
+  `, [grandfatheredUsers]);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await dropField(db, Users, "expandedFrontpageSections");
-  }
+  await dropField(db, Users, "expandedFrontpageSections");
 }
