@@ -269,6 +269,10 @@ import './collections/dialogueMatchPreferences/collection';
 import './collections/dialogueMatchPreferences/fragments';
 import './collections/dialogueMatchPreferences/views';
 
+// dialogue match preferences
+import './collections/ckEditorUserSessions/collection';
+import './collections/ckEditorUserSessions/fragments';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';

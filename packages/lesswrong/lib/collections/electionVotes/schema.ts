@@ -75,7 +75,7 @@ const schema: SchemaType<"ElectionVotes"> = {
     type: Date,
     optional: true,
     nullable: true,
-    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canRead: ["guests"],
     canCreate: ["members"],
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
     onUpdate: ({ oldDocument, newDocument }) => {

@@ -231,6 +231,56 @@ async function flushPerfMetrics() {
   }
 }
 
+export async function pruneOldPerfMetrics() {
+  const connection = getAnalyticsConnection();
+  if (!connection) {
+    // eslint-disable-next-line no-console
+    console.error('Missing connection to analytics DB when trying to prune old perf metrics');
+    return;
+  }
+
+  try {
+    await connection.none(`
+      DELETE
+      FROM perf_metrics
+      WHERE started_at < CURRENT_DATE - INTERVAL '30 days'
+    `);
+
+    await connection.none(`
+      SET LOCAL work_mem = '2GB';
+
+      DELETE
+      FROM perf_metrics
+      WHERE id IN (
+        WITH queries AS (
+          SELECT id, parent_trace_id
+          FROM perf_metrics q
+          WHERE q.started_at BETWEEN CURRENT_DATE - INTERVAL '9 days' AND CURRENT_DATE - INTERVAL '7 days'
+            -- We keep 1/16th of the older perf metrics using the last character of the trace id for random sampling
+            AND SUBSTR(q.trace_id, 36, 1) != '0'
+            AND q.op_type = 'query'
+        )
+        SELECT queries.id
+        FROM queries
+        UNION
+        SELECT pm.id
+        FROM perf_metrics pm
+        JOIN queries
+        ON pm.trace_id = queries.parent_trace_id
+        UNION
+        SELECT ch.id
+        FROM perf_metrics ch
+        WHERE ch.op_name = 'cacheHit'
+          AND ch.started_at BETWEEN CURRENT_DATE - INTERVAL '9 days' AND CURRENT_DATE - INTERVAL '7 days'
+          AND SUBSTR(ch.trace_id, 36, 1) != '0'
+      )
+    `);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error('Error when pruning old perf metrics', { err });
+  }
+}
+
 function serverWriteEvent({type, timestamp, props}: AnyBecauseTodo) {
   void writeEventsToAnalyticsDB([{
     type, timestamp,

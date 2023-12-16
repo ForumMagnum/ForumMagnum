@@ -5,9 +5,11 @@ import { getSiteUrl } from "../lib/vulcan-lib/utils";
 import { DatabaseServerSetting } from './databaseSettings';
 import maxBy from 'lodash/maxBy';
 import moment from 'moment';
-import {getConfirmedCoauthorIds} from '../lib/collections/posts/helpers';
-import {ServerSentEventsMessage, TypingIndicatorMessage} from '../components/hooks/useUnreadNotifications';
+import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
+import { ActiveDialogue, ActiveDialogueServer, ServerSentEventsMessage, TypingIndicatorMessage } from '../components/hooks/useUnreadNotifications';
 import TypingIndicatorsRepo from './repos/TypingIndicatorsRepo';
+import UsersRepo from './repos/UsersRepo';
+import { isEAForum } from '../lib/instanceSettings';
 
 const disableServerSentEvents = new DatabaseServerSetting<boolean>("disableServerSentEvents", false);
 
@@ -76,10 +78,14 @@ export function addServerSentEventsEndpoint(app: Express) {
   
   setInterval(checkForNotifications, 1000);
   setInterval(checkForTypingIndicators, 1000);
+  if (!isEAForum) {
+    setInterval(checkForActiveDialoguePartners, 1000);
+  }
 }
 
 let lastNotificationCheck = new Date();
 let lastTypingIndicatorsCheck = new Date();
+let lastActiveDialoguePartnersMessage = new Date();
 
 async function checkForNotifications() {
   const numOpenConnections = Object.keys(openConnections).length;
@@ -200,6 +206,54 @@ async function checkForTypingIndicators() {
         }
         connection.res.write(`data: ${JSON.stringify(message)}\n\n`)
       }
+    }
+  }
+}
+
+async function checkForActiveDialoguePartners() {
+  const numOpenConnections = Object.keys(openConnections).length;
+  if (!numOpenConnections) {
+    return;
+  }
+
+  const userIds = Object.keys(openConnections);
+
+  const activeDialogues:ActiveDialogueServer[] = await new UsersRepo().getActiveDialogues(userIds);
+
+  const allUsersDialoguesData: Record<string, ActiveDialogue[]> = {};
+  for (let dialogue of activeDialogues) {
+    const coauthorUserIds = dialogue.coauthorStatuses.map((status: any) => status.userId);
+    const allUserIds = [dialogue.userId, ...coauthorUserIds];
+    for (let userId of allUserIds) {
+      const data = {
+        postId: dialogue._id,
+        title: dialogue.title,
+        userIds: dialogue.activeUserIds.filter((id => id !== userId)),
+      }
+      if (allUsersDialoguesData[userId]) {
+        allUsersDialoguesData[userId].push(data);
+      } else {
+        allUsersDialoguesData[userId] = [data];
+      }
+    }
+  }
+
+  const testUserIds = ["gXeEWGjTWyqgrQTzR", "XtphY3uYHwruKqDyG", "grecHJcgkb3KW5wnM", "EQNTWXLKMeWMp2FQS"];
+
+  for (let userId of userIds) {
+    if (testUserIds.includes(userId)) { // hardcoded to be able to test feature with live ckEditor data in prod
+      const userDialoguesData = allUsersDialoguesData[userId];
+      const message = {
+        eventType: "activeDialoguePartners",
+        data: userDialoguesData ?? []
+      };
+
+      const messageString = `data: ${JSON.stringify(message)}\n\n`;
+
+      for (let connection of openConnections[userId]) {
+        connection.res.write(messageString);
+        connection.newestNotificationTimestamp = new Date();
+      } 
     }
   }
 }

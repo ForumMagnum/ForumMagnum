@@ -1,4 +1,4 @@
-import { createMutator } from '../vulcan-lib';
+import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
@@ -29,6 +29,8 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../embeddings';
 import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
+import DialogueChecks from '../../lib/collections/dialogueChecks/collection';
+import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPreferences/collection';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -559,5 +561,40 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCa
     }
   }
 
+  return post;
+});
+
+getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCallbackProperties<"Posts">) => {
+  const { oldDocument: oldPost } = props;
+  const adminContext = createAdminContext();
+
+  async function resetDialogueMatch(matchForm: DbDialogueMatchPreference) {
+    const dialogueCheck = await DialogueChecks.findOne(matchForm.dialogueCheckId);
+    if (dialogueCheck) {
+      await Promise.all([
+        updateMutator({ // reset check
+          collection: DialogueChecks,
+          documentId: dialogueCheck._id,
+          set: { checked: false },
+          currentUser: adminContext.currentUser,
+          context: adminContext,
+          validate: false
+        }),
+        updateMutator({ // soft delete topic form
+          collection: DialogueMatchPreferences,
+          documentId: matchForm._id,
+          set: { deleted: true },
+          currentUser: adminContext.currentUser,
+          context: adminContext,
+          validate: false
+        })
+      ]);
+    }
+  }
+
+  if (post.collabEditorDialogue && post.draft === false && oldPost.draft) {
+    const matchForms = await DialogueMatchPreferences.find({generatedDialogueId: post._id, deleted: {$ne: true}}).fetch()
+      await Promise.all(matchForms.map(resetDialogueMatch))
+  }
   return post;
 });

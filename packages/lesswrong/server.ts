@@ -112,6 +112,7 @@ import './server/recommendations/UniquePostUpvoters';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
 import './server/eventReminders';
+import './server/prunePerfMetricsCron';
 
 import './server/gatherTownCron';
 

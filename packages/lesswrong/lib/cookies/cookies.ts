@@ -116,6 +116,12 @@ export const HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE = registerCookie({
   description: "Don't show the how-to guide on the new post page",
 });
 
+export const HIDE_2021_BOOK_BANNER_COOKIE = registerCookie({
+  name: "hide_2021_book_banner",
+  type: "necessary",
+  description: "Don't show the 2021 book banner",
+});
+
 
 // Third party cookies
 

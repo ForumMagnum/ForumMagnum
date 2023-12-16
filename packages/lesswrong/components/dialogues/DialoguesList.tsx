@@ -202,7 +202,9 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   const currentUser = useCurrentUser()
   const [showSettings, setShowSettings] = useState(false);
   const { captureEvent } = useTracking();
-  const showReciprocityRecommendations = (currentUser?.karma ?? 0) > 100 // hide reciprocity recommendations if user has less than 100 karma
+  const currentDate = new Date();
+  const isEvenDay = currentDate.getUTCDate() % 2 === 0;
+  const showReciprocityRecommendations = ((currentUser?.karma ?? 0) > 100) && isEvenDay; // hide reciprocity recommendations if user has less than 100 karma, or if the current day is not an even number (just a hack to avoid spamming folks)
 
   const { results: dialoguePosts } = usePaginatedResolver({
     fragmentName: "PostsListWithVotes",

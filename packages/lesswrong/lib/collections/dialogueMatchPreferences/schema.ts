@@ -1,5 +1,6 @@
 import SimpleSchema from "simpl-schema";
 import { foreignKeyField, schemaDefaultValue } from "../../utils/schemaUtils";
+import { userOwns } from "../../vulcan-users/permissions";
 
 export const SYNC_PREFERENCE_VALUES = ['Yes', 'Meh', 'No'] as const;
 export type SyncPreference = typeof SYNC_PREFERENCE_VALUES[number];
@@ -95,7 +96,16 @@ const schema: SchemaType<"DialogueMatchPreferences"> = {
     canCreate: ['admins'],
     canRead: ['members', 'admins'],
     canUpdate: ['admins'],
-  }
+  },
+  // deleted: Indicates whether a form has been soft deleted, after a dialogue was published and the form was reset
+  deleted: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

@@ -24,7 +24,7 @@ export const flatten = function(data: AnyBecauseTodo) {
 };
 
 export const isEmptyValue = (value: AnyBecauseTodo) =>
-  typeof value === 'undefined' || value === null || value === '' || (Array.isArray(value) && value.length === 0);
+  typeof value === 'undefined' || value === null || value === '';
 
 
 /**

@@ -1,4 +1,5 @@
 import moment from "moment";
+import { isPastVotingDeadline } from "./collections/electionVotes/helpers";
 
 export const eaGivingSeason23ElectionName = "givingSeason23";
 
@@ -29,7 +30,7 @@ const votingAccountCreationCutoff = new Date("2023-10-23T19:00:00Z");
 export const userCanVoteInDonationElection = (
   user: UsersCurrent | DbUser | null,
 ) =>
-  !!user && new Date(user.createdAt).getTime() < votingAccountCreationCutoff.getTime();
+  !!user && new Date(user.createdAt).getTime() < votingAccountCreationCutoff.getTime()
 
 export const assertUserCanVoteInDonationElection = (
   user: UsersCurrent | DbUser | null,

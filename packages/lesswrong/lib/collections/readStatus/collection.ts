@@ -1,6 +1,6 @@
 import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils';
-import { ensureIndex } from '../../collectionIndexUtils'
+import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils'
 import { foreignKeyField } from '../../utils/schemaUtils'
 
 const schema: SchemaType<"ReadStatuses"> = {
@@ -51,7 +51,11 @@ export const ReadStatuses: ReadStatusesCollection = createCollection({
 
 addUniversalFields({collection: ReadStatuses});
 
-ensureIndex(ReadStatuses, {userId:1, postId:1, tagId:1}, {unique: true})
+void ensureCustomPgIndex(`
+  CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId"
+  ON public."ReadStatuses" USING btree
+  (COALESCE("userId", ''::character varying), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying))
+`);
 ensureIndex(ReadStatuses, {userId:1, postId:1, isRead:1, lastUpdated:1})
 ensureIndex(ReadStatuses, {userId:1, tagId:1, isRead:1, lastUpdated:1})
 
