@@ -48,7 +48,7 @@ export const TestCollection = {
 } as unknown as CollectionBase<CollectionNameString>;
 
 export const testTable = Table.fromCollection<CollectionNameString, DbTestObject>(TestCollection);
-(TestCollection as any).table = testTable;
+(TestCollection as any).getTable = () => testTable;
 registerCollection(TestCollection);
 
 testTable.addIndex({a: 1, b: 1});
@@ -88,7 +88,7 @@ registerFragment(`
 `);
 
 export const testTable2 = Table.fromCollection<CollectionNameString, DbTestObject2>(TestCollection2);
-(TestCollection2 as any).table = testTable2;
+(TestCollection2 as any).getTable = () => testTable2;
 registerCollection(TestCollection2);
 
 export type DbTestObject3 = {
@@ -116,7 +116,7 @@ export const TestCollection3 = {
 } as unknown as CollectionBase<CollectionNameString>;
 
 export const testTable3 = Table.fromCollection<CollectionNameString, DbTestObject3>(TestCollection3);
-(TestCollection3 as any).table = testTable3;
+(TestCollection3 as any).getTable = () => testTable3;
 registerCollection(TestCollection3);
 
 registerFragment(`
@@ -170,7 +170,7 @@ export const TestCollection4 = {
 } as unknown as CollectionBase<CollectionNameString>;
 
 export const testTable4 = Table.fromCollection<CollectionNameString, DbTestObject4>(TestCollection4);
-(TestCollection4 as any).table = testTable4;
+(TestCollection4 as any).getTable = () => testTable4;
 registerCollection(TestCollection4);
 
 registerFragment(`

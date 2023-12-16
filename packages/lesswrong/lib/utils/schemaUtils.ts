@@ -134,7 +134,7 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({
     resolveAs: {
       fieldName: resolverName,
       type: nullable ? type : `${type}!`,
-      resolver: generateIdResolverSingle<CollectionName>({
+      resolver: generateIdResolverSingle({
         collectionName,
         fieldName: idFieldName,
         nullable,

@@ -31,11 +31,11 @@ type SqlJoinBase = {
   on: Record<string, string>,
 }
 
-type SqlResolverJoin = Pick<SqlJoinBase, "table" | "type" | "on"> & {
+type SqlResolverJoin = SqlJoinBase & {
   resolver: (field: SqlFieldFunction) => string,
 };
 
-type SqlJoinSpec = Pick<SqlJoinBase, "table" | "type" | "on"> & {
+type SqlJoinSpec = SqlJoinBase & {
   prefix: string,
 };
 

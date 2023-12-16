@@ -45,9 +45,9 @@ export const pgPromiseLib = pgp({
     }
   },
   // Uncomment to log executed queries for debugging, etc.
-  query: (context: IEventContext) => {
+  // query: (context: IEventContext) => {
     // console.log("SQL:", context.query);
-  },
+  // },
 });
 
 /**

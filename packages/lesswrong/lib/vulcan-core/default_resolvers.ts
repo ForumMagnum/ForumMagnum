@@ -56,12 +56,14 @@ export function getDefaultResolvers<N extends CollectionNameString>(
 
       async resolver(
         root: void,
-        args: {input: {
-          terms: ViewTermsBase,
-          enableCache?: boolean,
-          enableTotal?: boolean,
-          createIfMissing?: Partial<T>,
-        }},
+        args: {
+          input: {
+            terms: ViewTermsBase,
+            enableCache?: boolean,
+            enableTotal?: boolean,
+            createIfMissing?: Partial<T>,
+          },
+        },
         context: ResolverContext,
         info: GraphQLResolveInfo,
       ) {
