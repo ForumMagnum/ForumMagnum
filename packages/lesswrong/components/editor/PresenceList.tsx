@@ -15,6 +15,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   disconnected: {
     color: theme.palette.text.dim40,
+    '& $activeDot': {
+      display: 'none',
+    },
   },
   offlineIcon: {
     marginRight: 2,
@@ -23,6 +26,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     "& svg": {
       fontSize: 13,
     },
+  },
+  activeDot: {
+    height: 7,
+    width: 7,
+    backgroundColor: theme.palette.secondary.light,
+    borderRadius: '50%',
+    display: 'inline-block',
+    boxShadow: `0 0 5px ${theme.palette.secondary.light}, 0 0 8px ${theme.palette.secondary.light}`,
+    marginRight: 7,
+    marginLeft: 9
   },
 })
 
@@ -65,6 +78,8 @@ const PresenceListUser = ({userId, connected, classes}: {
     [classes.connected]: connected,
     [classes.disconnected]: !connected,
   })}>
+    <div className={classes.activeDot}>
+    </div>
     <span className={classes.offlineIcon}>{!connected && <CloudOff/>}</span>
     <Components.UsersName user={user}/>
   </span>
@@ -77,4 +92,3 @@ declare global {
     PresenceList: typeof PresenceListComponent
   }
 }
-

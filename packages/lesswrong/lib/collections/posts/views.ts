@@ -1296,6 +1296,16 @@ ensureIndex(Posts,
   { name: "posts.recommendable" }
 );
 
+Posts.addView("hasEverDialogued", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      $or: [{userId: terms.userId},
+        {"coauthorStatuses.userId": terms.userId}],
+      collabEditorDialogue: true,
+    },
+  }
+})
+
 Posts.addView("pingbackPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
