@@ -1,12 +1,15 @@
 import { addCronJob } from "./cronUtil";
 import { pruneOldPerfMetrics } from "./analyticsWriter";
 import { Globals } from "./vulcan-lib";
+import { performanceMetricLoggingEnabled } from "../lib/publicSettings";
 
 addCronJob({
   name: 'prunePerfMetrics',
   interval: 'every 24 hours',
   async job() {
-    await pruneOldPerfMetrics();
+    if (performanceMetricLoggingEnabled.get()) {
+      await pruneOldPerfMetrics();
+    }
   },
 });
 
