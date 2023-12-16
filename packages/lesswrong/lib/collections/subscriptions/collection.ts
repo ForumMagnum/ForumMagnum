@@ -18,7 +18,6 @@ const options: MutationOptions<DbSubscription> = {
 export const Subscriptions: SubscriptionsCollection = createCollection({
   collectionName: 'Subscriptions',
   typeName: 'Subscription',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Subscriptions'),
   mutations: getDefaultMutations('Subscriptions', options),

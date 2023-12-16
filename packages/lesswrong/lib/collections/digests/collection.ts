@@ -6,7 +6,6 @@ import { getDefaultMutations } from '../../vulcan-core/default_mutations';
 export const Digests: DigestsCollection = createCollection({
   collectionName: 'Digests',
   typeName: 'Digest',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Digests'),
   mutations: getDefaultMutations('Digests'),

@@ -37,13 +37,9 @@ import ElectionVotes from "../../lib/collections/electionVotes/collection"
 import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (ElectionVotes.isPostgres()) {
-    await addField(db, ElectionVotes, "submissionComments")
-  }
+  await addField(db, ElectionVotes, "submissionComments")
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (ElectionVotes.isPostgres()) {
-    await dropField(db, ElectionVotes, "submissionComments")
-  }
+  await dropField(db, ElectionVotes, "submissionComments")
 }

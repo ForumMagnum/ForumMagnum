@@ -1,7 +1,7 @@
 import AbstractRepo from "./AbstractRepo";
 import Localgroups from "../../lib/collections/localgroups/collection";
 
-export default class LocalgroupsRepo extends AbstractRepo<DbLocalgroup> {
+export default class LocalgroupsRepo extends AbstractRepo<"Localgroups"> {
   constructor() {
     super(Localgroups);
   }

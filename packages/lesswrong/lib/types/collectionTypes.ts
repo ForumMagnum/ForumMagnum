@@ -8,37 +8,58 @@
 import type DataLoader from 'dataloader';
 import type { Request, Response } from 'express';
 import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
-import type PgCollection from "../sql/PgCollection";
+import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
+import Table from '../sql/Table';
+import PgCollection from '../sql/PgCollection';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
 declare global {
 
-// See mongoCollection.ts for implementation
-interface CollectionBase<
-  T extends DbObject,
-  N extends CollectionNameString = CollectionNameString
-> {
-  collectionName: N
-  postProcess?: (data: T) => T;
+type CheckAccessFunction<T extends DbObject> = (
+  user: DbUser|null,
+  obj: T,
+  context: ResolverContext|null,
+  outReasonDenied?: {reason?: string},
+) => Promise<boolean>;
+
+// See PgCollection.ts for implementation
+interface CollectionBase<N extends CollectionNameString = CollectionNameString> {
+  collectionName: N,
+  postProcess?: (data: ObjectsByCollectionName[N]) => ObjectsByCollectionName[N];
   typeName: string,
-  options: CollectionOptions
+  options: CollectionOptions<N>,
   addDefaultView: (view: ViewFunction<N>) => void
   addView: (viewName: string, view: ViewFunction<N>) => void
   defaultView?: ViewFunction<N>
   views: Record<string, ViewFunction<N>>
-  
-  _schemaFields: SchemaType<T>
+
+  _schemaFields: SchemaType<N>
   _simpleSchema: any
 
-  isPostgres: () => this is PgCollection<T>
   isConnected: () => boolean
 
+  isVoteable: () => this is PgCollection<VoteableCollectionName>
+  makeVoteable: () => void
+
+  hasSlug: () => this is PgCollection<CollectionNameWithSlug>
+
+  checkAccess: CheckAccessFunction<ObjectsByCollectionName[N]>;
+
+  getTable: () => Table<ObjectsByCollectionName[N]>;
+
   rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
-  checkAccess: (user: DbUser|null, obj: T, context: ResolverContext|null, outReasonDenied?: {reason?: string}) => Promise<boolean>
-  find: (selector?: MongoSelector<T>, options?: MongoFindOptions<T>, projection?: MongoProjection<T>) => FindResult<T>
-  findOne: (selector?: string|MongoSelector<T>, options?: MongoFindOneOptions<T>, projection?: MongoProjection<T>) => Promise<T|null>
-  findOneArbitrary: () => Promise<T|null>
+  find: (
+    selector?: MongoSelector<ObjectsByCollectionName[N]>,
+    options?: MongoFindOptions<ObjectsByCollectionName[N]>,
+    projection?: MongoProjection<ObjectsByCollectionName[N]>,
+  ) => FindResult<ObjectsByCollectionName[N]>;
+  findOne: (
+    selector?: string|MongoSelector<ObjectsByCollectionName[N]>,
+    options?: MongoFindOneOptions<ObjectsByCollectionName[N]>,
+    projection?: MongoProjection<ObjectsByCollectionName[N]>,
+  ) => Promise<ObjectsByCollectionName[N]|null>;
+  findOneArbitrary: () => Promise<ObjectsByCollectionName[N]|null>
   
   /**
    * Update without running callbacks. Consider using updateMutator, which wraps
@@ -54,37 +75,53 @@ interface CollectionBase<
    * We then decided to maintain compatibility with meteor when we switched
    * away.
    */
-  rawUpdateOne: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
-  rawUpdateMany: (selector?: string|MongoSelector<T>, modifier?: MongoModifier<T>, options?: MongoUpdateOptions<T>) => Promise<number>
-  
+  rawUpdateOne: (
+    selector?: string|MongoSelector<ObjectsByCollectionName[N]>,
+    modifier?: MongoModifier<ObjectsByCollectionName[N]>,
+    options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
+  ) => Promise<number>;
+  rawUpdateMany: (
+    selector?: string|MongoSelector<ObjectsByCollectionName[N]>,
+    modifier?: MongoModifier<ObjectsByCollectionName[N]>,
+    options?: MongoUpdateOptions<ObjectsByCollectionName[N]>,
+  ) => Promise<number>;
+
   /** Remove without running callbacks. Consider using deleteMutator, which
    * wraps this. */
-  rawRemove: (idOrSelector: string|MongoSelector<T>, options?: any) => Promise<any>
+  rawRemove: (idOrSelector: string|MongoSelector<ObjectsByCollectionName[N]>, options?: any) => Promise<any>
   /** Inserts without running callbacks. Consider using createMutator, which
    * wraps this. */
   rawInsert: (data: any, options?: any) => Promise<string>
-  aggregate: (aggregationPipeline: MongoAggregationPipeline<T>, options?: any) => any
+  aggregate: (aggregationPipeline: MongoAggregationPipeline<ObjectsByCollectionName[N]>, options?: any) => any
   _ensureIndex: any
 }
 
-interface CollectionOptions {
-  typeName: string
-  collectionName: CollectionNameString
-  singleResolverName: string
-  multiResolverName: string
-  mutations: any
-  resolvers: any
-  interfaces: Array<string>
-  description: string
-  logChanges: boolean
-}
+type CollectionOptions<N extends CollectionNameString> = {
+  typeName: string,
+  collectionName: N,
+  dbCollectionName?: string,
+  schema: SchemaType<N>,
+  generateGraphQLSchema?: boolean,
+  collection?: any,
+  singleResolverName: string,
+  multiResolverName: string,
+  resolvers?: any,
+  mutations?: any,
+  interfaces?: string[],
+  description?: string,
+  logChanges?: boolean,
+};
 
 interface FindResult<T> {
   fetch: ()=>Promise<Array<T>>
   count: ()=>Promise<number>
 }
 
-type ViewFunction<N extends CollectionNameString> = (terms: ViewTermsByCollectionName[N], apolloClient?: any, context?: ResolverContext)=>ViewQueryAndOptions<N>
+type ViewFunction<N extends CollectionNameString = CollectionNameString> = (
+  terms: ViewTermsByCollectionName[N],
+  apolloClient?: ApolloClient<NormalizedCacheObject>,
+  context?: ResolverContext,
+) => ViewQueryAndOptions<N>;
 
 
 type ViewQueryAndOptions<
@@ -101,10 +138,7 @@ type ViewQueryAndOptions<
   }
 }
 
-interface MergedViewQueryAndOptions<
-  N extends CollectionNameString,
-  T extends DbObject=ObjectsByCollectionName[N]
-> {
+interface MergedViewQueryAndOptions<T extends DbObject> {
   selector: Partial<Record<keyof T|"$or"|"$and", any>>
   options: {
     sort: MongoSort<T>
@@ -221,7 +255,7 @@ interface HasCreatedAtType extends DbObject {
   createdAt: Date
 }
 
-export type AlgoliaDocument = {
+export type SearchDocument = {
   _id: string,
   [key: string]: any,
 }
@@ -268,7 +302,7 @@ interface ResolverContext extends CollectionsByName {
 
 type FragmentName = keyof FragmentTypes;
 
-type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"ElectionCandidates";
+type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"ElectionCandidates";
 
 interface EditableFieldContents {
   html: string
@@ -299,52 +333,51 @@ interface SpotlightFirstPost {
 // Sorry for declaring these so far from their function definitions. The
 // functions are defined in /server, and import cycles, etc.
 
-type CreateMutatorParams<T extends DbObject> = {
-  collection: CollectionBase<T>,
-  document: Partial<DbInsertion<T>>,
+type CreateMutatorParams<N extends CollectionNameString> = {
+  collection: CollectionBase<N>,
+  document: Partial<DbInsertion<ObjectsByCollectionName[N]>>,
   currentUser?: DbUser|null,
   validate?: boolean,
   context?: ResolverContext,
 };
-type CreateMutator = <T extends DbObject>(args: CreateMutatorParams<T>) => Promise<{data: T}>;
+type CreateMutator = <N extends CollectionNameString>(args: CreateMutatorParams<N>) => Promise<{data: ObjectsByCollectionName[N]}>;
 
-type UpdateMutatorParamsBase<T extends DbObject> = {
-  collection: CollectionBase<T>;
-  data?: Partial<DbInsertion<T>>;
-  set?: Partial<DbInsertion<T>>;
+type UpdateMutatorParamsBase<N extends CollectionNameString> = {
+  collection: CollectionBase<N>;
+  data?: Partial<DbInsertion<ObjectsByCollectionName[N]>>;
+  set?: Partial<DbInsertion<ObjectsByCollectionName[N]>>;
   unset?: any;
   currentUser?: DbUser | null;
   validate?: boolean;
   context?: ResolverContext;
-  document?: T | null;
+  document?: ObjectsByCollectionName[N] | null;
 };
-type UpdateMutatorParamsWithDocId<T extends DbObject> = UpdateMutatorParamsBase<T> & {
+type UpdateMutatorParamsWithDocId<N extends CollectionNameString> = UpdateMutatorParamsBase<N> & {
   documentId: string,
   /** You should probably use documentId instead. If using selector, make sure
    * it only returns a single row. */
   selector?: never
 };
-type UpdateMutatorParamsWithSelector<T extends DbObject> = UpdateMutatorParamsBase<T> & {
+type UpdateMutatorParamsWithSelector<N extends CollectionNameString> = UpdateMutatorParamsBase<N> & {
   documentId?: never,
   /** You should probably use documentId instead. If using selector, make sure
    * it only returns a single row. */
-  selector: MongoSelector<T>
+  selector: MongoSelector<ObjectsByCollectionName[N]>
 };
-type UpdateMutatorParams<T extends DbObject> = UpdateMutatorParamsWithDocId<T> |
-  UpdateMutatorParamsWithSelector<T>;
+type UpdateMutatorParams<N extends CollectionNameString> = UpdateMutatorParamsWithDocId<N> |
+  UpdateMutatorParamsWithSelector<N>;
 
-type UpdateMutator = <T extends DbObject>(args: UpdateMutatorParams<T>) => Promise<{ data: T }>;
+type UpdateMutator = <N extends CollectionNameString>(args: UpdateMutatorParams<N>) => Promise<{ data: ObjectsByCollectionName[N] }>;
 
-type DeleteMutatorParams<T extends DbObject> = {
-  collection: CollectionBase<T>,
+type DeleteMutatorParams<N extends CollectionNameString> = {
+  collection: CollectionBase<N>,
   documentId: string,
-  selector?: MongoSelector<T>,
+  selector?: MongoSelector<ObjectsByCollectionName[N]>,
   currentUser?: DbUser|null,
   validate?: boolean,
   context?: ResolverContext,
-  document?: T|null,
+  document?: ObjectsByCollectionName[N]|null,
 };
-type DeleteMutator = <T extends DbObject>(args: DeleteMutatorParams<T>) => Promise<{data: T}>
-
+type DeleteMutator = <N extends CollectionNameString>(args: DeleteMutatorParams<N>) => Promise<{data: ObjectsByCollectionName[N]}>
 
 }

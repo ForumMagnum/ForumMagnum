@@ -5,7 +5,6 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils';
 export const Podcasts: PodcastsCollection = createCollection({
   collectionName: 'Podcasts',
   typeName: 'Podcast',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Podcasts')
 });

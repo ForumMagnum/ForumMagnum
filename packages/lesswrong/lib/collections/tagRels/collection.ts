@@ -7,7 +7,7 @@ import { canVoteOnTagAsync } from '../../voting/tagRelVoteRules';
 import { isEAForum } from '../../instanceSettings';
 import { userOwns } from '../../vulcan-users/permissions';
 
-const schema: SchemaType<DbTagRel> = {
+const schema: SchemaType<"TagRels"> = {
   tagId: {
     nullable: false,
     ...foreignKeyField({
@@ -85,7 +85,6 @@ const schema: SchemaType<DbTagRel> = {
 export const TagRels: TagRelsCollection = createCollection({
   collectionName: 'TagRels',
   typeName: 'TagRel',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('TagRels'),
   mutations: getDefaultMutations('TagRels', {

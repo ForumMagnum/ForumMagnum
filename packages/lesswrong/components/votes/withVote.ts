@@ -9,7 +9,7 @@ import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSys
 import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
 
-const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
+const getVoteMutationQuery = (collection: CollectionBase<CollectionNameString>) => {
   const typeName = collection.options.typeName;
   const mutationName = `performVote${typeName}`;
   

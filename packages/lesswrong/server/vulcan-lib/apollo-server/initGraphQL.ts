@@ -103,7 +103,11 @@ const getTypeDefs = () => {
 }
 
 // get GraphQL type for a given schema and field name
-const getGraphQLType = <T extends DbObject>(schema: SchemaType<T>, fieldName: string, isInput = false): string|null => {
+const getGraphQLType = <N extends CollectionNameString>(
+  schema: SchemaType<N>,
+  fieldName: string,
+  isInput = false,
+): string|null => {
   const field = schema[fieldName];
   const type = field.type.singleType;
   const typeName =
@@ -170,7 +174,7 @@ type SchemaGraphQLFields = {
 
 // for a given schema, return main type fields, selector fields,
 // unique selector fields, orderBy fields, creatable fields, and updatable fields
-const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string): {
+const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeName: string): {
   fields: SchemaGraphQLFields
   resolvers: any
 }=> {
@@ -221,7 +225,7 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
         // then build actual resolver object and pass it to addGraphQLResolvers
         const resolver = {
           [typeName]: {
-            [resolverName]: (document: T, args: any, context: ResolverContext, info: any) => {
+            [resolverName]: (document: ObjectsByCollectionName[N], args: any, context: ResolverContext, info: any) => {
               const { currentUser } = context;
               // check that current user has permission to access the original non-resolved field
               const canReadField = userCanReadField(currentUser, field, document);
@@ -277,7 +281,7 @@ const getFields = <T extends DbObject>(schema: SchemaType<T>, typeName: string):
 };
 
 // generate a GraphQL schema corresponding to a given collection
-const generateSchema = (collection: CollectionBase<DbObject>) => {
+const generateSchema = (collection: CollectionBase<CollectionNameString>) => {
   let graphQLSchema = '';
 
   const schemaFragments: Array<string> = [];

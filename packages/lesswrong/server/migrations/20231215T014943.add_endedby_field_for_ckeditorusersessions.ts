@@ -37,13 +37,9 @@ import CkEditorUserSessions from "../../lib/collections/ckEditorUserSessions/col
 import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (CkEditorUserSessions.isPostgres()) {
-    await addField(db, CkEditorUserSessions, "endedBy")
-  }
+  await addField(db, CkEditorUserSessions, "endedBy")
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (CkEditorUserSessions.isPostgres()) {
-    await dropField(db, CkEditorUserSessions, "endedBy")
-  }
+  await dropField(db, CkEditorUserSessions, "endedBy")
 }

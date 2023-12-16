@@ -41,9 +41,9 @@ export const TestCollection = {
       type: Number,
     },
   },
-} as unknown as CollectionBase<DbTestObject>;
+} as unknown as CollectionBase<CollectionNameString>;
 
-export const testTable = Table.fromCollection<DbTestObject>(TestCollection);
+export const testTable = Table.fromCollection<CollectionNameString, DbTestObject>(TestCollection);
 
 testTable.addIndex({a: 1, b: 1});
 testTable.addIndex({a: 1, "c.d": 1});
@@ -70,9 +70,9 @@ export const TestCollection2 = {
       type: Number,
     },
   },
-} as unknown as CollectionBase<DbTestObject2>;
+} as unknown as CollectionBase<CollectionNameString>;
 
-export const testTable2 = Table.fromCollection(TestCollection2);
+export const testTable2 = Table.fromCollection<CollectionNameString, DbTestObject2>(TestCollection2);
 
 export type DbTestObject3 = {
   _id: string,
@@ -94,9 +94,9 @@ export const TestCollection3 = {
       type: Number,
     }
   }
-} as unknown as CollectionBase<DbTestObject3>;
+} as unknown as CollectionBase<CollectionNameString>;
 
-export const testTable3 = Table.fromCollection(TestCollection3);
+export const testTable3 = Table.fromCollection<CollectionNameString, DbTestObject3>(TestCollection3);
 
 registerCollection(TestCollection);
 registerCollection(TestCollection2);

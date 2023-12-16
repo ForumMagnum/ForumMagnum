@@ -24,7 +24,7 @@ export type React = {
   reactionType?: string, // should this be a specific reaction type?
 }
 
-export default class VotesRepo extends AbstractRepo<DbVote> {
+export default class VotesRepo extends AbstractRepo<"Votes"> {
   constructor() {
     super(Votes);
   }

@@ -17,7 +17,7 @@ const creatorSchema = new SimpleSchema({
   sourceUserId: { type: String, nullable: true, optional: true }
 });
 
-const schema: SchemaType<DbElicitQuestionPrediction> = {
+const schema: SchemaType<"ElicitQuestionPredictions"> = {
   _id: {
     type: String,
     ...commonFields(false)

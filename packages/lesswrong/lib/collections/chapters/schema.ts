@@ -1,6 +1,6 @@
 import { foreignKeyField, arrayOfForeignKeysField } from '../../utils/schemaUtils'
 
-export const formGroups: Partial<Record<string,FormGroupType>> = {
+export const formGroups: Partial<Record<string, FormGroupType<"Chapters">>> = {
   chapterDetails: {
     name: "chapterDetails",
     order: 25,
@@ -9,7 +9,7 @@ export const formGroups: Partial<Record<string,FormGroupType>> = {
   },
 }
 
-const schema: SchemaType<DbChapter> = {
+const schema: SchemaType<"Chapters"> = {
   // Custom Properties
 
   title: {
