@@ -576,7 +576,7 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
         updateMutator({ // reset check
           collection: DialogueChecks,
           documentId: dialogueCheck._id,
-          set: { checked: false },
+          set: { checked: false, hideInRecommendations: false },
           currentUser: adminContext.currentUser,
           context: adminContext,
           validate: false
