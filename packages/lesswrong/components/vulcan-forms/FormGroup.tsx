@@ -119,7 +119,7 @@ const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasError
 
 const FormGroupLayoutComponent = registerComponent('FormGroupLayout', FormGroupLayout, {styles: groupLayoutStyles});
 
-interface FormGroupExternalProps extends FormGroupType {
+interface FormGroupExternalProps extends FormGroupType<CollectionNameString> {
   errors: any[]
   throwError: any
   currentValues: any

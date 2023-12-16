@@ -37,13 +37,9 @@ import Tags from "../../lib/collections/tags/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Tags.isPostgres()) {
-    await addField(db, Tags, "noindex");
-  }
+  await addField(db, Tags, "noindex");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Tags.isPostgres()) {
-    await dropField(db, Tags, "noindex");
-  }
+  await dropField(db, Tags, "noindex");
 }

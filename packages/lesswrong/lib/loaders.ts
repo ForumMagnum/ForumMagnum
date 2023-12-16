@@ -18,7 +18,15 @@ import * as _ from 'underscore';
 //     the batch.
 //   id: The value of the field whose values vary between queries in the batch.
 //
-export async function getWithLoader<T extends DbObject>(context: ResolverContext, collection: CollectionBase<T>, loaderName: string, baseQuery:any={}, groupByField: keyof T, id: string, projection:any=undefined): Promise<Array<T>> {
+export async function getWithLoader<N extends CollectionNameString>(
+  context: ResolverContext,
+  collection: CollectionBase<N>,
+  loaderName: string,
+  baseQuery: any={},
+  groupByField: string & keyof ObjectsByCollectionName[N],
+  id: string,
+  projection: any=undefined,
+): Promise<ObjectsByCollectionName[N][]> {
   if (!context.extraLoaders) {
     context.extraLoaders = {};
   }
@@ -28,7 +36,7 @@ export async function getWithLoader<T extends DbObject>(context: ResolverContext
         ...baseQuery,
         [groupByField]: {$in: docIDs}
       };
-      const queryResults: Array<T> = await Utils.Connectors.find(collection, query, projection);
+      const queryResults: ObjectsByCollectionName[N][] = await Utils.Connectors.find(collection, query, projection);
       const sortedResults = _.groupBy(queryResults, r=>r[groupByField]);
       return docIDs.map(id => sortedResults[id] || []);
     }, {

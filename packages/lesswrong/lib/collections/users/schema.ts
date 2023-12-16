@@ -279,7 +279,7 @@ export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
  * @summary Users schema
  * @type {Object}
  */
-const schema: SchemaType<DbUser> = {
+const schema: SchemaType<"Users"> = {
   username: {
     type: String,
     optional: true,
@@ -2278,7 +2278,7 @@ const schema: SchemaType<DbUser> = {
     resolveAs: {
       arguments: 'limit: Int = 5',
       type: '[Post]',
-      resolver: async (user: DbUser, args: { limit: number }, context: ResolverContext): Promise<Array<DbPost>> => {
+      resolver: async (user: DbUser, args: { limit: number }, context: ResolverContext): Promise<Partial<DbPost>[]> => {
         const { limit } = args;
         const { currentUser, Posts } = context;
         const posts = await Posts.find({ userId: user._id }, { limit }).fetch();

@@ -7,7 +7,7 @@ const commonFields = (nullable: boolean) => ({
   nullable,
 });
 
-const schema: SchemaType<DbCronHistory> = {
+const schema: SchemaType<"CronHistories"> = {
   // CronHistory doesn't have universal fields so we need to add the _id manually
   _id: {
     type: String,

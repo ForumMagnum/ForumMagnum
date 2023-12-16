@@ -2,7 +2,7 @@ import AbstractRepo from "./AbstractRepo";
 import DebouncerEvents from "../../lib/collections/debouncerEvents/collection";
 import { randomId } from "../../lib/random";
 
-export default class DebouncerEventsRepo extends AbstractRepo<DbDebouncerEvents> {
+export default class DebouncerEventsRepo extends AbstractRepo<"DebouncerEvents"> {
   constructor() {
     super(DebouncerEvents);
   }

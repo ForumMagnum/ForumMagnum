@@ -2,7 +2,7 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields } from '../../collectionUtils';
 import { ensureIndex } from '../../collectionIndexUtils'
 
-const schema: SchemaType<DbLegacyData> = {
+const schema: SchemaType<"LegacyData"> = {
   objectId: {
     type: String,
     nullable: false,
@@ -16,7 +16,6 @@ const schema: SchemaType<DbLegacyData> = {
 export const LegacyData: LegacyDataCollection = createCollection({
   collectionName: "LegacyData",
   typeName: "LegacyData",
-  collectionType: 'pg',
   schema
 });
 

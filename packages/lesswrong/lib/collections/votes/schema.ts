@@ -20,7 +20,7 @@ const docIsTagRel = (currentUser: DbUser|UsersCurrent|null, document: DbVote) =>
   return document?.collectionName === "TagRels"
 }
 
-const schema: SchemaType<DbVote> = {
+const schema: SchemaType<"Votes"> = {
   // The id of the document that was voted on
   documentId: {
     type: String,

@@ -1,7 +1,6 @@
 import { accessFilterSingle, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
-import {userOwns} from "../../vulcan-users/permissions";
 
-const schema: SchemaType<DbDialogueCheck> = {
+const schema: SchemaType<"DialogueChecks"> = {
   // permissions enforced via collection-level checkAccess
   userId: {
     type: String,

@@ -1,7 +1,7 @@
 import { schemaDefaultValue, foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '../../loaders';
 
-const schema: SchemaType<DbSequence> = {
+const schema: SchemaType<"Sequences"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -38,7 +38,7 @@ const schema: SchemaType<DbSequence> = {
     resolveAs: {
       fieldName: 'chapters',
       type: '[Chapter]',
-      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Array<DbChapter>> => {
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Partial<DbChapter>[]> => {
         const chapters = await context.Chapters.find(
           {sequenceId: sequence._id},
           {sort: {number: 1}},
@@ -135,7 +135,7 @@ const schema: SchemaType<DbSequence> = {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<DbCollection|null> => {
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Partial<DbCollection>|null> => {
         if (!sequence.canonicalCollectionSlug) return null;
         const collection = await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
         return await accessFilterSingle(context.currentUser, context.Collections, collection, context);

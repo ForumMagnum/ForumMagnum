@@ -39,15 +39,9 @@ export const commentMutationOptions: MutationOptions<DbComment> = {
   },
 }
 
-interface ExtendedCommentsCollection extends CommentsCollection {
-  // Functions in server/search/utils.ts
-  toAlgolia: (comment: DbComment) => Promise<Array<AlgoliaDocument>|null>
-}
-
-export const Comments: ExtendedCommentsCollection = createCollection({
+export const Comments = createCollection({
   collectionName: 'Comments',
   typeName: 'Comment',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Comments'),
   mutations: getDefaultMutations('Comments', commentMutationOptions),

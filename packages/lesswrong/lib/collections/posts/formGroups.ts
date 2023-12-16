@@ -1,7 +1,7 @@
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
 import { isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../instanceSettings";
 
-export const formGroups: Partial<Record<string,FormGroupType>> = {
+export const formGroups: Partial<Record<string, FormGroupType<"Posts">>> = {
   default: {
     name: "default",
     order: 0,

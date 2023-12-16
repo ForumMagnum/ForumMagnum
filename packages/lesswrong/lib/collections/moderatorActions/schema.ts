@@ -78,7 +78,7 @@ export const isActionActive = (moderatorAction: DbModeratorAction) => {
   return !moderatorAction.endedAt || moderatorAction.endedAt > new Date();
 }
 
-const schema: SchemaType<DbModeratorAction> = {
+const schema: SchemaType<"ModeratorActions"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

@@ -2,7 +2,6 @@ import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import { runStartupFunctions } from '../lib/executionEnvironment';
 import { setServerSettingsCache, setPublicSettings } from '../lib/settingsCache';
-import { closeDatabaseConnection } from '../lib/mongoCollection';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib/callbacks';
 import process from 'process';
 import { initGraphQL } from '../server/vulcan-lib/apollo-server/initGraphQL';
@@ -79,10 +78,7 @@ afterAll(async () => {
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
 
-  await Promise.all([
-    closeDatabaseConnection(),
-    closeSqlClient(getSqlClientOrThrow()),
-  ]);
+  await closeSqlClient(getSqlClientOrThrow());
 
   // Our approach to database cleanup is to just delete all the runs older than 1 day.
   // This allows us to inspect the databases created during the last run if necessary

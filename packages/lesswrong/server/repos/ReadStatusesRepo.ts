@@ -2,7 +2,7 @@ import ReadStatuses from "../../lib/collections/readStatus/collection";
 import { randomId } from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
 
-export default class ReadStatusesRepo extends AbstractRepo<DbReadStatus> {
+export default class ReadStatusesRepo extends AbstractRepo<"ReadStatuses"> {
   constructor() {
     super(ReadStatuses);
   }

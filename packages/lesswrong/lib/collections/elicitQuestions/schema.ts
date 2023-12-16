@@ -7,7 +7,7 @@ const commonFields = (nullable: boolean) => ({
   nullable,
 });
 
-const schema: SchemaType<DbElicitQuestion> = {
+const schema: SchemaType<"ElicitQuestions"> = {
   _id: {
     type: String,
     ...commonFields(false)
