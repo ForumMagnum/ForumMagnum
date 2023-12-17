@@ -1474,13 +1474,13 @@ ensureIndex(Posts,
 Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
   return {
     selector: {
-      $or: [{ reviewCount: 0 }],
+      reviewCount: 0,
       positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD },
-      // reviewVoteScoreAllKarma: { $gte: QUICK_REVIEW_SCORE_THRESHOLD }
+      reviewVoteScoreAllKarma: { $gte: QUICK_REVIEW_SCORE_THRESHOLD }
     },
     options: {
       sort: {
-        baseScore: -1
+        reviewVoteScoreHighKarma: -1
       }
     }
   }
