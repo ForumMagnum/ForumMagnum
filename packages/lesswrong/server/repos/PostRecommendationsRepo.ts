@@ -5,7 +5,7 @@ import type {
   RecommendationStrategyName,
   StrategySettings,
 } from "../../lib/collections/users/recommendationSettings";
-import { recordPerfMetrics } from "./perfMetricDecorator";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 class PostRecommendationsRepo extends AbstractRepo<DbPostRecommendation> {
   constructor() {

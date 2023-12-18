@@ -1,7 +1,7 @@
 import AbstractRepo from "./AbstractRepo";
 import Conversations from "../../lib/collections/conversations/collection";
 import keyBy from "lodash/keyBy";
-import { recordPerfMetrics } from "./perfMetricDecorator";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 class ConversationsRepo extends AbstractRepo<DbConversation> {
   constructor() {

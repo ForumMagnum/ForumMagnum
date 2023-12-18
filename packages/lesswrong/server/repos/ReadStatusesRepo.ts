@@ -1,7 +1,7 @@
 import ReadStatuses from "../../lib/collections/readStatus/collection";
 import { randomId } from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
-import { recordPerfMetrics } from "./perfMetricDecorator";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 class ReadStatusesRepo extends AbstractRepo<DbReadStatus> {
   constructor() {

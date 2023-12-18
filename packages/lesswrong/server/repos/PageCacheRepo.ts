@@ -3,7 +3,7 @@ import PageCache from "../../lib/collections/pagecache/collection";
 import { randomId } from "../../lib/random";
 import { getServerBundleHash } from "../utils/bundleUtils";
 import AbstractRepo from "./AbstractRepo";
-import { recordPerfMetrics } from "./perfMetricDecorator";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 import type { RenderResult } from "../vulcan-lib/apollo-ssr/renderPage"
 
 export type MeanPostKarma = {

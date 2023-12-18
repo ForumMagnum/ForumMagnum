@@ -166,9 +166,7 @@ export function startWebserver() {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
       const context = await getContextFromReqAndRes(req, res);
       configureSentryScope(context);
-      if (performanceMetricLoggingEnabled.get()) {
-        setAsyncStoreValue('resolverContext', context);
-      }
+      setAsyncStoreValue('resolverContext', context);
       return context;
     },
     plugins: [new ApolloServerLogging()],

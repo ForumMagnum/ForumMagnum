@@ -1,7 +1,7 @@
 import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
 import {randomId} from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
-import { recordPerfMetrics } from "./perfMetricDecorator";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 const BASE_UPSERT_QUERY = `
     INSERT INTO "DialogueChecks" (

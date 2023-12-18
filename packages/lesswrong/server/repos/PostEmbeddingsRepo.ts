@@ -1,7 +1,7 @@
 import AbstractRepo from "./AbstractRepo";
 import PostEmbeddings from "../../lib/collections/postEmbeddings/collection";
 import { randomId } from "../../lib/random";
-import { recordPerfMetrics } from "./perfMetricDecorator";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 class PostEmbeddingsRepo extends AbstractRepo<DbPostEmbedding> {
   constructor() {

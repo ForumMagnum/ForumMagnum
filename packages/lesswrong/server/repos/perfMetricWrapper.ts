@@ -14,7 +14,7 @@ interface PerfMetricsDecoratorOptions<T extends Constructor<any, any>> {
 }
 
 function wrapWithPerfMetrics(method: Function, repoName: string, methodName: string) {
-  return function (this: AnyBecauseHard, ...args: AnyBecauseHard[]) {
+  const wrappedFn = function (this: AnyBecauseHard, ...args: AnyBecauseHard[]) {
     // Most other places we might try to put this check would cause us to run into the problem that the database settings haven't loaded yet (so .get() would throw an error)
     // But if we're already calling a (wrapped) repo method, presumably we're talking to a database, which means the settings should have loaded by now
     if (!performanceMetricLoggingEnabled.get()) {
@@ -55,6 +55,10 @@ function wrapWithPerfMetrics(method: Function, repoName: string, methodName: str
     // So we don't close those
     return results;
   };
+
+  wrappedFn.name = `perfMetricWrapped_${methodName}`;
+
+  return wrappedFn;
 }
 
 function wrapMethods<T extends Constructor<any, any>>(targetClass: T, options?: PerfMetricsDecoratorOptions<T>) {

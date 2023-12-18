@@ -2,7 +2,7 @@ import AbstractRepo from "./AbstractRepo";
 import ElectionCandidates from "../../lib/collections/electionCandidates/collection";
 import { getViewablePostsSelector } from "./helpers";
 import type { ElectionAmountRaised } from "../../components/ea-forum/giving-portal/hooks";
-import { recordPerfMetrics } from "./perfMetricDecorator";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 class ElectionCandidatesRepo extends AbstractRepo<DbElectionCandidate> {
   constructor() {

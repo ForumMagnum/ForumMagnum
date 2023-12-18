@@ -1,6 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Tags from "../../lib/collections/tags/collection";
-import { recordPerfMetrics } from "./perfMetricDecorator";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 import { TagWithCommentCount } from "../../components/dialogues/DialogueRecommendationRow";
 
 class TagsRepo extends AbstractRepo<DbTag> {
