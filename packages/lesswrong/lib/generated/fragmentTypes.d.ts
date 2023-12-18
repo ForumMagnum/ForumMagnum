@@ -2642,7 +2642,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly givingSeason2023VotedFlair: boolean,
 }
 
-interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBooleans { // fragment on Users
+interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
   readonly oldSlugs: Array<string>,
   readonly groups: Array<string>,
   readonly jobTitle: string,
@@ -2683,6 +2683,9 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly petrovPressedButtonDate: Date,
   readonly petrovOptOut: boolean,
   readonly sortDraftsBy: string,
+  readonly email: string,
+  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly banned: Date,
   readonly noindex: boolean,
   readonly paymentEmail: string,
   readonly paymentInfo: string,
