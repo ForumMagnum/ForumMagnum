@@ -28,9 +28,8 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
-import { isLWorAF } from '../../../lib/instanceSettings';
+import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { maxRenderQueueSize, performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
-import { closePerfMetric, openPerfMetric } from '../../perfMetrics';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
@@ -106,11 +105,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   if ((!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) || isSlackBot) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
-    //eslint-disable-next-line no-console
-    const rendered = await queueRenderRequest({
-      req, user, startTime, res, clientId, userAgent,
-    });
-
+    
     if (performanceMetricLoggingEnabled.get()) {
       const perfMetric = openPerfMetric({
         op_type: "ssr",
@@ -119,9 +114,17 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
         //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
         ip: getForwardedWhitelist().getClientIP(req),
         user_agent: userAgent
-      }, startTime)      
+      }, startTime);
 
-      closePerfMetric(perfMetric)
+      setAsyncStoreValue('requestPerfMetric', perfMetric);
+    }
+
+    const rendered = await queueRenderRequest({
+      req, user, startTime, res, clientId, userAgent,
+    });
+
+    if (performanceMetricLoggingEnabled.get()) {
+      closeRequestPerfMetric();
     }
 
     if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
@@ -143,6 +146,19 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     };
   } else {
+    if (performanceMetricLoggingEnabled.get()) {
+      const perfMetric = openPerfMetric({
+        op_type: "ssr",
+        op_name: "unknown",
+        client_path: req.originalUrl,
+        //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
+        ip: getForwardedWhitelist().getClientIP(req),
+        user_agent: userAgent
+      }, startTime);
+
+      setAsyncStoreValue('requestPerfMetric', perfMetric);
+    }
+
     const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => queueRenderRequest({
       req, user: null, startTime, res, clientId, userAgent
     }));
@@ -156,16 +172,15 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     }
 
     if (performanceMetricLoggingEnabled.get()) {
-      const perfMetric = openPerfMetric({
-        op_type: "ssr",
-        op_name: rendered.cached ? "cacheHit" : "cacheMiss",
-        client_path: req.originalUrl,
-        //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
-        ip: getForwardedWhitelist().getClientIP(req),
-        user_agent: userAgent
-      }, startTime)      
+      setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+        if (!incompletePerfMetric) return;
+        return {
+          ...incompletePerfMetric,
+          op_name: rendered.cached ? "cacheHit" : "cacheMiss"
+        }
+      });
 
-      closePerfMetric(perfMetric)
+      closeRequestPerfMetric();
     }
 
     if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
@@ -269,6 +284,9 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
 const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
   configureSentryScope(requestContext);
+  if (performanceMetricLoggingEnabled.get()) {
+    setAsyncStoreValue('resolverContext', requestContext);
+  }
   
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side

@@ -3,6 +3,7 @@ import Users from "../../lib/collections/users/collection";
 import { UpvotedUser } from "../../components/users/DialogueMatchingPage";
 import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -40,7 +41,7 @@ LIMIT 1
 
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 
-export default class UsersRepo extends AbstractRepo<"Users"> {
+class UsersRepo extends AbstractRepo<"Users"> {
   constructor() {
     super(Users);
   }
@@ -567,3 +568,7 @@ export default class UsersRepo extends AbstractRepo<"Users"> {
     return result;
   }
 }
+
+recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });
+
+export default UsersRepo;

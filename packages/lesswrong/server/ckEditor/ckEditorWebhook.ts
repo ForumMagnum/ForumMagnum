@@ -3,60 +3,14 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
-import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib';
+import { createAdminContext, createMutator } from '../vulcan-lib';
 import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
-import { endCkEditorUserSession } from '../repos/CkEditorUserSessionsRepo';
 
 interface CkEditorUserConnectionChange {
   user: { id: string },
   document: { id: string },
   connected_users: Array<{ id: string }>,
-}
-
-// Hacky lil' solution for now 
-const testWebHookLocally = async () => {
-  // eslint-disable-next-line no-console
-  console.log("Running local CK Editor webhook test... ")
-  const syntheticData = [
-    {
-      "environment_id": "rQvD3VnunXZu34m86e5f",
-      "event": "collaboration.user.disconnected",
-      "payload": {
-        "user": { "id": "gXeEWGjTWyqgrQTzR" },
-        "document": { "id": "D5mCL6dTSGnNedy4d-edit" },
-        "connected_users": []
-      },
-      "sent_at": "2023-12-12T22:00:33.357Z"
-    },
-    // {
-    //   "environment_id": "rQvD3VnunXZu34m86e5f",
-    //   "event": "collaboration.user.connected",
-    //   "payload": {
-    //     "user": { "id": "gXeEWGjTWyqgrQTzR" },
-    //     "document": { "id": "D5mCL6dTSGnNedy4d-edit" },
-    //     "connected_users": [{ "id": "gXeEWGjTWyqgrQTzR" }]
-    //   },
-    //   "sent_at": "2023-12-11T22:00:33.357Z"
-    // },
-    // {
-    //   "environment_id": "rQvD3VnunXZu34m86e5f",
-    //   "event": "collaboration.user.connected",
-    //   "payload": {
-    //     "user": { "id": "c4BywbHytbB5zLdA4" },
-    //     "document": { "id": "BsAt7bhGJqgsi7vpo-edit" },
-    //     "connected_users": [{ "id": "c4BywbHytbB5zLdA4" }]
-    //   },
-    //   "sent_at": "2023-12-12T22:02:39.523Z"
-    // }
-  ];
-
-  for (let i = 0; i < syntheticData.length; i++) {
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    await handleCkEditorWebhook(syntheticData[i]);
-    // eslint-disable-next-line no-console
-    console.log("Sent webhook test " + i)
-  }
 }
 
 addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
@@ -187,7 +141,7 @@ async function handleCkEditorWebhook(message: any) {
           const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
           const userSession = await CkEditorUserSessions.findOne({userId, documentId, endedAt: {$exists: false}}, {sort:{createdAt: -1}});
           if (!!userSession) {
-            await endCkEditorUserSession(userSession._id, "ckEditorWebhook", new Date(sent_at))
+            await documentHelpers.endCkEditorUserSession(userSession._id, "ckEditorWebhook", new Date(sent_at))
           }
         }
       }
