@@ -12,13 +12,54 @@ import crypto from 'crypto'; //nodejs core library
 import draftjsStyles from '../themes/globalStyles/draftjsStyles';
 import miscStyles from '../themes/globalStyles/miscStyles';
 import { isValidSerializedThemeOptions, ThemeOptions, getForumType } from '../themes/themeNames';
-import type { ForumTypeString } from '../lib/instanceSettings';
+import { ForumTypeString } from '../lib/instanceSettings';
 import { getForumTheme } from '../themes/forumTheme';
 import { usedMuiStyles } from './usedMuiStyles';
-import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
+import { isGithubActions } from '../lib/executionEnvironment';
+import { exec } from "child_process";
+import { Stream } from 'stream';
+import CleanCSS from "clean-css";
 
-const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
+/**
+ * Minify the CSS bundle,
+ * Ordinarily, we do this by invoking cleancss as a separate cli process to
+ * maximise the amount of parallelism we can get during server startup.
+ * When we're running in Github CI, we instead do the conversion in-process as
+ * we can't run multiple processes simultaneously.
+ */
+const minifyCss = (css: string): Promise<string> | string =>
+  isGithubActions ? minifyCssSync(css) : minifyCssAsync(css);
+
+const minifyCssSync = (css: string): string => {
+  const startTime = new Date().getTime();
+  const minifiedStyles = new CleanCSS().minify(css).styles;
+  const endTime = new Date().getTime();
+  //eslint-disable-next-line no-console
+  console.log(`Minified CSS with clean-css in ${endTime-startTime}ms`);
+  return minifiedStyles;
+}
+
+const minifyCssAsync = async (css: string): Promise<string> => {
+  const command = 'yarn --silent cleancss';
+  try {
+    return await new Promise((resolve) => {
+      const stdin = new Stream.Readable();
+      stdin.push(css);
+      stdin.push(null);
+      const process = exec(command, {}, (_err,stdout,_stderr) => {
+        resolve(stdout);
+      });
+      stdin.pipe(process.stdin!);
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('Error in cleancss CSS minifier:', error);
+    return css;
+  }
+}
+
+const generateMergedStylesheet = async (themeOptions: ThemeOptions): Promise<Buffer> => {
   importAllComponents();
   
   const context: any = {};
@@ -56,7 +97,7 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
     cssVars,
   ].join("\n");
 
-  const minifiedCSS = minify(mergedCSS).css;
+  const minifiedCSS = await minifyCss(mergedCSS);
   return Buffer.from(minifiedCSS, "utf8");
 }
 
@@ -65,8 +106,8 @@ type StylesheetAndHash = {
   hash: string
 }
 
-const generateMergedStylesheetAndHash = (theme: ThemeOptions): StylesheetAndHash => {
-  const stylesheet = generateMergedStylesheet(theme);
+const generateMergedStylesheetAndHash = async (theme: ThemeOptions): Promise<StylesheetAndHash> => {
+  const stylesheet = await generateMergedStylesheet(theme);
   const hash = crypto.createHash('sha256').update(stylesheet).digest('hex');
   return {
     css: stylesheet,
@@ -82,9 +123,9 @@ type ThemeKey = {
   forumTheme: ForumTypeString,
 }
 
-type MergedStylesheet = {css: Buffer, url: string, hash: string};
+export type MergedStylesheet = {css: Buffer, url: string, hash: string};
 
-export const getMergedStylesheet = (theme: ThemeOptions): MergedStylesheet => {
+export const getMergedStylesheet = async (theme: ThemeOptions): Promise<MergedStylesheet> => {
   const themeKeyData: ThemeKey = {
     name: theme.name,
     forumTheme: getForumType(theme),
@@ -92,7 +133,7 @@ export const getMergedStylesheet = (theme: ThemeOptions): MergedStylesheet => {
   const themeKey = JSON.stringify(themeKeyData);
   
   if (!mergedStylesheets[themeKey]) {
-    mergedStylesheets[themeKey] = generateMergedStylesheetAndHash(theme);
+    mergedStylesheets[themeKey] = await generateMergedStylesheetAndHash(theme);
   }
   const mergedStylesheet = mergedStylesheets[themeKey]!;
   
@@ -103,12 +144,12 @@ export const getMergedStylesheet = (theme: ThemeOptions): MergedStylesheet => {
   };
 }
 
-addStaticRoute("/allStyles", ({query}, req, res, next) => {
+addStaticRoute("/allStyles", async ({query}, req, res, next) => {
   const expectedHash = query?.hash;
   const encodedThemeOptions = query?.theme;
   const serializedThemeOptions = decodeURIComponent(encodedThemeOptions);
   const validThemeOptions = isValidSerializedThemeOptions(serializedThemeOptions) ? JSON.parse(serializedThemeOptions) : {name:"default"}
-  const {hash: stylesheetHash, css} = getMergedStylesheet(validThemeOptions);
+  const {hash: stylesheetHash, css} = await getMergedStylesheet(validThemeOptions);
   
   if (!expectedHash) {
     res.writeHead(302, {

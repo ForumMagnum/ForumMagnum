@@ -304,6 +304,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   />;
   
   const themeOptions = getThemeOptionsFromReq(req, user);
+  const jssSheetsPromise = renderJssSheetImports(themeOptions);
 
   const WrappedApp = wrapWithMuiTheme(App, context, themeOptions);
   
@@ -326,7 +327,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
   const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
 
-  const jssSheets = renderJssSheetImports(themeOptions);
+  const jssSheets = await jssSheetsPromise;
 
   const finishedTime = new Date();
   const timings: RenderTimings = {
