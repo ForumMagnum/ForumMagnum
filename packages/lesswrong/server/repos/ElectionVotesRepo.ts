@@ -2,7 +2,7 @@ import ElectionVotes from "../../lib/collections/electionVotes/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
-class ElectionVotesRepo extends AbstractRepo<DbElectionVote> {
+class ElectionVotesRepo extends AbstractRepo<"ElectionVotes"> {
   constructor() {
     super(ElectionVotes);
   }

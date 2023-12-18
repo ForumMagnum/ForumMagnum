@@ -1,7 +1,8 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
-import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueMatchingPage";
-import {calculateVotePower} from "../../lib/voting/voteTypes";
+import { UpvotedUser } from "../../components/users/DialogueMatchingPage";
+import { calculateVotePower } from "../../lib/voting/voteTypes";
+import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
 const GET_USERS_BY_EMAIL_QUERY = `
@@ -40,7 +41,7 @@ LIMIT 1
 
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 
-class UsersRepo extends AbstractRepo<DbUser> {
+class UsersRepo extends AbstractRepo<"Users"> {
   constructor() {
     super(Users);
   }
@@ -200,7 +201,7 @@ class UsersRepo extends AbstractRepo<DbUser> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaUser> {
+  getSearchDocumentById(id: string): Promise<SearchUser> {
     return this.getRawDb().one(`
       -- UsersRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
@@ -208,7 +209,7 @@ class UsersRepo extends AbstractRepo<DbUser> {
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaUser[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchUser[]> {
     return this.getRawDb().any(`
       -- UsersRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
@@ -536,11 +537,35 @@ class UsersRepo extends AbstractRepo<DbUser> {
         MAX(dc."checkedAt") AS "mostRecentCheckedAt"
       FROM public."Users" AS u
       LEFT JOIN public."DialogueChecks" AS dc ON u._id = dc."userId"
-      WHERE u."optedInToDialogueFacilitation" IS TRUE OR dc."userId" IS NOT NULL
+      WHERE dc."userId" IS NOT NULL
       GROUP BY u._id
-      ORDER BY "mostRecentCheckedAt" ASC
+      ORDER BY "mostRecentCheckedAt" DESC
       LIMIT $1;
     `, [limit])
+  }
+
+  async getActiveDialogues(userIds: string[]): Promise<ActiveDialogueServer[]> {
+    const result = await this.getRawDb().any(`
+    SELECT
+        p._id,
+        p.title,
+        p."userId",
+        p."coauthorStatuses",
+        ARRAY_AGG(DISTINCT s."userId") AS "activeUserIds"
+    FROM "Posts" AS p
+    INNER JOIN public."CkEditorUserSessions" AS s ON p._id = s."documentId",
+        unnest(p."coauthorStatuses") AS coauthors
+    WHERE
+        (
+            coauthors ->> 'userId' = any($1)
+            OR p."userId" = any($1)
+        )
+        AND s."endedAt" IS NULL
+        AND s."createdAt" > CURRENT_TIMESTAMP - INTERVAL '8 hours'
+    GROUP BY p._id
+    `, [userIds]);
+  
+    return result;
   }
 }
 

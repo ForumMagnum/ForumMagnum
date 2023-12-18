@@ -65,8 +65,10 @@ Vulcan.checkForMissingValues = async () => {
   }
 }
 
-function countRowsNeedingAutofill<T extends DbObject>(collection: CollectionBase<T>, fieldsWithAutofill: Array<string>)
-{
+function countRowsNeedingAutofill<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  fieldsWithAutofill: Array<string>,
+) {
   return collection.find({
     $or: _.map(fieldsWithAutofill, (fieldName: string) => ({[fieldName]: null}))
   }).count();

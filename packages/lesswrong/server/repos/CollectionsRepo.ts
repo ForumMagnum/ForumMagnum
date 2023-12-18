@@ -4,7 +4,7 @@ import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
-class CollectionsRepo extends AbstractRepo<DbCollection> {
+class CollectionsRepo extends AbstractRepo<"Collections"> {
   constructor() {
     super(Collections);
   }

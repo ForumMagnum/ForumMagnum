@@ -4,17 +4,9 @@ import TagRels from "../../lib/collections/tagRels/collection";
 import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (!TagRels.isPostgres()) {
-    return
-  }
-  
   await addField(db, TagRels, "backfilled")
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!TagRels.isPostgres()) {
-    return
-  }
-  
   await dropField(db, TagRels, "backfilled")
 }

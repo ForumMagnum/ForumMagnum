@@ -79,25 +79,7 @@ import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 }
 
 export async function getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
-  return Users.isPostgres() ? new UsersRepo().getUsersWhereLocationIsInNotificationRadius(location) : await Users.aggregate([
-    {
-      "$geoNear": {
-        "near": location, 
-        "spherical": true,
-        "distanceField": "distance",
-        "distanceMultiplier": 0.001,
-        "maxDistance": 300000, // 300km is maximum distance we allow to set in the UI
-        "key": "nearbyEventsNotificationsMongoLocation"
-      }
-    },
-    {
-      "$match": {
-        "$expr": {
-            "$gt": ["$nearbyEventsNotificationsRadius", "$distance"]
-        }
-      }
-    }
-  ]).toArray()
+  return new UsersRepo().getUsersWhereLocationIsInNotificationRadius(location);
 }
 ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 

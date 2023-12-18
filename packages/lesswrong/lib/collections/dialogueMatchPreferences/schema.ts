@@ -20,7 +20,7 @@ const topicPreferenceSchema = new SimpleSchema({
   }
 });
 
-const schema: SchemaType<DbDialogueMatchPreference> = {
+const schema: SchemaType<"DialogueMatchPreferences"> = {
   dialogueCheckId: {
     ...foreignKeyField({
       collectionName: 'DialogueChecks',

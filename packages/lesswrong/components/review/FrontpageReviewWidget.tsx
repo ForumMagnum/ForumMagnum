@@ -129,6 +129,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 12
   },
   nominationTimeRemaining: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    },
     marginRight: "auto",
     marginLeft: 4,
     textAlign: "left"

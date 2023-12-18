@@ -1,6 +1,4 @@
-
-
-export const formGroups: Partial<Record<string,FormGroupType>> = {
+export const formGroups: Partial<Record<string, FormGroupType<"Tags">>> = {
   advancedOptions: {
     name: "advancedOptions",
     order: 20,

@@ -4,7 +4,7 @@ import { getViewablePostsSelector } from "./helpers";
 import type { ElectionAmountRaised } from "../../components/ea-forum/giving-portal/hooks";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
-class ElectionCandidatesRepo extends AbstractRepo<DbElectionCandidate> {
+class ElectionCandidatesRepo extends AbstractRepo<"ElectionCandidates"> {
   constructor() {
     super(ElectionCandidates);
   }

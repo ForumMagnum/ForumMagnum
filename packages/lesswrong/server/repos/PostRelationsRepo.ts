@@ -2,7 +2,7 @@ import PostRelations from "../../lib/collections/postRelations/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
-class PostRelationsRepo extends AbstractRepo<DbPostRelation> {
+class PostRelationsRepo extends AbstractRepo<"PostRelations"> {
   constructor() {
     super(PostRelations);
   }

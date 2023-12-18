@@ -1,4 +1,3 @@
-import React from 'react';
 import { ApolloError, gql } from '@apollo/client';
 import { useApolloClient, useMutation } from '@apollo/client/react/hooks';
 import { extractFragmentInfo, getCollection } from '../vulcan-lib';
@@ -48,7 +47,7 @@ export const useCreate = <CollectionName extends CollectionNameString>({
   fragment?: any,
   ignoreResults?: boolean,
 }): {
-  create: WithCreateFunction<CollectionBase<ObjectsByCollectionName[CollectionName]>>,
+  create: WithCreateFunction<CollectionName>,
   loading: boolean,
   error: ApolloError|undefined,
   called: boolean,

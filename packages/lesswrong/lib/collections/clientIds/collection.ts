@@ -7,7 +7,6 @@ import { registerFragment } from '../../vulcan-lib/fragments';
 export const ClientIds: ClientIdsCollection = createCollection({
   collectionName: "ClientIds",
   typeName: "ClientId",
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('ClientIds'),
 });

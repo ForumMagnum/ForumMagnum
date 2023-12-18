@@ -87,6 +87,16 @@ const styles = (theme: ThemeType) => ({
   buttonIcon: {
     fontSize: 18,
   },
+  buttonDisabled: {
+    cursor: "not-allowed",
+    opacity: 0.65,
+    "&:hover": {
+      opacity: 0.65,
+    },
+    "&:active": {
+      opacity: 0.65,
+    },
+  },
 });
 
 const ElectionFundCTA = ({
@@ -98,6 +108,7 @@ const ElectionFundCTA = ({
   href,
   onButtonClick,
   solidButton,
+  disabled,
   children,
   classes,
 }: {
@@ -109,36 +120,37 @@ const ElectionFundCTA = ({
   href?: string,
   onButtonClick?: () => void,
   solidButton?: boolean,
+  disabled?: boolean,
   children?: ReactNode,
   classes: ClassesType,
 }) => {
   const {ForumIcon} = Components;
-  
-  // If an href is provided, make this a link instead of a button
-  const buttonNode = href ? <Link
-    to={href}
+
+  // Determine the appropriate button component based on the provided props
+  let ButtonComponent;
+  if (disabled) {
+    ButtonComponent = 'div';
+  } else if (href) {
+    ButtonComponent = Link;
+  } else {
+    ButtonComponent = 'button';
+  }
+
+  const buttonNode = <ButtonComponent
+    to={disabled ? undefined : href}
+    onClick={disabled ? undefined : onButtonClick}
     className={classNames(classes.button, {
       [classes.outlineButton]: !solidButton,
       [classes.solidButton]: solidButton,
+      [classes.buttonDisabled]: disabled,
     })}
   >
     {buttonIcon &&
       <ForumIcon icon={buttonIcon} className={classes.buttonIcon} />
     }
     {buttonText}
-  </Link> : <button
-    onClick={onButtonClick}
-    className={classNames(classes.button, {
-      [classes.outlineButton]: !solidButton,
-      [classes.solidButton]: solidButton,
-    })}
-  >
-    {buttonIcon &&
-      <ForumIcon icon={buttonIcon} className={classes.buttonIcon} />
-    }
-    {buttonText}
-  </button>
-  
+  </ButtonComponent>
+
   return (
     <AnalyticsContext pageSubSectionContext="electionFundCTA">
       <div className={classes.root}>

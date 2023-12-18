@@ -98,8 +98,11 @@ export const editableCollectionsFieldOptions: Record<CollectionNameString,Record
 let editableFieldsSealed = false;
 export function sealEditableFields() { editableFieldsSealed=true }
 
-export const makeEditable = <T extends DbObject>({collection, options = {}}: {
-  collection: CollectionBase<T>,
+export const makeEditable = <N extends CollectionNameString>({
+  collection,
+  options = {},
+}: {
+  collection: CollectionBase<N>,
   options: MakeEditableOptions,
 }) => {
   if (editableFieldsSealed)
@@ -161,7 +164,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       resolveAs: {
         type: 'Revision',
         arguments: 'version: String',
-        resolver: async (doc: T, args: {version?: string}, context: ResolverContext): Promise<DbRevision|null> => {
+        resolver: async (doc: ObjectsByCollectionName[N], args: {version?: string}, context: ResolverContext): Promise<DbRevision|null> => {
           const { version } = args;
           const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
@@ -227,7 +230,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       resolveAs: {
         type: '[Revision]',
         arguments: 'limit: Int = 5',
-        resolver: async (post: T, args: { limit: number }, context: ResolverContext): Promise<Array<DbRevision>> => {
+        resolver: async (post: ObjectsByCollectionName[N], args: { limit: number }, context: ResolverContext) => {
           const { limit } = args;
           const { currentUser, Revisions } = context;
           const field = fieldName || "contents"
@@ -247,7 +250,7 @@ export const makeEditable = <T extends DbObject>({collection, options = {}}: {
       optional: true,
       resolveAs: {
         type: 'String',
-        resolver: (post: T): string => {
+        resolver: (post: ObjectsByCollectionName[N]): string => {
           return (post as AnyBecauseTodo)[fieldName || "contents"]?.version
         }
       }

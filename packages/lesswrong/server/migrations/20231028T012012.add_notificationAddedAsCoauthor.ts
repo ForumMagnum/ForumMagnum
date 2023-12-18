@@ -37,11 +37,9 @@ import Users from "../../lib/vulcan-users"
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Users.isPostgres()) return;
   await addField(db, Users, 'notificationAddedAsCoauthor');
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!Users.isPostgres()) return;
   await dropField(db, Users, 'notificationAddedAsCoauthor');
 }

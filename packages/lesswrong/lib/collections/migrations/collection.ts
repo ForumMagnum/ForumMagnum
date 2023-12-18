@@ -14,7 +14,7 @@ import { schemaDefaultValue } from '../../utils/schemaUtils';
 // finished, and whether it succeeded. This can be cross-checked against the
 // set of available migrations to find ones that need running.
 
-const schema: SchemaType<DbMigration> = {
+const schema: SchemaType<"Migrations"> = {
   name: {
     type: String,
     nullable: false,
@@ -36,7 +36,6 @@ const schema: SchemaType<DbMigration> = {
 export const Migrations: MigrationsCollection = createCollection({
   collectionName: "Migrations",
   typeName: "Migration",
-  collectionType: 'pg',
   schema,
   //resolvers: getDefaultResolvers("Migrations"),
   //mutations: getDefaultMutations("Migrations"),

@@ -2,7 +2,7 @@ import { foreignKeyField } from "../../utils/schemaUtils";
 import { userOwns } from "../../vulcan-users";
 import { validateCompareState, validateVote } from "./helpers";
 
-const schema: SchemaType<DbElectionVote> = {
+const schema: SchemaType<"ElectionVotes"> = {
   /** The name of the election */
   electionName: {
     type: String,
@@ -75,7 +75,7 @@ const schema: SchemaType<DbElectionVote> = {
     type: Date,
     optional: true,
     nullable: true,
-    canRead: [userOwns, "sunshineRegiment", "admins"],
+    canRead: ["guests"],
     canCreate: ["members"],
     canUpdate: [userOwns, "sunshineRegiment", "admins"],
     onUpdate: ({ oldDocument, newDocument }) => {

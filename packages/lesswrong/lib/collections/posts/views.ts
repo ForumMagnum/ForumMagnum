@@ -1046,10 +1046,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
               // place in the codebase where we use this operator so it's probably not worth spending a
               // ton of time making this beautiful.
               $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ],
-              ...(Posts.isPostgres()
-                ? { $comment: { locationName: `"googleLocation"->'geometry'->'location'` } }
-                : {}
-              ),
+              $comment: { locationName: `"googleLocation"->'geometry'->'location'` },
             }
           }
         },
@@ -1296,10 +1293,22 @@ ensureIndex(Posts,
   { name: "posts.recommendable" }
 );
 
+Posts.addView("hasEverDialogued", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      $or: [
+        {userId: terms.userId},
+        {"coauthorStatuses.userId": terms.userId}
+      ],
+      collabEditorDialogue: true,
+    },
+  }
+})
+
 Posts.addView("pingbackPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
-      ...jsonArrayContainsSelector(Posts, "pingbacks.Posts", terms.postId),
+      ...jsonArrayContainsSelector("pingbacks.Posts", terms.postId),
       baseScore: {$gt: 0}
     },
     options: {
@@ -1465,7 +1474,7 @@ ensureIndex(Posts,
 Posts.addView("reviewQuickPage", (terms: PostsViewTerms) => {
   return {
     selector: {
-      $or: [{ reviewCount: null }, { reviewCount: 0 }],
+      reviewCount: 0,
       positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD },
       reviewVoteScoreAllKarma: { $gte: QUICK_REVIEW_SCORE_THRESHOLD }
     },

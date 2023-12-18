@@ -3,7 +3,7 @@ import { randomId } from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
-class ReadStatusesRepo extends AbstractRepo<DbReadStatus> {
+class ReadStatusesRepo extends AbstractRepo<"ReadStatuses"> {
   constructor() {
     super(ReadStatuses);
   }

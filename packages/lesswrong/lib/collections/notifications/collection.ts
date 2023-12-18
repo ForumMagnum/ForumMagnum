@@ -24,7 +24,6 @@ const options: MutationOptions<DbNotification> = {
 export const Notifications: NotificationsCollection = createCollection({
   collectionName: 'Notifications',
   typeName: 'Notification',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Notifications'),
   mutations: getDefaultMutations('Notifications', options),

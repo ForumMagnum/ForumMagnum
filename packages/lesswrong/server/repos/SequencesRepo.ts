@@ -4,7 +4,7 @@ import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
-class SequencesRepo extends AbstractRepo<DbSequence> {
+class SequencesRepo extends AbstractRepo<"Sequences"> {
   constructor() {
     super(Sequences);
   }
@@ -34,7 +34,7 @@ class SequencesRepo extends AbstractRepo<DbSequence> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaSequence> {
+  getSearchDocumentById(id: string): Promise<SearchSequence> {
     return this.getRawDb().one(`
       -- SequencesRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
@@ -42,7 +42,7 @@ class SequencesRepo extends AbstractRepo<DbSequence> {
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaSequence[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchSequence[]> {
     return this.getRawDb().any(`
       -- SequencesRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}

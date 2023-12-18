@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SunshineReportedItem = ({report, updateReport, classes, currentUser, refetch}: {
   report: any,
-  updateReport: WithUpdateFunction<ReportsCollection>,
+  updateReport: WithUpdateFunction<"Reports">,
   classes: ClassesType,
   currentUser: UsersCurrent,
   refetch: () => void

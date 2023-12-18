@@ -933,41 +933,6 @@ interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
   readonly lastUpdated: Date,
 }
 
-interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
-  readonly userId: string,
-  readonly ownedByUser: boolean,
-  readonly displayFullContent: boolean,
-  readonly nickname: string,
-  readonly url: string,
-  readonly status: string,
-  readonly rawFeed: any /*{"definitions":[{}]}*/,
-  readonly setCanonicalUrl: boolean,
-  readonly importAsDraft: boolean,
-}
-
-interface RevisionsDefaultFragment { // fragment on Revisions
-  readonly documentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
-  readonly editedAt: Date,
-  readonly updateType: "initial" | "patch" | "minor" | "major",
-  readonly version: string,
-  readonly commitMessage: string,
-  readonly userId: string,
-  readonly draft: boolean,
-  readonly originalContents: any /*ContentType*/,
-  readonly html: string,
-  readonly markdown: string,
-  readonly draftJS: any /*JSON*/,
-  readonly ckEditorMarkup: string,
-  readonly wordCount: number | null,
-  readonly htmlHighlight: string,
-  readonly htmlHighlightStartingAtHash: string,
-  readonly plaintextDescription: string,
-  readonly plaintextMainText: string,
-  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
-}
-
 interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
   readonly userId: string,
   readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting",
@@ -1813,6 +1778,18 @@ interface ConversationsList extends ConversationsMinimumInfo { // fragment on Co
   readonly latestMessage: messageListFragment|null,
 }
 
+interface RSSFeedsDefaultFragment { // fragment on RSSFeeds
+  readonly userId: string,
+  readonly ownedByUser: boolean,
+  readonly displayFullContent: boolean,
+  readonly nickname: string,
+  readonly url: string,
+  readonly status: string,
+  readonly rawFeed: any /*{"definitions":[{}]}*/,
+  readonly setCanonicalUrl: boolean,
+  readonly importAsDraft: boolean,
+}
+
 interface RSSFeedMinimumInfo { // fragment on RSSFeeds
   readonly _id: string,
   readonly userId: string,
@@ -2614,6 +2591,29 @@ interface PodcastEpisodeFull { // fragment on PodcastEpisodes
   readonly externalEpisodeId: string,
 }
 
+interface RevisionsDefaultFragment { // fragment on Revisions
+  readonly documentId: string,
+  readonly collectionName: string,
+  readonly fieldName: string,
+  readonly editedAt: Date,
+  readonly updateType: "initial" | "patch" | "minor" | "major",
+  readonly version: string,
+  readonly commitMessage: string,
+  readonly userId: string,
+  readonly draft: boolean,
+  readonly originalContents: any /*ContentType*/,
+  readonly html: string,
+  readonly markdown: string,
+  readonly draftJS: any /*JSON*/,
+  readonly ckEditorMarkup: string,
+  readonly wordCount: number | null,
+  readonly htmlHighlight: string,
+  readonly htmlHighlightStartingAtHash: string,
+  readonly plaintextDescription: string,
+  readonly plaintextMainText: string,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+}
+
 interface UsersMinimumInfo { // fragment on Users
   readonly _id: string,
   readonly slug: string,
@@ -2642,7 +2642,7 @@ interface UsersMinimumInfo { // fragment on Users
   readonly givingSeason2023VotedFlair: boolean,
 }
 
-interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBooleans { // fragment on Users
+interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragment on Users
   readonly oldSlugs: Array<string>,
   readonly groups: Array<string>,
   readonly jobTitle: string,
@@ -2683,6 +2683,9 @@ interface UsersProfile extends UsersMinimumInfo, SunshineUsersList, SharedUserBo
   readonly petrovPressedButtonDate: Date,
   readonly petrovOptOut: boolean,
   readonly sortDraftsBy: string,
+  readonly email: string,
+  readonly emails: Array<any /*{"definitions":[{}]}*/>,
+  readonly banned: Date,
   readonly noindex: boolean,
   readonly paymentEmail: string,
   readonly paymentInfo: string,
@@ -2843,6 +2846,12 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly hideDialogueFacilitation: boolean,
   readonly optedInToDialogueFacilitation: boolean,
   readonly revealChecksToAdmins: boolean,
+  readonly notificationNewDialogueChecks: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly showDialoguesList: boolean,
   readonly showMyDialogues: boolean,
   readonly showMatches: boolean,
@@ -3428,6 +3437,12 @@ interface ElectionVoteInfo { // fragment on ElectionVotes
   readonly userOtherComments: string | null,
 }
 
+interface ElectionVoteRecentDiscussion { // fragment on ElectionVotes
+  readonly _id: string,
+  readonly electionName: string,
+  readonly submittedAt: Date | null,
+}
+
 interface TypingIndicatorInfo { // fragment on TypingIndicators
   readonly _id: string,
   readonly userId: string,
@@ -3505,6 +3520,21 @@ interface DialogueMatchPreferenceInfo { // fragment on DialogueMatchPreferences
   readonly deleted: boolean,
 }
 
+interface CkEditorUserSessionsDefaultFragment { // fragment on CkEditorUserSessions
+  readonly documentId: string,
+  readonly userId: string,
+  readonly endedAt: Date,
+  readonly endedBy: string,
+}
+
+interface CkEditorUserSessionInfo { // fragment on CkEditorUserSessions
+  readonly _id: string,
+  readonly userId: string,
+  readonly documentId: string,
+  readonly endedAt: Date,
+  readonly endedBy: string,
+}
+
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly suggestForAlignmentUserIds: Array<string>,
@@ -3547,8 +3577,6 @@ interface FragmentTypes {
   MessagesDefaultFragment: MessagesDefaultFragment
   NotificationsDefaultFragment: NotificationsDefaultFragment
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
-  RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
-  RevisionsDefaultFragment: RevisionsDefaultFragment
   ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
@@ -3612,6 +3640,7 @@ interface FragmentTypes {
   conversationIdFragment: conversationIdFragment
   ConversationsMinimumInfo: ConversationsMinimumInfo
   ConversationsList: ConversationsList
+  RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
   RSSFeedMinimumInfo: RSSFeedMinimumInfo
   newRSSFeedFragment: newRSSFeedFragment
   RSSFeedMutationFragment: RSSFeedMutationFragment
@@ -3690,6 +3719,7 @@ interface FragmentTypes {
   PodcastSelect: PodcastSelect
   PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
   PodcastEpisodeFull: PodcastEpisodeFull
+  RevisionsDefaultFragment: RevisionsDefaultFragment
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
@@ -3732,12 +3762,15 @@ interface FragmentTypes {
   ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
   ElectionVoteInfo: ElectionVoteInfo
+  ElectionVoteRecentDiscussion: ElectionVoteRecentDiscussion
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
   DialogueCheckInfo: DialogueCheckInfo
   DialogueMatchPreferencesDefaultFragment: DialogueMatchPreferencesDefaultFragment
   DialogueMatchPreferenceInfo: DialogueMatchPreferenceInfo
+  CkEditorUserSessionsDefaultFragment: CkEditorUserSessionsDefaultFragment
+  CkEditorUserSessionInfo: CkEditorUserSessionInfo
   SuggestAlignmentComment: SuggestAlignmentComment
 }
 
@@ -3751,7 +3784,7 @@ interface FragmentTypesByCollection {
   Conversations: "ConversationsDefaultFragment"|"newConversationFragment"|"conversationsListFragment"|"conversationIdFragment"|"ConversationsMinimumInfo"|"ConversationsList"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
-  ElectionVotes: "ElectionVotesDefaultFragment"|"ElectionVoteInfo"
+  ElectionVotes: "ElectionVotesDefaultFragment"|"ElectionVoteInfo"|"ElectionVoteRecentDiscussion"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   PostRelations: "PostRelationsDefaultFragment"
@@ -3767,9 +3800,9 @@ interface FragmentTypesByCollection {
   Messages: "MessagesDefaultFragment"|"messageListFragment"
   Notifications: "NotificationsDefaultFragment"|"NotificationsList"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
-  RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
-  Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
   ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
+  Revisions: "RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"|"RevisionsDefaultFragment"
+  RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
   Reports: "ReportsDefaultFragment"|"unclaimedReportsList"
   TagFlags: "TagFlagFragment"|"TagFlagEditFragment"|"TagFlagsDefaultFragment"
   GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
@@ -3792,6 +3825,7 @@ interface FragmentTypesByCollection {
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
+  CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
 }
 
 interface CollectionNamesByFragmentName {
@@ -3825,8 +3859,6 @@ interface CollectionNamesByFragmentName {
   MessagesDefaultFragment: "Messages"
   NotificationsDefaultFragment: "Notifications"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
-  RSSFeedsDefaultFragment: "RSSFeeds"
-  RevisionsDefaultFragment: "Revisions"
   ModeratorActionsDefaultFragment: "ModeratorActions"
   PostsMinimumInfo: "Posts"
   PostsBase: "Posts"
@@ -3890,6 +3922,7 @@ interface CollectionNamesByFragmentName {
   conversationIdFragment: "Conversations"
   ConversationsMinimumInfo: "Conversations"
   ConversationsList: "Conversations"
+  RSSFeedsDefaultFragment: "RSSFeeds"
   RSSFeedMinimumInfo: "RSSFeeds"
   newRSSFeedFragment: "RSSFeeds"
   RSSFeedMutationFragment: "RSSFeeds"
@@ -3968,6 +4001,7 @@ interface CollectionNamesByFragmentName {
   PodcastSelect: "Podcasts"
   PodcastEpisodesDefaultFragment: "PodcastEpisodes"
   PodcastEpisodeFull: "PodcastEpisodes"
+  RevisionsDefaultFragment: "Revisions"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"
@@ -4010,14 +4044,21 @@ interface CollectionNamesByFragmentName {
   ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
   ElectionVoteInfo: "ElectionVotes"
+  ElectionVoteRecentDiscussion: "ElectionVotes"
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
   DialogueCheckInfo: "DialogueChecks"
   DialogueMatchPreferencesDefaultFragment: "DialogueMatchPreferences"
   DialogueMatchPreferenceInfo: "DialogueMatchPreferences"
+  CkEditorUserSessionsDefaultFragment: "CkEditorUserSessions"
+  CkEditorUserSessionInfo: "CkEditorUserSessions"
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Sessions"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+
+type CollectionNameWithSlug = "Collections"|"GardenCodes"|"Posts"|"TagFlags"|"Tags"|"Users"
 

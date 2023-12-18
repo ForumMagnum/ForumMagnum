@@ -14,7 +14,7 @@ type ExtendedCommentWithReactions = DbComment & {
   userVote?: string,
 }
 
-class CommentsRepo extends AbstractRepo<DbComment> {
+class CommentsRepo extends AbstractRepo<"Comments"> {
   constructor() {
     super(Comments);
   }
@@ -39,7 +39,7 @@ class CommentsRepo extends AbstractRepo<DbComment> {
   }
 
   async getRecentCommentsOnPosts(postIds: string[], limit: number, filter: MongoSelector<DbComment>): Promise<DbComment[][]> {
-    const selectQuery = new SelectQuery(this.getCollection().table, filter)
+    const selectQuery = new SelectQuery(this.getCollection().getTable(), filter)
     const selectQueryAtoms = selectQuery.compileSelector(filter);
     const {sql: filterWhereClause, args: filterArgs} = selectQuery.compileAtoms(selectQueryAtoms, 2);
 
@@ -234,7 +234,7 @@ class CommentsRepo extends AbstractRepo<DbComment> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaComment> {
+  getSearchDocumentById(id: string): Promise<SearchComment> {
     return this.getRawDb().one(`
       -- CommentsRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
@@ -242,7 +242,7 @@ class CommentsRepo extends AbstractRepo<DbComment> {
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaComment[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchComment[]> {
     return this.getRawDb().any(`
       -- CommentsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}

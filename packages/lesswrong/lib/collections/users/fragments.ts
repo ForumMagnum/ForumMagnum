@@ -85,7 +85,9 @@ registerFragment(`
     petrovPressedButtonDate
     petrovOptOut
     sortDraftsBy
-    ...SunshineUsersList
+    email
+    emails
+    banned
     ...SharedUserBooleans
     noindex
     paymentEmail
@@ -216,6 +218,7 @@ registerFragment(`
     hideDialogueFacilitation
     optedInToDialogueFacilitation
     revealChecksToAdmins
+    notificationNewDialogueChecks
 
     showDialoguesList
     showMyDialogues

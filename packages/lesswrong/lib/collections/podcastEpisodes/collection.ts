@@ -6,7 +6,6 @@ import { userIsAdmin, userIsPodcaster } from '../../vulcan-users';
 export const PodcastEpisodes: PodcastEpisodesCollection = createCollection({
   collectionName: 'PodcastEpisodes',
   typeName: 'PodcastEpisode',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('PodcastEpisodes'),
   mutations: getDefaultMutations('PodcastEpisodes', {

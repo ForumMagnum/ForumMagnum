@@ -236,7 +236,7 @@ interface SendModerationPMParams {
 
 // TODO: I don't think this function makes sense anymore, I think should be refactored in some way.
 async function sendModerationPM({ messageContents, lwAccount, comment, noEmail, contentTitle, action }: SendModerationPMParams) {
-  const conversationData: CreateMutatorParams<DbConversation>['document'] = {
+  const conversationData: CreateMutatorParams<"Conversations">['document'] = {
     participantIds: [comment.userId, lwAccount._id],
     title: `Comment ${action} on ${contentTitle}`,
     ...(action === 'rejected' ? { moderator: true } : {})
@@ -535,11 +535,11 @@ getCollectionHooks("Comments").updateAfter.add(async function UpdateDescendentCo
 //   }
 // });
 
-getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<DbComment>) => {
+getCollectionHooks("Comments").createAsync.add(async ({document}: CreateCallbackProperties<"Comments">) => {
   await triggerReviewIfNeeded(document.userId);
 })
 
-getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMaybeTriggerReview ({currentUser}: UpdateCallbackProperties<DbComment>) {
+getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMaybeTriggerReview ({currentUser}: UpdateCallbackProperties<"Comments">) {
   if (!currentUser) return;
   currentUser.snoozedUntilContentCount && await updateMutator({
     collection: Users,
@@ -552,7 +552,7 @@ getCollectionHooks("Comments").updateAsync.add(async function updatedCommentMayb
   await triggerReviewIfNeeded(currentUser._id)
 });
 
-getCollectionHooks("Comments").updateAsync.add(async function updateUserNotesOnCommentRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbComment>) {
+getCollectionHooks("Comments").updateAsync.add(async function updateUserNotesOnCommentRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Comments">) {
   if (!oldDocument.rejected && document.rejected) {
     void createMutator({
       collection: context.ModeratorActions,

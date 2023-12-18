@@ -3,7 +3,7 @@ import Tags from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { TagWithCommentCount } from "../../components/dialogues/DialogueRecommendationRow";
 
-class TagsRepo extends AbstractRepo<DbTag> {
+class TagsRepo extends AbstractRepo<"Tags"> {
   constructor() {
     super(Tags);
   }
@@ -33,7 +33,7 @@ class TagsRepo extends AbstractRepo<DbTag> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaTag> {
+  getSearchDocumentById(id: string): Promise<SearchTag> {
     return this.getRawDb().one(`
       -- TagsRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
@@ -41,7 +41,7 @@ class TagsRepo extends AbstractRepo<DbTag> {
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaTag[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchTag[]> {
     return this.getRawDb().any(`
       -- TagsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}

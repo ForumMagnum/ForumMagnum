@@ -7,7 +7,7 @@ import type {
 } from "../../lib/collections/users/recommendationSettings";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
-class PostRecommendationsRepo extends AbstractRepo<DbPostRecommendation> {
+class PostRecommendationsRepo extends AbstractRepo<"PostRecommendations"> {
   constructor() {
     super(PostRecommendations);
   }

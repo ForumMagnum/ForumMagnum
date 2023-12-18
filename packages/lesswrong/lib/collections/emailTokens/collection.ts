@@ -6,7 +6,6 @@ import { ensureIndex } from '../../collectionIndexUtils'
 export const EmailTokens: EmailTokensCollection = createCollection({
   collectionName: 'EmailTokens',
   typeName: 'EmailTokens',
-  collectionType: 'pg',
   schema,
 });
 

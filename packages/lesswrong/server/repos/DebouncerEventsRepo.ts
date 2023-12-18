@@ -3,7 +3,7 @@ import DebouncerEvents from "../../lib/collections/debouncerEvents/collection";
 import { randomId } from "../../lib/random";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
-class DebouncerEventsRepo extends AbstractRepo<DbDebouncerEvents> {
+class DebouncerEventsRepo extends AbstractRepo<"DebouncerEvents"> {
   constructor() {
     super(DebouncerEvents);
   }
