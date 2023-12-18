@@ -12,7 +12,7 @@ const TagsListEditorSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
-  const tag = (hit as AlgoliaTag);
+  const tag = (hit as SearchTag);
 
   return (
     <div className={classes.root}>

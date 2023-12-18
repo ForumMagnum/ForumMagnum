@@ -28,7 +28,7 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
     <ApolloProvider client={apolloClient}>
       <ForeignApolloClientProvider value={foreignApolloClient}>
         {/* We do not use the context for StaticRouter here, and instead are using our own context provider */}
-        <StaticRouter location={req.url} context={{}}>
+        <StaticRouter location={req.url}>
           <CookiesProvider cookies={getAllCookiesFromReq(req)}>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <LayoutOptionsContextProvider>

@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -7,7 +7,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
 import TagIcon from '@material-ui/icons/LocalOffer';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
-import { useNavigation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -70,10 +69,9 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
   hit: Hit<any>,
   classes: ClassesType,
 }) => {
-  const { history } = useNavigation()
-
+  const navigate = useNavigate();
   const { FormatDate, UserNameDeleted } = Components
-  const comment: AlgoliaComment = hit
+  const comment: SearchComment = hit
   
   let url = "";
   if (comment.postId && comment.postSlug) {
@@ -88,7 +86,7 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
   }
   
   const handleClick = () => {
-    history.push(url)
+    navigate(url)
   }
 
   return <div className={classes.root} onClick={handleClick}>

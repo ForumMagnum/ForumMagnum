@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 export type LayoutOptions = {
   standaloneNavigation: boolean,
@@ -38,10 +38,10 @@ export const LayoutOptionsContextProvider = ({children}: {
 }) => {
   const [overridenLayoutOptions, setOverridenLayoutOptions] = useState<Partial<LayoutOptions>>({})
 
-  const layoutOptionsState: LayoutOptionsState = {
-    overridenLayoutOptions,
-    setOverridenLayoutOptions,
-  }
+  const layoutOptionsState: LayoutOptionsState = useMemo(
+    () => ({ overridenLayoutOptions, setOverridenLayoutOptions }),
+    [overridenLayoutOptions, setOverridenLayoutOptions]
+  );
 
   return <LayoutOptionsContext.Provider value={layoutOptionsState}>
       {children}

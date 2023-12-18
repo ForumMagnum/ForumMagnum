@@ -1,10 +1,10 @@
 import { userCanUseTags } from "../../betas";
-import { addUniversalFields, getDefaultMutations, getDefaultResolvers, schemaDefaultValue } from "../../collectionUtils";
-import { foreignKeyField } from "../../utils/schemaUtils";
+import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "../../collectionUtils";
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import { createCollection } from '../../vulcan-lib';
 import { userIsAdmin, userOwns } from "../../vulcan-users";
 
-const schema: SchemaType<DbUserTagRel> = {
+const schema: SchemaType<"UserTagRels"> = {
   tagId: {
     ...foreignKeyField({
       idFieldName: "tagId",
@@ -16,6 +16,7 @@ const schema: SchemaType<DbUserTagRel> = {
     canCreate: ['members'],
   },
   userId: {
+    nullable: false,
     ...foreignKeyField({
       idFieldName: "userId",
       resolverName: "user",
@@ -25,7 +26,9 @@ const schema: SchemaType<DbUserTagRel> = {
     canRead: ['guests'],
     canCreate: ['members'],
   },
-  // DEPRECATED: may be reintroduced in the future but currently this isn't used anywhere and keeping it up to date adds extra complexity
+  /**
+   * @deprecated: may be reintroduced in the future but currently this isn't used anywhere and keeping it up to date adds extra complexity
+   */
   subforumLastVisitedAt: {
     type: Date,
     optional: true,
@@ -69,7 +72,6 @@ const schema: SchemaType<DbUserTagRel> = {
 export const UserTagRels: UserTagRelsCollection = createCollection({
   collectionName: 'UserTagRels',
   typeName: 'UserTagRel',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('UserTagRels'),
   mutations: getDefaultMutations('UserTagRels', {

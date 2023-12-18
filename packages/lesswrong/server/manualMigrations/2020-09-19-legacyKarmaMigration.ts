@@ -84,14 +84,16 @@ registerMigration({
       const votePower = calculateVotePower(votingUserKarma, voteType)
       const afVotePower = votingUserAfKarma > 0 ? calculateVotePower(votingUserAfKarma, voteType) : 0
 
-      for (const authorId of authorIds) {
-        const authorKarma = userKarmaMap.get(authorId)
-        const authorAfKarma = userAfKarmaMap.get(authorId)
-        // If the author of the content that we are voting on doesn't exist, we
-        // still update the power, but we obviously can't update the karma of that user
-        if (authorKarma !== undefined && authorAfKarma !== undefined) {
-          if (doesVoteIncreaseKarma(vote, authorId)) userKarmaMap.set(authorId, authorKarma + votePower)
-          if (doesVoteIncreaseKarma(vote, authorId) && documentIsAf) userAfKarmaMap.set(authorId, authorAfKarma + afVotePower)
+      if (!!authorIds) { 
+        for (const authorId of authorIds) {
+          const authorKarma = userKarmaMap.get(authorId)
+          const authorAfKarma = userAfKarmaMap.get(authorId)
+          // If the author of the content that we are voting on doesn't exist, we
+          // still update the power, but we obviously can't update the karma of that user
+          if (authorKarma !== undefined && authorAfKarma !== undefined) {
+            if (doesVoteIncreaseKarma(vote, authorId)) userKarmaMap.set(authorId, authorKarma + votePower)
+            if (doesVoteIncreaseKarma(vote, authorId) && documentIsAf) userAfKarmaMap.set(authorId, authorAfKarma + afVotePower)
+          }
         }
       }
 
@@ -143,6 +145,7 @@ const findDuplicateVotes = (allVotes: DbVote[]) => {
 
 const findInvalidVotes = (allVotes: DbVote[], userKarmaMap: Map<string, number>) => {
   return allVotes.flatMap(({_id, authorIds, userId, cancelled}) => {
+    if (!authorIds) return []
     for (const authorId of authorIds)
       if (!cancelled && userKarmaMap.get(authorId) === undefined) return [_id]
     if (!cancelled && userKarmaMap.get(userId) === undefined) return [_id]

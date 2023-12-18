@@ -126,14 +126,6 @@ export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'Les
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
 
 /**
- * By default, we switch between using Mongo or Postgres based on the forum type. This can make it difficult to
- * test changes with different forum types to find regressions. Setting this to either "mongo" or "pg" will force
- * all collections to be of that type whatever the forum type setting might be, making cross-forum testing much
- * easier.
- */
-export const forceCollectionTypeSetting = new PublicInstanceSetting<CollectionType|null>("forceCollectionType", null, "optional");
-
-/**
  * Name of the tagging feature on your site. The EA Forum is going to try
  * calling them topics. You should set this setting with the lowercase singular
  * form of the name. We assume this is a single word currently. Spaces will
@@ -181,6 +173,9 @@ export const lowKarmaUserVotingCutoffDateSetting = new PublicInstanceSetting<str
 /** Currently LW-only; forum-gated in `userCanVote` */
 export const lowKarmaUserVotingCutoffKarmaSetting = new PublicInstanceSetting<number>("lowKarmaUserVotingCutoffKarma", 1, "optional");
 
+/** Whether posts and other content is visible to non-logged-in users (TODO: actually implement this) */
+export const publicAccess = new PublicInstanceSetting<boolean>("publicAccess", true, "optional");
+
 /** Header-related settings */
 export const taglineSetting = new PublicInstanceSetting<string>('tagline', "A community blog devoted to refining the art of rationality", "warning")
 export const faviconUrlSetting = new PublicInstanceSetting<string>('faviconUrl', '/img/favicon.ico', "warning")
@@ -189,3 +184,8 @@ export const tabTitleSetting = new PublicInstanceSetting<string>('forumSettings.
 export const tabLongTitleSetting = new PublicInstanceSetting<string | null>('forumSettings.tabLongTitle', null, "optional")
 
 export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', false, "optional")
+
+/** Whether this forum verifies user emails */
+export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
+
+export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");

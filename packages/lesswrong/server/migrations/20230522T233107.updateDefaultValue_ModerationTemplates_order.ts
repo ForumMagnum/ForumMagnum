@@ -17,12 +17,10 @@ import { ModerationTemplates } from "../../lib/collections/moderationTemplates"
 import { updateDefaultValue } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (ModerationTemplates.isPostgres()) {
-    await updateDefaultValue(db, ModerationTemplates, "order")
-  }
+  await updateDefaultValue(db, ModerationTemplates, "order")
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
+  await updateDefaultValue(db, ModerationTemplates, "order")
 }
 

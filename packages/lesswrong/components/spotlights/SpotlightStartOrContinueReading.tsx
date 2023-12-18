@@ -5,15 +5,16 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
-import { forumSelect, preferredHeadingCase } from '../../lib/forumTypeUtils';
-import { isEAForum } from '../../lib/instanceSettings';
+
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { forumSelect } from '../../lib/forumTypeUtils';
 
 const styles = (theme: ThemeType): JssStyles => ({
   boxesRoot: {
   },
   firstPost: {
     ...theme.typography.body2,
-    fontSize: isEAForum ? 13 : "1.1rem",
+    fontSize: isFriendlyUI ? 13 : "1.1rem",
     ...theme.typography.commentStyle,
     position: "relative",
     zIndex: theme.zIndexes.spotlightItemCloseButton,
@@ -37,7 +38,6 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight, className}:
   classes: ClassesType,
   className?: string,
 }) => {
-  const { LWTooltip, PostsPreviewTooltip} = Components
   const chapters = spotlight.sequenceChapters;
   
   const { postsRead: clientPostsRead } = useItemsRead();
@@ -58,20 +58,26 @@ export const SpotlightStartOrContinueReading = ({classes, spotlight, className}:
     default: preferredHeadingCase("First Post: ")
   });
 
+  const {PostsTooltip} = Components;
   if (firstPost) {
     return <div className={classNames(classes.firstPost, className)}>
-      {prefix}<LWTooltip title={<PostsPreviewTooltip post={firstPost}/>} tooltip={false}>
+      {prefix}<PostsTooltip post={firstPost}>
         <Link to={postGetPageUrl(firstPost, false, firstPostSequenceId)}>{firstPost.title}</Link>
-      </LWTooltip>
+      </PostsTooltip>
     </div>
   } else {
     return <div className={classNames(classes.boxesRoot, className)}>
     {posts.map(post => (
-      <LWTooltip key={`${spotlight._id}-${post._id}`} title={<PostsPreviewTooltip post={post}/>} tooltip={false} flip={false}>
+      <PostsTooltip
+        key={`${spotlight._id}-${post._id}`}
+        post={post}
+        flip={false}
+        inlineBlock
+      >
         <Link to={postGetPageUrl(post, false, firstPostSequenceId)}>
           <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
         </Link>
-      </LWTooltip>
+      </PostsTooltip>
      ))}
   </div>
   }

@@ -17,7 +17,7 @@ import { InsufficientKarmaError, InvalidUserError } from "./errors";
 
   // Despite the generated type, karma is in fact missing by default for new users who haven't had anything of theirs voted on
   // Numeric comparisons to `undefined` always return false!
-  const userKarma = currentUser.karma ?? 0;
+  const userKarma = currentUser.karma;
 
   const currentKarmaThreshold = crosspostKarmaThreshold.get();
   if (currentKarmaThreshold !== null && currentKarmaThreshold > userKarma) {

@@ -6,8 +6,9 @@ import {
   Tags,
 } from '../../lib/collections/tags/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
-import { forumTypeSetting, isEAForum } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { viewFieldAllowAny } from '../vulcan-lib';
+import ElectionVotes from '../../lib/collections/electionVotes/collection';
 
 const communityFilters = {
   none: {$or: [
@@ -33,6 +34,7 @@ defineFeedResolver<Date>({
     shortformCommented: Post
     tagDiscussed: Tag
     tagRevised: Revision
+    electionVoted: ElectionVote
   `,
   resolver: async ({limit=20, cutoff, offset, args, context}: {
     limit?: number, cutoff?: Date, offset?: number,
@@ -131,10 +133,20 @@ defineFeedResolver<Date>({
             editedAt: {$exists: true},
           },
         }),
+        // Election votes
+        viewBasedSubquery({
+          type: "electionVoted",
+          collection: ElectionVotes,
+          sortField: "submittedAt",
+          context,
+          selector: {
+            submittedAt: {$exists: true},
+          },
+        }),
         // Suggestion to subscribe to curated
         fixedIndexSubquery({
           type: "subscribeReminder",
-          index: forumTypeSetting.get() === 'EAForum' ? 3 : 6,
+          index: isEAForum ? 3 : 6,
           result: {},
         }),
         // Suggestion to subscribe to meetups

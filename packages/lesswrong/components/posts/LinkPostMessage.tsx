@@ -2,10 +2,10 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import React from 'react';
 import classNames from 'classnames';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: isEAForum ? {
+  root: isFriendlyUI ? {
     fontFamily: theme.palette.fonts.sansSerifStack,
     wordBreak: 'break-word',
     width: '100%',

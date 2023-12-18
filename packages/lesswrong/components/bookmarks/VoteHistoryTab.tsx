@@ -6,6 +6,14 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { commentsNodeRootMarginBottom, maxSmallish, maxTiny } from '../../themes/globalStyles/globalStyles';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  empty: {
+    color: theme.palette.grey[600],
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    fontSize: 14,
+    lineHeight: "1.6em",
+    marginBottom: 40,
+  },
   loadMoreSpinner: {
     textAlign: 'left',
     paddingTop: 6,
@@ -68,6 +76,9 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType}) => {
   }
   if (!votes) {
     return null
+  }
+  if (!votes.length) {
+    return <div className={classes.empty}>{"You haven't voted on anything yet."}</div>
   }
   
   // group the posts/comments by when the user voted on them ("Today", "Yesterday", and "Older")

@@ -102,12 +102,13 @@ const PopularCommentTitle: FC<{
         <Link
           to={postGetPageUrl(post)}
           className={classNames(classes.post, {[classes.postRead]: isRead})}
+          eventProps={{intent: 'expandPost'}}
         >
           {post.title}
         </Link>
       </InteractionWrapper>
       <InteractionWrapper>
-        <Link to={commentGetPageUrl(comment)} className={classes.link}>
+        <Link to={commentGetPageUrl(comment)} className={classes.link} eventProps={{intent: 'viewInThread'}}>
           View in thread
         </Link>
       </InteractionWrapper>

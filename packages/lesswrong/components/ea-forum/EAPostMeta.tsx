@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { DateWithoutTime } from "../posts/PostsItemMeta";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -33,13 +34,21 @@ const styles = (theme: ThemeType) => ({
     width: 16,
   },
   eventOrganizer: {
-    marginLeft: 4,
+    display: "flex",
+    fontSize: "14px",
   },
+  dot: {
+    margin: "0 4px",
+  },
+  authorsList: {
+    fontSize: 14,
+  }
 });
 
-const EAPostMeta = ({post, useEventStyles, classes}: {
-  post: PostsList,
+const EAPostMeta = ({post, useEventStyles, className, classes}: {
+  post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
+  className?: string,
   classes: ClassesType,
 }) => {
   const authorExpandContainer = useRef(null);
@@ -50,27 +59,32 @@ const EAPostMeta = ({post, useEventStyles, classes}: {
 
   if (useEventStyles && post.isEvent) {
     return (
-      <div className={classes.root}>
+      <div className={classNames(classes.root, className)} ref={authorExpandContainer}>
         <ForumIcon icon="Calendar" className={classes.icon} />
-        {post.startTime
-          ? (
-            <LWTooltip title={<EventTime post={post} />}>
-              <DateWithoutTime date={post.startTime} />
-            </LWTooltip>
-          )
-          : (
-            <LWTooltip title={<span>To be determined</span>}>
-              <span>TBD</span>
-            </LWTooltip>
-          )
-        }
-        <span className={classes.eventOrganizer}>· Group organizer</span>
+        {post.startTime ? (
+          <LWTooltip title={<EventTime post={post} />}>
+            <DateWithoutTime date={post.startTime} />
+          </LWTooltip>
+        ) : (
+          <LWTooltip title={<span>To be determined</span>}>
+            <span>TBD</span>
+          </LWTooltip>
+        )}
+        <span className={classes.eventOrganizer}>
+          <span className={classes.dot}>·</span>
+          <InteractionWrapper className={classes.interactionWrapper}>
+            <TruncatedAuthorsList post={post} expandContainer={authorExpandContainer} className={classes.authorsList} />
+          </InteractionWrapper>
+        </span>
       </div>
     );
   }
 
   return (
-    <div className={classes.root} ref={authorExpandContainer}>
+    <div
+      className={classNames(classes.root, className)}
+      ref={authorExpandContainer}
+    >
       <InteractionWrapper className={classes.interactionWrapper}>
         <TruncatedAuthorsList
           post={post}
@@ -94,7 +108,7 @@ const EAPostMeta = ({post, useEventStyles, classes}: {
 const EAPostMetaComponent = registerComponent(
   "EAPostMeta",
   EAPostMeta,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {

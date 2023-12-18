@@ -79,7 +79,7 @@ const NavigationDrawer = ({open, handleOpen, handleClose, toc, classes}: {
       </div>
       <div className={classes.tableOfContents}>
         <Components.TableOfContentsList
-          sectionData={toc}
+          tocSections={toc.sections}
           title={null}
           onClickSection={() => handleClose()}
         />

@@ -23,7 +23,7 @@ const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecr
 // Given a URL which (probably) points to an image, download that image,
 // re-upload it to cloudinary, and return a cloudinary URL for that image. If
 // the URL is already Cloudinary or can't be downloaded, returns null instead.
-async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): Promise<string|null> {
+export async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): Promise<string|null> {
   const logger = loggerConstructor("image-conversion")
   const alreadyRehosted = await findAlreadyMovedImage(oldUrl);
   if (alreadyRehosted) return alreadyRehosted;
@@ -159,7 +159,7 @@ function getImageUrlsFromImgTag(tag: any): string[] {
   }
   const srcset: string = tag.attr("srcset");
   if (srcset) {
-    const imageVariants = srcset.split(",").map(tok=>tok.trim());
+    const imageVariants = srcset.split(/,\s/g).map(tok=>tok.trim());
     for (let imageVariant of imageVariants) {
       const [url, _size] = imageVariant.split(" ").map(tok=>tok.trim());
       if (url) imageUrls.push(url);
@@ -170,7 +170,7 @@ function getImageUrlsFromImgTag(tag: any): string[] {
 }
 
 function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
-  const imageVariants = srcset.split(",").map(tok=>tok.trim());
+  const imageVariants = srcset.split(/,\s/g).map(tok=>tok.trim());
   const rewrittenImageVariants = imageVariants.map(variant => {
     let tokens = variant.split(" ");
     if (tokens[0] in urlMap)
@@ -190,8 +190,8 @@ function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
  * @param urlFilterFn - A function that takes a URL and returns true if it should be mirrored, by default all URLs are mirrored except those in getImageUrlWhitelist()
  * @returns The number of images that were mirrored
  */
-export async function convertImagesInObject(
-  collectionName: CollectionNameString,
+export async function convertImagesInObject<N extends CollectionNameString>(
+  collectionName: N,
   _id: string,
   fieldName = "contents",
   urlFilterFn: (url: string)=>boolean = ()=>true
@@ -221,7 +221,7 @@ export async function convertImagesInObject(
     const now = new Date();
     // NOTE: we use the post contents rather than the revision contents because we don't
     // create a revision for no-op edits (this is arguably a bug)
-    const oldHtml = obj?.[fieldName]?.html;
+    const oldHtml = (obj as AnyBecauseHard)?.[fieldName]?.html;
     if (!oldHtml) {
       return 0;
     }
@@ -248,7 +248,7 @@ export async function convertImagesInObject(
       $set: {
         [`${fieldName}_latest`]: insertedRevisionId,
         [fieldName]: {
-          ...obj[fieldName],
+          ...(obj as AnyBecauseHard)[fieldName],
           html: newHtml,
           version: newVersion,
           editedAt: now,

@@ -1,22 +1,286 @@
-import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import React, {useState} from 'react';
+import { registerComponent, Components, getFragmentText } from '../../lib/vulcan-lib';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { Link } from '../../lib/reactRouterWrapper';
+import { commentBodyStyles } from '../../themes/stylePiping';
+import { useCurrentUser } from '../common/withUser';
+import { DialogueUserRowProps, getRowProps, getUserCheckInfo } from '../users/DialogueMatchingPage';
+import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
+import MuiPeopleIcon from "@material-ui/icons/People";
+import { dialogueMatchmakingEnabled } from '../../lib/publicSettings';
+import { useUpsertDialogueCheck } from '../hooks/useUpsertDialogueCheck';
+import { DialogueUserResult } from './DialogueRecommendationRow';
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
 
-const DialoguesList = () => {
-  const { PostsItem, LWTooltip, SingleColumnSection, SectionTitle } = Components
+const styles = (theme: ThemeType) => ({
+  dialogueFacilitationItem: {
+    paddingTop: 12,
+    paddingBottom: 12,
+    position: "relative",
+    borderRadius: theme.borderRadius.default,
+    background: theme.palette.panelBackground.default,
+    '&:hover': {
+      boxShadow: theme.palette.boxShadow.sequencesGridItemHover,
+    },
+    ...commentBodyStyles(theme),
+    lineHeight: '1.65rem',
+  },
+  content: {
+    paddingTop: 0,
+    paddingRight: 35,
+    paddingLeft: 16,
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    marginRight: 75,
+    position: "relative",
+    zIndex: theme.zIndexes.spotlightItem,
+    [theme.breakpoints.down('xs')]: {
+      marginRight: 10,
+      paddingRight: 20,
+    },
+    "& p": {
+      marginBottom: 0,
+      marginTop: 5,
+    }
+  },
+  subsection: {
+    marginBottom: theme.spacing.unit,
+  },
+  prompt: {
+    color: theme.palette.lwTertiary.main,
+    fontWeight: 645,
+  },
+  subheading: {
+    marginTop: '10px',
+  },
+
+  dialogueUserRow: { 
+    display: 'flex',
+    alignItems: 'center',
+    background: theme.palette.panelBackground.default,
+    padding: 8,
+    marginBottom: 3,
+    borderRadius: 2,
+  },
+  dialogueLeftContainer: {
+    display: 'flex',
+    maxWidth: '135px',
+    minWidth: '135px',
+    alignItems: 'center',
+  },
+  dialogueMatchCheckbox: {
+    marginLeft: 6,
+    width: 29,
+    '& label': {
+      marginRight: 0
+    }
+  },
+  dialogueMatchUsername: {
+    marginRight: 10,
+    '&&': {
+      color: theme.palette.text.primary,
+      textAlign: 'left'
+    },
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    width: 'auto',
+    flexShrink: 'unset!important',
+  },
+  dialogueMatchNote: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
+  },
+  dialogueRightContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    paddingRight: 10,
+    marginRight: 3,
+    marginLeft: 'auto',
+  },
+  dialogueMatchMessageButton: {
+    marginLeft: 'auto',
+    marginRight: 10
+  },
+  dialogueMatchPreferencesButton: {
+    marginLeft: 8,
+    marginRight: 0
+  },
+  dialogueNoMatchesButton: {
+    marginLeft: 8
+  },
+  topicRecommendationsList: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.text.primary,
+    fontSize: 'small',
+    overflow: 'hidden',
+    justifyContent: 'space-between'
+  },
+  dialogueSectionSettings: {
+    display: "flex",
+    alignItems: "end",
+  },
+  settingsButton: {
+    cursor: "pointer",
+    marginLeft: "5px",
+  },
+  findDialoguePartners: {
+    paddingRight: 5,
+  },
+  explanatoryNoteBox: {
+    paddingLeft: "5px",
+    marginBottom: "15px",
+  },
+  explanatoryNote: {
+    color: theme.palette.text.dim3,
+  },
+  link: {
+    color: theme.palette.primary.main,
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.primary.light,
+    }
+  },
+  closeIcon: { 
+    color: theme.palette.grey[500],
+    opacity: 0.5,
+    padding: 2,
+  },
+});
+
+interface DialogueMatchRowProps {
+  rowProps: DialogueUserRowProps<boolean>; 
+  classes: ClassesType<typeof styles>; 
+  showMatchNote: boolean;
+  onHide: ({ dialogueCheckId, targetUserId }: { dialogueCheckId: string|undefined; targetUserId: string; }) => void;
+}
+
+const DialogueMatchRow = ({ rowProps, classes, showMatchNote, onHide }: DialogueMatchRowProps) => {
+  const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo } = Components
+
+  const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
+  const currentUser = useCurrentUser();
+  if (!currentUser) return <></>;
+
+  return (
+    <div key={targetUser._id} className={classes.dialogueUserRow}>
+      <div className={classes.dialogueLeftContainer}>
+        <div className={classes.dialogueMatchCheckbox}>
+          <DialogueCheckBox
+            targetUserId={targetUser._id}
+            targetUserDisplayName={targetUser.displayName}
+            checkId={checkId}
+            isChecked={userIsChecked}
+            isMatched={userIsMatched}
+          />
+        </div>
+        <PostsItem2MetaInfo className={classes.dialogueMatchUsername}>
+          <UsersName
+            documentId={targetUser._id}
+            simple={false}
+          />
+        </PostsItem2MetaInfo>
+      </div>
+      <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+        {showMatchNote ? "You've matched!" : "Check to opt in to dialogue, if you find a topic"}
+      </PostsItem2MetaInfo>
+      <div className={classes.dialogueRightContainer}>
+        <div className={classes.dialogueMatchPreferencesButton}>
+          <DialogueNextStepsButton
+            isMatched={userIsMatched}
+            checkId={checkId}
+            targetUserId={targetUser._id}
+            targetUserDisplayName={targetUser.displayName}
+            currentUser={currentUser}
+          />
+        </div>
+      </div>
+      <IconButton className={classes.closeIcon} onClick={() => onHide({dialogueCheckId: checkId, targetUserId: targetUser._id})}>
+        <CloseIcon />
+      </IconButton>
+    </div>
+  );
+};
+ 
+const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+  const { PostsItem, SectionButton, SettingsButton, LWTooltip, SingleColumnSection, SectionTitle, SectionSubtitle, DialoguesSectionFrontpageSettings, DialogueRecommendationRow, Typography } = Components
+  const currentUser = useCurrentUser()
+  const [showSettings, setShowSettings] = useState(false);
+  const { captureEvent } = useTracking();
+  const currentDate = new Date();
+  const isEvenDay = currentDate.getUTCDate() % 2 === 0;
+  const showReciprocityRecommendations = ((currentUser?.karma ?? 0) > 100) && isEvenDay; // hide reciprocity recommendations if user has less than 100 karma, or if the current day is not an even number (just a hack to avoid spamming folks)
 
   const { results: dialoguePosts } = usePaginatedResolver({
-    fragmentName: "PostsPage",
+    fragmentName: "PostsListWithVotes",
     resolverName: "RecentlyActiveDialogues",
     limit: 3,
   }); 
 
-  const dialoguesTooltip = <div>
-    <p>Beta feature: Dialogues between a small group of users. Click to see more.</p>
-  </div>
+  const { results: myDialogues } = usePaginatedResolver({
+    fragmentName: "PostsListWithVotes",
+    resolverName: "MyDialogues",
+    limit: 3,
+  });
+
+  const {
+    matchedUsersQueryResult: { data: matchedUsersResult },
+    recommendedUsersQueryResult: { data: recommendedUsersResult },
+    userDialogueChecksResult: { results: userDialogueChecks = [] },
+  } = useDialogueMatchmaking({ getMatchedUsers: true, getRecommendedUsers: true, getOptedInUsers: false, getUserDialogueChecks: true });
+
+  const upsertUserDialogueCheck = useUpsertDialogueCheck();
+
+  const hideRecommendation = ({dialogueCheckId, targetUserId}: {dialogueCheckId:string|undefined, targetUserId:string}) => {
+    captureEvent("hide_dialogue_recommendation")
+    void upsertUserDialogueCheck({ targetUserId, hideInRecommendations: true, checkId: dialogueCheckId });
+  }
+
+  const hideMatch = ({dialogueCheckId, targetUserId}: {dialogueCheckId:string|undefined, targetUserId:string}) => {
+    captureEvent("hide_dialogue_frontpage_match")
+    void upsertUserDialogueCheck({ targetUserId, hideInRecommendations: true, checkId: dialogueCheckId });
+  }
+
+  const matchedUsers: DialogueUserResult[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
+
+  const matchRowPropsList = currentUser && getRowProps({
+    currentUser,
+    tableContext: 'match',
+    showAgreement: false,
+    showBio: false,
+    showFrequentCommentedTopics: false,
+    showKarma: false,
+    showPostsYouveRead: false,
+    userDialogueChecks,
+    users: matchedUsers ?? []
+  });
+
+  const manyRecommendedUsers: DialogueUserResult[] | undefined = recommendedUsersResult?.GetDialogueRecommendedUsers;
+
+  const recommendedDialoguePartnersRowPropsList = currentUser && manyRecommendedUsers?.map(targetUser => ({targetUser, ...getUserCheckInfo(targetUser, userDialogueChecks)}) )
+
+  const dialoguesTooltip = (<div>
+    <p>Dialogues between a small group of users. Click to see more.</p>
+  </div>);
+
+  const renderMyDialogues = !!currentUser && myDialogues?.length && currentUser?.showMyDialogues
+
+  const myDialoguesTooltip = (<div>
+    <div>These are the dialogues you are involved in (both drafts and published)</div>
+  </div>);
+
+  const matchmakingTooltip = (<div>
+    <p> Click here to go to the dialogue matchmaking page.</p>
+  </div>);
+
+  const dialogueSettingsTooltip = (<div>
+    <p> Adjust which items are shown or hidden in the Dialogues section.</p>
+  </div>);
 
   return <AnalyticsContext pageSubSectionContext="dialoguesList">
     <SingleColumnSection>
@@ -24,19 +288,87 @@ const DialoguesList = () => {
         title={<LWTooltip placement="top-start" title={dialoguesTooltip}>
           Dialogues
         </LWTooltip>}
-      />
-      {dialoguePosts?.map((post: PostsListWithVotes, i: number) =>
+      >
+      {currentUser && dialogueMatchmakingEnabled.get() && (
+        <div className={classes.dialogueSectionSettings}>
+          <LWTooltip placement="top-start" title={matchmakingTooltip}>
+            <SectionButton className={classes.findDialoguePartners}>
+              <MuiPeopleIcon />
+              <Link to="/dialogueMatching">See all dialogue users</Link>
+            </SectionButton>
+          </LWTooltip>
+          <LWTooltip placement="top-start" title={dialogueSettingsTooltip}>
+            <SettingsButton label={``} onClick={() => setShowSettings(!showSettings)}/>
+          </LWTooltip>
+        </div>
+      )}
+      
+      </SectionTitle>
+      {showSettings && currentUser && <DialoguesSectionFrontpageSettings
+          hidden={false}
+          currentShowDialogues={currentUser.showDialoguesList}
+          currentShowMyDialogues={currentUser.showMyDialogues}
+          currentShowMatches={currentUser.showMatches}
+          currentShowRecommendedPartners={currentUser.showRecommendedPartners}
+          hideReciprocityButtons={!showReciprocityRecommendations}
+        />}
+
+      {dialogueMatchmakingEnabled.get() && <AnalyticsContext pageSubSectionContext="frontpageDialogueMatchmaking">
+        {<div>
+          { currentUser?.showRecommendedPartners && showReciprocityRecommendations && !!recommendedDialoguePartnersRowPropsList && recommendedDialoguePartnersRowPropsList.length > 0 &&
+            <div className={classes.explanatoryNoteBox}>
+              <Typography
+                component='span'
+                className={classes.explanatoryNote}
+                variant='body2'>
+                  {<div>
+                    Check a user you'd maybe dialogue with. They can't see your checks unless you match. If you match, you both get to enter topics and then choose whether to dialogue. (<a className={classes.link} href="https://www.lesswrong.com/posts/d65Ax6vbNgztBE8cy/new-lesswrong-feature-dialogue-matching">Learn more</a>)
+                    </div>}
+              </ Typography>
+            </div>}
+          {currentUser?.showMatches && matchRowPropsList?.map((rowProps, index) => (
+            !rowProps.hideInRecommendations && <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} onHide={hideMatch}/>
+          ))}
+          {showReciprocityRecommendations && currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
+            !rowProps.hideInRecommendations && <DialogueRecommendationRow key={index} targetUser={rowProps.targetUser} checkId={rowProps.checkId} userIsChecked={rowProps.userIsChecked} userIsMatched={rowProps.userIsMatched} showSuggestedTopics={true} onHide={hideRecommendation} />
+          ))}
+        </div>}
+      </AnalyticsContext>}
+      
+      {(!currentUser || currentUser.showDialoguesList) && dialoguePosts?.map((post, i: number) =>
         <PostsItem
           key={post._id} post={post}
           showBottomBorder={i < dialoguePosts.length-1}
         />
       )}
+
+      {renderMyDialogues && (
+        <div className={classes.subsection}>
+          <AnalyticsContext pageSubSectionContext="myDialogues">
+            <LWTooltip placement="top-start" title={myDialoguesTooltip}>
+              <Link to={"/dialogues"}>
+                <SectionSubtitle className={classes.subheading}>
+                  My Dialogues (only visible to you)
+                </SectionSubtitle>
+              </Link>
+            </LWTooltip>
+            {myDialogues?.map((post, i: number) =>
+              <PostsItem
+                key={post._id} post={post}
+                showBottomBorder={i < myDialogues.length-1}
+              />
+            )}
+          </AnalyticsContext>
+        </div>
+      )}
+
    </SingleColumnSection>
   </AnalyticsContext>
 }
 
 const DialoguesListComponent = registerComponent('DialoguesList', DialoguesList, {
-  hocs: [withErrorBoundary]
+  hocs: [withErrorBoundary],
+  styles
 });
 
 declare global {

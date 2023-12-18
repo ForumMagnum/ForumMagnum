@@ -25,6 +25,8 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
+    givingSeason2023DonatedFlair # TODO: Remove after giving season
+    givingSeason2023VotedFlair   # TODO: Remove after giving season
   }
 `);
 
@@ -83,7 +85,9 @@ registerFragment(`
     petrovPressedButtonDate
     petrovOptOut
     sortDraftsBy
-    ...SunshineUsersList
+    email
+    emails
+    banned
     ...SharedUserBooleans
     noindex
     paymentEmail
@@ -105,7 +109,6 @@ registerFragment(`
     services
     acceptedTos
     pageUrl
-    voteBanned
     banned
     isReviewed
     nullifyVotes
@@ -188,6 +191,8 @@ registerFragment(`
     hideFrontpageBookAd
     hideFrontpageBook2019Ad
 
+    givingSeasonNotifyForVoting
+
     abTestKey
     abTestOverrides
 
@@ -209,6 +214,16 @@ registerFragment(`
     
     allowDatadogSessionReplay
     hideFrontpageBook2020Ad
+
+    hideDialogueFacilitation
+    optedInToDialogueFacilitation
+    revealChecksToAdmins
+    notificationNewDialogueChecks
+
+    showDialoguesList
+    showMyDialogues
+    showMatches
+    showRecommendedPartners
   }
 `);
 
@@ -255,6 +270,10 @@ registerFragment(`
         scoreChange
         title
         slug
+        addedReacts {
+          reactionType
+          userId
+        }
       }
       comments {
         _id
@@ -263,6 +282,10 @@ registerFragment(`
         postId
         tagSlug
         tagCommentType
+        addedReacts {
+          reactionType
+          userId
+        }
       }
       tagRevisions {
         _id
@@ -270,6 +293,10 @@ registerFragment(`
         tagId
         tagSlug
         tagName
+        addedReacts {
+          reactionType
+          userId
+        }
       }
     }
   }
@@ -316,7 +343,6 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
-    voteBanned
     nullifyVotes
     deleteContent
     
@@ -421,7 +447,6 @@ registerFragment(`
     showHideKarmaOption
 
     # Ban & Purge
-    voteBanned
     nullifyVotes
     deleteContent
     banned
@@ -472,6 +497,9 @@ registerFragment(`
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+    notificationNewDialogueChecks
+
+    givingSeasonNotifyForVoting
 
     hideFrontpageMap
     hideTaggingProgressBar
@@ -545,3 +573,10 @@ registerFragment(`
     fmCrosspostUserId
   }
 `)
+
+registerFragment(`
+  fragment UsersOptedInToDialogueFacilitation on User {
+    _id
+    displayName
+  }
+`);

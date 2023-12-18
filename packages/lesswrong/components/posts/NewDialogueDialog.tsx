@@ -4,15 +4,19 @@ import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMessages } from '../common/withMessages';
-import { useNavigation } from '../../lib/routeUtil';
 import Input from '@material-ui/core/Input';
+import { useNavigate } from '../../lib/reactRouterWrapper';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialog: {
     padding: 24,
-    paddingBottom: 12,
+    paddingBottom: isFriendlyUI ? undefined : 12,
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.text.normal,
+    "& .MuiDialogActions-root": {
+      margin: isFriendlyUI ? 0 : undefined,
+    },
   },
   inputRow: {
     marginBottom: 12,
@@ -45,13 +49,13 @@ const NewDialogueDialog = ({onClose, classes}: {
   onClose: ()=>void,
   classes: ClassesType,
 }) => {
-  const { UsersListEditor, LWDialog, Loading } = Components;
+  const { UsersListEditor, LWDialog, Loading, EAButton } = Components;
   const [title, setTitle] = useState("");
   const {flash} = useMessages();
   const [participants, setParticipants] = useState<string[]>([]);
   const {create: createPost, loading, error} = useCreate({ collectionName: "Posts", fragmentName: "PostsEdit" });
-  const { history } = useNavigation();
-  
+  const navigate = useNavigate();
+
   async function createDialogue() {
     if (loading) return;
     if (!title.length) {
@@ -63,7 +67,7 @@ const NewDialogueDialog = ({onClose, classes}: {
         title,
         draft: true,
         collabEditorDialogue: true,
-        coauthorStatuses: participants.map(userId => ({userId, confirmed: false, requested: false})),
+        coauthorStatuses: participants.map(userId => ({userId, confirmed: true, requested: false})),
         shareWithUsers: participants,
         sharingSettings: {
           anyoneWithLinkCan: "none",
@@ -82,12 +86,13 @@ const NewDialogueDialog = ({onClose, classes}: {
       if (post) {
         const postId = post._id;
         const postEditUrl = `/editPost?postId=${postId}`;
-        history.push(postEditUrl);
+        navigate(postEditUrl);
         onClose();
       }
     }
   }
 
+  const ButtonComponent = isFriendlyUI ? EAButton : Button;
   return <LWDialog
     open={true}
     onClose={onClose}
@@ -95,8 +100,8 @@ const NewDialogueDialog = ({onClose, classes}: {
     maxWidth={"sm"}
     dialogClasses={{paper: classes.dialogPaper}}
   >
-    <div className={classes.dialog}>  
-      <h2 className={classes.header}>Start Dialogue</h2>
+    <div className={classes.dialog}>
+      <h2 className={classes.header}>{preferredHeadingCase("Start Dialogue")}</h2>
       <p className={classes.info}>
         Invite users to a conversation where you can explore ideas, interview each other, or debate a topic. You can edit the transcript, and when you're ready, publish it as a post.
       </p>
@@ -105,7 +110,7 @@ const NewDialogueDialog = ({onClose, classes}: {
       </p>
       <Input
         type="text"
-        placeholder="Dialogue Title"
+        placeholder={preferredHeadingCase("Dialogue Title")}
         value={title}
         className={classes.titleInput}
         onChange={ev => setTitle(ev.currentTarget.value)}
@@ -114,15 +119,15 @@ const NewDialogueDialog = ({onClose, classes}: {
         <UsersListEditor
           value={participants}
           setValue={setParticipants}
-          label="Add Participants"
+          label={preferredHeadingCase("Add Participants")}
         />
       </div>
-      
+
       <DialogActions>
         {loading && <Loading/>}
-        <Button onClick={createDialogue} disabled={!!loading}>
-          Create Dialogue
-        </Button>
+        <ButtonComponent onClick={createDialogue} disabled={!!loading}>
+          {preferredHeadingCase("Create Dialogue")}
+        </ButtonComponent>
       </DialogActions>
     </div>
   </LWDialog>
@@ -135,4 +140,3 @@ declare global {
     NewDialogueDialog: typeof NewDialogueDialogComponent
   }
 }
-

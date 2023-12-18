@@ -34,14 +34,12 @@
 export const acceptsSchemaHash = "afc7cd96d9085ca54d2a50765d02338f";
 
 import Comments from "../../lib/collections/comments/collection";
-import { addField } from "./meta/utils";
+import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Comments.isPostgres()) return;
-
   await addField(db, Comments, "title");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
+  await dropField(db, Comments, "title");
 }

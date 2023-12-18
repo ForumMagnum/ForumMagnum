@@ -1,12 +1,13 @@
-import React, { RefObject, useEffect } from 'react';
+import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import {useCurrentUser} from '../common/withUser';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import Select from '@material-ui/core/Select';
 import Button from '@material-ui/core/Button';
 import type { ConnectedUserInfo } from './CKPostEditor';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   editorTopBar: {
     display: "flex",
     width: "100%",
@@ -38,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export type CollaborationMode = "Viewing"|"Commenting"|"Editing";
+export type CollaborationMode = "Viewing"|"Commenting"|"Editing"|"Editing (override)";
 
 const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers, classes}: {
   accessLevel: CollaborativeEditingAccessLevel,
@@ -46,7 +47,7 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   setCollaborationMode: (mode: CollaborationMode)=>void,
   post: PostsEdit,
   connectedUsers: ConnectedUserInfo[],
-  classes: ClassesType
+  classes: ClassesType<typeof styles>,
 }) => {
   const { PresenceList, LWTooltip, MenuItem } = Components
   const currentUser = useCurrentUser();
@@ -58,6 +59,10 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   const canCommentOnlyBecauseAdmin = isAdmin && !accessLevelCan(accessLevel, "comment");
   const canEditOnlyBecauseAdmin = isAdmin && !accessLevelCan(accessLevel, "edit");
   const alwaysShownUserIds = [post.userId, ...(post.coauthorStatuses?.map(u=>u.userId) ?? [])]
+
+  if (isFriendlyUI && post.collabEditorDialogue) {
+    return null;
+  }
 
   return <div className={classes.editorTopBar}>
     <div className={classes.presenceList}>
@@ -92,6 +97,12 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
           Editing
           {canEditOnlyBecauseAdmin && " (admin override)"}
         </MenuItem>
+        {post.collabEditorDialogue && <MenuItem value="Editing (override)" key="Editing (override)"
+          disabled={!canEdit}
+        >
+          Editing (override)
+          {canEditOnlyBecauseAdmin && " (admin override)"}
+        </MenuItem>}
       </Select>
       <LWTooltip title="Collaborative docs automatically save all changes">
         <Button className={classes.saveStatus}>

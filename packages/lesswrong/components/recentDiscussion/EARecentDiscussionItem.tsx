@@ -48,6 +48,9 @@ const styles = (theme: ThemeType) => ({
   iconGreen: {
     backgroundColor: theme.palette.icon.recentDiscussionGreen,
   },
+  iconGivingSeason: {
+    backgroundColor: theme.palette.givingPortal.homepageHeader.main,
+  },
   container: {
     display: "flex",
     gap: "8px",
@@ -83,12 +86,13 @@ type EARecentDiscussionItemDocument = {
 
 export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
   icon: ForumIconName,
-  iconVariant: "primary" | "grey" | "green",
+  iconVariant: "primary" | "grey" | "green" | "givingSeason",
   user?: UsersMinimumInfo | null,
-  action: string,
+  action: ReactNode,
   postTitleOverride?: string,
   postUrlOverride?: string,
   timestamp: Date,
+  anonymous?: boolean,
   pageSubSectionContext?: string,
 }
 
@@ -102,16 +106,16 @@ const EARecentDiscussionItem = ({
   post,
   tag,
   timestamp,
+  anonymous,
   pageSubSectionContext = "recentDiscussionThread",
   children,
   classes,
 }: EARecentDiscussionItemProps & {
-  children: ReactNode,
-  classes: ClassesType,
+  children?: ReactNode,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
-    ForumIcon, UsersNameDisplay, FormatDate, PostsItemTooltipWrapper,
-    TagTooltipWrapper,
+    ForumIcon, UsersNameDisplay, FormatDate, TagTooltipWrapper,
   } = Components;
   return (
     <AnalyticsContext pageSubSectionContext={pageSubSectionContext}>
@@ -121,23 +125,26 @@ const EARecentDiscussionItem = ({
             [classes.iconPrimary]: iconVariant === "primary",
             [classes.iconGrey]: iconVariant === "grey",
             [classes.iconGreen]: iconVariant === "green",
+            [classes.iconGivingSeason]: iconVariant === "givingSeason",
           })}>
             <ForumIcon icon={icon} />
           </div>
           <div className={classes.meta}>
-            <UsersNameDisplay user={user} className={classes.primaryText} />
+            {anonymous
+              ? "Somebody"
+              : <UsersNameDisplay user={user} className={classes.primaryText} />
+            }
             {" "}
             {action}
             {" "}
             {post &&
-              <PostsItemTooltipWrapper post={post} placement="bottom" As="span">
-                <Link
-                  to={postUrlOverride ?? postGetPageUrl(post)}
-                  className={classes.primaryText}
-                >
-                  {postTitleOverride ?? post.title}
-                </Link>
-              </PostsItemTooltipWrapper>
+              <Link
+                to={postUrlOverride ?? postGetPageUrl(post)}
+                className={classes.primaryText}
+                eventProps={postUrlOverride ? undefined : {intent: 'expandPost'}}
+              >
+                {postTitleOverride ?? post.title}
+              </Link>
             }
             {tag &&
               <TagTooltipWrapper tag={tag} As="span">
@@ -150,12 +157,14 @@ const EARecentDiscussionItem = ({
             <FormatDate date={timestamp} includeAgo />
           </div>
         </div>
-        <div className={classes.container}>
-          <div className={classNames(classes.iconContainer, classes.hideOnMobile)} />
-          <div className={classes.content}>
-            {children}
+        {children &&
+          <div className={classes.container}>
+            <div className={classNames(classes.iconContainer, classes.hideOnMobile)} />
+            <div className={classes.content}>
+              {children}
+            </div>
           </div>
-        </div>
+        }
       </div>
     </AnalyticsContext>
   );

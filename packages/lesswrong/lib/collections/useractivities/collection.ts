@@ -43,7 +43,6 @@ import { ensureIndex } from '../../collectionIndexUtils';
 export const UserActivities: UserActivitiesCollection = createCollection({
   collectionName: 'UserActivities',
   typeName: 'UserActivity',
-  collectionType: 'pg',
   schema,
   logChanges: true,
 });

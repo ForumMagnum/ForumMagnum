@@ -15,7 +15,7 @@ registerMigration({
     for (const afUserWithShortforms of afUsersWithShortforms) {
       await updateMutator({
         collection: Posts,
-        documentId: afUserWithShortforms.shortformFeedId,
+        documentId: afUserWithShortforms.shortformFeedId!,
         set: { af: true },
         unset: {},
         validate: false,

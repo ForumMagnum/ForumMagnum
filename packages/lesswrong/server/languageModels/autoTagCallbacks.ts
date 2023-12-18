@@ -2,7 +2,7 @@ import { LanguageModelTemplate, getOpenAI, wikiSlugToTemplate, substituteIntoTem
 import { CreateCallbackProperties, getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { truncate } from '../../lib/editor/ellipsize';
 import { dataToMarkdown, htmlToMarkdown } from '../editor/conversionUtils';
-import type { OpenAIApi } from "openai";
+import type OpenAI from "openai";
 import { Tags } from '../../lib/collections/tags/collection';
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import { DatabaseServerSetting } from '../databaseSettings';
@@ -86,6 +86,7 @@ import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
       Substituting in ${TAG}, and repeat for each tag.
       You can check each job with:
           openai api fine_tunes.follow -i ${id}
+      Update on 2023-11-27: You can now just do this all via their web UI, see https://platform.openai.com/docs/guides/fine-tuning
  *
  * 9. Retrieve the fine-tuned model IDs. Run
  *        openai api fine_tunes.list
@@ -167,7 +168,7 @@ export function generatePostBodyCache(posts: DbPost[]): PostBodyCache {
   return result;
 }
 
-export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAIApi) {
+export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAI) {
   const template = await wikiSlugToTemplate("lm-config-autotag");
   
   let tagsApplied: Record<string,boolean> = {};
@@ -175,12 +176,12 @@ export async function checkTags(post: DbPost, tags: DbTag[], openAIApi: OpenAIAp
   for (let tag of tags) {
     if (!tag.autoTagPrompt || !tag.autoTagModel)
       continue;
-    const languageModelResult = await openAIApi.createCompletion({
+    const languageModelResult = await openAIApi.completions.create({
       model: tag.autoTagModel,
       prompt: await postToPrompt({template, post, promptSuffix: tag.autoTagPrompt}),
       max_tokens: 1,
     });
-    const completion = languageModelResult.data.choices[0].text!;
+    const completion = languageModelResult.choices[0].text!;
     const hasTag = (completion.trim().toLowerCase() === "yes");
     tagsApplied[tag.slug] = hasTag;
   }
@@ -277,11 +278,11 @@ export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boo
   
   const template = await wikiSlugToTemplate("lm-config-autotag")
   const promptSuffix = 'Is this post critically examining the work, projects, or methodologies of specific individuals, organizations, or initiatives affiliated with the effective altruism (EA) movement or community?'
-  // This model was trained on ~2400 posts, generated using generateCandidateSetsForTagClassification
-  // (posts published from May 1 2022 - May 1 2023 combined with *all* posts tagged with "criticism of work in effective altruism").
-  // Since it's not super accurate, we may want to fine-tune it more in the future.
-  const languageModelResult = await api.createCompletion({
-    model: 'curie:ft-centre-for-effective-altruism-2023-05-11-23-15-52',
+  // This model was trained on ~2500 posts, generated using generateCandidateSetsForTagClassification
+  // (posts published from Nov 1 2022 - Nov 1 2023 combined with *all* posts tagged with "criticism of work in effective altruism").
+  // Since it's not super accurate, we may want to fine-tune a new version in the future.
+  const languageModelResult = await api.completions.create({
+    model: 'ft:davinci-002:centre-for-effective-altruism::8PxrFevH',
     prompt: await postToPrompt({
       template,
       post,
@@ -290,7 +291,7 @@ export async function postIsCriticism(post: PostIsCriticismRequest): Promise<boo
     }),
     max_tokens: 1,
   })
-  const completion = languageModelResult.data.choices[0].text!
+  const completion = languageModelResult.choices[0].text!
   return (completion.trim().toLowerCase() === "yes")
 }
 

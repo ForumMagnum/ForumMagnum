@@ -222,6 +222,9 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+    socialPreviewData {
+      imageUrl
+    }
 
     feedId
     totalDialogueResponseCount
@@ -635,6 +638,13 @@ registerFragment(`
       _id
       htmlHighlightStartingAtHash(hash: $hash)
     }
+  }
+`);
+
+registerFragment(`
+  fragment PostWithDialogueMessage on Post {
+    _id
+    dialogueMessageContents(dialogueMessageId: $dialogueMessageId)
   }
 `);
 

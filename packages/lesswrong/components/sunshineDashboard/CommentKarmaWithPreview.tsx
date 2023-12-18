@@ -56,7 +56,7 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
       {displayTitle && <span className={classes.scoreTitleFormat}>
         <FormatDate date={comment.postedAt} />
       </span>}
-      <span className={displayTitle ? classes.scoreTitleFormat : null}>
+      <span className={displayTitle ? classes.scoreTitleFormat : undefined}>
         {comment.baseScore} 
       </span>
       {displayTitle && comment.post?.title }

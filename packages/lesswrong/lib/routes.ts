@@ -9,7 +9,8 @@ import qs from 'qs';
 import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug} from './pingback'
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { pluralize } from './vulcan-lib';
-
+import { forumSpecificRoutes } from './forumSpecificRoutes';
+import { hasPostRecommendations } from './betas';
 
 const knownTagNames = ['tag', 'topic', 'concept']
 const useShortAllTagsPath = isEAForum;
@@ -195,26 +196,6 @@ addRoute(
     componentName: 'ResendVerificationEmailPage',
     title: "Email Verification",
     background: "white"
-  },
-  {
-    name: 'inbox',
-    path: '/inbox',
-    componentName: 'InboxWrapper',
-    title: "Inbox"
-  },
-  {
-    name: 'moderatorInbox',
-    path: '/moderatorInbox',
-    componentName: 'ModeratorInboxWrapper',
-    title: "Moderator Inbox"
-  },
-  {
-    name: 'conversation',
-    path: '/inbox/:_id',
-    componentName: 'ConversationWrapper',
-    title: "Private Conversation",
-    background: "white",
-    initialScroll: "bottom",
   },
   {
     name: 'newPost',
@@ -590,7 +571,7 @@ onStartup(() => {
   );
 });
 
-const forumSpecificRoutes = forumSelect<Route[]>({
+const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
   EAForum: [
     {
       name: 'home',
@@ -640,6 +621,61 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/bestOf',
       componentName: 'EABestOfPage',
       redirect: () => '/best-of',
+    },
+    {
+      name: 'GivingPortal',
+      path: '/giving-portal',
+      componentName: 'EAGivingPortalPage',
+      title: 'Giving portal',
+      subtitle: 'Giving portal',
+      subtitleLink: '/giving-portal',
+      unspacedGrid: true,
+      fullscreen: true,
+    },
+    {
+      name: 'VotingPortal',
+      path: '/voting-portal',
+      componentName: 'EAVotingPortalPage',
+      title: 'Voting portal',
+      subtitle: 'Voting portal',
+      unspacedGrid: true,
+      fullscreen: true,
+    },
+    {
+      name: 'VotingPortalSelectCandidates',
+      path: '/voting-portal/select-candidates',
+      componentName: 'EAVotingPortalSelectCandidatesPage',
+      title: 'Voting portal',
+      subtitle: 'Voting portal',
+      unspacedGrid: true,
+      fullscreen: true,
+    },
+    {
+      name: 'VotingPortalCompare',
+      path: '/voting-portal/compare',
+      componentName: 'EAVotingPortalComparePage',
+      title: 'Voting portal',
+      subtitle: 'Voting portal',
+      unspacedGrid: true,
+      fullscreen: true,
+    },
+    {
+      name: 'VotingPortalAllocateVotes',
+      path: '/voting-portal/allocate-points',
+      componentName: 'EAVotingPortalAllocateVotesPage',
+      title: 'Voting portal',
+      subtitle: 'Voting portal',
+      unspacedGrid: true,
+      fullscreen: true,
+    },
+    {
+      name: 'VotingPortalSubmit',
+      path: '/voting-portal/submit',
+      componentName: 'EAVotingPortalSubmitPage',
+      title: 'Voting portal',
+      subtitle: 'Voting portal',
+      unspacedGrid: true,
+      fullscreen: true,
     },
     {
       name: 'contact',
@@ -767,6 +803,24 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       title: 'Digests',
     },
     {
+      name: 'ElectionCandidates',
+      path: '/admin/election-candidates',
+      componentName: 'AdminElectionCandidates',
+      title: 'Election Candidates',
+    },
+    {
+      name: 'EditElectionCandidate',
+      path: '/admin/election-candidates/:id',
+      componentName: 'EditElectionCandidate',
+      title: 'Edit Election Candidate',
+    },
+    {
+      name: 'ElectionVotes',
+      path: '/admin/election-votes',
+      componentName: 'AdminElectionVotes',
+      title: 'Election Votes',
+    },
+    {
       name: 'EditDigest',
       path: '/admin/digests/:num',
       componentName: 'EditDigest',
@@ -812,6 +866,12 @@ const forumSpecificRoutes = forumSelect<Route[]>({
       path: '/dialogues',
       componentName: 'DialoguesPage',
       title: "All Dialogues",
+    },
+    {
+      name:'users.dialogueMatching',
+      path:'/dialogueMatching',
+      componentName: 'DialogueMatchingPage',
+      title: "Dialogue Matching",
     },
     {
       name: 'about',
@@ -1201,7 +1261,7 @@ const forumSpecificRoutes = forumSelect<Route[]>({
   ],
 })
 
-addRoute(...forumSpecificRoutes)
+addRoute(...eaLwAfForumSpecificRoutes)
 
 addRoute({
   name: 'AllComments',
@@ -1211,6 +1271,7 @@ addRoute({
   title: "All Comments"
 });
 
+// Routes where just the EA Forum has an override
 addRoute(...forumSelect<Route[]>({
   EAForum: [
     {
@@ -1225,6 +1286,36 @@ addRoute(...forumSelect<Route[]>({
       path: '/shortform',
       redirect: () => "/quicktakes",
     },
+    // The inbox components here use the same components but some of the other
+    // parameters are different.
+    {
+      name: 'inbox',
+      path: '/inbox',
+      componentName: 'InboxWrapper',
+      title: "Inbox",
+      fullscreen: true,
+    },
+    {
+      name: 'conversation',
+      path: '/inbox/:_id',
+      componentName: 'InboxWrapper',
+      title: "Inbox",
+      fullscreen: true,
+    },
+    {
+      name: 'moderatorInbox',
+      path: '/moderatorInbox',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox",
+      fullscreen: true,
+    },
+    {
+      name: 'moderatorInboxConversation',
+      path: '/moderatorInbox/:_id',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox",
+      fullscreen: true,
+    },
   ],
   default: [
     {
@@ -1232,6 +1323,25 @@ addRoute(...forumSelect<Route[]>({
       path: '/shortform',
       componentName: 'ShortformPage',
       title: "Shortform"
+    },
+    {
+      name: 'inbox',
+      path: '/inbox',
+      componentName: 'InboxWrapper',
+      title: "Inbox"
+    },
+    {
+      name: 'conversation',
+      path: '/inbox/:_id',
+      componentName: 'ConversationWrapper',
+      title: "Private Conversation",
+      background: "white",
+    },
+    {
+      name: 'moderatorInbox',
+      path: '/moderatorInbox',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox"
     },
   ],
 }));
@@ -1336,7 +1446,7 @@ addRoute(
     previewComponentName: 'PostLinkPreview',
     getPingback: async (parsedUrl) => await getPostPingbackById(parsedUrl, parsedUrl.params._id),
     background: postBackground,
-    noFooter: isEAForum,
+    noFooter: hasPostRecommendations,
   },
   {
     name:'posts.slug.single',
@@ -1346,7 +1456,7 @@ addRoute(
     previewComponentName: 'PostLinkPreviewSlug',
     getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
     background: postBackground,
-    noFooter: isEAForum,
+    noFooter: hasPostRecommendations,
   },
   {
     name: 'posts.revisioncompare',
@@ -1538,3 +1648,5 @@ addRoute(
     title: "Review Admin Dashboard",
   }
 );
+
+forumSpecificRoutes();

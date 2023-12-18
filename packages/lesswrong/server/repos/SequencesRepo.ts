@@ -3,13 +3,14 @@ import Sequences from "../../lib/collections/sequences/collection";
 import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector } from "./helpers";
 
-export default class SequencesRepo extends AbstractRepo<DbSequence> {
+export default class SequencesRepo extends AbstractRepo<"Sequences"> {
   constructor() {
     super(Sequences);
   }
 
   private getSearchDocumentQuery(): string {
     return `
+      -- SequencesRepo.getSearchDocumentQuery
       SELECT
         s."_id",
         s."_id" AS "objectID",
@@ -32,15 +33,17 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaSequence> {
+  getSearchDocumentById(id: string): Promise<SearchSequence> {
     return this.getRawDb().one(`
+      -- SequencesRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
       WHERE s."_id" = $1
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaSequence[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchSequence[]> {
     return this.getRawDb().any(`
+      -- SequencesRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
       ORDER BY s."createdAt" DESC
       LIMIT $1
@@ -58,6 +61,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
    */
   async postsCount(sequenceIds: string[]): Promise<number[]> {
     const query = `
+      -- SequencesRepo.postsCount
       SELECT
         s._id as _id,
         count(*) as total_count
@@ -86,6 +90,7 @@ export default class SequencesRepo extends AbstractRepo<DbSequence> {
     const userIds = params.map(p => p.userId);
   
     const query = `
+      -- SequencesRepo.readPostsCount
       SELECT
         s._id || '-' || rs."userId" as composite_id,
         count(*) AS read_count

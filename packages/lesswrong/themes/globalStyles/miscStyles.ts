@@ -1,6 +1,5 @@
 
 export default (theme: ThemeType): string => `
-
 /*
  * TODO: These classes are used by 248 posts in the database that were authored
  * while LW2 was using ory-editor, which we have since migrated away from.
@@ -254,19 +253,5 @@ div#mocha {
   top: 0;
   width: 20px;
   z-index: 10000000;
-}
-
-/*
- * Maximum width for LaTeX blocks, to prevent causing horizontal scroll or
- * otherwise breaking the layout. We don't do this for inline styles, because
- * it messes up vertical alignment.
- */
-.mjx-chtml.MJXc-display {
-  overflow-x: auto;
-  overflow-y: hidden;
-
-  /* !important because the MathJax stylesheet (which gets embedded into posts)
-     has an ill-advised max-width:none in it. */
-  max-width: 100% !important;
 }
 `

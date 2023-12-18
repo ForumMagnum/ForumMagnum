@@ -6,7 +6,7 @@ import { mongoFindOne } from '../../mongoQueries';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from '../../editor/make_editable';
-import { isEAForum } from '../../instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const commentMutationOptions: MutationOptions<DbComment> = {
   newCheck: async (user: DbUser|null, document: DbComment|null) => {
@@ -39,15 +39,9 @@ export const commentMutationOptions: MutationOptions<DbComment> = {
   },
 }
 
-interface ExtendedCommentsCollection extends CommentsCollection {
-  // Functions in server/search/utils.ts
-  toAlgolia: (comment: DbComment) => Promise<Array<AlgoliaDocument>|null>
-}
-
-export const Comments: ExtendedCommentsCollection = createCollection({
+export const Comments = createCollection({
   collectionName: 'Comments',
   typeName: 'Comment',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Comments'),
   mutations: getDefaultMutations('Comments', commentMutationOptions),
@@ -72,7 +66,7 @@ makeEditable({
       if (comment.parentCommentId) { return {id: ('parent:' + comment.parentCommentId), verify: false}}
       return {id: ('post:' + comment.postId), verify: false}
     },
-    hintText: isEAForum ? 'Write a new comment...' : undefined,
+    hintText: isFriendlyUI ? 'Write a new comment...' : undefined,
     order: 25,
     pingbacks: true,
   }

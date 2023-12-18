@@ -56,7 +56,7 @@ interface ComponentsTableEntry {
 
 const componentsProxyHandler = {
   get: function(obj: {}, prop: string) {
-    if (prop == "__isProxy") {
+    if (prop === "__isProxy") {
       return true;
     } else if (prop in PreparedComponents) {
       return PreparedComponents[prop];

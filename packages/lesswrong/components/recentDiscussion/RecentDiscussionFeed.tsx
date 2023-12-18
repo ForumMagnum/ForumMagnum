@@ -2,27 +2,29 @@ import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { isEAForum } from '../../lib/instanceSettings';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import AddBoxIcon from '@material-ui/icons/AddBox'
+import { isLWorAF } from '../../lib/instanceSettings';
 
 const recentDisucssionFeedComponents = forumSelect({
-  EAForum: {
-    ThreadComponent: Components.EARecentDiscussionThread,
-    ShortformComponent: Components.EARecentDiscussionQuickTake,
-    TagCommentedComponent: Components.EARecentDiscussionTagCommented,
-    TagRevisionComponent: Components.EARecentDiscussionTagRevision,
-    SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
-    MeetupsPokeComponent: () => null,
-  },
-  default: {
+  LWAF: {
     ThreadComponent: Components.RecentDiscussionThread,
     ShortformComponent: Components.RecentDiscussionThread,
     TagCommentedComponent: Components.RecentDiscussionTag,
     TagRevisionComponent: Components.RecentDiscussionTagRevisionItem,
+    ElectionVoteComponent: () => null,
     SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
     MeetupsPokeComponent: Components.RecentDiscussionMeetupsPoke,
+  },
+  default: {
+    ThreadComponent: Components.EARecentDiscussionThread,
+    ShortformComponent: Components.EARecentDiscussionQuickTake,
+    TagCommentedComponent: Components.EARecentDiscussionTagCommented,
+    TagRevisionComponent: Components.EARecentDiscussionTagRevision,
+    ElectionVoteComponent: Components.EARecentDiscussionElectionVote,
+    SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
+    MeetupsPokeComponent: () => null,
   },
 });
 
@@ -44,7 +46,7 @@ const RecentDiscussionFeed = ({
 
   useGlobalKeydown(event => {
     const F_Key = 70
-    if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
+    if ((event.metaKey || event.ctrlKey) && event.keyCode === F_Key) {
       setExpandAllThreads(true);
     }
   });
@@ -75,11 +77,12 @@ const RecentDiscussionFeed = ({
     ShortformComponent,
     TagCommentedComponent,
     TagRevisionComponent,
+    ElectionVoteComponent,
     SubscribeReminderComponent,
     MeetupsPokeComponent,
   } = recentDisucssionFeedComponents;
 
-  const showShortformButton = !isEAForum && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
+  const showShortformButton = isLWorAF && currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled
   return (
     <AnalyticsContext pageSectionContext="recentDiscussion">
       <AnalyticsInViewTracker eventProps={{inViewType: "recentDiscussion"}}>
@@ -145,8 +148,8 @@ const RecentDiscussionFeed = ({
                 )
               },
               tagRevised: {
-                fragmentName: "RevisionTagFragment",
-                render: (revision: RevisionTagFragment) => <div>
+                fragmentName: "RecentDiscussionRevisionTagFragment",
+                render: (revision: RecentDiscussionRevisionTagFragment) => <div>
                   {revision.tag && <TagRevisionComponent
                     tag={revision.tag}
                     revision={revision}
@@ -154,6 +157,12 @@ const RecentDiscussionFeed = ({
                     documentId={revision.documentId}
                   />}
                 </div>,
+              },
+              electionVoted: {
+                fragmentName: "ElectionVoteRecentDiscussion",
+                render: (electionVote: ElectionVoteRecentDiscussion) => (
+                  <ElectionVoteComponent electionVote={electionVote} />
+                ),
               },
               subscribeReminder: {
                 fragmentName: null,

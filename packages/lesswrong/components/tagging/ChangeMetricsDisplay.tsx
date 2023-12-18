@@ -27,9 +27,9 @@ const ChangeMetricsDisplay = ({changeMetrics, showCharacters, className, classes
   return <span className={classNames(classes.root, className)}>
     {(added>0 && removed>0)
       && <>(<span className={classes.charsAdded}>+{added}</span>/<span className={classes.charsRemoved}>-{removed}</span>{characters})</>}
-    {(added>0 && removed==0)
+    {(added>0 && removed===0)
       && <span className={classes.charsAdded}>(+{added}{characters})</span>}
-    {(added==0 && removed>0)
+    {(added===0 && removed>0)
       && <span className={classes.charsRemoved}>(-{removed}{characters})</span>}
   </span>
 }

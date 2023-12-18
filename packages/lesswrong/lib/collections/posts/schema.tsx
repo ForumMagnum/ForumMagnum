@@ -1,7 +1,6 @@
 import { Utils, slugify, getDomain, getOutgoingUrl } from '../../vulcan-lib/utils';
 import moment from 'moment';
-import { arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue, arrayOfForeignKeysField, foreignKeyField, googleLocationToMongoLocation, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, accessFilterMultiple, accessFilterSingle } from '../../utils/schemaUtils'
 import { PostRelations } from "../postRelations/collection"
 import { postCanEditHideCommentKarma, postGetPageUrl, postGetEmailShareUrl, postGetTwitterShareUrl, postGetFacebookShareUrl, postGetDefaultStatus, getSocialPreviewImage, postCategories, postDefaultCategory } from './helpers';
 import { postStatuses, postStatusLabels } from './constants';
@@ -13,24 +12,19 @@ import SimpleSchema from 'simpl-schema'
 import { DEFAULT_QUALITATIVE_VOTE } from '../reviewVotes/schema';
 import { getCollaborativeEditorAccess } from './collabEditingPermissions';
 import { getVotingSystems } from '../../voting/votingSystems';
-import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting, isLW } from '../../instanceSettings';
+import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, forumTypeSetting, isEAForum, isLWorAF } from '../../instanceSettings';
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
 import { localGroupTypeFormOptions } from '../localgroups/groupTypes';
-import { documentIsNotDeleted, userOverNKarmaOrApproved, userOwns, userOwnsAndOnLW } from '../../vulcan-users/permissions';
+import { documentIsNotDeleted, userOverNKarmaOrApproved, userOwns } from '../../vulcan-users/permissions';
 import { userCanCommentLock, userCanModeratePost } from '../users/helpers';
 import { sequenceGetNextPostID, sequenceGetPrevPostID, sequenceContainsPost, getPrevPostIdFromPrevSequence, getNextPostIdFromNextSequence } from '../sequences/helpers';
 import { userOverNKarmaFunc } from "../../vulcan-users";
 import { allOf } from '../../utils/functionUtils';
 import { crosspostKarmaThreshold } from '../../publicSettings';
-import { userHasSideComments } from '../../betas';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
-
-const isEAForum = (forumTypeSetting.get() === 'EAForum')
-
-
 
 const urlHintText = isEAForum
     ? 'UrlHintText'
@@ -161,11 +155,12 @@ const schemaDefaultValueFmCrosspost = schemaDefaultValue({
   isCrosspost: false,
 })
 
-const schema: SchemaType<DbPost> = {
+const schema: SchemaType<"Posts"> = {
   // Timestamp of post first appearing on the site (i.e. being approved)
   postedAt: {
     type: Date,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -233,6 +228,7 @@ const schema: SchemaType<DbPost> = {
   title: {
     type: String,
     optional: false,
+    nullable: false,
     max: 500,
     canRead: ['guests'],
     canCreate: ['members'],
@@ -246,6 +242,7 @@ const schema: SchemaType<DbPost> = {
   slug: {
     type: String,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     onInsert: async (post) => {
       return await Utils.getUnusedSlugByCollectionName("Posts", slugify(post.title))
@@ -260,8 +257,9 @@ const schema: SchemaType<DbPost> = {
   viewCount: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['admins'],
-    defaultValue: 0
+    ...schemaDefaultValue(0),
   },
   // Timestamp of the last comment
   lastCommentedAt: {
@@ -276,8 +274,9 @@ const schema: SchemaType<DbPost> = {
   clickCount: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['admins'],
-    defaultValue: 0
+    ...schemaDefaultValue(0),
   },
 
   deletedDraft: {
@@ -299,6 +298,7 @@ const schema: SchemaType<DbPost> = {
   status: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins', 'sunshineRegiment'],
@@ -321,6 +321,7 @@ const schema: SchemaType<DbPost> = {
   isFuture: {
     type: Boolean,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     onInsert: (post) => {
       // Set the post's isFuture to true if necessary
@@ -425,6 +426,7 @@ const schema: SchemaType<DbPost> = {
       nullable: true
     }),
     optional: true,
+    nullable: false,
     control: 'text',
     canRead: [documentIsNotDeleted],
     canUpdate: ['admins'],
@@ -625,39 +627,10 @@ const schema: SchemaType<DbPost> = {
     graphQLtype: '[PostRelation!]!',
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-      const { Posts, currentUser, repos } = context;
-      let postRelations: DbPostRelation[] = [];
-      if (Posts.isPostgres()) {
-        postRelations = await repos.postRelations.getPostRelationsByPostId(post._id);
-      } else {
-        postRelations = await Posts.aggregate([
-          { $match: { _id: post._id }},
-          { $graphLookup: {
-            from: "postrelations",
-            as: "relatedQuestions",
-            startWith: post._id,
-            connectFromField: "targetPostId",
-            connectToField: "sourcePostId",
-            maxDepth: 3
-          }
-          },
-          {
-            $project: {
-              relatedQuestions: 1
-            }
-          },
-          {
-            $unwind: "$relatedQuestions"
-          },
-          {
-            $replaceRoot: {
-              newRoot: "$relatedQuestions"
-            }
-          }
-        ]).toArray()
-      }
-     if (!postRelations || postRelations.length < 1) return []
-     return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
+      const {currentUser, repos} = context;
+      const postRelations = await repos.postRelations.getPostRelationsByPostId(post._id);
+      if (!postRelations || postRelations.length < 1) return []
+      return await accessFilterMultiple(currentUser, PostRelations, postRelations, context);
     }
   }),
   'targetPostRelations.$': {
@@ -750,7 +723,6 @@ const schema: SchemaType<DbPost> = {
   reviewVoteCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
     ...denormalizedCountOfReferences({
       fieldName: "reviewVoteCount",
       collectionName: "Posts",
@@ -764,7 +736,6 @@ const schema: SchemaType<DbPost> = {
   positiveReviewVoteCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
     ...denormalizedCountOfReferences({
       fieldName: "positiveReviewVoteCount",
       collectionName: "Posts",
@@ -780,13 +751,13 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreAF: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   reviewVotesAF: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'reviewVotesAF.$': {
@@ -797,14 +768,14 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   // A list of each individual user's calculated quadratic vote, for users with >1000 karma
   reviewVotesHighKarma: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'reviewVotesHighKarma.$': {
@@ -815,14 +786,14 @@ const schema: SchemaType<DbPost> = {
   reviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   // A list of each individual user's calculated quadratic vote, for all users
   reviewVotesAllKarma: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'reviewVotesAllKarma.$': {
@@ -834,13 +805,13 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreHighKarma: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   finalReviewVotesHighKarma: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'finalReviewVotesHighKarma.$': {
@@ -851,13 +822,13 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreAllKarma: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   finalReviewVotesAllKarma: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'finalReviewVotesAllKarma.$': {
@@ -868,13 +839,13 @@ const schema: SchemaType<DbPost> = {
   finalReviewVoteScoreAF: {
     type: Number, 
     optional: true,
-    defaultValue: 0,
+    ...schemaDefaultValue(0),
     canRead: ['guests']
   },
   finalReviewVotesAF: {
     type: Array,
     optional: true,
-    defaultValue: [],
+    ...schemaDefaultValue([]),
     canRead: ['guests']
   },
   'finalReviewVotesAF.$': {
@@ -938,7 +909,8 @@ const schema: SchemaType<DbPost> = {
     blackbox: true,
     group: formGroups.tags,
     control: "FormComponentPostEditorTagging",
-    hidden: (props) => props.eventForm,
+    hidden: ({eventForm, document}) => eventForm ||
+      (isLWorAF && !!document.collabEditorDialogue),
   },
   "tagRelevance.$": {
     type: Number,
@@ -981,7 +953,7 @@ const schema: SchemaType<DbPost> = {
 
   // Tell search engines not to index this post. Useful for old posts that were
   // from a time with different quality standards. Posts will still be findable
-  // in algolia. See PostsPage and HeadTags for their use of this field and the
+  // in elastic. See PostsPage and HeadTags for their use of this field and the
   // noIndexLowKarma migration for the setting of it.
   noIndex: {
     type: Boolean,
@@ -1069,7 +1041,7 @@ const schema: SchemaType<DbPost> = {
     type: "ReviewVote",
     graphQLtype: "ReviewVote",
     canRead: ['members'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbReviewVote|null> => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbReviewVote>|null> => {
       const { ReviewVotes, currentUser } = context;
       if (!currentUser) return null;
       const votes = await getWithLoader(context, ReviewVotes,
@@ -1144,8 +1116,9 @@ const schema: SchemaType<DbPost> = {
   forceAllowType3Audio: {
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: false,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
@@ -1157,8 +1130,9 @@ const schema: SchemaType<DbPost> = {
   legacy: {
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: false,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['admins'],
     canCreate: ['admins'],
@@ -1182,7 +1156,7 @@ const schema: SchemaType<DbPost> = {
   legacySpam: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     hidden: true,
     canRead: ['guests'],
     canUpdate: ['admins'],
@@ -1270,7 +1244,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['sunshineRegiment', 'admins', 'canSuggestCuration'],
     optional: true,
     label: "Suggested for Curated by",
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: formGroups.adminOptions,
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
@@ -1280,6 +1254,7 @@ const schema: SchemaType<DbPost> = {
         // Ran into weird issue trying to get this to be a proper "users"
         // resolve field. Wasn't sure it actually needed to be anyway,
         // did a hacky thing.
+        if (!post.suggestForCuratedUserIds) return null;
         const users = await Promise.all(_.map(post.suggestForCuratedUserIds,
           async userId => {
             const user = await context.loaders.Users.load(userId)
@@ -1444,6 +1419,7 @@ const schema: SchemaType<DbPost> = {
     control: "SocialPreviewUpload",
     group: formGroups.socialPreview,
     order: 4,
+    hidden: ({document}) => (isLWorAF && !!document.collabEditorDialogue) || (isEAForum && document.isEvent),
   },
 
   fmCrosspost: {
@@ -1453,7 +1429,6 @@ const schema: SchemaType<DbPost> = {
       foreignPostId: { type: String, optional: true, nullable: true },
     }),
     optional: true,
-    nullable: true,
     canRead: [documentIsNotDeleted],
     canUpdate: [allOf(userOwns, userPassesCrosspostingKarmaThreshold), 'admins'],
     canCreate: [userPassesCrosspostingKarmaThreshold, 'admins'],
@@ -1523,7 +1498,7 @@ const schema: SchemaType<DbPost> = {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbCollection|null> => {
+      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbCollection>|null> => {
         if (!post.canonicalCollectionSlug) return null;
         const collection = await context.Collections.findOne({slug: post.canonicalCollectionSlug})
         return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
@@ -1830,9 +1805,10 @@ const schema: SchemaType<DbPost> = {
   maxBaseScore: {
     type: Number,
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     hidden: true,
-    onInsert: (document) => document.baseScore || 0,
+    onInsert: (document) => document.baseScore ?? 0,
   },
   // The timestamp when the post's maxBaseScore first exceeded 2
   scoreExceeded2Date: {
@@ -1891,7 +1867,7 @@ const schema: SchemaType<DbPost> = {
     hidden: true,
     optional: true,
     // label: "Users banned from commenting on this post",
-    // control: "UsersListEditor",
+    // control: "FormUsersListEditor",
   },
   'bannedUserIds.$': {
     type: String,
@@ -1932,7 +1908,7 @@ const schema: SchemaType<DbPost> = {
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: formGroups.event,
   },
 
@@ -2229,7 +2205,7 @@ const schema: SchemaType<DbPost> = {
     canRead: ['guests'],
     canCreate: ['members'],
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
-    hidden: (props) => isEAForum || !props.eventForm,
+    hidden: (props) => !isLWorAF || !props.eventForm,
     control: 'MultiSelectButtons',
     label: "Group Type:",
     group: formGroups.event,
@@ -2415,6 +2391,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     canRead: ['guests'],
+    hidden: ({document}) => !!document.collabEditorDialogue,
     resolveAs: {
       type: 'Boolean',
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
@@ -2452,6 +2429,7 @@ const schema: SchemaType<DbPost> = {
     canCreate: ['members', 'sunshineRegiment', 'admins'],
     blackbox: true,
     order: 55,
+    hidden: ({document}) => !!document.collabEditorDialogue,
     form: {
       options: function () { // options for the select form control
         return [
@@ -2468,7 +2446,7 @@ const schema: SchemaType<DbPost> = {
     type: Boolean,
     optional: true,
     nullable: true,
-    hidden: isEAForum,
+    hidden: ({document}) => isEAForum || !!document.collabEditorDialogue,
     tooltip: "Allow rate-limited users to comment freely on this post",
     group: formGroups.moderationGroup,
     canRead: ["guests"],
@@ -2493,8 +2471,6 @@ const schema: SchemaType<DbPost> = {
   commentCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
-    
     ...denormalizedCountOfReferences({
       fieldName: "commentCount",
       collectionName: "Posts",
@@ -2509,8 +2485,6 @@ const schema: SchemaType<DbPost> = {
   topLevelCommentCount: {
     type: Number,
     optional: true,
-    defaultValue: 0,
-    
     ...denormalizedCountOfReferences({
       fieldName: "topLevelCommentCount",
       collectionName: "Posts",
@@ -2598,6 +2572,14 @@ const schema: SchemaType<DbPost> = {
   totalDialogueResponseCount: {
     type: Number,
     optional: true,
+    canRead: ['guests'],
+    // Implementation in postResolvers.ts
+  },
+
+  mostRecentPublishedDialogueResponseDate: {
+    type: Date,
+    optional: true,
+    nullable: true,
     canRead: ['guests'],
     // Implementation in postResolvers.ts
   },
@@ -2711,6 +2693,14 @@ const schema: SchemaType<DbPost> = {
     }
   }),
 
+  dialogueMessageContents: {
+    type: Object,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+    //implementation in postResolvers.ts
+  },
+
   /* subforum-related fields */
 
   // If this post is associated with a subforum, the _id of the tag
@@ -2814,7 +2804,7 @@ const schema: SchemaType<DbPost> = {
     optional: true,
     hidden: true,
     label: "Suggested for Alignment by",
-    control: "UsersListEditor",
+    control: "FormUsersListEditor",
     group: formGroups.adminOptions,
   },
   'suggestForAlignmentUserIds.$': {

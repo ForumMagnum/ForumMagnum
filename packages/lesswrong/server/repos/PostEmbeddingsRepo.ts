@@ -2,7 +2,7 @@ import AbstractRepo from "./AbstractRepo";
 import PostEmbeddings from "../../lib/collections/postEmbeddings/collection";
 import { randomId } from "../../lib/random";
 
-export default class PostEmbeddingsRepo extends AbstractRepo<DbPostEmbedding> {
+export default class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
   constructor() {
     super(PostEmbeddings);
   }
@@ -18,6 +18,7 @@ export default class PostEmbeddingsRepo extends AbstractRepo<DbPostEmbedding> {
     }
     const now = new Date();
     return this.none(`
+      -- PostEmbeddingsRepo.setPostEmbeddings
       INSERT INTO "PostEmbeddings" (
         "_id",
         "postId",

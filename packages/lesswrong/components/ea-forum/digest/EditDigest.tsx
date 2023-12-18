@@ -358,7 +358,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
 
 
   const { Loading, EditDigestHeader, ForumDropdown, ForumDropdownMultiselect, ForumIcon, LWTooltip,
-    EditDigestPublishBtn, EditDigestTableRow, Error404 } = Components
+    EditDigestActionButtons, EditDigestTableRow, Error404 } = Components
   
   // list of the most common tags in the overall posts list
   const tagCounts = useMemo(() => {
@@ -482,7 +482,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
               className={classes.copyDigestIcon}
               onClick={() => copyDigestToClipboard()} />
           </LWTooltip>
-          <EditDigestPublishBtn digest={digest} />
+          <EditDigestActionButtons digest={digest} />
         </div>
         
         <div className={classes.filters}>
@@ -494,13 +494,13 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
               options={emailDigestOptions}
               onSelect={handleUpdateEmailDigestFilter} />
           </div>
-          <div className={classes.filter}>
+          {/* <div className={classes.filter}>
             <label className={classes.filterLabel}>In on-site digest?</label>
             <ForumDropdownMultiselect
               values={onsiteDigestFilter}
               options={onsiteDigestOptions}
               onSelect={handleUpdateOnsiteDigestFilter} />
-          </div>
+          </div> */}
           <div className={classes.filter}>
             <label className={classes.filterLabel}>Filter by tag</label>
             <ForumDropdown value={tagFilter} options={tagOptions} onSelect={setTagFilter} />
@@ -518,7 +518,7 @@ const EditDigest = ({classes}:{classes: ClassesType}) => {
           <tr className={classes.headerRow}>
             <th className={classes.centeredColHeader}>
               Email?
-              <div className={classNames(classes.total, {[classes.totalHigh]: emailTotal > 10})}>
+              <div className={classNames(classes.total, {[classes.totalHigh]: emailTotal > 14})}>
                 {emailTotal}
               </div>
             </th>

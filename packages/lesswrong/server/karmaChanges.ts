@@ -3,7 +3,8 @@ import type { KarmaChangeSettingsType } from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
-import VotesRepo, { KarmaChangesArgs } from './repos/VotesRepo';
+import VotesRepo from './repos/VotesRepo';
+import { KarmaChangesArgs } from '../lib/collections/users/karmaChangesGraphQL';
 
 // Use html-to-text's compile() wrapper (baking in the default options) to make it faster when called repeatedly
 const htmlToTextDefault = compileHtmlToText();

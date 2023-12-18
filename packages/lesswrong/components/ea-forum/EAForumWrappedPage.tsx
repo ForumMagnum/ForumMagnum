@@ -112,7 +112,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 18,
     lineHeight: '24px',
     paddingBottom: 4,
-    borderBottom: `2px solid rgba(255, 168, 50, 0.6)`
+    borderBottom: theme.palette.border.wrappedSummary,
   },
   summaryData: {
   },
@@ -257,7 +257,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
     skip: !currentUser
   })
   
-  const { SingleColumnSection, Typography, HoverPreviewLink, PostsByVoteWrapper, WrappedLoginForm, LWTooltip, Loading } = Components
+  const { SingleColumnSection, Typography, HoverPreviewLink, PostsByVoteWrapper, LoginForm, LWTooltip, Loading } = Components
   
   // if there's no logged in user, prompt them to login
   if (!currentUser) {
@@ -268,7 +268,7 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
             ✨&nbsp;2022 EA&nbsp;Forum Wrapped&nbsp;✨
           </Typography>
           <div className={classes.loggedOutSection}>
-            <WrappedLoginForm />
+            <LoginForm />
           </div>
         </div>
       </SingleColumnSection>
@@ -391,7 +391,11 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                     <div>
                       {results.mostReadTopics.map((topic: AnyBecauseTodo) => {
                         return <div key={topic.slug} className={classes.summaryDataVal}>
-                          <span className={classes.link}><HoverPreviewLink href={`/topics/${topic.slug}`} innerHTML={topic.name}/></span>
+                          <span className={classes.link}>
+                            <HoverPreviewLink href={`/topics/${topic.slug}`}>
+                              {topic.name}
+                            </HoverPreviewLink>
+                          </span>
                           <span className={classes.count}>{topic.count} post{topic.count === 1 ? '' : 's'} read</span>
                         </div>
                       })}
@@ -418,12 +422,13 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                       <span className={classes.link}>
                         <HoverPreviewLink
                           href={`/posts/${results.topPost._id}/${results.topPost.slug}`}
-                          innerHTML={truncatise(results.topPost.title, {
+                        >
+                          {truncatise(results.topPost.title, {
                             TruncateLength: 50,
                             TruncateBy: 'characters',
                             Suffix: '...',
                           })}
-                        />
+                        </HoverPreviewLink>
                       </span>
                       <span className={classes.count}>
                         {results.postCount} post{results.postCount === 1 ? '' : 's'} total
@@ -441,12 +446,13 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                         <span className={classes.link}>
                           <HoverPreviewLink
                             href={`/posts/${results.topComment.postId}?commentId=${results.topComment._id}`}
-                            innerHTML={truncatise(results.topComment.contents.plaintextMainText, {
+                          >
+                            {truncatise(results.topComment.contents.plaintextMainText, {
                               TruncateLength: 50,
                               TruncateBy: 'characters',
                               Suffix: '...',
                             })}
-                          />
+                          </HoverPreviewLink>
                         </span>
                         <span className={classes.count}>
                           {results.commentCount} comment{results.commentCount === 1 ? '' : 's'} total
@@ -464,12 +470,13 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
                       <span className={classes.link}>
                         <HoverPreviewLink
                           href={`/posts/${results.topShortform.postId}?commentId=${results.topShortform._id}`}
-                          innerHTML={truncatise(results.topShortform.contents.plaintextMainText, {
+                        >
+                          {truncatise(results.topShortform.contents.plaintextMainText, {
                             TruncateLength: 50,
                             TruncateBy: 'characters',
                             Suffix: '...',
                           })}
-                        />
+                        </HoverPreviewLink>
                       </span>
                       <span className={classes.count}>
                         {results.shortformCount} shortform{results.shortformCount === 1 ? '' : 's'} total

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useContext } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
 import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
@@ -14,10 +14,14 @@ import { useCurrentUser } from '../common/withUser';
 import { useMessages } from '../common/withMessages';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import sortBy from 'lodash/sortBy'
+import uniqBy from 'lodash/uniqBy';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { gql, useMutation } from "@apollo/client";
 import type { Editor } from '@ckeditor/ckeditor5-core';
-import type { Node, RootElement, Writer, Element as CKElement, Selection } from '@ckeditor/ckeditor5-engine';
+import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
+import { EditorContext } from '../posts/PostsEditForm';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { useMulti } from '../../lib/crud/withMulti';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -44,25 +48,35 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
+const DIALOGUE_MESSAGE_INPUT_WRAPPER = 'dialogueMessageInputWrapper';
+const DIALOGUE_MESSAGE_INPUT = 'dialogueMessageInput';
+const DIALOGUE_MESSAGE = 'dialogueMessage';
 
-function areLastElementsAllInputs(lastChildren: Node[]) {
-  return lastChildren.every(child => {
-    return child.is('element', 'dialogueMessageInput');
-  });
+type ElementOfType<T extends string> = (RootElement | CKElement) & { name: T };
+type InputWrapper = ElementOfType<typeof DIALOGUE_MESSAGE_INPUT_WRAPPER>;
+type Input = ElementOfType<typeof DIALOGUE_MESSAGE_INPUT>;
+
+function isElementOfType<T extends string>(type: T) {
+  return function(node: Node | DocumentFragment | undefined): node is ElementOfType<T> {
+    return !!(node?.is('element', type));
+  }
 }
+
+const isInput = isElementOfType(DIALOGUE_MESSAGE_INPUT);
+const isInputWrapper = isElementOfType(DIALOGUE_MESSAGE_INPUT_WRAPPER);
 
 function areInputsInCorrectOrder(dialogueMessageInputs: Node[], sortedCoauthors: UsersMinimumInfo[]) {
   if (dialogueMessageInputs.length > sortedCoauthors.length) return true //handles case when postfixer doesn't have up to date list of coauthors, up-to-date post fixer for another user can fix the sorting
   return dialogueMessageInputs.every((input, idx) => {
-    const inputDisplayName = input.getAttribute('user-id');
-    return inputDisplayName === sortedCoauthors[idx]._id;
+    const inputUserId = input.getAttribute('user-id');
+    return inputUserId === sortedCoauthors[idx]._id;
   });
 }
 
-function createMissingInputs(authorsWithoutInputs: UsersMinimumInfo[], writer: Writer, root: RootElement) {
+function createMissingInputs(authorsWithoutInputs: UsersMinimumInfo[], writer: Writer, parent: InputWrapper) {
   authorsWithoutInputs.forEach(author => {
-    const newUserMessageInput = writer.createElement('dialogueMessageInput', { 'user-id': author._id, 'display-name': author.displayName });
-    writer.append(newUserMessageInput, root);
+    const newUserMessageInput = writer.createElement(DIALOGUE_MESSAGE_INPUT, { 'user-id': author._id, 'display-name': author.displayName });
+    writer.append(newUserMessageInput, parent);
   });
 }
 
@@ -94,31 +108,72 @@ function removeDuplicateInputs(dialogueMessageInputs: Node[], writer: Writer) {
   });
 }
 
-function getMaxUserOrder(dialogueElements: (RootElement | CKElement)[]) {
-  return Math.max(...dialogueElements.map(element => Number.parseInt(element.getAttribute('user-order') as string)))
+function removeDuplicateInputWrappers(dialogueMessageInputWrappers: Node[], writer: Writer) {
+  dialogueMessageInputWrappers.slice(-1).forEach(inputWrapper => {
+    writer.remove(inputWrapper);
+  });
 }
 
-function assignUserOrders(dialogueMessages: (RootElement | CKElement)[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
-  return dialogueMessages.map(message => {
-    const messageUserId = message.getAttribute('user-id');
-    const messageUserOrderAttribute = message.getAttribute('user-order');
-    const messageUserOrder = Number.parseInt((messageUserOrderAttribute ?? '0') as string);
-    let userOrder = sortedCoauthors.findIndex((author) => author._id === messageUserId) + 1;
+function getElementUserOrder(element: RootElement | CKElement) {
+  // Explicitly || rather than ?? to survive things like NaN
+  return Number.parseInt((element.getAttribute('user-order') || '0') as string);
+}
+
+function getMaxUserOrder(dialogueElements: (RootElement | CKElement)[]) {
+  return Math.max(...dialogueElements.map(element => getElementUserOrder(element)))
+}
+
+function assignUserOrders(messagesOrInputs: (RootElement | CKElement)[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
+  return messagesOrInputs.map(element => {
+    const elementUserId = element.getAttribute('user-id');
+    const elementUserOrder = getElementUserOrder(element);
+    let userOrder = sortedCoauthors.findIndex((author) => author._id === elementUserId) + 1;
 
     if (userOrder < 1) {
-      if (messageUserOrder) {
-        userOrder = messageUserOrder;
+      if (elementUserOrder) {
+        userOrder = elementUserOrder;
       } else {
-        userOrder = getMaxUserOrder(dialogueMessages) + 1;
+        userOrder = getMaxUserOrder(messagesOrInputs) + 1;
       }
     }
 
-    if (userOrder !== messageUserOrder) {
-      writer.setAttribute('user-order', userOrder, message);
+    if (userOrder !== elementUserOrder) {
+      writer.setAttribute('user-order', userOrder, element);
       return true;
     }
 
     return false;
+  }).some(e => e);
+}
+
+function assignUserIds(inputs: Input[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
+  return inputs.map((element) => {
+    const elementUserId = element.getAttribute('user-id');
+    if (elementUserId) return false;
+
+    // Explicitly coalesce on 0, which only happens if there is no user-order on the element
+    const elementUserOrder = getElementUserOrder(element) || (getMaxUserOrder(inputs) + 1);
+
+    // user-order is 1-indexed
+    const userId = sortedCoauthors[elementUserOrder - 1]._id
+    writer.setAttribute('user-id', userId, element);
+
+    return true;
+  }).some(e => e);
+}
+
+function assignDisplayNames(inputs: Input[], sortedCoauthors: UsersMinimumInfo[], writer: Writer) {
+  return inputs.map((input) => {
+    const inputUserId = input.getAttribute('user-id')
+    const inputDisplayName = input.getAttribute('display-name');
+    if (!inputUserId || inputDisplayName) return false;
+
+    const inputUser = sortedCoauthors.find((author) => author._id === inputUserId);
+    if (!inputUser) return false;
+
+    const displayName = inputUser.displayName;
+    writer.setAttribute('display-name', displayName, input);
+    return true;
   }).some(e => e);
 }
 
@@ -130,11 +185,46 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
   return (writer: Writer) => {
     const root = editor.model.document.getRoot()!;
     const children = Array.from(root.getChildren());
-    const dialogueMessageInputs = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessageInput"; } => child.is('element', 'dialogueMessageInput'));
-    const dialogueMessages = children.filter((child): child is (RootElement | CKElement) & { name: "dialogueMessage"; } => child.is('element', 'dialogueMessage'));
+    const dialogueMessages = children.filter(isElementOfType(DIALOGUE_MESSAGE));
+
+    const inputWrappers = children.filter(isElementOfType(DIALOGUE_MESSAGE_INPUT_WRAPPER));
+    
+    // We check that we have a wrapper div for the inputs
+    if (inputWrappers.length === 0) {
+      writer.appendElement(DIALOGUE_MESSAGE_INPUT_WRAPPER, root);
+      return true;
+    }
+
+    // We check that we don't have multiple input wrappers, somehow
+    if (inputWrappers.length > 1) {
+      removeDuplicateInputWrappers(inputWrappers, writer);
+      return true;
+    }
+
+    const lastChild = children.at(-1);
+    const inputWrapper = inputWrappers[0];
+
+    // We check that the input wrapper is the last child of the root
+    if (!isInputWrapper(lastChild)) {
+      writer.append(inputWrapper, root);
+      return true;
+    }
+
+    const inputWrapperChildren = Array.from(inputWrapper.getChildren());
+    const dialogueMessageInputs = [...children, ...inputWrapperChildren].filter(isElementOfType(DIALOGUE_MESSAGE_INPUT));
 
     const anyIncorrectInputUserOrders = assignUserOrders(dialogueMessageInputs, sortedCoauthors, writer);
     if (anyIncorrectInputUserOrders) {
+      return true;
+    }
+
+    const anyMissingInputUserIds = assignUserIds(dialogueMessageInputs, sortedCoauthors, writer);
+    if (anyMissingInputUserIds) {
+      return true;
+    }
+
+    const anyMissingDisplayNames = assignDisplayNames(dialogueMessageInputs, sortedCoauthors, writer);
+    if (anyMissingDisplayNames) {
       return true;
     }
 
@@ -151,37 +241,32 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
 
     // We check that we have an input element for every author
     const authorsWithoutInputs = getAuthorsWithoutInputs(sortedCoauthors, dialogueMessageInputs);
-    createMissingInputs(authorsWithoutInputs, writer, root);
+    createMissingInputs(authorsWithoutInputs, writer, inputWrapper);
     if (authorsWithoutInputs.length > 0) {
       return true;
     }
 
-    // We check that the inputs are in lexical order by author displayName
+    // We check that the inputs are in lexical order by author userId
     const incorrectOrder = !areInputsInCorrectOrder(dialogueMessageInputs, sortedCoauthors);
-
-    // We check that the inputs are the last elements of the document
-    const lastChildren = children.slice(-dialogueMessageInputs.length);
-    const lastElementsAreAllInputs = areLastElementsAllInputs(lastChildren);
-
-    if (incorrectOrder || !lastElementsAreAllInputs) {
-      const sortedInputs = sortBy(dialogueMessageInputs, (i) => Number.parseInt(i.getAttribute('user-order') as string))
+    if (incorrectOrder) {
+      const sortedInputs = sortBy(dialogueMessageInputs, (i) => getElementUserOrder(i))
       sortedInputs.forEach(sortedInput => {
-        writer.append(sortedInput, root);
+        writer.append(sortedInput, inputWrapper);
       });
       return true;
     }
 
     // We ensure that each dialogue input, if otherwise empty, has an empty paragraph
-    dialogueMessageInputs.forEach(input => {
+    for (const input of dialogueMessageInputs) {
       const inputIsEmpty = Array.from(input.getChildren()).length === 0;
       if (inputIsEmpty) {
         writer.appendElement('paragraph', input);
         return true;
       }
-    });
+    }
 
     // We don't actually want a leading paragraph that'll let users do whatever they want with no friction
-    const hasSpuriousLeadingParagraph = children.length === dialogueMessageInputs.length + 1
+    const hasSpuriousLeadingParagraph = children.length === 2
       && children[0].is('element', 'paragraph')
       && Array.from(children[0].getChildren()).length === 0;
 
@@ -198,14 +283,7 @@ const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null 
   if (!sidebarElement) return null
   const annotationsUIs = editor.plugins.get( 'AnnotationsUIs' );
   
-  if ( window.innerWidth < 1000 ) {
-    sidebarElement.classList.remove( 'narrow' );
-    sidebarElement.classList.add( 'hidden' );
-    
-    annotationsUIs.deactivateAll();
-    annotationsUIs.activate('inline');
-  }
-  else if ( window.innerWidth < 1400 ) {
+  if ( window.innerWidth < 1400 ) {
     sidebarElement.classList.remove( 'hidden' );
     sidebarElement.classList.add( 'narrow' );
     
@@ -217,6 +295,24 @@ const refreshDisplayMode = ( editor: any, sidebarElement: HTMLDivElement | null 
     
     annotationsUIs.deactivateAll();
     annotationsUIs.activate('wideSidebar');
+  }
+}
+
+function handleSubmitWithoutNewline(editor: Editor, currentUser: UsersCurrent | null, event: KeyboardEvent) {
+  const selectedBlocks = Array.from(editor.model.document.selection.getSelectedBlocks());
+  const ancestors = selectedBlocks.flatMap((block) => block.getAncestors({ includeSelf: true }));
+  const parentInputElement = ancestors.find(isInput);
+
+  if (parentInputElement) {
+    const owner = getBlockUserId(parentInputElement);
+    if (owner === currentUser?._id) {
+      // This looks a bit deprecated but it's the same way we handle it in `Form.tsx` for form submission
+      if ((event.ctrlKey || event.metaKey) && event.keyCode === 13 && parentInputElement) {
+        event.stopPropagation();
+        event.preventDefault();
+        editor.execute('submitDialogueMessage');
+      }
+    }
   }
 }
 
@@ -266,7 +362,7 @@ const CKPostEditor = ({
   const post = (document as PostsEdit);
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
   
-  const { EditorTopBar, DialogueEditorGuidelines } = Components;
+  const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
   const { PostEditor, PostEditorCollaboration } = getCkEditor();
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
@@ -279,26 +375,12 @@ const CKPostEditor = ({
   }
   const initialCollaborationMode = getInitialCollaborationMode()
   const [collaborationMode,setCollaborationMode] = useState<CollaborationMode>(initialCollaborationMode);
+  const collaborationModeRef = useRef(collaborationMode)
   const [connectedUsers,setConnectedUsers] = useState<ConnectedUserInfo[]>([]);
 
   // Get the linkSharingKey, if it exists
   const { query : { key } } = useSubscribedLocation();
   
-  const [sendNewDialogueMessageNotification] = useMutation(gql`
-    mutation sendNewDialogueMessageNotification($postId: String!) {
-      sendNewDialogueMessageNotification(postId: $postId)
-    }
-  `);
-  const dialogueParticipantNotificationCallback = async () => {
-    await sendNewDialogueMessageNotification({
-      variables: {
-        postId: post._id
-      }
-    });
-  }
-  
-  const dialogueConfiguration = { dialogueParticipantNotificationCallback }
-    
     // To make sure that the refs are populated we have to do two rendering passes
   const [layoutReady, setLayoutReady] = useState(false)
   useEffect(() => {
@@ -312,6 +394,41 @@ const CKPostEditor = ({
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
   const initData = typeof(data) === "string" ? data : ""
+
+  const [sendNewDialogueMessageNotification] = useMutation(gql`
+    mutation sendNewDialogueMessageNotification($postId: String!, $dialogueHtml: String!) {
+      sendNewDialogueMessageNotification(postId: $postId, dialogueHtml: $dialogueHtml)
+    }
+  `);
+
+  const dialogueParticipantNotificationCallback = async () => {
+  const editorContents =  editorRef?.current?.editor.getData()
+
+    await sendNewDialogueMessageNotification({
+      variables: {
+        postId: post._id,
+        dialogueHtml: editorContents
+      }
+    });
+  }
+  
+  const dialogueConfiguration = { dialogueParticipantNotificationCallback }
+
+  const {results: anyDialogue} = useMulti({
+    collectionName: "Posts",
+    terms: {
+      view: "hasEverDialogued",
+      userId,
+      limit: 2,
+    },
+    fragmentName: "PostsMinimumInfo",
+    fetchPolicy: "cache-and-network",
+    skip: !currentUser?._id,
+  })
+
+  const hasEverDialoguedBefore = !!anyDialogue && anyDialogue.length > 1;
+
+  const [_, setEditor] = useContext(EditorContext);
   
   const applyCollabModeToCkEditor = (editor: Editor, mode: CollaborationMode) => {
     const trackChanges = editor.commands.get('trackChanges')!;
@@ -325,6 +442,7 @@ const CKPostEditor = ({
         trackChanges.value = true;
         break;
       case "Editing":
+      case "Editing (override)":
         editor.isReadOnly = false;
         trackChanges.value = false;
         break;
@@ -336,16 +454,21 @@ const CKPostEditor = ({
       applyCollabModeToCkEditor(editor, mode);
     }
     setCollaborationMode(mode);
+    collaborationModeRef.current = mode;
   }
 
   return <div>
     {isBlockOwnershipMode && <>
-     <DialogueEditorGuidelines />
+     {!hasEverDialoguedBefore && <DialogueEditorGuidelines />}
      <style>
       {
       `.dialogue-message-input button {
         display: none;
       }
+
+      ${currentUser ? `.dialogue-message-input[user-id="${currentUser!._id}"] {
+        order: 1;
+      }` : ``}
       
       ${currentUser ? `.dialogue-message-input[user-id="${currentUser!._id}"] button {
         display: block;
@@ -384,12 +507,22 @@ const CKPostEditor = ({
           applyCollabModeToCkEditor(editor, collaborationMode);
           
           editor.keystrokes.set('CTRL+ALT+M', 'addCommentThread')
+
+          editorRef.current?.domContainer?.current?.addEventListener('keydown', (event: KeyboardEvent) => {
+            handleSubmitWithoutNewline(editor, currentUser, event);
+          }, { capture: true });
+          
+          // We need this context for Dialogues, which should always be collaborative.
+          setEditor(editor);
         }
 
         const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
         if (post.collabEditorDialogue) {
           const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
-          const coauthors = rawAuthors.filter(coauthor => userIds.includes(coauthor._id));
+          const coauthors = uniqBy(
+            rawAuthors.filter(coauthor => userIds.includes(coauthor._id)),
+            (user) => user._id,
+          );
           editor.model.document.registerPostFixer( createDialoguePostFixer(editor, coauthors) );
 
           // This is just to trigger the postFixer when the editor is initialized
@@ -434,10 +567,10 @@ const CKPostEditor = ({
               for (let block of blocks) {
                 const ancestors = block.getAncestors({ includeSelf: true });
                 const parentDialogueElement = ancestors.find((ancestor): ancestor is CKElement => {
-                  return ancestor.is('element', 'dialogueMessage') || ancestor.is('element', 'dialogueMessageInput');
+                  return ancestor.is('element', DIALOGUE_MESSAGE) || ancestor.is('element', DIALOGUE_MESSAGE_INPUT);
                 })
                 if (parentDialogueElement) {
-                  const owner = getBlockUserId(parentDialogueElement);  
+                  const owner = getBlockUserId(parentDialogueElement);
                   if (owner && userIds.includes(owner)) {
                     blockOwners.push(owner);
                   }
@@ -445,10 +578,12 @@ const CKPostEditor = ({
               }
             }
             
-            if (blockOwners.some(blockOwner => blockOwner !== currentUser?._id)) {
-              changeCollaborationMode("Commenting");
-            } else {
-              changeCollaborationMode("Editing");
+            if (collaborationModeRef.current !== "Editing (override)") {
+              if (blockOwners.some(blockOwner => blockOwner !== currentUser?._id)) {
+                changeCollaborationMode("Commenting");
+              } else {
+                changeCollaborationMode("Editing");
+              }
             }
 
             const acceptCommand = editor.commands.get('acceptSuggestion');
@@ -461,7 +596,7 @@ const CKPostEditor = ({
                   for (let suggestionId of suggestionIds) {
                     const suggestion = (trackChangesPlugin as any).getSuggestion(suggestionId);
                     const suggesterUserId = suggestion.author.id;
-                    if (!currentUser || (suggesterUserId === currentUser?._id)) {
+                    if ((!currentUser || (suggesterUserId === currentUser?._id)) && collaborationModeRef.current !== "Editing (override)") {
                       flash("You cannot accept your own changes");
                       command.stop();
                     }
@@ -484,7 +619,6 @@ const CKPostEditor = ({
           'mathDisplay',
           'mediaEmbed',
           'footnote',
-          'dialogueMessageInput'
         ]} : {}),
         autosave: {
           save (editor: any) {
@@ -513,6 +647,7 @@ const CKPostEditor = ({
         dialogues: dialogueConfiguration
       }}
     />}
+    {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
   </div>
 }
 

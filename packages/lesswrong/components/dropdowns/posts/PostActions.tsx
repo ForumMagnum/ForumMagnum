@@ -3,7 +3,9 @@ import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { userGetDisplayName } from '../../../lib/collections/users/helpers';
 import { useCurrentUser } from '../../common/withUser';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
+import { isDialogueParticipant } from '../../posts/PostsPage/PostsPage';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -11,7 +13,7 @@ export const AllowHidingFrontPagePostsContext = React.createContext<boolean>(fal
 
 const styles = (_theme: ThemeType): JssStyles => ({
   root: {
-    minWidth: isEAForum ? undefined : 300,
+    minWidth: isFriendlyUI ? undefined : 300,
     maxWidth: "calc(100vw - 100px)",
   },
 })
@@ -39,6 +41,9 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
   if (!post) return null;
   const postAuthor = post.user;
 
+  const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
+  const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
+
   // WARNING: Clickable items in this menu must be full-width, and
   // ideally should use the <DropdownItem> component. In particular,
   // do NOT wrap a <MenuItem> around something that has its own
@@ -53,7 +58,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
     <DropdownMenu className={classes.root} >
       <EditPostDropdownItem post={post} />
       <ResyncRssDropdownItem post={post} closeMenu={closeMenu} />
-      {!isEAForum && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
+      {isBookUI && <SharePostSubmenu post={post} closeMenu={closeMenu} />}
       <DuplicateEventDropdownItem post={post} />
       <PostAnalyticsDropdownItem post={post} />
       <NotifyMeDropdownItem
@@ -75,14 +80,14 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
         subscribeMessage={`Subscribe to posts by ${userGetDisplayName(postAuthor)}`}
         unsubscribeMessage={`Unsubscribe from posts by ${userGetDisplayName(postAuthor)}`}
       />
-      <NotifyMeDropdownItem
+      {showSubscribeToDialogueButton && <NotifyMeDropdownItem
         document={post}
         enabled={!!post.collabEditorDialogue}
         subscribeMessage="Subscribe to dialogue"
         unsubscribeMessage="Unsubscribe from dialogue"
         subscriptionType={subscriptionTypes.newPublishedDialogueMessages}
         tooltip="Notifies you when there is new activity in the dialogue"
-      />
+      />}
       <NotifyMeDropdownItem
         document={post}
         subscribeMessage="Subscribe to comments"
@@ -95,7 +100,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       {currentUser && <EditTagsDropdownItem post={post} closeMenu={closeMenu} />}
       <SummarizeDropdownItem post={post} closeMenu={closeMenu} />
       {currentUser && <MarkAsReadDropdownItem post={post} />}
-      <SuggestCuratedDropdownItem post={post} />
+      {hasCuratedPostsSetting.get() && <SuggestCuratedDropdownItem post={post} />}
       <MoveToDraftDropdownItem post={post} />
       <DeleteDraftDropdownItem post={post} />
       <MoveToFrontpageDropdownItem post={post} />

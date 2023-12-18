@@ -6,7 +6,6 @@ export const CronHistories: CronHistoriesCollection = createCollection({
   collectionName: 'CronHistories',
   dbCollectionName: 'cronHistory',
   typeName: 'CronHistory',
-  collectionType: 'pg',
   schema,
   logChanges: false,
 });

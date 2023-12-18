@@ -2,7 +2,7 @@ import type {
   MappingProperty,
   QueryDslQueryContainer,
 } from "@elastic/elasticsearch/lib/api/types";
-import { AlgoliaIndexCollectionName } from "../../../lib/search/algoliaUtil";
+import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 import { postStatuses } from "../../../lib/collections/posts/constants";
 
 export type Ranking = {
@@ -82,6 +82,10 @@ export type IndexConfig = {
    * `baseScore` if not defined.
    */
   karmaField?: string,
+  /**
+   * Field used for location based geo-sorting
+   */
+  locationField?: string,
 }
 
 /**
@@ -118,6 +122,10 @@ const shingleTextMapping: MappingProperty = {
   },
 };
 
+const geopointMapping: MappingProperty = {
+  type: "geo_point",
+};
+
 /**
  * Fields that should not be analyzed at all (ie; ids, slugs or enums) should
  * use a keyword mapping.
@@ -126,7 +134,7 @@ const keywordMapping: MappingProperty = {
   type: "keyword",
 };
 
-const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
+const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
   Comments: {
     fields: [
       "body",
@@ -257,7 +265,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
         scoring: {type: "date"},
       },
     ],
-    tiebreaker: "publicDateMs",
+    tiebreaker: "karma",
     filters: [
       {range: {karma: {gte: 0}}},
       {term: {deleted: false}},
@@ -277,6 +285,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       website: keywordMapping,
       profileImageId: keywordMapping,
       tags: keywordMapping,
+      _geoloc: geopointMapping,
     },
     privateFields: [
       "deleteContent",
@@ -284,6 +293,7 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
       "isAdmin",
     ],
     karmaField: "karma",
+    locationField: "_geoloc",
   },
   Sequences: {
     fields: [
@@ -350,8 +360,8 @@ const elasticSearchConfig: Record<AlgoliaIndexCollectionName, IndexConfig> = {
   },
 };
 
-const indexToCollectionName = (index: string): AlgoliaIndexCollectionName => {
-  const data: Record<string, AlgoliaIndexCollectionName> = {
+const indexToCollectionName = (index: string): SearchIndexCollectionName => {
+  const data: Record<string, SearchIndexCollectionName> = {
     comments: "Comments",
     posts: "Posts",
     users: "Users",
@@ -365,7 +375,7 @@ const indexToCollectionName = (index: string): AlgoliaIndexCollectionName => {
 }
 
 export const collectionNameToConfig = (
-  collectionName: AlgoliaIndexCollectionName,
+  collectionName: SearchIndexCollectionName,
 ): IndexConfig => {
   const config = elasticSearchConfig[collectionName];
   if (!config) {

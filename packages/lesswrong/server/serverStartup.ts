@@ -3,10 +3,9 @@ import './datadog/tracer';
 import { createSqlConnection } from './sqlConnection';
 import { getSqlClientOrThrow, replaceDbNameInPgConnectionString, setSqlClient } from '../lib/sql/sqlClient';
 import PgCollection, { DbTarget } from '../lib/sql/PgCollection';
-import SwitchingCollection from '../lib/SwitchingCollection';
 import { Collections } from '../lib/vulcan-lib/getCollection';
 import { runStartupFunctions, isAnyTest, isMigrations, CommandLineArguments } from '../lib/executionEnvironment';
-import { PublicInstanceSetting, forumTypeSetting, isEAForum } from "../lib/instanceSettings";
+import { PublicInstanceSetting } from "../lib/instanceSettings";
 import { refreshSettingsCaches } from './loadDatabaseSettings';
 import { getCommandLineArguments } from './commandLine';
 import { startWebserver } from './apolloServer';
@@ -19,7 +18,6 @@ import process from 'process';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import { basename, join } from 'path';
-import { ensureMongo2PgLockTableExists } from '../lib/mongo2PgLock';
 import { filterConsoleLogSpam, wrapConsoleLogFunctions } from '../lib/consoleFilters';
 import { ensurePostgresViewsExist } from './postgresView';
 import cluster from 'node:cluster';
@@ -67,7 +65,7 @@ const connectToPostgres = async (connectionString: string, target: DbTarget = "w
       const dbName = /.*\/(.*)/.exec(connectionString)?.[1];
       // eslint-disable-next-line no-console
       console.log(`Connecting to postgres (${dbName})`);
-      const sql = await createSqlConnection(connectionString, false, target);
+      const sql = await createSqlConnection(connectionString, false);
       setSqlClient(sql, target);
     }
   } catch(err) {
@@ -88,23 +86,13 @@ const initSettings = () => {
 }
 
 const initPostgres = async () => {
-  if (Collections.some(collection => collection instanceof PgCollection || collection instanceof SwitchingCollection)) {
-    await ensureMongo2PgLockTableExists(getSqlClientOrThrow());
-
+  if (Collections.some(collection => collection instanceof PgCollection)) {
     for (const collection of Collections) {
-      if (collection instanceof PgCollection || collection instanceof SwitchingCollection) {
+      if (collection instanceof PgCollection) {
         collection.buildPostgresTable();
       }
     }
   }
-
-  const polls: Promise<void>[] = [];
-  for (const collection of Collections) {
-    if (collection instanceof SwitchingCollection) {
-      polls.push(collection.startPolling());
-    }
-  }
-  await Promise.all(polls);
 
   // If we're migrating up, we might be migrating from the start on a fresh database, so skip the check
   // for whether postgres views exist

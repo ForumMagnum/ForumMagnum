@@ -64,6 +64,9 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
       commentStyle: {
         fontFamily: sansSerifStack,
+        '& b, & strong': {
+          fontWeight: 600
+        }
       },
       errorStyle: {
         color: palette.error.main,

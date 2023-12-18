@@ -34,6 +34,7 @@ export const deleteUserContent = async (
 
   const adminContext = createAdminContext();
   const adminTeamAccount = await getAdminTeamAccount();
+  if (!adminTeamAccount) throw new Error("Couldn't find admin team account");
 
   for (const userComment of userComments) {
     await updateMutator({
