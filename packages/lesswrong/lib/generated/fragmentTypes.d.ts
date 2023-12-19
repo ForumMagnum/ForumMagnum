@@ -272,6 +272,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly showMyDialogues: boolean,
   readonly showMatches: boolean,
   readonly showRecommendedPartners: boolean,
+  readonly hideActiveDialogueUsers: boolean,
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -808,6 +809,12 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly agentFoundationsId: string,
 }
 
+interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
+  readonly userId: string,
+  readonly documentId: string,
+  readonly lastUpdated: Date,
+}
+
 interface VotesDefaultFragment { // fragment on Votes
   readonly documentId: string,
   readonly collectionName: string,
@@ -925,12 +932,6 @@ interface NotificationsDefaultFragment { // fragment on Notifications
   readonly viewed: boolean,
   readonly emailed: boolean,
   readonly waitingForBatch: boolean,
-}
-
-interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
-  readonly userId: string,
-  readonly documentId: string,
-  readonly lastUpdated: Date,
 }
 
 interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
@@ -2856,6 +2857,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly showMyDialogues: boolean,
   readonly showMatches: boolean,
   readonly showRecommendedPartners: boolean,
+  readonly hideActiveDialogueUsers: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -3564,6 +3566,7 @@ interface FragmentTypes {
   BooksDefaultFragment: BooksDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
+  TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   LWEventsDefaultFragment: LWEventsDefaultFragment
   newEventFragment: newEventFragment
@@ -3576,7 +3579,6 @@ interface FragmentTypes {
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
   NotificationsDefaultFragment: NotificationsDefaultFragment
-  TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
   PostsBase: PostsBase
@@ -3792,6 +3794,7 @@ interface FragmentTypesByCollection {
   Books: "BooksDefaultFragment"|"BookPageFragment"|"BookEdit"
   Sequences: "SequencesDefaultFragment"|"SequencesPageTitleFragment"|"SequencesPageFragment"|"SequenceContinueReadingFragment"|"SequencesPageWithChaptersFragment"|"SequencesEdit"
   Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
+  TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
@@ -3799,7 +3802,6 @@ interface FragmentTypesByCollection {
   CronHistories: "CronHistoriesDefaultFragment"
   Messages: "MessagesDefaultFragment"|"messageListFragment"
   Notifications: "NotificationsDefaultFragment"|"NotificationsList"
-  TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
   Revisions: "RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"|"RevisionsDefaultFragment"
   RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
@@ -3846,6 +3848,7 @@ interface CollectionNamesByFragmentName {
   BooksDefaultFragment: "Books"
   SequencesDefaultFragment: "Sequences"
   PostsDefaultFragment: "Posts"
+  TypingIndicatorsDefaultFragment: "TypingIndicators"
   VotesDefaultFragment: "Votes"
   LWEventsDefaultFragment: "LWEvents"
   newEventFragment: "LWEvents"
@@ -3858,7 +3861,6 @@ interface CollectionNamesByFragmentName {
   CronHistoriesDefaultFragment: "CronHistories"
   MessagesDefaultFragment: "Messages"
   NotificationsDefaultFragment: "Notifications"
-  TypingIndicatorsDefaultFragment: "TypingIndicators"
   ModeratorActionsDefaultFragment: "ModeratorActions"
   PostsMinimumInfo: "Posts"
   PostsBase: "Posts"

@@ -225,10 +225,13 @@ async function checkForActiveDialoguePartners() {
     const coauthorUserIds = dialogue.coauthorStatuses.map((status: any) => status.userId);
     const allUserIds = [dialogue.userId, ...coauthorUserIds];
     for (let userId of allUserIds) {
+      const editedAt = dialogue?.mostRecentEditedAt;
       const data = {
         postId: dialogue._id,
         title: dialogue.title,
         userIds: dialogue.activeUserIds.filter((id => id !== userId)),
+        mostRecentEditedAt: editedAt,
+        anyoneRecentlyActive: editedAt ? new Date().getTime() - new Date(editedAt).getTime() <= 15 * 60 * 1000 : false // within the last 15 min
       }
       if (allUsersDialoguesData[userId]) {
         allUsersDialoguesData[userId].push(data);
