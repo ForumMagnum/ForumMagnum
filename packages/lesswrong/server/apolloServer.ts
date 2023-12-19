@@ -174,6 +174,7 @@ export function startWebserver() {
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
+  //perfMetricMiddleware needs to run after addAuthMiddlewares, so that it can access the user that passport puts on the request
   app.use('/graphql', perfMetricMiddleware);
   apolloServer.applyMiddleware({ app })
 

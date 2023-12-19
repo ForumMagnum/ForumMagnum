@@ -31,8 +31,7 @@ import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { maxRenderQueueSize, performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
-import { onStartup } from '../../../lib/executionEnvironment';
-import { isAnyTest } from '../../../lib/executionEnvironment';
+import { onStartup, isAnyTest } from '../../../lib/executionEnvironment';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 

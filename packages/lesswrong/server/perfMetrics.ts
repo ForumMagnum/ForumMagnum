@@ -80,7 +80,8 @@ export function perfMetricMiddleware(req: Request, res: Response, next: NextFunc
     op_name: req.originalUrl,
     client_path: req.headers['request-origin-path'] as string,
     ip: getForwardedWhitelist().getClientIP(req),
-    user_agent: req.headers["user-agent"]
+    user_agent: req.headers["user-agent"],
+    user_id: req.user?._id,
   });
 
   res.on('finish', () => {
