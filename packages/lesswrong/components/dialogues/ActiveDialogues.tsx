@@ -116,7 +116,7 @@ export const ActiveDialogues = ({classes}: {
       {activeDialoguesWithoutSelf.length > 0 && 
         <div className={classNames(classes.iconContainer, {
           [classes.collapsdedIconContainer]: !isExpanded,
-        })} onClick={() => toggleExpanded()}>
+        })} onClick={toggleExpanded}>
           {isExpanded ? 
             <VisibilityOff className={classes.visibilityIcon} /> : 
             <Visibility className={classes.visibilityIcon} />}
