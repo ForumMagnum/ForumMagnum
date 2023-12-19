@@ -345,11 +345,11 @@ const GivingSeasonBanner = ({classes}: {classes: ClassesType}) => {
             className={classes.description}
             component="div"
           >
-            Donate to the Election Fund and discuss where the donations
-            should go.{" "}
-            <Link to="/giving-portal" className={classes.givingSeasonLink}>
-              Learn more in the Giving portal.
-            </Link>
+            Get your <Link to="/giving-portal#opportunities" className={classes.givingSeasonLink}>
+              donations
+            </Link> in and discuss <Link to="/?tab=effective-giving" className={classes.givingSeasonLink}>
+              effective giving
+            </Link>.
           </Typography>}
         </div>
         {advertiseVoting ? (
