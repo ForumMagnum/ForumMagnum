@@ -521,7 +521,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           count(*) AS total_count
         FROM
           authored_posts
-          INNER JOIN "ReadStatuses" rs ON authored_posts."postId" = rs."postId"
+          INNER JOIN "ReadStatuses" rs ON authored_posts."postId" = rs."postId" AND rs."isRead" IS TRUE
         WHERE
           "lastUpdated" >= $1
           AND "lastUpdated" < $2
@@ -583,6 +583,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           WHERE
               rs."lastUpdated" >= $1
               AND rs."lastUpdated" < $2
+              AND rs."isRead" IS TRUE
       ),
       total_reads_by_tag AS (
           SELECT
