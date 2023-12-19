@@ -109,9 +109,6 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     
     if (performanceMetricLoggingEnabled.get()) {
-
-      console.log("do we have user??", user?._id)
-
       const perfMetric = openPerfMetric({
         op_type: "ssr",
         op_name: "skipCache",
