@@ -398,8 +398,8 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     window.location.href = '/voting-portal';
   }, [currentUser, flash, openDialog]);
 
-  const donationElectionPostsTerms = getListTerms({
-    tagId: donationElectionTagId,
+  const effectiveGivingPostsTerms = getListTerms({
+    tagId: effectiveGivingTagId,
     sortedBy: "magic",
     limit: 8,
   });
@@ -586,14 +586,14 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
               classes.mb80,
             )} id="posts">
               <div className={classNames(classes.h2, classes.primaryText)}>
-                Posts tagged &quot;Donation Election 2023&quot;
+                Posts tagged &quot;Effective Giving&quot;
               </div>
               <div className={classNames(
                 classes.postsList,
                 classes.primaryLoadMore,
               )}>
                 <PostsList2
-                  terms={donationElectionPostsTerms}
+                  terms={effectiveGivingPostsTerms}
                   loadMoreMessage="View more"
                 />
               </div>
