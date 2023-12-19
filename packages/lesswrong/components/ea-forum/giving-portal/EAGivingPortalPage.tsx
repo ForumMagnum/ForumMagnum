@@ -1,13 +1,14 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { Components, getSiteUrl, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle } from "../../../lib/crud/withSingle";
-import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
 import { formatStat } from "../../users/EAUserTooltipContent";
 import {
   useAmountRaised,
   useDonationOpportunities,
+  useShowTimeline,
   useSubmittedVoteCount,
 } from "./hooks";
 import {
@@ -376,6 +377,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const {flash} = useMessages();
   const {openDialog} = useDialog();
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
+  const showTimeline = useShowTimeline();
   // We only show the voting banner for users who are eligible -
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
   const showVotingBanner =
@@ -459,14 +461,18 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
           <div className={classNames(classes.text, classes.center)}>
             {pageDescription}
           </div>
-          <div className={classNames(
-            classes.h2,
-            classes.mt20,
-            classes.hideOnMobile,
-          )}>
-            Timeline
-          </div>
-          <Timeline {...timelineSpec} className={classes.hideOnMobile} handleVote={handleVote} />
+          {showTimeline &&
+            <>
+              <div className={classNames(
+                classes.h2,
+                classes.mt20,
+                classes.hideOnMobile,
+              )}>
+                Timeline
+              </div>
+              <Timeline {...timelineSpec} className={classes.hideOnMobile} handleVote={handleVote} />
+            </>
+          }
         </div>
         <div className={classes.sectionSplit}>
           <div className={classes.content} id="election">

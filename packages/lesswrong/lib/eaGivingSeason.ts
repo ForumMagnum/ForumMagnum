@@ -106,6 +106,8 @@ export const timelineSpec: TimelineSpec = {
   ],
 };
 
+export const showTimelineUntil = "2023-12-21";
+
 // These are charities/orgs that are *not* election candidates, but are listed at the bottom of the Giving Portal
 // in the "Other donation opportunities" section (after the election candidates).
 export const otherDonationOpportunities = [
