@@ -18,11 +18,11 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
   nullable: boolean,
 }) => {
   type DataType = ObjectsByCollectionName[CollectionName];
-  return async (doc: any, args: void, context: ResolverContext): Promise<DataType|null> => {
+  return async (doc: any, args: void, context: ResolverContext): Promise<Partial<DataType>|null> => {
     if (!doc[fieldName]) return null
 
     const { currentUser } = context
-    const collection = context[collectionName] as unknown as CollectionBase<DataType>
+    const collection = getCollection(collectionName);
 
     const loader = context.loaders[collectionName] as DataLoader<string,DataType>;
     const resolvedDoc: DataType|null = await loader.load(doc[fieldName])
@@ -48,12 +48,12 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
 }) => {
   type DbType = ObjectsByCollectionName[CollectionName];
   
-  return async (doc: any, args: void, context: ResolverContext): Promise<Array<DbType>> => {
+  return async (doc: any, args: void, context: ResolverContext): Promise<Partial<DbType>[]> => {
     if (!doc[fieldName]) return []
     const keys = doc[fieldName].map(getKey)
 
     const { currentUser } = context
-    const collection = context[collectionName] as unknown as CollectionBase<DbType>
+    const collection = getCollection(collectionName);
 
     const resolvedDocs: Array<DbType|null> = await loadByIds(context, collectionName, keys)
     return await accessFilterMultiple(currentUser, collection, resolvedDocs, context);
@@ -64,7 +64,12 @@ const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
 // If the user can't access the document, returns null. If the user can access the
 // document, return a copy of the document in which any fields the user can't access
 // have been removed. If document is null, returns null.
-export const accessFilterSingle = async <T extends DbObject>(currentUser: DbUser|null, collection: CollectionBase<T>, document: T|null, context: ResolverContext|null): Promise<T|null> => {
+export const accessFilterSingle = async <N extends CollectionNameString>(
+  currentUser: DbUser|null,
+  collection: CollectionBase<N>,
+  document: ObjectsByCollectionName[N]|null,
+  context: ResolverContext|null,
+): Promise<Partial<ObjectsByCollectionName[N]>|null> => {
   const { checkAccess } = collection
   if (!document) return null;
   if (checkAccess && !(await checkAccess(currentUser, document, context))) return null
@@ -77,15 +82,22 @@ export const accessFilterSingle = async <T extends DbObject>(currentUser: DbUser
 // list, and fields which the user can't access are removed from the documents inside
 // the list. If currentUser is null, applies permission checks for the logged-out
 // view.
-export const accessFilterMultiple = async <T extends DbObject>(currentUser: DbUser|null, collection: CollectionBase<T>, unfilteredDocs: Array<T|null>, context: ResolverContext|null): Promise<Array<T>> => {
+export const accessFilterMultiple = async <N extends CollectionNameString>(
+  currentUser: DbUser|null,
+  collection: CollectionBase<N>,
+  unfilteredDocs: Array<ObjectsByCollectionName[N]|null>,
+  context: ResolverContext|null,
+): Promise<Partial<ObjectsByCollectionName[N]>[]> => {
   const { checkAccess } = collection
   
   // Filter out nulls (docs that were referenced but didn't exist)
   // Explicit cast because the type-system doesn't detect that this is removing
   // nulls.
-  const existingDocs: Array<T> = _.filter(unfilteredDocs, d=>!!d) as Array<T>;
+  const existingDocs = _.filter(unfilteredDocs, d=>!!d) as ObjectsByCollectionName[N][];
   // Apply the collection's checkAccess function, if it has one, to filter out documents
-  const filteredDocs = checkAccess ? await asyncFilter(existingDocs, async (d: T) => await checkAccess(currentUser, d, context)) : existingDocs
+  const filteredDocs = checkAccess
+    ? await asyncFilter(existingDocs, async (d) => await checkAccess(currentUser, d, context))
+    : existingDocs
   // Apply field-level permissions
   const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collection, filteredDocs)
   
@@ -171,8 +183,8 @@ export const simplSchemaToGraphQLtype = (type: any): string|null => {
   else return null;
 }
 
-interface ResolverOnlyFieldArgs<T extends DbObject> extends CollectionFieldSpecification<T> {
-  resolver: (doc: T, args: any, context: ResolverContext) => any,
+interface ResolverOnlyFieldArgs<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
+  resolver: (doc: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
   graphQLtype?: string|GraphQLScalarType|null,
   graphqlArguments?: string|null,
 }
@@ -181,7 +193,13 @@ interface ResolverOnlyFieldArgs<T extends DbObject> extends CollectionFieldSpeci
  * This field is not stored in the database, but is filled in at query-time by
  * our GraphQL API using the supplied resolver function.
  */
-export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, resolver, graphqlArguments=null, ...rest}: ResolverOnlyFieldArgs<T>): CollectionFieldSpecification<T> => {
+export const resolverOnlyField = <N extends CollectionNameString>({
+  type,
+  graphQLtype=null,
+  resolver,
+  graphqlArguments=null,
+  ...rest
+}: ResolverOnlyFieldArgs<N>): CollectionFieldSpecification<N> => {
   const resolverType = graphQLtype || simplSchemaToGraphQLtype(type);
   if (!type || !resolverType)
     throw new Error("Could not determine resolver graphQL type");
@@ -200,9 +218,12 @@ export const resolverOnlyField = <T extends DbObject>({type, graphQLtype=null, r
 // Given a collection and a fieldName=>fieldSchema dictionary, add fields to
 // the collection schema. If any of the fields mentioned are already present,
 // throws an error.
-export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>, fieldsDict: Record<string,CollectionFieldSpecification<T>>): void => {
+export const addFieldsDict = <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  fieldsDict: Record<string, CollectionFieldSpecification<N>>,
+): void => {
   collection._simpleSchema = null;
-  
+
   for (let key in fieldsDict) {
     if (key in collection._schemaFields) {
       throw new Error("Field already exists: "+key);
@@ -217,9 +238,12 @@ export const addFieldsDict = <T extends DbObject>(collection: CollectionBase<T>,
 // of the fields named don't already exist, throws an error. This is used for
 // making parts of the schema (in particular, resolvers, onCreate callbacks,
 // etc) specific to server-side code.
-export const augmentFieldsDict = <T extends DbObject>(collection: CollectionBase<T>, fieldsDict: Record<string,CollectionFieldSpecification<T>>): void => {
+export const augmentFieldsDict = <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  fieldsDict: Record<string, CollectionFieldSpecification<N>>,
+): void => {
   collection._simpleSchema = null;
-  
+
   for (let key in fieldsDict) {
     if (key in collection._schemaFields) {
       collection._schemaFields[key] = {...collection._schemaFields[key], ...fieldsDict[key]};
@@ -258,10 +282,10 @@ SimpleSchema.extendOptions(['logChanges'])
 // the other fields on the document. (Doesn't work if it depends on the contents
 // of other collections, because it doesn't set up callbacks for changes in
 // those collections)
-export function denormalizedField<T extends DbObject>({ needsUpdate, getValue }: {
-  needsUpdate?: (doc: Partial<T>) => boolean,
-  getValue: (doc: T, context: ResolverContext) => any,
-}): CollectionFieldSpecification<T> {
+export function denormalizedField<N extends CollectionNameString>({ needsUpdate, getValue }: {
+  needsUpdate?: (doc: Partial<ObjectsByCollectionName[N]>) => boolean,
+  getValue: (doc: ObjectsByCollectionName[N], context: ResolverContext) => any,
+}): CollectionFieldSpecification<N> {
   return {
     onUpdate: async ({data, document, context}) => {
       if (!needsUpdate || needsUpdate(data)) {
@@ -285,17 +309,19 @@ export function denormalizedField<T extends DbObject>({ needsUpdate, getValue }:
 // collection whose value for a field is this object's ID. For example, count
 // the number of comments on a post, or the number of posts by a user, updating
 // when objects are created/deleted/updated.
-export function denormalizedCountOfReferences<SourceType extends DbObject, TargetCollectionName extends keyof ObjectsByCollectionName>({ collectionName, fieldName, foreignCollectionName, foreignTypeName, foreignFieldName, filterFn }: {
-  collectionName: CollectionNameString,
-  fieldName: string,
+export function denormalizedCountOfReferences<
+  SourceCollectionName extends CollectionNameString,
+  TargetCollectionName extends CollectionNameString
+>({ collectionName, fieldName, foreignCollectionName, foreignTypeName, foreignFieldName, filterFn }: {
+  collectionName: SourceCollectionName,
+  fieldName: string & keyof ObjectsByCollectionName[SourceCollectionName],
   foreignCollectionName: TargetCollectionName,
   foreignTypeName: string,
-  foreignFieldName: string&keyof ObjectsByCollectionName[TargetCollectionName],
+  foreignFieldName: string & keyof ObjectsByCollectionName[TargetCollectionName],
   filterFn?: (doc: ObjectsByCollectionName[TargetCollectionName])=>boolean,
-}): CollectionFieldSpecification<SourceType> {
+}): CollectionFieldSpecification<SourceCollectionName> {
   const denormalizedLogger = loggerConstructor(`callbacks-${collectionName.toLowerCase()}-denormalized-${fieldName}`)
-  
-  type TargetType = ObjectsByCollectionName[TargetCollectionName];
+
   const foreignCollectionCallbackPrefix = foreignTypeName.toLowerCase();
   const filter = filterFn || ((doc: ObjectsByCollectionName[TargetCollectionName]) => true);
   
@@ -385,12 +411,16 @@ export function denormalizedCountOfReferences<SourceType extends DbObject, Targe
     denormalized: true,
     canAutoDenormalize: true,
     
-    getValue: async (document: SourceType, context: ResolverContext): Promise<number> => {
-      const foreignCollection = getCollection(foreignCollectionName) as CollectionBase<TargetType>;
-      const docsThatMayCount = await getWithLoader(
-        context, foreignCollection,
+    getValue: async (
+      document: ObjectsByCollectionName[SourceCollectionName],
+      context: ResolverContext,
+    ): Promise<number> => {
+      const foreignCollection = getCollection(foreignCollectionName);
+      const docsThatMayCount = await getWithLoader<TargetCollectionName>(
+        context,
+        foreignCollection,
         `denormalizedCount_${collectionName}.${fieldName}`,
-        { },
+        {},
         foreignFieldName,
         document._id
       );
@@ -407,25 +437,28 @@ export function googleLocationToMongoLocation(gmaps: AnyBecauseTodo) {
     coordinates: [gmaps.geometry.location.lng, gmaps.geometry.location.lat]
   }
 }
-export function schemaDefaultValue<T extends DbObject>(defaultValue: any): Partial<CollectionFieldSpecification<T>> {
+export function schemaDefaultValue<N extends CollectionNameString>(
+  defaultValue: any,
+): Partial<CollectionFieldSpecification<N>> {
   // Used for both onCreate and onUpdate
   const fillIfMissing = ({ newDocument, fieldName }: {
-    newDocument: T;
+    newDocument: ObjectsByCollectionName[N];
     fieldName: string;
   }) => {
-    if (newDocument[fieldName as keyof T] === undefined) {
+    if (newDocument[fieldName as keyof ObjectsByCollectionName[N]] === undefined) {
       return defaultValue instanceof DeferredForumSelect ? defaultValue.get() : defaultValue;
     } else {
       return undefined;
     }
   };
   const throwIfSetToNull = ({ oldDocument, document, fieldName }: {
-    oldDocument: T;
-    document: T;
+    oldDocument: ObjectsByCollectionName[N];
+    document: ObjectsByCollectionName[N];
     fieldName: string;
   }) => {
-    const wasValid = (oldDocument[fieldName as keyof T] !== undefined && oldDocument[fieldName as keyof T] !== null);
-    const isValid = (document[fieldName as keyof T] !== undefined && document[fieldName as keyof T] !== null);
+    const typedName = fieldName as keyof ObjectsByCollectionName[N];
+    const wasValid = oldDocument[typedName] !== undefined && oldDocument[typedName] !== null;
+    const isValid = document[typedName] !== undefined && document[typedName] !== null;
     if (wasValid && !isValid) {
       throw new Error(`Error updating: ${fieldName} cannot be null or missing`);
     }

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { useMutation, gql } from '@apollo/client';
 import type { ApolloError } from '@apollo/client';
 import { getCollection, extractFragmentInfo } from '../vulcan-lib';
@@ -60,7 +60,7 @@ export const useUpdate = <CollectionName extends CollectionNameString>(options: 
   skipCacheUpdate?: boolean,
 }): {
   /** Set a field to `null` to delete it */
-  mutate: WithUpdateFunction<CollectionBase<ObjectsByCollectionName[CollectionName]>>,
+  mutate: WithUpdateFunction<CollectionName>,
   loading: boolean,
   error: ApolloError|undefined,
   called: boolean,

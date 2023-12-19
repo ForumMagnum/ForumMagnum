@@ -37,13 +37,9 @@ import { Users } from '../../lib/collections/users/collection';
 export const acceptsSchemaHash = "cdea3c2caa55eb651988dcb30e827b07";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await addField(db, Users, "notificationKarmaPowersGained");
-  }
+  await addField(db, Users, "notificationKarmaPowersGained");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await dropField(db, Users, "notificationKarmaPowersGained");
-  }
+  await dropField(db, Users, "notificationKarmaPowersGained");
 }

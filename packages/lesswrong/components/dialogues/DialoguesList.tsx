@@ -12,7 +12,8 @@ import MuiPeopleIcon from "@material-ui/icons/People";
 import { dialogueMatchmakingEnabled } from '../../lib/publicSettings';
 import { useUpsertDialogueCheck } from '../hooks/useUpsertDialogueCheck';
 import { DialogueUserResult } from './DialogueRecommendationRow';
-
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
 
 const styles = (theme: ThemeType) => ({
   dialogueFacilitationItem: {
@@ -144,16 +145,22 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       color: theme.palette.primary.light,
     }
-  }
+  },
+  closeIcon: { 
+    color: theme.palette.grey[500],
+    opacity: 0.5,
+    padding: 2,
+  },
 });
 
 interface DialogueMatchRowProps {
   rowProps: DialogueUserRowProps<boolean>; 
   classes: ClassesType<typeof styles>; 
   showMatchNote: boolean;
+  onHide: ({ dialogueCheckId, targetUserId }: { dialogueCheckId: string|undefined; targetUserId: string; }) => void;
 }
 
-const DialogueMatchRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRowProps) => {
+const DialogueMatchRow = ({ rowProps, classes, showMatchNote, onHide }: DialogueMatchRowProps) => {
   const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo } = Components
 
   const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
@@ -193,6 +200,9 @@ const DialogueMatchRow = ({ rowProps, classes, showMatchNote }: DialogueMatchRow
           />
         </div>
       </div>
+      <IconButton className={classes.closeIcon} onClick={() => onHide({dialogueCheckId: checkId, targetUserId: targetUser._id})}>
+        <CloseIcon />
+      </IconButton>
     </div>
   );
 };
@@ -203,7 +213,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   const [showSettings, setShowSettings] = useState(false);
   const { captureEvent } = useTracking();
   const currentDate = new Date();
-  const isEvenDay = currentDate.getDate() % 2 === 0;
+  const isEvenDay = currentDate.getUTCDate() % 2 === 0;
   const showReciprocityRecommendations = ((currentUser?.karma ?? 0) > 100) && isEvenDay; // hide reciprocity recommendations if user has less than 100 karma, or if the current day is not an even number (just a hack to avoid spamming folks)
 
   const { results: dialoguePosts } = usePaginatedResolver({
@@ -229,7 +239,11 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
   const hideRecommendation = ({dialogueCheckId, targetUserId}: {dialogueCheckId:string|undefined, targetUserId:string}) => {
     captureEvent("hide_dialogue_recommendation")
     void upsertUserDialogueCheck({ targetUserId, hideInRecommendations: true, checkId: dialogueCheckId });
+  }
 
+  const hideMatch = ({dialogueCheckId, targetUserId}: {dialogueCheckId:string|undefined, targetUserId:string}) => {
+    captureEvent("hide_dialogue_frontpage_match")
+    void upsertUserDialogueCheck({ targetUserId, hideInRecommendations: true, checkId: dialogueCheckId });
   }
 
   const matchedUsers: DialogueUserResult[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
@@ -313,7 +327,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
               </ Typography>
             </div>}
           {currentUser?.showMatches && matchRowPropsList?.map((rowProps, index) => (
-            <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} />
+            !rowProps.hideInRecommendations && <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} onHide={hideMatch}/>
           ))}
           {showReciprocityRecommendations && currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
             !rowProps.hideInRecommendations && <DialogueRecommendationRow key={index} targetUser={rowProps.targetUser} checkId={rowProps.checkId} userIsChecked={rowProps.userIsChecked} userIsMatched={rowProps.userIsMatched} showSuggestedTopics={true} onHide={hideRecommendation} />

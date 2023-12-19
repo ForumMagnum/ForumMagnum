@@ -3,7 +3,7 @@ import SimpleSchema from 'simpl-schema'
 
 export const DEFAULT_QUALITATIVE_VOTE = 4
 
-const schema: SchemaType<DbReviewVote> = {
+const schema: SchemaType<"ReviewVotes"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

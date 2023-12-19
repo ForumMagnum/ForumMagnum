@@ -1,12 +1,10 @@
 import { Application, json, Request, Response } from "express";
 import PgCollection from "../lib/sql/PgCollection";
-import SwitchingCollection from "../lib/SwitchingCollection";
 import CreateIndexQuery from "../lib/sql/CreateIndexQuery";
 import CreateTableQuery from "../lib/sql/CreateTableQuery";
 import { Collections } from "./vulcan-lib";
 import { ensureCustomPgIndex, ensureIndex, expectedIndexes } from "../lib/collectionIndexUtils";
 import { ensurePostgresViewsExist } from "./postgresView";
-import { ensureMongo2PgLockTableExists } from "../lib/mongo2PgLock";
 import { closeSqlClient, getSqlClient, replaceDbNameInPgConnectionString, setSqlClient } from "../lib/sql/sqlClient";
 import { createSqlConnection } from "./sqlConnection";
 import { inspect } from "util";
@@ -32,11 +30,8 @@ import ReadStatuses from "../lib/collections/readStatus/collection";
 
 export const preparePgTables = () => {
   for (let collection of Collections) {
-    if (collection instanceof SwitchingCollection) {
-      collection = collection.getPgCollection() as unknown as CollectionBase<any>;
-    }
     if (collection instanceof PgCollection) {
-      if (!collection.table) {
+      if (!collection.getTable()) {
         collection.buildPostgresTable();
       }
     }
@@ -44,49 +39,46 @@ export const preparePgTables = () => {
 }
 
 /**
- * This is part of the nullability PR.
- * We need to keep around the old indexes for use in the ON CONFLICT constraints in the rewritten upsert queries.
- * So we need to ensure those indexes also exist in the test db for cypress tests, until we fix the whole index situation in a follow-up PR.
+ * These are custom indexes we created during the nullability PR for various ON CONFLICT queries.
+ * We need to run them here but with options to ensure they actually get run, because the calls to create them in the codebase don't get run during test setup.
+ * We need a better way to handle `ensureCustomPgIndex` properly for indexes required by tests.
  */
 const ensureMigratedIndexes = async (client: SqlClient) => {
   const options = { overrideCanEnsureIndexes: true, runImmediately: true, client };
   // eslint-disable-next-line no-console
   console.log('Creating custom indexes');
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_DatabaseMetadata_name_old"
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name"
     ON public."DatabaseMetadata" USING btree
-    (COALESCE(name, ''));
+    (name);
   `, options);
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered_old"
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered"
     ON public."DebouncerEvents" USING btree
-    (dispatched, af, COALESCE(key, ''), COALESCE(name, ''))
+    (dispatched, af, key, name)
     WHERE (dispatched IS FALSE);
   `, options);
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_PageCache_path_abTestGroups_bundleHash_old"
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_PageCache_path_abTestGroups_bundleHash"
     ON public."PageCache" USING btree
-    (COALESCE(path, ''), "abTestGroups", COALESCE("bundleHash", ''));
+    (path, "abTestGroups", "bundleHash");
   `, options);
   await ensureCustomPgIndex(`
-    CREATE UNIQUE INDEX "idx_ReadStatuses_userId_postId_tagId_old"
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId"
     ON public."ReadStatuses" USING btree
     (COALESCE("userId", ''), COALESCE("postId", ''::character varying), COALESCE("tagId", ''::character varying));
   `, options);
 }
 
 const buildTables = async (client: SqlClient) => {
-  await ensureMongo2PgLockTableExists(client);
   await installExtensions(client);
 
   preparePgTables();
 
   for (let collection of Collections) {
-    if (collection instanceof SwitchingCollection) {
-      collection = collection.getPgCollection() as unknown as CollectionBase<any>;
-    }
     if (collection instanceof PgCollection) {
-      const {table} = collection;
+      const {collectionName} = collection;
+      const table = collection.getTable();
       const createTableQuery = new CreateTableQuery(table);
       const {sql, args} = createTableQuery.compile();
       try {
@@ -95,7 +87,7 @@ const buildTables = async (client: SqlClient) => {
         throw new Error(`Create table query failed: ${e.message}: ${sql}: ${inspect(args, {depth: null})}`);
       }
 
-      const rawIndexes = expectedIndexes[collection.options.collectionName] ?? [];
+      const rawIndexes = expectedIndexes[collectionName as CollectionNameString] ?? [];
       for (const rawIndex of rawIndexes) {
         const {key, ...options} = rawIndex;
         const fields: MongoIndexKeyObj<any> = typeof key === "string" ? {[key]: 1} : key;
@@ -206,7 +198,7 @@ export const dropTestingDatabases = async (olderThan?: string | Date) => {
       pg_catalog.pg_get_userbyid(datdba) = CURRENT_USER
   `);
   const secondsPerDay = 1000 * 60 * 60 * 24;
-  olderThan = new Date(olderThan ?? Date.now() - secondsPerDay);
+  olderThan = new Date(olderThan ?? (Date.now() - secondsPerDay));
   for (const database of databases) {
     const {datname} = database;
     if (!datname.match(/^unittest_\d{4}_\d{2}_\d{2}t\d{2}_\d{2}_\d{2}_\d{3}z.*$/)) {

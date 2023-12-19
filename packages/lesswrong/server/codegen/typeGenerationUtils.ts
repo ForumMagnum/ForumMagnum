@@ -20,7 +20,13 @@ function maybeNullable(type: string, nullable: boolean) {
   return nullable ? `${type} | null` : type 
 }
 
-export function simplSchemaTypeToTypescript(schema: SchemaType<DbObject>, fieldName: string, simplSchemaType: AnyBecauseTodo, indent = 2, DbType = false): string {
+export function simplSchemaTypeToTypescript(
+  schema: SchemaType<CollectionNameString>,
+  fieldName: string,
+  simplSchemaType: AnyBecauseTodo,
+  indent = 2,
+  DbType = false,
+): string {
   let nullable = !!schema[fieldName]?.nullable;
   if (DbType) {
     nullable = schema[fieldName]?.nullable !== false

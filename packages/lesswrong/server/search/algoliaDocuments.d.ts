@@ -1,5 +1,5 @@
 
-interface AlgoliaComment {
+interface SearchComment {
   objectID: string,
   _id: string,
   userId: string,
@@ -30,7 +30,7 @@ interface AlgoliaComment {
   tagCommentType?: import("../../lib/collections/comments/types").TagCommentType,
 }
 
-interface AlgoliaSequence {
+interface SearchSequence {
   objectID: string,
   _id: string,
   title: string | null,
@@ -45,7 +45,7 @@ interface AlgoliaSequence {
   bannerImageId?: string | null,
 }
 
-interface AlgoliaUser {
+interface SearchUser {
   _id: string,
   objectID: string,
   username: string,
@@ -71,7 +71,7 @@ interface AlgoliaUser {
   tags: Array<string>,
 }
 
-interface AlgoliaPost {
+interface SearchPost {
   _id: string,
   userId: string,
   url: string | null,
@@ -102,7 +102,7 @@ interface AlgoliaPost {
   order: number // we split posts into multiple records (based on body paragraph) - this tells us the order to reconstruct them
 }
 
-interface AlgoliaTag {
+interface SearchTag {
   _id: string,
   objectID: string,
   name: string,

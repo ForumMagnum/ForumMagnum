@@ -6,6 +6,7 @@ import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -13,7 +14,7 @@ type ExtendedCommentWithReactions = DbComment & {
   userVote?: string,
 }
 
-export default class CommentsRepo extends AbstractRepo<DbComment> {
+class CommentsRepo extends AbstractRepo<"Comments"> {
   constructor() {
     super(Comments);
   }
@@ -38,7 +39,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   }
 
   async getRecentCommentsOnPosts(postIds: string[], limit: number, filter: MongoSelector<DbComment>): Promise<DbComment[][]> {
-    const selectQuery = new SelectQuery(this.getCollection().table, filter)
+    const selectQuery = new SelectQuery(this.getCollection().getTable(), filter)
     const selectQueryAtoms = selectQuery.compileSelector(filter);
     const {sql: filterWhereClause, args: filterArgs} = selectQuery.compileAtoms(selectQueryAtoms, 2);
 
@@ -233,7 +234,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaComment> {
+  getSearchDocumentById(id: string): Promise<SearchComment> {
     return this.getRawDb().one(`
       -- CommentsRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
@@ -241,7 +242,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaComment[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchComment[]> {
     return this.getRawDb().any(`
       -- CommentsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
@@ -370,3 +371,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     };
   }
 }
+
+recordPerfMetrics(CommentsRepo);
+
+export default CommentsRepo;

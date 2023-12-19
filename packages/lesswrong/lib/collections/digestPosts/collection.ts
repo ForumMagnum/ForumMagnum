@@ -7,7 +7,6 @@ import { ensureIndex } from '../../collectionIndexUtils';
 export const DigestPosts: DigestPostsCollection = createCollection({
   collectionName: 'DigestPosts',
   typeName: 'DigestPost',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('DigestPosts'),
   mutations: getDefaultMutations('DigestPosts'),

@@ -1,5 +1,4 @@
 import { setPublicSettings, setServerSettingsCache } from '../lib/settingsCache';
-import { getDatabase } from '../lib/mongoCollection';
 import { DatabaseMetadataRepo } from "./repos";
 import { getSqlClient } from '../lib/sql/sqlClient';
 import { isAnyTest } from '../lib/executionEnvironment';

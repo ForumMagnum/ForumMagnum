@@ -13,3 +13,11 @@ registerFragment(`
     userOtherComments
   }
 `);
+
+registerFragment(`
+  fragment ElectionVoteRecentDiscussion on ElectionVote {
+    _id
+    electionName
+    submittedAt
+  }
+`);

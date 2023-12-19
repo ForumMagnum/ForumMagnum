@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { getCollection, extractFragmentInfo } from '../vulcan-lib';
 import { updateCacheAfterDelete } from './cacheUpdates';
 import { useMutation, gql } from '@apollo/client';

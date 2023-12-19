@@ -3,7 +3,7 @@ import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collect
 import type { TimeSeries } from "../../lib/collections/posts/karmaInflation";
 import { randomId } from "../../lib/random";
 
-export default class DatabaseMetadataRepo extends AbstractRepo<DbDatabaseMetadata> {
+export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata"> {
   constructor() {
     super(DatabaseMetadata);
   }

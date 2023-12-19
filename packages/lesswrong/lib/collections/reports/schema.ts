@@ -1,6 +1,6 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbReport> = {
+const schema: SchemaType<"Reports"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",

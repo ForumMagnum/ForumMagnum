@@ -37,10 +37,5 @@ import { addField } from "./meta/utils";
 export const acceptsSchemaHash = "346664785a7ca60371b76fd9d92a4f30";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Books.isPostgres()) {
-    await addField(db, Books, "tocTitle");
-  } else {
-    // eslint-disable-next-line no-console
-    console.warn("'Books' is not a Postgres collection");
-  }
+  await addField(db, Books, "tocTitle");
 }

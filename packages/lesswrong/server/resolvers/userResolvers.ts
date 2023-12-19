@@ -286,9 +286,6 @@ addGraphQLResolvers({
       {section, expanded}: {section: string, expanded: boolean},
       {currentUser, repos}: ResolverContext,
     ) {
-      if (!Users.isPostgres()) {
-        throw new Error("Expanding frontpage sections requires Postgres");
-      }
       if (!currentUser) {
         throw new Error("You must login to do this");
       }

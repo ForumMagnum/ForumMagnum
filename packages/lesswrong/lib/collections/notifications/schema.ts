@@ -1,7 +1,7 @@
 import { userOwns } from '../../vulcan-users/permissions';
 import { schemaDefaultValue } from '../../utils/schemaUtils';
 
-const schema: SchemaType<DbNotification> = {
+const schema: SchemaType<"Notifications"> = {
   userId: {
     type: String,
     foreignKey: "Users",

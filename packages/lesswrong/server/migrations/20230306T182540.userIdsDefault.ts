@@ -38,10 +38,9 @@ import { updateDefaultValue } from './meta/utils';
 import { ClientIds } from '../../lib/collections/clientIds/collection';
 
 export const up = async ({db}: MigrationContext) => {
-  if (ClientIds.isPostgres()) {
-    await updateDefaultValue(db, ClientIds, "userIds");
-  }
+  await updateDefaultValue(db, ClientIds, "userIds");
 }
 
 export const down = async ({db}: MigrationContext) => {
+  await updateDefaultValue(db, ClientIds, "userIds");
 }

@@ -615,6 +615,7 @@ importComponent("EARecentDiscussionThread", () => require('../components/recentD
 importComponent("EARecentDiscussionQuickTake", () => require('../components/recentDiscussion/EARecentDiscussionQuickTake'));
 importComponent("EARecentDiscussionTagRevision", () => require('../components/recentDiscussion/EARecentDiscussionTagRevision'));
 importComponent("EARecentDiscussionTagCommented", () => require('../components/recentDiscussion/EARecentDiscussionTagCommented'));
+importComponent("EARecentDiscussionElectionVote", () => require('../components/recentDiscussion/EARecentDiscussionElectionVote'));
 importComponent("CantCommentExplanation", () => require('../components/comments/CantCommentExplanation'));
 importComponent("CommentsEditForm", () => require('../components/comments/CommentsEditForm'));
 importComponent("CommentsListSection", () => require('../components/comments/CommentsListSection'));
@@ -639,6 +640,7 @@ importComponent("DialogueRecommendationRow", () => require('../components/dialog
 importComponent("TopicSuggestion", () => require('../components/dialogues/DialogueRecommendationRow'));
 importComponent("CommentView", () => require('../components/dialogues/DialogueRecommendationRow'));
 importComponent("CalendlyIFrame", () => require('../components/dialogues/CalendlyIFrame'));
+importComponent("ActiveDialogues", () => require('../components/dialogues/ActiveDialogues'));
 
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));
@@ -1056,6 +1058,7 @@ importComponent("Book2020Animation", () => require('../components/books/Book2020
 importComponent("BookFrontpageWidget", () => require('../components/books/BookFrontpageWidget'));
 importComponent("Book2019FrontpageWidget", () => require('../components/books/Book2019FrontpageWidget'));
 importComponent("Book2020FrontpageWidget", () => require('../components/books/Book2020FrontpageWidget'));
+importComponent("Books2021SaleAnimation", () => require('../components/books/Books2021SaleAnimation'));
 
 importComponent("AdminPaymentsPage", () => require('../components/payments/AdminPaymentsPage'));
 importComponent("EditPaymentInfoPage", () => require('../components/payments/EditPaymentInfoPage'));

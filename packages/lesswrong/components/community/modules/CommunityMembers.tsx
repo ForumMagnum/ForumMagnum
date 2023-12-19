@@ -2,13 +2,11 @@ import { Components, registerComponent, } from '../../../lib/vulcan-lib';
 import React, { ReactNode, useRef } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { getSearchClient } from '../../../lib/search/algoliaUtil';
+import { getSearchClient } from '../../../lib/search/searchUtil';
 import { Configure, connectSearchBox, connectStateResults, Hits, InstantSearch, Pagination } from 'react-instantsearch-dom';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
-import Button from '@material-ui/core/Button';
 import { distance } from './LocalGroups';
 import { useTracking } from '../../../lib/analyticsEvents';
-import { truncate } from '../../../lib/editor/ellipsize';
 import type { BasicDoc, SearchBoxProvided, StateResultsProvided } from 'react-instantsearch-core';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
@@ -229,7 +227,7 @@ const CommunityMembers = ({currentUser, userLocation, distanceUnit='km', locatio
   const CustomStateResults = connectStateResults(StateResults)
   
   const CommunityMember = ({hit}: {
-    hit: AlgoliaUser,
+    hit: SearchUser,
   }) => {
     // the distance from the user's location to the person's location
     let distanceToPerson;

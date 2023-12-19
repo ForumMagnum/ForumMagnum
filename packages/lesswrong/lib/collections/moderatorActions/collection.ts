@@ -15,7 +15,6 @@ import { getDefaultMutations } from '../../vulcan-core/default_mutations';
 export const ModeratorActions: ModeratorActionsCollection = createCollection({
   collectionName: 'ModeratorActions',
   typeName: 'ModeratorAction',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('ModeratorActions'),
   mutations: getDefaultMutations('ModeratorActions'),
