@@ -211,6 +211,7 @@ async function flushPerfMetrics() {
           extra_data: perfMetric.extra_data ?? null,
           ip: perfMetric.ip ?? null,
           user_agent: perfMetric.user_agent ?? null,
+          user_id: perfMetric.user_id ?? null,
           ...gqlStringId
         }
       });

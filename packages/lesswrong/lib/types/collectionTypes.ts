@@ -272,6 +272,7 @@ interface PerfMetric {
   gql_string?: string;
   ip?: string;
   user_agent?: string;
+  user_id?: string;
 }
 
 type IncompletePerfMetric = Omit<PerfMetric, 'ended_at'>;

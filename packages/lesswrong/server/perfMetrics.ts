@@ -6,7 +6,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { performanceMetricLoggingEnabled } from '../lib/publicSettings';
 import { getForwardedWhitelist } from './forwarded_whitelist';
 
-type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'ip' | 'user_agent'>;
+type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'ip' | 'user_agent' | 'user_id'>;
 
 interface AsyncLocalStorageContext {
   resolverContext?: ResolverContext;

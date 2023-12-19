@@ -31,6 +31,8 @@ import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { maxRenderQueueSize, performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
+import { onStartup } from '../../../lib/executionEnvironment';
+import { isAnyTest } from '../../../lib/executionEnvironment';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -65,7 +67,8 @@ interface RenderRequestParams {
 }
 
 interface RenderQueueSlot {
-  callback: () => Promise<void>
+  callback: () => Promise<void>,
+  renderRequestParams: RenderRequestParams
 }
 
 export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
@@ -113,7 +116,8 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
         client_path: req.originalUrl,
         //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
         ip: getForwardedWhitelist().getClientIP(req),
-        user_agent: userAgent
+        user_agent: userAgent,
+        user_id: user?._id
       }, startTime);
 
       setAsyncStoreValue('requestPerfMetric', perfMetric);
@@ -223,7 +227,8 @@ function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> 
         }
         resolve(result);
         maybeStartQueuedRequests();
-      }
+      },
+      renderRequestParams: params,
     });
 
     maybeStartQueuedRequests();
@@ -237,6 +242,30 @@ function maybeStartQueuedRequests() {
       inFlightRenderCount++;
       void requestToStartRendering.callback();
     }
+  }
+}
+
+onStartup(() => {
+  if (!isAnyTest && performanceMetricLoggingEnabled.get()) {
+    setInterval(logRenderQueueState, 5000)
+  }
+})
+
+function logRenderQueueState() {
+  if (requestQueue.length > 0) {
+    const queueState = requestQueue.map(({renderRequestParams}) => {
+      return {
+        userId: renderRequestParams.user?._id,
+        ip: getIpFromRequest(renderRequestParams.req),
+        userAgent: renderRequestParams.userAgent,
+        url: getPathFromReq(renderRequestParams.req),
+        startTime: renderRequestParams.startTime,
+      }
+    })
+
+    Vulcan.captureEvent("renderQueueState", {
+      queueState
+    });
   }
 }
 
