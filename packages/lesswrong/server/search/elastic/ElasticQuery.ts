@@ -434,7 +434,7 @@ class ElasticQuery {
         },
         sort: this.compileSort(sorting, coordinates),
         _source: {
-          exclude: ["exportedAt", ...privateFields],
+          excludes: ["exportedAt", ...privateFields],
         },
       },
     };
