@@ -335,7 +335,7 @@ const formatDollars = (amount: number) => "$" + formatStat(Math.round(amount));
 
 const canonicalUrl = getSiteUrl() + "giving-portal";
 
-const pageDescription = "It's Giving season on the EA Forum. We're hosting a Donation Election, weekly themes, and more throughout November and December 2023.";
+const pageDescription = "It’s Giving season on the EA Forum; we’ve run a Donation Election, some discussion themes, and more.";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
