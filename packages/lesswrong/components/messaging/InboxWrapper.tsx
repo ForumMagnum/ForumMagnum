@@ -31,12 +31,15 @@ const InboxWrapper = () => {
     showArchive,
   };
 
+  console.log("isFriendlyUI", isFriendlyUI, conversationId)
+
   if (conversationId) {
+    console.log("yep!")
     return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} />
   }
 
-  const InboxComponent = isFriendlyUI ? FriendlyInbox : InboxNavigation;
-  return <InboxComponent terms={terms} currentUser={currentUser}/>
+ // const InboxComponent = isFriendlyUI ? FriendlyInbox : InboxNavigation;
+  return <FriendlyInbox terms={terms} currentUser={currentUser}/>
 }
 
 const InboxWrapperComponent = registerComponent('InboxWrapper', InboxWrapper);

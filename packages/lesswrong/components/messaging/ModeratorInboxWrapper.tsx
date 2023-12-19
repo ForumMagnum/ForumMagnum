@@ -25,9 +25,9 @@ const ModeratorInboxWrapper = () => {
     return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} isModInbox />;
   }
 
-  const InboxComponent = isFriendlyUI ? FriendlyInbox : InboxNavigation;
+ // const InboxComponent = isFriendlyUI ? FriendlyInbox : InboxNavigation;
   return (
-    <InboxComponent
+    <FriendlyInbox
       terms={terms}
       currentUser={currentUser}
       title={<Link to="/moderatorInbox">Moderator Conversations</Link>}

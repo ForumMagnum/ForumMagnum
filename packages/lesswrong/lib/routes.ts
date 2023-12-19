@@ -1333,7 +1333,7 @@ addRoute(...forumSelect<Route[]>({
     {
       name: 'conversation',
       path: '/inbox/:_id',
-      componentName: 'ConversationWrapper',
+      componentName: 'InboxWrapper',
       title: "Private Conversation",
       background: "white",
     },
@@ -1342,6 +1342,12 @@ addRoute(...forumSelect<Route[]>({
       path: '/moderatorInbox',
       componentName: 'ModeratorInboxWrapper',
       title: "Moderator Inbox"
+    },
+    {
+      name: 'moderatorInboxConversation',
+      path: '/moderatorInbox/:_id',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox",
     },
   ],
 }));

@@ -2,13 +2,14 @@ import React, { useCallback, useMemo, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import classNames from "classnames";
-import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
+import { conversationGetFriendlyTitle, conversationGetTitle } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
 import { useLocation } from "../../lib/routeUtil";
 import type { InboxComponentProps } from "./InboxWrapper";
 import { useSingle } from "../../lib/crud/withSingle";
 import { userCanDo } from "../../lib/vulcan-users";
 import { Link, useNavigate } from "../../lib/reactRouterWrapper";
+import {isEAForum} from "../../lib/instanceSettings";
 
 const MAX_WIDTH = 1100;
 
@@ -207,7 +208,7 @@ const FriendlyInbox = ({
     fragmentName: "ConversationsList",
     limit: 500,
   });
-  const { results: conversations, loading: conversationsLoading } = conversationsResult;
+  const { results: conversations, loading: conversationsLoading, loadMoreProps } = conversationsResult;
 
   // The conversationId need not appear in the sidebar (e.g. if it is a new conversation). If it does,
   // use the conversation from the list to load the title faster, if not, fetch it directly.
@@ -236,7 +237,7 @@ const FriendlyInbox = ({
   const showModeratorLink = userCanDo(currentUser, 'conversations.view.all') && !isModInbox;
 
   const title = selectedConversation
-    ? conversationGetFriendlyTitle(selectedConversation, currentUser)
+    ? (isEAForum ? conversationGetFriendlyTitle(selectedConversation, currentUser) : conversationGetTitle(selectedConversation, currentUser))
     : "No conversation selected";
 
   return (
@@ -254,7 +255,9 @@ const FriendlyInbox = ({
         >
           <div className={classes.columnHeader}>
             <div className={classes.headerText}>All messages</div>
-            <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
+            {isEAForum ? 
+              <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
+              : "todo..."}
           </div>
           <div className={classes.navigation}>
             <FriendlyInboxNavigation
@@ -274,7 +277,10 @@ const FriendlyInbox = ({
             <>
               <div className={classes.columnHeader}>
                 <div className={classes.headerText}>{title}</div>
-                <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
+                {isEAForum ?
+                  <ForumIcon onClick={openConversationOptions} icon="EllipsisVertical" className={classes.actionIcon} />
+                  : "todo..."
+                }
               </div>
               <div className={classes.conversation} ref={selectedConversationRef}>
                 <Link to="/inbox" className={classes.backButton}>
@@ -292,15 +298,21 @@ const FriendlyInbox = ({
           {!conversationsLoading && !selectedConversation && (
             <div className={classes.emptyState}>
               <div>
-                <ForumIcon icon="LightbulbChat" className={classes.emptyStateIcon} />
+                {isEAForum ?
+                  <ForumIcon icon="LightbulbChat" className={classes.emptyStateIcon} />
+                  : "todo..."
+                }
               </div>
               <div>
                 <div className={classes.emptyStateTitle}>No conversation selected</div>
-                <div className={classes.emptyStateSubtitle}>Connect with other users on the forum</div>
+                <div className={classes.emptyStateSubtitle}>Connect with other users{isEAForum && " on the forum"}</div>
               </div>
-              <EAButton onClick={openNewConversationDialog} className={classes.emptyStateButton}>
-                <ForumIcon icon="PencilSquare" className={classes.emptyStateActionIcon} /> Start a new conversation
-              </EAButton>
+              {isEAForum ?
+                <EAButton onClick={openNewConversationDialog} className={classes.emptyStateButton}>
+                  <ForumIcon icon="PencilSquare" className={classes.emptyStateActionIcon} /> Start a new conversation
+                </EAButton>
+                : "todo..."
+              }
             </div>
           )}
         </div>
