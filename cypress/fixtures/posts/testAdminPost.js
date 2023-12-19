@@ -9,6 +9,7 @@ module.exports = {
     createdAt: new Date(),
     postedAt: new Date(),
     modifiedAt: new Date(),
+    lastCkEditorUpdatedAt: new Date(),
     frontpageDate: new Date(),
     types: [],
     moderationStyle: null,

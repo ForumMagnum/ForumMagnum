@@ -190,6 +190,15 @@ const schema: SchemaType<"Posts"> = {
       }
     }),
   },
+  // Timestamp of the last updated_at timestamp received from the CkEditor webhook
+  lastCkEditorUpdatedAt: {
+    type: Date,
+    optional: true,
+    hidden: true,
+    canRead: ['members'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+  },
   // URL
   url: {
     type: String,

@@ -3,9 +3,61 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
-import { createAdminContext, createMutator } from '../vulcan-lib';
+import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib';
 import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
+
+
+// Hacky lil' solution for now 
+const testWebHookLocally = async () => {
+  // eslint-disable-next-line no-console
+  console.log("Running local CK Editor webhook test... ")
+  const syntheticData = [
+    {
+      "environment_id":"rQvD3VnunXZu34m86e5f",
+      "event":"collaboration.document.updated",
+      "payload":
+        {"document":
+        {"id":"FEFQSGLhJFpqmEhgi-edit","version":1723,"updated_at":"2023-12-19T02:24:45.253Z"}},"sent_at":"2023-12-19T02:24:45.333Z"}
+    // {
+    //   "environment_id": "rQvD3VnunXZu34m86e5f",
+    //   "event": "collaboration.user.disconnected",
+    //   "payload": {
+    //     "user": { "id": "PvfS86fQfr2Zx8Lsj" },
+    //     "document": { "id": "i5THpCMGhEGfSi2p9-edit" },
+    //     "connected_users": []
+    //   },
+    //   "sent_at": "2023-12-12T22:00:33.357Z"
+    // },
+    // {
+    //   "environment_id": "rQvD3VnunXZu34m86e5f",
+    //   "event": "collaboration.user.connected",
+    //   "payload": {
+    //     "user": { "id": "KynyugbGz9kgFGe4A" },
+    //     "document": { "id": "D5mCL6dTSGnNedy4d-edit" },
+    //     "connected_users": [{ "id": "KynyugbGz9kgFGe4A" }]
+    //   },
+    //   "sent_at": "2023-12-11T22:00:33.357Z"
+    // },
+    // {
+    //   "environment_id": "rQvD3VnunXZu34m86e5f",
+    //   "event": "collaboration.user.connected",
+    //   "payload": {
+    //     "user": { "id": "c4BywbHytbB5zLdA4" },
+    //     "document": { "id": "BsAt7bhGJqgsi7vpo-edit" },
+    //     "connected_users": [{ "id": "c4BywbHytbB5zLdA4" }]
+    //   },
+    //   "sent_at": "2023-12-12T22:02:39.523Z"
+    // }
+  ];
+
+  for (let i = 0; i < syntheticData.length; i++) {
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    await handleCkEditorWebhook(syntheticData[i]);
+    // eslint-disable-next-line no-console
+    console.log("Sent webhook test " + i)
+  }
+}
 
 interface CkEditorUserConnectionChange {
   user: { id: string },
@@ -98,12 +150,25 @@ async function handleCkEditorWebhook(message: any) {
       }
       const documentUpdatedPayload = payload as CkEditorDocumentUpdated;
       const ckEditorDocumentId = documentUpdatedPayload?.document?.id;
+      const updated_at = documentUpdatedPayload?.document?.updated_at;
       const postId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId);
       const documentContents = await ckEditorApiHelpers.fetchCkEditorCloudStorageDocumentHtml(ckEditorDocumentId);
       await documentHelpers.saveOrUpdateDocumentRevision(postId, documentContents);
+      if (!!updated_at && !!postId) {
+        const adminContext = await createAdminContext()
+        await updateMutator({
+          collection: Posts,
+          documentId: postId,
+          set: {
+            lastCkEditorUpdatedAt: new Date(updated_at)
+          },
+          unset: {},
+          context: adminContext,
+          currentUser: adminContext.currentUser,
+        })
+      }
       break;
     }
-    
     case "comment.updated":
     case "comment.removed":
     case "commentthread.removed":

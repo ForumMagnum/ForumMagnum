@@ -676,6 +676,7 @@ interface DbPost extends DbObject {
   __collectionName?: "Posts"
   postedAt: Date
   modifiedAt: Date | null
+  lastCkEditorUpdatedAt: Date | null
   url: string | null
   postCategory: "post" | "linkpost" | "question"
   title: string

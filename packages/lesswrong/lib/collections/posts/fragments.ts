@@ -33,6 +33,7 @@ registerFragment(`
     url
     postedAt
     createdAt
+    lastCkEditorUpdatedAt
     sticky
     metaSticky
     stickyPriority
