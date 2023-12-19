@@ -437,9 +437,9 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     `, [postIds], "getDigestPlannerVotesForPosts");
   }
 
-  async getPostKarmaChangePerDay({ postIds, startDate, endDate }: { postIds: string[]; startDate?: Date; endDate: Date; }): Promise<{ window_start_key: string; karma_change: string }[]> {
+  async getDocumentKarmaChangePerDay({ documentIds, startDate, endDate }: { documentIds: string[]; startDate?: Date; endDate: Date; }): Promise<{ window_start_key: string; karma_change: string }[]> {
     return await this.getRawDb().any<{window_start_key: string, karma_change: string}>(`
-      -- VotesRepo.getPostKarmaChangePerDay
+      -- VotesRepo.getDocumentKarmaChangePerDay
       SELECT
         -- Format as YYYY-MM-DD to make grouping easier
         to_char(v."createdAt", 'YYYY-MM-DD') AS window_start_key,
@@ -454,7 +454,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         window_start_key
       ORDER BY
         window_start_key;
-    `, [postIds, startDate, endDate]);
+    `, [documentIds, startDate, endDate]);
   }
 
   /**

@@ -305,6 +305,72 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
     `);
   }
+
+  /**
+   * Returns the number of comments that a user has authored in a given year, and their percentile among all users who
+   * authored at least one comment in that year (for either regular comments or shortform). This is currently used for Wrapped.
+   */
+  async getAuthorshipStats({
+    userId,
+    year,
+    shortform,
+  }: {
+    userId: string;
+    year: number;
+    shortform: boolean;
+  }): Promise<{ totalCount: number; percentile: number }> {
+    const startPostedAt = new Date(year, 0).toISOString();
+    const endPostedAt = new Date(year + 1, 0).toISOString();
+    const shortformCondition = shortform
+      ? `"shortform" IS TRUE AND "topLevelCommentId" IS NULL`
+      : `("shortform" IS FALSE OR "topLevelCommentId" IS NOT NULL)`;
+
+    const result = await this.getRawDb().oneOrNone<{ total_count: string; percentile: number }>(
+      `
+      -- CommentsRepo.getAuthorshipStats
+      WITH comment_counts AS (
+        SELECT
+          "userId",
+          count(*) AS total_count
+        FROM
+          "Comments"
+        WHERE
+          "deleted" IS FALSE
+          AND "postId" IS NOT NULL
+          AND "needsReview" IS NOT TRUE
+          AND ${shortformCondition}
+          AND "postedAt" > $1
+          AND "postedAt" < $2
+        GROUP BY
+          "userId"
+      ), authorship_percentiles AS (
+        SELECT
+          "userId",
+          slug,
+          total_count,
+          percent_rank() OVER (ORDER BY total_count ASC) percentile
+        FROM
+          comment_counts
+          left join "Users" u on "userId" = u._id
+        ORDER BY
+          percentile DESC
+      )
+      SELECT
+        total_count AS total_count,
+        percentile
+      FROM
+        authorship_percentiles
+      WHERE
+        "userId" = $3;
+    `,
+      [startPostedAt, endPostedAt, userId]
+    );
+
+    return {
+      totalCount: result?.total_count ? parseInt(result.total_count) : 0,
+      percentile: result?.percentile ?? 0,
+    };
+  }
 }
 
 recordPerfMetrics(CommentsRepo);
