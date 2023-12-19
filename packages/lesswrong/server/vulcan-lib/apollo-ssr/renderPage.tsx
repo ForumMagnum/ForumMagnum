@@ -31,6 +31,7 @@ import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { maxRenderQueueSize, performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
+import PriorityBucketQueue, { RequestData } from '../../../lib/keyedPriorityQueue';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -64,7 +65,7 @@ interface RenderRequestParams {
   userAgent?: string,
 }
 
-interface RenderQueueSlot {
+interface RenderPriorityQueueSlot extends RequestData {
   callback: () => Promise<void>
 }
 
@@ -204,7 +205,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
 };
 
 let inFlightRenderCount = 0;
-const requestQueue: RenderQueueSlot[] = [];
+const requestPriorityQueue = new PriorityBucketQueue<RenderPriorityQueueSlot>();
 
 /**
  * We (maybe) have a problem where too many concurrently rendering requests cause our servers to fall over
@@ -213,7 +214,10 @@ const requestQueue: RenderQueueSlot[] = [];
  */
 function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
   return new Promise((resolve) => {
-    requestQueue.push({
+    requestPriorityQueue.enqueue({
+      ip: getForwardedWhitelist().getClientIP(params.req),
+      userAgent: params.userAgent ?? 'sus-missing-user-agent',
+      userId: params.user?._id,
       callback: async () => {
         let result: RenderResult;
         try {
@@ -231,8 +235,8 @@ function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> 
 }
 
 function maybeStartQueuedRequests() {
-  while (inFlightRenderCount < maxRenderQueueSize.get() && requestQueue.length > 0) {
-    let requestToStartRendering = requestQueue.shift();
+  while (inFlightRenderCount < maxRenderQueueSize.get() && requestPriorityQueue.size() > 0) {
+    let requestToStartRendering = requestPriorityQueue.dequeue();
     if (requestToStartRendering) {
       inFlightRenderCount++;
       void requestToStartRendering.callback();
