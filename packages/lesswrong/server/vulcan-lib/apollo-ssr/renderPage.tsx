@@ -28,7 +28,7 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
-import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
+import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { maxRenderQueueSize, performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
 import { onStartup, isAnyTest } from '../../../lib/executionEnvironment';
@@ -109,6 +109,9 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
     
     if (performanceMetricLoggingEnabled.get()) {
+
+      console.log("do we have user??", user?._id)
+
       const perfMetric = openPerfMetric({
         op_type: "ssr",
         op_name: "skipCache",
@@ -219,6 +222,7 @@ function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> 
     requestQueue.push({
       callback: async () => {
         let result: RenderResult;
+        addStartRenderTimeToPerfMetric();
         try {
           result = await renderRequest(params);
         } finally {

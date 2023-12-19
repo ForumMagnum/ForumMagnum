@@ -47,6 +47,28 @@ export function closePerfMetric(openPerfMetric: IncompletePerfMetric) {
   queuePerfMetric(perfMetric);
 }
 
+export function addStartRenderTimeToPerfMetric() {
+  const store = asyncLocalStorage.getStore();
+  if (!store) {
+    // eslint-disable-next-line no-console
+    console.log('Missing asyncLocalStorage context when trying to add start render time to the perf metric for the current request!');
+    return;
+  }
+
+  if (!store.requestPerfMetric) {
+    // eslint-disable-next-line no-console
+    console.log('Missing perf metric for the current request in the asyncLocalStorage context when trying to add start render time to it!');
+    return;
+  }
+
+  setAsyncStoreValue('requestPerfMetric', {
+    ...store.requestPerfMetric,
+    render_started_at: new Date(),
+  });
+
+
+}
+
 /**
  * We have a dedicated function to send off the perf metric for the top-level request
  * This is because we track it in the async local storage context,
