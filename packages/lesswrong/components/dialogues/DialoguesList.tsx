@@ -14,6 +14,7 @@ import { useUpsertDialogueCheck } from '../hooks/useUpsertDialogueCheck';
 import { DialogueUserResult } from './DialogueRecommendationRow';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
+import { useSingle } from '../../lib/crud/withSingle';
 
 const styles = (theme: ThemeType) => ({
   dialogueFacilitationItem: {
@@ -107,9 +108,22 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 'auto',
     marginRight: 10
   },
-  dialogueMatchPreferencesButton: {
+  dialogueMatchPreferencesButtonContainer: {
     marginLeft: 8,
-    marginRight: 0
+    marginRight: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    position: 'relative',
+  },
+  enterTopicsAnnotation: {
+    fontStyle: 'italic',
+    color: theme.palette.text.dim3,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    "fontSize": "0.9rem",
+    "lineHeight": "1rem",
+    marginTop: 4,
+    whiteSpace: 'nowrap',
   },
   dialogueNoMatchesButton: {
     marginLeft: 8
@@ -156,14 +170,19 @@ const styles = (theme: ThemeType) => ({
 interface DialogueMatchRowProps {
   rowProps: DialogueUserRowProps<boolean>; 
   classes: ClassesType<typeof styles>; 
-  showMatchNote: boolean;
   onHide: ({ dialogueCheckId, targetUserId }: { dialogueCheckId: string|undefined; targetUserId: string; }) => void;
 }
 
-const DialogueMatchRow = ({ rowProps, classes, showMatchNote, onHide }: DialogueMatchRowProps) => {
-  const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo } = Components
+const DialogueMatchRow = ({ rowProps, classes, onHide }: DialogueMatchRowProps) => {
+  const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo, ReactionIcon } = Components
 
   const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
+  const { document: dialogueCheck } = useSingle({
+    fragmentName: "DialogueCheckInfo",
+    collectionName: "DialogueChecks",
+    documentId: checkId,
+  });
+  const targetUserMatchPreferences = dialogueCheck?.reciprocalMatchPreference
   const currentUser = useCurrentUser();
   if (!currentUser) return <></>;
 
@@ -187,10 +206,10 @@ const DialogueMatchRow = ({ rowProps, classes, showMatchNote, onHide }: Dialogue
         </PostsItem2MetaInfo>
       </div>
       <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
-        {showMatchNote ? "You've matched!" : "Check to opt in to dialogue, if you find a topic"}
+        {targetUserMatchPreferences ? "Waiting for you →" : "You've matched" }
       </PostsItem2MetaInfo>
       <div className={classes.dialogueRightContainer}>
-        <div className={classes.dialogueMatchPreferencesButton}>
+        <div className={classes.dialogueMatchPreferencesButtonContainer}>
           <DialogueNextStepsButton
             isMatched={userIsMatched}
             checkId={checkId}
@@ -198,6 +217,11 @@ const DialogueMatchRow = ({ rowProps, classes, showMatchNote, onHide }: Dialogue
             targetUserDisplayName={targetUser.displayName}
             currentUser={currentUser}
           />
+          {targetUserMatchPreferences && 
+            <div className={classes.enterTopicsAnnotation}> 
+              <ReactionIcon size={10} react={"agree"} /> {targetUser.displayName}
+            </div>
+          }
         </div>
       </div>
       <IconButton className={classes.closeIcon} onClick={() => onHide({dialogueCheckId: checkId, targetUserId: targetUser._id})}>
@@ -327,7 +351,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
               </ Typography>
             </div>}
           {currentUser?.showMatches && matchRowPropsList?.map((rowProps, index) => (
-            !rowProps.hideInRecommendations && <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} showMatchNote={true} onHide={hideMatch}/>
+            !rowProps.hideInRecommendations && <DialogueMatchRow key={index} rowProps={rowProps} classes={classes} onHide={hideMatch}/>
           ))}
           {showReciprocityRecommendations && currentUser?.showRecommendedPartners && recommendedDialoguePartnersRowPropsList?.map((rowProps, index) => (
             !rowProps.hideInRecommendations && <DialogueRecommendationRow key={index} targetUser={rowProps.targetUser} checkId={rowProps.checkId} userIsChecked={rowProps.userIsChecked} userIsMatched={rowProps.userIsMatched} showSuggestedTopics={true} onHide={hideRecommendation} />

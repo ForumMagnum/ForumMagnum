@@ -269,6 +269,14 @@ const styles = (theme: ThemeType) => ({
       width: "75px"
     },
   },
+  enterTopicsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    [theme.breakpoints.down('xs')]: {
+      marginRight: 5,
+    },
+  },
   enterTopicsButton: {
     maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -280,6 +288,15 @@ const styles = (theme: ThemeType) => ({
       "fontSize": "1rem",
       "padding": "0.3rem",
     },
+  },
+  enterTopicsAnnotation: {
+    fontStyle: 'italic',
+    color: theme.palette.text.dim3,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    "fontSize": "0.9rem",
+    "lineHeight": "1rem",
+    marginTop: 3,
+    whiteSpace: 'nowrap',
   },
   lightGreenButton: {
     maxHeight: minRowHeight,
@@ -1220,6 +1237,7 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
   currentUser,
   classes,
 }) => {
+  const { ReactionIcon } = Components;
 
   const { openDialog } = useDialog();
 
@@ -1245,6 +1263,7 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
 
   const userMatchPreferences = matchFormResults?.[0]
   const generatedDialogueId = userMatchPreferences?.generatedDialogueId;
+  const targetUserMatchPreferences = dialogueCheck?.reciprocalMatchPreference
 
   if (!!generatedDialogueId) {
     return (
@@ -1266,6 +1285,7 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
     <button
       className={classNames(classes.enterTopicsButton, {
         [classes.hideAtXs]: !isMatched,
+        [classes.lightGreenButton]: !!targetUserMatchPreferences,
       })}
       onClick={(e) => {
         dialogueCheck && openDialog({
@@ -1280,7 +1300,7 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
         })
       }}
     >
-      <a data-cy="message">Enter topics</a>
+      <a data-cy="message">{targetUserMatchPreferences ? "Enter your topics" : "Enter topics"}</a>
     </button>
   );
 };
@@ -1307,9 +1327,16 @@ const MessageButton: React.FC<{
 
 const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { classes: ClassesType }): JSX.Element => {
   const { targetUser, checkId, userIsChecked, userIsMatched, classes, currentUser, showKarma, showAgreement, showBio, showFrequentCommentedTopics, showPostsYouveRead } = props;
-  const { UsersName, DialogueCheckBox, MessageButton, DialogueNextStepsButton } = Components;
+  const { UsersName, DialogueCheckBox, MessageButton, DialogueNextStepsButton, ReactionIcon } = Components;
 
-  return <React.Fragment key={`${targetUser._id}_other`}>
+  const { document: dialogueCheck } = useSingle({
+    fragmentName: "DialogueCheckInfo",
+    collectionName: "DialogueChecks",
+    documentId: checkId,
+  });
+  const targetUserMatchPreferences = dialogueCheck?.reciprocalMatchPreference
+
+  return <React.Fragment key={`${targetUser._id}_other`} >
     <DialogueCheckBox
       targetUserId={targetUser._id}
       targetUserDisplayName={targetUser.displayName}
@@ -1326,13 +1353,20 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
       currentUser={currentUser}
       isMatched={userIsMatched}
     />
-    <DialogueNextStepsButton
-      isMatched={userIsMatched}
-      checkId={checkId}
-      targetUserId={targetUser._id}
-      targetUserDisplayName={targetUser.displayName}
-      currentUser={currentUser}
-    />
+    <div className={classes.dialogueEnterTopicsButtonContainer}>
+      <DialogueNextStepsButton
+        isMatched={userIsMatched}
+        checkId={checkId}
+        targetUserId={targetUser._id}
+        targetUserDisplayName={targetUser.displayName}
+        currentUser={currentUser}
+      />
+      {targetUserMatchPreferences && 
+        <div className={classes.enterTopicsAnnotation}> 
+          <ReactionIcon size={10} react={"agree"} /> {targetUser.displayName}
+        </div>
+      }
+    </div>
     {showKarma && <div className={classNames(classes.hideAtXs, classes.centeredText)}> {targetUser.total_power} </div>}
     {showAgreement && <div className={classNames(classes.hideAtXs, classes.centeredText)}> {targetUser.total_agreement} </div>}
     {showBio && <UserBio
