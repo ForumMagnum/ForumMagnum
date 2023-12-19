@@ -322,7 +322,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     const startPostedAt = new Date(year, 0).toISOString();
     const endPostedAt = new Date(year + 1, 0).toISOString();
     const shortformCondition = shortform
-      ? `"shortform" IS TRUE`
+      ? `"shortform" IS TRUE AND "topLevelCommentId" IS NULL`
       : `("shortform" IS FALSE OR "topLevelCommentId" IS NOT NULL)`;
 
     const result = await this.getRawDb().oneOrNone<{ total_count: string; percentile: number }>(
@@ -337,6 +337,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         WHERE
           "deleted" IS FALSE
           AND "postId" IS NOT NULL
+          AND "needsReview" IS NOT TRUE
           AND ${shortformCondition}
           AND "postedAt" > $1
           AND "postedAt" < $2
