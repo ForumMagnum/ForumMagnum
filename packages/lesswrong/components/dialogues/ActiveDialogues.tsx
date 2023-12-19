@@ -89,7 +89,7 @@ export const ActiveDialogues = ({classes}: {
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const [isExpanded, setIsExpanded] = useState<boolean>(!currentUser?.hideActiveDialogueUsers);
-  const toggleExpanded = async () => {
+  const toggleExpanded = () => {
     if (currentUser) {
       void updateCurrentUser({
         hideActiveDialogueUsers: isExpanded,
