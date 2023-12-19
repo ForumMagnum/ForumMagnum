@@ -487,7 +487,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 classes.mb20,
               )}>
                 <span className={classes.bold}>
-                Contribute to the Donation Election Fund to encourage more discussion about donation choice and effective giving.
+                  The Donation Election has closed (results will be announced soon),
+                  but you can still contribute to the{" "}
+                  <Link to={donationElectionFundraiserLink}>Donation Election Fund</Link>{" "}
+                  until 20 December.
                 </span>{" "}
                 The fund will be designated for the top 3 winners in the Donation Election.{" "}
                 <Link to={donationElectionLink}>Learn more</Link>.
@@ -561,13 +564,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 classes.textWide,
                 classes.mb20,
               )}>
-                The Donation Election Fund will be designated for the top three winning candidates in the election (split proportionately, based on users' votes). Voting will open on 1 December, 2023.
-                <ul>
-                  <li><b>Pre-vote</b> to show which candidates you're likely to vote for. Pre-votes are anonymous, don't turn into real votes, and you can change them at any time.</li>
-                  <li><b>Add candidates</b> if you think they should be in the Election. Any project <a href="https://docs.google.com/spreadsheets/d/1I-IFdkai9frIIMO6fVqOIp6PDllXG713UhnI1WuwyiQ/edit#gid=0">
-                  here</a> can be a candidate.</li>
-                </ul>
-                <i>Only users who had an account as of 22 October 2023 can pre-vote or vote in the election.</i>
+                The Donation Election Fund will be designated for the top three winning candidates in the election (split proportionately, based on users' votes).
               </div>
               <ElectionCandidatesList className={classes.electionCandidates} />
               <div className={classNames(
