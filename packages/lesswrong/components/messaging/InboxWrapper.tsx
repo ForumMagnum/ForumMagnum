@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
-import { isFriendlyUI } from '../../themes/forumTheme';
 
 export type InboxComponentProps = {
   terms: ConversationsViewTerms;
@@ -16,7 +15,7 @@ const InboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
 
-  const { InboxNavigation, FriendlyInbox } = Components
+  const { FriendlyInbox } = Components
 
   if (!currentUser) {
     return <div>Log in to access private messages.</div>
@@ -35,8 +34,7 @@ const InboxWrapper = () => {
     return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} />
   }
 
-  const InboxComponent = isFriendlyUI ? FriendlyInbox : InboxNavigation;
-  return <InboxComponent terms={terms} currentUser={currentUser}/>
+  return <FriendlyInbox terms={terms} currentUser={currentUser}/>
 }
 
 const InboxWrapperComponent = registerComponent('InboxWrapper', InboxWrapper);
