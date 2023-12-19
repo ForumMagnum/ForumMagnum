@@ -167,6 +167,16 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.9,
     }
   },
+  buttonDisabled: {
+    cursor: "not-allowed",
+    opacity: 0.65,
+    "&:hover": {
+      opacity: 0.65,
+    },
+    "&:active": {
+      opacity: 0.65,
+    },
+  },
   votingBannerButtonLightOpaque: {
     background: theme.palette.givingPortal.homepageHeader.light3Opaque,
     color: theme.palette.text.alwaysWhite,
@@ -572,7 +582,9 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 classes.mt10,
                 classes.mb80,
               )}>
-                <button onClick={handleVote} className={classes.button}>Vote in the Election</button>
+                <button className={classNames(classes.button, classes.buttonDisabled)}>
+                  Vote in the Election
+                </button>
               </div>
             </div>
           </div>
