@@ -56,7 +56,7 @@ function wrapWithPerfMetrics(method: Function, repoName: string, methodName: str
     return results;
   };
 
-  wrappedFn.name = `perfMetricWrapped_${methodName}`;
+  Object.defineProperty(wrappedFn, 'name', { value: `perfMetricWrapped_${methodName}`, writable: false });
 
   return wrappedFn;
 }
