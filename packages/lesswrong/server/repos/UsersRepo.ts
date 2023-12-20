@@ -568,11 +568,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return result;
   }
 
-  async getMatchFormYourTurnUsers(): Promise<DbUser[]> {
-    const result = await this.getRawDb().any(`
-    `)
-    return result;
-  }
 }
 
 recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });

@@ -58,6 +58,29 @@ class DialogueChecksRepo extends AbstractRepo<"DialogueChecks"> {
       );
     `, [userId1, userId2])
   }
+
+  async getMatchFormYourTurn(): Promise<DbDialogueCheck[]> {
+    const result = await this.getRawDb().any(`
+      SELECT 
+        dc.*
+      FROM "DialogueChecks" AS dc
+      LEFT JOIN "DialogueMatchPreferences" AS dmp ON dc._id = dmp."dialogueCheckId"
+      LEFT JOIN
+          "DialogueChecks" AS dc_reciprocal
+          ON
+              dc."userId" = dc_reciprocal."targetUserId"
+              AND dc."targetUserId" = dc_reciprocal."userId"
+      LEFT JOIN "DialogueMatchPreferences" AS dmp_reciprocal ON dc_reciprocal._id = dmp_reciprocal."dialogueCheckId"
+      WHERE 
+          dc.checked IS TRUE
+          AND dc_reciprocal.checked IS TRUE
+          AND (dmp._id IS NULL OR dmp.deleted IS TRUE)
+          AND dmp_reciprocal._id IS NOT NULL
+          AND dmp_reciprocal.deleted IS NOT TRUE 
+      GROUP BY dc._id
+    `)
+    return result;
+  }
 }
 
 recordPerfMetrics(DialogueChecksRepo);

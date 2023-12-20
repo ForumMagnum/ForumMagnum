@@ -3,6 +3,7 @@ import CkEditorUserSessions from "../../lib/collections/ckEditorUserSessions/col
 import {ckEditorApi, documentHelpers} from "../ckEditor/ckEditorApi";
 import { addCronJob } from "../cronUtil";
 import { createNotification } from "../notificationCallbacksHelpers";
+import {DialogueChecksRepo} from "../repos";
 import { createAdminContext } from "../vulcan-lib";
 import groupBy from 'lodash/groupBy';
 
@@ -31,16 +32,16 @@ addCronJob({
   interval: 'every 1 hour',
   async job() {
     const context = createAdminContext();
-    const usersYourTurn = await context.repos.users.getMatchFormYourTurnUsers()
+    const checksYourTurn = await new DialogueChecksRepo().getMatchFormYourTurn()
     /// somehow pass in the actual matchForm data so we can link to the right thing! not just users
    // const usersWithNewChecks = await context.repos.users.getUsersWithNewDialogueChecks()
-    usersYourTurn.forEach(user => {
+    checksYourTurn.forEach(check => {
       void createNotification({
-        userId: user._id,
+        userId: check.userId,
         notificationType: "yourTurnMatchForm",
         documentType: null,
         documentId: null,
-        extraData: {userId: user._id, userDisplayName: user.displayName}, // passed for the AB test
+        extraData: {targetUserId: check.targetUserId, checkId: check._id}, // passed for the AB test
         context,
       })
     })
