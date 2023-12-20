@@ -151,12 +151,12 @@ function getGqlStringIdFromCache(gqlString?: string): { gql_string_id: number | 
 async function insertAndCacheGqlStringRecords(gqlStrings: string[], connection: AnalyticsConnectionPool) {
   const gqlRecords = gqlStrings.map((gql_string) => ({gql_hash: md5(gql_string), gql_string}));
   const previouslyCachedGqlStrings = gqlRecords.filter(({ gql_hash }) => GQL_STRING_ID_CACHE.has(gql_hash));
-  const newGqlRecords = gqlRecords.filter(({ gql_hash }) => !GQL_STRING_ID_CACHE.has(gql_hash))
+  const newGqlRecords = gqlRecords.filter(({ gql_hash }) => !GQL_STRING_ID_CACHE.has(gql_hash));
 
   if (newGqlRecords.length === 0) {
     return;
   }
-  
+
   // Insert and cache all the new query strings we don't already have cached
   const { sql, args } = new InsertQuery(perfMetricsGqlStringsTable, newGqlRecords as AnyBecauseHard, undefined, { conflictStrategy: 'ignore', returnInserted: true }).compile();
   const insertedQueryStringRecords = await connection.any<PerfMetricGqlString>(sql, args);

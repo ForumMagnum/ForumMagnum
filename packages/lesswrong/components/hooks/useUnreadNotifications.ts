@@ -26,12 +26,15 @@ export type ActiveDialogueServer = {
   title: string,
   coauthorStatuses: {userId: string, confirmed: string, rejected: string}[],
   activeUserIds: string[],
+  mostRecentEditedAt?: Date,
 }
 
 export type ActiveDialogue = {
   userIds: string[],
   postId: string,
   title: string,
+  mostRecentEditedAt?: Date,
+  anyoneRecentlyActive: boolean,
 }
 
 export type ActiveDialogueData = {

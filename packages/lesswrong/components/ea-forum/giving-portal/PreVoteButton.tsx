@@ -42,7 +42,7 @@ const PreVoteButton = ({vote, document, className, classes}: PreVoteProps & {
 
   const hasVoted = !!document.currentUserExtendedVote?.preVote;
   const icon = hasVoted || (hover && !isMobile()) ? "Heart" : "HeartOutline";
-  const tooltip = 'Pre-voting has closed. Click "Vote in the Election" above if you would like to cast your real vote';
+  const tooltip = 'Prevoting has closed, as has the Donation Election. Results will be announced soon.';
 
   const onVote = useCallback(async () => {
     // TODO: Uncomment below if we run another election and want to allow pre-voting
