@@ -96,16 +96,19 @@ const PopularCommentTitle: FC<{
   classes: ClassesType,
 }> = ({comment, post, classes}) => {
   const {isRead} = useRecordPostView(post);
+  const {PostsTooltip} = Components;
   return (
     <div className={classes.row}>
       <InteractionWrapper className={classes.postWrapper}>
-        <Link
-          to={postGetPageUrl(post)}
-          className={classNames(classes.post, {[classes.postRead]: isRead})}
-          eventProps={{intent: 'expandPost'}}
-        >
-          {post.title}
-        </Link>
+        <PostsTooltip postId={post._id}>
+          <Link
+            to={postGetPageUrl(post)}
+            className={classNames(classes.post, {[classes.postRead]: isRead})}
+            eventProps={{intent: 'expandPost'}}
+          >
+            {post.title}
+          </Link>
+        </PostsTooltip>
       </InteractionWrapper>
       <InteractionWrapper>
         <Link to={commentGetPageUrl(comment)} className={classes.link} eventProps={{intent: 'viewInThread'}}>
