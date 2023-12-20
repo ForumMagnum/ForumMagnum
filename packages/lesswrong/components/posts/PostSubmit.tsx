@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import {forumTitleSetting, isEAForum, isLW } from "../../lib/instanceSettings";
-import { forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
 
@@ -61,8 +60,6 @@ export type PostSubmitProps = FormButtonProps & {
   classes: ClassesType
 }
 
-const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
-
 const PostSubmit = ({
   submitLabel = "Submit",
   cancelLabel = "Cancel",
@@ -89,6 +86,7 @@ const PostSubmit = ({
   const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
+  const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
 
   return (
     <React.Fragment>
@@ -106,7 +104,7 @@ const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
-        {requestFeedbackKarmaLevel && currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
+        {requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
           // EA Forum title is Effective Altruism Forum, which is unecessarily long
           title={`Request feedback from the ${isEAForum ? "EA Forum" : forumTitleSetting.get()} team.`}
         >
