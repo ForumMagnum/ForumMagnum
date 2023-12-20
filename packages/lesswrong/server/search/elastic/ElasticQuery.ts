@@ -376,7 +376,7 @@ class ElasticQuery {
     } = this.queryData;
     const {privateFields} = this.config;
 
-    // We sorting by nearest-geographically we disable custom highlighting as
+    // When sorting by nearest-geographically we disable custom highlighting as
     // this isn't supported by elastic and causes an exception
     const hasCustomHighlight = !coordinates;
 
