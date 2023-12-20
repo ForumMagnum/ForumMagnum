@@ -81,14 +81,11 @@ export const useAmountRaised = (electionName: string) => {
   };
 }
 
-// TODO: Update this once we decide when to end giving season 2023
-const givingSeasonEnd = new Date("2024-01-01");
-
 export const useIsGivingSeason = () => {
   const now = useCurrentTime();
   return isEAForum &&
     moment.utc(timelineSpec.start).isBefore(now) &&
-    moment.utc(givingSeasonEnd).isAfter(now);
+    moment.utc(timelineSpec.end).isAfter(now);
 }
 
 export const useShowTimeline = () => {
