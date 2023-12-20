@@ -1256,8 +1256,6 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
 
   const navigate = useNavigate();
 
-  if (!isMatched) return <div className={classes.hideAtXs}></div>; // need this instead of null to keep the table columns aligned
-
   const generatedDialogueId = matchPreference?.generatedDialogueId;
 
   if (!!generatedDialogueId) {
@@ -1343,21 +1341,23 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
       currentUser={currentUser}
       isMatched={userIsMatched}
     />
-    <div className={classes.dialogueEnterTopicsButtonContainer}>
-      <DialogueNextStepsButton
-        isMatched={userIsMatched}
-        checkId={checkId}
-        targetUserId={targetUser._id}
-        targetUserDisplayName={targetUser.displayName}
-        currentUser={currentUser}
-        reciprocalMatchPreference={reciprocalMatchPreference}
-      />
-      {!matchPreference && reciprocalMatchPreference && 
-        <div className={classes.enterTopicsAnnotation}> 
-          <ReactionIcon size={10} react={"agree"} /> {targetUser.displayName}
-        </div>
-      }
-    </div>
+    { !userIsMatched ? 
+      <div className={classes.hideAtXs}></div> // need this instead of null to keep the table columns aligned
+      : <div className={classes.dialogueEnterTopicsButtonContainer}>
+          <DialogueNextStepsButton
+            isMatched={userIsMatched}
+            checkId={checkId}
+            targetUserId={targetUser._id}
+            targetUserDisplayName={targetUser.displayName}
+            currentUser={currentUser}
+            reciprocalMatchPreference={reciprocalMatchPreference}
+          />
+          {!matchPreference && reciprocalMatchPreference && 
+            <div className={classes.enterTopicsAnnotation}> 
+              <ReactionIcon size={10} react={"agree"} /> {targetUser.displayName}
+            </div>
+          }
+        </div>}
     {showKarma && <div className={classNames(classes.hideAtXs, classes.centeredText)}> {targetUser.total_power} </div>}
     {showAgreement && <div className={classNames(classes.hideAtXs, classes.centeredText)}> {targetUser.total_agreement} </div>}
     {showBio && <UserBio
