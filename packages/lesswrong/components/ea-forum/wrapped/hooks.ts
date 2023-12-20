@@ -81,6 +81,7 @@ export const useForumWrappedV2 = ({ userId, year }: { userId?: string | null; ye
           daysVisited
           mostReadTopics {
             name
+            shortName
             slug
             count
           }

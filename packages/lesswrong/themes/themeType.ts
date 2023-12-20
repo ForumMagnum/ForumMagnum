@@ -152,6 +152,7 @@ declare global {
       sequenceIsDraft: ColorString,
       sequenceTitlePlaceholder: ColorString,
       primaryDarkOnDim: ColorString,
+      wrappedHighlight: ColorString,
       contentHeader?: ColorString,
     
       reviewUpvote: ColorString,
@@ -415,6 +416,7 @@ declare global {
       warningTranslucent: ColorString,
       transparent: ColorString,
       imageOverlay: ColorString,
+      wrapped2023: ColorString,
     },
     header: {
       text: ColorString,

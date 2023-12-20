@@ -150,6 +150,7 @@ addGraphQLSchema(`
   type MostReadTopic {
     slug: String,
     name: String,
+    shortName: String,
     count: Int
   }
   type WrappedDataByYear {
@@ -421,7 +422,7 @@ addGraphQLResolvers({
           {
             _id: { $in: topTags },
           },
-          { projection: { name: 1, slug: 1 } }
+          { projection: { name: 1, shortName: 1, slug: 1 } }
         ).fetch(),
         Posts.find(
           {
@@ -501,6 +502,7 @@ addGraphQLResolvers({
           return topic
             ? {
                 name: topic.name,
+                shortName: topic.shortName ?? topic.name,
                 slug: topic.slug,
                 count: tagCounts[topic._id],
               }
@@ -738,7 +740,7 @@ async function getEngagementV2(userId: string, year: number): Promise<{
         user_id
       FROM
         user_engagement_wrapped_2023
-      WHERE view_year = $2
+      WHERE view_year = $2 AND user_id IS NOT NULL
       GROUP BY view_year, user_id
     ),
     ranked AS (
