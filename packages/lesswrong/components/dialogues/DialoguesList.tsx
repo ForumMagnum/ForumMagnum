@@ -173,8 +173,8 @@ interface DialogueMatchRowProps {
   onHide: ({ dialogueCheckId, targetUserId }: { dialogueCheckId: string|undefined; targetUserId: string; }) => void;
 }
 
-const DialogueMatchRow = ({ rowProps, classes, showMatchNote, onHide }: DialogueMatchRowProps) => {
-  const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo } = Components
+const DialogueMatchRow = ({ currentUser, rowProps, classes, onHide }: DialogueMatchRowProps) => {
+  const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo, ReactionIcon } = Components
 
   const { targetUser, checkId, userIsChecked, userIsMatched, matchPreference, reciprocalMatchPreference } = rowProps;
 
