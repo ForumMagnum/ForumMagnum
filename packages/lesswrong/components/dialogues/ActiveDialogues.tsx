@@ -39,9 +39,9 @@ const styles = (theme: ThemeType) => ({
     boxShadow: `0 0 5px ${theme.palette.secondary.light}, 0 0 8px ${theme.palette.secondary.light}, 0 0 11px ${theme.palette.secondary.light}`,
   },
   orangeDot: {
-    backgroundColor: '#fdbd48',
-    border: `1px solid #fdbd48`,
-    boxShadow: `0 0 5px #fdbd48, 0 0 8px #fdbd48`,
+    backgroundColor: theme.palette.icon.activeDotOrange,
+    border: `1px solid ${theme.palette.icon.activeDotOrange}`,
+    boxShadow: `0 0 5px ${theme.palette.icon.activeDotOrange}, 0 0 8px ${theme.palette.icon.activeDotOrange}`,
     opacity: 0.7
   },
   activeAuthorNames: {

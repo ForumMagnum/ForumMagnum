@@ -565,11 +565,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
         AND s."endedAt" IS NULL
         AND (
           s."createdAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
-          OR EXISTS (
-            SELECT 1
-            FROM "Revisions"
-            WHERE "documentId" = p._id AND r."editedAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
-          )
+          OR r."editedAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
         )
     GROUP BY p._id
     `, [userIds]);
