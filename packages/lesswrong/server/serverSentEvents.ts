@@ -210,7 +210,7 @@ async function checkForTypingIndicators() {
   }
 }
 
-const isRecentlyActive = (editedAt: Date | undefined, min: number): boolean => {
+const isRecentlyActive = (editedAt: Date | undefined, minutes: number): boolean => {
   if (!editedAt) {
     return false;
   }
@@ -218,7 +218,7 @@ const isRecentlyActive = (editedAt: Date | undefined, min: number): boolean => {
   const currentTime = new Date().getTime();
   const editedTime = new Date(editedAt).getTime();
 
-  return (currentTime - editedTime) <= min * 60 * 1000;
+  return (currentTime - editedTime) <= minutes * 60 * 1000;
 }
 
 async function checkForActiveDialoguePartners() {
