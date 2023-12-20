@@ -1,5 +1,4 @@
 import moment from "moment";
-import { isEAForum } from "../../instanceSettings";
 import ModeratorActions from "./collection";
 import { MAX_ALLOWED_CONTACTS_BEFORE_FLAG, postAndCommentRateLimits, PostAndCommentRateLimitTypes, RATE_LIMIT_ONE_PER_DAY, RATE_LIMIT_ONE_PER_FORTNIGHT, RATE_LIMIT_ONE_PER_MONTH, RATE_LIMIT_ONE_PER_THREE_DAYS, RATE_LIMIT_ONE_PER_WEEK, MODERATOR_ACTION_TYPES, AllRateLimitTypes, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from "./schema";
 import {DatabasePublicSetting} from '../../publicSettings.ts'
@@ -107,7 +106,8 @@ type ReasonForInitialReview = Exclude<ReasonReviewIsNeeded, 'newContent'>
 const reviewReasonsSetting = 
   new DatabasePublicSetting<Array<ReasonForInitialReview>>(
     'moderation.reasonsForInitialReview', 
-    ['firstPost', 'firstComment', 'contactedTooManyUsers', 'bio', 'profileImage'])
+    ['firstPost', 'firstComment', 'contactedTooManyUsers', 'bio', 'profileImage']
+  )
 
 export function getReasonForReview(user: DbUser|SunshineUsersList): GetReasonForReviewResult
 {
@@ -127,14 +127,14 @@ export function getReasonForReview(user: DbUser|SunshineUsersList): GetReasonFor
   const unreviewed = !user.reviewedByUserId;
   const snoozed = user.reviewedByUserId && user.snoozedUntilContentCount;
   
-  const reviewReasonMap: Record<ReasonForInitialReview, Function> = {
-    mapLocation: () => user.mapLocation,
-    firstPost: () => user.postCount,
-    firstComment: () => user.commentCount,
+  const reviewReasonMap: Record<ReasonForInitialReview, () => boolean> = {
+    mapLocation: () => !!user.mapLocation,
+    firstPost: () => !!user.postCount,
+    firstComment: () => !!user.commentCount,
     contactedTooManyUsers: () => (user.usersContactedBeforeReview?.length ?? 0) > MAX_ALLOWED_CONTACTS_BEFORE_FLAG,
     // Depends on whether this is DbUser or SunshineUsersList
-    bio: () => 'htmlBio' in user ? user.htmlBio : user.biography?.html,
-    profileImage: () => user.profileImageId,
+    bio: () => !!('htmlBio' in user ? user.htmlBio : user.biography?.html),
+    profileImage: () => !!user.profileImageId,
   }
 
   if (unreviewed) {
