@@ -120,5 +120,6 @@ module.exports = {
     showMyDialogues: true,
     showMatches: true,
     showRecommendedPartners: true,
+    hideActiveDialogueUsers: false,
     abTestKey: "test-user-ab-test-key",
 }

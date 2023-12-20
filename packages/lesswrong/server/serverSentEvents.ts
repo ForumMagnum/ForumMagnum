@@ -210,6 +210,17 @@ async function checkForTypingIndicators() {
   }
 }
 
+const isRecentlyActive = (editedAt: Date | undefined, minutes: number): boolean => {
+  if (!editedAt) {
+    return false;
+  }
+
+  const currentTime = new Date().getTime();
+  const editedTime = new Date(editedAt).getTime();
+
+  return (currentTime - editedTime) <= minutes * 60 * 1000;
+}
+
 async function checkForActiveDialoguePartners() {
   const numOpenConnections = Object.keys(openConnections).length;
   if (!numOpenConnections) {
@@ -225,10 +236,13 @@ async function checkForActiveDialoguePartners() {
     const coauthorUserIds = dialogue.coauthorStatuses.map((status: any) => status.userId);
     const allUserIds = [dialogue.userId, ...coauthorUserIds];
     for (let userId of allUserIds) {
+      const editedAt = dialogue?.mostRecentEditedAt;
       const data = {
         postId: dialogue._id,
         title: dialogue.title,
         userIds: dialogue.activeUserIds.filter((id => id !== userId)),
+        mostRecentEditedAt: editedAt,
+        anyoneRecentlyActive: isRecentlyActive(editedAt, 15) // within the last 15 min
       }
       if (allUsersDialoguesData[userId]) {
         allUsersDialoguesData[userId].push(data);

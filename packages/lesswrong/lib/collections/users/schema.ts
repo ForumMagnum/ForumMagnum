@@ -1515,6 +1515,17 @@ const schema: SchemaType<"Users"> = {
     label: "Show a list of recommended dialogue partners inside frontpage widget",
     ...schemaDefaultValue(true)
   },
+  hideActiveDialogueUsers: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Hides/collapses the active dialogue users in the header",
+    ...schemaDefaultValue(false)
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {

@@ -278,6 +278,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly showMyDialogues: boolean,
   readonly showMatches: boolean,
   readonly showRecommendedPartners: boolean,
+  readonly hideActiveDialogueUsers: boolean,
   readonly karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -2868,6 +2869,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly showMyDialogues: boolean,
   readonly showMatches: boolean,
   readonly showRecommendedPartners: boolean,
+  readonly hideActiveDialogueUsers: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users

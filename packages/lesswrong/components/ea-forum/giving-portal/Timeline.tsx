@@ -116,7 +116,6 @@ const Timeline = ({
   end,
   points,
   spans,
-  handleVote,
   divisionToPercent = defaultDivisionToPercent,
   className,
   classes,
@@ -200,21 +199,16 @@ const Timeline = ({
           <div {...positionDateMarker(date)} />
         </Fragment>
       ))}
-      {spans.map(({ start, end, description, href, consecutive, hideDates, hatched }) => {
-        let text = href ? <Link to={href}>{description}</Link> : description
-        if (description === 'Vote in the Election' && handleVote) {
-          text = <span onClick={handleVote} className={classes.voteLink}>{description}</span>
-        }
-        
-        return (
-          <div {...positionSpan(start, end, consecutive, hatched)} key={description}>
-            {text}
-            {!hideDates && (
-              <div className={classNames(classes.date, classes.spanDate)}>{formatSpanDates(start, end)}</div>
-            )}
-          </div>
-        )
-      })}
+      {spans.map(({start, end, description, href, consecutive, hideDates, hatched}) => (
+        <div {...positionSpan(start, end, consecutive, hatched)} key={description}>
+          {href ? <Link to={href}>{description}</Link> : description}
+          {!hideDates && (
+            <div className={classNames(classes.date, classes.spanDate)}>
+              {formatSpanDates(start, end)}
+              </div>
+          )}
+        </div>
+      ))}
       {showCurrentDate && (
         <div className={classes.currentMarker} style={{ width: `${getDatePercent(currentDate)}%` }} />
       )}
