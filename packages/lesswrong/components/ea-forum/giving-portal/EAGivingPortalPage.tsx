@@ -480,7 +480,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
               )}>
                 Timeline
               </div>
-              <Timeline {...timelineSpec} className={classes.hideOnMobile} handleVote={handleVote} />
+              <Timeline {...timelineSpec} className={classes.hideOnMobile} />
             </>
           }
         </div>

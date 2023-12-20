@@ -1,5 +1,4 @@
 import moment from "moment";
-import { isPastVotingDeadline } from "./collections/electionVotes/helpers";
 
 export const eaGivingSeason23ElectionName = "givingSeason23";
 
@@ -61,7 +60,6 @@ export type TimelineSpec = {
   end: Date,
   points: TimelinePoint[],
   spans: TimelineSpan[],
-  handleVote?: () => void,
   divisionToPercent?: (division: number, divisions: number) => number,
 }
 
