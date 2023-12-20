@@ -52,7 +52,10 @@ export type RenderResult = {
   allAbTestGroups: CompleteTestGroupAllocation
   themeOptions: AbstractThemeOptions,
   renderedAt: Date,
-  timings: RenderTimings
+  timings: RenderTimings,
+  aborted: false,
+} | {
+  aborted: true
 }
 
 interface RenderRequestParams {
@@ -126,6 +129,10 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     if (performanceMetricLoggingEnabled.get()) {
       closeRequestPerfMetric();
     }
+    
+    if (rendered.aborted) {
+      return rendered;
+    }
 
     if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
       Vulcan.captureEvent("ssr", {
@@ -163,6 +170,10 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       req, user: null, startTime, res, clientId, userAgent
     }));
     
+    if (rendered.aborted) {
+      return rendered;
+    }
+
     if (rendered.cached) {
       // eslint-disable-next-line no-console
       console.log(`Served ${url} from cache for logged out ${ip} (${userAgent})`);
@@ -283,6 +294,13 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
 
 const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
+  if (req.closed) {
+    // eslint-disable-next-line no-console
+    console.log(`Request for ${req.url} from ${user?._id ?? getIpFromRequest(req)} was closed before render started`);
+    return {
+      aborted: true,
+    };
+  }
   configureSentryScope(requestContext);
   if (performanceMetricLoggingEnabled.get()) {
     setAsyncStoreValue('resolverContext', requestContext);
@@ -379,6 +397,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
     themeOptions,
     renderedAt: now,
     timings,
+    aborted: false,
   };
 }
 
