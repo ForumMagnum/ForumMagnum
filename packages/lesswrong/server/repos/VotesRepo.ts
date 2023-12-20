@@ -6,6 +6,7 @@ import { EAOrLWReactionsVote, UserVoteOnSingleReaction } from "../../lib/voting/
 import type { CommentKarmaChange, KarmaChangeBase, KarmaChangesArgs, PostKarmaChange, ReactionChange, TagRevisionKarmaChange } from "../../lib/collections/users/karmaChangesGraphQL";
 import { eaAnonymousEmojiPalette, eaEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import { isEAForum } from "../../lib/instanceSettings";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 export const RECENT_CONTENT_COUNT = 20
 
@@ -24,7 +25,7 @@ export type React = {
   reactionType?: string, // should this be a specific reaction type?
 }
 
-export default class VotesRepo extends AbstractRepo<"Votes"> {
+class VotesRepo extends AbstractRepo<"Votes"> {
   constructor() {
     super(Votes);
   }
@@ -497,3 +498,7 @@ export default class VotesRepo extends AbstractRepo<"Votes"> {
   }
 
 }
+
+recordPerfMetrics(VotesRepo);
+
+export default VotesRepo;

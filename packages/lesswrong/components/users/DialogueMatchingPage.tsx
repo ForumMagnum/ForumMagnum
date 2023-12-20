@@ -1438,7 +1438,7 @@ export const DialogueMatchingPage = ({classes}: {
     matchedUsersQueryResult: { data: matchedUsersResult },
     userDialogueChecksResult: { results: userDialogueChecks },
     usersOptedInResult: { results: usersOptedInToDialogueFacilitation, loadMoreProps: optedInUsersLoadMoreProps }
-  } = useDialogueMatchmaking({ getMatchedUsers: true, getRecommendedUsers: false, getOptedInUsers: true, getUserDialogueChecks: true });
+  } = useDialogueMatchmaking(currentUser, { getMatchedUsers: true, getOptedInUsers: true, getUserDialogueChecks: { limit: 1000 } });
 
   const { loading, error, data } = useQuery(gql`
     query getDialogueUsers {

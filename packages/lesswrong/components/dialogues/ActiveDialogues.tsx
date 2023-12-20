@@ -6,11 +6,18 @@ import { useCurrentUser } from '../common/withUser';
 import { postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
+import classNames from 'classnames';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
+import Visibility from '@material-ui/icons/Visibility';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+
 
 const styles = (theme: ThemeType) => ({
   root: {
     marginLeft: "1%",
     display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
     [theme.breakpoints.down('sm')]: {
       display: 'none'
     }
@@ -18,12 +25,24 @@ const styles = (theme: ThemeType) => ({
   activeDot: {
     height: 8,
     width: 8,
-    backgroundColor: theme.palette.secondary.light,
     borderRadius: '50%',
     display: 'inline-block',
-    boxShadow: `0 0 5px ${theme.palette.secondary.light}, 0 0 8px ${theme.palette.secondary.light}, 0 0 11px ${theme.palette.secondary.light}`,
     marginRight: 11,
     marginLeft: 15
+  },
+  collapsedDot: {
+    marginRight: 8,
+    marginLeft: 8
+  },
+  greenDot: {
+    backgroundColor: theme.palette.secondary.light,
+    boxShadow: `0 0 5px ${theme.palette.secondary.light}, 0 0 8px ${theme.palette.secondary.light}, 0 0 11px ${theme.palette.secondary.light}`,
+  },
+  orangeDot: {
+    backgroundColor: theme.palette.icon.activeDotOrange,
+    border: `1px solid ${theme.palette.icon.activeDotOrange}`,
+    boxShadow: `0 0 5px ${theme.palette.icon.activeDotOrange}, 0 0 8px ${theme.palette.icon.activeDotOrange}`,
+    opacity: 0.7
   },
   activeAuthorNames: {
     color: theme.palette.header.text,
@@ -46,6 +65,16 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+  },
+  iconContainer: {
+    display: "flex",
+  },
+  collapsdedIconContainer: {
+    marginRight: 6
+  },
+  visibilityIcon: {
+    color: theme.palette.grey[400],
+    fontSize: "1.7em",
   }
 });
 
@@ -57,8 +86,18 @@ export const ActiveDialogues = ({classes}: {
 
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const [activeDialogues, setActiveDialogues] = useState<ActiveDialogue[]>([]);
-
   const currentUser = useCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
+  const [isExpanded, setIsExpanded] = useState<boolean>(!currentUser?.hideActiveDialogueUsers);
+  const toggleExpanded = () => {
+    if (currentUser) {
+      void updateCurrentUser({
+        hideActiveDialogueUsers: isExpanded,
+      })
+    }
+    setIsExpanded(!isExpanded)
+  }
+
   const location = useLocation();
 
   useOnNotificationsChanged(currentUser, (message) => {
@@ -70,13 +109,28 @@ export const ActiveDialogues = ({classes}: {
 
   if (!currentUser || !activeDialogues) return null;
 
+  const activeDialoguesWithoutSelf = activeDialogues.filter(d => d.userIds.length > 0)
+
   return (
     <div className={classes.root}>
-      {activeDialogues.filter(d => d.userIds.length > 0).map((dialogue) => ( // filter out your own dialogues where only you're active
+      {activeDialoguesWithoutSelf.length > 0 && 
+        <div className={classNames(classes.iconContainer, {
+          [classes.collapsdedIconContainer]: !isExpanded,
+        })} onClick={toggleExpanded}>
+          {isExpanded ? 
+            <VisibilityOff className={classes.visibilityIcon} /> : 
+            <Visibility className={classes.visibilityIcon} />}
+        </div>}
+      {activeDialoguesWithoutSelf.map((dialogue) => (
         <div className={classes.activeDialogueContainer} key={dialogue.postId}>
-          <div className={classes.activeDot}>
+          <div className={classNames(classes.activeDot, {
+            [classes.greenDot]: dialogue.anyoneRecentlyActive,
+            [classes.orangeDot]: !dialogue.anyoneRecentlyActive,
+            [classes.collapsedDot]: !isExpanded,
+            })
+          }>
           </div>
-          <PostsTooltip postId={dialogue.postId}>
+          {isExpanded && <PostsTooltip postId={dialogue.postId}>
             <Link to={postGetEditUrl(dialogue.postId)} onClick={() => captureEvent("header dialogue clicked")}> 
               <div className={classes.dialogueDetailsContainer}> 
                 <Typography variant='body2' className={classes.activeAuthorNames}> 
@@ -93,7 +147,7 @@ export const ActiveDialogues = ({classes}: {
                 </Typography> 
               </div>
             </Link>
-          </PostsTooltip> 
+          </PostsTooltip>} 
         </div>
       ))}
     </div>

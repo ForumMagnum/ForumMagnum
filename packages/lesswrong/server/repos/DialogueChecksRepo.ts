@@ -1,6 +1,7 @@
 import DialogueChecks from "../../lib/collections/dialogueChecks/collection";
 import {randomId} from "../../lib/random";
 import AbstractRepo from "./AbstractRepo";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 const BASE_UPSERT_QUERY = `
     INSERT INTO "DialogueChecks" (
@@ -14,7 +15,7 @@ const BASE_UPSERT_QUERY = `
       $1, $2, $3, $4, $5, $6
     ) ON CONFLICT ("userId", "targetUserId")`;
 
-export default class DialogueChecksRepo extends AbstractRepo<"DialogueChecks"> {
+class DialogueChecksRepo extends AbstractRepo<"DialogueChecks"> {
   constructor() {
     super(DialogueChecks);
   }
@@ -58,3 +59,7 @@ export default class DialogueChecksRepo extends AbstractRepo<"DialogueChecks"> {
     `, [userId1, userId2])
   }
 }
+
+recordPerfMetrics(DialogueChecksRepo);
+
+export default DialogueChecksRepo;

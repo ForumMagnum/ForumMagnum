@@ -224,6 +224,7 @@ registerFragment(`
     showMyDialogues
     showMatches
     showRecommendedPartners
+    hideActiveDialogueUsers
   }
 `);
 

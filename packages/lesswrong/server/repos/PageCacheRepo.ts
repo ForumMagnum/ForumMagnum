@@ -3,6 +3,7 @@ import PageCache from "../../lib/collections/pagecache/collection";
 import { randomId } from "../../lib/random";
 import { getServerBundleHash } from "../utils/bundleUtils";
 import AbstractRepo from "./AbstractRepo";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 import type { RenderResult } from "../vulcan-lib/apollo-ssr/renderPage"
 
 export type MeanPostKarma = {
@@ -17,7 +18,7 @@ type SanitizedRenderResult = Omit<RenderResult, Exclude<keyof RenderResult, unde
 
 export const maxCacheAgeMs = 90*1000;
 
-export default class PageCacheRepo extends AbstractRepo<"PageCache"> {
+class PageCacheRepo extends AbstractRepo<"PageCache"> {
   constructor() {
     super(PageCache);
   }
@@ -108,3 +109,7 @@ export default class PageCacheRepo extends AbstractRepo<"PageCache"> {
     return null;
   }
 }
+
+recordPerfMetrics(PageCacheRepo);
+
+export default PageCacheRepo;
