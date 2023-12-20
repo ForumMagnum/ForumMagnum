@@ -8,6 +8,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import {forumTitleSetting, isEAForum, isLW } from "../../lib/instanceSettings";
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
@@ -60,10 +61,7 @@ export type PostSubmitProps = FormButtonProps & {
   classes: ClassesType
 }
 
-const requestFeedbackKarmaLevel = forumSelect({
-  EAForum: 200,
-  default: 100,
-})
+const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
 
 const PostSubmit = ({
   submitLabel = "Submit",
@@ -108,7 +106,7 @@ const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
-        {currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
+        {requestFeedbackKarmaLevel && currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
           // EA Forum title is Effective Altruism Forum, which is unecessarily long
           title={`Request feedback from the ${isEAForum ? "EA Forum" : forumTitleSetting.get()} team.`}
         >
