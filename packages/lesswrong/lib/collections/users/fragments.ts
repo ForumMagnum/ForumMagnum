@@ -219,6 +219,7 @@ registerFragment(`
     optedInToDialogueFacilitation
     revealChecksToAdmins
     notificationNewDialogueChecks
+    notificationYourTurnMatchForm
 
     showDialoguesList
     showMyDialogues
