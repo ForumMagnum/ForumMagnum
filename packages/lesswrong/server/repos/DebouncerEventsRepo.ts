@@ -1,8 +1,9 @@
 import AbstractRepo from "./AbstractRepo";
 import DebouncerEvents from "../../lib/collections/debouncerEvents/collection";
 import { randomId } from "../../lib/random";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
-export default class DebouncerEventsRepo extends AbstractRepo<"DebouncerEvents"> {
+class DebouncerEventsRepo extends AbstractRepo<"DebouncerEvents"> {
   constructor() {
     super(DebouncerEvents);
   }
@@ -50,3 +51,7 @@ export default class DebouncerEventsRepo extends AbstractRepo<"DebouncerEvents">
     ]);
   }
 }
+
+recordPerfMetrics(DebouncerEventsRepo);
+
+export default DebouncerEventsRepo;

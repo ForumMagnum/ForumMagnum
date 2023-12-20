@@ -85,7 +85,9 @@ registerFragment(`
     petrovPressedButtonDate
     petrovOptOut
     sortDraftsBy
-    ...SunshineUsersList
+    email
+    emails
+    banned
     ...SharedUserBooleans
     noindex
     paymentEmail
@@ -222,6 +224,7 @@ registerFragment(`
     showMyDialogues
     showMatches
     showRecommendedPartners
+    hideActiveDialogueUsers
   }
 `);
 
