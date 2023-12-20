@@ -499,6 +499,7 @@ registerFragment(`
     notificationSubforumUnread
     notificationNewMention
     notificationNewDialogueChecks
+    notificationYourTurnMatchForm
 
     givingSeasonNotifyForVoting
 

@@ -3137,6 +3137,12 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationYourTurnMatchForm: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly givingSeasonNotifyForVoting: boolean,
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,

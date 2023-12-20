@@ -402,6 +402,21 @@ export const NewDialogueCheckNotification = registerNotificationType({
   }
 });
 
+export const YourTurnMatchFormNotification = registerNotificationType({
+  name: "yourTurnMatchForm",
+  userSettingField: "notificationYourTurnMatchForm",
+  allowedChannels: ["onsite", "none"],
+  async getMessage(props: GetMessageProps) {
+    return `Your turn: see {user} topics suggestions and fill in yours`
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  },
+  getLink() { // TODO, FIX! 
+    return "/dialogueMatching"
+  }
+});
+
 //NOTIFICATION FOR OLD DIALOGUE FORMAT
 //TO-DO: clean up eventually
 // New debate comment on a debate post you're subscribed to.  For readers explicitly subscribed to the debate.

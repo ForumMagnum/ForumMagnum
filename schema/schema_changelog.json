@@ -488,5 +488,10 @@
     "acceptsSchemaHash": "592612513ed7bd3260014fe27c8ae328",
     "acceptedByMigration": "20231215T014943.add_endedby_field_for_ckeditorusersessions.ts",
     "timestamp": "2023-12-15T01:49:43.000Z"
+  },
+  {
+    "acceptsSchemaHash": "3c34c84edbc1f9b550daca4729602428",
+    "acceptedByMigration": "20231220T011444.add_notificationYourTurnMatchForm_to_Users.ts",
+    "timestamp": "2023-12-20T01:14:44.000Z"
   }
 ]

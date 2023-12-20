@@ -27,11 +27,11 @@
  * (run `git diff --no-index schema/accepted_schema.sql schema/schema_to_accept.sql` to see this more clearly)
  *
  * - [X] Write a migration to represent these changes
- * - [ ] Rename this file to something more readable
- * - [ ] Uncomment `acceptsSchemaHash` below
- * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
+ * - [X] Rename this file to something more readable
+ * - [X] Uncomment `acceptsSchemaHash` below
+ * - [X] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "3c34c84edbc1f9b550daca4729602428";
+export const acceptsSchemaHash = "3c34c84edbc1f9b550daca4729602428";
 
 import Users from "../../lib/collections/users/collection"
 import { addField, dropField } from "./meta/utils"
