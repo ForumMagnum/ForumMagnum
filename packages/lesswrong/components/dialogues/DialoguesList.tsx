@@ -198,9 +198,9 @@ const DialogueMatchRow = ({ rowProps, classes, onHide }: DialogueMatchRowProps) 
           />
         </PostsItem2MetaInfo>
       </div>
-      <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
-        {!matchPreference && (reciprocalMatchPreference ? "Waiting for you →" : "You've matched") }
-      </PostsItem2MetaInfo>
+      {!matchPreference && <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
+        { reciprocalMatchPreference ? "Waiting for you →" : "You've matched" }
+      </PostsItem2MetaInfo> }
       <div className={classes.dialogueRightContainer}>
         <div className={classes.dialogueMatchPreferencesButtonContainer}>
           <DialogueNextStepsButton
