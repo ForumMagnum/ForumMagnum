@@ -1421,6 +1421,7 @@ interface DbUser extends DbObject {
   showMyDialogues: boolean
   showMatches: boolean
   showRecommendedPartners: boolean
+  hideActiveDialogueUsers: boolean
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
