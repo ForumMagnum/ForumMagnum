@@ -18,6 +18,14 @@ type DequeueWithPriorityResult<T extends RequestData> = RequestWithPriority<T> |
 
 /**
  * This is a special-cased "priority" queue meant to handle SSR requests when we have too many being rendered.
+ * 
+ * Requests are categorized into one of five priority levels (0 to 4), with each bucket corresponding to a priority level. Lower indices indicate higher priority.
+ * 
+ * Priority is assigned by {@link getItemPriority}, which deprioritizes requests accordingly:
+ * - 1 point for not being from a logged-in user
+ * - 1 point for having a user-agent which makes up 30% or more of the current queue
+ * - 2 points for having an IP which makes up 30% or more of the current queue
+ * 
  * Its performance is very different from a regular priority queue:
  * 
  * - Median enqueue and dequeue are O(1), not O(log n).
