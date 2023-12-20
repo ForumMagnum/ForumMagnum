@@ -4,7 +4,7 @@ export interface RequestData {
   userId?: string;
 }
 
-interface RequestWithPriority<T extends RequestData> {
+export interface RequestWithPriority<T extends RequestData> {
   request: T;
   preOpPriority: number;
 }
@@ -59,7 +59,7 @@ export default class PriorityBucketQueue<T extends RequestData> {
     this.rebucketRequests({ request, preOpPriority: priority });
   }
 
-  dequeue(): T | undefined {
+  dequeue(): DequeueWithPriorityResult<T> {
     const requestWithPriority = this.dequeueWithPriority();
 
     if (this.dequeueResultHasRequest(requestWithPriority)) {
@@ -67,17 +67,21 @@ export default class PriorityBucketQueue<T extends RequestData> {
       this.rebucketRequests(requestWithPriority);
     }
 
-    return requestWithPriority.request;
+    return requestWithPriority;
   }
 
-  private dequeueWithPriority(): DequeueWithPriorityResult<T> {
+  peek(): DequeueWithPriorityResult<T> {
+    return this.dequeueWithPriority({ peek: true });
+  }
+
+  private dequeueWithPriority(options?: { peek: boolean }): DequeueWithPriorityResult<T> {
     let bucketIdx = 0;
     while (bucketIdx < this.buckets.length) {
       // We need to get the priority of the request before removing it from the bucket, since `getItemPriority` depends on the sum of all the bucket lengths
       const request = this.buckets[bucketIdx][0];
       if (request) {
         const preDequeuePriority = this.getItemPriority(request);
-        this.buckets[bucketIdx].shift();
+        if (!options?.peek) this.buckets[bucketIdx].shift();
         return { request, preOpPriority: preDequeuePriority };
       } else {
         bucketIdx++;
@@ -162,7 +166,7 @@ export default class PriorityBucketQueue<T extends RequestData> {
       priority += 1;
     }
 
-    if (queueSize >= 3) {
+    if (queueSize >= 4) {
       const queueIpFraction = queuedIpCount / queueSize;
       const queueUserAgentFraction = queuedUserAgentCount / queueSize;
 

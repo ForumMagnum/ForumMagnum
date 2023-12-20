@@ -237,9 +237,9 @@ function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> 
 function maybeStartQueuedRequests() {
   while (inFlightRenderCount < maxRenderQueueSize.get() && requestPriorityQueue.size() > 0) {
     let requestToStartRendering = requestPriorityQueue.dequeue();
-    if (requestToStartRendering) {
+    if (requestToStartRendering.request) {
       inFlightRenderCount++;
-      void requestToStartRendering.callback();
+      void requestToStartRendering.request.callback();
     }
   }
 }
