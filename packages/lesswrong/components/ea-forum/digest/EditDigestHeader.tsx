@@ -95,7 +95,7 @@ export const EditDigestHeader = ({digest, classes}: {
 
   return <SectionTitle
     title={<span className={classes.root}>
-      {getDigestName({digest, includeDates: false})} ({startNode} - {endNode})
+      {getDigestName(digest)} ({startNode} - {endNode})
     </span>}
     noTopMargin
   />
