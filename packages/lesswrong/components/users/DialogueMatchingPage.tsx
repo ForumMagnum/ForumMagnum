@@ -9,7 +9,6 @@ import { useCreate } from '../../lib/crud/withCreate';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useSingle } from '../../lib/crud/withSingle';
-import { useMulti } from "../../lib/crud/withMulti";
 import ReactConfetti from 'react-confetti';
 import { Link, NavigateFunction, useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -76,6 +75,8 @@ interface CommonDialogueUserRowProps {
   hideInRecommendations?: boolean;
   userIsChecked: boolean;
   userIsMatched: boolean;
+  matchPreference?: DialogueMatchPreferencesDefaultFragment;
+  reciprocalMatchPreference?: DialogueMatchPreferencesDefaultFragment;
   currentUser: UsersCurrent;
   showBio: boolean | undefined;
   showFrequentCommentedTopics: boolean | undefined;
@@ -126,7 +127,9 @@ type NextStepsDialogProps = {
   targetUserId: string;
   targetUserDisplayName: string;
   dialogueCheckId: string;
-  dialogueCheck: DialogueCheckInfo;
+  matchPreference?: DialogueMatchPreferencesDefaultFragment;
+  reciprocalMatchPreference?: DialogueMatchPreferencesDefaultFragment;
+  dialogueCheck?: DialogueCheckInfo;
   classes: ClassesType<typeof styles>;
 };
 
@@ -136,6 +139,9 @@ type DialogueNextStepsButtonProps = {
   targetUserId: string;
   targetUserDisplayName: string;
   currentUser: UsersCurrent;
+  matchPreference?: DialogueMatchPreferencesDefaultFragment;
+  reciprocalMatchPreference?: DialogueMatchPreferencesDefaultFragment;
+  dialogueCheck?: DialogueCheckInfo;
   classes: ClassesType<typeof styles>;
 };
 
@@ -585,7 +591,8 @@ const isChecked = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string
 };
 
 export const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
-  const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id;
+  const check = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)
+  const checkId = check?._id;
   const hideInRecommendations = isHideInRecommendations(userDialogueChecks, targetUser._id);
   const userIsChecked = isChecked(userDialogueChecks, targetUser._id);
   const userIsMatched = isMatched(userDialogueChecks, targetUser._id);
@@ -593,7 +600,9 @@ export const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogue
     checkId,
     hideInRecommendations,
     userIsChecked,
-    userIsMatched
+    userIsMatched,
+    matchPreference: check?.matchPreference,
+    reciprocalMatchPreference: check?.reciprocalMatchPreference,
   };
 }
 
@@ -891,15 +900,15 @@ return (
   </AnalyticsContext>)
 }
 
-const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes, dialogueCheck }: NextStepsDialogProps) => {
+const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, matchPreference, reciprocalMatchPreference, dialogueCheckId, classes }: NextStepsDialogProps) => {
   const { LWDialog, ReactionIcon, LWTooltip, CalendlyIFrame } = Components;
 
-  const [topicNotes, setTopicNotes] = useState(dialogueCheck.matchPreference?.topicNotes ?? "");
-  const [formatSync, setFormatSync] = useState<SyncPreference>(dialogueCheck.matchPreference?.syncPreference ?? "Meh");
-  const [formatAsync, setFormatAsync] = useState<SyncPreference>(dialogueCheck.matchPreference?.asyncPreference ?? "Meh");
-  const [formatNotes, setFormatNotes] = useState(dialogueCheck.matchPreference?.formatNotes ?? "");
+  const [topicNotes, setTopicNotes] = useState(matchPreference?.topicNotes ?? "");
+  const [formatSync, setFormatSync] = useState<SyncPreference>(matchPreference?.syncPreference ?? "Meh");
+  const [formatAsync, setFormatAsync] = useState<SyncPreference>(matchPreference?.asyncPreference ?? "Meh");
+  const [formatNotes, setFormatNotes] = useState(matchPreference?.formatNotes ?? "");
   const showRecommendedContent = useABTest(showRecommendedContentInMatchForm);
-  const initialCalendlyLink = validatedCalendlyUrl(dialogueCheck.matchPreference?.calendlyLink ?? "");
+  const initialCalendlyLink = validatedCalendlyUrl(matchPreference?.calendlyLink ?? "");
   const [calendlyLink, setCalendlyLink] = useState(initialCalendlyLink);
 
   const calendlyAB = useABTest(offerToAddCalendlyLink);
@@ -982,8 +991,8 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
       .map(topic => [topic.text, {...topic, preference: own ? "Yes" : undefined, matchedPersonPreference: own ? undefined : "Yes"}])
     return Object.fromEntries(prefsDictList)  
   }
-  const ownTopicDict = dialogueCheck.matchPreference ? getTopicDict(dialogueCheck.matchPreference, true) : {}
-  const matchedPersonTopicDict = dialogueCheck.reciprocalMatchPreference ? getTopicDict(dialogueCheck.reciprocalMatchPreference, false) : {}
+  const ownTopicDict = matchPreference ? getTopicDict(matchPreference, true) : {}
+  const matchedPersonTopicDict = reciprocalMatchPreference ? getTopicDict(reciprocalMatchPreference, false) : {}
   const initialTopicDict = mergeWith(ownTopicDict, matchedPersonTopicDict, (ownTopic, matchedPersonTopic) =>
     ({...matchedPersonTopic, preference: undefined, ...ownTopic})
   )
@@ -1197,6 +1206,8 @@ const DialogueCheckBox: React.FC<{
           userId: currentUser?._id,
           targetUserId,
           targetUserDisplayName,
+          matchPreference: response.data.upsertUserDialogueCheck.matchPreference, 
+          reciprocalMatchPreference: response.data.upsertUserDialogueCheck.reciprocalMatchPreference,
           dialogueCheckId: response.data.upsertUserDialogueCheck._id,
           dialogueCheck: response.data.upsertUserDialogueCheck
         }
@@ -1235,6 +1246,8 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
   targetUserId,
   targetUserDisplayName,
   currentUser,
+  matchPreference,
+  reciprocalMatchPreference,
   classes,
 }) => {
   const { ReactionIcon } = Components;
@@ -1243,27 +1256,9 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
 
   const navigate = useNavigate();
 
-  const {loading: userLoading, results: matchFormResults} = useMulti({
-    terms: {
-      view: "dialogueMatchPreferences",
-      dialogueCheckId: checkId,
-      limit: 1000,
-    },
-    fragmentName: "DialogueMatchPreferenceInfo",
-    collectionName: "DialogueMatchPreferences",
-  });
-
-  const { document: dialogueCheck } = useSingle({
-    fragmentName: "DialogueCheckInfo",
-    collectionName: "DialogueChecks",
-    documentId: checkId,
-  });
-
   if (!isMatched) return <div className={classes.hideAtXs}></div>; // need this instead of null to keep the table columns aligned
 
-  const userMatchPreferences = matchFormResults?.[0]
-  const generatedDialogueId = userMatchPreferences?.generatedDialogueId;
-  const targetUserMatchPreferences = dialogueCheck?.reciprocalMatchPreference
+  const generatedDialogueId = matchPreference?.generatedDialogueId;
 
   if (!!generatedDialogueId) {
     return (
@@ -1273,7 +1268,7 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
     );
   }
 
-  if (userMatchPreferences) {
+  if (matchPreference) {
     return (
       <div className={classes.waitingMessage}>
         Waiting for {targetUserDisplayName}...
@@ -1285,22 +1280,23 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
     <button
       className={classNames(classes.enterTopicsButton, {
         [classes.hideAtXs]: !isMatched,
-        [classes.lightGreenButton]: !!targetUserMatchPreferences,
+        [classes.lightGreenButton]: !!reciprocalMatchPreference,
       })}
       onClick={(e) => {
-        dialogueCheck && openDialog({
+        openDialog({
           componentName: 'NextStepsDialog',
           componentProps: {
             userId: currentUser?._id,
             targetUserId,
             targetUserDisplayName,
+            matchPreference,
+            reciprocalMatchPreference,
             dialogueCheckId: checkId,
-            dialogueCheck
           }
         })
       }}
     >
-      <a data-cy="message">{targetUserMatchPreferences ? "Enter your topics" : "Enter topics"}</a>
+      <a data-cy="message">{reciprocalMatchPreference ? "Enter your topics" : "Enter topics"}</a>
     </button>
   );
 };
@@ -1326,15 +1322,9 @@ const MessageButton: React.FC<{
 
 
 const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { classes: ClassesType }): JSX.Element => {
-  const { targetUser, checkId, userIsChecked, userIsMatched, classes, currentUser, showKarma, showAgreement, showBio, showFrequentCommentedTopics, showPostsYouveRead } = props;
+  const { targetUser, checkId, userIsChecked, userIsMatched, classes, currentUser, showKarma, showAgreement, showBio, showFrequentCommentedTopics, showPostsYouveRead, matchPreference, reciprocalMatchPreference } = props;
   const { UsersName, DialogueCheckBox, MessageButton, DialogueNextStepsButton, ReactionIcon } = Components;
 
-  const { document: dialogueCheck } = useSingle({
-    fragmentName: "DialogueCheckInfo",
-    collectionName: "DialogueChecks",
-    documentId: checkId,
-  });
-  const targetUserMatchPreferences = dialogueCheck?.reciprocalMatchPreference
 
   return <React.Fragment key={`${targetUser._id}_other`} >
     <DialogueCheckBox
@@ -1360,8 +1350,9 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
         targetUserId={targetUser._id}
         targetUserDisplayName={targetUser.displayName}
         currentUser={currentUser}
+        reciprocalMatchPreference={reciprocalMatchPreference}
       />
-      {targetUserMatchPreferences && 
+      {!matchPreference && reciprocalMatchPreference && 
         <div className={classes.enterTopicsAnnotation}> 
           <ReactionIcon size={10} react={"agree"} /> {targetUser.displayName}
         </div>

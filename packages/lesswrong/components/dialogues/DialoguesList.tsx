@@ -14,7 +14,6 @@ import { useUpsertDialogueCheck } from '../hooks/useUpsertDialogueCheck';
 import { DialogueUserResult } from './DialogueRecommendationRow';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
-import { useSingle } from '../../lib/crud/withSingle';
 
 const styles = (theme: ThemeType) => ({
   dialogueFacilitationItem: {
@@ -176,13 +175,7 @@ interface DialogueMatchRowProps {
 const DialogueMatchRow = ({ rowProps, classes, onHide }: DialogueMatchRowProps) => {
   const { DialogueCheckBox, UsersName, MessageButton, DialogueNextStepsButton, PostsItem2MetaInfo, ReactionIcon } = Components
 
-  const { targetUser, checkId, userIsChecked, userIsMatched } = rowProps;
-  const { document: dialogueCheck } = useSingle({
-    fragmentName: "DialogueCheckInfo",
-    collectionName: "DialogueChecks",
-    documentId: checkId,
-  });
-  const targetUserMatchPreferences = dialogueCheck?.reciprocalMatchPreference
+  const { targetUser, checkId, userIsChecked, userIsMatched, matchPreference, reciprocalMatchPreference } = rowProps;
   const currentUser = useCurrentUser();
   if (!currentUser) return <></>;
 
@@ -206,7 +199,7 @@ const DialogueMatchRow = ({ rowProps, classes, onHide }: DialogueMatchRowProps) 
         </PostsItem2MetaInfo>
       </div>
       <PostsItem2MetaInfo className={classes.dialogueMatchNote}>
-        {targetUserMatchPreferences ? "Waiting for you →" : "You've matched" }
+        {!matchPreference && (reciprocalMatchPreference ? "Waiting for you →" : "You've matched") }
       </PostsItem2MetaInfo>
       <div className={classes.dialogueRightContainer}>
         <div className={classes.dialogueMatchPreferencesButtonContainer}>
@@ -216,8 +209,10 @@ const DialogueMatchRow = ({ rowProps, classes, onHide }: DialogueMatchRowProps) 
             targetUserId={targetUser._id}
             targetUserDisplayName={targetUser.displayName}
             currentUser={currentUser}
+            matchPreference={matchPreference}
+            reciprocalMatchPreference={reciprocalMatchPreference}
           />
-          {targetUserMatchPreferences && 
+          {!matchPreference && reciprocalMatchPreference && 
             <div className={classes.enterTopicsAnnotation}> 
               <ReactionIcon size={10} react={"agree"} /> {targetUser.displayName}
             </div>
@@ -281,7 +276,7 @@ const DialoguesList = ({ classes }: { classes: ClassesType<typeof styles> }) => 
     showKarma: false,
     showPostsYouveRead: false,
     userDialogueChecks,
-    users: matchedUsers ?? []
+    users: matchedUsers ?? [],
   });
 
   const manyRecommendedUsers: DialogueUserResult[] | undefined = recommendedUsersResult?.GetDialogueRecommendedUsers;
