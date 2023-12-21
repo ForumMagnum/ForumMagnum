@@ -2477,7 +2477,7 @@ const schema: SchemaType<"Posts"> = {
       foreignCollectionName: "Comments",
       foreignTypeName: "comment",
       foreignFieldName: "postId",
-      filterFn: comment => !comment.deleted && !comment.rejected && !comment.debateResponse
+      filterFn: comment => !comment.deleted && !comment.rejected && !comment.debateResponse && !comment.authorIsUnreviewed,
     }),
     canRead: ['guests'],
   },

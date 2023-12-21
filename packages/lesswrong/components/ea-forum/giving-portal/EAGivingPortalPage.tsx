@@ -1,13 +1,14 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import { Components, getSiteUrl, registerComponent } from "../../../lib/vulcan-lib";
 import { useSingle } from "../../../lib/crud/withSingle";
-import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
 import { formatStat } from "../../users/EAUserTooltipContent";
 import {
   useAmountRaised,
   useDonationOpportunities,
+  useShowTimeline,
   useSubmittedVoteCount,
 } from "./hooks";
 import {
@@ -165,6 +166,16 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: 0.9,
     }
+  },
+  buttonDisabled: {
+    cursor: "not-allowed",
+    opacity: 0.65,
+    "&:hover": {
+      opacity: 0.65,
+    },
+    "&:active": {
+      opacity: 0.65,
+    },
   },
   votingBannerButtonLightOpaque: {
     background: theme.palette.givingPortal.homepageHeader.light3Opaque,
@@ -335,7 +346,7 @@ const formatDollars = (amount: number) => "$" + formatStat(Math.round(amount));
 
 const canonicalUrl = getSiteUrl() + "giving-portal";
 
-const pageDescription = "It's Giving season on the EA Forum. We're hosting a Donation Election, weekly themes, and more throughout November and December 2023.";
+const pageDescription = "It’s Giving season on the EA Forum; we’ve run a Donation Election, some discussion themes, and more.";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -376,6 +387,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const {flash} = useMessages();
   const {openDialog} = useDialog();
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
+  const showTimeline = useShowTimeline();
   // We only show the voting banner for users who are eligible -
   // i.e. those that created their accounts before Oct 23 and haven't voted yet.
   const showVotingBanner =
@@ -396,8 +408,8 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     window.location.href = '/voting-portal';
   }, [currentUser, flash, openDialog]);
 
-  const donationElectionPostsTerms = getListTerms({
-    tagId: donationElectionTagId,
+  const effectiveGivingPostsTerms = getListTerms({
+    tagId: effectiveGivingTagId,
     sortedBy: "magic",
     limit: 8,
   });
@@ -459,14 +471,18 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
           <div className={classNames(classes.text, classes.center)}>
             {pageDescription}
           </div>
-          <div className={classNames(
-            classes.h2,
-            classes.mt20,
-            classes.hideOnMobile,
-          )}>
-            Timeline
-          </div>
-          <Timeline {...timelineSpec} className={classes.hideOnMobile} handleVote={handleVote} />
+          {showTimeline &&
+            <>
+              <div className={classNames(
+                classes.h2,
+                classes.mt20,
+                classes.hideOnMobile,
+              )}>
+                Timeline
+              </div>
+              <Timeline {...timelineSpec} className={classes.hideOnMobile} />
+            </>
+          }
         </div>
         <div className={classes.sectionSplit}>
           <div className={classes.content} id="election">
@@ -481,7 +497,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 classes.mb20,
               )}>
                 <span className={classes.bold}>
-                Contribute to the Donation Election Fund to encourage more discussion about donation choice and effective giving.
+                  The Donation Election has closed (results will be announced soon),
+                  but you can still contribute to the{" "}
+                  <Link to={donationElectionFundraiserLink}>Donation Election Fund</Link>{" "}
+                  until 20 December.
                 </span>{" "}
                 The fund will be designated for the top 3 winners in the Donation Election.{" "}
                 <Link to={donationElectionLink}>Learn more</Link>.
@@ -555,13 +574,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 classes.textWide,
                 classes.mb20,
               )}>
-                The Donation Election Fund will be designated for the top three winning candidates in the election (split proportionately, based on users' votes). Voting will open on 1 December, 2023.
-                <ul>
-                  <li><b>Pre-vote</b> to show which candidates you're likely to vote for. Pre-votes are anonymous, don't turn into real votes, and you can change them at any time.</li>
-                  <li><b>Add candidates</b> if you think they should be in the Election. Any project <a href="https://docs.google.com/spreadsheets/d/1I-IFdkai9frIIMO6fVqOIp6PDllXG713UhnI1WuwyiQ/edit#gid=0">
-                  here</a> can be a candidate.</li>
-                </ul>
-                <i>Only users who had an account as of 22 October 2023 can pre-vote or vote in the election.</i>
+                The Donation Election Fund will be designated for the top three winning candidates in the election (split proportionately, based on users' votes).
               </div>
               <ElectionCandidatesList className={classes.electionCandidates} />
               <div className={classNames(
@@ -569,7 +582,9 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 classes.mt10,
                 classes.mb80,
               )}>
-                <button onClick={handleVote} className={classes.button}>Vote in the Election</button>
+                <button className={classNames(classes.button, classes.buttonDisabled)}>
+                  Vote in the Election
+                </button>
               </div>
             </div>
           </div>
@@ -583,14 +598,14 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
               classes.mb80,
             )} id="posts">
               <div className={classNames(classes.h2, classes.primaryText)}>
-                Posts tagged &quot;Donation Election 2023&quot;
+                Posts tagged &quot;Effective Giving&quot;
               </div>
               <div className={classNames(
                 classes.postsList,
                 classes.primaryLoadMore,
               )}>
                 <PostsList2
-                  terms={donationElectionPostsTerms}
+                  terms={effectiveGivingPostsTerms}
                   loadMoreMessage="View more"
                 />
               </div>
