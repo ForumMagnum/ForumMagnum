@@ -419,7 +419,11 @@ export const YourTurnMatchFormNotification = registerNotificationType({
     return <DebateIcon style={iconStyles}/>
   },
   getLink({ extraData }: { extraData: Record<string,any> }) { 
-    return `/dialogueMatching${extraData?.checkId ? '?dialogueCheckId='+extraData?.checkId : ''}`
+    const url = new URL('/dialogueMatching', 'https://dummy.com');
+    if (extraData?.checkId) {
+      url.searchParams.append('dialogueCheckId', extraData.checkId);
+    }
+    return url.pathname + url.search;
   }
 });
 

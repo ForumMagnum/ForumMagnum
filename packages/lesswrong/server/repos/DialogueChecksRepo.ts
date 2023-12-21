@@ -71,11 +71,7 @@ class DialogueChecksRepo extends AbstractRepo<"DialogueChecks"> {
         dmp_reciprocal._id AS "targetUserMatchPreferenceId"
       FROM "DialogueChecks" AS dc
       LEFT JOIN "DialogueMatchPreferences" AS dmp ON dc._id = dmp."dialogueCheckId"
-      LEFT JOIN
-          "DialogueChecks" AS dc_reciprocal
-          ON
-              dc."userId" = dc_reciprocal."targetUserId"
-              AND dc."targetUserId" = dc_reciprocal."userId"
+      LEFT JOIN "DialogueChecks" AS dc_reciprocal ON dc."userId" = dc_reciprocal."targetUserId" AND dc."targetUserId" = dc_reciprocal."userId"
       LEFT JOIN "DialogueMatchPreferences" AS dmp_reciprocal ON dc_reciprocal._id = dmp_reciprocal."dialogueCheckId"
       LEFT JOIN "Notifications" AS n ON n."extraData"->>'targetUserMatchPreferenceId' = dmp_reciprocal._id
       WHERE 

@@ -937,10 +937,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     // used to remove query parameters if user clicks outside the dialog
     const searchParams = new URLSearchParams(location.search);
     searchParams.delete('dialogueCheckId');
-
-    const newLocation = location.pathname + '?' + searchParams.toString();
-
-    navigate(newLocation);
+    navigate({ ...location, search: `?${searchParams.toString()}`  });
   
     onClose();
   };
