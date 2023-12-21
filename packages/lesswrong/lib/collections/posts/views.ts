@@ -1542,3 +1542,13 @@ Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: Resolver
     },
   };
 });
+
+
+/**
+ * For preventing `PostsRepo.getRecentlyActiveDialogues` from being a seq scan.
+ */
+void ensureCustomPgIndex(`
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Posts_max_postedAt_mostRecentPublishedDialogueResponseDate"
+  ON "Posts" (GREATEST("postedAt", "mostRecentPublishedDialogueResponseDate") DESC)
+  WHERE "collabEditorDialogue" IS TRUE AND draft IS NOT TRUE;
+`);
