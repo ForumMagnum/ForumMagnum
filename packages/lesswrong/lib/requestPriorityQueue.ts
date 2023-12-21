@@ -74,6 +74,14 @@ export default class PriorityBucketQueue<T extends RequestData> {
     return this.dequeueWithPriority({ peek: true });
   }
 
+  /**
+   * WARNING: Only use for analytics (and maybe unit tests).
+   * DO NOT use this to interact with data in the queue.
+   */
+  getQueueState() {
+    return this.buckets.flatMap((bucket, priority) => bucket.map(request => [request, priority] as const));
+  }
+
   private dequeueWithPriority(options?: { peek: boolean }): DequeueWithPriorityResult<T> {
     let bucketIdx = 0;
     while (bucketIdx < this.buckets.length) {

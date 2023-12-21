@@ -254,16 +254,19 @@ function maybeStartQueuedRequests() {
   while (inFlightRenderCount < maxRenderQueueSize.get() && requestPriorityQueue.size() > 0) {
     let requestToStartRendering = requestPriorityQueue.dequeue();
     if (requestToStartRendering.request) {
-      inFlightRenderCount++;
-      // TODO: set the queue priority level of the request on the perf metric
+      const { preOpPriority, request } = requestToStartRendering;
+
+      // If the request that we're kicking off is coming from the queue, we want to track this in the perf metrics
       setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
         if (!incompletePerfMetric) return;
         return {
           ...incompletePerfMetric,
-          // op_name: rendered.cached ? "cacheHit" : "cacheMiss"
+          queue_priority: preOpPriority
         }
       });
-      void requestToStartRendering.request.callback();
+
+      inFlightRenderCount++;
+      void request.callback();
     }
   }
 }
