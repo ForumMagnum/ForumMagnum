@@ -190,7 +190,6 @@ export const darkModeTheme: UserThemeSpecification = {
       warning: '#FFF7E6',
       alwaysWhite: '#fff',
       primaryDarkOnDim: '#a8cad7',
-      wrappedHighlight: '#FFC443',
       aprilFools: {
         orange: "#ff7144",
         yellow: "#ffba7d",
@@ -220,7 +219,6 @@ export const darkModeTheme: UserThemeSpecification = {
       primaryTranslucentHeavy: "rgba(99,141,103,0.6)",
       warningTranslucent: "rgba(255,173,8,0.3)",
       transparent: 'transparent',
-      wrapped2023: '#072C47',
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
@@ -292,6 +290,16 @@ export const darkModeTheme: UserThemeSpecification = {
         secondaryOpaque: "rgba(253, 139, 132, 0.40)",
         secondaryOpaqueDark: "rgba(197, 106, 101, 0.40)",
       },
+    },
+    wrapped: {
+      background: '#072C47',
+      highlightText: '#FFC443',
+      secondaryText: '#008DAC',
+      darkDot: "rgba(255, 255, 255, 0.40)",
+      panelBackground: "rgba(255, 255, 255, 0.10)",
+      panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
+      postScoreArrow: '#BCBCBC',
+      postScore: '#757575',
     },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({

@@ -1,5 +1,12 @@
 import { gql, useQuery } from "@apollo/client";
 
+export type WrappedTopPost = {
+  _id: string;
+  title: string;
+  slug: string;
+  baseScore: number;
+}
+
 type WrappedDataByYearV2 = {
   engagementPercentile: number;
   postsReadCount: number;
@@ -13,20 +20,18 @@ type WrappedDataByYearV2 = {
   relativeMostReadCoreTopics: {
     tagId: string;
     tagName: string;
+    tagShortName: string;
+    userReadCount: number;
     readLikelihoodRatio: number;
   }[];
   mostReadAuthors: {
     displayName: string;
     slug: string;
+    profileImageId: string;
     count: number;
     engagementPercentile: number;
   }[];
-  topPost: {
-    _id: string;
-    title: string;
-    slug: string;
-    baseScore: number;
-  };
+  topPosts: WrappedTopPost[];
   postCount: number;
   authorPercentile: number;
   topComment: {
@@ -50,13 +55,10 @@ type WrappedDataByYearV2 = {
   shortformCount: number;
   shortformPercentile: number;
   karmaChange: number;
-  postKarmaChanges: {
-    date: string;
-    value: number;
-  }[];
-  commentKarmaChanges: {
-    date: string;
-    value: number;
+  combinedKarmaVals: {
+    date: Date;
+    postKarma: number;
+    commentKarma: number;
   }[];
   mostReceivedReacts: {
     name: string;
@@ -88,15 +90,18 @@ export const useForumWrappedV2 = ({ userId, year }: { userId?: string | null; ye
           relativeMostReadCoreTopics {
             tagId
             tagName
+            tagShortName
+            userReadCount
             readLikelihoodRatio
           }
           mostReadAuthors {
             displayName
             slug
+            profileImageId
             count
             engagementPercentile
           }
-          topPost {
+          topPosts {
             _id
             title
             slug
@@ -125,13 +130,10 @@ export const useForumWrappedV2 = ({ userId, year }: { userId?: string | null; ye
           shortformCount
           shortformPercentile
           karmaChange
-          postKarmaChanges {
+          combinedKarmaVals {
             date
-            value
-          }
-          commentKarmaChanges {
-            date
-            value
+            postKarma
+            commentKarma
           }
           mostReceivedReacts {
             name

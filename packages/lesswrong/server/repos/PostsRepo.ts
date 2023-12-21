@@ -563,12 +563,13 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }: {
     userId: string;
     year: number;
-  }): Promise<{ tagId: string; tagName: string; readLikelihoodRatio: number }[]> {
+  }): Promise<{ tagId: string; tagName: string; tagShortName: string; userReadCount: number; readLikelihoodRatio: number }[]> {
     const startPostedAt = new Date(year, 0, 1);
     const endPostedAt = new Date(year + 1, 0, 1);
 
-    const results = await this.getRawDb().any<{ tagId: string; name: string; ratio: number }>(
+    const results = await this.getRawDb().any<{ tagId: string; name: string; shortName: string; read_count: number; ratio: number }>(
       `
+      -- PostsRepo.getReadCoreTagStats
       WITH core_tags AS (
           SELECT _id
           FROM tags
@@ -594,6 +595,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
               INNER JOIN "TagRels" tr ON read_posts."postId" = tr."postId"
           WHERE
               tr."tagId" IN (SELECT _id FROM core_tags)
+              AND tr."deleted" IS FALSE
           GROUP BY
               tr."tagId"
       ),
@@ -607,6 +609,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           WHERE
               read_posts."userId" = $3
               AND tr."tagId" IN (SELECT _id FROM core_tags)
+              AND tr."deleted" IS FALSE
           GROUP BY
               tr."tagId"
       ),
@@ -625,6 +628,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       SELECT
           tr."tagId",
           t.name,
+          t."shortName",
+          ur.read_count,
           (coalesce(ur.read_count::float, 0.0) / user_reads.total_count) / (tr.read_count::float / total_reads.total_count) AS ratio
       FROM
           total_reads_by_tag tr
@@ -638,7 +643,13 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       [startPostedAt, endPostedAt, userId]
     );
 
-    return results.map(({ tagId, name, ratio }) => ({ tagId, tagName: name, readLikelihoodRatio: ratio }));
+    return results.map(({ tagId, name, shortName, read_count, ratio }) => ({
+      tagId,
+      tagName: name,
+      tagShortName: shortName,
+      userReadCount: read_count,
+      readLikelihoodRatio: ratio
+    }));
   }
 }
 

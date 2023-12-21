@@ -14,6 +14,7 @@ import countBy from 'lodash/countBy';
 import entries from 'lodash/fp/entries';
 import sortBy from 'lodash/sortBy';
 import last from 'lodash/fp/last';
+import range from 'lodash/range';
 import Tags, { EA_FORUM_COMMUNITY_TOPIC_ID } from '../../lib/collections/tags/collection';
 import Comments from '../../lib/collections/comments/collection';
 import sumBy from 'lodash/sumBy';
@@ -25,6 +26,7 @@ import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { UsersRepo } from '../repos';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
+import { eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 
 addGraphQLSchema(`
   type CommentCountTag {
@@ -175,11 +177,14 @@ addGraphQLSchema(`
   type TagReadLikelihoodRatio {
     tagId: String,
     tagName: String,
+    tagShortName: String,
+    userReadCount: Int,
     readLikelihoodRatio: Float
   }
   type MostReadAuthorV2 {
     slug: String,
     displayName: String,
+    profileImageId: String,
     count: Int,
     engagementPercentile: Float
   }
@@ -187,9 +192,10 @@ addGraphQLSchema(`
     name: String,
     count: Int
   }
-  type IntSeriesValue {
-    date: String!,
-    value: Int!
+  type CombinedKarmaVals {
+    date: Date!,
+    postKarma: Int!,
+    commentKarma: Int!
   }
   type WrappedDataByYearV2 {
     engagementPercentile: Float,
@@ -199,7 +205,7 @@ addGraphQLSchema(`
     mostReadTopics: [MostReadTopic],
     relativeMostReadCoreTopics: [TagReadLikelihoodRatio]
     mostReadAuthors: [MostReadAuthorV2],
-    topPost: Post,
+    topPosts: [Post],
     postCount: Int,
     authorPercentile: Float,
     topComment: Comment,
@@ -209,8 +215,7 @@ addGraphQLSchema(`
     shortformCount: Int,
     shortformPercentile: Float,
     karmaChange: Int,
-    postKarmaChanges: [IntSeriesValue],
-    commentKarmaChanges: [IntSeriesValue],
+    combinedKarmaVals: [CombinedKarmaVals],
     mostReceivedReacts: [MostReceivedReact],
     alignment: String,
   }
@@ -377,7 +382,7 @@ addGraphQLResolvers({
         return !p.coauthorStatuses?.some(cs => cs.userId === user._id)
       })
 
-      // Get the top 3 authors that the user has read
+      // Get the top 5 authors that the user has read
       const userIds = posts.map(p => {
         let authors = p.coauthorStatuses?.map(cs => cs.userId) ?? []
         authors.push(p.userId)
@@ -393,7 +398,7 @@ addGraphQLResolvers({
         }))
       );
 
-      // Get the top 3 topics that the user has read (filtering out the Community topic)
+      // Get the top 4 topics that the user has read (filtering out the Community topic)
       const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat().filter(t => t !== EA_FORUM_COMMUNITY_TOPIC_ID)
       const tagCounts = countBy(tagIds)
       const topTags = sortBy(entries(tagCounts), last).slice(-4).map(t => t![0])
@@ -416,7 +421,7 @@ addGraphQLResolvers({
           {
             _id: { $in: topAuthors },
           },
-          { projection: { displayName: 1, slug: 1 } }
+          { projection: { displayName: 1, slug: 1, profileImageId: 1 } }
         ).fetch(),
         Tags.find(
           {
@@ -468,6 +473,40 @@ addGraphQLResolvers({
         context.repos.votes.getDocumentKarmaChangePerDay({ documentIds: userPosts.map(({ _id }) => _id), startDate: start, endDate: end }),
         context.repos.votes.getDocumentKarmaChangePerDay({ documentIds: [...userComments.map(({ _id }) => _id), ...userShortforms.map(({ _id }) => _id)], startDate: start, endDate: end }),
       ]);
+      
+      // Format the data changes in a way that can be easily passed in to recharts
+      // to display it as a stacked area chart that goes up and to the right.
+      let postKarma = 0
+      let commentKarma = 0
+      const combinedKarmaVals = range(1, 366).map(i => {
+        const day = moment('2023', 'YYYY').dayOfYear(i)
+        if (postKarmaChanges?.length && moment(postKarmaChanges[0].window_start_key).isSame(day, 'date')) {
+          try {
+            const postKarmaChange = postKarmaChanges.shift()
+            if (postKarmaChange) {
+              postKarma += parseInt(postKarmaChange.karma_change)
+            }
+          } catch {
+            // ignore
+          }
+        }
+        if (commentKarmaChanges?.length && moment(commentKarmaChanges[0].window_start_key).isSame(day, 'date')) {
+          try {
+            const commentKarmaChange = commentKarmaChanges.shift()
+            if (commentKarmaChange) {
+              commentKarma += parseInt(commentKarmaChange.karma_change)
+            }
+          } catch {
+            // ignore
+          }
+        }
+        
+        return {
+          date: day.toDate(),
+          postKarma,
+          commentKarma
+        }
+      })
 
       let totalKarmaChange
       let mostReceivedReacts: { name: string, count: number }[] = []
@@ -491,7 +530,14 @@ addGraphQLResolvers({
         ].flat();
 
         const reactCounts = countBy(allAddedReacts, 'reactionType');
-        mostReceivedReacts = (sortBy(entries(reactCounts), last) as [string, number][]).reverse().map(([name, count]) => ({ name, count }));
+        // We're ignoring agree and disagree reacts.
+        delete reactCounts.agree;
+        delete reactCounts.disagree;
+        mostReceivedReacts = (sortBy(entries(reactCounts), last) as [string, number][]).reverse().map(([name, count]) => ({
+          name: eaEmojiPalette.find(emoji => emoji.name === name)?.label ?? '',
+          count
+        }));
+        mostReceivedReacts = [{name: 'Heart', count: 10}, {name: 'Changed my mind', count: 3}, {name: 'Helpful', count: 1}, {name: 'Insightful', count: 1}]
       }
 
       const { engagementPercentile, totalSeconds, daysVisited }  = await getEngagementV2(user._id, year);
@@ -518,6 +564,7 @@ addGraphQLResolvers({
           ? {
               displayName: author.displayName,
               slug: author.slug,
+              profileImageId: author.profileImageId,
               count: authorCounts[author._id],
               engagementPercentile: authorStats?.percentile ?? 0.0,
             }
@@ -532,7 +579,7 @@ addGraphQLResolvers({
         mostReadTopics,
         relativeMostReadCoreTopics: readCoreTagStats,
         mostReadAuthors,
-        topPost: userPosts.shift() ?? null,
+        topPosts: userPosts.slice(0,4) ?? null,
         postCount: postAuthorshipStats.totalCount,
         authorPercentile: postAuthorshipStats.percentile,
         topComment: userComments.shift() ?? null,
@@ -542,8 +589,7 @@ addGraphQLResolvers({
         shortformCount: shortformAuthorshipStats.totalCount,
         shortformPercentile: shortformAuthorshipStats.percentile,
         karmaChange: totalKarmaChange,
-        postKarmaChanges: postKarmaChanges.map(({ window_start_key, karma_change }) => ({ date: window_start_key, value: karma_change })),
-        commentKarmaChanges: commentKarmaChanges.map(({ window_start_key, karma_change }) => ({ date: window_start_key, value: karma_change })),
+        combinedKarmaVals: combinedKarmaVals,
         mostReceivedReacts,
       }
       // TODO change alignment for 2023

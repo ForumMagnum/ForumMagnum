@@ -204,7 +204,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
     primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
-    wrappedHighlight: '#FFC443',
 
     eventMaybe: "#d59c00",
     
@@ -328,7 +327,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
-    wrapped2023: '#072C47',
   },
   panelBackground: {
     default: shades.grey[0],
@@ -548,6 +546,16 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       secondaryOpaque: "rgba(253, 139, 132, 0.40)",
       secondaryOpaqueDark: "rgba(197, 106, 101, 0.40)",
     },
+  },
+  wrapped: {
+    background: '#072C47',
+    highlightText: '#FFC443',
+    secondaryText: '#008DAC',
+    darkDot: "rgba(255, 255, 255, 0.40)",
+    panelBackground: "rgba(255, 255, 255, 0.10)",
+    panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
+    postScoreArrow: '#BCBCBC',
+    postScore: '#757575',
   },
   dialogueMatching: {
     checkedNotMatched: "#ADD8E6",

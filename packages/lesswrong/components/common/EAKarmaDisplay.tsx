@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const EAKarmaDisplay = ({post, className, classes}: {
-  post: PostsList,
+  post: VoteableType,
   className?: string,
   classes: ClassesType,
 }) => {
