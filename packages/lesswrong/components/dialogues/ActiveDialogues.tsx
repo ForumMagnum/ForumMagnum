@@ -75,6 +75,10 @@ const styles = (theme: ThemeType) => ({
   visibilityIcon: {
     color: theme.palette.grey[400],
     fontSize: "1.7em",
+    cursor: "pointer",
+    '&:hover': {
+      opacity: 0.6
+    }
   }
 });
 
