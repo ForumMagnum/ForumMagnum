@@ -54,7 +54,6 @@ export function addStartRenderTimeToPerfMetric() {
     console.log('Missing asyncLocalStorage context when trying to add start render time to the perf metric for the current request!');
     return;
   }
-
   if (!store.requestPerfMetric) {
     // eslint-disable-next-line no-console
     console.log('Missing perf metric for the current request in the asyncLocalStorage context when trying to add start render time to it!');
