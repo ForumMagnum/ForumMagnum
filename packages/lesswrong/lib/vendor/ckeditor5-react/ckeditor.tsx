@@ -38,7 +38,9 @@ export default class CKEditor<TEditor extends Editor> extends React.Component<Pr
    * After mounting the editor, the variable will contain a reference to the created editor.
    * @see: https://ckeditor.com/docs/ckeditor5/latest/api/module_core_editor_editor-Editor.html
    */
-  private domContainer = React.createRef<HTMLDivElement>();
+  // FORUMMAGNUM: Make this not-private because CKPostEditor attaches a keydown
+  // event handler for submit
+  domContainer = React.createRef<HTMLDivElement>();
 
   /**
    * An instance of EditorWatchdog or an instance of EditorWatchdog-like adapter for ContextWatchdog.

@@ -30,7 +30,6 @@ const CKCommentEditor = ({
   onInit?: any,
   placeholder?: string,
 }) => {
-  console.log("CKCommentEditor.render");
   const webSocketUrl = ckEditorWebsocketUrlOverrideSetting.get() || ckEditorWebsocketUrlSetting.get();
   const ckEditorCloudConfigured = !!webSocketUrl;
   const { CommentEditor } = getCkEditor();
@@ -38,7 +37,7 @@ const CKCommentEditor = ({
   return <div>
     <CKEditor
       editor={CommentEditor}
-      onInit={(editor: any) => {
+      onReady={(editor: any) => {
         // Uncomment the line below and the import above to activate the debugger
         // CKEditorInspector.attach(editor)
         if (onInit) onInit(editor)

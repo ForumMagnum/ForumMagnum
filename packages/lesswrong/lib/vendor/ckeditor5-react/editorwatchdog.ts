@@ -263,8 +263,8 @@ export default class EditorWatchdog<TEditor extends Editor = Editor> extends Wat
 
         // Use document data in the first parameter of the editor `.create()` call only if it was used like this originally.
         // Use document data if a string or object with strings was passed.
-        this._initUsingData = typeof elementOrData == 'string' ||
-          ( Object.keys( elementOrData ).length > 0 && typeof Object.values( elementOrData )[ 0 ] == 'string' );
+        this._initUsingData = typeof elementOrData === 'string' ||
+          ( Object.keys( elementOrData ).length > 0 && typeof Object.values( elementOrData )[ 0 ] === 'string' );
 
         // Clone configuration because it might be shared within multiple watchdog instances. Otherwise,
         // when an error occurs in one of these editors, the watchdog will restart all of them.
@@ -365,7 +365,7 @@ export default class EditorWatchdog<TEditor extends Editor = Editor> extends Wat
    */
   private _getData(): EditorData {
     const editor: AnyBecauseTodo = this._editor!;
-    const roots = editor.model.document.roots.filter( (root: AnyBecauseTodo) => root.isAttached() && root.rootName != '$graveyard' );
+    const roots = editor.model.document.roots.filter( (root: AnyBecauseTodo) => root.isAttached() && root.rootName !== '$graveyard' );
 
     const { plugins } = editor;
     // `as any` to avoid linking from external private repo.

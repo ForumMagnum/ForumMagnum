@@ -402,7 +402,7 @@ const CKPostEditor = ({
   `);
 
   const dialogueParticipantNotificationCallback = async () => {
-  const editorContents =  editorRef?.current?.editor.getData()
+    const editorContents = (editorRef?.current?.editor as any)?.getData()
 
     await sendNewDialogueMessageNotification({
       variables: {
@@ -494,7 +494,7 @@ const CKPostEditor = ({
       onFocus={onFocus}
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
-      onInit={(editor: Editor) => {
+      onReady={(editor: Editor) => {
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
