@@ -239,6 +239,14 @@ function maybeStartQueuedRequests() {
     let requestToStartRendering = requestPriorityQueue.dequeue();
     if (requestToStartRendering.request) {
       inFlightRenderCount++;
+      // TODO: set the queue priority level of the request on the perf metric
+      // setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+      //   if (!incompletePerfMetric) return;
+      //   return {
+      //     ...incompletePerfMetric,
+      //     op_name: rendered.cached ? "cacheHit" : "cacheMiss"
+      //   }
+      // });
       void requestToStartRendering.request.callback();
     }
   }
