@@ -29,7 +29,7 @@ addCronJob({
 
 addCronJob({
   name: 'notifyUsersOfTheirTurnInMatchForm',
-  interval: 'every 5 seconds',
+  interval: 'every 1 hour',
   async job() {
     const context = createAdminContext();
     const checksYourTurn = await new DialogueChecksRepo().getMatchFormYourTurn()
