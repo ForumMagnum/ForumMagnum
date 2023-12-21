@@ -174,7 +174,12 @@ export default class PriorityBucketQueue<T extends RequestData> {
         priority += 2;
       }
 
-      if (queueUserAgentFraction > 0.3) {
+      // Baseline traffic often has the top user-agent comprising 30-50% of incoming requests (per minute)
+      // So if we get a spike of requests from e.g. a scraper which uses a variety of user agents,
+      // the user-agents of requests that will get pushed into the queue may be dominated by "real" user-agents, and we don't want to deprioritize those.
+      // But higher than 60% seems very unlikely if we're conditioning on requests getting queued,
+      // since scrapers using multiple user-agents would instead dilute the percentage of the queue composed of the top user-agent (which isn't coming from the scraper)
+      if (queueUserAgentFraction > 0.6) {
         priority += 1;
       }
     }
