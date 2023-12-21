@@ -407,13 +407,19 @@ export const YourTurnMatchFormNotification = registerNotificationType({
   userSettingField: "notificationYourTurnMatchForm",
   allowedChannels: ["onsite", "none"],
   async getMessage(props: GetMessageProps) {
-    return `Your turn: see {user} topics suggestions and fill in yours`
+    const targetUserId = props.extraData?.targetUserId
+    if (targetUserId) { 
+      const user = await getDocument("user", targetUserId) as DbUser
+      return `Your turn: see & reply to ${user.displayName}'s dialogue ideas`
+    } else {
+      return `Your turn: your match suggested dialogue topics`
+    }
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>
   },
-  getLink() { // TODO, FIX! 
-    return "/dialogueMatching"
+  getLink({ extraData }: { extraData: Record<string,any> }) { 
+    return `/dialogueMatching${extraData?.checkId ? '?dialogueCheckId='+extraData?.checkId : ''}`
   }
 });
 

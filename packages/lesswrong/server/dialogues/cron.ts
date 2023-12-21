@@ -29,19 +29,23 @@ addCronJob({
 
 addCronJob({
   name: 'notifyUsersOfTheirTurnInMatchForm',
-  interval: 'every 1 hour',
+  interval: 'every 5 seconds',
   async job() {
+    console.log("running old forms cron!")
     const context = createAdminContext();
     const checksYourTurn = await new DialogueChecksRepo().getMatchFormYourTurn()
-    /// somehow pass in the actual matchForm data so we can link to the right thing! not just users
-   // const usersWithNewChecks = await context.repos.users.getUsersWithNewDialogueChecks()
     checksYourTurn.forEach(check => {
+      console.log("creating notification for check", check._id)
       void createNotification({
         userId: check.userId,
         notificationType: "yourTurnMatchForm",
         documentType: null,
         documentId: null,
-        extraData: {targetUserId: check.targetUserId, checkId: check._id}, // passed for the AB test
+        extraData: {
+          targetUserId: check.targetUserId, 
+          checkId: check._id, 
+          targetUserMatchPreferenceId: check.targetUserMatchPreferenceId
+        }, 
         context,
       })
     })

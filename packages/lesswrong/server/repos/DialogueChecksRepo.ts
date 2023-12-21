@@ -15,6 +15,11 @@ const BASE_UPSERT_QUERY = `
       $1, $2, $3, $4, $5, $6
     ) ON CONFLICT ("userId", "targetUserId")`;
 
+
+interface DialogueCheckWithExtraData extends DbDialogueCheck {
+  targetUserMatchPreferenceId: string;
+}
+
 class DialogueChecksRepo extends AbstractRepo<"DialogueChecks"> {
   constructor() {
     super(DialogueChecks);
@@ -59,10 +64,11 @@ class DialogueChecksRepo extends AbstractRepo<"DialogueChecks"> {
     `, [userId1, userId2])
   }
 
-  async getMatchFormYourTurn(): Promise<DbDialogueCheck[]> {
+  async getMatchFormYourTurn(): Promise<DialogueCheckWithExtraData[]> {
     const result = await this.getRawDb().any(`
       SELECT 
-        dc.*
+        dc.*,
+        dmp_reciprocal._id AS "targetUserMatchPreferenceId"
       FROM "DialogueChecks" AS dc
       LEFT JOIN "DialogueMatchPreferences" AS dmp ON dc._id = dmp."dialogueCheckId"
       LEFT JOIN
@@ -71,13 +77,15 @@ class DialogueChecksRepo extends AbstractRepo<"DialogueChecks"> {
               dc."userId" = dc_reciprocal."targetUserId"
               AND dc."targetUserId" = dc_reciprocal."userId"
       LEFT JOIN "DialogueMatchPreferences" AS dmp_reciprocal ON dc_reciprocal._id = dmp_reciprocal."dialogueCheckId"
+      LEFT JOIN "Notifications" AS n ON n."extraData"->>'targetUserMatchPreferenceId' = dmp_reciprocal._id
       WHERE 
           dc.checked IS TRUE
           AND dc_reciprocal.checked IS TRUE
           AND (dmp._id IS NULL OR dmp.deleted IS TRUE)
           AND dmp_reciprocal._id IS NOT NULL
           AND dmp_reciprocal.deleted IS NOT TRUE 
-      GROUP BY dc._id
+          AND (n._id IS NULL OR n.type != 'yourTurnMatchForm')
+      GROUP BY dc._id, dmp_reciprocal._id
     `)
     return result;
   }
