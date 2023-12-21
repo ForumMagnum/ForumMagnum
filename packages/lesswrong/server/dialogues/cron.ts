@@ -31,11 +31,9 @@ addCronJob({
   name: 'notifyUsersOfTheirTurnInMatchForm',
   interval: 'every 5 seconds',
   async job() {
-    console.log("running old forms cron!")
     const context = createAdminContext();
     const checksYourTurn = await new DialogueChecksRepo().getMatchFormYourTurn()
     checksYourTurn.forEach(check => {
-      console.log("creating notification for check", check._id)
       void createNotification({
         userId: check.userId,
         notificationType: "yourTurnMatchForm",

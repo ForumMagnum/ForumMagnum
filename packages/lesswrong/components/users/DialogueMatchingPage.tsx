@@ -911,7 +911,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   const showRecommendedContent = useABTest(showRecommendedContentInMatchForm);
   const initialCalendlyLink = validatedCalendlyUrl(matchPreference?.calendlyLink ?? "");
   const [calendlyLink, setCalendlyLink] = useState(initialCalendlyLink);
-  const history = useHistory();
+  const { location, query, params } = useLocation();
 
   const calendlyAB = useABTest(offerToAddCalendlyLink);
 
@@ -935,15 +935,12 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   const onCloseWrapper = () => {
     // used to remove query parameters if user clicks outside the dialog
-    const location = navigate.location;
     const searchParams = new URLSearchParams(location.search);
     searchParams.delete('dialogueCheckId');
-  
-    const newLocation = {
-      ...location,
-      search: searchParams.toString(),
-    };
-    navigate.push(newLocation);
+
+    const newLocation = location.pathname + '?' + searchParams.toString();
+
+    navigate(newLocation);
   
     onClose();
   };
