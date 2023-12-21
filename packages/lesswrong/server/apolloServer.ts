@@ -328,6 +328,12 @@ export function startWebserver() {
       ? await asyncLocalStorage.run({}, () => renderWithCache(request, response, user))
       : await renderWithCache(request, response, user);
     
+    if (renderResult.aborted) {
+      response.status(499);
+      response.end();
+      return;
+    }
+    
     const {
       ssrBody,
       headers,
