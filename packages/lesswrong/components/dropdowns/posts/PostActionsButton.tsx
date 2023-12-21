@@ -66,7 +66,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
 
   return <div className={classes.root}>
     <div ref={anchorEl}>
-      <Icon className={classes.icon} onClick={() => handleSetOpen(!isOpen)}/>
+      <Icon className={classes.icon} onClick={(ev) => handleSetOpen(!isOpen)}/>
     </div>
     <PopperCard
       open={isOpen}
