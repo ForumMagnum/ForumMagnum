@@ -48,21 +48,17 @@ export function closePerfMetric(openPerfMetric: IncompletePerfMetric) {
 }
 
 export function addStartRenderTimeToPerfMetric() {
-  const store = asyncLocalStorage.getStore();
-  if (!store) {
-    // eslint-disable-next-line no-console
-    console.log('Missing asyncLocalStorage context when trying to add start render time to the perf metric for the current request!');
-    return;
-  }
-  if (!store.requestPerfMetric) {
-    // eslint-disable-next-line no-console
-    console.log('Missing perf metric for the current request in the asyncLocalStorage context when trying to add start render time to it!');
-    return;
-  }
-
-  setAsyncStoreValue('requestPerfMetric', {
-    ...store.requestPerfMetric,
-    render_started_at: new Date(),
+  setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+    if (!incompletePerfMetric) {
+      // eslint-disable-next-line no-console
+      console.log('Missing perf metric for the current request in the asyncLocalStorage context when trying to add start render time to it!');
+      return;
+    }
+    
+    return {
+      ...incompletePerfMetric,
+      render_started_at: new Date()
+    };
   });
 }
 
