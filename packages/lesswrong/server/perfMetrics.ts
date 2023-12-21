@@ -64,8 +64,6 @@ export function addStartRenderTimeToPerfMetric() {
     ...store.requestPerfMetric,
     render_started_at: new Date(),
   });
-
-
 }
 
 /**
