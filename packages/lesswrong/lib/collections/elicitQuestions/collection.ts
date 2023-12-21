@@ -5,7 +5,6 @@ import { getDefaultResolvers } from '../../collectionUtils'
 export const ElicitQuestions: ElicitQuestionsCollection = createCollection({
   collectionName: 'ElicitQuestions',
   typeName: 'ElicitQuestion',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('ElicitQuestions'),
   logChanges: true,

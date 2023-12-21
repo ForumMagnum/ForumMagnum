@@ -4,7 +4,7 @@ import { accessFilterMultiple, augmentFieldsDict, denormalizedField } from '../.
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, slugify, updateMutator, Utils } from '../vulcan-lib';
 import pick from 'lodash/pick';
 import SimpleSchema from 'simpl-schema';
-import {getUserEmail} from "../../lib/collections/users/helpers";
+import {getUserEmail, userGetDisplayName} from "../../lib/collections/users/helpers";
 import {userFindOneByEmail} from "../commonQueries";
 import { isEAForum } from '../../lib/instanceSettings';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
@@ -240,9 +240,6 @@ addGraphQLResolvers({
       {section, expanded}: {section: string, expanded: boolean},
       {currentUser, repos}: ResolverContext,
     ) {
-      if (!Users.isPostgres()) {
-        throw new Error("Expanding frontpage sections requires Postgres");
-      }
       if (!currentUser) {
         throw new Error("You must login to do this");
       }
@@ -432,7 +429,7 @@ function getAlignment(results: AnyBecauseTodo) {
   } else if  (ratio > 6) {
     lawfulChaotic = 'Lawful'
   }
-  if (lawfulChaotic == 'Neutral' && goodEvil  == 'neutral') {
+  if (lawfulChaotic === 'Neutral' && goodEvil  === 'neutral') {
     return 'True neutral'
   }
   return lawfulChaotic + ' ' + goodEvil
@@ -514,9 +511,9 @@ defineQuery({
     ]);
 
     const results: UserDialogueUsefulData = {
-      dialogueUsers: dialogueUsers,
+      dialogueUsers: dialogueUsers.map(user => ({ ...user, displayName: userGetDisplayName(user) })),
       topUsers: topUsers,
-      activeDialogueMatchSeekers: activeDialogueMatchSeekers,
+      activeDialogueMatchSeekers: activeDialogueMatchSeekers.map(user => ({ ...user, displayName: userGetDisplayName(user) })),
     }
     return results
   }
@@ -535,3 +532,23 @@ defineQuery({
     return accessFilterMultiple(currentUser, Users, matchedUsers, context);
   }
 });
+
+defineQuery({
+  name: "GetDialogueRecommendedUsers",
+  resultType: "[User]!",
+  fn: async (root, _, context) => {
+    const { currentUser } = context
+    if (!currentUser) {
+      throw new Error('User must be logged in to get recommended users');
+    }
+
+    const upvotedUsers = await context.repos.users.getUsersTopUpvotedUsers(currentUser, 35, 30)
+    const recommendedUsers = await context.repos.users.getDialogueRecommendedUsers(currentUser._id, upvotedUsers);
+
+    // Shuffle and limit the list to 2 users
+    const shuffled = recommendedUsers.sort(() => 0.5 - Math.random());
+    const sampleSize = 2;
+
+    return accessFilterMultiple(currentUser, Users, shuffled.slice(0, sampleSize), context);
+  }
+}); 

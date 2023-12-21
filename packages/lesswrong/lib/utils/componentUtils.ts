@@ -1,7 +1,7 @@
 export function debugShouldComponentUpdate(description: string, log: (message:string)=>void, oldProps: any, oldState: any, nextProps: any, nextState: any)
 {
   for(let key in nextState) {
-    if(oldState[key] != nextState[key]) {
+    if(oldState[key] !== nextState[key]) {
       log(`Updating ${description} because state.${key} changed`);
       return true;
     }
@@ -9,7 +9,7 @@ export function debugShouldComponentUpdate(description: string, log: (message:st
 
   let changedProps: Array<any> = [];
   for(let key in nextProps) {
-    if(nextProps[key] != oldProps[key])
+    if(nextProps[key] !== oldProps[key])
       changedProps.push(key);
   }
   if(changedProps.length > 0) {

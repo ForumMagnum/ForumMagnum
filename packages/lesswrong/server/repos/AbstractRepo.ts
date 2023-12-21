@@ -1,4 +1,4 @@
-import { getSqlClient, logIfSlow } from "../../lib/sql/sqlClient";
+import { getSqlClient } from "../../lib/sql/sqlClient";
 import PgCollection from "../../lib/sql/PgCollection";
 
 /**
@@ -9,11 +9,14 @@ import PgCollection from "../../lib/sql/PgCollection";
  * To make the repo available in GraphQL resolvers, add it to `getAllRepos`
  * in index.ts
  */
-export default abstract class AbstractRepo<T extends DbObject> {
-  protected collection: CollectionBase<T>;
+export default abstract class AbstractRepo<N extends CollectionNameString> {
+  protected collection: PgCollection<N>;
   private db: SqlClient;
 
-  constructor(collection: CollectionBase<T>, sqlClient?: SqlClient) {
+  constructor(collection: CollectionBase<N>, sqlClient?: SqlClient) {
+    if (!(collection instanceof PgCollection)) {
+      throw new Error(`${collection.collectionName} is not a Postgres collection`);
+    }
     this.collection = collection;
     const db = sqlClient ?? getSqlClient();
     if (db) {
@@ -23,13 +26,8 @@ export default abstract class AbstractRepo<T extends DbObject> {
     }
   }
 
-  protected getCollection(): PgCollection<T> {
-    // TODO: This check can be moved into the constructor once LessWrong
-    // are on Postgres
-    if (!this.collection.isPostgres()) {
-      throw new Error("Collecton is not a Postgres collection");
-    }
-    return this.collection as unknown as PgCollection<T>;
+  protected getCollection(): PgCollection<N> {
+    return this.collection;
   }
 
   /**
@@ -43,53 +41,37 @@ export default abstract class AbstractRepo<T extends DbObject> {
     return this.db;
   }
 
-  protected none(sql: string, args: unknown[] = []): Promise<null> {
-    return logIfSlow(
-      () => this.db.none(sql, args),
-      () => `${sql}: ${JSON.stringify(args)}`
-    );
+  protected none(sql: string, args: SqlQueryArgs = []): Promise<null> {
+    return this.db.none(sql, args, () => `${sql}: ${JSON.stringify(args)}`);
   }
 
-  protected one(sql: string, args: unknown[] = []): Promise<T> {
-    return logIfSlow(
-      () => this.postProcess(this.db.one(sql, args)),
-      () => `${sql}: ${JSON.stringify(args)}`
-    );
+  protected one(sql: string, args: SqlQueryArgs = []): Promise<ObjectsByCollectionName[N]> {
+    return this.postProcess(this.db.one(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
-  protected oneOrNone(sql: string, args: unknown[] = []): Promise<T | null> {
-    return logIfSlow(
-      () => this.postProcess(this.db.oneOrNone(sql, args)),
-      () => `${sql}: ${JSON.stringify(args)}`
-    );
+  protected oneOrNone(sql: string, args: SqlQueryArgs = []): Promise<ObjectsByCollectionName[N] | null> {
+    return this.postProcess(this.db.oneOrNone(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
-  protected any(sql: string, args: unknown[] = []): Promise<T[]> {
-    return logIfSlow(
-      () => this.postProcess(this.db.any(sql, args)),
-      () => `${sql}: ${JSON.stringify(args)}`
-    );
+  protected any(sql: string, args: SqlQueryArgs = []): Promise<ObjectsByCollectionName[N][]> {
+    return this.postProcess(this.db.any(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
-  protected many(sql: string, args: unknown[] = []): Promise<T[]> {
-    return logIfSlow(
-      () => this.postProcess(this.db.many(sql, args)),
-      () => `${sql}: ${JSON.stringify(args)}`
-    );
+  protected many(sql: string, args: SqlQueryArgs = []): Promise<ObjectsByCollectionName[N][]> {
+    return this.postProcess(this.db.many(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
-  protected manyOrNone(sql: string, args: unknown[] = []): Promise<T[]> {
-    return logIfSlow(
-      () => this.postProcess(this.db.manyOrNone(sql, args)),
-      () => `${sql}: ${JSON.stringify(args)}`
-    );
+  protected manyOrNone(sql: string, args: SqlQueryArgs = []): Promise<ObjectsByCollectionName[N][]> {
+    return this.postProcess(this.db.manyOrNone(sql, args, () => `${sql}: ${JSON.stringify(args)}`));
   }
 
-  private postProcess(promise: Promise<T>): Promise<T>;
-  private postProcess(promise: Promise<T | null>): Promise<T | null>;
-  private postProcess(promise: Promise<T[]>): Promise<T[]>;
-  private postProcess(promise: Promise<T[] | null>): Promise<T[] | null>;
-  private async postProcess(promise: Promise<T | T[] | null>): Promise<T | T[] | null> {
+  private postProcess(promise: Promise<ObjectsByCollectionName[N]>): Promise<ObjectsByCollectionName[N]>;
+  private postProcess(promise: Promise<ObjectsByCollectionName[N] | null>): Promise<ObjectsByCollectionName[N] | null>;
+  private postProcess(promise: Promise<ObjectsByCollectionName[N][]>): Promise<ObjectsByCollectionName[N][]>;
+  private postProcess(promise: Promise<ObjectsByCollectionName[N][] | null>): Promise<ObjectsByCollectionName[N][] | null>;
+  private async postProcess(
+    promise: Promise<ObjectsByCollectionName[N] | ObjectsByCollectionName[N][] | null>,
+  ): Promise<ObjectsByCollectionName[N] | ObjectsByCollectionName[N][] | null> {
     const data = await promise;
     const {postProcess} = this.getCollection();
     if (data && postProcess) {

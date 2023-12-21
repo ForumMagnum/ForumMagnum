@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { getAlgoliaIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/algoliaUtil';
+import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -86,7 +86,7 @@ const AddTag = ({onTagSelected, isVotingContext, classes}: {
 
   return <div className={classes.root} ref={containerRef}>
     <InstantSearch
-      indexName={getAlgoliaIndexName("Tags")}
+      indexName={getSearchIndexName("Tags")}
       searchClient={getSearchClient()}
       onSearchStateChange={searchStateChanged}
     >

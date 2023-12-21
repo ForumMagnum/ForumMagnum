@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import type { UsePostsItem } from "./usePostsItem";
 import ArchiveIcon from "@material-ui/icons/Archive";
+import UnarchiveIcon from "@material-ui/icons/Unarchive";
 import CloseIcon from "@material-ui/icons/Close";
 import { useCurrentUser } from "../common/withUser";
 import { isBookUI } from "../../themes/forumTheme";
@@ -10,6 +11,7 @@ export const MENU_WIDTH = 18;
 
 const dismissRecommendationTooltip = "Don't remind me to finish reading this sequence unless I visit it again";
 const archiveDraftTooltip = "Archive this draft (hide from list)";
+const restoreDraftTooltip = "Restore this draft (include in your main draft list)";
 
 type DismissButtonProps = Pick<UsePostsItem, "showDismissButton" | "onDismiss">;
 
@@ -94,9 +96,14 @@ const PostsItemTrailingButtons = ({
         {isBookUI && !resumeReading && currentUser && <PostActionsButton post={post} vertical />}
       </div>}
       {showArchiveButton && <div className={classes.archiveButton}>
-        <LWTooltip title={archiveDraftTooltip} placement="right">
-          <ArchiveIcon onClick={onArchive} />
-        </LWTooltip>
+        { post.deletedDraft ?
+            <LWTooltip title={restoreDraftTooltip} placement="right">
+              <UnarchiveIcon onClick={onArchive} />
+            </LWTooltip> :
+            <LWTooltip title={archiveDraftTooltip} placement="right">
+              <ArchiveIcon onClick={onArchive} />
+            </LWTooltip>
+        }
       </div>}
     </>
   );

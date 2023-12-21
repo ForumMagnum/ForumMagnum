@@ -25,7 +25,8 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
-    givingSeason2023DonatedFlair
+    givingSeason2023DonatedFlair # TODO: Remove after giving season
+    givingSeason2023VotedFlair   # TODO: Remove after giving season
   }
 `);
 
@@ -84,7 +85,9 @@ registerFragment(`
     petrovPressedButtonDate
     petrovOptOut
     sortDraftsBy
-    ...SunshineUsersList
+    email
+    emails
+    banned
     ...SharedUserBooleans
     noindex
     paymentEmail
@@ -215,6 +218,13 @@ registerFragment(`
     hideDialogueFacilitation
     optedInToDialogueFacilitation
     revealChecksToAdmins
+    notificationNewDialogueChecks
+
+    showDialoguesList
+    showMyDialogues
+    showMatches
+    showRecommendedPartners
+    hideActiveDialogueUsers
   }
 `);
 
@@ -488,6 +498,7 @@ registerFragment(`
     notificationGroupAdministration
     notificationSubforumUnread
     notificationNewMention
+    notificationNewDialogueChecks
 
     givingSeasonNotifyForVoting
 

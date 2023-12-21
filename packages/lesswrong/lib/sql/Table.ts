@@ -61,7 +61,13 @@ class Table<T extends DbObject> {
     return this.indexes;
   }
 
-  static fromCollection<T extends DbObject>(collection: CollectionBase<T>, forumType?: ForumTypeString): Table<T> {
+  static fromCollection<
+    N extends CollectionNameString,
+    T extends DbObject = ObjectsByCollectionName[N]
+  >(
+    collection: CollectionBase<N>,
+    forumType?: ForumTypeString,
+  ): Table<T> {
     const table = new Table<T>(collection.collectionName);
     forumType ??= forumTypeSetting.get() ?? "EAForum";
 

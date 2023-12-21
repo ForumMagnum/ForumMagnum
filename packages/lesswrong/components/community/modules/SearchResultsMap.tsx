@@ -65,7 +65,7 @@ interface LatLng {
 const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, classes}: {
   center: LatLng,
   zoom: number,
-  hits: Array<Hit<AlgoliaUser>>,
+  hits: Array<Hit<SearchUser>>,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -165,7 +165,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
 type SearchResultsMapProps = {
   center?: {lat: number, lng: number},
   zoom?: number,
-  hits?: Array<Hit<AlgoliaUser>>,
+  hits?: Array<Hit<SearchUser>>,
   className?: string
 }
 const ConnectedSearchResultsMap: React.ComponentClass<SearchResultsMapProps, any> = connectHits(SearchResultsMap)

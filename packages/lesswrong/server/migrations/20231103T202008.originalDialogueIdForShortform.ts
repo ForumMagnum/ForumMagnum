@@ -37,11 +37,9 @@ import { Comments } from "../../lib/collections/comments";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Comments.isPostgres()) return;
   await addField(db, Comments, 'originalDialogueId');
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!Comments.isPostgres()) return;
   await dropField(db, Comments, 'originalDialogueId');
 }

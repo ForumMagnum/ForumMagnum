@@ -211,6 +211,7 @@ export const darkModeTheme: UserThemeSpecification = {
       cookieBanner: shadePalette.grey[900],
     },
     background: {
+      contrastInDarkMode: shadePalette.grey[100],
       diffInserted: "#205120",
       diffDeleted: "#b92424",
       primaryDim: "#28383e",
@@ -261,9 +262,12 @@ export const darkModeTheme: UserThemeSpecification = {
       [1000]: "#FFF",
       candidate: "#64342E",
       votedCandidate: "#8A5751",
+      selectedCandidate: "#49201C",
+      thankYouBackground: shadePalette.grey[100],
       ctaBackground: "#64342E",
       ctaText: "#FFF",
       rhsLink: '#E7714E',
+      votingPortalIntroBackground: "#202020",
       button: {
         alwaysDark: "#862115",
         dark: "#FFF",
@@ -274,8 +278,11 @@ export const darkModeTheme: UserThemeSpecification = {
       homepageHeader: {
         light4: "#fdfcfc",
         light3: "#fcf5f3",
+        light3Opaque: "rgba(252, 245, 243, 0.20)",
         light2: "#f8e7e2",
+        light2Opaque: "rgba(248, 231, 226, 0.30)",
         light1: "#EDD3CE",
+        light1Opaque: "rgba(237, 211, 206, 0.30)",
         main: "#862115",
         dark: "#6C0C00",
         secondary: "#b44c42",

@@ -270,6 +270,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     yellow: '#ffc500',
     recentDiscussionGreen: "#72B065",
     recentDiscussionGrey: "#757575",
+    activeDotOrange: "#fdbd48",
 
     commentsBubble: {
       commentCount: "#fff",
@@ -313,6 +314,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   background: {
     default: shades.grey[60],
     paper: shades.grey[0], //Used by MUI
+    contrastInDarkMode: shades.grey[0],
     pageActiveAreaBackground: shades.grey[0],
     translucentBackground: "rgba(255,255,255,.5)",
     diffInserted: "#d4ead4",
@@ -515,10 +517,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     [1000]: "#862115",
     candidate: "#fef4ef",
     votedCandidate: "#fff",
+    selectedCandidate: "#F7E5DD",
     ctaBackground: "#fdfcfc",
+    thankYouBackground: "#fcf5f3",
     ctaText: "#757575",
     rhsLink: '#862115',
     secondary: '#E7714E',
+    votingPortalIntroBackground: "#fff6f2",
     button: {
       alwaysDark: "#862115",
       dark: "#862115",
@@ -530,8 +535,11 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     homepageHeader: {
       light4: "#fdfcfc",
       light3: "#fcf5f3",
+      light3Opaque: "rgba(252, 245, 243, 0.20)",
       light2: "#f8e7e2",
+      light2Opaque: "rgba(248, 231, 226, 0.30)",
       light1: "#EDD3CE",
+      light1Opaque: "rgba(237, 211, 206, 0.30)",
       main: "#862115",
       dark: "#6C0C00",
       secondary: "#b44c42",

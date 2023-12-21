@@ -324,6 +324,7 @@
     "@types/csso": "^5.0.0",
     "@types/hepburn": "^1.2.0",
     "@types/raf": "^3.4.0",
+    "@types/react-html-parser": "^2.0.6",
     "@types/shallowequal": "^1.1.1",
     "@typescript-eslint/eslint-plugin": "^5.59.7",
     "@typescript-eslint/parser": "^5.59.7",

@@ -600,7 +600,7 @@ export const EAHomeRightHandSide = ({classes}: {
       {isGivingSeason &&
         <div className={classes.givingSeason}>
           <div>
-            <Link to="/giving-portal">
+            <Link to="/giving-portal#election">
               Donate to the Election Fund
             </Link>
           </div>

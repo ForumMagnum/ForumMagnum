@@ -15,18 +15,18 @@ import { MODERATOR_ACTION_TYPES } from '../moderatorActions/schema';
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: { username: string, fullName?: string, displayName: string } | null): string => {
+export const userGetDisplayName = (user: { username: string | null, fullName?: string | null, displayName: string | null } | null): string => {
   if (!user) {
     return "";
   } else {
     return forumTypeSetting.get() === 'AlignmentForum' ? 
-      (user.fullName || user.displayName) :
-      (user.displayName || getUserName(user)) || ""
+      (user.fullName || user.displayName) ?? "" :
+      (user.displayName || getUserName(user)) ?? ""
   }
 };
 
 // Get a user's username (unique, no special characters or spaces)
-export const getUserName = function(user: {username: string} | null): string|null {
+export const getUserName = function(user: {username: string | null } | null): string|null {
   try {
     if (user?.username) return user.username;
   } catch (error) {
@@ -46,7 +46,7 @@ export const userOwnsAndInGroup = (group: PermissionGroups) => {
  */
 export const isNewUser = (user: UsersMinimumInfo): boolean => {
   const karmaThreshold = newUserIconKarmaThresholdSetting.get()
-  const userKarma = user.karma ?? 0;
+  const userKarma = user.karma;
   const userBelowKarmaThreshold = karmaThreshold && userKarma < karmaThreshold;
 
   // For the EA forum, return true if either:
@@ -88,7 +88,7 @@ export const userIsSharedOn = (currentUser: DbUser|UsersMinimumInfo|null, docume
     return (
       document.sharingSettings?.anyoneWithLinkCan
       && document.sharingSettings.anyoneWithLinkCan !== "none"
-      && _.contains((document as DbPost).linkSharingKeyUsedBy, currentUser._id)
+      && ((document as DbPost).linkSharingKeyUsedBy)?.includes(currentUser._id)
     )
   }
 }
@@ -214,7 +214,7 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Pos
   if (user.allCommentingDisabled) return false
 
   // this has to check for post.userId because that isn't consisently provided to CommentsNewForm components, which resulted in users failing to be able to comment on their own shortform post
-  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId != user._id))
+  if (user.commentingOnOtherUsersDisabled && post?.userId && (post.userId !== user._id))
     return false
 
   if (post) {
@@ -295,12 +295,12 @@ export const userHasEmailAddress = (user: UsersCurrent|DbUser|null): boolean => 
   return !!(user?.emails && user.emails.length > 0) || !!user?.email;
 }
 
-type UserWithEmail = {
-  email: string
-  emails: UsersCurrent["emails"] 
+type UserMaybeWithEmail = {
+  email: string | null
+  emails: UsersCurrent["emails"] | null
 }
 
-export function getUserEmail (user: UserWithEmail|null): string | undefined {
+export function getUserEmail (user: UserMaybeWithEmail|null): string | undefined {
   return user?.emails?.[0]?.address ?? user?.email
 }
 
@@ -314,13 +314,13 @@ export function getDatadogUser (user: UsersCurrent | UsersEdit | DbUser): Datado
   return {
     id: user._id,
     email: getUserEmail(user),
-    name: user.displayName,
-    slug: user.slug,
+    name: user.displayName ?? user.username ?? '[missing displayName and username]', 
+    slug: user.slug ?? 'missing slug',
   }
 }
 
 // Replaces Users.getProfileUrl from the vulcan-users package.
-export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|AlgoliaUser|null, isAbsolute=false): string => {
+export const userGetProfileUrl = (user: DbUser|UsersMinimumInfo|SearchUser|null, isAbsolute=false): string => {
   if (!user) return "";
   
   if (user.slug) {
@@ -513,7 +513,7 @@ export const userGetCommentCount = (user: UsersMinimumInfo|DbUser): number => {
 }
 
 export const isMod = (user: UsersProfile|DbUser): boolean => {
-  return user.isAdmin || user.groups?.includes('sunshineRegiment')
+  return (user.isAdmin || user.groups?.includes('sunshineRegiment')) ?? false
 }
 
 // TODO: I (JP) think this should be configurable in the function parameters
@@ -573,7 +573,12 @@ export const voteButtonsDisabledForUser = (user: UsersMinimumInfo|DbUser|null): 
   return { fail: false };
 };
 
-export const showDonatedIcon = (user: UsersMinimumInfo|DbUser|null): boolean => {
+export const showDonatedFlair = (user: UsersMinimumInfo|DbUser|null): boolean => {
   // Fundraiser closes on 2023-12-20
   return isEAForum && !!user?.givingSeason2023DonatedFlair && new Date() < new Date('2023-12-21');
+}
+
+export const showVotedFlair = (user: UsersMinimumInfo|DbUser|null): boolean => {
+  // Fundraiser closes on 2023-12-20
+  return isEAForum && !!user?.givingSeason2023VotedFlair && new Date() < new Date('2023-12-21');
 }

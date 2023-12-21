@@ -62,7 +62,7 @@ const ExpandedPostsSearchHit = ({hit, classes}: {
 }) => {
   const navigate = useNavigate();
   const { FormatDate, UserNameDeleted } = Components
-  const post: AlgoliaPost = hit
+  const post: SearchPost = hit
   
   const handleClick = () => {
     navigate(postGetPageUrl(post))

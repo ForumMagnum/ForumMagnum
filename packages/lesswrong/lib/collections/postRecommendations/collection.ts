@@ -6,7 +6,6 @@ import { schema } from "./schema";
 export const PostRecommendations: PostRecommendationsCollection = createCollection({
   collectionName: "PostRecommendations",
   typeName: "PostRecommendation",
-  collectionType: "pg",
   schema,
 });
 addUniversalFields({collection: PostRecommendations});

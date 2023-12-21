@@ -12,10 +12,9 @@
 
 import { configureScope } from '@sentry/node';
 import DataLoader from 'dataloader';
-import { Collections } from '../../../lib/vulcan-lib/collections';
+import { getCollectionsByName } from '../../../lib/vulcan-lib/collections';
 import findByIds from '../findbyids';
 import { getHeaderLocale } from '../intl';
-import Users from '../../../lib/collections/users/collection';
 import * as _ from 'underscore';
 import { hashLoginToken, tokenExpiration, userIsBanned } from '../../loginTokens';
 import type { Request, Response } from 'express';
@@ -25,6 +24,7 @@ import UserActivities from '../../../lib/collections/useractivities/collection';
 import { getCookieFromReq } from '../../utils/httpUtil';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { userChangedCallback } from '../../../lib/vulcan-lib/callbacks';
+import { asyncLocalStorage } from '../../perfMetrics';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -34,9 +34,7 @@ export const getUser = async (loginToken: string): Promise<DbUser|null> => {
 
     const hashedToken = hashLoginToken(loginToken)
 
-    const user = await (Users.isPostgres()
-      ? new UsersRepo().getUserByLoginToken(hashedToken)
-      : Users.findOne({'services.resume.loginTokens.hashedToken': hashedToken}));
+    const user = await new UsersRepo().getUserByLoginToken(hashedToken);
 
     if (user && !userIsBanned(user)) {
       // find the right login token corresponding, the current user may have
@@ -129,6 +127,7 @@ export const computeContextFromUser = async (user: DbUser|null, req?: Request, r
     clientId,
     visitorActivity,
     ...await setupAuthToken(user),
+    perfMetric: asyncLocalStorage.getStore()?.requestPerfMetric,
   };
 
   if (user) {
@@ -146,7 +145,7 @@ export function configureSentryScope(context: ResolverContext) {
       scope.setUser({
         id: user._id,
         email: getUserEmail(user),
-        username: context.isGreaterWrong ? `${user.username} (via GreaterWrong)` : user.username,
+        username: context.isGreaterWrong ? `${user.username} (via GreaterWrong)` : user.username ?? undefined,
       });
     });
   } else if (context.isGreaterWrong) {
@@ -156,14 +155,6 @@ export function configureSentryScope(context: ResolverContext) {
       });
     });
   }
-}
-
-export const getCollectionsByName = (): CollectionsByName => {
-  const result: any = {};
-  Collections.forEach((collection: CollectionBase<DbObject>) => {
-    result[collection.collectionName] = collection;
-  });
-  return result as CollectionsByName;
 }
 
 export const getUserFromReq = async (req: AnyBecauseTodo): Promise<DbUser|null> => {

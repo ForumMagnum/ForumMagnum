@@ -58,7 +58,7 @@ defineMutation({
       throw new Error("Incorrect link-sharing key");
     }
     
-    if (!_.contains(post.linkSharingKeyUsedBy, currentUser._id)) {
+    if (post.linkSharingKeyUsedBy && !(post.linkSharingKeyUsedBy?.includes(currentUser._id))) {
       await Posts.rawUpdateOne(
         {_id: postId},
         {$set: {
@@ -95,11 +95,17 @@ defineQuery({
     //    the past
     //  * The logged-in user is the post author
     //  * The logged in user is an admin or moderator (or otherwise has edit permissions)
+
+    // User must exist
+    if (!currentUser?._id) {
+      throw new Error("No current user with _id");
+    }
+
     if (
       (post.shareWithUsers && _.contains(post.shareWithUsers, currentUser?._id))
       || (linkSharingEnabled(post)
           && (!canonicalLinkSharingKey || keysMatch))
-      || (linkSharingEnabled(post) && _.contains(post.linkSharingKeyUsedBy, currentUser?._id))
+      || (linkSharingEnabled(post) && post.linkSharingKeyUsedBy?.includes(currentUser?._id))
       || currentUser?._id === post.userId
       || userCanDo(currentUser, 'posts.edit.all')
     ) {
@@ -130,7 +136,7 @@ defineMutation({
   name: "revertPostToRevision",
   resultType: "Post",
   argTypes: "(postId: String!, revisionId: String!)",
-  fn: async (root: void, {postId, revisionId}: {postId: string, revisionId: string}, context: ResolverContext): Promise<DbPost> => {
+  fn: async (root: void, {postId, revisionId}: {postId: string, revisionId: string}, context: ResolverContext): Promise<Partial<DbPost>> => {
     // Check permissions
     const { currentUser } = context;
     if (!currentUser) {
@@ -152,6 +158,7 @@ defineMutation({
     // Revision must exist and be a revision of the right post
     const revision = await Revisions.findOne({_id: revisionId});
     if (!revision) throw new Error("Invalid revision ID");
+    if (!revision.originalContents) throw new Error("Missing originalContents");
     if (revision.documentId !== post._id) throw new Error("Revision is not for this post");
     
     // Is the selected revision a CkEditor collaborative editing revision?

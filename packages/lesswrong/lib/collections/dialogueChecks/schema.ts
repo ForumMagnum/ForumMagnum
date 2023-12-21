@@ -1,8 +1,6 @@
-import {schemaDefaultValue} from "../../collectionUtils";
-import { accessFilterSingle, resolverOnlyField } from "../../utils/schemaUtils";
-import {userOwns} from "../../vulcan-users/permissions";
+import { accessFilterSingle, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 
-const schema: SchemaType<DbDialogueCheck> = {
+const schema: SchemaType<"DialogueChecks"> = {
   // permissions enforced via collection-level checkAccess
   userId: {
     type: String,
@@ -22,14 +20,12 @@ const schema: SchemaType<DbDialogueCheck> = {
     ...schemaDefaultValue(false),
     canRead: ['members'],
     canCreate: ['members'],
-    canUpdate: [userOwns],
   },
   checkedAt: {
     type: Date,
     nullable: false,
     canRead: ['members'],
     canCreate: ['members'],
-    canUpdate: [userOwns],
   },
   match: {
     type: Boolean,
@@ -37,13 +33,20 @@ const schema: SchemaType<DbDialogueCheck> = {
     canRead: ['members'],
     // Defined in server/resolvers/dialogueChecksResolvers.ts
   },
+  hideInRecommendations: {
+    type: Boolean,
+    nullable: false,
+    ...schemaDefaultValue(false),
+    canRead: ['members'],
+    canCreate: ['members'],
+  },
   matchPreference: resolverOnlyField({
     type: 'DialogueMatchPreference',
     graphQLtype: 'DialogueMatchPreference',
     canRead: ['members', 'admins'],
     resolver: async (dialogueCheck: DbDialogueCheck, args: void, context: ResolverContext) => {
       const { DialogueMatchPreferences, DialogueChecks } = context;
-      const matchPreference = await DialogueMatchPreferences.findOne({dialogueCheckId: dialogueCheck._id});
+      const matchPreference = await DialogueMatchPreferences.findOne({dialogueCheckId: dialogueCheck._id, deleted: {$ne: true}});
       return await accessFilterSingle(context.currentUser, DialogueMatchPreferences, matchPreference, context);
     }
   }),
@@ -55,7 +58,7 @@ const schema: SchemaType<DbDialogueCheck> = {
       const { DialogueMatchPreferences, DialogueChecks } = context;
       const matchingDialogueCheck = await DialogueChecks.findOne({userId: dialogueCheck.targetUserId, targetUserId: dialogueCheck.userId});
       if (!matchingDialogueCheck) return null;
-      const reciprocalMatchPreference = await DialogueMatchPreferences.findOne({dialogueCheckId: matchingDialogueCheck._id});
+      const reciprocalMatchPreference = await DialogueMatchPreferences.findOne({dialogueCheckId: matchingDialogueCheck._id, deleted: {$ne: true}});
       return await accessFilterSingle(context.currentUser, DialogueMatchPreferences, reciprocalMatchPreference, context);
     }
   }),

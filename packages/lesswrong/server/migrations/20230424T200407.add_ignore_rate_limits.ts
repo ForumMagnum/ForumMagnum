@@ -37,9 +37,9 @@ import { addField, dropField } from "./meta/utils";
 export const acceptsSchemaHash = "c4afbf05797c266012f5ba5ae0119c87";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Posts.isPostgres()) await addField(db, Posts, 'ignoreRateLimits')
+  await addField(db, Posts, 'ignoreRateLimits')
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Posts.isPostgres()) await dropField(db, Posts, 'ignoreRateLimits')
+  await dropField(db, Posts, 'ignoreRateLimits')
 }

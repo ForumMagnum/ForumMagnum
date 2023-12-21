@@ -21,6 +21,7 @@ import type { Editor } from '@ckeditor/ckeditor5-core';
 import type { Node, RootElement, Writer, Element as CKElement, Selection, DocumentFragment } from '@ckeditor/ckeditor5-engine';
 import { EditorContext } from '../posts/PostsEditForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useMulti } from '../../lib/crud/withMulti';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -412,8 +413,21 @@ const CKPostEditor = ({
   }
   
   const dialogueConfiguration = { dialogueParticipantNotificationCallback }
-    
-  
+
+  const {results: anyDialogue} = useMulti({
+    collectionName: "Posts",
+    terms: {
+      view: "hasEverDialogued",
+      userId,
+      limit: 2,
+    },
+    fragmentName: "PostsMinimumInfo",
+    fetchPolicy: "cache-and-network",
+    skip: !currentUser?._id,
+  })
+
+  const hasEverDialoguedBefore = !!anyDialogue && anyDialogue.length > 1;
+
   const [_, setEditor] = useContext(EditorContext);
   
   const applyCollabModeToCkEditor = (editor: Editor, mode: CollaborationMode) => {
@@ -445,7 +459,7 @@ const CKPostEditor = ({
 
   return <div>
     {isBlockOwnershipMode && <>
-     <DialogueEditorGuidelines />
+     {!hasEverDialoguedBefore && <DialogueEditorGuidelines />}
      <style>
       {
       `.dialogue-message-input button {
@@ -605,7 +619,6 @@ const CKPostEditor = ({
           'mathDisplay',
           'mediaEmbed',
           'footnote',
-          'rootParagraphBox',
         ]} : {}),
         autosave: {
           save (editor: any) {

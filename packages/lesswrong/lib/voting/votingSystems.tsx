@@ -346,7 +346,9 @@ registerVotingSystem<{preVote: boolean}, {preVoteCount: number}>({
   isAllowedExtendedVote: (user) => {
     try {
       assertUserCanVoteInDonationElection(user);
-      return {allowed: true};
+      // TODO: uncomment this if we want to run another election
+      // return { allowed: true };
+      return { allowed: false, reason: 'Pre-voting has closed. Click "Vote in the Election" above if you would like to cast your real vote' };
     } catch (e) {
       return {
         allowed: false,
@@ -428,7 +430,7 @@ export async function getVotingSystemNameForDocument(document: VoteableType, con
     return "twoAxis";
   }
   if ((document as DbComment).postId) {
-    const post = await context.loaders.Posts.load((document as DbComment).postId);
+    const post = await context.loaders.Posts.load((document as DbComment).postId!);
     if (post?.votingSystem) {
       return post.votingSystem;
     }

@@ -1,16 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Components, getFragmentText, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
-import { gql, useQuery, useMutation } from "@apollo/client";
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { gql, useQuery } from "@apollo/client";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useCurrentUser } from '../common/withUser';
-import { randomId } from '../../lib/random';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { useCreate } from '../../lib/crud/withCreate';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useSingle } from '../../lib/crud/withSingle';
-import { useMulti } from "../../lib/crud/withMulti";
 import ReactConfetti from 'react-confetti';
 import { Link, NavigateFunction, useNavigate } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -24,11 +22,17 @@ import TextField from '@material-ui/core/TextField';
 import {SYNC_PREFERENCE_VALUES, SyncPreference } from '../../lib/collections/dialogueMatchPreferences/schema';
 import { useDialog } from '../common/withDialog';
 import { useDialogueMatchmaking } from '../hooks/useDialogueMatchmaking';
+import { useUpsertDialogueCheck } from '../hooks/useUpsertDialogueCheck';
 import keyBy from 'lodash/keyBy';
 import merge from 'lodash/merge';
 import mergeWith from 'lodash/mergeWith';
 import partition from 'lodash/partition';
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
+import NoSSR from 'react-no-ssr';
+import { useABTest } from '../../lib/abTestImpl';
+import { dialogueMatchingPageNoSSRABTest, offerToAddCalendlyLink, showRecommendedContentInMatchForm } from '../../lib/abTests';
+import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialogues/DialogueRecommendationRow';
+import { validatedCalendlyUrl } from '../dialogues/CalendlyIFrame';
 
 export type UpvotedUser = {
   _id: string;
@@ -61,27 +65,25 @@ export type TopCommentedTagUser = {
 export type UserDialogueUsefulData = {
   dialogueUsers: UsersOptedInToDialogueFacilitation[],
   topUsers: UpvotedUser[],
-  activeDialogueMatchSeekers: DbUser[]
-}
-
-export type TagWithCommentCount = {
-  tag: DbTag,
-  commentCount: number
+  activeDialogueMatchSeekers: UsersOptedInToDialogueFacilitation[]
 }
 
 export type TopicRecommendationData = DbComment[]
 
 interface CommonDialogueUserRowProps {
   checkId: string;
+  hideInRecommendations?: boolean;
   userIsChecked: boolean;
   userIsMatched: boolean;
+  matchPreference?: DialogueMatchPreferencesDefaultFragment;
+  reciprocalMatchPreference?: DialogueMatchPreferencesDefaultFragment;
   currentUser: UsersCurrent;
   showBio: boolean | undefined;
   showFrequentCommentedTopics: boolean | undefined;
   showPostsYouveRead: boolean | undefined;
 }
 
-type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueUserRowProps & {
+export type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueUserRowProps & {
   targetUser: UpvotedUser;
   showKarma: boolean;
   showAgreement: boolean;
@@ -90,7 +92,6 @@ type DialogueUserRowProps<V extends boolean> = V extends true ? (CommonDialogueU
   showKarma: false;
   showAgreement: false;
 });
-
 
 type RowUser = UsersOptedInToDialogueFacilitation & {
   [k in keyof Omit<UpvotedUser, '_id' | 'username' | 'displayName'>]?: never;
@@ -126,7 +127,9 @@ type NextStepsDialogProps = {
   targetUserId: string;
   targetUserDisplayName: string;
   dialogueCheckId: string;
-  dialogueCheck: DialogueCheckInfo;
+  matchPreference?: DialogueMatchPreferencesDefaultFragment;
+  reciprocalMatchPreference?: DialogueMatchPreferencesDefaultFragment;
+  dialogueCheck?: DialogueCheckInfo;
   classes: ClassesType<typeof styles>;
 };
 
@@ -136,6 +139,9 @@ type DialogueNextStepsButtonProps = {
   targetUserId: string;
   targetUserDisplayName: string;
   currentUser: UsersCurrent;
+  matchPreference?: DialogueMatchPreferencesDefaultFragment;
+  reciprocalMatchPreference?: DialogueMatchPreferencesDefaultFragment;
+  dialogueCheck?: DialogueCheckInfo;
   classes: ClassesType<typeof styles>;
 };
 
@@ -164,7 +170,7 @@ const xsGridBaseStyles = (theme: ThemeType) => ({
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 20,
-    ...commentBodyStyles(theme),
+    ...commentBodyStyles(theme, true),
     background: theme.palette.background.default,
     [theme.breakpoints.up('md')]: {
       marginTop: -50
@@ -250,6 +256,11 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
   },
   schedulingQuestion: {
+    lineHeight: '1.15em',
+  },
+  schedulingRow: {
+    marginTop: 5,
+    marginBottom: 5,
   },
   messageButton: {
     maxHeight: minRowHeight,
@@ -264,6 +275,14 @@ const styles = (theme: ThemeType) => ({
       width: "75px"
     },
   },
+  enterTopicsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    [theme.breakpoints.down('xs')]: {
+      marginRight: 5,
+    },
+  },
   enterTopicsButton: {
     maxHeight: minRowHeight,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -272,9 +291,18 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     borderRadius: 5,
     [theme.breakpoints.down("xs")]: {
-      "fontSize": "1rem",
-      "padding": "0.3rem",
+      fontSize: "1rem",
+      padding: "0.3rem",
     },
+  },
+  enterTopicsAnnotation: {
+    fontStyle: 'italic',
+    color: theme.palette.text.dim3,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: "0.9rem",
+    lineHeight: "1rem",
+    marginTop: 3,
+    whiteSpace: 'nowrap',
   },
   lightGreenButton: {
     maxHeight: minRowHeight,
@@ -375,18 +403,17 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'flex-start',
   },
-  optInLabel: {
+  optionControlLabel: {
     paddingLeft: 8,
   },
-  optInCheckbox: {
+  optionControlCheckbox: {
     height: 10,
     width: 30,
     color: theme.palette.dialogueMatching.optIn,
     marginRight: '-10px', // to get the prompt to line up closer
   },
   dialogueTopicList: {
-    marginTop: 16,
-    marginBottom: 16
+    marginBottom: 10
   },
   dialogueTopicRow: {
     display: 'flex',
@@ -411,16 +438,23 @@ const styles = (theme: ThemeType) => ({
     }
   },
   dialogueTitle: {
+    color: theme.palette.lwTertiary.main,
     paddingBottom: 8
   },
   dialogueFormatGrid: {
     display: 'grid',
     grid: 'auto-flow / 1fr 40px 40px 40px',
     alignItems: 'center',
-    marginBottom: 8
+    marginBottom: 16,
+    rowGap: '6px',
   },
-  dialogueFormatHeader: {
-    marginBottom: 8,
+  sectionHeader: {
+    color: theme.palette.lwTertiary.main,
+    marginBottom: 3,
+    marginTop: 13
+  },
+  matchHeader: {
+    color: theme.palette.lwTertiary.main
   },
   dialogueFormatLabel: {
     textAlign: 'center',
@@ -443,6 +477,57 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 5,
     backgroundColor: theme.palette.greyAlpha(0.05),
     whiteSpace: 'nowrap'
+  },
+  contentRecommendationsCard: {
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingBottom: 4,
+    paddingTop: 5,
+    borderRadius: 5,
+    backgroundColor: theme.palette.greyAlpha(0.05),
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  cardTitle: {
+    color: theme.palette.text.dim3,
+    marginBottom: 3,
+    fontSize: "0.9em"
+  },
+  recommendedContentContainer: {
+    display: 'flex',
+  },
+  recommendedContentContainerExpandedMobile: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'block',
+    },
+  },
+  contentRecommendationsList: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.text.primary,
+    fontSize: 'small',
+    overflow: 'hidden',
+    justifyContent: 'space-between'
+  },
+  recommendedContentRightContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    marginLeft: 'auto',
+  },
+  topicsOrigin: {
+    color: theme.palette.text.dim3,
+    marginBottom: 7,
+  },
+  mobileBreak: {
+    display: 'none',
+    [theme.breakpoints.down('xs')]: {
+      display: 'block',
+    },
+  },
+  syncText: {
+    color: theme.palette.text.dim3,
+  },
+  checkNotificationControl: {
+    marginBottom: 4
   }
 });
 
@@ -493,6 +578,10 @@ const useScrollGradient = (ref: React.RefObject<HTMLDivElement>) => {
   return { isScrolledToTop, isScrolledToBottom };
 };
 
+const isHideInRecommendations = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
+  return userDialogueChecks.find(check => check.targetUserId === targetUserId)?.hideInRecommendations ?? false;
+}
+
 const isMatched = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string): boolean => {
   return userDialogueChecks.some(check => check.targetUserId === targetUserId && check.match);
 };
@@ -501,14 +590,19 @@ const isChecked = (userDialogueChecks: DialogueCheckInfo[], targetUserId: string
   return userDialogueChecks?.find(check => check.targetUserId === targetUserId)?.checked ?? false;
 };
 
-const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
-  const checkId = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)?._id;
+export const getUserCheckInfo = (targetUser: RowUser | UpvotedUser, userDialogueChecks: DialogueCheckInfo[]) => {
+  const check = userDialogueChecks?.find(check => check.targetUserId === targetUser._id)
+  const checkId = check?._id;
+  const hideInRecommendations = isHideInRecommendations(userDialogueChecks, targetUser._id);
   const userIsChecked = isChecked(userDialogueChecks, targetUser._id);
   const userIsMatched = isMatched(userDialogueChecks, targetUser._id);
   return {
     checkId,
+    hideInRecommendations,
     userIsChecked,
-    userIsMatched
+    userIsMatched,
+    matchPreference: check?.matchPreference,
+    reciprocalMatchPreference: check?.reciprocalMatchPreference,
   };
 }
 
@@ -539,6 +633,42 @@ const headerTexts = {
   postsRead: "Posts you've read"
 }
 
+const CheckNotificationControl = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+  const updateCurrentUser = useUpdateCurrentUser();
+  const currentUser = useCurrentUser();
+  const [currentChannel, setCurrentChannel] = useState(currentUser?.notificationNewDialogueChecks.channel);
+  if (currentUser === null || currentChannel == null) return null;
+
+
+  const handleToggle = async () => {
+    const newChannel = currentChannel === "none" ? "onsite" : "none";
+    setCurrentChannel(newChannel)
+    await updateCurrentUser({
+      notificationNewDialogueChecks: {
+        ...currentUser.notificationNewDialogueChecks,
+        channel: newChannel,
+      }
+    })
+  }
+
+  return (
+    <div className={classes.checkNotificationControl}>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={currentChannel !== "none"}
+            onChange={handleToggle}
+            className={classes.optionControlCheckbox}
+          />
+        }
+        label={null}
+        className={classes.optionControlLabel}
+      />{"Receive notifications when someone you've not yet checked checks you"}
+    </div>
+  )
+
+}
+
 const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, userId: string }) => {
   const { document: userData, loading } = useSingle({
     documentId: userId,
@@ -564,7 +694,7 @@ const UserBio = ({ classes, userId }: { classes: ClassesType<typeof styles>, use
 
 const UserPostsYouveRead = ({ classes, targetUserId, hideAtSm, limit = 20}: { classes: ClassesType<typeof styles>, targetUserId: string, hideAtSm: boolean, limit?: number }) => {
   const currentUser = useCurrentUser();
-  const { Loading, PostsTooltip, LWDialog } = Components;
+  const { Loading, PostsTooltip } = Components;
 
 
   const { loading, error, data } = useQuery(gql`
@@ -667,15 +797,121 @@ const Headers = ({ titles, classes, headerClasses }: { titles: string[], headerC
   );
 };
 
-type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No", recommendationReason: string, theirVote?: string, yourVote?: string}
+export type ExtendedDialogueMatchPreferenceTopic = DbDialogueMatchPreference["topicPreferences"][number] & {matchedPersonPreference?: "Yes" | "Meh" | "No", recommendationReason: string, theirVote?: string, yourVote?: string}
 
-const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, dialogueCheckId, classes, dialogueCheck }: NextStepsDialogProps) => {
-  const { LWDialog, ReactionIcon, LWTooltip } = Components;
+type UserRecommendedContentProps = {
+  classes: ClassesType<typeof styles>;
+  targetUserId: string;
+}
 
-  const [topicNotes, setTopicNotes] = useState(dialogueCheck.matchPreference?.topicNotes ?? "");
-  const [formatSync, setFormatSync] = useState<SyncPreference>(dialogueCheck.matchPreference?.syncPreference ?? "Meh");
-  const [formatAsync, setFormatAsync] = useState<SyncPreference>(dialogueCheck.matchPreference?.asyncPreference ?? "Meh");
-  const [formatNotes, setFormatNotes] = useState(dialogueCheck.matchPreference?.formatNotes ?? "");
+const UserRecommendedContent = ({ classes, targetUserId }: UserRecommendedContentProps ) => {
+  const { PostsTooltip, Loading, CommentView, TopicSuggestion, ExpandCollapseText } = Components;
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking()
+
+  const { loading: tagLoading, error: tagError, data: tagData } = useQuery(gql`
+  query UserTopTags($userId: String!) {
+    UserTopTags(userId: $userId) {
+      tag {
+        name
+        _id
+      }
+      commentCount
+    }
+  }
+`, {
+  variables: { userId: targetUserId },
+  skip: !currentUser
+});
+
+const { loading: postsLoading, error: postsError, data: postsData } = useQuery(gql`
+  query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
+    UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
+      _id
+      title
+      slug
+    }
+  }
+`, {
+  variables: { userId: currentUser?._id, targetUserId: targetUserId, limit : 4 },
+  skip: !currentUser
+});
+
+const { loading: commentsLoading, error: commentsError, data: commentsData } = useQuery(gql`
+  query UsersRecommendedCommentsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
+    UsersRecommendedCommentsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
+      _id
+      postId
+      contents {
+        html
+        plaintextMainText
+      }
+    }
+  }
+`, {
+  variables: { userId: currentUser?._id, targetUserId: targetUserId, limit : 3 },
+  skip: !currentUser
+});
+
+const topTags:TagWithCommentCount[] | undefined = tagData?.UserTopTags;
+const readPosts:PostYouveRead[] | undefined = postsData?.UsersReadPostsOfTargetUser
+const recommendedComments:RecommendedComment[] | undefined = commentsData?.UsersRecommendedCommentsOfTargetUser
+
+if (!currentUser || !topTags || !readPosts || !recommendedComments) return <Loading />;
+const tagsSentence = topTags.slice(0, 4).map(tag => tag.tag.name).join(', ');
+const numRecommendations = (readPosts?.length ?? 0) + (recommendedComments?.length ?? 0) + (tagsSentence === "" ? 0 : 1);
+const numShown = isExpanded ? numRecommendations : 2
+const numHidden = Math.max(0, numRecommendations - numShown);
+
+const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = [
+  ...(topTags.length > 0 ? [{reactIconName: "examples", prefix: "top tags: ", Content: <>{tagsSentence}</>}] : []),
+  ...readPosts.map(post => ({reactIconName: "elaborate", prefix: "post: ", Content: 
+    <PostsTooltip postId={post._id}>
+      <Link to={postGetPageUrl(post)}> {post.title} </Link>
+    </PostsTooltip>})),
+  ...recommendedComments.map(comment => ({reactIconName: "elaborate", prefix: "comment: ", Content: <CommentView comment={comment} />}))
+]
+
+const toggleExpansion = () => {
+  setIsExpanded(!isExpanded);
+  captureEvent("toggle_expansion_inside_match_form")
+};
+
+if (allRecommendations.length === 0) return null;
+
+return (
+  <AnalyticsContext pageElementContext={'userRecommendedContent'} >
+    <div className={classes.contentRecommendationsCard} >
+      <div className={classes.cardTitle}>
+        Recommended content
+      </div>
+      <div className={classNames(classes.recommendedContentContainer, {
+        [classes.recommendedContentContainerExpandedMobile]: isExpanded})}>
+        <div className={classes.contentRecommendationsList}>
+          {allRecommendations.slice(0, numShown).map( (item, index) => <TopicSuggestion key={index} reactIconName={item.reactIconName} prefix={item.prefix} Content={item.Content} isExpanded={isExpanded} />) } 
+        </div>
+        <div className={classes.recommendedContentRightContainer}>
+          <ExpandCollapseText isExpanded={isExpanded} numHidden={numHidden} toggleExpansion={toggleExpansion} />
+        </div>
+      </div>
+    </div>
+  </AnalyticsContext>)
+}
+
+const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName, matchPreference, reciprocalMatchPreference, dialogueCheckId, classes }: NextStepsDialogProps) => {
+  const { LWDialog, ReactionIcon, LWTooltip, CalendlyIFrame } = Components;
+
+  const [topicNotes, setTopicNotes] = useState(matchPreference?.topicNotes ?? "");
+  const [formatSync, setFormatSync] = useState<SyncPreference>(matchPreference?.syncPreference ?? "Meh");
+  const [formatAsync, setFormatAsync] = useState<SyncPreference>(matchPreference?.asyncPreference ?? "Meh");
+  const [formatNotes, setFormatNotes] = useState(matchPreference?.formatNotes ?? "");
+  const showRecommendedContent = useABTest(showRecommendedContentInMatchForm);
+  const initialCalendlyLink = validatedCalendlyUrl(matchPreference?.calendlyLink ?? "");
+  const [calendlyLink, setCalendlyLink] = useState(initialCalendlyLink);
+
+  const calendlyAB = useABTest(offerToAddCalendlyLink);
 
   const { create, called, loading: loadingCreatedMatchPreference, data: newMatchPreference } = useCreate({
     collectionName: "DialogueMatchPreferences",
@@ -715,6 +951,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
         syncPreference: formatSync,
         asyncPreference: formatAsync,
         formatNotes: formatNotes,
+        calendlyLink: calendlyLink.valid ? calendlyLink.url : undefined,
       }
     });
 
@@ -754,8 +991,8 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
       .map(topic => [topic.text, {...topic, preference: own ? "Yes" : undefined, matchedPersonPreference: own ? undefined : "Yes"}])
     return Object.fromEntries(prefsDictList)  
   }
-  const ownTopicDict = dialogueCheck.matchPreference ? getTopicDict(dialogueCheck.matchPreference, true) : {}
-  const matchedPersonTopicDict = dialogueCheck.reciprocalMatchPreference ? getTopicDict(dialogueCheck.reciprocalMatchPreference, false) : {}
+  const ownTopicDict = matchPreference ? getTopicDict(matchPreference, true) : {}
+  const matchedPersonTopicDict = reciprocalMatchPreference ? getTopicDict(reciprocalMatchPreference, false) : {}
   const initialTopicDict = mergeWith(ownTopicDict, matchedPersonTopicDict, (ownTopic, matchedPersonTopic) =>
     ({...matchedPersonTopic, preference: undefined, ...ownTopic})
   )
@@ -776,6 +1013,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   }), [topicRecommendations])
 
   const [recommendedTopics, userSuggestedTopics]  = partition(topicPreferences, topic => topic.matchedPersonPreference !== "Yes")
+
   if (called && !loadingCreatedMatchPreference && !(newMatchPreference as any)?.createDialogueMatchPreference?.data?.generatedDialogueId) {
     return (
       <LWDialog open onClose={onClose}>
@@ -794,7 +1032,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
           </DialogActions>
       </LWDialog>
   )}
-
+ 
   const ScheduleLabels = ({extraClass}: {extraClass?: string}) => <>
     <label className={classNames(classes.dialogueFormatLabel, extraClass)}>Great</label>
     <label className={classNames(classes.dialogueFormatLabel, extraClass)}>Okay</label>
@@ -804,10 +1042,12 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   return (
     <LWDialog open onClose={onClose} className={classes.mobileDialog}>
       <div className={classes.dialogBox}>
-        <DialogTitle className={classes.dialogueTitle}>Alright, you matched with {targetUserDisplayName}!</DialogTitle>
+        <DialogTitle className={classes.dialogueTitle}><span className={classes.matchHeader}>(Match)</span> {targetUserDisplayName}</DialogTitle>
         <DialogContent >
+          {showRecommendedContent === "show" &&  <UserRecommendedContent targetUserId={targetUserId} classes={classes} />}
+          <h3 className={classes.sectionHeader}>Topics</h3>
           {userSuggestedTopics.length > 0 && <>
-            <div>Here are some topics {targetUserDisplayName} was interested in:</div>
+            <div className={classes.topicsOrigin} >{targetUserDisplayName} was interested in the below. Check ones you like.</div>
             <div className={classes.dialogueTopicList}>
               {userSuggestedTopics.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
                 <Checkbox 
@@ -826,8 +1066,8 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                     {topic.text}
                   </div>
               </div>)}
-          </div></>}
-            <div>Topic suggestions. Check any you're interested in discussing.</div>
+            </div></>}
+            <div className={classes.topicsOrigin}>Suggested</div>
             <div className={classes.dialogueTopicList}>
               {recommendedTopics.map((topic) => <div className={classes.dialogueTopicRow} key={topic.text}>
                 <Checkbox 
@@ -865,28 +1105,40 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
                 Add Topic
               </Button>
             </div>
-            <br />
+            <br className={classes.mobileBreak} />
             <div className={classes.dialogueFormatGrid}>
-              <h3 className={classes.dialogueFormatHeader}>What Format Do You Prefer?</h3>
+              <h3 className={classes.sectionHeader}>Format</h3>
               <ScheduleLabels />
-              
-              <div className={classes.schedulingQuestion}><strong>Sync:</strong> Find a synchronous 1-3hr block to sit down and dialogue</div>
-              {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
-                  key={value}
-                  checked={formatSync === value}
-                  className={classes.dialogSchedulingCheckbox}
-                  onChange={event => setFormatSync(value as SyncPreference)}
-                  />)}
-
-              <div className={classes.schedulingQuestion}><strong>Async:</strong> Have an asynchronous dialogue where you reply where convenient</div>
-              {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
-                  key={value}
-                  checked={formatAsync === value}
-                  className={classes.dialogSchedulingCheckbox}
-                  onChange={event => setFormatAsync(value as SyncPreference)}
-              />)}
-              
+                <div className={classes.schedulingQuestion}><span className={classes.syncText}>Sync:</span> Find a synchronous 1-3hr block to sit down and dialogue</div>
+                {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                    key={value}
+                    checked={formatSync === value}
+                    className={classes.dialogSchedulingCheckbox}
+                    onChange={event => setFormatSync(value as SyncPreference)}
+                    />)}
+                <div className={classes.schedulingQuestion}><span className={classes.syncText}>Async:</span> Have an asynchronous dialogue where you reply where convenient</div>
+                {SYNC_PREFERENCE_VALUES.map((value, idx) => <Checkbox 
+                    key={value}
+                    checked={formatAsync === value}
+                    className={classes.dialogSchedulingCheckbox}
+                    onChange={event => setFormatAsync(value as SyncPreference)}
+                />)}
             </div>      
+            { calendlyAB === "show" && <TextField
+              variant="outlined"
+              label="You can share a calendly link for easier scheduling"
+              rows={2}
+              error={!calendlyLink.valid}
+              helperText={!calendlyLink.valid && "Please enter a valid calendly link"}
+              fullWidth
+              value={calendlyLink.url ?? ""}
+              margin="normal"
+              onChange={event => setCalendlyLink(validatedCalendlyUrl(event.target.value))}
+            /> }
+            { calendlyLink.valid && calendlyLink.url && <>
+              <h3 className={classes.sectionHeader}>A preview of what we'll show your partner</h3>
+              <CalendlyIFrame url={calendlyLink.url} />
+            </>}
             <TextField
               multiline
               rows={2}
@@ -919,21 +1171,12 @@ const DialogueCheckBox: React.FC<{
   checkId?: string;
   isChecked: boolean, 
   isMatched: boolean;
+  hideInRecommendations?: boolean;
   classes: ClassesType<typeof styles>;
-}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, classes}) => {
+}> = ({ targetUserId, targetUserDisplayName, checkId, isChecked, isMatched, hideInRecommendations, classes}) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { openDialog } = useDialog();
-
-  const [upsertDialogueCheck] = useMutation(gql`
-    mutation upsertUserDialogueCheck($targetUserId: String!, $checked: Boolean!) {
-      upsertUserDialogueCheck(targetUserId: $targetUserId, checked: $checked) {
-          ...DialogueCheckInfo
-        }
-      }
-    ${getFragmentText('DialogueCheckInfo')}
-    ${getFragmentText('DialogueMatchPreferencesDefaultFragment')}
-    `)
   
   async function handleNewMatchAnonymisedAnalytics() {
     captureEvent("newDialogueReciprocityMatch", {}) // we only capture match metadata and don't pass anything else
@@ -942,56 +1185,17 @@ const DialogueCheckBox: React.FC<{
     const webhookURL = isProduction ? "https://hooks.slack.com/triggers/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" : "https://hooks.slack.com/triggers/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"  //
     const data = {} // Not sending any data for now 
     void pingSlackWebhook(webhookURL, data)
-    
   }
 
   const [showConfetti, setShowConfetti] = useState(false);
-
+  const upsertUserDialogueCheck = useUpsertDialogueCheck();
 
   async function updateDatabase(event: React.ChangeEvent<HTMLInputElement>, targetUserId: string, checkId?: string) {
     if (!currentUser) return;
 
-    const response = await upsertDialogueCheck({
-      variables: {
-        targetUserId: targetUserId, 
-        checked: event.target.checked
-      },
-      update(cache, { data }) {
-        if (!checkId) {
-          cache.modify({
-            fields: {
-              dialogueChecks(existingChecksRef) {
-                const newCheckRef = cache.writeFragment({
-                  data: data.upsertUserDialogueCheck,
-                  fragment: gql`
-                    ${getFragmentText('DialogueCheckInfo')}
-                    ${getFragmentText('DialogueMatchPreferencesDefaultFragment')}
-                  `,
-                  fragmentName: 'DialogueCheckInfo'
-                });
-                return {
-                  ...existingChecksRef,
-                  results: [...existingChecksRef.results, newCheckRef]
-                }
-              }
-            }
-          });
-        }
-      },
-      optimisticResponse: {
-        upsertUserDialogueCheck: {
-          _id: checkId ?? randomId(),
-          __typename: 'DialogueCheck',
-          userId: currentUser._id,
-          targetUserId: targetUserId,
-          checked: event.target.checked,
-          checkedAt: new Date(),
-          match: false,
-          matchPreference: null,
-          reciprocalMatchPreference: null
-        }
-      }
-    })
+    const response = await upsertUserDialogueCheck({ targetUserId, checked: event.target.checked, checkId });
+
+    captureEvent("newDialogueCheck", {checked: response.data.upsertUserDialogueCheck.checked}) 
     
     if (response.data.upsertUserDialogueCheck.match) {
       void handleNewMatchAnonymisedAnalytics()
@@ -1002,6 +1206,8 @@ const DialogueCheckBox: React.FC<{
           userId: currentUser?._id,
           targetUserId,
           targetUserDisplayName,
+          matchPreference: response.data.upsertUserDialogueCheck.matchPreference, 
+          reciprocalMatchPreference: response.data.upsertUserDialogueCheck.reciprocalMatchPreference,
           dialogueCheckId: response.data.upsertUserDialogueCheck._id,
           dialogueCheck: response.data.upsertUserDialogueCheck
         }
@@ -1010,7 +1216,7 @@ const DialogueCheckBox: React.FC<{
   }
 
   return (
-    <>
+    <AnalyticsContext pageElementContext={"dialogueCheckBox"}>
       {showConfetti && <ReactConfetti recycle={false} colors={["#7faf83", "#00000038" ]} onConfettiComplete={() => setShowConfetti(false)} />}
       <FormControlLabel
         control={ 
@@ -1029,7 +1235,8 @@ const DialogueCheckBox: React.FC<{
         }
         label=""
       />
-    </>
+    </AnalyticsContext>
+    
   );
 };
 
@@ -1039,33 +1246,17 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
   targetUserId,
   targetUserDisplayName,
   currentUser,
+  matchPreference,
+  reciprocalMatchPreference,
   classes,
 }) => {
+  const { ReactionIcon } = Components;
 
   const { openDialog } = useDialog();
 
   const navigate = useNavigate();
 
-  const {loading: userLoading, results} = useMulti({
-    terms: {
-      view: "dialogueMatchPreferences",
-      dialogueCheckId: checkId,
-      limit: 1000,
-    },
-    fragmentName: "DialogueMatchPreferenceInfo",
-    collectionName: "DialogueMatchPreferences",
-  });
-
-  const { document: dialogueCheck } = useSingle({
-    fragmentName: "DialogueCheckInfo",
-    collectionName: "DialogueChecks",
-    documentId: checkId,
-  });
-
-  if (!isMatched) return <div className={classes.hideAtXs}></div>; // need this instead of null to keep the table columns aligned
-
-  const userMatchPreferences = results?.[0]
-  const generatedDialogueId = userMatchPreferences?.generatedDialogueId;
+  const generatedDialogueId = matchPreference?.generatedDialogueId;
 
   if (!!generatedDialogueId) {
     return (
@@ -1075,7 +1266,7 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
     );
   }
 
-  if (userMatchPreferences) {
+  if (matchPreference) {
     return (
       <div className={classes.waitingMessage}>
         Waiting for {targetUserDisplayName}...
@@ -1087,21 +1278,23 @@ const DialogueNextStepsButton: React.FC<DialogueNextStepsButtonProps> = ({
     <button
       className={classNames(classes.enterTopicsButton, {
         [classes.hideAtXs]: !isMatched,
+        [classes.lightGreenButton]: !!reciprocalMatchPreference,
       })}
       onClick={(e) => {
-        dialogueCheck && openDialog({
+        openDialog({
           componentName: 'NextStepsDialog',
           componentProps: {
             userId: currentUser?._id,
             targetUserId,
             targetUserDisplayName,
+            matchPreference,
+            reciprocalMatchPreference,
             dialogueCheckId: checkId,
-            dialogueCheck
           }
         })
       }}
     >
-      <a data-cy="message">Enter topics</a>
+      <a data-cy="message">{reciprocalMatchPreference ? "Enter your topics" : "Enter topics"}</a>
     </button>
   );
 };
@@ -1127,10 +1320,11 @@ const MessageButton: React.FC<{
 
 
 const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { classes: ClassesType }): JSX.Element => {
-  const { targetUser, checkId, userIsChecked, userIsMatched, classes, currentUser, showKarma, showAgreement, showBio, showFrequentCommentedTopics, showPostsYouveRead } = props;
-  const { UsersName, DialogueCheckBox, MessageButton, DialogueNextStepsButton } = Components;
+  const { targetUser, checkId, userIsChecked, userIsMatched, classes, currentUser, showKarma, showAgreement, showBio, showFrequentCommentedTopics, showPostsYouveRead, matchPreference, reciprocalMatchPreference } = props;
+  const { UsersName, DialogueCheckBox, MessageButton, DialogueNextStepsButton, ReactionIcon } = Components;
 
-  return <React.Fragment key={`${targetUser._id}_other`}>
+
+  return <React.Fragment key={`${targetUser._id}_other`} >
     <DialogueCheckBox
       targetUserId={targetUser._id}
       targetUserDisplayName={targetUser.displayName}
@@ -1147,13 +1341,23 @@ const DialogueUserRow = <V extends boolean>(props: DialogueUserRowProps<V> & { c
       currentUser={currentUser}
       isMatched={userIsMatched}
     />
-    <DialogueNextStepsButton
-      isMatched={userIsMatched}
-      checkId={checkId}
-      targetUserId={targetUser._id}
-      targetUserDisplayName={targetUser.displayName}
-      currentUser={currentUser}
-    />
+    { !userIsMatched ? 
+      <div className={classes.hideAtXs}></div> // need this instead of null to keep the table columns aligned
+      : <div className={classes.dialogueEnterTopicsButtonContainer}>
+          <DialogueNextStepsButton
+            isMatched={userIsMatched}
+            checkId={checkId}
+            targetUserId={targetUser._id}
+            targetUserDisplayName={targetUser.displayName}
+            currentUser={currentUser}
+            reciprocalMatchPreference={reciprocalMatchPreference}
+          />
+          {!matchPreference && reciprocalMatchPreference && 
+            <div className={classes.enterTopicsAnnotation}> 
+              <ReactionIcon size={10} react={"agree"} /> {targetUser.displayName}
+            </div>
+          }
+        </div>}
     {showKarma && <div className={classNames(classes.hideAtXs, classes.centeredText)}> {targetUser.total_power} </div>}
     {showAgreement && <div className={classNames(classes.hideAtXs, classes.centeredText)}> {targetUser.total_agreement} </div>}
     {showBio && <UserBio
@@ -1234,7 +1438,7 @@ export const DialogueMatchingPage = ({classes}: {
     matchedUsersQueryResult: { data: matchedUsersResult },
     userDialogueChecksResult: { results: userDialogueChecks },
     usersOptedInResult: { results: usersOptedInToDialogueFacilitation, loadMoreProps: optedInUsersLoadMoreProps }
-  } = useDialogueMatchmaking({ getMatchedUsers: true, getOptedInUsers: true, getUserDialogueChecks: true });
+  } = useDialogueMatchmaking(currentUser, { getMatchedUsers: true, getOptedInUsers: true, getUserDialogueChecks: { limit: 1000 } });
 
   const { loading, error, data } = useQuery(gql`
     query getDialogueUsers {
@@ -1270,17 +1474,18 @@ export const DialogueMatchingPage = ({classes}: {
 
   const userDialogueUsefulData: UserDialogueUsefulData = data?.GetUserDialogueUsefulData;
 
-  const matchedUsers: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers;
+  const matchedUsersWithSelf: UsersOptedInToDialogueFacilitation[] | undefined = matchedUsersResult?.GetDialogueMatchedUsers
+  const matchedUsers = matchedUsersWithSelf?.filter(user => user._id !== currentUser._id)
   const matchedUserIds = matchedUsers?.map(user => user._id) ?? [];
   const topUsers = userDialogueUsefulData?.topUsers.filter(user => !matchedUserIds.includes(user._id));
   const recentlyActiveTopUsers = topUsers.filter(user => user.recently_active_matchmaking)
   const nonRecentlyActiveTopUsers = topUsers.filter(user => !user.recently_active_matchmaking)
-  const dialogueUsers = userDialogueUsefulData?.dialogueUsers.filter(user => !matchedUserIds.includes(user._id));
-  const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id));
-  const activeDialogueMatchSeekers = userDialogueUsefulData?.activeDialogueMatchSeekers.filter(user => !matchedUserIds.includes(user._id));
+  const dialogueUsers = userDialogueUsefulData?.dialogueUsers.filter(user => !matchedUserIds.includes(user._id) && !(user._id === currentUser._id));
+  const optedInUsers = usersOptedInToDialogueFacilitation.filter(user => !matchedUserIds.includes(user._id) && !(user._id === currentUser._id));
+  const activeDialogueMatchSeekers = userDialogueUsefulData?.activeDialogueMatchSeekers.filter(user => !matchedUserIds.includes(user._id) && !(user._id === currentUser._id));
   
   if (loading) return <Loading />
-  if (error ?? !userDialogueChecks ?? userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
+  if (error || !userDialogueChecks || userDialogueChecks.length > 1000) return <p>Error </p>; // if the user has clicked that much stuff things might break...... 
   if (userDialogueChecks?.length > 1000) {
     throw new Error(`Warning: userDialogueChecks.length > 1000, seems user has checked more than a thousand boxes? how is that even possible? let a dev know and we'll fix it...`);
   }
@@ -1302,46 +1507,129 @@ export const DialogueMatchingPage = ({classes}: {
   const prompt = "Opt-in to LessWrong team viewing your checks, to help proactively suggest and facilitate dialogues" 
 
   return (
-  <div className={classes.root}>
-    <div className={classes.container}>
-      <div className={classes.mobileWarning}>
-        Dialogues matching doesn't render well on narrow screens right now. <br/> <br /> Please view on laptop or tablet!
-      </div>
+  <AnalyticsContext pageContext={"dialogueMatchingPage"}>
+    <div className={classes.root}>
+      <div className={classes.container}>
 
-      <h1>Dialogue Matching</h1>
-      <ul>
-        <li>Check a user you'd maybe be interested in having a dialogue with, if they were too</li>
-        <li>They can't see your checks unless you match</li>
-        <li>If you match, you'll both get a tiny form to enter topic ideas</li>
-        <li>You can then see each other's answers, and choose whether start a dialogue</li>
-      </ul>
-      
-      <div className={classes.optInContainer}>
-        <FormControlLabel className={classes.optInLabel}
-          control={
-            <Checkbox
-              checked={optIn}
-              onChange={event => handleOptInToRevealDialogueChecks(event)}
-              name="optIn"
-              color="primary"
-              className={classes.optInCheckbox}
-            />
-          }
-          label={null}
-        />{prompt}
+        <h1>Dialogue Matching</h1>
+        <ul>
+          <li>Check a user you'd maybe be interested in having a dialogue with, if they were too</li>
+          <li>They can't see your checks unless you match</li>
+          <li>If you match, you'll both get a tiny form to enter topic ideas</li>
+          <li>You can then see each other's answers, and choose whether start a dialogue</li>
+        </ul>
+        
+        <CheckNotificationControl classes={classes} />
+        <div className={classes.optInContainer}>
+          <FormControlLabel className={classes.optionControlLabel}
+            control={
+              <Checkbox
+                checked={optIn}
+                onChange={event => handleOptInToRevealDialogueChecks(event)}
+                name="optIn"
+                color="primary"
+                className={classes.optionControlCheckbox}
+              />
+            }
+            label={null}
+          />{prompt}
+        </div> 
       </div> 
-    </div> 
-    <p className={classes.privacyNote}>On privacy: LessWrong team does not look at user’s checks unless you opted in. We do track metadata, like “Two users just matched”, 
-      to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless 
-      the other part of the match has also opted in.
-    </p>
-    { !(matchedUsers?.length) ?  null : <>
+      <p className={classes.privacyNote}>On privacy: LessWrong team does not look at user’s checks unless you opted in. We do track metadata, like “Two users just matched”, 
+        to help us know whether the feature is getting used. If one user opts in to revealing their checks we can still not see their matches, unless 
+        the other part of the match has also opted in.
+      </p>
+      { !(matchedUsers?.length) ?  null : <>
+        <div className={classes.rootFlex}>
+          <div className={classes.matchContainer}>
+            <h3>Matches</h3>
+            <UserTable
+              users={matchedUsers ?? []}
+              tableContext={'match'}
+              classes={classes}
+              gridClassName={classes.matchContainerGridV2}
+              currentUser={currentUser}
+              userDialogueChecks={userDialogueChecks}
+              showBio={true}
+              showKarma={false}
+              showAgreement={false}
+              showPostsYouveRead={true}
+              showFrequentCommentedTopics={true}
+              showHeaders={true}
+            />
+          </div>
+        </div>
+        <br />
+        <br />
+      </> }
+      { !topUsers.length ? null : <>
+        <div className={classes.rootFlex}>
+          <div className={classes.matchContainer}>
+            <h3>Your Top Voted Users (Last 18 Months)</h3>
+            { recentlyActiveTopUsers.length === 0 ? null : <>
+            <h4>Recently active on dialogue matching (last 10 days)</h4>
+            <UserTable
+              users={recentlyActiveTopUsers}
+              tableContext={'upvoted'}
+              classes={classes}
+              gridClassName={classes.matchContainerGridV1}
+              currentUser={currentUser}
+              userDialogueChecks={userDialogueChecks}
+              showBio={false}
+              showKarma={true}
+              showAgreement={true}
+              showPostsYouveRead={true}
+              showFrequentCommentedTopics={true}
+              showHeaders={true}
+            />
+          <br />
+          </> }
+        { nonRecentlyActiveTopUsers.length === 0 ? null : <>
+              <h4>Not recently active on dialogue matching</h4>
+              <UserTable
+                users={nonRecentlyActiveTopUsers}
+                tableContext={'upvoted'}
+                classes={classes}
+                gridClassName={classes.matchContainerGridV1}
+                currentUser={currentUser}
+                userDialogueChecks={userDialogueChecks}
+                showBio={false}
+                showKarma={true}
+                showAgreement={true}
+                showPostsYouveRead={true}
+                showFrequentCommentedTopics={true}
+                showHeaders={!recentlyActiveTopUsers.length}
+              />
+            </>}
+            </div>
+        </div>
+        <br />
+      </> }
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
-          <h3>Matches</h3>
+          <h3>Recently active on dialogue matching</h3>
           <UserTable
-            users={matchedUsers ?? []}
-            tableContext={'match'}
+            users={activeDialogueMatchSeekers}
+            tableContext={'other'}
+            classes={classes}
+            gridClassName={classes.matchContainerGridV2}
+            currentUser={currentUser}
+            userDialogueChecks={userDialogueChecks}
+            showBio={true}
+            showKarma={false}
+            showAgreement={false}
+            showPostsYouveRead={true}
+            showFrequentCommentedTopics={true}
+            showHeaders={true}
+          />
+        </div>
+      </div>
+      <div className={classes.rootFlex}>
+        <div className={classes.matchContainer}>
+          <h3>Published dialogues</h3>
+          <UserTable
+            users={dialogueUsers}
+            tableContext={'other'}
             classes={classes}
             gridClassName={classes.matchContainerGridV2}
             currentUser={currentUser}
@@ -1356,120 +1644,42 @@ export const DialogueMatchingPage = ({classes}: {
         </div>
       </div>
       <br />
-      <br />
-    </> }
-    { !topUsers.length ? null : <>
       <div className={classes.rootFlex}>
         <div className={classes.matchContainer}>
-          <h3>Your Top Voted Users (Last 18 Months)</h3>
-          { recentlyActiveTopUsers.length == 0 ? null : <>
-          <h4>Recently active on dialogue matching (last 10 days)</h4>
+          <h3>Opted in to matchmaking</h3>
           <UserTable
-            users={recentlyActiveTopUsers}
-            tableContext={'upvoted'}
+            users={optedInUsers}
+            tableContext={'other'}
             classes={classes}
-            gridClassName={classes.matchContainerGridV1}
+            gridClassName={classes.matchContainerGridV2}
             currentUser={currentUser}
             userDialogueChecks={userDialogueChecks}
-            showBio={false}
-            showKarma={true}
-            showAgreement={true}
+            showBio={true}
+            showKarma={false}
+            showAgreement={false}
             showPostsYouveRead={true}
             showFrequentCommentedTopics={true}
             showHeaders={true}
           />
-        <br />
-        </> }
-      { nonRecentlyActiveTopUsers.length == 0 ? null : <>
-            <h4>Not recently active on dialogue matching</h4>
-            <UserTable
-              users={nonRecentlyActiveTopUsers}
-              tableContext={'upvoted'}
-              classes={classes}
-              gridClassName={classes.matchContainerGridV1}
-              currentUser={currentUser}
-              userDialogueChecks={userDialogueChecks}
-              showBio={false}
-              showKarma={true}
-              showAgreement={true}
-              showPostsYouveRead={true}
-              showFrequentCommentedTopics={true}
-              showHeaders={!recentlyActiveTopUsers.length}
-            />
-          </>}
-          </div>
+          <LoadMore {...optedInUsersLoadMoreProps} loadMore={() => optedInUsersLoadMoreProps.loadMore(50)} />
+        </div>
       </div>
       <br />
-    </> }
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h3>Published dialogues</h3>
-        <UserTable
-          users={dialogueUsers}
-          tableContext={'other'}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV2}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          showBio={true}
-          showKarma={false}
-          showAgreement={false}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-          showHeaders={true}
-        />
-      </div>
+      <IntercomWrapper />
     </div>
-    <br />
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h3>Opted in to matchmaking</h3>
-        <UserTable
-          users={optedInUsers}
-          tableContext={'other'}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV2}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          showBio={true}
-          showKarma={false}
-          showAgreement={false}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-          showHeaders={true}
-        />
-        <LoadMore {...optedInUsersLoadMoreProps} loadMore={() => optedInUsersLoadMoreProps.loadMore(50)} />
-      </div>
-    </div>
-    <br />
-    <div className={classes.rootFlex}>
-      <div className={classes.matchContainer}>
-        <h3>Recently active on dialogue matching</h3>
-        <UserTable
-          users={activeDialogueMatchSeekers}
-          tableContext={'other'}
-          classes={classes}
-          gridClassName={classes.matchContainerGridV2}
-          currentUser={currentUser}
-          userDialogueChecks={userDialogueChecks}
-          showBio={true}
-          showKarma={false}
-          showAgreement={false}
-          showPostsYouveRead={true}
-          showFrequentCommentedTopics={true}
-          showHeaders={true}
-        />
-      </div>
-    </div>
-    <IntercomWrapper />
-  </div>)
+  </AnalyticsContext>)
 }
+
+const NoSSRMatchingPage = (props: {classes: ClassesType<typeof styles>}) =>
+  useABTest(dialogueMatchingPageNoSSRABTest) === 'noSSR'
+  ? <NoSSR><DialogueMatchingPage {...props} /></NoSSR>
+  : <DialogueMatchingPage {...props} />
 
 const DialogueNextStepsButtonComponent = registerComponent('DialogueNextStepsButton', DialogueNextStepsButton, {styles});
 const MessageButtonComponent = registerComponent('MessageButton', MessageButton, {styles});
 const DialogueCheckBoxComponent = registerComponent('DialogueCheckBox', DialogueCheckBox, {styles});
 const DialogueUserRowComponent = registerComponent('DialogueUserRow', DialogueUserRow, {styles});
-const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', DialogueMatchingPage, {styles});
+const DialogueMatchingPageComponent = registerComponent('DialogueMatchingPage', NoSSRMatchingPage, {styles});
 
 declare global {
   interface ComponentTypes {

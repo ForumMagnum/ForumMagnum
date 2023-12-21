@@ -76,6 +76,21 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+export const calendlyPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.calendly-preview": {
+    "& iframe": {
+      "width": "calc(100% - 10px)",
+      "height": 750,
+      border: "2px solid",
+      borderRadius: 10,
+      borderColor: theme.palette.grey[200],
+      padding: 0,
+      marginRight: 5,
+      marginLeft: 5
+    },
+  },
+});
+
 const strawpollPreviewStyles = (theme: ThemeType): JssStyles => ({
   "& div.strawpoll-embed": {
     "& iframe": {
@@ -349,6 +364,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...calendlyPreviewStyles(theme),
     ...strawpollPreviewStyles(theme),
     ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),

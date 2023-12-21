@@ -14,7 +14,7 @@ if (fixEmail) { void (async ()=>{
       try {
       await Users.rawUpdateOne({_id: user._id}, {$set: {'emails': [{address: user.email, verified: true}]}});
       usersCount++;
-      if (usersCount % 1000 == 0 ){
+      if (usersCount % 1000 === 0 ){
         //eslint-disable-next-line no-console
         console.log("Updated emails of n users: ", usersCount);
       }

@@ -4,6 +4,7 @@ import './vulcan-users/index';
 
 // schema utils
 import './utils/schemaUtils'
+
 // Permissions
 import './permissions';
 
@@ -239,6 +240,11 @@ import './collections/electionCandidates/collection';
 import './collections/electionCandidates/fragments';
 import './collections/electionCandidates/views';
 
+// ElectionVotes
+import './collections/electionVotes/collection';
+import './collections/electionVotes/fragments';
+import './collections/electionVotes/views';
+
 // Collections supporting vendored libraries
 import './collections/cronHistories';
 import './collections/sessions';
@@ -262,6 +268,10 @@ import './collections/dialogueChecks/views';
 import './collections/dialogueMatchPreferences/collection';
 import './collections/dialogueMatchPreferences/fragments';
 import './collections/dialogueMatchPreferences/views';
+
+// dialogue match preferences
+import './collections/ckEditorUserSessions/collection';
+import './collections/ckEditorUserSessions/fragments';
 
 // Alignment Forum
 import './alignment-forum/permissions';

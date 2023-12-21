@@ -25,6 +25,11 @@ import { accessFilterMultiple } from "../lib/utils/schemaUtils";
 import { writeFile } from "fs/promises";
 import { Globals } from "./vulcan-lib";
 
+type Entry<N extends CollectionNameString> = [
+  CollectionBase<N>,
+  {fetch: () => Promise<ObjectsByCollectionName[N][]>},
+];
+
 /** Please ensure that we know that the user is who they say they are! */
 export const exportUserData = async (
   selector: {_id?: string, slug?: string, email?: string},
@@ -41,7 +46,7 @@ export const exportUserData = async (
 
   const userId = user._id;
 
-  const entries: [CollectionBase<DbObject>, {fetch: () => Promise<DbObject[]>}][] = [
+  const entries: Entry<CollectionNameString>[] = [
     [Users, {fetch: () => Promise.resolve([user])}],
     [Bans, Bans.find({userId})],
     [ClientIds, ClientIds.find({userIds: userId})],

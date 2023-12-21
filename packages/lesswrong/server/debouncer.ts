@@ -17,8 +17,6 @@ export type DebouncerTiming =
   | { type: "daily", timeOfDayGMT: number }
   | { type: "weekly", timeOfDayGMT: number, dayOfWeekGMT: string }
 
-const formatDate = (date: Date) => DebouncerEvents.isPostgres() ? date : date.getTime();
-
 /**
  * Defines a debouncable event type; that is, an event which, some time after
  * it happens, causes a function call, with events grouped together into a
@@ -123,39 +121,14 @@ export class EventDebouncer<KeyType = string>
       throw new Error(`Invalid debouncer event data: ${data}`);
     }
 
-    if (DebouncerEvents.isPostgres()) {
-      await new DebouncerEventsRepo().recordEvent(
-        this.name,
-        af,
-        new Date(newDelayTime),
-        new Date(newUpperBoundTime),
-        JSON.stringify(key),
-        data,
-      );
-    } else {
-      const pendingEvent = data !== undefined
-        ? {
-          $push: {
-            pendingEvents: data,
-          },
-        }
-      : {};
-
-      // On rawCollection because minimongo doesn't support $max/$min on Dates
-      await DebouncerEvents.rawCollection().updateOne({
-        name: this.name,
-        af: af,
-        key: JSON.stringify(key),
-        dispatched: false,
-      }, {
-        $max: { delayTime: formatDate(newDelayTime) },
-        $min: { upperBoundTime: formatDate(newUpperBoundTime) },
-        $set: { createdAt: formatDate(new Date()), },
-        ...pendingEvent,
-      }, {
-        upsert: true
-      });
-    }
+    await new DebouncerEventsRepo().recordEvent(
+      this.name,
+      af,
+      new Date(newDelayTime),
+      new Date(newUpperBoundTime),
+      JSON.stringify(key),
+      data,
+    );
   }
 
   parseTiming = (timing: DebouncerTiming) => {
@@ -238,7 +211,7 @@ const dispatchEvent = async (event: DbDebouncerEvents) => {
 }
 
 export const dispatchPendingEvents = async () => {
-  const now = formatDate(new Date());
+  const now = new Date();
   let eventToHandle: any = null;
   
   do {
@@ -300,7 +273,7 @@ export const forcePendingEvents = async (
   // Default time condition is nothing
   let timeCondition: MongoFindOneOptions<DbDebouncerEvents> = {}
   if (upToDate) {
-    const upToDateTime = formatDate(new Date(upToDate));
+    const upToDateTime = new Date(upToDate);
     timeCondition = {
       $or: [
         { delayTime: { $lt: upToDateTime } },

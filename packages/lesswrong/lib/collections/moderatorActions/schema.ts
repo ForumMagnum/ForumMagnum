@@ -78,7 +78,7 @@ export const isActionActive = (moderatorAction: DbModeratorAction) => {
   return !moderatorAction.endedAt || moderatorAction.endedAt > new Date();
 }
 
-const schema: SchemaType<DbModeratorAction> = {
+const schema: SchemaType<"ModeratorActions"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -90,11 +90,13 @@ const schema: SchemaType<DbModeratorAction> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
+    nullable: false,
     control: 'SearchSingleUser'
     // hidden: true,
   },
   type: {
     type: String,
+    nullable: false,
     control: 'select',
     allowedValues: Object.keys(MODERATOR_ACTION_TYPES),
     options: () => Object.entries(MODERATOR_ACTION_TYPES).map(([value, label]) => ({ value, label })),

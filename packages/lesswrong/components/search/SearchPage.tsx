@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure, SearchBox, CurrentRefinements } from 'react-instantsearch-dom';
-import { getAlgoliaIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/algoliaUtil';
+import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import SearchIcon from '@material-ui/icons/Search';
 import { useLocation } from '../../lib/routeUtil';
 import { taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
@@ -122,7 +122,7 @@ const SearchPage = ({classes}:{
 
   return <div className={classes.root}>
     <InstantSearch
-      indexName={getAlgoliaIndexName("Posts")}
+      indexName={getSearchIndexName("Posts")}
       searchClient={getSearchClient()}
     >
       <div className={classes.searchInputArea}>
@@ -136,7 +136,7 @@ const SearchPage = ({classes}:{
       <div className={classes.columns}>
       <ErrorBoundary>
         <div className={classes.usersList}>
-          <Index indexName={getAlgoliaIndexName("Users")}>
+          <Index indexName={getSearchIndexName("Users")}>
             <div className={classes.header}>
               <Typography variant="body1">
                 Users
@@ -150,7 +150,7 @@ const SearchPage = ({classes}:{
       </ErrorBoundary>
       <ErrorBoundary>
           <div className={classes.searchList}>
-            <Index indexName={getAlgoliaIndexName("Posts")}>
+            <Index indexName={getSearchIndexName("Posts")}>
               <div className={classes.header}>
                 <Typography variant="body1">
                   Posts
@@ -165,7 +165,7 @@ const SearchPage = ({classes}:{
         </ErrorBoundary>
         <ErrorBoundary>
           <div className={classes.searchList}>
-            <Index indexName={getAlgoliaIndexName("Comments")}>
+            <Index indexName={getSearchIndexName("Comments")}>
               <div className={classes.header}>
                 <Typography variant="body1">
                   Comments
@@ -179,7 +179,7 @@ const SearchPage = ({classes}:{
         </ErrorBoundary>
         <ErrorBoundary>
           <div className={classes.tagsList}>
-            <Index indexName={getAlgoliaIndexName("Tags")}>
+            <Index indexName={getSearchIndexName("Tags")}>
               <div className={classes.header}>
                 <Typography variant="body1">
                   {taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'}

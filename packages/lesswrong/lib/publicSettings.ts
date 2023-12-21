@@ -50,9 +50,8 @@ export class DatabasePublicSetting<SettingValueType> {
 
 export const googleTagManagerIdSetting = new DatabasePublicSetting<string | null>('googleTagManager.apiKey', null) // Google Tag Manager ID
 export const reCaptchaSiteKeySetting = new DatabasePublicSetting<string | null>('reCaptcha.apiKey', null) // ReCaptcha API Key
-// Algolia Search Settings
-export const algoliaAppIdSetting = new DatabasePublicSetting<string | null>('algolia.appId', null)
-export const algoliaSearchKeySetting = new DatabasePublicSetting<string | null>('algolia.searchKey', null)
+
+// Despite the name, this setting is also used to set the index prefix for Elasticsearch for legacy reasons
 export const algoliaPrefixSetting = new DatabasePublicSetting<string>('algolia.indexPrefix', '')
 
 export const ckEditorUploadUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.uploadUrl', null) // Image Upload URL for CKEditor
@@ -91,8 +90,7 @@ export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | 
 
 export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false)
 
-// You will need to restart your server after changing these at present;
-// FrontpageReviewWidget reads them at startup.
+export const showReviewOnFrontPageIfActive = new DatabasePublicSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true)
 export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-30")
 // The following dates cut off their phase at the end of the day
 export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
@@ -122,3 +120,9 @@ export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasPr
 export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)
 
 export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('dialogueMatchmakingEnabled', false)
+
+export const maxRenderQueueSize = new DatabasePublicSetting<number>('maxRenderQueueSize', 10);
+export const performanceMetricLoggingEnabled = new DatabasePublicSetting<boolean>('performanceMetricLoggingEnabled', false)
+export const performanceMetricLoggingBatchSize = new DatabasePublicSetting<number>('performanceMetricLoggingBatchSize', 100)
+// Null means requests are disabled
+export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number | null>('post.requestFeedbackKarmaLevel', 100);

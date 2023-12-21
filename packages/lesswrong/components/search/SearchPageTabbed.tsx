@@ -2,9 +2,8 @@ import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
 import { SearchState } from 'react-instantsearch/connectors';
-import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { getSearchClient, AlgoliaIndexCollectionName, collectionIsAlgoliaIndexed, isSearchEnabled } from '../../lib/search/algoliaUtil';
+import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { useLocation } from '../../lib/routeUtil';
 import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import Tab from '@material-ui/core/Tab';
@@ -14,12 +13,16 @@ import IconButton from '@material-ui/core/IconButton';
 import moment from 'moment';
 import { useSearchAnalytics } from './useSearchAnalytics';
 import {
+  getSearchClient,
+  SearchIndexCollectionName,
+  collectionIsSearchIndexed,
+  isSearchEnabled,
   ElasticSorting,
   defaultElasticSorting,
   elasticSortingToUrlParam,
   getElasticIndexNameWithSorting,
   isValidElasticSorting,
-} from '../../lib/search/elasticUtil';
+} from '../../lib/search/searchUtil';
 import Modal from '@material-ui/core/Modal';
 import classNames from 'classnames';
 import { useNavigate } from '../../lib/reactRouterWrapper';
@@ -175,7 +178,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 export type ExpandedSearchState = SearchState & {
-  contentType?: AlgoliaIndexCollectionName,
+  contentType?: SearchIndexCollectionName,
   refinementList?: {
     tags: Array<string>|''
   }
@@ -227,9 +230,9 @@ const SearchPageTabbed = ({classes}:{
   const dateRangeValues = [pastDay, pastWeek, pastMonth, pastYear];
 
   // initialize the tab & search state from the URL
-  const [tab, setTab] = useState<AlgoliaIndexCollectionName>(() => {
-    const contentType = query.contentType as AlgoliaIndexCollectionName
-    return collectionIsAlgoliaIndexed(contentType) ? contentType : 'Posts'
+  const [tab, setTab] = useState<SearchIndexCollectionName>(() => {
+    const contentType = query.contentType as SearchIndexCollectionName
+    return collectionIsSearchIndexed(contentType) ? contentType : 'Posts'
   })
   const [tagsFilter, setTagsFilter] = useState<Array<string>>(
     [query.tags ?? []].flatMap(tags => tags)
@@ -245,7 +248,7 @@ const SearchPageTabbed = ({classes}:{
 
   const onSortingChange = (newSorting: string) => {
     if (!isValidElasticSorting(newSorting)) {
-      throw new Error("Invalid algolia sorting: " + newSorting);
+      throw new Error("Invalid search sorting: " + newSorting);
     }
     setSorting(newSorting);
     navigate({
@@ -277,7 +280,7 @@ const SearchPageTabbed = ({classes}:{
     }, {replace: true})
   }
 
-  const handleChangeTab = (_: React.ChangeEvent, value: AlgoliaIndexCollectionName) => {
+  const handleChangeTab = (_: React.ChangeEvent, value: SearchIndexCollectionName) => {
     setTab(value);
     setSorting(defaultElasticSorting);
     setSearchState({...searchState, contentType: value, page: 1});

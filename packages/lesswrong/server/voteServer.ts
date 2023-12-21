@@ -6,7 +6,6 @@ import { recalculateScore } from '../lib/scoring';
 import { voteTypes } from '../lib/voting/voteTypes';
 import { voteCallbacks, VoteDocTuple, getVotePower } from '../lib/voting/vote';
 import { getVotingSystemForDocument, VotingSystem } from '../lib/voting/votingSystems';
-import { algoliaExportById } from './search/utils';
 import { createAnonymousContext } from './vulcan-lib/query';
 import { randomId } from '../lib/random';
 import { getConfirmedCoauthorIds } from '../lib/collections/posts/helpers';
@@ -21,7 +20,7 @@ import uniq from 'lodash/uniq';
 import keyBy from 'lodash/keyBy';
 import { voteButtonsDisabledForUser } from '../lib/collections/users/helpers';
 import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
-import { collectionIsAlgoliaIndexed, isAlgoliaEnabled } from '../lib/search/algoliaUtil';
+import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import {Posts} from '../lib/collections/posts';
 
@@ -42,7 +41,7 @@ const getExistingVote = async ({ document, user }: {
 // Add a vote of a specific type on the server
 const addVoteServer = async ({ document, collection, voteType, extendedVote, user, voteId, context }: {
   document: DbVoteableType,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<VoteableCollectionName>,
   voteType: string,
   extendedVote: any,
   user: DbUser,
@@ -75,13 +74,8 @@ const addVoteServer = async ({ document, collection, voteType, extendedVote, use
     },
     {}
   );
-  if (isElasticEnabled) {
-    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
-      void elasticSyncDocument(collection.collectionName, newDocument._id);
-    }
-  }
-  if (isAlgoliaEnabled()) {
-    void algoliaExportById(collection as any, newDocument._id);
+  if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
+    void elasticSyncDocument(collection.collectionName, newDocument._id);
   }
   return {newDocument, vote};
 }
@@ -120,7 +114,7 @@ export const createVote = ({ document, collectionName, voteType, extendedVote, u
 export const clearVotesServer = async ({ document, user, collection, excludeLatest, silenceNotification=false, context }: {
   document: DbVoteableType,
   user: DbUser,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<VoteableCollectionName>,
   // If true, clears all votes except the latest (ie, only clears duplicate
   // votes). If false, clears all votes (including the latest).
   excludeLatest?: boolean,
@@ -207,13 +201,8 @@ export const clearVotesServer = async ({ document, user, collection, excludeLate
     ...newDocument,
     ...newScores,
   };
-  if (isElasticEnabled) {
-    if (collectionIsAlgoliaIndexed(collection.collectionName)) {
-      void elasticSyncDocument(collection.collectionName, newDocument._id);
-    }
-  }
-  if (isAlgoliaEnabled()) {
-    void algoliaExportById(collection as any, newDocument._id);
+  if (isElasticEnabled && collectionIsSearchIndexed(collection.collectionName)) {
+    void elasticSyncDocument(collection.collectionName, newDocument._id);
   }
   return newDocument;
 }
@@ -224,7 +213,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   document?: DbVoteableType|null,
   voteType: string,
   extendedVote?: any,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<VoteableCollectionName>,
   voteId?: string,
   user: DbUser,
   toggleIfAlreadyVoted?: boolean,
@@ -236,7 +225,7 @@ export const performVoteServer = async ({ documentId, document, voteType, extend
   showVotingPatternWarning: boolean,
 }> => {
   if (!context)
-    context = await createAnonymousContext();
+    context = createAnonymousContext();
 
   const collectionName = collection.options.collectionName;
   document = document || await Connectors.get(collection, documentId);
@@ -335,18 +324,12 @@ async function wasVotingPatternWarningDeliveredRecently(user: DbUser, moderatorA
   }, {
     sort: {createdAt: -1}
   });
-  if (!mostRecentWarning) {
+  if (!mostRecentWarning?.createdAt) {
     return false;
   }
   const warningAgeMS = new Date().getTime() - mostRecentWarning.createdAt.getTime()
   const warningAgeMinutes = warningAgeMS / (1000*60);
   return warningAgeMinutes < 60;
-}
-
-interface VotingRateLimitSet {
-  perDay: number,
-  perHour: number,
-  perUserPerDay: number
 }
 
 // TODO consequences to add, not yet implemented: blockVotingFor24Hours, revertRecentVotes
@@ -421,9 +404,9 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
  * May also add apply voting-related consequences such as flagging the user for
  * moderation, as side effects.
  */
-const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
+const checkVotingRateLimits = async ({ document, user }: {
   document: DbVoteableType,
-  collection: CollectionBase<DbVoteableType>,
+  collection: CollectionBase<VoteableCollectionName>,
   voteType: string,
   user: DbUser
 }): Promise<{
@@ -496,7 +479,7 @@ function getRelevantVotes(rateLimit: VotingRateLimit, document: DbVoteableType, 
 
     if (ageInMinutes > rateLimit.periodInMinutes)
       return false;
-    if (rateLimit.users === "singleUser" && !vote.authorIds?.includes(document.userId))
+    if (rateLimit.users === "singleUser" && !!document.userId &&!vote.authorIds?.includes(document.userId))
       return false;
 
     const isStrong = (vote.voteType === "bigDownvote" || vote.voteType === "bigUpvote");
@@ -542,7 +525,7 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
   const nonblankVoteCount = votes.filter(v => (!!v.voteType && v.voteType !== "neutral") || votingSystem.isNonblankExtendedVote(v)).length;
   
   const baseScore = sumBy(votes, v=>v.power)
-  const afBaseScore = sumBy(afVotes, v=>v.afPower)
+  const afBaseScore = sumBy(afVotes, v=>v.afPower ?? 0)
   
   const voteCount = _.filter(votes, v=>voteHasAnyEffect(votingSystem, v, false)).length;
   const afVoteCount = _.filter(afVotes, v=>voteHasAnyEffect(votingSystem, v, true)).length;

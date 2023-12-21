@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import { getSearchClient } from '../../../lib/search/algoliaUtil';
+import { getSearchClient } from '../../../lib/search/searchUtil';
 import { Configure } from 'react-instantsearch-dom';
 import { InstantSearch } from "../../../lib/utils/componentsWithChildren";
 

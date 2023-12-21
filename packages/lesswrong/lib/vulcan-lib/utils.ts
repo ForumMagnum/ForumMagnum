@@ -18,9 +18,9 @@ export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl'
 
 interface UtilsType {
   // In lib/helpers.ts
-  getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
+  getUnusedSlug: (collection: CollectionBase<CollectionNameWithSlug>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
+  getUnusedSlugByCollectionName: (collectionName: CollectionNameWithSlug, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
+  slugIsUsed: (collectionName: CollectionNameWithSlug, slug: string) => Promise<boolean>
   
   // In server/vulcan-lib/connectors.ts
   Connectors: any
@@ -158,7 +158,8 @@ export const slugify = function (s: string): string {
   return slug;
 };
 
-export const getDomain = function(url: string): string|null {
+export const getDomain = function(url: string | null): string|null {
+  if (!url) return null;
   try {
     const hostname = urlObject.parse(url).hostname
     return hostname!.replace('www.', '');
@@ -376,6 +377,7 @@ export const sanitize = function(s: string): string {
       'strawpoll.com',
       'estimaker.app',
       'viewpoints.xyz',
+      'calendly.com'
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],

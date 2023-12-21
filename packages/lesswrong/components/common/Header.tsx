@@ -11,14 +11,13 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { PublicInstanceSetting } from '../../lib/instanceSettings';
+import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasProminentLogoSetting } from '../../lib/publicSettings';
 
 import { useLocation } from '../../lib/routeUtil';
 import { useIsGivingSeason } from '../ea-forum/giving-portal/hooks';
-import { isAdmin } from '../../lib/vulcan-users';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -70,6 +69,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     top: 3,
     paddingRight: theme.spacing.unit,
     color: theme.palette.text.secondary,
+  //  maxWidth: 130,
   },
   titleLink: {
     color: theme.palette.header.text,
@@ -121,6 +121,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
+    marginLeft: "auto",
     display: "flex",
     alignItems: isFriendlyUI ? 'center' : undefined,
   },
@@ -296,7 +297,7 @@ const Header = ({
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    GivingSeasonHeader,
+    GivingSeasonHeader, ActiveDialogues
   } = Components;
   
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
@@ -307,7 +308,7 @@ const Header = ({
   </div>
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
-  const RightHeaderItems = () => <div className={classes.rightHeaderItems}>
+  const rightHeaderItemsNode = <div className={classes.rightHeaderItems}>
     <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
       <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     </NoSSR>
@@ -345,7 +346,7 @@ const Header = ({
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
   const isGivingSeason = useIsGivingSeason();
-  if ((isGivingSeason && pathname === "/") || (pathname.startsWith("/voting-portal") && isAdmin(currentUser))) {
+  if ((isGivingSeason && pathname === "/") || (pathname.startsWith("/voting-portal")) || (pathname.startsWith("/giving-portal"))) {
     return (
       <GivingSeasonHeader
         searchOpen={searchOpen}
@@ -353,7 +354,7 @@ const Header = ({
         unFixed={unFixed}
         setUnFixed={setUnFixed}
         NavigationMenuButton={NavigationMenuButton}
-        RightHeaderItems={RightHeaderItems}
+        rightHeaderItems={rightHeaderItemsNode}
         HeaderNavigationDrawer={HeaderNavigationDrawer}
         HeaderNotificationsMenu={HeaderNotificationsMenu}
       />
@@ -394,7 +395,8 @@ const Header = ({
                   </Link>
                 </div>
               </Typography>
-              <RightHeaderItems />
+              {!isEAForum &&<ActiveDialogues />}
+              {rightHeaderItemsNode}
             </Toolbar>
           </header>
           <HeaderNavigationDrawer />

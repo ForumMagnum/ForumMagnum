@@ -1,12 +1,11 @@
-import {ensureIndex} from "../../collectionIndexUtils";
-import {addUniversalFields, getDefaultMutations, getDefaultResolvers, schemaDefaultValue} from "../../collectionUtils";
-import {createCollection} from "../../vulcan-lib";
+import { ensureIndex } from "../../collectionIndexUtils";
+import { addUniversalFields, getDefaultResolvers } from "../../collectionUtils";
+import { createCollection } from "../../vulcan-lib";
 import schema from "./schema";
 
 export const DialogueChecks: DialogueChecksCollection = createCollection({
   collectionName: 'DialogueChecks',
   typeName: 'DialogueCheck',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('DialogueChecks'),
   logChanges: true,

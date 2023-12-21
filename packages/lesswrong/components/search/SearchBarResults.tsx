@@ -1,7 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { Hits, Configure } from 'react-instantsearch-dom';
-import { AlgoliaIndexCollectionName, getAlgoliaIndexName } from '../../lib/search/algoliaUtil';
+import { SearchIndexCollectionName, getSearchIndexName } from '../../lib/search/searchUtil';
 import { Link } from '../../lib/reactRouterWrapper';
 import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
 import { SearchHitComponentProps } from './types';
@@ -76,7 +76,7 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   const { PostsSearchHit, SequencesSearchHit, UsersSearchHit, TagsSearchHit, CommentsSearchHit } = Components
 
   const searchTypes: Array<{
-    type: AlgoliaIndexCollectionName;
+    type: SearchIndexCollectionName;
     Component: React.ComponentType<Omit<SearchHitComponentProps, "classes">>;
   }> = [
     { type: "Users", Component: UsersSearchHit },
@@ -91,7 +91,7 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
         {searchTypes.map(({ type, Component }) => (
           <Components.ErrorBoundary key={type}>
             <div className={classes.list}>
-              <Index indexName={getAlgoliaIndexName(type)}>
+              <Index indexName={getSearchIndexName(type)}>
                 <Configure hitsPerPage={3} />
                 <Hits hitComponent={(props) => <Component clickAction={closeSearch} {...props} showIcon/>} />
               </Index>

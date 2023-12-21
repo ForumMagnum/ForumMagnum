@@ -38,13 +38,9 @@ import Users from "../../lib/collections/users/collection"
 import { dropDefaultValue, updateDefaultValue } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await updateDefaultValue(db, Users, "karma")
-  }
+  await updateDefaultValue(db, Users, "karma")
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await dropDefaultValue(db, Users, "karma")
-  }
+  await dropDefaultValue(db, Users, "karma")
 }

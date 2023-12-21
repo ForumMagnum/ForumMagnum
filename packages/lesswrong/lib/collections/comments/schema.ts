@@ -1,8 +1,7 @@
 import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
-import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils';
+import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, schemaDefaultValue } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
-import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
 import { isAF, isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
@@ -12,7 +11,7 @@ import { viewTermsToQuery } from '../../utils/viewUtils';
 import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
 import GraphQLJSON from 'graphql-type-json';
 
-export const moderationOptionsGroup: FormGroupType = {
+export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
   name: "moderation",
   label: "Moderator Options",
@@ -26,7 +25,7 @@ export const alignmentOptionsGroup = {
   startCollapsed: true
 };
 
-const schema: SchemaType<DbComment> = {
+const schema: SchemaType<"Comments"> = {
   // The `_id` of the parent comment, if there is one
   parentCommentId: {
     ...foreignKeyField({
@@ -63,6 +62,7 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     canRead: ['guests'],
     onInsert: (document, currentUser) => new Date(),
+    nullable: false
   },
   // The comment author's name
   author: {
@@ -139,6 +139,7 @@ const schema: SchemaType<DbComment> = {
       nullable: true,
     }),
     optional: true,
+    nullable: false,
     canRead: [isEAForum ? documentIsNotDeleted : 'guests'],
     canCreate: ['members'],
     hidden: true,
@@ -451,8 +452,9 @@ const schema: SchemaType<DbComment> = {
   legacyPoll: {
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -777,6 +779,7 @@ const schema: SchemaType<DbComment> = {
       ) {
         return {};
       }
+      if (!comment.postId) return {};
       const reactors = await context.repos.posts.getCommentEmojiReactorsWithCache(comment.postId);
       return reactors[comment._id] ?? {};
     },

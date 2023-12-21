@@ -29,7 +29,6 @@ const options: MutationOptions<DbLocalgroup> = {
 export const Localgroups: LocalgroupsCollection = createCollection({
   collectionName: 'Localgroups',
   typeName: 'Localgroup',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Localgroups'),
   mutations: getDefaultMutations('Localgroups', options),
