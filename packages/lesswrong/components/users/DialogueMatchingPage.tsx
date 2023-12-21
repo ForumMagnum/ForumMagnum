@@ -1444,7 +1444,7 @@ export const DialogueMatchingPage = ({classes}: {
 
   const updateCurrentUser = useUpdateCurrentUser()
   const currentUser = useCurrentUser();
-  const { location, query, params } = useLocation()
+  const { query } = useLocation()
   const { openDialog } = useDialog();
   const [optIn, setOptIn] = React.useState(currentUser?.revealChecksToAdmins); // for rendering the checkbox
 
@@ -1478,19 +1478,19 @@ export const DialogueMatchingPage = ({classes}: {
     }
   `, {skip: !currentUser || !dialogueMatchmakingEnabled.get()});
 
-  const activeDialogueCheckId = query?.dialogueCheckId;
-  const { document: activeDialogueCheck } = useSingle({
+  const openFormDialogueCheckId = query?.dialogueCheckId;
+  const { document: openFormDialogueCheck } = useSingle({
     collectionName: "DialogueChecks",
     fragmentName: 'DialogueCheckInfo',
-    documentId: activeDialogueCheckId,
-    skip: !activeDialogueCheckId
+    documentId: openFormDialogueCheckId,
+    skip: !openFormDialogueCheckId
   });
 
-  const { document: activeTargetUser } = useSingle({
+  const { document: openFormTargetUser } = useSingle({
     collectionName: "Users",
     fragmentName: 'UsersMinimumInfo',
-    documentId: activeDialogueCheck?.targetUserId,
-    skip: !activeDialogueCheck
+    documentId: openFormDialogueCheck?.targetUserId,
+    skip: !openFormDialogueCheck
   });
 
   if (!dialogueMatchmakingEnabled.get()) return <p>Server overloaded... we're working on getting it back up!!</p>
@@ -1537,16 +1537,16 @@ export const DialogueMatchingPage = ({classes}: {
 
   const prompt = "Opt-in to LessWrong team viewing your checks, to help proactively suggest and facilitate dialogues" 
 
-  if (!!activeDialogueCheck && !!activeTargetUser) {
+  if (!!openFormDialogueCheck && !!openFormTargetUser) {
     openDialog({
       componentName: 'NextStepsDialog',
       componentProps: {
-        userId: currentUser?._id,
-        targetUserId: activeDialogueCheck.targetUserId,
-        targetUserDisplayName: activeTargetUser.displayName,
-        matchPreference: activeDialogueCheck.matchPreference ?? undefined,
-        reciprocalMatchPreference: activeDialogueCheck.reciprocalMatchPreference ?? undefined,
-        dialogueCheckId: activeDialogueCheck._id,
+        userId: currentUser._id,
+        targetUserId: openFormDialogueCheck.targetUserId,
+        targetUserDisplayName: openFormTargetUser.displayName,
+        matchPreference: openFormDialogueCheck.matchPreference ?? undefined,
+        reciprocalMatchPreference: openFormDialogueCheck.reciprocalMatchPreference ?? undefined,
+        dialogueCheckId: openFormDialogueCheck._id,
       }
     })
   }

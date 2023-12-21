@@ -572,7 +572,6 @@ class UsersRepo extends AbstractRepo<"Users"> {
   
     return result;
   }
-
 }
 
 recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });
