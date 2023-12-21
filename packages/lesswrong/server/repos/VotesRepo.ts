@@ -506,13 +506,13 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       SELECT
         v.*
       FROM
-        "Votes" v
+        "Votes" v,
         "Comments" c
       WHERE
         v."cancelled" IS FALSE
         AND v."userId" = $1
         AND v."documentId" != $3
-        AND v."collectionName" = "Comments"
+        AND v."collectionName" = 'Comments'
         AND c._id = v."documentId"
         AND c."postId" = $2
     `, [userId, postId, excludedDocumentId]);
