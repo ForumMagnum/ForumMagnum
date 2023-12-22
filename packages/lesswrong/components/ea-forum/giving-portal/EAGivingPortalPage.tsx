@@ -528,11 +528,11 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 classes.mb20,
               )}>
                 <span className={classes.bold}>
-                  The 2023 Donation Election closed on the 15th of December. 341
-                  Forum users voted, and we collectively raised $34 856.
+                  The 2023 Donation Election closed on the 15th of December.
                 </span>{" "}
-                We’ll be announcing the winners soon. Until then, find out more
-                about the candidates below, and consider donating to them.
+                341 Forum users voted, and we collectively raised $34 856. We’ll
+                be announcing the winners soon. Until then, find out more about
+                the candidates below, and consider donating to them.
               </div>
               <div className={classNames(classes.row, classes.mt20)}>
                 <ElectionFundCTA
