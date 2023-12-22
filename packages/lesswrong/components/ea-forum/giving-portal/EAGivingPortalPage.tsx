@@ -304,9 +304,12 @@ const styles = (theme: ThemeType) => ({
     fontStyle: 'italic',
   },
   eaFundsOpportunities: {
-    maxWidth: 600,
+    maxWidth: 1200,
     margin: "0 auto",
     marginTop: 20,
+    [theme.breakpoints.down("lg")]: {
+      maxWidth: 600,
+    },
   },
 });
 
