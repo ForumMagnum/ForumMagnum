@@ -478,7 +478,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
             </div>
           </div>
         </div>}
-        <div className={classNames(classes.content, classes.mb20)} id="top">
+        <div className={classes.content} id="top">
           <div className={classNames(classes.h1, classes.center, classes.mt30)}>
             Giving portal
           </div>
