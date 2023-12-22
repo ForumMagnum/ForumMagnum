@@ -270,10 +270,11 @@ const styles = (theme: ThemeType) => ({
   mt80: { marginTop: 80 },
   mb20: { marginBottom: 20 },
   mb40: { marginBottom: 40 },
+  mb60: { marginBottom: 60 },
   mb80: { marginBottom: 80 },
   mb100: { marginBottom: 100 },
   w100: { width: "100%" },
-  
+
   votingBanner: {
     backgroundColor: theme.palette.givingPortal.homepageHeader.dark,
     color: theme.palette.text.alwaysWhite,
@@ -515,9 +516,9 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
             {donationOpportunitiesLoading && <Loading />}
           </div>
         </div>
-        <div className={classes.sectionSplit}>
+        <div className={classes.sectionLight}>
           <div className={classes.content} id="election">
-            <div className={classNames(classes.column, classes.mt60)}>
+            <div className={classNames(classes.column, classes.mt60, classes.mb60)}>
               <div className={classNames(classes.h1, classes.primaryText)}>
                 Donation election 2023
               </div>
@@ -534,6 +535,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 be announcing the winners soon. Until then, find out more about
                 the candidates below, and consider donating to them.
               </div>
+              {/*
               <div className={classNames(classes.row, classes.mt20)}>
                 <ElectionFundCTA
                   image={<DonateIcon />}
@@ -588,12 +590,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                   )}
                 </ElectionFundCTA>
               </div>
+                */}
             </div>
           </div>
         </div>
         <div className={classes.sectionDark}>
           <div className={classes.content} id="candidates">
-            <div className={classes.column}>
+            <div className={classNames(classes.column, classes.mt60)}>
               <div className={classNames(classes.h2, classes.primaryText)}>
                 Candidates in the Election
               </div>
