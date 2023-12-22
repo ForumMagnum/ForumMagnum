@@ -537,7 +537,8 @@ addGraphQLResolvers({
           name: eaEmojiPalette.find(emoji => emoji.name === name)?.label ?? '',
           count
         }));
-        mostReceivedReacts = [{name: 'Heart', count: 10}, {name: 'Changed my mind', count: 3}, {name: 'Helpful', count: 1}, {name: 'Insightful', count: 1}]
+        // TODO remove
+        mostReceivedReacts = [{name: 'Heart', count: 20}, {name: 'Changed my mind', count: 5}, {name: 'Helpful', count: 4}, {name: 'Insightful', count: 1}]
       }
 
       const { engagementPercentile, totalSeconds, daysVisited }  = await getEngagementV2(user._id, year);

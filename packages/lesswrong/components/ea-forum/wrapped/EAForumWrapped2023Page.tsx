@@ -1,4 +1,4 @@
-import React, { Fragment } from "react"
+import React, { Fragment, useMemo } from "react"
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -14,19 +14,39 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { SoftUpArrowIcon } from "../../icons/softUpArrowIcon";
+import { eaEmojiPalette } from "../../../lib/voting/eaEmojiPalette";
 
 
 const styles = (theme: ThemeType) => ({
   root: {
+    minHeight: '100vh',
     background: theme.palette.wrapped.background,
     color: theme.palette.text.alwaysWhite,
     fontFamily: theme.typography.fontFamily,
     textAlign: 'center',
+    marginTop: -theme.spacing.mainLayoutPaddingTop * 2, // compensate for the padding added in Layout.tsx, the *2 is to avoid flashing white at the top of the page
     [theme.breakpoints.down('sm')]: {
-      paddingTop: 30
-    }
+      marginLeft: -8,
+      marginRight: -8,
+    },
+  },
+  loginWrapper: {
+    marginTop: 30
+  },
+  loginText: {
+    display: 'inline-block',
+    maxWidth: 600,
+    fontSize: 16,
+    lineHeight: '24px',
+    fontWeight: 500,
+    margin: '0 auto',
+  },
+  loginImgWrapper: {
+    display: 'inline-block',
+    margin: '30px auto 0'
   },
   section: {
+    position: 'relative',
     padding: '80px 20px'
   },
   imgWrapper: {
@@ -34,7 +54,7 @@ const styles = (theme: ThemeType) => ({
     margin: '100px auto 0'
   },
   img: {
-    maxWidth: 600,
+    maxWidth: 'min(80vw, 400px)',
     maxHeight: '50vh',
   },
   stats: {
@@ -209,6 +229,13 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     padding: '8px'
   },
+  backgroundReact: {
+    position: 'absolute',
+    color: theme.palette.primary.main,
+  },
+  reactsReceivedContents: {
+    position: 'relative',
+  },
   otherReacts: {
     width: '100%',
     maxWidth: 400,
@@ -248,7 +275,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.wrapped.highlightText,
   },
   link: {
-    
+    textDecoration: 'underline',
+    textUnderlineOffset: '4px',
+    '&:hover': {
+      textDecoration: 'underline',
+      textUnderlineOffset: '4px',
+    }
   },
   mt16: { marginTop: 16 },
   mt20: { marginTop: 20 },
@@ -258,6 +290,12 @@ const styles = (theme: ThemeType) => ({
   mt60: { marginTop: 60 },
   mt70: { marginTop: 70 },
 })
+
+type ReceivedReact = {
+  top: string,
+  left: string,
+  Component: React.ComponentType
+}
 
 const wrappedHighlightColor = requireCssVar("palette", "wrapped", "highlightText")
 const wrappedSecondaryColor = requireCssVar("palette", "wrapped", "secondaryText")
@@ -324,8 +362,49 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     userId: currentUser?._id,
     year: 2023
   })
+  
+  const allReactsReceived = useMemo(
+    () => data?.mostReceivedReacts?.reduce((prev: ReceivedReact[], next) => {
+      const Component = eaEmojiPalette.find(emoji => emoji.label === next.name)?.Component
+      if (Component) {
+        range(0, next.count).forEach(_ => prev.push({
+          top: `${Math.random() * 100}%`,
+          // top: `${(Math.random() + Math.random()) * 100 / 2}%`,
+          left: `${Math.random() * 100}%`,
+          // left: `${(Math.random() + Math.random()) * 100 / 2}%`,
+          Component
+        }))
+      }
+      return prev
+    }, []),
+    [data?.mostReceivedReacts]
+  )
 
   const { SingleColumnSection, CloudinaryImage2, UsersProfileImage } = Components
+  
+  // if there's no logged in user, prompt them to login
+  if (!currentUser) {
+    return <AnalyticsContext pageContext="eaYearWrapped">
+      <main className={classes.root}>
+        <section className={classes.section}>
+          <h1 className={classes.heading1}>Your 2023 Wrapped</h1>
+          <div className={classes.loginWrapper}>
+            <p className={classes.loginText}>
+              <a href={`/auth/auth0?returnTo=${encodeURIComponent('/wrapped')}`} className={classes.link}>
+                Login
+              </a>{" "}
+              to see your 2023 data, or{" "}
+              <a href={`/auth/auth0?screen_hint=signup&returnTo=${encodeURIComponent('/wrapped')}`} className={classes.link}>
+                Sign up
+              </a>{" "}
+              to get ready for 2024
+            </p>
+          </div>
+          <CloudinaryImage2 publicId="b90e48ae75ae9f3d73bbcf17f2ddf6a0" wrapperClassName={classes.loginImgWrapper} className={classes.img} />
+        </section>
+      </main>
+    </AnalyticsContext>
+  }
 
   if (!data) return null;
 
@@ -385,8 +464,8 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
               <div className={classes.statLabel}>EAG(x) conferences</div>
             </article>
             <article className={classes.stat}>
-              <div className={classes.heading2}>?</div>
-              <div className={classes.statLabel}>large language models trained</div>
+              <div className={classes.heading2}>{(engagementHours / 4320).toFixed(3)}</div>
+              <div className={classes.statLabel}>Llama 2s trained</div>
             </article>
           </div>
         </section>
@@ -466,7 +545,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
                 <UsersProfileImage size={40} user={author} />
                 <div>
                   <h2 className={classes.authorName}>
-                    <Link to={userGetProfileUrlFromSlug(author.slug)} className={classes.link}>
+                    <Link to={userGetProfileUrlFromSlug(author.slug)}>
                       {author.displayName}
                     </Link>
                   </h2>
@@ -564,24 +643,35 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         </section>}
         
         {totalReactsReceived > 5 && <section className={classes.section}>
-          <h1 className={classes.heading2}>
-            Others gave you{" "}
-            <span className={classes.highlight}>
-              {data.mostReceivedReacts[0].count} {data.mostReceivedReacts[0].name}
-            </span>{" "}
-            reacts{data.mostReceivedReacts.length > 1 ? '...' : ''}
-          </h1>
-          {data.mostReceivedReacts.length > 1 && <div className={classes.otherReacts}>
-            <p className={classes.heading3}>... and {totalReactsReceived} reacts in total:</p>
-            <div className={classNames(classes.stats, classes.mt26)}>
-              {data.mostReceivedReacts.slice(1).map(react => {
-                return <article key={react.name} className={classes.stat}>
-                  <div className={classes.heading2}>{react.count}</div>
-                  <div className={classes.statLabel}>{react.name}</div>
-                </article>
-              })}
+          {allReactsReceived?.map((react, i) => {
+            return <div
+              key={i}
+              className={classes.backgroundReact}
+              style={{top: react.top, left: react.left}}
+            >
+              <react.Component />
             </div>
-          </div>}
+          })}
+          <div className={classes.reactsReceivedContents}>
+            <h1 className={classes.heading2}>
+              Others gave you{" "}
+              <span className={classes.highlight}>
+                {data.mostReceivedReacts[0].count} {data.mostReceivedReacts[0].name}
+              </span>{" "}
+              reacts{data.mostReceivedReacts.length > 1 ? '...' : ''}
+            </h1>
+            {data.mostReceivedReacts.length > 1 && <div className={classes.otherReacts}>
+              <p className={classes.heading3}>... and {totalReactsReceived} reacts in total:</p>
+              <div className={classNames(classes.stats, classes.mt26)}>
+                {data.mostReceivedReacts.slice(1).map(react => {
+                  return <article key={react.name} className={classes.stat}>
+                    <div className={classes.heading2}>{react.count}</div>
+                    <div className={classes.statLabel}>{react.name}</div>
+                  </article>
+                })}
+              </div>
+            </div>}
+          </div>
         </section>}
         
         

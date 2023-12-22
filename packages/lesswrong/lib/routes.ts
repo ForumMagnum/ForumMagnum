@@ -802,7 +802,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/wrapped',
       componentName: 'EAForumWrapped2023Page',
       title: 'EA Forum Wrapped',
-      fullscreen: true,
+      noFooter: true,
     },
     {
       name: 'Digests',

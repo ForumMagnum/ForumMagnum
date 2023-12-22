@@ -28,6 +28,7 @@ import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { useIsGivingSeason } from './ea-forum/giving-portal/hooks';
+import { requireCssVar } from '../themes/cssVars';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -196,6 +197,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const wrappedBackgroundColor = requireCssVar("palette", "wrapped", "background")
+
 const StickyWrapper: FC<{
   eaHomeLayout: boolean,
   headerVisible: boolean,
@@ -286,6 +289,8 @@ const Layout = ({currentUser, children, classes}: {
 
   const isGivingSeason = useIsGivingSeason();
   const renderGivingSeason = isGivingSeason && pathname === "/";
+  // For the EAF Wrapped page, we change the header's background color to a dark blue.
+  const headerBackgroundColor = pathname === '/wrapped' ? wrappedBackgroundColor : undefined
 
   const render = () => {
     const {
@@ -385,6 +390,7 @@ const Layout = ({currentUser, children, classes}: {
                 sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
                 stayAtTop={!!currentRoute?.staticHeader}
+                backgroundColor={headerBackgroundColor}
               />}
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
