@@ -1,6 +1,5 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { Components, getSiteUrl, registerComponent } from "../../../lib/vulcan-lib";
-import { useSingle } from "../../../lib/crud/withSingle";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
@@ -9,26 +8,19 @@ import {
   useAmountRaised,
   useDonationOpportunities,
   useShowTimeline,
-  useSubmittedVoteCount,
 } from "./hooks";
 import {
-  donationElectionFundraiserLink,
-  donationElectionTagId,
   eaGivingSeason23ElectionName,
   effectiveGivingTagId,
   electionCandidatesPostLink,
   heroImageId,
   otherDonationOpportunities,
-  postsAboutElectionLink,
   setupFundraiserLink,
   timelineSpec,
   userCanVoteInDonationElection,
 } from "../../../lib/eaGivingSeason";
-import { DiscussIcon, DonateIcon, VoteIcon } from "../../icons/givingSeasonIcons";
 import classNames from "classnames";
-import { useMessages } from "../../common/withMessages";
 import { useCurrentUser } from "../../common/withUser";
-import { useDialog } from "../../common/withDialog";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { useElectionVote } from "../voting-portal/hooks";
 import { isPastVotingDeadline } from "../../../lib/collections/electionVotes/helpers";
@@ -386,15 +378,15 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     results: donationOpportunities,
     loading: donationOpportunitiesLoading,
   } = useDonationOpportunities();
+  /*
   const {document: donationElectionTag} = useSingle({
     documentId: donationElectionTagId,
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",
   });
-  const { submittedVoteCount } = useSubmittedVoteCount(eaGivingSeason23ElectionName);
+   */
+  // const { submittedVoteCount } = useSubmittedVoteCount(eaGivingSeason23ElectionName);
   const currentUser = useCurrentUser();
-  const {flash} = useMessages();
-  const {openDialog} = useDialog();
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   const showTimeline = useShowTimeline();
   // We only show the voting banner for users who are eligible -
@@ -402,6 +394,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const showVotingBanner =
     currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt && !isPastVotingDeadline();
 
+  /*
   const handleVote = useCallback(() => {
     if (!currentUser) {
       openDialog({
@@ -416,6 +409,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     }
     window.location.href = '/voting-portal';
   }, [currentUser, flash, openDialog]);
+   */
 
   const effectiveGivingPostsTerms = getListTerms({
     tagId: effectiveGivingTagId,
@@ -425,8 +419,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
 
   const fundLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
   const totalRaisedFormatted = formatDollars(amountRaised.totalRaised);
+  /*
   const raisedForElectionFundFormatted = formatDollars(amountRaised.raisedForElectionFund);
   const targetPercent = amountRaised.electionFundTarget > 0 ? (amountRaised.raisedForElectionFund / amountRaised.electionFundTarget) * 100 : 0;
+   */
   const allDonationOpportunities = !!donationOpportunities?.length ? [...donationOpportunities, ...otherDonationOpportunities] : []
   const eaFundsOpportunities = allDonationOpportunities.filter(
     ({name}) => name.indexOf("EA Funds") >= 0,
@@ -435,10 +431,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     ({name}) => otherFeaturedCharities.includes(name),
   );
 
-  const voteMessage = isPastVotingDeadline() ? "Voting has closed. You can still donate to the Election Fund until Dec 20" : "Voting is open until Dec 15. Select candidates and distribute your votes using a ranked-choice method."
+  // const voteMessage = isPastVotingDeadline() ? "Voting has closed. You can still donate to the Election Fund until Dec 20" : "Voting is open until Dec 15. Select candidates and distribute your votes using a ranked-choice method."
 
   const {
-    Loading, HeadTags, Timeline, ElectionFundCTA, Typography, PostsList2,
+    Loading, HeadTags, Timeline, Typography, PostsList2,
     ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, QuickTakesList,
   } = Components;
 
@@ -606,7 +602,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 classes.textWide,
                 classes.mb20,
               )}>
-                The Donation Election Fund will be designated for the top three winning candidates in the election (split proportionately, based on users' votes).
+                The Donation Election Fund will be designated for the top three
+                winning candidates in the election (split proportionately, based
+                on users' votes). You can read about{" "}
+                <Link to="/posts/bBm64htDSKn3ZKiQ5/meet-the-candidates-in-the-forum-s-donation-election-2023">
+                  these candidates
+                </Link> and what marginal donations to them would accomplish, and,
+                more broadly <Link to="/topics/donation-election-2023">read Forum posts about the election</Link>.
               </div>
               <ElectionCandidatesList className={classes.electionCandidates} />
               <div className={classNames(
