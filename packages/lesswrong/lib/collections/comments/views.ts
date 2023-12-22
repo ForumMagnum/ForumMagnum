@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
+import { combineIndexWithDefaultViewIndex, ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
@@ -745,3 +745,14 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
     options: {sort: {postedAt: -1}, limit: terms.limit || 7},
   };
 });
+
+
+/**
+ * For allowing `CommentsRepo.getPromotedCommentsOnPosts` to use an index-only scan, which is .
+ * Given the relatively small number of dialogues, `getMyActiveDialogues` still ends up being fast even though it needs to check each dialogue for userId/coauthorStatuses.
+ */
+void ensureCustomPgIndex(`
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_postId_promotedAt"
+  ON "Comments" ("postId", "promotedAt")
+  WHERE "promotedAt" IS NOT NULL;
+`);

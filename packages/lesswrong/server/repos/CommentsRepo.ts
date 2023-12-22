@@ -28,6 +28,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           SELECT "postId", MAX("promotedAt") AS max_promotedAt
           FROM "Comments"
           WHERE "postId" IN ($1:csv)
+          AND "promotedAt" IS NOT NULL
           GROUP BY "postId"
       ) sq
       ON c."postId" = sq."postId" AND c."promotedAt" = sq.max_promotedAt;
