@@ -182,6 +182,7 @@ addGraphQLSchema(`
     readLikelihoodRatio: Float
   }
   type MostReadAuthorV2 {
+    _id: String,
     slug: String,
     displayName: String,
     profileImageId: String,
@@ -563,6 +564,7 @@ addGraphQLResolvers({
 
         return author
           ? {
+              _id: author._id,
               displayName: author.displayName,
               slug: author.slug,
               profileImageId: author.profileImageId,
@@ -796,8 +798,8 @@ async function getEngagementV2(userId: string, year: number): Promise<{
         total_seconds,
         percent_rank() OVER (ORDER BY total_seconds ASC) engagementPercentile
       FROM by_year
-      -- semi-arbitrarily exclude users with less than 1000 seconds from the ranking
-      WHERE total_seconds > 1000
+      -- semi-arbitrarily exclude users with less than 3600 seconds (1 hour) from the ranking
+      WHERE total_seconds > 3600
     )
     SELECT
       user_id,

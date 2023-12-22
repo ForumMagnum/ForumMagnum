@@ -1,13 +1,13 @@
-import React, { Fragment, useMemo } from "react"
+import React, { Fragment, useEffect, useState } from "react"
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { WrappedTopPost, useForumWrappedV2 } from "./hooks";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { WrappedMostReadAuthor, WrappedReceivedReact, WrappedTopPost, useForumWrappedV2 } from "./hooks";
 import { userIsAdminOrMod } from "../../../lib/vulcan-users";
 import classNames from "classnames";
 import range from "lodash/range";
 import moment from "moment";
-import { BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, Tooltip, LineChart, Line } from "recharts";
+import { BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line } from "recharts";
 import { requireCssVar } from "../../../themes/cssVars";
 import { drawnArrow } from "../../icons/drawnArrow";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -15,6 +15,9 @@ import { userGetProfileUrlFromSlug } from "../../../lib/collections/users/helper
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { SoftUpArrowIcon } from "../../icons/softUpArrowIcon";
 import { eaEmojiPalette } from "../../../lib/voting/eaEmojiPalette";
+import { userCanStartConversations } from "../../../lib/collections/conversations/collection";
+import { useInitiateConversation } from "../../hooks/useInitiateConversation";
+import { isClient } from "../../../lib/executionEnvironment";
 
 
 const styles = (theme: ThemeType) => ({
@@ -176,6 +179,53 @@ const styles = (theme: ThemeType) => ({
   authorReadCount: {
     margin: 0
   },
+  messageAuthor: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '14px',
+    width: '100%',
+    maxWidth: 500,
+    textAlign: 'left',
+    margin: '50px auto 0',
+  },
+  topAuthorInfo: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    fontSize: 14,
+    lineHeight: 'normal',
+    fontWeight: 500,
+    color: theme.palette.wrapped.tertiaryText,
+  },
+  newMessageForm: {
+    background: theme.palette.wrapped.panelBackground,
+    borderRadius: theme.borderRadius.default,
+    padding: '0 16px 16px',
+    '& .ck-placeholder': {
+      '--ck-color-engine-placeholder-text': theme.palette.wrapped.tertiaryText,
+    },
+    '& .ContentStyles-commentBody': {
+      color: theme.palette.text.alwaysWhite,
+    },
+    '& .EditorTypeSelect-select': {
+      display: 'none'
+    },
+    '& .input-noEmail': {
+      display: 'none'
+    },
+    '& .form-submit': {
+      display: 'flex',
+      justifyContent: 'flex-end'
+    },
+    '& button': {
+      background: theme.palette.text.alwaysWhite,
+      color: theme.palette.text.alwaysBlack,
+      '&:hover': {
+        background: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 90%, ${theme.palette.text.alwaysBlack})`,
+        color: theme.palette.text.alwaysBlack,
+      }
+    },
+  },
   topPost: {
     display: 'flex',
     flexDirection: 'column',
@@ -276,12 +326,15 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     margin: 0
   },
-  text: {
+  textRow: {
     maxWidth: 600,
+    margin: '0 auto'
+  },
+  text: {
     fontSize: 14,
     lineHeight: 'normal',
     fontWeight: 500,
-    margin: '0 auto'
+    color: theme.palette.text.alwaysWhite,
   },
   highlight: {
     color: theme.palette.wrapped.highlightText,
@@ -391,16 +444,61 @@ const KarmaChangeXAxis = () => {
   </>
 }
 
-const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
+const ThankAuthorSection = ({authors, classes}: {
+  authors: WrappedMostReadAuthor[],
+  classes: ClassesType
+}) => {
   const currentUser = useCurrentUser()
-
-  const { data } = useForumWrappedV2({
-    userId: currentUser?._id,
-    year: 2023
-  })
+  const { captureEvent } = useTracking();
   
-  const allReactsReceived = useMemo(
-    () => data?.mostReceivedReacts?.reduce((prev: ReceivedReact[], next) => {
+  // Find the author for which the current user is in the highest percentile
+  const topAuthorByEngagementPercentile = [...authors].sort((a, b) => b.engagementPercentile - a.engagementPercentile)[0]
+  const topAuthorPercentByEngagementPercentile = Math.ceil(1 - topAuthorByEngagementPercentile.engagementPercentile)
+  const showThankAuthor = currentUser && topAuthorPercentByEngagementPercentile <= 10 && userCanStartConversations(currentUser)
+  
+  const { conversation, initiateConversation } = useInitiateConversation()
+  useEffect(() => {
+    if (showThankAuthor) initiateConversation(topAuthorByEngagementPercentile._id)
+  }, [showThankAuthor, initiateConversation, topAuthorByEngagementPercentile])
+  if (!showThankAuthor || !conversation) return null
+  
+  return <section className={classes.section}>
+    <h1 className={classes.heading2}>
+      You’re in the top <span className={classes.highlight}>{topAuthorPercentByEngagementPercentile}%</span> of {topAuthorByEngagementPercentile.displayName}’s readers
+    </h1>
+    <p className={classNames(classes.textRow, classes.text, classes.mt20)}>Want to say thanks?</p>
+    <div className={classes.messageAuthor}>
+      <div className={classes.topAuthorInfo}>
+        <div>To:</div>
+        <div><Components.UsersProfileImage size={24} user={topAuthorByEngagementPercentile} /></div>
+        <div className={classes.text}>{topAuthorByEngagementPercentile.displayName}</div>
+      </div>
+      <div className={classes.newMessageForm}>
+        <Components.NewMessageForm
+          conversationId={conversation._id}
+          successEvent={() => {
+            captureEvent("messageSent", {
+              conversationId: conversation._id,
+              sender: currentUser._id,
+              participantIds: conversation.participantIds,
+              messageCount: (conversation.messageCount || 0) + 1,
+              from: "2023_wrapped",
+            });
+          }}
+        />
+      </div>
+    </div>
+  </section>
+}
+
+const ReactsReceivedSection = ({receivedReacts, classes}: {
+  receivedReacts: WrappedReceivedReact[],
+  classes: ClassesType
+}) => {
+  // Randomly display all the reacts the user received in the background
+  const placeBackgroundReacts = (reacts: WrappedReceivedReact[]) => {
+    if (!isClient) return []
+    return reacts?.reduce((prev: ReceivedReact[], next) => {
       const Component = eaEmojiPalette.find(emoji => emoji.label === next.name)?.Component
       if (Component) {
         range(0, next.count).forEach(_ => prev.push({
@@ -412,11 +510,62 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         }))
       }
       return prev
-    }, []),
-    [data?.mostReceivedReacts]
-  )
+    }, [])
+  }
 
-  const { SingleColumnSection, CloudinaryImage2, UsersProfileImage, NewMessageForm } = Components
+  const [allReactsReceived, setAllReactsReceived] = useState<ReceivedReact[]>([])
+  useEffect(() => {
+    setAllReactsReceived(placeBackgroundReacts(receivedReacts))
+  }, [receivedReacts])
+  
+  const totalReactsReceived = receivedReacts.reduce((prev, next) => prev + next.count, 0)
+  if (totalReactsReceived <= 5) return null
+  
+  return <section className={classes.section}>
+    {allReactsReceived?.map((react, i) => {
+      return <div
+        key={i}
+        className={classes.backgroundReact}
+        style={{top: react.top, left: react.left}}
+      >
+        <react.Component />
+      </div>
+    })}
+    <div className={classes.reactsReceivedContents}>
+      <h1 className={classes.heading2}>
+        Others gave you{" "}
+        <span className={classes.highlight}>
+          {receivedReacts[0].count} {receivedReacts[0].name}
+        </span>{" "}
+        reacts{receivedReacts.length > 1 ? '...' : ''}
+      </h1>
+      {receivedReacts.length > 1 && <div className={classes.otherReacts}>
+        <p className={classes.heading3}>... and {totalReactsReceived} reacts in total:</p>
+        <div className={classNames(classes.stats, classes.mt26)}>
+          {receivedReacts.slice(1).map(react => {
+            return <article key={react.name} className={classes.stat}>
+              <div className={classes.heading2}>{react.count}</div>
+              <div className={classes.statLabel}>{react.name}</div>
+            </article>
+          })}
+        </div>
+      </div>}
+    </div>
+  </section>
+}
+
+/**
+ * This is the primary page component for EA Forum Wrapped 2023.
+ */
+const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
+  const currentUser = useCurrentUser()
+
+  const { data } = useForumWrappedV2({
+    userId: currentUser?._id,
+    year: 2023
+  })
+
+  const { SingleColumnSection, CloudinaryImage2, UsersProfileImage } = Components
   
   // if there's no logged in user, prompt them to login
   if (!currentUser) {
@@ -465,9 +614,6 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
       overallReadCount: topic.userReadCount / topic.readLikelihoodRatio
     }
   }).slice(0, 4)
-  const topAuthorByEngagementPercentile = [...data.mostReadAuthors].sort((a, b) => b.engagementPercentile - a.engagementPercentile)[0]
-  const topAuthorPercentByEngagementPercentile = Math.ceil(1 - topAuthorByEngagementPercentile.engagementPercentile)
-  const totalReactsReceived = data.mostReceivedReacts.reduce((prev, next) => prev + next.count, 0)
 
   return (
     <AnalyticsContext pageContext="eaYearWrapped">
@@ -482,7 +628,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           <h1 className={classes.heading2}>
             You’re a top <span className={classes.highlight}>{Math.ceil((1 - data.engagementPercentile) * 100)}%</span> reader of the EA Forum
           </h1>
-          <p className={classNames(classes.text, classes.mt16)}>You read {data.postsReadCount} posts this year</p>
+          <p className={classNames(classes.textRow, classes.text, classes.mt16)}>You read {data.postsReadCount} posts this year</p>
           <div className={classes.topicsChart}>
             <aside className={classes.engagementChartMark} style={{left: `calc(${97 * engagementHours / 520}% + 7px)`}}>
               <div className={classes.engagementChartArrow}>
@@ -504,7 +650,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           <h1 className={classes.heading2}>
             You spent <span className={classes.highlight}>{engagementHours.toFixed(1)}</span> hours on the EA Forum in 2023
           </h1>
-          <p className={classNames(classes.text, classes.mt70)}>Which is about the same as...</p>
+          <p className={classNames(classes.textRow, classes.text, classes.mt70)}>Which is about the same as...</p>
           <div className={classNames(classes.stats, classes.mt30)}>
             <article className={classes.stat}>
               <div className={classes.heading2}>{(engagementHours / 3.5).toFixed(1)}</div>
@@ -525,7 +671,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           <h1 className={classes.heading2}>
             You visited the EA Forum on <span className={classes.highlight}>{data.daysVisited.length}</span> days in 2023
           </h1>
-          <p className={classNames(classes.text, classes.mt16)}>(You may have visited more times while logged out)</p>
+          <p className={classNames(classes.textRow, classes.text, classes.mt16)}>(You may have visited more times while logged out)</p>
           <VisitCalendar daysVisited={data.daysVisited} classes={classes} />
         </section>
         
@@ -609,29 +755,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           </div>
         </section>
         
-        {topAuthorPercentByEngagementPercentile <= 10 && <section className={classes.section}>
-          <h1 className={classes.heading2}>
-            You’re in the top <span className={classes.highlight}>{topAuthorPercentByEngagementPercentile}%</span> of {topAuthorByEngagementPercentile.displayName}’s readers
-          </h1>
-          <p className={classNames(classes.text, classes.mt20)}>Want to say thanks?</p>
-          <div className={classes.messageAuthor}>
-            {/* <div className={classes.editor}>
-              <NewMessageForm
-                conversationId={conversation._id}
-                successEvent={() => {
-                  setMessageSentCount(messageSentCount + 1);
-                  captureEvent("messageSent", {
-                    conversationId: conversation._id,
-                    sender: currentUser._id,
-                    participantIds: conversation.participantIds,
-                    messageCount: (conversation.messageCount || 0) + 1,
-                    from: "2023_wrapped",
-                  });
-                }}
-              />
-            </div> */}
-          </div>
-        </section>}
+        <ThankAuthorSection authors={data.mostReadAuthors} classes={classes} />
         
         {!!data.topPosts?.length && <section className={classes.section}>
           <h1 className={classes.heading2}>
@@ -641,7 +765,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             <Post post={data.topPosts[0]} classes={classes} />
           </div>
           {data.topPosts.length > 1 && <>
-            <p className={classNames(classes.text, classes.mt60)}>
+            <p className={classNames(classes.textRow, classes.text, classes.mt60)}>
               Other posts you wrote this year...
             </p>
             <div className={classes.nextTopPosts}>
@@ -650,7 +774,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
               })}
             </div>
           </>}
-          <p className={classNames(classes.text, classes.mt40)}>
+          <p className={classNames(classes.textRow, classes.text, classes.mt40)}>
             You wrote {data.postCount} post{data.postCount === 1 ? '' : 's'} in total this year.
             This means you're in the top {Math.ceil((1-data.authorPercentile) * 100)}% of post authors.
           </p>
@@ -665,7 +789,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
               {data.topComment.contents.plaintextMainText}
             </article>
           </div>
-          <p className={classNames(classes.text, classes.mt30)}>
+          <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
             You wrote {data.commentCount} comment{data.commentCount === 1 ? '' : 's'} in total this year.
             This means you're in the top {Math.ceil((1-data.commenterPercentile) * 100)}% of commenters.
           </p>
@@ -681,7 +805,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
               {data.topComment.contents.plaintextMainText}
             </article>
           </div>
-          <p className={classNames(classes.text, classes.mt30)}>
+          <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
             You wrote {data.shortformCount} comment{data.shortformCount === 1 ? '' : 's'} in total this year.
             This means you're in the top {Math.ceil((1-data.shortformPercentile) * 100)}% of quick take authors.
           </p>
@@ -707,44 +831,13 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           </div>
         </section>}
         
-        {totalReactsReceived > 5 && <section className={classes.section}>
-          {allReactsReceived?.map((react, i) => {
-            return <div
-              key={i}
-              className={classes.backgroundReact}
-              style={{top: react.top, left: react.left}}
-            >
-              <react.Component />
-            </div>
-          })}
-          <div className={classes.reactsReceivedContents}>
-            <h1 className={classes.heading2}>
-              Others gave you{" "}
-              <span className={classes.highlight}>
-                {data.mostReceivedReacts[0].count} {data.mostReceivedReacts[0].name}
-              </span>{" "}
-              reacts{data.mostReceivedReacts.length > 1 ? '...' : ''}
-            </h1>
-            {data.mostReceivedReacts.length > 1 && <div className={classes.otherReacts}>
-              <p className={classes.heading3}>... and {totalReactsReceived} reacts in total:</p>
-              <div className={classNames(classes.stats, classes.mt26)}>
-                {data.mostReceivedReacts.slice(1).map(react => {
-                  return <article key={react.name} className={classes.stat}>
-                    <div className={classes.heading2}>{react.count}</div>
-                    <div className={classes.statLabel}>{react.name}</div>
-                  </article>
-                })}
-              </div>
-            </div>}
-          </div>
-        </section>}
-        
+        <ReactsReceivedSection receivedReacts={data.mostReceivedReacts} classes={classes} />
         
         <SingleColumnSection>
-          {/* <pre>Engagement Percentile: {data.engagementPercentile}</pre>
-          <pre>Posts Read Count: {data.postsReadCount}</pre>
-          <pre>Total Hours: {(data.totalSeconds / 3600).toFixed(1)}</pre>
-          <pre>Days Visited: {JSON.stringify(data.daysVisited, null, 2)}</pre> */}
+          <pre>Engagement Percentile: {data.engagementPercentile}</pre>
+          {/* <pre>Posts Read Count: {data.postsReadCount}</pre> */}
+          {/* <pre>Total Hours: {(data.totalSeconds / 3600).toFixed(1)}</pre> */}
+          {/* <pre>Days Visited: {JSON.stringify(data.daysVisited, null, 2)}</pre> */}
           {/* <pre>Most Read Topics: {JSON.stringify(data.mostReadTopics, null, 2)}</pre> */}
           {/* <pre>Relative Most Read Core Topics: {JSON.stringify(data.relativeMostReadCoreTopics, null, 2)}</pre> */}
           {/* <pre>Most Read Authors: {JSON.stringify(data.mostReadAuthors, null, 2)}</pre> */}

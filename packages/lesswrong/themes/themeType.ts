@@ -499,6 +499,7 @@ declare global {
       background: ColorString,
       highlightText: ColorString,
       secondaryText: ColorString,
+      tertiaryText: ColorString,
       darkDot: ColorString,
       panelBackground: ColorString,
       panelBackgroundDark: ColorString,
