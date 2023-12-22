@@ -17,6 +17,7 @@ import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
 import { useLocation } from "../../../lib/routeUtil";
 import { useElectionVote } from "../voting-portal/hooks";
+import NoSSR from "react-no-ssr";
 
 export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
 const BACKGROUND_ASPECT = 3160 / 800;
@@ -222,6 +223,16 @@ const styles = (theme: ThemeType) => ({
       fontWeight: 600,
     },
   },
+  gsHearts: {
+    position: "relative",
+  },
+  gsHeart: {
+    position: "absolute",
+    zIndex: 2,
+  },
+  gsHeartTooltip: {
+    backgroundColor: theme.palette.panelBackground.tooltipBackground2,
+  },
 });
 
 const votingPortalSocialImageProps: CloudinaryPropsType = {
@@ -233,6 +244,27 @@ const votingPortalSocialImageProps: CloudinaryPropsType = {
   q: "auto",
   f: "auto",
 };
+
+const hearts = [
+  {
+    x: 0.5,
+    y: 0.6,
+    theta: 10,
+    displayName: "Lizka",
+  },
+  {
+    x: 0.7,
+    y: 0.2,
+    theta: -5,
+    displayName: "Agnes Stenlund",
+  },
+  {
+    x: 0.1,
+    y: 0.9,
+    theta: -20,
+    displayName: "Ollie Etherington",
+  },
+];
 
 const GivingSeasonHeader = ({
   searchOpen,
@@ -255,7 +287,9 @@ const GivingSeasonHeader = ({
   HeaderNotificationsMenu: FC,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {Typography, HeadTags, HeaderSubtitle, EAButton} = Components;
+  const {
+    Typography, HeadTags, HeaderSubtitle, EAButton, LWTooltip, ForumIcon,
+  } = Components;
   const isDesktop = useIsAboveBreakpoint("md");
   const { pathname, currentRoute } = useLocation();
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
@@ -347,6 +381,29 @@ const GivingSeasonHeader = ({
               showHearts ? classes.homePageBackground : classes.solidBackground,
             )}
           >
+            <div className={classes.gsHearts}>
+              <NoSSR>
+                {hearts.map(({x, y, theta, displayName}) => (
+                  <div
+                    key={displayName}
+                    style={{
+                      left: `${x * window.innerWidth}px`,
+                      top: `${y * EA_FORUM_GIVING_SEASON_HEADER_HEIGHT}px`,
+                      transform: `rotate(${theta}deg)`,
+                    }}
+                    className={classes.gsHeart}
+                  >
+                    <LWTooltip
+                      title={displayName}
+                      placement="bottom"
+                      popperClassName={classes.gsHeartTooltip}
+                    >
+                      <ForumIcon icon="Heart" />
+                    </LWTooltip>
+                  </div>
+                ))}
+              </NoSSR>
+            </div>
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
               <div className={classes.leftHeaderItems}>
                 <NavigationMenuButton />
