@@ -13,6 +13,7 @@ import {
   eaGivingSeason23ElectionName,
   effectiveGivingTagId,
   electionCandidatesPostLink,
+  heroImage2Id,
   heroImageId,
   otherDonationOpportunities,
   setupFundraiserLink,
@@ -515,6 +516,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
             {donationOpportunitiesLoading && <Loading />}
           </div>
         </div>
+        <CloudinaryImage2 publicId={heroImage2Id} fullWidthHeader imgProps={{ h: "1200" }} />
         <div className={classes.sectionLight}>
           <div className={classes.content} id="election">
             <div className={classNames(classes.column, classes.mt60, classes.mb60)}>
