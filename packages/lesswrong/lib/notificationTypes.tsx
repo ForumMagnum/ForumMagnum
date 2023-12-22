@@ -29,8 +29,9 @@ import DebateIcon from '@material-ui/icons/Forum';
 import DialogueChecks from './collections/dialogueChecks/collection';
 import { getUserABTestGroup } from './abTestImpl';
 import { checkNotificationMessageContent } from './abTests';
+import DialogueMatchPreferences from './collections/dialogueMatchPreferences/collection';
 
-export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)
+export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck', 'dialogueMatchPreference'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 
 interface GetMessageProps {
@@ -98,6 +99,7 @@ type DocumentSummary =
   | { type: 'localgroup'; displayName: string; document: DbLocalgroup; associatedUserName: null }
   | { type: 'tagRel'; document: DbTagRel; associatedUserName: null; displayName: null }
   | { type: 'dialogueCheck'; document: DbDialogueCheck; associatedUserName: string; displayName: null }
+  | { type: 'dialogueMatchPreference'; document: DbDialogueMatchPreference; associatedUserName: string; displayName: null }
 
 export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null): Promise<DocumentSummary | null> => {
   if (!documentId) return null
@@ -162,6 +164,16 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         type: documentType,
         document: dialogueCheck,
         associatedUserName: userGetDisplayName(targetUser),
+        displayName: null,
+      }
+    case 'dialogueMatchPreference':
+      const dialogueMatchPreference = await DialogueMatchPreferences.findOne({ _id: documentId })
+      const dialogueCheckMatch = await DialogueChecks.findOne({ _id: dialogueMatchPreference?.dialogueCheckId })
+      const userMatch = await Users.findOne(dialogueCheckMatch?.userId)
+      return (dialogueMatchPreference && userMatch) && {
+        type: documentType,
+        document: dialogueMatchPreference,
+        associatedUserName: userGetDisplayName(userMatch),
         displayName: null,
       }
     default:
@@ -406,14 +418,9 @@ export const YourTurnMatchFormNotification = registerNotificationType({
   name: "yourTurnMatchForm",
   userSettingField: "notificationYourTurnMatchForm",
   allowedChannels: ["onsite", "none"],
-  async getMessage(props: GetMessageProps) {
-    const targetUserId = props.extraData?.targetUserId
-    if (targetUserId) { 
-      const user = await getDocument("user", targetUserId) as DbUser
-      return `Your turn: see & reply to ${user.displayName}'s dialogue ideas`
-    } else {
-      return `Your turn: your match suggested dialogue topics`
-    }
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    const summary = await getDocumentSummary(documentType, documentId)
+    return `Your turn: see & reply to ${summary?.associatedUserName ?? 'your match'}'s dialogue ideas`
   },
   getIcon() {
     return <DebateIcon style={iconStyles}/>

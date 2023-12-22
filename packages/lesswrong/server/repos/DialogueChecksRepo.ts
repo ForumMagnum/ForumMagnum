@@ -15,11 +15,9 @@ const BASE_UPSERT_QUERY = `
       $1, $2, $3, $4, $5, $6
     ) ON CONFLICT ("userId", "targetUserId")`;
 
-
 interface DialogueCheckWithExtraData extends DbDialogueCheck {
   targetUserMatchPreferenceId: string;
 }
-
 class DialogueChecksRepo extends AbstractRepo<"DialogueChecks"> {
   constructor() {
     super(DialogueChecks);
@@ -73,7 +71,7 @@ class DialogueChecksRepo extends AbstractRepo<"DialogueChecks"> {
       LEFT JOIN "DialogueMatchPreferences" AS dmp ON dc._id = dmp."dialogueCheckId"
       LEFT JOIN "DialogueChecks" AS dc_reciprocal ON dc."userId" = dc_reciprocal."targetUserId" AND dc."targetUserId" = dc_reciprocal."userId"
       LEFT JOIN "DialogueMatchPreferences" AS dmp_reciprocal ON dc_reciprocal._id = dmp_reciprocal."dialogueCheckId"
-      LEFT JOIN "Notifications" AS n ON n."extraData"->>'targetUserMatchPreferenceId' = dmp_reciprocal._id
+      LEFT JOIN "Notifications" AS n ON n."documentId" = dmp_reciprocal._id
       WHERE 
           dc.checked IS TRUE
           AND dc_reciprocal.checked IS TRUE
