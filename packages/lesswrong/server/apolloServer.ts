@@ -133,6 +133,7 @@ export function startWebserver() {
   app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
   addStripeMiddleware(addMiddleware);
+  // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   addAuthMiddlewares(addMiddleware);
   addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
@@ -327,6 +328,12 @@ export function startWebserver() {
     const renderResult = performanceMetricLoggingEnabled.get()
       ? await asyncLocalStorage.run({}, () => renderWithCache(request, response, user))
       : await renderWithCache(request, response, user);
+    
+    if (renderResult.aborted) {
+      response.status(499);
+      response.end();
+      return;
+    }
     
     const {
       ssrBody,
