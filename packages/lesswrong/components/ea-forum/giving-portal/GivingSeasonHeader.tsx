@@ -10,13 +10,14 @@ import {
 } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { eaGivingSeason23ElectionName, headerImageId, heroImageId, votingHeaderImageId } from "../../../lib/eaGivingSeason";
+import { GivingSeasonHeart, eaGivingSeason23ElectionName, headerImageId, heroImageId, votingHeaderImageId } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
 import { useLocation } from "../../../lib/routeUtil";
 import { useElectionVote } from "../voting-portal/hooks";
+import { gql, useQuery } from "@apollo/client";
 import NoSSR from "react-no-ssr";
 
 export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
@@ -245,26 +246,17 @@ const votingPortalSocialImageProps: CloudinaryPropsType = {
   f: "auto",
 };
 
-const hearts = [
-  {
-    x: 0.5,
-    y: 0.6,
-    theta: 10,
-    displayName: "Lizka",
-  },
-  {
-    x: 0.7,
-    y: 0.2,
-    theta: -5,
-    displayName: "Agnes Stenlund",
-  },
-  {
-    x: 0.1,
-    y: 0.9,
-    theta: -20,
-    displayName: "Ollie Etherington",
-  },
-];
+const heartsQuery = gql`
+  query GivingSeasonHeartsQuery($electionName: String!) {
+    GivingSeasonHearts(electionName: $electionName) {
+      userId
+      displayName
+      x
+      y
+      theta
+    }
+  }
+`;
 
 const GivingSeasonHeader = ({
   searchOpen,
@@ -324,6 +316,14 @@ const GivingSeasonHeader = ({
   // Show voting steps if we are on a path like /voting-portal/compare (with anything after /voting-portal/)
   const showVotingSteps = isVotingPortal && /\/voting-portal\/\w/.test(pathname);
   const showHearts = currentRoute?.path === "/";
+
+  const {data} = useQuery(heartsQuery, {
+    variables: {
+      electionName: eaGivingSeason23ElectionName,
+    },
+    skip: !showHearts,
+  });
+  const hearts: GivingSeasonHeart[] = data?.GivingSeasonHearts ?? [];
 
   const headerRef = useRef<HTMLDivElement>(null);
   const onClick = useCallback(({target, clientX, clientY}: MouseEvent) => {
