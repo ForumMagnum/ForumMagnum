@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from "react";
+import React, { FC, MouseEvent, ReactNode, useCallback, useRef } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useIsAboveBreakpoint } from "../../hooks/useScreenWidth";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -107,6 +107,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.givingPortal.homepageHeader.dark,
   },
   appBarGivingSeason: {
+    cursor: "pointer",
     color: theme.palette.givingPortal.homepageHeader.main,
     position: "static",
     width: "100%",
@@ -290,6 +291,28 @@ const GivingSeasonHeader = ({
   const showVotingSteps = isVotingPortal && /\/voting-portal\/\w/.test(pathname);
   const showHearts = currentRoute?.path === "/";
 
+  const headerRef = useRef<HTMLDivElement>(null);
+  const onClick = useCallback(({target, clientX, clientY}: MouseEvent) => {
+    if (
+      headerRef.current &&
+      "tagName" in target &&
+      (target.tagName === "DIV" || target.tagName === "HEADER")
+    ) {
+      const bounds = headerRef.current.getBoundingClientRect();
+      if (
+        clientX < bounds.left ||
+        clientX > bounds.right ||
+        clientY < bounds.top ||
+        clientY > bounds.bottom
+      ) {
+        return;
+      }
+      const x = clientX / bounds.width;
+      const y = clientY / bounds.height;
+      console.log("NORMALIZED COORDS", x, y);
+    }
+  }, []);
+
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
       {isVotingPortal && (
@@ -317,6 +340,8 @@ const GivingSeasonHeader = ({
           disable={isDesktop}
         >
           <header
+            ref={headerRef}
+            onClick={onClick}
             className={classNames(
               classes.appBarGivingSeason,
               showHearts ? classes.homePageBackground : classes.solidBackground,
@@ -383,7 +408,7 @@ const GivingSeasonHeader = ({
               {rightHeaderItems}
             </Toolbar>
             <div className={classes.gsContent}>
-              <div>Add a heart if you got your 2023 donations in</div>
+              <span>Add a heart if you got your 2023 donations in</span>
               <div className={classes.gsButtons}>
                 <EAButton>
                   Donate to the Donation Election winners
