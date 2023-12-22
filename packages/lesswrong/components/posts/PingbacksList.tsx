@@ -52,6 +52,7 @@ const PingbacksList = ({classes, postId, limit=5}: {
     collectionName: "Posts",
     fragmentName: "PostsList",
     limit: limit,
+    itemsPerPage: 100,
     enableTotal: true,
   });
 
