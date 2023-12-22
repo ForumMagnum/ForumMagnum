@@ -7,7 +7,7 @@ import { userIsAdminOrMod } from "../../../lib/vulcan-users";
 import classNames from "classnames";
 import range from "lodash/range";
 import moment from "moment";
-import { BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, Tooltip } from "recharts";
+import { BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, Tooltip, LineChart, Line } from "recharts";
 import { requireCssVar } from "../../../themes/cssVars";
 import { drawnArrow } from "../../icons/drawnArrow";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -96,6 +96,18 @@ const styles = (theme: ThemeType) => ({
     position: 'relative',
     maxWidth: 400,
     margin: '40px auto 0',
+  },
+  engagementChartMark: {
+    position: 'absolute',
+    bottom: -42,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    gap: '2px',
+    color: theme.palette.text.alwaysWhite,
+  },
+  engagementChartArrow: {
+    transform: 'rotate(135deg)',
   },
   relativeTopicsChartMarkYou: {
     position: 'absolute',
@@ -300,6 +312,30 @@ type ReceivedReact = {
 const wrappedHighlightColor = requireCssVar("palette", "wrapped", "highlightText")
 const wrappedSecondaryColor = requireCssVar("palette", "wrapped", "secondaryText")
 
+// A sample of data to approximate the real graph
+const ENGAGEMENT_CHART_DATA = [
+  {hours: 0, count: 855},
+  {hours: 1, count: 1839},
+  {hours: 2, count: 855},
+  {hours: 3, count: 516},
+  {hours: 4, count: 400},
+  {hours: 5, count: 300},
+  {hours: 8, count: 178},
+  {hours: 10, count: 124},
+  {hours: 10, count: 124},
+  {hours: 14, count: 77},
+  {hours: 18, count: 47},
+  {hours: 22, count: 32},
+  {hours: 26, count: 19},
+  {hours: 35, count: 14},
+  {hours: 49, count: 9},
+  {hours: 60, count: 6},
+  {hours: 60, count: 6},
+  {hours: 80, count: 2},
+  {hours: 110, count: 1},
+  {hours: 504, count: 1},
+]
+
 /**
  * Displays the calendar of days the user visited the forum.
  * Visualized as 12 rows of dots, with the visited days' dots being white.
@@ -380,7 +416,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     [data?.mostReceivedReacts]
   )
 
-  const { SingleColumnSection, CloudinaryImage2, UsersProfileImage } = Components
+  const { SingleColumnSection, CloudinaryImage2, UsersProfileImage, NewMessageForm } = Components
   
   // if there's no logged in user, prompt them to login
   if (!currentUser) {
@@ -414,7 +450,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
       You do not have permission to view this page.
     </div>
   }
-  
+
   const engagementHours = (data.totalSeconds / 3600)
   const mostReadTopics = data.mostReadTopics.map((topic, i) => {
     return {
@@ -447,6 +483,21 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             You’re a top <span className={classes.highlight}>{Math.ceil((1 - data.engagementPercentile) * 100)}%</span> reader of the EA Forum
           </h1>
           <p className={classNames(classes.text, classes.mt16)}>You read {data.postsReadCount} posts this year</p>
+          <div className={classes.topicsChart}>
+            <aside className={classes.engagementChartMark} style={{left: `calc(${97 * engagementHours / 520}% + 7px)`}}>
+              <div className={classes.engagementChartArrow}>
+                {drawnArrow}
+              </div>
+              you
+            </aside>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart width={350} height={200} data={ENGAGEMENT_CHART_DATA}>
+                <YAxis dataKey="count" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} width={2} />
+                <XAxis dataKey="hours" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} height={2} scale="linear" type="number" domain={[0, 520]} />
+                <Line dataKey="count" dot={false} stroke={wrappedHighlightColor} strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </section>
         
         <section className={classes.section}>
@@ -564,7 +615,21 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           </h1>
           <p className={classNames(classes.text, classes.mt20)}>Want to say thanks?</p>
           <div className={classes.messageAuthor}>
-            TODO DM author
+            {/* <div className={classes.editor}>
+              <NewMessageForm
+                conversationId={conversation._id}
+                successEvent={() => {
+                  setMessageSentCount(messageSentCount + 1);
+                  captureEvent("messageSent", {
+                    conversationId: conversation._id,
+                    sender: currentUser._id,
+                    participantIds: conversation.participantIds,
+                    messageCount: (conversation.messageCount || 0) + 1,
+                    from: "2023_wrapped",
+                  });
+                }}
+              />
+            </div> */}
           </div>
         </section>}
         
