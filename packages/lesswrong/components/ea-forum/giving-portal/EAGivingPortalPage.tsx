@@ -310,7 +310,12 @@ const styles = (theme: ThemeType) => ({
   },
   voteCount: {
     fontStyle: 'italic',
-  }
+  },
+  eaFundsOpportunities: {
+    maxWidth: 600,
+    margin: "0 auto",
+    marginTop: 20,
+  },
 });
 
 const getListTerms = ({ tagId, sortedBy, limit, after }: {
@@ -346,7 +351,7 @@ const formatDollars = (amount: number) => "$" + formatStat(Math.round(amount));
 
 const canonicalUrl = getSiteUrl() + "giving-portal";
 
-const pageDescription = "It’s Giving season on the EA Forum; we’ve run a Donation Election, some discussion themes, and more.";
+const pageDescription = "It’s almost the end of Giving season on the EA Forum; we’ve run a Donation Election, discussion themes, and more. As the end of the year approaches, consider donating!";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -419,6 +424,9 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const raisedForElectionFundFormatted = formatDollars(amountRaised.raisedForElectionFund);
   const targetPercent = amountRaised.electionFundTarget > 0 ? (amountRaised.raisedForElectionFund / amountRaised.electionFundTarget) * 100 : 0;
   const allDonationOpportunities = !!donationOpportunities?.length ? [...donationOpportunities, ...otherDonationOpportunities] : []
+  const eaFundsOpportunities = allDonationOpportunities.filter(
+    ({name}) => name.indexOf("EA Funds") >= 0,
+  );
 
   const voteMessage = isPastVotingDeadline() ? "Voting has closed. You can still donate to the Election Fund until Dec 20" : "Voting is open until Dec 15. Select candidates and distribute your votes using a ranked-choice method."
 
@@ -483,6 +491,23 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
               <Timeline {...timelineSpec} className={classes.hideOnMobile} />
             </>
           }
+        </div>
+        <div className={classNames(classes.content, classes.mb20)}>
+          <div className={classNames(classes.h2, classes.center)}>
+            Donate now
+          </div>
+          <div className={classNames(classes.text, classes.center)}>
+            Looking to get your donations in before the end of the year, but unsure where to give?{" "}
+            <Link to="https://www.givingwhatwecan.org/en-US/why-we-recommend-funds?slug=why-we-recommend-funds">Consider</Link>{" "}
+            donating to a fund led by charity evaluation experts. For funds other than those below,{" "}
+            <Link to="https://www.givingwhatwecan.org/donate/organizations">go here</Link>.
+          </div>
+          <div className={classNames(classes.grid, classes.eaFundsOpportunities)}>
+            {eaFundsOpportunities.map((candidate) => (
+              <DonationOpportunity candidate={candidate} key={candidate._id} />
+            ))}
+            {donationOpportunitiesLoading && <Loading />}
+          </div>
         </div>
         <div className={classes.sectionSplit}>
           <div className={classes.content} id="election">
