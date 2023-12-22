@@ -26,7 +26,7 @@ export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.header.text,
@@ -177,7 +177,7 @@ const Header = ({
   toggleStandaloneNavigation: ()=>void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [navigationOpen, setNavigationOpenState] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);

@@ -7,19 +7,16 @@ import {
   styles as headerStyles,
   forumHeaderTitleSetting,
   forumShortTitleSetting,
-  HEADER_HEIGHT,
 } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { eaGivingSeason23ElectionName, headerImageId, heroImageId, userCanVoteInDonationElection, votingHeaderImageId } from "../../../lib/eaGivingSeason";
+import { eaGivingSeason23ElectionName, headerImageId, heroImageId, votingHeaderImageId } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
 import { useLocation } from "../../../lib/routeUtil";
 import { useElectionVote } from "../voting-portal/hooks";
-import { useCurrentUser } from "../../common/withUser";
-import { isPastVotingDeadline } from "../../../lib/collections/electionVotes/helpers";
 
 export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
 const BACKGROUND_ASPECT = 3160 / 800;
@@ -83,9 +80,11 @@ export const givingSeasonGradient = (
 const styles = (theme: ThemeType) => ({
   ...headerStyles(theme),
   rootGivingSeason: {
+    height: `${EA_FORUM_GIVING_SEASON_HEADER_HEIGHT}px !important`,
+    marginBottom: -20,
     "& .headroom": {
       zIndex: theme.zIndexes.searchResults,
-      height: HEADER_HEIGHT,
+      height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
       overflow: "hidden",
     },
   },
@@ -102,16 +101,13 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   homePageBackground: {
-    ...givingSeasonImageBackground(theme, "top"),
-  },
-  homePageVotingBackground: {
-    ...givingSeasonImageBackground(theme, "top", true),
+    background: theme.palette.givingPortal.homepageHeader.light2,
   },
   solidBackground: {
     background: theme.palette.givingPortal.homepageHeader.dark,
   },
   appBarGivingSeason: {
-    color: theme.palette.givingPortal.homepageHeader.light4,
+    color: theme.palette.givingPortal.homepageHeader.main,
     position: "static",
     width: "100%",
     height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
@@ -127,31 +123,31 @@ const styles = (theme: ThemeType) => ({
       padding: "9px 11px",
     },
     "& .HeaderSubtitle-subtitle": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
+      color: theme.palette.givingPortal.homepageHeader.main,
     },
     "& .SearchBar-searchIcon": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
+      color: theme.palette.givingPortal.homepageHeader.main,
     },
     "& .ais-SearchBox-input": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
+      color: theme.palette.givingPortal.homepageHeader.main,
     },
     "& .ais-SearchBox-input::placeholder": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
+      color: theme.palette.givingPortal.homepageHeader.main,
     },
     "& .KarmaChangeNotifier-starIcon": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
+      color: theme.palette.givingPortal.homepageHeader.main,
     },
     "& .KarmaChangeNotifier-gainedPoints": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
+      color: theme.palette.givingPortal.homepageHeader.main,
     },
     "& .NotificationsMenuButton-badge": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
+      color: theme.palette.givingPortal.homepageHeader.main,
     },
     "& .NotificationsMenuButton-buttonClosed": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
+      color: theme.palette.givingPortal.homepageHeader.main,
     },
     "& .UsersMenu-arrowIcon": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
+      color: theme.palette.givingPortal.homepageHeader.main,
     },
     "& .EAButton-variantContained": {
       backgroundColor: theme.palette.givingPortal.homepageHeader.light2,
@@ -161,7 +157,7 @@ const styles = (theme: ThemeType) => ({
       },
     },
     "& .EAButton-greyContained": {
-      backgroundColor: theme.palette.givingPortal.homepageHeader.secondary,
+      backgroundColor: theme.palette.givingPortal.homepageHeader.main,
       color: theme.palette.givingPortal.homepageHeader.light3,
       "&:hover": {
         backgroundColor: `${theme.palette.givingPortal.homepageHeader.secondaryDark} !important`,
@@ -179,9 +175,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   titleLinkGivingSeason: {
-    color: theme.palette.givingPortal.homepageHeader.light4,
+    color: theme.palette.givingPortal.homepageHeader.main,
   },
-  givingSeasonGradient: givingSeasonGradient(theme),
   navigationSteps: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.text.alwaysWhite,
@@ -205,7 +200,27 @@ const styles = (theme: ThemeType) => ({
   },
   disabledStepLink: {
     opacity: 0.7,
-  }
+  },
+  gsContent: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 36,
+    fontWeight: 700,
+    lineHeight: "120%",
+    letterSpacing: "-0.76px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
+    justifyContent: "center",
+    height: "100%",
+  },
+  gsButtons: {
+    display: "flex",
+    gap: "20px",
+    "& .EAButton-variantContained": {
+      background: theme.palette.text.alwaysWhite,
+      fontWeight: 600,
+    },
+  },
 });
 
 const votingPortalSocialImageProps: CloudinaryPropsType = {
@@ -237,21 +252,16 @@ const GivingSeasonHeader = ({
   rightHeaderItems: ReactNode,
   HeaderNavigationDrawer: FC,
   HeaderNotificationsMenu: FC,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { Typography, HeadTags, HeaderSubtitle } = Components;
+  const {Typography, HeadTags, HeaderSubtitle, EAButton} = Components;
   const isDesktop = useIsAboveBreakpoint("md");
   const { pathname, currentRoute } = useLocation();
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
-  const currentUser = useCurrentUser();
 
   const compareAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 1;
   const allocateAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 0;
   const submitAllowed = electionVote?.vote && Object.values(electionVote.vote).some((value) => value);
-  // We only advertise voting for users who are eligible -
-  // i.e. those that created their accounts before Oct 23 and haven't voted yet.
-  const advertiseVoting =
-    currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt && !isPastVotingDeadline();
 
   const votingSteps = [
     {
@@ -278,7 +288,7 @@ const GivingSeasonHeader = ({
   const isVotingPortal = pathname.startsWith("/voting-portal");
   // Show voting steps if we are on a path like /voting-portal/compare (with anything after /voting-portal/)
   const showVotingSteps = isVotingPortal && /\/voting-portal\/\w/.test(pathname);
-  const solidHeader = currentRoute?.path !== "/";
+  const showHearts = currentRoute?.path === "/";
 
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
@@ -298,7 +308,7 @@ const GivingSeasonHeader = ({
           disableInlineStyles
           downTolerance={10}
           upTolerance={10}
-          height={HEADER_HEIGHT}
+          height={EA_FORUM_GIVING_SEASON_HEADER_HEIGHT}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
           })}
@@ -309,10 +319,9 @@ const GivingSeasonHeader = ({
           <header
             className={classNames(
               classes.appBarGivingSeason,
-              solidHeader ? classes.solidBackground : advertiseVoting ? classes.homePageVotingBackground : classes.homePageBackground
+              showHearts ? classes.homePageBackground : classes.solidBackground,
             )}
           >
-            {!solidHeader && <div className={classes.givingSeasonGradient} />}
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
               <div className={classes.leftHeaderItems}>
                 <NavigationMenuButton />
@@ -351,7 +360,7 @@ const GivingSeasonHeader = ({
                     disabled ? (
                       <span
                         key={href}
-                        className={classNames(classes.stepLink, classes.disabledStepLink, {
+                        className={classNames(classes.disabledStepLink, {
                           [classes.activeStepLink]: pathname === href,
                         })}
                       >
@@ -361,7 +370,7 @@ const GivingSeasonHeader = ({
                       <Link
                         key={href}
                         to={href}
-                        className={classNames(classes.stepLink, {
+                        className={classNames({
                           [classes.activeStepLink]: pathname === href,
                         })}
                       >
@@ -373,6 +382,17 @@ const GivingSeasonHeader = ({
               )}
               {rightHeaderItems}
             </Toolbar>
+            <div className={classes.gsContent}>
+              <div>Add a heart if you got your 2023 donations in</div>
+              <div className={classes.gsButtons}>
+                <EAButton>
+                  Donate to the Donation Election winners
+                </EAButton>
+                <EAButton>
+                  Explore charities
+                </EAButton>
+              </div>
+            </div>
           </header>
           <HeaderNavigationDrawer />
         </Headroom>
