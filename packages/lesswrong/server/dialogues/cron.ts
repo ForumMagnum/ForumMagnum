@@ -2,9 +2,10 @@ import { autoArchiveCutoffDays } from "../../components/posts/PostsEditForm";
 import { getCKEditorDocumentId } from "../../lib/ckEditorUtils";
 import CkEditorUserSessions from "../../lib/collections/ckEditorUserSessions/collection";
 import { Posts } from "../../lib/collections/posts";
+import {getConfirmedCoauthorIds} from "../../lib/collections/posts/helpers";
 import { ckEditorApi, documentHelpers } from "../ckEditor/ckEditorApi";
 import { addCronJob } from "../cronUtil";
-import { createNotification } from "../notificationCallbacksHelpers";
+import { createNotification, createNotifications } from "../notificationCallbacksHelpers";
 import { createAdminContext, updateMutator } from "../vulcan-lib";
 import groupBy from 'lodash/groupBy';
 
@@ -83,6 +84,16 @@ addCronJob({
         },
         validate: false
       });
+
+      const users = getConfirmedCoauthorIds(dialogue);
+
+      void createNotifications({
+        userIds: users,
+        notificationType: "autoArchivedDialogue",
+        documentType: "post",
+        documentId: dialogue._id,
+        context,
+      })
     })    
   }
 })

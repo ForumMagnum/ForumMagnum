@@ -266,6 +266,12 @@ interface UsersDefaultFragment { // fragment on Users
     dayOfWeekGMT: string,
   },
   readonly hideDialogueFacilitation: boolean,
+  readonly notificationAutoArchiveDialogue: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly revealChecksToAdmins: boolean,
   readonly optedInToDialogueFacilitation: boolean,
   readonly showDialoguesList: boolean,

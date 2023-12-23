@@ -1438,6 +1438,12 @@ const schema: SchemaType<"Users"> = {
     ...schemaDefaultValue(false)
   },
 
+  notificationAutoArchiveDialogue: {
+    label: "Your dialogue was auto-archived",
+    ...notificationTypeSettingsField(),
+    hidden: !isLW,
+  },
+
   revealChecksToAdmins: {
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
