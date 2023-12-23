@@ -1,6 +1,5 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { Components, getSiteUrl, registerComponent } from "../../../lib/vulcan-lib";
-import { useSingle } from "../../../lib/crud/withSingle";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { SECTION_WIDTH } from "../../common/SingleColumnSection";
@@ -9,27 +8,20 @@ import {
   useAmountRaised,
   useDonationOpportunities,
   useShowTimeline,
-  useSubmittedVoteCount,
 } from "./hooks";
 import {
-  donationElectionFundraiserLink,
-  donationElectionLink,
-  donationElectionTagId,
   eaGivingSeason23ElectionName,
   effectiveGivingTagId,
   electionCandidatesPostLink,
+  heroImage2Id,
   heroImageId,
   otherDonationOpportunities,
-  postsAboutElectionLink,
   setupFundraiserLink,
   timelineSpec,
   userCanVoteInDonationElection,
 } from "../../../lib/eaGivingSeason";
-import { DiscussIcon, DonateIcon, VoteIcon } from "../../icons/givingSeasonIcons";
 import classNames from "classnames";
-import { useMessages } from "../../common/withMessages";
 import { useCurrentUser } from "../../common/withUser";
-import { useDialog } from "../../common/withDialog";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { useElectionVote } from "../voting-portal/hooks";
 import { isPastVotingDeadline } from "../../../lib/collections/electionVotes/helpers";
@@ -271,10 +263,11 @@ const styles = (theme: ThemeType) => ({
   mt80: { marginTop: 80 },
   mb20: { marginBottom: 20 },
   mb40: { marginBottom: 40 },
+  mb60: { marginBottom: 60 },
   mb80: { marginBottom: 80 },
   mb100: { marginBottom: 100 },
   w100: { width: "100%" },
-  
+
   votingBanner: {
     backgroundColor: theme.palette.givingPortal.homepageHeader.dark,
     color: theme.palette.text.alwaysWhite,
@@ -310,7 +303,15 @@ const styles = (theme: ThemeType) => ({
   },
   voteCount: {
     fontStyle: 'italic',
-  }
+  },
+  eaFundsOpportunities: {
+    maxWidth: 1200,
+    margin: "0 auto",
+    marginTop: 20,
+    [theme.breakpoints.down("lg")]: {
+      maxWidth: 600,
+    },
+  },
 });
 
 const getListTerms = ({ tagId, sortedBy, limit, after }: {
@@ -346,7 +347,7 @@ const formatDollars = (amount: number) => "$" + formatStat(Math.round(amount));
 
 const canonicalUrl = getSiteUrl() + "giving-portal";
 
-const pageDescription = "It’s Giving season on the EA Forum; we’ve run a Donation Election, some discussion themes, and more.";
+const pageDescription = "It’s almost the end of Giving season on the EA Forum; we’ve run a Donation Election, discussion themes, and more. As the end of the year approaches, consider donating!";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -358,6 +359,22 @@ const socialImageProps: CloudinaryPropsType = {
   f: "auto",
 };
 
+const otherFeaturedCharities = [
+  "Centre for Effective Altruism",
+  "Centre for Enabling EA Learning and Research",
+  "Doebem",
+  "EA Poland",
+  "Legal Impact for Chickens",
+  "ML Alignment & Theory Scholars Program",
+  "PIBBSS",
+  "Riesgos Catastróficos Globales",
+  "High Impact Medicine",
+  "Maternal Health Initiative",
+  "Solar4Africa",
+  "Spiro",
+  "Vida Plena",
+];
+
 const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { data: amountRaised, loading: amountRaisedLoading } = useAmountRaised(eaGivingSeason23ElectionName);
 
@@ -365,27 +382,15 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     results: donationOpportunities,
     loading: donationOpportunitiesLoading,
   } = useDonationOpportunities();
+  /*
   const {document: donationElectionTag} = useSingle({
     documentId: donationElectionTagId,
     collectionName: "Tags",
     fragmentName: "TagBasicInfo",
   });
-  const { submittedVoteCount } = useSubmittedVoteCount(eaGivingSeason23ElectionName);
-  /*
-  const {
-    results: relevantSequences,
-    loading: loadingRelevantSequences,
-  } = useMulti({
-    collectionName: "Sequences",
-    fragmentName: "SequencesPageFragment",
-    terms: {sequenceIds: [
-      "wog9xb8cdqDySbBvM", // TODO: Add more sequences here
-    ]},
-  });
    */
+  // const { submittedVoteCount } = useSubmittedVoteCount(eaGivingSeason23ElectionName);
   const currentUser = useCurrentUser();
-  const {flash} = useMessages();
-  const {openDialog} = useDialog();
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
   const showTimeline = useShowTimeline();
   // We only show the voting banner for users who are eligible -
@@ -393,6 +398,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
   const showVotingBanner =
     currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt && !isPastVotingDeadline();
 
+  /*
   const handleVote = useCallback(() => {
     if (!currentUser) {
       openDialog({
@@ -407,6 +413,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
     }
     window.location.href = '/voting-portal';
   }, [currentUser, flash, openDialog]);
+   */
 
   const effectiveGivingPostsTerms = getListTerms({
     tagId: effectiveGivingTagId,
@@ -416,14 +423,22 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
 
   const fundLink = "https://www.givingwhatwecan.org/fundraisers/ea-forum-donation-election-fund-2023";
   const totalRaisedFormatted = formatDollars(amountRaised.totalRaised);
+  /*
   const raisedForElectionFundFormatted = formatDollars(amountRaised.raisedForElectionFund);
   const targetPercent = amountRaised.electionFundTarget > 0 ? (amountRaised.raisedForElectionFund / amountRaised.electionFundTarget) * 100 : 0;
+   */
   const allDonationOpportunities = !!donationOpportunities?.length ? [...donationOpportunities, ...otherDonationOpportunities] : []
+  const eaFundsOpportunities = allDonationOpportunities.filter(
+    ({name}) => name.indexOf("EA Funds") >= 0,
+  );
+  const featuredCharities = allDonationOpportunities.filter(
+    ({name}) => otherFeaturedCharities.includes(name),
+  );
 
-  const voteMessage = isPastVotingDeadline() ? "Voting has closed. You can still donate to the Election Fund until Dec 20" : "Voting is open until Dec 15. Select candidates and distribute your votes using a ranked-choice method."
+  // const voteMessage = isPastVotingDeadline() ? "Voting has closed. You can still donate to the Election Fund until Dec 20" : "Voting is open until Dec 15. Select candidates and distribute your votes using a ranked-choice method."
 
   const {
-    Loading, HeadTags, Timeline, ElectionFundCTA, Typography, PostsList2,
+    Loading, HeadTags, Timeline, Typography, PostsList2,
     ElectionCandidatesList, DonationOpportunity, CloudinaryImage2, QuickTakesList,
   } = Components;
 
@@ -464,7 +479,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
             </div>
           </div>
         </div>}
-        <div className={classNames(classes.content, classes.mb20)} id="top">
+        <div className={classes.content} id="top">
           <div className={classNames(classes.h1, classes.center, classes.mt30)}>
             Giving portal
           </div>
@@ -484,9 +499,27 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
             </>
           }
         </div>
-        <div className={classes.sectionSplit}>
+        <div className={classNames(classes.content, classes.mb20)}>
+          <div className={classNames(classes.h2, classes.center)}>
+            Donate now
+          </div>
+          <div className={classNames(classes.text, classes.center)}>
+            Looking to get your donations in before the end of the year, but unsure where to give?{" "}
+            <Link to="https://www.givingwhatwecan.org/en-US/why-we-recommend-funds?slug=why-we-recommend-funds">Consider</Link>{" "}
+            donating to a fund led by charity evaluation experts. For funds other than those below,{" "}
+            <Link to="https://www.givingwhatwecan.org/donate/organizations">go here</Link>.
+          </div>
+          <div className={classNames(classes.grid, classes.eaFundsOpportunities)}>
+            {eaFundsOpportunities.map((candidate) => (
+              <DonationOpportunity candidate={candidate} key={candidate._id} />
+            ))}
+            {donationOpportunitiesLoading && <Loading />}
+          </div>
+        </div>
+        <CloudinaryImage2 publicId={heroImage2Id} fullWidthHeader imgProps={{ h: "1200" }} />
+        <div className={classes.sectionLight}>
           <div className={classes.content} id="election">
-            <div className={classNames(classes.column, classes.mt60)}>
+            <div className={classNames(classes.column, classes.mt60, classes.mb60)}>
               <div className={classNames(classes.h1, classes.primaryText)}>
                 Donation election 2023
               </div>
@@ -497,14 +530,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 classes.mb20,
               )}>
                 <span className={classes.bold}>
-                  The Donation Election has closed (results will be announced soon),
-                  but you can still contribute to the{" "}
-                  <Link to={donationElectionFundraiserLink}>Donation Election Fund</Link>{" "}
-                  until 20 December.
+                  The 2023 Donation Election closed on the 15th of December.
                 </span>{" "}
-                The fund will be designated for the top 3 winners in the Donation Election.{" "}
-                <Link to={donationElectionLink}>Learn more</Link>.
+                341 Forum users voted, and we collectively raised $34 856. We’ll
+                be announcing the winners soon. Until then, find out more about
+                the candidates below, and consider donating to them.
               </div>
+              {/*
               <div className={classNames(classes.row, classes.mt20)}>
                 <ElectionFundCTA
                   image={<DonateIcon />}
@@ -559,12 +591,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                   )}
                 </ElectionFundCTA>
               </div>
+                */}
             </div>
           </div>
         </div>
         <div className={classes.sectionDark}>
           <div className={classes.content} id="candidates">
-            <div className={classes.column}>
+            <div className={classNames(classes.column, classes.mt60)}>
               <div className={classNames(classes.h2, classes.primaryText)}>
                 Candidates in the Election
               </div>
@@ -574,7 +607,13 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 classes.textWide,
                 classes.mb20,
               )}>
-                The Donation Election Fund will be designated for the top three winning candidates in the election (split proportionately, based on users' votes).
+                The Donation Election Fund will be designated for the top three
+                winning candidates in the election (split proportionately, based
+                on users' votes). You can read about{" "}
+                <Link to="/posts/bBm64htDSKn3ZKiQ5/meet-the-candidates-in-the-forum-s-donation-election-2023">
+                  these candidates
+                </Link> and what marginal donations to them would accomplish, and,
+                more broadly <Link to="/topics/donation-election-2023">read Forum posts about the election</Link>.
               </div>
               <ElectionCandidatesList className={classes.electionCandidates} />
               <div className={classNames(
@@ -630,10 +669,17 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
           classes.mt60,
           classes.mb80,
         )} id="opportunities">
-          <div className={classes.h1}>Other donation opportunities</div>
+          <div className={classes.h1}>Other featured charities</div>
           <div className={classNames(classes.text, classes.textWide)}>
-          Supporting high-impact work via donations is a core part of effective altruism. You can donate to featured projects below,{" "}
-            <a href={setupFundraiserLink}>run custom fundraisers</a>, or <a href="https://www.givingwhatwecan.org">more</a>.
+            More charities were featured and discussed on the Forum than appeared
+            as candidates in the Donation Election. If you were impressed by these
+            charities during <Link to="/s/xourt4HttDM5QcHsk">Marginal Funding Week</Link>{" "}
+            or afterwards, you can donate to them below.
+          </div>
+          <div className={classNames(classes.text, classes.textWide)}>
+            Supporting high-impact work via donations is a core part of effective altruism.{" "}
+            Besides donating, you can also <Link to={setupFundraiserLink}>run custom fundraisers</Link>
+            , and <Link to="https://www.givingwhatwecan.org">take other kinds of action</Link>.
           </div>
           {!amountRaisedLoading &&
             <div className={classes.text}>
@@ -642,30 +688,12 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
             </div>
           }
           <div className={classNames(classes.grid, classes.mt10)}>
-            {allDonationOpportunities.map((candidate) => (
+            {featuredCharities.map((candidate) => (
               <DonationOpportunity candidate={candidate} key={candidate._id} />
             ))}
             {donationOpportunitiesLoading && <Loading />}
           </div>
         </div>
-        {/* TODO add in these sequences once more of them exist */}
-        {/* <div className={classNames(classes.content, classes.mb100)}>
-          <div className={classNames(classes.column, classes.w100)}>
-            <div className={classes.h2}>
-              Featured reading on Giving season
-            </div>
-            <div className={classes.grid}>
-              {relevantSequences?.map((sequence) => (
-                <EASequenceCard
-                  key={sequence._id}
-                  sequence={sequence}
-                  className={classes.sequence}
-                />
-              ))}
-            </div>
-            {loadingRelevantSequences && <Loading />}
-          </div>
-        </div> */}
       </div>
     </AnalyticsContext>
   );

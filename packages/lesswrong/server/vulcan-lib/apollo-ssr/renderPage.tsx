@@ -28,9 +28,11 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
-import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
+import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { maxRenderQueueSize, performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
+import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
+import { onStartup, isAnyTest } from '../../../lib/executionEnvironment';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -67,8 +69,9 @@ interface RenderRequestParams {
   userAgent?: string,
 }
 
-interface RenderQueueSlot {
-  callback: () => Promise<void>
+interface RenderPriorityQueueSlot extends RequestData {
+  callback: () => Promise<void>;
+  renderRequestParams: RenderRequestParams;
 }
 
 export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
@@ -116,7 +119,8 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
         client_path: req.originalUrl,
         //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
         ip: getForwardedWhitelist().getClientIP(req),
-        user_agent: userAgent
+        user_agent: userAgent,
+        user_id: user?._id
       }, startTime);
 
       setAsyncStoreValue('requestPerfMetric', perfMetric);
@@ -215,7 +219,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
 };
 
 let inFlightRenderCount = 0;
-const requestQueue: RenderQueueSlot[] = [];
+const requestPriorityQueue = new PriorityBucketQueue<RenderPriorityQueueSlot>();
 
 /**
  * We (maybe) have a problem where too many concurrently rendering requests cause our servers to fall over
@@ -224,9 +228,13 @@ const requestQueue: RenderQueueSlot[] = [];
  */
 function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
   return new Promise((resolve) => {
-    requestQueue.push({
+    requestPriorityQueue.enqueue({
+      ip: getForwardedWhitelist().getClientIP(params.req),
+      userAgent: params.userAgent ?? 'sus-missing-user-agent',
+      userId: params.user?._id,
       callback: async () => {
         let result: RenderResult;
+        addStartRenderTimeToPerfMetric();
         try {
           result = await renderRequest(params);
         } finally {
@@ -234,7 +242,8 @@ function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> 
         }
         resolve(result);
         maybeStartQueuedRequests();
-      }
+      },
+      renderRequestParams: params,
     });
 
     maybeStartQueuedRequests();
@@ -242,12 +251,48 @@ function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> 
 }
 
 function maybeStartQueuedRequests() {
-  while (inFlightRenderCount < maxRenderQueueSize.get() && requestQueue.length > 0) {
-    let requestToStartRendering = requestQueue.shift();
-    if (requestToStartRendering) {
+  while (inFlightRenderCount < maxRenderQueueSize.get() && requestPriorityQueue.size() > 0) {
+    let requestToStartRendering = requestPriorityQueue.dequeue();
+    if (requestToStartRendering.request) {
+      const { preOpPriority, request } = requestToStartRendering;
+
+      // If the request that we're kicking off is coming from the queue, we want to track this in the perf metrics
+      setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+        if (!incompletePerfMetric) return;
+        return {
+          ...incompletePerfMetric,
+          queue_priority: preOpPriority
+        }
+      });
+
       inFlightRenderCount++;
-      void requestToStartRendering.callback();
+      void request.callback();
     }
+  }
+}
+
+onStartup(() => {
+  if (!isAnyTest && performanceMetricLoggingEnabled.get()) {
+    setInterval(logRenderQueueState, 5000)
+  }
+})
+
+function logRenderQueueState() {
+  if (requestPriorityQueue.size() > 0) {
+    const queueState = requestPriorityQueue.getQueueState().map(([{ renderRequestParams }, priority]) => {
+      return {
+        userId: renderRequestParams.user?._id,
+        ip: getIpFromRequest(renderRequestParams.req),
+        userAgent: renderRequestParams.userAgent,
+        url: getPathFromReq(renderRequestParams.req),
+        startTime: renderRequestParams.startTime,
+        priority
+      }
+    })
+
+    Vulcan.captureEvent("renderQueueState", {
+      queueState
+    });
   }
 }
 

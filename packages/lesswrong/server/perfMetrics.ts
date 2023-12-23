@@ -6,7 +6,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { performanceMetricLoggingEnabled } from '../lib/publicSettings';
 import { getForwardedWhitelist } from './forwarded_whitelist';
 
-type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'ip' | 'user_agent'>;
+type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'ip' | 'user_agent' | 'user_id'>;
 
 interface AsyncLocalStorageContext {
   resolverContext?: ResolverContext;
@@ -47,6 +47,21 @@ export function closePerfMetric(openPerfMetric: IncompletePerfMetric) {
   queuePerfMetric(perfMetric);
 }
 
+export function addStartRenderTimeToPerfMetric() {
+  setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+    if (!incompletePerfMetric) {
+      // eslint-disable-next-line no-console
+      console.log('Missing perf metric for the current request in the asyncLocalStorage context when trying to add start render time to it!');
+      return;
+    }
+    
+    return {
+      ...incompletePerfMetric,
+      render_started_at: new Date()
+    };
+  });
+}
+
 /**
  * We have a dedicated function to send off the perf metric for the top-level request
  * This is because we track it in the async local storage context,
@@ -80,7 +95,8 @@ export function perfMetricMiddleware(req: Request, res: Response, next: NextFunc
     op_name: req.originalUrl,
     client_path: req.headers['request-origin-path'] as string,
     ip: getForwardedWhitelist().getClientIP(req),
-    user_agent: req.headers["user-agent"]
+    user_agent: req.headers["user-agent"],
+    user_id: req.user?._id,
   });
 
   res.on('finish', () => {
