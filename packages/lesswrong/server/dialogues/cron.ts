@@ -1,9 +1,11 @@
+import { autoArchiveCutoffDays } from "../../components/posts/PostsEditForm";
 import { getCKEditorDocumentId } from "../../lib/ckEditorUtils";
 import CkEditorUserSessions from "../../lib/collections/ckEditorUserSessions/collection";
-import {ckEditorApi, documentHelpers} from "../ckEditor/ckEditorApi";
+import { Posts } from "../../lib/collections/posts";
+import { ckEditorApi, documentHelpers } from "../ckEditor/ckEditorApi";
 import { addCronJob } from "../cronUtil";
 import { createNotification } from "../notificationCallbacksHelpers";
-import { createAdminContext } from "../vulcan-lib";
+import { createAdminContext, updateMutator } from "../vulcan-lib";
 import groupBy from 'lodash/groupBy';
 
 addCronJob({
@@ -62,5 +64,25 @@ addCronJob({
         void documentHelpers.endCkEditorUserSession(session._id, "cron")
       }
     }
+  }
+})
+
+addCronJob({
+  name: 'archiveStaleDialogues',
+  interval: 'every 24 hours',
+  async job() {
+    const context = createAdminContext();
+    const staleCutoff = new Date(Date.now() - (autoArchiveCutoffDays * 24 * 60 * 60 * 1000));
+    const staleDialogues = await context.repos.posts.getStaleDialogues(staleCutoff);
+    staleDialogues.forEach(dialogue => {
+      void updateMutator<"Posts">({
+        collection: Posts,
+        documentId: dialogue._id,
+        set: {
+          deletedDraft: true,
+        },
+        validate: false
+      });
+    })    
   }
 })

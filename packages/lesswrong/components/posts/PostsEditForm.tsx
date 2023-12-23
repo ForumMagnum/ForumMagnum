@@ -14,12 +14,14 @@ import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox
 import type { PostSubmitProps } from './PostSubmit';
 import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import { useNavigate } from '../../lib/reactRouterWrapper';
+import moment from 'moment';
 
 const editor : Editor | null = null
 export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
+export const autoArchiveCutoffDays = 24
 
 const PostsEditForm = ({ documentId, classes }: {
   documentId: string,
@@ -44,7 +46,7 @@ const PostsEditForm = ({ documentId, classes }: {
     }
   }, [isDraft]);
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents, DialogueAutoArchiveNotice, ArchiveNotice } = Components
 
   const [editorState, setEditorState] = useState<Editor | null>(editor)
   const saveDraftLabel: string = ((post) => {
@@ -67,10 +69,20 @@ const PostsEditForm = ({ documentId, classes }: {
     extraVariablesValues: { eventForm: document?.isEvent }
   });
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
-  
+
   if (!document && loading) {
     return <Components.Loading/>
   }
+
+  // We auto-archive dialogues that have gone stale
+  const twoWeeksAgo = new Date();
+  twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+  const lastRevisionAt = document?.lastRevisionAt
+  const potentialDialogue = isLWorAF && document?.collabEditorDialogue && document?.draft && !document?.deletedDraft
+  const dialogueAutoArchiveNotice = potentialDialogue && !!lastRevisionAt && new Date(lastRevisionAt) < twoWeeksAgo
+  const daysLeftUntilAutoArchive = moment(lastRevisionAt).add(autoArchiveCutoffDays, 'days').diff(moment.utc(), 'days')
+
+  const archiveNotice = isLWorAF && document?.deletedDraft
 
   // If we only have read access to this post, but it's shared with us,
   // redirect to the collaborative editor.
@@ -120,6 +132,8 @@ const PostsEditForm = ({ documentId, classes }: {
         <HeadTags title={document.title} />
         {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
         {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
+        {dialogueAutoArchiveNotice && <DialogueAutoArchiveNotice daysLeft={daysLeftUntilAutoArchive} dialogue={document} />}
+        {archiveNotice && <ArchiveNotice post={document} />}
         <NoSSR>
           <EditorContext.Provider value={[editorState, setEditorState]}>
             <WrappedSmartForm

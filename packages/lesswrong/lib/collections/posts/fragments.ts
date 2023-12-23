@@ -476,6 +476,7 @@ registerFragment(`
     }
     myEditorAccess
     linkSharingKey
+    lastRevisionAt
   }
 `)
 
