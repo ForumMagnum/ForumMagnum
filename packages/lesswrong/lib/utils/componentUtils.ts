@@ -1,4 +1,3 @@
-
 export function debugShouldComponentUpdate(description: string, log: (message:string)=>void, oldProps: any, oldState: any, nextProps: any, nextState: any)
 {
   for(let key in nextState) {

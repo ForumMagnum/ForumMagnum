@@ -13,6 +13,7 @@ import LibraryAddIcon from '@material-ui/icons/LibraryAdd';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { useGoogleMaps } from '../form-components/LocationFormComponent';
+import type { UserLocation } from '../../lib/collections/users/helpers';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   link: {
@@ -58,30 +59,30 @@ const CommunityHome = ({classes}: {
   // assign their browser location to their user settings location
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geocodeError, setGeocodeError] = useState(false)
-  const updateUserLocation = useCallback(async ({lat, lng, known}) => {
+  const updateUserLocation = useCallback(async function ({ lat, lng, known }: UserLocation) {
     if (isEAForum && mapsLoaded && !geocodeError && currentUser && !currentUser.location && known) {
       try {
         // get a list of matching Google locations for the current lat/lng
         const geocoder = new googleMaps.Geocoder();
         const geocodingResponse = await geocoder.geocode({
-          location: {lat, lng}
+          location: { lat, lng }
         });
         const results = geocodingResponse?.results;
-        
+
         if (results?.length) {
-          const location = pickBestReverseGeocodingResult(results)
+          const location = pickBestReverseGeocodingResult(results);
           void updateUser({
-            selector: {_id: currentUser._id},
+            selector: { _id: currentUser._id },
             data: {
               location: location?.formatted_address,
               googleLocation: location
             }
-          })
+          });
         }
       } catch (e) {
-        setGeocodeError(true)
+        setGeocodeError(true);
         // eslint-disable-next-line no-console
-        console.error(e?.message)
+        console.error(e?.message);
       }
     }
   }, [isEAForum, mapsLoaded, googleMaps, geocodeError, currentUser, updateUser])

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useContext } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
-import CKEditor from '../editor/ReactCKEditor';
+import CKEditor from '../../lib/vendor/ckeditor5-react/ckeditor';
 import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan, SharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
@@ -387,7 +387,7 @@ const CKPostEditor = ({
     setLayoutReady(true)
   }, [])
 
-  const editorRef = useRef<CKEditor>(null)
+  const editorRef = useRef<CKEditor<any>>(null)
   const sidebarRef = useRef<HTMLDivElement>(null)
   const hiddenPresenceListRef = useRef<HTMLDivElement>(null)
 
@@ -402,7 +402,7 @@ const CKPostEditor = ({
   `);
 
   const dialogueParticipantNotificationCallback = async () => {
-  const editorContents =  editorRef?.current?.editor.getData()
+    const editorContents = (editorRef?.current?.editor as any)?.getData()
 
     await sendNewDialogueMessageNotification({
       variables: {
@@ -494,7 +494,7 @@ const CKPostEditor = ({
       onFocus={onFocus}
       editor={isCollaborative ? PostEditorCollaboration : PostEditor}
       data={data}
-      onInit={(editor: Editor) => {
+      onReady={(editor: Editor) => {
         if (isCollaborative) {
           // Uncomment this line and the import above to activate the CKEditor debugger
           // CKEditorInspector.attach(editor)
@@ -645,7 +645,7 @@ const CKPostEditor = ({
         placeholder: placeholder ?? defaultEditorPlaceholder,
         mention: mentionPluginConfiguration,
         dialogues: dialogueConfiguration
-      }}
+      } as any}
     />}
     {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
   </div>

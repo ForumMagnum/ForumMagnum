@@ -2,7 +2,8 @@ import React, { FC, RefObject, ReactElement, useEffect, useRef, useState } from 
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import qs from 'qs';
 import { SearchState } from 'react-instantsearch/connectors';
-import { Hits, Configure, InstantSearch, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
+import { InstantSearch } from '../../lib/utils/componentsWithChildren';
+import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { useLocation } from '../../lib/routeUtil';
 import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import Tab from '@material-ui/core/Tab';

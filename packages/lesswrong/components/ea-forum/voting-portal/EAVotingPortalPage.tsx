@@ -6,9 +6,9 @@ import { useCurrentUser } from "../../common/withUser";
 import { useLocation } from "../../../lib/routeUtil";
 import { makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { eaGivingSeason23ElectionName, userCanVoteInDonationElection, votingThankYouImageId } from "../../../lib/eaGivingSeason";
-import Helmet from "react-helmet";
 import classNames from "classnames";
 import { useElectionVote } from "./hooks";
+import { Helmet } from "../../../lib/utils/componentsWithChildren";
 
 const BACKGROUND_IMAGE = makeCloudinaryImageUrl(votingThankYouImageId, {
   q: "100",

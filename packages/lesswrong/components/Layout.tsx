@@ -1,7 +1,6 @@
 import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
-import { Helmet } from 'react-helmet';
 import classNames from 'classnames'
 import { useTheme } from './themes/useTheme';
 import { useLocation } from '../lib/routeUtil';
@@ -17,7 +16,7 @@ import { isAF, isLW } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
-import NoSSR from 'react-no-ssr';
+import { Helmet, NoSSR } from '../lib/utils/componentsWithChildren';
 import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere

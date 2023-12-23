@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { InstantSearch, SearchBox, Hits, Configure } from 'react-instantsearch-dom';
+import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
+import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { useCurrentUser } from '../common/withUser';
 import { userCanCreateTags } from '../../lib/betas';
@@ -42,7 +43,7 @@ const AddTag = ({onTagSelected, isVotingContext, classes}: {
   const {TagSearchHit, DropdownDivider} = Components
   const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
-  const searchStateChanged = React.useCallback((searchState) => {
+  const searchStateChanged = React.useCallback((searchState: AnyBecauseHard) => {
     setSearchOpen(searchState.query?.length > 0);
   }, []);
 

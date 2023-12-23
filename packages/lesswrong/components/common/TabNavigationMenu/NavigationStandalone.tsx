@@ -1,11 +1,14 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import Slide from '@material-ui/core/Slide'
+import { default as BadlyTypedSlide } from '@material-ui/core/Slide'
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
 import { communityPath } from '../../../lib/routes';
+import { componentWithChildren } from '../../../lib/utils/componentsWithChildren';
 import { isLWorAF } from '../../../lib/instanceSettings';
+
+const Slide = componentWithChildren(BadlyTypedSlide);
 
 const styles = (theme: ThemeType): JssStyles => ({
   sidebar: {

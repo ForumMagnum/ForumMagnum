@@ -24,7 +24,7 @@ type LinkProps = {
   children?: React.ReactNode,
 };
 
-const isLinkValid = (props: LinkProps): props is HashLinkProps => {
+const isLinkValid = (props: LinkProps): props is Omit<HashLinkProps, 'dangerouslySetInnerHTML'> => {
   return typeof props.to === "string" || typeof props.to === "object";
 };
 

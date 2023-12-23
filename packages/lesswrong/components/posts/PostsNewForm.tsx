@@ -6,7 +6,7 @@ import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { useLocation } from '../../lib/routeUtil';
-import NoSSR from 'react-no-ssr';
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 import { isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";

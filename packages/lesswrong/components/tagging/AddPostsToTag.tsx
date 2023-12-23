@@ -6,13 +6,14 @@ import AddBoxIcon from '@material-ui/icons/AddBox';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
 import { handleUpdateMutation, updateEachQueryResultOfType } from '../../lib/crud/cacheUpdates';
-import { InstantSearch, SearchBox, Configure, Hits } from 'react-instantsearch-dom';
+import { SearchBox, Configure, Hits } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient } from '../../lib/search/searchUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import CloseIcon from '@material-ui/icons/Close';
 
 import { formatFacetFilters } from '../search/SearchAutoComplete';
+import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -117,7 +118,7 @@ const AddPostsToTag = ({classes, tag}: {
     }
   });
 
-  const onPostSelected = useCallback(async (postId) => {
+  const onPostSelected = useCallback(async (postId: string) => {
     if (!currentUser) {
       openDialog({
         componentName: "LoginPopup",

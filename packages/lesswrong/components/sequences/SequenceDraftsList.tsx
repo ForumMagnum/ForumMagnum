@@ -25,7 +25,7 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
   limit: number,
   title?: string,
   userId?: string,
-  addDraft: Function,
+  addDraft: (postId: string) => void,
   dialogPostIds: string[],
 }) => {
   const [showSettings, setShowSettings] = useState(false);

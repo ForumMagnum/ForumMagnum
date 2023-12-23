@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { Configure, Hits, InstantSearch, SearchBox } from "react-instantsearch-dom";
+import { Configure, Hits, SearchBox } from "react-instantsearch-dom";
 import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";
 import InfoIcon from "@material-ui/icons/Info";
 import { useCurrentUser } from "../common/withUser";
+import { InstantSearch } from "../../lib/utils/componentsWithChildren";
 
 const styles = (theme: ThemeType): JssStyles => ({
   paper: {

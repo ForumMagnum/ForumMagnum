@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, ReactNode } from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import PersonIcon from '@material-ui/icons/Person'
 import HomeIcon from '@material-ui/icons/Home';
@@ -293,10 +293,14 @@ export const contentTypes: ForumOptions<ContentTypeRecord> = {
   }
 }
 
-const ContentTypeWrapper: FC<{classes: ClassesType, className?: string}> = ({
+const ContentTypeWrapper = ({
   classes,
   className,
   children,
+}: {
+  classes: ClassesType,
+  className?: string,
+  children: ReactNode
 }) =>
   isFriendlyUI
     ? <>{children}</>

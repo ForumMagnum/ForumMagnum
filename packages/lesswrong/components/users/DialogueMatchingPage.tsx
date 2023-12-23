@@ -28,11 +28,11 @@ import merge from 'lodash/merge';
 import mergeWith from 'lodash/mergeWith';
 import partition from 'lodash/partition';
 import {dialogueMatchmakingEnabled} from '../../lib/publicSettings';
-import NoSSR from 'react-no-ssr';
 import { useABTest } from '../../lib/abTestImpl';
 import { dialogueMatchingPageNoSSRABTest, offerToAddCalendlyLink, showRecommendedContentInMatchForm } from '../../lib/abTests';
 import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialogues/DialogueRecommendationRow';
 import { validatedCalendlyUrl } from '../dialogues/CalendlyIFrame';
+import { NoSSR } from '../../lib/utils/componentsWithChildren';
 
 export type UpvotedUser = {
   _id: string;

@@ -11,7 +11,7 @@ const AnalyticsTracker = ({eventType, eventProps, children, captureOnClick=true,
   skip?: boolean,
 }) => {
   const { captureEvent } = useOnMountTracking({eventType, eventProps, captureOnMount})
-  const handleClick = useCallback((e) => {
+  const handleClick = useCallback((e: React.MouseEvent) => {
     !skip && captureOnClick && captureEvent(`${eventType}Clicked`,
         {...eventProps, buttonPressed: e.button})
   }, [eventProps, captureEvent, skip, captureOnClick, eventType])

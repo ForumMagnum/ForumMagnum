@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import AppGenerator from './AppGenerator';
 import { onStartup } from '../lib/executionEnvironment';
 import type { TimeOverride } from '../lib/utils/timeUtil';
@@ -8,6 +7,7 @@ import { createApolloClient } from './apolloClient';
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
 import { populateComponentsAppDebug } from '../lib/vulcan-lib';
 import { initServerSentEvents } from "./serverSentEventsClient";
+import { hydrateRoot } from 'react-dom/client';
 
 onStartup(() => {
   populateComponentsAppDebug();
@@ -37,14 +37,10 @@ onStartup(() => {
     />
   );
 
-  ReactDOM.hydrate(
-    <Main />,
-    document.getElementById('react-app'),
-    () => {
-      apolloClient.disableNetworkFetches = false;
-      foreignApolloClient.disableNetworkFetches = false;
-      timeOverride.currentTime = null;
-    }
-  );
+  const container = document.getElementById('react-app');
+  const root = hydrateRoot(container!, <Main/>);
+  setTimeout(() => {
+    apolloClient.disableNetworkFetches = false;
+  }, 0);
 // Order 100 to make this execute last
 }, 100);

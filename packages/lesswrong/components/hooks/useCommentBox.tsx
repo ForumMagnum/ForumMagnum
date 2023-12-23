@@ -26,7 +26,10 @@ export const CommentBoxManager = ({ children }: {
     setComponentName(null)
     setComponentProps(null)
   }, []);
-  const openCommentBox = useCallback(({componentName, componentProps}) => {
+  const openCommentBox = useCallback(({componentName, componentProps}: {
+    componentName: CloseableComponents,
+    componentProps: AnyBecauseHard,
+  }) => {
     setComponentName(componentName)
     setComponentProps(componentProps)
   }, []);
