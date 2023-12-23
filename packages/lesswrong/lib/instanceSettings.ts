@@ -189,3 +189,6 @@ export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', fals
 export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
 
 export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");
+
+export const performanceMetricLoggingEnabled = new PublicInstanceSetting<boolean>('performanceMetricLoggingEnabled', false, "optional");
+export const performanceMetricLoggingBatchSize = new PublicInstanceSetting<number>('performanceMetricLoggingBatchSize', 100, "optional");

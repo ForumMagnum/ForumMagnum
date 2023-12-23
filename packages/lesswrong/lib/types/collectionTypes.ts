@@ -270,6 +270,7 @@ interface PerfMetric {
   client_path?: string;
   extra_data?: Json;
   gql_string?: string;
+  sql_string?: string;
   ip?: string;
   user_agent?: string;
   user_id?: string;

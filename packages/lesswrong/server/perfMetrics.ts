@@ -3,14 +3,15 @@ import { AsyncLocalStorage } from 'async_hooks';
 
 import { queuePerfMetric } from './analyticsWriter';
 import type { Request, Response, NextFunction } from 'express';
-import { performanceMetricLoggingEnabled } from '../lib/publicSettings';
+import { performanceMetricLoggingEnabled } from '../lib/instanceSettings';
 import { getForwardedWhitelist } from './forwarded_whitelist';
 
-type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'ip' | 'user_agent' | 'user_id'>;
+type IncompletePerfMetricProps = Pick<PerfMetric, 'op_type' | 'op_name' | 'parent_trace_id' | 'extra_data' | 'client_path' | 'gql_string' | 'sql_string' | 'ip' | 'user_agent' | 'user_id'>;
 
 interface AsyncLocalStorageContext {
   resolverContext?: ResolverContext;
   requestPerfMetric?: IncompletePerfMetric;
+  inDbRepoMethod?: boolean;
 }
 
 export const asyncLocalStorage = new AsyncLocalStorage<AsyncLocalStorageContext>();
@@ -38,10 +39,10 @@ export function openPerfMetric(props: IncompletePerfMetricProps, startedAtOverri
   };
 }
 
-export function closePerfMetric(openPerfMetric: IncompletePerfMetric) {
+export function closePerfMetric(openPerfMetric: IncompletePerfMetric, endedAtOverride?: Date) {
   const perfMetric = {
     ...openPerfMetric,
-    ended_at: new Date()
+    ended_at: endedAtOverride ?? new Date()
   };
 
   queuePerfMetric(perfMetric);
@@ -60,6 +61,22 @@ export function addStartRenderTimeToPerfMetric() {
       render_started_at: new Date()
     };
   });
+}
+
+export function recordSqlQueryPerfMetric(sqlString: string, startTime: number, endTime: number) {
+  const store = asyncLocalStorage.getStore();
+
+  if (!store?.inDbRepoMethod) {
+    const partialMetric = openPerfMetric({
+      op_type: 'sql_query',
+      op_name: 'compiled', // TODO: what do we even record here?
+      parent_trace_id: store?.requestPerfMetric?.trace_id,
+      // extra_data: filteredVariables,
+      sql_string: sqlString
+    }, new Date(startTime));
+  
+    closePerfMetric(partialMetric, new Date(endTime));
+  }
 }
 
 /**

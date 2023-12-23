@@ -2,9 +2,10 @@ import pgp, { IDatabase, IEventContext } from "pg-promise";
 import type { IClient, IResult } from "pg-promise/typescript/pg-subset";
 import Query from "../lib/sql/Query";
 import { isAnyTest } from "../lib/executionEnvironment";
-import { PublicInstanceSetting } from "../lib/instanceSettings";
+import { PublicInstanceSetting, performanceMetricLoggingEnabled } from "../lib/instanceSettings";
 import omit from "lodash/omit";
 import { logAllQueries } from "../lib/sql/sqlClient";
+import { recordSqlQueryPerfMetric } from "./perfMetrics";
 
 const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
@@ -146,6 +147,7 @@ let queriesExecuted = 0;
 const logIfSlow = async <T>(
   execute: () => Promise<T>,
   describe: SqlDescription,
+  originalQuery: string,
   quiet?: boolean,
 ) => {
   const getDescription = (): string => {
@@ -164,6 +166,10 @@ const logIfSlow = async <T>(
   const startTime = new Date().getTime();
   const result = await execute();
   const endTime = new Date().getTime();
+
+  if (performanceMetricLoggingEnabled.get()) {
+    recordSqlQueryPerfMetric(originalQuery, startTime, endTime);
+  }
 
   const milliseconds = endTime - startTime;
   if (logAllQueries) {
@@ -193,6 +199,7 @@ const wrapQueryMethod = <T>(
   ) => logIfSlow(
     () => queryMethod(query, values),
     describe ?? query,
+    query,
     quiet,
   ) as ReturnType<typeof queryMethod>;
 }
