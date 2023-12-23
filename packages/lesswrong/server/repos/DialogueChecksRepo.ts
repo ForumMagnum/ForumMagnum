@@ -15,7 +15,6 @@ const BASE_UPSERT_QUERY = `
       $1, $2, $3, $4, $5, $6
     ) ON CONFLICT ("userId", "targetUserId")`;
 
-
 class DialogueChecksRepo extends AbstractRepo<"DialogueChecks"> {
   constructor() {
     super(DialogueChecks);
