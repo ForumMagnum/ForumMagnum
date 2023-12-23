@@ -64,7 +64,7 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
   async getGivingSeasonHearts(electionName: string): Promise<GivingSeasonHeart[]> {
     const metadataName = this.electionNameToMetadataName(electionName);
     const result = await this.getRawDb().oneOrNone(`
-      -- getGivingSeasonHearts
+      -- DatabaseMetadataRepo.getGivingSeasonHearts
       SELECT ARRAY_AGG(q."value" || JSONB_BUILD_OBJECT(
         'userId', u."_id",
         'displayName', u."displayName"
@@ -88,10 +88,10 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
   ): Promise<GivingSeasonHeart[]> {
     const metadataName = this.electionNameToMetadataName(electionName);
     await this.none(`
-      -- addGivingSeasonHeart
+      -- DatabaseMetadataRepo.addGivingSeasonHeart
       INSERT INTO "DatabaseMetadata" ("_id", "name", "value", "createdAt")
       VALUES ($1, $2, $3, CURRENT_TIMESTAMP)
-      ON CONFLICT ("name") DO UPDATE SET "value" = "value" || $3
+      ON CONFLICT ("name") DO UPDATE SET "value" = "DatabaseMetadata"."value" || $3
     `, [
       randomId(),
       metadataName,

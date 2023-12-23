@@ -17,7 +17,8 @@ import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
 import { useLocation } from "../../../lib/routeUtil";
 import { useElectionVote } from "../voting-portal/hooks";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { useCurrentUser } from "../../common/withUser";
 import NoSSR from "react-no-ssr";
 
 export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
@@ -93,9 +94,6 @@ const styles = (theme: ThemeType) => ({
   rootScrolled: {
     "& $appBarGivingSeason": {
       boxShadow: `inset 0 0 0 1000px ${theme.palette.givingPortal.homepageHeader.dark}`,
-    },
-    "& $givingSeasonGradient": {
-      display: "none",
     },
   },
   leftHeaderItems: {
@@ -241,6 +239,7 @@ const styles = (theme: ThemeType) => ({
   },
   gsHeartCursor: {
     pointerEvents: "none",
+    color: theme.palette.givingPortal.homepageHeader.secondary,
   },
 });
 
@@ -266,8 +265,32 @@ const heartsQuery = gql`
   }
 `;
 
+const heartsMutation = gql`
+  mutation AddGivingSeasonHeart(
+    $electionName: String!,
+    $x: Float!,
+    $y: Float!,
+    $theta: Float!
+  ) {
+    AddGivingSeasonHeart(
+      electionName: $electionName,
+      x: $x,
+      y: $y,
+      theta: $theta
+    ) {
+      userId
+      displayName
+      x
+      y
+      theta
+    }
+  }
+`;
+
 const isValidTarget = (e: EventTarget): e is HTMLDivElement =>
   "tagName" in e && (e.tagName === "DIV" || e.tagName === "HEADER");
+
+const MAX_THETA = 25;
 
 const Heart: FC<{
   heart: GivingSeasonHeart,
@@ -276,7 +299,6 @@ const Heart: FC<{
   const {LWTooltip, ForumIcon} = Components;
   return (
     <div
-      key={displayName}
       style={{
         left: `${x * window.innerWidth}px`,
         top: `${y * EA_FORUM_GIVING_SEASON_HEADER_HEIGHT}px`,
@@ -322,6 +344,7 @@ const GivingSeasonHeader = ({
   const isDesktop = useIsAboveBreakpoint("md");
   const { pathname, currentRoute } = useLocation();
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
+  const currentUser = useCurrentUser();
 
   const compareAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 1;
   const allocateAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 0;
@@ -362,6 +385,8 @@ const GivingSeasonHeader = ({
   });
   const hearts: GivingSeasonHeart[] = data?.GivingSeasonHearts ?? [];
 
+  const [addHeart] = useMutation(heartsMutation, {errorPolicy: "all"});
+
   const headerRef = useRef<HTMLDivElement>(null);
 
   const normalizeCoords = useCallback((clientX: number, clientY: number) => {
@@ -382,6 +407,7 @@ const GivingSeasonHeader = ({
     return null;
   }, [headerRef]);
 
+  const canAddHeart = !!currentUser; // TODO: Check if they voted in the election
   const [hoverPos, setHoverPos] = useState<{x: number, y: number} | null>(null);
 
   const onMouseMove = useCallback(({target, clientX, clientY}: MouseEvent) => {
@@ -392,12 +418,23 @@ const GivingSeasonHeader = ({
     }
   }, [normalizeCoords]);
 
-  const onClick = useCallback(({target, clientX, clientY}: MouseEvent) => {
+  const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
     if (isValidTarget(target)) {
       const coords = normalizeCoords(clientX, clientY);
-      console.log("NORMALIZED COORDS", coords);
+      if (coords) {
+        const theta = Math.round((Math.random() * MAX_THETA * 2) - MAX_THETA);
+        const result = await addHeart({
+          variables: {
+            electionName: eaGivingSeason23ElectionName,
+            x: coords.x,
+            y: coords.y,
+            theta,
+          },
+        });
+        console.log("MARK", result);
+      }
     }
-  }, [normalizeCoords]);
+  }, [normalizeCoords, addHeart]);
 
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
@@ -409,9 +446,8 @@ const GivingSeasonHeader = ({
         />
       )}
       <div
+        {...(canAddHeart ? {onMouseMove, onClick} : {})}
         ref={headerRef}
-        onMouseMove={onMouseMove}
-        onClick={onClick}
         className={classNames(classes.root, classes.rootGivingSeason, {
           [classes.rootScrolled]: !unFixed,
           [classes.gsCanPlaceHeart]: hoverPos,
@@ -431,7 +467,9 @@ const GivingSeasonHeader = ({
         >
           <div className={classes.gsHearts}>
             <NoSSR>
-              {hearts.map((heart) => <Heart heart={heart} classes={classes} />)}
+              {hearts.map((heart) => (
+                <Heart heart={heart} classes={classes} key={heart.userId} />
+              ))}
               {hoverPos &&
                 <Heart
                   heart={{displayName: "", userId: "", theta: 0, ...hoverPos}}
