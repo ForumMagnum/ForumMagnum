@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, ReactNode, useCallback, useRef } from "react";
+import React, { FC, MouseEvent, ReactNode, useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useIsAboveBreakpoint } from "../../hooks/useScreenWidth";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -109,7 +109,6 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.givingPortal.homepageHeader.dark,
   },
   appBarGivingSeason: {
-    cursor: "pointer",
     color: theme.palette.givingPortal.homepageHeader.main,
     position: "static",
     width: "100%",
@@ -230,9 +229,18 @@ const styles = (theme: ThemeType) => ({
   gsHeart: {
     position: "absolute",
     zIndex: 2,
+    color: theme.palette.givingPortal.homepageHeader.main,
+    marginLeft: -12,
+    marginTop: -12,
   },
   gsHeartTooltip: {
     backgroundColor: theme.palette.panelBackground.tooltipBackground2,
+  },
+  gsCanPlaceHeart: {
+    cursor: "none",
+  },
+  gsHeartCursor: {
+    pointerEvents: "none",
   },
 });
 
@@ -258,6 +266,37 @@ const heartsQuery = gql`
   }
 `;
 
+const isValidTarget = (e: EventTarget): e is HTMLDivElement =>
+  "tagName" in e && (e.tagName === "DIV" || e.tagName === "HEADER");
+
+const Heart: FC<{
+  heart: GivingSeasonHeart,
+  classes: ClassesType<typeof styles>,
+}> = ({heart: {displayName, x, y, theta}, classes}) => {
+  const {LWTooltip, ForumIcon} = Components;
+  return (
+    <div
+      key={displayName}
+      style={{
+        left: `${x * window.innerWidth}px`,
+        top: `${y * EA_FORUM_GIVING_SEASON_HEADER_HEIGHT}px`,
+        transform: `rotate(${theta}deg)`,
+      }}
+      className={classNames(classes.gsHeart, {
+        [classes.gsHeartCursor]: !displayName,
+      })}
+    >
+      <LWTooltip
+        title={displayName}
+        placement="bottom"
+        popperClassName={classes.gsHeartTooltip}
+      >
+        <ForumIcon icon="Heart" />
+      </LWTooltip>
+    </div>
+  );
+}
+
 const GivingSeasonHeader = ({
   searchOpen,
   hasLogo,
@@ -279,9 +318,7 @@ const GivingSeasonHeader = ({
   HeaderNotificationsMenu: FC,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    Typography, HeadTags, HeaderSubtitle, EAButton, LWTooltip, ForumIcon,
-  } = Components;
+  const {Typography, HeadTags, HeaderSubtitle, EAButton} = Components;
   const isDesktop = useIsAboveBreakpoint("md");
   const { pathname, currentRoute } = useLocation();
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
@@ -326,26 +363,41 @@ const GivingSeasonHeader = ({
   const hearts: GivingSeasonHeart[] = data?.GivingSeasonHearts ?? [];
 
   const headerRef = useRef<HTMLDivElement>(null);
-  const onClick = useCallback(({target, clientX, clientY}: MouseEvent) => {
-    if (
-      headerRef.current &&
-      "tagName" in target &&
-      (target.tagName === "DIV" || target.tagName === "HEADER")
-    ) {
+
+  const normalizeCoords = useCallback((clientX: number, clientY: number) => {
+    if (headerRef.current) {
       const bounds = headerRef.current.getBoundingClientRect();
       if (
-        clientX < bounds.left ||
-        clientX > bounds.right ||
-        clientY < bounds.top ||
-        clientY > bounds.bottom
+        clientX > bounds.left &&
+        clientX < bounds.right &&
+        clientY > bounds.top &&
+        clientY < bounds.bottom
       ) {
-        return;
+        return {
+          x: clientX / bounds.width,
+          y: clientY / bounds.height,
+        };
       }
-      const x = clientX / bounds.width;
-      const y = clientY / bounds.height;
-      console.log("NORMALIZED COORDS", x, y);
     }
-  }, []);
+    return null;
+  }, [headerRef]);
+
+  const [hoverPos, setHoverPos] = useState<{x: number, y: number} | null>(null);
+
+  const onMouseMove = useCallback(({target, clientX, clientY}: MouseEvent) => {
+    if (isValidTarget(target)) {
+      setHoverPos(normalizeCoords(clientX, clientY));
+    } else {
+      setHoverPos(null);
+    }
+  }, [normalizeCoords]);
+
+  const onClick = useCallback(({target, clientX, clientY}: MouseEvent) => {
+    if (isValidTarget(target)) {
+      const coords = normalizeCoords(clientX, clientY);
+      console.log("NORMALIZED COORDS", coords);
+    }
+  }, [normalizeCoords]);
 
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
@@ -357,8 +409,12 @@ const GivingSeasonHeader = ({
         />
       )}
       <div
+        ref={headerRef}
+        onMouseMove={onMouseMove}
+        onClick={onClick}
         className={classNames(classes.root, classes.rootGivingSeason, {
           [classes.rootScrolled]: !unFixed,
+          [classes.gsCanPlaceHeart]: hoverPos,
         })}
       >
         <Headroom
@@ -373,37 +429,23 @@ const GivingSeasonHeader = ({
           onUnpin={() => setUnFixed(false)}
           disable={isDesktop}
         >
+          <div className={classes.gsHearts}>
+            <NoSSR>
+              {hearts.map((heart) => <Heart heart={heart} classes={classes} />)}
+              {hoverPos &&
+                <Heart
+                  heart={{displayName: "", userId: "", theta: 0, ...hoverPos}}
+                  classes={classes}
+                />
+              }
+            </NoSSR>
+          </div>
           <header
-            ref={headerRef}
-            onClick={onClick}
             className={classNames(
               classes.appBarGivingSeason,
               showHearts ? classes.homePageBackground : classes.solidBackground,
             )}
           >
-            <div className={classes.gsHearts}>
-              <NoSSR>
-                {hearts.map(({x, y, theta, displayName}) => (
-                  <div
-                    key={displayName}
-                    style={{
-                      left: `${x * window.innerWidth}px`,
-                      top: `${y * EA_FORUM_GIVING_SEASON_HEADER_HEIGHT}px`,
-                      transform: `rotate(${theta}deg)`,
-                    }}
-                    className={classes.gsHeart}
-                  >
-                    <LWTooltip
-                      title={displayName}
-                      placement="bottom"
-                      popperClassName={classes.gsHeartTooltip}
-                    >
-                      <ForumIcon icon="Heart" />
-                    </LWTooltip>
-                  </div>
-                ))}
-              </NoSSR>
-            </div>
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
               <div className={classes.leftHeaderItems}>
                 <NavigationMenuButton />
@@ -465,7 +507,9 @@ const GivingSeasonHeader = ({
               {rightHeaderItems}
             </Toolbar>
             <div className={classes.gsContent}>
-              <span>Add a heart if you got your 2023 donations in</span>
+              <div>
+                <span>Add a heart if you got your 2023 donations in</span>
+              </div>
               <div className={classes.gsButtons}>
                 <EAButton>
                   Donate to the Donation Election winners
