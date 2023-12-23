@@ -616,10 +616,10 @@ const GivingSeasonHeader = ({
                 <span>Add a heart if you got your 2023 donations in</span>
               </div>
               <div className={classes.gsButtons}>
-                <EAButton>
+                <EAButton href="/giving-portal">
                   Donate to the Donation Election winners
                 </EAButton>
-                <EAButton>
+                <EAButton href="/giving-portal#opportunities">
                   Explore charities
                 </EAButton>
               </div>
