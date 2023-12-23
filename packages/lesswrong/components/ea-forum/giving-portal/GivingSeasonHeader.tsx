@@ -416,7 +416,7 @@ const GivingSeasonHeader = ({
     return null;
   }, [headerRef]);
 
-  const canAddHeart = !!currentUser && !isAddingHeart; // TODO: Check if they voted in the election
+  const canAddHeart = !!currentUser && !!electionVote?.submittedAt && !isAddingHeart;
   const [hoverPos, setHoverPos] = useState<{x: number, y: number} | null>(null);
 
   const onMouseMove = useCallback(({target, clientX, clientY}: MouseEvent) => {
