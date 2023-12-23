@@ -219,6 +219,7 @@ const styles = (theme: ThemeType) => ({
     "& .EAButton-variantContained": {
       background: theme.palette.text.alwaysWhite,
       fontWeight: 600,
+      zIndex: 3, // Appear on top of any hearts
     },
   },
   gsHearts: {
@@ -240,6 +241,12 @@ const styles = (theme: ThemeType) => ({
   gsHeartCursor: {
     pointerEvents: "none",
     color: theme.palette.givingPortal.homepageHeader.secondary,
+  },
+  gsAddingHeart: {
+    cursor: "wait !important",
+  },
+  gsRightHeaderItems: {
+    zIndex: 3, // Appear on top of any hearts
   },
 });
 
@@ -383,9 +390,11 @@ const GivingSeasonHeader = ({
     },
     skip: !showHearts,
   });
-  const hearts: GivingSeasonHeart[] = data?.GivingSeasonHearts ?? [];
+  const [hearts, setHearts] = useState<GivingSeasonHeart[]>(data?.GivingSeasonHearts ?? []);
 
-  const [addHeart] = useMutation(heartsMutation, {errorPolicy: "all"});
+  const [addHeart, {loading: isAddingHeart}] = useMutation(heartsMutation, {
+    errorPolicy: "all",
+  });
 
   const headerRef = useRef<HTMLDivElement>(null);
 
@@ -407,7 +416,7 @@ const GivingSeasonHeader = ({
     return null;
   }, [headerRef]);
 
-  const canAddHeart = !!currentUser; // TODO: Check if they voted in the election
+  const canAddHeart = !!currentUser && !isAddingHeart; // TODO: Check if they voted in the election
   const [hoverPos, setHoverPos] = useState<{x: number, y: number} | null>(null);
 
   const onMouseMove = useCallback(({target, clientX, clientY}: MouseEvent) => {
@@ -435,7 +444,11 @@ const GivingSeasonHeader = ({
             theta,
           },
         });
-        console.log("MARK", result);
+        const newHearts = result.data?.AddGivingSeasonHeart;
+        if (newHearts?.length) {
+          setHearts(newHearts);
+        }
+        setHoverPos(null);
       }
     }
   }, [normalizeCoords, addHeart]);
@@ -455,6 +468,7 @@ const GivingSeasonHeader = ({
         className={classNames(classes.root, classes.rootGivingSeason, {
           [classes.rootScrolled]: !unFixed,
           [classes.gsCanPlaceHeart]: hoverPos,
+          [classes.gsAddingHeart]: isAddingHeart,
         })}
       >
         <Headroom
@@ -546,7 +560,9 @@ const GivingSeasonHeader = ({
                   )}
                 </div>
               )}
-              {rightHeaderItems}
+              <div className={classes.gsRightHeaderItems}>
+                {rightHeaderItems}
+              </div>
             </Toolbar>
             <div className={classes.gsContent}>
               <div>
