@@ -7,6 +7,7 @@ import {
   styles as headerStyles,
   forumHeaderTitleSetting,
   forumShortTitleSetting,
+  HEADER_HEIGHT,
 } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
@@ -85,10 +86,17 @@ const styles = (theme: ThemeType) => ({
   rootGivingSeason: {
     height: `${EA_FORUM_GIVING_SEASON_HEADER_HEIGHT}px !important`,
     marginBottom: -20,
+    [theme.breakpoints.down("sm")]: {
+      height: `${HEADER_HEIGHT}px !important`,
+      marginBottom: 0,
+    },
     "& .headroom": {
       zIndex: theme.zIndexes.searchResults,
       height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
       overflow: "hidden",
+      [theme.breakpoints.down("sm")]: {
+        height: `${HEADER_HEIGHT}px !important`,
+      },
     },
   },
   rootScrolled: {
@@ -118,36 +126,65 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
     [theme.breakpoints.down("sm")]: {
       background: theme.palette.givingPortal.homepageHeader.dark,
+      height: `${HEADER_HEIGHT}px !important`,
+      color: theme.palette.givingPortal.homepageHeader.light2,
     },
     [theme.breakpoints.down("xs")]: {
       padding: "9px 11px",
     },
     "& .HeaderSubtitle-subtitle": {
       color: theme.palette.givingPortal.homepageHeader.main,
+      [theme.breakpoints.down("sm")]: {
+        color: theme.palette.givingPortal.homepageHeader.light2,
+      },
     },
     "& .SearchBar-searchIcon": {
       color: theme.palette.givingPortal.homepageHeader.main,
+      [theme.breakpoints.down("sm")]: {
+        color: theme.palette.givingPortal.homepageHeader.light2,
+      },
     },
     "& .ais-SearchBox-input": {
       color: theme.palette.givingPortal.homepageHeader.main,
+      [theme.breakpoints.down("sm")]: {
+        color: theme.palette.givingPortal.homepageHeader.light2,
+      },
     },
     "& .ais-SearchBox-input::placeholder": {
       color: theme.palette.givingPortal.homepageHeader.main,
+      [theme.breakpoints.down("sm")]: {
+        color: theme.palette.givingPortal.homepageHeader.light2,
+      },
     },
     "& .KarmaChangeNotifier-starIcon": {
       color: theme.palette.givingPortal.homepageHeader.main,
+      [theme.breakpoints.down("sm")]: {
+        color: theme.palette.givingPortal.homepageHeader.light2,
+      },
     },
     "& .KarmaChangeNotifier-gainedPoints": {
       color: theme.palette.givingPortal.homepageHeader.main,
+      [theme.breakpoints.down("sm")]: {
+        color: theme.palette.givingPortal.homepageHeader.light2,
+      },
     },
     "& .NotificationsMenuButton-badge": {
       color: theme.palette.givingPortal.homepageHeader.main,
+      [theme.breakpoints.down("sm")]: {
+        color: theme.palette.givingPortal.homepageHeader.light2,
+      },
     },
     "& .NotificationsMenuButton-buttonClosed": {
       color: theme.palette.givingPortal.homepageHeader.main,
+      [theme.breakpoints.down("sm")]: {
+        color: theme.palette.givingPortal.homepageHeader.light2,
+      },
     },
     "& .UsersMenu-arrowIcon": {
       color: theme.palette.givingPortal.homepageHeader.main,
+      [theme.breakpoints.down("sm")]: {
+        color: theme.palette.givingPortal.homepageHeader.light2,
+      },
     },
     "& .EAButton-variantContained": {
       backgroundColor: theme.palette.givingPortal.homepageHeader.light2,
@@ -172,10 +209,14 @@ const styles = (theme: ThemeType) => ({
     width: 34,
     [theme.breakpoints.down("sm")]: {
       width: 30,
+      color: theme.palette.givingPortal.homepageHeader.light2,
     },
   },
   titleLinkGivingSeason: {
     color: theme.palette.givingPortal.homepageHeader.main,
+    [theme.breakpoints.down("sm")]: {
+      color: theme.palette.givingPortal.homepageHeader.light2,
+    },
   },
   navigationSteps: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -212,6 +253,9 @@ const styles = (theme: ThemeType) => ({
     gap: "20px",
     justifyContent: "center",
     height: "100%",
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
   },
   gsButtons: {
     display: "flex",
@@ -224,6 +268,9 @@ const styles = (theme: ThemeType) => ({
   },
   gsHearts: {
     position: "relative",
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
   },
   gsHeart: {
     position: "absolute",
