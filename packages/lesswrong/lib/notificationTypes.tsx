@@ -167,9 +167,12 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         displayName: null,
       }
     case 'dialogueMatchPreference':
-      const dialogueMatchPreference = await DialogueMatchPreferences.findOne({ _id: documentId })
-      const dialogueCheckMatch = await DialogueChecks.findOne({ _id: dialogueMatchPreference?.dialogueCheckId })
-      const userMatch = await Users.findOne(dialogueCheckMatch?.userId)
+      const dialogueMatchPreference = await DialogueMatchPreferences.findOne(documentId)
+      if (!dialogueMatchPreference) return null;  
+      const dialogueCheckMatch = await DialogueChecks.findOne(dialogueMatchPreference.dialogueCheckId)
+      if (!dialogueCheckMatch) return null;  
+      const userMatch = await Users.findOne(dialogueCheckMatch.userId)
+      if (!userMatch) return null;  
       return (dialogueMatchPreference && userMatch) && {
         type: documentType,
         document: dialogueMatchPreference,

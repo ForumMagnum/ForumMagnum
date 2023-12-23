@@ -194,7 +194,7 @@ const getReciprocalMatchPreference = async (context: ResolverContext, currentUse
   const dialogueCheck = await context.loaders.DialogueChecks.load(dialogueCheckId);
 
   // This shouldn't ever happen
-  if (!dialogueCheck ?? !currentUser ?? currentUser._id !== dialogueCheck.userId) {
+  if (!dialogueCheck || !currentUser || currentUser._id !== dialogueCheck.userId) {
     throw new Error(`Can't find check for dialogue match preferences!`);
   }
   const { userId, targetUserId } = dialogueCheck;
@@ -283,7 +283,7 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
   return userMatchPreferences;
 });
 
-getCollectionHooks("DialogueMatchPreferences").createAfter.add(async function NotifyUsers ( userMatchPreference, { context, currentUser } ) {
+getCollectionHooks("DialogueMatchPreferences").createAfter.add(async function NotifyUsersOfNewMatchForm ( userMatchPreference, { context, currentUser } ) {
   const { dialogueCheckId } = userMatchPreference;
   const { targetUserId, reciprocalDialogueCheck, reciprocalMatchPreference } = await getReciprocalMatchPreference(context, currentUser, dialogueCheckId);
 
