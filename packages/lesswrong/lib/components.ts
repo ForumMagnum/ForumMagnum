@@ -640,6 +640,8 @@ importComponent("TopicSuggestion", () => require('../components/dialogues/Dialog
 importComponent("CommentView", () => require('../components/dialogues/DialogueRecommendationRow'));
 importComponent("CalendlyIFrame", () => require('../components/dialogues/CalendlyIFrame'));
 importComponent("ActiveDialogues", () => require('../components/dialogues/ActiveDialogues'));
+importComponent("DialogueAutoArchiveNotice", () => require('../components/editor/DialogueAutoArchiveNotice'));
+importComponent("ArchiveNotice", () => require('../components/editor/ArchiveNotice'));
 
 
 importComponent("ParentCommentSingle", () => require('../components/comments/ParentCommentSingle'));

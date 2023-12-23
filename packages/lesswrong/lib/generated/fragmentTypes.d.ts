@@ -266,6 +266,12 @@ interface UsersDefaultFragment { // fragment on Users
     dayOfWeekGMT: string,
   },
   readonly hideDialogueFacilitation: boolean,
+  readonly notificationAutoArchiveDialogue: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly revealChecksToAdmins: boolean,
   readonly optedInToDialogueFacilitation: boolean,
   readonly showDialoguesList: boolean,
@@ -629,6 +635,29 @@ interface SequencesDefaultFragment { // fragment on Sequences
   readonly hideFromAuthorPage: boolean,
   readonly noindex: boolean,
   readonly af: boolean,
+}
+
+interface RevisionsDefaultFragment { // fragment on Revisions
+  readonly documentId: string,
+  readonly collectionName: string,
+  readonly fieldName: string,
+  readonly editedAt: Date,
+  readonly updateType: "initial" | "patch" | "minor" | "major",
+  readonly version: string,
+  readonly commitMessage: string,
+  readonly userId: string,
+  readonly draft: boolean,
+  readonly originalContents: any /*ContentType*/,
+  readonly html: string,
+  readonly markdown: string,
+  readonly draftJS: any /*JSON*/,
+  readonly ckEditorMarkup: string,
+  readonly wordCount: number | null,
+  readonly htmlHighlight: string,
+  readonly htmlHighlightStartingAtHash: string,
+  readonly plaintextDescription: string,
+  readonly plaintextMainText: string,
+  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface PostsDefaultFragment { // fragment on Posts
@@ -1316,6 +1345,7 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
+  readonly lastRevisionAt: Date,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
@@ -2592,29 +2622,6 @@ interface PodcastEpisodeFull { // fragment on PodcastEpisodes
   readonly externalEpisodeId: string,
 }
 
-interface RevisionsDefaultFragment { // fragment on Revisions
-  readonly documentId: string,
-  readonly collectionName: string,
-  readonly fieldName: string,
-  readonly editedAt: Date,
-  readonly updateType: "initial" | "patch" | "minor" | "major",
-  readonly version: string,
-  readonly commitMessage: string,
-  readonly userId: string,
-  readonly draft: boolean,
-  readonly originalContents: any /*ContentType*/,
-  readonly html: string,
-  readonly markdown: string,
-  readonly draftJS: any /*JSON*/,
-  readonly ckEditorMarkup: string,
-  readonly wordCount: number | null,
-  readonly htmlHighlight: string,
-  readonly htmlHighlightStartingAtHash: string,
-  readonly plaintextDescription: string,
-  readonly plaintextMainText: string,
-  readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
-}
-
 interface UsersMinimumInfo { // fragment on Users
   readonly _id: string,
   readonly slug: string,
@@ -3565,6 +3572,7 @@ interface FragmentTypes {
   TagRelsDefaultFragment: TagRelsDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
+  RevisionsDefaultFragment: RevisionsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
@@ -3721,7 +3729,6 @@ interface FragmentTypes {
   PodcastSelect: PodcastSelect
   PodcastEpisodesDefaultFragment: PodcastEpisodesDefaultFragment
   PodcastEpisodeFull: PodcastEpisodeFull
-  RevisionsDefaultFragment: RevisionsDefaultFragment
   UsersMinimumInfo: UsersMinimumInfo
   UsersProfile: UsersProfile
   UsersCurrent: UsersCurrent
@@ -3793,6 +3800,7 @@ interface FragmentTypesByCollection {
   TagRels: "TagRelsDefaultFragment"|"TagRelBasicInfo"|"TagRelFragment"|"TagRelHistoryFragment"|"TagRelCreationFragment"|"TagRelMinimumFragment"|"WithVoteTagRel"
   Books: "BooksDefaultFragment"|"BookPageFragment"|"BookEdit"
   Sequences: "SequencesDefaultFragment"|"SequencesPageTitleFragment"|"SequencesPageFragment"|"SequenceContinueReadingFragment"|"SequencesPageWithChaptersFragment"|"SequencesEdit"
+  Revisions: "RevisionsDefaultFragment"|"RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"
   Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
@@ -3803,7 +3811,6 @@ interface FragmentTypesByCollection {
   Messages: "MessagesDefaultFragment"|"messageListFragment"
   Notifications: "NotificationsDefaultFragment"|"NotificationsList"
   ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
-  Revisions: "RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"|"RevisionsDefaultFragment"
   RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
   Reports: "ReportsDefaultFragment"|"unclaimedReportsList"
   TagFlags: "TagFlagFragment"|"TagFlagEditFragment"|"TagFlagsDefaultFragment"
@@ -3847,6 +3854,7 @@ interface CollectionNamesByFragmentName {
   TagRelsDefaultFragment: "TagRels"
   BooksDefaultFragment: "Books"
   SequencesDefaultFragment: "Sequences"
+  RevisionsDefaultFragment: "Revisions"
   PostsDefaultFragment: "Posts"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
   VotesDefaultFragment: "Votes"
@@ -4003,7 +4011,6 @@ interface CollectionNamesByFragmentName {
   PodcastSelect: "Podcasts"
   PodcastEpisodesDefaultFragment: "PodcastEpisodes"
   PodcastEpisodeFull: "PodcastEpisodes"
-  RevisionsDefaultFragment: "Revisions"
   UsersMinimumInfo: "Users"
   UsersProfile: "Users"
   UsersCurrent: "Users"

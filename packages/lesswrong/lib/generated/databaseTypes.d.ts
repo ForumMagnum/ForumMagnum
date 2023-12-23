@@ -1415,6 +1415,12 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   hideDialogueFacilitation: boolean
+  notificationAutoArchiveDialogue: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
   revealChecksToAdmins: boolean
   optedInToDialogueFacilitation: boolean
   showDialoguesList: boolean

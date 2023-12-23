@@ -412,6 +412,22 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
     `);
   }
+
+  // Used in the cronjob for archiving stale dialogues and notifying users about them 
+  async getStaleDialogues(cutOffTime:Date): Promise<DbPost[]> {
+    return this.getRawDb().any(`
+      -- PostsRepo.getStaleDialogues
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "Revisions" r ON p."_id" = r."documentId"
+      WHERE
+        p."draft" IS TRUE AND
+        p."collabEditorDialogue" IS TRUE AND
+        p."deletedDraft" IS NOT TRUE AND
+        r."editedAt" < $1
+      GROUP BY p."_id"
+    `, [cutOffTime]);
+  }
 }
 
 recordPerfMetrics(PostsRepo);

@@ -25,6 +25,7 @@ import { crosspostKarmaThreshold } from '../../publicSettings';
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
+import Revisions from '../revisions/collection';
 
 const urlHintText = isEAForum
     ? 'UrlHintText'
@@ -2831,6 +2832,16 @@ const schema: SchemaType<"Posts"> = {
     canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
+
+  lastRevisionAt: resolverOnlyField({
+    type: Date,
+    optional: true,
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const lastRevision = await Revisions.findOne({documentId: post._id}, {sort: {editedAt: -1}});
+      return lastRevision?.editedAt
+    }
+  })
 };
 
 export default schema;
