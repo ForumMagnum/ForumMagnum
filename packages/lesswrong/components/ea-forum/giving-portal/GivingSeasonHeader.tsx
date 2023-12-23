@@ -418,6 +418,10 @@ const GivingSeasonHeader = ({
     }
   }, [normalizeCoords]);
 
+  const onMouseOut = useCallback(() => {
+    setHoverPos(null);
+  }, []);
+
   const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
     if (isValidTarget(target)) {
       const coords = normalizeCoords(clientX, clientY);
@@ -446,7 +450,7 @@ const GivingSeasonHeader = ({
         />
       )}
       <div
-        {...(canAddHeart ? {onMouseMove, onClick} : {})}
+        {...(canAddHeart ? {onMouseMove, onMouseOut, onClick} : {})}
         ref={headerRef}
         className={classNames(classes.root, classes.rootGivingSeason, {
           [classes.rootScrolled]: !unFixed,
