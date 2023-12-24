@@ -14,7 +14,7 @@ const LWHome = () => {
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
 
-          <Books2021SaleAnimation/>
+          {/* <Books2021SaleAnimation/> */}
 
           {!reviewIsActive() && <LWRecommendations configName="frontpage" />}
 
