@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react"
+import React, { Fragment, useEffect, useRef, useState } from "react"
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
@@ -18,6 +18,8 @@ import { eaEmojiPalette } from "../../../lib/voting/eaEmojiPalette";
 import { userCanStartConversations } from "../../../lib/collections/conversations/collection";
 import { useInitiateConversation } from "../../hooks/useInitiateConversation";
 import { isClient } from "../../../lib/executionEnvironment";
+import { InteractionWrapper, useClickableCell } from "../../common/useClickableCell";
+import { isPostWithForeignId } from "../../hooks/useForeignCrosspost";
 
 
 const styles = (theme: ThemeType) => ({
@@ -241,18 +243,12 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 340,
     margin: '10px auto 0',
   },
-  postLinkWrapper: {
-    '&:hover': {
-      opacity: 0.9
-    }
-  },
   post: {
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: '12px',
     width: '100%',
-    maxWidth: 340,
-    height: 56,
+    minHeight: 56,
     background: theme.palette.text.alwaysWhite,
     color: theme.palette.text.alwaysBlack,
     fontSize: 14,
@@ -260,7 +256,11 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     textAlign: 'left',
     borderRadius: theme.borderRadius.default,
-    padding: '8px'
+    padding: '12px',
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.9
+    }
   },
   postScore: {
     flex: 'none',
@@ -274,11 +274,26 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.wrapped.postScoreArrow,
     margin: "-6px 0 2px 0",
   },
+  postTitleAndMeta: {
+    flexGrow: 1
+  },
   postTitle: {
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
+  },
+  postMetaRow: {
+    display: 'flex'
+  },
+  postMeta: {
+    color: theme.palette.wrapped.postScore,
+    fontSize: 12,
+    fontWeight: 500,
+    marginTop: 2
+  },
+  bookmarkIcon: {
+    fontSize: 18
   },
   comment: {
     width: '100%',
@@ -305,6 +320,14 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     padding: '16px',
     margin: '30px auto 0',
+  },
+  recommendedPosts: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+    width: '100%',
+    maxWidth: 380,
+    margin: '40px auto 0',
   },
   heading1: {
     fontSize: 50,
@@ -419,22 +442,49 @@ const VisitCalendar = ({daysVisited, classes}: {
 }
 
 const Post = ({post, classes}: {
-  post: WrappedTopPost,
+  post: WrappedTopPost|PostsListWithVotesAndSequence,
   classes: ClassesType
 }) => {
-  return <Link to={postGetPageUrl(post)} className={classes.postLinkWrapper}>
-    <article className={classes.post}>
-      <div className={classes.postScore}>
-        <div className={classes.postVoteArrow}>
-          <SoftUpArrowIcon />
-        </div>
-        {post.baseScore}
+  const authorExpandContainer = useRef(null);
+  const postLink = postGetPageUrl(post)
+  const {onClick} = useClickableCell({href: postLink});
+
+  const { PostsItemTooltipWrapper, TruncatedAuthorsList, BookmarkButton } = Components
+  // If this is the user's own post, we use the simple version of this component with less info.
+  // If this is a post recommended to the user, we show things like the post author list.
+  const isRecommendedPost = 'user' in post
+  
+  const titleNode = <InteractionWrapper>
+    <Link to={postLink}>{post.title}</Link>
+  </InteractionWrapper>
+  const readTimeText = (!isRecommendedPost || isPostWithForeignId(post)) ? '' : `, ${post.readTimeMinutes ?? 1} min read`
+  
+  return <article className={classes.post} ref={authorExpandContainer} onClick={onClick}>
+    <div className={classes.postScore}>
+      <div className={classes.postVoteArrow}>
+        <SoftUpArrowIcon />
       </div>
+      {post.baseScore}
+    </div>
+    <div className={classes.postTitleAndMeta}>
       <div className={classes.postTitle}>
-        {post.title}
+        {isRecommendedPost ? <PostsItemTooltipWrapper post={post}>
+          {titleNode}
+        </PostsItemTooltipWrapper> : titleNode}
       </div>
-    </article>
-  </Link>
+      {isRecommendedPost && <div className={classes.postMetaRow}>
+        <InteractionWrapper>
+          <TruncatedAuthorsList post={post} expandContainer={authorExpandContainer} className={classes.postMeta} />
+        </InteractionWrapper>
+        <span className={classes.postMeta}>
+          {readTimeText}
+        </span>
+      </div>}
+    </div>
+    {isRecommendedPost && <InteractionWrapper>
+      <BookmarkButton post={post} className={classes.bookmarkIcon} />
+    </InteractionWrapper>}
+  </article>
 }
 
 const KarmaChangeXAxis = () => {
@@ -565,7 +615,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     year: 2023
   })
 
-  const { SingleColumnSection, CloudinaryImage2, UsersProfileImage } = Components
+  const { SingleColumnSection, CloudinaryImage2, UsersProfileImage, RecommendationsList, PostsPageRecommendationItem } = Components
   
   // if there's no logged in user, prompt them to login
   if (!currentUser) {
@@ -806,7 +856,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             </article>
           </div>
           <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
-            You wrote {data.shortformCount} comment{data.shortformCount === 1 ? '' : 's'} in total this year.
+            You wrote {data.shortformCount} quick take{data.shortformCount === 1 ? '' : 's'} in total this year.
             This means you're in the top {Math.ceil((1-data.shortformPercentile) * 100)}% of quick take authors.
           </p>
         </section>}
@@ -833,8 +883,26 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         
         <ReactsReceivedSection receivedReacts={data.mostReceivedReacts} classes={classes} />
         
-        <SingleColumnSection>
-          <pre>Engagement Percentile: {data.engagementPercentile}</pre>
+        <section className={classes.section}>
+          <h1 className={classes.heading2}>
+            Posts you missed that we think you’ll enjoy
+          </h1>
+          <RecommendationsList
+            algorithm={{strategy: {name: 'bestOf', postId: 'KPijJRnQCQvSu5AA2'}, count: 5, disableFallbacks: true}}
+            ListItem={
+              (props: {
+                post: PostsListWithVotesAndSequence,
+                translucentBackground?: boolean,
+              }) => (
+                <Post post={props.post} classes={classes} />
+              )
+            }
+            className={classes.recommendedPosts}
+          />
+        </section>
+        
+        {/* <SingleColumnSection> */}
+          {/* <pre>Engagement Percentile: {data.engagementPercentile}</pre> */}
           {/* <pre>Posts Read Count: {data.postsReadCount}</pre> */}
           {/* <pre>Total Hours: {(data.totalSeconds / 3600).toFixed(1)}</pre> */}
           {/* <pre>Days Visited: {JSON.stringify(data.daysVisited, null, 2)}</pre> */}
@@ -852,9 +920,9 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           <pre>Shortform Percentile: {data.shortformPercentile}</pre> */}
           {/* <pre>Karma Change: {data.karmaChange}</pre> */}
           {/* <pre>Combined karma vals: {JSON.stringify(data.combinedKarmaVals, null, 2)}</pre> */}
-          <pre>Most Received Reacts: {JSON.stringify(data.mostReceivedReacts, null, 2)}</pre>
+          {/* <pre>Most Received Reacts: {JSON.stringify(data.mostReceivedReacts, null, 2)}</pre> */}
           {/* <pre>Alignment: {data.alignment}</pre> */}
-        </SingleColumnSection>
+        {/* </SingleColumnSection> */}
       </main>
       
       
