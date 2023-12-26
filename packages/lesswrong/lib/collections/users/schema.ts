@@ -1424,7 +1424,11 @@ const schema: SchemaType<"Users"> = {
     ...notificationTypeSettingsField(),
     hidden: !isLW,
   },
-
+  notificationYourTurnMatchForm: {
+    label: "Fill in the topics form for your dialogue match",
+    ...notificationTypeSettingsField(),
+    hidden: !isLW,
+  },
   hideDialogueFacilitation: {
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],

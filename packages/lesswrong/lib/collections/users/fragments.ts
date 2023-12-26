@@ -219,6 +219,7 @@ registerFragment(`
     optedInToDialogueFacilitation
     revealChecksToAdmins
     notificationNewDialogueChecks
+    notificationYourTurnMatchForm
 
     showDialoguesList
     showMyDialogues
@@ -499,6 +500,7 @@ registerFragment(`
     notificationSubforumUnread
     notificationNewMention
     notificationNewDialogueChecks
+    notificationYourTurnMatchForm
 
     givingSeasonNotifyForVoting
 

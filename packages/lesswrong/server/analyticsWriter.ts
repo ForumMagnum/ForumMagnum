@@ -121,7 +121,7 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
   }
 }
 
-const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'gql_string_id', 'ip', 'user_agent', 'user_id', 'render_started_at', 'environment'], {table: 'perf_metrics'});
+const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'gql_string_id', 'ip', 'user_agent', 'user_id', 'render_started_at', 'queue_priority', 'environment'], {table: 'perf_metrics'});
 
 interface PerfMetricGqlString {
   id: number;
@@ -213,6 +213,7 @@ async function flushPerfMetrics() {
           user_agent: perfMetric.user_agent ?? null,
           user_id: perfMetric.user_id ?? null,
           render_started_at: perfMetric.render_started_at ?? null,
+          queue_priority: perfMetric.queue_priority ?? null,
           ...gqlStringId
         }
       });
