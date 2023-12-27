@@ -1,6 +1,5 @@
 import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../vulcan-lib";
 import { GivingSeasonHeart, eaGivingSeason23ElectionName } from "../../lib/eaGivingSeason";
-import ElectionVotes from "../../lib/collections/electionVotes/collection";
 
 addGraphQLSchema(`
   type GivingSeasonHeart {
@@ -48,13 +47,6 @@ const givingSeasonResolvers = {
         typeof theta !== "number" || theta < -25 || theta > 25
       ) {
         throw new Error(`Invalid parameters: ${{x, y, theta}}`);
-      }
-      const vote = await ElectionVotes.findOne({
-        electionName,
-        userId: context.currentUser._id,
-      });
-      if (!vote?.submittedAt) {
-        throw new Error("You haven't voted in this election");
       }
       return context.repos.databaseMetadata.addGivingSeasonHeart(
         electionName,

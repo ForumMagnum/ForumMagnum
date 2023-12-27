@@ -442,7 +442,7 @@ const GivingSeasonHeader = ({
     return null;
   }, [headerRef]);
 
-  const canAddHeart = !!currentUser && !!electionVote?.submittedAt && !isAddingHeart;
+  const canAddHeart = !!currentUser && !isAddingHeart;
   const [hoverPos, setHoverPos] = useState<{x: number, y: number} | null>(null);
 
   const onMouseMove = useCallback(({target, clientX, clientY}: MouseEvent) => {
