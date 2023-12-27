@@ -85,7 +85,6 @@ const styles = (theme: ThemeType) => ({
   ...headerStyles(theme),
   rootGivingSeason: {
     height: `${EA_FORUM_GIVING_SEASON_HEADER_HEIGHT}px !important`,
-    marginBottom: -20,
     [theme.breakpoints.down("sm")]: {
       height: `${HEADER_HEIGHT}px !important`,
       marginBottom: 0,
