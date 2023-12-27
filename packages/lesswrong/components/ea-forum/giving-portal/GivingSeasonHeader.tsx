@@ -322,8 +322,8 @@ const Heart: FC<{
 }) => {
   const isCurrentUser = userId === currentUser?._id;
   const title = isCurrentUser
-    ? `${displayName} (click to remove)`
-    : displayName;
+    ? "You added a heart (click to remove)"
+    : `${displayName} added a heart`;
   const onClick = useCallback(() => {
     if (isCurrentUser) {
       void removeHeart();
