@@ -188,7 +188,7 @@ const Header = ({
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
-  const { pathname, hash } = useLocation()
+  const { pathname, hash, query } = useLocation()
 
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
@@ -346,7 +346,7 @@ const Header = ({
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
   const isGivingSeason = useIsGivingSeason();
-  if (isGivingSeason && pathname === "/") {
+  if (isGivingSeason && pathname === "/" && !query.tab) {
     return (
       <GivingSeasonHeader
         searchOpen={searchOpen}

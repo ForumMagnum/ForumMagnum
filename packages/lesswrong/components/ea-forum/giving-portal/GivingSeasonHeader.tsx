@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, ReactNode, useCallback, useRef, useState } from "react";
+import React, { FC, MouseEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useIsAboveBreakpoint } from "../../hooks/useScreenWidth";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -431,6 +431,10 @@ const GivingSeasonHeader = ({
     skip: !showHearts,
   });
   const [hearts, setHearts] = useState<GivingSeasonHeart[]>(data?.GivingSeasonHearts ?? []);
+
+  useEffect(() => {
+    setHearts(data?.GivingSeasonHearts ?? []);
+  }, [data?.GivingSeasonHearts]);
 
   const [addHeart, {loading: isAddingHeart}] = useMutation(
     addHeartMutation,
