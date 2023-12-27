@@ -477,7 +477,7 @@ const GivingSeasonHeader = ({
     });
     void refetch();
     return result;
-  }, [rawAddHeart]);
+  }, [rawAddHeart, refetch]);
 
   const removeHeart = useCallback(async () => {
     const result = await rawRemoveHeart({
@@ -490,7 +490,7 @@ const GivingSeasonHeader = ({
       setHearts(newHearts);
     }
     await refetch();
-  }, [rawRemoveHeart]);
+  }, [rawRemoveHeart, refetch]);
 
   const canAddHeart = !!currentUser && !isAddingHeart;
   const [hoverPos, setHoverPos] = useState<{x: number, y: number} | null>(null);
