@@ -30,6 +30,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     textAlign: 'center',
     marginTop: -theme.spacing.mainLayoutPaddingTop * 2, // compensate for the padding added in Layout.tsx, the *2 is to avoid flashing white at the top of the page
+    paddingBottom: 100,
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8,
@@ -329,6 +330,44 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 380,
     margin: '40px auto 0',
   },
+  summary: {
+    maxWidth: 400,
+    margin: '22px auto 0',
+  },
+  summaryBoxRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    gap: '10px',
+  },
+  summaryBox: {
+    width: '100%',
+    background: theme.palette.wrapped.panelBackgroundDark,
+    borderRadius: theme.borderRadius.default,
+    padding: '10px 12px',
+  },
+  summaryLabel: {
+    textAlign: 'left',
+    fontSize: 13,
+    lineHeight: 'normal',
+    fontWeight: 500,
+  },
+  summaryAuthors: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '6px',
+    width: '100%',
+    textAlign: 'left',
+  },
+  summaryAuthor: {
+    display: 'flex',
+    gap: '12px',
+    fontSize: 14,
+    lineHeight: '20px',
+    fontWeight: 600,
+    textWrap: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
   heading1: {
     fontSize: 50,
     lineHeight: '55px',
@@ -336,6 +375,12 @@ const styles = (theme: ThemeType) => ({
     margin: 0
   },
   heading2: {
+    fontSize: 32,
+    lineHeight: 'normal',
+    fontWeight: 700,
+    letterSpacing: '-0.72px',
+  },
+  heading3: {
     fontSize: 28,
     lineHeight: 'normal',
     fontWeight: 700,
@@ -343,7 +388,14 @@ const styles = (theme: ThemeType) => ({
     textDecorationLine: 'none',
     margin: 0
   },
-  heading3: {
+  heading4: {
+    fontSize: 24,
+    lineHeight: 'normal',
+    fontWeight: 700,
+    letterSpacing: '-0.56px',
+    margin: 0
+  },
+  heading5: {
     fontSize: 16,
     lineHeight: '22px',
     fontWeight: 600,
@@ -370,6 +422,12 @@ const styles = (theme: ThemeType) => ({
       textUnderlineOffset: '4px',
     }
   },
+  nowrap: {
+    textWrap: 'nowrap'
+  },
+  m0: { margin: 0 },
+  mt10: { marginTop: 10 },
+  mt12: { marginTop: 12 },
   mt16: { marginTop: 16 },
   mt20: { marginTop: 20 },
   mt26: { marginTop: 26 },
@@ -513,7 +571,7 @@ const ThankAuthorSection = ({authors, classes}: {
   if (!showThankAuthor || !conversation) return null
   
   return <section className={classes.section}>
-    <h1 className={classes.heading2}>
+    <h1 className={classes.heading3}>
       You’re in the top <span className={classes.highlight}>{topAuthorPercentByEngagementPercentile}%</span> of {topAuthorByEngagementPercentile.displayName}’s readers
     </h1>
     <p className={classNames(classes.textRow, classes.text, classes.mt20)}>Want to say thanks?</p>
@@ -582,7 +640,7 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
       </div>
     })}
     <div className={classes.reactsReceivedContents}>
-      <h1 className={classes.heading2}>
+      <h1 className={classes.heading3}>
         Others gave you{" "}
         <span className={classes.highlight}>
           {receivedReacts[0].count} {receivedReacts[0].name}
@@ -590,11 +648,11 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
         reacts{receivedReacts.length > 1 ? '...' : ''}
       </h1>
       {receivedReacts.length > 1 && <div className={classes.otherReacts}>
-        <p className={classes.heading3}>... and {totalReactsReceived} reacts in total:</p>
+        <p className={classes.heading5}>... and {totalReactsReceived} reacts in total:</p>
         <div className={classNames(classes.stats, classes.mt26)}>
           {receivedReacts.slice(1).map(react => {
             return <article key={react.name} className={classes.stat}>
-              <div className={classes.heading2}>{react.count}</div>
+              <div className={classes.heading3}>{react.count}</div>
               <div className={classes.statLabel}>{react.name}</div>
             </article>
           })}
@@ -615,7 +673,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     year: 2023
   })
 
-  const { SingleColumnSection, CloudinaryImage2, UsersProfileImage, RecommendationsList, PostsPageRecommendationItem } = Components
+  const { SingleColumnSection, CloudinaryImage2, UsersProfileImage, RecommendationsList, CoreTagIcon } = Components
   
   // if there's no logged in user, prompt them to login
   if (!currentUser) {
@@ -650,6 +708,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     </div>
   }
 
+  const engagementPercentile = Math.ceil((1 - data.engagementPercentile) * 100)
   const engagementHours = (data.totalSeconds / 3600)
   const mostReadTopics = data.mostReadTopics.map((topic, i) => {
     return {
@@ -664,6 +723,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
       overallReadCount: topic.userReadCount / topic.readLikelihoodRatio
     }
   }).slice(0, 4)
+  const karmaChange = `${data.karmaChange >= 0 ? '+' : ''}${data.karmaChange}`
 
   return (
     <AnalyticsContext pageContext="eaYearWrapped">
@@ -675,8 +735,8 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         </section>
         
         <section className={classes.section}>
-          <h1 className={classes.heading2}>
-            You’re a top <span className={classes.highlight}>{Math.ceil((1 - data.engagementPercentile) * 100)}%</span> reader of the EA Forum
+          <h1 className={classes.heading3}>
+            You’re a top <span className={classes.highlight}>{engagementPercentile}%</span> reader of the EA Forum
           </h1>
           <p className={classNames(classes.textRow, classes.text, classes.mt16)}>You read {data.postsReadCount} posts this year</p>
           <div className={classes.topicsChart}>
@@ -697,36 +757,36 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         </section>
         
         <section className={classes.section}>
-          <h1 className={classes.heading2}>
+          <h1 className={classes.heading3}>
             You spent <span className={classes.highlight}>{engagementHours.toFixed(1)}</span> hours on the EA Forum in 2023
           </h1>
           <p className={classNames(classes.textRow, classes.text, classes.mt70)}>Which is about the same as...</p>
           <div className={classNames(classes.stats, classes.mt30)}>
             <article className={classes.stat}>
-              <div className={classes.heading2}>{(engagementHours / 3.5).toFixed(1)}</div>
+              <div className={classes.heading3}>{(engagementHours / 3.5).toFixed(1)}</div>
               <div className={classes.statLabel}>episodes of the 80,000 hours podcast</div>
             </article>
             <article className={classes.stat}>
-              <div className={classes.heading2}>{(engagementHours / 25).toFixed(1)}</div>
+              <div className={classes.heading3}>{(engagementHours / 25).toFixed(1)}</div>
               <div className={classes.statLabel}>EAG(x) conferences</div>
             </article>
             <article className={classes.stat}>
-              <div className={classes.heading2}>{(engagementHours / 4320).toFixed(3)}</div>
+              <div className={classes.heading3}>{(engagementHours / 4320).toFixed(3)}</div>
               <div className={classes.statLabel}>Llama 2s trained</div>
             </article>
           </div>
         </section>
         
         <section className={classes.section}>
-          <h1 className={classes.heading2}>
+          <h1 className={classes.heading3}>
             You visited the EA Forum on <span className={classes.highlight}>{data.daysVisited.length}</span> days in 2023
           </h1>
           <p className={classNames(classes.textRow, classes.text, classes.mt16)}>(You may have visited more times while logged out)</p>
           <VisitCalendar daysVisited={data.daysVisited} classes={classes} />
         </section>
         
-        <section className={classes.section}>
-          <h1 className={classes.heading2}>
+        {!!mostReadTopics.length && <section className={classes.section}>
+          <h1 className={classes.heading3}>
             You spent the most time on <span className={classes.highlight}>{mostReadTopics[0].name}</span>
           </h1>
           <div className={classes.topicsChart}>
@@ -746,10 +806,10 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </section>
+        </section>}
         
-        <section className={classes.section}>
-          <h1 className={classes.heading2}>
+        {!!relativeMostReadTopics.length && <section className={classes.section}>
+          <h1 className={classes.heading3}>
             You spent more time on <span className={classes.highlight}>{relativeMostReadTopics[0].tagName}</span> than other users
           </h1>
           <div className={classes.topicsChart}>
@@ -780,10 +840,10 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-        </section>
+        </section>}
         
-        <section className={classes.section}>
-          <h1 className={classes.heading2}>
+        {!!data.mostReadAuthors.length && <section className={classes.section}>
+          <h1 className={classes.heading3}>
             Your most-read author was <span className={classes.highlight}>{data.mostReadAuthors[0].displayName}</span>
           </h1>
           <div className={classes.authors}>
@@ -803,12 +863,12 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
               </article>
             })}
           </div>
-        </section>
+        </section>}
         
         <ThankAuthorSection authors={data.mostReadAuthors} classes={classes} />
         
         {!!data.topPosts?.length && <section className={classes.section}>
-          <h1 className={classes.heading2}>
+          <h1 className={classes.heading3}>
             Your highest-karma <span className={classes.highlight}>post</span> in 2023:
           </h1>
           <div className={classes.topPost}>
@@ -831,7 +891,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         </section>}
         
         {!!data.topComment && <section className={classes.section}>
-          <h1 className={classes.heading2}>
+          <h1 className={classes.heading3}>
             Your highest-karma <span className={classes.highlight}>comment</span> in 2023:
           </h1>
           <div className={classes.topPost}>
@@ -847,7 +907,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         
         {/* TODO use topShortform */}
         {!!data.topComment && <section className={classes.section}>
-          <h1 className={classes.heading2}>
+          <h1 className={classes.heading3}>
             Your highest-karma <span className={classes.highlight}>quick take</span> in 2023:
           </h1>
           <div className={classes.topPost}>
@@ -862,8 +922,8 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         </section>}
         
         {data.karmaChange !== undefined && <section className={classes.section}>
-          <h1 className={classes.heading2}>
-            Your overall karma change this year was <span className={classes.highlight}>{data.karmaChange >= 0 ? '+' : ''}{data.karmaChange}</span>
+          <h1 className={classes.heading3}>
+            Your overall karma change this year was <span className={classes.highlight}>{karmaChange}</span>
           </h1>
           <div className={classes.topicsChart}>
             <div className={classes.chartLabels}>
@@ -884,7 +944,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         <ReactsReceivedSection receivedReacts={data.mostReceivedReacts} classes={classes} />
         
         <section className={classes.section}>
-          <h1 className={classes.heading2}>
+          <h1 className={classes.heading3}>
             Posts you missed that we think you’ll enjoy
           </h1>
           <RecommendationsList
@@ -899,6 +959,85 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             }
             className={classes.recommendedPosts}
           />
+        </section>
+        
+        <section className={classes.section}>
+          <p className={classNames(classes.text, classes.m0)}>Effective Altruism Forum</p>
+          <h1 className={classNames(classes.heading2, classes.mt10)}>
+            <span className={classes.nowrap}>{currentUser.displayName}’s</span>{" "}
+            <span className={classes.nowrap}>2023 Wrapped</span>
+          </h1>
+          <div className={classes.summary}>
+            <div className={classes.summaryBoxRow}>
+              <div className={classes.summaryBox}>
+                <article>
+                  <div className={classes.heading4}>{engagementPercentile}%</div>
+                  <div className={classes.statLabel}>Top reader</div>
+                </article>
+              </div>
+              <div className={classes.summaryBox}>
+                <article>
+                  <div className={classes.heading4}>{engagementHours.toFixed(1)}</div>
+                  <div className={classes.statLabel}>Hours spent</div>
+                </article>
+              </div>
+              <div className={classes.summaryBox}>
+                <article>
+                  <div className={classes.heading4}>{data.daysVisited.length}</div>
+                  <div className={classes.statLabel}>Days visited</div>
+                </article>
+              </div>
+            </div>
+            
+            {!!data.mostReadAuthors.length && <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
+              <div className={classes.summaryBox}>
+                <div className={classes.summaryLabel}>Most-read authors</div>
+                <div className={classNames(classes.summaryAuthors, classes.mt12)}>
+                  {data.mostReadAuthors.map(author => {
+                    return <div key={author.slug} className={classes.summaryAuthor}>
+                      <UsersProfileImage size={20} user={author} />
+                      {author.displayName}
+                    </div>
+                  })}
+                </div>
+              </div>
+            </div>}
+            
+            {!!data.mostReadTopics.length && <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
+              <div className={classes.summaryBox}>
+                <div className={classes.summaryLabel}>Most-read topics</div>
+                <div className={classNames(classes.summaryAuthors, classes.mt12)}>
+                  {data.mostReadTopics.map(topic => {
+                    return <div key={topic.slug} className={classes.summaryAuthor}>
+                      <CoreTagIcon tag={topic} />
+                      {topic.name}
+                    </div>
+                  })}
+                </div>
+              </div>
+            </div>}
+            
+            <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
+              <div className={classes.summaryBox}>
+                <article>
+                  <div className={classes.heading4}>{karmaChange}</div>
+                  <div className={classes.statLabel}>Karma</div>
+                </article>
+              </div>
+              <div className={classes.summaryBox}>
+                <article>
+                  <div className={classes.heading4}>{data.postCount}</div>
+                  <div className={classes.statLabel}>Post{data.postCount === 1 ? '' : 's'}</div>
+                </article>
+              </div>
+              <div className={classes.summaryBox}>
+                <article>
+                  <div className={classes.heading4}>{data.commentCount}</div>
+                  <div className={classes.statLabel}>Comment{data.commentCount === 1 ? '' : 's'}</div>
+                </article>
+              </div>
+            </div>
+          </div>
         </section>
         
         {/* <SingleColumnSection> */}
