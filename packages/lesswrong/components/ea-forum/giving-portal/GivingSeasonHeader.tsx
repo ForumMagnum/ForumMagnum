@@ -194,7 +194,7 @@ const styles = (theme: ThemeType) => ({
   gsContent: {
     marginTop: -20,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 36,
+    fontSize: 30,
     fontWeight: 700,
     lineHeight: "120%",
     letterSpacing: "-0.76px",
