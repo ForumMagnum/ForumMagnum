@@ -477,7 +477,7 @@ const GivingSeasonHeader = ({
           },
         });
         const newHearts = result.data?.AddGivingSeasonHeart;
-        if (newHearts?.length) {
+        if (Array.isArray(newHearts)) {
           setHearts(newHearts);
         }
         setHoverPos(null);
@@ -492,7 +492,7 @@ const GivingSeasonHeader = ({
       },
     });
     const newHearts = result.data?.RemoveGivingSeasonHeart;
-    if (newHearts?.length) {
+    if (Array.isArray(newHearts)) {
       setHearts(newHearts);
     }
   }, [rawRemoveHeart]);
