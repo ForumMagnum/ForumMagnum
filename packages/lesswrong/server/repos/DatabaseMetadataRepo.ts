@@ -99,4 +99,18 @@ export default class DatabaseMetadataRepo extends AbstractRepo<"DatabaseMetadata
     ]);
     return this.getGivingSeasonHearts(electionName);
   }
+
+  async removeGivingSeasonHeart(
+    electionName: string,
+    userId: string,
+  ): Promise<GivingSeasonHeart[]> {
+    const metadataName = this.electionNameToMetadataName(electionName);
+    await this.none(`
+      -- DatabaseMetadataRepo.removeGivingSeasonHeart
+      UPDATE "DatabaseMetadata"
+      SET "value" = "value" - $1
+      WHERE "name" = $2
+    `, [userId, metadataName]);
+    return this.getGivingSeasonHearts(electionName);
+  }
 }

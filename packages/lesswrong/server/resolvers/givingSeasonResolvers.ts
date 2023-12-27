@@ -26,7 +26,7 @@ const givingSeasonResolvers = {
     },
   },
   Mutation: {
-    AddGivingSeasonHeart: async(
+    AddGivingSeasonHeart: async (
       _root: void,
       {electionName, x, y, theta}: {
         electionName: string,
@@ -63,12 +63,30 @@ const givingSeasonResolvers = {
         y,
         theta,
       );
-    }
+    },
+    RemoveGivingSeasonHeart: (
+      _root: void,
+      {electionName}: {electionName: string},
+      context: ResolverContext,
+    ) => {
+      if (electionName !== eaGivingSeason23ElectionName) {
+        throw new Error(`Invalid election name: ${electionName}`);
+      }
+      if (!context.currentUser) {
+        throw new Error("Permission denied");
+      }
+      return context.repos.databaseMetadata.removeGivingSeasonHeart(
+        electionName,
+        context.currentUser._id,
+      );
+    },
   },
 };
 
 addGraphQLResolvers(givingSeasonResolvers);
-addGraphQLQuery("GivingSeasonHearts(electionName: String!): [GivingSeasonHeart!]!");
+addGraphQLQuery(`
+  GivingSeasonHearts(electionName: String!): [GivingSeasonHeart!]!
+`);
 addGraphQLMutation(`
   AddGivingSeasonHeart(
     electionName: String!,
@@ -76,4 +94,7 @@ addGraphQLMutation(`
     y: Float!,
     theta: Float!
   ): [GivingSeasonHeart!]!
+`);
+addGraphQLMutation(`
+  RemoveGivingSeasonHeart(electionName: String!): [GivingSeasonHeart!]!
 `);

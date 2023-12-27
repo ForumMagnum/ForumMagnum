@@ -288,7 +288,7 @@ const styles = (theme: ThemeType) => ({
     pointerEvents: "none",
     color: theme.palette.givingPortal.homepageHeader.secondary,
   },
-  gsAddingHeart: {
+  gsLoadingHeart: {
     cursor: "wait !important",
   },
 });
@@ -315,7 +315,7 @@ const heartsQuery = gql`
   }
 `;
 
-const heartsMutation = gql`
+const addHeartMutation = gql`
   mutation AddGivingSeasonHeart(
     $electionName: String!,
     $x: Float!,
@@ -337,6 +337,18 @@ const heartsMutation = gql`
   }
 `;
 
+const removeHeartMutation = gql`
+  mutation RemoveGivingSeasonHeart($electionName: String!) {
+    RemoveGivingSeasonHeart(electionName: $electionName) {
+      userId
+      displayName
+      x
+      y
+      theta
+    }
+  }
+`;
+
 const isValidTarget = (e: EventTarget): e is HTMLDivElement =>
   "tagName" in e && (e.tagName === "DIV" || e.tagName === "HEADER");
 
@@ -344,8 +356,24 @@ const MAX_THETA = 25;
 
 const Heart: FC<{
   heart: GivingSeasonHeart,
+  currentUser: UsersCurrent | null,
+  removeHeart: () => Promise<void>,
   classes: ClassesType<typeof styles>,
-}> = ({heart: {displayName, x, y, theta}, classes}) => {
+}> = ({
+  heart: {userId, displayName, x, y, theta},
+  currentUser,
+  removeHeart,
+  classes,
+}) => {
+  const isCurrentUser = userId === currentUser?._id;
+  const title = isCurrentUser
+    ? `${displayName} (click to remove)`
+    : displayName;
+  const onClick = useCallback(() => {
+    if (isCurrentUser) {
+      void removeHeart();
+    }
+  }, [isCurrentUser, removeHeart]);
   const {LWTooltip, ForumIcon} = Components;
   return (
     <div
@@ -359,11 +387,11 @@ const Heart: FC<{
       })}
     >
       <LWTooltip
-        title={displayName}
+        title={title}
         placement="bottom"
         popperClassName={classes.gsHeartTooltip}
       >
-        <ForumIcon icon="Heart" />
+        <ForumIcon icon="Heart" onClick={onClick} />
       </LWTooltip>
     </div>
   );
@@ -435,9 +463,15 @@ const GivingSeasonHeader = ({
   });
   const [hearts, setHearts] = useState<GivingSeasonHeart[]>(data?.GivingSeasonHearts ?? []);
 
-  const [addHeart, {loading: isAddingHeart}] = useMutation(heartsMutation, {
-    errorPolicy: "all",
-  });
+  const [addHeart, {loading: isAddingHeart}] = useMutation(
+    addHeartMutation,
+    {errorPolicy: "all"},
+  );
+
+  const [rawRemoveHeart, {loading: isRemovingHeart}] = useMutation(
+    removeHeartMutation,
+    {errorPolicy: "all"},
+  );
 
   const headerRef = useRef<HTMLDivElement>(null);
 
@@ -496,6 +530,18 @@ const GivingSeasonHeader = ({
     }
   }, [normalizeCoords, addHeart]);
 
+  const removeHeart = useCallback(async () => {
+    const result = await rawRemoveHeart({
+      variables: {
+        electionName: eaGivingSeason23ElectionName,
+      },
+    });
+    const newHearts = result.data?.RemoveGivingSeasonHeart;
+    if (newHearts?.length) {
+      setHearts(newHearts);
+    }
+  }, [rawRemoveHeart]);
+
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
       {isVotingPortal && (
@@ -511,7 +557,7 @@ const GivingSeasonHeader = ({
         className={classNames(classes.root, classes.rootGivingSeason, {
           [classes.rootScrolled]: !unFixed,
           [classes.gsCanPlaceHeart]: hoverPos,
-          [classes.gsAddingHeart]: isAddingHeart,
+          [classes.gsLoadingHeart]: isAddingHeart || isRemovingHeart,
         })}
       >
         <Headroom
@@ -529,11 +575,19 @@ const GivingSeasonHeader = ({
           <div className={classes.gsHearts}>
             <NoSSR>
               {hearts.map((heart) => (
-                <Heart heart={heart} classes={classes} key={heart.userId} />
+                <Heart
+                  key={heart.userId}
+                  heart={heart}
+                  currentUser={currentUser}
+                  removeHeart={removeHeart}
+                  classes={classes}
+                />
               ))}
               {hoverPos &&
                 <Heart
                   heart={{displayName: "", userId: "", theta: 0, ...hoverPos}}
+                  currentUser={null}
+                  removeHeart={removeHeart}
                   classes={classes}
                 />
               }
