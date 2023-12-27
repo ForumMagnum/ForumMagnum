@@ -109,7 +109,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   homePageBackground: {
-    background: theme.palette.givingPortal.homepageHeader.dark,
+    background: theme.palette.givingPortal.homepageHeader.heartsBackground,
   },
   appBarGivingSeason: {
     color: theme.palette.givingPortal[1000],
@@ -214,11 +214,26 @@ const styles = (theme: ThemeType) => ({
   },
   gsButtons: {
     display: "flex",
-    gap: "20px",
+    gap: "10px",
     "& .EAButton-variantContained": {
       background: theme.palette.text.alwaysWhite,
       fontWeight: 600,
+      height: 36,
     },
+  },
+  gsSecondaryButton: {
+    backgroundColor: `${theme.palette.givingPortal.homepageHeader.secondaryButton} !important`,
+    color: `${theme.palette.givingPortal.homepageHeader.secondaryButtonText} !important`,
+    "&:hover": {
+      opacity: 0.8,
+    },
+  },
+  gsButtonIcon: {
+    color: theme.palette.primary.dark,
+    marginRight: 5,
+    marginLeft: -4,
+    width: 24,
+    height: 24,
   },
   gsHearts: {
     position: "relative",
@@ -632,11 +647,27 @@ const GivingSeasonHeader = ({
                 }
               </div>
               <div className={classes.gsButtons}>
-                <EAButton href="/posts/7D83kwkyaHLQSo6JT/winners-in-the-forum-s-donation-election-2023">
-                  Donate to the Donation Election winners
+                <EAButton href="https://funds.effectivealtruism.org/funds/animal-welfare">
+                  <span className={classes.gsButtonIcon}>{lightbulbIcon}</span>{" "}
+                  Animal Welfare Fund
                 </EAButton>
-                <EAButton href="/giving-portal#opportunities">
-                  Explore charities
+                <EAButton href="https://funds.effectivealtruism.org/funds/far-future">
+                  <span className={classes.gsButtonIcon}>{lightbulbIcon}</span>{" "}
+                  Long-term Future Fund
+                </EAButton>
+                <EAButton href="https://funds.effectivealtruism.org/funds/global-development">
+                  <span className={classes.gsButtonIcon}>{lightbulbIcon}</span>{" "}
+                  Global Development Fund
+                </EAButton>
+                <EAButton href="https://funds.effectivealtruism.org/funds/ea-community">
+                  <span className={classes.gsButtonIcon}>{lightbulbIcon}</span>{" "}
+                  EA Infrastructure Fund
+                </EAButton>
+                <EAButton
+                  href="/posts/bBm64htDSKn3ZKiQ5/meet-the-candidates-in-the-forum-s-donation-election-2023"
+                  className={classes.gsSecondaryButton}
+                >
+                  -&gt; Explore more
                 </EAButton>
               </div>
             </div>
