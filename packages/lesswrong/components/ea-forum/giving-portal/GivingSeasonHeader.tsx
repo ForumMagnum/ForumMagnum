@@ -194,6 +194,9 @@ const styles = (theme: ThemeType) => ({
     right: 0,
     top: 8,
     zIndex: 4,
+    [theme.breakpoints.down("xs")]: {
+      top: 4,
+    }
   },
   gsContent: {
     marginTop: -20,
@@ -234,11 +237,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   gsButtonIcon: {
-    color: theme.palette.primary.dark,
-    marginRight: 5,
+    marginRight: 4,
     marginLeft: -4,
-    width: 24,
-    height: 24,
+    width: 20,
+    height: 20,
   },
   gsHearts: {
     position: "relative",
