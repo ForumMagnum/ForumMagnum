@@ -346,7 +346,7 @@ const Header = ({
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
   const isGivingSeason = useIsGivingSeason();
-  if ((isGivingSeason && pathname === "/") || (pathname.startsWith("/voting-portal")) || (pathname.startsWith("/giving-portal"))) {
+  if (isGivingSeason && pathname === "/") {
     return (
       <GivingSeasonHeader
         searchOpen={searchOpen}
