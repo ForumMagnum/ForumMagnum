@@ -150,7 +150,6 @@ const styles = (theme: ThemeType) => ({
     },
   },
   toolbarGivingSeason: {
-    zIndex: theme.zIndexes.spotlightItem,
     justifyContent: "space-between",
   },
   siteLogoGivingSeason: {
@@ -190,6 +189,12 @@ const styles = (theme: ThemeType) => ({
   disabledStepLink: {
     opacity: 0.7,
   },
+  gsRightHeaderItems: {
+    position: "absolute",
+    right: 0,
+    top: 8,
+    zIndex: 4,
+  },
   gsContent: {
     marginTop: -20,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -214,6 +219,7 @@ const styles = (theme: ThemeType) => ({
   gsButtons: {
     display: "flex",
     gap: "10px",
+    zIndex: 4,
     "& .EAButton-variantContained": {
       background: theme.palette.text.alwaysWhite,
       fontWeight: 600,
@@ -242,7 +248,7 @@ const styles = (theme: ThemeType) => ({
   },
   gsHeart: {
     position: "absolute",
-    zIndex: 0,
+    zIndex: 3,
     color: theme.palette.givingPortal[1000],
     marginLeft: -12,
     marginTop: -12,
@@ -632,7 +638,7 @@ const GivingSeasonHeader = ({
                   )}
                 </div>
               )}
-              <div>
+              <div className={classes.gsRightHeaderItems}>
                 {rightHeaderItems}
               </div>
             </Toolbar>
