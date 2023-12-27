@@ -263,7 +263,6 @@ const styles = (theme: ThemeType) => ({
     "& .EAButton-variantContained": {
       background: theme.palette.text.alwaysWhite,
       fontWeight: 600,
-      zIndex: 3, // Appear on top of any hearts
     },
   },
   gsHearts: {
@@ -274,7 +273,7 @@ const styles = (theme: ThemeType) => ({
   },
   gsHeart: {
     position: "absolute",
-    zIndex: 2,
+    zIndex: 0,
     color: theme.palette.givingPortal.homepageHeader.main,
     marginLeft: -12,
     marginTop: -12,
@@ -291,9 +290,6 @@ const styles = (theme: ThemeType) => ({
   },
   gsAddingHeart: {
     cursor: "wait !important",
-  },
-  gsRightHeaderItems: {
-    zIndex: 3, // Appear on top of any hearts
   },
 });
 
@@ -607,7 +603,7 @@ const GivingSeasonHeader = ({
                   )}
                 </div>
               )}
-              <div className={classes.gsRightHeaderItems}>
+              <div>
                 {rightHeaderItems}
               </div>
             </Toolbar>
