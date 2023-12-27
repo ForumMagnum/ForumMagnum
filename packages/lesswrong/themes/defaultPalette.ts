@@ -547,8 +547,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       secondaryDark: "#a0443c",
       secondaryOpaque: "rgba(253, 139, 132, 0.40)",
       secondaryOpaqueDark: "rgba(197, 106, 101, 0.40)",
-      secondaryButton: "#D2D2D2",
-      secondaryButtonText: "#000",
+      secondaryButton: "rgba(0, 0, 0, 0)",
+      secondaryButtonText: "#6C0C00",
     },
   },
   dialogueMatching: {

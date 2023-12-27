@@ -230,6 +230,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   gsSecondaryButton: {
+    fontFeatureSettings: "\"calt\"",
     backgroundColor: `${theme.palette.givingPortal.homepageHeader.secondaryButton} !important`,
     color: `${theme.palette.givingPortal.homepageHeader.secondaryButtonText} !important`,
     "&:hover": {

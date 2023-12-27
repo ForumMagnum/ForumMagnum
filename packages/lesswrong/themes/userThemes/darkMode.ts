@@ -290,7 +290,7 @@ export const darkModeTheme: UserThemeSpecification = {
         secondaryDark: "#a0443c",
         secondaryOpaque: "rgba(253, 139, 132, 0.40)",
         secondaryOpaqueDark: "rgba(197, 106, 101, 0.40)",
-        secondaryButtonText: "#6C0C00",
+        secondaryButtonText: "#EDD3CE",
       },
     },
   }, forumComponentPalette(shadePalette)),
