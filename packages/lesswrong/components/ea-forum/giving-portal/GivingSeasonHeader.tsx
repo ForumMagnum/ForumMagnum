@@ -616,7 +616,20 @@ const GivingSeasonHeader = ({
                 <span>Get your 2023 donations in</span>
               </div>
               <div className={classes.gsContentSubtitle}>
-                <span>If you’ve already donated, consider adding a heart to this banner.</span>
+                {currentUser
+                  ? (
+                    <span>
+                      Forum users who already donated: consider adding a heart
+                      by clicking on this banner.
+                    </span>
+                  )
+                  : (
+                    <span>
+                      Explore the funds below — or log in to add a heart if
+                      you’ve already donated.
+                    </span>
+                  )
+                }
               </div>
               <div className={classes.gsButtons}>
                 <EAButton href="/posts/7D83kwkyaHLQSo6JT/winners-in-the-forum-s-donation-election-2023">
