@@ -248,7 +248,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: -12,
   },
   gsHeartTooltip: {
-    backgroundColor: theme.palette.panelBackground.tooltipBackground2,
+    backgroundColor: `${theme.palette.panelBackground.tooltipBackground2} !important`,
   },
   gsCanPlaceHeart: {
     cursor: "none",
