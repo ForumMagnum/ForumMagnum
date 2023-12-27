@@ -424,7 +424,7 @@ const GivingSeasonHeader = ({
   const showVotingSteps = isVotingPortal && /\/voting-portal\/\w/.test(pathname);
   const showHearts = currentRoute?.path === "/";
 
-  const {data} = useQuery(heartsQuery, {
+  const {data, refetch} = useQuery(heartsQuery, {
     variables: {
       electionName: eaGivingSeason23ElectionName,
     },
@@ -436,7 +436,7 @@ const GivingSeasonHeader = ({
     setHearts(data?.GivingSeasonHearts ?? []);
   }, [data?.GivingSeasonHearts]);
 
-  const [addHeart, {loading: isAddingHeart}] = useMutation(
+  const [rawAddHeart, {loading: isAddingHeart}] = useMutation(
     addHeartMutation,
     {errorPolicy: "all"},
   );
@@ -466,6 +466,32 @@ const GivingSeasonHeader = ({
     return null;
   }, [headerRef]);
 
+  const addHeart = useCallback(async (x: number, y: number, theta: number) => {
+    const result = await rawAddHeart({
+      variables: {
+        electionName: eaGivingSeason23ElectionName,
+        x,
+        y,
+        theta,
+      },
+    });
+    void refetch();
+    return result;
+  }, [rawAddHeart]);
+
+  const removeHeart = useCallback(async () => {
+    const result = await rawRemoveHeart({
+      variables: {
+        electionName: eaGivingSeason23ElectionName,
+      },
+    });
+    const newHearts = result.data?.RemoveGivingSeasonHeart;
+    if (Array.isArray(newHearts)) {
+      setHearts(newHearts);
+    }
+    await refetch();
+  }, [rawRemoveHeart]);
+
   const canAddHeart = !!currentUser && !isAddingHeart;
   const [hoverPos, setHoverPos] = useState<{x: number, y: number} | null>(null);
 
@@ -486,14 +512,7 @@ const GivingSeasonHeader = ({
       const coords = normalizeCoords(clientX, clientY);
       if (coords) {
         const theta = Math.round((Math.random() * MAX_THETA * 2) - MAX_THETA);
-        const result = await addHeart({
-          variables: {
-            electionName: eaGivingSeason23ElectionName,
-            x: coords.x,
-            y: coords.y,
-            theta,
-          },
-        });
+        const result = await addHeart(coords.x, coords.y, theta);
         const newHearts = result.data?.AddGivingSeasonHeart;
         if (Array.isArray(newHearts)) {
           setHearts(newHearts);
@@ -502,18 +521,6 @@ const GivingSeasonHeader = ({
       }
     }
   }, [normalizeCoords, addHeart]);
-
-  const removeHeart = useCallback(async () => {
-    const result = await rawRemoveHeart({
-      variables: {
-        electionName: eaGivingSeason23ElectionName,
-      },
-    });
-    const newHearts = result.data?.RemoveGivingSeasonHeart;
-    if (Array.isArray(newHearts)) {
-      setHearts(newHearts);
-    }
-  }, [rawRemoveHeart]);
 
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
