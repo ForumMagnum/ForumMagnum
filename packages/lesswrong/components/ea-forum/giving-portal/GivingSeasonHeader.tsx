@@ -192,6 +192,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.7,
   },
   gsContent: {
+    marginTop: -20,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 36,
     fontWeight: 700,
@@ -199,12 +200,17 @@ const styles = (theme: ThemeType) => ({
     letterSpacing: "-0.76px",
     display: "flex",
     flexDirection: "column",
-    gap: "20px",
     justifyContent: "center",
+    gap: "6px",
     height: "100%",
     [theme.breakpoints.down("sm")]: {
       display: "none",
     },
+  },
+  gsContentSubtitle: {
+    marginTop: -5,
+    fontSize: 18,
+    fontWeight: 500,
   },
   gsButtons: {
     display: "flex",
@@ -607,7 +613,10 @@ const GivingSeasonHeader = ({
             </Toolbar>
             <div className={classes.gsContent}>
               <div>
-                <span>Add a heart if you got your 2023 donations in</span>
+                <span>Get your 2023 donations in</span>
+              </div>
+              <div className={classes.gsContentSubtitle}>
+                <span>If you’ve already donated, consider adding a heart to this banner.</span>
               </div>
               <div className={classes.gsButtons}>
                 <EAButton href="/posts/7D83kwkyaHLQSo6JT/winners-in-the-forum-s-donation-election-2023">
