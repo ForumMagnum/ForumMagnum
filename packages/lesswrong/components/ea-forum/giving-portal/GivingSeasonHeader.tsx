@@ -223,6 +223,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     gap: "10px",
     zIndex: 4,
+    marginTop: 6,
     "& .EAButton-variantContained": {
       background: theme.palette.text.alwaysWhite,
       fontWeight: 600,
