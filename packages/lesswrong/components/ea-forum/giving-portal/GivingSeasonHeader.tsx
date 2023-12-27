@@ -109,13 +109,10 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   homePageBackground: {
-    background: theme.palette.givingPortal.homepageHeader.light2,
-  },
-  solidBackground: {
     background: theme.palette.givingPortal.homepageHeader.dark,
   },
   appBarGivingSeason: {
-    color: theme.palette.givingPortal.homepageHeader.main,
+    color: theme.palette.givingPortal[1000],
     position: "static",
     width: "100%",
     height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
@@ -132,56 +129,8 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down("xs")]: {
       padding: "9px 11px",
     },
-    "& .HeaderSubtitle-subtitle": {
-      color: theme.palette.givingPortal.homepageHeader.main,
-      [theme.breakpoints.down("sm")]: {
-        color: theme.palette.givingPortal.homepageHeader.light2,
-      },
-    },
-    "& .SearchBar-searchIcon": {
-      color: theme.palette.givingPortal.homepageHeader.main,
-      [theme.breakpoints.down("sm")]: {
-        color: theme.palette.givingPortal.homepageHeader.light2,
-      },
-    },
-    "& .ais-SearchBox-input": {
-      color: theme.palette.givingPortal.homepageHeader.main,
-      [theme.breakpoints.down("sm")]: {
-        color: theme.palette.givingPortal.homepageHeader.light2,
-      },
-    },
-    "& .ais-SearchBox-input::placeholder": {
-      color: theme.palette.givingPortal.homepageHeader.main,
-      [theme.breakpoints.down("sm")]: {
-        color: theme.palette.givingPortal.homepageHeader.light2,
-      },
-    },
-    "& .KarmaChangeNotifier-starIcon": {
-      color: theme.palette.givingPortal.homepageHeader.main,
-      [theme.breakpoints.down("sm")]: {
-        color: theme.palette.givingPortal.homepageHeader.light2,
-      },
-    },
-    "& .KarmaChangeNotifier-gainedPoints": {
-      color: theme.palette.givingPortal.homepageHeader.main,
-      [theme.breakpoints.down("sm")]: {
-        color: theme.palette.givingPortal.homepageHeader.light2,
-      },
-    },
-    "& .NotificationsMenuButton-badge": {
-      color: theme.palette.givingPortal.homepageHeader.main,
-      [theme.breakpoints.down("sm")]: {
-        color: theme.palette.givingPortal.homepageHeader.light2,
-      },
-    },
-    "& .NotificationsMenuButton-buttonClosed": {
-      color: theme.palette.givingPortal.homepageHeader.main,
-      [theme.breakpoints.down("sm")]: {
-        color: theme.palette.givingPortal.homepageHeader.light2,
-      },
-    },
-    "& .UsersMenu-arrowIcon": {
-      color: theme.palette.givingPortal.homepageHeader.main,
+    "& .HeaderSubtitle-subtitle, & .SearchBar-searchIcon, & .ais-SearchBox-input, & .ais-SearchBox-input::placeholder, & .KarmaChangeNotifier-starIcon, & .KarmaChangeNotifier-gainedPoints, & .NotificationsMenuButton-badge, & .NotificationsMenuButton-buttonClosed, & .UsersMenu-arrowIcon": {
+      color: theme.palette.givingPortal[1000],
       [theme.breakpoints.down("sm")]: {
         color: theme.palette.givingPortal.homepageHeader.light2,
       },
@@ -213,7 +162,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   titleLinkGivingSeason: {
-    color: theme.palette.givingPortal.homepageHeader.main,
+    color: theme.palette.givingPortal[1000],
     [theme.breakpoints.down("sm")]: {
       color: theme.palette.givingPortal.homepageHeader.light2,
     },
@@ -274,7 +223,7 @@ const styles = (theme: ThemeType) => ({
   gsHeart: {
     position: "absolute",
     zIndex: 0,
-    color: theme.palette.givingPortal.homepageHeader.main,
+    color: theme.palette.givingPortal[1000],
     marginLeft: -12,
     marginTop: -12,
   },
@@ -593,12 +542,7 @@ const GivingSeasonHeader = ({
               }
             </NoSSR>
           </div>
-          <header
-            className={classNames(
-              classes.appBarGivingSeason,
-              showHearts ? classes.homePageBackground : classes.solidBackground,
-            )}
-          >
+          <header className={classNames(classes.appBarGivingSeason, classes.homePageBackground)}>
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
               <div className={classes.leftHeaderItems}>
                 <NavigationMenuButton />
