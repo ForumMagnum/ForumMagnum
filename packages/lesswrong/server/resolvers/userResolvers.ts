@@ -843,8 +843,8 @@ async function getEngagementV2(userId: string, year: number): Promise<{
     postgres.query(daysActiveQuery, [userId, year])
   ]);
 
-  const totalSeconds = totalResult?.[0]["total_seconds"] ?? 0;
-  const engagementPercentile = totalResult?.[0]["engagementpercentile"] ?? 0;
+  const totalSeconds = totalResult?.[0]?.["total_seconds"] ?? 0;
+  const engagementPercentile = totalResult?.[0]?.["engagementpercentile"] ?? 0;
 
   const daysVisited: string[] = daysActiveResult?.map((result: any) => result["view_date"]) ?? [];
 

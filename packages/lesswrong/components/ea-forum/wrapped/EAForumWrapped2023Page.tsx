@@ -3,7 +3,6 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { WrappedDataByYearV2, WrappedMostReadAuthor, WrappedMostReadTopic, WrappedReceivedReact, WrappedRelativeMostReadCoreTopic, WrappedTopComment, WrappedTopPost, WrappedTopShortform, useForumWrappedV2 } from "./hooks";
-import { userIsAdminOrMod } from "../../../lib/vulcan-users";
 import classNames from "classnames";
 import range from "lodash/range";
 import moment from "moment";
@@ -27,6 +26,7 @@ import { HEADER_HEIGHT } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
+import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -1021,8 +1021,8 @@ const ThankAuthorSection = ({authors, classes}: {
   
   // Find the author for which the current user is in the highest percentile
   const topAuthorByEngagementPercentile = [...authors].sort((a, b) => b.engagementPercentile - a.engagementPercentile)[0]
-  const topAuthorPercentByEngagementPercentile = Math.ceil(100 * (1 - topAuthorByEngagementPercentile.engagementPercentile)) || 1
-  const showThankAuthor = currentUser && topAuthorPercentByEngagementPercentile <= 10 && userCanStartConversations(currentUser)
+  const topAuthorPercentByEngagementPercentile = (topAuthorByEngagementPercentile && Math.ceil(100 * (1 - topAuthorByEngagementPercentile.engagementPercentile))) || 1
+  const showThankAuthor = currentUser && topAuthorByEngagementPercentile && topAuthorPercentByEngagementPercentile <= 10 && userCanStartConversations(currentUser)
   
   const { conversation, initiateConversation } = useInitiateConversation()
   useEffect(() => {
@@ -1308,8 +1308,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
   
   useEffect(() => {
     if (currentUser) {
-      // Add scrollSnapType: 'y mandatory' styles to html and body elements (need both for different browsers?)
-      document.body.classList.add('EAForumWrapped2023Page-scrollSnap')
+      // Add scrollSnapType: 'y mandatory' styles to html element
       document.documentElement.classList.add('EAForumWrapped2023Page-scrollSnap')
     }
   }, [currentUser])
@@ -1410,7 +1409,9 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
                   {data.mostReadAuthors.map(author => {
                     return <div key={author.slug} className={classes.summaryListItem}>
                       <UsersProfileImage size={20} user={author} />
-                      {author.displayName}
+                      <Link to={userGetProfileUrlFromSlug(author.slug)}>
+                        {author.displayName}
+                      </Link>
                     </div>
                   })}
                 </div>
@@ -1424,7 +1425,9 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
                   {data.mostReadTopics.map(topic => {
                     return <div key={topic.slug} className={classes.summaryListItem}>
                       <CoreTagIcon tag={topic} fallbackNode={<div className={classes.summaryTopicIconPlaceholder}></div>} />
-                      {topic.name}
+                      <Link to={tagGetUrl({slug: topic.slug})}>
+                        {topic.name}
+                      </Link>
                     </div>
                   })}
                 </div>
