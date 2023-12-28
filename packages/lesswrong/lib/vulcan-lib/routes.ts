@@ -1,4 +1,6 @@
 import * as _ from 'underscore';
+// eslint-disable-next-line no-restricted-imports
+import {matchPath} from 'react-router'
 
 export type PingbackDocument = {
   collectionName: CollectionNameString,
@@ -62,6 +64,7 @@ export type Route = {
   // Not used for post-pages because we don't know whether a post page is going
   // to be a 404 until we render it.
   enableResourcePrefetch?: boolean
+  isAdmin?: boolean
 };
 
 /** Populated by calls to addRoute */
@@ -115,3 +118,10 @@ export const overrideRoute = (...routes: Route[]): void => {
   }
   addRoute(...routes);
 }
+
+export const getRouteMatchingPathname = (pathname: string): Route | undefined  =>
+  Object.values(Routes).findLast((route) => matchPath(pathname, {
+    path: route.path,
+    exact: true,
+    strict: false,
+  }))

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, Routes } from '../vulcan-lib';
+import {Components, getRouteMatchingPathname} from '../vulcan-lib'
 // eslint-disable-next-line no-restricted-imports
 import { matchPath } from 'react-router';
 import qs from 'qs'
@@ -73,17 +73,7 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   followRedirects?: boolean,
   onError?: null|((err: string)=>void),
 }): RouterLocation {
-  const routeNames = Object.keys(Routes);
-  let currentRoute: Route|null = null;
-  let params={};
-  for (let routeName of routeNames) {
-    const route = Routes[routeName];
-    const match = matchPath(location.pathname, { path: route.path, exact: true, strict: false });
-    if (match) {
-      currentRoute = route;
-      params = match.params;
-    }
-  }
+  const currentRoute = getRouteMatchingPathname(location.pathname)
   
   if (!currentRoute) {
     if (onError) {
@@ -104,7 +94,8 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
       }
     }
   }
-  
+
+  const params= currentRoute ? matchPath(location.pathname, { path: currentRoute.path, exact: true, strict: false })!.params : {}
   const RouteComponent = currentRoute?.componentName ? Components[currentRoute.componentName] : Components.Error404;
   const result: RouterLocation = {
     currentRoute: currentRoute!, //TODO: Better null handling than this
