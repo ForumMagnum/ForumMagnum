@@ -553,11 +553,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     highlightText: '#FFC443',
     secondaryText: '#008DAC',
     tertiaryText: "rgba(255, 255, 255, 0.50)",
+    darkGrey: '#424242',
+    grey: '#757575',
     darkDot: "rgba(255, 255, 255, 0.40)",
     panelBackground: "rgba(255, 255, 255, 0.10)",
     panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
     postScoreArrow: '#BCBCBC',
-    postScore: '#757575',
   },
   dialogueMatching: {
     checkedNotMatched: "#ADD8E6",

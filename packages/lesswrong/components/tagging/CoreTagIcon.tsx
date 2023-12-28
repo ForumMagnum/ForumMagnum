@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { DnaIcon } from '../icons/dnaIcon';
 import { MushroomCloudIcon } from '../icons/mushroomCloudIcon';
@@ -42,9 +42,14 @@ export const coreTagIconMap = forumSelect<Record<string, any>>({
   default: {}
 })
 
-const CoreTagIcon = ({tag}: {tag: {slug: string}}) => {
+const CoreTagIcon = ({tag, fallbackNode}: {
+  tag: {slug: string},
+  fallbackNode?: ReactNode
+}) => {
   const Icon = coreTagIconMap[tag.slug]
-  if (!Icon) return null
+  if (!Icon) {
+    return fallbackNode ? <>{fallbackNode}</> : null
+  }
   return <Icon />
 }
 

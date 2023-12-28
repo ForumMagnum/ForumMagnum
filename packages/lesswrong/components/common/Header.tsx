@@ -54,6 +54,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   // If that's not the case, you'll need to expand this code.
   appBarDarkBackground: {
     color: theme.palette.text.alwaysWhite,
+    boxShadow: 'none',
     "& .Header-titleLink": {
       color: theme.palette.text.alwaysWhite,
     },

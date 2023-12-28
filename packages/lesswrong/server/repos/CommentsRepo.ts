@@ -338,6 +338,9 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           "deleted" IS FALSE
           AND "postId" IS NOT NULL
           AND "needsReview" IS NOT TRUE
+          AND "retracted" IS NOT TRUE
+          AND "deletedPublic" IS NOT TRUE
+          AND "moderatorHat" IS NOT TRUE
           AND ${shortformCondition}
           AND "postedAt" > $1
           AND "postedAt" < $2

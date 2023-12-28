@@ -4,10 +4,17 @@ import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/help
 import { useLocation } from "../../../lib/routeUtil";
 import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import qs from "qs";
+import { TagCommentType } from "../../../lib/collections/comments/types";
 
 export type UseCommentLinkProps = {
-  comment: CommentsList,
-  post?: PostsMinimumInfo|null,
+  comment: {
+    _id: string,
+    tagCommentType?: TagCommentType,
+  },
+  post?: {
+    _id: string,
+    slug: string|undefined,
+  }|null,
   tag?: TagBasicInfo,
   scrollOnClick?: boolean,
   scrollIntoView?: () => void,
@@ -31,7 +38,7 @@ export const useCommentLink = ({
     postSlug: post?.slug,
     tagSlug: tag?.slug,
     commentId: comment._id,
-    tagCommentType: comment.tagCommentType,
+    tagCommentType: comment?.tagCommentType,
     permalink,
   });
 

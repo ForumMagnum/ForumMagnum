@@ -27,6 +27,7 @@ import { UsersRepo } from '../repos';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
 import { eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
+import { postStatuses } from '../../lib/collections/posts/constants';
 
 addGraphQLSchema(`
   type CommentCountTag {
@@ -189,6 +190,19 @@ addGraphQLSchema(`
     count: Int,
     engagementPercentile: Float
   }
+  type TopCommentContents {
+    html: String
+  }
+  type TopComment {
+    _id: String,
+    postedAt: Date,
+    postId: String,
+    postTitle: String,
+    postSlug: String,
+    baseScore: Int,
+    extendedScore: JSON,
+    contents: TopCommentContents
+  }
   type MostReceivedReact {
     name: String,
     count: Int
@@ -209,7 +223,7 @@ addGraphQLSchema(`
     topPosts: [Post],
     postCount: Int,
     authorPercentile: Float,
-    topComment: Comment,
+    topComment: TopComment,
     commentCount: Int,
     commenterPercentile: Float,
     topShortform: Comment,
@@ -434,6 +448,7 @@ addGraphQLResolvers({
           {
             $or: [{ userId: user._id }, { "coauthorStatuses.userId": user._id }],
             postedAt: { $gte: start, $lte: end },
+            status: {$eq: postStatuses.STATUS_APPROVED},
             draft: false,
             deletedDraft: false,
             isEvent: false,
@@ -447,21 +462,29 @@ addGraphQLResolvers({
           {
             userId: user._id,
             postedAt: { $gte: start, $lte: end },
+            needsReview: { $ne: true },
+            retracted: { $ne: true },
+            moderatorHat: { $ne: true },
             deleted: false,
+            deletedPublic: { $ne: true },
             postId: { $exists: true },
             $or: [{ shortform: false }, { topLevelCommentId: { $exists: true } }],
           },
-          { projection: { postId: 1, baseScore: 1, contents: 1 }, sort: { baseScore: -1 } }
+          { projection: { postId: 1, postedAt: 1, baseScore: 1, extendedScore: 1, contents: 1 }, sort: { baseScore: -1 } }
         ).fetch(),
         Comments.find(
           {
             userId: user._id,
             postedAt: { $gte: start, $lte: end },
+            needsReview: { $ne: true },
+            retracted: { $ne: true },
+            moderatorHat: { $ne: true },
             deleted: false,
+            deletedPublic: { $ne: true },
             shortform: true,
             topLevelCommentId: { $exists: false },
           },
-          { projection: { postId: 1, baseScore: 1, contents: 1 }, sort: { baseScore: -1 } }
+          { projection: { postId: 1, postedAt: 1, baseScore: 1, extendedScore: 1, contents: 1 }, sort: { baseScore: -1 } }
         ).fetch(),
         context.repos.posts.getAuthorshipStats({ userId: user._id, year }),
         context.repos.comments.getAuthorshipStats({ userId: user._id, year, shortform: false }),
@@ -539,7 +562,7 @@ addGraphQLResolvers({
           count
         }));
         // TODO remove
-        mostReceivedReacts = [{name: 'Heart', count: 20}, {name: 'Changed my mind', count: 5}, {name: 'Helpful', count: 4}, {name: 'Insightful', count: 1}]
+        // mostReceivedReacts = [{name: 'Heart', count: 20}, {name: 'Changed my mind', count: 5}, {name: 'Helpful', count: 4}, {name: 'Insightful', count: 1}]
       }
 
       const { engagementPercentile, totalSeconds, daysVisited }  = await getEngagementV2(user._id, year);
@@ -573,6 +596,16 @@ addGraphQLResolvers({
             }
           : null;
       }).filter(a => !!a);
+      
+      // add the post title and slug to the top comment
+      const topComment: (DbComment & {postTitle?: string, postSlug?: string})|null = userComments.shift() ?? null;
+      if (topComment) {
+        const topCommentPost = await Posts.findOne({_id: topComment.postId}, {projection: {title: 1, slug: 1}})
+        if (topCommentPost) {
+          topComment.postTitle = topCommentPost.title
+          topComment.postSlug = topCommentPost.slug
+        }
+      }
 
       const results: AnyBecauseTodo = {
         engagementPercentile,
@@ -580,12 +613,12 @@ addGraphQLResolvers({
         totalSeconds,
         daysVisited,
         mostReadTopics,
-        relativeMostReadCoreTopics: readCoreTagStats,
+        relativeMostReadCoreTopics: readCoreTagStats.filter(stat => stat.readLikelihoodRatio > 0),
         mostReadAuthors,
         topPosts: userPosts.slice(0,4) ?? null,
         postCount: postAuthorshipStats.totalCount,
         authorPercentile: postAuthorshipStats.percentile,
-        topComment: userComments.shift() ?? null,
+        topComment,
         commentCount: commentAuthorshipStats.totalCount,
         commenterPercentile: commentAuthorshipStats.percentile,
         topShortform: userShortforms.shift() ?? null,

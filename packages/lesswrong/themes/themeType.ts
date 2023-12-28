@@ -500,11 +500,12 @@ declare global {
       highlightText: ColorString,
       secondaryText: ColorString,
       tertiaryText: ColorString,
+      darkGrey: ColorString,
+      grey: ColorString,
       darkDot: ColorString,
       panelBackground: ColorString,
       panelBackgroundDark: ColorString,
       postScoreArrow: ColorString,
-      postScore: ColorString,
     },
     dialogueMatching: {
       checkedNotMatched: ColorString,

@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useRef, useState } from "react"
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { WrappedMostReadAuthor, WrappedReceivedReact, WrappedTopPost, useForumWrappedV2 } from "./hooks";
+import { WrappedMostReadAuthor, WrappedReceivedReact, WrappedTopComment, WrappedTopPost, WrappedTopShortform, useForumWrappedV2 } from "./hooks";
 import { userIsAdminOrMod } from "../../../lib/vulcan-users";
 import classNames from "classnames";
 import range from "lodash/range";
@@ -20,17 +20,34 @@ import { useInitiateConversation } from "../../hooks/useInitiateConversation";
 import { isClient } from "../../../lib/executionEnvironment";
 import { InteractionWrapper, useClickableCell } from "../../common/useClickableCell";
 import { isPostWithForeignId } from "../../hooks/useForeignCrosspost";
+import { ExpandedDate } from "../../common/FormatDate";
+import { useCommentLink } from "../../comments/CommentsItem/useCommentLink";
+import { htmlToTextDefault } from "../../../lib/htmlToText";
+import { HEADER_HEIGHT } from "../../common/Header";
+import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 
+const socialImageProps: CloudinaryPropsType = {
+  dpr: "auto",
+  ar: "16:9",
+  w: "1200",
+  c: "fill",
+  g: "center",
+  q: "auto",
+  f: "auto",
+};
 
 const styles = (theme: ThemeType) => ({
+  scrollSnap: {
+    scrollSnapType: 'y mandatory',
+  },
   root: {
     minHeight: '100vh',
     background: theme.palette.wrapped.background,
     color: theme.palette.text.alwaysWhite,
     fontFamily: theme.typography.fontFamily,
     textAlign: 'center',
-    marginTop: -theme.spacing.mainLayoutPaddingTop * 2, // compensate for the padding added in Layout.tsx, the *2 is to avoid flashing white at the top of the page
-    paddingBottom: 100,
+    marginTop: -theme.spacing.mainLayoutPaddingTop - HEADER_HEIGHT, // compensate for the padding added in Layout.tsx and the site header, so that section starts at the top of the page
+    // paddingBottom: 100,
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8,
@@ -41,6 +58,7 @@ const styles = (theme: ThemeType) => ({
   },
   loginText: {
     display: 'inline-block',
+    width: '100%',
     maxWidth: 600,
     fontSize: 16,
     lineHeight: '24px',
@@ -51,9 +69,58 @@ const styles = (theme: ThemeType) => ({
     display: 'inline-block',
     margin: '30px auto 0'
   },
+  '@keyframes section-scroll-animation': {
+    '0%': {
+      opacity: 0,
+      // TODO: this messes with scroll snapping, see if we can add it back in
+      // transform: 'scale(0.5)'
+    },
+    '50%': {
+      opacity: 1,
+      // transform: 'scale(1)'
+    },
+    '100%': {
+      opacity: 0,
+      // transform: 'scale(0.5)'
+    }
+  },
   section: {
     position: 'relative',
-    padding: '80px 20px'
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '55vh',
+    padding: '75px 20px',
+    scrollSnapAlign: 'center',
+    animation: 'section-scroll-animation linear',
+    animationTimeline: 'view()',
+    '&:first-of-type': {
+      scrollSnapAlign: 'start',
+      minHeight: '85vh',
+      paddingTop: 140,
+    },
+    '&:last-of-type': {
+      minHeight: '85vh',
+      paddingBottom: 160,
+    },
+  },
+  skipToSummaryBtn: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '6px',
+    background: 'none',
+    fontSize: 16,
+    lineHeight: 'normal',
+    fontWeight: 600,
+    letterSpacing: '1px',
+    color: theme.palette.text.alwaysWhite,
+    padding: 0,
+    margin: '40px auto 0',
+    '&:hover': {
+      opacity: 0.7
+    }
   },
   imgWrapper: {
     display: 'inline-block',
@@ -63,7 +130,14 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 'min(80vw, 400px)',
     maxHeight: '50vh',
   },
+  chart: {
+    position: 'relative',
+    width: '100%',
+    maxWidth: 400,
+    margin: '40px auto 0',
+  },
   stats: {
+    width: '100%',
     maxWidth: 400,
     display: 'flex',
     justifyContent: 'center',
@@ -78,7 +152,6 @@ const styles = (theme: ThemeType) => ({
     fontSize: 13,
     lineHeight: 'normal',
     fontWeight: 500,
-    // textDecorationLine: 'underline',
     marginTop: 8
   },
   calendar: {
@@ -100,7 +173,9 @@ const styles = (theme: ThemeType) => ({
   },
   topicsChart: {
     position: 'relative',
+    width: '100%',
     maxWidth: 400,
+    padding: '0 10px', // extra padding because the chart labels can overflow
     margin: '40px auto 0',
   },
   engagementChartMark: {
@@ -233,7 +308,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     width: '100%',
-    maxWidth: 340,
+    maxWidth: 380,
     margin: '24px auto 0',
   },
   nextTopPosts: {
@@ -241,7 +316,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: '8px',
     width: '100%',
-    maxWidth: 340,
+    maxWidth: 380,
     margin: '10px auto 0',
   },
   post: {
@@ -269,7 +344,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    color: theme.palette.wrapped.postScore,
+    color: theme.palette.wrapped.grey,
   },
   postVoteArrow: {
     color: theme.palette.wrapped.postScoreArrow,
@@ -279,6 +354,7 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1
   },
   postTitle: {
+    lineHeight: '19px',
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
@@ -288,7 +364,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex'
   },
   postMeta: {
-    color: theme.palette.wrapped.postScore,
+    color: theme.palette.wrapped.grey,
     fontSize: 12,
     fontWeight: 500,
     marginTop: 2
@@ -297,15 +373,78 @@ const styles = (theme: ThemeType) => ({
     fontSize: 18
   },
   comment: {
-    width: '100%',
-    maxWidth: 340,
-    background: theme.palette.text.alwaysWhite,
     color: theme.palette.text.alwaysBlack,
-    fontSize: 14,
-    lineHeight: 'normal',
+    background: theme.palette.text.alwaysWhite,
     textAlign: 'left',
     borderRadius: theme.borderRadius.default,
-    padding: '8px'
+    padding: "8px 12px",
+  },
+  commentPostTitle: {
+    fontSize: 12,
+    lineHeight: '17px',
+    color: theme.palette.wrapped.grey,
+    marginBottom: 6,
+    overflow: "hidden",
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 2,
+  },
+  commentMeta: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: '3px 16px',
+    color: theme.palette.wrapped.darkGrey,
+    '& .EAReactsSection-button': {
+      color: theme.palette.wrapped.darkGrey,
+    }
+  },
+  commentAuthorAndDate: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  commentAuthor: {
+    fontSize: 14,
+    fontWeight: 600
+  },
+  commentDate: {
+    color: theme.palette.wrapped.grey,
+  },
+  commentScore: {
+    flexGrow: 1,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+  },
+  commentKarma: {
+    display: 'flex',
+    gap: '5px',
+    fontWeight: 500,
+  },
+  commentVoteArrow: {
+    color: theme.palette.wrapped.grey,
+    transform: 'translateY(-2px)',
+  },
+  commentReacts: {
+    display: 'flex'
+  },
+  commentLink: {
+    flexGrow: 1,
+    textAlign: 'right',
+    paddingLeft: 10,
+  },
+  commentLinkIcon: {
+    fontSize: 14,
+    color: theme.palette.wrapped.grey,
+    transform: 'translateY(1px)',
+  },
+  commentBody: {
+    color: theme.palette.text.alwaysBlack,
+    overflow: "hidden",
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 5,
   },
   backgroundReact: {
     position: 'absolute',
@@ -331,6 +470,7 @@ const styles = (theme: ThemeType) => ({
     margin: '40px auto 0',
   },
   summary: {
+    width: '100%',
     maxWidth: 400,
     margin: '22px auto 0',
   },
@@ -351,15 +491,16 @@ const styles = (theme: ThemeType) => ({
     lineHeight: 'normal',
     fontWeight: 500,
   },
-  summaryAuthors: {
+  summaryList: {
     display: 'flex',
     flexDirection: 'column',
     gap: '6px',
     width: '100%',
     textAlign: 'left',
   },
-  summaryAuthor: {
+  summaryListItem: {
     display: 'flex',
+    alignItems: 'center',
     gap: '12px',
     fontSize: 14,
     lineHeight: '20px',
@@ -367,6 +508,10 @@ const styles = (theme: ThemeType) => ({
     textWrap: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+  },
+  summaryTopicIconPlaceholder: {
+    width: 16,
+    height: 16
   },
   heading1: {
     fontSize: 50,
@@ -545,6 +690,66 @@ const Post = ({post, classes}: {
   </article>
 }
 
+const Comment = ({comment, classes}: {
+  comment: WrappedTopComment|WrappedTopShortform,
+  classes: ClassesType
+}) => {
+  const currentUser = useCurrentUser()
+  
+  const commentLinkProps = {
+    comment,
+    post: {
+      _id: comment.postId,
+      slug: 'postSlug' in comment ? comment.postSlug : undefined
+    }
+  };
+  const CommentLinkWrapper = useCommentLink(commentLinkProps);
+  
+  const { LWTooltip, EAReactsSection, ContentStyles, ContentItemBody, ForumIcon } = Components
+  
+  return <article className={classes.comment}>
+    {'postTitle' in comment && <div className={classes.commentPostTitle}>
+      <Link to={postGetPageUrl({_id: comment.postId, slug: comment.postSlug})}>
+        {comment.postTitle}
+      </Link>
+    </div>}
+    <div className={classes.commentMeta}>
+      <div className={classes.commentAuthorAndDate}>
+        <div className={classes.commentAuthor}>{currentUser?.displayName}</div>
+        <div className={classes.commentDate}>
+          <LWTooltip
+            placement="right"
+            title={<ExpandedDate date={comment.postedAt} />}
+          >
+            {moment(new Date(comment.postedAt)).fromNow()}
+          </LWTooltip>
+        </div>
+      </div>
+      <div className={classes.commentScore}>
+        <div className={classes.commentKarma}>
+          <div className={classes.commentVoteArrow}>
+            <SoftUpArrowIcon />
+          </div>
+          {comment.baseScore}
+        </div>
+        <div className={classes.commentReacts}>
+          <EAReactsSection document={comment} voteProps={{document: comment}} viewOnly />
+        </div>
+        <div className={classes.commentLink}>
+          <CommentLinkWrapper>
+            <ForumIcon icon="Link" className={classes.commentLinkIcon} />
+          </CommentLinkWrapper>
+        </div>
+      </div>
+    </div>
+    <ContentStyles contentType="comment">
+      <div className={classes.commentBody}>
+        {htmlToTextDefault(comment.contents.html)}
+      </div>
+    </ContentStyles>
+  </article>
+}
+
 const KarmaChangeXAxis = () => {
   return <>
     <text y="100%" fontSize={12} fill="#FFF" textAnchor="start">Jan</text>
@@ -561,7 +766,7 @@ const ThankAuthorSection = ({authors, classes}: {
   
   // Find the author for which the current user is in the highest percentile
   const topAuthorByEngagementPercentile = [...authors].sort((a, b) => b.engagementPercentile - a.engagementPercentile)[0]
-  const topAuthorPercentByEngagementPercentile = Math.ceil(1 - topAuthorByEngagementPercentile.engagementPercentile)
+  const topAuthorPercentByEngagementPercentile = Math.ceil(100 * (1 - topAuthorByEngagementPercentile.engagementPercentile))
   const showThankAuthor = currentUser && topAuthorPercentByEngagementPercentile <= 10 && userCanStartConversations(currentUser)
   
   const { conversation, initiateConversation } = useInitiateConversation()
@@ -579,7 +784,11 @@ const ThankAuthorSection = ({authors, classes}: {
       <div className={classes.topAuthorInfo}>
         <div>To:</div>
         <div><Components.UsersProfileImage size={24} user={topAuthorByEngagementPercentile} /></div>
-        <div className={classes.text}>{topAuthorByEngagementPercentile.displayName}</div>
+        <div className={classes.text}>
+          <Link to={userGetProfileUrlFromSlug(topAuthorByEngagementPercentile.slug)}>
+            {topAuthorByEngagementPercentile.displayName}
+          </Link>
+        </div>
       </div>
       <div className={classes.newMessageForm}>
         <Components.NewMessageForm
@@ -609,11 +818,12 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
     return reacts?.reduce((prev: ReceivedReact[], next) => {
       const Component = eaEmojiPalette.find(emoji => emoji.label === next.name)?.Component
       if (Component) {
+        // only go to 98% to prevent causing a horizontal scroll
         range(0, next.count).forEach(_ => prev.push({
-          top: `${Math.random() * 100}%`,
-          // top: `${(Math.random() + Math.random()) * 100 / 2}%`,
-          left: `${Math.random() * 100}%`,
-          // left: `${(Math.random() + Math.random()) * 100 / 2}%`,
+          top: `${Math.random() * 98}%`,
+          // top: `${(Math.random() + Math.random()) * 98 / 2}%`,
+          left: `${Math.random() * 98}%`,
+          // left: `${(Math.random() + Math.random()) * 98 / 2}%`,
           Component
         }))
       }
@@ -672,12 +882,24 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     userId: currentUser?._id,
     year: 2023
   })
-
-  const { SingleColumnSection, CloudinaryImage2, UsersProfileImage, RecommendationsList, CoreTagIcon } = Components
   
-  // if there's no logged in user, prompt them to login
+  useEffect(() => {
+    if (currentUser) {
+      // Add scrollSnapType: 'y mandatory' styles to html and body elements (need both for different browsers?)
+      document.body.classList.add('EAForumWrapped2023Page-scrollSnap')
+      document.documentElement.classList.add('EAForumWrapped2023Page-scrollSnap')
+    }
+  }, [currentUser])
+
+  const { HeadTags, ForumIcon, CloudinaryImage2, UsersProfileImage, RecommendationsList, CoreTagIcon } = Components
+  
+  // If there's no logged in user, prompt them to login
   if (!currentUser) {
     return <AnalyticsContext pageContext="eaYearWrapped">
+      <HeadTags
+        title="EA Forum 2023 Wrapped"
+        image={makeCloudinaryImageUrl('b90e48ae75ae9f3d73bbcf17f2ddf6a0', socialImageProps)}
+      />
       <main className={classes.root}>
         <section className={classes.section}>
           <h1 className={classes.heading1}>Your 2023 Wrapped</h1>
@@ -710,6 +932,12 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
 
   const engagementPercentile = Math.ceil((1 - data.engagementPercentile) * 100)
   const engagementHours = (data.totalSeconds / 3600)
+  // This is the x-axis position for the "you" arrow mark on the engagement chart.
+  // The highest value on the x-axis is ~520 hours.
+  // We multiply by 97 instead of 100 because I thought that looked better.
+  // We shift everything by 8px to account for the space that the y-axis takes up.
+  const engagementChartMarkPos = `calc(${97 * engagementHours / 520}% + 8px)`
+
   const mostReadTopics = data.mostReadTopics.map((topic, i) => {
     return {
       ...topic,
@@ -723,6 +951,11 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
       overallReadCount: topic.userReadCount / topic.readLikelihoodRatio
     }
   }).slice(0, 4)
+  // We shrink the chart such that the bars are always the same thickness,
+  // so that the mark arrows point to the proper places.
+  const relativeTopicsChartHeight = 200 * (relativeMostReadTopics.length / 4)
+  // If the user hasn't written anything and their karma change is 0, hide the karma change section
+  const hasWrittenContent = !!data.topPosts?.length || data.topComment || data.topShortform
   const karmaChange = `${data.karmaChange >= 0 ? '+' : ''}${data.karmaChange}`
 
   return (
@@ -731,6 +964,11 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         
         <section className={classes.section}>
           <h1 className={classes.heading1}>Your 2023 Wrapped</h1>
+          {/* TODO: finish building this
+          <button className={classes.skipToSummaryBtn}>
+            Skip to summary
+            <ForumIcon icon="NarrowArrowDown" />
+          </button> */}
           <CloudinaryImage2 publicId="b90e48ae75ae9f3d73bbcf17f2ddf6a0" wrapperClassName={classes.imgWrapper} className={classes.img} />
         </section>
         
@@ -739,8 +977,8 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             You’re a top <span className={classes.highlight}>{engagementPercentile}%</span> reader of the EA Forum
           </h1>
           <p className={classNames(classes.textRow, classes.text, classes.mt16)}>You read {data.postsReadCount} posts this year</p>
-          <div className={classes.topicsChart}>
-            <aside className={classes.engagementChartMark} style={{left: `calc(${97 * engagementHours / 520}% + 7px)`}}>
+          <div className={classes.chart}>
+            <aside className={classes.engagementChartMark} style={{left: engagementChartMarkPos}}>
               <div className={classes.engagementChartArrow}>
                 {drawnArrow}
               </div>
@@ -823,8 +1061,8 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
               </div>
               average
             </aside>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart layout="vertical" width={350} height={200} data={relativeMostReadTopics} barCategoryGap={'20%'} barGap={0} {...{overflow: 'visible'}}>
+            <ResponsiveContainer width="100%" height={relativeTopicsChartHeight}>
+              <BarChart layout="vertical" width={350} height={relativeTopicsChartHeight} data={relativeMostReadTopics} barCategoryGap={'20%'} barGap={0} {...{overflow: 'visible'}}>
                 <YAxis
                   dataKey="tagName"
                   type="category"
@@ -895,9 +1133,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             Your highest-karma <span className={classes.highlight}>comment</span> in 2023:
           </h1>
           <div className={classes.topPost}>
-            <article className={classes.comment}>
-              {data.topComment.contents.plaintextMainText}
-            </article>
+            <Comment comment={data.topComment} classes={classes} />
           </div>
           <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
             You wrote {data.commentCount} comment{data.commentCount === 1 ? '' : 's'} in total this year.
@@ -905,15 +1141,12 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           </p>
         </section>}
         
-        {/* TODO use topShortform */}
-        {!!data.topComment && <section className={classes.section}>
+        {!!data.topShortform && <section className={classes.section}>
           <h1 className={classes.heading3}>
             Your highest-karma <span className={classes.highlight}>quick take</span> in 2023:
           </h1>
           <div className={classes.topPost}>
-            <article className={classes.comment}>
-              {data.topComment.contents.plaintextMainText}
-            </article>
+            <Comment comment={data.topShortform} classes={classes} />
           </div>
           <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
             You wrote {data.shortformCount} quick take{data.shortformCount === 1 ? '' : 's'} in total this year.
@@ -921,11 +1154,11 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           </p>
         </section>}
         
-        {data.karmaChange !== undefined && <section className={classes.section}>
+        {data.karmaChange !== undefined && (hasWrittenContent || data.karmaChange !== 0) && <section className={classes.section}>
           <h1 className={classes.heading3}>
             Your overall karma change this year was <span className={classes.highlight}>{karmaChange}</span>
           </h1>
-          <div className={classes.topicsChart}>
+          <div className={classes.chart}>
             <div className={classes.chartLabels}>
               <div className={classes.karmaFromPostsLabel}>Karma from posts</div>
               <div className={classes.karmaFromCommentsLabel}>Karma from comments</div>
@@ -947,6 +1180,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           <h1 className={classes.heading3}>
             Posts you missed that we think you’ll enjoy
           </h1>
+          {/* This postId is my April Fool's post. I think it shouldn't affect the results, but it's still required for some reason. */}
           <RecommendationsList
             algorithm={{strategy: {name: 'bestOf', postId: 'KPijJRnQCQvSu5AA2'}, count: 5, disableFallbacks: true}}
             ListItem={
@@ -992,9 +1226,9 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             {!!data.mostReadAuthors.length && <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
               <div className={classes.summaryBox}>
                 <div className={classes.summaryLabel}>Most-read authors</div>
-                <div className={classNames(classes.summaryAuthors, classes.mt12)}>
+                <div className={classNames(classes.summaryList, classes.mt12)}>
                   {data.mostReadAuthors.map(author => {
-                    return <div key={author.slug} className={classes.summaryAuthor}>
+                    return <div key={author.slug} className={classes.summaryListItem}>
                       <UsersProfileImage size={20} user={author} />
                       {author.displayName}
                     </div>
@@ -1006,10 +1240,10 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             {!!data.mostReadTopics.length && <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
               <div className={classes.summaryBox}>
                 <div className={classes.summaryLabel}>Most-read topics</div>
-                <div className={classNames(classes.summaryAuthors, classes.mt12)}>
+                <div className={classNames(classes.summaryList, classes.mt12)}>
                   {data.mostReadTopics.map(topic => {
-                    return <div key={topic.slug} className={classes.summaryAuthor}>
-                      <CoreTagIcon tag={topic} />
+                    return <div key={topic.slug} className={classes.summaryListItem}>
+                      <CoreTagIcon tag={topic} fallbackNode={<div className={classes.summaryTopicIconPlaceholder}></div>} />
                       {topic.name}
                     </div>
                   })}
@@ -1040,6 +1274,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           </div>
         </section>
         
+        {/* <section className={classes.section}> */}
         {/* <SingleColumnSection> */}
           {/* <pre>Engagement Percentile: {data.engagementPercentile}</pre> */}
           {/* <pre>Posts Read Count: {data.postsReadCount}</pre> */}
@@ -1062,6 +1297,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           {/* <pre>Most Received Reacts: {JSON.stringify(data.mostReceivedReacts, null, 2)}</pre> */}
           {/* <pre>Alignment: {data.alignment}</pre> */}
         {/* </SingleColumnSection> */}
+        {/* </section> */}
       </main>
       
       

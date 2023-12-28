@@ -14,6 +14,28 @@ export type WrappedTopPost = {
   slug: string;
   baseScore: number;
 }
+export type WrappedTopComment = {
+  _id: string;
+  postedAt: Date;
+  postId: string;
+  postTitle: string;
+  postSlug: string;
+  baseScore: number;
+  extendedScore: JSON;
+  contents: {
+    html: string;
+  };
+}
+export type WrappedTopShortform = {
+  _id: string;
+  postedAt: Date;
+  postId: string;
+  baseScore: number;
+  extendedScore: JSON;
+  contents: {
+    html: string;
+  };
+}
 export type WrappedReceivedReact = {
   name: string;
   count: number;
@@ -40,24 +62,10 @@ type WrappedDataByYearV2 = {
   topPosts: WrappedTopPost[];
   postCount: number;
   authorPercentile: number;
-  topComment: {
-    _id: string;
-    postId: string;
-    baseScore: number;
-    contents: {
-      plaintextMainText: string;
-    };
-  };
+  topComment: WrappedTopComment;
   commentCount: number;
   commenterPercentile: number;
-  topShortform: {
-    _id: string;
-    postId: string;
-    baseScore: number;
-    contents: {
-      plaintextMainText: string;
-    };
-  };
+  topShortform: WrappedTopShortform;
   shortformCount: number;
   shortformPercentile: number;
   karmaChange: number;
@@ -115,20 +123,26 @@ export const useForumWrappedV2 = ({ userId, year }: { userId?: string | null; ye
           authorPercentile
           topComment {
             _id
+            postedAt
             postId
+            postTitle
+            postSlug
             baseScore
+            extendedScore
             contents {
-              plaintextMainText
+              html
             }
           }
           commentCount
           commenterPercentile
           topShortform {
             _id
+            postedAt
             postId
             baseScore
+            extendedScore
             contents {
-              plaintextMainText
+              html
             }
           }
           shortformCount
