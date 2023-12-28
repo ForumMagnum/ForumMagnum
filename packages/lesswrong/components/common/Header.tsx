@@ -93,10 +93,10 @@ export const styles = (theme: ThemeType) => ({
       },
     },
     "& .EAButton-greyContained": {
-      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 50%, ${theme.palette.text.alwaysBlack})`,
+      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 15%, ${theme.palette.background.transparent})`,
       color: theme.palette.text.alwaysWhite,
       "&:hover": {
-        backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 40%, ${theme.palette.text.alwaysBlack}) !important`,
+        backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 10%, ${theme.palette.background.transparent}) !important`,
       },
     },
   },
