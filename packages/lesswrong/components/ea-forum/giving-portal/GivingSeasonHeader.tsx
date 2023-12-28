@@ -406,7 +406,7 @@ const GivingSeasonHeader = ({
   HeaderNotificationsMenu: FC,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {Typography, HeadTags, HeaderSubtitle, EAButton} = Components;
+  const {Typography, HeadTags, HeaderSubtitle, EAButton, CoreTagIcon} = Components;
   const isDesktop = useIsAboveBreakpoint("md");
   const { pathname, currentRoute } = useLocation();
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
@@ -677,15 +677,15 @@ const GivingSeasonHeader = ({
               </div>
               <div className={classes.gsButtons}>
                 <EAButton href="https://funds.effectivealtruism.org/funds/animal-welfare">
-                  <span className={classes.gsButtonIcon}>{lightbulbIcon}</span>{" "}
+                  <CoreTagIcon tag={{slug: "animal-welfare"}} className={classes.gsButtonIcon} />{" "}
                   Animal Welfare Fund
                 </EAButton>
                 <EAButton href="https://funds.effectivealtruism.org/funds/far-future">
-                  <span className={classes.gsButtonIcon}>{lightbulbIcon}</span>{" "}
+                  <CoreTagIcon tag={{slug: "ai-safety"}} className={classes.gsButtonIcon} />{" "}
                   Long-term Future Fund
                 </EAButton>
                 <EAButton href="https://funds.effectivealtruism.org/funds/global-development">
-                  <span className={classes.gsButtonIcon}>{lightbulbIcon}</span>{" "}
+                  <CoreTagIcon tag={{slug: "global-health-and-development"}} className={classes.gsButtonIcon} />{" "}
                   Global Development Fund
                 </EAButton>
                 <EAButton href="https://funds.effectivealtruism.org/funds/ea-community">
