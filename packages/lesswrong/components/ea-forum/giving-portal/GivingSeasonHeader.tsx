@@ -214,6 +214,15 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
+  gsContentTitle: {
+    "& a": {
+      textDecoration: "underline",
+      "&:hover": {
+        textDecoration: "none",
+        opacity: 1,
+      },
+    },
+  },
   gsContentSubtitle: {
     marginTop: -5,
     fontSize: 18,
@@ -647,8 +656,8 @@ const GivingSeasonHeader = ({
               </div>
             </Toolbar>
             <div className={classes.gsContent}>
-              <div>
-                <span>Get your 2023 donations in</span>
+              <div className={classes.gsContentTitle}>
+                <span>Get your <Link to="/posts/rszgfHdkmzCDDPM9k/where-are-you-donating-this-year-and-why-open-thread-1">2023 donations</Link> in</span>
               </div>
               <div className={classes.gsContentSubtitle}>
                 {currentUser
