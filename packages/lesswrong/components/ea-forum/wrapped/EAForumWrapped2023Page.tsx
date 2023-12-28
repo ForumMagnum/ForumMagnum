@@ -25,6 +25,8 @@ import { useCommentLink } from "../../comments/CommentsItem/useCommentLink";
 import { htmlToTextDefault } from "../../../lib/htmlToText";
 import { HEADER_HEIGHT } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
+import { lightbulbIcon } from "../../icons/lightbulbIcon";
+import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -107,11 +109,13 @@ const styles = (theme: ThemeType) => ({
   sectionTall: {
     minHeight: '85vh',
   },
-  skipToSummaryBtn: {
+  summaryLinkWrapper: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '6px',
+    gap: '8px',
+  },
+  skipToSummaryBtn: {
     background: 'none',
     fontSize: 16,
     lineHeight: 'normal',
@@ -123,6 +127,16 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: 0.7
     }
+  },
+  heartIcon: {
+    marginLeft: 1,
+    '& svg': {
+      width: 28,
+      height: 20
+    }
+  },
+  lightbulbIcon: {
+    width: 120,
   },
   imgWrapper: {
     display: 'inline-block',
@@ -550,11 +564,10 @@ const styles = (theme: ThemeType) => ({
   },
   textRow: {
     maxWidth: 600,
-    margin: '0 auto'
   },
   text: {
     fontSize: 14,
-    lineHeight: 'normal',
+    lineHeight: '21px',
     fontWeight: 500,
     color: theme.palette.text.alwaysWhite,
   },
@@ -568,6 +581,9 @@ const styles = (theme: ThemeType) => ({
       textDecoration: 'underline',
       textUnderlineOffset: '4px',
     }
+  },
+  balance: {
+    textWrap: 'balance'
   },
   nowrap: {
     textWrap: 'nowrap'
@@ -1252,6 +1268,29 @@ const RecommendationsSection = ({classes}: {
 }
 
 /**
+ * Section that thanks the user
+ */
+const ThankYouSection = ({classes}: {
+  classes: ClassesType
+}) => {
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      Thank you! <span className={classes.heartIcon}><HeartReactionIcon /></span>
+    </h1>
+    <p className={classNames(classes.textRow, classes.text, classes.balance, classes.mt20)}>
+      Thanks for being part of the EA Forum and helping the community think about how to do the most good in the world
+    </p>
+    <div className={classNames(classes.lightbulbIcon, classes.mt30)}>
+      {lightbulbIcon}
+    </div>
+    <p className={classNames(classes.summaryLinkWrapper, classes.text, classes.mt70)}>
+      Here’s your 2023 all in one page
+      <Components.ForumIcon icon="NarrowArrowDown" />
+    </p>
+  </section>
+}
+
+/**
  * This is the primary page component for EA Forum Wrapped 2023.
  */
 const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
@@ -1316,7 +1355,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         <section className={classes.section}>
           <h1 className={classes.heading1}>Your 2023 Wrapped</h1>
           {/* TODO: finish building this
-          <button className={classes.skipToSummaryBtn}>
+          <button className={classNames(classes.summaryLinkWrapper, classes.skipToSummaryBtn)}>
             Skip to summary
             <ForumIcon icon="NarrowArrowDown" />
           </button> */}
@@ -1336,6 +1375,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         <KarmaChangeSection data={data} classes={classes} />
         <ReactsReceivedSection receivedReacts={data.mostReceivedReacts} classes={classes} />
         <RecommendationsSection classes={classes} />
+        <ThankYouSection classes={classes} />
         
         <section className={classes.section}>
           <p className={classNames(classes.text, classes.m0)}>Effective Altruism Forum</p>
