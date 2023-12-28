@@ -370,8 +370,8 @@ addGraphQLResolvers({
       }
 
       // Get all the user's posts read for the given year
-      const start = moment().year(year).dayOfYear(1).toDate()
-      const end = moment().year(year+1).dayOfYear(0).toDate()
+      const start = new Date(year, 0)
+      const end = new Date(year + 1, 0)
       const readStatuses = await ReadStatuses.find({
         userId: user._id,
         isRead: true,
