@@ -1321,7 +1321,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     return <AnalyticsContext pageContext="eaYearWrapped">
       <HeadTags
         title="EA Forum 2023 Wrapped"
-        image={makeCloudinaryImageUrl('b90e48ae75ae9f3d73bbcf17f2ddf6a0', socialImageProps)}
+        image={makeCloudinaryImageUrl('2023_wrapped_wide', socialImageProps)}
       />
       <main className={classes.root}>
         <section className={classes.section}>
@@ -1338,7 +1338,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
               to get ready for 2024
             </p>
           </div>
-          <CloudinaryImage2 publicId="b90e48ae75ae9f3d73bbcf17f2ddf6a0" wrapperClassName={classes.loginImgWrapper} className={classes.img} />
+          <CloudinaryImage2 publicId="2023_wrapped" wrapperClassName={classes.loginImgWrapper} className={classes.img} />
         </section>
       </main>
     </AnalyticsContext>
@@ -1357,7 +1357,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             Skip to summary
             <ForumIcon icon="NarrowArrowDown" />
           </button> */}
-          <CloudinaryImage2 publicId="b90e48ae75ae9f3d73bbcf17f2ddf6a0" wrapperClassName={classes.imgWrapper} className={classes.img} />
+          <CloudinaryImage2 publicId="2023_wrapped" wrapperClassName={classes.imgWrapper} className={classes.img} />
         </section>
         
         <EngagementPercentileSection data={data} classes={classes} />
