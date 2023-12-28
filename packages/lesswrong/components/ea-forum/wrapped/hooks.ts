@@ -1,5 +1,18 @@
 import { gql, useQuery } from "@apollo/client";
 
+export type WrappedMostReadTopic = {
+  name: string;
+  shortName: string;
+  slug: string;
+  count: number;
+}
+export type WrappedRelativeMostReadCoreTopic = {
+  tagId: string;
+  tagName: string;
+  tagShortName: string;
+  userReadCount: number;
+  readLikelihoodRatio: number;
+}
 export type WrappedMostReadAuthor = {
   _id: string;
   displayName: string;
@@ -41,23 +54,13 @@ export type WrappedReceivedReact = {
   count: number;
 }
 
-type WrappedDataByYearV2 = {
+export type WrappedDataByYearV2 = {
   engagementPercentile: number;
   postsReadCount: number;
   totalSeconds: number;
   daysVisited: string[];
-  mostReadTopics: {
-    name: string;
-    slug: string;
-    count: number;
-  }[];
-  relativeMostReadCoreTopics: {
-    tagId: string;
-    tagName: string;
-    tagShortName: string;
-    userReadCount: number;
-    readLikelihoodRatio: number;
-  }[];
+  mostReadTopics: WrappedMostReadTopic[];
+  relativeMostReadCoreTopics: WrappedRelativeMostReadCoreTopic[];
   mostReadAuthors: WrappedMostReadAuthor[];
   topPosts: WrappedTopPost[];
   postCount: number;
@@ -75,7 +78,6 @@ type WrappedDataByYearV2 = {
     commentKarma: number;
   }[];
   mostReceivedReacts: WrappedReceivedReact[];
-  alignment: string;
 };
 
 type WrappedDataQueryResult = {
@@ -157,7 +159,6 @@ export const useForumWrappedV2 = ({ userId, year }: { userId?: string | null; ye
             name
             count
           }
-          alignment
         }
       }
     `,

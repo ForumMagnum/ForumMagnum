@@ -2,8 +2,7 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from "react
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext, useIsInView, useTracking } from "../../../lib/analyticsEvents";
-import { WrappedMostReadAuthor, WrappedReceivedReact, WrappedTopComment, WrappedTopPost, WrappedTopShortform, useForumWrappedV2 } from "./hooks";
-import { userIsAdminOrMod } from "../../../lib/vulcan-users";
+import { WrappedDataByYearV2, WrappedMostReadAuthor, WrappedMostReadTopic, WrappedReceivedReact, WrappedRelativeMostReadCoreTopic, WrappedTopComment, WrappedTopPost, WrappedTopShortform, useForumWrappedV2 } from "./hooks";
 import classNames from "classnames";
 import range from "lodash/range";
 import moment from "moment";
@@ -25,6 +24,9 @@ import { useCommentLink } from "../../comments/CommentsItem/useCommentLink";
 import { htmlToTextDefault } from "../../../lib/htmlToText";
 import { HEADER_HEIGHT } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
+import { lightbulbIcon } from "../../icons/lightbulbIcon";
+import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
+import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 
 const socialImageProps: CloudinaryPropsType = {
@@ -48,7 +50,6 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     textAlign: 'center',
     marginTop: -theme.spacing.mainLayoutPaddingTop - HEADER_HEIGHT, // compensate for the padding added in Layout.tsx and the site header, so that section starts at the top of the page
-    // paddingBottom: 100,
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8,
@@ -106,11 +107,16 @@ const styles = (theme: ThemeType) => ({
       paddingBottom: 160,
     },
   },
-  skipToSummaryBtn: {
+  sectionTall: {
+    minHeight: '85vh',
+  },
+  summaryLinkWrapper: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: '6px',
+    gap: '8px',
+  },
+  skipToSummaryBtn: {
     background: 'none',
     fontSize: 16,
     lineHeight: 'normal',
@@ -122,6 +128,16 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: 0.7
     }
+  },
+  heartIcon: {
+    marginLeft: 1,
+    '& svg': {
+      width: 28,
+      height: 20
+    }
+  },
+  lightbulbIcon: {
+    width: 120,
   },
   imgWrapper: {
     display: 'inline-block',
@@ -151,7 +167,7 @@ const styles = (theme: ThemeType) => ({
   },
   statLabel: {
     fontSize: 13,
-    lineHeight: 'normal',
+    lineHeight: '17px',
     fontWeight: 500,
     marginTop: 8
   },
@@ -549,11 +565,10 @@ const styles = (theme: ThemeType) => ({
   },
   textRow: {
     maxWidth: 600,
-    margin: '0 auto'
   },
   text: {
     fontSize: 14,
-    lineHeight: 'normal',
+    lineHeight: '21px',
     fontWeight: 500,
     color: theme.palette.text.alwaysWhite,
   },
@@ -567,6 +582,9 @@ const styles = (theme: ThemeType) => ({
       textDecoration: 'underline',
       textUnderlineOffset: '4px',
     }
+  },
+  balance: {
+    textWrap: 'balance'
   },
   nowrap: {
     textWrap: 'nowrap'
@@ -594,57 +612,45 @@ const wrappedSecondaryColor = requireCssVar("palette", "wrapped", "secondaryText
 
 // A sample of data to approximate the real graph
 const ENGAGEMENT_CHART_DATA = [
-  {hours: 0, count: 855},
-  {hours: 1, count: 1839},
-  {hours: 2, count: 855},
-  {hours: 3, count: 516},
-  {hours: 4, count: 400},
-  {hours: 5, count: 300},
-  {hours: 8, count: 178},
-  {hours: 10, count: 124},
-  {hours: 10, count: 124},
-  {hours: 14, count: 77},
-  {hours: 18, count: 47},
-  {hours: 22, count: 32},
-  {hours: 26, count: 19},
+  {hours: 0, count: 878},
+  {hours: 1, count: 1857},
+  {hours: 2, count: 884},
+  {hours: 3, count: 522},
+  {hours: 4, count: 393},
+  {hours: 5, count: 309},
+  {hours: 8, count: 197},
+  {hours: 10, count: 135},
+  {hours: 12, count: 102},
+  {hours: 14, count: 97},
+  {hours: 18, count: 63},
+  {hours: 22, count: 39},
+  {hours: 26, count: 20},
   {hours: 35, count: 14},
-  {hours: 49, count: 9},
-  {hours: 60, count: 6},
-  {hours: 60, count: 6},
+  {hours: 48, count: 8},
+  {hours: 59, count: 6},
+  {hours: 70, count: 2},
   {hours: 80, count: 2},
-  {hours: 110, count: 1},
-  {hours: 504, count: 1},
+  {hours: 113, count: 1},
+  {hours: 525, count: 1},
 ]
 
 /**
- * Displays the calendar of days the user visited the forum.
- * Visualized as 12 rows of dots, with the visited days' dots being white.
+ * Formats the engagement percentile as an integer > 0
  */
-const VisitCalendar = ({daysVisited, classes}: {
-  daysVisited: string[],
-  classes: ClassesType
-}) => {
-  return <div className={classes.calendar}>
-    {range(0, 12).map((month: number) => {
-      const daysInMonth = moment(`2023-${month+1}`, 'YYYY-M').daysInMonth()
-      return <Fragment key={`month-${month}`}>
-        {range(0, daysInMonth).map(day => {
-          const date = moment(`2023-${month+1}-${day+1}`, 'YYYY-M-D')
-          return <div
-            key={`month-${month}-day-${day}`}
-            className={classNames(classes.calendarDot, {
-              [classes.calendarDotActive]: daysVisited.some(d => moment(d).isSame(date))
-            })}
-          ></div>
-        })}
-        {range(daysInMonth, 31).map(day => {
-          return <div key={`month-${month}-day-${day}`}></div>
-        })}
-      </Fragment>
-    })}
-  </div>
-}
+const formattedEngagementPercentile = (engagementPercentile: number) => (
+  Math.ceil((1 - engagementPercentile) * 100) || 1
+)
 
+/**
+ * Formats the karma change number as a string with a + or -
+ */
+const formattedKarmaChangeText = (karmaChange: number) => (
+  `${karmaChange >= 0 ? '+' : ''}${karmaChange}`
+)
+
+/**
+ * A single post item, used in TopPostSection and RecommendationsSection
+ */
 const Post = ({post, classes}: {
   post: WrappedTopPost|PostsListWithVotesAndSequence,
   classes: ClassesType
@@ -691,6 +697,9 @@ const Post = ({post, classes}: {
   </article>
 }
 
+/**
+ * A single comment item, used in TopCommentSection and TopShortformSection
+ */
 const Comment = ({comment, classes}: {
   comment: WrappedTopComment|WrappedTopShortform,
   classes: ClassesType
@@ -751,6 +760,9 @@ const Comment = ({comment, classes}: {
   </article>
 }
 
+/**
+ * The x-axis label for the karma change chart, used in KarmaChangeSection
+ */
 const KarmaChangeXAxis = () => {
   return <>
     <text y="100%" fontSize={12} fill="#FFF" textAnchor="start">Jan</text>
@@ -758,6 +770,249 @@ const KarmaChangeXAxis = () => {
   </>
 }
 
+/**
+ * Section that displays the user's engagement relative to other users
+ */
+const EngagementPercentileSection = ({data, classes}: {
+  data: WrappedDataByYearV2,
+  classes: ClassesType
+}) => {
+  // This is the x-axis position for the "you" arrow mark on the engagement chart.
+  // The highest value on the x-axis is ~530 hours.
+  // We multiply by 97.5 instead of 100 to account for the chart being less than the total width.
+  // We shift everything by 8px to account for the space that the y-axis takes up.
+  const engagementHours = (data.totalSeconds / 3600)
+  const markPosition = `calc(${97.5 * engagementHours / 530}% + 8px)`
+
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      You’re a top <span className={classes.highlight}>{formattedEngagementPercentile(data.engagementPercentile)}%</span> reader of the EA Forum
+    </h1>
+    <p className={classNames(classes.textRow, classes.text, classes.mt16)}>You read {data.postsReadCount} posts this year</p>
+    <div className={classes.chart}>
+      <aside className={classes.engagementChartMark} style={{left: markPosition}}>
+        <div className={classes.engagementChartArrow}>
+          {drawnArrow}
+        </div>
+        you
+      </aside>
+      <ResponsiveContainer width="100%" height={200}>
+        <LineChart width={350} height={200} data={ENGAGEMENT_CHART_DATA}>
+          <YAxis dataKey="count" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} width={2} />
+          <XAxis dataKey="hours" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} height={2} scale="linear" type="number" domain={[0, 530]} />
+          <Line dataKey="count" dot={false} stroke={wrappedHighlightColor} strokeWidth={2} />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  </section>
+}
+
+/**
+ * Section that displays the user's hours of engagement
+ */
+const EngagementHoursSection = ({engagementHours, classes}: {
+  engagementHours: number,
+  classes: ClassesType
+}) => {
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      You spent <span className={classes.highlight}>{engagementHours.toFixed(1)}</span> hours on the EA Forum in 2023
+    </h1>
+    <p className={classNames(classes.textRow, classes.text, classes.mt70)}>Which is about the same as...</p>
+    <div className={classNames(classes.stats, classes.mt30)}>
+      <article className={classes.stat}>
+        <div className={classes.heading3}>{(engagementHours / 3.5).toFixed(1)}</div>
+        <div className={classes.statLabel}>episodes of the 80,000 hours podcast</div>
+      </article>
+      <article className={classes.stat}>
+        <div className={classes.heading3}>{(engagementHours / 25).toFixed(1)}</div>
+        <div className={classes.statLabel}>EAG(x) conferences</div>
+      </article>
+      <article className={classes.stat}>
+        <div className={classes.heading3}>{(engagementHours / 4320).toFixed(3)}</div>
+        <div className={classes.statLabel}>Llama 2s trained</div>
+      </article>
+    </div>
+  </section>
+}
+
+/**
+ * Section that displays the calendar of days that the user visited the forum,
+ * visualized as 12 rows of dots, with the visited days' dots being white
+ */
+const DaysVisitedSection = ({daysVisited, classes}: {
+  daysVisited: string[],
+  classes: ClassesType
+}) => {
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      You visited the EA Forum on <span className={classes.highlight}>{daysVisited.length}</span> days in 2023
+    </h1>
+    <p className={classNames(classes.textRow, classes.text, classes.mt16)}>
+      (You may have visited more times while logged out)
+    </p>
+    <div className={classes.calendar}>
+      {range(0, 12).map((month: number) => {
+        const daysInMonth = moment(`2023-${month+1}`, 'YYYY-M').daysInMonth()
+        return <Fragment key={`month-${month}`}>
+          {range(0, daysInMonth).map(day => {
+            const date = moment(`2023-${month+1}-${day+1}`, 'YYYY-M-D')
+            return <div
+              key={`month-${month}-day-${day}`}
+              className={classNames(classes.calendarDot, {
+                [classes.calendarDotActive]: daysVisited.some(d => moment(d).isSame(date))
+              })}
+            ></div>
+          })}
+          {range(daysInMonth, 31).map(day => {
+            return <div key={`month-${month}-day-${day}`}></div>
+          })}
+        </Fragment>
+      })}
+    </div>
+  </section>
+}
+
+/**
+ * Section that displays a list of the user's most-read topics
+ */
+const MostReadTopicsSection = ({mostReadTopics, classes}: {
+  mostReadTopics: WrappedMostReadTopic[],
+  classes: ClassesType
+}) => {
+  if (!mostReadTopics.length) return null;
+  
+  // The top bar is highlight yellow, the rest are white
+  const topics = mostReadTopics.map((topic, i) => {
+    return {
+      ...topic,
+      fill: i === 0 ? wrappedHighlightColor : '#FFF'
+    }
+  })
+
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      You spent the most time on <span className={classes.highlight}>{topics[0].name}</span>
+    </h1>
+    <div className={classes.topicsChart}>
+      <ResponsiveContainer width="100%" height={200}>
+        <BarChart layout="vertical" width={350} height={200} data={topics} barCategoryGap={'20%'} {...{overflow: 'visible'}}>
+          <YAxis
+            dataKey="shortName"
+            type="category"
+            tickLine={false}
+            axisLine={false}
+            width={80}
+            tick={{fill: '#FFF'}}
+            tickMargin={10}
+          />
+          <XAxis dataKey="count" type="number" hide />
+          <Bar dataKey="count" />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  </section>
+}
+
+/**
+ * Section that displays a list of the core topics that the user has read more relative to the avg
+ */
+const RelativeMostReadTopicsSection = ({relativeMostReadCoreTopics, classes}: {
+  relativeMostReadCoreTopics: WrappedRelativeMostReadCoreTopic[],
+  classes: ClassesType
+}) => {
+  const relativeMostReadTopics = relativeMostReadCoreTopics.map(topic => {
+    return {
+      ...topic,
+      tagName: topic.tagShortName ?? topic.tagName,
+      overallReadCount: topic.userReadCount / topic.readLikelihoodRatio
+    }
+  }).slice(0, 4)
+  // We shrink the chart such that the bars are always the same thickness,
+  // so that the mark arrows point to the proper places.
+  const relativeTopicsChartHeight = 200 * (relativeMostReadTopics.length / 4)
+  
+  if (!relativeMostReadTopics.length) return null;
+
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      You spent more time on <span className={classes.highlight}>{relativeMostReadTopics[0].tagName}</span> than other users
+    </h1>
+    <div className={classes.topicsChart}>
+      <aside className={classes.relativeTopicsChartMarkYou}>
+        you
+        {drawnArrow}
+      </aside>
+      <aside className={classes.relativeTopicsChartMarkAvg}>
+        <div className={classes.relativeTopicsChartArrowAvg}>
+          {drawnArrow}
+        </div>
+        average
+      </aside>
+      <ResponsiveContainer width="100%" height={relativeTopicsChartHeight}>
+        <BarChart
+          layout="vertical"
+          width={350}
+          height={relativeTopicsChartHeight}
+          data={relativeMostReadTopics}
+          barCategoryGap={'20%'}
+          barGap={0}
+          {...{overflow: 'visible'}}
+        >
+          <YAxis
+            dataKey="tagName"
+            type="category"
+            tickLine={false}
+            axisLine={false}
+            width={80}
+            tick={{fill: '#FFF'}}
+            tickMargin={10}
+          />
+          <XAxis dataKey="userReadCount" type="number" hide />
+          <Bar dataKey="userReadCount" fill={wrappedHighlightColor} />
+          <Bar dataKey="overallReadCount" fill="#FFF" />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  </section>
+}
+
+/**
+ * Section that displays a list of the user's most-read authors
+ */
+const MostReadAuthorsSection = ({authors, classes}: {
+  authors: WrappedMostReadAuthor[],
+  classes: ClassesType
+}) => {
+  if (!authors.length) return null;
+
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      Your most-read author was <span className={classes.highlight}>{authors[0].displayName}</span>
+    </h1>
+    <div className={classes.authors}>
+      {authors.map(author => {
+        return <article key={author.slug} className={classes.author}>
+          <Components.UsersProfileImage size={40} user={author} />
+          <div>
+            <h2 className={classes.authorName}>
+              <Link to={userGetProfileUrlFromSlug(author.slug)}>
+                {author.displayName}
+              </Link>
+            </h2>
+            <p className={classes.authorReadCount}>
+              {author.count} post{author.count === 1 ? '' : 's'} read
+            </p>
+          </div>
+        </article>
+      })}
+    </div>
+  </section>
+}
+
+/**
+ * Section that prompts the user to DM the author of whom they are in the highest percentile of readership
+ */
 const ThankAuthorSection = ({authors, classes}: {
   authors: WrappedMostReadAuthor[],
   classes: ClassesType
@@ -767,8 +1022,8 @@ const ThankAuthorSection = ({authors, classes}: {
   
   // Find the author for which the current user is in the highest percentile
   const topAuthorByEngagementPercentile = [...authors].sort((a, b) => b.engagementPercentile - a.engagementPercentile)[0]
-  const topAuthorPercentByEngagementPercentile = Math.ceil(100 * (1 - topAuthorByEngagementPercentile.engagementPercentile))
-  const showThankAuthor = currentUser && topAuthorPercentByEngagementPercentile <= 10 && userCanStartConversations(currentUser)
+  const topAuthorPercentByEngagementPercentile = (topAuthorByEngagementPercentile && Math.ceil(100 * (1 - topAuthorByEngagementPercentile.engagementPercentile))) || 1
+  const showThankAuthor = currentUser && topAuthorByEngagementPercentile && topAuthorPercentByEngagementPercentile <= 10 && userCanStartConversations(currentUser)
   
   const { conversation, initiateConversation } = useInitiateConversation()
   useEffect(() => {
@@ -809,6 +1064,127 @@ const ThankAuthorSection = ({authors, classes}: {
   </section>
 }
 
+/**
+ * Section that displays the user's highest-karma post plus other data on their posts
+ */
+const TopPostSection = ({data, classes}: {
+  data: WrappedDataByYearV2,
+  classes: ClassesType
+}) => {
+  if (!data.topPosts?.length) return null;
+  // Only show this section if their top post got 10 karma
+  const topPost = data.topPosts[0]
+  if (topPost.baseScore < 10) return null;
+  
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      Your highest-karma <span className={classes.highlight}>post</span> in 2023:
+    </h1>
+    <div className={classes.topPost}>
+      <Post post={data.topPosts[0]} classes={classes} />
+    </div>
+    {data.topPosts.length > 1 && <>
+      <p className={classNames(classes.textRow, classes.text, classes.mt60)}>
+        Other posts you wrote this year...
+      </p>
+      <div className={classes.nextTopPosts}>
+        {data.topPosts.slice(1).map(post => {
+          return <Post key={post._id} post={post} classes={classes} />
+        })}
+      </div>
+    </>}
+    <p className={classNames(classes.textRow, classes.text, classes.mt40)}>
+      You wrote {data.postCount} post{data.postCount === 1 ? '' : 's'} in total this year.
+      This means you're in the top {Math.ceil((1-data.authorPercentile) * 100) || 1}% of post authors.
+    </p>
+  </section>
+}
+
+/**
+ * Section that displays the user's highest-karma comment plus other data on their comments
+ */
+const TopCommentSection = ({data, classes}: {
+  data: WrappedDataByYearV2,
+  classes: ClassesType
+}) => {
+  if (!data.topComment) return null;
+  // Only show this section if their top comment has >0 karma
+  if (data.topComment.baseScore < 1) return null;
+  
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      Your highest-karma <span className={classes.highlight}>comment</span> in 2023:
+    </h1>
+    <div className={classes.topPost}>
+      <Comment comment={data.topComment} classes={classes} />
+    </div>
+    <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
+      You wrote {data.commentCount} comment{data.commentCount === 1 ? '' : 's'} in total this year.
+      This means you're in the top {Math.ceil((1-data.commenterPercentile) * 100) || 1}% of commenters.
+    </p>
+  </section>
+}
+
+/**
+ * Section that displays the user's highest-karma shortform (quick take) plus other data on their quick takes
+ */
+const TopShortformSection = ({data, classes}: {
+  data: WrappedDataByYearV2,
+  classes: ClassesType
+}) => {
+  if (!data.topShortform) return null;
+  // Only show this section if their top quick take has >0 karma
+  if (data.topShortform.baseScore < 1) return null;
+  
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      Your highest-karma <span className={classes.highlight}>quick take</span> in 2023:
+    </h1>
+    <div className={classes.topPost}>
+      <Comment comment={data.topShortform} classes={classes} />
+    </div>
+    <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
+      You wrote {data.shortformCount} quick take{data.shortformCount === 1 ? '' : 's'} in total this year.
+      This means you're in the top {Math.ceil((1-data.shortformPercentile) * 100) || 1}% of quick take authors.
+    </p>
+  </section>
+}
+
+/**
+ * Section that displays the user's overall karma change and accompanying chart
+ */
+const KarmaChangeSection = ({data, classes}: {
+  data: WrappedDataByYearV2,
+  classes: ClassesType
+}) => {
+  // If the user hasn't written anything and their karma change is 0, hide the karma change section
+  const hasWrittenContent = !!data.topPosts?.length || data.topComment || data.topShortform
+  if (data.karmaChange === undefined || (!hasWrittenContent && data.karmaChange === 0)) return null;
+  
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      Your overall karma change this year was <span className={classes.highlight}>{formattedKarmaChangeText(data.karmaChange)}</span>
+    </h1>
+    <div className={classes.chart}>
+      <div className={classes.chartLabels}>
+        <div className={classes.karmaFromPostsLabel}>Karma from posts</div>
+        <div className={classes.karmaFromCommentsLabel}>Karma from comments</div>
+      </div>
+      <ResponsiveContainer width="100%" height={200}>
+        <AreaChart width={350} height={200} data={data.combinedKarmaVals}>
+          <YAxis tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} width={2} />
+          <XAxis dataKey="date" tick={false} axisLine={{strokeWidth: 3, stroke: '#FFF'}} height={16} label={<KarmaChangeXAxis />} />
+          <Area dataKey="commentKarma" stackId="1" stroke={wrappedSecondaryColor} fill={wrappedSecondaryColor} fillOpacity={1} />
+          <Area dataKey="postKarma" stackId="1" stroke={wrappedHighlightColor} fill={wrappedHighlightColor} fillOpacity={1} />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  </section>
+}
+
+/**
+ * Section that displays data on the reacts that the user received
+ */
 const ReactsReceivedSection = ({receivedReacts, classes}: {
   receivedReacts: WrappedReceivedReact[],
   classes: ClassesType
@@ -819,12 +1195,10 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
     return reacts?.reduce((prev: ReceivedReact[], next) => {
       const Component = eaEmojiPalette.find(emoji => emoji.label === next.name)?.Component
       if (Component) {
-        // only go to 98% to prevent causing a horizontal scroll
+        // only go to 96% to prevent causing a horizontal scroll
         range(0, next.count).forEach(_ => prev.push({
-          top: `${Math.random() * 98}%`,
-          // top: `${(Math.random() + Math.random()) * 98 / 2}%`,
-          left: `${Math.random() * 98}%`,
-          // left: `${(Math.random() + Math.random()) * 98 / 2}%`,
+          top: `${Math.random() * 96}%`,
+          left: `${Math.random() * 96}%`,
           Component
         }))
       }
@@ -840,7 +1214,7 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
   const totalReactsReceived = receivedReacts.reduce((prev, next) => prev + next.count, 0)
   if (totalReactsReceived <= 5) return null
   
-  return <section className={classes.section}>
+  return <section className={classNames(classes.section, classes.sectionTall)}>
     {allReactsReceived?.map((react, i) => {
       return <div
         key={i}
@@ -874,6 +1248,55 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
 }
 
 /**
+ * Section that displays some recommended posts to the user
+ */
+const RecommendationsSection = ({classes}: {
+  classes: ClassesType
+}) => {
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      Posts you missed that we think you’ll enjoy
+    </h1>
+    {/* This postId is my April Fool's post. I think it shouldn't affect the results, but it's still required for some reason. */}
+    <Components.RecommendationsList
+      algorithm={{strategy: {name: 'bestOf', postId: 'KPijJRnQCQvSu5AA2'}, count: 5, disableFallbacks: true}}
+      ListItem={
+        (props: {
+          post: PostsListWithVotesAndSequence,
+          translucentBackground?: boolean,
+        }) => (
+          <Post post={props.post} classes={classes} />
+        )
+      }
+      className={classes.recommendedPosts}
+    />
+  </section>
+}
+
+/**
+ * Section that thanks the user
+ */
+const ThankYouSection = ({classes}: {
+  classes: ClassesType
+}) => {
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      Thank you! <span className={classes.heartIcon}><HeartReactionIcon /></span>
+    </h1>
+    <p className={classNames(classes.textRow, classes.text, classes.balance, classes.mt20)}>
+      Thanks for being part of the EA Forum and helping the community think about how to do the most good in the world
+    </p>
+    <div className={classNames(classes.lightbulbIcon, classes.mt30)}>
+      {lightbulbIcon}
+    </div>
+    <p className={classNames(classes.summaryLinkWrapper, classes.text, classes.mt70)}>
+      Here’s your 2023 all in one page
+      <Components.ForumIcon icon="NarrowArrowDown" />
+    </p>
+  </section>
+}
+
+/**
  * This is the primary page component for EA Forum Wrapped 2023.
  */
 const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
@@ -888,8 +1311,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
   
   useEffect(() => {
     if (currentUser) {
-      // Add scrollSnapType: 'y mandatory' styles to html and body elements (need both for different browsers?)
-      document.body.classList.add('EAForumWrapped2023Page-scrollSnap')
+      // Add scrollSnapType: 'y mandatory' styles to html element
       document.documentElement.classList.add('EAForumWrapped2023Page-scrollSnap')
     }
   }, [currentUser])
@@ -906,14 +1328,14 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     node?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
   }, [node]);
 
-  const { HeadTags, ForumIcon, CloudinaryImage2, UsersProfileImage, RecommendationsList, CoreTagIcon } = Components
+  const { HeadTags, ForumIcon, CloudinaryImage2, UsersProfileImage, CoreTagIcon } = Components
   
   // If there's no logged in user, prompt them to login
   if (!currentUser) {
     return <AnalyticsContext pageContext="eaYearWrapped">
       <HeadTags
         title="EA Forum 2023 Wrapped"
-        image={makeCloudinaryImageUrl('b90e48ae75ae9f3d73bbcf17f2ddf6a0', socialImageProps)}
+        image={makeCloudinaryImageUrl('2023_wrapped_wide', socialImageProps)}
       />
       <main className={classes.root}>
         <section className={classes.section}>
@@ -930,48 +1352,13 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
               to get ready for 2024
             </p>
           </div>
-          <CloudinaryImage2 publicId="b90e48ae75ae9f3d73bbcf17f2ddf6a0" wrapperClassName={classes.loginImgWrapper} className={classes.img} />
+          <CloudinaryImage2 publicId="2023_wrapped" wrapperClassName={classes.loginImgWrapper} className={classes.img} />
         </section>
       </main>
     </AnalyticsContext>
   }
 
   if (!data) return null;
-
-  // TODO un-admin gate
-  if (!userIsAdminOrMod(currentUser)) {
-    return <div className={classes.root}>
-      You do not have permission to view this page.
-    </div>
-  }
-
-  const engagementPercentile = Math.ceil((1 - data.engagementPercentile) * 100)
-  const engagementHours = (data.totalSeconds / 3600)
-  // This is the x-axis position for the "you" arrow mark on the engagement chart.
-  // The highest value on the x-axis is ~520 hours.
-  // We multiply by 97 instead of 100 because I thought that looked better.
-  // We shift everything by 8px to account for the space that the y-axis takes up.
-  const engagementChartMarkPos = `calc(${97 * engagementHours / 520}% + 8px)`
-
-  const mostReadTopics = data.mostReadTopics.map((topic, i) => {
-    return {
-      ...topic,
-      fill: i === 0 ? wrappedHighlightColor : '#FFF'
-    }
-  })
-  const relativeMostReadTopics = data.relativeMostReadCoreTopics.map(topic => {
-    return {
-      ...topic,
-      tagName: topic.tagShortName ?? topic.tagName,
-      overallReadCount: topic.userReadCount / topic.readLikelihoodRatio
-    }
-  }).slice(0, 4)
-  // We shrink the chart such that the bars are always the same thickness,
-  // so that the mark arrows point to the proper places.
-  const relativeTopicsChartHeight = 200 * (relativeMostReadTopics.length / 4)
-  // If the user hasn't written anything and their karma change is 0, hide the karma change section
-  const hasWrittenContent = !!data.topPosts?.length || data.topComment || data.topShortform
-  const karmaChange = `${data.karmaChange >= 0 ? '+' : ''}${data.karmaChange}`
 
   return (
     <AnalyticsContext pageContext="eaYearWrapped">
@@ -980,236 +1367,28 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         <section className={classes.section}>
           <h1 className={classes.heading1}>Your 2023 Wrapped</h1>
           {currentUser.wrapped2023Viewed &&
-            <button className={classes.skipToSummaryBtn} onClick={skipToSummary}>
+            <button className={classNames(classes.summaryLinkWrapper, classes.skipToSummaryBtn)} onClick={skipToSummary}>
               Skip to summary
               <ForumIcon icon="NarrowArrowDown" />
             </button>
           }
-          <CloudinaryImage2 publicId="b90e48ae75ae9f3d73bbcf17f2ddf6a0" wrapperClassName={classes.imgWrapper} className={classes.img} />
+          <CloudinaryImage2 publicId="2023_wrapped" wrapperClassName={classes.imgWrapper} className={classes.img} />
         </section>
         
-        <section className={classes.section}>
-          <h1 className={classes.heading3}>
-            You’re a top <span className={classes.highlight}>{engagementPercentile}%</span> reader of the EA Forum
-          </h1>
-          <p className={classNames(classes.textRow, classes.text, classes.mt16)}>You read {data.postsReadCount} posts this year</p>
-          <div className={classes.chart}>
-            <aside className={classes.engagementChartMark} style={{left: engagementChartMarkPos}}>
-              <div className={classes.engagementChartArrow}>
-                {drawnArrow}
-              </div>
-              you
-            </aside>
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart width={350} height={200} data={ENGAGEMENT_CHART_DATA}>
-                <YAxis dataKey="count" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} width={2} />
-                <XAxis dataKey="hours" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} height={2} scale="linear" type="number" domain={[0, 520]} />
-                <Line dataKey="count" dot={false} stroke={wrappedHighlightColor} strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </section>
-        
-        <section className={classes.section}>
-          <h1 className={classes.heading3}>
-            You spent <span className={classes.highlight}>{engagementHours.toFixed(1)}</span> hours on the EA Forum in 2023
-          </h1>
-          <p className={classNames(classes.textRow, classes.text, classes.mt70)}>Which is about the same as...</p>
-          <div className={classNames(classes.stats, classes.mt30)}>
-            <article className={classes.stat}>
-              <div className={classes.heading3}>{(engagementHours / 3.5).toFixed(1)}</div>
-              <div className={classes.statLabel}>episodes of the 80,000 hours podcast</div>
-            </article>
-            <article className={classes.stat}>
-              <div className={classes.heading3}>{(engagementHours / 25).toFixed(1)}</div>
-              <div className={classes.statLabel}>EAG(x) conferences</div>
-            </article>
-            <article className={classes.stat}>
-              <div className={classes.heading3}>{(engagementHours / 4320).toFixed(3)}</div>
-              <div className={classes.statLabel}>Llama 2s trained</div>
-            </article>
-          </div>
-        </section>
-        
-        <section className={classes.section}>
-          <h1 className={classes.heading3}>
-            You visited the EA Forum on <span className={classes.highlight}>{data.daysVisited.length}</span> days in 2023
-          </h1>
-          <p className={classNames(classes.textRow, classes.text, classes.mt16)}>(You may have visited more times while logged out)</p>
-          <VisitCalendar daysVisited={data.daysVisited} classes={classes} />
-        </section>
-        
-        {!!mostReadTopics.length && <section className={classes.section}>
-          <h1 className={classes.heading3}>
-            You spent the most time on <span className={classes.highlight}>{mostReadTopics[0].name}</span>
-          </h1>
-          <div className={classes.topicsChart}>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart layout="vertical" width={350} height={200} data={mostReadTopics} barCategoryGap={'20%'} {...{overflow: 'visible'}}>
-                <YAxis
-                  dataKey="shortName"
-                  type="category"
-                  tickLine={false}
-                  axisLine={false}
-                  width={80}
-                  tick={{fill: '#FFF'}}
-                  tickMargin={10}
-                />
-                <XAxis dataKey="count" type="number" hide />
-                <Bar dataKey="count" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </section>}
-        
-        {!!relativeMostReadTopics.length && <section className={classes.section}>
-          <h1 className={classes.heading3}>
-            You spent more time on <span className={classes.highlight}>{relativeMostReadTopics[0].tagName}</span> than other users
-          </h1>
-          <div className={classes.topicsChart}>
-            <aside className={classes.relativeTopicsChartMarkYou}>
-              you
-              {drawnArrow}
-            </aside>
-            <aside className={classes.relativeTopicsChartMarkAvg}>
-              <div className={classes.relativeTopicsChartArrowAvg}>
-                {drawnArrow}
-              </div>
-              average
-            </aside>
-            <ResponsiveContainer width="100%" height={relativeTopicsChartHeight}>
-              <BarChart layout="vertical" width={350} height={relativeTopicsChartHeight} data={relativeMostReadTopics} barCategoryGap={'20%'} barGap={0} {...{overflow: 'visible'}}>
-                <YAxis
-                  dataKey="tagName"
-                  type="category"
-                  tickLine={false}
-                  axisLine={false}
-                  width={80}
-                  tick={{fill: '#FFF'}}
-                  tickMargin={10}
-                />
-                <XAxis dataKey="userReadCount" type="number" hide />
-                <Bar dataKey="userReadCount" fill={wrappedHighlightColor} />
-                <Bar dataKey="overallReadCount" fill="#FFF" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </section>}
-        
-        {!!data.mostReadAuthors.length && <section className={classes.section}>
-          <h1 className={classes.heading3}>
-            Your most-read author was <span className={classes.highlight}>{data.mostReadAuthors[0].displayName}</span>
-          </h1>
-          <div className={classes.authors}>
-            {data.mostReadAuthors.map(author => {
-              return <article key={author.slug} className={classes.author}>
-                <UsersProfileImage size={40} user={author} />
-                <div>
-                  <h2 className={classes.authorName}>
-                    <Link to={userGetProfileUrlFromSlug(author.slug)}>
-                      {author.displayName}
-                    </Link>
-                  </h2>
-                  <p className={classes.authorReadCount}>
-                    {author.count} post{author.count === 1 ? '' : 's'} read
-                  </p>
-                </div>
-              </article>
-            })}
-          </div>
-        </section>}
-        
+        <EngagementPercentileSection data={data} classes={classes} />
+        <EngagementHoursSection engagementHours={(data.totalSeconds / 3600)} classes={classes} />
+        <DaysVisitedSection daysVisited={data.daysVisited} classes={classes} />
+        <MostReadTopicsSection mostReadTopics={data.mostReadTopics} classes={classes} />
+        <RelativeMostReadTopicsSection relativeMostReadCoreTopics={data.relativeMostReadCoreTopics} classes={classes} />
+        <MostReadAuthorsSection authors={data.mostReadAuthors} classes={classes} />
         <ThankAuthorSection authors={data.mostReadAuthors} classes={classes} />
-        
-        {!!data.topPosts?.length && <section className={classes.section}>
-          <h1 className={classes.heading3}>
-            Your highest-karma <span className={classes.highlight}>post</span> in 2023:
-          </h1>
-          <div className={classes.topPost}>
-            <Post post={data.topPosts[0]} classes={classes} />
-          </div>
-          {data.topPosts.length > 1 && <>
-            <p className={classNames(classes.textRow, classes.text, classes.mt60)}>
-              Other posts you wrote this year...
-            </p>
-            <div className={classes.nextTopPosts}>
-              {data.topPosts.slice(1).map(post => {
-                return <Post key={post._id} post={post} classes={classes} />
-              })}
-            </div>
-          </>}
-          <p className={classNames(classes.textRow, classes.text, classes.mt40)}>
-            You wrote {data.postCount} post{data.postCount === 1 ? '' : 's'} in total this year.
-            This means you're in the top {Math.ceil((1-data.authorPercentile) * 100)}% of post authors.
-          </p>
-        </section>}
-        
-        {!!data.topComment && <section className={classes.section}>
-          <h1 className={classes.heading3}>
-            Your highest-karma <span className={classes.highlight}>comment</span> in 2023:
-          </h1>
-          <div className={classes.topPost}>
-            <Comment comment={data.topComment} classes={classes} />
-          </div>
-          <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
-            You wrote {data.commentCount} comment{data.commentCount === 1 ? '' : 's'} in total this year.
-            This means you're in the top {Math.ceil((1-data.commenterPercentile) * 100)}% of commenters.
-          </p>
-        </section>}
-        
-        {!!data.topShortform && <section className={classes.section}>
-          <h1 className={classes.heading3}>
-            Your highest-karma <span className={classes.highlight}>quick take</span> in 2023:
-          </h1>
-          <div className={classes.topPost}>
-            <Comment comment={data.topShortform} classes={classes} />
-          </div>
-          <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
-            You wrote {data.shortformCount} quick take{data.shortformCount === 1 ? '' : 's'} in total this year.
-            This means you're in the top {Math.ceil((1-data.shortformPercentile) * 100)}% of quick take authors.
-          </p>
-        </section>}
-        
-        {data.karmaChange !== undefined && (hasWrittenContent || data.karmaChange !== 0) && <section className={classes.section}>
-          <h1 className={classes.heading3}>
-            Your overall karma change this year was <span className={classes.highlight}>{karmaChange}</span>
-          </h1>
-          <div className={classes.chart}>
-            <div className={classes.chartLabels}>
-              <div className={classes.karmaFromPostsLabel}>Karma from posts</div>
-              <div className={classes.karmaFromCommentsLabel}>Karma from comments</div>
-            </div>
-            <ResponsiveContainer width="100%" height={200}>
-              <AreaChart width={350} height={200} data={data.combinedKarmaVals}>
-                <YAxis tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} width={2} />
-                <XAxis dataKey="date" tick={false} axisLine={{strokeWidth: 3, stroke: '#FFF'}} height={16} label={<KarmaChangeXAxis />} />
-                <Area dataKey="commentKarma" stackId="1" stroke={wrappedSecondaryColor} fill={wrappedSecondaryColor} fillOpacity={1} />
-                <Area dataKey="postKarma" stackId="1" stroke={wrappedHighlightColor} fill={wrappedHighlightColor} fillOpacity={1} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </section>}
-        
+        <TopPostSection data={data} classes={classes} />
+        <TopCommentSection data={data} classes={classes} />
+        <TopShortformSection data={data} classes={classes} />
+        <KarmaChangeSection data={data} classes={classes} />
         <ReactsReceivedSection receivedReacts={data.mostReceivedReacts} classes={classes} />
-        
-        <section className={classes.section}>
-          <h1 className={classes.heading3}>
-            Posts you missed that we think you’ll enjoy
-          </h1>
-          {/* This postId is my April Fool's post. I think it shouldn't affect the results, but it's still required for some reason. */}
-          <RecommendationsList
-            algorithm={{strategy: {name: 'bestOf', postId: 'KPijJRnQCQvSu5AA2'}, count: 5, disableFallbacks: true}}
-            ListItem={
-              (props: {
-                post: PostsListWithVotesAndSequence,
-                translucentBackground?: boolean,
-              }) => (
-                <Post post={props.post} classes={classes} />
-              )
-            }
-            className={classes.recommendedPosts}
-          />
-        </section>
+        <RecommendationsSection classes={classes} />
+        <ThankYouSection classes={classes} />
         
         <section className={classes.section} ref={setNode}>
           <p className={classNames(classes.text, classes.m0)}>Effective Altruism Forum</p>
@@ -1221,13 +1400,13 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             <div className={classes.summaryBoxRow}>
               <div className={classes.summaryBox}>
                 <article>
-                  <div className={classes.heading4}>{engagementPercentile}%</div>
+                  <div className={classes.heading4}>{formattedEngagementPercentile(data.engagementPercentile)}%</div>
                   <div className={classes.statLabel}>Top reader</div>
                 </article>
               </div>
               <div className={classes.summaryBox}>
                 <article>
-                  <div className={classes.heading4}>{engagementHours.toFixed(1)}</div>
+                  <div className={classes.heading4}>{(data.totalSeconds / 3600).toFixed(1)}</div>
                   <div className={classes.statLabel}>Hours spent</div>
                 </article>
               </div>
@@ -1246,7 +1425,9 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
                   {data.mostReadAuthors.map(author => {
                     return <div key={author.slug} className={classes.summaryListItem}>
                       <UsersProfileImage size={20} user={author} />
-                      {author.displayName}
+                      <Link to={userGetProfileUrlFromSlug(author.slug)}>
+                        {author.displayName}
+                      </Link>
                     </div>
                   })}
                 </div>
@@ -1260,7 +1441,9 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
                   {data.mostReadTopics.map(topic => {
                     return <div key={topic.slug} className={classes.summaryListItem}>
                       <CoreTagIcon tag={topic} fallbackNode={<div className={classes.summaryTopicIconPlaceholder}></div>} />
-                      {topic.name}
+                      <Link to={tagGetUrl({slug: topic.slug})}>
+                        {topic.name}
+                      </Link>
                     </div>
                   })}
                 </div>
@@ -1270,7 +1453,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
               <div className={classes.summaryBox}>
                 <article>
-                  <div className={classes.heading4}>{karmaChange}</div>
+                  <div className={classes.heading4}>{formattedKarmaChangeText(data.karmaChange)}</div>
                   <div className={classes.statLabel}>Karma</div>
                 </article>
               </div>
@@ -1289,7 +1472,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             </div>
           </div>
         </section>
-
+        
         <section className={classes.section}>
           <h1 className={classes.heading2}>
             Take a moment to reflect on 2023
@@ -1300,33 +1483,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           </p>
         </section>
 
-        {/* <section className={classes.section}> */}
-        {/* <SingleColumnSection> */}
-          {/* <pre>Engagement Percentile: {data.engagementPercentile}</pre> */}
-          {/* <pre>Posts Read Count: {data.postsReadCount}</pre> */}
-          {/* <pre>Total Hours: {(data.totalSeconds / 3600).toFixed(1)}</pre> */}
-          {/* <pre>Days Visited: {JSON.stringify(data.daysVisited, null, 2)}</pre> */}
-          {/* <pre>Most Read Topics: {JSON.stringify(data.mostReadTopics, null, 2)}</pre> */}
-          {/* <pre>Relative Most Read Core Topics: {JSON.stringify(data.relativeMostReadCoreTopics, null, 2)}</pre> */}
-          {/* <pre>Most Read Authors: {JSON.stringify(data.mostReadAuthors, null, 2)}</pre> */}
-          {/* <pre>Top Posts: {JSON.stringify(data.topPosts, null, 2)}</pre>
-          <pre>Post Count: {data.postCount}</pre>
-          <pre>Author Percentile: {data.authorPercentile}</pre> */}
-          {/* <pre>Top Comment: {JSON.stringify(data.topComment, null, 2)}</pre>
-          <pre>Comment Count: {data.commentCount}</pre>
-          <pre>Commenter Percentile: {data.commenterPercentile}</pre>
-          <pre>Top Shortform: {JSON.stringify(data.topShortform, null, 2)}</pre>
-          <pre>Shortform Count: {data.shortformCount}</pre>
-          <pre>Shortform Percentile: {data.shortformPercentile}</pre> */}
-          {/* <pre>Karma Change: {data.karmaChange}</pre> */}
-          {/* <pre>Combined karma vals: {JSON.stringify(data.combinedKarmaVals, null, 2)}</pre> */}
-          {/* <pre>Most Received Reacts: {JSON.stringify(data.mostReceivedReacts, null, 2)}</pre> */}
-          {/* <pre>Alignment: {data.alignment}</pre> */}
-        {/* </SingleColumnSection> */}
-        {/* </section> */}
       </main>
-      
-      
     </AnalyticsContext>
   )
 }

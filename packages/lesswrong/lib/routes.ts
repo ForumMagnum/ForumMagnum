@@ -790,7 +790,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       previewComponentName: 'TagHoverPreview',
       unspacedGrid: true,
     },
-    // TODO Remove 2022 version before deploying to prod
+    // TODO Remove 2022 version
     {
       name: 'EAForumWrapped',
       path: '/wrapped2022',

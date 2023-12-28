@@ -232,7 +232,6 @@ addGraphQLSchema(`
     karmaChange: Int,
     combinedKarmaVals: [CombinedKarmaVals],
     mostReceivedReacts: [MostReceivedReact],
-    alignment: String,
   }
 `);
 
@@ -337,36 +336,30 @@ addGraphQLResolvers({
       return updatedUser
     },
   },
-  // Statistics to include:
-  // - [X] You’re a top X% reader of the EA Forum
-  // - [X] You read X posts this year
-  // - [X] You spend N hours on the EA Forum (Which is about the same as X reads of Scout mindset (estimated at 3,5h), Y episodes of 80k podcast episodes (estimated at 3h?), Z hours of EAG(x) conferences (estimated at 40h?))
-  // - [X] You visited the EA Forum on X days in 2023
-  // - [X] You spent the most time on X (core topic) (use post count initially)
-  // - [X] Compared to  other users, you read more posts about TOPIC
-  // - [X] And less on X (core topic) than other users
-  // - [X] Your most-read author was Y
-  // - [X] Your top 5 most-read authors are A, B, C, D, E
-  // - [X] You’re in the top x% of Y’s readers (one of your top 5 most-read authors)
-  // - [X] Your highest-karma post in 2023 was N
-  // - [X] You wrote X posts in total this year.
-  // - [X] This means you're in the top Y% of post authors.
-  // - [X] Your highest-karma comment in 2023 was N
-  // - [X] You wrote X comments in total this year.
-  // - [X] This means you're in the top Y% of commenters.
-  // - [X] Your highest-karma quick take in 2023 was N
-  // - [X] You wrote X quick takes in total this year.
-  // - [X] This means you're in the top Y% of quick takes authors
-  // - [X] Your overall karma change this year was X (Y from comments, Z from posts)
-  // - [X] Others gave you X [most received react] reacts
-  // - [X] And X reacts in total (X insightful, Y helpful, Z changed my mind)
-  // - [ ] Your Forum [TBD what this consists, last year was 'alignment']
-  //
-  // The rest to be handled separately:
-  // - [ ] A summary of all stats at the end (probably nothing extra required)
-  // - [ ] A list of your upvotes in 2023
-  // - [ ] (Maybe) recommended posts you missed
+
   Query: {
+    // UserWrappedDataByYearV2 includes:
+    // - You’re a top X% reader of the EA Forum
+    // - You read X posts this year
+    // - You spend N hours on the EA Forum
+    // - You visited the EA Forum on X days in 2023
+    // - You spent the most time on X topics
+    // - Compared to other users, you spent more time on X core topics
+    // - Your most-read author was Y
+    // - Your top 5 most-read authors are A, B, C, D, E
+    // - You’re in the top X% of Y’s readers (one of your top 5 most-read authors)
+    // - Your highest-karma post in 2023 was N (and your next 3 highest-karma posts are A, B, C)
+    // - You wrote X posts in total this year
+    // - This means you're in the top Y% of post authors
+    // - Your highest-karma comment in 2023 was N
+    // - You wrote X comments in total this year
+    // - This means you're in the top Y% of commenters
+    // - Your highest-karma quick take in 2023 was N
+    // - You wrote X quick takes in total this year
+    // - This means you're in the top Y% of quick takes authors
+    // - Your overall karma change this year was X (Y from comments, Z from posts)
+    // - Others gave you X [most received react] reacts
+    // - And X reacts in total (X insightful, Y helpful, Z changed my mind)
     async UserWrappedDataByYearV2(root: void, {userId, year}: {userId: string, year: number}, context: ResolverContext) {
       const { currentUser } = context
       const user = await Users.findOne({_id: userId})
@@ -377,8 +370,8 @@ addGraphQLResolvers({
       }
 
       // Get all the user's posts read for the given year
-      const start = moment().year(year).dayOfYear(1).toDate()
-      const end = moment().year(year+1).dayOfYear(0).toDate()
+      const start = new Date(year, 0)
+      const end = new Date(year + 1, 0)
       const readStatuses = await ReadStatuses.find({
         userId: user._id,
         isRead: true,
@@ -561,8 +554,6 @@ addGraphQLResolvers({
           name: eaEmojiPalette.find(emoji => emoji.name === name)?.label ?? '',
           count
         }));
-        // TODO remove
-        // mostReceivedReacts = [{name: 'Heart', count: 20}, {name: 'Changed my mind', count: 5}, {name: 'Helpful', count: 4}, {name: 'Insightful', count: 1}]
       }
 
       const { engagementPercentile, totalSeconds, daysVisited }  = await getEngagementV2(user._id, year);
@@ -628,8 +619,6 @@ addGraphQLResolvers({
         combinedKarmaVals: combinedKarmaVals,
         mostReceivedReacts,
       }
-      // TODO change alignment for 2023
-      results['alignment'] = getAlignment(results)
       return results
     },
     async UserWrappedDataByYear(root: void, {year}: {year: number}, context: ResolverContext) {
@@ -854,8 +843,8 @@ async function getEngagementV2(userId: string, year: number): Promise<{
     postgres.query(daysActiveQuery, [userId, year])
   ]);
 
-  const totalSeconds = totalResult?.[0]["total_seconds"] ?? 0;
-  const engagementPercentile = totalResult?.[0]["engagementpercentile"] ?? 0;
+  const totalSeconds = totalResult?.[0]?.["total_seconds"] ?? 0;
+  const engagementPercentile = totalResult?.[0]?.["engagementpercentile"] ?? 0;
 
   const daysVisited: string[] = daysActiveResult?.map((result: any) => result["view_date"]) ?? [];
 
