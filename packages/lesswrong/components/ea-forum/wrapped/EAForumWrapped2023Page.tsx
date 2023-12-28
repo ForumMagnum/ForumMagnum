@@ -1197,9 +1197,7 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
         // only go to 96% to prevent causing a horizontal scroll
         range(0, next.count).forEach(_ => prev.push({
           top: `${Math.random() * 96}%`,
-          // top: `${(Math.random() + Math.random()) * 96 / 2}%`,
           left: `${Math.random() * 96}%`,
-          // left: `${(Math.random() + Math.random()) * 96 / 2}%`,
           Component
         }))
       }
@@ -1348,13 +1346,6 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
 
   if (!data) return null;
 
-  // TODO un-admin gate
-  if (!userIsAdminOrMod(currentUser)) {
-    return <div className={classes.root}>
-      You do not have permission to view this page.
-    </div>
-  }
-
   return (
     <AnalyticsContext pageContext="eaYearWrapped">
       <main className={classes.root}>
@@ -1462,31 +1453,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             </div>
           </div>
         </section>
-        
-        {/* <section className={classes.section}> */}
-        {/* <SingleColumnSection> */}
-          {/* <pre>Engagement Percentile: {data.engagementPercentile}</pre> */}
-          {/* <pre>Posts Read Count: {data.postsReadCount}</pre> */}
-          {/* <pre>Total Hours: {(data.totalSeconds / 3600).toFixed(1)}</pre> */}
-          {/* <pre>Days Visited: {JSON.stringify(data.daysVisited, null, 2)}</pre> */}
-          {/* <pre>Most Read Topics: {JSON.stringify(data.mostReadTopics, null, 2)}</pre> */}
-          {/* <pre>Relative Most Read Core Topics: {JSON.stringify(data.relativeMostReadCoreTopics, null, 2)}</pre> */}
-          {/* <pre>Most Read Authors: {JSON.stringify(data.mostReadAuthors, null, 2)}</pre> */}
-          {/* <pre>Top Posts: {JSON.stringify(data.topPosts, null, 2)}</pre>
-          <pre>Post Count: {data.postCount}</pre>
-          <pre>Author Percentile: {data.authorPercentile}</pre> */}
-          {/* <pre>Top Comment: {JSON.stringify(data.topComment, null, 2)}</pre>
-          <pre>Comment Count: {data.commentCount}</pre>
-          <pre>Commenter Percentile: {data.commenterPercentile}</pre>
-          <pre>Top Shortform: {JSON.stringify(data.topShortform, null, 2)}</pre>
-          <pre>Shortform Count: {data.shortformCount}</pre>
-          <pre>Shortform Percentile: {data.shortformPercentile}</pre> */}
-          {/* <pre>Karma Change: {data.karmaChange}</pre> */}
-          {/* <pre>Combined karma vals: {JSON.stringify(data.combinedKarmaVals, null, 2)}</pre> */}
-          {/* <pre>Most Received Reacts: {JSON.stringify(data.mostReceivedReacts, null, 2)}</pre> */}
-          {/* <pre>Alignment: {data.alignment}</pre> */}
-        {/* </SingleColumnSection> */}
-        {/* </section> */}
+
       </main>
     </AnalyticsContext>
   )
