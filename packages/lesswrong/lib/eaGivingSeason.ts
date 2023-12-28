@@ -215,3 +215,11 @@ export const otherDonationOpportunities = [
     fundraiserLink: 'https://vidaplena.global/?form=give',
   },
 ];
+
+export type GivingSeasonHeart = {
+  userId: string,
+  displayName: string,
+  x: number,
+  y: number,
+  theta: number,
+}

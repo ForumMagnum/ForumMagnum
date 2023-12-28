@@ -26,7 +26,7 @@ export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.header.text,
@@ -177,7 +177,7 @@ const Header = ({
   toggleStandaloneNavigation: ()=>void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [navigationOpen, setNavigationOpenState] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -188,7 +188,7 @@ const Header = ({
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
-  const { pathname, hash } = useLocation()
+  const { pathname, hash, query } = useLocation()
 
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
@@ -346,7 +346,7 @@ const Header = ({
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
   const isGivingSeason = useIsGivingSeason();
-  if ((isGivingSeason && pathname === "/") || (pathname.startsWith("/voting-portal")) || (pathname.startsWith("/giving-portal"))) {
+  if (isGivingSeason && pathname === "/" && !query.tab) {
     return (
       <GivingSeasonHeader
         searchOpen={searchOpen}
