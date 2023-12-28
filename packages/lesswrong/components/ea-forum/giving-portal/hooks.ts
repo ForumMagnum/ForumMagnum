@@ -83,9 +83,8 @@ export const useAmountRaised = (electionName: string) => {
 
 export const useIsGivingSeason = () => {
   const now = useCurrentTime();
-  return isEAForum &&
-    moment.utc(timelineSpec.start).isBefore(now) &&
-    moment.utc(timelineSpec.end).isAfter(now);
+  // TODO: Manually disable this after giving season
+  return isEAForum && moment.utc(timelineSpec.start).isBefore(now);
 }
 
 export const useShowTimeline = () => {
