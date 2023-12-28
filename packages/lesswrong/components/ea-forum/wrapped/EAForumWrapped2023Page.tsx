@@ -166,7 +166,7 @@ const styles = (theme: ThemeType) => ({
   },
   statLabel: {
     fontSize: 13,
-    lineHeight: 'normal',
+    lineHeight: '17px',
     fontWeight: 500,
     marginTop: 8
   },
