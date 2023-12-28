@@ -38,7 +38,7 @@ export const useCommentLink = ({
     postSlug: post?.slug,
     tagSlug: tag?.slug,
     commentId: comment._id,
-    tagCommentType: comment?.tagCommentType,
+    tagCommentType: comment.tagCommentType,
     permalink,
   });
 

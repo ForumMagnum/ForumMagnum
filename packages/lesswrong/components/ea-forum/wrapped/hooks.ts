@@ -78,7 +78,6 @@ export type WrappedDataByYearV2 = {
     commentKarma: number;
   }[];
   mostReceivedReacts: WrappedReceivedReact[];
-  alignment: string;
 };
 
 type WrappedDataQueryResult = {
@@ -160,7 +159,6 @@ export const useForumWrappedV2 = ({ userId, year }: { userId?: string | null; ye
             name
             count
           }
-          alignment
         }
       }
     `,

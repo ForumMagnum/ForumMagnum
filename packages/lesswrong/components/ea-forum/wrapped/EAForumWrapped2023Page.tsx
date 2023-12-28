@@ -1071,6 +1071,9 @@ const TopPostSection = ({data, classes}: {
   classes: ClassesType
 }) => {
   if (!data.topPosts?.length) return null;
+  // Only show this section if their top post got 10 karma
+  const topPost = data.topPosts[0]
+  if (topPost.baseScore < 10) return null;
   
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
@@ -1104,6 +1107,8 @@ const TopCommentSection = ({data, classes}: {
   classes: ClassesType
 }) => {
   if (!data.topComment) return null;
+  // Only show this section if their top comment has >0 karma
+  if (data.topComment.baseScore < 1) return null;
   
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
@@ -1127,6 +1132,8 @@ const TopShortformSection = ({data, classes}: {
   classes: ClassesType
 }) => {
   if (!data.topShortform) return null;
+  // Only show this section if their top quick take has >0 karma
+  if (data.topShortform.baseScore < 1) return null;
   
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
@@ -1187,7 +1194,7 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
     return reacts?.reduce((prev: ReceivedReact[], next) => {
       const Component = eaEmojiPalette.find(emoji => emoji.label === next.name)?.Component
       if (Component) {
-        // only go to 98% to prevent causing a horizontal scroll
+        // only go to 96% to prevent causing a horizontal scroll
         range(0, next.count).forEach(_ => prev.push({
           top: `${Math.random() * 96}%`,
           // top: `${(Math.random() + Math.random()) * 96 / 2}%`,
