@@ -1,7 +1,7 @@
-import React, { Fragment, useEffect, useRef, useState } from "react"
+import React, { Fragment, useCallback, useEffect, useRef, useState } from "react"
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
-import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, useIsInView, useTracking } from "../../../lib/analyticsEvents";
 import { WrappedMostReadAuthor, WrappedReceivedReact, WrappedTopComment, WrappedTopPost, WrappedTopShortform, useForumWrappedV2 } from "./hooks";
 import { userIsAdminOrMod } from "../../../lib/vulcan-users";
 import classNames from "classnames";
@@ -25,6 +25,7 @@ import { useCommentLink } from "../../comments/CommentsItem/useCommentLink";
 import { htmlToTextDefault } from "../../../lib/htmlToText";
 import { HEADER_HEIGHT } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
+import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -877,6 +878,8 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
  */
 const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser()
+  const updateCurrentUser = useUpdateCurrentUser();
+  const { setNode, entry, node } = useIsInView();
 
   const { data } = useForumWrappedV2({
     userId: currentUser?._id,
@@ -890,6 +893,18 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
       document.documentElement.classList.add('EAForumWrapped2023Page-scrollSnap')
     }
   }, [currentUser])
+
+  useEffect(() => {
+    if (entry?.isIntersecting && !currentUser?.wrapped2023Viewed) {
+      void updateCurrentUser({
+        wrapped2023Viewed: true,
+      });
+    }
+  }, [entry, updateCurrentUser, currentUser?.wrapped2023Viewed]);
+
+  const skipToSummary = useCallback(() => {
+    node?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+  }, [node]);
 
   const { HeadTags, ForumIcon, CloudinaryImage2, UsersProfileImage, RecommendationsList, CoreTagIcon } = Components
   
@@ -964,11 +979,12 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         
         <section className={classes.section}>
           <h1 className={classes.heading1}>Your 2023 Wrapped</h1>
-          {/* TODO: finish building this
-          <button className={classes.skipToSummaryBtn}>
-            Skip to summary
-            <ForumIcon icon="NarrowArrowDown" />
-          </button> */}
+          {currentUser.wrapped2023Viewed &&
+            <button className={classes.skipToSummaryBtn} onClick={skipToSummary}>
+              Skip to summary
+              <ForumIcon icon="NarrowArrowDown" />
+            </button>
+          }
           <CloudinaryImage2 publicId="b90e48ae75ae9f3d73bbcf17f2ddf6a0" wrapperClassName={classes.imgWrapper} className={classes.img} />
         </section>
         
@@ -1195,7 +1211,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           />
         </section>
         
-        <section className={classes.section}>
+        <section className={classes.section} ref={setNode}>
           <p className={classNames(classes.text, classes.m0)}>Effective Altruism Forum</p>
           <h1 className={classNames(classes.heading2, classes.mt10)}>
             <span className={classes.nowrap}>{currentUser.displayName}’s</span>{" "}
@@ -1273,7 +1289,17 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             </div>
           </div>
         </section>
-        
+
+        <section className={classes.section}>
+          <h1 className={classes.heading2}>
+            Take a moment to reflect on 2023
+          </h1>
+          <p className={classNames(classes.text, classes.mt16)}>
+            Look back at everything you upvoted - what did you find most valuable?
+            Your answers will help us encourage more of the most valuable content.
+          </p>
+        </section>
+
         {/* <section className={classes.section}> */}
         {/* <SingleColumnSection> */}
           {/* <pre>Engagement Percentile: {data.engagementPercentile}</pre> */}
