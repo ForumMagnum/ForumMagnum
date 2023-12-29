@@ -107,10 +107,6 @@ export const accessFilterMultiple = async <N extends CollectionNameString>(
 /**
  * This field is stored in the database as a string, but resolved as the
  * referenced document
- * 
- * @param {Object=} params
- * @param {boolean} params.nullable
- * whether the resolver field is nullable, not the original database field
  */
 export const foreignKeyField = <CollectionName extends CollectionNameString>({
   idFieldName,
@@ -118,12 +114,22 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({
   collectionName,
   type,
   nullable=true,
+  autoJoin=false,
 }: {
   idFieldName: string,
   resolverName: string,
   collectionName: CollectionName,
   type: string,
+  /** whether the resolver field is nullable, not the original database field */
   nullable?: boolean,
+  /**
+   * If set, auto-generated SQL queries will contain a join to fetch the object
+   * this refers to. This saves a query and a DB round trip, but means that if
+   * two objects contain the same foreign-key ID and fetch the same object, the
+   * SQL result set will contain two copies. This is typically a good trade on
+   * relations where every one is going to be unique, such as currentUserVote.
+   */
+  autoJoin?: boolean,
 }) => {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
@@ -139,14 +145,16 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({
         fieldName: idFieldName,
         nullable,
       }),
-      sqlResolver: ({field, join}: SqlResolverArgs) => join({
-        table: collectionName,
-        type: nullable ? "left" : "inner",
-        on: {
-          _id: field(idFieldName),
-        },
-        resolver: (foreignField) => foreignField("*"),
-      }),
+      ...(autoJoin ? {
+        sqlResolver: ({field, join}: SqlResolverArgs) => join({
+          table: collectionName,
+          type: nullable ? "left" : "inner",
+          on: {
+            _id: field(idFieldName),
+          },
+          resolver: (foreignField) => foreignField("*"),
+        })
+      } : {}),
       addOriginalField: true,
     },
   }
