@@ -645,10 +645,10 @@ const ENGAGEMENT_CHART_DATA = [
 ]
 
 /**
- * Formats the engagement percentile as an integer > 0
+ * Formats the percentile as an integer > 0
  */
-const formattedEngagementPercentile = (engagementPercentile: number) => (
-  Math.ceil((1 - engagementPercentile) * 100) || 1
+const formattedPercentile = (percentile: number) => (
+  Math.ceil((1 - percentile) * 100) || 1
 )
 
 /**
@@ -801,7 +801,7 @@ const EngagementPercentileSection = ({data, classes}: {
 
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
-      You’re a top <span className={classes.highlight}>{formattedEngagementPercentile(data.engagementPercentile)}%</span> reader of the EA Forum
+      You’re a top <span className={classes.highlight}>{formattedPercentile(data.engagementPercentile)}%</span> reader of the EA Forum
     </h1>
     <p className={classNames(classes.textRow, classes.text, classes.mt16)}>You read {data.postsReadCount} posts this year</p>
     <div className={classes.chart}>
@@ -1050,7 +1050,7 @@ const ThankAuthorSection = ({authors, classes}: {
     <h1 className={classes.heading3}>
       You’re in the top <span className={classes.highlight}>{topAuthorPercentByEngagementPercentile}%</span> of {topAuthorByEngagementPercentile.displayName}’s readers
     </h1>
-    <p className={classNames(classes.textRow, classes.text, classes.mt20)}>Want to say thanks? Send a DM below!</p>
+    <p className={classNames(classes.textRow, classes.text, classes.mt20)}>Want to say thanks? Send a DM below</p>
     <div className={classes.messageAuthor}>
       <div className={classes.topAuthorInfo}>
         <div>To:</div>
@@ -1091,6 +1091,8 @@ const TopPostSection = ({data, classes}: {
   const topPost = data.topPosts[0]
   if (topPost.baseScore < 10) return null;
   
+  const percentile = formattedPercentile(data.authorPercentile)
+  
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
       Your highest-karma <span className={classes.highlight}>post</span> in 2023:
@@ -1110,7 +1112,7 @@ const TopPostSection = ({data, classes}: {
     </>}
     <p className={classNames(classes.textRow, classes.text, classes.mt40)}>
       You wrote {data.postCount} post{data.postCount === 1 ? '' : 's'} in total this year.
-      This means you're in the top {Math.ceil((1-data.authorPercentile) * 100) || 1}% of post authors.
+      {(percentile < 100) && ` This means you're in the top ${percentile}% of post authors.`}
     </p>
   </section>
 }
@@ -1126,6 +1128,8 @@ const TopCommentSection = ({data, classes}: {
   // Only show this section if their top comment has >0 karma
   if (data.topComment.baseScore < 1) return null;
   
+  const percentile = formattedPercentile(data.commenterPercentile)
+  
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
       Your highest-karma <span className={classes.highlight}>comment</span> in 2023:
@@ -1135,7 +1139,7 @@ const TopCommentSection = ({data, classes}: {
     </div>
     <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
       You wrote {data.commentCount} comment{data.commentCount === 1 ? '' : 's'} in total this year.
-      This means you're in the top {Math.ceil((1-data.commenterPercentile) * 100) || 1}% of commenters.
+      {(percentile < 100) && ` This means you're in the top ${percentile}% of commenters.`}
     </p>
   </section>
 }
@@ -1151,6 +1155,8 @@ const TopShortformSection = ({data, classes}: {
   // Only show this section if their top quick take has >0 karma
   if (data.topShortform.baseScore < 1) return null;
   
+  const percentile = formattedPercentile(data.shortformPercentile)
+
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
       Your highest-karma <span className={classes.highlight}>quick take</span> in 2023:
@@ -1160,7 +1166,7 @@ const TopShortformSection = ({data, classes}: {
     </div>
     <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
       You wrote {data.shortformCount} quick take{data.shortformCount === 1 ? '' : 's'} in total this year.
-      This means you're in the top {Math.ceil((1-data.shortformPercentile) * 100) || 1}% of quick take authors.
+      {(percentile < 100) && ` This means you're in the top ${percentile}% of quick take authors.`}
     </p>
   </section>
 }
@@ -1399,7 +1405,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             <div className={classes.summaryBoxRow}>
               <div className={classes.summaryBox}>
                 <article>
-                  <div className={classes.heading4}>{formattedEngagementPercentile(data.engagementPercentile)}%</div>
+                  <div className={classes.heading4}>{formattedPercentile(data.engagementPercentile)}%</div>
                   <div className={classes.statLabel}>Top reader</div>
                 </article>
               </div>

@@ -28,6 +28,7 @@ import { defineQuery } from '../utils/serverGraphqlUtil';
 import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
 import { eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import { postStatuses } from '../../lib/collections/posts/constants';
+import { userIsPostCoauthor } from '../../lib/collections/posts/helpers';
 
 addGraphQLSchema(`
   type CommentCountTag {
