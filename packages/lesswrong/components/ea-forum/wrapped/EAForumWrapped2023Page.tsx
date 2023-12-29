@@ -659,6 +659,11 @@ const formattedKarmaChangeText = (karmaChange: number) => (
 )
 
 /**
+ * Adds tracking to the user profile link
+ */
+const getUserProfileLink = (slug: string) => `${userGetProfileUrlFromSlug(slug)}?from=2023_wrapped`
+
+/**
  * A single post item, used in TopPostSection and RecommendationsSection
  */
 const Post = ({post, classes}: {
@@ -1006,7 +1011,7 @@ const MostReadAuthorsSection = ({authors, classes}: {
           <Components.UsersProfileImage size={40} user={author} />
           <div>
             <h2 className={classes.authorName}>
-              <Link to={userGetProfileUrlFromSlug(author.slug)}>
+              <Link to={getUserProfileLink(author.slug)}>
                 {author.displayName}
               </Link>
             </h2>
@@ -1051,7 +1056,7 @@ const ThankAuthorSection = ({authors, classes}: {
         <div>To:</div>
         <div><Components.UsersProfileImage size={24} user={topAuthorByEngagementPercentile} /></div>
         <div className={classes.text}>
-          <Link to={userGetProfileUrlFromSlug(topAuthorByEngagementPercentile.slug)}>
+          <Link to={getUserProfileLink(topAuthorByEngagementPercentile.slug)}>
             {topAuthorByEngagementPercentile.displayName}
           </Link>
         </div>
@@ -1420,7 +1425,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
                   {data.mostReadAuthors.map(author => {
                     return <div key={author.slug} className={classes.summaryListItem}>
                       <UsersProfileImage size={20} user={author} />
-                      <Link to={userGetProfileUrlFromSlug(author.slug)}>
+                      <Link to={getUserProfileLink(author.slug)}>
                         {author.displayName}
                       </Link>
                     </div>
