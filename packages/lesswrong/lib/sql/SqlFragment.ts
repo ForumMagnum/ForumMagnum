@@ -135,7 +135,9 @@ class SqlFragment {
     {name}: SqlFragmentField,
   ) {
     const resolver = context.getResolver(name);
-    if (resolver) {
+    if (name === "__typename") {
+      // Skip - this is a fake field for Apollo's use
+    } else if (resolver) {
       if (resolver.sqlResolver) {
         const result = resolver.sqlResolver(context.getSqlResolverArgs());
         context.addProjection(name, result);
