@@ -386,8 +386,8 @@ addGraphQLResolvers({
         userId: {$ne: user._id},
         isEvent: false,
         shortform: false,
-      }, {projection: {userId: 1, coauthorStatuses: 1, tagRelevance: 1}}).fetch()).filter(p => {
-        return !p.coauthorStatuses?.some(cs => cs.userId === user._id)
+      }, {projection: {userId: 1, coauthorStatuses: 1, hasCoauthorPermission: 1, tagRelevance: 1}}).fetch()).filter(p => {
+        return !userIsPostCoauthor(user, p);
       })
 
       // Get the top 5 authors that the user has read
