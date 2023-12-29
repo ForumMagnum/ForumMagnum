@@ -210,6 +210,17 @@ async function checkForTypingIndicators() {
   }
 }
 
+const isRecentlyActive = (editedAt: Date | undefined, minutes: number): boolean => {
+  if (!editedAt) {
+    return false;
+  }
+
+  const currentTime = new Date().getTime();
+  const editedTime = new Date(editedAt).getTime();
+
+  return (currentTime - editedTime) <= minutes * 60 * 1000;
+}
+
 async function checkForActiveDialoguePartners() {
   const numOpenConnections = Object.keys(openConnections).length;
   if (!numOpenConnections) {
@@ -225,10 +236,13 @@ async function checkForActiveDialoguePartners() {
     const coauthorUserIds = dialogue.coauthorStatuses.map((status: any) => status.userId);
     const allUserIds = [dialogue.userId, ...coauthorUserIds];
     for (let userId of allUserIds) {
+      const editedAt = dialogue?.mostRecentEditedAt;
       const data = {
         postId: dialogue._id,
         title: dialogue.title,
         userIds: dialogue.activeUserIds.filter((id => id !== userId)),
+        mostRecentEditedAt: editedAt,
+        anyoneRecentlyActive: isRecentlyActive(editedAt, 15) // within the last 15 min
       }
       if (allUsersDialoguesData[userId]) {
         allUsersDialoguesData[userId].push(data);
@@ -238,18 +252,16 @@ async function checkForActiveDialoguePartners() {
     }
   }
 
-  const testUserIds = ["gXeEWGjTWyqgrQTzR", "XtphY3uYHwruKqDyG", "grecHJcgkb3KW5wnM", "EQNTWXLKMeWMp2FQS"];
-
   for (let userId of userIds) {
-    if (testUserIds.includes(userId)) { // hardcoded to be able to test feature with live ckEditor data in prod
-      const userDialoguesData = allUsersDialoguesData[userId];
-      const message = {
-        eventType: "activeDialoguePartners",
-        data: userDialoguesData ?? []
-      };
+    const userDialoguesData = allUsersDialoguesData[userId];
+    const message = {
+      eventType: "activeDialoguePartners",
+      data: userDialoguesData ?? []
+    };
 
-      const messageString = `data: ${JSON.stringify(message)}\n\n`;
+    const messageString = `data: ${JSON.stringify(message)}\n\n`;
 
+    if (openConnections[userId]) {
       for (let connection of openConnections[userId]) {
         connection.res.write(messageString);
         connection.newestNotificationTimestamp = new Date();

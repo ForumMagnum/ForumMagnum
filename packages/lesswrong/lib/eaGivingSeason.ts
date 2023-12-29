@@ -1,5 +1,4 @@
 import moment from "moment";
-import { isPastVotingDeadline } from "./collections/electionVotes/helpers";
 
 export const eaGivingSeason23ElectionName = "givingSeason23";
 
@@ -14,8 +13,9 @@ export const votingOpensDate = new Date("2023-12-01");
 export const donationElectionTagId = "EsNWGoFbs4MrqQ4G7";
 export const effectiveGivingTagId = "L6NqHZkLc4xZ7YtDr";
 
-/** Cloudinary ID for the giving portal hero image */
+/** Cloudinary ID for the giving portal hero images */
 export const heroImageId = "giving_portal_23_hero";
+export const heroImage2Id = "giving_portal_23_hero3";
 
 /** Cloudinary ID for the frontpage header background image */
 export const headerImageId = "giving_portal_23_hero";
@@ -61,7 +61,6 @@ export type TimelineSpec = {
   end: Date,
   points: TimelinePoint[],
   spans: TimelineSpan[],
-  handleVote?: () => void,
   divisionToPercent?: (division: number, divisions: number) => number,
 }
 
@@ -105,6 +104,8 @@ export const timelineSpec: TimelineSpec = {
     },
   ],
 };
+
+export const showTimelineUntil = "2023-12-21";
 
 // These are charities/orgs that are *not* election candidates, but are listed at the bottom of the Giving Portal
 // in the "Other donation opportunities" section (after the election candidates).
@@ -214,3 +215,11 @@ export const otherDonationOpportunities = [
     fundraiserLink: 'https://vidaplena.global/?form=give',
   },
 ];
+
+export type GivingSeasonHeart = {
+  userId: string,
+  displayName: string,
+  x: number,
+  y: number,
+  theta: number,
+}

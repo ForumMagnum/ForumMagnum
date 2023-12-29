@@ -121,7 +121,7 @@ async function writeEventsToAnalyticsDB(events: {type: string, timestamp: Date, 
   }
 }
 
-const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'gql_string_id', 'ip', 'user_agent', 'environment'], {table: 'perf_metrics'});
+const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'gql_string_id', 'ip', 'user_agent', 'user_id', 'render_started_at', 'queue_priority', 'environment'], {table: 'perf_metrics'});
 
 interface PerfMetricGqlString {
   id: number;
@@ -151,12 +151,12 @@ function getGqlStringIdFromCache(gqlString?: string): { gql_string_id: number | 
 async function insertAndCacheGqlStringRecords(gqlStrings: string[], connection: AnalyticsConnectionPool) {
   const gqlRecords = gqlStrings.map((gql_string) => ({gql_hash: md5(gql_string), gql_string}));
   const previouslyCachedGqlStrings = gqlRecords.filter(({ gql_hash }) => GQL_STRING_ID_CACHE.has(gql_hash));
-  const newGqlRecords = gqlRecords.filter(({ gql_hash }) => !GQL_STRING_ID_CACHE.has(gql_hash))
+  const newGqlRecords = gqlRecords.filter(({ gql_hash }) => !GQL_STRING_ID_CACHE.has(gql_hash));
 
   if (newGqlRecords.length === 0) {
     return;
   }
-  
+
   // Insert and cache all the new query strings we don't already have cached
   const { sql, args } = new InsertQuery(perfMetricsGqlStringsTable, newGqlRecords as AnyBecauseHard, undefined, { conflictStrategy: 'ignore', returnInserted: true }).compile();
   const insertedQueryStringRecords = await connection.any<PerfMetricGqlString>(sql, args);
@@ -211,6 +211,9 @@ async function flushPerfMetrics() {
           extra_data: perfMetric.extra_data ?? null,
           ip: perfMetric.ip ?? null,
           user_agent: perfMetric.user_agent ?? null,
+          user_id: perfMetric.user_id ?? null,
+          render_started_at: perfMetric.render_started_at ?? null,
+          queue_priority: perfMetric.queue_priority ?? null,
           ...gqlStringId
         }
       });

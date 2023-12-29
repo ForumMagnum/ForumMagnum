@@ -488,5 +488,15 @@
     "acceptsSchemaHash": "592612513ed7bd3260014fe27c8ae328",
     "acceptedByMigration": "20231215T014943.add_endedby_field_for_ckeditorusersessions.ts",
     "timestamp": "2023-12-15T01:49:43.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4f18d5a0849cc239555c6263c3e20df4",
+    "acceptedByMigration": "20231219T213759.add_hideactivedialogueusers_field.ts",
+    "timestamp": "2023-12-19T21:37:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4a1a03e638557cba881d59cb63b0ed02",
+    "acceptedByMigration": "20231220T212520.add_yourTurnNotifications_post_migration_conflict.ts",
+    "timestamp": "2023-12-20T21:25:20.000Z"
   }
 ]

@@ -270,6 +270,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     yellow: '#ffc500',
     recentDiscussionGreen: "#72B065",
     recentDiscussionGrey: "#757575",
+    activeDotOrange: "#fdbd48",
 
     commentsBubble: {
       commentCount: "#fff",
@@ -539,12 +540,15 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       light2Opaque: "rgba(248, 231, 226, 0.30)",
       light1: "#EDD3CE",
       light1Opaque: "rgba(237, 211, 206, 0.30)",
+      heartsBackground: "#f8e7e2",
       main: "#862115",
       dark: "#6C0C00",
       secondary: "#b44c42",
       secondaryDark: "#a0443c",
       secondaryOpaque: "rgba(253, 139, 132, 0.40)",
       secondaryOpaqueDark: "rgba(197, 106, 101, 0.40)",
+      secondaryButton: "rgba(0, 0, 0, 0)",
+      secondaryButtonText: "#6C0C00",
     },
   },
   dialogueMatching: {

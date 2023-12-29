@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { DnaIcon } from '../icons/dnaIcon';
 import { MushroomCloudIcon } from '../icons/mushroomCloudIcon';
@@ -16,8 +16,7 @@ import { PolicyIcon } from '../icons/policyIcon';
 import { forumSelect } from '../../lib/forumTypeUtils';
 
 // Mapping from tag slug to icon
-// Don't want to fight the type system about the type of the MUI icon
-export const coreTagIconMap = forumSelect<Record<string, any>>({
+export const coreTagIconMap = forumSelect<Record<string, FC<{className?: string}>>>({
   EAForum: {
     'biosecurity-and-pandemics': DnaIcon,
     'existential-risk': MushroomCloudIcon,
@@ -41,10 +40,10 @@ export const coreTagIconMap = forumSelect<Record<string, any>>({
   default: {}
 })
 
-const CoreTagIcon = ({tag}: {tag: {slug: string}}) => {
+const CoreTagIcon = ({tag, className}: {tag: {slug: string}, className?: string}) => {
   const Icon = coreTagIconMap[tag.slug]
   if (!Icon) return null
-  return <Icon />
+  return <Icon className={className} />
 }
 
 const CoreTagIconComponent = registerComponent("CoreTagIcon", CoreTagIcon);

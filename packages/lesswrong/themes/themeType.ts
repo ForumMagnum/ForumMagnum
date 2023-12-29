@@ -218,6 +218,7 @@ declare global {
       yellow: ColorString,
       recentDiscussionGreen: ColorString,
       recentDiscussionGrey: ColorString,
+      activeDotOrange: ColorString,
 
       commentsBubble: {
         commentCount: ColorString,
@@ -486,12 +487,15 @@ declare global {
         light2Opaque: ColorString,
         light1: ColorString,
         light1Opaque: ColorString,
+        heartsBackground: ColorString,
         main: ColorString,
         dark: ColorString,
         secondary: ColorString,
         secondaryDark: ColorString,
         secondaryOpaque: ColorString,
         secondaryOpaqueDark: ColorString,
+        secondaryButton: ColorString,
+        secondaryButtonText: ColorString,
       }
     },
     dialogueMatching: {

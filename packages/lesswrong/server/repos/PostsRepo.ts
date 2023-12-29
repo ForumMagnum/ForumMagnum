@@ -1,10 +1,10 @@
 import Posts from "../../lib/collections/posts/collection";
-import { ensureIndex } from '../../lib/collectionIndexUtils';
 import AbstractRepo from "./AbstractRepo";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 type MeanPostKarma = {
   _id: number,
@@ -29,7 +29,7 @@ const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>(
   updateAgeOnGet: false,
 });
 
-export default class PostsRepo extends AbstractRepo<"Posts"> {
+class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
   }
@@ -413,4 +413,7 @@ export default class PostsRepo extends AbstractRepo<"Posts"> {
     `);
   }
 }
-ensureIndex(Posts, {debate:-1})
+
+recordPerfMetrics(PostsRepo);
+
+export default PostsRepo;
