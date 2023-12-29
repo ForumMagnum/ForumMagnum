@@ -14,6 +14,8 @@ import { GhdIcon } from '../icons/ghdIcon';
 import { GroupsIcon } from '../icons/groupsIcon';
 import { PolicyIcon } from '../icons/policyIcon';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import { LotusOutlineIcon } from '../icons/lotusIcon';
+import classNames from 'classnames';
 
 // Mapping from tag slug to icon
 export const coreTagIconMap = forumSelect<Record<string, FC<{className?: string}>>>({
@@ -29,6 +31,7 @@ export const coreTagIconMap = forumSelect<Record<string, FC<{className?: string}
     'animal-welfare': BirdIcon, // Replacing wild-animal-welfare and farmed-animal-welfare
     'effective-altruism-groups': GroupsIcon,
     'building-effective-altruism': GroupsIcon,
+    'community': LotusOutlineIcon,
     'career-choice': ChoiceIcon,
     'taking-action': ChoiceIcon, // Doesn't exist yet, but may be replacing career-choice
     'ai-risk': AiIcon,
@@ -41,19 +44,27 @@ export const coreTagIconMap = forumSelect<Record<string, FC<{className?: string}
   default: {}
 })
 
-const CoreTagIcon = ({tag, fallbackNode, className}: {
+const styles = (theme: ThemeType): JssStyles => ({
+  // prevent LotusOutlineIcon from having a fill
+  noFill: {
+    fill: 'none !important'
+  }
+});
+
+const CoreTagIcon = ({tag, fallbackNode, className, classes}: {
   tag: {slug: string},
   fallbackNode?: ReactNode,
-  className?: string
+  className?: string,
+  classes: ClassesType
 }) => {
   const Icon = coreTagIconMap[tag.slug]
   if (!Icon) {
     return fallbackNode ? <>{fallbackNode}</> : null
   }
-  return <Icon className={className} />
+  return <Icon className={classNames(className, {[classes.noFill]: Icon === LotusOutlineIcon})} />
 }
 
-const CoreTagIconComponent = registerComponent("CoreTagIcon", CoreTagIcon);
+const CoreTagIconComponent = registerComponent("CoreTagIcon", CoreTagIcon, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -28,6 +28,7 @@ import { defineQuery } from '../utils/serverGraphqlUtil';
 import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingPage";
 import { eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import { postStatuses } from '../../lib/collections/posts/constants';
+import { getConfirmedCoauthorIds, userIsPostCoauthor } from '../../lib/collections/posts/helpers';
 
 addGraphQLSchema(`
   type CommentCountTag {
@@ -386,16 +387,12 @@ addGraphQLResolvers({
         userId: {$ne: user._id},
         isEvent: false,
         shortform: false,
-      }, {projection: {userId: 1, coauthorStatuses: 1, tagRelevance: 1}}).fetch()).filter(p => {
-        return !p.coauthorStatuses?.some(cs => cs.userId === user._id)
+      }, {projection: {userId: 1, coauthorStatuses: 1, hasCoauthorPermission: 1, tagRelevance: 1}}).fetch()).filter(p => {
+        return !userIsPostCoauthor(user, p);
       })
 
       // Get the top 5 authors that the user has read
-      const userIds = posts.map(p => {
-        let authors = p.coauthorStatuses?.map(cs => cs.userId) ?? []
-        authors.push(p.userId)
-        return authors
-      }).flat()
+      const userIds = posts.map(p => getConfirmedCoauthorIds(p).concat([p.userId])).flat()
       const authorCounts = countBy(userIds)
       const topAuthors = sortBy(entries(authorCounts), last).slice(-5).map(a => a![0]) as string[]
 
@@ -407,7 +404,7 @@ addGraphQLResolvers({
       );
 
       // Get the top 4 topics that the user has read (filtering out the Community topic)
-      const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat().filter(t => t !== EA_FORUM_COMMUNITY_TOPIC_ID)
+      const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat()
       const tagCounts = countBy(tagIds)
       const topTags = sortBy(entries(tagCounts), last).slice(-4).map(t => t![0])
 

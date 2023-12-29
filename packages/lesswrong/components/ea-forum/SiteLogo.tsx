@@ -24,12 +24,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const SiteLogo = ({white, classes}: {
-  white?: boolean,
+const SiteLogo = ({eaWhite, classes}: {
+  eaWhite?: boolean,
   classes: ClassesType;
 }) => {
   // Use this icon when we want a pure white version of the EAF logo
-  if (isEAForum && white) {
+  if (isEAForum && eaWhite) {
     return <div className={classes.icon}>{lightbulbIcon}</div>
   }
 

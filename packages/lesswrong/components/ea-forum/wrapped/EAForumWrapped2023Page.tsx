@@ -28,6 +28,7 @@ import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
+import { TagCommentType, tagCommentTypes } from "../../../lib/collections/comments/types";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -93,10 +94,17 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '55vh',
-    padding: '75px 20px',
+    padding: '75px 40px',
     scrollSnapAlign: 'center',
-    animation: 'section-scroll-animation linear',
-    animationTimeline: 'view()',
+    // Fade sections in and out if possible (i.e. on Chrome)
+    '@supports (animation-timeline: view())': {
+      animation: 'section-scroll-animation linear',
+      animationTimeline: 'view()',
+    },
+    // If not, then make them taller so that they don't distract from the focused section
+    '@supports not (animation-timeline: view())': {
+      minHeight: '75vh',
+    },
     '&:first-of-type': {
       scrollSnapAlign: 'start',
       minHeight: '85vh',
@@ -105,6 +113,10 @@ const styles = (theme: ThemeType) => ({
     '&:last-of-type': {
       minHeight: '85vh',
       paddingBottom: 160,
+    },
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 20,
+      paddingRight: 20,
     },
   },
   sectionTall: {
@@ -564,7 +576,7 @@ const styles = (theme: ThemeType) => ({
     margin: 0
   },
   textRow: {
-    maxWidth: 600,
+    maxWidth: 500,
   },
   text: {
     fontSize: 14,
@@ -635,10 +647,10 @@ const ENGAGEMENT_CHART_DATA = [
 ]
 
 /**
- * Formats the engagement percentile as an integer > 0
+ * Formats the percentile as an integer > 0
  */
-const formattedEngagementPercentile = (engagementPercentile: number) => (
-  Math.ceil((1 - engagementPercentile) * 100) || 1
+const formattedPercentile = (percentile: number) => (
+  Math.ceil((1 - percentile) * 100) || 1
 )
 
 /**
@@ -647,6 +659,11 @@ const formattedEngagementPercentile = (engagementPercentile: number) => (
 const formattedKarmaChangeText = (karmaChange: number) => (
   `${karmaChange >= 0 ? '+' : ''}${karmaChange}`
 )
+
+/**
+ * Adds tracking to the user profile link
+ */
+const getUserProfileLink = (slug: string) => `${userGetProfileUrlFromSlug(slug)}?from=2023_wrapped`
 
 /**
  * A single post item, used in TopPostSection and RecommendationsSection
@@ -707,15 +724,18 @@ const Comment = ({comment, classes}: {
   const currentUser = useCurrentUser()
   
   const commentLinkProps = {
-    comment,
+    comment: {
+      ...comment,
+      tagCommentType: 'DISCUSSION' as TagCommentType
+    },
     post: {
       _id: comment.postId,
-      slug: 'postSlug' in comment ? comment.postSlug : undefined
+      slug: 'postSlug' in comment ? comment.postSlug : ''
     }
   };
   const CommentLinkWrapper = useCommentLink(commentLinkProps);
   
-  const { LWTooltip, EAReactsSection, ContentStyles, ContentItemBody, ForumIcon } = Components
+  const { LWTooltip, EAReactsSection, ContentStyles, ForumIcon } = Components
   
   return <article className={classes.comment}>
     {'postTitle' in comment && <div className={classes.commentPostTitle}>
@@ -786,7 +806,7 @@ const EngagementPercentileSection = ({data, classes}: {
 
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
-      You’re a top <span className={classes.highlight}>{formattedEngagementPercentile(data.engagementPercentile)}%</span> reader of the EA Forum
+      You’re a top <span className={classes.highlight}>{formattedPercentile(data.engagementPercentile)}%</span> reader of the EA Forum
     </h1>
     <p className={classNames(classes.textRow, classes.text, classes.mt16)}>You read {data.postsReadCount} posts this year</p>
     <div className={classes.chart}>
@@ -882,7 +902,7 @@ const MostReadTopicsSection = ({mostReadTopics, classes}: {
 }) => {
   if (!mostReadTopics.length) return null;
   
-  // The top bar is highlight yellow, the rest are white
+  // The top bar is highlighted yellow, the rest are white
   const topics = mostReadTopics.map((topic, i) => {
     return {
       ...topic,
@@ -892,7 +912,7 @@ const MostReadTopicsSection = ({mostReadTopics, classes}: {
 
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
-      You spent the most time on <span className={classes.highlight}>{topics[0].name}</span>
+      When you were reading a post, it was most often about <span className={classes.highlight}>{topics[0].name}</span>
     </h1>
     <div className={classes.topicsChart}>
       <ResponsiveContainer width="100%" height={200}>
@@ -996,7 +1016,7 @@ const MostReadAuthorsSection = ({authors, classes}: {
           <Components.UsersProfileImage size={40} user={author} />
           <div>
             <h2 className={classes.authorName}>
-              <Link to={userGetProfileUrlFromSlug(author.slug)}>
+              <Link to={getUserProfileLink(author.slug)}>
                 {author.displayName}
               </Link>
             </h2>
@@ -1035,13 +1055,13 @@ const ThankAuthorSection = ({authors, classes}: {
     <h1 className={classes.heading3}>
       You’re in the top <span className={classes.highlight}>{topAuthorPercentByEngagementPercentile}%</span> of {topAuthorByEngagementPercentile.displayName}’s readers
     </h1>
-    <p className={classNames(classes.textRow, classes.text, classes.mt20)}>Want to say thanks?</p>
+    <p className={classNames(classes.textRow, classes.text, classes.mt20)}>Want to say thanks? Send a DM below</p>
     <div className={classes.messageAuthor}>
       <div className={classes.topAuthorInfo}>
         <div>To:</div>
         <div><Components.UsersProfileImage size={24} user={topAuthorByEngagementPercentile} /></div>
         <div className={classes.text}>
-          <Link to={userGetProfileUrlFromSlug(topAuthorByEngagementPercentile.slug)}>
+          <Link to={getUserProfileLink(topAuthorByEngagementPercentile.slug)}>
             {topAuthorByEngagementPercentile.displayName}
           </Link>
         </div>
@@ -1076,6 +1096,8 @@ const TopPostSection = ({data, classes}: {
   const topPost = data.topPosts[0]
   if (topPost.baseScore < 10) return null;
   
+  const percentile = formattedPercentile(data.authorPercentile)
+  
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
       Your highest-karma <span className={classes.highlight}>post</span> in 2023:
@@ -1095,7 +1117,7 @@ const TopPostSection = ({data, classes}: {
     </>}
     <p className={classNames(classes.textRow, classes.text, classes.mt40)}>
       You wrote {data.postCount} post{data.postCount === 1 ? '' : 's'} in total this year.
-      This means you're in the top {Math.ceil((1-data.authorPercentile) * 100) || 1}% of post authors.
+      {(percentile < 100) && ` This means you're in the top ${percentile}% of post authors.`}
     </p>
   </section>
 }
@@ -1111,6 +1133,8 @@ const TopCommentSection = ({data, classes}: {
   // Only show this section if their top comment has >0 karma
   if (data.topComment.baseScore < 1) return null;
   
+  const percentile = formattedPercentile(data.commenterPercentile)
+  
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
       Your highest-karma <span className={classes.highlight}>comment</span> in 2023:
@@ -1120,7 +1144,7 @@ const TopCommentSection = ({data, classes}: {
     </div>
     <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
       You wrote {data.commentCount} comment{data.commentCount === 1 ? '' : 's'} in total this year.
-      This means you're in the top {Math.ceil((1-data.commenterPercentile) * 100) || 1}% of commenters.
+      {(percentile < 100) && ` This means you're in the top ${percentile}% of commenters.`}
     </p>
   </section>
 }
@@ -1136,6 +1160,8 @@ const TopShortformSection = ({data, classes}: {
   // Only show this section if their top quick take has >0 karma
   if (data.topShortform.baseScore < 1) return null;
   
+  const percentile = formattedPercentile(data.shortformPercentile)
+
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
       Your highest-karma <span className={classes.highlight}>quick take</span> in 2023:
@@ -1145,7 +1171,7 @@ const TopShortformSection = ({data, classes}: {
     </div>
     <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
       You wrote {data.shortformCount} quick take{data.shortformCount === 1 ? '' : 's'} in total this year.
-      This means you're in the top {Math.ceil((1-data.shortformPercentile) * 100) || 1}% of quick take authors.
+      {(percentile < 100) && ` This means you're in the top ${percentile}% of quick take authors.`}
     </p>
   </section>
 }
@@ -1257,9 +1283,8 @@ const RecommendationsSection = ({classes}: {
     <h1 className={classes.heading3}>
       Posts you missed that we think you’ll enjoy
     </h1>
-    {/* This postId is my April Fool's post. I think it shouldn't affect the results, but it's still required for some reason. */}
     <Components.RecommendationsList
-      algorithm={{strategy: {name: 'bestOf', postId: 'KPijJRnQCQvSu5AA2'}, count: 5, disableFallbacks: true}}
+      algorithm={{strategy: {name: 'bestOf', postId: '2023_wrapped'}, count: 5, disableFallbacks: true}}
       ListItem={
         (props: {
           post: PostsListWithVotesAndSequence,
@@ -1284,7 +1309,7 @@ const ThankYouSection = ({classes}: {
       Thank you! <span className={classes.heartIcon}><HeartReactionIcon /></span>
     </h1>
     <p className={classNames(classes.textRow, classes.text, classes.balance, classes.mt20)}>
-      Thanks for being part of the EA Forum and helping the community think about how to do the most good in the world
+      Thanks for joining us on the EA Forum and helping us think about how to improve the world.
     </p>
     <div className={classNames(classes.lightbulbIcon, classes.mt30)}>
       {lightbulbIcon}
@@ -1400,7 +1425,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
             <div className={classes.summaryBoxRow}>
               <div className={classes.summaryBox}>
                 <article>
-                  <div className={classes.heading4}>{formattedEngagementPercentile(data.engagementPercentile)}%</div>
+                  <div className={classes.heading4}>{formattedPercentile(data.engagementPercentile)}%</div>
                   <div className={classes.statLabel}>Top reader</div>
                 </article>
               </div>
@@ -1425,7 +1450,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
                   {data.mostReadAuthors.map(author => {
                     return <div key={author.slug} className={classes.summaryListItem}>
                       <UsersProfileImage size={20} user={author} />
-                      <Link to={userGetProfileUrlFromSlug(author.slug)}>
+                      <Link to={getUserProfileLink(author.slug)}>
                         {author.displayName}
                       </Link>
                     </div>
