@@ -4,7 +4,6 @@ import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/help
 import { useLocation } from "../../../lib/routeUtil";
 import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import qs from "qs";
-import { TagCommentType } from "../../../lib/collections/comments/types";
 
 export type UseCommentLinkProps = {
   comment: Pick<CommentsList, "_id" | "tagCommentType">,

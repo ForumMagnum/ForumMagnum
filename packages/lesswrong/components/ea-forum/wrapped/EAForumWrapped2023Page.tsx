@@ -27,6 +27,7 @@ import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/Cloudi
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
+import { TagCommentType, tagCommentTypes } from "../../../lib/collections/comments/types";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -722,15 +723,18 @@ const Comment = ({comment, classes}: {
   const currentUser = useCurrentUser()
   
   const commentLinkProps = {
-    comment,
+    comment: {
+      ...comment,
+      tagCommentType: 'DISCUSSION' as TagCommentType
+    },
     post: {
       _id: comment.postId,
-      slug: 'postSlug' in comment ? comment.postSlug : undefined
+      slug: 'postSlug' in comment ? comment.postSlug : ''
     }
   };
   const CommentLinkWrapper = useCommentLink(commentLinkProps);
   
-  const { LWTooltip, EAReactsSection, ContentStyles, ContentItemBody, ForumIcon } = Components
+  const { LWTooltip, EAReactsSection, ContentStyles, ForumIcon } = Components
   
   return <article className={classes.comment}>
     {'postTitle' in comment && <div className={classes.commentPostTitle}>
