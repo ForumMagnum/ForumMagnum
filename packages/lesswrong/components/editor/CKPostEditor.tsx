@@ -517,7 +517,7 @@ const CKPostEditor = ({
         }
 
         const userIds = formType === 'new' ? [userId] : [post.userId, ...getConfirmedCoauthorIds(post)];
-        if (post.collabEditorDialogue) {
+        if (post.collabEditorDialogue && accessLevel && accessLevelCan(accessLevel, 'edit')) {
           const rawAuthors = formType === 'new' ? [currentUser!] : filterNonnull([post.user, ...(post.coauthors ?? [])])
           const coauthors = uniqBy(
             rawAuthors.filter(coauthor => userIds.includes(coauthor._id)),
