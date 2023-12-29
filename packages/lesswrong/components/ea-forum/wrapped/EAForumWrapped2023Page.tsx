@@ -897,7 +897,7 @@ const MostReadTopicsSection = ({mostReadTopics, classes}: {
 }) => {
   if (!mostReadTopics.length) return null;
   
-  // The top bar is highlight yellow, the rest are white
+  // The top bar is highlighted yellow, the rest are white
   const topics = mostReadTopics.map((topic, i) => {
     return {
       ...topic,
