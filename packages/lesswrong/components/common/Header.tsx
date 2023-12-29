@@ -437,7 +437,7 @@ const Header = ({
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
                     <Link to="/" className={classes.titleLink}>
-                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo white={!!backgroundColor}/></div>}
+                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={!!backgroundColor}/></div>}
                       {forumHeaderTitleSetting.get()}
                     </Link>
                     <HeaderSubtitle />
@@ -445,7 +445,7 @@ const Header = ({
                 </div>
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo white={!!backgroundColor}/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={!!backgroundColor}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>

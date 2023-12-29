@@ -907,7 +907,7 @@ const MostReadTopicsSection = ({mostReadTopics, classes}: {
 
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
-      You spent the most time on <span className={classes.highlight}>{topics[0].name}</span>
+      When you were reading a post, it was most often about <span className={classes.highlight}>{topics[0].name}</span>
     </h1>
     <div className={classes.topicsChart}>
       <ResponsiveContainer width="100%" height={200}>
@@ -1050,7 +1050,7 @@ const ThankAuthorSection = ({authors, classes}: {
     <h1 className={classes.heading3}>
       You’re in the top <span className={classes.highlight}>{topAuthorPercentByEngagementPercentile}%</span> of {topAuthorByEngagementPercentile.displayName}’s readers
     </h1>
-    <p className={classNames(classes.textRow, classes.text, classes.mt20)}>Want to say thanks?</p>
+    <p className={classNames(classes.textRow, classes.text, classes.mt20)}>Want to say thanks? Send a DM below!</p>
     <div className={classes.messageAuthor}>
       <div className={classes.topAuthorInfo}>
         <div>To:</div>
@@ -1272,9 +1272,8 @@ const RecommendationsSection = ({classes}: {
     <h1 className={classes.heading3}>
       Posts you missed that we think you’ll enjoy
     </h1>
-    {/* This postId is my April Fool's post. I think it shouldn't affect the results, but it's still required for some reason. */}
     <Components.RecommendationsList
-      algorithm={{strategy: {name: 'bestOf', postId: 'KPijJRnQCQvSu5AA2'}, count: 5, disableFallbacks: true}}
+      algorithm={{strategy: {name: 'bestOf', postId: '2023_wrapped'}, count: 5, disableFallbacks: true}}
       ListItem={
         (props: {
           post: PostsListWithVotesAndSequence,

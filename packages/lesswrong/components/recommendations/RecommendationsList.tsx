@@ -55,7 +55,7 @@ const RecommendationsList = ({
 const RecommendationsListComponent = registerComponent(
   'RecommendationsList',
   RecommendationsList,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {

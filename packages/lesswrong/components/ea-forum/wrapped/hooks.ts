@@ -84,84 +84,86 @@ type WrappedDataQueryResult = {
   UserWrappedDataByYearV2: WrappedDataByYearV2;
 };
 
+const query = gql`
+  query getWrappedData($userId: String!, $year: Int!) {
+    UserWrappedDataByYearV2(userId: $userId, year: $year) {
+      engagementPercentile
+      postsReadCount
+      totalSeconds
+      daysVisited
+      mostReadTopics {
+        name
+        shortName
+        slug
+        count
+      }
+      relativeMostReadCoreTopics {
+        tagId
+        tagName
+        tagShortName
+        userReadCount
+        readLikelihoodRatio
+      }
+      mostReadAuthors {
+        _id
+        displayName
+        slug
+        profileImageId
+        count
+        engagementPercentile
+      }
+      topPosts {
+        _id
+        title
+        slug
+        baseScore
+      }
+      postCount
+      authorPercentile
+      topComment {
+        _id
+        postedAt
+        postId
+        postTitle
+        postSlug
+        baseScore
+        extendedScore
+        contents {
+          html
+        }
+      }
+      commentCount
+      commenterPercentile
+      topShortform {
+        _id
+        postedAt
+        postId
+        baseScore
+        extendedScore
+        contents {
+          html
+        }
+      }
+      shortformCount
+      shortformPercentile
+      karmaChange
+      combinedKarmaVals {
+        date
+        postKarma
+        commentKarma
+      }
+      mostReceivedReacts {
+        name
+        count
+      }
+    }
+  }
+`;
+
 // TODO Rename to just useForumWrapped
 export const useForumWrappedV2 = ({ userId, year }: { userId?: string | null; year: number }) => {
   const { data, loading } = useQuery<WrappedDataQueryResult>(
-    gql`
-      query getWrappedData($userId: String!, $year: Int!) {
-        UserWrappedDataByYearV2(userId: $userId, year: $year) {
-          engagementPercentile
-          postsReadCount
-          totalSeconds
-          daysVisited
-          mostReadTopics {
-            name
-            shortName
-            slug
-            count
-          }
-          relativeMostReadCoreTopics {
-            tagId
-            tagName
-            tagShortName
-            userReadCount
-            readLikelihoodRatio
-          }
-          mostReadAuthors {
-            _id
-            displayName
-            slug
-            profileImageId
-            count
-            engagementPercentile
-          }
-          topPosts {
-            _id
-            title
-            slug
-            baseScore
-          }
-          postCount
-          authorPercentile
-          topComment {
-            _id
-            postedAt
-            postId
-            postTitle
-            postSlug
-            baseScore
-            extendedScore
-            contents {
-              html
-            }
-          }
-          commentCount
-          commenterPercentile
-          topShortform {
-            _id
-            postedAt
-            postId
-            baseScore
-            extendedScore
-            contents {
-              html
-            }
-          }
-          shortformCount
-          shortformPercentile
-          karmaChange
-          combinedKarmaVals {
-            date
-            postKarma
-            commentKarma
-          }
-          mostReceivedReacts {
-            name
-            count
-          }
-        }
-      }
-    `,
+    query,
     {
       variables: {
         userId,
