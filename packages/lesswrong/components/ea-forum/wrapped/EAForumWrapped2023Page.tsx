@@ -103,7 +103,7 @@ const styles = (theme: ThemeType) => ({
     },
     // If not, then make them taller so that they don't distract from the focused section
     '@supports not (animation-timeline: view())': {
-      minHeight: '75vh',
+      minHeight: '80vh',
     },
     '&:first-of-type': {
       scrollSnapAlign: 'start',
@@ -592,11 +592,17 @@ const styles = (theme: ThemeType) => ({
     '& .PostsTitle-read': {
       color: theme.palette.wrapped.black,
     },
+    '& .PostsItemIcons-icon': {
+      color: theme.palette.wrapped.grey,
+    },
+    '& .PostsItemIcons-linkIcon': {
+      color: theme.palette.wrapped.grey,
+    },
     '& .EAKarmaDisplay-root': {
       color: theme.palette.wrapped.grey,
     },
     '& .EAKarmaDisplay-voteArrow': {
-      color: theme.palette.wrapped.darkGrey,
+      color: theme.palette.wrapped.postScoreArrow,
     },
     '& .EAPostMeta-root': {
       color: theme.palette.wrapped.grey,
@@ -818,7 +824,9 @@ const Comment = ({comment, classes}: {
             placement="right"
             title={<ExpandedDate date={comment.postedAt} />}
           >
-            {moment(new Date(comment.postedAt)).fromNow()}
+            <CommentLinkWrapper>
+              {moment(new Date(comment.postedAt)).fromNow()}
+            </CommentLinkWrapper>
           </LWTooltip>
         </div>
       </div>
@@ -1023,7 +1031,7 @@ const RelativeMostReadTopicsSection = ({relativeMostReadCoreTopics, classes}: {
 
   return <section className={classes.section}>
     <h1 className={classes.heading3}>
-      You spent more time on <span className={classes.highlight}>{relativeMostReadTopics[0].tagName}</span> than other users
+      You read more <span className={classes.highlight}>{relativeMostReadTopics[0].tagName}</span> posts than average
     </h1>
     <div className={classes.topicsChart}>
       <aside className={classes.relativeTopicsChartMarkYou}>
