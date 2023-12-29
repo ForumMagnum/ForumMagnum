@@ -14,6 +14,7 @@ import { GhdIcon } from '../icons/ghdIcon';
 import { GroupsIcon } from '../icons/groupsIcon';
 import { PolicyIcon } from '../icons/policyIcon';
 import { forumSelect } from '../../lib/forumTypeUtils';
+import { LotusOutlineIcon } from '../icons/lotusIcon';
 
 // Mapping from tag slug to icon
 export const coreTagIconMap = forumSelect<Record<string, FC<{className?: string}>>>({
@@ -29,6 +30,7 @@ export const coreTagIconMap = forumSelect<Record<string, FC<{className?: string}
     'animal-welfare': BirdIcon, // Replacing wild-animal-welfare and farmed-animal-welfare
     'effective-altruism-groups': GroupsIcon,
     'building-effective-altruism': GroupsIcon,
+    'community': LotusOutlineIcon,
     'career-choice': ChoiceIcon,
     'taking-action': ChoiceIcon, // Doesn't exist yet, but may be replacing career-choice
     'ai-risk': AiIcon,

@@ -407,7 +407,7 @@ addGraphQLResolvers({
       );
 
       // Get the top 4 topics that the user has read (filtering out the Community topic)
-      const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat().filter(t => t !== EA_FORUM_COMMUNITY_TOPIC_ID)
+      const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat()
       const tagCounts = countBy(tagIds)
       const topTags = sortBy(entries(tagCounts), last).slice(-4).map(t => t![0])
 

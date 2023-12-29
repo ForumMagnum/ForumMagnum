@@ -92,10 +92,17 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '55vh',
-    padding: '75px 20px',
+    padding: '75px 40px',
     scrollSnapAlign: 'center',
-    animation: 'section-scroll-animation linear',
-    animationTimeline: 'view()',
+    // Fade sections in and out if possible (i.e. on Chrome)
+    '@supports (animation-timeline: view())': {
+      animation: 'section-scroll-animation linear',
+      animationTimeline: 'view()',
+    },
+    // If not, then make them taller so that they don't distract from the focused section
+    '@supports not (animation-timeline: view())': {
+      minHeight: '75vh',
+    },
     '&:first-of-type': {
       scrollSnapAlign: 'start',
       minHeight: '85vh',
@@ -104,6 +111,10 @@ const styles = (theme: ThemeType) => ({
     '&:last-of-type': {
       minHeight: '85vh',
       paddingBottom: 160,
+    },
+    [theme.breakpoints.down('sm')]: {
+      paddingLeft: 20,
+      paddingRight: 20,
     },
   },
   sectionTall: {
@@ -563,7 +574,7 @@ const styles = (theme: ThemeType) => ({
     margin: 0
   },
   textRow: {
-    maxWidth: 600,
+    maxWidth: 500,
   },
   text: {
     fontSize: 14,
@@ -1283,7 +1294,7 @@ const ThankYouSection = ({classes}: {
       Thank you! <span className={classes.heartIcon}><HeartReactionIcon /></span>
     </h1>
     <p className={classNames(classes.textRow, classes.text, classes.balance, classes.mt20)}>
-      Thanks for being part of the EA Forum and helping the community think about how to do the most good in the world
+      Thanks for joining us on the EA Forum and helping us think about how to improve the world.
     </p>
     <div className={classNames(classes.lightbulbIcon, classes.mt30)}>
       {lightbulbIcon}

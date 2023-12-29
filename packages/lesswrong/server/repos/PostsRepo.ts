@@ -574,7 +574,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
           SELECT _id
           FROM tags
           WHERE core IS TRUE
-          AND _id <> '${EA_FORUM_COMMUNITY_TOPIC_ID}'
       ),
       read_posts AS (
           SELECT
