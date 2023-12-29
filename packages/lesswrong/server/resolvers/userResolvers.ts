@@ -392,11 +392,7 @@ addGraphQLResolvers({
       })
 
       // Get the top 5 authors that the user has read
-      const userIds = posts.map(p => {
-        let authors = p.coauthorStatuses?.map(cs => cs.userId) ?? []
-        authors.push(p.userId)
-        return authors
-      }).flat()
+      const userIds = posts.map(p => getConfirmedCoauthorIds(p).concat([p.userId])).flat()
       const authorCounts = countBy(userIds)
       const topAuthors = sortBy(entries(authorCounts), last).slice(-5).map(a => a![0]) as string[]
 
