@@ -525,7 +525,7 @@ addGraphQLResolvers({
         }
       })
 
-      let totalKarmaChange: number
+      let totalKarmaChange
       let mostReceivedReacts: { name: string, count: number }[] = []
       if (context.repos?.votes) {
         const karmaQueryArgs = {
