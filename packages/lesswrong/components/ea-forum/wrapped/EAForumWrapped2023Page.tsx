@@ -332,10 +332,10 @@ const styles = (theme: ThemeType) => ({
     },
     '& button': {
       background: theme.palette.text.alwaysWhite,
-      color: theme.palette.text.alwaysBlack,
+      color: theme.palette.wrapped.black,
       '&:hover': {
         background: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 90%, ${theme.palette.text.alwaysBlack})`,
-        color: theme.palette.text.alwaysBlack,
+        color: theme.palette.wrapped.black,
       }
     },
   },
@@ -361,7 +361,7 @@ const styles = (theme: ThemeType) => ({
     width: '100%',
     minHeight: 56,
     background: theme.palette.text.alwaysWhite,
-    color: theme.palette.text.alwaysBlack,
+    color: theme.palette.wrapped.black,
     fontSize: 14,
     lineHeight: 'normal',
     fontWeight: 600,
@@ -408,7 +408,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 18
   },
   comment: {
-    color: theme.palette.text.alwaysBlack,
+    color: theme.palette.wrapped.black,
     background: theme.palette.text.alwaysWhite,
     textAlign: 'left',
     borderRadius: theme.borderRadius.default,
@@ -475,7 +475,7 @@ const styles = (theme: ThemeType) => ({
     transform: 'translateY(1px)',
   },
   commentBody: {
-    color: theme.palette.text.alwaysBlack,
+    color: theme.palette.wrapped.black,
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
@@ -575,7 +575,34 @@ const styles = (theme: ThemeType) => ({
     textAlign: 'left'
   },
   mvpPostItem: {
-    marginBottom: 4
+    marginBottom: 4,
+    '& .EAPostsItem-expandedCommentsWrapper': {
+      background: theme.palette.text.alwaysWhite,
+      border: 'none',
+      "&:hover": {
+        background: theme.palette.text.alwaysWhite,
+        border: 'none',
+        opacity: 0.9
+      },
+    },
+    '& .PostsTitle-root': {
+      color: theme.palette.wrapped.black,
+    },
+    '& .PostsTitle-read': {
+      color: theme.palette.wrapped.black,
+    },
+    '& .EAKarmaDisplay-root': {
+      color: theme.palette.wrapped.grey,
+    },
+    '& .EAKarmaDisplay-voteArrow': {
+      color: theme.palette.wrapped.darkGrey,
+    },
+    '& .EAPostMeta-root': {
+      color: theme.palette.wrapped.grey,
+    },
+    '& .PostsItem2MetaInfo-metaInfo': {
+      color: theme.palette.wrapped.grey,
+    },
   },
   heading1: {
     fontSize: 50,

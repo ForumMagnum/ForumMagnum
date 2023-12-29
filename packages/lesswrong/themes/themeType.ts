@@ -503,6 +503,7 @@ declare global {
       highlightText: ColorString,
       secondaryText: ColorString,
       tertiaryText: ColorString,
+      black: ColorString,
       darkGrey: ColorString,
       grey: ColorString,
       darkDot: ColorString,
