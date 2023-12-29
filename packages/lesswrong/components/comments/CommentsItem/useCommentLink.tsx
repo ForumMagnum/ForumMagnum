@@ -7,14 +7,8 @@ import qs from "qs";
 import { TagCommentType } from "../../../lib/collections/comments/types";
 
 export type UseCommentLinkProps = {
-  comment: {
-    _id: string,
-    tagCommentType?: TagCommentType,
-  },
-  post?: {
-    _id: string,
-    slug: string|undefined,
-  }|null,
+  comment: Pick<CommentsList, "_id" | "tagCommentType">,
+  post?: Pick<PostsMinimumInfo, "_id" | "slug"> | null,
   tag?: TagBasicInfo,
   scrollOnClick?: boolean,
   scrollIntoView?: () => void,
