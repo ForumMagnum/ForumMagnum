@@ -28,7 +28,7 @@ import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
-import { TagCommentType, tagCommentTypes } from "../../../lib/collections/comments/types";
+import { TagCommentType } from "../../../lib/collections/comments/types";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -112,7 +112,7 @@ const styles = (theme: ThemeType) => ({
     },
     '&:last-of-type': {
       minHeight: '85vh',
-      paddingBottom: 160,
+      paddingBottom: 200,
     },
     [theme.breakpoints.down('sm')]: {
       paddingLeft: 20,
@@ -121,6 +121,13 @@ const styles = (theme: ThemeType) => ({
   },
   sectionTall: {
     minHeight: '85vh',
+  },
+  sectionNoFade: {
+    // Don't fade the "most valuable posts" section since it can be very tall
+    '@supports (animation-timeline: view())': {
+      animation: 'none',
+      animationTimeline: 'none',
+    },
   },
   summaryLinkWrapper: {
     display: 'flex',
@@ -153,7 +160,6 @@ const styles = (theme: ThemeType) => ({
   },
   imgWrapper: {
     display: 'inline-block',
-    margin: '100px auto 0'
   },
   img: {
     maxWidth: 'min(80vw, 400px)',
@@ -542,6 +548,35 @@ const styles = (theme: ThemeType) => ({
     width: 16,
     height: 16
   },
+  mvpColLabels: {
+    width: '100%',
+    maxWidth: 500,
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
+  mvpUpvotesLabel: {
+    fontSize: 16,
+    fontWeight: 600,
+  },
+  mvpHeartLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '4px',
+    fontSize: 13,
+    fontWeight: 500,
+    paddingRight: 20
+  },
+  mvpHeartIcon: {
+    fontSize: 16
+  },
+  mvpList: {
+    width: '100%',
+    maxWidth: 500,
+    textAlign: 'left'
+  },
+  mvpPostItem: {
+    marginBottom: 4
+  },
   heading1: {
     fontSize: 50,
     lineHeight: '55px',
@@ -587,6 +622,9 @@ const styles = (theme: ThemeType) => ({
   highlight: {
     color: theme.palette.wrapped.highlightText,
   },
+  bold: {
+    fontWeight: 700
+  },
   link: {
     textDecoration: 'underline',
     textUnderlineOffset: '4px',
@@ -611,6 +649,7 @@ const styles = (theme: ThemeType) => ({
   mt40: { marginTop: 40 },
   mt60: { marginTop: 60 },
   mt70: { marginTop: 70 },
+  mt100: { marginTop: 100 },
 })
 
 type ReceivedReact = {
@@ -1322,6 +1361,132 @@ const ThankYouSection = ({classes}: {
 }
 
 /**
+ * Section that displays a screenshottable summary of the user's Wrapped data
+ */
+const SummarySection = ({data, setRef, classes}: {
+  data: WrappedDataByYearV2,
+  setRef: (el: HTMLElement) => void,
+  classes: ClassesType
+}) => {
+  const currentUser = useCurrentUser()
+  
+  const { UsersProfileImage, CoreTagIcon } = Components
+
+  return <section className={classes.section} ref={setRef}>
+    <p className={classNames(classes.text, classes.m0)}>Effective Altruism Forum</p>
+    <h1 className={classNames(classes.heading2, classes.mt10)}>
+      <span className={classes.nowrap}>{currentUser?.displayName}’s</span>{" "}
+      <span className={classes.nowrap}>2023 Wrapped</span>
+    </h1>
+    <div className={classes.summary}>
+      <div className={classes.summaryBoxRow}>
+        <div className={classes.summaryBox}>
+          <article>
+            <div className={classes.heading4}>{formattedPercentile(data.engagementPercentile)}%</div>
+            <div className={classes.statLabel}>Top reader</div>
+          </article>
+        </div>
+        <div className={classes.summaryBox}>
+          <article>
+            <div className={classes.heading4}>{(data.totalSeconds / 3600).toFixed(1)}</div>
+            <div className={classes.statLabel}>Hours spent</div>
+          </article>
+        </div>
+        <div className={classes.summaryBox}>
+          <article>
+            <div className={classes.heading4}>{data.daysVisited.length}</div>
+            <div className={classes.statLabel}>Days visited</div>
+          </article>
+        </div>
+      </div>
+      
+      {!!data.mostReadAuthors.length && <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
+        <div className={classes.summaryBox}>
+          <div className={classes.summaryLabel}>Most-read authors</div>
+          <div className={classNames(classes.summaryList, classes.mt12)}>
+            {data.mostReadAuthors.map(author => {
+              return <div key={author.slug} className={classes.summaryListItem}>
+                <UsersProfileImage size={20} user={author} />
+                <Link to={getUserProfileLink(author.slug)}>
+                  {author.displayName}
+                </Link>
+              </div>
+            })}
+          </div>
+        </div>
+      </div>}
+      
+      {!!data.mostReadTopics.length && <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
+        <div className={classes.summaryBox}>
+          <div className={classes.summaryLabel}>Most-read topics</div>
+          <div className={classNames(classes.summaryList, classes.mt12)}>
+            {data.mostReadTopics.map(topic => {
+              return <div key={topic.slug} className={classes.summaryListItem}>
+                <CoreTagIcon tag={topic} fallbackNode={<div className={classes.summaryTopicIconPlaceholder}></div>} />
+                <Link to={tagGetUrl({slug: topic.slug})}>
+                  {topic.name}
+                </Link>
+              </div>
+            })}
+          </div>
+        </div>
+      </div>}
+      
+      <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
+        <div className={classes.summaryBox}>
+          <article>
+            <div className={classes.heading4}>{formattedKarmaChangeText(data.karmaChange)}</div>
+            <div className={classes.statLabel}>Karma</div>
+          </article>
+        </div>
+        <div className={classes.summaryBox}>
+          <article>
+            <div className={classes.heading4}>{data.postCount}</div>
+            <div className={classes.statLabel}>Post{data.postCount === 1 ? '' : 's'}</div>
+          </article>
+        </div>
+        <div className={classes.summaryBox}>
+          <article>
+            <div className={classes.heading4}>{data.commentCount}</div>
+            <div className={classes.statLabel}>Comment{data.commentCount === 1 ? '' : 's'}</div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+}
+
+/**
+ * Section that displays all the user's upvoted posts and lets them mark which were "most valuable"
+ */
+const MostValuablePostsSection = ({classes}: {
+  classes: ClassesType
+}) => {
+  const { ForumIcon, PostsByVoteWrapper } = Components
+  
+  return <section className={classNames(classes.section, classes.sectionNoFade)}>
+    <h1 className={classes.heading3}>
+      Take a moment to reflect on 2023
+    </h1>
+    <p className={classNames(classes.textRow, classes.text, classes.mt16)}>
+      Look back at everything you upvoted - <span className={classes.bold}>what did you find most valuable?</span>{" "}
+      Your answers will help us encourage more of the most valuable content.
+    </p>
+    <div className={classNames(classes.mvpColLabels, classes.mt30)}>
+      <div className={classes.mvpUpvotesLabel}>Your upvotes</div>
+      <div className={classes.mvpHeartLabel}>
+        Most valuable
+        <ForumIcon icon="HeartOutline" className={classes.mvpHeartIcon} />
+      </div>
+    </div>
+    <div className={classNames(classes.mvpList, classes.mt10)}>
+      <PostsByVoteWrapper voteType="bigUpvote" year={2023} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox />
+      <PostsByVoteWrapper voteType="smallUpvote" year={2023} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox />
+    </div>
+  </section>
+}
+
+/**
  * This is the primary page component for EA Forum Wrapped 2023.
  */
 const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
@@ -1341,6 +1506,8 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     }
   }, [currentUser])
 
+  // After the user has seen the summary section,
+  // we add a link in the first section to skip down to it for convenience
   useEffect(() => {
     if (entry?.isIntersecting && !currentUser?.wrapped2023Viewed) {
       void updateCurrentUser({
@@ -1353,7 +1520,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     node?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
   }, [node]);
 
-  const { HeadTags, ForumIcon, CloudinaryImage2, UsersProfileImage, CoreTagIcon } = Components
+  const { HeadTags, ForumIcon, CloudinaryImage2 } = Components
   
   // If there's no logged in user, prompt them to login
   if (!currentUser) {
@@ -1383,6 +1550,25 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     </AnalyticsContext>
   }
 
+  // If the user's account was created after 2023, show this message
+  const userCreatedAt = moment(currentUser.createdAt)
+  const endOf2023 = moment('2023-12-31', "YYYY-MM-DD")
+  if (userCreatedAt.isAfter(endOf2023, 'date')) {
+    return <AnalyticsContext pageContext="eaYearWrapped">
+      <main className={classes.root}>
+        <section className={classes.section}>
+          <h1 className={classes.heading1}>Your 2023 Wrapped</h1>
+          <div className={classes.loginWrapper}>
+            <p className={classes.loginText}>
+              Looks like you didn't have an account in 2023 - check back in at the end of 2024!
+            </p>
+          </div>
+          <CloudinaryImage2 publicId="2023_wrapped" wrapperClassName={classes.loginImgWrapper} className={classes.img} />
+        </section>
+      </main>
+    </AnalyticsContext>
+  }
+
   if (!data) return null;
 
   return (
@@ -1397,7 +1583,14 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
               <ForumIcon icon="NarrowArrowDown" />
             </button>
           }
-          <CloudinaryImage2 publicId="2023_wrapped" wrapperClassName={classes.imgWrapper} className={classes.img} />
+          <CloudinaryImage2
+            publicId="2023_wrapped"
+            wrapperClassName={classNames(classes.imgWrapper, {
+              [classes.mt60]: currentUser.wrapped2023Viewed,
+              [classes.mt100]: !currentUser.wrapped2023Viewed,
+            })}
+            className={classes.img}
+          />
         </section>
         
         <EngagementPercentileSection data={data} classes={classes} />
@@ -1414,99 +1607,8 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         <ReactsReceivedSection receivedReacts={data.mostReceivedReacts} classes={classes} />
         <RecommendationsSection classes={classes} />
         <ThankYouSection classes={classes} />
-        
-        <section className={classes.section} ref={setNode}>
-          <p className={classNames(classes.text, classes.m0)}>Effective Altruism Forum</p>
-          <h1 className={classNames(classes.heading2, classes.mt10)}>
-            <span className={classes.nowrap}>{currentUser.displayName}’s</span>{" "}
-            <span className={classes.nowrap}>2023 Wrapped</span>
-          </h1>
-          <div className={classes.summary}>
-            <div className={classes.summaryBoxRow}>
-              <div className={classes.summaryBox}>
-                <article>
-                  <div className={classes.heading4}>{formattedPercentile(data.engagementPercentile)}%</div>
-                  <div className={classes.statLabel}>Top reader</div>
-                </article>
-              </div>
-              <div className={classes.summaryBox}>
-                <article>
-                  <div className={classes.heading4}>{(data.totalSeconds / 3600).toFixed(1)}</div>
-                  <div className={classes.statLabel}>Hours spent</div>
-                </article>
-              </div>
-              <div className={classes.summaryBox}>
-                <article>
-                  <div className={classes.heading4}>{data.daysVisited.length}</div>
-                  <div className={classes.statLabel}>Days visited</div>
-                </article>
-              </div>
-            </div>
-            
-            {!!data.mostReadAuthors.length && <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
-              <div className={classes.summaryBox}>
-                <div className={classes.summaryLabel}>Most-read authors</div>
-                <div className={classNames(classes.summaryList, classes.mt12)}>
-                  {data.mostReadAuthors.map(author => {
-                    return <div key={author.slug} className={classes.summaryListItem}>
-                      <UsersProfileImage size={20} user={author} />
-                      <Link to={getUserProfileLink(author.slug)}>
-                        {author.displayName}
-                      </Link>
-                    </div>
-                  })}
-                </div>
-              </div>
-            </div>}
-            
-            {!!data.mostReadTopics.length && <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
-              <div className={classes.summaryBox}>
-                <div className={classes.summaryLabel}>Most-read topics</div>
-                <div className={classNames(classes.summaryList, classes.mt12)}>
-                  {data.mostReadTopics.map(topic => {
-                    return <div key={topic.slug} className={classes.summaryListItem}>
-                      <CoreTagIcon tag={topic} fallbackNode={<div className={classes.summaryTopicIconPlaceholder}></div>} />
-                      <Link to={tagGetUrl({slug: topic.slug})}>
-                        {topic.name}
-                      </Link>
-                    </div>
-                  })}
-                </div>
-              </div>
-            </div>}
-            
-            <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
-              <div className={classes.summaryBox}>
-                <article>
-                  <div className={classes.heading4}>{formattedKarmaChangeText(data.karmaChange)}</div>
-                  <div className={classes.statLabel}>Karma</div>
-                </article>
-              </div>
-              <div className={classes.summaryBox}>
-                <article>
-                  <div className={classes.heading4}>{data.postCount}</div>
-                  <div className={classes.statLabel}>Post{data.postCount === 1 ? '' : 's'}</div>
-                </article>
-              </div>
-              <div className={classes.summaryBox}>
-                <article>
-                  <div className={classes.heading4}>{data.commentCount}</div>
-                  <div className={classes.statLabel}>Comment{data.commentCount === 1 ? '' : 's'}</div>
-                </article>
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        <section className={classes.section}>
-          <h1 className={classes.heading2}>
-            Take a moment to reflect on 2023
-          </h1>
-          <p className={classNames(classes.text, classes.mt16)}>
-            Look back at everything you upvoted - what did you find most valuable?
-            Your answers will help us encourage more of the most valuable content.
-          </p>
-        </section>
+        <SummarySection data={data} setRef={setNode} classes={classes} />
+        <MostValuablePostsSection classes={classes} />
 
       </main>
     </AnalyticsContext>
