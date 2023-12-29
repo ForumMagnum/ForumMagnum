@@ -128,6 +128,7 @@ const styles = (theme: ThemeType) => ({
       animation: 'none',
       animationTimeline: 'none',
     },
+    scrollSnapAlign: 'start',
   },
   summaryLinkWrapper: {
     display: 'flex',
