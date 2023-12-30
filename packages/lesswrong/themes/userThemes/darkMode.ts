@@ -218,7 +218,7 @@ export const darkModeTheme: UserThemeSpecification = {
       primaryTranslucent: "rgba(99,141,103,0.3)",
       primaryTranslucentHeavy: "rgba(99,141,103,0.6)",
       warningTranslucent: "rgba(255,173,8,0.3)",
-      transparent: 'transparent'
+      transparent: 'transparent',
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
@@ -292,6 +292,19 @@ export const darkModeTheme: UserThemeSpecification = {
         secondaryOpaqueDark: "rgba(197, 106, 101, 0.40)",
         secondaryButtonText: "#EDD3CE",
       },
+    },
+    wrapped: {
+      background: '#072C47',
+      highlightText: '#FFC443',
+      secondaryText: '#008DAC',
+      tertiaryText: "rgba(255, 255, 255, 0.50)",
+      black: '#212121',
+      darkGrey: '#424242',
+      grey: '#757575',
+      darkDot: "rgba(255, 255, 255, 0.40)",
+      panelBackground: "rgba(255, 255, 255, 0.10)",
+      panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
+      postScoreArrow: '#BCBCBC',
     },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({

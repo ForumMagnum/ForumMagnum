@@ -216,9 +216,10 @@ const EAPostsItem = ({
     PostsTitle, ForumIcon, PostActionsButton, EAKarmaDisplay, EAPostMeta,
     PostsItemTagRelevance, PostsItemTooltipWrapper, PostsVote,
     PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
+    PostMostValuableCheckbox,
   } = Components;
 
-  const SecondaryInfo = () => hideSecondaryInfo ? null : (
+  const SecondaryInfo = () => (hideSecondaryInfo || showMostValuableCheckbox) ? null : (
     <>
       <InteractionWrapper className={classes.interactionWrapper}>
         <a onClick={toggleComments} className={classNames(
@@ -319,6 +320,11 @@ const EAPostsItem = ({
                 */}
               <SecondaryInfo />
             </div>
+            {showMostValuableCheckbox && <div className={classes.secondaryContainer}>
+              <InteractionWrapper className={classes.interactionWrapper}>
+                <PostMostValuableCheckbox post={post} />
+              </InteractionWrapper>
+            </div>}
             <InteractionWrapper className={classes.interactionWrapper}>
               <PostsItemTrailingButtons
                 showArchiveButton={false}
