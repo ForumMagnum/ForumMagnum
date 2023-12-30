@@ -377,7 +377,7 @@ addGraphQLResolvers({
         userId: user._id,
         isRead: true,
         lastUpdated: {$gte: start, $lte: end},
-        postId: {$exists: true, $ne: null}
+        postId: {$ne: null}
       }).fetch()
 
       // Filter out the posts that the user themselves authored or co-authored,
