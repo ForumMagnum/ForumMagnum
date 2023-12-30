@@ -316,6 +316,8 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.wrapped.panelBackground,
     borderRadius: theme.borderRadius.default,
     padding: '0 16px 16px',
+    scrollSnapAlign: 'start',
+    scrollMarginTop: '110px',
     '& .ck-placeholder': {
       '--ck-color-engine-placeholder-text': theme.palette.wrapped.tertiaryText,
     },
@@ -505,6 +507,9 @@ const styles = (theme: ThemeType) => ({
     width: '100%',
     maxWidth: 380,
     margin: '40px auto 0',
+    '& .RecommendationsList-noMoreMessage': {
+      color: theme.palette.text.alwaysWhite,
+    }
   },
   summary: {
     width: '100%',
@@ -883,27 +888,29 @@ const EngagementPercentileSection = ({data, classes}: {
   const engagementHours = (data.totalSeconds / 3600)
   const markPosition = `calc(${97.5 * engagementHours / 530}% + 8px)`
 
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      You’re a top <span className={classes.highlight}>{formattedPercentile(data.engagementPercentile)}%</span> reader of the EA Forum
-    </h1>
-    <p className={classNames(classes.textRow, classes.text, classes.mt16)}>You read {data.postsReadCount} posts this year</p>
-    <div className={classes.chart}>
-      <aside className={classes.engagementChartMark} style={{left: markPosition}}>
-        <div className={classes.engagementChartArrow}>
-          {drawnArrow}
-        </div>
-        you
-      </aside>
-      <ResponsiveContainer width="100%" height={200}>
-        <LineChart width={350} height={200} data={ENGAGEMENT_CHART_DATA}>
-          <YAxis dataKey="count" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} width={2} />
-          <XAxis dataKey="hours" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} height={2} scale="linear" type="number" domain={[0, 530]} />
-          <Line dataKey="count" dot={false} stroke={wrappedHighlightColor} strokeWidth={2} />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  </section>
+  return <AnalyticsContext pageSectionContext="engagementPercentile">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        You’re a top <span className={classes.highlight}>{formattedPercentile(data.engagementPercentile)}%</span> reader of the EA Forum
+      </h1>
+      <p className={classNames(classes.textRow, classes.text, classes.mt16)}>You read {data.postsReadCount} posts this year</p>
+      <div className={classes.chart}>
+        <aside className={classes.engagementChartMark} style={{left: markPosition}}>
+          <div className={classes.engagementChartArrow}>
+            {drawnArrow}
+          </div>
+          you
+        </aside>
+        <ResponsiveContainer width="100%" height={200}>
+          <LineChart width={350} height={200} data={ENGAGEMENT_CHART_DATA}>
+            <YAxis dataKey="count" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} width={2} />
+            <XAxis dataKey="hours" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} height={2} scale="linear" type="number" domain={[0, 530]} />
+            <Line dataKey="count" dot={false} stroke={wrappedHighlightColor} strokeWidth={2} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -913,26 +920,28 @@ const EngagementHoursSection = ({engagementHours, classes}: {
   engagementHours: number,
   classes: ClassesType
 }) => {
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      You spent <span className={classes.highlight}>{engagementHours.toFixed(1)}</span> hours on the EA Forum in 2023
-    </h1>
-    <p className={classNames(classes.textRow, classes.text, classes.mt70)}>Which is about the same as...</p>
-    <div className={classNames(classes.stats, classes.mt30)}>
-      <article className={classes.stat}>
-        <div className={classes.heading3}>{(engagementHours / 3.5).toFixed(1)}</div>
-        <div className={classes.statLabel}>episodes of the 80,000 hours podcast</div>
-      </article>
-      <article className={classes.stat}>
-        <div className={classes.heading3}>{(engagementHours / 25).toFixed(1)}</div>
-        <div className={classes.statLabel}>EAG(x) conferences</div>
-      </article>
-      <article className={classes.stat}>
-        <div className={classes.heading3}>{(engagementHours / 4320).toFixed(3)}</div>
-        <div className={classes.statLabel}>Llama 2s trained</div>
-      </article>
-    </div>
-  </section>
+  return <AnalyticsContext pageSectionContext="engagementHours">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        You spent <span className={classes.highlight}>{engagementHours.toFixed(1)}</span> hours on the EA Forum in 2023
+      </h1>
+      <p className={classNames(classes.textRow, classes.text, classes.mt70)}>Which is about the same as...</p>
+      <div className={classNames(classes.stats, classes.mt30)}>
+        <article className={classes.stat}>
+          <div className={classes.heading3}>{(engagementHours / 3.5).toFixed(1)}</div>
+          <div className={classes.statLabel}>episodes of the 80,000 hours podcast</div>
+        </article>
+        <article className={classes.stat}>
+          <div className={classes.heading3}>{(engagementHours / 25).toFixed(1)}</div>
+          <div className={classes.statLabel}>EAG(x) conferences</div>
+        </article>
+        <article className={classes.stat}>
+          <div className={classes.heading3}>{(engagementHours / 4320).toFixed(3)}</div>
+          <div className={classes.statLabel}>Llama 2s trained</div>
+        </article>
+      </div>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -943,33 +952,35 @@ const DaysVisitedSection = ({daysVisited, classes}: {
   daysVisited: string[],
   classes: ClassesType
 }) => {
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      You visited the EA Forum on <span className={classes.highlight}>{daysVisited.length}</span> days in 2023
-    </h1>
-    <p className={classNames(classes.textRow, classes.text, classes.mt16)}>
-      (You may have visited more times while logged out)
-    </p>
-    <div className={classes.calendar}>
-      {range(0, 12).map((month: number) => {
-        const daysInMonth = moment(`2023-${month+1}`, 'YYYY-M').daysInMonth()
-        return <Fragment key={`month-${month}`}>
-          {range(0, daysInMonth).map(day => {
-            const date = moment(`2023-${month+1}-${day+1}`, 'YYYY-M-D')
-            return <div
-              key={`month-${month}-day-${day}`}
-              className={classNames(classes.calendarDot, {
-                [classes.calendarDotActive]: daysVisited.some(d => moment(d).isSame(date))
-              })}
-            ></div>
-          })}
-          {range(daysInMonth, 31).map(day => {
-            return <div key={`month-${month}-day-${day}`}></div>
-          })}
-        </Fragment>
-      })}
-    </div>
-  </section>
+  return <AnalyticsContext pageSectionContext="daysVisited">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        You visited the EA Forum on <span className={classes.highlight}>{daysVisited.length}</span> days in 2023
+      </h1>
+      <p className={classNames(classes.textRow, classes.text, classes.mt16)}>
+        (You may have visited more times while logged out)
+      </p>
+      <div className={classes.calendar}>
+        {range(0, 12).map((month: number) => {
+          const daysInMonth = moment(`2023-${month+1}`, 'YYYY-M').daysInMonth()
+          return <Fragment key={`month-${month}`}>
+            {range(0, daysInMonth).map(day => {
+              const date = moment(`2023-${month+1}-${day+1}`, 'YYYY-M-D')
+              return <div
+                key={`month-${month}-day-${day}`}
+                className={classNames(classes.calendarDot, {
+                  [classes.calendarDotActive]: daysVisited.some(d => moment(d).isSame(date))
+                })}
+              ></div>
+            })}
+            {range(daysInMonth, 31).map(day => {
+              return <div key={`month-${month}-day-${day}`}></div>
+            })}
+          </Fragment>
+        })}
+      </div>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -989,28 +1000,30 @@ const MostReadTopicsSection = ({mostReadTopics, classes}: {
     }
   })
 
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      When you were reading a post, it was most often about <span className={classes.highlight}>{topics[0].name}</span>
-    </h1>
-    <div className={classes.topicsChart}>
-      <ResponsiveContainer width="100%" height={200}>
-        <BarChart layout="vertical" width={350} height={200} data={topics} barCategoryGap={'20%'} {...{overflow: 'visible'}}>
-          <YAxis
-            dataKey="shortName"
-            type="category"
-            tickLine={false}
-            axisLine={false}
-            width={80}
-            tick={{fill: '#FFF'}}
-            tickMargin={10}
-          />
-          <XAxis dataKey="count" type="number" hide />
-          <Bar dataKey="count" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  </section>
+  return <AnalyticsContext pageSectionContext="mostReadTopics">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        When you were reading a post, it was most often about <span className={classes.highlight}>{topics[0].name}</span>
+      </h1>
+      <div className={classes.topicsChart}>
+        <ResponsiveContainer width="100%" height={200}>
+          <BarChart layout="vertical" width={350} height={200} data={topics} barCategoryGap={'20%'} {...{overflow: 'visible'}}>
+            <YAxis
+              dataKey="shortName"
+              type="category"
+              tickLine={false}
+              axisLine={false}
+              width={80}
+              tick={{fill: '#FFF'}}
+              tickMargin={10}
+            />
+            <XAxis dataKey="count" type="number" hide />
+            <Bar dataKey="count" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -1033,47 +1046,49 @@ const RelativeMostReadTopicsSection = ({relativeMostReadCoreTopics, classes}: {
   
   if (!relativeMostReadTopics.length) return null;
 
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      You read more <span className={classes.highlight}>{relativeMostReadTopics[0].tagName}</span> posts than average
-    </h1>
-    <div className={classes.topicsChart}>
-      <aside className={classes.relativeTopicsChartMarkYou}>
-        you
-        {drawnArrow}
-      </aside>
-      <aside className={classes.relativeTopicsChartMarkAvg}>
-        <div className={classes.relativeTopicsChartArrowAvg}>
+  return <AnalyticsContext pageSectionContext="relativeMostReadTopics">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        You read more <span className={classes.highlight}>{relativeMostReadTopics[0].tagName}</span> posts than average
+      </h1>
+      <div className={classes.topicsChart}>
+        <aside className={classes.relativeTopicsChartMarkYou}>
+          you
           {drawnArrow}
-        </div>
-        average
-      </aside>
-      <ResponsiveContainer width="100%" height={relativeTopicsChartHeight}>
-        <BarChart
-          layout="vertical"
-          width={350}
-          height={relativeTopicsChartHeight}
-          data={relativeMostReadTopics}
-          barCategoryGap={'20%'}
-          barGap={0}
-          {...{overflow: 'visible'}}
-        >
-          <YAxis
-            dataKey="tagName"
-            type="category"
-            tickLine={false}
-            axisLine={false}
-            width={80}
-            tick={{fill: '#FFF'}}
-            tickMargin={10}
-          />
-          <XAxis dataKey="userReadCount" type="number" hide />
-          <Bar dataKey="userReadCount" fill={wrappedHighlightColor} />
-          <Bar dataKey="overallReadCount" fill="#FFF" />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  </section>
+        </aside>
+        <aside className={classes.relativeTopicsChartMarkAvg}>
+          <div className={classes.relativeTopicsChartArrowAvg}>
+            {drawnArrow}
+          </div>
+          average
+        </aside>
+        <ResponsiveContainer width="100%" height={relativeTopicsChartHeight}>
+          <BarChart
+            layout="vertical"
+            width={350}
+            height={relativeTopicsChartHeight}
+            data={relativeMostReadTopics}
+            barCategoryGap={'20%'}
+            barGap={0}
+            {...{overflow: 'visible'}}
+          >
+            <YAxis
+              dataKey="tagName"
+              type="category"
+              tickLine={false}
+              axisLine={false}
+              width={80}
+              tick={{fill: '#FFF'}}
+              tickMargin={10}
+            />
+            <XAxis dataKey="userReadCount" type="number" hide />
+            <Bar dataKey="userReadCount" fill={wrappedHighlightColor} />
+            <Bar dataKey="overallReadCount" fill="#FFF" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -1085,28 +1100,30 @@ const MostReadAuthorsSection = ({authors, classes}: {
 }) => {
   if (!authors.length) return null;
 
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      Your most-read author was <span className={classes.highlight}>{authors[0].displayName}</span>
-    </h1>
-    <div className={classes.authors}>
-      {authors.map(author => {
-        return <article key={author.slug} className={classes.author}>
-          <Components.UsersProfileImage size={40} user={author} />
-          <div>
-            <h2 className={classes.authorName}>
-              <Link to={getUserProfileLink(author.slug)}>
-                {author.displayName}
-              </Link>
-            </h2>
-            <p className={classes.authorReadCount}>
-              {author.count} post{author.count === 1 ? '' : 's'} read
-            </p>
-          </div>
-        </article>
-      })}
-    </div>
-  </section>
+  return <AnalyticsContext pageSectionContext="mostReadAuthors">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        Your most-read author was <span className={classes.highlight}>{authors[0].displayName}</span>
+      </h1>
+      <div className={classes.authors}>
+        {authors.map(author => {
+          return <article key={author.slug} className={classes.author}>
+            <Components.UsersProfileImage size={40} user={author} />
+            <div>
+              <h2 className={classes.authorName}>
+                <Link to={getUserProfileLink(author.slug)}>
+                  {author.displayName}
+                </Link>
+              </h2>
+              <p className={classes.authorReadCount}>
+                {author.count} post{author.count === 1 ? '' : 's'} read
+              </p>
+            </div>
+          </article>
+        })}
+      </div>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -1130,37 +1147,39 @@ const ThankAuthorSection = ({authors, classes}: {
   }, [showThankAuthor, initiateConversation, topAuthorByEngagementPercentile])
   if (!showThankAuthor || !conversation) return null
   
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      You’re in the top <span className={classes.highlight}>{topAuthorPercentByEngagementPercentile}%</span> of {topAuthorByEngagementPercentile.displayName}’s readers
-    </h1>
-    <p className={classNames(classes.textRow, classes.text, classes.mt20)}>Want to say thanks? Send a DM below</p>
-    <div className={classes.messageAuthor}>
-      <div className={classes.topAuthorInfo}>
-        <div>To:</div>
-        <div><Components.UsersProfileImage size={24} user={topAuthorByEngagementPercentile} /></div>
-        <div className={classes.text}>
-          <Link to={getUserProfileLink(topAuthorByEngagementPercentile.slug)}>
-            {topAuthorByEngagementPercentile.displayName}
-          </Link>
+  return <AnalyticsContext pageSectionContext="thankAuthor">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        You’re in the top <span className={classes.highlight}>{topAuthorPercentByEngagementPercentile}%</span> of {topAuthorByEngagementPercentile.displayName}’s readers
+      </h1>
+      <p className={classNames(classes.textRow, classes.text, classes.mt20)}>Want to say thanks? Send a DM below</p>
+      <div className={classes.messageAuthor}>
+        <div className={classes.topAuthorInfo}>
+          <div>To:</div>
+          <div><Components.UsersProfileImage size={24} user={topAuthorByEngagementPercentile} /></div>
+          <div className={classes.text}>
+            <Link to={getUserProfileLink(topAuthorByEngagementPercentile.slug)}>
+              {topAuthorByEngagementPercentile.displayName}
+            </Link>
+          </div>
+        </div>
+        <div className={classes.newMessageForm}>
+          <Components.NewMessageForm
+            conversationId={conversation._id}
+            successEvent={() => {
+              captureEvent("messageSent", {
+                conversationId: conversation._id,
+                sender: currentUser._id,
+                participantIds: conversation.participantIds,
+                messageCount: (conversation.messageCount || 0) + 1,
+                from: "2023_wrapped_thank_author",
+              });
+            }}
+          />
         </div>
       </div>
-      <div className={classes.newMessageForm}>
-        <Components.NewMessageForm
-          conversationId={conversation._id}
-          successEvent={() => {
-            captureEvent("messageSent", {
-              conversationId: conversation._id,
-              sender: currentUser._id,
-              participantIds: conversation.participantIds,
-              messageCount: (conversation.messageCount || 0) + 1,
-              from: "2023_wrapped",
-            });
-          }}
-        />
-      </div>
-    </div>
-  </section>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -1177,28 +1196,30 @@ const TopPostSection = ({data, classes}: {
   
   const percentile = formattedPercentile(data.authorPercentile)
   
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      Your highest-karma <span className={classes.highlight}>post</span> in 2023:
-    </h1>
-    <div className={classes.topPost}>
-      <Post post={data.topPosts[0]} classes={classes} />
-    </div>
-    {data.topPosts.length > 1 && <>
-      <p className={classNames(classes.textRow, classes.text, classes.mt60)}>
-        Other posts you wrote this year...
-      </p>
-      <div className={classes.nextTopPosts}>
-        {data.topPosts.slice(1).map(post => {
-          return <Post key={post._id} post={post} classes={classes} />
-        })}
+  return <AnalyticsContext pageSectionContext="topPost">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        Your highest-karma <span className={classes.highlight}>post</span> in 2023:
+      </h1>
+      <div className={classes.topPost}>
+        <Post post={data.topPosts[0]} classes={classes} />
       </div>
-    </>}
-    <p className={classNames(classes.textRow, classes.text, classes.mt40)}>
-      You wrote {data.postCount} post{data.postCount === 1 ? '' : 's'} in total this year.
-      {(percentile < 100) && ` This means you're in the top ${percentile}% of post authors.`}
-    </p>
-  </section>
+      {data.topPosts.length > 1 && <>
+        <p className={classNames(classes.textRow, classes.text, classes.mt60)}>
+          Other posts you wrote this year...
+        </p>
+        <div className={classes.nextTopPosts}>
+          {data.topPosts.slice(1).map(post => {
+            return <Post key={post._id} post={post} classes={classes} />
+          })}
+        </div>
+      </>}
+      <p className={classNames(classes.textRow, classes.text, classes.mt40)}>
+        You wrote {data.postCount} post{data.postCount === 1 ? '' : 's'} in total this year.
+        {(percentile < 100) && ` This means you're in the top ${percentile}% of post authors.`}
+      </p>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -1214,24 +1235,26 @@ const TopCommentSection = ({data, classes}: {
   
   const percentile = formattedPercentile(data.commenterPercentile)
   
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      Your highest-karma <span className={classes.highlight}>comment</span> in 2023:
-    </h1>
-    <div className={classes.topPost}>
-      <Comment comment={data.topComment} classes={classes} />
-    </div>
-    <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
-      You wrote {data.commentCount} comment{data.commentCount === 1 ? '' : 's'} in total this year.
-      {(percentile < 100) && ` This means you're in the top ${percentile}% of commenters.`}
-    </p>
-  </section>
+  return <AnalyticsContext pageSectionContext="topComment">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        Your highest-karma <span className={classes.highlight}>comment</span> in 2023:
+      </h1>
+      <div className={classes.topPost}>
+        <Comment comment={data.topComment} classes={classes} />
+      </div>
+      <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
+        You wrote {data.commentCount} comment{data.commentCount === 1 ? '' : 's'} in total this year.
+        {(percentile < 100) && ` This means you're in the top ${percentile}% of commenters.`}
+      </p>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
- * Section that displays the user's highest-karma shortform (quick take) plus other data on their quick takes
+ * Section that displays the user's highest-karma quick take (shortform) plus other data on their quick takes
  */
-const TopShortformSection = ({data, classes}: {
+const TopQuickTakeSection = ({data, classes}: {
   data: WrappedDataByYearV2,
   classes: ClassesType
 }) => {
@@ -1241,18 +1264,20 @@ const TopShortformSection = ({data, classes}: {
   
   const percentile = formattedPercentile(data.shortformPercentile)
 
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      Your highest-karma <span className={classes.highlight}>quick take</span> in 2023:
-    </h1>
-    <div className={classes.topPost}>
-      <Comment comment={data.topShortform} classes={classes} />
-    </div>
-    <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
-      You wrote {data.shortformCount} quick take{data.shortformCount === 1 ? '' : 's'} in total this year.
-      {(percentile < 100) && ` This means you're in the top ${percentile}% of quick take authors.`}
-    </p>
-  </section>
+  return <AnalyticsContext pageSectionContext="topQuickTake">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        Your highest-karma <span className={classes.highlight}>quick take</span> in 2023:
+      </h1>
+      <div className={classes.topPost}>
+        <Comment comment={data.topShortform} classes={classes} />
+      </div>
+      <p className={classNames(classes.textRow, classes.text, classes.mt30)}>
+        You wrote {data.shortformCount} quick take{data.shortformCount === 1 ? '' : 's'} in total this year.
+        {(percentile < 100) && ` This means you're in the top ${percentile}% of quick take authors.`}
+      </p>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -1266,25 +1291,27 @@ const KarmaChangeSection = ({data, classes}: {
   const hasWrittenContent = !!data.topPosts?.length || data.topComment || data.topShortform
   if (data.karmaChange === undefined || (!hasWrittenContent && data.karmaChange === 0)) return null;
   
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      Your overall karma change this year was <span className={classes.highlight}>{formattedKarmaChangeText(data.karmaChange)}</span>
-    </h1>
-    <div className={classes.chart}>
-      <div className={classes.chartLabels}>
-        <div className={classes.karmaFromPostsLabel}>Karma from posts</div>
-        <div className={classes.karmaFromCommentsLabel}>Karma from comments</div>
+  return <AnalyticsContext pageSectionContext="karmaChange">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        Your overall karma change this year was <span className={classes.highlight}>{formattedKarmaChangeText(data.karmaChange)}</span>
+      </h1>
+      <div className={classes.chart}>
+        <div className={classes.chartLabels}>
+          <div className={classes.karmaFromPostsLabel}>Karma from posts</div>
+          <div className={classes.karmaFromCommentsLabel}>Karma from comments</div>
+        </div>
+        <ResponsiveContainer width="100%" height={200}>
+          <AreaChart width={350} height={200} data={data.combinedKarmaVals}>
+            <YAxis tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} width={2} />
+            <XAxis dataKey="date" tick={false} axisLine={{strokeWidth: 3, stroke: '#FFF'}} height={16} label={<KarmaChangeXAxis />} />
+            <Area dataKey="commentKarma" stackId="1" stroke={wrappedSecondaryColor} fill={wrappedSecondaryColor} fillOpacity={1} />
+            <Area dataKey="postKarma" stackId="1" stroke={wrappedHighlightColor} fill={wrappedHighlightColor} fillOpacity={1} />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
-      <ResponsiveContainer width="100%" height={200}>
-        <AreaChart width={350} height={200} data={data.combinedKarmaVals}>
-          <YAxis tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} width={2} />
-          <XAxis dataKey="date" tick={false} axisLine={{strokeWidth: 3, stroke: '#FFF'}} height={16} label={<KarmaChangeXAxis />} />
-          <Area dataKey="commentKarma" stackId="1" stroke={wrappedSecondaryColor} fill={wrappedSecondaryColor} fillOpacity={1} />
-          <Area dataKey="postKarma" stackId="1" stroke={wrappedHighlightColor} fill={wrappedHighlightColor} fillOpacity={1} />
-        </AreaChart>
-      </ResponsiveContainer>
-    </div>
-  </section>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -1319,37 +1346,39 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
   const totalReactsReceived = receivedReacts.reduce((prev, next) => prev + next.count, 0)
   if (totalReactsReceived <= 5) return null
   
-  return <section className={classNames(classes.section, classes.sectionTall)}>
-    {allReactsReceived?.map((react, i) => {
-      return <div
-        key={i}
-        className={classes.backgroundReact}
-        style={{top: react.top, left: react.left}}
-      >
-        <react.Component />
-      </div>
-    })}
-    <div className={classes.reactsReceivedContents}>
-      <h1 className={classes.heading3}>
-        Others gave you{" "}
-        <span className={classes.highlight}>
-          {receivedReacts[0].count} {receivedReacts[0].name}
-        </span>{" "}
-        reacts{receivedReacts.length > 1 ? '...' : ''}
-      </h1>
-      {receivedReacts.length > 1 && <div className={classes.otherReacts}>
-        <p className={classes.heading5}>... and {totalReactsReceived} reacts in total:</p>
-        <div className={classNames(classes.stats, classes.mt26)}>
-          {receivedReacts.slice(1).map(react => {
-            return <article key={react.name} className={classes.stat}>
-              <div className={classes.heading3}>{react.count}</div>
-              <div className={classes.statLabel}>{react.name}</div>
-            </article>
-          })}
+  return <AnalyticsContext pageSectionContext="reactsReceived">
+    <section className={classNames(classes.section, classes.sectionTall)}>
+      {allReactsReceived?.map((react, i) => {
+        return <div
+          key={i}
+          className={classes.backgroundReact}
+          style={{top: react.top, left: react.left}}
+        >
+          <react.Component />
         </div>
-      </div>}
-    </div>
-  </section>
+      })}
+      <div className={classes.reactsReceivedContents}>
+        <h1 className={classes.heading3}>
+          Others gave you{" "}
+          <span className={classes.highlight}>
+            {receivedReacts[0].count} {receivedReacts[0].name}
+          </span>{" "}
+          reacts{receivedReacts.length > 1 ? '...' : ''}
+        </h1>
+        {receivedReacts.length > 1 && <div className={classes.otherReacts}>
+          <p className={classes.heading5}>... and {totalReactsReceived} reacts in total:</p>
+          <div className={classNames(classes.stats, classes.mt26)}>
+            {receivedReacts.slice(1).map(react => {
+              return <article key={react.name} className={classes.stat}>
+                <div className={classes.heading3}>{react.count}</div>
+                <div className={classes.statLabel}>{react.name}</div>
+              </article>
+            })}
+          </div>
+        </div>}
+      </div>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -1358,21 +1387,23 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
 const ThankYouSection = ({classes}: {
   classes: ClassesType
 }) => {
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      Thank you! <span className={classes.heartIcon}><HeartReactionIcon /></span>
-    </h1>
-    <p className={classNames(classes.textRow, classes.text, classes.balance, classes.mt20)}>
-      Thanks for joining us on the EA Forum and helping us think about how to improve the world.
-    </p>
-    <div className={classNames(classes.lightbulbIcon, classes.mt30)}>
-      {lightbulbIcon}
-    </div>
-    <p className={classNames(classes.summaryLinkWrapper, classes.text, classes.mt70)}>
-      Here’s your 2023 all in one page
-      <Components.ForumIcon icon="NarrowArrowDown" />
-    </p>
-  </section>
+  return <AnalyticsContext pageSectionContext="thankYou">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        Thank you! <span className={classes.heartIcon}><HeartReactionIcon /></span>
+      </h1>
+      <p className={classNames(classes.textRow, classes.text, classes.balance, classes.mt20)}>
+        Thanks for joining us on the EA Forum and helping us think about how to improve the world.
+      </p>
+      <div className={classNames(classes.lightbulbIcon, classes.mt30)}>
+        {lightbulbIcon}
+      </div>
+      <p className={classNames(classes.summaryLinkWrapper, classes.text, classes.mt70)}>
+        Here’s your 2023 all in one page
+        <Components.ForumIcon icon="NarrowArrowDown" />
+      </p>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -1387,88 +1418,90 @@ const SummarySection = ({data, setRef, classes}: {
   
   const { UsersProfileImage, CoreTagIcon } = Components
 
-  return <section className={classes.section} ref={setRef}>
-    <p className={classNames(classes.text, classes.m0)}>Effective Altruism Forum</p>
-    <h1 className={classNames(classes.heading2, classes.mt10)}>
-      <span className={classes.nowrap}>{currentUser?.displayName}’s</span>{" "}
-      <span className={classes.nowrap}>2023 Wrapped</span>
-    </h1>
-    <div className={classes.summary}>
-      <div className={classes.summaryBoxRow}>
-        <div className={classes.summaryBox}>
-          <article>
-            <div className={classes.heading4}>{formattedPercentile(data.engagementPercentile)}%</div>
-            <div className={classes.statLabel}>Top reader</div>
-          </article>
-        </div>
-        <div className={classes.summaryBox}>
-          <article>
-            <div className={classes.heading4}>{(data.totalSeconds / 3600).toFixed(1)}</div>
-            <div className={classes.statLabel}>Hours spent</div>
-          </article>
-        </div>
-        <div className={classes.summaryBox}>
-          <article>
-            <div className={classes.heading4}>{data.daysVisited.length}</div>
-            <div className={classes.statLabel}>Days visited</div>
-          </article>
-        </div>
-      </div>
-      
-      {!!data.mostReadAuthors.length && <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
-        <div className={classes.summaryBox}>
-          <div className={classes.summaryLabel}>Most-read authors</div>
-          <div className={classNames(classes.summaryList, classes.mt12)}>
-            {data.mostReadAuthors.map(author => {
-              return <div key={author.slug} className={classes.summaryListItem}>
-                <UsersProfileImage size={20} user={author} />
-                <Link to={getUserProfileLink(author.slug)}>
-                  {author.displayName}
-                </Link>
-              </div>
-            })}
+  return <AnalyticsContext pageSectionContext="summary">
+    <section className={classes.section} ref={setRef}>
+      <p className={classNames(classes.text, classes.m0)}>Effective Altruism Forum</p>
+      <h1 className={classNames(classes.heading2, classes.mt10)}>
+        <span className={classes.nowrap}>{currentUser?.displayName}’s</span>{" "}
+        <span className={classes.nowrap}>2023 Wrapped</span>
+      </h1>
+      <div className={classes.summary}>
+        <div className={classes.summaryBoxRow}>
+          <div className={classes.summaryBox}>
+            <article>
+              <div className={classes.heading4}>{formattedPercentile(data.engagementPercentile)}%</div>
+              <div className={classes.statLabel}>Top reader</div>
+            </article>
+          </div>
+          <div className={classes.summaryBox}>
+            <article>
+              <div className={classes.heading4}>{(data.totalSeconds / 3600).toFixed(1)}</div>
+              <div className={classes.statLabel}>Hours spent</div>
+            </article>
+          </div>
+          <div className={classes.summaryBox}>
+            <article>
+              <div className={classes.heading4}>{data.daysVisited.length}</div>
+              <div className={classes.statLabel}>Days visited</div>
+            </article>
           </div>
         </div>
-      </div>}
-      
-      {!!data.mostReadTopics.length && <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
-        <div className={classes.summaryBox}>
-          <div className={classes.summaryLabel}>Most-read topics</div>
-          <div className={classNames(classes.summaryList, classes.mt12)}>
-            {data.mostReadTopics.map(topic => {
-              return <div key={topic.slug} className={classes.summaryListItem}>
-                <CoreTagIcon tag={topic} fallbackNode={<div className={classes.summaryTopicIconPlaceholder}></div>} />
-                <Link to={tagGetUrl({slug: topic.slug})}>
-                  {topic.name}
-                </Link>
-              </div>
-            })}
+        
+        {!!data.mostReadAuthors.length && <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
+          <div className={classes.summaryBox}>
+            <div className={classes.summaryLabel}>Most-read authors</div>
+            <div className={classNames(classes.summaryList, classes.mt12)}>
+              {data.mostReadAuthors.map(author => {
+                return <div key={author.slug} className={classes.summaryListItem}>
+                  <UsersProfileImage size={20} user={author} />
+                  <Link to={getUserProfileLink(author.slug)}>
+                    {author.displayName}
+                  </Link>
+                </div>
+              })}
+            </div>
+          </div>
+        </div>}
+        
+        {!!data.mostReadTopics.length && <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
+          <div className={classes.summaryBox}>
+            <div className={classes.summaryLabel}>Most-read topics</div>
+            <div className={classNames(classes.summaryList, classes.mt12)}>
+              {data.mostReadTopics.map(topic => {
+                return <div key={topic.slug} className={classes.summaryListItem}>
+                  <CoreTagIcon tag={topic} fallbackNode={<div className={classes.summaryTopicIconPlaceholder}></div>} />
+                  <Link to={tagGetUrl({slug: topic.slug})}>
+                    {topic.name}
+                  </Link>
+                </div>
+              })}
+            </div>
+          </div>
+        </div>}
+        
+        <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
+          <div className={classes.summaryBox}>
+            <article>
+              <div className={classes.heading4}>{formattedKarmaChangeText(data.karmaChange)}</div>
+              <div className={classes.statLabel}>Karma</div>
+            </article>
+          </div>
+          <div className={classes.summaryBox}>
+            <article>
+              <div className={classes.heading4}>{data.postCount}</div>
+              <div className={classes.statLabel}>Post{data.postCount === 1 ? '' : 's'}</div>
+            </article>
+          </div>
+          <div className={classes.summaryBox}>
+            <article>
+              <div className={classes.heading4}>{data.commentCount}</div>
+              <div className={classes.statLabel}>Comment{data.commentCount === 1 ? '' : 's'}</div>
+            </article>
           </div>
         </div>
-      </div>}
-      
-      <div className={classNames(classes.summaryBoxRow, classes.mt10)}>
-        <div className={classes.summaryBox}>
-          <article>
-            <div className={classes.heading4}>{formattedKarmaChangeText(data.karmaChange)}</div>
-            <div className={classes.statLabel}>Karma</div>
-          </article>
-        </div>
-        <div className={classes.summaryBox}>
-          <article>
-            <div className={classes.heading4}>{data.postCount}</div>
-            <div className={classes.statLabel}>Post{data.postCount === 1 ? '' : 's'}</div>
-          </article>
-        </div>
-        <div className={classes.summaryBox}>
-          <article>
-            <div className={classes.heading4}>{data.commentCount}</div>
-            <div className={classes.statLabel}>Comment{data.commentCount === 1 ? '' : 's'}</div>
-          </article>
-        </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -1477,25 +1510,27 @@ const SummarySection = ({data, setRef, classes}: {
 const RecommendationsSection = ({classes}: {
   classes: ClassesType
 }) => {
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      Posts you missed that we think you’ll enjoy
-    </h1>
-    <NoSSR>
-      <Components.RecommendationsList
-        algorithm={{strategy: {name: 'bestOf', postId: '2023_wrapped'}, count: 5, disableFallbacks: true}}
-        ListItem={
-          (props: {
-            post: PostsListWithVotesAndSequence,
-            translucentBackground?: boolean,
-          }) => (
-            <Post post={props.post} classes={classes} />
-          )
-        }
-        className={classes.recommendedPosts}
-      />
-    </NoSSR>
-  </section>
+  return <AnalyticsContext pageSectionContext="recommendations">
+    <section className={classes.section}>
+      <h1 className={classes.heading3}>
+        Posts you missed that we think you’ll enjoy
+      </h1>
+      <NoSSR>
+        <Components.RecommendationsList
+          algorithm={{strategy: {name: 'bestOf', postId: '2023_wrapped'}, count: 5, disableFallbacks: true}}
+          ListItem={
+            (props: {
+              post: PostsListWithVotesAndSequence,
+              translucentBackground?: boolean,
+            }) => (
+              <Post post={props.post} classes={classes} />
+            )
+          }
+          className={classes.recommendedPosts}
+        />
+      </NoSSR>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -1506,28 +1541,30 @@ const MostValuablePostsSection = ({classes}: {
 }) => {
   const { ForumIcon, PostsByVoteWrapper } = Components
   
-  return <section className={classNames(classes.section, classes.sectionNoFade)}>
-    <h1 className={classes.heading3}>
-      Which posts from 2023 were most valuable for you?
-    </h1>
-    <p className={classNames(classes.textRow, classes.text, classes.mt16)}>
-      These are your upvotes from 2023. Your choice of the most valuable posts will be really useful
-      for helping us decide what to feature on the Forum. (We’ll only look at anonymized data.)
-    </p>
-    <div className={classNames(classes.mvpColLabels, classes.mt30)}>
-      <div className={classes.mvpUpvotesLabel}>Your upvotes</div>
-      <div className={classes.mvpHeartLabel}>
-        Most valuable
-        <ForumIcon icon="HeartOutline" className={classes.mvpHeartIcon} />
+  return <AnalyticsContext pageSectionContext="mostValuablePosts">
+    <section className={classNames(classes.section, classes.sectionNoFade)}>
+      <h1 className={classes.heading3}>
+        Which posts from 2023 were most valuable for you?
+      </h1>
+      <p className={classNames(classes.textRow, classes.text, classes.mt16)}>
+        These are your upvotes from 2023. Your choice of the most valuable posts will be really useful
+        for helping us decide what to feature on the Forum. (We’ll only look at anonymized data.)
+      </p>
+      <div className={classNames(classes.mvpColLabels, classes.mt30)}>
+        <div className={classes.mvpUpvotesLabel}>Your upvotes</div>
+        <div className={classes.mvpHeartLabel}>
+          Most valuable
+          <ForumIcon icon="HeartOutline" className={classes.mvpHeartIcon} />
+        </div>
       </div>
-    </div>
-    <NoSSR>
-      <div className={classNames(classes.mvpList, classes.mt10)}>
-        <PostsByVoteWrapper voteType="bigUpvote" year={2023} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox />
-        <PostsByVoteWrapper voteType="smallUpvote" year={2023} limit={10} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox />
-      </div>
-    </NoSSR>
-  </section>
+      <NoSSR>
+        <div className={classNames(classes.mvpList, classes.mt10)}>
+          <PostsByVoteWrapper voteType="bigUpvote" year={2023} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox hideEmptyStateText />
+          <PostsByVoteWrapper voteType="smallUpvote" year={2023} limit={10} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox hideEmptyStateText />
+        </div>
+      </NoSSR>
+    </section>
+  </AnalyticsContext>
 }
 
 /**
@@ -1619,23 +1656,25 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     <AnalyticsContext pageContext="eaYearWrapped">
       <main className={classes.root}>
         
-        <section className={classes.section}>
-          <h1 className={classes.heading1}>Your 2023 Wrapped</h1>
-          {currentUser.wrapped2023Viewed &&
-            <button className={classNames(classes.summaryLinkWrapper, classes.skipToSummaryBtn)} onClick={skipToSummary}>
-              Skip to summary
-              <ForumIcon icon="NarrowArrowDown" />
-            </button>
-          }
-          <CloudinaryImage2
-            publicId="2023_wrapped"
-            wrapperClassName={classNames(classes.imgWrapper, {
-              [classes.mt60]: currentUser.wrapped2023Viewed,
-              [classes.mt100]: !currentUser.wrapped2023Viewed,
-            })}
-            className={classes.img}
-          />
-        </section>
+        <AnalyticsContext pageSectionContext="top">
+          <section className={classes.section}>
+            <h1 className={classes.heading1}>Your 2023 Wrapped</h1>
+            {currentUser.wrapped2023Viewed &&
+              <button className={classNames(classes.summaryLinkWrapper, classes.skipToSummaryBtn)} onClick={skipToSummary}>
+                Skip to summary
+                <ForumIcon icon="NarrowArrowDown" />
+              </button>
+            }
+            <CloudinaryImage2
+              publicId="2023_wrapped"
+              wrapperClassName={classNames(classes.imgWrapper, {
+                [classes.mt60]: currentUser.wrapped2023Viewed,
+                [classes.mt100]: !currentUser.wrapped2023Viewed,
+              })}
+              className={classes.img}
+            />
+          </section>
+        </AnalyticsContext>
         
         <EngagementPercentileSection data={data} classes={classes} />
         <EngagementHoursSection engagementHours={(data.totalSeconds / 3600)} classes={classes} />
@@ -1646,7 +1685,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         <ThankAuthorSection authors={data.mostReadAuthors} classes={classes} />
         <TopPostSection data={data} classes={classes} />
         <TopCommentSection data={data} classes={classes} />
-        <TopShortformSection data={data} classes={classes} />
+        <TopQuickTakeSection data={data} classes={classes} />
         <KarmaChangeSection data={data} classes={classes} />
         <ReactsReceivedSection receivedReacts={data.mostReceivedReacts} classes={classes} />
         <ThankYouSection classes={classes} />
