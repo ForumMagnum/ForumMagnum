@@ -226,6 +226,8 @@ registerFragment(`
     showMatches
     showRecommendedPartners
     hideActiveDialogueUsers
+
+    wrapped2023Viewed
   }
 `);
 

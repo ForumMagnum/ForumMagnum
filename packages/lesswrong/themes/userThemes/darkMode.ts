@@ -298,6 +298,7 @@ export const darkModeTheme: UserThemeSpecification = {
       highlightText: '#FFC443',
       secondaryText: '#008DAC',
       tertiaryText: "rgba(255, 255, 255, 0.50)",
+      black: '#212121',
       darkGrey: '#424242',
       grey: '#757575',
       darkDot: "rgba(255, 255, 255, 0.40)",
