@@ -46,7 +46,59 @@ export const styles = (theme: ThemeType) => ({
       [theme.breakpoints.down('xs')]: {
         padding: '9px 11px',
       },
-    } : {})
+    } : {}),
+  },
+  // This class is applied when "backgroundColor" is passed in.
+  // Currently we assume that the background color is always dark,
+  // so all text in the header changes to "alwaysWhite".
+  // If that's not the case, you'll need to expand this code.
+  appBarDarkBackground: {
+    color: theme.palette.text.alwaysWhite,
+    boxShadow: 'none',
+    "& .Header-titleLink": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .HeaderSubtitle-subtitle": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .SearchBar-searchIcon": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .ais-SearchBox-input": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .ais-SearchBox-input::placeholder": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .KarmaChangeNotifier-starIcon": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .KarmaChangeNotifier-gainedPoints": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .NotificationsMenuButton-badge": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .NotificationsMenuButton-buttonClosed": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .UsersMenu-arrowIcon": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .EAButton-variantContained": {
+      backgroundColor: theme.palette.text.alwaysWhite,
+      color: theme.palette.text.alwaysBlack,
+      "&:hover": {
+        backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 90%, ${theme.palette.text.alwaysBlack})`,
+      },
+    },
+    "& .EAButton-greyContained": {
+      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 15%, ${theme.palette.background.transparent})`,
+      color: theme.palette.text.alwaysWhite,
+      "&:hover": {
+        backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 10%, ${theme.palette.background.transparent}) !important`,
+      },
+    },
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
@@ -170,6 +222,7 @@ const Header = ({
   toggleStandaloneNavigation,
   stayAtTop=false,
   searchResultsArea,
+  backgroundColor,
   classes,
 }: {
   standaloneNavigationPresent: boolean,
@@ -177,6 +230,8 @@ const Header = ({
   toggleStandaloneNavigation: ()=>void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
+  // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
+  backgroundColor?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const [navigationOpen, setNavigationOpenState] = useState(false);
@@ -297,7 +352,7 @@ const Header = ({
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    GivingSeasonHeader, ActiveDialogues
+    GivingSeasonHeader, ActiveDialogues, SiteLogo
   } = Components;
   
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
@@ -375,14 +430,14 @@ const Header = ({
           onUnpin={() => setUnFixed(false)}
           disable={stayAtTop}
         >
-          <header className={classes.appBar}>
+          <header className={classNames(classes.appBar, {[classes.appBarDarkBackground]: !!backgroundColor})} style={backgroundColor ? {backgroundColor} : {}}>
             <Toolbar disableGutters={isFriendlyUI}>
               <NavigationMenuButton />
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
                     <Link to="/" className={classes.titleLink}>
-                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={!!backgroundColor}/></div>}
                       {forumHeaderTitleSetting.get()}
                     </Link>
                     <HeaderSubtitle />
@@ -390,7 +445,7 @@ const Header = ({
                 </div>
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={!!backgroundColor}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>

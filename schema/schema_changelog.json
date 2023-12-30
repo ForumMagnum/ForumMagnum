@@ -498,5 +498,10 @@
     "acceptsSchemaHash": "4a1a03e638557cba881d59cb63b0ed02",
     "acceptedByMigration": "20231220T212520.add_yourTurnNotifications_post_migration_conflict.ts",
     "timestamp": "2023-12-20T21:25:20.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2c8fcbdc99caee38d7f728acc6428352",
+    "acceptedByMigration": "20231228T160733.add_wrapped2023Viewed_to_users.ts",
+    "timestamp": "2023-12-28T16:07:33.000Z"
   }
 ]

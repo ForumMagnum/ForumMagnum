@@ -96,16 +96,10 @@ defineQuery({
     //  * The logged-in user is the post author
     //  * The logged in user is an admin or moderator (or otherwise has edit permissions)
 
-    // User must exist
-    if (!currentUser?._id) {
-      throw new Error("No current user with _id");
-    }
-
     if (
       (post.shareWithUsers && _.contains(post.shareWithUsers, currentUser?._id))
-      || (linkSharingEnabled(post)
-          && (!canonicalLinkSharingKey || keysMatch))
-      || (linkSharingEnabled(post) && post.linkSharingKeyUsedBy?.includes(currentUser?._id))
+      || (linkSharingEnabled(post) && (!canonicalLinkSharingKey || keysMatch))
+      || (linkSharingEnabled(post) && (currentUser && post.linkSharingKeyUsedBy?.includes(currentUser._id)))
       || currentUser?._id === post.userId
       || userCanDo(currentUser, 'posts.edit.all')
     ) {

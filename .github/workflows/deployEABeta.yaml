@@ -3,7 +3,7 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [giving-season-hearts-header]
+    branches: [wrapped-2023]
 jobs:
   deploy:
     runs-on: ubuntu-latest
