@@ -29,6 +29,7 @@ import { HeartReactionIcon } from "../../icons/reactions/HeartReactionIcon";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { TagCommentType } from "../../../lib/collections/comments/types";
+import NoSSR from "react-no-ssr";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -573,7 +574,13 @@ const styles = (theme: ThemeType) => ({
   mvpList: {
     width: '100%',
     maxWidth: 500,
-    textAlign: 'left'
+    textAlign: 'left',
+    '& .LoadMore-root': {
+      color: theme.palette.text.alwaysWhite,
+    },
+    '& .Loading-spinner': {
+      margin: '10px 0 0'
+    }
   },
   mvpPostItem: {
     marginBottom: 4,
@@ -655,9 +662,6 @@ const styles = (theme: ThemeType) => ({
   },
   highlight: {
     color: theme.palette.wrapped.highlightText,
-  },
-  bold: {
-    fontWeight: 700
   },
   link: {
     textDecoration: 'underline',
@@ -1349,31 +1353,6 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
 }
 
 /**
- * Section that displays some recommended posts to the user
- */
-const RecommendationsSection = ({classes}: {
-  classes: ClassesType
-}) => {
-  return <section className={classes.section}>
-    <h1 className={classes.heading3}>
-      Posts you missed that we think you’ll enjoy
-    </h1>
-    <Components.RecommendationsList
-      algorithm={{strategy: {name: 'bestOf', postId: '2023_wrapped'}, count: 5, disableFallbacks: true}}
-      ListItem={
-        (props: {
-          post: PostsListWithVotesAndSequence,
-          translucentBackground?: boolean,
-        }) => (
-          <Post post={props.post} classes={classes} />
-        )
-      }
-      className={classes.recommendedPosts}
-    />
-  </section>
-}
-
-/**
  * Section that thanks the user
  */
 const ThankYouSection = ({classes}: {
@@ -1493,6 +1472,33 @@ const SummarySection = ({data, setRef, classes}: {
 }
 
 /**
+ * Section that displays some recommended posts to the user
+ */
+const RecommendationsSection = ({classes}: {
+  classes: ClassesType
+}) => {
+  return <section className={classes.section}>
+    <h1 className={classes.heading3}>
+      Posts you missed that we think you’ll enjoy
+    </h1>
+    <NoSSR>
+      <Components.RecommendationsList
+        algorithm={{strategy: {name: 'bestOf', postId: '2023_wrapped'}, count: 5, disableFallbacks: true}}
+        ListItem={
+          (props: {
+            post: PostsListWithVotesAndSequence,
+            translucentBackground?: boolean,
+          }) => (
+            <Post post={props.post} classes={classes} />
+          )
+        }
+        className={classes.recommendedPosts}
+      />
+    </NoSSR>
+  </section>
+}
+
+/**
  * Section that displays all the user's upvoted posts and lets them mark which were "most valuable"
  */
 const MostValuablePostsSection = ({classes}: {
@@ -1502,11 +1508,11 @@ const MostValuablePostsSection = ({classes}: {
   
   return <section className={classNames(classes.section, classes.sectionNoFade)}>
     <h1 className={classes.heading3}>
-      Take a moment to reflect on 2023
+      Which posts from 2023 were most valuable for you?
     </h1>
     <p className={classNames(classes.textRow, classes.text, classes.mt16)}>
-      Look back at everything you upvoted - <span className={classes.bold}>what did you find most valuable?</span>{" "}
-      Your answers will help us encourage more of the most valuable content.
+      These are your upvotes from 2023. Your choice of the most valuable posts will be really useful
+      for helping us decide what to feature on the Forum. (We’ll only look at anonymized data.)
     </p>
     <div className={classNames(classes.mvpColLabels, classes.mt30)}>
       <div className={classes.mvpUpvotesLabel}>Your upvotes</div>
@@ -1515,10 +1521,12 @@ const MostValuablePostsSection = ({classes}: {
         <ForumIcon icon="HeartOutline" className={classes.mvpHeartIcon} />
       </div>
     </div>
-    <div className={classNames(classes.mvpList, classes.mt10)}>
-      <PostsByVoteWrapper voteType="bigUpvote" year={2023} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox />
-      <PostsByVoteWrapper voteType="smallUpvote" year={2023} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox />
-    </div>
+    <NoSSR>
+      <div className={classNames(classes.mvpList, classes.mt10)}>
+        <PostsByVoteWrapper voteType="bigUpvote" year={2023} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox />
+        <PostsByVoteWrapper voteType="smallUpvote" year={2023} limit={10} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox />
+      </div>
+    </NoSSR>
   </section>
 }
 
@@ -1641,9 +1649,9 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         <TopShortformSection data={data} classes={classes} />
         <KarmaChangeSection data={data} classes={classes} />
         <ReactsReceivedSection receivedReacts={data.mostReceivedReacts} classes={classes} />
-        <RecommendationsSection classes={classes} />
         <ThankYouSection classes={classes} />
         <SummarySection data={data} setRef={setNode} classes={classes} />
+        <RecommendationsSection classes={classes} />
         <MostValuablePostsSection classes={classes} />
 
       </main>
