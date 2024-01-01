@@ -11,7 +11,9 @@ import {
   isEAForum,
   isLWorAF,
   hasCommentsTableOfContentSetting,
-  hasSideCommentsSetting, hasDialoguesSetting,
+  hasSideCommentsSetting, 
+  hasDialoguesSetting, 
+  hasPostInlineReactionsSetting,
 } from './instanceSettings'
 import { userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 
@@ -54,7 +56,7 @@ export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabl
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();
 export const ckEditorUserSessionsEnabled = isLWorAF;
-export const inlineReactsHoverEnabled = isLWorAF;
+export const inlineReactsHoverEnabled = hasPostInlineReactionsSetting.get();
 /** On the post page, do we show users other content they might want to read */
 export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */

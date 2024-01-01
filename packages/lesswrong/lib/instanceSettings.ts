@@ -192,3 +192,4 @@ export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCur
 export const hasSideCommentsSetting = new PublicInstanceSetting<boolean>("comments.sideCommentsEnabled", isLWorAF, "optional");
 export const hasCommentsTableOfContentSetting = new PublicInstanceSetting<boolean>("comments.tableOfContentsEnabled", isLWorAF, "optional");
 export const hasDialoguesSetting = new PublicInstanceSetting<boolean>("dialogues.enabled", true, "optional");
+export const hasPostInlineReactionsSetting = new PublicInstanceSetting<boolean>("post.inlineReactionsEnabled", isLWorAF, "optional");
