@@ -6,7 +6,13 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import { testServerSetting, isEAForum, isLWorAF } from "./instanceSettings";
+import {
+  testServerSetting,
+  isEAForum,
+  isLWorAF,
+  hasCommentsTableOfContentSetting,
+  hasSideCommentsSetting, hasDialoguesSetting,
+} from './instanceSettings'
 import { userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 
 // States for in-progress features
@@ -46,16 +52,16 @@ export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
 
 // Non-user-specific features
-export const dialoguesEnabled = true;
+export const dialoguesEnabled = hasDialoguesSetting.get();
 export const ckEditorUserSessionsEnabled = isLWorAF;
 export const inlineReactsHoverEnabled = isLWorAF;
 /** On the post page, do we show users other content they might want to read */
 export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
 export const hasDigests = isEAForum;
-export const hasSideComments = isLWorAF;
+export const hasSideComments = hasSideCommentsSetting.get();
 export const useElicitApi = false;
-export const commentsTableOfContentsEnabled = isLWorAF;
+export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get();
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;
