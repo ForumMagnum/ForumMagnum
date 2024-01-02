@@ -139,9 +139,9 @@ export function startWebserver() {
   addClientIdMiddleware(addMiddleware);
   
   if (isDatadogEnabledOnSite()) {
-    const tracer = require('./datadog/tracer');
+    const { ddTracer } = require('./datadog/tracer');
     const { datadogMiddleware } = require('./datadog/datadogMiddleware');
-    app.use(datadogMiddleware(tracer));
+    app.use(datadogMiddleware(ddTracer));
   }
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);

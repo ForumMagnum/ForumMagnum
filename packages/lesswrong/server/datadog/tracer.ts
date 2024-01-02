@@ -21,4 +21,4 @@ export const dogstatsd = new StatsD({
 });
 
 datadogMiddleware(tracer);
-export default tracer;
+export const ddTracer = tracer;
