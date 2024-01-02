@@ -1,4 +1,3 @@
-
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../../common/withUser';
@@ -16,6 +15,7 @@ import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { Link, useNavigate } from '../../../lib/reactRouterWrapper';
 import { useMessages } from '../../common/withMessages';
 import { AnalyticsContext, useTracking } from '../../../lib/analyticsEvents';
+import { useSingle } from '../../../lib/crud/withSingle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -201,10 +201,32 @@ type EditorFormComponentRefType = {
 }
 
 
-const EAGApplicationImportForm = ({classes}: {
+// Wrapper around EAGApplicationImportForm which fetches the current user with
+// the UsersEdit fragment so that it will have all the fields to be able to
+// edit bio, howICanHelpOthers.
+const EAGApplicationImportFormWrapper = () => {
+  const currentUser = useCurrentUser()
+  const { Loading, EAGApplicationImportForm } = Components;
+  const { document: currentUserEdit, loading } = useSingle({
+    documentId: currentUser?._id,
+    collectionName: "Users",
+    fragmentName: "UsersEdit",
+    skip: !currentUser,
+  });
+  
+  if (!currentUser || !currentUserEdit) {
+    return <Loading/>
+  }
+  
+  return <EAGApplicationImportForm
+    currentUser={currentUserEdit}
+  />
+}
+
+const EAGApplicationImportForm = ({currentUser, classes}: {
+  currentUser: UsersEdit,
   classes: ClassesType,
 }) => {
-  const currentUser = useCurrentUser()
   const navigate = useNavigate();
   const { pathname } = useLocation()
   const { flash } = useMessages()
@@ -723,10 +745,12 @@ const EAGApplicationImportForm = ({classes}: {
 }
 
 
+const EAGApplicationImportFormWrapperComponent = registerComponent('EAGApplicationImportFormWrapper', EAGApplicationImportForm);
 const EAGApplicationImportFormComponent = registerComponent('EAGApplicationImportForm', EAGApplicationImportForm, {styles});
 
 declare global {
   interface ComponentTypes {
+    EAGApplicationImportFormWrapper: typeof EAGApplicationImportFormWrapperComponent
     EAGApplicationImportForm: typeof EAGApplicationImportFormComponent
   }
 }
