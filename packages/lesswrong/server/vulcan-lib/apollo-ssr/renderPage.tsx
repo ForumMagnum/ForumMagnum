@@ -153,7 +153,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     }
 
     // eslint-disable-next-line no-console
-    console.log(`Finished SSR of ${url} for ${userDescription} (${printTimings(rendered.timings)}, tab ${tabId})`);
+    console.log(`Finished SSR of ${url} for ${userDescription} (${formatTimings(rendered.timings)}, tab ${tabId})`);
     
     return {
       ...rendered,
@@ -186,7 +186,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
       console.log(`Served ${url} from cache for ${userDescription}`);
     } else {
       // eslint-disable-next-line no-console
-      console.log(`Finished SSR of ${url} for ${userDescription}: (${printTimings(rendered.timings)}, tab ${tabId})`);
+      console.log(`Finished SSR of ${url} for ${userDescription}: (${formatTimings(rendered.timings)}, tab ${tabId})`);
     }
 
     if (performanceMetricLoggingEnabled.get()) {
@@ -449,6 +449,6 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   };
 }
 
-const printTimings = (timings: RenderTimings): string => {
+const formatTimings = (timings: RenderTimings): string => {
   return `${timings.totalTime}ms`;
 }
