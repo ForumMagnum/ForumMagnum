@@ -117,12 +117,28 @@ module.exports = {
       },
     ]}],
     "no-restricted-imports": ["error", {"paths": [
+      // Restricted imports. Some of these are things that should never be
+      // imported; some are things that can be imported in a particular way,
+      // such as through a wrapper, but which would be bad if added as an auto-
+      // import. It's generally fine to add an eslint-disable-next-line for
+      // this, *if* you understand why the import is restricted. (Eg, if a
+      // function is supposed to be used only through a wrapper, the wrapper
+      // itself will disable the warning. And type-only imports with
+      // "import type" are typically fine, even when a regular import wouldn't
+      // be.)
+
+      // Library imports that are restricted because you're supposed to import
+      // something more specific, to avoid bringing in all of a library when
+      // you could be getting an individual function from it
       { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" },
       { name: "lodash/fp", message: "Don't import all of lodash/fp, import a specific lodash function, eg lodash/fp/capitalize" },
       { name: "@material-ui", message: "Don't import all of material-ui/icons" },
       { name: "@material-ui/core", message: "Don't import all of material-ui/core" },
-      { name: "@material-ui/core/colors", message: "Don't use material-ui/core/colors, use the theme palette" },
       { name: "@material-ui/icons", message: "Don't import all of material-ui/icons" },
+      
+      // Library imports that are restricted because we have our own version or
+      // wrapper which you're supposed to be using instead
+      { name: "@material-ui/core/colors", message: "Don't use material-ui/core/colors, use the theme palette" },
       { name: "@material-ui/core/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
       { name: "@material-ui/core/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
       { name: "@material-ui/core/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
@@ -131,6 +147,19 @@ module.exports = {
       { name: "@material-ui/core/NoSsr", importNames: ["Popper"], message: "Don't use @material-ui/core/NoSsr/NoSsr; use react-no-ssr instead" },
       { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
       { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
+      
+      // Library imports of components of datadog, which has side effects
+      // (setting up tracing) which we only want to trigger if datadog is
+      // enabled.
+      { name: "@datadog", message: "Don't import datadog except after checking isDatadogEnabled()" },
+      { name: "dd-trace", message: "Don't import dd-trace except after checking isDatadogEnabled()" },
+      { name: "hot-shots", message: "Don't import hot-shots except after checking isDatadogEnabled()" },
+
+      // Non-library imports that are restricted because they import datadog,
+      // which has side effects that we only want to trigger if datadog is
+      // enabled. Type-only imports of these are fine.
+      { name: "packages/lesswrong/client/datadogRum", message: "Don't import datadogRum without first checking isDatadogEnabled()" },
+      { name: "packages/lesswrong/erver/datadog/tracer", message: "Don't import datadog/tracer without first checking isDatadogEnabled()" },
     ],
     patterns: [
       "@material-ui/core/colors/*"

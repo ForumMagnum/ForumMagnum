@@ -33,7 +33,7 @@ import expressSession from 'express-session';
 import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
 import { getEAGApplicationData } from './zohoUtils';
-import { faviconUrlSetting, isEAForum, testServerSetting } from '../lib/instanceSettings';
+import { faviconUrlSetting, isDatadogEnabledOnSite, isEAForum, testServerSetting } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
 import { addCypressRoutes } from './testingSqlClient';
@@ -41,7 +41,6 @@ import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { inspect } from "util";
 import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
-import { datadogMiddleware } from './datadog/datadogMiddleware';
 import { Sessions } from '../lib/collections/sessions';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
@@ -138,7 +137,12 @@ export function startWebserver() {
   addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
-  app.use(datadogMiddleware);
+  
+  if (isDatadogEnabledOnSite()) {
+    const tracer = require('./datadog/tracer');
+    const datadogMiddleware = require('./datadog/datadogMiddleware');
+    app.use(datadogMiddleware(tracer));
+  }
   app.use(pickerMiddleware);
   app.use(botRedirectMiddleware);
   app.use(hstsMiddleware);

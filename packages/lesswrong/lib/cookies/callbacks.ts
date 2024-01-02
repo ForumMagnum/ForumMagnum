@@ -1,5 +1,4 @@
 import { Cookies } from "react-cookie";
-import { initDatadog } from "../../client/datadogRum";
 import { CallbackChainHook } from "../vulcan-lib";
 import { ALL_COOKIES, CookieType, isCookieAllowed } from "./utils";
 import { initReCaptcha } from "../../client/reCaptcha";
@@ -9,13 +8,7 @@ type CookiePreferencesChangedCallbackProps = {
   explicitlyChanged: boolean;
 };
 export const cookiePreferencesChangedCallbacks = new CallbackChainHook<CookiePreferencesChangedCallbackProps, []>("cookiePreferencesChanged");
-/**
- * (Re)-initialise datadog RUM and ReCaptcha with the current cookie preferences.
- * NOTE: this will not turn it OFF if they have previously accepted and are now rejecting analytics cookies, it will only turn it ON if they are now accepting.
- * There is no way to turn it off without reloading currently (see https://github.com/DataDog/browser-sdk/issues/1008)
- */
 cookiePreferencesChangedCallbacks.add(() => {
-  void initDatadog();
   void initReCaptcha();
 });
 

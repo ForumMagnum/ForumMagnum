@@ -1,12 +1,13 @@
 import { getDatadogUser } from '../../lib/collections/users/helpers'
 import { getIpFromRequest } from '../utils/getIpFromRequest'
-import tracer from './tracer'
+// eslint-disable-next-line no-restricted-imports
+import type { Tracer } from 'dd-trace'
 
 /**
  * - Attach user info and IP address to the root span
  * - Allow the headers required for Real User Monitoring
  */
-export const datadogMiddleware = (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+export const datadogMiddleware = (tracer: Tracer) => (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
   const span = tracer.scope().active()
   if (span !== null) {
     // @ts-ignore - there is currently no public API for getting the root span, this is the accepted way (see https://github.com/DataDog/dd-trace-js/issues/725#issuecomment-805277510)

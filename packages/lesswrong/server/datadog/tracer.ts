@@ -1,5 +1,8 @@
+// eslint-disable-next-line no-restricted-imports
 import tracer from "dd-trace";
+// eslint-disable-next-line no-restricted-imports
 import { StatsD } from "hot-shots";
+import { datadogMiddleware } from "./datadogMiddleware";
 
 tracer.init({
   hostname: process.env.IS_DOCKER ? "172.17.0.1" : undefined,
@@ -17,4 +20,5 @@ export const dogstatsd = new StatsD({
   prefix: 'forummagnum.'
 });
 
+datadogMiddleware(tracer);
 export default tracer;

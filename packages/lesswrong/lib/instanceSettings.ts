@@ -189,3 +189,8 @@ export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', fals
 export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
 
 export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");
+
+/** Whether datadog is enabled for this forum (not necessarily for the current user */
+export function isDatadogEnabledOnSite() {
+  return forumTypeSetting.get() === 'EAForum';
+}
