@@ -24,7 +24,7 @@ import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import {Posts} from '../lib/collections/posts';
 import { VotesRepo } from './repos';
-
+import { isLWorAF } from '../lib/instanceSettings';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -351,7 +351,7 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
   if (user?.isAdmin) {
     return [];
   } else {
-    return [
+    const rateLimits: VotingRateLimit[] = [
       {
         voteCount: 200,
         periodInMinutes: 60 * 24,
@@ -367,14 +367,6 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         users: "allUsers",
         consequences: ["denyThisVote"],
         message: "too many votes in one hour",
-      },
-      {
-        voteCount: 10,
-        periodInMinutes: 60,
-        types: "onlyStrong",
-        users: "allUsers",
-        consequences: ["denyThisVote"],
-        message: "too many strong-votes in one hour",
       },
       {
         voteCount: 100,
@@ -400,7 +392,18 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         consequences: ["warningPopup"],
         message: null,
       },
-      {
+    ];
+
+    if (isLWorAF) {
+      rateLimits.push({
+        voteCount: 10,
+        periodInMinutes: 60,
+        types: "onlyStrong",
+        users: "allUsers",
+        consequences: ["denyThisVote"],
+        message: "too many strong-votes in one hour",
+      });
+      rateLimits.push({
         voteCount: 5,
         periodInMinutes: null,
         allOnSamePost: true,
@@ -408,8 +411,10 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         users: "allUsers",
         consequences: ["denyThisVote"],
         message: "You can only strong-vote on up to five comments per post",
-      },
-    ];
+      });
+    }
+
+    return rateLimits;
   }
 }
 
