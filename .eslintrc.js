@@ -151,15 +151,15 @@ module.exports = {
       // Library imports of components of datadog, which has side effects
       // (setting up tracing) which we only want to trigger if datadog is
       // enabled.
-      { name: "@datadog", message: "Don't import datadog except after checking isDatadogEnabled()" },
-      { name: "dd-trace", message: "Don't import dd-trace except after checking isDatadogEnabled()" },
-      { name: "hot-shots", message: "Don't import hot-shots except after checking isDatadogEnabled()" },
+      { name: "@datadog", message: "Don't import datadog except after checking isDatadogEnabledOnSite()" },
+      { name: "dd-trace", message: "Don't import dd-trace except after checking isDatadogEnabledOnSite()" },
+      { name: "hot-shots", message: "Don't import hot-shots except after checking isDatadogEnabledOnSite()" },
 
       // Non-library imports that are restricted because they import datadog,
       // which has side effects that we only want to trigger if datadog is
       // enabled. Type-only imports of these are fine.
-      { name: "packages/lesswrong/client/datadogRum", message: "Don't import datadogRum without first checking isDatadogEnabled()" },
-      { name: "packages/lesswrong/erver/datadog/tracer", message: "Don't import datadog/tracer without first checking isDatadogEnabled()" },
+      { name: "packages/lesswrong/client/datadogRum", message: "Don't import datadogRum without first checking isDatadogEnabledOnSite()" },
+      { name: "packages/lesswrong/erver/datadog/tracer", message: "Don't import datadog/tracer without first checking isDatadogEnabledOnSite()" },
     ],
     patterns: [
       "@material-ui/core/colors/*"
