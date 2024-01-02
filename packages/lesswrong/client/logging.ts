@@ -5,7 +5,6 @@ import { browserProperties } from '../lib/utils/browserProperties';
 import { sentryUrlSetting, sentryReleaseSetting, sentryEnvironmentSetting } from '../lib/instanceSettings';
 import { getUserEmail } from "../lib/collections/users/helpers";
 import { devicePrefersDarkMode } from "../components/themes/usePrefersDarkMode";
-import { configureDatadogRum } from './datadogRum';
 import { userChangedCallback } from '../lib/vulcan-lib/callbacks';
 
 const sentryUrl = sentryUrlSetting.get()
@@ -55,8 +54,6 @@ userChangedCallback.add(function addUserIdToGoogleAnalytics(user: UsersCurrent |
     dataLayer.push({userId: user ? user._id : null})
   }
 });
-
-userChangedCallback.add(configureDatadogRum);
 
 window.addEventListener('load', ev => {
   const urlParams = new URLSearchParams(document.location?.search)

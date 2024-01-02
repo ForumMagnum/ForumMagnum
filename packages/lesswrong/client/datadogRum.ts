@@ -4,6 +4,7 @@ import { forumTypeSetting } from '../lib/instanceSettings';
 import { ddRumSampleRate, ddSessionReplaySampleRate, ddTracingSampleRate } from '../lib/publicSettings';
 import { getCookiePreferences } from '../lib/cookies/utils';
 import { isServer } from '../lib/executionEnvironment';
+import { userChangedCallback } from '../lib/vulcan-lib';
 
 let datadogInitialized = false;
 
@@ -41,6 +42,7 @@ export async function initDatadog() {
     ]
   });
   datadogInitialized = true;
+  userChangedCallback.add(configureDatadogRum);
 }
 
 export function configureDatadogRum(user: UsersCurrent | UsersEdit | DbUser | null) {
@@ -59,5 +61,3 @@ export function configureDatadogRum(user: UsersCurrent | UsersEdit | DbUser | nu
     datadogRum.startSessionReplayRecording();
   }
 }
-
-export default datadogRum;
