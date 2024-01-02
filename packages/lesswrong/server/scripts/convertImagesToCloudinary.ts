@@ -210,10 +210,8 @@ export async function convertImagesInObject<N extends CollectionNameString>(
     
     const latestRev = await getLatestRev(_id, fieldName);
     if (!latestRev) {
-      if (!isAnyTest) {
-        // eslint-disable-next-line no-console
-        console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
-      }
+      // If this field doesn't have a latest rev, it's empty (common eg for
+      // moderation guidelines).
       return 0;
     }
     
