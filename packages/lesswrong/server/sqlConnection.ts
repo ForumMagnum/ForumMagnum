@@ -4,7 +4,7 @@ import Query from "../lib/sql/Query";
 import { isAnyTest } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
-import { logAllQueries, logResultSetSizes } from "../lib/sql/sqlClient";
+import { logAllQueries } from "../lib/sql/sqlClient";
 
 const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
@@ -167,13 +167,8 @@ const logIfSlow = async <T>(
 
   const milliseconds = endTime - startTime;
   if (logAllQueries) {
-    if (logResultSetSizes) {
-      // eslint-disable-next-line no-console
-      console.log(`Finished query #${queryID} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
-    } else {
-      // eslint-disable-next-line no-console
-      console.log(`Finished query #${queryID} (${milliseconds} ms)`);
-    }
+    // eslint-disable-next-line no-console
+    console.log(`Finished query #${queryID} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
   } else if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
     // eslint-disable-next-line no-console
     console.trace(`Slow Postgres query detected (${milliseconds} ms): ${getDescription()}`);
