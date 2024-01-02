@@ -1,11 +1,23 @@
+import { userGetDisplayName } from "../../lib/collections/users/helpers";
+import { renderToString } from "react-dom/server";
 import { getCollectionHooks } from "../mutationCallbacks";
-import { createNotifications } from "../notificationCallbacksHelpers";
-import { createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
+import { createNotification, createNotifications } from "../notificationCallbacksHelpers";
+import { Components, createAdminContext, createMutator, updateMutator } from "../vulcan-lib";
+import { createElement } from "react";
+import { validatedCalendlyUrl } from "../../components/dialogues/CalendlyIFrame";
 
 interface MatchPreferenceFormData extends DbDialogueMatchPreference {
   displayName: string;
   userId: string
 }
+
+getCollectionHooks("DialogueMatchPreferences").createValidate.add((validationErrors: Array<any>, {document: preference}: {document: DbDialogueMatchPreference}) => {
+  const valid = preference.calendlyLink === null ? true : validatedCalendlyUrl(preference.calendlyLink).valid
+  if (!valid)
+    throw new Error("Calendly link is not valid");
+
+  return validationErrors;
+});
 
 function convertTimestamp(timestamp: number) {
   const date = new Date(timestamp);
@@ -39,6 +51,8 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
       .filter(({ preference }) => preference === "Yes")
       .map(({ text }) => text);
   }
+
+  const { CalendlyIFrame } = Components
 
   const sourceUserYesTopics = getUserTopics(formDataSourceUser);
   const targetUserYesTopics = getUserTopics(formDataTargetUser);
@@ -160,19 +174,27 @@ const welcomeMessage = (formDataSourceUser: MatchPreferenceFormData, formDataTar
   }
 
   
+  const sourceCalendly = formDataSourceUser.calendlyLink ? (
+    `<p><strong>${formDataSourceUser.displayName}</strong> <strong>shared a Calendly</strong></p>
+    ${renderToString(createElement(CalendlyIFrame, {url: formDataSourceUser.calendlyLink}))}`
+  ) : ''
+  const targetCalendly = formDataTargetUser.calendlyLink ? (
+    `<p><strong>${formDataTargetUser.displayName}</strong> <strong>shared a Calendly</strong></p>
+    ${renderToString(createElement(CalendlyIFrame, {url: formDataTargetUser.calendlyLink}))}`
+  ) : ''
 
+  const calendlys = sourceCalendly + targetCalendly
 
-  const messagesCombined = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `${topicMessageContent}${formatPreferenceContent}${nextAction}`)
+  const messagesCombined = getDialogueMessageHTML(helperBotId, helperBotDisplayName, "1", `${topicMessageContent}${formatPreferenceContent}${nextAction}${calendlys}`)
 
   return `<div>${messagesCombined}</div>`
 }
 
-getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function GenerateDialogue ( userMatchPreferences, { context, currentUser } ) {
-  const { dialogueCheckId } = userMatchPreferences;
+const getReciprocalMatchPreference = async (context: ResolverContext, currentUser: DbUser | null, dialogueCheckId: string) => {
   const dialogueCheck = await context.loaders.DialogueChecks.load(dialogueCheckId);
 
   // This shouldn't ever happen
-  if (!dialogueCheck ?? !currentUser ?? currentUser._id !== dialogueCheck.userId) {
+  if (!dialogueCheck || !currentUser || currentUser._id !== dialogueCheck.userId) {
     throw new Error(`Can't find check for dialogue match preferences!`);
   }
   const { userId, targetUserId } = dialogueCheck;
@@ -183,25 +205,33 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
     throw new Error(`Can't find reciprocal check for dialogue match preferences!`);
   }
 
-  const reciprocalMatchPreferences = await context.DialogueMatchPreferences.findOne({dialogueCheckId: reciprocalDialogueCheck._id});
+  const reciprocalMatchPreference = await context.DialogueMatchPreferences.findOne({dialogueCheckId: reciprocalDialogueCheck._id, deleted: {$ne: true}});
+
+  return {userId, targetUserId, reciprocalDialogueCheck, reciprocalMatchPreference};
+}
+
+getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function GenerateDialogue ( userMatchPreferences, { context, currentUser } ) {
+  const { dialogueCheckId } = userMatchPreferences;
+  const { userId, targetUserId, reciprocalMatchPreference } = await getReciprocalMatchPreference(context, currentUser, dialogueCheckId);
+ 
   // This can probably cause a race condition if two user submit their match preferences at the same time, where neither of them realize the other is about to exist
   // Should basically never happen, though
-  if (!reciprocalMatchPreferences) {
+  if (!reciprocalMatchPreference) {
     return userMatchPreferences;
   }
 
   const targetUser = await context.loaders.Users.load(targetUserId);
-  const title = `Dialogue match between ${currentUser.displayName} and ${targetUser.displayName}`
+  const title = `Dialogue match between ${currentUser?.displayName} and ${targetUser.displayName}`
 
   const formDataSourceUser = {
     ...userMatchPreferences,
     userId: userId, 
-    displayName: currentUser.displayName,
+    displayName: userGetDisplayName(currentUser),
   }
   const formDataTargetUser = {
-    ...reciprocalMatchPreferences,
+    ...reciprocalMatchPreference,
     userId: targetUserId,
-    displayName: targetUser.displayName,
+    displayName: userGetDisplayName(targetUser),
   }
  
   const result = await createMutator({
@@ -242,7 +272,7 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
 
   void updateMutator({
     collection: context.DialogueMatchPreferences,
-    documentId: reciprocalMatchPreferences._id,
+    documentId: reciprocalMatchPreference._id,
     data: { generatedDialogueId },
     // Since this is updating a field which only admins are allowed to update, we need to pass in an admin context instead of the actual request's context
     context: createAdminContext()
@@ -252,3 +282,21 @@ getCollectionHooks("DialogueMatchPreferences").createBefore.add(async function G
 
   return userMatchPreferences;
 });
+
+getCollectionHooks("DialogueMatchPreferences").createAfter.add(async function NotifyUsersOfNewMatchForm ( userMatchPreference, { context, currentUser } ) {
+  const { dialogueCheckId } = userMatchPreference;
+  const { targetUserId, reciprocalDialogueCheck, reciprocalMatchPreference } = await getReciprocalMatchPreference(context, currentUser, dialogueCheckId);
+
+  if (!reciprocalMatchPreference) { // if the reciprocal user has not filled in their form: ping them!
+    void createNotification({
+      userId: targetUserId,
+      notificationType: 'yourTurnMatchForm',
+      documentType: 'dialogueMatchPreference',
+      documentId: userMatchPreference._id,
+      context,
+      extraData: {checkId: reciprocalDialogueCheck._id}
+    });
+  }
+
+  return userMatchPreference;
+})

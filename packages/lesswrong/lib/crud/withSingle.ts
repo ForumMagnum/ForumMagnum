@@ -66,7 +66,7 @@ export function getGraphQLQueryFromOptions({ extraVariables, collection, fragmen
  * is part of the API given to external sites like GreaterWrong, so this should
  * not be changed.
  */
-export function getResolverNameFromOptions<T extends DbObject>(collection: CollectionBase<T>): string {
+export function getResolverNameFromOptions<N extends CollectionNameString>(collection: CollectionBase<N>): string {
   const typeName = collection.options.typeName;
   return camelCaseify(typeName);
 }
@@ -133,7 +133,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   skip=false,
   apolloClient,
 }: UseSingleProps<FragmentTypeName>): TReturn<FragmentTypeName> {
-  const collection = getCollection(collectionName);
+  const collection: CollectionBase<CollectionNameString> = getCollection(collectionName);
   const query = getGraphQLQueryFromOptions({ extraVariables, collection, fragment, fragmentName })
   const resolverName = getResolverNameFromOptions(collection)
   // TODO: Properly type this generic query

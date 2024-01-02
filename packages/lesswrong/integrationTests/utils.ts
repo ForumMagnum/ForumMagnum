@@ -283,10 +283,15 @@ export const createDummyLocalgroup = async (data?: any) => {
 const generateDummyVoteData = (user: DbUser, data?: Partial<DbVote>) => {
   const defaultData = {
     _id: randomId(),
+    documentId: randomId(),
+    collectionName: "Posts" as const,
+    voteType: "smallUpvote",
     userId: user._id,
     authorIds: [],
+    power: 1,
     cancelled: false,
     isUnvote: false,
+    votedAt: new Date(),
     silenceNotification: false,
   };
   return {...defaultData, ...data};
@@ -318,6 +323,7 @@ export const createManyDummyVotes = async (count: number, user: DbUser, data?: P
 export const createDummyTag = async (user: DbUser, data?: Partial<DbTag>) => {
   const defaultData = {
     _id: randomId(),
+    name: "Test Tag",
     userId: user._id,
     deleted: false,
     adminOnly: false,
@@ -340,6 +346,8 @@ export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevisio
     userId: user._id,
     inactive: false,
     editedAt: new Date(Date.now()),
+    version: "1.0.0",
+    changeMetrics: {} // not nullable field
   };
   const revisionData = {...defaultData, ...data};
   const newRevisionResponse = await createMutator({

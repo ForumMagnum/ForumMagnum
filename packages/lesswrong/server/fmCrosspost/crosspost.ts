@@ -89,7 +89,7 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
 
 export async function handleCrosspostUpdate(
   data: Partial<DbPost>,
-  {oldDocument, newDocument, currentUser}: UpdateCallbackProperties<DbPost>
+  {oldDocument, newDocument, currentUser}: UpdateCallbackProperties<"Posts">
 ): Promise<Partial<DbPost>> {
   const logger = loggerConstructor('callbacks-posts')
   logger('handleCrosspostUpdate()')

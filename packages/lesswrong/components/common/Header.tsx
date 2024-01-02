@@ -11,14 +11,13 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { PublicInstanceSetting } from '../../lib/instanceSettings';
+import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasProminentLogoSetting } from '../../lib/publicSettings';
 
 import { useLocation } from '../../lib/routeUtil';
 import { useIsGivingSeason } from '../ea-forum/giving-portal/hooks';
-import { isAdmin } from '../../lib/vulcan-users';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -27,7 +26,7 @@ export const HEADER_HEIGHT = isBookUI ? 64 : 66;
 /** Height of top header on mobile. On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 export const MOBILE_HEADER_HEIGHT = isBookUI ? 56 : HEADER_HEIGHT;
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   appBar: {
     boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.header.text,
@@ -47,7 +46,59 @@ export const styles = (theme: ThemeType): JssStyles => ({
       [theme.breakpoints.down('xs')]: {
         padding: '9px 11px',
       },
-    } : {})
+    } : {}),
+  },
+  // This class is applied when "backgroundColor" is passed in.
+  // Currently we assume that the background color is always dark,
+  // so all text in the header changes to "alwaysWhite".
+  // If that's not the case, you'll need to expand this code.
+  appBarDarkBackground: {
+    color: theme.palette.text.alwaysWhite,
+    boxShadow: 'none',
+    "& .Header-titleLink": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .HeaderSubtitle-subtitle": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .SearchBar-searchIcon": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .ais-SearchBox-input": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .ais-SearchBox-input::placeholder": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .KarmaChangeNotifier-starIcon": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .KarmaChangeNotifier-gainedPoints": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .NotificationsMenuButton-badge": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .NotificationsMenuButton-buttonClosed": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .UsersMenu-arrowIcon": {
+      color: theme.palette.text.alwaysWhite,
+    },
+    "& .EAButton-variantContained": {
+      backgroundColor: theme.palette.text.alwaysWhite,
+      color: theme.palette.text.alwaysBlack,
+      "&:hover": {
+        backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 90%, ${theme.palette.text.alwaysBlack})`,
+      },
+    },
+    "& .EAButton-greyContained": {
+      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 15%, ${theme.palette.background.transparent})`,
+      color: theme.palette.text.alwaysWhite,
+      "&:hover": {
+        backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 10%, ${theme.palette.background.transparent}) !important`,
+      },
+    },
   },
   root: {
     // This height (including the breakpoint at xs/600px) is set by Headroom, and this wrapper (which surrounds
@@ -70,6 +121,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     top: 3,
     paddingRight: theme.spacing.unit,
     color: theme.palette.text.secondary,
+  //  maxWidth: 130,
   },
   titleLink: {
     color: theme.palette.header.text,
@@ -121,6 +173,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   rightHeaderItems: {
     marginRight: -theme.spacing.unit,
+    marginLeft: "auto",
     display: "flex",
     alignItems: isFriendlyUI ? 'center' : undefined,
   },
@@ -169,6 +222,7 @@ const Header = ({
   toggleStandaloneNavigation,
   stayAtTop=false,
   searchResultsArea,
+  backgroundColor,
   classes,
 }: {
   standaloneNavigationPresent: boolean,
@@ -176,7 +230,9 @@ const Header = ({
   toggleStandaloneNavigation: ()=>void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
-  classes: ClassesType,
+  // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
+  backgroundColor?: string,
+  classes: ClassesType<typeof styles>,
 }) => {
   const [navigationOpen, setNavigationOpenState] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
@@ -188,7 +244,7 @@ const Header = ({
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
-  const { pathname, hash } = useLocation()
+  const { pathname, hash, query } = useLocation()
 
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
@@ -312,9 +368,9 @@ const Header = ({
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    MessagesMenuButton, GivingSeasonHeader,
+    GivingSeasonHeader, ActiveDialogues, SiteLogo, MessagesMenuButton,
   } = Components;
-  
+
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
   const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
@@ -323,7 +379,7 @@ const Header = ({
   </div>
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
-  const RightHeaderItems = () => <div className={classes.rightHeaderItems}>
+  const rightHeaderItemsNode = <div className={classes.rightHeaderItems}>
     <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
       <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     </NoSSR>
@@ -368,7 +424,7 @@ const Header = ({
   // special case for the homepage header of EA Forum Giving Season 2023
   // TODO: delete after 2023
   const isGivingSeason = useIsGivingSeason();
-  if ((isGivingSeason && pathname === "/") || (pathname.startsWith("/voting-portal") && isAdmin(currentUser))) {
+  if (isGivingSeason && pathname === "/" && !query.tab) {
     return (
       <GivingSeasonHeader
         searchOpen={searchOpen}
@@ -376,7 +432,7 @@ const Header = ({
         unFixed={unFixed}
         setUnFixed={setUnFixed}
         NavigationMenuButton={NavigationMenuButton}
-        RightHeaderItems={RightHeaderItems}
+        rightHeaderItems={rightHeaderItemsNode}
         HeaderNavigationDrawer={HeaderNavigationDrawer}
         HeaderNotificationsMenu={HeaderNotificationsMenu}
       />
@@ -397,14 +453,14 @@ const Header = ({
           onUnpin={() => setUnFixed(false)}
           disable={stayAtTop}
         >
-          <header className={classes.appBar}>
+          <header className={classNames(classes.appBar, {[classes.appBarDarkBackground]: !!backgroundColor})} style={backgroundColor ? {backgroundColor} : {}}>
             <Toolbar disableGutters={isFriendlyUI}>
               <NavigationMenuButton />
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
                     <Link to="/" className={classes.titleLink}>
-                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                      {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={!!backgroundColor}/></div>}
                       {forumHeaderTitleSetting.get()}
                     </Link>
                     <HeaderSubtitle />
@@ -412,12 +468,13 @@ const Header = ({
                 </div>
                 <div className={classes.hideMdUp}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><Components.SiteLogo/></div>}
+                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaWhite={!!backgroundColor}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>
               </Typography>
-              <RightHeaderItems />
+              {!isEAForum &&<ActiveDialogues />}
+              {rightHeaderItemsNode}
             </Toolbar>
           </header>
           <HeaderNavigationDrawer />

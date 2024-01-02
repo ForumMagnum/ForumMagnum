@@ -1,11 +1,9 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils';
-
+import { schemaDefaultValue, foreignKeyField } from '../../utils/schemaUtils'
 import SimpleSchema from 'simpl-schema'
 
 export const DEFAULT_QUALITATIVE_VOTE = 4
 
-const schema: SchemaType<DbReviewVote> = {
+const schema: SchemaType<"ReviewVotes"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -16,7 +14,8 @@ const schema: SchemaType<DbReviewVote> = {
     }),
     onCreate: ({currentUser}) => currentUser!._id,
     canRead: ['guests'],
-    optional: true
+    optional: true,
+    nullable: false,
   },
   postId: {
     ...foreignKeyField({
@@ -27,6 +26,7 @@ const schema: SchemaType<DbReviewVote> = {
       nullable: true,
     }),
     canRead: ['guests'],
+    nullable: false,
   },
   qualitativeScore: {
     type: SimpleSchema.Integer, 

@@ -6,9 +6,9 @@ import { createNotifications } from "../notificationCallbacksHelpers";
 import { Globals } from "../vulcan-lib";
 
 const sendWrappedNotifications = async () => {
-  // notify all users who read a post in 2022
-  const start = moment().year(2022).dayOfYear(1).toDate()
-  const end = moment().year(2023).dayOfYear(0).toDate()
+  // notify all users who read a post in 2023
+  const start = new Date(2023, 0)
+  const end = new Date(2024, 0)
   const readStatuses = await ReadStatuses.find({
     isRead: true,
     lastUpdated: {$gte: start, $lte: end},

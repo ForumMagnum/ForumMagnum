@@ -20,6 +20,32 @@ export const serverSentEventsAPI: ServerSentEventsAPI = {
   setServerSentEventsActive: null,
 };
 
+export type ActiveDialogueServer = {
+  _id: string,
+  userId: string,
+  title: string,
+  coauthorStatuses: {userId: string, confirmed: string, rejected: string}[],
+  activeUserIds: string[],
+  mostRecentEditedAt?: Date,
+}
+
+export type ActiveDialogue = {
+  userIds: string[],
+  postId: string,
+  title: string,
+  mostRecentEditedAt?: Date,
+  anyoneRecentlyActive: boolean,
+}
+
+export type ActiveDialogueData = {
+  [userId: string]: ActiveDialogue[];
+};
+
+export type ActiveDialoguePartnersMessage = {
+  eventType: 'activeDialoguePartners',
+  data: ActiveDialogue[]
+}
+
 export type TypingIndicatorMessage = {
   eventType: 'typingIndicator',
   typingIndicators: TypingIndicatorInfo[]
@@ -31,7 +57,7 @@ export type NotificationCheckMessage = {
   newestNotificationTime?: string //stringified date
 }
 
-export type ServerSentEventsMessage = TypingIndicatorMessage | NotificationCheckMessage;
+export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage;
 
 const notificationsCheckedAtLocalStorageKey = "notificationsCheckedAt";
 

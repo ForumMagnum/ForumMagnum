@@ -9,7 +9,7 @@ import { VotingSystem, getDefaultVotingSystem } from '../../lib/voting/votingSys
 import * as _ from 'underscore';
 import { VotingProps } from './votingProps';
 
-const getVoteMutationQuery = (collection: CollectionBase<DbObject>) => {
+const getVoteMutationQuery = (collection: CollectionBase<CollectionNameString>) => {
   const typeName = collection.options.typeName;
   const mutationName = `performVote${typeName}`;
   
@@ -47,7 +47,7 @@ export const useVote = <T extends VoteableTypeClient>(document: T, collectionNam
   
   const [mutate] = useMutation(query, {
     onCompleted: useCallback((mutationResult) => {
-      if (++mutationCounts.current.completedMutationIndex == mutationCounts.current.optimisticMutationIndex) {
+      if (++mutationCounts.current.completedMutationIndex === mutationCounts.current.optimisticMutationIndex) {
         setOptimisticResponseDocument(null)
       }
       

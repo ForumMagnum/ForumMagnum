@@ -1046,10 +1046,7 @@ Posts.addView("nearbyEvents", (terms: PostsViewTerms) => {
               // place in the codebase where we use this operator so it's probably not worth spending a
               // ton of time making this beautiful.
               $centerSphere: [ [ terms.lng, terms.lat ], (terms.distance || 100) / 3963.2 ],
-              ...(Posts.isPostgres()
-                ? { $comment: { locationName: `"googleLocation"->'geometry'->'location'` } }
-                : {}
-              ),
+              $comment: { locationName: `"googleLocation"->'geometry'->'location'` },
             }
           }
         },
@@ -1296,10 +1293,22 @@ ensureIndex(Posts,
   { name: "posts.recommendable" }
 );
 
+Posts.addView("hasEverDialogued", (terms: PostsViewTerms) => {
+  return {
+    selector: {
+      $or: [
+        {userId: terms.userId},
+        {"coauthorStatuses.userId": terms.userId}
+      ],
+      collabEditorDialogue: true,
+    },
+  }
+})
+
 Posts.addView("pingbackPosts", (terms: PostsViewTerms) => {
   return {
     selector: {
-      ...jsonArrayContainsSelector(Posts, "pingbacks.Posts", terms.postId),
+      ...jsonArrayContainsSelector("pingbacks.Posts", terms.postId),
       baseScore: {$gt: 0}
     },
     options: {
@@ -1435,12 +1444,15 @@ ensureIndex(Posts,
 );
 
 
+// Exclude IDs that should not be included, e.g. were republished and postedAt date isn't actually in current review
+const reviewExcludedPostIds = ['MquvZCGWyYinsN49c'];
+
 // Nominations for the (≤)2020 review are determined by the number of votes
 Posts.addView("reviewVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
       positiveReviewVoteCount: { $gte: getPositiveVoteThreshold(terms.reviewPhase) },
-      reviewCount: { $gte: INITIAL_REVIEW_THRESHOLD }
+      _id: { $nin: reviewExcludedPostIds }
     },
     options: {
       // This sorts the posts deterministically, which is important for the
@@ -1480,7 +1492,8 @@ Posts.addView("reviewFinalVoting", (terms: PostsViewTerms) => {
   return {
     selector: {
       reviewCount: { $gte: VOTING_PHASE_REVIEW_THRESHOLD },
-      positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD }
+      positiveReviewVoteCount: { $gte: REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD },
+      _id: { $nin: reviewExcludedPostIds }
     },
     options: {
       // This sorts the posts deterministically, which is important for the

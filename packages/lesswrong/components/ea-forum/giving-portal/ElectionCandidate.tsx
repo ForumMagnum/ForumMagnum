@@ -6,8 +6,10 @@ import { getVotingSystemByName } from "../../../lib/voting/votingSystems";
 import { donationElectionTagId } from "../../../lib/eaGivingSeason";
 import classNames from "classnames";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import Checkbox from "@material-ui/core/Checkbox";
+import { requireCssVar } from "../../../themes/cssVars";
 
-const imageSize = 52;
+export const imageSize = 52;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,12 +22,15 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: 'center',
     gap: "16px",
-    width: 360,
-    maxWidth: "100%",
+    width: "100%",
+    maxWidth: 360,
     minHeight: 68,
   },
   rootVoted: {
     backgroundColor: theme.palette.givingPortal.votedCandidate,
+  },
+  rootSelected: {
+    backgroundColor: theme.palette.givingPortal.selectedCandidate,
   },
   imageContainer: {
     borderRadius: theme.borderRadius.small,
@@ -72,6 +77,10 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     letterSpacing: "-0.14px",
   },
+  checkbox: {
+    padding: 6,
+    marginRight: -12
+  },
   preVotes: {
     opacity: 0.8,
   },
@@ -83,6 +92,27 @@ const styles = (theme: ThemeType) => ({
       textDecoration: "underline",
     },
   },
+  descriptionTooltip: {
+    maxWidth: 320,
+    marginTop: 8,
+    textAlign: "left",
+    display: "-webkit-box",
+    "-webkit-box-orient": "vertical",
+    "-webkit-line-clamp": 12, // Just stop it from really overflowing
+  },
+  prevoteDescriptionTooltip: {
+    background: `${theme.palette.panelBackground.tooltipBackground2} !important}`,
+  },
+  selectDescriptionTooltip: {
+    backgroundColor: `${theme.palette.grey[900]} !important`,
+    borderRadius: `${theme.borderRadius.default}px !important`,
+  },
+  hoverUnderline: {
+    '&:hover': {
+      textUnderlineOffset: '3px',
+      textDecoration: 'underline',
+    }
+  },
   tooltip: {
     maxWidth: 200,
     textAlign: "center",
@@ -91,10 +121,17 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const ElectionCandidate = ({candidate, classes}: {
+const checkboxColor = requireCssVar("palette", "givingPortal", 1000);
+
+const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, classes}: {
   candidate: ElectionCandidateBasicInfo,
+  type?: "preVote" | "select",
+  selected?: boolean,
+  onSelect?: (candidateIds: string[]) => void,
   classes: ClassesType,
 }) => {
+  const isSelect = type === "select";
+
   const votingProps = useVote(
     candidate,
     "ElectionCandidates",
@@ -102,7 +139,7 @@ const ElectionCandidate = ({candidate, classes}: {
   );
 
   const {
-    name, logoSrc, fundraiserLink, postCount, tag, extendedScore, currentUserExtendedVote,
+    name, logoSrc, fundraiserLink, href, postCount, tag, extendedScore, currentUserExtendedVote, description,
   } = votingProps.document;
   const preVoteCount = extendedScore?.preVoteCount ?? 0;
   const hasVoted = !!currentUserExtendedVote?.preVote;
@@ -111,45 +148,78 @@ const ElectionCandidate = ({candidate, classes}: {
   const postCountString = `${postCount} post${postCount === 1 ? "" : "s"}`;
   const postsLink = `/search?query=&tags[0]=${donationElectionTagId}&tags[1]=${tag?._id}`;
 
+  // We don't want to accidentally navigate away from the page if the user is selecting candidates
+  const newTabProps = { target: "_blank", rel: "noopener noreferrer" };
+  const linkProps = isSelect ? newTabProps : {};
+
+  const linkUrl = isSelect ? href : fundraiserLink;
+
   const {PreVoteButton, ForumIcon, LWTooltip} = Components;
   return (
     <AnalyticsContext pageElementContext="electionCandidate">
-      <div className={classNames(classes.root, {
-        [classes.rootVoted]: hasVoted,
-      })}>
+      <div
+        className={classNames(classes.root, {
+          [classes.rootVoted]: !isSelect && hasVoted,
+          [classes.rootSelected]: isSelect && selected,
+        })}
+      >
+        {isSelect && (
+          <Checkbox
+            className={classes.checkbox}
+            style={{color: checkboxColor}}
+            checked={selected}
+            onChange={() => onSelect?.([candidate._id])}
+          />
+        )}
         <div className={classes.imageContainer}>
-          <Link to={fundraiserLink}>
+          <Link to={linkUrl || ""} {...linkProps}>
             <img src={logoSrc} className={classes.image} />
           </Link>
         </div>
         <div className={classes.details}>
-          <div className={classes.name}>
-            <Link to={fundraiserLink}>
+          <LWTooltip
+            className={classes.name}
+            title={description}
+            placement={isSelect ? "bottom" : "bottom-start"}
+            popperClassName={classNames(classes.descriptionTooltip, {
+              [classes.prevoteDescriptionTooltip]: !isSelect,
+              [classes.selectDescriptionTooltip]: isSelect,
+            })}
+          >
+            <Link
+              to={linkUrl || ""}
+              className={classNames({
+                [classes.hoverUnderline]: isSelect,
+              })}
+              {...linkProps}
+            >
               {name}
             </Link>
-          </div>
+          </LWTooltip>
           <div className={classes.metaInfo}>
-            <span className={classes.preVotes}>
-              <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
-              {preVoteCountString}
-            </span>
-            {tag &&
+            {!isSelect && (
+              <span className={classes.preVotes}>
+                <ForumIcon icon="HeartOutline" className={classes.heartIcon} />
+                {preVoteCountString}
+              </span>
+            )}
+            {!isSelect && tag && ", "}
+            {tag && (
               <>
-                {", "}
                 <LWTooltip
                   title={`View ${postCountString} tagged “${tag.name}” and “Donation Election (2023)”`}
                   placement="bottom"
                   popperClassName={classes.tooltip}
                 >
-                  <a href={postsLink} className={classes.postCount}>
+                  <a href={postsLink} className={classes.postCount} {...newTabProps}>
                     {postCountString}
                   </a>
                 </LWTooltip>
               </>
-            }
+            )}
           </div>
         </div>
-        <PreVoteButton {...votingProps} className={classes.preVoteButton} />
+        {!isSelect && <PreVoteButton {...votingProps} className={classes.preVoteButton} />}
       </div>
     </AnalyticsContext>
   );
@@ -158,7 +228,7 @@ const ElectionCandidate = ({candidate, classes}: {
 const ElectionCandidateComponent = registerComponent(
   "ElectionCandidate",
   ElectionCandidate,
-  {styles},
+  {styles,},
 );
 
 declare global {

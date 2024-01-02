@@ -5,7 +5,6 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 export const FeaturedResources: FeaturedResourcesCollection = createCollection({
   collectionName: 'FeaturedResources',
   typeName: 'FeaturedResource',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('FeaturedResources'),
 });

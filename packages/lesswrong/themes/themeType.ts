@@ -219,6 +219,7 @@ declare global {
       recentDiscussionGreen: ColorString,
       recentDiscussionGrey: ColorString,
       headerKarma: ColorString,
+      activeDotOrange: ColorString,
 
       commentsBubble: {
         commentCount: ColorString,
@@ -404,6 +405,7 @@ declare global {
     background: {
       default: ColorString
       paper: ColorString,
+      contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
       translucentBackground: ColorString,
       diffInserted: ColorString,
@@ -462,12 +464,15 @@ declare global {
     eventsHomeLoadMoreHover: ColorString,
 
     givingPortal: Record<0 | 200 | 800 | 900 | 1000, ColorString> & {
-      ctaBackground: ColorString,
       ctaText: ColorString,
       candidate: ColorString,
       votedCandidate: ColorString,
+      selectedCandidate: ColorString,
+      ctaBackground: ColorString,
+      thankYouBackground: ColorString,
       rhsLink: ColorString,
       secondary: ColorString,
+      votingPortalIntroBackground: ColorString,
       button: {
         alwaysDark: ColorString,
         dark: ColorString,
@@ -478,15 +483,34 @@ declare global {
       homepageHeader: {
         light4: ColorString,
         light3: ColorString,
+        light3Opaque: ColorString,
         light2: ColorString,
+        light2Opaque: ColorString,
         light1: ColorString,
+        light1Opaque: ColorString,
+        heartsBackground: ColorString,
         main: ColorString,
         dark: ColorString,
         secondary: ColorString,
         secondaryDark: ColorString,
         secondaryOpaque: ColorString,
         secondaryOpaqueDark: ColorString,
+        secondaryButton: ColorString,
+        secondaryButtonText: ColorString,
       }
+    },
+    wrapped: {
+      background: ColorString,
+      highlightText: ColorString,
+      secondaryText: ColorString,
+      tertiaryText: ColorString,
+      black: ColorString,
+      darkGrey: ColorString,
+      grey: ColorString,
+      darkDot: ColorString,
+      panelBackground: ColorString,
+      panelBackgroundDark: ColorString,
+      postScoreArrow: ColorString,
     },
     dialogueMatching: {
       checkedNotMatched: ColorString,
@@ -502,6 +526,8 @@ declare global {
   
   type ThemeType = {
     forumType: ForumTypeString,
+
+    baseFontSize: number,
     
     breakpoints: {
       /** Down is *inclusive* - down(sm) will go up to the md breakpoint */

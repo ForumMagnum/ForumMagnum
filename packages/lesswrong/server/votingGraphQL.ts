@@ -1,6 +1,7 @@
 import { addGraphQLSchema, addGraphQLResolvers, addGraphQLMutation } from '../lib/vulcan-lib/graphql';
 import { performVoteServer, clearVotesServer } from './voteServer';
-import { VoteableCollections, VoteableCollectionOptions, collectionIsVoteable } from '../lib/make_voteable';
+import { VoteableCollections, VoteableCollectionOptions } from '../lib/make_voteable';
+import { getCollection } from '../lib/vulcan-lib/getCollection';
 
 export function createVoteableUnionType() {
   const voteableSchema = VoteableCollections.length ? `union Voteable = ${VoteableCollections.map(collection => collection.typeName).join(' | ')}` : '';
@@ -40,10 +41,10 @@ const voteResolver = {
     async vote(root: void, args: {documentId: string, voteType: string, collectionName: CollectionNameString, voteId?: string}, context: ResolverContext) {
       const {documentId, voteType, collectionName} = args;
       const { currentUser } = context;
-      const collection = context[collectionName] as CollectionBase<DbVoteableType>;
-      
+      const collection = getCollection(collectionName);
+
       if (!collection) throw new Error("Error casting vote: Invalid collectionName");
-      if (!collectionIsVoteable(collectionName)) throw new Error("Error casting vote: Collection is not voteable");
+      if (!collection.isVoteable()) throw new Error("Error casting vote: Collection is not voteable");
       if (!currentUser) throw new Error("Error casting vote: Not logged in.");
 
       const document = await performVoteServer({
@@ -59,7 +60,7 @@ const voteResolver = {
 
 addGraphQLResolvers(voteResolver);
 
-function addVoteMutations(collection: CollectionBase<DbVoteableType>) {
+function addVoteMutations(collection: CollectionBase<VoteableCollectionName>) {
   // Add two mutations for voting on a given collection. `setVotePost` returns
   // a post with its scores/vote counts modified, and is provided for backwards
   // compatibility. `performVotePost` returns an object that looks like

@@ -186,6 +186,8 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
           <CoreTagIcon tag={comment.tag} />
         </div>}
 
+        {/* We're often comparing null to undefined, so we need to explicitly use a double-eq-negation */}
+        {/* eslint-disable-next-line eqeqeq */}
         {!hideParentCommentToggle && parentCommentId!=comment.parentCommentId && <span className={classes.parentComment}>
           <ShowParentComment comment={comment} />
         </span>}

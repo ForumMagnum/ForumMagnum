@@ -79,7 +79,7 @@ const buildNotificationTag = (prefix: string) =>
     'slug', ${prefix}."slug"
   ) END`;
 
-export default class NotificationsRepo extends AbstractRepo<DbNotification> {
+export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
   constructor() {
     super(Notifications);
   }

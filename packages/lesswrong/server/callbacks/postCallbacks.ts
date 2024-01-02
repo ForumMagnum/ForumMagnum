@@ -1,4 +1,4 @@
-import { createMutator } from '../vulcan-lib';
+import { createAdminContext, createMutator, updateMutator } from '../vulcan-lib';
 import { Posts } from '../../lib/collections/posts/collection';
 import { Comments } from '../../lib/collections/comments/collection';
 import Users from '../../lib/collections/users/collection';
@@ -26,9 +26,11 @@ import Messages from '../../lib/collections/messages/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { getAdminTeamAccount, getRejectionMessage } from './commentCallbacks';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { isPostAllowedType3Audio, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../embeddings';
+import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
+import DialogueChecks from '../../lib/collections/dialogueChecks/collection';
+import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPreferences/collection';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -242,13 +244,13 @@ getCollectionHooks("Posts").editAsync.add(async function UpdateCommentHideKarma 
   await Comments.rawCollection().bulkWrite(updates)
 });
 
-getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<DbPost>) => {
+getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackProperties<"Posts">) => {
   if (!document.draft) {
     await triggerReviewIfNeeded(document.userId)
   }
 });
 
-getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<DbPost>) {
+getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<"Posts">) {
   if (document.draft || document.rejected) return
 
   await triggerReviewIfNeeded(oldDocument.userId)
@@ -269,7 +271,7 @@ interface SendPostRejectionPMParams {
 }
 
 async function sendPostRejectionPM({ messageContents, lwAccount, post, noEmail }: SendPostRejectionPMParams) {
-  const conversationData: CreateMutatorParams<DbConversation>['document'] = {
+  const conversationData: CreateMutatorParams<"Conversations">['document'] = {
     participantIds: [post.userId, lwAccount._id],
     title: `Your post ${post.title} was rejected`,
     moderator: true
@@ -336,7 +338,7 @@ getCollectionHooks("Posts").updateAsync.add(async function sendRejectionPM({ new
  * Creates a moderator action when an admin sets one of the user's posts back to draft
  * This also adds a note to a user's sunshineNotes
  */
-getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostDraft ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
   if (!oldDocument.draft && document.draft && userIsAdmin(currentUser)) {
     void createMutator({
       collection: context.ModeratorActions,
@@ -351,7 +353,7 @@ getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPost
   }
 });
 
-getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<DbPost>) {
+getCollectionHooks("Posts").updateAsync.add(async function updateUserNotesOnPostRejection ({ document, oldDocument, currentUser, context }: UpdateCallbackProperties<"Posts">) {
   if (!oldDocument.rejected && document.rejected) {
     void createMutator({
       collection: context.ModeratorActions,
@@ -375,8 +377,14 @@ async function extractSocialPreviewImage (post: DbPost) {
   if (post.contents?.html) {
     const $ = cheerioParse(post.contents?.html)
     const firstImg = $('img').first()
-    if (firstImg) {
-      socialPreviewImageAutoUrl = firstImg.attr('src') || ''
+    const firstImgSrc = firstImg?.attr('src')
+    if (firstImg && firstImgSrc) {
+      try {
+        socialPreviewImageAutoUrl = await moveImageToCloudinary(firstImgSrc, post._id) ?? firstImgSrc
+      } catch (e) {
+        captureException(e);
+        socialPreviewImageAutoUrl = firstImgSrc
+      }
     }
   }
   
@@ -467,7 +475,7 @@ getCollectionHooks("Posts").newSync.add((post: DbPost): DbPost => {
   return post;
 });
 
-getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPost}: UpdateCallbackProperties<DbPost>) => {
+getCollectionHooks("Posts").updateBefore.add((post: DbPost, {oldDocument: oldPost}: UpdateCallbackProperties<"Posts">) => {
   // Here we schedule the post for 1-day in the future when publishing an existing draft with unconfirmed coauthors
   // We must check post.draft === false instead of !post.draft as post.draft may be undefined in some cases
   if (postHasUnconfirmedCoauthors(post) && post.draft === false && oldPost.draft) {
@@ -490,7 +498,7 @@ async function bulkApplyPostTags ({postId, tagsToApply, currentUser, context}: {
       });
     } catch(e) {
       // This can throw if there's a tag applied which doesn't exist, which
-      // can happen if there are issues with the Algolia index.
+      // can happen if there are issues with the search index.
       //
       // If we fail to add a tag, capture the exception in Sentry but don't
       // throw from the form-submission callback. From the user perspective
@@ -514,7 +522,7 @@ async function bulkRemovePostTags ({tagRels, currentUser, context}: {tagRels: Db
   await Promise.all(tagRels.map(clearOneTag))
 }
 
-getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCallbackProperties<DbPost>) => {
+getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCallbackProperties<"Posts">) => {
   const {currentUser, context} = props;
   if (!currentUser) return post; // Shouldn't happen, but just in case
   
@@ -528,7 +536,7 @@ getCollectionHooks("Posts").createAfter.add(async (post: DbPost, props: CreateCa
   return post;
 });
 
-getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCallbackProperties<DbPost>) => {
+getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCallbackProperties<"Posts">) => {
   const {currentUser, context} = props;
   if (!currentUser) return post; // Shouldn't happen, but just in case
 
@@ -556,3 +564,37 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCa
   return post;
 });
 
+getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCallbackProperties<"Posts">) => {
+  const { oldDocument: oldPost } = props;
+  const adminContext = createAdminContext();
+
+  async function resetDialogueMatch(matchForm: DbDialogueMatchPreference) {
+    const dialogueCheck = await DialogueChecks.findOne(matchForm.dialogueCheckId);
+    if (dialogueCheck) {
+      await Promise.all([
+        updateMutator({ // reset check
+          collection: DialogueChecks,
+          documentId: dialogueCheck._id,
+          set: { checked: false, hideInRecommendations: false },
+          currentUser: adminContext.currentUser,
+          context: adminContext,
+          validate: false
+        }),
+        updateMutator({ // soft delete topic form
+          collection: DialogueMatchPreferences,
+          documentId: matchForm._id,
+          set: { deleted: true },
+          currentUser: adminContext.currentUser,
+          context: adminContext,
+          validate: false
+        })
+      ]);
+    }
+  }
+
+  if (post.collabEditorDialogue && post.draft === false && oldPost.draft) {
+    const matchForms = await DialogueMatchPreferences.find({generatedDialogueId: post._id, deleted: {$ne: true}}).fetch()
+      await Promise.all(matchForms.map(resetDialogueMatch))
+  }
+  return post;
+});

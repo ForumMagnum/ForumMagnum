@@ -112,4 +112,9 @@ module.exports = {
     hideDialogueFacilitation: false,
     optedInToDialogueFacilitation: false,
     revealChecksToAdmins: false,
+    showDialoguesList: true,
+    showMyDialogues: true,
+    showMatches: true,
+    showRecommendedPartners: true,
+    abTestKey: "test-user-ab-test-key",
 }

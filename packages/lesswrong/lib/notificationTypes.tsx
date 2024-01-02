@@ -27,6 +27,9 @@ import { userGetDisplayName } from './collections/users/helpers'
 import { TupleSet, UnionOf } from './utils/typeGuardUtils'
 import DebateIcon from '@material-ui/icons/Forum';
 import DialogueChecks from './collections/dialogueChecks/collection';
+import { getUserABTestGroup } from './abTestImpl';
+import { checkNotificationMessageContent } from './abTests';
+import DialogueMatchPreferences from './collections/dialogueMatchPreferences/collection';
 import { Link } from './reactRouterWrapper';
 import { isFriendlyUI } from '../themes/forumTheme';
 
@@ -89,7 +92,7 @@ export type NotificationDisplay =
     tagRelId?: string,
   };
 
-export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck'] as const)
+export const notificationDocumentTypes = new TupleSet(['post', 'comment', 'user', 'message', 'tagRel', 'localgroup', 'dialogueCheck', 'dialogueMatchPreference'] as const)
 export type NotificationDocument = UnionOf<typeof notificationDocumentTypes>
 
 interface GetMessageProps {
@@ -166,6 +169,7 @@ type DocumentSummary =
   | { type: 'localgroup'; displayName: string; document: DbLocalgroup; associatedUserName: null }
   | { type: 'tagRel'; document: DbTagRel; associatedUserName: null; displayName: null }
   | { type: 'dialogueCheck'; document: DbDialogueCheck; associatedUserName: string; displayName: null }
+  | { type: 'dialogueMatchPreference'; document: DbDialogueMatchPreference; associatedUserName: string; displayName: null }
 
 export const getDocumentSummary = async (documentType: NotificationDocument | null, documentId: string | null): Promise<DocumentSummary | null> => {
   if (!documentId) return null
@@ -204,7 +208,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
       return {
         type: documentType,
         document: message,
-        displayName: conversation?.title,
+        displayName: conversation?.title ?? undefined,
         associatedUserName: userGetDisplayName(author),
       }
     case 'localgroup':
@@ -212,7 +216,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
       return localgroup && {
         type: documentType,
         document: localgroup,
-        displayName: localgroup.name,
+        displayName: localgroup.name ?? "[missing local group name]",
         associatedUserName: null,
       }
     case 'tagRel':
@@ -230,6 +234,19 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         type: documentType,
         document: dialogueCheck,
         associatedUserName: userGetDisplayName(targetUser),
+        displayName: null,
+      }
+    case 'dialogueMatchPreference':
+      const dialogueMatchPreference = await DialogueMatchPreferences.findOne(documentId)
+      if (!dialogueMatchPreference) return null;  
+      const dialogueCheckMatch = await DialogueChecks.findOne(dialogueMatchPreference.dialogueCheckId)
+      if (!dialogueCheckMatch) return null;  
+      const userMatch = await Users.findOne(dialogueCheckMatch.userId)
+      if (!userMatch) return null;  
+      return (dialogueMatchPreference && userMatch) && {
+        type: documentType,
+        document: dialogueMatchPreference,
+        associatedUserName: userGetDisplayName(userMatch),
         displayName: null,
       }
     default:
@@ -294,7 +311,7 @@ export const NewEventNotification = registerNotificationType({
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId);
     let group: DbLocalgroup|null = null
-    if (documentType == "post") {
+    if (documentType === "post") {
       const post = document as DbPost
       if (post.groupId) {
         group = await Localgroups.findOne(post.groupId);
@@ -319,7 +336,7 @@ export const NewGroupPostNotification = registerNotificationType({
   async getMessage({documentType, documentId}: GetMessageProps) {
     let document = await getDocument(documentType, documentId);
     let group: DbLocalgroup|null = null
-    if (documentType == "post") {
+    if (documentType === "post") {
       const post = document as DbPost
       if (post.groupId) {
         group = await Localgroups.findOne(post.groupId);
@@ -463,6 +480,59 @@ export const NewDialogueMatchNotification = registerNotificationType({
   </>,
 });
 
+// Notification that you have new interested parties for dialogues
+export const NewDialogueCheckNotification = registerNotificationType({
+  name: "newDialogueChecks",
+  userSettingField: "notificationNewDialogueChecks",
+  allowedChannels: ["onsite", "none"],
+  async getMessage(props: GetMessageProps) {
+    let notificationAbGroup = ""
+    const userId = props.extraData?.userId
+    if (userId) { 
+      const user = await getDocument("user", userId) as DbUser
+      notificationAbGroup = getUserABTestGroup({user}, checkNotificationMessageContent)
+    }
+    switch (notificationAbGroup) {
+      case "v1":
+        return `New users interested in dialoguing with you (not a match yet)`
+      case "v2":
+        return `You got new checks in dialogue matching`
+      case "v3":
+        return `New users want to dialogue with you, since last you checked`
+      case "v4":
+        return `You got new users who checked you for dialogues`
+      default:
+        return `New users interested in dialoguing with you (not a match yet)`
+    }    
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  },
+  getLink() {
+    return "/dialogueMatching"
+  }
+});
+
+export const YourTurnMatchFormNotification = registerNotificationType({
+  name: "yourTurnMatchForm",
+  userSettingField: "notificationYourTurnMatchForm",
+  allowedChannels: ["onsite", "none"],
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    const summary = await getDocumentSummary(documentType, documentId)
+    return `Your turn: see & reply to ${summary?.associatedUserName ?? 'your match'}'s dialogue ideas`
+  },
+  getIcon() {
+    return <DebateIcon style={iconStyles}/>
+  },
+  getLink({ extraData }: { extraData: Record<string,any> }) { 
+    const url = new URL('/dialogueMatching', 'https://dummy.com');
+    if (extraData?.checkId) {
+      url.searchParams.append('dialogueCheckId', extraData.checkId);
+    }
+    return url.pathname + url.search;
+  }
+});
+
 //NOTIFICATION FOR OLD DIALOGUE FORMAT
 //TO-DO: clean up eventually
 // New debate comment on a debate post you're subscribed to.  For readers explicitly subscribed to the debate.
@@ -602,7 +672,7 @@ export const WrappedNotification = registerNotificationType({
   userSettingField: "notificationPrivateMessage",
   allowedChannels: ["onsite", "email", "both"],
   async getMessage() {
-    return "Check out your 2022 EA Forum Wrapped"
+    return "Check out your EA Forum 2023 Wrapped"
   },
   getIcon() {
     return <GiftIcon style={flatIconStyles}/>

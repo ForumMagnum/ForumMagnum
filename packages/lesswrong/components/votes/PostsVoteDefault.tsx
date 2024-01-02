@@ -122,7 +122,7 @@ const PostsVoteDefault = ({
         [classes.voteScoresHorizontal]: useHorizontalLayout,
       })}>
         <Tooltip
-          title={`${voteProps.voteCount} ${voteProps.voteCount == 1 ? "Vote" : "Votes"}`}
+          title={`${voteProps.voteCount} ${voteProps.voteCount === 1 ? "Vote" : "Votes"}`}
           placement={tooltipPlacement}
           classes={{tooltip: classes.tooltip}}
         >

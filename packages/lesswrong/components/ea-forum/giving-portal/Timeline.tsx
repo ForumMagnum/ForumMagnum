@@ -79,6 +79,12 @@ const styles = (theme: ThemeType) => ({
       );
     `,
   },
+  voteLink: {
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.5,
+    }
+  },
   spanDate: {
     width: "100%",
     left: 0,
@@ -193,11 +199,13 @@ const Timeline = ({
           <div {...positionDateMarker(date)} />
         </Fragment>
       ))}
-      {spans.map(({ start, end, description, href, consecutive, hideDates, hatched }) => (
+      {spans.map(({start, end, description, href, consecutive, hideDates, hatched}) => (
         <div {...positionSpan(start, end, consecutive, hatched)} key={description}>
           {href ? <Link to={href}>{description}</Link> : description}
           {!hideDates && (
-            <div className={classNames(classes.date, classes.spanDate)}>{formatSpanDates(start, end)}</div>
+            <div className={classNames(classes.date, classes.spanDate)}>
+              {formatSpanDates(start, end)}
+              </div>
           )}
         </div>
       ))}

@@ -49,16 +49,46 @@ import { hstsMiddleware } from './hsts';
 import { getClientBundle } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
+import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
+import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
+import { performanceMetricLoggingEnabled } from '../lib/publicSettings';
 
-class ApolloServerLogging {
-  requestDidStart(context: any) {
-    const {request} = context;
-    const {operationName, query, variables} = request;
-    logGraphqlQueryStarted(operationName, query, variables);
+class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
+  requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
+    const { operationName = 'unknownGqlOperation', query, variables } = request;
+
+    //remove sensitive data from variables such as password
+    let filteredVariables = variables;
+    if (variables) {
+      filteredVariables =  Object.keys(variables).reduce((acc, key) => {
+        return (key === 'password') ?  acc : { ...acc, [key]: variables[key] };
+      }, {});
+    }
+
+    let startedRequestMetric: IncompletePerfMetric;
+    if (performanceMetricLoggingEnabled.get()) {
+      startedRequestMetric = openPerfMetric({
+        op_type: 'query',
+        op_name: operationName,
+        parent_trace_id: context.perfMetric?.trace_id,
+        extra_data: filteredVariables,
+        gql_string: query
+      });  
+    }
+
+    if (query) {
+      logGraphqlQueryStarted(operationName, query, variables);
+    }
     
     return {
-      willSendResponse(props: AnyBecauseTodo) {
-        logGraphqlQueryFinished(operationName, query);
+      willSendResponse() { // hook for transaction finished
+        if (performanceMetricLoggingEnabled.get()) {
+          closePerfMetric(startedRequestMetric);
+        }
+
+        if (query) {
+          logGraphqlQueryFinished(operationName, query);
+        }
       }
     };
   }
@@ -103,6 +133,7 @@ export function startWebserver() {
   app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
   addStripeMiddleware(addMiddleware);
+  // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   addAuthMiddlewares(addMiddleware);
   addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
@@ -136,13 +167,15 @@ export function startWebserver() {
     context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
       const context = await getContextFromReqAndRes(req, res);
       configureSentryScope(context);
+      setAsyncStoreValue('resolverContext', context);
       return context;
     },
-    plugins: [new ApolloServerLogging()]
+    plugins: [new ApolloServerLogging()],
   });
 
   app.use('/graphql', express.json({ limit: '50mb' }));
   app.use('/graphql', express.text({ type: 'application/graphql' }));
+  app.use('/graphql', perfMetricMiddleware);
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
@@ -205,13 +238,18 @@ export function startWebserver() {
     }
     
     const currentUser = await getUserFromReq(req)
-    if (!currentUser || !getUserEmail(currentUser)){
-      res.status(403).send("Not logged in or current user has no email address")
+    if (!currentUser) {
+      res.status(403).send("Not logged in")
+      return
+    }
+
+    const userEmail = getUserEmail(currentUser)
+    if (!userEmail) {
+      res.status(403).send("User does not have email")
       return
     }
     
-    const eagApp = await getEAGApplicationData(currentUser.email)
-    res.send(eagApp)
+    const eagApp = await getEAGApplicationData(userEmail)
   })
 
   addCrosspostRoutes(app);
@@ -287,7 +325,15 @@ export function startWebserver() {
       response.write(prefetchPrefix);
     }
     
-    const renderResult = await renderWithCache(request, response, user);
+    const renderResult = performanceMetricLoggingEnabled.get()
+      ? await asyncLocalStorage.run({}, () => renderWithCache(request, response, user))
+      : await renderWithCache(request, response, user);
+    
+    if (renderResult.aborted) {
+      response.status(499);
+      response.end();
+      return;
+    }
     
     const {
       ssrBody,

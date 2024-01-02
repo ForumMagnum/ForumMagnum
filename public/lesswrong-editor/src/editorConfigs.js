@@ -109,6 +109,20 @@ const embedConfig = {
 				`
 			}
 		},
+		{
+			name: 'Calendly',
+			url: /^calendly\.com\/[\w-]+(\/[\w-]+)?\/?$/,
+			html: ([match]) => {
+				return `
+					<div class="calendly-preview">
+						<iframe
+							sandbox="allow-scripts allow-same-origin allow-forms"
+							src="https://${match}"
+						/>
+					</div>
+				`
+			}
+		}
 	]
 }
 

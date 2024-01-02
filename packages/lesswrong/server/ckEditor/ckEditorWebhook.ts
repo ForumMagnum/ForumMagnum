@@ -3,6 +3,15 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { addStaticRoute } from '../vulcan-lib/staticRoutes';
 import { ckEditorApi, ckEditorApiHelpers, documentHelpers } from './ckEditorApi';
+import { createAdminContext, createMutator } from '../vulcan-lib';
+import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
+import { ckEditorUserSessionsEnabled } from '../../lib/betas';
+
+interface CkEditorUserConnectionChange {
+  user: { id: string },
+  document: { id: string },
+  connected_users: Array<{ id: string }>,
+}
 
 addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
   if (req.method !== "POST") {
@@ -99,20 +108,53 @@ async function handleCkEditorWebhook(message: any) {
     case "comment.removed":
     case "commentthread.removed":
     case "commentthread.restored":
-    case "document.user.connected":
-      break;
-    case "document.user.disconnected": {
-      interface CkEditorUserDisconnected {
-        user: { id: string },
-        document: { id: string },
-        connected_users: Array<{ id: string }>,
+      break
+    case "collaboration.user.connected": {
+      if (ckEditorUserSessionsEnabled) {
+        const userConnectedPayload = payload as CkEditorUserConnectionChange;
+        const userId = userConnectedPayload?.user?.id;
+        const ckEditorDocumentId = userConnectedPayload?.document?.id;
+        const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
+        if (!!userId && !!documentId) {
+          const adminContext = await createAdminContext()
+          await createMutator({
+            collection: CkEditorUserSessions,
+            document: {
+              userId,
+              documentId,
+            },
+            context: adminContext,
+            currentUser: adminContext.currentUser,
+          })
+        }
       }
-      const userDisconnectedPayload = payload as CkEditorUserDisconnected;
+      break
+    }
+    case "document.user.connected":
+      break
+    case "collaboration.user.disconnected": {
+      if (ckEditorUserSessionsEnabled) {
+        const userDisconnectedPayload = payload as CkEditorUserConnectionChange;
+        const userId = userDisconnectedPayload?.user?.id;
+        const ckEditorDocumentId = userDisconnectedPayload?.document?.id;
+        if (!!userId && !!ckEditorDocumentId) {
+          const documentId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId)
+          const userSession = await CkEditorUserSessions.findOne({userId, documentId, endedAt: {$exists: false}}, {sort:{createdAt: -1}});
+          if (!!userSession) {
+            await documentHelpers.endCkEditorUserSession(userSession._id, "ckEditorWebhook", new Date(sent_at))
+          }
+        }
+      }
+      break
+    }
+    case "document.user.disconnected": {
+      const userDisconnectedPayload = payload as CkEditorUserConnectionChange;
       const userId = userDisconnectedPayload?.user?.id;
       const ckEditorDocumentId = userDisconnectedPayload?.document?.id;
       const documentContents = await ckEditorApiHelpers.fetchCkEditorCloudStorageDocumentHtml(ckEditorDocumentId);
       const postId = documentHelpers.ckEditorDocumentIdToPostId(ckEditorDocumentId);
       await documentHelpers.saveDocumentRevision(userId, postId, documentContents);
+
       break;
     }
     case "document.removed":

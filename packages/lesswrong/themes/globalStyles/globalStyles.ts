@@ -7,7 +7,7 @@ export const commentsNodeRootMarginBottom = 17
 
 const clearStyle = (theme: ThemeType): JssStyles => ({
   html: {
-    fontSize: 13,
+    fontSize: theme.baseFontSize,
     boxSizing: "border-box",
     "-webkit-font-smoothing": "antialiased",
     "-moz-osx-font-smoothing": "grayscale",
@@ -267,6 +267,7 @@ const dialogueStyle = (theme: ThemeType): JssStyles => ({
     ...(isFriendlyUI
       ? {
         right: 12,
+        bottom: 5,
         color: theme.palette.grey[1000],
         backgroundColor: theme.palette.grey[250],
         "&:hover": {

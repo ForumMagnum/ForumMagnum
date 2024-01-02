@@ -64,7 +64,7 @@ export const createPaginatedResolver = <
   let cached: ReturnType[] = [];
 
   // Try to get the collection for later permission checking if we're passed in a GraphQL type which would allow that
-  let collection: CollectionBase<any, CollectionNameString> | undefined;
+  let collection: CollectionBase<CollectionNameString> | undefined;
   try {
     collection = getCollectionByTypeName(graphQLType);
   } catch (err) {
@@ -80,7 +80,7 @@ export const createPaginatedResolver = <
         context: ResolverContext,
       ): Promise<{results: ReturnType[]}> => {
         const accessFilterFunction = collection
-          ? (records: (ReturnType & DbObject)[]) => accessFilterMultiple<ReturnType & DbObject>(context.currentUser, collection!, records, context)
+          ? (records: (ReturnType & DbObject)[]) => accessFilterMultiple(context.currentUser, collection!, records as AnyBecauseHard[], context)
           : undefined;
 
         const limit = args.limit;
@@ -90,13 +90,13 @@ export const createPaginatedResolver = <
           cached.length >= limit
         ) {
           const filteredResults = await accessFilterFunction?.(cached as (ReturnType & DbObject)[]) ?? cached;
-          return {results: filteredResults.slice(0, limit)};
+          return {results: filteredResults.slice(0, limit) as ReturnType[]};
         }
         const results = await callback(context, limit, args);
         cachedAt = Date.now();
         cached = results;
         const filteredResults = await accessFilterFunction?.(results as (ReturnType & DbObject)[]) ?? results;
-        return {results: filteredResults};
+        return {results: filteredResults as ReturnType[]};
       },
     },
   });

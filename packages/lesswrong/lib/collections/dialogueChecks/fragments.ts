@@ -8,6 +8,7 @@ registerFragment(`
     checked
     checkedAt
     match
+    hideInRecommendations
     matchPreference {
       ...DialogueMatchPreferencesDefaultFragment
     }

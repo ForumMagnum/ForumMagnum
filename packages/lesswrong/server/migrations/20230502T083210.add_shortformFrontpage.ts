@@ -37,9 +37,9 @@ import Comments from "../../lib/collections/comments/collection"
 import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (Comments.isPostgres()) await addField(db, Comments, 'shortformFrontpage')
+  await addField(db, Comments, 'shortformFrontpage')
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Comments.isPostgres()) await dropField(db, Comments, 'shortformFrontpage')
+  await dropField(db, Comments, 'shortformFrontpage')
 }
