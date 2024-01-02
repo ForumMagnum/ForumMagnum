@@ -1606,7 +1606,7 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
               to get ready for 2024
             </p>
           </div>
-          <CloudinaryImage2 publicId="2023_wrapped" wrapperClassName={classes.loginImgWrapper} className={classes.img} />
+          <CloudinaryImage2 publicId="2023_wrapped" width={400} wrapperClassName={classes.loginImgWrapper} className={classes.img} />
         </section>
       </main>
     </AnalyticsContext>
