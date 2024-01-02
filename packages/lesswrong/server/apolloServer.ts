@@ -140,7 +140,7 @@ export function startWebserver() {
   
   if (isDatadogEnabledOnSite()) {
     const tracer = require('./datadog/tracer');
-    const datadogMiddleware = require('./datadog/datadogMiddleware');
+    const { datadogMiddleware } = require('./datadog/datadogMiddleware');
     app.use(datadogMiddleware(tracer));
   }
   app.use(pickerMiddleware);
