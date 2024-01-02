@@ -327,16 +327,14 @@ describe('Voting', function() {
         endDate: new Date(Date.now() + 10000),
       });
 
-      // TODO: This is 2 because it doesn't exclude the automatic vote from the
-      // post's main author - maybe this is a bug?
-      (karmaChanges.totalChange as any).should.equal(2);
+      (karmaChanges.totalChange as any).should.equal(1);
       karmaChanges.posts.length.should.equal(1);
       karmaChanges.posts[0].should.deep.equal({
         _id: post._id,
         // NB: See above
         collectionName: "Posts",
         addedReacts: [],
-        scoreChange: 2,
+        scoreChange: 1,
         title: post.title,
         slug: slugify(post.title),
       });
