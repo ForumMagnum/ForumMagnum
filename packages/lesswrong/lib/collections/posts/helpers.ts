@@ -108,13 +108,16 @@ export const getSocialPreviewImage = (post: DbPost): string => {
   return autoUrl || ''
 }
 
-// TODO: Fix this logic that was broken by merging master
-export const getSocialPreviewSql = (tablePrefix: string) => `
-  JSON_BUILD_OBJECT('imageUrl', COALESCE(
-    '${getSocialImagePreviewPrefix()}' || (${tablePrefix}."socialPreview"->>'imageId'),
-    ${tablePrefix}."socialPreviewImageAutoUrl"
-  ))
-`;
+export const getSocialPreviewSql = (tablePrefix: string) => `JSON_BUILD_OBJECT(
+  'imageUrl',
+  CASE
+    WHEN ${tablePrefix}."isEvent" AND ${tablePrefix}."eventImageId" IS NOT NULL
+      THEN '${getSocialImagePreviewPrefix()}' || ${tablePrefix}."eventImageId"
+    WHEN ${tablePrefix}."socialPreview"->>'imageId' IS NOT NULL
+      THEN '${getSocialImagePreviewPrefix()}' || (${tablePrefix}."socialPreview"->>'imageId')
+    ELSE COALESCE(${tablePrefix}."socialPreviewImageAutoUrl", '')
+  END
+)`;
 
 // The set of fields required for calling postGetPageUrl. Could be supplied by
 // either a fragment or a DbPost.
