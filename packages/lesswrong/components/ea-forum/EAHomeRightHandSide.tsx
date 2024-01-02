@@ -277,7 +277,7 @@ const WrappedAd = ({classes}: {
       <Link to="/wrapped" className={classes.wrappedAd}>
         <div className={classes.wrappedAdHeadingRow}>
           <h2 className={classes.wrappedAdHeading}>Your 2023 Wrapped</h2>
-          <CloudinaryImage2 publicId="2023_wrapped" width={50} className={classes.wrappedAdImg} />
+          <CloudinaryImage2 publicId="2023_wrapped" imgProps={{w: '100'}} className={classes.wrappedAdImg} />
         </div>
       </Link>
     </div>
