@@ -401,13 +401,13 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         message: null,
       },
       {
-        voteCount: 3,
+        voteCount: 5,
         periodInMinutes: null,
         allOnSamePost: true,
         types: "onlyStrong",
         users: "allUsers",
         consequences: ["denyThisVote"],
-        message: "You can only strong-vote on up to three comments per post",
+        message: "You can only strong-vote on up to five comments per post",
       },
     ];
   }
