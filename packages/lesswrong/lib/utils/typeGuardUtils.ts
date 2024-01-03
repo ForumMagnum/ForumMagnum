@@ -77,3 +77,5 @@ export function filterWhereFieldsNotNull<T, K extends keyof T>(arr: T[], ...fiel
   return arr.filter(areFieldsNotNullCurry(...fields));
 }
 
+export const isNotNullOrUndefined = <T>(value: T | null | undefined): value is T =>
+  value !== null && value !== undefined
