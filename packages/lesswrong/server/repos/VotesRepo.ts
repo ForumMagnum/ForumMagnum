@@ -501,7 +501,28 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     );
     return results.map(({ vote_id }) => vote_id);
   }
-
+  
+  async getVotesOnSamePost({userId, postId, excludedDocumentId}: {
+    userId: string,
+    postId: string,
+    excludedDocumentId: string,
+  }): Promise<DbVote[]> {
+    return await this.manyOrNone(`
+      SELECT
+        v.*
+      FROM
+        "Votes" v
+      INNER JOIN "Comments" c ON (
+        c._id = v."documentId"
+        AND c."postId" = $2
+      )
+      WHERE
+        v."cancelled" IS FALSE
+        AND v."userId" = $1
+        AND v."documentId" != $3
+        AND v."collectionName" = 'Comments'
+    `, [userId, postId, excludedDocumentId]);
+  }
 }
 
 recordPerfMetrics(VotesRepo);

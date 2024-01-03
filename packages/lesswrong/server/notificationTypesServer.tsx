@@ -462,7 +462,7 @@ export const WrappedNotification = serverRegisterNotificationType({
       </p>
       <p>
         Thanks for being part of our community this year!{' '}
-        <a href={`${combineUrls(getSiteUrl(), 'wrapped')}`}>
+        <a href={`${combineUrls(getSiteUrl(), 'wrapped')}?utm_medium=email`}>
           Check out your EA Forum 2023 Wrapped.
         </a>{' '}
         🎁

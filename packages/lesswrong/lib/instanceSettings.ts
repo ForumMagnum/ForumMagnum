@@ -190,6 +190,11 @@ export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEma
 
 export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");
 
+export const hasSideCommentsSetting = new PublicInstanceSetting<boolean>("comments.sideCommentsEnabled", isLWorAF, "optional");
+export const hasCommentsTableOfContentSetting = new PublicInstanceSetting<boolean>("comments.tableOfContentsEnabled", isLWorAF, "optional");
+export const hasDialoguesSetting = new PublicInstanceSetting<boolean>("dialogues.enabled", true, "optional");
+export const hasPostInlineReactionsSetting = new PublicInstanceSetting<boolean>("posts.inlineReactionsEnabled", isLWorAF, "optional");
+
 /** Whether datadog is enabled for this forum (not necessarily for the current user */
 export function isDatadogEnabledOnSite() {
   return forumTypeSetting.get() === 'EAForum';

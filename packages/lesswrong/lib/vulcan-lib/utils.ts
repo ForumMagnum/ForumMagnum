@@ -287,7 +287,7 @@ export const sanitizeAllowedTags = [
   'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
-  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe',
+  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe', 'audio',
   
   //MathML elements (https://developer.mozilla.org/en-US/docs/Web/MathML/Element)
   "math", "mi", "mn", "mo", "ms", "mspace", "mtext", "merror",
@@ -321,6 +321,7 @@ export const sanitize = function(s: string): string {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
+      audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],
       table: ['style'],
