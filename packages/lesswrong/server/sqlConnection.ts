@@ -168,7 +168,7 @@ const logIfSlow = async <T>(
   const milliseconds = endTime - startTime;
   if (logAllQueries) {
     // eslint-disable-next-line no-console
-    console.log(`Finished query #${queryID} (${milliseconds} ms)`);
+    console.log(`Finished query #${queryID} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
   } else if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
     // eslint-disable-next-line no-console
     console.trace(`Slow Postgres query detected (${milliseconds} ms): ${getDescription()}`);

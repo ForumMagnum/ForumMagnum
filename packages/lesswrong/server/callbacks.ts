@@ -22,6 +22,7 @@ import { syncDocumentWithLatestRevision } from './editor/utils';
 import { createAdminContext } from './vulcan-lib/query';
 import ReadStatusesRepo from './repos/ReadStatusesRepo';
 import Sequences from '../lib/collections/sequences/collection';
+import { UsersRepo } from './repos';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -346,7 +347,7 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
   }
 
   // Remove login tokens
-  await Users.rawUpdateOne({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
+  await new UsersRepo().clearLoginTokens(user._id);
 }
 
 

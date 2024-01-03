@@ -108,6 +108,8 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   // twitter:card meta tag (see also: HeadTags.tsx, Head.tsx).
   const isSlackBot = userAgent && userAgent.startsWith("Slackbot-LinkExpanding");
   
+  const userDescription = user?.username ?? `logged out ${ip} (${userAgent})`;
+  
   if ((!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) || isSlackBot) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
@@ -139,6 +141,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     }
 
     if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+      // Capture an analytics event at the conclusion of the render
       Vulcan.captureEvent("ssr", {
         ...ssrEventParams,
         userId: user?._id,
@@ -150,7 +153,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     }
 
     // eslint-disable-next-line no-console
-    console.log(`Rendered ${url} for ${user?.username ?? `logged out ${ip}`}: ${printTimings(rendered.timings)}`);
+    console.log(`Finished SSR of ${url} for ${userDescription} (${formatTimings(rendered.timings)}, tab ${tabId})`);
     
     return {
       ...rendered,
@@ -180,10 +183,10 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
 
     if (rendered.cached) {
       // eslint-disable-next-line no-console
-      console.log(`Served ${url} from cache for logged out ${ip} (${userAgent})`);
+      console.log(`Served ${url} from cache for ${userDescription}`);
     } else {
       // eslint-disable-next-line no-console
-      console.log(`Rendered ${url} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
+      console.log(`Finished SSR of ${url} for ${userDescription}: (${formatTimings(rendered.timings)}, tab ${tabId})`);
     }
 
     if (performanceMetricLoggingEnabled.get()) {
@@ -446,6 +449,6 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   };
 }
 
-const printTimings = (timings: RenderTimings): string => {
-  return `${timings.totalTime}ms (prerender: ${timings.prerenderTime}ms, render: ${timings.renderTime}ms)`;
+const formatTimings = (timings: RenderTimings): string => {
+  return `${timings.totalTime}ms`;
 }

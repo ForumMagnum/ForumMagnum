@@ -132,7 +132,6 @@ Some relevant pieces of documentation that will help you understand aspects of t
 3. GraphQL: [tutorial](https://graphql.org/learn/)
 4. Apollo: [introduction](https://www.apollographql.com/docs/react/) and [hooks API reference](https://www.apollographql.com/docs/react/api/react/hooks/)
 5. Lodash: [reference](https://lodash.com/docs/4.17.15)
-6. MongoDB: [manual](https://docs.mongodb.com/manual/introduction/)
 
 You can also see auto-generated documentation of our GraphQL API endpoints and try out queries using [GraphiQL](https://www.lesswrong.com/graphiql) on our server or on a development server.
 
@@ -215,7 +214,7 @@ run multiple times should instead be implemented as a server script.
 * View pending migrations with `yarn migrate pending [dev|staging|prod]`
 * View executed migrations with `yarn migrate executed [dev|staging|prod]`
 
-Instead of using \[dev|staging|prod\] above, you can also manually pass in a postgres connection string through a `PG_URL` environement variable. Use that option if you are not using the \[EA\] ForumCredentials repo.
+Instead of using \[dev|staging|prod\] above, you can also manually pass in a postgres connection string through a `PG_URL` environment variable. Use that option if you are not using the \[EA\] ForumCredentials repo.
 
 ### Schema changing migrations
 
@@ -237,12 +236,6 @@ For these the development process will be like this:
   * delete your old migration file (and reference to it in `schema_changelog.json` if it's still there)
   * run `yarn acceptmigrations`
   * finish merge/rebase
-
-### Migrating both Mongo and Postgres
-* Currently, you need to create a migration for both Mongo and Postgres separately. 
-* You do the Postgres migration via the `yarn makemigrations` process described above.
-* You make Mongo migration by imitating the previous examples in `packages/lesswrong/server/manualMigrations`
-* See https://github.com/ForumMagnum/ForumMagnum/pull/6458 for an example of a migration that does both.
 
 ## Testing
 
@@ -273,7 +266,7 @@ merged into `ea-deploy` and `lw-deploy`.
 
 ### \[CEA-Specific] Local Dev Database
 
-The local development database is actually hosted on MongoDB cloud like staging
+The local development database is actually hosted in the cloud like staging
 and production. There's no reason to host your own database. It's also shared
 with other developers, which means if someone adds a feature which requires
 manual database work, there's no need for you to also do that manual work.
