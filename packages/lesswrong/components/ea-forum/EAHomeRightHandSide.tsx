@@ -78,10 +78,10 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
     padding: '12px 24px',
     borderRadius: theme.borderRadius.default,
+    transition: `box-shadow .3s`,
     '&:hover': {
       opacity: 1,
-      backgroundColor: `color-mix(in oklab, ${theme.palette.wrapped.background} 85%, ${theme.palette.text.alwaysBlack})`,
-      color: `color-mix(in oklab, ${theme.palette.text.alwaysWhite} 90%, ${theme.palette.text.alwaysBlack})`,
+      boxShadow: `0 0 11px ${theme.palette.icon.dim5}`
     }
   },
   wrappedAdHeadingRow: {
