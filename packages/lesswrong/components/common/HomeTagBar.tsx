@@ -139,16 +139,16 @@ export type TopicsBarTab = {
   slug?: string
 }
 
-export const frontpageTab = {_id: '0', name: 'Frontpage'}
-
 const HomeTagBar = (
   {
     classes,
     onTagSelectionUpdated,
+    frontpageTab,
     sortTopics = (topics: Array<TopicsBarTab>) => topics,
   }: {
     classes: ClassesType,
     onTagSelectionUpdated: (tab: TopicsBarTab) => void,
+    frontpageTab: TopicsBarTab,
     sortTopics?: (topics: Array<TopicsBarTab>) => Array<TopicsBarTab>,
   },
 ) => {

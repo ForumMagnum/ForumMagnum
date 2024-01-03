@@ -4,8 +4,10 @@ import {AnalyticsContext} from '../../lib/analyticsEvents'
 import {tagPostTerms} from '../tagging/TagPage'
 import {useMulti} from '../../lib/crud/withMulti'
 import {Link} from '../../lib/reactRouterWrapper'
-import {frontpageTab, TopicsBarTab} from '../common/HomeTagBar'
+import {TopicsBarTab} from '../common/HomeTagBar'
 import {isNotNullOrUndefined} from '../../lib/utils/typeGuardUtils'
+
+const FRONTPAGE_TAB_NAME = 'Frontpage'
 
 const styles = (theme: ThemeType): JssStyles => ({
   spotlightMargin: {
@@ -48,6 +50,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   FrontpageNode: ComponentType,
   classes: ClassesType
 }) => {
+  const frontpageTab = {_id: '0', name: FRONTPAGE_TAB_NAME}
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   const activeCoreTopic = activeTab._id === frontpageTab._id ? null : activeTab as TagDetailsFragment
   
@@ -73,9 +76,9 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
 
   return (
     <>
-      <HomeTagBar onTagSelectionUpdated={setActiveTab} sortTopics={sortTopics}/>
+      <HomeTagBar onTagSelectionUpdated={setActiveTab} sortTopics={sortTopics} frontpageTab={frontpageTab}/>
 
-      {activeTab.name === 'Frontpage' ? <FrontpageNode/> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
+      {activeTab.name === FRONTPAGE_TAB_NAME ? <FrontpageNode/> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
         <SingleColumnSection>
           {spotlight && <DismissibleSpotlightItem
             spotlight={spotlight}
