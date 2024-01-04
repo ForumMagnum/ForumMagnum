@@ -23,6 +23,7 @@ export const SpotlightsPage = ({classes}: {
   const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents, FormatDate } = Components;
 
   const currentUser = useCurrentUser();
+  const now = useCurrentTime();
 
   const { results: spotlights = [], loading, refetch } = useMulti({
     collectionName: 'Spotlights',
@@ -83,7 +84,6 @@ export const SpotlightsPage = ({classes}: {
     headingsCount: 2
   }
   
-  const now = useCurrentTime();
   const currentSpotlightAgeMs = currentSpotlight
     ? (now.valueOf() - new Date(currentSpotlight.lastPromotedAt).valueOf())
     : 0;
