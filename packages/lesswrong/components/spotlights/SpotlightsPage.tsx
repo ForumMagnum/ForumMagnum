@@ -1,5 +1,7 @@
+import moment from 'moment';
 import React, { useMemo } from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
+import { useCurrentTime } from '../../lib/utils/timeUtil';
 import { Components, getFragment, registerComponent } from '../../lib/vulcan-lib';
 import { userCanDo } from '../../lib/vulcan-users';
 import { useCurrentUser } from '../common/withUser';
@@ -13,10 +15,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
+const MS_IN_DAY = 1000 * 60 * 60 * 24;
+
 export const SpotlightsPage = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents } = Components;
+  const { Loading, SectionTitle, SingleColumnSection, SpotlightItem, WrappedSmartForm, ErrorAccessDenied, SpotlightEditorStyles, ToCColumn, TableOfContents, FormatDate } = Components;
 
   const currentUser = useCurrentUser();
 
@@ -39,7 +43,7 @@ export const SpotlightsPage = ({classes}: {
     return [currentSpotlight, ...upcomingSpotlights, ...recycledSpotlights];
   }, [spotlights]);
 
-  const upcomingSpotlights = spotlightsInDisplayOrder.filter(spotlight => !spotlight.draft)
+  const [currentSpotlight, ...upcomingSpotlights] = spotlightsInDisplayOrder.filter(spotlight => !spotlight.draft)
   const draftSpotlights = spotlightsInDisplayOrder.filter(spotlight => spotlight.draft)
 
   if (!userCanDo(currentUser, 'spotlights.edit.all')) {
@@ -78,6 +82,14 @@ export const SpotlightsPage = ({classes}: {
     ],
     headingsCount: 2
   }
+  
+  const now = useCurrentTime();
+  const currentSpotlightAgeMs = currentSpotlight
+    ? (now.valueOf() - new Date(currentSpotlight.lastPromotedAt).valueOf())
+    : 0;
+  const currentSpotlightDurationMs = currentSpotlight?.duration * MS_IN_DAY;
+  const currentSpotlightTimeLeftMs = Math.max(0, currentSpotlightDurationMs - currentSpotlightAgeMs);
+  const nextSpotlightRotationDate = new Date(now.valueOf() + currentSpotlightTimeLeftMs);
 
   return <ToCColumn tableOfContents={<TableOfContents
     sectionData={sectionData}
@@ -93,11 +105,22 @@ export const SpotlightsPage = ({classes}: {
           />
         </SpotlightEditorStyles>
       </div>
+
       {loading && <Loading/>}
+
+      {currentSpotlight && <SectionTitle title="Current Spotlight">
+        <div>Until: <FormatDate date={nextSpotlightRotationDate}/></div>
+      </SectionTitle>}
+      {currentSpotlight && <SpotlightItem key={`spotlightpage${currentSpotlight._id}`} spotlight={currentSpotlight} refetchAllSpotlights={refetch} showAdminInfo/>}
+
       <SectionTitle title="Upcoming Spotlights">
         <div>Total: {totalUpcomingDuration} days</div>
       </SectionTitle>
       {upcomingSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
+      {!loading && !upcomingSpotlights.length && <div>
+        No spotlight items are scheduled.
+      </div>}
+
       <SectionTitle title="Draft Spotlights">
         <div>Total: {totalDraftDuration} days</div>
       </SectionTitle>
