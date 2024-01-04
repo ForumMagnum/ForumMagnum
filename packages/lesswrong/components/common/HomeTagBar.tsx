@@ -147,11 +147,13 @@ const HomeTagBar = (
     onTagSelectionUpdated,
     frontpageTab,
     sortTopics = (topics: Array<TopicsBarTab>) => topics,
+    showDescriptionOnHover = false,
   }: {
     classes: ClassesType,
     onTagSelectionUpdated: (tab: TopicsBarTab) => void,
     frontpageTab: TopicsBarTab,
     sortTopics?: (topics: Array<TopicsBarTab>) => Array<TopicsBarTab>,
+    showDescriptionOnHover?: boolean,
   },
 ) => {
   // we use the widths of the tabs window and the underlying topics bar
@@ -289,7 +291,7 @@ const HomeTagBar = (
                 <div ref={topicsBarRef} className={classes.topicsBar}>
                   {allTabs.map(tab => {
                     const tabName = tab.shortName || tab.name
-                    return <LWTooltip title={tab.description?.plaintextDescription} key={tabName}>
+                    return <LWTooltip title={showDescriptionOnHover ? tab.description?.plaintextDescription : null} key={tabName}>
                       <button
                         onClick={() => handleTabClick(tab)}
                         className={classNames(classes.tab, {
