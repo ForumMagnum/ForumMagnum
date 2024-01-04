@@ -7,7 +7,6 @@ import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '..
 const Reports: ReportsCollection = createCollection({
   collectionName: 'Reports',
   typeName: 'Report',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Reports'),
   mutations: getDefaultMutations('Reports'),

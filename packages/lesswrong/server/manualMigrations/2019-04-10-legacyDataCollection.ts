@@ -12,7 +12,7 @@ registerMigration({
   action: async () => {
     for(let collection of [Comments, Posts, Users])
     {
-      await migrateDocuments<DbObject>({
+      await migrateDocuments({
         description: "Move legacyData to legacyData collection",
         collection: collection,
         batchSize: 100,

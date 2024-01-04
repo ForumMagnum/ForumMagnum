@@ -3,7 +3,7 @@ import AbstractRepo from "./AbstractRepo";
 
 export type UpsertSessionData = Pick<DbSession, "_id" | "session" | "expires" | "lastModified">
 
-export default class SessionsRepo extends AbstractRepo<DbSession> {
+export default class SessionsRepo extends AbstractRepo<"Sessions"> {
   constructor() {
     super(Sessions);
   }

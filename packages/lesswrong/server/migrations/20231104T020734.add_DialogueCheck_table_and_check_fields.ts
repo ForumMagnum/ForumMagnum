@@ -46,23 +46,13 @@ import DialogueCheck from "../../lib/collections/dialogueChecks/collection";
 // This was originally 3 migrations from our PR, but after catching up with master, we're combining them into one
 
 export const up = async ({db}: MigrationContext) => {
-  if (DialogueCheck.isPostgres()) {
-    await createTable(db, DialogueCheck);
-  }
-
-  if (Users.isPostgres()) {
-    await addField(db, Users, "optedInToDialogueFacilitation");
-    await addField(db, Users, "revealChecksToAdmins");
-   }
+  await createTable(db, DialogueCheck);
+  await addField(db, Users, "optedInToDialogueFacilitation");
+  await addField(db, Users, "revealChecksToAdmins");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (DialogueCheck.isPostgres()) {
-    await dropTable(db, DialogueCheck);
-  }
-
-  if (Users.isPostgres()) {
-    await dropField(db, Users, "optedInToDialogueFacilitation");
-    await dropField(db, Users, "revealChecksToAdmins");
-  }
+  await dropTable(db, DialogueCheck);
+  await dropField(db, Users, "optedInToDialogueFacilitation");
+  await dropField(db, Users, "revealChecksToAdmins");
 }

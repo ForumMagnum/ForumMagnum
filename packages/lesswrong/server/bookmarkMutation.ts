@@ -7,7 +7,7 @@ import * as _ from 'underscore';
 addGraphQLMutation('setIsBookmarked(postId: String!, isBookmarked: Boolean!): User!');
 addGraphQLResolvers({
   Mutation: {
-    async setIsBookmarked(root: void, {postId,isBookmarked}: {postId: string, isBookmarked: boolean}, context: ResolverContext): Promise<DbUser> {
+    async setIsBookmarked(root: void, {postId,isBookmarked}: {postId: string, isBookmarked: boolean}, context: ResolverContext): Promise<Partial<DbUser>> {
       const {currentUser} = context;
       if (!currentUser)
         throw new Error("Log in to use bookmarks");
@@ -32,4 +32,3 @@ addGraphQLResolvers({
     }
   }
 });
-

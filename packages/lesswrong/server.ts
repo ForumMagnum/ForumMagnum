@@ -29,8 +29,6 @@ import './server/ckEditor/ckEditorCallbacks';
 // Scripts
 import './server/scripts/sscImport';
 import './server/scripts/hpmorImport';
-import './server/scripts/algoliaExport';
-import './server/scripts/algoliaConfigureIndexes';
 import './server/scripts/backfillParentTags';
 import './server/scripts/brokenLinksReport';
 import './server/scripts/bestOfLessWrongTagUpdate';
@@ -48,13 +46,13 @@ import './server/scripts/rerunAFvotes';
 import './server/scripts/nullifyVotes';
 import './server/scripts/fixSSCDrafts';
 import './server/scripts/fillUserEmail';
-import './server/scripts/migrateCollections';
 import './server/scripts/deletePgIndexes';
 import './server/scripts/dropTestingDatabases';
 import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
 import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendWrappedNotifications';
+import './server/scripts/triggerWrappedRefresh';
 import './server/scripts/removeRsvp';
 import './server/scripts/regenerateUnicodeSlugs';
 import './server/scripts/checkPostForSockpuppetVoting';
@@ -115,6 +113,7 @@ import './server/recommendations/UniquePostUpvoters';
 import './server/emails/emailTokens';
 import './server/partiallyReadSequences';
 import './server/eventReminders';
+import './server/prunePerfMetricsCron';
 
 import './server/gatherTownCron';
 
@@ -178,6 +177,7 @@ import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/electionCandidateResolvers';
 import './server/resolvers/electionVoteResolvers';
+import './server/resolvers/givingSeasonResolvers';
 
 
 import './server/intercomSetup';
@@ -200,11 +200,7 @@ import './server/styleGeneration';
 
 import './server/embeddings';
 
-// Algolia Search Integration
-import './server/search/utils';
-import './server/search/callbacks';
-import './server/search/algoliaCron';
-
+// Elasticsearch integration
 import './server/search/elastic/ElasticExporter';
 import './server/search/elastic/elasticCallbacks';
 import './server/search/elastic/elasticGraphQL';

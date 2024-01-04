@@ -41,13 +41,9 @@ import DialogueChecks from "../../lib/collections/dialogueChecks/collection"
 import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (DialogueChecks.isPostgres()) {
-    await addField(db, DialogueChecks, "hideInRecommendations")
-  }
+  await addField(db, DialogueChecks, "hideInRecommendations")
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (DialogueChecks.isPostgres()) {
-    await dropField(db, DialogueChecks, "hideInRecommendations")
-  }
+  await dropField(db, DialogueChecks, "hideInRecommendations")
 }

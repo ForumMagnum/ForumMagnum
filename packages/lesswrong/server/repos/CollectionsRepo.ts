@@ -2,8 +2,9 @@ import AbstractRepo from "./AbstractRepo";
 import Collections from "../../lib/collections/collections/collection";
 import keyBy from "lodash/keyBy";
 import { getViewablePostsSelector } from "./helpers";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
-export default class CollectionsRepo extends AbstractRepo<DbCollection> {
+class CollectionsRepo extends AbstractRepo<"Collections"> {
   constructor() {
     super(Collections);
   }
@@ -70,3 +71,7 @@ export default class CollectionsRepo extends AbstractRepo<DbCollection> {
     });
   }
 }
+
+recordPerfMetrics(CollectionsRepo);
+
+export default CollectionsRepo;

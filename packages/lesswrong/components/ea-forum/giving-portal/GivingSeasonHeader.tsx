@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, MouseEvent, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useIsAboveBreakpoint } from "../../hooks/useScreenWidth";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -11,14 +11,16 @@ import {
 } from "../../common/Header";
 import { CloudinaryPropsType, makeCloudinaryImageUrl } from "../../common/CloudinaryImage2";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { eaGivingSeason23ElectionName, headerImageId, heroImageId, userCanVoteInDonationElection, votingHeaderImageId } from "../../../lib/eaGivingSeason";
+import { GivingSeasonHeart, eaGivingSeason23ElectionName, headerImageId, heroImageId, votingHeaderImageId } from "../../../lib/eaGivingSeason";
 import { isEAForum } from "../../../lib/instanceSettings";
 import Toolbar from "@material-ui/core/Toolbar";
 import Headroom from "../../../lib/react-headroom";
 import classNames from "classnames";
 import { useLocation } from "../../../lib/routeUtil";
 import { useElectionVote } from "../voting-portal/hooks";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { useCurrentUser } from "../../common/withUser";
+import NoSSR from "react-no-ssr";
 
 export const EA_FORUM_GIVING_SEASON_HEADER_HEIGHT = 213;
 const BACKGROUND_ASPECT = 3160 / 800;
@@ -82,18 +84,23 @@ export const givingSeasonGradient = (
 const styles = (theme: ThemeType) => ({
   ...headerStyles(theme),
   rootGivingSeason: {
+    height: `${EA_FORUM_GIVING_SEASON_HEADER_HEIGHT}px !important`,
+    [theme.breakpoints.down("sm")]: {
+      height: `${HEADER_HEIGHT}px !important`,
+      marginBottom: 0,
+    },
     "& .headroom": {
       zIndex: theme.zIndexes.searchResults,
-      height: HEADER_HEIGHT,
+      height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
       overflow: "hidden",
+      [theme.breakpoints.down("sm")]: {
+        height: `${HEADER_HEIGHT}px !important`,
+      },
     },
   },
   rootScrolled: {
     "& $appBarGivingSeason": {
       boxShadow: `inset 0 0 0 1000px ${theme.palette.givingPortal.homepageHeader.dark}`,
-    },
-    "& $givingSeasonGradient": {
-      display: "none",
     },
   },
   leftHeaderItems: {
@@ -101,16 +108,10 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   homePageBackground: {
-    ...givingSeasonImageBackground(theme, "top"),
-  },
-  homePageVotingBackground: {
-    ...givingSeasonImageBackground(theme, "top", true),
-  },
-  solidBackground: {
-    background: theme.palette.givingPortal.homepageHeader.dark,
+    background: theme.palette.givingPortal.homepageHeader.heartsBackground,
   },
   appBarGivingSeason: {
-    color: theme.palette.givingPortal.homepageHeader.light4,
+    color: theme.palette.givingPortal[1000],
     position: "static",
     width: "100%",
     height: EA_FORUM_GIVING_SEASON_HEADER_HEIGHT,
@@ -121,36 +122,17 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
     [theme.breakpoints.down("sm")]: {
       background: theme.palette.givingPortal.homepageHeader.dark,
+      height: `${HEADER_HEIGHT}px !important`,
+      color: theme.palette.givingPortal.homepageHeader.light2,
     },
     [theme.breakpoints.down("xs")]: {
       padding: "9px 11px",
     },
-    "& .HeaderSubtitle-subtitle": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
-    },
-    "& .SearchBar-searchIcon": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
-    },
-    "& .ais-SearchBox-input": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
-    },
-    "& .ais-SearchBox-input::placeholder": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
-    },
-    "& .KarmaChangeNotifier-starIcon": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
-    },
-    "& .KarmaChangeNotifier-gainedPoints": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
-    },
-    "& .NotificationsMenuButton-badge": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
-    },
-    "& .NotificationsMenuButton-buttonClosed": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
-    },
-    "& .UsersMenu-arrowIcon": {
-      color: theme.palette.givingPortal.homepageHeader.light4,
+    "& .HeaderSubtitle-subtitle, & .SearchBar-searchIcon, & .ais-SearchBox-input, & .ais-SearchBox-input::placeholder, & .KarmaChangeNotifier-starIcon, & .KarmaChangeNotifier-gainedPoints, & .NotificationsMenuButton-badge, & .NotificationsMenuButton-buttonClosed, & .UsersMenu-arrowIcon": {
+      color: theme.palette.givingPortal[1000],
+      [theme.breakpoints.down("sm")]: {
+        color: theme.palette.givingPortal.homepageHeader.light2,
+      },
     },
     "& .EAButton-variantContained": {
       backgroundColor: theme.palette.givingPortal.homepageHeader.light2,
@@ -160,7 +142,7 @@ const styles = (theme: ThemeType) => ({
       },
     },
     "& .EAButton-greyContained": {
-      backgroundColor: theme.palette.givingPortal.homepageHeader.secondary,
+      backgroundColor: theme.palette.givingPortal.homepageHeader.main,
       color: theme.palette.givingPortal.homepageHeader.light3,
       "&:hover": {
         backgroundColor: `${theme.palette.givingPortal.homepageHeader.secondaryDark} !important`,
@@ -168,19 +150,21 @@ const styles = (theme: ThemeType) => ({
     },
   },
   toolbarGivingSeason: {
-    zIndex: theme.zIndexes.spotlightItem,
     justifyContent: "space-between",
   },
   siteLogoGivingSeason: {
     width: 34,
     [theme.breakpoints.down("sm")]: {
       width: 30,
+      color: theme.palette.givingPortal.homepageHeader.light2,
     },
   },
   titleLinkGivingSeason: {
-    color: theme.palette.givingPortal.homepageHeader.light4,
+    color: theme.palette.givingPortal[1000],
+    [theme.breakpoints.down("sm")]: {
+      color: theme.palette.givingPortal.homepageHeader.light2,
+    },
   },
-  givingSeasonGradient: givingSeasonGradient(theme),
   navigationSteps: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.text.alwaysWhite,
@@ -204,7 +188,97 @@ const styles = (theme: ThemeType) => ({
   },
   disabledStepLink: {
     opacity: 0.7,
-  }
+  },
+  gsRightHeaderItems: {
+    position: "absolute",
+    right: 0,
+    top: 8,
+    zIndex: 4,
+    [theme.breakpoints.down("xs")]: {
+      top: 4,
+    }
+  },
+  gsContent: {
+    marginTop: -20,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 30,
+    fontWeight: 700,
+    lineHeight: "120%",
+    letterSpacing: "-0.76px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    gap: "6px",
+    height: "100%",
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  gsContentTitle: {
+    "& a": {
+      textDecoration: "underline",
+      "&:hover": {
+        textDecoration: "none",
+        opacity: 1,
+      },
+    },
+  },
+  gsContentSubtitle: {
+    marginTop: -5,
+    fontSize: 18,
+    fontWeight: 500,
+  },
+  gsButtons: {
+    display: "flex",
+    gap: "10px",
+    zIndex: 4,
+    marginTop: 6,
+    "& .EAButton-variantContained": {
+      background: theme.palette.text.alwaysWhite,
+      fontWeight: 600,
+      height: 36,
+    },
+  },
+  gsSecondaryButton: {
+    fontFeatureSettings: "\"calt\"",
+    backgroundColor: `${theme.palette.givingPortal.homepageHeader.secondaryButton} !important`,
+    color: `${theme.palette.givingPortal.homepageHeader.secondaryButtonText} !important`,
+    "&:hover": {
+      opacity: 0.8,
+    },
+  },
+  gsButtonIcon: {
+    marginRight: 4,
+    marginLeft: -4,
+    width: 20,
+    height: 20,
+  },
+  gsHearts: {
+    position: "relative",
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  gsHeart: {
+    position: "absolute",
+    zIndex: 3,
+    color: theme.palette.givingPortal[1000],
+    marginLeft: -12,
+    marginTop: -12,
+  },
+  gsHeartTooltip: {
+    backgroundColor: `${theme.palette.panelBackground.tooltipBackground2} !important`,
+  },
+  gsCanPlaceHeart: {
+    cursor: "none",
+  },
+  gsHeartCursor: {
+    pointerEvents: "none",
+    color: theme.palette.givingPortal.homepageHeader.secondary,
+  },
+  gsLoadingHeart: {
+    cursor: "wait !important",
+  },
 });
 
 const votingPortalSocialImageProps: CloudinaryPropsType = {
@@ -217,13 +291,107 @@ const votingPortalSocialImageProps: CloudinaryPropsType = {
   f: "auto",
 };
 
+const heartsQuery = gql`
+  query GivingSeasonHeartsQuery($electionName: String!) {
+    GivingSeasonHearts(electionName: $electionName) {
+      userId
+      displayName
+      x
+      y
+      theta
+    }
+  }
+`;
+
+const addHeartMutation = gql`
+  mutation AddGivingSeasonHeart(
+    $electionName: String!,
+    $x: Float!,
+    $y: Float!,
+    $theta: Float!
+  ) {
+    AddGivingSeasonHeart(
+      electionName: $electionName,
+      x: $x,
+      y: $y,
+      theta: $theta
+    ) {
+      userId
+      displayName
+      x
+      y
+      theta
+    }
+  }
+`;
+
+const removeHeartMutation = gql`
+  mutation RemoveGivingSeasonHeart($electionName: String!) {
+    RemoveGivingSeasonHeart(electionName: $electionName) {
+      userId
+      displayName
+      x
+      y
+      theta
+    }
+  }
+`;
+
+const isValidTarget = (e: EventTarget): e is HTMLDivElement =>
+  "tagName" in e && (e.tagName === "DIV" || e.tagName === "HEADER");
+
+const MAX_THETA = 25;
+
+const Heart: FC<{
+  heart: GivingSeasonHeart,
+  currentUser: UsersCurrent | null,
+  removeHeart: () => Promise<void>,
+  classes: ClassesType<typeof styles>,
+}> = ({
+  heart: {userId, displayName, x, y, theta},
+  currentUser,
+  removeHeart,
+  classes,
+}) => {
+  const isCurrentUser = userId === currentUser?._id;
+  const title = isCurrentUser
+    ? "You added a heart (click to remove)"
+    : `${displayName} added a heart`;
+  const onClick = useCallback(() => {
+    if (isCurrentUser) {
+      void removeHeart();
+    }
+  }, [isCurrentUser, removeHeart]);
+  const {LWTooltip, ForumIcon} = Components;
+  return (
+    <div
+      style={{
+        left: `${x * window.innerWidth}px`,
+        top: `${y * EA_FORUM_GIVING_SEASON_HEADER_HEIGHT}px`,
+        transform: `rotate(${theta}deg)`,
+      }}
+      className={classNames(classes.gsHeart, {
+        [classes.gsHeartCursor]: !displayName,
+      })}
+    >
+      <LWTooltip
+        title={title}
+        placement="bottom"
+        popperClassName={classes.gsHeartTooltip}
+      >
+        <ForumIcon icon="Heart" onClick={onClick} />
+      </LWTooltip>
+    </div>
+  );
+}
+
 const GivingSeasonHeader = ({
   searchOpen,
   hasLogo,
   unFixed,
   setUnFixed,
   NavigationMenuButton,
-  RightHeaderItems,
+  rightHeaderItems,
   HeaderNavigationDrawer,
   HeaderNotificationsMenu,
   classes,
@@ -233,12 +401,12 @@ const GivingSeasonHeader = ({
   unFixed: boolean
   setUnFixed: (value: boolean) => void,
   NavigationMenuButton: FC,
-  RightHeaderItems: FC,
+  rightHeaderItems: ReactNode,
   HeaderNavigationDrawer: FC,
   HeaderNotificationsMenu: FC,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { Typography, HeadTags, HeaderSubtitle } = Components;
+  const {Typography, HeadTags, HeaderSubtitle, EAButton, CoreTagIcon} = Components;
   const isDesktop = useIsAboveBreakpoint("md");
   const { pathname, currentRoute } = useLocation();
   const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
@@ -247,9 +415,6 @@ const GivingSeasonHeader = ({
   const compareAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 1;
   const allocateAllowed = electionVote?.vote && Object.values(electionVote.vote).length > 0;
   const submitAllowed = electionVote?.vote && Object.values(electionVote.vote).some((value) => value);
-  // We only advertise voting for users who are eligible -
-  // i.e. those that created their accounts before Oct 23 and haven't voted yet.
-  const advertiseVoting = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
 
   const votingSteps = [
     {
@@ -276,7 +441,105 @@ const GivingSeasonHeader = ({
   const isVotingPortal = pathname.startsWith("/voting-portal");
   // Show voting steps if we are on a path like /voting-portal/compare (with anything after /voting-portal/)
   const showVotingSteps = isVotingPortal && /\/voting-portal\/\w/.test(pathname);
-  const solidHeader = currentRoute?.path !== "/";
+  const showHearts = currentRoute?.path === "/";
+
+  const {data, refetch} = useQuery(heartsQuery, {
+    variables: {
+      electionName: eaGivingSeason23ElectionName,
+    },
+    skip: !showHearts,
+  });
+  const [hearts, setHearts] = useState<GivingSeasonHeart[]>(data?.GivingSeasonHearts ?? []);
+
+  useEffect(() => {
+    setHearts(data?.GivingSeasonHearts ?? []);
+  }, [data?.GivingSeasonHearts]);
+
+  const [rawAddHeart, {loading: isAddingHeart}] = useMutation(
+    addHeartMutation,
+    {errorPolicy: "all"},
+  );
+
+  const [rawRemoveHeart, {loading: isRemovingHeart}] = useMutation(
+    removeHeartMutation,
+    {errorPolicy: "all"},
+  );
+
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  const normalizeCoords = useCallback((clientX: number, clientY: number) => {
+    if (headerRef.current) {
+      const bounds = headerRef.current.getBoundingClientRect();
+      if (
+        clientX > bounds.left &&
+        clientX < bounds.right &&
+        clientY > bounds.top &&
+        clientY < bounds.bottom
+      ) {
+        return {
+          x: clientX / bounds.width,
+          y: clientY / bounds.height,
+        };
+      }
+    }
+    return null;
+  }, [headerRef]);
+
+  const addHeart = useCallback(async (x: number, y: number, theta: number) => {
+    const result = await rawAddHeart({
+      variables: {
+        electionName: eaGivingSeason23ElectionName,
+        x,
+        y,
+        theta,
+      },
+    });
+    void refetch();
+    return result;
+  }, [rawAddHeart, refetch]);
+
+  const removeHeart = useCallback(async () => {
+    const result = await rawRemoveHeart({
+      variables: {
+        electionName: eaGivingSeason23ElectionName,
+      },
+    });
+    const newHearts = result.data?.RemoveGivingSeasonHeart;
+    if (Array.isArray(newHearts)) {
+      setHearts(newHearts);
+    }
+    await refetch();
+  }, [rawRemoveHeart, refetch]);
+
+  const canAddHeart = !!currentUser && !isAddingHeart;
+  const [hoverPos, setHoverPos] = useState<{x: number, y: number} | null>(null);
+
+  const onMouseMove = useCallback(({target, clientX, clientY}: MouseEvent) => {
+    if (isValidTarget(target)) {
+      setHoverPos(normalizeCoords(clientX, clientY));
+    } else {
+      setHoverPos(null);
+    }
+  }, [normalizeCoords]);
+
+  const onMouseOut = useCallback(() => {
+    setHoverPos(null);
+  }, []);
+
+  const onClick = useCallback(async ({target, clientX, clientY}: MouseEvent) => {
+    if (isValidTarget(target)) {
+      const coords = normalizeCoords(clientX, clientY);
+      if (coords) {
+        const theta = Math.round((Math.random() * MAX_THETA * 2) - MAX_THETA);
+        const result = await addHeart(coords.x, coords.y, theta);
+        const newHearts = result.data?.AddGivingSeasonHeart;
+        if (Array.isArray(newHearts)) {
+          setHearts(newHearts);
+        }
+        setHoverPos(null);
+      }
+    }
+  }, [normalizeCoords, addHeart]);
 
   return (
     <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
@@ -288,15 +551,19 @@ const GivingSeasonHeader = ({
         />
       )}
       <div
+        {...(canAddHeart ? {onMouseMove, onMouseOut, onClick} : {})}
+        ref={headerRef}
         className={classNames(classes.root, classes.rootGivingSeason, {
           [classes.rootScrolled]: !unFixed,
+          [classes.gsCanPlaceHeart]: hoverPos,
+          [classes.gsLoadingHeart]: isAddingHeart || isRemovingHeart,
         })}
       >
         <Headroom
           disableInlineStyles
           downTolerance={10}
           upTolerance={10}
-          height={HEADER_HEIGHT}
+          height={EA_FORUM_GIVING_SEASON_HEADER_HEIGHT}
           className={classNames(classes.headroom, {
             [classes.headroomPinnedOpen]: searchOpen,
           })}
@@ -304,13 +571,28 @@ const GivingSeasonHeader = ({
           onUnpin={() => setUnFixed(false)}
           disable={isDesktop}
         >
-          <header
-            className={classNames(
-              classes.appBarGivingSeason,
-              solidHeader ? classes.solidBackground : advertiseVoting ? classes.homePageVotingBackground : classes.homePageBackground
-            )}
-          >
-            {!solidHeader && <div className={classes.givingSeasonGradient} />}
+          <div className={classes.gsHearts}>
+            <NoSSR>
+              {hearts.map((heart) => (
+                <Heart
+                  key={heart.userId}
+                  heart={heart}
+                  currentUser={currentUser}
+                  removeHeart={removeHeart}
+                  classes={classes}
+                />
+              ))}
+              {hoverPos &&
+                <Heart
+                  heart={{displayName: "", userId: "", theta: 0, ...hoverPos}}
+                  currentUser={null}
+                  removeHeart={removeHeart}
+                  classes={classes}
+                />
+              }
+            </NoSSR>
+          </div>
+          <header className={classNames(classes.appBarGivingSeason, classes.homePageBackground)}>
             <Toolbar disableGutters={isEAForum} className={classes.toolbarGivingSeason}>
               <div className={classes.leftHeaderItems}>
                 <NavigationMenuButton />
@@ -349,7 +631,7 @@ const GivingSeasonHeader = ({
                     disabled ? (
                       <span
                         key={href}
-                        className={classNames(classes.stepLink, classes.disabledStepLink, {
+                        className={classNames(classes.disabledStepLink, {
                           [classes.activeStepLink]: pathname === href,
                         })}
                       >
@@ -359,7 +641,7 @@ const GivingSeasonHeader = ({
                       <Link
                         key={href}
                         to={href}
-                        className={classNames(classes.stepLink, {
+                        className={classNames({
                           [classes.activeStepLink]: pathname === href,
                         })}
                       >
@@ -369,8 +651,55 @@ const GivingSeasonHeader = ({
                   )}
                 </div>
               )}
-              <RightHeaderItems />
+              <div className={classes.gsRightHeaderItems}>
+                {rightHeaderItems}
+              </div>
             </Toolbar>
+            <div className={classes.gsContent}>
+              <div className={classes.gsContentTitle}>
+                <span>Get your <Link to="/posts/rszgfHdkmzCDDPM9k/where-are-you-donating-this-year-and-why-open-thread-1">2023 donations</Link> in</span>
+              </div>
+              <div className={classes.gsContentSubtitle}>
+                {currentUser
+                  ? (
+                    <span>
+                      Forum users who already donated: consider adding a heart
+                      by clicking on this banner.
+                    </span>
+                  )
+                  : (
+                    <span>
+                      Explore the funds below — or log in to add a heart if
+                      you’ve already donated.
+                    </span>
+                  )
+                }
+              </div>
+              <div className={classes.gsButtons}>
+                <EAButton href="https://funds.effectivealtruism.org/funds/animal-welfare">
+                  <CoreTagIcon tag={{slug: "animal-welfare"}} className={classes.gsButtonIcon} />{" "}
+                  Animal Welfare Fund
+                </EAButton>
+                <EAButton href="https://funds.effectivealtruism.org/funds/far-future">
+                  <CoreTagIcon tag={{slug: "ai-safety"}} className={classes.gsButtonIcon} />{" "}
+                  Long-term Future Fund
+                </EAButton>
+                <EAButton href="https://funds.effectivealtruism.org/funds/global-development">
+                  <CoreTagIcon tag={{slug: "global-health-and-development"}} className={classes.gsButtonIcon} />{" "}
+                  Global Development Fund
+                </EAButton>
+                <EAButton href="https://funds.effectivealtruism.org/funds/ea-community">
+                  <span className={classes.gsButtonIcon}>{lightbulbIcon}</span>{" "}
+                  EA Infrastructure Fund
+                </EAButton>
+                <EAButton
+                  href="/posts/bBm64htDSKn3ZKiQ5/meet-the-candidates-in-the-forum-s-donation-election-2023"
+                  className={classes.gsSecondaryButton}
+                >
+                  -&gt; Explore more
+                </EAButton>
+              </div>
+            </div>
           </header>
           <HeaderNavigationDrawer />
         </Headroom>

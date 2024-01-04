@@ -37,13 +37,9 @@ import Users from "../../lib/collections/users/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await addField(db, Users, "hideHomeRHS");
-  }
+  await addField(db, Users, "hideHomeRHS");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await dropField(db, Users, "hideHomeRHS");
-  }
+  await dropField(db, Users, "hideHomeRHS");
 }

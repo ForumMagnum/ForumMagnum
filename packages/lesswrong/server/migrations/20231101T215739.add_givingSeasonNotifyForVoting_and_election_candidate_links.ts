@@ -34,23 +34,13 @@ import Users from "../../lib/collections/users/collection";
 import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await addField(db, Users, "givingSeasonNotifyForVoting");
-  }
-  
-  if (ElectionCandidates.isPostgres()) {
-    await addField(db, ElectionCandidates, "fundraiserLink");
-    await addField(db, ElectionCandidates, "gwwcLink");
-  }
+  await addField(db, Users, "givingSeasonNotifyForVoting");
+  await addField(db, ElectionCandidates, "fundraiserLink");
+  await addField(db, ElectionCandidates, "gwwcLink");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await dropField(db, Users, "givingSeasonNotifyForVoting");
-  }
-  
-  if (ElectionCandidates.isPostgres()) {
-    await dropField(db, ElectionCandidates, "fundraiserLink");
-    await dropField(db, ElectionCandidates, "gwwcLink");
-  }
+  await dropField(db, Users, "givingSeasonNotifyForVoting");
+  await dropField(db, ElectionCandidates, "fundraiserLink");
+  await dropField(db, ElectionCandidates, "gwwcLink");
 }

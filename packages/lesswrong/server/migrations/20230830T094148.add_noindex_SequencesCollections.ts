@@ -38,21 +38,11 @@ import Sequences from "../../lib/collections/sequences/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Sequences.isPostgres()) {
-    await addField(db, Sequences, "noindex");
-  }
-
-  if (Collections.isPostgres()) {
-    await addField(db, Collections, "noindex");
-  }
+  await addField(db, Sequences, "noindex");
+  await addField(db, Collections, "noindex");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Sequences.isPostgres()) {
-    await dropField(db, Sequences, "noindex");
-  }
-
-  if (Collections.isPostgres()) {
-    await dropField(db, Collections, "noindex");
-  }
+  await dropField(db, Sequences, "noindex");
+  await dropField(db, Collections, "noindex");
 }

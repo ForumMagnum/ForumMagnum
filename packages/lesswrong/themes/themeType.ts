@@ -218,6 +218,7 @@ declare global {
       yellow: ColorString,
       recentDiscussionGreen: ColorString,
       recentDiscussionGrey: ColorString,
+      activeDotOrange: ColorString,
 
       commentsBubble: {
         commentCount: ColorString,
@@ -486,13 +487,29 @@ declare global {
         light2Opaque: ColorString,
         light1: ColorString,
         light1Opaque: ColorString,
+        heartsBackground: ColorString,
         main: ColorString,
         dark: ColorString,
         secondary: ColorString,
         secondaryDark: ColorString,
         secondaryOpaque: ColorString,
         secondaryOpaqueDark: ColorString,
+        secondaryButton: ColorString,
+        secondaryButtonText: ColorString,
       }
+    },
+    wrapped: {
+      background: ColorString,
+      highlightText: ColorString,
+      secondaryText: ColorString,
+      tertiaryText: ColorString,
+      black: ColorString,
+      darkGrey: ColorString,
+      grey: ColorString,
+      darkDot: ColorString,
+      panelBackground: ColorString,
+      panelBackgroundDark: ColorString,
+      postScoreArrow: ColorString,
     },
     dialogueMatching: {
       checkedNotMatched: ColorString,
@@ -508,6 +525,8 @@ declare global {
   
   type ThemeType = {
     forumType: ForumTypeString,
+
+    baseFontSize: number,
     
     breakpoints: {
       /** Down is *inclusive* - down(sm) will go up to the md breakpoint */

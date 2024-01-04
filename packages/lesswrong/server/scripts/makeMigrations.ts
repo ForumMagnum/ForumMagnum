@@ -156,7 +156,7 @@ export const makeMigrations = async ({
   }
 
   // Sort collections by name, so that the order of the output is deterministic
-  const collectionNames = getAllCollections().map(c => c.collectionName).sort();
+  const collectionNames: CollectionNameString[] = getAllCollections().map(c => c.collectionName).sort();
   let failed: string[] = [];
 
   for (const collectionName of collectionNames) {

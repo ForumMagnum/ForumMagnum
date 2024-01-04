@@ -4,13 +4,9 @@ import ElectionCandidates from "../../lib/collections/electionCandidates/collect
 import { createTable, dropTable } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (ElectionCandidates.isPostgres()) {
-    await createTable(db, ElectionCandidates);
-  }
+  await createTable(db, ElectionCandidates);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (ElectionCandidates.isPostgres()) {
-    await dropTable(db, ElectionCandidates);
-  }
+  await dropTable(db, ElectionCandidates);
 }

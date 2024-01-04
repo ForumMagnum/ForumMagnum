@@ -18,8 +18,10 @@ ensureIndex(Votes, {cancelled:1, documentId:1});
 ensureIndex(Votes, {cancelled:1, userId:1, votedAt:-1});
 
 // Used by getKarmaChanges
-ensureIndex(Votes, {authorIds:1, votedAt:1, userId:1, afPower:1});
+ensureIndex(Votes, {authorIds: 1});
 
+// Used by getUsersTopUpvotedUsers - the index that put `cancelled` first was not very helpful for this since it was doing a full index scan
+ensureIndex(Votes, { userId: 1, cancelled: 1, votedAt: 1 });
 
 Votes.addView("tagVotes", function () {
   return {

@@ -23,13 +23,9 @@ import Spotlights from "../../lib/collections/spotlights/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Spotlights.isPostgres()) {
-    await addField(db, Spotlights, "imageFade");
-  }
+  await addField(db, Spotlights, "imageFade");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Spotlights.isPostgres()) {
-    await dropField(db, Spotlights, "imageFade");
-  }
+  await dropField(db, Spotlights, "imageFade");
 }

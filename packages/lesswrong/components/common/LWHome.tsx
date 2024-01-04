@@ -3,13 +3,20 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
+import { useCurrentUser } from './withUser';
 
 const LWHome = () => {
-  const { RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, DialoguesList } = Components
+  const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, DialoguesList } = Components
+  
+  const currentUser = useCurrentUser();
 
   return (
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
+
+          <SingleColumnSection>
+            <DismissibleSpotlightItem current />
+          </SingleColumnSection>
 
           {!reviewIsActive() && <LWRecommendations configName="frontpage" />}
 
@@ -28,7 +35,7 @@ const LWHome = () => {
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
 
-          <DialoguesList />
+          {currentUser && <DialoguesList currentUser={currentUser} />}
 
           <RecentDiscussionFeed
             af={false}

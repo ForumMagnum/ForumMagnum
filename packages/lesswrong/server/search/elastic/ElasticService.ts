@@ -238,7 +238,7 @@ class ElasticService {
     };
   }
 
-  private getHits(indexName: string, hits: ElasticSearchHit[]): AlgoliaDocument[] {
+  private getHits(indexName: string, hits: ElasticSearchHit[]): SearchDocument[] {
     const config = indexNameToConfig(indexName);
     return hits.map(({_id, _source, highlight}) => ({
       ..._source,

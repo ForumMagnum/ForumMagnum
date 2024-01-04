@@ -4,7 +4,7 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { SideCommentsCache, SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField, accessFilterMultiple } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
-import { getConfirmedCoauthorIds, isNotHostedHere } from '../../lib/collections/posts/helpers';
+import { isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
@@ -15,7 +15,6 @@ import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulca
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
-import { ckEditorApiHelpers, documentHelpers } from '../ckEditor/ckEditorApi';
 import { getLatestRev } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
@@ -154,7 +153,7 @@ augmentFieldsDict(Posts, {
         } else {
           const toc = await getToCforPost({document: post, version: null, context});
           const html = toc?.html || post?.contents?.html
-          const sideCommentMatches = await matchSideComments({
+          const sideCommentMatches = matchSideComments({
             postId: post._id,
             html: html,
             comments: comments.map(comment => ({_id: comment._id, html: comment.contents?.html ?? ""})),
@@ -312,10 +311,8 @@ addGraphQLResolvers({
         throw new Error('Must be logged in to view read posts of target user')
       }
 
-      let posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId, limit)
-      posts = await accessFilterMultiple(currentUser, Posts, posts, context)
-
-      return posts
+      const posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId, limit)
+      return await accessFilterMultiple(currentUser, Posts, posts, context)
     }, 
   },
 })
@@ -390,8 +387,7 @@ createPaginatedResolver({
   ): Promise<DbPost[]> => {
       const {repos, currentUser} = context
       if (!currentUser) return []
-      const posts = await repos.posts.getMyActiveDialogues(currentUser._id, limit);
-      return await accessFilterMultiple(currentUser, Posts, posts, context);
+      return repos.posts.getMyActiveDialogues(currentUser._id, limit);
     },
   // Caching is not user specific, do not use caching here else you will share users' drafts
   cacheMaxAgeMs: 0, 

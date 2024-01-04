@@ -22,6 +22,7 @@ import { syncDocumentWithLatestRevision } from './editor/utils';
 import { createAdminContext } from './vulcan-lib/query';
 import ReadStatusesRepo from './repos/ReadStatusesRepo';
 import Sequences from '../lib/collections/sequences/collection';
+import { UsersRepo } from './repos';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
@@ -106,9 +107,9 @@ export const nullifyVotesForUserByTarget = async (user: DbUser, targetUserId: st
   }
 }
 
-const nullifyVotesForUserAndCollection = async (user: DbUser, collection: CollectionBase<DbVoteableType>) => {
+const nullifyVotesForUserAndCollection = async (user: DbUser, collection: CollectionBase<VoteableCollectionName>) => {
   const collectionName = capitalize(collection.collectionName);
-  const context = await createAdminContext();
+  const context = createAdminContext();
   const votes = await Votes.find({
     collectionName: collectionName,
     userId: user._id,
@@ -123,9 +124,14 @@ const nullifyVotesForUserAndCollection = async (user: DbUser, collection: Collec
   console.info(`Nullified ${votes.length} votes for user ${user.username}`);
 }
 
-const nullifyVotesForUserAndCollectionByTarget = async (user: DbUser, collection: CollectionBase<DbVoteableType>, targetUserId: string, dateRange: DateRange) => {
+const nullifyVotesForUserAndCollectionByTarget = async (
+  user: DbUser,
+  collection: CollectionBase<VoteableCollectionName>,
+  targetUserId: string,
+  dateRange: DateRange,
+) => {
   const collectionName = capitalize(collection.collectionName);
-  const context = await createAdminContext();
+  const context = createAdminContext();
   const votes = await Votes.find({
     collectionName: collectionName,
     userId: user._id,
@@ -290,7 +296,7 @@ async function deleteUserTagsAndRevisions(user: DbUser, deletingUser: DbUser) {
   await Revisions.rawRemove({userId: user._id})
   // Revert revision documents
   for (let revision of tagRevisions) {
-    const collection = getCollectionsByName()[revision.collectionName] as CollectionBase<DbObject, any>
+    const collection = getCollectionsByName()[revision.collectionName];
     const document = await collection.findOne({_id: revision.documentId})
     if (document && revision.fieldName) {
       await syncDocumentWithLatestRevision(
@@ -341,7 +347,7 @@ export async function userIPBanAndResetLoginTokens(user: DbUser) {
   }
 
   // Remove login tokens
-  await Users.rawUpdateOne({_id: user._id}, {$set: {"services.resume.loginTokens": []}});
+  await new UsersRepo().clearLoginTokens(user._id);
 }
 
 

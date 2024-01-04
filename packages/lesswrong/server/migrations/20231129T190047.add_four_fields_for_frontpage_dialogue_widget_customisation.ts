@@ -44,19 +44,15 @@ import { addField, dropField } from "./meta/utils";
 
 
 export const up = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-   await addField(db, Users, "showDialoguesList");
-   await addField(db, Users, "showMyDialogues");
-   await addField(db, Users, "showMatches");
-   await addField(db, Users, "showRecommendedPartners");
-  }
+ await addField(db, Users, "showDialoguesList");
+ await addField(db, Users, "showMyDialogues");
+ await addField(db, Users, "showMatches");
+ await addField(db, Users, "showRecommendedPartners");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await dropField(db, Users, "showDialoguesList");
-    await dropField(db, Users, "showMyDialogues");
-    await dropField(db, Users, "showMatches");
-    await dropField(db, Users, "showRecommendedPartners");
-  }
+  await dropField(db, Users, "showDialoguesList");
+  await dropField(db, Users, "showMyDialogues");
+  await dropField(db, Users, "showMatches");
+  await dropField(db, Users, "showRecommendedPartners");
 }

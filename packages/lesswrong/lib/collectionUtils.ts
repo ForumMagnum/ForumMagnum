@@ -13,12 +13,12 @@ declare module "simpl-schema" {
   }
 }
 
-export function addUniversalFields<T extends DbObject>({
+export function addUniversalFields<N extends CollectionNameString>({
   collection,
   schemaVersion = 1,
   createdAtOptions = {},
 }: {
-  collection: CollectionBase<T>,
+  collection: CollectionBase<N>,
   schemaVersion?: number
   createdAtOptions?: Partial<CollectionFieldPermissions>,
 }): void {
@@ -63,8 +63,9 @@ export function isUniversalField(fieldName: string): boolean {
   return fieldName==="_id" || fieldName==="schemaVersion";
 }
 
-export function isUnbackedCollection<T extends DbObject>(collection: CollectionBase<T>): boolean
-{
+export function isUnbackedCollection<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+): boolean {
   const collectionName: string = collection.collectionName;
   if (collectionName === 'Settings' || collectionName === 'Callbacks') {
     // Vulcan collections with no backing database table
