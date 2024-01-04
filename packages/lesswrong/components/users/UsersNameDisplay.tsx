@@ -32,19 +32,27 @@ const UsersNameDisplay = ({
   color=false,
   nofollow=false,
   simple=false,
-  classes,
   tooltipPlacement="left",
   pageSectionContext,
   className,
+  classes,
 }: {
+  /** The user whose name to show. If nullish, will show as "[anonymous]". */
   user: UsersMinimumInfo|null|undefined,
+  /** If the name is in the site primary color */
   color?: boolean,
+  /** If the name is a link, it's marked nofollow */
   nofollow?: boolean,
+  /** The name is only text, not a link, and doesn't have a hover */
   simple?: boolean,
-  classes: ClassesType,
+  /** Positioning of the tooltip, if there is one */
   tooltipPlacement?: PopperPlacementType,
+  /** If provided, a tracking string added to the link */
   pageSectionContext?: string,
+  /** An additional class to apply to the text */
   className?: string,
+
+  classes: ClassesType,
 }) => {
   const {eventHandlers, hover} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
   const currentUser = useCurrentUser();
@@ -66,7 +74,12 @@ const UsersNameDisplay = ({
   const colorClass = color?classes.color:classes.noColor;
 
   if (simple) {
-    return <span {...eventHandlers} className={classNames(colorClass, className)}>
+    return <span
+      {...eventHandlers}
+      className={classNames(colorClass, className, {
+        [classes.noKibitz]: noKibitz
+      })}
+    >
       {displayName}
     </span>
   }
@@ -84,9 +97,9 @@ const UsersNameDisplay = ({
           placement={tooltipPlacement}
           inlineBlock={false}
         >
-          <Link to={profileUrl} className={classNames(colorClass, {
-            [classes.noKibitz]: noKibitz,
-          })}
+          <Link
+            to={profileUrl}
+            className={classNames(colorClass, { [classes.noKibitz]: noKibitz, })}
             {...(nofollow ? {rel:"nofollow"} : {})}
           >
             {displayName}
