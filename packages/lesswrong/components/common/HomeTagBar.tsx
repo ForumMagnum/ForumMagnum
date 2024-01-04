@@ -100,6 +100,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '4px 8px',
     borderRadius: 6,
     cursor: 'pointer',
+    marginBottom: 8,
     '&:hover': {
       backgroundColor: theme.palette.grey[300],
     },
@@ -136,7 +137,8 @@ export type TopicsBarTab = {
   _id: string,
   name: string,
   shortName?: string | null,
-  slug?: string
+  slug?: string,
+  description?: TagFragment_description | null,
 }
 
 const HomeTagBar = (
@@ -178,13 +180,13 @@ const HomeTagBar = (
   const {results: coreTopics} = useMulti({
     terms: {view: 'coreTags'},
     collectionName: 'Tags',
-    fragmentName: 'TagDetailsFragment',
+    fragmentName: 'TagFragment',
     limit: 40,
   })
 
   const allTabs: TopicsBarTab[] = useMemo(() =>
       [frontpageTab, ...(sortTopics(coreTopics ?? []))],
-    [coreTopics, sortTopics])
+    [coreTopics, sortTopics, frontpageTab])
 
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   const [leftArrowVisible, setLeftArrowVisible] = useState(false)
@@ -209,7 +211,7 @@ const HomeTagBar = (
         updateActiveTab(frontpageTab)
       }
     }
-  }, [coreTopics, query, updateActiveTab])
+  }, [coreTopics, query, updateActiveTab, frontpageTab])
 
   /**
    * When the topics bar is scrolled, hide/show the left/right arrows as necessary.
@@ -269,7 +271,7 @@ const HomeTagBar = (
     captureEvent('topicsBarTabClicked', {topicsBarTabId: tab._id, topicsBarTabName: tab.shortName || tab.name})
   }
 
-  const {SingleColumnSection, ForumIcon, SectionTitle, PostsList2, DismissibleSpotlightItem} = Components
+  const {SingleColumnSection, ForumIcon, LWTooltip} = Components
 
   return (
     <>
@@ -287,15 +289,16 @@ const HomeTagBar = (
                 <div ref={topicsBarRef} className={classes.topicsBar}>
                   {allTabs.map(tab => {
                     const tabName = tab.shortName || tab.name
-                    return <button
-                      key={tabName}
-                      onClick={() => handleTabClick(tab)}
-                      className={classNames(classes.tab, {
-                        [classes.activeTab]: tab._id === activeTab._id,
-                      })}
-                    >
-                      {tabName}
-                    </button>
+                    return <LWTooltip title={tab.description?.plaintextDescription} key={tabName}>
+                      <button
+                        onClick={() => handleTabClick(tab)}
+                        className={classNames(classes.tab, {
+                          [classes.activeTab]: tab._id === activeTab._id,
+                        })}
+                      >
+                        {tabName}
+                      </button>
+                    </LWTooltip>
                   })}
                 </div>
               </div>
