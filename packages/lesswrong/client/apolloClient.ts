@@ -1,11 +1,17 @@
 import { ApolloClient, NormalizedCacheObject, InMemoryCache, ApolloLink } from '@apollo/client';
 import { apolloCacheVoteablePossibleTypes } from '../lib/make_voteable';
 import { createHttpLink, createErrorLink, headerLink } from '../lib/apollo/links';
+import { Hermes } from 'apollo-cache-hermes';
 
 export const createApolloClient = (baseUrl = '/'): ApolloClient<NormalizedCacheObject> => {
-  const cache = new InMemoryCache({
+  /*const cache = new InMemoryCache({
     possibleTypes: {
       ...apolloCacheVoteablePossibleTypes()
+    }
+  });*/
+  const cache = new Hermes({
+    entityIdForNode: (node) => {
+      return node._id as string|undefined;
     }
   });
 

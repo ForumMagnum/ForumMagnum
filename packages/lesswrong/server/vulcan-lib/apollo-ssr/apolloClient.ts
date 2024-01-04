@@ -3,13 +3,19 @@ import { apolloCacheVoteablePossibleTypes } from '../../../lib/make_voteable';
 import { getExecutableSchema } from '../apollo-server/initGraphQL';
 import { createSchemaLink, createHttpLink, createErrorLink } from '../../../lib/apollo/links';
 import { fmCrosspostBaseUrlSetting } from "../../../lib/instanceSettings";
+import { Hermes } from 'apollo-cache-hermes';
 
 // This client is used to prefetch data server side (necessary for SSR)
 // It is recreated on every request.
 export const createClient = async (context: ResolverContext | null, foreign = false) => {
-  const cache = new InMemoryCache({
+  /*const cache = new InMemoryCache({
     possibleTypes: {
       ...apolloCacheVoteablePossibleTypes()
+    }
+  });*/
+  const cache = new Hermes({
+    entityIdForNode: (node) => {
+      return node._id as string|undefined;
     }
   });
 
