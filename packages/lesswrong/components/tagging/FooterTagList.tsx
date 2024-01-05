@@ -15,6 +15,7 @@ import { useMessages } from '../common/withMessages';
 import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -57,6 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...(isFriendlyUI
       ? {
         paddingTop: 12,
+        width: FRIENDLY_HOVER_OVER_WIDTH,
       }
       : {
         width: 450,
