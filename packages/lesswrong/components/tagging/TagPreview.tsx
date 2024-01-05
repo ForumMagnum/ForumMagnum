@@ -6,9 +6,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPage';
 import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
-import { EA_HOVER_OVER_WIDTH } from '../ea-forum/EAHoverOver';
-import classNames from 'classnames';
+import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   rootEAWidth: {
-    width: EA_HOVER_OVER_WIDTH,
+    width: FRIENDLY_HOVER_OVER_WIDTH,
   },
   relatedTagWrapper: {
     ...theme.typography.body2,

@@ -4,8 +4,8 @@ import type { PopperPlacementType } from "@material-ui/core/Popper";
 import type { AnalyticsProps } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 
-export const EA_THIN_HOVER_OVER_WIDTH = 270;
-export const EA_HOVER_OVER_WIDTH = 340;
+export const FRIENDLY_THIN_HOVER_OVER_WIDTH = 270;
+export const FRIENDLY_HOVER_OVER_WIDTH = 340;
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,7 +16,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export type EAHoverOverProps = {
+export type FriendlyHoverOverProps = {
   /**
    * This is the contents of the hover over, named `title` for compatability
    * with LWTooltip
@@ -34,7 +34,7 @@ export type EAHoverOverProps = {
   classes: ClassesType,
 }
 
-const EAHoverOver = ({
+const FriendlyHoverOver = ({
   title,
   placement,
   inlineBlock,
@@ -46,7 +46,7 @@ const EAHoverOver = ({
   popperClassName,
   children,
   classes,
-}: EAHoverOverProps) => {
+}: FriendlyHoverOverProps) => {
   const {LWTooltip} = Components;
   return (
     <LWTooltip
@@ -67,14 +67,14 @@ const EAHoverOver = ({
   );
 }
 
-const EAHoverOverComponent = registerComponent(
-  "EAHoverOver",
-  EAHoverOver,
+const FriendlyHoverOverComponent = registerComponent(
+  "FriendlyHoverOver",
+  FriendlyHoverOver,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    EAHoverOver: typeof EAHoverOverComponent
+    FriendlyHoverOver: typeof FriendlyHoverOverComponent
   }
 }

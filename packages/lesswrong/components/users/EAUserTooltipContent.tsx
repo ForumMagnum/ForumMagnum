@@ -1,14 +1,14 @@
 import React, { useMemo } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { htmlToTextDefault } from "../../lib/htmlToText";
-import { EA_THIN_HOVER_OVER_WIDTH } from "../ea-forum/EAHoverOver";
+import { FRIENDLY_THIN_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
 import moment from "moment";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     display: "flex",
     flexDirection: "column",
-    width: EA_THIN_HOVER_OVER_WIDTH,
+    width: FRIENDLY_THIN_HOVER_OVER_WIDTH,
     maxWidth: "100%",
     gap: "12px",
     fontSize: 14,

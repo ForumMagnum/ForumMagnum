@@ -1,12 +1,12 @@
 import React from "react";
-import { isEAForum } from "../../lib/instanceSettings";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import type { EAHoverOverProps } from "../ea-forum/EAHoverOver";
+import { isFriendlyUI } from "../../themes/forumTheme";
+import type { FriendlyHoverOverProps } from "./FriendlyHoverOver";
 import type { LWTooltipProps } from "./LWTooltip";
 
-const HoverOver = (props: LWTooltipProps & EAHoverOverProps) => {
-  const {LWTooltip, EAHoverOver} = Components;
-  const Tooltip = isEAForum ? EAHoverOver : LWTooltip;
+const HoverOver = (props: LWTooltipProps & FriendlyHoverOverProps) => {
+  const {LWTooltip, FriendlyHoverOver} = Components;
+  const Tooltip = isFriendlyUI ? FriendlyHoverOver : LWTooltip;
   return (
     <Tooltip {...props} />
   );

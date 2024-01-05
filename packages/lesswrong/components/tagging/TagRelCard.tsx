@@ -1,5 +1,6 @@
 import React from 'react';
-import { isEAForum, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
@@ -7,7 +8,7 @@ import { useVote } from '../votes/withVote';
 
 const styles = (theme: ThemeType): JssStyles => ({
   relevance: {
-    marginTop: isEAForum ? undefined : 2,
+    marginTop: isFriendlyUI ? undefined : 2,
     marginLeft: 16,
     ...theme.typography.commentStyle,
   },
@@ -18,7 +19,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   voteButton: {
     display: "inline-block",
     fontSize: 25,
-    transform: isEAForum ? "translateY(2px)" : undefined,
+    transform: isFriendlyUI ? "translateY(2px)" : undefined,
   },
   score: {
     marginLeft: 4,
