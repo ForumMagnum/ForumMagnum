@@ -42,9 +42,6 @@ const socialImageProps: CloudinaryPropsType = {
 };
 
 const styles = (theme: ThemeType) => ({
-  scrollSnap: {
-    scrollSnapType: 'y mandatory',
-  },
   root: {
     minHeight: '100vh',
     background: theme.palette.wrapped.background,
@@ -76,16 +73,12 @@ const styles = (theme: ThemeType) => ({
   '@keyframes section-scroll-animation': {
     '0%': {
       opacity: 0,
-      // TODO: this messes with scroll snapping, see if we can add it back in
-      // transform: 'scale(0.5)'
     },
     '50%': {
       opacity: 1,
-      // transform: 'scale(1)'
     },
     '100%': {
       opacity: 0,
-      // transform: 'scale(0.5)'
     }
   },
   section: {
@@ -96,7 +89,6 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     minHeight: '55vh',
     padding: '75px 40px',
-    scrollSnapAlign: 'center',
     // Fade sections in and out if possible (i.e. on Chrome)
     '@supports (animation-timeline: view())': {
       animation: 'section-scroll-animation linear',
@@ -107,7 +99,6 @@ const styles = (theme: ThemeType) => ({
       minHeight: '80vh',
     },
     '&:first-of-type': {
-      scrollSnapAlign: 'start',
       minHeight: '85vh',
       paddingTop: 140,
     },
@@ -129,7 +120,6 @@ const styles = (theme: ThemeType) => ({
       animation: 'none',
       animationTimeline: 'none',
     },
-    scrollSnapAlign: 'start',
   },
   summaryLinkWrapper: {
     display: 'flex',
@@ -316,8 +306,6 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.wrapped.panelBackground,
     borderRadius: theme.borderRadius.default,
     padding: '0 16px 16px',
-    scrollSnapAlign: 'start',
-    scrollMarginTop: '110px',
     '& .ck-placeholder': {
       '--ck-color-engine-placeholder-text': theme.palette.wrapped.tertiaryText,
     },
@@ -1579,13 +1567,6 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     userId: currentUser?._id,
     year: 2023
   })
-  
-  useEffect(() => {
-    if (currentUser) {
-      // Add scrollSnapType: 'y mandatory' styles to html element
-      document.documentElement.classList.add('EAForumWrapped2023Page-scrollSnap')
-    }
-  }, [currentUser])
 
   // After the user has seen the summary section,
   // we add a link in the first section to skip down to it for convenience

@@ -73,6 +73,32 @@ const styles = (theme: ThemeType) => ({
   podcastsSection: {
     rowGap: '6px',
   },
+  wrappedAd: {
+    backgroundColor: theme.palette.wrapped.background,
+    color: theme.palette.text.alwaysWhite,
+    padding: '12px 24px',
+    borderRadius: theme.borderRadius.default,
+    transition: `box-shadow .3s`,
+    '&:hover': {
+      opacity: 1,
+      boxShadow: `0 0 11px ${theme.palette.icon.dim5}`
+    }
+  },
+  wrappedAdHeadingRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    columnGap: 40,
+  },
+  wrappedAdHeading: {
+    fontWeight: 600,
+    fontSize: 16,
+    lineHeight: '22px',
+    margin: 0
+  },
+  wrappedAdImg: {
+    width: 50
+  },
   digestAd: {
     maxWidth: 280,
     backgroundColor: theme.palette.grey[200],
@@ -236,6 +262,27 @@ const styles = (theme: ThemeType) => ({
     fontSize: 13,
   },
 });
+
+const WrappedAd = ({classes}: {
+  classes: ClassesType<typeof styles>,
+}) => {
+  const currentUser = useCurrentUser()
+  
+  if (!currentUser) return null
+  
+  const { CloudinaryImage2 } = Components
+  
+  return <AnalyticsContext pageSubSectionContext="wrappedAd">
+    <div className={classes.section}>
+      <Link to="/wrapped" className={classes.wrappedAd}>
+        <div className={classes.wrappedAdHeadingRow}>
+          <h2 className={classes.wrappedAdHeading}>Your 2023 Wrapped</h2>
+          <CloudinaryImage2 publicId="2023_wrapped" imgProps={{w: '100'}} className={classes.wrappedAdImg} />
+        </div>
+      </Link>
+    </div>
+  </AnalyticsContext>
+}
 
 /**
  * This is the Forum Digest ad that appears at the top of the EA Forum home page right hand side.
@@ -538,6 +585,8 @@ export const EAHomeRightHandSide = ({classes}: {
   return <AnalyticsContext pageSectionContext="homeRhs">
     {!!currentUser && sidebarToggleNode}
     <div className={classes.root}>
+      <WrappedAd classes={classes} />
+
       {digestAdNode}
       
       <AnalyticsContext pageSubSectionContext="resources">

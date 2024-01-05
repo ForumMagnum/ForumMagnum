@@ -1,5 +1,4 @@
 import uniq from "lodash/uniq";
-import moment from "moment";
 import ReadStatuses from "../../lib/collections/readStatus/collection";
 import Users from "../../lib/collections/users/collection";
 import { createNotifications } from "../notificationCallbacksHelpers";
@@ -12,14 +11,16 @@ const sendWrappedNotifications = async () => {
   const readStatuses = await ReadStatuses.find({
     isRead: true,
     lastUpdated: {$gte: start, $lte: end},
-    postId: {$exists: true, $ne: null}
+    postId: {$ne: null}
   }, {projection: {userId: 1}}).fetch()
   
   const userIds = uniq(readStatuses.map(rs => rs.userId))
-  // filter out users who are banned
+  // filter out users who are banned, deleted, or have unsubscribed from all emails
   const users = await Users.find({
     _id: {$in: userIds},
-    banned: {$exists: false}
+    banned: {$exists: false},
+    unsubscribeFromAll: {$ne: true},
+    deleted: {$ne: true},
   }, {projection: {slug: 1}}).fetch()
 
   // eslint-disable-next-line no-console

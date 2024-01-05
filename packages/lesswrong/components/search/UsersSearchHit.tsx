@@ -33,7 +33,7 @@ const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitCo
     {showIcon && <LWTooltip title="User">
       <PersonIcon className={classes.icon} />
     </LWTooltip>}
-    <Link to={userGetProfileUrl(user)} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
+    <Link to={`${userGetProfileUrl(user)}?from=search_autocomplete`} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <MetaInfo>
         {user.displayName}
       </MetaInfo>
