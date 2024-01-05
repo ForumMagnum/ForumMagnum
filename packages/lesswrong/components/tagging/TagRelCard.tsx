@@ -1,6 +1,6 @@
 import React from 'react';
 import { taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
@@ -28,7 +28,14 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   removeButton: {
     float: "right",
-    marginTop: 12
+    ...(isFriendlyUI
+      ? {
+        marginTop: 10,
+        marginLeft: 10,
+      }
+      : {
+        marginTop: 12,
+      }),
   },
   removed: {
     float: "right",
@@ -100,7 +107,7 @@ const TagRelCard = ({tagRel, classes}: {
           placement="top"
         >
           <TagRelevanceButton
-            label={`Remove ${taggingNameCapitalSetting.get()}`}
+            label={preferredHeadingCase(`Remove ${taggingNameCapitalSetting.get()}`)}
             {...voteProps}
             voteType="smallUpvote"
             cancelVote
