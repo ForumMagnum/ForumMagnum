@@ -752,7 +752,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'ImportProfile',
       path: '/profile/import',
-      componentName: 'EAGApplicationImportForm',
+      componentName: 'EAGApplicationImportFormWrapper',
       title: 'Import Profile',
       background: 'white',
     },
