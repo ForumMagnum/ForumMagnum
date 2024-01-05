@@ -2,7 +2,6 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { tagStyle } from './FooterTag';
-import { taggingNameSetting } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,10 +28,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 }); 
 
-const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
+const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[], shouldDisplayTag = () => true }: {
   onTagSelected?: (tag: {tagId: string, tagName: string}, existingTagIds: Array<string>)=>void,
   classes: ClassesType,
-  existingTagIds?: Array<string|undefined>
+  existingTagIds?: Array<string|undefined>,
+  shouldDisplayTag?: (tag: TagFragment) => boolean,
 }) => {
   const { TagsChecklist } = Components
 
@@ -49,7 +49,7 @@ const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
   if (loading) return <Loading/>
   if (!results) return null
   
-  return <TagsChecklist tags={results} onTagSelected={onTagSelected} selectedTagIds={existingTagIds}/>
+  return <TagsChecklist tags={results.filter(shouldDisplayTag)} onTagSelected={onTagSelected} selectedTagIds={existingTagIds}/>
 }
 
 
