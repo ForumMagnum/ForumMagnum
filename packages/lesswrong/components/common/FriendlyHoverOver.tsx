@@ -34,6 +34,11 @@ export type FriendlyHoverOverProps = {
   classes: ClassesType,
 }
 
+/**
+ * This component should not be used directly - instead use `HoverOver` which
+ * will switch between the correct styles depending on whether or not the
+ * current site is using friendly UI.
+ */
 const FriendlyHoverOver = ({
   title,
   placement,
