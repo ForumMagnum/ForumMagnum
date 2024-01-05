@@ -17,7 +17,7 @@ import stringify from 'json-stringify-deterministic';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: 8,
     marginBottom: 8,
@@ -107,7 +107,7 @@ const FooterTagList = ({
   link?: boolean
   highlightAutoApplied?: boolean,
   allowTruncate?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
