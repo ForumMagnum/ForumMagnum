@@ -1,7 +1,8 @@
 import React, { FC, ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { isEAForum } from "../../lib/instanceSettings";
 import { useTagPreview } from "./useTag";
+import { isFriendlyUI } from "../../themes/forumTheme";
+import classNames from "classnames";
 
 type PreviewableTag =
   TagPreviewFragment |
@@ -51,6 +52,20 @@ const DefaultPreviewWrapper: TagsTooltipPreviewWrapper = ({children}) => (
   <>{children}</>
 );
 
+const styles = (theme: ThemeType) => ({
+  tooltip: isFriendlyUI
+    ? {}
+    : {
+      background: theme.palette.panelBackground.default,
+      boxShadow: theme.palette.boxShadow.lwTagHoverOver,
+    },
+  tooltipTitle: isFriendlyUI
+    ? {}
+    : {
+      maxWidth: "unset",
+    },
+});
+
 const TagsTooltip = ({
   tagRel,
   hash,
@@ -63,6 +78,7 @@ const TagsTooltip = ({
   className,
   popperClassName,
   children,
+  classes,
   ...tagsTooltipProps
 }: TagsTooltipTag & {
   tagRel?: TagRelMinimumFragment
@@ -76,6 +92,7 @@ const TagsTooltip = ({
   className?: string,
   popperClassName?: string,
   children: ReactNode,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {tag, loading} = useTagsTooltipTag(tagsTooltipProps, hash, noPrefetch);
 
@@ -125,7 +142,8 @@ const TagsTooltip = ({
         tagSlug: tag?.slug
       }}
       className={className}
-      popperClassName={popperClassName}
+      popperClassName={classNames(classes.tooltip, popperClassName)}
+      titleClassName={classes.tooltipTitle}
     >
       {children}
     </HoverOver>
@@ -135,6 +153,7 @@ const TagsTooltip = ({
 const TagsTooltipComponent = registerComponent(
   "TagsTooltip",
   TagsTooltip,
+  {styles},
 );
 
 declare global {

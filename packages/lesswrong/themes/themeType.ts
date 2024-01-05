@@ -336,6 +336,7 @@ declare global {
       searchResults: string,
       recentDiscussionMeetupsPoke: string,
       graphTooltip: string,
+      lwTagHoverOver: string,
     },
     buttons: {
       hoverGrayHighlight: ColorString,

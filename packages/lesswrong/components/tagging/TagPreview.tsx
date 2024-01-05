@@ -57,7 +57,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginTop: 10,
     paddingTop: 8,
     borderTop: theme.palette.border.extraFaint,
-    marginBottom: 8
+    marginBottom: 8,
+    overflow: "hidden",
   },
   relatedTags: {
     marginTop: 12,

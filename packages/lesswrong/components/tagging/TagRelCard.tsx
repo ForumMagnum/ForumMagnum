@@ -23,6 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   score: {
     marginLeft: 4,
     marginRight: 4,
+    color: theme.palette.grey[1000],
   },
   removeButton: {
     float: "right",
