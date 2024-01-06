@@ -498,6 +498,19 @@ declare global {
         secondaryButtonText: ColorString,
       }
     },
+    wrapped: {
+      background: ColorString,
+      highlightText: ColorString,
+      secondaryText: ColorString,
+      tertiaryText: ColorString,
+      black: ColorString,
+      darkGrey: ColorString,
+      grey: ColorString,
+      darkDot: ColorString,
+      panelBackground: ColorString,
+      panelBackgroundDark: ColorString,
+      postScoreArrow: ColorString,
+    },
     dialogueMatching: {
       checkedNotMatched: ColorString,
       checkedMatched: ColorString,

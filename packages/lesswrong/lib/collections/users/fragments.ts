@@ -42,10 +42,10 @@ registerFragment(`
       ...RevisionDisplay
     }
     howOthersCanHelpMe {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     howICanHelpOthers {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     profileTagIds
     profileTags {
@@ -133,13 +133,7 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    biography {
-      ...RevisionEdit
-    }
     moderationStyle
-    moderationGuidelines {
-      ...RevisionEdit
-    }
     noKibitz
     showHideKarmaOption
     markDownPostEditor
@@ -226,6 +220,8 @@ registerFragment(`
     showMatches
     showRecommendedPartners
     hideActiveDialogueUsers
+
+    wrapped2023Viewed
   }
 `);
 

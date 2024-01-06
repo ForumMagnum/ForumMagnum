@@ -122,7 +122,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   highlightDate: Date|undefined,
   classes: ClassesType,
 }) => {
-  const { TableOfContentsRow } = Components;
+  const { UsersNameDisplay, TableOfContentsRow } = Components;
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
@@ -159,7 +159,7 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
       })}>
         <span className={classes.commentKarma}>{comment.baseScore}</span>
         <span className={classes.commentAuthor}>
-          {comment.user ? userGetDisplayName(comment.user) : "[anonymous]"}
+          <UsersNameDisplay user={comment.user} simple/>
         </span>
       </span>
     </TableOfContentsRow>

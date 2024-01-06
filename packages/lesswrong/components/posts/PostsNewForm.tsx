@@ -225,7 +225,7 @@ const PostsNewForm = ({classes}: {
     NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
   } = Components;
 
-  const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
+  const userHasModerationGuidelines = !!currentUser?.moderationGuidelines?.html;
   const debateForm = !!(query && query.debate);
 
   const questionInQuery = query && !!query.question

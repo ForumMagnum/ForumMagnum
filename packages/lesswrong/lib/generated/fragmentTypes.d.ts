@@ -406,6 +406,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly recentKarmaInfo: any,
   readonly givingSeason2023DonatedFlair: boolean,
   readonly givingSeason2023VotedFlair: boolean,
+  readonly wrapped2023Viewed: boolean,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -1093,11 +1094,15 @@ interface PostsAuthors { // fragment on Posts
 }
 
 interface PostsAuthors_user extends UsersMinimumInfo { // fragment on Users
-  readonly biography: RevisionDisplay|null,
+  readonly biography: PostsAuthors_user_biography|null,
   readonly profileImageId: string,
   readonly moderationStyle: string,
   readonly bannedUserIds: Array<string>,
   readonly moderatorAssistance: boolean,
+}
+
+interface PostsAuthors_user_biography { // fragment on Revisions
+  readonly html: string,
 }
 
 interface PostsListBase extends PostsBase, PostsAuthors { // fragment on Posts
@@ -2656,8 +2661,8 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly organization: string,
   readonly careerStage: Array<string>,
   readonly biography: RevisionDisplay|null,
-  readonly howOthersCanHelpMe: RevisionEdit|null,
-  readonly howICanHelpOthers: RevisionEdit|null,
+  readonly howOthersCanHelpMe: RevisionDisplay|null,
+  readonly howICanHelpOthers: RevisionDisplay|null,
   readonly profileTagIds: Array<string>,
   readonly profileTags: Array<TagBasicInfo>,
   readonly organizerOfGroupIds: Array<string>,
@@ -2739,9 +2744,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly lastNotificationsCheck: Date,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
-  readonly biography: RevisionEdit|null,
   readonly moderationStyle: string,
-  readonly moderationGuidelines: RevisionEdit|null,
   readonly noKibitz: boolean,
   readonly showHideKarmaOption: boolean,
   readonly markDownPostEditor: boolean,
@@ -2870,6 +2873,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly showMatches: boolean,
   readonly showRecommendedPartners: boolean,
   readonly hideActiveDialogueUsers: boolean,
+  readonly wrapped2023Viewed: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users

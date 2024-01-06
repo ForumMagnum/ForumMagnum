@@ -23,7 +23,8 @@ import { elasticSyncDocument } from './search/elastic/elasticCallbacks';
 import { collectionIsSearchIndexed } from '../lib/search/searchUtil';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import {Posts} from '../lib/collections/posts';
-
+import { VotesRepo } from './repos';
+import { isLWorAF } from '../lib/instanceSettings';
 
 // Test if a user has voted on the server
 const getExistingVote = async ({ document, user }: {
@@ -337,8 +338,9 @@ type Consequence = "warningPopup" | "denyThisVote" | "flagForModeration"
 
 interface VotingRateLimit {
   voteCount: number
-  /** Must be ≤ than 24 hours */
-  periodInMinutes: number
+  /** If provided, periodInMinutes must be ≤ than 24 hours. At least one of periodInMinutes or allOnSamePost must be provided. */
+  periodInMinutes: number|null,
+  allOnSamePost?: true,
   types: "all"|"onlyStrong"|"onlyDown"
   users: "allUsers"|"singleUser"
   consequences: Consequence[]
@@ -349,7 +351,7 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
   if (user?.isAdmin) {
     return [];
   } else {
-    return [
+    const rateLimits: VotingRateLimit[] = [
       {
         voteCount: 200,
         periodInMinutes: 60 * 24,
@@ -391,6 +393,28 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         message: null,
       },
     ];
+
+    if (isLWorAF) {
+      rateLimits.push({
+        voteCount: 10,
+        periodInMinutes: 60,
+        types: "onlyStrong",
+        users: "allUsers",
+        consequences: ["denyThisVote"],
+        message: "too many strong-votes in one hour",
+      });
+      rateLimits.push({
+        voteCount: 5,
+        periodInMinutes: null,
+        allOnSamePost: true,
+        types: "onlyStrong",
+        users: "allUsers",
+        consequences: ["denyThisVote"],
+        message: "You can only strong-vote on up to five comments per post",
+      });
+    }
+
+    return rateLimits;
   }
 }
 
@@ -404,7 +428,7 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
  * May also add apply voting-related consequences such as flagging the user for
  * moderation, as side effects.
  */
-const checkVotingRateLimits = async ({ document, user }: {
+const checkVotingRateLimits = async ({ document, collection, voteType, user }: {
   document: DbVoteableType,
   collection: CollectionBase<VoteableCollectionName>,
   voteType: string,
@@ -416,14 +440,23 @@ const checkVotingRateLimits = async ({ document, user }: {
   if(document.userId === user._id)
     return {};
   
-  // Retrieve all non-cancelled votes cast by this user in the past 24 hours
+  // Retrieve all non-cancelled votes cast by this user that were either cast
+  // in the past 24 hours, or are on comments on the same post as this one
   const oneDayAgo = moment().subtract(1, 'days').toDate();
-  const votesInLastDay = await Votes.find({
-    userId: user._id,
-    authorIds: {$ne: user._id}, // Self-votes don't count
-    votedAt: {$gt: oneDayAgo},
-    cancelled:false
-  }).fetch();
+  const postId = (document as any)?.postId ?? null;
+  const [votesInLastDay, votesOnCommentsOnThisPost] = await Promise.all([
+    Votes.find({
+      userId: user._id,
+      authorIds: {$ne: user._id}, // Self-votes don't count
+      votedAt: {$gt: oneDayAgo},
+      cancelled:false
+    }).fetch(),
+    postId ? new VotesRepo().getVotesOnSamePost({
+      userId: user._id,
+      postId,
+      excludedDocumentId: document._id
+    }) : [],
+  ]);
   
   // Go through rate limits checking if each applies. If more than one rate
   // limit applies, we take the union of the consequences of exceeding all of
@@ -432,10 +465,21 @@ const checkVotingRateLimits = async ({ document, user }: {
   let rateLimitConsequences = new Set<Consequence>();
   
   for (const rateLimit of getVotingRateLimits(user)) {
-    if (votesInLastDay.length < rateLimit.voteCount)
-      continue;
+    let votesToConsider = rateLimit.allOnSamePost
+      ? votesOnCommentsOnThisPost
+      : votesInLastDay;
 
-    const numMatchingVotes = getRelevantVotes(rateLimit, document, votesInLastDay).length;
+    if (votesToConsider.length < rateLimit.voteCount) {
+      continue;
+    }
+    if (rateLimit.types === "onlyDown" && !voteTypeIsDown(voteType)) {
+      continue;
+    }
+    if (rateLimit.types === "onlyStrong" && !voteTypeIsStrong(voteType)) {
+      continue;
+    }
+
+    const numMatchingVotes = getRelevantVotes(rateLimit, document, votesToConsider).length;
     
     if (numMatchingVotes >= rateLimit.voteCount) {
       if (!firstExceededRateLimit) {
@@ -470,26 +514,40 @@ const checkVotingRateLimits = async ({ document, user }: {
   return { moderatorActionType };
 }
 
-function getRelevantVotes(rateLimit: VotingRateLimit, document: DbVoteableType, votes: DbVote[]): DbVote[] {
+function getRelevantVotes(
+  rateLimit: VotingRateLimit,
+  document: DbVoteableType,
+  votes: DbVote[],
+): DbVote[] {
   const now = new Date().getTime();
 
   return votes.filter(vote => {
     const ageInMS = now - vote.votedAt.getTime();
     const ageInMinutes = ageInMS / (1000 * 60);
 
-    if (ageInMinutes > rateLimit.periodInMinutes)
+    if (rateLimit.periodInMinutes && ageInMinutes > rateLimit.periodInMinutes) {
       return false;
+    }
+    
     if (rateLimit.users === "singleUser" && !!document.userId &&!vote.authorIds?.includes(document.userId))
       return false;
 
-    const isStrong = (vote.voteType === "bigDownvote" || vote.voteType === "bigUpvote");
-    const isDown = (vote.voteType === "smallDownvote" || vote.voteType === "bigDownvote");
+    const isStrong = voteTypeIsStrong(vote.voteType);
+    const isDown = voteTypeIsDown(vote.voteType);
     if (rateLimit.types === "onlyStrong" && !isStrong)
       return false;
     if (rateLimit.types === "onlyDown" && !isDown)
       return false;
     return true;
   })
+}
+
+function voteTypeIsStrong(voteType: string): boolean {
+  return voteType==="bigDownvote" || voteType==="bigUpvote";
+}
+
+function voteTypeIsDown(voteType: string): boolean {
+  return voteType==="bigDownvote" || voteType==="smallDownvote";
 }
 
 function voteHasAnyEffect(votingSystem: VotingSystem, vote: DbVote, af: boolean) {

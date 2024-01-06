@@ -24,15 +24,11 @@ export const addClientIdMiddleware = (addMiddleware: AddMiddlewareType) => {
           const referrer = req.headers?.["referer"] ?? null;
           const url = req.url;
           
-          void createMutator({
-            collection: ClientIds,
-            document: {
-              clientId: newClientId,
-              firstSeenReferrer: referrer,
-              firstSeenLandingPage: url,
-              userIds: undefined,
-            },
-            validate: false,
+          void ClientIds.rawInsert({
+            clientId: newClientId,
+            firstSeenReferrer: referrer,
+            firstSeenLandingPage: url,
+            userIds: undefined,
           });
         }
       } catch(e) {

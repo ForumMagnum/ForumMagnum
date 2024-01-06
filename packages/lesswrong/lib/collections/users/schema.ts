@@ -2948,6 +2948,17 @@ const schema: SchemaType<"Users"> = {
     },
     ...schemaDefaultValue(false),
   },
+
+  // EA Forum wrapped fields
+  wrapped2023Viewed: {
+    type: Boolean,
+    optional: false,
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: ['members'],
+    hidden: true,
+    ...schemaDefaultValue(false),
+  },
 };
 
 export default schema;

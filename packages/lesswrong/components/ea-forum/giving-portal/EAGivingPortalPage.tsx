@@ -347,7 +347,20 @@ const formatDollars = (amount: number) => "$" + formatStat(Math.round(amount));
 
 const canonicalUrl = getSiteUrl() + "giving-portal";
 
-const pageDescription = "It’s almost the end of Giving season on the EA Forum; we’ve run a Donation Election, discussion themes, and more. As the end of the year approaches, consider donating!";
+const participateLink = "/posts/hAzhyikPnLnMXweXG/participate-in-the-donation-election-and-the-first-weekly#Participate_in_the_Donation_Election";
+const resultsLink = "/posts/7D83kwkyaHLQSo6JT/winners-in-the-forum-s-donation-election-2023";
+const candidatesLink = "/posts/bBm64htDSKn3ZKiQ5/meet-the-candidates-in-the-forum-s-donation-election-2023";
+
+const pageDescription = "Giving season 2023 on the EA Forum included a Donation Election (read about the winners!) and discussions related to weekly themes.";
+const PageDescription = () => (
+  <>
+    Giving season 2023 on the EA Forum included a{" "}
+    <Link to={participateLink}>Donation Election</Link>{" "}
+    (read about <Link to={resultsLink}>the winners</Link>!){" "}
+    and discussions related to{" "}
+    <Link to="/posts/hAzhyikPnLnMXweXG/participate-in-the-donation-election-and-the-first-weekly#Giving_Season___weekly_discussion_themes">weekly themes</Link>.
+  </>
+);
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -484,7 +497,7 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
             Giving portal
           </div>
           <div className={classNames(classes.text, classes.center)}>
-            {pageDescription}
+            <PageDescription />
           </div>
           {showTimeline &&
             <>
@@ -504,10 +517,10 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
             Donate now
           </div>
           <div className={classNames(classes.text, classes.center)}>
-            Looking to get your donations in before the end of the year, but unsure where to give?{" "}
-            <Link to="https://www.givingwhatwecan.org/en-US/why-we-recommend-funds?slug=why-we-recommend-funds">Consider</Link>{" "}
-            donating to a fund led by charity evaluation experts. For funds other than those below,{" "}
-            <Link to="https://www.givingwhatwecan.org/donate/organizations">go here</Link>.
+            Consider donating to one of these{" "}
+            <Link to="https://www.givingwhatwecan.org/en-US/why-we-recommend-funds?slug=why-we-recommend-funds">expert-led charitable funds</Link>,{" "}
+            or explore other funds and organizations{" "}
+            <Link to="https://www.givingwhatwecan.org/donate/organizations">here</Link>.
           </div>
           <div className={classNames(classes.grid, classes.eaFundsOpportunities)}>
             {eaFundsOpportunities.map((candidate) => (
@@ -523,18 +536,28 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
               <div className={classNames(classes.h1, classes.primaryText)}>
                 Donation election 2023
               </div>
+              <div className={classNames(classes.text, classes.primaryText, classes.textWide)}>
+                The Donation Election was{" "}
+                <Link to={participateLink}>officially announced</Link>{" "}
+                in early November; Forum users would vote on how we should allocate a{" "}
+                “<Link to={fundLink}>Donation Election Fund</Link>.”{" "}
+                Voting opened on December 1st and closed on December 15th.
+              </div>
+              <div className={classNames(classes.text, classes.primaryText, classes.textWide)}>
+                In the end, <span className={classes.bold}>341 people voted, and{" "}
+                <Link to={resultsLink}>the results were announced here</Link></span>;{" "}
+                Rethink Priorities took first place, followed by Charity Entrepreneurship’s
+                Incubated Charities Fund, and the Animal Welfare Fund. You can also{" "}
+                <Link to={candidatesLink}>read about the charities that were candidates
+                in the Election</Link>.
+              </div>
               <div className={classNames(
                 classes.text,
                 classes.primaryText,
                 classes.textWide,
                 classes.mb20,
               )}>
-                <span className={classes.bold}>
-                  The 2023 Donation Election closed on the 15th of December.
-                </span>{" "}
-                341 Forum users voted, and we collectively raised $34 856. We’ll
-                be announcing the winners soon. Until then, find out more about
-                the candidates below, and consider donating to them.
+                The section below hasn’t been changed since before the Donation Election closed.
               </div>
               {/*
               <div className={classNames(classes.row, classes.mt20)}>
@@ -610,10 +633,9 @@ const EAGivingPortalPage = ({classes}: {classes: ClassesType<typeof styles>}) =>
                 The Donation Election Fund will be designated for the top three
                 winning candidates in the election (split proportionately, based
                 on users' votes). You can read about{" "}
-                <Link to="/posts/bBm64htDSKn3ZKiQ5/meet-the-candidates-in-the-forum-s-donation-election-2023">
-                  these candidates
-                </Link> and what marginal donations to them would accomplish, and,
-                more broadly <Link to="/topics/donation-election-2023">read Forum posts about the election</Link>.
+                <Link to={candidatesLink}>these candidates</Link> and what marginal
+                donations to them would accomplish, and, more broadly{" "}
+                <Link to="/topics/donation-election-2023">read Forum posts about the election</Link>.
               </div>
               <ElectionCandidatesList className={classes.electionCandidates} />
               <div className={classNames(
