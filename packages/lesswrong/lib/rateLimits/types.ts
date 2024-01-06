@@ -1,3 +1,5 @@
+import {RateLimitUser} from "./utils"
+
 export type TimeframeUnitType = 'seconds'|'minutes'|'hours'|'days'|'weeks'|'months'
 export type RateLimitType = "moderator"|"lowKarma"|"universal"|"downvoteRatio"|"newUserDefault"
  
@@ -29,38 +31,8 @@ export interface AutoRateLimit {
   itemsPerTimeframe: number, // number of items a user can post/comment/etc before triggering rate limit
   rateLimitType?: RateLimitType // short name used in analytics db
   rateLimitMessage: string // A message displayed to users when they are rate limited.
-
-  // The following parameters are optional, and if set, the rate limit will only apply to users who meet all thresholds:
-
-  karmaThreshold?: number, // if set, limit will only apply to users with karma less than the threshold
-  downvoteRatioThreshold?: number, // if set, limit will only apply to users who's ratio of received downvotes / total votes is higher than the listed threshold
-  last20KarmaThreshold?: number //  if set, limit only applies to users whose past 20 posts and comments karma total is less than N
-  last20PostKarmaThreshold?: number // if set, limit only applies to users whose past 20 post karma total is less than N
-  last20CommentKarmaThreshold?: number // if set, limit only applies to users whose past 20 comment karma total is less than N
-  downvoterCountThreshold?: number // if set, limit only applies to users whose past 20 posts and comments were downvoted by N or more people.
-  postDownvoterCountThreshold?: number // if set, limit only applies to users whose past 20 posts were downvoted by N or more people.
-  commentDownvoterCountThreshold?: number // if set, limit only applies to users whose past 20 comments were downvoted by N or more people.
-  lastMonthKarmaThreshold?: number // if set, limit only applies to votes on content from the last month
-  lastMonthDownvoterCountThreshold?: number // if set, limit only applies to users whose content in the last month was downvoted by N or more people.
+  isActive: (user: RateLimitUser, features?: AnyBecauseTodo) => boolean, 
 }
-
-//convert rateLimitThresholds to union type
-export type RateLimitThreshold = "karmaThreshold"|"downvoteRatioThreshold"|"last20KarmaThreshold"|"last20PostKarmaThreshold"|"last20CommentKarmaThreshold"|"lastMonthKarmaThreshold"|"downvoterCountThreshold"|"postDownvoterCountThreshold"|"commentDownvoterCountThreshold"|"lastMonthDownvoterCountThreshold"
-
-export const rateLimitThresholds: RateLimitThreshold[] = [
-  "karmaThreshold",
-  "downvoteRatioThreshold", 
-  
-  "last20KarmaThreshold", 
-  "last20PostKarmaThreshold",
-  "last20CommentKarmaThreshold",
-  "lastMonthKarmaThreshold",
-
-  "downvoterCountThreshold",
-  "postDownvoterCountThreshold",
-  "commentDownvoterCountThreshold",
-  "lastMonthDownvoterCountThreshold"
-]
 
 export interface PostAutoRateLimit extends AutoRateLimit {
   actionType: "Posts",  
@@ -103,5 +75,3 @@ export type RateLimitComparison<T extends AutoRateLimit> = {
   isStricter: false;
   strictestNewRateLimit?: undefined;
 };
-
-
