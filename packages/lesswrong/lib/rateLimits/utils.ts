@@ -6,6 +6,8 @@ import { forumSelect } from "../forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
 import { AutoRateLimit, RateLimitComparison, RateLimitInfo, rateLimitThresholds, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
+import { ModeratorActions } from "../collections/moderatorActions"
+import { EXEMPT_FROM_RATE_LIMITS } from "../collections/moderatorActions/schema"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
@@ -30,7 +32,14 @@ export function getMaxAutoLimitHours(rateLimits?: Array<AutoRateLimit>) {
   }))
 }
 
-export function shouldIgnorePostRateLimit(user: DbUser) {
+export async function shouldIgnorePostRateLimit(user: DbUser) {
+  const isRateLimitExempt = await ModeratorActions.findOne({
+    userId: user._id,
+    type: EXEMPT_FROM_RATE_LIMITS,
+    endedAt: { $gt: new Date()}
+  })
+  if (isRateLimitExempt) return true
+
   return userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit")
 }
 

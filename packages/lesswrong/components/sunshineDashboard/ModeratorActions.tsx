@@ -7,6 +7,7 @@ import AlarmOffIcon from '@material-ui/icons/AlarmOff';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import ReportProblemIcon from '@material-ui/icons/ReportProblem';
 import OutlinedFlagIcon from '@material-ui/icons/OutlinedFlag';
 import classNames from 'classnames';
 import { useUpdate } from '../../lib/crud/withUpdate';
@@ -18,6 +19,7 @@ import { hideScrollBars } from '../../themes/styleUtils';
 import { getSignature, getSignatureWithNote } from '../../lib/collections/users/helpers';
 import { hideUnreviewedAuthorCommentsSettings } from '../../lib/publicSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { useDialog } from '../common/withDialog';
 
 const styles = (theme: ThemeType): JssStyles => ({
   row: {
@@ -89,6 +91,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
 }) => {
   const { LWTooltip, ModeratorActionItem, MenuItem, UserRateLimitItem } = Components
   const [notes, setNotes] = useState(user.sunshineNotes || "")
+  const { openDialog } = useDialog();
 
   const { mutate: updateUser } = useUpdate({
     collectionName: "Users",
@@ -334,6 +337,12 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     </LWTooltip>
     <LWTooltip title="Return this user to the review queue">
       <VisibilityOutlinedIcon className={classNames(classes.modButton, {[classes.disabledButton]: user.needsReview})} onClick={handleNeedsReview}/>
+    </LWTooltip>
+    <LWTooltip title="Create a new moderator action for this user">
+      <ReportProblemIcon className={classes.modButton} onClick={() => openDialog({
+        componentName: 'NewModeratorActionDialog',
+        componentProps: {userId: user._id}})}
+      />
     </LWTooltip>
   </div>
 

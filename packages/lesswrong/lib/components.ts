@@ -753,6 +753,7 @@ importComponent("CommentsReviewTab", () => require('../components/sunshineDashbo
 importComponent("CommentsReviewInfoCard", () => require('../components/sunshineDashboard/CommentsReviewInfoCard'));
 importComponent(["EmailHistory", "EmailHistoryPage"], () => require('../components/sunshineDashboard/EmailHistory'));
 importComponent("ModeratorActions", () => require('../components/sunshineDashboard/ModeratorActions'));
+importComponent("NewModeratorActionDialog", () => require('../components/sunshineDashboard/NewModeratorActionDialog'));
 importComponent("ModerationAltAccounts", () => require('../components/sunshineDashboard/ModerationAltAccounts'));
 importComponent("RejectContentDialog", () => require('../components/sunshineDashboard/RejectContentDialog'));
 importComponent("RejectContentButton", () => require('../components/sunshineDashboard/RejectContentButton'));
@@ -1067,3 +1068,4 @@ importComponent("CookieBanner", () => require('../components/common/CookieBanner
 importComponent("CookieDialog", () => require('../components/common/CookieBanner/CookieDialog'));
 importComponent("CookiePolicy", () => require('../components/common/CookieBanner/CookiePolicy'));
 importComponent("CookieTable", () => require('../components/common/CookieBanner/CookieTable'));
+
