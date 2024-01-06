@@ -1,8 +1,6 @@
-import Button from '@material-ui/core/Button';
-import Paper from '@material-ui/core/Paper';
-import React, { useState } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { DialogTitle } from '@material-ui/core';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialogContent: {
