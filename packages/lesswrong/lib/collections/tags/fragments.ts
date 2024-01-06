@@ -309,6 +309,7 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionEdit
     }
+    canVoteOnRels
   }
 `);
 

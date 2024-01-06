@@ -34,6 +34,8 @@ export const TAG_POSTS_SORT_ORDER_OPTIONS: Record<string, SettingsOption>  = {
   ...SORT_ORDER_OPTIONS,
 }
 
+const canVoteOnRelsOptions = ["userOwns", "userOwnsOnlyUpvote", ...permissionGroups]
+
 const schema: SchemaType<"Tags"> = {
   name: {
     type: String,
@@ -501,10 +503,15 @@ const schema: SchemaType<"Tags"> = {
     canCreate: ['admins', 'sunshineRegiment'],
     optional: true,
     group: formGroups.advancedOptions,
+    control: 'checkboxgroup',
+    label: "Who can add this tag to things or vote on its relevance?",
+    form: {
+      options: canVoteOnRelsOptions.map((key) => ({value: key, label: key})),
+    }
   },
   'canVoteOnRels.$': {
     type: String,
-    allowedValues: ["userOwns", "userOwnsOnlyUpvote", ...permissionGroups],
+    allowedValues: canVoteOnRelsOptions,
   },
   isSubforum: {
     type: Boolean,
