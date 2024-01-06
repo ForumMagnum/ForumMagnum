@@ -14,10 +14,6 @@ const LWHome = () => {
       <AnalyticsContext pageContext="homePage">
         <React.Fragment>
 
-          <SingleColumnSection>
-            <DismissibleSpotlightItem current />
-          </SingleColumnSection>
-
           {!reviewIsActive() && <LWRecommendations configName="frontpage" />}
 
           {reviewIsActive() && getReviewPhase() === "RESULTS" && <SingleColumnSection>
