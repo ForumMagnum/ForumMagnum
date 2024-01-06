@@ -50,13 +50,13 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
     {
       ...timeframe('2 Posts per 1 weeks'),
       rateLimitType: "newUserDefault",
-      isActive: user => user.karma < 5,
+      isActive: user => (user.karma < 5),
       rateLimitMessage: `Users with less than 5 karma can write up to 2 posts a week.<br/>${lwDefaultMessage}`,
     }, 
   // 1 post per week rate limits
     {
       ...timeframe('1 Posts per 1 weeks'),
-      isActive: user => user.karma <= -3,
+      isActive: user => (user.karma <= -3),
       rateLimitMessage: `Users with -3 or less karma can post once per week.<br/>${lwDefaultMessage}`
     }, 
     {
@@ -135,7 +135,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
     {
       ...timeframe('1 Comments per 1 days'),
       appliesToOwnPosts: false,
-      isActive: user => user.karma <= -3,
+      isActive: user => (user.karma <= -3),
       rateLimitMessage: `Users with -3 or less karma can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     }, 
     {
@@ -201,7 +201,6 @@ export const autoPostRateLimits: ForumOptions<PostAutoRateLimit[]> = {
   ],
   LessWrong: [ 
     ...LW.POSTS,
-    ALL.POSTS.FIVE_PER_DAY
   ],
   default: [
     ALL.POSTS.FIVE_PER_DAY
