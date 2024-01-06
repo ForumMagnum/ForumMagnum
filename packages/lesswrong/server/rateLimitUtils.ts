@@ -90,13 +90,6 @@ async function getCommentsInTimeframe(userId: string, maxTimeframe: number) {
  * On forums other than the EA Forum, the post author is always exempt on their own posts.
  */
 async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string|null, context: ResolverContext): Promise<boolean> {
-  const isRateLimitExempt = await ModeratorActions.findOne({
-    userId: user._id,
-    type: EXEMPT_FROM_RATE_LIMITS,
-    endedAt: { $gt: new Date()}
-  })
-  if (isRateLimitExempt) return true
-
   if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment")) {
     return true;
   }
@@ -106,6 +99,14 @@ async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string|null, c
       return true;
     }
   }
+
+  const isRateLimitExempt = await ModeratorActions.findOne({
+    userId: user._id,
+    type: EXEMPT_FROM_RATE_LIMITS,
+    endedAt: { $gt: new Date() }
+  })
+  if (isRateLimitExempt) return true
+
   return false;
 }
 

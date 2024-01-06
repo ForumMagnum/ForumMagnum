@@ -33,14 +33,16 @@ export function getMaxAutoLimitHours(rateLimits?: Array<AutoRateLimit>) {
 }
 
 export async function shouldIgnorePostRateLimit(user: DbUser) {
+  if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit")) return true
+
   const isRateLimitExempt = await ModeratorActions.findOne({
     userId: user._id,
     type: EXEMPT_FROM_RATE_LIMITS,
-    endedAt: { $gt: new Date()}
+    endedAt: { $gt: new Date() }
   })
   if (isRateLimitExempt) return true
-
-  return userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit")
+  
+  return false
 }
 
 export function getStrictestRateLimitInfo(rateLimits: Array<RateLimitInfo|null>): RateLimitInfo | null {
