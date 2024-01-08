@@ -171,9 +171,9 @@ async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimit
 
   const modSpecificPostRateLimitInfo = getModPostSpecificRateLimitInfo(commentsOnOthersPostsInTimeframe, modPostSpecificRateLimitHours, postId, userIsAuthor)
 
-  const manualRateLimitInfo = userIsAuthor ? null : getManualRateLimitInfo(manualCommentRateLimit, commentsOnOthersPostsInTimeframe) // ROBERT STUFF
+  const manualRateLimitInfo = userIsAuthor ? null : getManualRateLimitInfo(manualCommentRateLimit, commentsOnOthersPostsInTimeframe) 
 
-  const autoRateLimits = forumSelect(autoCommentRateLimits) // RAY STUFF
+  const autoRateLimits = forumSelect(autoCommentRateLimits)
   const filteredAutoRateLimits = autoRateLimits?.filter(rateLimit => {
     if (userIsAuthor) return rateLimit.appliesToOwnPosts
     return true 
