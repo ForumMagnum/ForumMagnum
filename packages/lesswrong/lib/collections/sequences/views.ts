@@ -1,19 +1,21 @@
 import { ensureIndex } from '../../collectionIndexUtils';
-import { forumTypeSetting } from '../../instanceSettings';
+import { isAF } from '../../instanceSettings';
 import Sequences from './collection';
 
 declare global {
   interface SequencesViewTerms extends ViewTermsBase {
     view?: SequencesViewName
     userId?: string
+    sequenceIds?: string[]
   }
 }
 
 Sequences.addDefaultView((terms: SequencesViewTerms) => {
-  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = isAF ? {af: true} : {}
   let params = {
     selector: {
       hidden: false,
+      ...(terms.sequenceIds && {_id: {$in: terms.sequenceIds}}),
       ...alignmentForum
     }
   }

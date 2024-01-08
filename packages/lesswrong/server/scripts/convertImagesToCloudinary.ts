@@ -1,7 +1,5 @@
 import { Globals } from '../../lib/vulcan-lib/config';
-import { editableCollectionsFields } from '../../lib/editor/make_editable';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
-import { Posts } from '../../lib/collections/posts/collection';
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { Images } from '../../lib/collections/images/collection';
 import { DatabaseServerSetting } from '../databaseSettings';
@@ -16,6 +14,8 @@ import { getCollection } from '../../lib/vulcan-lib/getCollection';
 import uniq from 'lodash/uniq';
 import { loggerConstructor } from '../../lib/utils/logging';
 import { isAnyTest } from '../../lib/executionEnvironment';
+import { Posts } from '../../lib/collections/posts';
+import { getAtPath, setAtPath } from '../../lib/helpers';
 
 const cloudinaryApiKey = new DatabaseServerSetting<string>("cloudinaryApiKey", "");
 const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecret", "");
@@ -23,7 +23,7 @@ const cloudinaryApiSecret = new DatabaseServerSetting<string>("cloudinaryApiSecr
 // Given a URL which (probably) points to an image, download that image,
 // re-upload it to cloudinary, and return a cloudinary URL for that image. If
 // the URL is already Cloudinary or can't be downloaded, returns null instead.
-async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): Promise<string|null> {
+export async function moveImageToCloudinary(oldUrl: string, originDocumentId: string): Promise<string|null> {
   const logger = loggerConstructor("image-conversion")
   const alreadyRehosted = await findAlreadyMovedImage(oldUrl);
   if (alreadyRehosted) return alreadyRehosted;
@@ -88,11 +88,15 @@ function getImageUrlWhitelist() {
 }
 
 function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
-  const parsedUrl = new URL(url);
-  if (getImageUrlWhitelist().indexOf(parsedUrl.hostname) !== -1) {
+  try {
+    const parsedUrl = new URL(url);
+    if (getImageUrlWhitelist().indexOf(parsedUrl.hostname) !== -1) {
+      return false;
+    }
+    return filterFn(url);
+  } catch (e) {
     return false;
   }
-  return filterFn(url);
 }
 
 async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {
@@ -155,9 +159,9 @@ function getImageUrlsFromImgTag(tag: any): string[] {
   }
   const srcset: string = tag.attr("srcset");
   if (srcset) {
-    const imageVariants = srcset.split(",").map(tok=>tok.trim());
+    const imageVariants = srcset.split(/,\s/g).map(tok=>tok.trim());
     for (let imageVariant of imageVariants) {
-      const [url,size] = imageVariant.split(" ").map(tok=>tok.trim());
+      const [url, _size] = imageVariant.split(" ").map(tok=>tok.trim());
       if (url) imageUrls.push(url);
     }
   }
@@ -166,7 +170,7 @@ function getImageUrlsFromImgTag(tag: any): string[] {
 }
 
 function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
-  const imageVariants = srcset.split(",").map(tok=>tok.trim());
+  const imageVariants = srcset.split(/,\s/g).map(tok=>tok.trim());
   const rewrittenImageVariants = imageVariants.map(variant => {
     let tokens = variant.split(" ");
     if (tokens[0] in urlMap)
@@ -186,8 +190,8 @@ function rewriteSrcset(srcset: string, urlMap: Record<string,string>): string {
  * @param urlFilterFn - A function that takes a URL and returns true if it should be mirrored, by default all URLs are mirrored except those in getImageUrlWhitelist()
  * @returns The number of images that were mirrored
  */
-export async function convertImagesInObject(
-  collectionName: CollectionNameString,
+export async function convertImagesInObject<N extends CollectionNameString>(
+  collectionName: N,
   _id: string,
   fieldName = "contents",
   urlFilterFn: (url: string)=>boolean = ()=>true
@@ -206,10 +210,8 @@ export async function convertImagesInObject(
     
     const latestRev = await getLatestRev(_id, fieldName);
     if (!latestRev) {
-      if (!isAnyTest) {
-        // eslint-disable-next-line no-console
-        console.error(`Could not find a latest-revision for ${collectionName} ID: ${_id}`);
-      }
+      // If this field doesn't have a latest rev, it's empty (common eg for
+      // moderation guidelines).
       return 0;
     }
     
@@ -221,7 +223,7 @@ export async function convertImagesInObject(
     // We also manually downcast the document because it's otherwise a union type of all possible DbObjects, and we can't use a random string as an index accessor
     // This is because `collection` is itself a union of all possible collections
     // I tried to make a mutual constraint between `fieldName` and `collectionName` but it was a bit too finnicky to be worth it; this is mostly being (unsafely) called from Globals anyways
-    const oldHtml = (obj as any)?.[fieldName]?.html;
+    const oldHtml = (obj as AnyBecauseHard)?.[fieldName]?.html;
     if (!oldHtml) {
       return 0;
     }
@@ -248,7 +250,7 @@ export async function convertImagesInObject(
       $set: {
         [`${fieldName}_latest`]: insertedRevisionId,
         [fieldName]: {
-          ...(obj as any)[fieldName],
+          ...(obj as AnyBecauseHard)[fieldName],
           html: newHtml,
           version: newVersion,
           editedAt: now,
@@ -266,6 +268,79 @@ export async function convertImagesInObject(
   }
 }
 
+const postMetaImageFields: string[][] = [
+  ["socialPreview", "imageId"],
+  ["eventImageId"],
+  ["socialPreviewImageAutoUrl"],
+  ["socialPreviewImageId"],
+];
+
+export const rehostPostMetaImages = async (post: DbPost) => {
+  const operations: MongoBulkWriteOperations<DbPost> = [];
+
+  for (const field of postMetaImageFields) {
+    const currentUrl = getAtPath<DbPost, string>(post, field);
+    if (!currentUrl || !urlNeedsMirroring(currentUrl, () => true)) {
+      continue;
+    }
+
+    let newUrl: string | null = null;
+    try {
+      newUrl = await moveImageToCloudinary(currentUrl, post._id);
+    } catch (e) {
+      // eslint-disable-next-line
+      console.error(`Failed to move image for ${post._id}:`, field, `(error ${e})`);
+      continue;
+    }
+    if (!newUrl) {
+      // eslint-disable-next-line
+      console.error(`Failed to move image for ${post._id}:`, field);
+      continue;
+    }
+
+    setAtPath(post, field, newUrl);
+
+    operations.push({
+      updateOne: {
+        filter: {
+          _id: post._id,
+        },
+        update: {
+          $set: {
+            [field.join(".")]: newUrl,
+          },
+        },
+      },
+    });
+  }
+
+  await Posts.rawCollection().bulkWrite(operations);
+}
+
+export const rehostPostMetaImagesById = async (postId: string) => {
+  const post = await Posts.findOne({_id: postId});
+  if (!post) {
+    throw new Error("Post not found");
+  }
+  await rehostPostMetaImages(post);
+}
+
+export const rehostAllPostMetaImages = async () => {
+  const projection: Partial<Record<keyof DbPost, 1>> = {_id: 1};
+  for (const field of postMetaImageFields) {
+    projection[field[0] as keyof DbPost] = 1;
+  }
+  const posts = await Posts.find({
+    $or: postMetaImageFields.map((field) => ({[field[0]]: {$exists: true}})),
+  }, {projection}).fetch();
+  for (const post of posts) {
+    await rehostPostMetaImages(post);
+  }
+}
+
 Globals.moveImageToCloudinary = moveImageToCloudinary;
 Globals.convertImagesInHTML = convertImagesInHTML;
 Globals.convertImagesInObject = convertImagesInObject;
+Globals.rehostPostMetaImages = rehostPostMetaImages;
+Globals.rehostPostMetaImagesById = rehostPostMetaImagesById;
+Globals.rehostAllPostMetaImages = rehostAllPostMetaImages;

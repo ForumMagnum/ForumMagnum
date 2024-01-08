@@ -6,7 +6,8 @@ export type PingbackDocument = {
 };
 
 export type RouterLocation = {
-  currentRoute: Route,
+  // Null in 404
+  currentRoute: Route|null,
   RouteComponent: any,
   location: any,
   pathname: string,
@@ -42,6 +43,7 @@ export type Route = {
   sunshineSidebar?: boolean
   disableAutoRefresh?: boolean,
   initialScroll?: "top"|"bottom",
+  noFooter?: boolean,
   standalone?: boolean // if true, this page has no header / intercom
   staticHeader?: boolean // if true, the page header is not sticky to the top of the screen
   fullscreen?: boolean // if true, the page contents are put into a flexbox with the header such that the page contents take up the full height of the screen without scrolling
@@ -97,3 +99,19 @@ export const addRoute = (...routes: Route[]): void => {
     };
   }
 };
+
+export const overrideRoute = (...routes: Route[]): void => {
+  // remove the old route if it exists, then call addRoute
+  for (let route of routes) {
+    const {name, path} = route;
+    delete Routes[name];
+
+    // @ts-ignore The @types/underscore signature for _.findWhere is narrower than the real function; this works fine
+    const routeWithSamePath = _.findWhere(Routes, { path });
+
+    if (routeWithSamePath) {
+      delete Routes[routeWithSamePath.name];
+    }
+  }
+  addRoute(...routes);
+}

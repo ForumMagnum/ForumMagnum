@@ -81,6 +81,8 @@ augmentFieldsDict(Revisions, {
         const toc = extractTableOfContents(rawHtml);
         const html = toc?.html || rawHtml;
         
+        if (!html) return '';
+        
         const startingFromHash = htmlStartingAtHash(html, hash);
         const highlight = highlightFromHTML(startingFromHash);
         return highlight;
@@ -104,6 +106,8 @@ augmentFieldsDict(Revisions, {
     resolveAs: {
       type: 'String',
       resolver: ({html}) => {
+        if (!html) return ""
+
         const mainTextHtml = sanitizeHtml(
           html, {
             allowedTags: _.without(sanitizeAllowedTags, 'blockquote', 'img'),

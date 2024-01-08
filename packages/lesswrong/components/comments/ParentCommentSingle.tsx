@@ -1,14 +1,23 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
+import type { CommentTreeOptions } from './commentTree';
 import React from 'react';
 import classNames from 'classnames';
 
-const ParentCommentSingle = ({ documentId, nestingLevel, post, tag, truncated }: {
+const ParentCommentSingle = ({
+  documentId,
+  nestingLevel,
+  post,
+  tag,
+  truncated,
+  treeOptions,
+}: {
   documentId: string,
   nestingLevel: number,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   truncated?: boolean,
+  treeOptions?: CommentTreeOptions
 }) => {
   const { document, loading } = useSingle({
     documentId,
@@ -23,11 +32,11 @@ const ParentCommentSingle = ({ documentId, nestingLevel, post, tag, truncated }:
         {
           "comments-node-root" : nestingLevel === 1,
           "comments-node-even" : nestingLevel % 2 === 0,
-          "comments-node-odd"  : nestingLevel % 2 != 0,
+          "comments-node-odd"  : nestingLevel % 2 !== 0,
         }
       )}>
         <Components.CommentsItem
-          treeOptions={{tag, post}}
+          treeOptions={{...treeOptions, tag, post}}
           isParentComment
           comment={document}
           nestingLevel={nestingLevel}

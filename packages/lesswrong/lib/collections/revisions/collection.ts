@@ -12,7 +12,6 @@ export const PLAINTEXT_DESCRIPTION_LENGTH = 2000
 export const Revisions: RevisionsCollection = createCollection({
   collectionName: 'Revisions',
   typeName: 'Revision',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Revisions'),
   // No mutations (revisions are insert-only immutable, and are created as a
@@ -46,8 +45,13 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   // ResolverContext, use a findOne query; this is slow, but doesn't come up
   // in any contexts where speed matters.
   const { major: majorVersion } = extractVersionsFromSemver(revision.version)
-  const collection = getCollection(collectionName);
+  const collection: CollectionBase<CollectionNameString> = getCollection(collectionName);
   const documentId = revision.documentId;
+
+  if (!documentId) {
+    return false
+  }
+  
   const document = context
     ? await context.loaders[collectionName].load(documentId)
     : await collection.findOne(documentId);
@@ -75,7 +79,7 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   }
   
   // Everyone who can see the post can get access to non-draft revisions
-  if (!await collection.checkAccess(user, document, context)) {
+  if (!document || !await collection.checkAccess(user, document, context)) {
     return false;
   }
   

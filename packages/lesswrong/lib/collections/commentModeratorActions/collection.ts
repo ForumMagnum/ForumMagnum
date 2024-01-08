@@ -6,7 +6,6 @@ import { getDefaultMutations } from '../../vulcan-core/default_mutations';
 export const CommentModeratorActions: CommentModeratorActionsCollection = createCollection({
   collectionName: 'CommentModeratorActions',
   typeName: 'CommentModeratorAction',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('CommentModeratorActions'),
   mutations: getDefaultMutations('CommentModeratorActions'),

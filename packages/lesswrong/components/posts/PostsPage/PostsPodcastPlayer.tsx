@@ -53,7 +53,7 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, clas
   // This won't trigger more than once per page load, unless the user clicks outside the div element, which will reset it
   useEventListener('blur', (e) => {
     if (mouseOverDiv.current) {
-      captureEvent('clickInsidePodcastPlayer', { postId, externalEpisodeId: podcastEpisode.externalEpisodeId });
+      captureEvent('clickInsidePodcastPlayer', { postId, externalEpisodeId: podcastEpisode.externalEpisodeId, playerType: "buzzSprout" });
     }
   });
 

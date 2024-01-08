@@ -17,7 +17,7 @@ export const DebateBody = ({ debateResponses, post, classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   classes: ClassesType,
 }) => {
-  const { DebateResponseBlock } = Components;
+  const { DebateResponseBlock, DebateTypingIndicator } = Components;
   const orderedParticipantList = uniq(debateResponses.map(({ comment }) => comment.userId));
 
   return (<NoSSR>
@@ -60,6 +60,9 @@ export const DebateBody = ({ debateResponses, post, classes }: {
         })
       }
     </div>
+    <div>
+      <DebateTypingIndicator post={post} />
+    </div>
   </NoSSR>);
 }
 
@@ -70,4 +73,3 @@ declare global {
     DebateBody: typeof DebateBodyComponent
   }
 }
-

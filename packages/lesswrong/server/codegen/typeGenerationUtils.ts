@@ -20,9 +20,18 @@ function maybeNullable(type: string, nullable: boolean) {
   return nullable ? `${type} | null` : type 
 }
 
-export function simplSchemaTypeToTypescript(schema: SchemaType<DbObject>, fieldName: string, simplSchemaType: AnyBecauseTodo, indent = 2): string {
-  const nullable = !!schema[fieldName]?.nullable;
-  if (simplSchemaType.singleType == Array) {
+export function simplSchemaTypeToTypescript(
+  schema: SchemaType<CollectionNameString>,
+  fieldName: string,
+  simplSchemaType: AnyBecauseTodo,
+  indent = 2,
+  DbType = false,
+): string {
+  let nullable = !!schema[fieldName]?.nullable;
+  if (DbType) {
+    nullable = schema[fieldName]?.nullable !== false
+  }
+  if (simplSchemaType.singleType === Array) {
     const elementFieldName = `${fieldName}.$`;
     if (!(elementFieldName in schema)) {
       throw new Error(`Field ${fieldName} has an array type but ${fieldName}.$ is not in the schema`);
@@ -33,17 +42,17 @@ export function simplSchemaTypeToTypescript(schema: SchemaType<DbObject>, fieldN
   } else if (simplSchemaType.singleType) {
     const allowedValues = simplSchemaType.definitions[0]?.allowedValues;
 
-    if (simplSchemaType.singleType == String) {
+    if (simplSchemaType.singleType === String) {
       if (allowedValues) {
         const unionType = simplSchemaUnionTypeToTypescript(allowedValues);
         return maybeNullable(unionType, nullable);
       }
       return maybeNullable("string", nullable);
     }
-    else if (simplSchemaType.singleType == Boolean) return maybeNullable("boolean", nullable);
-    else if (simplSchemaType.singleType == Number) return maybeNullable("number", nullable);
-    else if (simplSchemaType.singleType == Date) return maybeNullable("Date", nullable);
-    else if (simplSchemaType.singleType == SimpleSchema.Integer) return maybeNullable("number", nullable);
+    else if (simplSchemaType.singleType === Boolean) return maybeNullable("boolean", nullable);
+    else if (simplSchemaType.singleType === Number) return maybeNullable("number", nullable);
+    else if (simplSchemaType.singleType === Date) return maybeNullable("Date", nullable);
+    else if (simplSchemaType.singleType === SimpleSchema.Integer) return maybeNullable("number", nullable);
     
     const graphQLtype = simplSchemaToGraphQLtype(simplSchemaType.singleType);
     if (graphQLtype) {
@@ -84,7 +93,7 @@ function simplSchemaObjectTypeToTypescript(innerSchema: AnyBecauseTodo, indent: 
 
 export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): string {
   if (!graphqlType) throw new Error("Type cannot be undefined");
-  if (graphqlType == GraphQLJSON) return "any";
+  if (graphqlType === GraphQLJSON) return "any";
   
   if (graphqlType.endsWith("!")) {
     return graphqlTypeToTypescript(graphqlType.substr(0, graphqlType.length-1), true);
@@ -102,7 +111,7 @@ export function graphqlTypeToTypescript(graphqlType: any, nonnull?: boolean): st
     case "Date": return "Date";
     case "Float": return "number";
     default:
-      if (typeof graphqlType=="string") {
+      if (typeof graphqlType==="string") {
         if (graphqlType.endsWith("!") && isValidCollectionName(getCollectionName(graphqlType.substr(0, graphqlType.length-1)))) {
           return graphqlType;
         } else if (isValidCollectionName(getCollectionName(graphqlType))) {

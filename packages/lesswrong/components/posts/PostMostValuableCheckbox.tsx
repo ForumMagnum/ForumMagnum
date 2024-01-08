@@ -1,16 +1,28 @@
-import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
-import Checkbox from '@material-ui/core/Checkbox';
+import React, { useEffect, useState } from 'react';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useCurrentUser } from '../common/withUser';
 
+const styles = (theme: ThemeType) => ({
+  root: {
+    cursor: "pointer",
+    color: theme.palette.wrapped.background,
+    fontSize: 32,
+    padding: 6,
+    "&:hover": {
+      opacity: 0.5,
+    },
+  },
+});
+
 /**
  * This is used by the EA Forum Wrapped page, to let users indicate which posts they found particularly valuable.
  */
-export const PostMostValuableCheckbox = ({post}: {
+export const PostMostValuableCheckbox = ({post, classes}: {
   post: PostsBase,
+  classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser()
   const { results, loading } = useMulti({
@@ -19,29 +31,38 @@ export const PostMostValuableCheckbox = ({post}: {
     fragmentName: "UserMostValuablePostInfo",
     limit: 1,
   })
+  const userVote = results?.length ? results[0] : null
   
-  const { create: createMostValuable } = useCreate({
+  const { create: createMostValuable, loading: createMostValuableLoading } = useCreate({
     collectionName: 'UserMostValuablePosts',
     fragmentName: 'UserMostValuablePostInfo',
   })
-  const { mutate: setMostValuable } = useUpdate({
+  const { mutate: setMostValuable, loading: setMostValuableLoading } = useUpdate({
     collectionName: "UserMostValuablePosts",
     fragmentName: 'UserMostValuablePostInfo',
   })
   
+  const [checked, setChecked] = useState(false);
+  useEffect(() => {
+    // This is for the initial state - after that it should be managed by toggleChecked()
+    setChecked(!!userVote && !userVote.deleted)
+  }, [userVote])
+  
   const toggleChecked = () => {
-    if (loading || !currentUser) return
+    if (loading || createMostValuableLoading || setMostValuableLoading || !currentUser) return
     
-    if (results && results.length) {
+    if (userVote) {
+      setChecked(userVote.deleted)
       void setMostValuable({
         selector: {
-          _id: results[0]._id
+          _id: userVote._id
         },
         data: {
-          deleted: !results[0].deleted
+          deleted: !userVote.deleted
         }
       })
     } else {
+      setChecked(true)
       void createMostValuable({
         data: {
           userId: currentUser._id,
@@ -53,10 +74,14 @@ export const PostMostValuableCheckbox = ({post}: {
   
   if (!currentUser || loading || !results) return null
   
-  return <Checkbox checked={!!results.length && !results[0].deleted} onClick={toggleChecked} />
+  return <Components.ForumIcon
+    onClick={toggleChecked}
+    icon={checked ? "Heart" : "HeartOutline"}
+    className={classes.root}
+  />
 }
 
-const PostMostValuableCheckboxComponent = registerComponent('PostMostValuableCheckbox', PostMostValuableCheckbox);
+const PostMostValuableCheckboxComponent = registerComponent('PostMostValuableCheckbox', PostMostValuableCheckbox, {styles});
 
 declare global {
   interface ComponentTypes {

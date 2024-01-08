@@ -18,9 +18,9 @@ export const logoUrlSetting = new DatabasePublicSetting<string | null>('logoUrl'
 
 interface UtilsType {
   // In lib/helpers.ts
-  getUnusedSlug: <T extends HasSlugType>(collection: CollectionBase<HasSlugType>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  getUnusedSlugByCollectionName: (collectionName: CollectionNameString, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
-  slugIsUsed: (collectionName: CollectionNameString, slug: string) => Promise<boolean>
+  getUnusedSlug: (collection: CollectionBase<CollectionNameWithSlug>, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
+  getUnusedSlugByCollectionName: (collectionName: CollectionNameWithSlug, slug: string, useOldSlugs?: boolean, documentId?: string) => Promise<string>
+  slugIsUsed: (collectionName: CollectionNameWithSlug, slug: string) => Promise<boolean>
   
   // In server/vulcan-lib/connectors.ts
   Connectors: any
@@ -158,7 +158,8 @@ export const slugify = function (s: string): string {
   return slug;
 };
 
-export const getDomain = function(url: string): string|null {
+export const getDomain = function(url: string | null): string|null {
+  if (!url) return null;
   try {
     const hostname = urlObject.parse(url).hostname
     return hostname!.replace('www.', '');
@@ -286,7 +287,13 @@ export const sanitizeAllowedTags = [
   'ol', 'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 's',
   'code', 'hr', 'br', 'div', 'table', 'thead', 'caption',
   'tbody', 'tr', 'th', 'td', 'pre', 'img', 'figure', 'figcaption',
-  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe'
+  'section', 'span', 'sub', 'sup', 'ins', 'del', 'iframe', 'audio',
+  
+  //MathML elements (https://developer.mozilla.org/en-US/docs/Web/MathML/Element)
+  "math", "mi", "mn", "mo", "ms", "mspace", "mtext", "merror",
+  "mfrac", "mpadded", "mphantom", "mroot", "mrow", "msqrt", "mstyle",
+  "mmultiscripts", "mover", "mprescripts", "msub", "msubsup", "msup", "munder",
+  "munderover", "mtable", "mtd", "mtr",
 ]
 
 const cssSizeRegex = /^(?:\d|\.)+(?:px|em|%)$/;
@@ -307,11 +314,14 @@ const allowedTableStyles = {
   'padding': [/^.*$/],
 };
 
+const allowedMathMLGlobalAttributes = ['mathvariant', 'dir', 'displaystyle', 'scriptlevel'];
+
 export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
+      audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],
       table: ['style'],
@@ -321,10 +331,41 @@ export const sanitize = function(s: string): string {
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
       span: ['style', 'id', 'role'],
-      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug'],
       a: ['href', 'name', 'target', 'rel'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
+
+      // Attributes for dialogues
+      section: ['class', 'message-id', 'user-id', 'user-order', 'submitted-date', 'display-name'],
+      
+      // Attributes for MathML elements
+      math: [...allowedMathMLGlobalAttributes, 'display'],
+      mi: allowedMathMLGlobalAttributes,
+      mn: allowedMathMLGlobalAttributes,
+      mtext: allowedMathMLGlobalAttributes,
+      merror: allowedMathMLGlobalAttributes,
+      mfrac: [...allowedMathMLGlobalAttributes, 'linethickness'],
+      mmultiscripts: allowedMathMLGlobalAttributes,
+      mo: [...allowedMathMLGlobalAttributes, 'fence', 'largeop', 'lspace', 'maxsize', 'minsize', 'movablelimits', 'rspace', 'separator', 'stretchy', 'symmetric'],
+      mover: [...allowedMathMLGlobalAttributes, 'accent'],
+      mpadded: [...allowedMathMLGlobalAttributes, 'depth','height','lspace','voffset','width'],
+      mphantom: allowedMathMLGlobalAttributes,
+      mprescripts: allowedMathMLGlobalAttributes,
+      mroot: allowedMathMLGlobalAttributes,
+      mrow: allowedMathMLGlobalAttributes,
+      ms: [...allowedMathMLGlobalAttributes, 'lquote','rquote'],
+      mspace: [...allowedMathMLGlobalAttributes, 'depth','height','width'],
+      msqrt: allowedMathMLGlobalAttributes,
+      mstyle: allowedMathMLGlobalAttributes,
+      msub: allowedMathMLGlobalAttributes,
+      msubsup: allowedMathMLGlobalAttributes,
+      msup: allowedMathMLGlobalAttributes,
+      mtable: allowedMathMLGlobalAttributes,
+      mtd: [...allowedMathMLGlobalAttributes, 'columnspan','rowspan'],
+      mtr: allowedMathMLGlobalAttributes,
+      munder: [...allowedMathMLGlobalAttributes, 'accentunder'],
+      munderover: [...allowedMathMLGlobalAttributes, 'accent','accentunder'],
     },
     allowedIframeHostnames: [
       'www.youtube.com', 'youtube.com',
@@ -334,11 +375,14 @@ export const sanitize = function(s: string): string {
       'metaforecast.org',
       'app.thoughtsaver.com',
       'ourworldindata.org',
-      'strawpoll.com'
+      'strawpoll.com',
+      'estimaker.app',
+      'viewpoints.xyz',
+      'calendly.com'
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
-      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper', 'strawpoll-embed' ],
+      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper', 'strawpoll-embed', 'estimaker-preview', 'viewpoints-preview' ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes' ],
       li: [ 'footnote-item' ],

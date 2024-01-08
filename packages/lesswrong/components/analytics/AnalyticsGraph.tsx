@@ -8,7 +8,6 @@ import { AnalyticsField, analyticsFieldsList, useAnalyticsSeries } from "../hook
 import startCase from "lodash/startCase";
 import Checkbox, { CheckboxProps } from "@material-ui/core/Checkbox";
 import { useDialog } from "../common/withDialog";
-import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
 
 const GRAPH_HEIGHT = 300;
@@ -38,6 +37,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   graphHeaderSmallerTitle: {
     [theme.breakpoints.down('xs')]: {
       minHeight: 42,
+    }
+  },
+  graphHeaderNoTitle: {
+    [theme.breakpoints.down('xs')]: {
+      minHeight: 0,
     }
   },
   graphHeading: {
@@ -325,7 +329,7 @@ export const AnalyticsGraph = ({
 
   return (
     <div className={classes.root}>
-      <div className={classNames(classes.graphHeader, {[classes.graphHeaderSmallerTitle]: smallerTitle})}>
+      <div className={classNames(classes.graphHeader, {[classes.graphHeaderSmallerTitle]: smallerTitle, [classes.graphHeaderNoTitle]: !title})}>
         <Typography variant="headline" className={classNames(classes.graphHeading, {[classes.smallerTitle]: smallerTitle})}>
           {title}
         </Typography>

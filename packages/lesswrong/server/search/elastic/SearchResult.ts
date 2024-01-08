@@ -1,4 +1,4 @@
-export type SearchResultHit = AlgoliaDocument;
+export type SearchResultHit = SearchDocument;
 
 /**
  * This is the schema of results that InstantSearch expects to receive from

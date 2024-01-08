@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, useNavigation } from "../../lib/routeUtil";
+import { useLocation } from "../../lib/routeUtil";
 import { Components, registerComponent, slugify } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
@@ -8,14 +8,14 @@ import { getUserFromResults } from "../users/UsersProfile";
 import { PostAnalytics2Result, useMultiPostAnalytics } from "../hooks/useAnalytics";
 import classNames from "classnames";
 import moment from "moment";
-import { Link } from "../../lib/reactRouterWrapper";
+import { Link, useNavigate } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import isEmpty from "lodash/isEmpty";
 
 const mdTitleWidth = 60;
 const smTitleWidth = 50;
-const xsTitleWidth = 40;
+const xsTitleWidth = 45;
 const valueWidth = (titleWidth: number) => (100 - titleWidth) / 4;
 const gridColumns = (titleWidth: number) =>
   `${titleWidth}% ${valueWidth(titleWidth)}% ${valueWidth(titleWidth)}% ${valueWidth(titleWidth)}% ${valueWidth(
@@ -39,16 +39,20 @@ const styles = (theme: ThemeType): JssStyles => ({
       padding: 16,
     },
   },
+  pageHeader: {
+    marginTop: 24,
+    marginBottom: 24,
+  },
+  pageHeaderText: {
+    fontSize: 28,
+    fontWeight: "600",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.grey[1000],
+  },
   postsListHeader: {
     display: "flex",
     justifyContent: "space-between",
     flexDirection: "row",
-  },
-  postsListHeaderText: {
-    fontSize: 20,
-    fontWeight: "600",
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    color: theme.palette.grey[1000],
   },
   fetchingLatest: {
     fontSize: 14,
@@ -177,7 +181,7 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
           {timeFromNow}
           {ago}
           {" · "}
-          <Link to={postAnalyticsLink}>view post stats</Link>
+          <Link to={postAnalyticsLink}>view detailed stats</Link>
         </div>
       </div>
       <div className={classes.valueCell}>{post.views.toLocaleString()}</div>
@@ -190,7 +194,7 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
 
 const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   const { params, query, location } = useLocation();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const slug = slugify(params.slug);
   const currentUser = useCurrentUser();
 
@@ -235,7 +239,7 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
       ...(newSortBy !== undefined && { sortBy: newSortBy }),
       ...(newSortDesc !== undefined && { sortDesc: newSortDesc }),
     };
-    history.push({ ...location.location, search: `?${qs.stringify(newQuery)}` });
+    navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
   const {
@@ -280,14 +284,18 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
     <>
       <HeadTags title={title} />
       <SingleColumnSection className={classes.root}>
+      <div className={classes.pageHeader}>
+        <Typography variant="headline" className={classes.pageHeaderText}>
+          Your post stats
+        </Typography>
+      </div>
         <div className={classes.section}>
-          <AnalyticsGraph userId={user._id} title="Stats on all posts" />
+          <AnalyticsGraph userId={user._id}/>
         </div>
         <div className={classes.section}>
           <div className={classes.postsListHeader}>
-            <Typography variant="headline" className={classes.postsListHeaderText}>
-              Posts
-            </Typography>
+            {/* TODO since removing the title here this now causes some layout shift. Try to fix this (or ideally make it fast enough that
+                this message isn't needed) */}
             {maybeStale && <span className={classes.fetchingLatest}>
               checking latest data...
             </span>}

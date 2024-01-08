@@ -6,6 +6,8 @@ import { forumSelect } from "../forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
 import { AutoRateLimit, RateLimitComparison, RateLimitInfo, rateLimitThresholds, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
+import { ModeratorActions } from "../collections/moderatorActions"
+import { EXEMPT_FROM_RATE_LIMITS } from "../collections/moderatorActions/schema"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
@@ -30,8 +32,17 @@ export function getMaxAutoLimitHours(rateLimits?: Array<AutoRateLimit>) {
   }))
 }
 
-export function shouldIgnorePostRateLimit(user: DbUser) {
-  return userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit")
+export async function shouldIgnorePostRateLimit(user: DbUser) {
+  if (userIsAdmin(user) || userIsMemberOf(user, "sunshineRegiment") || userIsMemberOf(user, "canBypassPostRateLimit")) return true
+
+  const isRateLimitExempt = await ModeratorActions.findOne({
+    userId: user._id,
+    type: EXEMPT_FROM_RATE_LIMITS,
+    endedAt: { $gt: new Date() }
+  })
+  if (isRateLimitExempt) return true
+  
+  return false
 }
 
 export function getStrictestRateLimitInfo(rateLimits: Array<RateLimitInfo|null>): RateLimitInfo | null {
@@ -63,7 +74,7 @@ export function shouldRateLimitApply(user: UserKarmaInfo, rateLimit: AutoRateLim
           downvoterCount, postDownvoterCount, commentDownvoterCount, lastMonthDownvoterCount } = recentKarmaInfo
   
   // Karma is actually sometimes null, and numeric comparisons with null always return false (sometimes incorrectly)
-  if ((karmaThreshold !== undefined) && (user.karma ?? 0) > karmaThreshold) return false 
+  if ((karmaThreshold !== undefined) && (user.karma) > karmaThreshold) return false 
   if ((downvoteRatioThreshold !== undefined) && getDownvoteRatio(user) < downvoteRatioThreshold) return false
 
   if ((last20KarmaThreshold !== undefined) && (last20Karma > last20KarmaThreshold)) return false
@@ -143,10 +154,10 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
   const lastMonthDownvoterCount = getDownvoterCount(lastMonthVotes)
   
   return { 
-    last20Karma: last20Karma ?? 0, 
-    lastMonthKarma: lastMonthKarma ?? 0,
-    last20PostKarma: last20PostKarma ?? 0,
-    last20CommentKarma: last20CommentKarma ?? 0,
+    last20Karma, 
+    lastMonthKarma,
+    last20PostKarma,
+    last20CommentKarma,
     downvoterCount: downvoterCount ?? 0, 
     postDownvoterCount: postDownvoterCount ?? 0,
     commentDownvoterCount: commentDownvoterCount ?? 0,
@@ -232,7 +243,7 @@ export function getCurrentAndPreviousUserKarmaInfo(user: DbUser, currentVotes: R
   // Adjust the user's karma back to what it was before the most recent vote
   // This doesn't always handle the case where the voter is modifying an existing vote's strength correctly, but we don't really care about those
   const mostRecentVotePower = currentVotes[0].power;
-  const previousUserKarma = user.karma - mostRecentVotePower;
+  const previousUserKarma = (user.karma) - mostRecentVotePower;
 
   const currentUserKarmaInfo = { ...user, recentKarmaInfo: currentKarmaInfo };
   const previousUserKarmaInfo = { ...user, recentKarmaInfo: previousKarmaInfo, karma: previousUserKarma };

@@ -7,11 +7,14 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 export const BookmarksTab = () => {
   const {SectionTitle, BookmarksList, ContinueReadingList} = Components
   const {continueReading} = useContinueReading()
-
+  
   return <AnalyticsContext pageSectionContext="bookmarksTab">
-    <BookmarksList/>
-    <SectionTitle title="Continue Reading"/>
-    <ContinueReadingList continueReading={continueReading}/>
+    <BookmarksList showMessageIfEmpty={true} />
+
+    {continueReading?.length > 0 && <>
+      <SectionTitle title="Continue Reading"/>
+      <ContinueReadingList continueReading={continueReading}/>
+    </>}
   </AnalyticsContext>
 }
 

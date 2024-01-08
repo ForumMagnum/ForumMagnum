@@ -87,6 +87,42 @@ const embedConfig = {
 				`
 			}
 		},
+		{
+			name: 'Estimaker',
+			url: /^estimaker\.app\/_\/([\w-]+).*/,
+			html: ([match]) => {
+				return `
+					<div class="estimaker-preview">
+						<iframe style="height: 400px; width: 100%; border: none;" src="https://${match}"/>
+					</div>
+				`
+			}
+		},
+		{
+			name: 'Viewpoints',
+			url: /^viewpoints\.xyz\/polls\/([\w-]+)$/,
+			html: ([match, slug]) => {
+				return `
+					<div data-viewpoints-slug="${slug}" class="viewpoints-preview">
+						<iframe style="height: 400px; width: 100%; border: none;" src="https://viewpoints.xyz/embed/polls/${slug}"/>
+					</div>
+				`
+			}
+		},
+		{
+			name: 'Calendly',
+			url: /^calendly\.com\/[\w-]+(\/[\w-]+)?\/?$/,
+			html: ([match]) => {
+				return `
+					<div class="calendly-preview">
+						<iframe
+							sandbox="allow-scripts allow-same-origin allow-forms"
+							src="https://${match}"
+						/>
+					</div>
+				`
+			}
+		}
 	]
 }
 
@@ -174,4 +210,3 @@ export const commentEditorConfig = {
 	math: mathConfig,
 	mediaEmbed: embedConfig,
 };
-

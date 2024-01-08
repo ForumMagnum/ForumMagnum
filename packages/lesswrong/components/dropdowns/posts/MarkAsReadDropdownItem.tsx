@@ -1,8 +1,9 @@
 import React from "react";
 import { registerComponent, Components } from "../../../lib/vulcan-lib";
-import { preferredHeadingCase } from "../../../lib/forumTypeUtils";
+
 import { useItemsRead } from "../../hooks/useRecordPostView";
 import { useNamedMutation } from "../../../lib/crud/withMutation";
+import { preferredHeadingCase } from "../../../themes/forumTheme";
 
 const MarkAsReadDropdownItem = ({post}: {post: PostsBase}) => {
   const {postsRead, setPostRead} = useItemsRead();

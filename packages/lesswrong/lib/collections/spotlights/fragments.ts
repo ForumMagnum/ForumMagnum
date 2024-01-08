@@ -12,12 +12,24 @@ registerFragment(`
     lastPromotedAt
     customTitle
     customSubtitle
+    headerTitle
+    headerTitleLeftColor
+    headerTitleRightColor
     duration
     showAuthor
     imageFade
   }
 `)
 
+registerFragment(`
+  fragment SpotlightHeaderEventSubtitle on Spotlight {
+    ...SpotlightMinimumInfo
+    document {
+      _id
+      slug
+    }
+  }
+`);
 registerFragment(`
   fragment SpotlightDisplay on Spotlight {
     ...SpotlightMinimumInfo

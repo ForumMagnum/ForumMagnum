@@ -4,6 +4,7 @@ import './vulcan-users/index';
 
 // schema utils
 import './utils/schemaUtils'
+
 // Permissions
 import './permissions';
 
@@ -234,9 +235,43 @@ import './collections/postRelations';
 // PostRecommendations
 import './collections/postRecommendations/collection';
 
+// ElectionCandidates
+import './collections/electionCandidates/collection';
+import './collections/electionCandidates/fragments';
+import './collections/electionCandidates/views';
+
+// ElectionVotes
+import './collections/electionVotes/collection';
+import './collections/electionVotes/fragments';
+import './collections/electionVotes/views';
+
 // Collections supporting vendored libraries
 import './collections/cronHistories';
 import './collections/sessions';
+
+// dialogue typing indicators
+import './collections/typingIndicators/collection';
+import './collections/typingIndicators/fragments';
+
+// elicit questions
+import './collections/elicitQuestions/collection';
+
+// elicit predictions
+import './collections/elicitQuestionPredictions/collection';
+
+// dialogue checks
+import './collections/dialogueChecks/collection';
+import './collections/dialogueChecks/fragments';
+import './collections/dialogueChecks/views';
+
+// dialogue match preferences
+import './collections/dialogueMatchPreferences/collection';
+import './collections/dialogueMatchPreferences/fragments';
+import './collections/dialogueMatchPreferences/views';
+
+// dialogue match preferences
+import './collections/ckEditorUserSessions/collection';
+import './collections/ckEditorUserSessions/fragments';
 
 // Alignment Forum
 import './alignment-forum/permissions';

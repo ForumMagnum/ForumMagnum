@@ -6,7 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import * as _ from 'underscore';
 import { withLocation } from '../../lib/routeUtil';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeading: {
@@ -21,7 +21,7 @@ const headerStyles = (theme: ThemeType): JssStyles => ({
   formSectionHeadingTitle: {
     marginBottom: 5,
     fontSize: "1.25rem",
-    fontWeight: isEAForum ? 600 : undefined,
+    fontWeight: isFriendlyUI ? 600 : undefined,
   },
 });
 
@@ -53,7 +53,7 @@ export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
     border: theme.palette.border.grey300,
     marginBottom: theme.spacing.unit,
     background: theme.palette.background.pageActiveAreaBackground,
-    ...(isEAForum ? {borderRadius: 6} : {})
+    ...(isFriendlyUI ? {borderRadius: 6} : {})
   },
   formSectionBody: {
     paddingTop: theme.spacing.unit,
@@ -79,7 +79,7 @@ export const groupLayoutStyles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasErrors, groupStyling, paddingStyling, flexStyle, flexAlignTopStyle, toggle, classes }: {
+const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasErrors, groupStyling, showHeading, paddingStyling, flexStyle, flexAlignTopStyle, toggle, classes }: {
   children: React.ReactNode
   label?: string
   heading: React.ReactNode
@@ -87,6 +87,7 @@ const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasError
   collapsed: boolean
   hasErrors: boolean
   groupStyling: any
+  showHeading?: boolean,
   paddingStyling: any
   flexStyle: any
   flexAlignTopStyle: any
@@ -103,7 +104,7 @@ const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasError
       className={classNames(
         {
           [classes.formSectionCollapsed]: collapsed && !hasErrors,
-          [classes.formSectionBody]: groupStyling,
+          [classes.formSectionBody]: groupStyling && showHeading,
           [classes.flex]: flexStyle,
           [classes.flexAlignTop]: flexAlignTopStyle,
           [classes.formSectionPadding]: groupStyling,
@@ -118,7 +119,7 @@ const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasError
 
 const FormGroupLayoutComponent = registerComponent('FormGroupLayout', FormGroupLayout, {styles: groupLayoutStyles});
 
-interface FormGroupExternalProps extends FormGroupType {
+interface FormGroupExternalProps extends FormGroupType<CollectionNameString> {
   errors: any[]
   throwError: any
   currentValues: any
@@ -191,17 +192,19 @@ class FormGroup extends PureComponent<FormGroupProps,FormGroupState> {
     });
 
   render() {
-    const { name, fields, formComponents, label, defaultStyle, flexStyle, flexAlignTopStyle, paddingStyle, formProps } = this.props;
+    const { name, fields, formComponents, label, defaultStyle, hideHeader, flexStyle, flexAlignTopStyle, paddingStyle, formProps } = this.props;
     const { collapsed } = this.state;
     const FormComponents = mergeWithComponents(formComponents);
     const groupStyling = !(name === 'default' || defaultStyle)
+    const showHeading = groupStyling && !hideHeader
 
     return (
       <FormComponents.FormGroupLayout
         label={label}
         toggle={this.toggle}
         collapsed={collapsed}
-        heading={groupStyling ? this.renderHeading(FormComponents) : null}
+        heading={showHeading ? this.renderHeading(FormComponents) : null}
+        showHeading={showHeading}
         footer={this.state.footerContent}
         groupStyling={groupStyling}
         paddingStyling={paddingStyle}

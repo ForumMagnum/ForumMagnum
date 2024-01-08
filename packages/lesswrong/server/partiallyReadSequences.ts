@@ -3,7 +3,6 @@ import Users from '../lib/collections/users/collection';
 import { getUser } from '../lib/vulcan-users/helpers';
 import { Sequences } from '../lib/collections/sequences/collection';
 import { sequenceGetAllPostIDs } from '../lib/collections/sequences/helpers';
-import Posts from '../lib/collections/posts/collection';
 import { Collections } from '../lib/collections/collections/collection';
 import { collectionGetAllPostIDs } from '../lib/collections/collections/helpers';
 import findIndex from 'lodash/findIndex';
@@ -26,9 +25,9 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
   const collection = sequence?.canonicalCollectionSlug ? await Collections.findOne({slug: sequence.canonicalCollectionSlug}) : null;
   const now = new Date();
   
-  const partiallyReadMinusThis = _.filter(user.partiallyReadSequences,
+  const partiallyReadMinusThis = user.partiallyReadSequences?.filter(
     partiallyRead => partiallyRead.sequenceId !== sequenceId
-      && (!collection || partiallyRead.collectionId !== collection._id));
+      && (!collection || partiallyRead.collectionId !== collection._id)) || [];
   
   // Any unread posts in the sequence?
   if (anyUnread) {
@@ -91,7 +90,7 @@ const updateSequenceReadStatusForPostRead = async (userId: string, postId: strin
   
   // Done reading! If the user previously had a partiallyReadSequences entry
   // for this sequence, remove it and update the user object.
-  if (_.some(user.partiallyReadSequences, s=>s.sequenceId === sequenceId)) {
+  if (user.partiallyReadSequences?.some(s=>s.sequenceId === sequenceId)) {
     await setUserPartiallyReadSequences(userId, partiallyReadMinusThis);
   }
 }
@@ -114,7 +113,7 @@ const userHasPartiallyReadSequence = (user: DbUser, sequenceId: string): boolean
   return _.some(user.partiallyReadSequences, s=>s.sequenceId === sequenceId);
 }
 
-getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartialReadStatusCallback(props: CreateCallbackProperties<DbLWEvent>) {
+getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartialReadStatusCallback(props: CreateCallbackProperties<"LWEvents">) {
   const {document: event, context} = props;
   if (event.name === 'post-view' && event.properties.sequenceId) {
     const user = await Users.findOne({_id: event.userId});
@@ -124,67 +123,35 @@ getCollectionHooks("LWEvents").createAsync.add(async function EventUpdatePartial
     // Don't add posts to the continue reading section just because a user reads
     // a post. But if the sequence is already there, update their position in
     // the sequence.
-    if (userHasPartiallyReadSequence(user, sequenceId)) {
+    if (userHasPartiallyReadSequence(user, sequenceId) && event.documentId) {
       // Deliberately lacks an await - this runs concurrently in the background
       await updateSequenceReadStatusForPostRead(user._id, event.documentId, event.properties.sequenceId, context);
     }
   }
 });
 
-const getReadPosts = async (user: DbUser, postIDs: Array<string>) => {
-  if (Posts.isPostgres()) {
-    const result = await runSqlQuery(`
-      SELECT "Posts"."_id" FROM "Posts"
-      JOIN "ReadStatuses" ON
-        "Posts"."_id" = "ReadStatuses"."postId" AND
-        "ReadStatuses"."isRead" = TRUE AND
-        "ReadStatuses"."userId" = $1
-      WHERE "Posts"."_id" IN ( $2:csv )
-    `, [user._id, postIDs], "read");
-    return result.map(({_id}) => _id);
-  } else {
-    return Posts.aggregate([
-      { $match: {
-        _id: {$in: postIDs}
-      } },
-
-      { $lookup: {
-        from: "readstatuses",
-        let: { documentId: "$_id", },
-        pipeline: [
-          { $match: {
-            userId: user._id,
-          } },
-          { $match: { $expr: {
-            $and: [
-              {$eq: ["$postId", "$$documentId"]},
-            ]
-          } } },
-          { $limit: 1},
-        ],
-        as: "views",
-      } },
-
-      { $match: {
-        "views": {$size: 1}
-      } },
-
-      { $project: {
-        _id: 1
-      } }
-    ]).toArray();
-  };
+const getReadPostIds = async (user: DbUser, postIDs: Array<string>): Promise<string[]> => {
+  const result = await runSqlQuery(`
+    -- partiallyReadSequences.getReadPostIds
+    SELECT "Posts"."_id" FROM "Posts"
+    JOIN "ReadStatuses" ON
+      "Posts"."_id" = "ReadStatuses"."postId" AND
+      "ReadStatuses"."isRead" = TRUE AND
+      "ReadStatuses"."userId" = $1
+    WHERE "Posts"."_id" IN ( $2:csv )
+  `, [user._id, postIDs], "read");
+  return result.map(({_id}) => _id);
 }
 
 // Given a user and an array of post IDs, return a dictionary from
 // postID=>bool, true if the user has read the post and false otherwise.
-const postsToReadStatuses = async (user: DbUser, postIDs: Array<string>) => {
-  const readPosts = await getReadPosts(user, postIDs);
+const postsToReadStatuses = async (user: DbUser, postIds: Array<string>) => {
+  const readPostIds = await getReadPostIds(user, postIds);
   const resultDict: Partial<Record<string,boolean>> = {};
-  for (const postID of postIDs)
+  for (const postID of postIds)
     resultDict[postID] = false;
-  for (const readPost of readPosts)
-    resultDict[readPost._id] = true;
+  for (const readPostId of readPostIds)
+    resultDict[readPostId] = true;
   return resultDict;
 }
 

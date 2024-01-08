@@ -13,13 +13,14 @@ import { eligibleToNominate, getCostData, getReviewPhase, ReviewPhase, getReview
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import Select from '@material-ui/core/Select';
 import { randomId } from '../../lib/random';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { voteTooltipType } from './ReviewVoteTableRow';
 import qs from 'qs';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import filter from 'lodash/filter';
 import { fieldIn } from '../../lib/utils/typeGuardUtils';
-import { preferredHeadingCase } from '../../lib/forumTypeUtils';
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const isEAForum = forumTypeSetting.get() === 'EAForum'
 const isLW = forumTypeSetting.get() === 'LessWrong'
@@ -293,7 +294,7 @@ const ReviewVotingPage = ({classes}: {
     }
   }
 
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
 
   if (postsError) {
@@ -332,7 +333,7 @@ const ReviewVotingPage = ({classes}: {
   const updatePostSort = (sort: AnyBecauseTodo) => {
     setSortPosts(sort)
     const newQuery = {...location.query, sort}
-    history.push({...location.location, search: `?${qs.stringify(newQuery)}`})
+    navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
   }
 
   const dispatchQualitativeVote = useCallback(async ({_id, postId, score}: SyntheticQualitativeVote) => {

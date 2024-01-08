@@ -8,11 +8,11 @@ import { useDialog } from '../common/withDialog'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { useGoogleMaps, geoSuggestStyles } from '../form-components/LocationFormComponent';
 import Geosuggest from 'react-geosuggest';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 
 import Button from '@material-ui/core/Button';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
@@ -20,7 +20,7 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import Tab from '@material-ui/core/Tab';
 import Tabs from '@material-ui/core/Tabs';
 import Chip from '@material-ui/core/Chip';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -39,14 +39,14 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
       marginTop: 30,
     },
     [theme.breakpoints.up('sm')]: {
-      marginTop: isEAForum ? 20 : undefined,
+      marginTop: isFriendlyUI ? 20 : undefined,
     },
   },
   sectionHeading: {
     ...theme.typography.headline,
     fontSize: 34,
     margin: 0,
-    ...(isEAForum && {
+    ...(isFriendlyUI && {
       fontFamily: theme.palette.fonts.sansSerifStack,
     }),
   },
@@ -153,7 +153,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   localGroupsBtn: {
     textTransform: 'none',
-    fontSize: isEAForum ? 13 : 12,
+    fontSize: isFriendlyUI ? 13 : 12,
   },
   localGroupsBtnIcon: {
     fontSize: 15,
@@ -185,7 +185,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventsPageLink: {
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.text.invertedBackgroundText,
-    fontSize: isEAForum ? 14 : 13,
+    fontSize: isFriendlyUI ? 14 : 13,
     padding: '8px 16px',
     borderRadius: 4,
     marginTop: 10
@@ -201,7 +201,7 @@ const Community = ({classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const { location, query } = useLocation();
   const { captureEvent } = useTracking();
   
@@ -348,7 +348,7 @@ const Community = ({classes}: {
   const handleChangeTab = (e: React.ChangeEvent, value: string) => {
     setTab(value)
     setKeywordSearch('')
-    history.replace({...location, hash: `#${value}`})
+    navigate({...location, hash: `#${value}`}, {replace: true})
   }
   
   const handleKeywordSearch = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -364,7 +364,7 @@ const Community = ({classes}: {
   
   const handleToggleIncludeInactive = () => {
     setIncludeInactive(!includeInactive)
-    history.replace({...location, search: `?includeInactive=${!includeInactive}`})
+    navigate({...location, search: `?includeInactive=${!includeInactive}`}, {replace: true})
   }
   
   const canCreateGroups = currentUser && userIsAdmin(currentUser)

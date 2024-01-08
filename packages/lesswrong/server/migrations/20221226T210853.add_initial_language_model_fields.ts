@@ -1,4 +1,4 @@
-import { addField } from "./meta/utils";
+import { addField, dropField } from "./meta/utils";
 import { Tags } from '../../lib/collections/tags/collection';
 
 /**
@@ -38,12 +38,11 @@ import { Tags } from '../../lib/collections/tags/collection';
 export const acceptsSchemaHash = "746fe67809bf748504782256c202744c";
 
 export const up = async ({db}: MigrationContext) => {
-  if (Tags.isPostgres()) {
-    await addField(db, Tags, "autoTagModel");
-    await addField(db, Tags, "autoTagPrompt");
-  }
+  await addField(db, Tags, "autoTagModel");
+  await addField(db, Tags, "autoTagPrompt");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  // TODO, not required
+  await dropField(db, Tags, "autoTagModel");
+  await dropField(db, Tags, "autoTagPrompt");
 }

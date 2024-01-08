@@ -1,7 +1,7 @@
-import { foreignKeyField, accessFilterSingle, accessFilterMultiple } from '../../utils/schemaUtils';
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue, foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
+import { getWithCustomLoader } from '../../loaders';
 
-const schema: SchemaType<DbSequence> = {
+const schema: SchemaType<"Sequences"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -11,6 +11,7 @@ const schema: SchemaType<DbSequence> = {
       nullable: true,
     }),
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -37,7 +38,7 @@ const schema: SchemaType<DbSequence> = {
     resolveAs: {
       fieldName: 'chapters',
       type: '[Chapter]',
-      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Array<DbChapter>> => {
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Partial<DbChapter>[]> => {
         const chapters = await context.Chapters.find(
           {sequenceId: sequence._id},
           {sort: {number: 1}},
@@ -134,7 +135,7 @@ const schema: SchemaType<DbSequence> = {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<DbCollection|null> => {
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Partial<DbCollection>|null> => {
         if (!sequence.canonicalCollectionSlug) return null;
         const collection = await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
         return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
@@ -160,13 +161,67 @@ const schema: SchemaType<DbSequence> = {
     ...schemaDefaultValue(false),
   },
 
+  noindex: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    ...schemaDefaultValue(false),
+  },
+
+  postsCount: resolverOnlyField({
+    type: Number,
+    canRead: ['guests'],
+    resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
+      const count = await getWithCustomLoader<number, string>(
+        context,
+        "sequencePostsCount",
+        sequence._id,
+        (sequenceIds): Promise<number[]> => {
+          return context.repos.sequences.postsCount(sequenceIds);
+        }
+      );
+
+      return count;
+    }
+  }),
+
+  readPostsCount: resolverOnlyField({
+    type: Number,
+    canRead: ['guests'],
+    resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
+      const currentUser = context.currentUser;
+      
+      if (!currentUser) return 0;
+
+      const createCompositeId = (sequenceId: string, userId: string) => `${sequenceId}-${userId}`;
+      const splitCompositeId = (compositeId: string) => {
+        const [sequenceId, userId] = compositeId.split('-')
+        return {sequenceId, userId};
+      };
+
+      const count = await getWithCustomLoader<number, string>(
+        context,
+        "sequenceReadPostsCount",
+        createCompositeId(sequence._id, currentUser._id),
+        (compositeIds): Promise<number[]> => {
+          return context.repos.sequences.readPostsCount(compositeIds.map(splitCompositeId));
+        }
+      );
+
+      return count;
+    }
+  }),
+
   /* Alignment Forum fields */
 
   af: {
     type: Boolean,
     optional: true,
+    nullable: false,
     label: "Alignment Forum",
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['alignmentVoters'],
     canCreate: ['alignmentVoters'],

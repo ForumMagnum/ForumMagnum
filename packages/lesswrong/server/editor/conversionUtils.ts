@@ -16,6 +16,10 @@ import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import cheerio from 'cheerio';
 import { sanitize } from '../../lib/vulcan-lib/utils';
+import Users from '../../lib/vulcan-users';
+import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
+import { Posts } from '../../lib/collections/posts';
+import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -76,7 +80,7 @@ export function mjPagePromise(html: string, beforeSerializationCallback: (dom: a
 }
 
 // Adapted from: https://github.com/cheeriojs/cheerio/issues/748
-const cheerioWrapAll = (toWrap: cheerio.Cheerio, wrapper: string, $: cheerio.Root) => {
+export const cheerioWrapAll = (toWrap: cheerio.Cheerio, wrapper: string, $: cheerio.Root) => {
   if (toWrap.length < 1) {
     return toWrap;
   }
@@ -131,6 +135,90 @@ function wrapSpoilerTags(html: string): string {
 
   // Serialize back to HTML.
   return $.html()
+}
+
+export const handleDialogueHtml = async (html: string): Promise<string> => {
+  const $ = cheerioParse(html);
+
+  $('.dialogue-message-input-wrapper').remove();
+  $('.dialogue-message-input').remove();
+
+  const userIds: string[] = [];
+  $('.dialogue-message').each((idx, element) => {
+    const userId = $(element).attr('user-id');
+    if (userId) userIds.push(userId);
+  });
+
+  const rawUsers = await Users.find({ _id: { $in: userIds } }, { projection: { _id: 1, displayName: 1 } }).fetch();
+
+  if (rawUsers.some((user) => !user.displayName)) throw new Error('Some users in dialogue have no display name'); //should never happen, better than filtering out users with no display name
+  const users = filterWhereFieldsNotNull(rawUsers, "displayName"); //shouldn't get to this point if missing displayname, but need to make types happy
+
+  const userDisplayNamesById = Object.fromEntries(users.map((user) => [user._id, user.displayName]));
+
+  $('.dialogue-message').each((idx, element) => {
+    const userId = $(element).attr('user-id');
+    if (userId && userDisplayNamesById[userId]) {
+      $(element)
+        .prepend(`<section class="dialogue-message-header CommentUserName-author UsersNameDisplay-noColor"><b></b></section>`)
+        .find('.dialogue-message-header b')
+        .text(userDisplayNamesById[userId])
+    }
+  });
+
+  return $.html();
+};
+
+interface UserIdAndDisplayName {
+  userId: string;
+  displayName: string;
+}
+
+export const backfillDialogueMessageInputAttributes = async (html: string, postId: string) => {
+  const post = await Posts.findOne(postId);
+  if (!post) throw new Error(`Can't find post with id ${postId}!`);
+  
+  const dialogueParticipantIds = [post.userId, ...getConfirmedCoauthorIds(post)];
+  const usersWithDisplayNames = await Users.find({ _id: { $in: dialogueParticipantIds } }, undefined, { _id: 1, displayName: 1 }).fetch();
+  const displayNamesById = Object.fromEntries(usersWithDisplayNames.map(user => [user._id, user.displayName] as const));
+
+  const $ = cheerioParse(html);
+
+  if ($('.dialogue-message-input-wrapper').length > 0) {
+    return $.html();
+  }
+
+  const userIdsWithOrders: [number, UserIdAndDisplayName][] = dialogueParticipantIds.map(
+    (participantId, idx) => ([idx + 1, { userId: participantId, displayName: displayNamesById[participantId] ?? '[Missing displayName]' }])
+  );
+
+  userIdsWithOrders.sort(([orderA], [orderB]) => orderA - orderB);
+  const userIdsByOrder = Object.fromEntries(userIdsWithOrders);
+
+  const messageInputElements = $('.dialogue-message-input').toArray();
+
+  for (const [idx, element] of Object.entries(messageInputElements)) {
+    const userId = $(element).attr('user-id');
+    const userOrder = $(element).attr('user-order');
+
+    if (userId) {
+      // eslint-disable-next-line no-console
+      console.log(`Element ${element} already has userId ${userId}`);
+      continue;
+    }
+
+    const idxDerivedOrder = (Number.parseInt(idx) + 1).toString();
+    const finalUserOrder = userOrder ?? idxDerivedOrder;
+    const { userId: userIdByOrder, displayName } = userIdsByOrder[finalUserOrder];
+
+    $(element).attr('user-id', userIdByOrder);
+    $(element).attr('user-order', finalUserOrder);
+    $(element).attr('display-name', displayName);
+  }
+
+  cheerioWrapAll($('.dialogue-message-input'), '<div class="dialogue-message-input-wrapper" />', $);
+
+  return $.html();
 }
 
 const trimLeadingAndTrailingWhiteSpace = (html: string): string => {
@@ -194,8 +282,9 @@ export async function ckEditorMarkupToHtml(markup: string): Promise<string> {
   // Sanitized CKEditor markup is just html
   const html = sanitize(markup)
   const trimmedHtml = trimLeadingAndTrailingWhiteSpace(html)
+  const hydratedHtml = await handleDialogueHtml(trimmedHtml)
   // Render any LaTeX tags we might have in the HTML
-  return await mjPagePromise(trimmedHtml, trimLatexAndAddCSS)
+  return await mjPagePromise(hydratedHtml, trimLatexAndAddCSS)
 }
 
 export async function dataToHTML(data: AnyBecauseTodo, type: string, sanitizeData = false) {
@@ -257,13 +346,17 @@ export async function dataToCkEditor(data: AnyBecauseTodo, type: string) {
  * When we calculate the word count we want to ignore footnotes. There's two syntaxes
  * for footnotes in markdown:
  *
+ * ```
  * 1.  ^**[^](#fnreflexzxp4wr9h)**^
  *
  *     The contents of my footnote
+ * ```
  *
  * and
  *
+ * ```
  * [^1]: The contents of my footnote.
+ * ```
  *
  * In both cases, the footnote must start at character 0 on the line. The strategy here
  * is just to find the first place where this occurs and then to ignore to the end of
@@ -271,21 +364,51 @@ export async function dataToCkEditor(data: AnyBecauseTodo, type: string) {
  *
  * We adopt a similar strategy for ignoring appendices. We find the first header tag that
  * contains the word 'appendix' (case-insensitive), and ignore to the end of the document.
+ *
+ * This function runs when content is saved, not when it's loaded, so it's not too
+ * performance sensitive. On the flip side, updates to this function won't affect
+ * existing content (without a migration) until the content is edited and resaved.
+ *
+ * This involves converting from whatever format the content is in to markdown to do
+ * the footnote removal, then to HTML to do the appendix removal, then back to markdown
+ * to count the words. Any of these steps can potentially fail (throw an exception).
+ * In particular, if the post contains LaTeX which contains syntax errors, that can
+ * cause a failure; and there is (currently, 2023-08-21) at least one escaping bug which
+ * can cause format conversions to _introduce_ LaTeX syntax errors for later conversion
+ * steps to run into. Our strategy for this is to keep a running best estimate, to be
+ * returned if any step fails.
  */
 export async function dataToWordCount(data: AnyBecauseTodo, type: string) {
+  let bestWordCount = 0;
+
   try {
+    // Convert to markdown and count words by splitting spaces
     const markdown = dataToMarkdown(data, type) ?? "";
+    bestWordCount = markdown.trim().split(/[\s]+/g).length;
+    
+    // Try to remove footnotes and update the count accordingly
     const withoutFootnotes = markdown
       .split(/^1\. {2}\^\*\*\[\^\]\(#(.|\n)*/m)[0]
       .split(/^\[\^1\]:.*/m)[0];
+    
+    // Sanity check: if removing footnotes lowered the word count by over 60%, we might
+    // have removed too much.
+    const wordCountWithoutFootnotes = withoutFootnotes.trim().split(/[\s]+/g).length;
+    if (wordCountWithoutFootnotes < bestWordCount*.4) {
+      return bestWordCount;
+    }
+    bestWordCount = wordCountWithoutFootnotes;
+
+    // Convert to HTML and try removing appendixes
     const htmlWithoutFootnotes = await dataToHTML(withoutFootnotes, "markdown") ?? "";
-    const withoutFootnotesAndAppendices = htmlWithoutFootnotes
+    const htmlWithoutFootnotesAndAppendices = htmlWithoutFootnotes
       .split(/<h[1-6]>.*(appendix).*<\/h[1-6]>/i)[0];
-    const words = withoutFootnotesAndAppendices.match(/[^\s]+/g) ?? [];
-    return words.length;
+    const markdownWithoutFootnotesAndAppendices = dataToMarkdown(htmlWithoutFootnotesAndAppendices, "html");
+    bestWordCount = markdownWithoutFootnotesAndAppendices.trim().split(/[\s]+/g).length;
   } catch(err) {
     // eslint-disable-next-line no-console
-    console.error("Error in dataToWordCount", data, type, err)
-    return 0
+    console.error("Error in dataToWordCount", err)
   }
+
+  return bestWordCount
 }

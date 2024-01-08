@@ -7,7 +7,7 @@ import { TagRels } from '../../lib/collections/tagRels/collection';
 import { Votes } from '../../lib/collections/votes/collection';
 import { Users } from '../../lib/collections/users/collection';
 import { Posts } from '../../lib/collections/posts';
-import { augmentFieldsDict, accessFilterMultiple } from '../../lib/utils/schemaUtils';
+import { augmentFieldsDict, accessFilterMultiple, accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { compareVersionNumbers } from '../../lib/editor/utils';
 import { toDictionary } from '../../lib/utils/toDictionary';
 import { loadByIds } from '../../lib/loaders';
@@ -27,12 +27,16 @@ import {
   subforumSortingToResolverName,
   subforumSortingTypes,
 } from '../../lib/collections/tags/subforumHelpers';
-import { VotesRepo } from '../repos';
+import { VotesRepo, TagsRepo } from '../repos';
 import { getTagBotUserId } from '../languageModels/autoTagCallbacks';
 import UserTagRels from '../../lib/collections/userTagRels/collection';
 import { createMutator, updateMutator } from '../vulcan-lib';
+import { filterNonnull, filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
+import { defineQuery } from '../utils/serverGraphqlUtil';
 
-// DEPRECATED: here for backwards compatibility
+/**
+ * @deprecated: here for backwards compatibility
+ */
 export async function recordSubforumView(userId: string, tagId: string) {
   const existingRel = await UserTagRels.findOne({userId, tagId});
   if (existingRel) {
@@ -204,20 +208,20 @@ addGraphQLResolvers({
         tagCommentType: "DISCUSSION",
       }).fetch();
       
-      const userIds = _.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)])
+      const userIds = filterNonnull(_.uniq([...tagRevisions.map(tr => tr.userId), ...rootComments.map(rc => rc.userId)]))
       const usersAll = await loadByIds(context, "Users", userIds)
       const users = await accessFilterMultiple(context.currentUser, Users, usersAll, context)
       const usersById = keyBy(users, u => u._id);
       
       // Get the tags themselves
-      const tagIds = _.uniq([...tagRevisions.map(r=>r.documentId), ...rootComments.map(c=>c.tagId)]);
+      const tagIds = filterNonnull(_.uniq([...tagRevisions.map(r=>r.documentId), ...rootComments.map(c=>c.tagId)]))
       const tagsUnfiltered = await loadByIds(context, "Tags", tagIds);
       const tags = await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context);
       
       return tags.map(tag => {
         const relevantRevisions = _.filter(tagRevisions, rev=>rev.documentId===tag._id);
         const relevantRootComments = _.filter(rootComments, c=>c.tagId===tag._id);
-        const relevantUsersIds = _.uniq([...relevantRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]);
+        const relevantUsersIds = filterNonnull(_.uniq([...relevantRevisions.map(tr => tr.userId), ...relevantRootComments.map(rc => rc.userId)]))
         const relevantUsers = _.map(relevantUsersIds, userId=>usersById[userId]);
         
         return {
@@ -247,7 +251,7 @@ addGraphQLResolvers({
     async TagUpdatesByUser(root: void, {userId,limit,skip}: {userId: string, limit: number, skip: number}, context: ResolverContext) {
 
       // Get revisions to tags
-      const tagRevisions = await Revisions.find({
+      const rawTagRevisions = await Revisions.find({
         collectionName: "Tags",
         fieldName: "description",
         userId,
@@ -258,8 +262,10 @@ addGraphQLResolvers({
         ],
       }, { limit, skip, sort: { editedAt: -1} }).fetch();
 
+      const tagRevisions = filterWhereFieldsNotNull(rawTagRevisions, "documentId")
+
       // Get the tags themselves, keyed by the id
-      const tagIds = _.uniq(tagRevisions.map(r=>r.documentId));
+      const tagIds = filterNonnull(_.uniq(tagRevisions.map(r=>r.documentId)))
       const tagsUnfiltered = await loadByIds(context, "Tags", tagIds);
       const tags = (await accessFilterMultiple(context.currentUser, Tags, tagsUnfiltered, context)).reduce( (acc: Partial<Record<string,DbTag>>, tag: DbTag) => {
         acc[tag._id] = tag;
@@ -287,7 +293,7 @@ addGraphQLQuery('TagUpdatesByUser(userId: String!, limit: Int!, skip: Int!): [Ta
 addGraphQLQuery('RandomTag: Tag!');
 
 type ContributorWithStats = {
-  user: DbUser,
+  user: Partial<DbUser>,
   contributionScore: number,
   numCommits: number,
   voteCount: number,
@@ -312,7 +318,7 @@ augmentFieldsDict(Tags, {
         const contributorUserIds = Object.keys(contributionStatsByUserId);
         const contributorUsersUnfiltered = await loadByIds(context, "Users", contributorUserIds);
         const contributorUsers = await accessFilterMultiple(context.currentUser, Users, contributorUsersUnfiltered, context);
-        const usersById = keyBy(contributorUsers, u => u._id);
+        const usersById = keyBy(contributorUsers, u => u._id) as Record<string, Partial<DbUser>>;
   
         const sortedContributors = orderBy(contributorUserIds, userId => -contributionStatsByUserId[userId]!.contributionScore);
         
@@ -359,30 +365,6 @@ async function getContributorsList(tag: DbTag, version: string|null): Promise<Co
     return await updateDenormalizedContributorsList(tag);
 }
 
-const getSelfVotes = async (tagRevisionIds: string[]): Promise<DbVote[]> => {
-  if (Votes.isPostgres()) {
-    const votesRepo = new VotesRepo();
-    return votesRepo.getSelfVotes(tagRevisionIds);
-  } else {
-    const selfVotes = await Votes.aggregate([
-      // All votes on relevant revisions
-      { $match: {
-        documentId: {$in: tagRevisionIds},
-        collectionName: "Revisions",
-        cancelled: false,
-        isUnvote: false,
-      }},
-      // Filtered by: is a self-vote
-      { $match: {
-        $expr: {
-          $in: ["$userId", "$authorIds"]
-        }
-      }}
-    ]);
-    return selfVotes.toArray();
-  }
-}
-
 async function buildContributorsList(tag: DbTag, version: string|null): Promise<ContributorStatsList> {
   if (!(tag?._id))
     throw new Error("Invalid tag");
@@ -397,7 +379,7 @@ async function buildContributorsList(tag: DbTag, version: string|null): Promise<
     ],
   }).fetch();
   
-  const selfVotes = await getSelfVotes(tagRevisions.map(r=>r._id));
+  const selfVotes = await new VotesRepo().getSelfVotes(tagRevisions.map(r => r._id));
   const selfVotesByUser = groupBy(selfVotes, v=>v.userId);
   const selfVoteScoreAdjustmentByUser = mapValues(selfVotesByUser,
     selfVotes => {
@@ -447,3 +429,30 @@ export async function updateDenormalizedContributorsList(tag: DbTag): Promise<Co
   
   return contributionStats;
 }
+
+defineQuery({
+  name: "UserTopTags",
+  resultType: "[TagWithCommentCount!]",
+  argTypes: "(userId: String!)",
+  schema: `
+    type TagWithCommentCount {
+      tag: Tag
+      commentCount: Int!
+    }`,
+  fn: async (root: void, {userId}: {userId: string}, context: ResolverContext) => {
+    const tagsRepo = new TagsRepo();
+    const topTags = await tagsRepo.getUserTopTags(userId);
+
+    const topTagsFiltered = []
+    for (const tagWithCommentCount of topTags) {
+      const filteredTag = await accessFilterSingle(context.currentUser, context.Tags, tagWithCommentCount.tag, context)
+      if (filteredTag) {
+        topTagsFiltered.push({
+          tag: filteredTag,
+          commentCount: tagWithCommentCount.commentCount
+        })
+      }
+    }
+    return topTagsFiltered
+  },
+});

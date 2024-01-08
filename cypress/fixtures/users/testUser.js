@@ -113,4 +113,13 @@ module.exports = {
     afCommentCount: 0,
     commentCount: 0,
     lastNotificationsCheck: new Date(),
+    hideDialogueFacilitation: false,
+    optedInToDialogueFacilitation: false,
+    revealChecksToAdmins: false,
+    showDialoguesList: true,
+    showMyDialogues: true,
+    showMatches: true,
+    showRecommendedPartners: true,
+    hideActiveDialogueUsers: false,
+    abTestKey: "test-user-ab-test-key",
 }

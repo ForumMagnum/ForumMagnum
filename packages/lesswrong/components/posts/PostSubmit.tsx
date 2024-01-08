@@ -5,15 +5,16 @@ import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import {forumTitleSetting, forumTypeSetting} from "../../lib/instanceSettings";
-import { forumSelect } from '../../lib/forumTypeUtils';
+import {forumTitleSetting, isEAForum, isLW } from "../../lib/instanceSettings";
+import { isFriendlyUI } from '../../themes/forumTheme';
+import {requestFeedbackKarmaLevelSetting} from '../../lib/publicSettings.ts'
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: isEAForum ? 14 : 16,
+    fontSize: isFriendlyUI ? 14 : 16,
     marginLeft: 5,
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       textTransform: 'none',
     } : {
       paddingBottom: 4,
@@ -24,7 +25,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     })
   },
   secondaryButton: {
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       color: theme.palette.grey[680],
       padding: '8px 12px'
     } : {
@@ -35,7 +36,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 'auto'
   },
   submitButton: {
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       backgroundColor: theme.palette.buttons.alwaysPrimary,
       color: theme.palette.text.alwaysWhite,
       boxShadow: 'none',
@@ -52,8 +53,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const isEAForum = forumTypeSetting.get() === "EAForum"
-
 export type PostSubmitProps = FormButtonProps & {
   saveDraftLabel?: string,
   feedbackLabel?: string,
@@ -61,23 +60,33 @@ export type PostSubmitProps = FormButtonProps & {
   classes: ClassesType
 }
 
-const requestFeedbackKarmaLevel = forumSelect({
-  EAForum: 200,
-  default: 100,
-})
-
 const PostSubmit = ({
   submitLabel = "Submit",
   cancelLabel = "Cancel",
   saveDraftLabel = "Save as draft",
   feedbackLabel = "Request Feedback",
   cancelCallback, document, collectionName, classes
-}: PostSubmitProps, { updateCurrentValues }: any) => {
+}: PostSubmitProps, { updateCurrentValues, addToSuccessForm, submitForm }: any) => {
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
 
   const { LWTooltip } = Components;
+
+  const submitWithConfirmation = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (confirm('Warning!  This will publish your dialogue and make it visible to other users.')) {
+      collectionName === "Posts" && await updateCurrentValues({draft: false});
+      await submitForm();
+    }
+  };
+
+  const submitWithoutConfirmation = () => collectionName === "Posts" && updateCurrentValues({draft: false});
+
+  const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate;
+
+  const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
+  const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
 
   return (
     <React.Fragment>
@@ -95,7 +104,7 @@ const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
-        {currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
+        {requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
           // EA Forum title is Effective Altruism Forum, which is unecessarily long
           title={`Request feedback from the ${isEAForum ? "EA Forum" : forumTitleSetting.get()} team.`}
         >
@@ -105,12 +114,14 @@ const PostSubmit = ({
               captureEvent("feedbackRequestButtonClicked")
               if (!!document.title) {
                 updateCurrentValues({draft: true});
-                // eslint-disable-next-line
-                window.Intercom(
-                  'trackEvent',
-                  'requested-feedback',
-                  {title: document.title, _id: document._id, url: getSiteUrl() + "posts/" + document._id}
-                )
+                addToSuccessForm((createdPost: DbPost) => {
+                  // eslint-disable-next-line
+                  window.Intercom(
+                    'trackEvent',
+                    'requested-feedback',
+                    {title: createdPost.title, _id: createdPost._id, url: getSiteUrl() + "posts/" + createdPost._id}
+                  );
+                });
               }
             }}
           >
@@ -125,9 +136,9 @@ const PostSubmit = ({
         </Button>
         <Button
           type="submit"
-          onClick={() => collectionName === "Posts" && updateCurrentValues({draft: false})}
+          onClick={onSubmitClick}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          {...(isEAForum ? {
+          {...(isFriendlyUI ? {
             variant: "contained",
             color: "primary",
           } : {})}
@@ -152,6 +163,7 @@ PostSubmit.contextTypes = {
   updateCurrentValues: PropTypes.func,
   addToSuccessForm: PropTypes.func,
   addToSubmitForm: PropTypes.func,
+  submitForm: PropTypes.func
 }
 
 

@@ -15,5 +15,4 @@ export default {
     ...config.coveragePathIgnorePatterns,
     "/unitTests/",
   ],
-  preset: "@shelf/jest-mongodb",
 };

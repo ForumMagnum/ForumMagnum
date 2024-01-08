@@ -8,7 +8,7 @@ import { Comments } from "../../lib/collections/comments";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
-import { useTracking } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import moment from "moment";
 
@@ -96,18 +96,22 @@ const PopularCommentTitle: FC<{
   classes: ClassesType,
 }> = ({comment, post, classes}) => {
   const {isRead} = useRecordPostView(post);
+  const {PostsTooltip} = Components;
   return (
     <div className={classes.row}>
       <InteractionWrapper className={classes.postWrapper}>
-        <Link
-          to={postGetPageUrl(post)}
-          className={classNames(classes.post, {[classes.postRead]: isRead})}
-        >
-          {post.title}
-        </Link>
+        <PostsTooltip postId={post._id}>
+          <Link
+            to={postGetPageUrl(post)}
+            className={classNames(classes.post, {[classes.postRead]: isRead})}
+            eventProps={{intent: 'expandPost'}}
+          >
+            {post.title}
+          </Link>
+        </PostsTooltip>
       </InteractionWrapper>
       <InteractionWrapper>
-        <Link to={commentGetPageUrl(comment)} className={classes.link}>
+        <Link to={commentGetPageUrl(comment)} className={classes.link} eventProps={{intent: 'viewInThread'}}>
           View in thread
         </Link>
       </InteractionWrapper>
@@ -131,43 +135,49 @@ const PopularComment = ({comment, classes}: {
 
   const {UsersName, LWTooltip, SmallSideVote, CommentBody} = Components;
   return (
-    <div onClick={onClick} className={classes.root}>
-      {comment.post &&
-        <PopularCommentTitle
-          post={comment.post}
-          comment={comment}
-          classes={classes}
-        />
-      }
-      <InteractionWrapper className={classNames(classes.row, classes.wrap)}>
-        <UsersName user={comment.user} className={classes.username} />
-        <div className={classes.date}>
-          <LWTooltip
-            placement="right"
-            title={<ExpandedDate date={comment.postedAt} />}
-          >
-            {moment(new Date(comment.postedAt)).fromNow()}
-          </LWTooltip>
-        </div>
-        {!comment.debateResponse && !comment.rejected &&
-          <SmallSideVote
-            document={comment}
-            collection={Comments}
-            hideKarma={comment.post?.hideCommentKarma}
+    <AnalyticsContext
+      pageElementContext="popularComment"
+      commentId={comment._id}
+      postId={comment.post?._id}
+    >
+      <div onClick={onClick} className={classes.root}>
+        {comment.post &&
+          <PopularCommentTitle
+            post={comment.post}
+            comment={comment}
+            classes={classes}
           />
         }
-      </InteractionWrapper>
-      {expanded
-        ? (
-          <CommentBody comment={comment} className={classes.body} />
-        )
-        : (
-          <div className={classNames(classes.body, classes.bodyCollapsed)}>
-            {htmlToTextDefault(comment.contents?.html)}
+        <InteractionWrapper className={classNames(classes.row, classes.wrap)}>
+          <UsersName user={comment.user} className={classes.username} />
+          <div className={classes.date}>
+            <LWTooltip
+              placement="right"
+              title={<ExpandedDate date={comment.postedAt} />}
+            >
+              {moment(new Date(comment.postedAt)).fromNow()}
+            </LWTooltip>
           </div>
-        )
-      }
-    </div>
+          {!comment.debateResponse && !comment.rejected &&
+            <SmallSideVote
+              document={comment}
+              collection={Comments}
+              hideKarma={comment.post?.hideCommentKarma}
+            />
+          }
+        </InteractionWrapper>
+        {expanded
+          ? (
+            <CommentBody comment={comment} className={classes.body} />
+          )
+          : (
+            <div className={classNames(classes.body, classes.bodyCollapsed)}>
+              {htmlToTextDefault(comment.contents?.html)}
+            </div>
+          )
+        }
+      </div>
+    </AnalyticsContext>
   );
 }
 

@@ -30,8 +30,9 @@ describe('Voting', function() {
       const user = await createDummyUser();
       const sixty_days_ago = new Date().getTime()-(60*24*60*60*1000)
       const post = await createDummyPost(user, {postedAt: new Date(sixty_days_ago), inactive: false})
-      const updatedPost = await Posts.find({_id: post._id}).fetch();
+      await waitUntilCallbacksFinished();
 
+      const updatedPost = await Posts.find({_id: post._id}).fetch();
       (updatedPost[0].postedAt as any).getTime().should.be.closeTo(sixty_days_ago, 1000);
       (updatedPost[0].inactive as any).should.be.false;
     });
@@ -200,8 +201,8 @@ describe('Voting', function() {
         coauthorStatuses: [ { userId: coauthor._id, confirmed: true, } ],
       });
 
-      expect(author.karma).toBe(null);
-      expect(coauthor.karma).toBe(null);
+      expect(author.karma).toBe(0);
+      expect(coauthor.karma).toBe(0);
 
       await performVoteServer({ documentId: post._id, voteType: 'smallUpvote', collection: Posts, user: voter, skipRateLimits: false });
       await waitUntilCallbacksFinished();
@@ -295,6 +296,7 @@ describe('Voting', function() {
         // mongo aggregation. To run these tests in mongo again, remove
         // collectionName from the expected object.
         collectionName: "Posts",
+        addedReacts: [],
         scoreChange: 1,
         title: post.title,
         slug: slugify(post.title),
@@ -333,6 +335,7 @@ describe('Voting', function() {
         _id: post._id,
         // NB: See above
         collectionName: "Posts",
+        addedReacts: [],
         scoreChange: 2,
         title: post.title,
         slug: slugify(post.title),

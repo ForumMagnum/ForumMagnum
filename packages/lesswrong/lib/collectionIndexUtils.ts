@@ -11,7 +11,11 @@ export const expectedCustomPgIndexes: string[] = [];
 
 // Returns true if the specified index has a name, and the collection has an
 // existing index with the same name but different columns or options.
-async function conflictingIndexExists<T extends DbObject>(collection: CollectionBase<T>, index: any, options: any) {
+async function conflictingIndexExists<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  index: any,
+  options: any,
+) {
   if (!options.name)
     return false;
   
@@ -43,7 +47,11 @@ async function conflictingIndexExists<T extends DbObject>(collection: Collection
   return false;
 }
 
-export function ensureIndex<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={}): void {
+export function ensureIndex<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  index: any,
+  options: any={},
+): void {
   if (!expectedIndexes[collection.collectionName])
     expectedIndexes[collection.collectionName] = [];
   expectedIndexes[collection.collectionName]!.push({
@@ -57,7 +65,11 @@ const canEnsureIndexes = () =>
   isServer && !isAnyTest && !isMigrations && !disableEnsureIndexSetting.get();
 
 
-export async function ensureIndexAsync<T extends DbObject>(collection: CollectionBase<T>, index: any, options:any={}) {
+export async function ensureIndexAsync<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  index: any,
+  options: any={},
+) {
   if (!canEnsureIndexes())
     return;
 
@@ -71,7 +83,6 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
         
         collection.rawCollection().dropIndex(options.name);
       }
-      
       const mergedOptions = {background: true, ...options};
       collection._ensureIndex(index, mergedOptions);
     } catch(e) {
@@ -81,19 +92,27 @@ export async function ensureIndexAsync<T extends DbObject>(collection: Collectio
   });
 }
 
-export const ensureCustomPgIndex = async (sql: string) => {
+interface EnsureCustomPgIndexOptions {
+  overrideCanEnsureIndexes?: boolean;
+  runImmediately?: boolean;
+  client?: SqlClient;
+}
+
+export const ensureCustomPgIndex = async (sql: string, options: EnsureCustomPgIndexOptions = {}) => {
   if (expectedCustomPgIndexes.includes(sql)) {
     return;
   }
   expectedCustomPgIndexes.push(sql);
 
-  if (!canEnsureIndexes())
+  let { runImmediately = false, overrideCanEnsureIndexes = false, client } = options;
+
+  if (!canEnsureIndexes() && !overrideCanEnsureIndexes)
     return;
 
   await createOrDeferIndex(async () => {
-    const db = getSqlClientOrThrow();
-    await db.any(sql);
-  });
+    client ??= getSqlClientOrThrow();
+    await client.any(sql);
+  }, runImmediately);
 }
 
 // Given an index partial definition for a collection's default view,
@@ -145,8 +164,8 @@ let deferredIndexesTimer: NodeJS.Timeout|null = null;
  * don't exist yet, and (b) building indexes in the middle of a later test
  * risks making that test time out.
  */
-const createOrDeferIndex = async (buildIndex: () => Promise<void>) => {
-  if (isAnyTest) {
+const createOrDeferIndex = async (buildIndex: () => Promise<void>, runImmediately = false) => {
+  if (isAnyTest || runImmediately) {
     await buildIndex();
   } else {
     deferredIndexes.push(buildIndex);

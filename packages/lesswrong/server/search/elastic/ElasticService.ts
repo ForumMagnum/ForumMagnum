@@ -15,6 +15,22 @@ type SanitizedIndexName = {
   sorting?: string,
 }
 
+type NamedHighlight = {
+  value?: string,
+  matchLevel: "full" | "none",
+}
+
+const extractNamedHighlight = (
+  highlight: ElasticSearchHit["highlight"],
+  name: string,
+): NamedHighlight => {
+  const value = highlight?.[name]?.[0] ?? highlight?.[name + ".exact"]?.[0];
+  return {
+    value,
+    matchLevel: value ? "full" : "none",
+  };
+}
+
 class ElasticService {
   constructor(
     private client = new ElasticClient(),
@@ -34,7 +50,8 @@ class ElasticService {
       limit: hitsPerPage,
       preTag: params.highlightPreTag,
       postTag: params.highlightPostTag,
-      filters: this.parseFilters(params.facetFilters, params.numericFilters),
+      filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters),
+      coordinates: this.parseLatLng(params.aroundLatLng),
     });
 
     const nbHits = typeof result.hits.total === "number"
@@ -97,19 +114,26 @@ class ElasticService {
   parseFilters(
     facetFilters?: string[][],
     numericFilters?: string[],
+    existsFilters?: string[],
   ): QueryFilter[] {
     const result: QueryFilter[] = [];
 
     for (const group of facetFilters ?? []) {
       for (const facet of group) {
-        const [field, value] = facet.split(":");
+        let [field, value] = facet.split(":");
         if (!field || !value) {
           throw new Error("Invalid facet: " + facet);
+        }
+        let negated = false;
+        if (value[0] === "-") {
+          negated = true;
+          value = value.slice(1);
         }
         result.push({
           type: "facet",
           field,
           value: this.parseFacetValue(value),
+          negated,
         });
       }
     }
@@ -145,6 +169,13 @@ class ElasticService {
         op,
       });
     }
+    
+    for (const filter of existsFilters ?? []) {
+      result.push({
+        type: "exists",
+        field: filter,
+      });
+    }
 
     return result;
   }
@@ -168,6 +199,26 @@ class ElasticService {
     return parsed;
   }
 
+  /**
+   * We want coordinates in the format [lng, lat], not [lat, lng]
+   * They're passed in as a string like "75, -0.5"
+   */
+  private parseLatLng(value?: string): number[] | undefined {
+    if (!value) {
+      return undefined;
+    }
+    const coordinates = value.split(", ").map((n) => parseFloat(n));
+    if (coordinates.length !== 2) {
+      return undefined;
+    }
+    for (const coordinate of coordinates) {
+      if (typeof coordinate !== "number" || !Number.isFinite(coordinate)) {
+        return undefined;
+      }
+    }
+    return [coordinates[1], coordinates[0]];
+  }
+
   private urlEncode(params: Record<string, unknown>): string {
     const data = Object.keys(params).map((key) => `${key}=${params[key]}`);
     return encodeURIComponent(data.join("&"));
@@ -187,23 +238,17 @@ class ElasticService {
     };
   }
 
-  private getHits(indexName: string, hits: ElasticSearchHit[]): AlgoliaDocument[] {
+  private getHits(indexName: string, hits: ElasticSearchHit[]): SearchDocument[] {
     const config = indexNameToConfig(indexName);
     return hits.map(({_id, _source, highlight}) => ({
       ..._source,
       _id,
       _snippetResult: {
-        [config.snippet]: {
-          value: highlight?.[config.snippet]?.[0],
-          matchLevel: highlight?.[config.snippet]?.[0] ? "full" : "none",
-        },
+        [config.snippet]: extractNamedHighlight(highlight, config.snippet),
       },
       ...(config.highlight && {
         _highlightResult: {
-          [config.highlight]: {
-            value: highlight?.[config.highlight]?.[0],
-            matchLevel: highlight?.[config.highlight]?.[0] ? "full" : "none",
-          },
+          [config.highlight]: extractNamedHighlight(highlight, config.highlight),
         },
       }),
     }));

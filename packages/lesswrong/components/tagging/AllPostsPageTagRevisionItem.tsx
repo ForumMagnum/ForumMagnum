@@ -1,14 +1,14 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     background: theme.palette.panelBackground.commentNodeEven,
     border: theme.palette.border.commentBorder,
     borderRight: "none",
-    borderRadius: isEAForum
+    borderRadius: isFriendlyUI
       ? `${theme.borderRadius.default}px 0 0 ${theme.borderRadius.default}px`
       : "2px 0 0 2px",
     padding: 12,

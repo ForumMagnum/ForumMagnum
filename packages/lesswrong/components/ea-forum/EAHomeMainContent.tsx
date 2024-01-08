@@ -5,8 +5,8 @@ import classNames from 'classnames';
 import { tagPostTerms } from '../tagging/TagPage';
 import { useMulti } from '../../lib/crud/withMulti';
 import debounce from 'lodash/debounce';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs';
 
 
@@ -117,11 +117,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.grey[1000],
     },
   },
+  spotlightMargin: {
+    marginBottom: 24,
+  },
   learnMoreLink: {
     fontSize: 14,
     color: theme.palette.grey[600],
     fontWeight: 600
-  }
+  },
 })
 
 type TopicsBarTab = {
@@ -185,7 +188,7 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   const { results: coreTopics } = useMulti({
     terms: {view: "coreTags"},
     collectionName: "Tags",
-    fragmentName: 'TagBasicInfo',
+    fragmentName: 'TagDetailsFragment',
     limit: 40
   })
   let allTabs: TopicsBarTab[] = useMemo(() => {
@@ -205,9 +208,25 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   const [leftArrowVisible, setLeftArrowVisible] = useState(false)
   const [rightArrowVisible, setRightArrowVisible] = useState(true)
-  const { history } = useNavigation()
+  const navigate = useNavigate();
   const { location, query } = useLocation()
   const { captureEvent } = useTracking()
+  const activeCoreTopic = useMemo(
+    () => coreTopics?.find(t => t._id === activeTab._id),
+    [coreTopics, activeTab]
+  );
+  
+  const { results: spotLightResults } = useMulti({
+    collectionName: 'Spotlights',
+    fragmentName: 'SpotlightDisplay',
+    terms: {
+      view: 'spotlightForSequence',
+      sequenceId: activeCoreTopic?.sequence?._id,
+      limit: 1
+    },
+    skip: !activeCoreTopic?.sequence?._id,
+  });
+  const spotlight = spotLightResults?.[0]
   
   useEffect(() => {
     if (coreTopics) {
@@ -273,14 +292,14 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   }
   
   const handleTabClick = (tab: TopicsBarTab) => {
-    history.replace({
+    navigate({
       ...location,
       search: qs.stringify({...query, tab: tab.slug}),
-    })
+    }, {replace: true})
     captureEvent("topicsBarTabClicked", {topicsBarTabId: tab._id, topicsBarTabName: tab.shortName || tab.name})
   }
   
-  const { SingleColumnSection, ForumIcon, SectionTitle, PostsList2 } = Components
+  const { SingleColumnSection, ForumIcon, SectionTitle, PostsList2, DismissibleSpotlightItem } = Components
   
   const topicPostTerms = {
     ...tagPostTerms(activeTab, {}),
@@ -304,7 +323,9 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
                     return <button
                       key={tabName}
                       onClick={() => handleTabClick(tab)}
-                      className={classNames(classes.tab, {[classes.activeTab]: tab._id === activeTab._id})}
+                      className={classNames(classes.tab, {
+                        [classes.activeTab]: tab._id === activeTab._id,
+                      })}
                     >
                       {tabName}
                     </button>
@@ -321,6 +342,10 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
 
       {activeTab.name === 'Frontpage' ? <FrontpageNode /> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
         <SingleColumnSection>
+          {spotlight && <DismissibleSpotlightItem
+            spotlight={spotlight}
+            className={classes.spotlightMargin}
+          />}
           <SectionTitle title="New & upvoted" noTopMargin>
             <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>View more</Link>
           </SectionTitle>

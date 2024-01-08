@@ -23,8 +23,8 @@ import { CallbackHook } from '../lib/vulcan-lib/callbacks';
 import React from 'react';
 import TagRels from '../lib/collections/tagRels/collection';
 import { RSVPType } from '../lib/collections/posts/schema';
-import { forumTypeSetting } from '../lib/instanceSettings';
-import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius } from './notificationCallbacksHelpers'
+import { isEAForum, isLWorAF } from '../lib/instanceSettings';
+import { getSubscribedUsers, createNotifications, getUsersWhereLocationIsInNotificationRadius, createNotification } from './notificationCallbacksHelpers'
 import moment from 'moment';
 import difference from 'lodash/difference';
 import uniq from 'lodash/uniq';
@@ -34,6 +34,9 @@ import { subforumGetSubscribedUsers } from '../lib/collections/tags/helpers';
 import UserTagRels from '../lib/collections/userTagRels/collection';
 import { REVIEW_AND_VOTING_PHASE_VOTECOUNT_THRESHOLD } from '../lib/reviewUtils';
 import { commentIsHidden } from '../lib/collections/comments/helpers';
+import { getDialogueResponseIds } from './posts/utils';
+import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
+import { filterNonnull } from '../lib/utils/typeGuardUtils';
 
 // Callback for a post being published. This is distinct from being created in
 // that it doesn't fire on draft posts, and doesn't fire on posts that are awaiting
@@ -222,6 +225,124 @@ getCollectionHooks("Posts").updateAsync.add(async function eventUpdatedNotificat
   }
 });
 
+
+interface NotifyDialogueParticipantProps {
+  participant: DbUser,
+  post: DbPost,
+  previousNotifications: DbNotification[],
+  newMessageAuthorId: string,
+  dialogueMessageInfo: DialogueMessageInfo|undefined,
+}
+
+async function sendSingleDialogueMessageNotification(props: Omit<NotifyDialogueParticipantProps, "previousNotifications">) {
+  const { participant, post, newMessageAuthorId, dialogueMessageInfo } = props
+  return await createNotifications({ 
+    userIds: [participant._id], 
+    notificationType: 'newDialogueMessages', 
+    documentType: 'post', 
+    documentId: post._id, 
+    extraData: {newMessageAuthorId, dialogueMessageInfo} 
+  })
+}
+
+async function sendBatchDialogueMessageNotification(props: Pick<NotifyDialogueParticipantProps, "participant"|"post">) {
+  const { participant, post } = props
+  return await createNotifications({ 
+    userIds: [participant._id], 
+    notificationType: 'newDialogueBatchMessages', 
+    documentType: 'post', 
+    documentId: post._id, 
+  })
+}
+
+async function notifyDialogueParticipantNewMessage(props: NotifyDialogueParticipantProps) {
+  const { participant, previousNotifications } = props
+  const lastNotificationCheckedAt = participant.lastNotificationsCheck;
+  const mostRecentNotification = previousNotifications[0]
+
+  //no previous dialogue notifications, send notification with individual message preview
+  if (!mostRecentNotification) {
+    return await sendSingleDialogueMessageNotification(props)
+  }
+
+  const isLastNotificationUnread = moment(mostRecentNotification.createdAt).isAfter(lastNotificationCheckedAt)
+
+  //most recent notification is a batch notifcation
+  if (mostRecentNotification.type === 'newDialogueBatchMessages') {
+    //if unread, don't send another
+    if (isLastNotificationUnread) return
+    //if read, go back to sending individual message preview
+    return await sendSingleDialogueMessageNotification(props)
+  //most recent notification is an individual message preview
+  } else {
+    //if unread, send batch notification
+    if (isLastNotificationUnread) {
+      return await sendBatchDialogueMessageNotification(props)
+    }
+    //if read, send another individual message preview
+    return await sendSingleDialogueMessageNotification(props)
+  }
+}
+
+export async function notifyDialogueParticipantsNewMessage(newMessageAuthorId: string, dialogueMessageInfo: DialogueMessageInfo|undefined, post: DbPost) {
+  // Get all the debate participants, but exclude the comment author if they're a debate participant
+  const debateParticipantIds = _.difference([post.userId, ...getConfirmedCoauthorIds(post)], [newMessageAuthorId]);
+  const debateParticipants = await Users.find({_id: {$in: debateParticipantIds}}).fetch();
+  const earliestLastNotificationsCheck = _.min(debateParticipants.map(user => user.lastNotificationsCheck));
+
+  const notifications = await Notifications.find({
+    userId: {$in: debateParticipantIds}, 
+    documentId: post._id,
+    documentType: 'post', 
+    type: {$in: ['newDialogueMessages', 'newDialogueBatchMessages']}, 
+    createdAt: {$gt: earliestLastNotificationsCheck}
+  }, {sort: {createdAt: -1}}).fetch();
+
+
+  const notificationsByUserId = _.groupBy(notifications, notification => notification.userId);
+  debateParticipantIds.forEach(userId => {
+    if (!notificationsByUserId[userId]) {
+      notificationsByUserId[userId] = []
+    }
+  })
+  const notificationPromises = Object.entries(notificationsByUserId).map(async ([userId, previousNotifications]) => {
+    const participant = debateParticipants.find(user => user._id === userId)
+    if (participant) {
+      return notifyDialogueParticipantNewMessage({participant, post, previousNotifications, newMessageAuthorId, dialogueMessageInfo})
+    }
+  })
+
+  await Promise.all(notificationPromises)
+}
+
+getCollectionHooks("Posts").editAsync.add(async function newPublishedDialogueMessageNotification (newPost: DbPost, oldPost: DbPost) {
+  if (newPost.collabEditorDialogue) {
+    
+    const oldIds = getDialogueResponseIds(oldPost)
+    const newIds = getDialogueResponseIds(newPost);
+    const uniqueNewIds = _.difference(newIds, oldIds);
+    
+    if (uniqueNewIds.length > 0) {
+      const dialogueParticipantIds = [newPost.userId, ...getConfirmedCoauthorIds(newPost)];
+      const dialogueSubscribers = await getSubscribedUsers({
+        documentId: newPost._id,
+        collectionName: "Posts",
+        type: subscriptionTypes.newPublishedDialogueMessages,
+      });
+      
+      const dialogueSubscriberIds = dialogueSubscribers.map(sub => sub._id);
+      const dialogueSubscriberIdsToNotify = _.difference(dialogueSubscriberIds, dialogueParticipantIds);
+      await createNotifications({
+        userIds: dialogueSubscriberIdsToNotify,
+        notificationType: 'newPublishedDialogueMessages',
+        documentType: 'post',
+        documentId: newPost._id
+      });
+    }
+    
+  }
+});
+
 getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotifications(newPost: DbPost, oldPost: DbPost) {
   if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
       //eslint-disable-next-line no-console
@@ -241,7 +362,7 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
 
 async function findUsersToEmail(filter: MongoSelector<DbUser>) {
   let usersMatchingFilter = await Users.find(filter).fetch();
-  if (forumTypeSetting.get() === 'EAForum') {
+  if (isEAForum) {
     return usersMatchingFilter
   }
 
@@ -294,7 +415,7 @@ const curationEmailDelay = new EventDebouncer({
 });
 
 getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification (post: DbPost, oldPost: DbPost) {
-  if(post.curatedDate && !oldPost.curatedDate && forumTypeSetting.get() !== "EAForum") {
+  if(post.curatedDate && !oldPost.curatedDate && isLWorAF) {
     // Email admins immediately, everyone else after a 20-minute delay, so that
     // we get a chance to catch formatting issues with the email. (Admins get
     // emailed twice.)
@@ -325,7 +446,7 @@ getCollectionHooks("TagRels").newAsync.add(async function TaggedPostNewNotificat
     const subscribedUserIds = _.map(subscribedUsers, u=>u._id);
     
     // Don't notify the person who created the tagRel
-    let tagSubscriberIdsToNotify = _.difference(subscribedUserIds, [tagRel.userId])
+    let tagSubscriberIdsToNotify = _.difference(subscribedUserIds, filterNonnull([tagRel.userId]))
 
     //eslint-disable-next-line no-console
     console.info("Post tagged, creating notifications");
@@ -346,7 +467,7 @@ async function getEmailFromRsvp({email, userId}: RSVPType): Promise<string | und
   if (userId) {
     const user = await Users.findOne(userId)
     if (user) {
-      return user.email
+      return user.email ?? undefined
     }
   }
 }
@@ -568,8 +689,17 @@ getCollectionHooks("Messages").newAsync.add(async function messageNewNotificatio
   await createNotifications({userIds: recipientIds, notificationType: 'newMessage', documentType: 'message', documentId: message._id, noEmail: message.noEmail});
 });
 
-getCollectionHooks("Conversations").editAsync.add(async function conversationEditNotification(conversation: DbConversation, oldConversation: DbConversation) {
-  const newParticipantIds = difference(conversation.participantIds || [], oldConversation.participantIds || []);
+getCollectionHooks("Conversations").editAsync.add(async function conversationEditNotification(
+  conversation: DbConversation,
+  oldConversation: DbConversation,
+  currentUser: DbUser | null,
+) {
+  // Filter out the new participant if the user added themselves (which can
+  // happen with mods)
+  const newParticipantIds = difference(
+    conversation.participantIds || [],
+    oldConversation.participantIds || [],
+  ).filter((id) => id !== currentUser?._id);
 
   if (newParticipantIds.length) {
     // Notify newly added users of the most recent message
@@ -598,6 +728,21 @@ getCollectionHooks("Posts").newAsync.add(async function PostsNewNotifyUsersShare
   const coauthors: Array<string> = coauthorStatuses?.filter(({ confirmed }) => confirmed).map(({ userId }) => userId) || [];
   const userIds: Array<string> = shareWithUsers?.filter((user) => !coauthors.includes(user)) || [];
   await createNotifications({userIds, notificationType: "postSharedWithUser", documentType: "post", documentId: _id})
+});
+
+getCollectionHooks("Posts").createAsync.add(async function PostsNewNotifyUsersAddedAsCoauthors ({ document: post }) {
+  const coauthorIds: Array<string> = getConfirmedCoauthorIds(post);
+  await createNotifications({ userIds: coauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: post._id });
+});
+
+getCollectionHooks("Posts").updateAsync.add(async function PostsEditNotifyUsersAddedAsCoauthors ({ oldDocument: oldPost, newDocument: newPost }) {
+  const newCoauthorIds = getConfirmedCoauthorIds(newPost);
+  const oldCoauthorIds = getConfirmedCoauthorIds(oldPost);
+  const addedCoauthorIds = _.difference(newCoauthorIds, oldCoauthorIds);
+
+  if (addedCoauthorIds.length) {
+    await createNotifications({ userIds: addedCoauthorIds, notificationType: "addedAsCoauthor", documentType: "post", documentId: newPost._id });
+  }
 });
 
 const sendCoauthorRequestNotifications = async (post: DbPost) => {

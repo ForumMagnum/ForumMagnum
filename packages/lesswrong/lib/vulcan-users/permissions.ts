@@ -165,14 +165,14 @@ export const userCanComment = (user: PermissionableUser|DbUser|null): boolean =>
 export const userOverNKarmaFunc = (n: number) => {
     return (user: UsersMinimumInfo|DbUser|null): boolean => {
       if (!user) return false
-      return (user.karma > n)
+      return ((user.karma) > n)
     }
 }
 
 export const userOverNKarmaOrApproved = (n: number) => {
   return (user: UsersMinimumInfo|DbUser|null): boolean => {
     if (!user) return false
-    return (user.karma > n || !!user.reviewedByUserId)
+    return ((user.karma) > n || !!user.reviewedByUserId)
   }
 }
 
@@ -195,66 +195,97 @@ export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|nu
 };
 
 // Check if a user can view a field
-export const userCanReadField = <T extends DbObject>(user: UsersCurrent|DbUser|null, field: CollectionFieldSpecification<T>, document: T): boolean => {
+export const userCanReadField = <N extends CollectionNameString>(
+  user: UsersCurrent|DbUser|null,
+  field: CollectionFieldSpecification<N>,
+  document: ObjectsByCollectionName[N],
+): boolean => {
   const canRead = field.canRead;
   if (canRead) {
-    if (typeof canRead === 'function') {
-      // if canRead is a function, execute it with user and document passed. it must return a boolean
-      return canRead(user, document);
-    } else if (typeof canRead === 'string') {
-      // if canRead is just a string, we assume it's the name of a group and pass it to isMemberOf
-      return canRead === 'guests' || userIsMemberOf(user, canRead);
-    } else if (Array.isArray(canRead) && canRead.length > 0) {
-      // if canRead is an array, we do a recursion on every item and return true if one of the items return true
-      return canRead.some(group => userCanReadField(user, { canRead: group }, document));
-    }
+    return userHasFieldPermissions(user, canRead, document);
   }
   return false;
 };
 
-// @summary Get a list of fields viewable by a user
-// @param {Object} user - The user performing the action
-// @param {Object} collection - The collection
-// @param {Object} document - Optionally, get a list for a specific document
-const getViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, document: T): Set<string> {
-  const schema = getSchema(collection);
-  let result: Set<string> = new Set();
-  for (let fieldName of Object.keys(schema)) {
-    if (fieldName.indexOf('.$') > -1)
-      continue;
-    if (userCanReadField(user, schema[fieldName], document))
-      result.add(fieldName);
+const userHasFieldPermissions = <T extends DbObject>(user: UsersCurrent|DbUser|null, canRead: FieldPermissions, document: T): boolean => {
+  if (typeof canRead === 'string') {
+    // if canRead is just a string, we assume it's the name of a group and pass it to isMemberOf
+    return canRead === 'guests' || userIsMemberOf(user, canRead);
+  } else if (typeof canRead === 'function') {
+    // if canRead is a function, execute it with user and document passed. it must return a boolean
+    return canRead(user, document);
+  } else if (Array.isArray(canRead) && canRead.length > 0) {
+    // if canRead is an array, we do a recursion on every item and return true if one of the items return true
+    for (const group of canRead) {
+      if (userHasFieldPermissions(user, group, document)) {
+        return true;
+      }
+    }
+    return false;
+  } else {
+    return false;
   }
-  return result;
-};
+}
 
 // For a given document or list of documents, keep only fields viewable by current user
 // @param {Object} user - The user performing the action
 // @param {Object} collection - The collection
 // @param {Object} document - The document being returned by the resolver
 // TODO: Integrate permissions-filtered DbObjects into the type system
-export const restrictViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>): any {
-  if (!docOrDocs) return {};
-
-  const restrictDoc = (document: T) => {
-    // get array of all keys viewable by user
-    const viewableKeys: Set<string> = getViewableFields(user, collection, document);
-    
-    // return a filtered document
-    const restrictedDocument: Record<string,any> = {};
-    for (let key of Object.keys(document)) {
-      if (viewableKeys.has(key))
-        restrictedDocument[key] = (document as any)[key];
-    }
-
-    return restrictedDocument;
-  };
-
-  return Array.isArray(docOrDocs) ? docOrDocs.map(restrictDoc) : restrictDoc(docOrDocs);
+export function restrictViewableFields<N extends CollectionNameString>(
+  user: UsersCurrent|DbUser|null,
+  collection: CollectionBase<N>,
+  docOrDocs: ObjectsByCollectionName[N] | undefined | null,
+): Partial<ObjectsByCollectionName[N]>;
+export function restrictViewableFields<N extends CollectionNameString>(
+  user: UsersCurrent|DbUser|null,
+  collection: CollectionBase<N>,
+  docOrDocs: ObjectsByCollectionName[N][] | undefined | null,
+): Partial<ObjectsByCollectionName[N]>[];
+export function restrictViewableFields<N extends CollectionNameString>(
+  user: UsersCurrent|DbUser|null,
+  collection: CollectionBase<N>,
+  docOrDocs?: ObjectsByCollectionName[N][] | undefined | null,
+): Partial<ObjectsByCollectionName[N]> | Partial<ObjectsByCollectionName[N]>[] {
+  if (Array.isArray(docOrDocs)) {
+    return restrictViewableFieldsMultiple(user, collection, docOrDocs);
+  } else {
+    return restrictViewableFieldsSingle(user, collection, docOrDocs);
+  }
 };
 
+export const restrictViewableFieldsMultiple = function <N extends CollectionNameString>(
+  user: UsersCurrent|DbUser|null,
+  collection: CollectionBase<N>,
+  docs: ObjectsByCollectionName[N][],
+): Partial<ObjectsByCollectionName[N]>[] {
+  if (!docs) return [];
+  return docs.map(doc => restrictViewableFieldsSingle(user, collection, doc));
+};
+
+export const restrictViewableFieldsSingle = function <N extends CollectionNameString>(
+  user: UsersCurrent|DbUser|null,
+  collection: CollectionBase<N>,
+  doc: ObjectsByCollectionName[N] | undefined | null,
+): Partial<ObjectsByCollectionName[N]> {
+  if (!doc) return {};
+  const schema = getSchema(collection);
+  const restrictedDocument: Partial<ObjectsByCollectionName[N]> = {};
+  for (const fieldName in doc) {
+    const fieldSchema = schema[fieldName];
+    if (fieldSchema && userCanReadField(user, fieldSchema, doc)) {
+      restrictedDocument[fieldName] = doc[fieldName];
+    }
+  }
+
+  return restrictedDocument;
+}
+
 // Check if a user can submit a field
-export const userCanCreateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>): boolean => {
+export const userCanCreateField = <N extends CollectionNameString>(
+  user: DbUser|UsersCurrent|null,
+  field: CollectionFieldSpecification<N>,
+): boolean => {
   const canCreate = field.canCreate; //OpenCRUD backwards compatibility
   if (canCreate) {
     if (typeof canCreate === 'function') {
@@ -273,7 +304,11 @@ export const userCanCreateField = <T extends DbObject>(user: DbUser|UsersCurrent
 };
 
 // Check if a user can edit a field
-export const userCanUpdateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>, document: Partial<T>): boolean => {
+export const userCanUpdateField = <N extends CollectionNameString>(
+  user: DbUser|UsersCurrent|null,
+  field: CollectionFieldSpecification<N>,
+  document: Partial<ObjectsByCollectionName[N]>,
+): boolean => {
   const canUpdate = field.canUpdate;
 
   if (canUpdate) {

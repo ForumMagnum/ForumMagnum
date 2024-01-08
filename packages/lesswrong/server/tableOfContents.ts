@@ -1,5 +1,4 @@
 import cheerio from 'cheerio';
-import { htmlToText } from 'html-to-text';
 import * as _ from 'underscore';
 import { cheerioParse } from './utils/htmlUtil';
 import { Comments } from '../lib/collections/comments/collection';
@@ -7,17 +6,21 @@ import { questionAnswersSortings } from '../lib/collections/comments/views';
 import { postGetCommentCountStr } from '../lib/collections/posts/helpers';
 import { Revisions } from '../lib/collections/revisions/collection';
 import { answerTocExcerptFromHTML, truncate } from '../lib/editor/ellipsize';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { isAF } from '../lib/instanceSettings';
 import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import type { ToCData, ToCSection } from '../lib/tableOfContents';
 import { defineQuery } from './utils/serverGraphqlUtil';
-import GraphQLJSON from 'graphql-type-json';
+import { htmlToTextDefault } from '../lib/htmlToText';
+import { commentsTableOfContentsEnabled } from '../lib/betas';
 
 // Number of headings below which a table of contents won't be generated.
-const MIN_HEADINGS_FOR_TOC = 3;
+// If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
+// it's empty) to keep the horizontal position of things on the page from
+// being imbalanced.
+const MIN_HEADINGS_FOR_TOC = commentsTableOfContentsEnabled ? 0 : 1;
 
 // Tags which define headings. Currently <h1>-<h4>, <strong>, and <b>. Excludes
 // <h5> and <h6> because their usage in historical (HTML) wasn't as a ToC-
@@ -53,7 +56,7 @@ const headingSelector = _.keys(headingTags).join(",");
 //       {title: "Conclusion", anchor: "conclusion", level: 1},
 //     ]
 //   }
-export function extractTableOfContents(postHTML: string)
+export function extractTableOfContents(postHTML: string | null)
 {
   if (!postHTML) return null;
   const postBody = cheerioParse(postHTML);
@@ -225,14 +228,14 @@ async function getTocAnswers (document: DbPost) {
     postId: document._id,
     deleted:false,
   }
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+  if (isAF) {
     answersTerms.af = true
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
   const answerSections: ToCSection[] = answers.map((answer: DbComment): ToCSection => {
     const { html = "" } = answer.contents || {}
     const highlight = truncate(html, 900)
-    let shortHighlight = htmlToText(answerTocExcerptFromHTML(html), {selectors: [ { selector: 'img', format: 'skip' }, { selector: 'a', options: { ignoreHref: true } } ]})
+    let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html));
     
     return {
       title: `${answer.baseScore} ${answer.author}`,
@@ -266,7 +269,7 @@ async function getTocComments (document: DbPost) {
     parentAnswerId: null,
     postId: document._id
   }
-  if (document.af && forumTypeSetting.get() === 'AlignmentForum') {
+  if (document.af && isAF) {
     commentSelector.af = true
   }
   const commentCount = await Comments.find(commentSelector).count()
@@ -281,7 +284,7 @@ export const getToCforPost = async ({document, version, context}: {
   let html: string;
   if (version) {
     const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "contents"})
-    if (!revision) return null;
+    if (!revision?.html) return null;
     if (!await Revisions.checkAccess(context.currentUser, revision, context))
       return null;
     html = revision.html;
@@ -322,7 +325,7 @@ const getToCforTag = async ({document, version, context}: {
       // eslint-disable-next-line no-console
       console.log(e);
       const revision = await Revisions.findOne({documentId: document._id, version, fieldName: "description"})
-      if (!revision) return null;
+      if (!revision?.html) return null;
       if (!await Revisions.checkAccess(context.currentUser, revision, context))
         return null;
       html = revision.html;

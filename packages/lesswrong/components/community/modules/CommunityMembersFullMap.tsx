@@ -1,7 +1,7 @@
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import React from 'react';
 import { createStyles } from '@material-ui/core/styles';
-import { getSearchClient } from '../../../lib/search/algoliaUtil';
+import { getSearchClient } from '../../../lib/search/searchUtil';
 import { Configure, InstantSearch } from 'react-instantsearch-dom';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -25,7 +25,7 @@ const CommunityMembersFullMap = ({classes}: {
     searchClient={getSearchClient()}
   >
     <SearchResultsMap zoom={1} className={classes.map} />
-    <Configure hitsPerPage={1000} filters="_geoloc.lat>-100" />
+    <Configure hitsPerPage={1500} existsFilters={['_geoloc']} />
   </InstantSearch>
 }
 

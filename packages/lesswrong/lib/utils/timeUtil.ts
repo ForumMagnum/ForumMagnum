@@ -51,3 +51,32 @@ export const convertTimeOfWeekTimezone = (timeOfDay: number, dayOfWeek: string|n
 export function isInFuture(when: Date): boolean {
   return when > new Date();
 }
+
+/**
+ * Convert from e.g. 1d to "1 day"
+ */
+export function relativeTimeToLongFormat(time: string): string {
+  if (time === 'now') {
+      return 'a few seconds';
+  }
+
+  const timeUnit = time.slice(time.search(/\D/));
+  const timeValue = parseInt(time.slice(0, -1));
+
+  switch(timeUnit) {
+      case 's':
+          return timeValue + ' second' + (timeValue > 1 ? 's' : '');
+      case 'm':
+          return timeValue + ' minute' + (timeValue > 1 ? 's' : '');
+      case 'h':
+          return timeValue + ' hour' + (timeValue > 1 ? 's' : '');
+      case 'd':
+          return timeValue + ' day' + (timeValue > 1 ? 's' : '');
+      case 'mo':
+          return timeValue + ' month' + (timeValue > 1 ? 's' : '');
+      case 'y':
+          return timeValue + ' year' + (timeValue > 1 ? 's' : '');
+      default:
+          return time;
+  }
+}

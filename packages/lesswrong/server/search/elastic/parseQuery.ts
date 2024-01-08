@@ -38,7 +38,11 @@ export const parseQuery = (query: string): QueryParserResult => {
       isAdvanced = true;
     }
 
-    tokens.push({type, token: token.replace(/[^\w\s]/g, "")});
+    // Replace dashes and underscores with spaces, and remove anything else that
+    // isn't whitespace or a word
+    token = token.replace(/[-_]/g, " ").replace(/[^\w\s]/g, "");
+
+    tokens.push({type, token});
   }
 
   return {tokens, isAdvanced};

@@ -26,17 +26,18 @@ export function isCollaborative(post: DbPost, fieldName: string): boolean {
   if (!post) return false;
   if (!post._id) return false;
   if (fieldName !== "contents") return false;
-  if (post.shareWithUsers) return true;
+  if (post.shareWithUsers.length > 0) return true;
   if (post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none")
     return true;
-  return false;
+  if (post.collabEditorDialogue) return true;
+  return false;  
 }
 
 const getPostPlaceholder = (post: PostsBase) => {
   const { question, postCategory } = post;
   const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
 
-  if (post.debate) return debateEditorPlaceholder;
+  if (post.debate) return debateEditorPlaceholder; // note: this version of debates are deprecated in favor of post.collabEditorDialogue
   if (effectiveCategory === "question") return questionEditorPlaceholder;
   if (effectiveCategory === "linkpost") return linkpostEditorPlaceholder;
   return defaultEditorPlaceholder;
@@ -62,7 +63,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
-  const isCollabEditor = isCollaborative(document, fieldName);
+  const isCollabEditor = collectionName === 'Posts' && isCollaborative(document, fieldName);
   const { captureEvent } = useTracking()
   const editableFieldOptions = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName];
 
@@ -176,7 +177,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   
   const saveBackup = useCallback((newContents: EditorContents) => {
-    if (isBlank(newContents)) {
+    const sameAsSaved = newContents.value === document?.[fieldName]?.ckEditorMarkup
+
+    if (isBlank(newContents) || sameAsSaved) {
       getLocalStorageHandlers(currentEditorType).reset();
       hasUnsavedDataRef.current.hasUnsavedData = false;
     } else {
@@ -187,7 +190,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         hasUnsavedDataRef.current.hasUnsavedData = false;
       }
     }
-  }, [getLocalStorageHandlers, currentEditorType]);
+  }, [getLocalStorageHandlers, currentEditorType, document, fieldName]);
 
   const [autosaveRevision] = useMutation(gql`
     mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {
@@ -336,7 +339,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       const cleanupSuccessForm = context.addToSuccessForm((result: any, form: any, submitOptions: any) => {
         getLocalStorageHandlers(currentEditorType).reset();
         // If we're autosaving (noReload: true), don't clear the editor!  Also no point in clearing it if we're getting redirected anyways
-        if (editorRef.current && (!submitOptions?.redirectToEditor && !submitOptions?.noReload)) {
+        if (editorRef.current && (!submitOptions?.redirectToEditor && !submitOptions?.noReload) && !isCollabEditor) {
           wrappedSetContents({
             contents: getBlankEditorContents(initialEditorType),
             autosave: false,
@@ -409,8 +412,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       hideControls={hideControls}
       maxHeight={maxHeight}
       hasCommitMessages={hasCommitMessages ?? undefined}
+      document={document}
     />
-    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollaborative(document, fieldName)}/>}
+    {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
       <Components.PostVersionHistoryButton
         post={document}

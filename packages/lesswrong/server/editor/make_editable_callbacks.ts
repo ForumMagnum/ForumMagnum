@@ -83,6 +83,9 @@ export async function buildRevision({ originalContents, currentUser, dataWithDis
   currentUser: DbUser,
   dataWithDiscardedSuggestions?: string
 }) {
+
+  if (!originalContents) throw new Error ("Can't build revision without originalContents")
+
   const { data, type } = originalContents;
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
   const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
@@ -115,8 +118,8 @@ export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string): 
   return false;
 }
 
-function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
-  collection: CollectionBase<T>,
+function addEditableCallbacks<N extends CollectionNameString>({collection, options = {}}: {
+  collection: CollectionBase<N>,
   options: MakeEditableOptions
 }) {
   const {
@@ -146,7 +149,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
       const originalContents: DbRevision["originalContents"] = doc[fieldName].originalContents
 
       if (isFirstDebatePostComment) {
-        const createFirstCommentParams: CreateMutatorParams<DbComment> = {
+        const createFirstCommentParams: CreateMutatorParams<"Comments"> = {
           collection: Comments,
           document: {
             userId,
@@ -312,7 +315,7 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
           document: {
             userId: currentUser._id,
             postId: newDoc._id,
-            contents: newDoc[fieldName as keyof DbPost],
+            contents: (newDoc as DbPost)[fieldName as keyof DbPost],
             debateResponse: true,
           },
           context,
@@ -340,12 +343,22 @@ function addEditableCallbacks<T extends DbObject>({collection, options = {}}: {
    * See: https://app.asana.com/0/628521446211730/1203311932993130/f
    * It's fine to leave it here just in case though
    */
-  getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject) => {
+  getCollectionHooks(collectionName).editAsync.add(async (doc: DbObject, oldDoc: DbObject) => {
+    const isPostContentsContext = collectionName === 'Posts' && fieldName === 'contents';
+    const hasChanged = (oldDoc as DbPost)?.contents?.html !== (doc as DbPost)?.contents?.html;
+    
+    if (isPostContentsContext && !hasChanged) return;
+
     await Globals.convertImagesInObject(collectionName, doc._id, fieldName);
   })
   getCollectionHooks(collectionName).newAsync.add(async (doc: DbObject) => {
     await Globals.convertImagesInObject(collectionName, doc._id, fieldName)
   })
+  if (collectionName === 'Posts') {
+    getCollectionHooks("Posts").newAsync.add(async (doc: DbPost) => {
+      await Globals.rehostPostMetaImages(doc);
+    })
+  }
 }
 
 export function addAllEditableCallbacks() {

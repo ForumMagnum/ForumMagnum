@@ -1,11 +1,7 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { useMutation, gql } from '@apollo/client';
-import { Mutation } from '@apollo/client/react/components';
-import type { MutationResult } from '@apollo/client/react';
 import type { ApolloError } from '@apollo/client';
-import { compose, withHandlers } from 'recompose';
 import { getCollection, extractFragmentInfo } from '../vulcan-lib';
-import { getExtraVariables } from './utils';
 import { updateCacheAfterUpdate } from './cacheUpdates';
 
 // Update mutation query used on the client
@@ -32,51 +28,6 @@ const updateClientTemplate = ({ typeName, fragmentName, extraVariablesString }: 
     }
   }
 }`;
-
-/**
- * HoC that adds a function for mutating objects. DEPRECATED: You want to use
- * the hook version of this, useUpdate, instead.
- */
-export const withUpdate = (options: {
-  collectionName: CollectionNameString,
-  fragmentName?: FragmentName,
-  fragment?: any,
-  extraVariables?: any, //TODO: Unused?
-}) => {
-  const collection = getCollection(options.collectionName);
-  const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
-
-  const typeName = collection.options.typeName;
-  const query = gql`
-    ${updateClientTemplate({ typeName, fragmentName })}
-    ${fragment}
-  `;
-
-  const mutationWrapper = (Component: any) => (props: any) => (
-    <Mutation mutation={query}>
-      {(mutate: any, mutationResult: MutationResult<any>) => (
-        <Component
-          {...props}
-          mutate={mutate}
-          ownProps={props}
-        />
-      )}
-    </Mutation>
-  )
-
-  return compose(
-    mutationWrapper,
-    withHandlers({
-      [`update${typeName}`]: ({ mutate, ownProps }: any) => ({ selector, data }: any) => {
-        const extraVariables = getExtraVariables(ownProps, options.extraVariables)
-        return mutate({
-          variables: { selector, data, ...extraVariables },
-          update: updateCacheAfterUpdate(typeName)
-        });
-      },
-    })
-  )
-};
 
 type FragmentOrFragmentName =
    {fragment: any, fragmentName?: never}
@@ -106,9 +57,10 @@ type FragmentOrFragmentName =
  */
 export const useUpdate = <CollectionName extends CollectionNameString>(options: FragmentOrFragmentName & {
   collectionName: CollectionName,
+  skipCacheUpdate?: boolean,
 }): {
   /** Set a field to `null` to delete it */
-  mutate: WithUpdateFunction<CollectionBase<ObjectsByCollectionName[CollectionName]>>,
+  mutate: WithUpdateFunction<CollectionName>,
   loading: boolean,
   error: ApolloError|undefined,
   called: boolean,
@@ -131,8 +83,8 @@ export const useUpdate = <CollectionName extends CollectionNameString>(options: 
   }) => {
     return mutate({
       variables: { selector, data, ...extraVariables },
-      update: updateCacheAfterUpdate(typeName)
+      update: options.skipCacheUpdate ? undefined : updateCacheAfterUpdate(typeName)
     })
-  }, [mutate, typeName]);
+  }, [mutate, typeName, options.skipCacheUpdate]);
   return {mutate: wrappedMutate, loading, error, called, data};
 }

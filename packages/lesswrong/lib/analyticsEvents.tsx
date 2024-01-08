@@ -1,12 +1,12 @@
 import { addGraphQLSchema } from './vulcan-lib/graphql';
 import { RateLimiter } from './rateLimiter';
-import React, { useContext, useEffect, useState, useRef, useCallback } from 'react'
+import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react'
 import { hookToHoc } from './hocUtils'
 import { isClient, isServer, isDevelopment, isAnyTest } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
 import { DatabasePublicSetting } from './publicSettings';
 import { getPublicSettingsLoaded } from './settingsCache';
-import * as _ from 'underscore';
+import { throttle } from 'underscore';
 import moment from 'moment';
 import { Globals } from './vulcan-lib/config';
 
@@ -102,11 +102,49 @@ export function captureEvent(eventType: string, eventProps?: Record<string,any>,
   }
 }
 
+type TrackingContext = Record<string, unknown>;
 
-const ReactTrackingContext = React.createContext({});
+const ReactTrackingContext = React.createContext<TrackingContext>({});
 
+export type AnalyticsProps = {
+  pageContext?: string,
+  pageSectionContext?: string,
+  pageSubSectionContext?: string,
+  pageElementContext?: string,
+  pageElementSubContext?: string,
+  reviewYear?: string,
+  path?: string,
+  resourceName?: string,
+  resourceUrl?: string,
+  chapter?: string,
+  documentSlug?: string,
+  postId?: string,
+  sequenceId?: string,
+  commentId?: string,
+  tagId?: string,
+  tagName?: string,
+  tagSlug?: string,
+  userIdDisplayed?: string,
+  hoverPreviewType?: string,
+  sortedBy?: string,
+  branch?: string,
+  siteEvent?: string,
+  href?: string,
+  limit?: number,
+  capturePostItemOnMount?: boolean,
+  singleLineComment?: boolean,
+  onsite?: boolean,
+  terms?: PostsViewTerms,
+  /** @deprecated Use `pageSectionContext` instead */
+  listContext?: string,
+  /** @deprecated Use `pageSectionContext` instead */
+  pageSection?: "karmaChangeNotifer",
+  /** @deprecated Use `pageSubSectionContext` instead */
+  pageSubsectionContext?: "latestReview",
+}
 
-/* HOW TO USE ANALYTICS CONTEXT WRAPPER COMPONENTS
+/**
+HOW TO USE ANALYTICS CONTEXT WRAPPER COMPONENTS
 When you create a new feature (page, widget,button, etc.) or change the structure of a page, 
 you should wrap the relevant components in an <AnalyticsContext> component. These 
 components allow passing contextual information to the analytics event capture 
@@ -132,6 +170,9 @@ USE THIS CONVENTION FOR TRACKING EVENT LOCATION
     -use when wanting to mark where within a section something occurs
 * listContext is historical. Now just use pageSection.
 
+When adding a new prop simply add it to the list in the type of the `props` argument here.
+Arguments can be of any type that can be handled by JSON.stringify. It's fine to have a low
+barrier for adding new props here.
 
 Also, context labels and their values should be camelCase, e.g. `pageSectionContext="fromTheArchives"`, 
 and *not* `page_section_context="From the Archives" or the like.
@@ -154,19 +195,20 @@ will likely have to add tracking manually with a captureEvent call. (Search code
 The best way to ensure you are tracking correctly with is to look at the logs
 in the client or server (ensure getShowAnalyticsDebug is returning true).
 */
-
-export const AnalyticsContext = ({children, ...props}: any) => {
+export const AnalyticsContext = ({children, ...props}: AnalyticsProps & {
+  children: ReactNode,
+}) => {
   const existingContextData = useContext(ReactTrackingContext)
-  
+
   // Create a child context, which is the parent context plus the provided props
   // merged on top of it. But create it in a referentially stable way: reuse
   // the same object, so that changes never cause child components to rerender.
   // (As long as they captured the context in the obvious way, they'll still get
   // the newest values of these props when they actually log an event.)
-  const newContextData = useRef({...existingContextData});
+  const newContextData = useRef<TrackingContext>({...existingContextData});
   for (let key of Object.keys(props))
-    (newContextData.current as AnyBecauseTodo)[key] = props[key];
-  
+    newContextData.current[key] = props[key as keyof typeof props];
+
   return <ReactTrackingContext.Provider value={newContextData.current}>
     {children}
   </ReactTrackingContext.Provider>
@@ -178,10 +220,9 @@ export const AnalyticsContext = ({children, ...props}: any) => {
 // useCallback return the same thing each tie.
 const emptyEventProps = {} as any;
 
-export function useTracking({eventType="unnamed", eventProps=emptyEventProps, skip=false}: {
+export function useTracking({eventType="unnamed", eventProps=emptyEventProps}: {
   eventType?: string,
   eventProps?: any,
-  skip?: boolean
 }={}) {
   const trackingContext = useContext(ReactTrackingContext)
 
@@ -224,11 +265,11 @@ export function useOnMountTracking<T>({eventType="unnamed", eventProps=emptyEven
   return {captureEvent: track}
 }
 
-export function useIsInView({rootMargin='0px', threshold=0}={}) {
-  const [entry, setEntry] = useState<any>(null)
-  const [node, setNode] = useState<any>(null)
+export function useIsInView<T extends HTMLElement>({rootMargin='0px', threshold=0}={}) {
+  const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null)
+  const [node, setNode] = useState<T | null>(null)
 
-  const observer = useRef<any>(null)
+  const observer = useRef<IntersectionObserver | null>(null)
 
   useEffect(() => {
     if (!window.IntersectionObserver) return
@@ -249,7 +290,7 @@ export function useIsInView({rootMargin='0px', threshold=0}={}) {
     return () => currentObserver.disconnect()
   }, [node, rootMargin, threshold])
 
-  return { setNode, entry }
+  return { setNode, entry, node }
 }
 
 
@@ -284,7 +325,7 @@ const throttledStoreEvent = (event: AnyBecauseTodo) => {
         steadyStateLimit: rateLimitKBps*1024,
         timestamp: now
       }),
-      exceeded: _.throttle(() => {
+      exceeded: throttle(() => {
         pendingAnalyticsEvents.push({
           type: "rateLimitExceeded",
           timestamp: now,

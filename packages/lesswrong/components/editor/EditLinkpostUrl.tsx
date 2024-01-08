@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import Input from "@material-ui/core/Input";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
 
-const placeholderSetting = new DatabasePublicSetting<string>("linkpostUrlPlaceholder", "")
+const placeholderSetting = new DatabasePublicSetting<string>("linkpostUrlPlaceholder", "http://example.com/blog/2017/reality-has-a-surprising-amount-of-detail")
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -67,7 +67,7 @@ const EditLinkpostUrl = ({
       <Input
         inputRef={inputRef}
         className={classes.input}
-        value={(document && document[path]) || defaultValue || ""}
+        value={(document[path]) || defaultValue || ""}
         onChange={onChange}
         placeholder={placeholderSetting.get()}
         disableUnderline

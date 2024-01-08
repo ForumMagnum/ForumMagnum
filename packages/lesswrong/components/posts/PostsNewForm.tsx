@@ -5,9 +5,9 @@ import { postGetPageUrl, postGetEditUrl, isPostCategory, postDefaultCategory } f
 import pick from 'lodash/pick';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser'
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import NoSSR from 'react-no-ssr';
-import { forumTypeSetting, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useDialog } from "../common/withDialog";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import { useUpdate } from "../../lib/crud/withUpdate";
@@ -15,7 +15,7 @@ import { useSingle } from '../../lib/crud/withSingle';
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
 
 // Also used by PostsEditForm
@@ -90,7 +90,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     
     "& .form-input.input-url": {
       margin: 0,
-      ...(isEAForum && {width: "100%"})
+      width: "100%"
     },
     "& .form-input.input-contents": {
       marginTop: 0,
@@ -113,7 +113,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 20
   },
   editorGuideOffset: {
-    paddingTop: 100,
+    paddingTop: isLW ? 80 : 100,
   },
   editorGuide: {
     display: 'flex',
@@ -168,7 +168,7 @@ const prefillFromTemplate = (template: PostsEdit) => {
   )
 }
 
-const getPostEditorGuide = (classes: ClassesType) => {
+export const getPostEditorGuide = (classes: ClassesType) => {
   const {LWTooltip, NewPostHowToGuides} = Components;
   if (isLWorAF) {
     return (
@@ -191,10 +191,10 @@ const getPostEditorGuide = (classes: ClassesType) => {
 }
 
 const PostsNewForm = ({classes}: {
-    classes: ClassesType,
-  }) => {
+  classes: ClassesType,
+}) => {
   const { query } = useLocation();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const { openDialog } = useDialog();
@@ -220,12 +220,12 @@ const PostsNewForm = ({classes}: {
   });
 
   const {
-    PostSubmit, WrappedSmartForm, WrappedLoginForm, SubmitToFrontpageCheckbox,
+    PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
     RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
     NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
   } = Components;
-  const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
-  const af = forumTypeSetting.get() === 'AlignmentForum'
+
+  const userHasModerationGuidelines = !!currentUser?.moderationGuidelines?.html;
   const debateForm = !!(query && query.debate);
 
   const questionInQuery = query && !!query.question
@@ -243,7 +243,7 @@ const PostsNewForm = ({classes}: {
     globalEvent: groupData?.isOnline,
     types: query && query.ssc ? ['SSC'] : [],
     meta: query && !!query.meta,
-    af: af || (query && !!query.af),
+    af: isAF || (query && !!query.af),
     groupId: query && query.groupId,
     moderationStyle: currentUser && currentUser.moderationStyle,
     moderationGuidelines: userHasModerationGuidelines ? currentUser!.moderationGuidelines : undefined,
@@ -272,7 +272,7 @@ const PostsNewForm = ({classes}: {
   const rateLimitNextAbleToPost = userWithRateLimit?.rateLimitNextAbleToPost
 
   if (!currentUser) {
-    return (<WrappedLoginForm />);
+    return (<LoginForm />);
   }
 
   if (!userCanPost(currentUser)) {
@@ -314,13 +314,13 @@ const PostsNewForm = ({classes}: {
                   if (options?.submitOptions?.noReload) {
                     window.history.replaceState('', '', postGetEditUrl(post._id, true));
                   } else if (options?.submitOptions?.redirectToEditor) {
-                    history.push(postGetEditUrl(post._id));
+                    navigate(postGetEditUrl(post._id));
                   } else {
                     // If they are publishing a non-draft post, show the share popup
-                    const showSharePopup = isEAForum && !post.draft
+                    const showSharePopup = !isLWorAF && !post.draft
                     const sharePostQuery = `?${SHARE_POPUP_QUERY_PARAM}=true`
                     const url  = postGetPageUrl(post);
-                    history.push({pathname: url, search: showSharePopup ? sharePostQuery: ''})
+                    navigate({pathname: url, search: showSharePopup ? sharePostQuery: ''})
 
                     const postDescription = post.draft ? "Draft" : "Post";
                     if (!showSharePopup) {

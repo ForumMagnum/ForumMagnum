@@ -30,7 +30,10 @@ export const RejectedCommentsList = ({classes}: {
   classes: ClassesType,
 }) => {
   const [expanded,setExpanded] = useState(false);
-  const { RejectedReasonDisplay, FormatDate, MetaInfo, LWTooltip, PostsPreviewTooltipSingle, CommentBody, Row, ForumIcon } = Components
+  const {
+    RejectedReasonDisplay, FormatDate, MetaInfo, PostsTooltip, CommentBody,
+    Row, ForumIcon,
+  } = Components
   const { results, loadMoreProps } = useMulti({
     terms:{view: 'rejected', limit: 10},
     collectionName: "Comments",
@@ -46,14 +49,14 @@ export const RejectedCommentsList = ({classes}: {
             <MetaInfo>
               <FormatDate date={comment.postedAt}/>
             </MetaInfo>
-            <LWTooltip tooltip={false} title={<PostsPreviewTooltipSingle postId={comment.postId}/>}>
+            <PostsTooltip postId={comment.postId}>
               <MetaInfo>
                 <Link className={classes.postTitle} to={commentGetPageUrlFromIds({postId: comment.postId, commentId: comment._id, postSlug: ""})}>
                   {comment.post?.draft && "[Draft] "}
                   {comment.post?.title} <ForumIcon icon="Link" className={classes.linkIcon} />
                 </Link>
               </MetaInfo>
-            </LWTooltip>
+            </PostsTooltip>
             <span className={classes.reason}>
               <RejectedReasonDisplay reason={comment.rejectedReason}/>
             </span>

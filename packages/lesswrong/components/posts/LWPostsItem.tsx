@@ -5,7 +5,7 @@ import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
-import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection'
+import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/CommentsListSection';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '../../lib/publicSettings';
 import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } from '../../lib/reviewUtils';
@@ -322,6 +322,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
   unreadDebateResponseCount: {
     paddingLeft: 4,
     color: theme.palette.primary.main
+  }, 
+  unreadDebateResponseContainer: {
+    cursor: 'pointer',
+    '&:hover': {
+      opacity: 0.5
+    }
   }
 })
 
@@ -340,8 +346,10 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     resumeReading,
     sticky,
     renderComments,
+    renderDialogueMessages,
     condensedAndHiddenComments,
     toggleComments,
+    toggleDialogueMessages,
     showAuthor,
     showDate,
     showTrailingButtons,
@@ -370,6 +378,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     curatedIconLeft,
     strikethroughTitle,
     bookmark,
+    className,
   } = usePostsItem(props);
 
   if (isRepeated) {
@@ -379,9 +388,9 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
   const {
     PostsItemComments, KarmaDisplay, PostsTitle, PostsUserAndCoauthors, LWTooltip,
     PostActionsButton, PostsItemIcons, PostsItem2MetaInfo, PostsItemTooltipWrapper,
-    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, AnalyticsTracker,
-    AddToCalendarButton, PostsItemReviewVote, ReviewPostButton, PostReadCheckbox,
-    PostMostValuableCheckbox, PostsItemTrailingButtons,
+    BookmarkButton, PostsItemDate, PostsItemNewCommentsWrapper, PostsItemNewDialogueResponses,
+    AnalyticsTracker, AddToCalendarButton, PostsItemReviewVote, ReviewPostButton,
+    PostReadCheckbox, PostMostValuableCheckbox, PostsItemTrailingButtons,
   } = Components;
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
@@ -394,6 +403,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
         </div>}
         <div className={classNames(
           classes.root,
+          className,
           {
             [classes.background]: !translucentBackground,
             [classes.checkboxWidth]: showReadCheckbox,
@@ -466,8 +476,8 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top"/>
             </PostsItem2MetaInfo>}
 
-            {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo>
-              <div className={classes.unreadDebateResponseCount}>
+            {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo className={classes.unreadDebateResponseContainer}>
+              <div className={classes.unreadDebateResponseCount} onClick={!!post.collabEditorDialogue ? toggleDialogueMessages : toggleComments}>
                 <DebateIcon className={classes.unreadDebateResponsesIcon}/>
                 {post.unreadDebateResponseCount}
               </div>
@@ -553,6 +563,10 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
                 condensed: condensedAndHiddenComments,
               }}
             />
+          </div>}
+
+          {renderDialogueMessages && <div className={classes.newCommentsSection} onClick={toggleDialogueMessages}>
+            <PostsItemNewDialogueResponses postId={post._id} unreadCount={post.unreadDebateResponseCount} />
           </div>}
         </div>
         {showMostValuableCheckbox && <div className={classes.mostValuableCheckbox}>

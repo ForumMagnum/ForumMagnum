@@ -9,5 +9,4 @@ export * from './pluralize';
 export * from './fragments';
 export * from './admin';
 export * from './errors';
-export * from './intl';
 export * from './handleOptions';

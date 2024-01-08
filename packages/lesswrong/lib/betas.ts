@@ -6,8 +6,16 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import { testServerSetting, isEAForum } from "./instanceSettings";
-import { userOverNKarmaOrApproved } from "./vulcan-users";
+import {
+  testServerSetting,
+  isEAForum,
+  isLWorAF,
+  hasCommentsTableOfContentSetting,
+  hasSideCommentsSetting, 
+  hasDialoguesSetting, 
+  hasPostInlineReactionsSetting,
+} from './instanceSettings'
+import { userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
@@ -22,7 +30,6 @@ const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user)
 // Features in progress                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
-export const userHasCommentOnSelection = isEAForum ? disabled : shippedFeature;
 export const userCanEditTagPortal = isEAForum ? moderatorOnly : adminOnly;
 export const userHasBoldPostItems = disabled
 export const userHasEAHomeHandbook = adminOnly
@@ -36,17 +43,27 @@ export const userHasAutosummarize = adminOnly
 
 export const userHasThemePicker = isEAForum ? adminOnly : shippedFeature;
 
-export const userHasSideComments = isEAForum ? disabled : shippedFeature;
-
 export const userHasShortformTags = isEAForum ? shippedFeature : disabled;
 
 export const userHasCommentProfileImages = disabled;
 
 export const userHasEagProfileImport = disabled;
 
-export const userHasEAHomeRHS = isEAForum ? optInOnly : disabled;
+export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 
-export const userHasPopularCommentsSection = isEAForum ? adminOrBeta : disabled;
+export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
+
+// Non-user-specific features
+export const dialoguesEnabled = hasDialoguesSetting.get();
+export const ckEditorUserSessionsEnabled = isLWorAF;
+export const inlineReactsHoverEnabled = hasPostInlineReactionsSetting.get();
+/** On the post page, do we show users other content they might want to read */
+export const hasPostRecommendations = isEAForum;
+/** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
+export const hasDigests = isEAForum;
+export const hasSideComments = hasSideCommentsSetting.get();
+export const useElicitApi = false;
+export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get();
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

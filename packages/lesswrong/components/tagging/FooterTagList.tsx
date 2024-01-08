@@ -12,8 +12,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { sortBy } from 'underscore';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
-import { isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -28,12 +29,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflow: "hidden",
   },
   postTypeLink: {
-    "&:hover": isEAForum ? {opacity: 1} : {},
+    "&:hover": isFriendlyUI ? {opacity: 1} : {},
   },
   frontpageOrPersonal: {
     ...tagStyle(theme),
     backgroundColor: theme.palette.tag.hollowTagBackground,
-    ...(isEAForum
+    ...(isFriendlyUI
       ? {
         marginBottom: 0,
         "&:hover": {
@@ -73,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|undefined): Array<T> {
   return sortBy(
     list,
-    isEAForum ? (item) => !toTag(item)?.core : (item) => toTag(item)?.core,
+    isFriendlyUI ? (item) => !toTag(item)?.core : (item) => toTag(item)?.core,
   );
 }
 
@@ -161,7 +162,14 @@ const FooterTagList = ({
   }, [setShowAll, setDisplayShowAllButton]);
 
   const tagIds = (results||[]).map((tag) => tag._id)
-  useOnMountTracking({eventType: "tagList", eventProps: {tagIds}, captureOnMount: eventProps => eventProps.tagIds.length > 0, skip: !tagIds.length||loading})
+
+  useOnMountTracking({
+    eventType: "tagList",
+    eventProps: {tagIds},
+    captureOnMount: eventProps => eventProps.tagIds.length > 0,
+    // LW doesn't get a lot of use out of `tagListMounted` events and there are a lot of them
+    skip: isLWorAF || !tagIds.length || loading
+  });
 
   const [mutate] = useMutation(gql`
     mutation addOrUpvoteTag($tagId: String, $postId: String) {

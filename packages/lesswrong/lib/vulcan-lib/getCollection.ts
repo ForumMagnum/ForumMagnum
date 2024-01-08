@@ -1,12 +1,13 @@
 import sortBy from 'lodash/sortBy';
 
-export const Collections: Array<CollectionBase<any>> = [];
-const collectionsByName: Partial<CollectionBasesByName> = {};
-const collectionsByLowercaseName: Partial<Record<string,CollectionBase<any>>> = {};
+// These are populated by calls to `createCollection`
+export const Collections: CollectionBase<CollectionNameString>[] = [];
+const collectionsByName = {} as CollectionsByName;
+const collectionsByLowercaseName: Record<string, CollectionBase<CollectionNameString>> = {};
 
-export const getCollection = <T extends CollectionNameString>(name: T): CollectionBase<ObjectsByCollectionName[T]> => {
-  if (name in collectionsByName)
-    return collectionsByName[name]!;
+export const getCollection = <N extends CollectionNameString>(name: N): CollectionBase<N> => {
+  if (name in collectionsByName && collectionsByName[name])
+    return collectionsByName[name] as CollectionBase<N>;
   
   // If the collection isn't in collectionsByName, recheck case-insensitive.
   // (This shouldn't ever come up, but it's hard to verify that it doesn't
@@ -22,7 +23,7 @@ export const getCollection = <T extends CollectionNameString>(name: T): Collecti
   if (!collection)
     throw new Error("Invalid collection name: "+name);
   
-  return collection;
+  return collection as CollectionBase<N>;
 }
 
 export const getCollectionByTypeName = (typeName: string): CollectionBase<any> => {
@@ -50,9 +51,11 @@ export const isValidCollectionName = (name: string): name is CollectionNameStrin
 
 // Add a collection to Collections and collectionsByName. Should only be called
 // from createCollection.
-export const registerCollection = <T extends DbObject>(collection: CollectionBase<T, CollectionNameOfObject<T>>): void => {
-  Collections.push(collection);
-  Object.assign(collectionsByName, { [collection.collectionName]: collection });
+export const registerCollection = <N extends CollectionNameString>(
+  collection: CollectionBase<N>
+): void => {
+  Collections.push(collection as CollectionBase<CollectionNameString>);
+  collectionsByName[collection.collectionName] = collection as unknown as CollectionsByName[N];
   (collectionsByLowercaseName as AnyBecauseTodo)[collection.collectionName.toLowerCase()] = collection;
 }
 
@@ -60,3 +63,5 @@ export const registerCollection = <T extends DbObject>(collection: CollectionBas
 export const getAllCollections = (): Array<CollectionBase<any>> => {
   return sortBy(Collections, c=>c.collectionName);
 }
+
+export const getCollectionsByName = (): CollectionsByName => collectionsByName;
