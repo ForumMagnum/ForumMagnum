@@ -1,7 +1,7 @@
 import moment from "moment"
 import Comments from "../lib/collections/comments/collection"
 import { getModeratorRateLimit, getTimeframeForRateLimit, userHasActiveModeratorActionOfType } from "../lib/collections/moderatorActions/helpers"
-import { RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from "../lib/collections/moderatorActions/schema"
+import { EXEMPT_FROM_RATE_LIMITS, RATE_LIMIT_THREE_COMMENTS_PER_POST_PER_WEEK } from "../lib/collections/moderatorActions/schema"
 import Posts from "../lib/collections/posts/collection"
 import UserRateLimits from "../lib/collections/userRateLimits/collection"
 import { forumSelect } from "../lib/forumTypeUtils"
@@ -15,6 +15,7 @@ import { triggerReview } from "./callbacks/sunshineCallbackUtils"
 import { appendToSunshineNotes } from "../lib/collections/users/helpers"
 import { isNonEmpty } from "fp-ts/Array"
 import type { NonEmptyArray } from "fp-ts/lib/NonEmptyArray"
+import { ModeratorActions } from "../lib/collections/moderatorActions"
 
 async function getModRateLimitHours(userId: string): Promise<number> {
   const moderatorRateLimit = await getModeratorRateLimit(userId)
@@ -98,6 +99,14 @@ async function shouldIgnoreCommentRateLimit(user: DbUser, postId: string|null, c
       return true;
     }
   }
+
+  const isRateLimitExempt = await ModeratorActions.findOne({
+    userId: user._id,
+    type: EXEMPT_FROM_RATE_LIMITS,
+    endedAt: { $gt: new Date() }
+  })
+  if (isRateLimitExempt) return true
+
   return false;
 }
 
@@ -171,7 +180,7 @@ async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimit
 
 export async function rateLimitDateWhenUserNextAbleToPost(user: DbUser): Promise<RateLimitInfo|null> {
   // Admins and Sunshines aren't rate-limited
-  if (shouldIgnorePostRateLimit(user)) return null;
+  if (await shouldIgnorePostRateLimit(user)) return null;
   
   // does the user have a moderator-assigned rate limit?
   // also get the recent karma info, we'll need it later

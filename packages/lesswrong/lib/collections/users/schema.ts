@@ -1896,6 +1896,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
+    hidden: !isLWorAF,
     order: 47,
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
@@ -2385,6 +2386,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
+    hidden: !isLWorAF,
   },
   hideWalledGardenUI: {
     type: Boolean,
@@ -2424,6 +2426,7 @@ const schema: SchemaType<"Users"> = {
     label: "Payment Contact Email",
     tooltip: "An email you'll definitely check where you can receive information about receiving payments",
     group: formGroups.paymentInfo,
+    hidden: !isLWorAF,
   },
   paymentInfo: {
     type: String,
@@ -2433,6 +2436,7 @@ const schema: SchemaType<"Users"> = {
     label: "PayPal Info",
     tooltip: "Your PayPal account info, for sending small payments",
     group: formGroups.paymentInfo,
+    hidden: !isLWorAF,
   },
   
   // Cloudinary image id for the profile image (high resolution)
@@ -2887,7 +2891,8 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['alignmentForumAdmins', 'admins'],
     canCreate: ['alignmentForumAdmins', 'admins'],
     group: formGroups.adminOptions,
-    label: "AF Review UserId"
+    label: "AF Review UserId",
+    hidden: !isLWorAF,
   },
 
   afApplicationText: {

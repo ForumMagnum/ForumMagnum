@@ -21,6 +21,7 @@ export const AUTO_BLOCKED_FROM_SENDING_DMS = 'autoBlockedFromSendingDMs';
 export const REJECTED_POST = 'rejectedPost';
 export const REJECTED_COMMENT = 'rejectedComment';
 export const POTENTIAL_TARGETED_DOWNVOTING = 'potentialTargetedDownvoting';
+export const EXEMPT_FROM_RATE_LIMITS = 'exemptFromRateLimits';
 
 export const postRateLimits = [] as const
 
@@ -63,7 +64,8 @@ export const MODERATOR_ACTION_TYPES = {
   [AUTO_BLOCKED_FROM_SENDING_DMS]: 'Auto-blocked from sending DMs for trying to send suspiciously many DMs',
   [REJECTED_POST]: 'Rejected Post',
   [REJECTED_COMMENT]: 'Rejected Comment',
-  [POTENTIAL_TARGETED_DOWNVOTING]: 'Suspected targeted downvoting of a specific user'
+  [POTENTIAL_TARGETED_DOWNVOTING]: 'Suspected targeted downvoting of a specific user',
+  [EXEMPT_FROM_RATE_LIMITS]: 'Exempt from rate limits',
 };
 
 /** The max # of users an unapproved account is allowed to DM before being flagged */
