@@ -5,6 +5,7 @@ import { forumSelect } from "../forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
 import { AutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RateLimitUser, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
+import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
@@ -124,6 +125,15 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
   }
 }
 
+export function calculateFeaturesForTest(userId: string, userKarmaInfo: UserKarmaInfo, allVotes: RecentVoteInfo[]): AnyBecauseTodo {
+  const recentKarmaInfo = calculateRecentKarmaInfo(userId, allVotes)
+  const features = {
+    ...recentKarmaInfo, 
+    downvoteRatio: getDownvoteRatio(userKarmaInfo)
+  }
+  return features
+}
+
 function getRateLimitName (rateLimit: AutoRateLimit) {
   let rateLimitName = `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`
   return rateLimitName += ` (via function: ${rateLimit.isActive.toString()})`
@@ -131,7 +141,7 @@ function getRateLimitName (rateLimit: AutoRateLimit) {
 
 function getActiveRateLimits<T extends AutoRateLimit>(user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: T[]) {
   const nonUniversalLimits = autoRateLimits.filter(rateLimit => rateLimit.rateLimitType !== "universal")
-  return nonUniversalLimits.filter(rateLimit => (!rateLimit.isActive(user, user.recentKarmaInfo)))
+  return nonUniversalLimits.filter(rateLimit => (!rateLimit.isActive(user, {...user.recentKarmaInfo, downvoteRatio: getDownvoteRatio(user)})))
 }
 
 export function getActiveRateLimitNames(user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
