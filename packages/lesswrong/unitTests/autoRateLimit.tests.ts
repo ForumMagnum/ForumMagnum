@@ -2,8 +2,8 @@ import sum from "lodash/sum";
 import groupBy from "lodash/groupBy";
 import range from "lodash/range";
 import moment from "moment";
-import { CommentAutoRateLimit, RecentVoteInfo, UserKarmaInfo } from "../lib/rateLimits/types";
-import { RateLimitUser, calculateRecentKarmaInfo } from "../lib/rateLimits/utils";
+import { CommentAutoRateLimit, RecentVoteInfo, UserKarmaInfo, RateLimitUser } from "../lib/rateLimits/types";
+import { calculateRecentKarmaInfo } from "../lib/rateLimits/utils";
 
 function createVote(overrideVoteFields?: Partial<RecentVoteInfo>): RecentVoteInfo {
   const defaultVoteInfo = {
