@@ -28,7 +28,7 @@ const EA: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   COMMENTS: [
     {
       ...timeframe('4 Comments per 30 minutes'),
-      isActive: (user) => user.karma <= 30,
+      isActive: (user) => (user.karma <= 30),
       rateLimitType: "lowKarma",
       rateLimitMessage: "You'll be able to post more comments as your karma increases.",
       appliesToOwnPosts: true
@@ -119,7 +119,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('3 Comments per 1 days'),
       appliesToOwnPosts: false,
       rateLimitType: "newUserDefault",
-      isActive: user => user.karma < 5,
+      isActive: user => (user.karma < 5),
       rateLimitMessage: `Users with less than 5 karma can write up to 3 comments a day.<br/>${lwDefaultMessage}`,
     }, 
     {
@@ -153,9 +153,9 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('1 Comments per 3 days'),
       appliesToOwnPosts: false,
       isActive: (user, features) => (
+        user.karma < 500 &&
         features?.last20Karma <= -15 && 
         features?.downvoterCount >= 5 && 
-        user.karma < 500
       ),
       rateLimitMessage: `Users with -15 or less karma on recent posts/comments can write up to 1 comment every 3 days. ${lwDefaultMessage}`
     }, 
@@ -164,10 +164,10 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('1 Comments per 1 weeks'),
       appliesToOwnPosts: false,
       isActive: (user, features) => (
-        features?.lastMonthKarma <= -30 && 
-        features?.last20Karma < -1 && 
         user.karma < 0 && 
-        features?.lastMonthDownvoterCount >= 5
+        features?.last20Karma < -1 && 
+        features?.lastMonthDownvoterCount >= 5 &&
+        features?.lastMonthKarma <= -30
       ),
       // Added as a hedge against someone with positive karma coming back after some period of inactivity and immediately getting into an argument
       rateLimitMessage: `Users with -30 or less karma on recent posts/comments can write up to one comment per week. ${lwDefaultMessage}`
@@ -180,7 +180,7 @@ const ALL = {
     FIVE_PER_DAY: {
       ...timeframe('5 Posts per 1 days'),
       rateLimitType: "universal",
-      isActive: (user:RateLimitUser) => true,
+      isActive: () => true,
       rateLimitMessage: "Users cannot post more than 5 posts a day.",
     }
   },
@@ -188,7 +188,7 @@ const ALL = {
     ONE_PER_EIGHT_SECONDS: {
       ...timeframe('1 Comments per 8 seconds'),
       rateLimitType: "universal",
-      isActive: (user:RateLimitUser)  => true,
+      isActive: ()  => true,
       rateLimitMessage: "Users cannot submit more than 1 comment per 8 seconds to prevent double-posting.",
       appliesToOwnPosts: true
     }
@@ -213,6 +213,7 @@ export const autoCommentRateLimits: ForumOptions<CommentAutoRateLimit[]> = {
     ...EA.COMMENTS
   ],
   LessWrong: [
+    ALL.COMMENTS.ONE_PER_EIGHT_SECONDS, 
     ...LW.COMMENTS
   ],
   default: [
