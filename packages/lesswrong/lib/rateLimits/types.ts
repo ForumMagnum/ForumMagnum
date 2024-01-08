@@ -1,4 +1,4 @@
-import {RateLimitUser} from "./utils"
+export type RateLimitUser = UserKarmaInfo|DbUser
 
 export type TimeframeUnitType = 'seconds'|'minutes'|'hours'|'days'|'weeks'|'months'
 export type RateLimitType = "moderator"|"lowKarma"|"universal"|"downvoteRatio"|"newUserDefault"
@@ -31,7 +31,7 @@ export interface AutoRateLimit {
   itemsPerTimeframe: number, // number of items a user can post/comment/etc before triggering rate limit
   rateLimitType?: RateLimitType // short name used in analytics db
   rateLimitMessage: string // A message displayed to users when they are rate limited.
-  isActive: (user: RateLimitUser, features?: AnyBecauseTodo) => boolean, 
+  isActive: (user: RateLimitUser, features: RateLimitFeatures) => boolean, 
 }
 
 export interface PostAutoRateLimit extends AutoRateLimit {
@@ -75,3 +75,7 @@ export type RateLimitComparison<T extends AutoRateLimit> = {
   isStricter: false;
   strictestNewRateLimit?: undefined;
 };
+
+export type RateLimitFeatures = RecentKarmaInfo & {
+  downvoteRatio: number,
+}

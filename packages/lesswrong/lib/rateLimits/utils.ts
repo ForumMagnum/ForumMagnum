@@ -1,13 +1,10 @@
 import groupBy from "lodash/groupBy"
 import uniq from "lodash/uniq"
 import moment from "moment"
-import { getDownvoteRatio } from "../../components/sunshineDashboard/UsersReviewInfoCard"
 import { forumSelect } from "../forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../vulcan-users"
 import { autoCommentRateLimits, autoPostRateLimits } from "./constants"
-import { AutoRateLimit, RateLimitComparison, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
-
-export type RateLimitUser = UserKarmaInfo|DbUser
+import { AutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RateLimitUser, RecentKarmaInfo, RecentVoteInfo, TimeframeUnitType, UserKarmaInfo, UserKarmaInfoWindow } from "./types"
 
 export function getModRateLimitInfo(documents: Array<DbPost|DbComment>, modRateLimitHours: number, itemsPerTimeframe: number): RateLimitInfo|null {
   if (modRateLimitHours <= 0) return null
@@ -62,7 +59,7 @@ export function getNextAbleToSubmitDate(documents: Array<DbPost|DbComment>, time
   return moment(doc.postedAt).add(timeframeLength, timeframeUnit).toDate()
 }
 
-export function getAutoRateLimitInfo(user: RateLimitUser, features: AnyBecauseTodo, rateLimit: AutoRateLimit,  documents: Array<DbPost|DbComment>, recentKarmaInfo: RecentKarmaInfo): RateLimitInfo|null {
+export function getAutoRateLimitInfo(user: RateLimitUser, features: RateLimitFeatures, rateLimit: AutoRateLimit,  documents: Array<DbPost|DbComment>): RateLimitInfo|null {
   // rate limit effects
   const { timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType } = rateLimit 
 

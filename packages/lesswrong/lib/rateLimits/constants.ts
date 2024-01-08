@@ -155,7 +155,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       isActive: (user, features) => (
         user.karma < 500 &&
         features?.last20Karma <= -15 && 
-        features?.downvoterCount >= 5 && 
+        features?.downvoterCount >= 5
       ),
       rateLimitMessage: `Users with -15 or less karma on recent posts/comments can write up to 1 comment every 3 days. ${lwDefaultMessage}`
     }, 

@@ -8,7 +8,7 @@ import { forumSelect } from "../lib/forumTypeUtils"
 import { userIsAdmin, userIsMemberOf } from "../lib/vulcan-users/permissions"
 import VotesRepo from "./repos/VotesRepo"
 import { autoCommentRateLimits, autoPostRateLimits } from "../lib/rateLimits/constants"
-import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserRateLimit } from "../lib/rateLimits/types"
+import type { CommentAutoRateLimit, PostAutoRateLimit, RateLimitComparison, RateLimitFeatures, RateLimitInfo, RecentKarmaInfo, RecentVoteInfo, UserRateLimit } from "../lib/rateLimits/types"
 import { calculateRecentKarmaInfo, documentOnlyHasSelfVote, getAutoRateLimitInfo, getCurrentAndPreviousUserKarmaInfo, getMaxAutoLimitHours, getModRateLimitInfo, getRateLimitStrictnessComparisons, getStrictestRateLimitInfo, getManualRateLimitInfo, getManualRateLimitIntervalHours, shouldIgnorePostRateLimit } from "../lib/rateLimits/utils"
 import Users from "../lib/collections/users/collection"
 import { triggerReview } from "./callbacks/sunshineCallbackUtils"
@@ -65,7 +65,7 @@ function getPostRateLimitInfos(
 
   const autoRatelimits = forumSelect(autoPostRateLimits)
   const autoRateLimitInfos = autoRatelimits?.map(
-    rateLimit => getAutoRateLimitInfo(user, features, rateLimit, postsInTimeframe, recentKarmaInfo)
+    rateLimit => getAutoRateLimitInfo(user, features, rateLimit, postsInTimeframe)
   ) ?? []
 
   // modRateLimitInfo is sort of deprecated, but we're still using it for at least a couple months
@@ -142,14 +142,14 @@ async function getCommentsOnOthersPosts(comments: Array<DbComment>, userId: stri
   return commentsOnNonauthorPosts
 }
 
-async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimitHours, modPostSpecificRateLimitHours, postId, manualCommentRateLimit, recentKarmaInfo, context}: {
+async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimitHours, modPostSpecificRateLimitHours, postId, manualCommentRateLimit, features, context}: {
   commentsInTimeframe: Array<DbComment>,
   user: DbUser,
   modRateLimitHours: number,
   modPostSpecificRateLimitHours: number,
   manualCommentRateLimit: UserRateLimit<'allComments'> | null,
   postId: string | null,
-  recentKarmaInfo: RecentKarmaInfo,
+  features: RateLimitFeatures,
   context: ResolverContext
 }): Promise<Array<RateLimitInfo>> {
   const [userIsAuthor, commentsOnOthersPostsInTimeframe] = await Promise.all([
@@ -170,13 +170,8 @@ async function getCommentRateLimitInfos({commentsInTimeframe, user, modRateLimit
     return true 
   })
 
-  const features = {
-    ...recentKarmaInfo, 
-    downvoteRatio: getDownvoteRatio(user)
-  }
-
   const autoRateLimitInfos = filteredAutoRateLimits?.map(
-    rateLimit => getAutoRateLimitInfo(user, features, rateLimit, commentsInTimeframe, recentKarmaInfo)
+    rateLimit => getAutoRateLimitInfo(user, features, rateLimit, commentsInTimeframe)
   ) ?? []
   return [modGeneralRateLimitInfo, modSpecificPostRateLimitInfo, manualRateLimitInfo, ...autoRateLimitInfos].filter((rateLimit): rateLimit is RateLimitInfo => rateLimit !== null)
 }
@@ -228,6 +223,11 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
   // fetch the comments from within the maxTimeframe
   const commentsInTimeframe = await getCommentsInTimeframe(user._id, maxHours);
 
+  const features = {
+    ...recentKarmaInfo, 
+    downvoteRatio: getDownvoteRatio(user)
+  }
+
   const rateLimitInfos = await getCommentRateLimitInfos({
     commentsInTimeframe,
     user,
@@ -235,7 +235,7 @@ export async function rateLimitDateWhenUserNextAbleToComment(user: DbUser, postI
     modPostSpecificRateLimitHours,
     postId,
     manualCommentRateLimit,
-    recentKarmaInfo,
+    features,
     context,
   });
 
