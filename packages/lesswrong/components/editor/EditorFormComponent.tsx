@@ -209,7 +209,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     if (collectionName === 'Posts' && !isEqual(contents, newContents)) {
       if (updatedFormType === 'new') {
         setUpdatedFormType('edit');
-        await updateCurrentValues({ draft: true });
+        const defaultTitle = !document.title ? { title: 'Untitled draft' } : {};
+        await updateCurrentValues({ draft: true, ...defaultTitle });
         // We pass in noReload: true and then check that in PostsNewForm's successCallback to avoid refreshing the page
         await submitForm(null, { noReload: true });
       } else {
@@ -218,7 +219,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         });
       }
     }
-  }, [collectionName, contents, updatedFormType, updateCurrentValues, submitForm, autosaveRevision, document._id]);
+  }, [collectionName, contents, updatedFormType, updateCurrentValues, submitForm, autosaveRevision, document._id, document.title]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
