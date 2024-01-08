@@ -2,8 +2,9 @@ import sum from "lodash/sum";
 import groupBy from "lodash/groupBy";
 import range from "lodash/range";
 import moment from "moment";
-import { CommentAutoRateLimit, RecentVoteInfo, UserKarmaInfo, IsActiveFunction } from "../lib/rateLimits/types";
-import { calculateFeaturesForTest, calculateRecentKarmaInfo } from "../lib/rateLimits/utils";
+import { CommentAutoRateLimit, RecentVoteInfo, UserKarmaInfo, IsActiveFunction, RateLimitFeatures } from "../lib/rateLimits/types";
+import { calculateRecentKarmaInfo } from "../lib/rateLimits/utils";
+import { getDownvoteRatio } from "../components/sunshineDashboard/UsersReviewInfoCard";
 
 function createVote(overrideVoteFields?: Partial<RecentVoteInfo>): RecentVoteInfo {
   const defaultVoteInfo = {
@@ -64,6 +65,15 @@ function assignTotalDocumentKarma(votes: RecentVoteInfo[]) {
     ...vote,
     totalDocumentKarma: sum(documentKarmaTotals[vote.documentId].map(vote => vote.power))
   }));
+}
+
+export function calculateFeatures(userId: string, userKarmaInfo: UserKarmaInfo, allVotes: RecentVoteInfo[]): RateLimitFeatures {
+  const recentKarmaInfo = calculateRecentKarmaInfo(userId, allVotes)
+  const features = {
+    ...recentKarmaInfo, 
+    downvoteRatio: getDownvoteRatio(userKarmaInfo)
+  }
+  return features
 }
 
 describe("calculateRecentKarmaInfo", function () {
@@ -160,17 +170,17 @@ describe("shouldRateLimitApply", function () {
   it("returns true IFF user karma is less than karma threshold", () => {
     const rateLimit = createCommentRateLimit(user => user.karma <= 0)
     const user1 = createUserKarmaInfo({karma: 0})
-    const features1 = calculateFeaturesForTest("authorId", user1, commentUpvotes) 
+    const features1 = calculateFeatures("authorId", user1, commentUpvotes) 
     const user2 = createUserKarmaInfo({karma: 1})
-    const features2 = calculateFeaturesForTest("authorId", user2, commentUpvotes) 
+    const features2 = calculateFeatures("authorId", user2, commentUpvotes) 
     
     expect(rateLimit.isActive(user1, features1)).toEqual(true)
     expect(rateLimit.isActive(user2, features2)).toEqual(false)
   })
   it("returns true IFF recent user karma is less than last20KarmaThreshold", () => {
     const user1 = createUserKarmaInfo()
-    const features1 = calculateFeaturesForTest("authorId", user1, commentUpvotes)
-    const features2 = calculateFeaturesForTest("authorId", user1, commentDownVotes)
+    const features1 = calculateFeatures("authorId", user1, commentUpvotes)
+    const features2 = calculateFeatures("authorId", user1, commentDownVotes)
     const rateLimit = createCommentRateLimit((user, features) => features.last20Karma <= 0)
     
     expect(rateLimit.isActive(user1, features1)).toEqual(false)
@@ -179,8 +189,8 @@ describe("shouldRateLimitApply", function () {
   it("returns true IFF recent user post karma is less than recentPostKarmaThreshold", () => {
     const rateLimit = createCommentRateLimit((user, features) => features.last20PostKarma < 0)
     const user1 = createUserKarmaInfo()
-    const featuresPostVotes = calculateFeaturesForTest("authorId", user1, postDownVotes)
-    const featuresCommentVotes = calculateFeaturesForTest("authorId", user1, commentDownVotes)
+    const featuresPostVotes = calculateFeatures("authorId", user1, postDownVotes)
+    const featuresCommentVotes = calculateFeatures("authorId", user1, commentDownVotes)
     
     expect(rateLimit.isActive(user1, featuresPostVotes)).toEqual(true)
     expect(rateLimit.isActive(user1, featuresCommentVotes)).toEqual(false)
@@ -188,8 +198,8 @@ describe("shouldRateLimitApply", function () {
   it("returns true IFF recent user comment karma is less than recentCommentKarmaThreshold", () => {
     const rateLimit = createCommentRateLimit((user, features) => features.last20CommentKarma < 0)
     const user1 = createUserKarmaInfo()
-    const featuresPostVotes = calculateFeaturesForTest("authorId", user1, postDownVotes)
-    const featuresCommentVotes = calculateFeaturesForTest("authorId", user1, commentDownVotes)
+    const featuresPostVotes = calculateFeatures("authorId", user1, postDownVotes)
+    const featuresCommentVotes = calculateFeatures("authorId", user1, commentDownVotes)
     
     expect(rateLimit.isActive(user1, featuresPostVotes)).toEqual(false)
     expect(rateLimit.isActive(user1, featuresCommentVotes)).toEqual(true)
@@ -197,8 +207,8 @@ describe("shouldRateLimitApply", function () {
   it("returns true IFF lastMonthKarma is less than lastMonthKarmaKarmaThreshold", () => {
     const user1 = createUserKarmaInfo()
     const rateLimit = createCommentRateLimit((user, features) => features.lastMonthKarma < 0)
-    const featuresOldCommentVotes = calculateFeaturesForTest("authorId", user1, oldCommentDownvotes)
-    const featuresNewCommentVotes = calculateFeaturesForTest("authorId", user1, commentDownVotes)
+    const featuresOldCommentVotes = calculateFeatures("authorId", user1, oldCommentDownvotes)
+    const featuresNewCommentVotes = calculateFeatures("authorId", user1, commentDownVotes)
     
     expect(rateLimit.isActive(user1, featuresOldCommentVotes)).toEqual(false)
     expect(rateLimit.isActive(user1, featuresNewCommentVotes)).toEqual(true)

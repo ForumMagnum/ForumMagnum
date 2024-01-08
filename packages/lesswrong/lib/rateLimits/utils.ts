@@ -136,15 +136,6 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
   }
 }
 
-export function calculateFeaturesForTest(userId: string, userKarmaInfo: UserKarmaInfo, allVotes: RecentVoteInfo[]): AnyBecauseTodo {
-  const recentKarmaInfo = calculateRecentKarmaInfo(userId, allVotes)
-  const features = {
-    ...recentKarmaInfo, 
-    downvoteRatio: getDownvoteRatio(userKarmaInfo)
-  }
-  return features
-}
-
 function getRateLimitName (rateLimit: AutoRateLimit) {
   let rateLimitName = `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`
   return rateLimitName += ` (via function: ${rateLimit.isActive.toString()})`
