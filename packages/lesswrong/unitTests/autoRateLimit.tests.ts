@@ -33,7 +33,7 @@ function createPostVote(overrideVoteFields?: Omit<Partial<RecentVoteInfo>, "coll
   return createVote({...defaultVoteInfo, ...overrideVoteFields})
 } 
 
-function createCommentRateLimit(isActive: (user:RateLimitUser, features?:any) => boolean): CommentAutoRateLimit {
+function createCommentRateLimit(isActive: (user:RateLimitUser) => boolean): CommentAutoRateLimit {
   return  {
     actionType: "Comments",
     timeframeUnit: 'days',
