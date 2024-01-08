@@ -27,7 +27,7 @@ const EA: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   COMMENTS: [
     {
       ...timeframe('4 Comments per 30 minutes'),
-      isActive: (user) => (user.karma <= 30),
+      isActive: (user) => (user.karma < 30),
       rateLimitType: "lowKarma",
       rateLimitMessage: "You'll be able to post more comments as your karma increases.",
       appliesToOwnPosts: true
