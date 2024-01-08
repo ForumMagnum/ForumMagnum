@@ -158,7 +158,7 @@ describe("shouldRateLimitApply", function () {
   const oldCommentDownvotes = range(20).map(k => createCommentVote({power: -1, postedAt: moment().subtract(5, 'weeks').toDate()}))
 
   it("returns true IFF user karma is less than karma threshold", () => {
-    const rateLimit = createCommentRateLimit(user => user.karma < 0)
+    const rateLimit = createCommentRateLimit(user => user.karma <= 0)
     const user1 = createUserKarmaInfo({karma: 0})
     const features1 = calculateFeaturesForTest("authorId", user1, commentUpvotes) 
     const user2 = createUserKarmaInfo({karma: 1})
