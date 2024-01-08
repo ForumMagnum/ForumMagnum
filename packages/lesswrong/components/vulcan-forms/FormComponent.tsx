@@ -337,7 +337,7 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
 
     if (this.props.tooltip) {
       return <div>
-        <Components.LWTooltip title={this.props.tooltip} placement="left-start">
+        <Components.LWTooltip inlineBlock={false} title={this.props.tooltip} placement="left-start">
           <div>{ formComponent }</div>
         </Components.LWTooltip>
       </div>

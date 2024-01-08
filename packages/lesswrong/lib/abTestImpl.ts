@@ -68,11 +68,15 @@ type ABKeyInfo = {
 // The generic permits type-safe checks for group assignment with `useABTest`
 export class ABTest<T extends string = string> {
   name: string;
+  active: boolean;
+  affectsLoggedOut: boolean;
   description: string;
   groups: Record<T, ABTestGroup>;
   
-  constructor({name, description, groups}: {
+  constructor({name, active, affectsLoggedOut, description, groups}: {
     name: string,
+    active: boolean,
+    affectsLoggedOut: boolean,
     description: string,
     groups: Record<T, ABTestGroup>
   }) {
@@ -86,6 +90,8 @@ export class ABTest<T extends string = string> {
     }
     
     this.name = name;
+    this.active = active;
+    this.affectsLoggedOut = affectsLoggedOut;
     this.description = description;
     this.groups = groups;
     
