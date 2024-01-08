@@ -21,7 +21,7 @@ const intlSuffix = '_intl';
  * Get fragment used to decide what data to load from the server to populate the form,
  * as well as what data to ask for as return value for the mutation
  */
-const getFragments = <T extends DbObject>(formType: "edit"|"new", props: WrappedSmartFormProps<CollectionNameOfObject<T>>) => {
+const getFragments = <N extends CollectionNameString>(formType: "edit"|"new", props: WrappedSmartFormProps<N>) => {
   const collection = getCollection(props.collectionName);
   const schema = getSchema(collection);
   const fragmentName = `${props.collectionName}${capitalize(formType)}FormFragment`;
@@ -117,7 +117,7 @@ const getFragments = <T extends DbObject>(formType: "edit"|"new", props: Wrapped
  * mutator. In both cases, unpacks fragment/fragmentName with `getFragments`,
  * generating a default fragment if none is given.
  */
-const FormWrapper = <T extends DbObject>({showRemove=true, ...props}: WrappedSmartFormProps<CollectionNameOfObject<T>>) => {
+const FormWrapper = <N extends CollectionNameString>({showRemove=true, ...props}: WrappedSmartFormProps<N>) => {
   const collection = getCollection(props.collectionName);
   const schema = getSchema(collection);
 
@@ -137,7 +137,7 @@ const FormWrapper = <T extends DbObject>({showRemove=true, ...props}: WrappedSma
  * Wrapper around a 'new' form, which adds createMutation. Should be used only
  * via FormWrapper.
  */
-const FormWrapperNew = <T extends CollectionNameString>(props: WrappedSmartFormProps<T>&{schema: any}) => {
+const FormWrapperNew = <N extends CollectionNameString>(props: WrappedSmartFormProps<N>&{schema: any}) => {
   const currentUser = useCurrentUser();
   const collection = getCollection(props.collectionName);
   const { mutationFragment } = getFragments("new", props);
@@ -160,7 +160,7 @@ const FormWrapperNew = <T extends CollectionNameString>(props: WrappedSmartFormP
  * Wrapper around an 'edit' form, which adds updateMutation. Should be used only
  * via FormWrapper.
  */
-const FormWrapperEdit = <T extends CollectionNameString>(props: WrappedSmartFormProps<T>&{schema: any}) => {
+const FormWrapperEdit = <N extends CollectionNameString>(props: WrappedSmartFormProps<N>&{schema: any}) => {
   const currentUser = useCurrentUser();
   const collection = getCollection(props.collectionName);
   const { queryFragment, mutationFragment } = getFragments("edit", props);
