@@ -837,15 +837,15 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     }
   };
 
-  newMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
+  newMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions?: AnyBecauseTodo) => {
     this.mutationSuccessCallback(result, 'new', submitOptions);
   };
 
-  editMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
+  editMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions?: AnyBecauseTodo) => {
     this.mutationSuccessCallback(result, 'edit', submitOptions);
   };
 
-  mutationSuccessCallback = (result: AnyBecauseTodo, mutationType: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
+  mutationSuccessCallback = (result: AnyBecauseTodo, mutationType: AnyBecauseTodo, submitOptions?: AnyBecauseTodo) => {
     this.setState(prevState => ({ disabled: false }));
     let document = result.data[Object.keys(result.data)[0]].data; // document is always on first property
 
@@ -857,7 +857,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     // avoid doing this if we're autosaving a new post without reloading
     if (this.formRef.current) {
       this.clearForm({
-        document: mutationType === 'edit' || submitOptions.noReload ? document : undefined
+        document: mutationType === 'edit' || submitOptions?.noReload ? document : undefined
       });
     }
 
