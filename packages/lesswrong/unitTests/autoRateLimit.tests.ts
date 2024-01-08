@@ -196,7 +196,7 @@ describe("shouldRateLimitApply", function () {
   })
   it("returns true IFF lastMonthKarma is less than lastMonthKarmaKarmaThreshold", () => {
     const user1 = createUserKarmaInfo()
-    const rateLimit = createCommentRateLimit((user, features) => features.lastMonthKarma <= 0)
+    const rateLimit = createCommentRateLimit((user, features) => features.lastMonthKarma < 0)
     const featuresOldCommentVotes = calculateFeaturesForTest("authorId", user1, oldCommentDownvotes)
     const featuresNewCommentVotes = calculateFeaturesForTest("authorId", user1, commentDownVotes)
     
