@@ -55,52 +55,52 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   // 1 post per week rate limits
     {
       ...timeframe('1 Posts per 1 weeks'),
-      isActive: user => (user.karma <= -3),
-      rateLimitMessage: `Users with -3 or less karma can post once per week.<br/>${lwDefaultMessage}`
+      isActive: user => (user.karma < -2),
+      rateLimitMessage: `Users with less than -2 karma can post once per week.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Posts per 1 weeks'),
       isActive: (user, features) => (
-        features.last20PostKarma <= -15 && 
+        features.last20PostKarma < -15 && 
         features.postDownvoterCount >= 4
       ),
-      rateLimitMessage: `Users with -15 or less karma on their recent posts can post once per week.<br/>${lwDefaultMessage}`
+      rateLimitMessage: `Users with less than -15 karma on their recent posts can post once per week.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Posts per 1 weeks'),
       isActive: (user, features) => (
-        features.last20PostKarma <= -30 && 
+        features.last20PostKarma < -30 && 
         features.postDownvoterCount >= 10
       ),
-      rateLimitMessage: `Users with -30 or less karma on their recent posts/comments can post once per week.<br/>${lwDefaultMessage}`
+      rateLimitMessage: `Users with less than -30 karma on their recent posts/comments can post once per week.<br/>${lwDefaultMessage}`
     }, 
     // 1 post per 2+ weeks rate limits
     {
       ...timeframe('1 Posts per 2 weeks'),
       isActive: (user, features) => ( 
         user.karma < 0 && 
-        features.last20Karma <= -30 && 
+        features.last20Karma < -30 && 
         features.postDownvoterCount >= 5
       ),
-      rateLimitMessage: `Users with -30 or less karma on their recent posts/comments can post once every 2 weeks.<br/>${lwDefaultMessage}`
+      rateLimitMessage: `Users with less than -30 karma on their recent posts/comments can post once every 2 weeks.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Posts per 3 weeks'),
       isActive: (user, features) => (
         user.karma < 0 && 
-        features.last20PostKarma <= -45 && 
+        features.last20PostKarma < -45 && 
         features.postDownvoterCount >= 5
       ),
-      rateLimitMessage: `Users with -45 or less karma on recent posts can post once every 3 weeks.<br/>${lwDefaultMessage}`
+      rateLimitMessage: `Users with less than -45 karma on recent posts can post once every 3 weeks.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Posts per 4 weeks'),
       isActive: (user, features) => (
         user.karma < 0 && 
-        features.last20Karma <= -60 && 
+        features.last20Karma < -60 && 
         features.postDownvoterCount >= 5
       ), // uses last20Karma so it's not too hard to dig your way out 
-      rateLimitMessage: `Users with -60 or less karma on recent comments/posts can post once every 4 weeks.<br/>${lwDefaultMessage}`
+      rateLimitMessage: `Users with less than -60 karma on recent comments/posts can post once every 4 weeks.<br/>${lwDefaultMessage}`
     }
   ],
   COMMENTS: [ 
@@ -108,10 +108,10 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('1 Comments per 1 hours'),
       appliesToOwnPosts: false,
       isActive: (user, features) => (
-        features.last20Karma <= -1 && 
+        features.last20Karma < 0 && 
         features.downvoterCount >= 3
       ),
-      rateLimitMessage: `Users with -1 or less karma on recent posts/comments can comment once per hour.<br/>${lwDefaultMessage}`
+      rateLimitMessage: `Users with less than 0 karma on recent posts/comments can comment once per hour.<br/>${lwDefaultMessage}`
     }, 
   // 3 comments per day rate limits
     {
@@ -126,7 +126,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       appliesToOwnPosts: false,
       isActive: (user, features) => (
         user.karma < 2000 && 
-        features.last20Karma <= 0
+        features.last20Karma < 1
       ),  // requires 1 weak upvote from a 1000+ karma user, or two new user upvotes, but at 2000+ karma I trust you more to go on long conversations
       rateLimitMessage: `You've recently posted a lot without getting upvoted. Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 2+ net-karma.<br/>${lwDefaultMessage}`,
     }, 
@@ -134,18 +134,18 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
     {
       ...timeframe('1 Comments per 1 days'),
       appliesToOwnPosts: false,
-      isActive: user => (user.karma <= -3),
-      rateLimitMessage: `Users with -3 or less karma can write up to 1 comment per day.<br/>${lwDefaultMessage}`
+      isActive: user => (user.karma < -2),
+      rateLimitMessage: `Users with less than -2 karma can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     }, 
     {
       ...timeframe('1 Comments per 1 days'),
 
       appliesToOwnPosts: false,
       isActive: (user, features) => (
-        features.last20Karma <= -5 && 
+        features.last20Karma < -5 && 
         features.downvoterCount >= (user.karma < 2000 ? 4 : 7)
       ), // at 2000+ karma, I think your downvotes are more likely to be from people who disagree with you, rather than from people who think you're a troll
-      rateLimitMessage: `Users with -5 or less karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
+      rateLimitMessage: `Users with less than -5 karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     }, 
   // 1 comment per 3 days rate limits
     {
@@ -153,10 +153,10 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       appliesToOwnPosts: false,
       isActive: (user, features) => (
         user.karma < 500 &&
-        features.last20Karma <= -15 && 
+        features.last20Karma < -15 && 
         features.downvoterCount >= 5
       ),
-      rateLimitMessage: `Users with -15 or less karma on recent posts/comments can write up to 1 comment every 3 days. ${lwDefaultMessage}`
+      rateLimitMessage: `Users with less than -15 karma on recent posts/comments can write up to 1 comment every 3 days. ${lwDefaultMessage}`
     }, 
   // 1 comment per week rate limits
     {
