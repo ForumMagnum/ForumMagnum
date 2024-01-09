@@ -56,7 +56,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   minCount?: number,
   /** NOTE: not in use or tested as of 2022-05 */
   maxCount?: number,
-  options?: MaybeFunction<any,SmartFormProps>,
+  options?: (props: SmartFormProps<N>) => any,
   allowedValues?: string[],
   vectorSize?: number,
   
@@ -80,7 +80,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
    *
    * This used to have a synonym `inputProperties` (a legacy of Vulcan's mass-renaming).
    */
-  form?: MaybeFunction<any,SmartFormProps>,
+  form?: Record<string, string | number | boolean | Record<string, any> | ((props: SmartFormProps<N>) => any) | undefined>,
   
   beforeComponent?: keyof ComponentTypes,
   /** NOTE: not in use or tested as of 2022-05 */
@@ -92,7 +92,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
   input?: FormInputType,
   control?: FormInputType,
   placeholder?: string,
-  hidden?: MaybeFunction<boolean,SmartFormProps>,
+  hidden?: MaybeFunction<boolean,SmartFormProps<N>>,
   group?: FormGroupType<N>,
   inputType?: any,
   
