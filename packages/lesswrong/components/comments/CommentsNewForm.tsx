@@ -165,8 +165,7 @@ const CommentsNewForm = ({
   formProps,
   enableGuidelines=true,
   padding=true,
-  // TODO revert
-  formStyle="minimalist",
+  formStyle="default",
   classes,
   className,
 }: CommentsNewFormProps) => {

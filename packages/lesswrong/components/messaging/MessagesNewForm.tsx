@@ -7,7 +7,6 @@ import { TemplateQueryStrings } from "./NewConversationButton";
 import { isEAForum } from "../../lib/instanceSettings";
 import classNames from "classnames";
 import { FormDisplayMode } from "../comments/CommentsNewForm";
-import ArrowForward from '@material-ui/icons/ArrowForward';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -16,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   rootMinimalist: {
     ...theme.typography.commentStyle,
     padding: 10,
-    border: theme.palette.border.faint,
+    border: theme.palette.border.extraFaint,
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.palette.grey[100],
     width: "100%",
@@ -25,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& .form-input': {
       width: "100%",
-      margin: '2px 0 0 0'
+      margin: '3px 0 0 0'
     },
     '& form': {
       display: "flex",
@@ -44,14 +43,20 @@ const styles = (theme: ThemeType): JssStyles => ({
           fontSize: 14,
           fontWeight: 500,
           textTransform: "none",
+          background: theme.palette.primary.main,
+          color: theme.palette.text.alwaysWhite, // Dark mode independent
+          "&:hover": {
+            background: theme.palette.primary.light,
+          },
         }
       : {
           paddingBottom: 2,
           fontSize: 16,
+          color: theme.palette.secondary.main,
+          "&:hover": {
+            background: theme.palette.panelBackground.darken05,
+          },
         }),
-    "&:hover": {
-      background: theme.palette.panelBackground.darken05,
-    },
   },
   formButtonMinimalist: {
     padding: "2px",
@@ -59,25 +64,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 28,
     minHeight: 28,
     marginLeft: "5px",
-    "&:hover": {
-      opacity: .8,
-      backgroundColor: theme.palette.lwTertiary.main,
-    },
-    backgroundColor: theme.palette.lwTertiary.main,
-    color: theme.palette.background.pageActiveAreaBackground,
+    backgroundColor: "transparent",
+    color: theme.palette.primary.main,
     overflowX: "hidden",  // to stop loading dots from wrapping around
+    background: "transparent",
+    fontWeight: 500,
   },
-  submitButton: isEAForum
-    ? {
-        background: theme.palette.primary.main,
-        color: theme.palette.text.alwaysWhite, // Dark mode independent
-        "&:hover": {
-          background: theme.palette.primary.light,
-        },
-      }
-    : {
-        color: theme.palette.secondary.main,
-      },
 });
 
 export const MessagesNewForm = ({
@@ -93,7 +85,7 @@ export const MessagesNewForm = ({
   successEvent: () => void;
   formStyle?: FormDisplayMode;
 }) => {
-  const { WrappedSmartForm, Loading, Error404 } = Components;
+  const { WrappedSmartForm, Loading, ForumIcon, Error404 } = Components;
   const [loading, setLoading] = useState(false);
 
   const skip = !templateQueries?.templateId;
@@ -116,9 +108,8 @@ export const MessagesNewForm = ({
           type="submit"
           id="new-message-submit"
           className={classNames("primary-form-submit-button", formButtonClass, classes.submitButton)}
-          color="primary"
         >
-          {loading ? <Loading /> : (isMinimalist ? <ArrowForward /> : submitLabel)}
+          {loading ? <Loading /> : (isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel)}
         </Button>
       </div>
     );
