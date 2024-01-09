@@ -52,7 +52,7 @@ const NewConversationButton = ({ user, currentUser, children, from, includeModer
 
   const handleClick = currentUser
     ? (e: MouseEvent) => {
-      initiateConversation(user._id)
+      initiateConversation([user._id])
       e.stopPropagation()
     }
     : () => openDialog({componentName: "LoginPopup"})

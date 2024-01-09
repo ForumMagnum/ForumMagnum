@@ -1131,7 +1131,7 @@ const ThankAuthorSection = ({authors, classes}: {
   
   const { conversation, initiateConversation } = useInitiateConversation()
   useEffect(() => {
-    if (showThankAuthor) initiateConversation(topAuthorByEngagementPercentile._id)
+    if (showThankAuthor) initiateConversation([topAuthorByEngagementPercentile._id])
   }, [showThankAuthor, initiateConversation, topAuthorByEngagementPercentile])
   if (!showThankAuthor || !conversation) return null
   

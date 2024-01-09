@@ -16,13 +16,13 @@ export const useInitiateConversation = (props?: { includeModerators?: boolean })
 
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
-  const [userId, setUserId] = useState<string | null>(null);
-  const skip = !currentUser || !userId;
+  const [userIds, setUserIds] = useState<string[] | null>(null);
+  const skip = !currentUser || !userIds || !userIds.length
 
   const alignmentFields = isAF ? { af: true } : {};
   const moderatorField = includeModerators ? { moderator: true } : {};
 
-  const participantIds = skip ? [] : [currentUser._id, userId];
+  const participantIds = skip ? [] : [currentUser._id, ...userIds];
 
   const { results, error } = useMulti({
     terms: {
@@ -46,13 +46,16 @@ export const useInitiateConversation = (props?: { includeModerators?: boolean })
   useEffect(() => {
     if (error) {
       flash({messageString: "Error initiating conversation", type: "error"});
-      setUserId(null);
+      setUserIds(null);
     }
   }, [error, flash])
 
   const conversation = results?.[0];
 
-  const initiateConversation = useCallback((userId: string) => setUserId(userId), []);
+  const initiateConversation = useCallback(
+    (userIds: string[]) => setUserIds(userIds && userIds.length ? userIds : null),
+    []
+  );
 
   return {
     conversation,

@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Configure, Hits, InstantSearch, SearchBox } from "react-instantsearch-dom";
 import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";
 import InfoIcon from "@material-ui/icons/Info";
 import { useCurrentUser } from "../common/withUser";
+import { useInitiateConversation } from "../hooks/useInitiateConversation";
+import { useNavigate } from "../../lib/reactRouterWrapper";
+import { Hit } from "react-instantsearch-core";
+import Chip from "@material-ui/core/Chip";
 
 const styles = (theme: ThemeType): JssStyles => ({
   paper: {
@@ -13,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxWidth: 600,
     width: 'min(600px, 100%)',
-    maxHeight: 600,
+    maxHeight: 800,
     flex: 1,
     minHeight: 0,
     display: "flex",
@@ -114,7 +118,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 20,
     height: 20,
     cursor: "pointer",
-  }
+  },
+  chip: {
+    marginLeft: 4,
+    marginRight: 4,
+    marginBottom: 4,
+    backgroundColor: theme.palette.background.usersListItem,
+  },
 });
 
 const NewConversationDialog = ({
@@ -126,9 +136,38 @@ const NewConversationDialog = ({
   classes: ClassesType;
   onClose: () => void;
 }) => {
-  const { LWDialog, ErrorBoundary, ExpandedUsersConversationSearchHit, ForumIcon, LWTooltip, Typography } = Components;
+  const {
+    LWDialog,
+    ErrorBoundary,
+    ExpandedUsersConversationSearchHit,
+    ForumIcon,
+    LWTooltip,
+    Typography,
+  } = Components;
   const currentUser = useCurrentUser();
   const [query, setQuery] = useState<string>("");
+  const navigate = useNavigate();
+
+  const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: isModInbox });
+  const [selectedUsers, setSelectedUsers] = useState<Hit<AnyBecauseTodo>[]>([])
+
+  useEffect(() => {
+    if (conversation) {
+      navigate({ pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversation._id}`, search: "?from=new_conversation_dialog" });
+      onClose();
+    }
+  }, [conversation, navigate, isModInbox, onClose]);
+
+  const toggleUserSelected = useCallback((user: Hit<AnyBecauseTodo>) => {
+    const prevSelectedUserIds = selectedUsers.map(u => u._id)
+    const newUserId = user._id
+
+    if (prevSelectedUserIds.includes(newUserId)) {
+      setSelectedUsers((prev) => prev.filter(v => v._id !== newUserId))
+    } else {
+      setSelectedUsers((prev) => [...prev, user])
+    }
+  }, [selectedUsers])
 
   if (!currentUser) return null;
 
@@ -142,6 +181,17 @@ const NewConversationDialog = ({
             <div>New conversation</div>
             <ForumIcon icon="Close" className={classes.closeIcon} onClick={onClose} />
           </div>
+          <div>
+            <h3>Selected User IDs:</h3>
+            {selectedUsers.map((u) => (
+              <Chip
+                key={u._id}
+                onDelete={() => toggleUserSelected(u)}
+                className={classes.chip}
+                label={u.displayName}
+              />
+            ))}
+          </div>
           <InstantSearch
             indexName={getElasticIndexNameWithSorting("Users", "relevance")}
             searchClient={getSearchClient()}
@@ -152,6 +202,14 @@ const NewConversationDialog = ({
               <div className={classes.searchBoxRow}>
                 <div className={classes.searchInputArea}>
                   <ForumIcon icon="Search" className={classes.searchIcon} />
+                  {selectedUsers.map((u) => (
+                    <Chip
+                      key={u._id}
+                      onDelete={() => toggleUserSelected(u)}
+                      className={classes.chip}
+                      label={u.displayName}
+                    />
+                  ))}
                   {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
                     * null is the only option that actually suppresses the extra X button.
                   // @ts-ignore */}
@@ -160,6 +218,9 @@ const NewConversationDialog = ({
                 <LWTooltip title={`"Quotes" and -minus signs are supported.`} className={classes.searchHelp}>
                   <InfoIcon className={classes.infoIcon} />
                 </LWTooltip>
+              </div>
+              <div>
+
               </div>
               {isModInbox && (
                 <Typography variant="body2" className={classes.modWarning}>Moderators will be included in this conversation</Typography>
@@ -174,6 +235,7 @@ const NewConversationDialog = ({
                         {...props}
                         currentUser={currentUser}
                         onClose={onClose}
+                        onSelect={toggleUserSelected}
                         isModInbox={isModInbox}
                         className={classes.hit}
                       />
