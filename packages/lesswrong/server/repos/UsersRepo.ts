@@ -3,6 +3,7 @@ import Users from "../../lib/collections/users/collection";
 import { UpvotedUser } from "../../components/users/DialogueMatchingPage";
 import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -40,7 +41,7 @@ LIMIT 1
 
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 
-export default class UsersRepo extends AbstractRepo<"Users"> {
+class UsersRepo extends AbstractRepo<"Users"> {
   constructor() {
     super(Users);
   }
@@ -550,9 +551,11 @@ export default class UsersRepo extends AbstractRepo<"Users"> {
         p.title,
         p."userId",
         p."coauthorStatuses",
-        ARRAY_AGG(DISTINCT s."userId") AS "activeUserIds"
+        ARRAY_AGG(DISTINCT s."userId") AS "activeUserIds",
+        MAX(r."editedAt") AS "mostRecentEditedAt"
     FROM "Posts" AS p
-    INNER JOIN public."CkEditorUserSessions" AS s ON p._id = s."documentId",
+    INNER JOIN "Revisions" AS r ON p._id = r."documentId"
+    INNER JOIN "CkEditorUserSessions" AS s ON p._id = s."documentId",
         unnest(p."coauthorStatuses") AS coauthors
     WHERE
         (
@@ -560,10 +563,17 @@ export default class UsersRepo extends AbstractRepo<"Users"> {
             OR p."userId" = any($1)
         )
         AND s."endedAt" IS NULL
-        AND s."createdAt" > CURRENT_TIMESTAMP - INTERVAL '8 hours'
+        AND (
+          s."createdAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
+          OR r."editedAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
+        )
     GROUP BY p._id
     `, [userIds]);
   
     return result;
   }
 }
+
+recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });
+
+export default UsersRepo;

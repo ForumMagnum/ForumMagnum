@@ -10,10 +10,11 @@ import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { buildRevision, getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
-import { createMutator, Globals } from '../vulcan-lib';
+import { createAdminContext, createMutator, Globals, updateMutator } from '../vulcan-lib';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { getPostEditorConfig } from './postEditorConfig';
+import CkEditorUserSessions from '../../lib/collections/ckEditorUserSessions/collection';
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -129,7 +130,7 @@ const documentHelpers = {
         documentId,
         fieldName,
         collectionName: "Posts",
-        version: await getNextVersion(documentId, "patch", fieldName, true),
+        version: getNextVersion(previousRev, "patch", true),
         draft: true,
         updateType: "patch",
         commitMessage: cloudEditorAutosaveCommitMessage,
@@ -180,6 +181,18 @@ const documentHelpers = {
       // Create a new rev
       await documentHelpers.saveDocumentRevision(userId, postId, html);
     }
+  },
+
+  async endCkEditorUserSession(documentId: string, endedBy: string, endedAt: Date = new Date()) {
+    const adminContext = createAdminContext();
+  
+    return updateMutator({
+      collection: CkEditorUserSessions,
+      documentId,
+      set: { endedAt, endedBy },
+      context: adminContext,
+      currentUser: adminContext.currentUser,
+    });
   }
 };
 

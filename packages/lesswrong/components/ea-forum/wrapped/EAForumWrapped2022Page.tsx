@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react"
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import moment from "moment";
-import { Link } from "../../lib/reactRouterWrapper";
-import { useCurrentUser } from "../common/withUser";
+import { Link } from "../../../lib/reactRouterWrapper";
+import { useCurrentUser } from "../../common/withUser";
 import { gql, useQuery } from "@apollo/client";
-import { truncatise } from "../../lib/truncatise";
-import { useConcreteThemeOptions } from "../themes/useTheme";
+import { truncatise } from "../../../lib/truncatise";
+import { useConcreteThemeOptions } from "../../themes/useTheme";
 import InfoIcon from '@material-ui/icons/Info'
 import ClockIcon from '@material-ui/icons/Schedule'
 import PersonIcon from '@material-ui/icons/Person'
@@ -15,8 +15,8 @@ import CommentIcon from '@material-ui/icons/Message'
 import ShortformIcon from '@material-ui/icons/Notes'
 import KarmaIcon from '@material-ui/icons/Star'
 import NearMeIcon from '@material-ui/icons/NearMe'
-import { RibbonIcon } from "../icons/ribbonIcon";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
+import { RibbonIcon } from "../../icons/ribbonIcon";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 
 
 const styles = (theme: ThemeType) => ({
@@ -187,7 +187,7 @@ const styles = (theme: ThemeType) => ({
   }
 })
 
-const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
+const EAForumWrapped2022Page = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser()
   const theme = useConcreteThemeOptions()
   // animation gif depends on whether the user has light or dark mode,
@@ -546,10 +546,10 @@ const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   )
 }
 
-const EAForumWrappedPageComponent = registerComponent('EAForumWrappedPage', EAForumWrappedPage, {styles})
+const EAForumWrapped2022PageComponent = registerComponent('EAForumWrapped2022Page', EAForumWrapped2022Page, {styles})
 
 declare global {
   interface ComponentTypes {
-    EAForumWrappedPage: typeof EAForumWrappedPageComponent
+    EAForumWrapped2022Page: typeof EAForumWrapped2022PageComponent
   }
 }

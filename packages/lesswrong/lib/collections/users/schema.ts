@@ -1424,7 +1424,11 @@ const schema: SchemaType<"Users"> = {
     ...notificationTypeSettingsField(),
     hidden: !isLW,
   },
-
+  notificationYourTurnMatchForm: {
+    label: "Fill in the topics form for your dialogue match",
+    ...notificationTypeSettingsField(),
+    hidden: !isLW,
+  },
   hideDialogueFacilitation: {
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
@@ -1510,6 +1514,17 @@ const schema: SchemaType<"Users"> = {
     hidden: !isLW,
     label: "Show a list of recommended dialogue partners inside frontpage widget",
     ...schemaDefaultValue(true)
+  },
+  hideActiveDialogueUsers: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Hides/collapses the active dialogue users in the header",
+    ...schemaDefaultValue(false)
   },
 
   // Karma-change notifier settings
@@ -1871,6 +1886,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
+    hidden: !isLWorAF,
     order: 47,
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
@@ -2360,6 +2376,7 @@ const schema: SchemaType<"Users"> = {
     canRead: ['guests'],
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
+    hidden: !isLWorAF,
   },
   hideWalledGardenUI: {
     type: Boolean,
@@ -2399,6 +2416,7 @@ const schema: SchemaType<"Users"> = {
     label: "Payment Contact Email",
     tooltip: "An email you'll definitely check where you can receive information about receiving payments",
     group: formGroups.paymentInfo,
+    hidden: !isLWorAF,
   },
   paymentInfo: {
     type: String,
@@ -2408,6 +2426,7 @@ const schema: SchemaType<"Users"> = {
     label: "PayPal Info",
     tooltip: "Your PayPal account info, for sending small payments",
     group: formGroups.paymentInfo,
+    hidden: !isLWorAF,
   },
   
   // Cloudinary image id for the profile image (high resolution)
@@ -2862,7 +2881,8 @@ const schema: SchemaType<"Users"> = {
     canUpdate: ['alignmentForumAdmins', 'admins'],
     canCreate: ['alignmentForumAdmins', 'admins'],
     group: formGroups.adminOptions,
-    label: "AF Review UserId"
+    label: "AF Review UserId",
+    hidden: !isLWorAF,
   },
 
   afApplicationText: {
@@ -2931,6 +2951,17 @@ const schema: SchemaType<"Users"> = {
       if (!isAdmin(currentUser)) return true;
       return false;
     },
+    ...schemaDefaultValue(false),
+  },
+
+  // EA Forum wrapped fields
+  wrapped2023Viewed: {
+    type: Boolean,
+    optional: false,
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    canCreate: ['members'],
+    hidden: true,
     ...schemaDefaultValue(false),
   },
 };

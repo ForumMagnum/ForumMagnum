@@ -56,6 +56,10 @@ export function filterNonnull<T>(arr: (T|null|undefined)[]): T[] {
   return arr.filter(x=>x!=null && x!==undefined) as T[];
 }
 
+export function isFunction<T>(input: T): input is Extract<T, Function> {
+  return typeof input === 'function';
+};
+
 //type for filterWhereFieldsNotNull that is the same field as T but no nullable values in the specified fields
 export type FieldsNotNull<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>> & {
   [P in K]-?: NonNullable<T[P]>;

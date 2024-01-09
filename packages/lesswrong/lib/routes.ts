@@ -752,7 +752,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'ImportProfile',
       path: '/profile/import',
-      componentName: 'EAGApplicationImportForm',
+      componentName: 'EAGApplicationImportFormWrapper',
       title: 'Import Profile',
       background: 'white',
     },
@@ -790,11 +790,19 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       previewComponentName: 'TagHoverPreview',
       unspacedGrid: true,
     },
+    // TODO Remove 2022 version
     {
       name: 'EAForumWrapped',
-      path: '/wrapped',
-      componentName: 'EAForumWrappedPage',
+      path: '/wrapped2022',
+      componentName: 'EAForumWrapped2022Page',
       title: 'EA Forum Wrapped',
+    },
+    {
+      name: 'EAForumWrappedV2',
+      path: '/wrapped',
+      componentName: 'EAForumWrapped2023Page',
+      title: 'EA Forum Wrapped',
+      noFooter: true,
     },
     {
       name: 'Digests',

@@ -272,6 +272,9 @@ interface PerfMetric {
   gql_string?: string;
   ip?: string;
   user_agent?: string;
+  user_id?: string;
+  render_started_at?: Date;
+  queue_priority?: number;
 }
 
 type IncompletePerfMetric = Omit<PerfMetric, 'ended_at'>;
@@ -320,6 +323,12 @@ type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"co
 
 // For a DbObject, gets the field-names of all the make_editable fields.
 type EditableFieldsIn<T extends DbObject> = NonAnyFieldsOfType<T,EditableFieldContents>
+
+type EditableCollectionNames = {
+  [k in CollectionNameString]: EditableFieldsIn<ObjectsByCollectionName[k]> extends undefined ? never : k;
+}[CollectionNameString];
+
+type CollectionNameOfObject<T extends DbObject> = Exclude<T['__collectionName'], undefined>;
 
 type DbInsertion<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>
 
