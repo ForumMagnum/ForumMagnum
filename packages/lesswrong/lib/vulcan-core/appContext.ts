@@ -122,6 +122,10 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   return result;
 }
 
+/**
+ * Check if user can access given route, and if not - override the component we'll render to 404 page
+ * Also removes the "currentRoute" and "params" fields so downstream code treats this as a 404 (not rendering previews, etc)
+ */
 export const checkUserRouteAccess = (user: UsersCurrent | null, location: RouterLocation): RouterLocation => {
   if (userCanAccessRoute(user, location.currentRoute)) return location
 
