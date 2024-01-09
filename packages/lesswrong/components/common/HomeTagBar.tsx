@@ -159,6 +159,13 @@ const HomeTagBar = (
   // we store the topic bar scrollLeft offsets that correspond to displaying each "set" of topics
   const offsets = useRef<Array<number>>([0])
 
+  const {results: coreTopics} = useMulti({
+    terms: {view: 'coreTags'},
+    collectionName: 'Tags',
+    fragmentName: 'TagFragment',
+    limit: 40,
+  })
+
   useEffect(() => {
     if (!tabsWindowRef.current || !topicsBarRef.current) return
     offsets.current = [0]
@@ -172,14 +179,9 @@ const HomeTagBar = (
         offsets.current.push(topic.offsetLeft - 30)
       }
     })
-  }, [tabsWindowRef, topicsBarRef])
-
-  const {results: coreTopics} = useMulti({
-    terms: {view: 'coreTags'},
-    collectionName: 'Tags',
-    fragmentName: 'TagFragment',
-    limit: 40,
-  })
+    // coreTopics is a dependency here because we want to recalculate the offsets 
+    // when topics are finished fetching (and rendered)
+  }, [tabsWindowRef, topicsBarRef, coreTopics])
 
   const allTabs: TopicsBarTab[] = useMemo(() =>
       [frontpageTab, ...(sortTopics(coreTopics ?? []))],
