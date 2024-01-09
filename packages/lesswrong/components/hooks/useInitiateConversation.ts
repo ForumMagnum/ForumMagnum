@@ -33,6 +33,7 @@ export const useInitiateConversation = (props?: { includeModerators?: boolean })
     },
     collectionName: "Conversations",
     fragmentName: "ConversationsMinimumInfo",
+    fetchPolicy: "network-only",
     limit: 1,
     skip,
     createIfMissing: {
