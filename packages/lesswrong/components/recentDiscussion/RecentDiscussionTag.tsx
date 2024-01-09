@@ -94,7 +94,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
     highlightDate: tag.lastVisitedAt,
     tag: tag,
     condensed: true,
-    replyFormStyle: "default",
   }
   
   const metadataWording = tag.wikiOnly ? "Wiki page" : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
