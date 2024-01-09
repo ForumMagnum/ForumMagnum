@@ -36,6 +36,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   searchIcon: {
     marginLeft: 12,
+    color: theme.palette.grey[600],
+    fontSize: 16
   },
   searchBoxRow: {
     display: "flex",
@@ -58,14 +60,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     maxWidth: 625,
     height: 48,
-    border: theme.palette.border.slightlyIntense2,
-    borderRadius: 3,
+    backgroundColor: theme.palette.grey[120],
+    borderRadius: theme.borderRadius.default,
     "& .ais-SearchBox": {
       display: "inline-block",
       position: "relative",
       width: "100%",
-      marginLeft: 12,
-      height: 46,
+      marginLeft: 8,
+      height: 40,
       whiteSpace: "nowrap",
       boxSizing: "border-box",
     },
@@ -134,9 +136,13 @@ const NewConversationDialog = ({
 
   return (
     <AnalyticsContext pageSectionContext="newConversationDialog">
-      <LWDialog open={true} onClose={onClose} dialogClasses={{
-        paper: classes.paper,
-      }}>
+      <LWDialog
+        open={true}
+        onClose={onClose}
+        dialogClasses={{
+          paper: classes.paper,
+        }}
+      >
         <div className={classes.root}>
           <div className={classes.titleRow}>
             <div>New conversation</div>
@@ -152,17 +158,22 @@ const NewConversationDialog = ({
               <div className={classes.searchBoxRow}>
                 <div className={classes.searchInputArea}>
                   <ForumIcon icon="Search" className={classes.searchIcon} />
-                  {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
-                    * null is the only option that actually suppresses the extra X button.
-                  // @ts-ignore */}
-                  <SearchBox defaultRefinement={query} reset={null} focusShortcuts={[]} autoFocus={true} />
+                  <SearchBox
+                    defaultRefinement={query}
+                    // Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop,
+                    // when null is the only option that actually suppresses the extra X button.
+                    // @ts-ignore
+                    reset={null}
+                    focusShortcuts={[]}
+                    autoFocus={true}
+                    translations={{ placeholder: "Search for user..." }}
+                  />
                 </div>
-                <LWTooltip title={`"Quotes" and -minus signs are supported.`} className={classes.searchHelp}>
-                  <InfoIcon className={classes.infoIcon} />
-                </LWTooltip>
               </div>
               {isModInbox && (
-                <Typography variant="body2" className={classes.modWarning}>Moderators will be included in this conversation</Typography>
+                <Typography variant="body2" className={classes.modWarning}>
+                  Moderators will be included in this conversation
+                </Typography>
               )}
               <ErrorBoundary>
                 <div className={classes.usersList}>

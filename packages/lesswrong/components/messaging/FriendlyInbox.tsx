@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import classNames from "classnames";
@@ -198,6 +198,12 @@ const FriendlyInbox = ({
       },
     });
   }, [isModInbox, openDialog]);
+
+  // TODO remove
+  // Use useEffect to call the openNewConversationDialog function on page load
+  useEffect(() => {
+    openNewConversationDialog();
+  }, [openNewConversationDialog]);
 
   const { FriendlyInboxNavigation, ConversationContents, ForumIcon, ConversationDetails, EAButton } = Components;
 
