@@ -677,7 +677,6 @@ importComponent("UsersAutoCompleteHit", () => require('../components/search/User
 importComponent("UsersSearchInput", () => require('../components/search/UsersSearchInput'));
 importComponent("SearchBarResults", () => require('../components/search/SearchBarResults'));
 importComponent("SearchPagination", () => require('../components/search/SearchPagination'));
-importComponent("SearchPage", () => require('../components/search/SearchPage'));
 importComponent("SearchPageTabbed", () => require('../components/search/SearchPageTabbed'));
 importComponent("SearchFilters", () => require('../components/search/SearchFilters'));
 
