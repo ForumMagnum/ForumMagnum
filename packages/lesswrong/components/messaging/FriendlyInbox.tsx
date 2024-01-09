@@ -199,12 +199,6 @@ const FriendlyInbox = ({
     });
   }, [isModInbox, openDialog]);
 
-  // TODO remove
-  // Use useEffect to call the openNewConversationDialog function on page load
-  useEffect(() => {
-    openNewConversationDialog();
-  }, [openNewConversationDialog]);
-
   const { FriendlyInboxNavigation, ConversationContents, ForumIcon, ConversationDetails, EAButton } = Components;
 
   const conversationsResult: UseMultiResult<"ConversationsList"> = useMulti({
