@@ -24,7 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
     '& .form-input': {
       width: "100%",
-      margin: '3px 0 0 0'
+      margin: '2.5px 0 0 0'
     },
     '& form': {
       display: "flex",

@@ -141,7 +141,7 @@ const ConversationContents = ({
           key={`sendMessage-${messageSentCount}`}
           conversationId={conversation._id}
           templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
-          formStyle="minimalist"
+          formStyle={isEAForum ? "minimalist" : undefined}
           successEvent={() => {
             setMessageSentCount(messageSentCount + 1);
             captureEvent("messageSent", {
