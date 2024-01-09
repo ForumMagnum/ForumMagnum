@@ -21,7 +21,7 @@ import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-export type CommentFormDisplayMode = "default" | "minimalist"
+export type FormDisplayMode = "default" | "minimalist"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: isFriendlyUI ? {
@@ -146,7 +146,7 @@ export type CommentsNewFormProps = {
   formProps?: any,
   enableGuidelines?: boolean,
   padding?: boolean
-  formStyle?: CommentFormDisplayMode
+  formStyle?: FormDisplayMode
   classes: ClassesType
   className?: string
 }
@@ -165,7 +165,8 @@ const CommentsNewForm = ({
   formProps,
   enableGuidelines=true,
   padding=true,
-  formStyle="default",
+  // TODO revert
+  formStyle="minimalist",
   classes,
   className,
 }: CommentsNewFormProps) => {

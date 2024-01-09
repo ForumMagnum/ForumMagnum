@@ -23,9 +23,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       // on mobile. This fixes that.
       display: "flex",
     },
-    ...(isEAForum && {
-      borderTop: theme.palette.border.grey200,
-    })
   },
   backButton: {
     color: theme.palette.lwTertiary.main,
@@ -143,6 +140,7 @@ const ConversationContents = ({
           key={`sendMessage-${messageSentCount}`}
           conversationId={conversation._id}
           templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
+          formStyle="minimalist"
           successEvent={() => {
             setMessageSentCount(messageSentCount + 1);
             captureEvent("messageSent", {

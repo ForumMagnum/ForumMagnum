@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { CommentFormDisplayMode } from './CommentsNewForm';
+import type { FormDisplayMode } from './CommentsNewForm';
 
 export interface CommentTreeOptions {
   /**
@@ -132,7 +132,7 @@ export interface CommentTreeOptions {
    * "default" | "minimalist" . If "minimalist", overrides the style of the reply button
    * and reply form to be more like a chat interface.
    */
-  formStyle?: CommentFormDisplayMode,
+  formStyle?: FormDisplayMode,
   
   /**
    * If provided, Reply buttons are replaced with something else. Used
