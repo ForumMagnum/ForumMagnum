@@ -1,5 +1,5 @@
 import React from 'react';
-import {Components, getRouteMatchingPathname} from '../vulcan-lib'
+import {Components, getRouteMatchingPathname, userCanAccessRoute} from '../vulcan-lib'
 // eslint-disable-next-line no-restricted-imports
 import { matchPath } from 'react-router';
 import qs from 'qs'
@@ -121,3 +121,15 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   
   return result;
 }
+
+export const checkUserRouteAccess = (user: UsersCurrent | null, location: RouterLocation): RouterLocation => {
+  if (userCanAccessRoute(user, location.currentRoute)) return location
+
+  return {
+    ...location,
+    RouteComponent: Components.Error404,
+    currentRoute: null,
+    params: {},
+  }
+}
+

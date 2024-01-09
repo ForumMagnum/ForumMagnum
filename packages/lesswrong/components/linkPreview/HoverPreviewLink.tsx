@@ -1,13 +1,14 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
-import { parseRoute, parsePath } from '../../lib/vulcan-core/appContext';
+import {parseRoute, parsePath, checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
 import { classifyHost, useLocation, getUrlClass } from '../../lib/routeUtil';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isServer } from '../../lib/executionEnvironment';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isMobile } from '../../lib/utils/isMobile'
 import { locationHashIsFootnote } from '../posts/PostsPage/CollapsedFootnotes';
+import {useCurrentUser} from '../common/withUser'
 
 export const parseRouteWithErrors = (onsiteUrl: string, contentSourceDescription?: string) => {
   return parseRoute({
@@ -56,6 +57,7 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
 }) => {
   const URLClass = getUrlClass()
   const location = useLocation();
+  const currentUser = useCurrentUser()
 
   // Invalid link with no href? Don't transform it.
   if (!href) {
@@ -83,7 +85,7 @@ const HoverPreviewLink = ({ href, contentSourceDescription, id, rel, noPrefetch,
     const onsiteUrl = linkTargetAbsolute.pathname + linkTargetAbsolute.search + linkTargetAbsolute.hash;
     const hostType = classifyHost(linkTargetAbsolute.host)
     if (!linkIsExcludedFromPreview(onsiteUrl) && (hostType==="onsite" || hostType==="mirrorOfUs" || isServer)) {
-      const parsedUrl = parseRouteWithErrors(onsiteUrl, contentSourceDescription)
+      const parsedUrl = checkUserRouteAccess(currentUser, parseRouteWithErrors(onsiteUrl, contentSourceDescription))
       const destinationUrl = hostType==="onsite" ? parsedUrl.url : href;
 
       if (parsedUrl.currentRoute) {

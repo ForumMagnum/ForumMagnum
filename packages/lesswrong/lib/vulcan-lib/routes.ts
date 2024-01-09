@@ -125,3 +125,10 @@ export const getRouteMatchingPathname = (pathname: string): Route | undefined  =
     exact: true,
     strict: false,
   }))
+
+export const userCanAccessRoute = (user?: UsersCurrent | DbUser | null, route?: Route | null): boolean => {
+  if (!route) return true // Anyone can access a non-existent route (which would 404)
+  if (user?.isAdmin) return true
+
+  return !route.isAdmin
+}
