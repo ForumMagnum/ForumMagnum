@@ -4,8 +4,8 @@ import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 import { Link } from "../../../lib/reactRouterWrapper";
 import type {
   CommentKarmaChange,
+  EAReactionChanges,
   PostKarmaChange,
-  ReactionChange,
   TagRevisionKarmaChange,
 } from "../../../lib/collections/users/karmaChangesGraphQL";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
 
 type ReactionUsers = {
   emoji: EmojiOption,
-  users: Set<string>,
+  users: string[],
   userCount?: never,
 } | {
   emoji: EmojiOption,
@@ -64,47 +64,46 @@ const formatUsersText = (names: string[], max = 3) => {
   return `${shownNames} and ${remainder} more`;
 }
 
-const getAddedReactions = (addedReactions: ReactionChange[]): AddedReactions[] => {
+const getAddedReactions = (addedReactions?: EAReactionChanges): AddedReactions[] => {
+  if (!addedReactions) {
+    return [];
+  }
   const emojis: Record<string, ReactionUsers> = {};
-  for (const {reactionType, userId} of addedReactions) {
-    if (userId) {
-      const emoji = getEAPublicEmojiByName(reactionType);
-      if (emoji) {
-        if (emojis[reactionType]) {
-          emojis[reactionType].users!.add(userId);
-        } else {
-          emojis[reactionType] = {
-            emoji,
-            users: new Set([userId]),
-          };
-        }
-      } else {
-        // eslint-disable-next-line no-console
-        console.error("Invalid public reactionType:", reactionType);
-      }
-    } else {
+  for (const reactionType in addedReactions) {
+    const change = addedReactions[reactionType];
+    if (typeof change === "number") {
       const emoji = getEAAnonymousEmojiByName(reactionType);
       if (emoji) {
         emojis[reactionType] = {
           emoji,
-          userCount: (emojis[reactionType]?.userCount ?? 0) + 1,
+          userCount: change,
         };
       } else {
         // eslint-disable-next-line no-console
         console.error("Invalid private reactionType:", reactionType);
       }
+    } else {
+      const emoji = getEAPublicEmojiByName(reactionType);
+      if (emoji) {
+        emojis[reactionType] = {
+          emoji,
+          users: change.map(({displayName}) => displayName),
+        };
+      } else {
+        // eslint-disable-next-line no-console
+        console.error("Invalid public reactionType:", reactionType);
+      }
     }
   }
-  return Object.values(emojis).map(({emoji, users, userCount}) => {
-    const names = Array.from(users ?? []);
+  return Object.values(emojis).map(({emoji, users = [], userCount}) => {
     return {
       emoji,
-      users: users
-        ? formatUsersText(names)
+      users: users.length
+        ? formatUsersText(users)
         : `${userCount} ${userCount === 1 ? "person" : "people"}`,
-      tooltip: names.length > 1
-        ? `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`
-        : names[0],
+      tooltip: users.length > 1
+        ? `${users.slice(0, -1).join(", ")} and ${users[users.length - 1]}`
+        : users[0],
     };
   });
 }
@@ -127,7 +126,7 @@ export const NotificationsPageKarmaChange = ({
   const {NotificationsPageItem, PostsTooltip, LWTooltip} = Components;
   if (postKarmaChange) {
     karmaChange = postKarmaChange.scoreChange;
-    reactions = getAddedReactions(postKarmaChange.addedReacts);
+    reactions = getAddedReactions(postKarmaChange.eaAddedReacts);
     display = (
       <PostsTooltip postId={postKarmaChange._id}>
         <Link to={postGetPageUrl(postKarmaChange)} className={classes.link}>
@@ -137,7 +136,7 @@ export const NotificationsPageKarmaChange = ({
     );
   } else if (commentKarmaChange) {
     karmaChange = commentKarmaChange.scoreChange;
-    reactions = getAddedReactions(commentKarmaChange.addedReacts);
+    reactions = getAddedReactions(commentKarmaChange.eaAddedReacts);
     const {postId, postSlug, postTitle, tagSlug, tagName} = commentKarmaChange;
     if (postId && postSlug && postTitle) {
       display = (

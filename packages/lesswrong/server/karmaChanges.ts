@@ -1,15 +1,70 @@
 import { Tags } from '../lib/collections/tags/collection';
-import type { KarmaChangeSettingsType } from '../lib/collections/users/schema';
+import { KarmaChangeSettingsType, karmaChangeNotifierDefaultSettings } from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
 import VotesRepo from './repos/VotesRepo';
-import type { KarmaChangesArgs } from '../lib/collections/users/karmaChangesGraphQL';
+import type {
+  KarmaChanges,
+  KarmaChangesArgs,
+  PostKarmaChange,
+  CommentKarmaChange,
+  TagRevisionKarmaChange,
+} from '../lib/collections/users/karmaChangesGraphQL';
+import { isEAForum } from '../lib/instanceSettings';
 
 // Use html-to-text's compile() wrapper (baking in the default options) to make it faster when called repeatedly
 const htmlToTextDefault = compileHtmlToText();
 
 const COMMENT_DESCRIPTION_LENGTH = 500;
+
+type AnyKarmaChange = PostKarmaChange | CommentKarmaChange | TagRevisionKarmaChange;
+
+const isPostKarmaChange = (change: AnyKarmaChange): change is PostKarmaChange =>
+  "title" in change;
+
+const isCommentKarmaChange = (change: AnyKarmaChange): change is CommentKarmaChange =>
+  "tagCommentType" in change;
+
+const getEAKarmaChanges = async (
+  votesRepo: VotesRepo,
+  args: KarmaChangesArgs,
+  nextBatchDate: Date|null,
+  updateFrequency: DbUser["karmaChangeNotifierSettings"]["updateFrequency"],
+): Promise<KarmaChanges> => {
+  const changes = await votesRepo.getEAKarmaChanges(args);
+
+  const posts: PostKarmaChange[] = [];
+  const comments: CommentKarmaChange[] = [];
+  const tagRevisions: TagRevisionKarmaChange[] = [];
+  let totalChange = 0;
+
+  for (const change of changes) {
+    totalChange += change.scoreChange;
+    if (isPostKarmaChange(change)) {
+      posts.push(change);
+    } else if (isCommentKarmaChange(change)) {
+      comments.push({
+        ...change,
+        description: htmlToTextDefault(change.description ?? "")
+          .substring(0, COMMENT_DESCRIPTION_LENGTH),
+      });
+    } else { // This is a TagRevisionKarmaChange
+      tagRevisions.push(change);
+    }
+  }
+
+  return {
+    totalChange,
+    startDate: args.startDate,
+    endDate: args.endDate,
+    nextBatchDate: nextBatchDate ?? undefined,
+    updateFrequency,
+    posts,
+    comments,
+    tagRevisions,
+  };
+}
 
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
@@ -39,14 +94,15 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   nextBatchDate?: Date|null,
   af?: boolean,
   context?: ResolverContext,
-}) => {
+}): Promise<KarmaChanges> => {
   if (!user) throw new Error("Missing required argument: user");
   if (!startDate) throw new Error("Missing required argument: startDate");
   if (!endDate) throw new Error("Missing required argument: endDate");
   if (startDate > endDate)
     throw new Error("getKarmaChanges: endDate must be after startDate");
 
-  const showNegativeKarmaSetting = user.karmaChangeNotifierSettings?.showNegativeKarma
+  const {showNegativeKarma, updateFrequency} = user.karmaChangeNotifierSettings ??
+    karmaChangeNotifierDefaultSettings;
 
   const votesRepo = context?.repos.votes ?? new VotesRepo();
   const queryArgs: KarmaChangesArgs = {
@@ -54,8 +110,12 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     startDate,
     endDate,
     af,
-    showNegative: showNegativeKarmaSetting,
+    showNegative: showNegativeKarma,
   };
+
+  if (isEAForum) {
+    return getEAKarmaChanges(votesRepo, queryArgs, nextBatchDate, updateFrequency);
+  }
 
   const { changedComments, changedPosts, changedTagRevisions } = await votesRepo.getKarmaChanges(queryArgs);
 
@@ -96,8 +156,9 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   return {
     totalChange,
     startDate,
-    nextBatchDate,
     endDate,
+    nextBatchDate: nextBatchDate ?? undefined,
+    updateFrequency,
     posts: changedPosts,
     comments: changedComments,
     tagRevisions: changedTagRevisions,

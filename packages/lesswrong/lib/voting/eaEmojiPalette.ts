@@ -10,6 +10,7 @@ export type EmojiOption = {
   Component: FC,
   name: string,
   label: string,
+  isNegative?: boolean,
 }
 
 export const eaAnonymousEmojiPalette: EmojiOption[] = [
@@ -22,6 +23,7 @@ export const eaAnonymousEmojiPalette: EmojiOption[] = [
     Component: CrossReactionIcon,
     name: "disagree",
     label: "Disagree",
+    isNegative: true,
   },
 ];
 
@@ -53,6 +55,15 @@ export const getEAAnonymousEmojiByName = (targetName: string) =>
 
 export const getEAPublicEmojiByName = (targetName: string) =>
   eaEmojiPalette.find(({name}) => name === targetName)
+
+export const getEAEmojisForKarmaChanges = (showNegative: boolean) => ({
+  publicEmojis: eaEmojiPalette
+    .filter(({isNegative}) => showNegative || !isNegative)
+    .map(({name}) => name),
+  privateEmojis: eaAnonymousEmojiPalette
+    .filter(({isNegative}) => showNegative || !isNegative)
+    .map(({name}) => name),
+});
 
 export const eaEmojiNames = [
   ...eaAnonymousEmojiPalette,

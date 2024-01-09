@@ -4,7 +4,7 @@ import type { RecentVoteInfo } from "../../lib/rateLimits/types";
 import groupBy from "lodash/groupBy";
 import { EAOrLWReactionsVote, UserVoteOnSingleReaction } from "../../lib/voting/namesAttachedReactions";
 import type { CommentKarmaChange, KarmaChangeBase, KarmaChangesArgs, PostKarmaChange, ReactionChange, TagRevisionKarmaChange } from "../../lib/collections/users/karmaChangesGraphQL";
-import { eaAnonymousEmojiPalette, eaEmojiNames } from "../../lib/voting/eaEmojiPalette";
+import { eaAnonymousEmojiPalette, eaEmojiNames, getEAEmojisForKarmaChanges } from "../../lib/voting/eaEmojiPalette";
 import { isEAForum } from "../../lib/instanceSettings";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
@@ -203,7 +203,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     return {changedComments, changedPosts, changedTagRevisions};
   }
   
-  reactionVotesToReactionChanges(votes: DbVote[]): ReactionChange[] {
+  private reactionVotesToReactionChanges(votes: DbVote[]): ReactionChange[] {
     if (!votes?.length) return [];
     const votesByUser = groupBy(votes, v=>v.userId);
     let reactionChanges: ReactionChange[] = [];
@@ -309,6 +309,81 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     }
     
     return reactionChanges;
+  }
+
+  getEAKarmaChanges({
+    userId,
+    startDate,
+    endDate,
+    af,
+    showNegative = false,
+  }: KarmaChangesArgs): Promise<(PostKarmaChange | CommentKarmaChange | TagRevisionKarmaChange)[]> {
+    const powerField = af ? "afPower" : "power";
+    const {publicEmojis, privateEmojis} = getEAEmojisForKarmaChanges(showNegative);
+    const publicSelectors = publicEmojis.map((emoji) =>
+      `'${emoji}', ARRAY_AGG(
+        JSONB_BUILD_OBJECT('_id', v."userId", 'displayName', u."displayName")
+      ) FILTER (WHERE v."extendedVoteType"->'${emoji}' = TO_JSONB(TRUE))`,
+    );
+    const privateSelectors = privateEmojis.map((emoji) =>
+      `'${emoji}', NULLIF(COUNT(*) FILTER (WHERE v."extendedVoteType"->'${emoji}' = TO_JSONB(TRUE)), 0)`,
+    );
+    return this.getRawDb().any(`
+      -- VotesRepo.getEAKarmaChanges
+      SELECT
+        q.*,
+        ARRAY[]::TEXT[] "addedReacts",
+        post."title",
+        post."slug",
+        comment."postId",
+        comment."tagCommentType",
+        comment."contents"->>'html' "description",
+        comment_post."title" "postTitle",
+        comment_post."slug" "postSlug",
+        COALESCE(comment_tag."_id", revision_tag."_id") "tagId",
+        COALESCE(comment_tag."name", revision_tag."name") "tagName",
+        COALESCE(comment_tag."slug", revision_tag."slug") "tagSlug"
+      FROM (
+        SELECT
+          v."documentId" "_id",
+          v."collectionName",
+          SUM(v."${powerField}") "scoreChange",
+          NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
+            ${[...publicSelectors, ...privateSelectors].join(",\n")}
+          )), '{}'::JSONB) "eaAddedReacts"
+        FROM "Votes" v
+        JOIN "Users" u ON v."userId" = u."_id"
+        WHERE
+          ${af ? '"afPower" IS NOT NULL AND' : ''}
+          v."userId" <> $1 AND
+          v."authorIds" @> ARRAY[$1::VARCHAR] AND
+          NOT (v."authorIds" @> ARRAY[v."userId"]) AND
+          v."votedAt" >= $2 AND
+          v."votedAt" <= $3 AND
+          v."silenceNotification" IS NOT TRUE AND
+          v."cancelled" IS NOT TRUE AND
+          v."isUnvote" IS NOT TRUE
+        GROUP BY v."documentId", v."collectionName"
+      ) q
+      LEFT JOIN "Posts" post ON
+        q."collectionName" = 'Posts' AND
+        q."_id" = post."_id"
+      LEFT JOIN "Comments" comment ON
+        q."collectionName" = 'Comments' AND
+        q."_id" = comment."_id"
+      LEFT JOIN "Posts" comment_post ON
+        comment."postId" = comment_post."_id"
+      LEFT JOIN "Tags" comment_tag ON
+        comment."tagId" = comment_tag."_id"
+      LEFT JOIN "Revisions" revision ON
+        q."collectionName" = 'Revisions' AND
+        q."_id" = revision."_id"
+      LEFT JOIN "Tags" revision_tag ON
+        revision."documentId" = revision_tag."_id"
+      WHERE
+        "scoreChange" <> 0 OR
+        "eaAddedReacts" IS NOT NULL
+    `, [userId, startDate, endDate]);
   }
 
   getSelfVotes(tagRevisionIds: string[]): Promise<DbVote[]> {

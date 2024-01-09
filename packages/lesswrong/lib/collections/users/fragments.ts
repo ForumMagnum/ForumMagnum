@@ -272,6 +272,7 @@ registerFragment(`
           reactionType
           userId
         }
+        eaAddedReacts
       }
       comments {
         _id
@@ -287,6 +288,7 @@ registerFragment(`
           reactionType
           userId
         }
+        eaAddedReacts
       }
       tagRevisions {
         _id
@@ -298,6 +300,7 @@ registerFragment(`
           reactionType
           userId
         }
+        eaAddedReacts
       }
     }
   }

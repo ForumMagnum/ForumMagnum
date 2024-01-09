@@ -14,6 +14,7 @@ addGraphQLSchema(`
     title: String
     slug: String
     addedReacts: [ReactionChange!]
+    eaAddedReacts: JSON
   }
   type CommentKarmaChange {
     _id: String
@@ -26,6 +27,7 @@ addGraphQLSchema(`
     tagName: String
     tagCommentType: String
     addedReacts: [ReactionChange!]
+    eaAddedReacts: JSON
   }
   type RevisionsKarmaChange {
     _id: String
@@ -34,6 +36,7 @@ addGraphQLSchema(`
     tagSlug: String
     tagName: String
     addedReacts: [ReactionChange!]
+    eaAddedReacts: JSON
   }
   type ReactionChange {
     reactionType: String!
@@ -83,11 +86,16 @@ export type ReactionChange = {
   userId?: string
 }
 
+export type EAReactionChange = number | {_id: string, displayName: string}[];
+
+export type EAReactionChanges = Record<string, EAReactionChange>;
+
 export type KarmaChangeBase = {
   _id: string,
   collectionName: CollectionNameString,
   scoreChange: number,
   addedReacts: ReactionChange[],
+  eaAddedReacts?: EAReactionChanges,
 }
 
 export type CommentKarmaChange = KarmaChangeBase & {
