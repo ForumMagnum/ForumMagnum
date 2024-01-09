@@ -65,6 +65,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: "center",
     maxWidth: 625,
     minHeight: 48,
+    padding: 4,
     backgroundColor: theme.palette.grey[120],
     borderRadius: theme.borderRadius.default,
   },
@@ -73,7 +74,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    minHeight: 48,
     "& .ais-SearchBox": {
       display: "inline-block",
       position: "relative",
@@ -81,7 +81,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       height: 40,
       whiteSpace: "nowrap",
       boxSizing: "border-box",
-      flex: 1,
+      flex: "1 1 auto",
     },
     "& .ais-SearchBox-form": {
       height: "100%",
@@ -131,7 +131,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   chip: {
     margin: 4,
-    backgroundColor: theme.palette.background.usersListItem,
+    backgroundColor: theme.palette.background.primarySlightlyDim,
   },
   submitButton: {
     padding: "2px",
@@ -161,7 +161,6 @@ const NewConversationDialog = ({
     ErrorBoundary,
     ExpandedUsersConversationSearchHit,
     ForumIcon,
-    LWTooltip,
     Typography,
   } = Components;
   const currentUser = useCurrentUser();
