@@ -95,6 +95,8 @@ const styles = (theme: ThemeType) => ({
     borderBottom: theme.palette.border.grey200,
     padding: "0px 16px",
     flex: "1 1 auto",
+    display: "flex",
+    flexDirection: "column",
     [theme.breakpoints.down('xs')]: {
       padding: "0px 24px",
     },
