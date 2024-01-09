@@ -5,7 +5,6 @@ import withErrorBoundary from "../common/withErrorBoundary";
 import { useLocation } from "../../lib/routeUtil";
 import { useTracking } from "../../lib/analyticsEvents";
 import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
-import { userCanDo } from "../../lib/vulcan-users";
 import { useOnNotificationsChanged } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
 import { isEAForum } from "../../lib/instanceSettings";
@@ -48,7 +47,7 @@ const ConversationContents = ({
   scrollRef?: React.RefObject<HTMLDivElement>;
   classes: ClassesType;
 }) => {
-  // Count messages sent, and use it to set a distinct value for `key` on `NewMessageForm`
+  // Count messages sent, and use it to set a distinct value for `key` on `MessagesNewForm`
   // that increments with each message. This is a way of clearing the form, which works
   // around problems inside the editor related to debounce timers and autosave and whatnot,
   // by guaranteeing that it's a fresh set of react components each time.
@@ -118,7 +117,7 @@ const ConversationContents = ({
     }
   }, [query.from, conversation, currentUser._id]);
 
-  const { NewMessageForm, Error404, Loading, MessageItem, Divider } = Components;
+  const { MessagesNewForm, Error404, Loading, MessageItem, Divider } = Components;
 
   const renderMessages = () => {
     if (loading && !results) return <Loading />;
@@ -140,7 +139,7 @@ const ConversationContents = ({
     <>
       {renderMessages()}
       <div className={classes.editor}>
-        <NewMessageForm
+        <MessagesNewForm
           key={`sendMessage-${messageSentCount}`}
           conversationId={conversation._id}
           templateQueries={{ templateId: query.templateId, displayName: query.displayName }}

@@ -45,7 +45,7 @@ const CommentBottom = ({comment, treeOptions, votingSystem, voteProps, commentBo
   const { CommentBottomCaveats } = Components
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
-  const isMinimalist = treeOptions.replyFormStyle === "minimalist"
+  const isMinimalist = treeOptions.formStyle === "minimalist"
   const VoteBottomComponent = votingSystem.getCommentBottomComponent?.() ?? null;
 
   const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;

@@ -42,7 +42,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       },
 });
 
-export const NewMessageForm = ({
+export const MessagesNewForm = ({
   classes,
   conversationId,
   templateQueries,
@@ -123,10 +123,10 @@ export const NewMessageForm = ({
   );
 };
 
-const NewMessageFormComponent = registerComponent("NewMessageForm", NewMessageForm, { styles });
+const MessagesNewFormComponent = registerComponent("MessagesNewForm", MessagesNewForm, { styles });
 
 declare global {
   interface ComponentTypes {
-    NewMessageForm: typeof NewMessageFormComponent;
+    MessagesNewForm: typeof MessagesNewFormComponent;
   }
 }

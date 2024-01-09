@@ -146,7 +146,7 @@ export type CommentsNewFormProps = {
   formProps?: any,
   enableGuidelines?: boolean,
   padding?: boolean
-  replyFormStyle?: CommentFormDisplayMode
+  formStyle?: CommentFormDisplayMode
   classes: ClassesType
   className?: string
 }
@@ -165,7 +165,7 @@ const CommentsNewForm = ({
   formProps,
   enableGuidelines=true,
   padding=true,
-  replyFormStyle="default",
+  formStyle="default",
   classes,
   className,
 }: CommentsNewFormProps) => {
@@ -200,7 +200,7 @@ const CommentsNewForm = ({
     af: commentDefaultToAlignment(currentUser, post, parentComment),
   };
   
-  const isMinimalist = replyFormStyle === "minimalist"
+  const isMinimalist = formStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const [_,setForceRefreshState] = useState(0);
