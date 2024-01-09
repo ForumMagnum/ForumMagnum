@@ -16,14 +16,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 12,
   },
   editor: {
-    padding: '18px 0px',
-    marginTop: "auto",
     position: "relative",
     '& .form-submit': {
       // form-submit has display: block by default, which for some reason makes it take up 0 height
       // on mobile. This fixes that.
       display: "flex",
     },
+    ...(isEAForum ? {
+      padding: '18px 0px',
+      marginTop: "auto",
+    } : {
+      margin: '32px 0px',
+    })
   },
   backButton: {
     color: theme.palette.lwTertiary.main,
