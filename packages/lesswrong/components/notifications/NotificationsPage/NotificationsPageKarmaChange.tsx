@@ -5,10 +5,16 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import type {
   CommentKarmaChange,
   PostKarmaChange,
+  ReactionChange,
   TagRevisionKarmaChange,
 } from "../../../lib/collections/users/karmaChangesGraphQL";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
+import {
+  EmojiOption,
+  getEAAnonymousEmojiByName,
+  getEAPublicEmojiByName,
+} from "../../../lib/voting/eaEmojiPalette";
 
 const styles = (theme: ThemeType) => ({
   amount: {
@@ -19,8 +25,89 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
+    cursor: "pointer",
+  },
+  reactions: {
+    display: "flex",
+    gap: "4px",
+  },
+  tooltip: {
+    background: theme.palette.panelBackground.tooltipBackground2,
   },
 });
+
+type ReactionUsers = {
+  emoji: EmojiOption,
+  users: Set<string>,
+  userCount?: never,
+} | {
+  emoji: EmojiOption,
+  users?: never,
+  userCount: number,
+}
+
+type AddedReactions = {
+  emoji: EmojiOption,
+  users: string,
+  tooltip?: string,
+}
+
+const formatUsersText = (names: string[], max = 3) => {
+  if (names.length < 2) {
+    return names[0];
+  }
+  if (names.length <= max) {
+    return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+  }
+  const shownNames = names.slice(0, max).join(", ");
+  const remainder = names.length - max;
+  return `${shownNames} and ${remainder} more`;
+}
+
+const getAddedReactions = (addedReactions: ReactionChange[]): AddedReactions[] => {
+  const emojis: Record<string, ReactionUsers> = {};
+  for (const {reactionType, userId} of addedReactions) {
+    if (userId) {
+      const emoji = getEAPublicEmojiByName(reactionType);
+      if (emoji) {
+        if (emojis[reactionType]) {
+          emojis[reactionType].users!.add(userId);
+        } else {
+          emojis[reactionType] = {
+            emoji,
+            users: new Set([userId]),
+          };
+        }
+      } else {
+        // eslint-disable-next-line no-console
+        console.error("Invalid public reactionType:", reactionType);
+      }
+    } else {
+      const emoji = getEAAnonymousEmojiByName(reactionType);
+      if (emoji) {
+        emojis[reactionType] = {
+          emoji,
+          userCount: (emojis[reactionType]?.userCount ?? 0) + 1,
+        };
+      } else {
+        // eslint-disable-next-line no-console
+        console.error("Invalid private reactionType:", reactionType);
+      }
+    }
+  }
+  return Object.values(emojis).map(({emoji, users, userCount}) => {
+    const names = Array.from(users ?? []);
+    return {
+      emoji,
+      users: users
+        ? formatUsersText(names)
+        : `${userCount} ${userCount === 1 ? "person" : "people"}`,
+      tooltip: names.length > 1
+        ? `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`
+        : names[0],
+    };
+  });
+}
 
 export const NotificationsPageKarmaChange = ({
   postKarmaChange,
@@ -34,11 +121,13 @@ export const NotificationsPageKarmaChange = ({
   classes: ClassesType<typeof styles>,
 }) => {
   let karmaChange: number;
+  let reactions: AddedReactions[] = [];
   let display: ReactNode;
 
-  const {NotificationsPageItem, PostsTooltip} = Components;
+  const {NotificationsPageItem, PostsTooltip, LWTooltip} = Components;
   if (postKarmaChange) {
     karmaChange = postKarmaChange.scoreChange;
+    reactions = getAddedReactions(postKarmaChange.addedReacts);
     display = (
       <PostsTooltip postId={postKarmaChange._id}>
         <Link to={postGetPageUrl(postKarmaChange)} className={classes.link}>
@@ -48,6 +137,7 @@ export const NotificationsPageKarmaChange = ({
     );
   } else if (commentKarmaChange) {
     karmaChange = commentKarmaChange.scoreChange;
+    reactions = getAddedReactions(commentKarmaChange.addedReacts);
     const {postId, postSlug, postTitle, tagSlug, tagName} = commentKarmaChange;
     if (postId && postSlug && postTitle) {
       display = (
@@ -117,18 +207,38 @@ export const NotificationsPageKarmaChange = ({
     return null;
   }
 
-  if (!karmaChange) {
-    return null;
-  }
-
-  const amountText = karmaChange > 0 ? `+${karmaChange}` : String(karmaChange);
+  const amountText = karmaChange < 0 ? String(karmaChange) : `+${karmaChange}`;
 
   return (
-    <NotificationsPageItem Icon="Sparkles" iconVariant="yellow">
-      <div>
-        <span className={classes.amount}>{amountText} karma</span> {display}
-      </div>
-    </NotificationsPageItem>
+    <>
+      {karmaChange !== 0 &&
+        <NotificationsPageItem Icon="Sparkles" iconVariant="yellow">
+          <div>
+            <span className={classes.amount}>{amountText} karma</span> {display}
+          </div>
+        </NotificationsPageItem>
+      }
+      {reactions.map(({emoji, users, tooltip}) => (
+        <NotificationsPageItem
+          key={emoji.name}
+          Icon={emoji.Component}
+          iconTooltip={emoji.label}
+          iconVariant="clear"
+        >
+          <div className={classes.reactions}>
+            <LWTooltip
+              title={tooltip}
+              className={classes.link}
+              popperClassName={classes.tooltip}
+              placement="bottom"
+            >
+              {users}
+            </LWTooltip>{" "}
+            reacted to {display}
+          </div>
+        </NotificationsPageItem>
+      ))}
+    </>
   );
 }
 

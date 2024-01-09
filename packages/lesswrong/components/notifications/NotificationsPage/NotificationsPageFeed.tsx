@@ -152,7 +152,7 @@ export const NotificationsPageFeed = ({
       </Tabs>
       {showKarmaChanges &&
         <>
-          <SectionTitle title="Karma changes" />
+          <SectionTitle title="Karma and reactions" />
           <div className={classes.karmaChanges}>
             {karmaChanges?.posts?.map((karmaChange) =>
               <NotificationsPageKarmaChange

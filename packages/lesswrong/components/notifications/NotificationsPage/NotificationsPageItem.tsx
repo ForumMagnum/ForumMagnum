@@ -50,6 +50,9 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: "transparent",
     transform: "scale(1.5)",
   },
+  iconTooltip: {
+    background: theme.palette.panelBackground.tooltipBackground2,
+  },
   meta: {
     marginBottom: 12,
     lineHeight: "1.5em",
@@ -72,6 +75,7 @@ export type IconVariant = "primary" | "grey" | "yellow" | "clear";
 export const NotificationsPageItem = ({
   Icon,
   iconVariant,
+  iconTooltip,
   post,
   previewCommentId,
   children,
@@ -79,6 +83,7 @@ export const NotificationsPageItem = ({
 }: {
   Icon: ForumIconName | FC,
   iconVariant: IconVariant,
+  iconTooltip?: string,
   post?: PostsMinimumInfo,
   previewCommentId?: string,
   children?: ReactNode,
@@ -95,7 +100,7 @@ export const NotificationsPageItem = ({
     fragmentName: "CommentsList",
   });
 
-  const {ForumIcon, CommentsNode, Loading} = Components;
+  const {ForumIcon, LWTooltip, CommentsNode, Loading} = Components;
   return (
     <AnalyticsContext pageSubSectionContext="notificationsPageItem">
       <div className={classes.root}>
@@ -106,10 +111,16 @@ export const NotificationsPageItem = ({
             [classes.iconYellow]: iconVariant === "yellow",
             [classes.iconClear]: iconVariant === "clear",
           })}>
-            {typeof Icon === "string"
-              ? <ForumIcon icon={Icon} />
-              : <Icon />
-            }
+            <LWTooltip
+              title={iconTooltip}
+              popperClassName={classes.iconTooltip}
+              placement="bottom"
+            >
+              {typeof Icon === "string"
+                ? <ForumIcon icon={Icon} />
+                : <Icon />
+              }
+            </LWTooltip>
           </div>
           <div className={classes.meta}>
             {children}

@@ -72,9 +72,12 @@ class VotesRepo extends AbstractRepo<"Votes"> {
   }> {
     const powerField = af ? "afPower" : "power";
 
+    const eaEmojis = showNegative
+      ? eaEmojiNames
+      : eaEmojiNames.filter((name) => name !== "disagree");
+
     const reactionConditions = [
-      // TODO should/can we exclude false votes here (e.g. {"agree": false})?
-      ...eaEmojiNames.map((field) => `"extendedVoteType"->>'${field}' IS NOT NULL`),
+      ...eaEmojis.map((field) => `"extendedVoteType"->'${field}' = TO_JSONB(TRUE)`),
       `jsonb_array_length("extendedVoteType"->'reacts') > 0`,
     ].join(" OR ");
 
