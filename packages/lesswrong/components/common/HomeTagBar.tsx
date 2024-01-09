@@ -100,7 +100,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '4px 8px',
     borderRadius: 6,
     cursor: 'pointer',
-    marginBottom: 8,
     '&:hover': {
       backgroundColor: theme.palette.grey[300],
     },
@@ -116,21 +115,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       backgroundColor: theme.palette.grey[1000],
     },
-    '&.EAHomeMainContent-givingSeasonTab': {
-      backgroundColor: theme.palette.givingPortal.button.alwaysDark,
-      color: theme.palette.text.alwaysWhite,
-      '&:hover': {
-        backgroundColor: theme.palette.givingPortal[900],
-      },
-    },
   },
-  givingSeasonTab: {
-    backgroundColor: theme.palette.givingPortal[800],
-    color: theme.palette.givingPortal[1000],
-    '&:hover': {
-      backgroundColor: theme.palette.givingPortal[900],
-    },
-  },
+  tagDescriptionTooltip: {
+    margin: 8,
+  }
 })
 
 export type TopicsBarTab = {
@@ -141,6 +129,13 @@ export type TopicsBarTab = {
   description?: TagFragment_description | null,
 }
 
+/**
+ * A horizontal bar of clickable tabs that can be used to filter content by tag. 
+ * By default - displays core tags in order defined by defaultOrder. Used on EA and WakingUP home pages.
+ * 
+ * @param frontpageTab - Description for "show everything" tab
+ * @param sortTopics - you can define custom ordering/additional filtering for the tabs
+ */
 const HomeTagBar = (
   {
     classes,
@@ -291,7 +286,11 @@ const HomeTagBar = (
                 <div ref={topicsBarRef} className={classes.topicsBar}>
                   {allTabs.map(tab => {
                     const tabName = tab.shortName || tab.name
-                    return <LWTooltip title={showDescriptionOnHover ? tab.description?.plaintextDescription : null} key={tabName}>
+                    return <LWTooltip 
+                      title={showDescriptionOnHover ? tab.description?.plaintextDescription : null} 
+                      popperClassName={classes.tagDescriptionTooltip}
+                      key={tabName}
+                    >
                       <button
                         onClick={() => handleTabClick(tab)}
                         className={classNames(classes.tab, {

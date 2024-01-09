@@ -1,4 +1,4 @@
-import React, {ComponentType, useState} from 'react'
+import React, {ComponentType, useMemo, useState} from 'react'
 import {Components, registerComponent} from '../../lib/vulcan-lib'
 import {AnalyticsContext} from '../../lib/analyticsEvents'
 import {tagPostTerms} from '../tagging/TagPage'
@@ -6,6 +6,7 @@ import {useMulti} from '../../lib/crud/withMulti'
 import {Link} from '../../lib/reactRouterWrapper'
 import {TopicsBarTab} from '../common/HomeTagBar'
 import {isNotNullOrUndefined} from '../../lib/utils/typeGuardUtils'
+import {useSingle} from '../../lib/crud/withSingle'
 
 const FRONTPAGE_TAB_NAME = 'Frontpage'
 
@@ -41,6 +42,8 @@ const topicTabsOrder = [
 const sortTopics = (topics: Array<TopicsBarTab>) => 
   topicTabsOrder.map(topicId => topics.find(t => t._id === topicId)).filter(isNotNullOrUndefined)
 
+const frontpageTab = {_id: '0', name: FRONTPAGE_TAB_NAME}
+
 /**
  * This handles displaying the main content on the EA Forum home page,
  * which includes the topics bar and the topic-specific tabs.
@@ -50,9 +53,13 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   FrontpageNode: ComponentType,
   classes: ClassesType
 }) => {
-  const frontpageTab = {_id: '0', name: FRONTPAGE_TAB_NAME}
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
-  const activeCoreTopic = activeTab._id === frontpageTab._id ? null : activeTab as TagDetailsFragment
+  const {document: activeCoreTopic} = useSingle({
+    skip: activeTab._id === frontpageTab._id,
+    documentId: activeTab._id, 
+    collectionName: "Tags", 
+    fragmentName: "TagFragment" 
+  })
   
   const { results: spotLightResults } = useMulti({
     collectionName: 'Spotlights',
