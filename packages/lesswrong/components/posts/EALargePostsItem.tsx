@@ -81,8 +81,8 @@ const styles = (theme: ThemeType) => ({
     marginBottom: "auto",
   },
   postListItemImage: {
-    height: "auto",
-    maxWidth: 170,
+    width: 170,
+    height: 121,
     objectFit: "cover",
     marginLeft: 16,
     borderRadius: theme.borderRadius.small,
