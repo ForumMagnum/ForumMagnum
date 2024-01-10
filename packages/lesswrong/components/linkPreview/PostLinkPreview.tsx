@@ -330,9 +330,8 @@ const SequencePreview = ({classes, targetLocation, href, children}: {
   href: string,
   children: ReactNode,
 }) => {
-  const { LWPopper, SequencesSummary } = Components
+  const {SequencesTooltip} = Components;
   const sequenceId = targetLocation.params._id;
-  const { eventHandlers, anchorEl, hover } = useHover();
 
   const { document: sequence, loading } = useSingle({
     documentId: sequenceId,
@@ -341,26 +340,22 @@ const SequencePreview = ({classes, targetLocation, href, children}: {
     fetchPolicy: 'cache-then-network' as any,
     allowNull: true,
   });
-  
+
   if (!sequence && !loading) {
     logMissingLinkPreview(`Link preview: No sequence  found with ID ${sequenceId}`);
   }
 
   return (
-    <span {...eventHandlers}>
-      <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        placement="bottom-start"
-        allowOverflow
-      >
-        <SequencesSummary sequence={sequence || null} />
-      </LWPopper>
+    <SequencesTooltip
+      sequence={sequence ?? null}
+      placement="bottom-start"
+      allowOverflow
+    >
       <Link className={classes.link} to={href} id={sequenceId}>
         {children}
       </Link>
-    </span>
-  )
+    </SequencesTooltip>
+  );
 }
 
 const SequencePreviewComponent = registerComponent('SequencePreview', SequencePreview, {
