@@ -28,7 +28,7 @@ const PostsTopSequencesNav = ({post, classes}: {
   post: PostSequenceNavigation,
   classes: ClassesType,
 }) => {
-  const { LWTooltip, SequencesHoverOver, SequencesNavigationLink } = Components 
+  const { LWTooltip, SequencesSummary, SequencesNavigationLink } = Components;
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
@@ -66,7 +66,7 @@ const PostsTopSequencesNav = ({post, classes}: {
         post={post.prevPost}
         direction="left" />
 
-      <LWTooltip tooltip={false} title={<SequencesHoverOver sequence={post.sequence} />} clickable={true}>
+      <LWTooltip tooltip={false} title={<SequencesSummary sequence={post.sequence} />} clickable={true}>
         <div className={classes.title}>
           {post.sequence.draft && "[Draft] "}
           <Link to={sequenceGetPageUrl(post.sequence)}>{ post.sequence.title }</Link>

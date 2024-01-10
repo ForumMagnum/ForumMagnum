@@ -29,13 +29,13 @@ const EASequenceCard = ({sequence, className}: {
     (isEAForum ? "Banner/yeldubyolqpl3vqqy0m6.jpg" : "sequences/vnyzzznenju0hzdv6pqb.jpg");
   const href = sequenceGetPageUrl(sequence);
 
-  const {EASequenceOrCollectionCard, SequencesHoverOver} = Components;
+  const {EASequenceOrCollectionCard, SequencesSummary} = Components;
   return (
     <AnalyticsContext documentSlug={slug}>
       <EASequenceOrCollectionCard
         title={title}
         author={author}
-        hoverOver={<SequencesHoverOver sequence={sequence} />}
+        hoverOver={<SequencesSummary sequence={sequence} />}
         postCount={sequence.postsCount}
         readCount={sequence.readPostsCount}
         imageId={imageId}

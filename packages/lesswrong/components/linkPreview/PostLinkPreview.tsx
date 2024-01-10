@@ -10,7 +10,6 @@ import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
 import { isClient } from '../../lib/executionEnvironment';
-import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 let missingLinkPreviewsLogged = new Set<string>();
@@ -331,7 +330,7 @@ const SequencePreview = ({classes, targetLocation, href, children}: {
   href: string,
   children: ReactNode,
 }) => {
-  const { LWPopper, SequencesHoverOver } = Components
+  const { LWPopper, SequencesSummary } = Components
   const sequenceId = targetLocation.params._id;
   const { eventHandlers, anchorEl, hover } = useHover();
 
@@ -355,7 +354,7 @@ const SequencePreview = ({classes, targetLocation, href, children}: {
         placement="bottom-start"
         allowOverflow
       >
-        <SequencesHoverOver sequence={sequence || null} />
+        <SequencesSummary sequence={sequence || null} />
       </LWPopper>
       <Link className={classes.link} to={href} id={sequenceId}>
         {children}

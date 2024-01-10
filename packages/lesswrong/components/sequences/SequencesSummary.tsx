@@ -39,7 +39,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
+export const SequencesSummary = ({classes, sequence, showAuthor=true}: {
   classes: ClassesType,
   sequence: SequencesPageFragment|null,
   showAuthor?: boolean
@@ -97,11 +97,11 @@ export const SequencesHoverOver = ({classes, sequence, showAuthor=true}: {
   </Card>;
 }
 
-const SequencesHoverOverComponent = registerComponent('SequencesHoverOver', SequencesHoverOver, {styles});
+const SequencesSummaryComponent = registerComponent('SequencesSummary', SequencesSummary, {styles});
 
 declare global {
   interface ComponentTypes {
-    SequencesHoverOver: typeof SequencesHoverOverComponent
+    SequencesSummary: typeof SequencesSummaryComponent
   }
 }
 
