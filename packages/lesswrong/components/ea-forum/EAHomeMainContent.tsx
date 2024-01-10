@@ -54,24 +54,28 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
   classes: ClassesType
 }) => {
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
-  const {document: activeCoreTopic} = useSingle({
-    skip: activeTab._id === frontpageTab._id,
-    documentId: activeTab._id, 
-    collectionName: "Tags", 
-    fragmentName: "TagFragment" 
-  })
   
-  const { results: spotLightResults } = useMulti({
-    collectionName: 'Spotlights',
-    fragmentName: 'SpotlightDisplay',
-    terms: {
-      view: 'spotlightForSequence',
-      sequenceId: activeCoreTopic?.sequence?._id,
-      limit: 1
-    },
-    skip: !activeCoreTopic?.sequence?._id,
-  });
-  const spotlight = spotLightResults?.[0]
+  // 2024-01-10 SC: I've commented out this feature because we've never used it
+  // and no one will tell me if they are interested in using it.
+  // If you add this back in, consider refactoring to remove the useSingle.
+  //
+  // const {document: activeCoreTopic} = useSingle({
+  //   skip: activeTab._id === frontpageTab._id,
+  //   documentId: activeTab._id,
+  //   collectionName: "Tags",
+  //   fragmentName: "TagFragment"
+  // })
+  // const { results: spotLightResults } = useMulti({
+  //   collectionName: 'Spotlights',
+  //   fragmentName: 'SpotlightDisplay',
+  //   terms: {
+  //     view: 'spotlightForSequence',
+  //     sequenceId: activeCoreTopic?.sequence?._id,
+  //     limit: 1
+  //   },
+  //   skip: !activeCoreTopic?.sequence?._id,
+  // });
+  // const spotlight = spotLightResults?.[0]
   
   const { SingleColumnSection, SectionTitle, PostsList2, DismissibleSpotlightItem, HomeTagBar } = Components
   
@@ -87,10 +91,10 @@ const EAHomeMainContent = ({FrontpageNode, classes}:{
 
       {activeTab.name === FRONTPAGE_TAB_NAME ? <FrontpageNode/> : <AnalyticsContext pageSectionContext="topicSpecificPosts">
         <SingleColumnSection>
-          {spotlight && <DismissibleSpotlightItem
+          {/* {spotlight && <DismissibleSpotlightItem
             spotlight={spotlight}
             className={classes.spotlightMargin}
-          />}
+          />} */}
           <SectionTitle title="New & upvoted" noTopMargin>
             <Link to={`/topics/${activeTab.slug}`} className={classes.learnMoreLink}>View more</Link>
           </SectionTitle>
