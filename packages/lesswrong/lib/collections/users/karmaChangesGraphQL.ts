@@ -124,6 +124,8 @@ export type TagRevisionKarmaChange = KarmaChangeBase & {
   tagName?: string
 }
 
+export type AnyKarmaChange = PostKarmaChange | CommentKarmaChange | TagRevisionKarmaChange;
+
 export type KarmaChanges = {
   totalChange: number,
   startDate?: Date,

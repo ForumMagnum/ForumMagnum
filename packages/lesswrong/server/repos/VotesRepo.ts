@@ -3,7 +3,7 @@ import Votes from "../../lib/collections/votes/collection";
 import type { RecentVoteInfo } from "../../lib/rateLimits/types";
 import groupBy from "lodash/groupBy";
 import { EAOrLWReactionsVote, UserVoteOnSingleReaction } from "../../lib/voting/namesAttachedReactions";
-import type { CommentKarmaChange, KarmaChangeBase, KarmaChangesArgs, PostKarmaChange, ReactionChange, TagRevisionKarmaChange } from "../../lib/collections/users/karmaChangesGraphQL";
+import type { AnyKarmaChange, CommentKarmaChange, KarmaChangeBase, KarmaChangesArgs, PostKarmaChange, ReactionChange, TagRevisionKarmaChange } from "../../lib/collections/users/karmaChangesGraphQL";
 import { eaAnonymousEmojiPalette, eaEmojiNames, getEAEmojisForKarmaChanges } from "../../lib/voting/eaEmojiPalette";
 import { isEAForum } from "../../lib/instanceSettings";
 import { recordPerfMetrics } from "./perfMetricWrapper";
@@ -63,7 +63,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
    * gets react vote data, and the net changes to reacts on each document
    * are calculated in reactionVotesToReactionChanges().
    */
-  async getKarmaChanges(
+  async getLWKarmaChanges(
     {userId, startDate, endDate, af, showNegative}: KarmaChangesArgs,
   ): Promise<{
     changedComments: CommentKarmaChange[],
@@ -72,17 +72,10 @@ class VotesRepo extends AbstractRepo<"Votes"> {
   }> {
     const powerField = af ? "afPower" : "power";
 
-    const eaEmojis = showNegative
-      ? eaEmojiNames
-      : eaEmojiNames.filter((name) => name !== "disagree");
-
-    const reactionConditions = [
-      ...eaEmojis.map((field) => `"extendedVoteType"->'${field}' = TO_JSONB(TRUE)`),
-      `jsonb_array_length("extendedVoteType"->'reacts') > 0`,
-    ].join(" OR ");
+    const reactionConditions = `jsonb_array_length("extendedVoteType"->'reacts') > 0`;
 
     const reactionVotesQuery = `
-        -- VotesRepo.getKarmaChanges.reactionVotesQuery
+        -- VotesRepo.getLWKarmaChanges.reactionVotesQuery
         SELECT
           v.*
         FROM
@@ -99,7 +92,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
 
     const [allScoreChanges, allReactionVotes] = await Promise.all([
       this.getRawDb().any(`
-        -- VotesRepo.getKarmaChanges.allScoreChanges
+        -- VotesRepo.getLWKarmaChanges.allScoreChanges
         SELECT
           v.*,
           comment."contents"->'html' AS "commentHtml",
@@ -150,12 +143,12 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           OR "reactionVoteCount" > 0
         `,
         [userId, startDate, endDate],
-        `getKarmaChanges(${userId}, ${startDate}, ${endDate})`
+        `getLWKarmaChanges(${userId}, ${startDate}, ${endDate})`
       ),
       this.getRawDb().any<DbVote>(
         reactionVotesQuery,
         [userId, startDate, endDate],
-        `getKarmaChanges_reacts(${userId}, ${startDate}, ${endDate})`,
+        `getLWKarmaChanges_reacts(${userId}, ${startDate}, ${endDate})`,
       ),
     ]);
 
@@ -169,7 +162,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         _id: votedContent._id,
         collectionName: votedContent.collectionName,
         scoreChange: votedContent.scoreChange,
-        addedReacts: this.reactionVotesToReactionChanges(reactionVotesByDocument[votedContent._id]),
+        addedReacts: this.lwReactionVotesToReactionChanges(reactionVotesByDocument[votedContent._id]),
       };
       // If we have no karma or reacts to display for this document, skip it
       if (!change.scoreChange && !change.addedReacts.length) {
@@ -203,7 +196,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     return {changedComments, changedPosts, changedTagRevisions};
   }
   
-  private reactionVotesToReactionChanges(votes: DbVote[]): ReactionChange[] {
+  private lwReactionVotesToReactionChanges(votes: DbVote[]): ReactionChange[] {
     if (!votes?.length) return [];
     const votesByUser = groupBy(votes, v=>v.userId);
     let reactionChanges: ReactionChange[] = [];
@@ -317,7 +310,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     endDate,
     af,
     showNegative = false,
-  }: KarmaChangesArgs): Promise<(PostKarmaChange | CommentKarmaChange | TagRevisionKarmaChange)[]> {
+  }: KarmaChangesArgs): Promise<AnyKarmaChange[]> {
     const powerField = af ? "afPower" : "power";
     const {publicEmojis, privateEmojis} = getEAEmojisForKarmaChanges(showNegative);
     const publicSelectors = publicEmojis.map((emoji) =>
@@ -383,7 +376,10 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       WHERE
         "scoreChange" <> 0 OR
         "eaAddedReacts" IS NOT NULL
-    `, [userId, startDate, endDate]);
+    `,
+      [userId, startDate, endDate],
+      `getEAKarmaChanges(${userId}, ${startDate}, ${endDate})`,
+    );
   }
 
   getSelfVotes(tagRevisionIds: string[]): Promise<DbVote[]> {

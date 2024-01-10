@@ -532,7 +532,7 @@ addGraphQLResolvers({
           af: false,
           showNegative: true
         }
-        const {changedComments, changedPosts, changedTagRevisions} = await context.repos.votes.getKarmaChanges(karmaQueryArgs);
+        const {changedComments, changedPosts, changedTagRevisions} = await context.repos.votes.getLWKarmaChanges(karmaQueryArgs);
         totalKarmaChange =
           sumBy(changedPosts, (doc: any)=>doc.scoreChange)
         + sumBy(changedComments, (doc: any)=>doc.scoreChange)
@@ -709,7 +709,7 @@ addGraphQLResolvers({
           af: false,
           showNegative: true
         }
-        const {changedComments, changedPosts, changedTagRevisions} = await context.repos.votes.getKarmaChanges(karmaQueryArgs);
+        const {changedComments, changedPosts, changedTagRevisions} = await context.repos.votes.getLWKarmaChanges(karmaQueryArgs);
         totalKarmaChange =
           sumBy(changedPosts, (doc: any)=>doc.scoreChange)
         + sumBy(changedComments, (doc: any)=>doc.scoreChange)

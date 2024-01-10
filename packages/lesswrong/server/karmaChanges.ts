@@ -1,5 +1,9 @@
 import { Tags } from '../lib/collections/tags/collection';
-import { KarmaChangeSettingsType, karmaChangeNotifierDefaultSettings } from '../lib/collections/users/schema';
+import {
+  KarmaChangeSettingsType,
+  KarmaChangeUpdateFrequency,
+  karmaChangeNotifierDefaultSettings,
+} from '../lib/collections/users/schema';
 import moment from '../lib/moment-timezone';
 import { compile as compileHtmlToText } from 'html-to-text'
 import sumBy from 'lodash/sumBy';
@@ -10,6 +14,7 @@ import type {
   PostKarmaChange,
   CommentKarmaChange,
   TagRevisionKarmaChange,
+  AnyKarmaChange,
 } from '../lib/collections/users/karmaChangesGraphQL';
 import { isEAForum } from '../lib/instanceSettings';
 
@@ -17,8 +22,6 @@ import { isEAForum } from '../lib/instanceSettings';
 const htmlToTextDefault = compileHtmlToText();
 
 const COMMENT_DESCRIPTION_LENGTH = 500;
-
-type AnyKarmaChange = PostKarmaChange | CommentKarmaChange | TagRevisionKarmaChange;
 
 const isPostKarmaChange = (change: AnyKarmaChange): change is PostKarmaChange =>
   "title" in change;
@@ -30,7 +33,7 @@ const getEAKarmaChanges = async (
   votesRepo: VotesRepo,
   args: KarmaChangesArgs,
   nextBatchDate: Date|null,
-  updateFrequency: DbUser["karmaChangeNotifierSettings"]["updateFrequency"],
+  updateFrequency: KarmaChangeUpdateFrequency,
 ): Promise<KarmaChanges> => {
   const changes = await votesRepo.getEAKarmaChanges(args);
 
@@ -117,7 +120,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     return getEAKarmaChanges(votesRepo, queryArgs, nextBatchDate, updateFrequency);
   }
 
-  const { changedComments, changedPosts, changedTagRevisions } = await votesRepo.getKarmaChanges(queryArgs);
+  const { changedComments, changedPosts, changedTagRevisions } = await votesRepo.getLWKarmaChanges(queryArgs);
 
   // Replace comment bodies with abbreviated plain-text versions (rather than
   // HTML).
