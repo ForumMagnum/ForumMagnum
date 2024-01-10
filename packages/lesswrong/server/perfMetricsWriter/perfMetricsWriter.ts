@@ -2,7 +2,7 @@ import { AnalyticsConnectionPool, pgPromiseLib } from "../analytics/postgresConn
 import { getGqlStringIdFromCache, insertAndCacheGqlStringsInBatch } from "./tables/gqlStrings";
 import { getSqlStringIdFromCache, insertAndCacheSqlStringsInBatch } from "./tables/sqlStrings";
 
-export const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'gql_string_id', 'sql_string_id', 'ip', 'user_agent', 'user_id', 'render_started_at', 'environment'], {table: 'perf_metrics'});
+export const perfMetricsColumnSet = new pgPromiseLib.helpers.ColumnSet(['trace_id', 'op_type', 'op_name', 'started_at', 'ended_at', 'parent_trace_id', 'client_path', 'extra_data', 'gql_string_id', 'sql_string_id', 'ip', 'user_agent', 'user_id', 'queue_priority', 'render_started_at', 'environment'], {table: 'perf_metrics'});
 
 export function insertAndCacheNormalizedDataInBatch(batch: PerfMetric[], connection: AnalyticsConnectionPool) {
   return Promise.all([
@@ -27,6 +27,7 @@ export function constructPerfMetricBatchInsertQuery(batch: PerfMetric[], environ
       user_agent: perfMetric.user_agent ?? null,
       user_id: perfMetric.user_id ?? null,
       render_started_at: perfMetric.render_started_at ?? null,
+      queue_priority: perfMetric.queue_priority ?? null,
       ...gqlStringId,
       ...sqlStringId
     };

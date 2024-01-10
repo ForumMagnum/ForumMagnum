@@ -47,7 +47,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-type CommentsItemDateProps = UseCommentLinkProps & {classes: ClassesType};
+type CommentsItemDateProps = UseCommentLinkProps & {
+  comment: CommentsList,
+  classes: ClassesType
+};
 
 const CommentsItemDate = ({comment, classes, ...rest}: CommentsItemDateProps) => {
   const { FormatDate, ForumIcon } = Components

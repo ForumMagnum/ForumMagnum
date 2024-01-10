@@ -6,8 +6,8 @@ import { Link, useNavigate } from "../../../lib/reactRouterWrapper";
 import qs from "qs";
 
 export type UseCommentLinkProps = {
-  comment: CommentsList,
-  post?: PostsMinimumInfo|null,
+  comment: Pick<CommentsList, "_id" | "tagCommentType">,
+  post?: Pick<PostsMinimumInfo, "_id" | "slug"> | null,
   tag?: TagBasicInfo,
   scrollOnClick?: boolean,
   scrollIntoView?: () => void,

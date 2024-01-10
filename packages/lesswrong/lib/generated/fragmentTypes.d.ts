@@ -265,6 +265,12 @@ interface UsersDefaultFragment { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationYourTurnMatchForm: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly hideDialogueFacilitation: boolean,
   readonly revealChecksToAdmins: boolean,
   readonly optedInToDialogueFacilitation: boolean,
@@ -400,6 +406,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly recentKarmaInfo: any,
   readonly givingSeason2023DonatedFlair: boolean,
   readonly givingSeason2023VotedFlair: boolean,
+  readonly wrapped2023Viewed: boolean,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -936,7 +943,7 @@ interface NotificationsDefaultFragment { // fragment on Notifications
 
 interface ModeratorActionsDefaultFragment { // fragment on ModeratorActions
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits",
   readonly endedAt: Date | null,
 }
 
@@ -2650,8 +2657,8 @@ interface UsersProfile extends UsersMinimumInfo, SharedUserBooleans { // fragmen
   readonly organization: string,
   readonly careerStage: Array<string>,
   readonly biography: RevisionDisplay|null,
-  readonly howOthersCanHelpMe: RevisionEdit|null,
-  readonly howICanHelpOthers: RevisionEdit|null,
+  readonly howOthersCanHelpMe: RevisionDisplay|null,
+  readonly howICanHelpOthers: RevisionDisplay|null,
   readonly profileTagIds: Array<string>,
   readonly profileTags: Array<TagBasicInfo>,
   readonly organizerOfGroupIds: Array<string>,
@@ -2733,9 +2740,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly lastNotificationsCheck: Date,
   readonly bannedUserIds: Array<string>,
   readonly bannedPersonalUserIds: Array<string>,
-  readonly biography: RevisionEdit|null,
   readonly moderationStyle: string,
-  readonly moderationGuidelines: RevisionEdit|null,
   readonly noKibitz: boolean,
   readonly showHideKarmaOption: boolean,
   readonly markDownPostEditor: boolean,
@@ -2853,11 +2858,18 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationYourTurnMatchForm: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly showDialoguesList: boolean,
   readonly showMyDialogues: boolean,
   readonly showMatches: boolean,
   readonly showRecommendedPartners: boolean,
   readonly hideActiveDialogueUsers: boolean,
+  readonly wrapped2023Viewed: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -3127,6 +3139,12 @@ interface UsersEdit extends UsersProfile { // fragment on Users
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   },
+  readonly notificationYourTurnMatchForm: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  },
   readonly givingSeasonNotifyForVoting: boolean,
   readonly hideFrontpageMap: boolean,
   readonly hideTaggingProgressBar: boolean,
@@ -3326,7 +3344,7 @@ interface ModeratorActionDisplay { // fragment on ModeratorActions
   readonly _id: string,
   readonly user: UsersMinimumInfo|null,
   readonly userId: string,
-  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting",
+  readonly type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits",
   readonly active: boolean,
   readonly createdAt: Date,
   readonly endedAt: Date | null,

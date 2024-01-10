@@ -55,8 +55,8 @@ type SmartFormCallbacks = {
   revertCallback?: any
 }
 
-export interface WrappedSmartFormProps extends SmartFormCallbacks {
-  collectionName: CollectionNameString
+export interface WrappedSmartFormProps<T extends CollectionNameString> extends SmartFormCallbacks {
+  collectionName: T
 
   prefilledProps?: any
   layout?: string
@@ -102,10 +102,10 @@ export interface WrappedSmartFormProps extends SmartFormCallbacks {
   excludeHiddenFields?: boolean
 }
 
-export interface SmartFormProps extends WrappedSmartFormProps {
-  collection: any
+export interface SmartFormProps<T extends CollectionNameString> extends WrappedSmartFormProps<T> {
+  collection: CollectionBase<AnyBecauseHard>
   typeName: string
-  document?: any
+  document?: ObjectsByCollectionName[T]
   schema?: any
   createMutation?: any
   updateMutation?: any

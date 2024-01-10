@@ -51,6 +51,7 @@ import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
+import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
@@ -134,6 +135,7 @@ export function startWebserver() {
   addStripeMiddleware(addMiddleware);
   // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   addAuthMiddlewares(addMiddleware);
+  addAdminRoutesMiddleware(addMiddleware);
   addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);

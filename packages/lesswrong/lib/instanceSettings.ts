@@ -190,5 +190,11 @@ export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEma
 
 export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");
 
-export const performanceMetricLoggingEnabled = new PublicInstanceSetting<boolean>('performanceMetricLoggingEnabled', false, "optional");
-export const performanceMetricLoggingBatchSize = new PublicInstanceSetting<number>('performanceMetricLoggingBatchSize', 100, "optional");
+export const performanceMetricLoggingEnabled = new PublicInstanceSetting<boolean>('performanceMetricLogging.enabled', false, "optional");
+export const performanceMetricLoggingBatchSize = new PublicInstanceSetting<number>('performanceMetricLogging.batchSize', 100, "optional");
+export const performanceMetricLoggingSqlSampleRate = new PublicInstanceSetting<number>('performanceMetricLogging.sqlSampleRate', 0.05, "optional");
+
+export const hasSideCommentsSetting = new PublicInstanceSetting<boolean>("comments.sideCommentsEnabled", isLWorAF, "optional");
+export const hasCommentsTableOfContentSetting = new PublicInstanceSetting<boolean>("comments.tableOfContentsEnabled", isLWorAF, "optional");
+export const hasDialoguesSetting = new PublicInstanceSetting<boolean>("dialogues.enabled", true, "optional");
+export const hasPostInlineReactionsSetting = new PublicInstanceSetting<boolean>("posts.inlineReactionsEnabled", isLWorAF, "optional");

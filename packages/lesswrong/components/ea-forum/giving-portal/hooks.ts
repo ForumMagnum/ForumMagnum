@@ -83,9 +83,8 @@ export const useAmountRaised = (electionName: string) => {
 
 export const useIsGivingSeason = () => {
   const now = useCurrentTime();
-  return isEAForum &&
-    moment.utc(timelineSpec.start).isBefore(now) &&
-    moment.utc(timelineSpec.end).isAfter(now);
+  return isEAForum && moment.utc(timelineSpec.start).isBefore(now) &&
+    moment.utc("2024-01-02").isAfter(now);
 }
 
 export const useShowTimeline = () => {

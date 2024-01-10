@@ -2,7 +2,7 @@ import pgp, { IDatabase, IEventContext } from "pg-promise";
 import type { IClient, IResult } from "pg-promise/typescript/pg-subset";
 import Query from "../lib/sql/Query";
 import { isAnyTest } from "../lib/executionEnvironment";
-import { PublicInstanceSetting, performanceMetricLoggingEnabled } from "../lib/instanceSettings";
+import { PublicInstanceSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
 import { logAllQueries } from "../lib/sql/sqlClient";
 import { recordSqlQueryPerfMetric } from "./perfMetrics";
@@ -167,14 +167,12 @@ const logIfSlow = async <T>(
   const result = await execute();
   const endTime = new Date().getTime();
 
-  if (performanceMetricLoggingEnabled.get()) {
-    recordSqlQueryPerfMetric(originalQuery, startTime, endTime);
-  }
+  recordSqlQueryPerfMetric(originalQuery, startTime, endTime);
 
   const milliseconds = endTime - startTime;
   if (logAllQueries) {
     // eslint-disable-next-line no-console
-    console.log(`Finished query #${queryID} (${milliseconds} ms)`);
+    console.log(`Finished query #${queryID} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
   } else if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
     // eslint-disable-next-line no-console
     console.trace(`Slow Postgres query detected (${milliseconds} ms): ${getDescription()}`);

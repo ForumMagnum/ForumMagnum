@@ -96,11 +96,16 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 320,
     marginTop: 8,
     textAlign: "left",
-    borderRadius: `${theme.borderRadius.default}px !important`,
-    backgroundColor: `${theme.palette.grey[900]} !important`,
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 12, // Just stop it from really overflowing
+  },
+  prevoteDescriptionTooltip: {
+    background: `${theme.palette.panelBackground.tooltipBackground2} !important}`,
+  },
+  selectDescriptionTooltip: {
+    backgroundColor: `${theme.palette.grey[900]} !important`,
+    borderRadius: `${theme.borderRadius.default}px !important`,
   },
   hoverUnderline: {
     '&:hover': {
@@ -115,6 +120,8 @@ const styles = (theme: ThemeType) => ({
     transform: "translateY(8px)",
   },
 });
+
+const checkboxColor = requireCssVar("palette", "givingPortal", 1000);
 
 const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, classes}: {
   candidate: ElectionCandidateBasicInfo,
@@ -159,7 +166,7 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
         {isSelect && (
           <Checkbox
             className={classes.checkbox}
-            style={{ color: requireCssVar("palette", "givingPortal", 1000) }}
+            style={{color: checkboxColor}}
             checked={selected}
             onChange={() => onSelect?.([candidate._id])}
           />
@@ -171,11 +178,13 @@ const ElectionCandidate = ({candidate, type="preVote", selected, onSelect, class
         </div>
         <div className={classes.details}>
           <LWTooltip
-            disabled={!isSelect}
             className={classes.name}
             title={description}
-            placement="bottom"
-            popperClassName={classes.descriptionTooltip}
+            placement={isSelect ? "bottom" : "bottom-start"}
+            popperClassName={classNames(classes.descriptionTooltip, {
+              [classes.prevoteDescriptionTooltip]: !isSelect,
+              [classes.selectDescriptionTooltip]: isSelect,
+            })}
           >
             <Link
               to={linkUrl || ""}

@@ -752,7 +752,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'ImportProfile',
       path: '/profile/import',
-      componentName: 'EAGApplicationImportForm',
+      componentName: 'EAGApplicationImportFormWrapper',
       title: 'Import Profile',
       background: 'white',
     },
@@ -790,35 +790,47 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       previewComponentName: 'TagHoverPreview',
       unspacedGrid: true,
     },
+    // TODO Remove 2022 version
     {
       name: 'EAForumWrapped',
-      path: '/wrapped',
-      componentName: 'EAForumWrappedPage',
+      path: '/wrapped2022',
+      componentName: 'EAForumWrapped2022Page',
       title: 'EA Forum Wrapped',
+    },
+    {
+      name: 'EAForumWrappedV2',
+      path: '/wrapped',
+      componentName: 'EAForumWrapped2023Page',
+      title: 'EA Forum Wrapped',
+      noFooter: true,
     },
     {
       name: 'Digests',
       path: '/admin/digests',
       componentName: 'Digests',
       title: 'Digests',
+      isAdmin: true,
     },
     {
       name: 'ElectionCandidates',
       path: '/admin/election-candidates',
       componentName: 'AdminElectionCandidates',
       title: 'Election Candidates',
+      isAdmin: true,
     },
     {
       name: 'EditElectionCandidate',
       path: '/admin/election-candidates/:id',
       componentName: 'EditElectionCandidate',
       title: 'Edit Election Candidate',
+      isAdmin: true,
     },
     {
       name: 'ElectionVotes',
       path: '/admin/election-votes',
       componentName: 'AdminElectionVotes',
       title: 'Election Votes',
+      isAdmin: true,
     },
     {
       name: 'EditDigest',
@@ -827,13 +839,15 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       title: 'Edit Digest',
       subtitle: 'Digests',
       subtitleLink: '/admin/digests',
-      staticHeader: true
+      staticHeader: true,
+      isAdmin: true,
     },
     {
       name: 'recommendationsSample',
       path: '/admin/recommendationsSample',
       componentName: 'RecommendationsSamplePage',
-      title: "Recommendations Sample"
+      title: "Recommendations Sample",
+      isAdmin: true,
     },
     {
       name: 'CookiePolicy',
@@ -1646,6 +1660,7 @@ addRoute(
     path: '/reviewAdmin/:year',
     componentName: 'ReviewAdminDashboard',
     title: "Review Admin Dashboard",
+    isAdmin: true,
   }
 );
 

@@ -33,6 +33,7 @@ import { useABTest } from '../../lib/abTestImpl';
 import { dialogueMatchingPageNoSSRABTest, offerToAddCalendlyLink, showRecommendedContentInMatchForm } from '../../lib/abTests';
 import { PostYouveRead, RecommendedComment, TagWithCommentCount } from '../dialogues/DialogueRecommendationRow';
 import { validatedCalendlyUrl } from '../dialogues/CalendlyIFrame';
+import { useLocation } from '../../lib/routeUtil';
 
 export type UpvotedUser = {
   _id: string;
@@ -910,6 +911,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   const showRecommendedContent = useABTest(showRecommendedContentInMatchForm);
   const initialCalendlyLink = validatedCalendlyUrl(matchPreference?.calendlyLink ?? "");
   const [calendlyLink, setCalendlyLink] = useState(initialCalendlyLink);
+  const { location, query, params } = useLocation();
 
   const calendlyAB = useABTest(offerToAddCalendlyLink);
 
@@ -930,6 +932,15 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
     }])
     setTopicNotes('')
   }
+
+  const onCloseWrapper = () => {
+    // used to remove query parameters if user clicks outside the dialog
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.delete('dialogueCheckId');
+    navigate({ ...location, search: `?${searchParams.toString()}`  });
+  
+    onClose();
+  };
 
   const onSubmit = async () => {
     let updatedTopicPreferences = topicPreferences; // making sure any mistakenly unsubmitted text in the topic notes field actually gets submitted and not lost
@@ -1016,7 +1027,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   if (called && !loadingCreatedMatchPreference && !(newMatchPreference as any)?.createDialogueMatchPreference?.data?.generatedDialogueId) {
     return (
-      <LWDialog open onClose={onClose}>
+      <LWDialog open onClose={onCloseWrapper}>
           <DialogTitle>
             <h2>You submitted, nice job.</h2>
             <p>This info will be sent to your match partner.</p> 
@@ -1026,7 +1037,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
             <img style={{maxHeight: "50px"}} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1497915096/favicon_lncumn.ico"></img>
           </div>
           <DialogActions>
-            <Button onClick={onClose} color="default">
+            <Button onClick={onCloseWrapper} color="default">
               Close
             </Button>
           </DialogActions>
@@ -1040,7 +1051,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
   </>
 
   return (
-    <LWDialog open onClose={onClose} className={classes.mobileDialog}>
+    <LWDialog open onClose={onCloseWrapper} className={classes.mobileDialog}>
       <div className={classes.dialogBox}>
         <DialogTitle className={classes.dialogueTitle}><span className={classes.matchHeader}>(Match)</span> {targetUserDisplayName}</DialogTitle>
         <DialogContent >
@@ -1150,7 +1161,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
             />
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} color="default">
+          <Button onClick={onCloseWrapper} color="default">
             Close
           </Button>
           <Button onClick={onSubmit} color="primary">
@@ -1430,6 +1441,8 @@ export const DialogueMatchingPage = ({classes}: {
 
   const updateCurrentUser = useUpdateCurrentUser()
   const currentUser = useCurrentUser();
+  const { query } = useLocation()
+  const { openDialog } = useDialog();
   const [optIn, setOptIn] = React.useState(currentUser?.revealChecksToAdmins); // for rendering the checkbox
 
   const { Loading, LoadMore, IntercomWrapper } = Components;
@@ -1461,6 +1474,21 @@ export const DialogueMatchingPage = ({classes}: {
        }
     }
   `, {skip: !currentUser || !dialogueMatchmakingEnabled.get()});
+
+  const openFormDialogueCheckId = query?.dialogueCheckId;
+  const { document: openFormDialogueCheck } = useSingle({
+    collectionName: "DialogueChecks",
+    fragmentName: 'DialogueCheckInfo',
+    documentId: openFormDialogueCheckId,
+    skip: !openFormDialogueCheckId
+  });
+
+  const { document: openFormTargetUser } = useSingle({
+    collectionName: "Users",
+    fragmentName: 'UsersMinimumInfo',
+    documentId: openFormDialogueCheck?.targetUserId,
+    skip: !openFormDialogueCheck
+  });
 
   if (!dialogueMatchmakingEnabled.get()) return <p>Server overloaded... we're working on getting it back up!!</p>
 
@@ -1505,6 +1533,20 @@ export const DialogueMatchingPage = ({classes}: {
   };
 
   const prompt = "Opt-in to LessWrong team viewing your checks, to help proactively suggest and facilitate dialogues" 
+
+  if (!!openFormDialogueCheck && !!openFormTargetUser) {
+    openDialog({
+      componentName: 'NextStepsDialog',
+      componentProps: {
+        userId: currentUser._id,
+        targetUserId: openFormDialogueCheck.targetUserId,
+        targetUserDisplayName: openFormTargetUser.displayName,
+        matchPreference: openFormDialogueCheck.matchPreference ?? undefined,
+        reciprocalMatchPreference: openFormDialogueCheck.reciprocalMatchPreference ?? undefined,
+        dialogueCheckId: openFormDialogueCheck._id,
+      }
+    })
+  }
 
   return (
   <AnalyticsContext pageContext={"dialogueMatchingPage"}>

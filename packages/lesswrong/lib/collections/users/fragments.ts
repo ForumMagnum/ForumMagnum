@@ -42,10 +42,10 @@ registerFragment(`
       ...RevisionDisplay
     }
     howOthersCanHelpMe {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     howICanHelpOthers {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     profileTagIds
     profileTags {
@@ -133,13 +133,7 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    biography {
-      ...RevisionEdit
-    }
     moderationStyle
-    moderationGuidelines {
-      ...RevisionEdit
-    }
     noKibitz
     showHideKarmaOption
     markDownPostEditor
@@ -219,12 +213,15 @@ registerFragment(`
     optedInToDialogueFacilitation
     revealChecksToAdmins
     notificationNewDialogueChecks
+    notificationYourTurnMatchForm
 
     showDialoguesList
     showMyDialogues
     showMatches
     showRecommendedPartners
     hideActiveDialogueUsers
+
+    wrapped2023Viewed
   }
 `);
 
@@ -499,6 +496,7 @@ registerFragment(`
     notificationSubforumUnread
     notificationNewMention
     notificationNewDialogueChecks
+    notificationYourTurnMatchForm
 
     givingSeasonNotifyForVoting
 

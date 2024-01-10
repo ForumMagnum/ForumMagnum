@@ -25,6 +25,7 @@ import { isEmptyValue } from '../../lib/vulcan-forms/utils';
 import { getErrors, mergeWithComponents, runCallbacksList } from '../../lib/vulcan-lib';
 import { removeProperty } from '../../lib/vulcan-lib/utils';
 import { callbackProps, SmartFormProps } from './propTypes';
+import { isFunction } from '../../lib/utils/typeGuardUtils';
 import { formatLabel, formatMessage } from '../../lib/vulcan-i18n/provider';
 
 /** FormField in the process of being created */
@@ -54,7 +55,7 @@ const getDefaultValues = (convertedSchema: AnyBecauseTodo) => {
   );
 };
 
-const getInitialStateFromProps = (nextProps: SmartFormProps): FormState => {
+const getInitialStateFromProps = <T extends DbObject>(nextProps: SmartFormProps<CollectionNameOfObject<T>>): FormState => {
   const collection = nextProps.collection;
   const schema = nextProps.schema
     ? new SimpleSchema(nextProps.schema)
@@ -121,8 +122,8 @@ interface FormState {
  * This is not in the Components table and is not registered with
  * registerComponent because you aren't supposed to use it without FormWrapper.
  */
-export class Form<N extends CollectionNameString> extends Component<SmartFormProps,FormState> {
-  constructor(props: SmartFormProps) {
+export class Form<N extends CollectionNameString> extends Component<SmartFormProps<N>,FormState> {
+  constructor(props: SmartFormProps<N>) {
     super(props);
 
     this.formRef = React.createRef<HTMLFormElement>();
@@ -353,7 +354,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     for (const prop in inputProperties) {
       const property = inputProperties[prop];
       (field as AnyBecauseTodo)[prop] =
-        typeof property === 'function'
+        isFunction(property)
           ? property.call(fieldSchema, this.props)
           : property;
     }
@@ -593,7 +594,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   @see https://reactjs.org/blog/2018/06/07/you-probably-dont-need-derived-state.html
 
   */
-  UNSAFE_componentWillReceiveProps(nextProps: SmartFormProps) {
+  UNSAFE_componentWillReceiveProps(nextProps: SmartFormProps<N>) {
     for (const prop of RESET_PROPS) {
       const prev = this.props[prop];
       const next = nextProps[prop];
@@ -836,15 +837,15 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
     }
   };
 
-  newMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
+  newMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions?: AnyBecauseTodo) => {
     this.mutationSuccessCallback(result, 'new', submitOptions);
   };
 
-  editMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
+  editMutationSuccessCallback = (result: AnyBecauseTodo, submitOptions?: AnyBecauseTodo) => {
     this.mutationSuccessCallback(result, 'edit', submitOptions);
   };
 
-  mutationSuccessCallback = (result: AnyBecauseTodo, mutationType: AnyBecauseTodo, submitOptions: AnyBecauseTodo) => {
+  mutationSuccessCallback = (result: AnyBecauseTodo, mutationType: AnyBecauseTodo, submitOptions?: AnyBecauseTodo) => {
     this.setState(prevState => ({ disabled: false }));
     let document = result.data[Object.keys(result.data)[0]].data; // document is always on first property
 
@@ -853,9 +854,10 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
 
     // call the clear form method (i.e. trigger setState) only if the form has not been unmounted
     // (we are in an async callback, everything can happen!)
+    // avoid doing this if we're autosaving a new post without reloading
     if (this.formRef.current) {
       this.clearForm({
-        document: mutationType === 'edit' ? document : undefined
+        document: mutationType === 'edit' || submitOptions?.noReload ? document : undefined
       });
     }
 
@@ -972,7 +974,7 @@ export class Form<N extends CollectionNameString> extends Component<SmartFormPro
   */
   deleteDocument = () => {
     const document = this.getDocument();
-    const documentId = this.props.document._id;
+    const documentId = this.props.document?._id;
     const documentTitle = document.title || document.name || '';
 
     const deleteDocumentConfirm = "Delete document?";
