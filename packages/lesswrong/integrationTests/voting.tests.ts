@@ -11,6 +11,7 @@ import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib';
 import { slugify } from '../lib/vulcan-lib/utils';
 import { isNil, omitBy } from "lodash";
+import { sleep } from "../lib/utils/asyncUtils";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {
@@ -337,12 +338,69 @@ describe('Voting', function() {
         slug: slugify(post.title),
       });
     });
-    /*it('does not include posts outside the selected date range', async () => {
-      // TODO
+    it('does not include posts outside the selected date range', async () => {
+      const postedAt = new Date(Date.now() - 30000);
+
+      const poster = await createDummyUser();
+      const voter = await createDummyUser();
+      const post = await createDummyPost(poster, {createdAt: postedAt});
+
+      await performVoteServer({
+        document: post,
+        voteType: "smallUpvote",
+        collection: Posts,
+        user: voter,
+        skipRateLimits: false,
+      });
+
+      await sleep(5);
+
+      const karmaChanges = await getKarmaChanges({
+        user: poster,
+        startDate: new Date(Date.now() - 1),
+        endDate: new Date(Date.now() + 10000),
+      });
+
+      (karmaChanges.totalChange as any).should.equal(0);
+      karmaChanges.posts.length.should.equal(0);
     });
     it('includes comments in the selected date range', async () => {
-      // TODO
-    });*/
+      const postedAt = new Date(Date.now() - 30000);
+
+      const poster = await createDummyUser();
+      const voter = await createDummyUser();
+      const post = await createDummyPost(poster, {createdAt: postedAt});
+      const comment = await createDummyComment(poster, {postId: post._id});
+
+      await performVoteServer({
+        document: comment,
+        voteType: "smallUpvote",
+        collection: Comments,
+        user: voter,
+        skipRateLimits: false,
+      });
+
+      const karmaChanges = await getKarmaChanges({
+        user: poster,
+        startDate: new Date(Date.now() - 10000),
+        endDate: new Date(Date.now() + 10000),
+      });
+
+      (karmaChanges.totalChange as any).should.equal(1);
+      karmaChanges.comments.length.should.equal(1);
+      const resultComment = omitBy(karmaChanges.comments[0], isNil);
+      resultComment.should.deep.equal({
+        _id: comment._id,
+        collectionName: "Comments",
+        addedReacts: [],
+        scoreChange: 1,
+        postId: post._id,
+        postTitle: post.title,
+        postSlug: slugify(post.title),
+        tagCommentType: "DISCUSSION",
+        description: "This is a test comment",
+      });
+    });
   });
   describe('getKarmaChangeDateRange', () => {
     it('computes daily update times correctly', async () => {
