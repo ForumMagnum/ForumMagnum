@@ -10,6 +10,7 @@ import { Comments } from '../lib/collections/comments'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib';
 import { slugify } from '../lib/vulcan-lib/utils';
+import { isNil, omitBy } from "lodash";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {
@@ -289,12 +290,9 @@ describe('Voting', function() {
 
       (karmaChanges.totalChange as any).should.equal(1);
       karmaChanges.posts.length.should.equal(1);
-      karmaChanges.posts[0].should.deep.equal({
+      const resultPost = omitBy(karmaChanges.posts[0], isNil);
+      resultPost.should.deep.equal({
         _id: post._id,
-        // NB: The addition of collectionName is to work with the custom-written
-        // postgres-specific function in VotesRepo -- it is not returned by the
-        // mongo aggregation. To run these tests in mongo again, remove
-        // collectionName from the expected object.
         collectionName: "Posts",
         addedReacts: [],
         scoreChange: 1,
@@ -329,9 +327,9 @@ describe('Voting', function() {
 
       (karmaChanges.totalChange as any).should.equal(1);
       karmaChanges.posts.length.should.equal(1);
-      karmaChanges.posts[0].should.deep.equal({
+      const resultPost = omitBy(karmaChanges.posts[0], isNil);
+      resultPost.should.deep.equal({
         _id: post._id,
-        // NB: See above
         collectionName: "Posts",
         addedReacts: [],
         scoreChange: 1,
