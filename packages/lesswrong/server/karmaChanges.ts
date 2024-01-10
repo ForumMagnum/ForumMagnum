@@ -24,10 +24,10 @@ const htmlToTextDefault = compileHtmlToText();
 const COMMENT_DESCRIPTION_LENGTH = 500;
 
 const isPostKarmaChange = (change: AnyKarmaChange): change is PostKarmaChange =>
-  "title" in change;
+  "title" in change && !!change.title;
 
 const isCommentKarmaChange = (change: AnyKarmaChange): change is CommentKarmaChange =>
-  "tagCommentType" in change;
+  "tagCommentType" in change && !!change.tagCommentType;
 
 const getEAKarmaChanges = async (
   votesRepo: VotesRepo,
