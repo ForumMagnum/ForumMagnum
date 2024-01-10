@@ -10,8 +10,9 @@ import { Comments } from '../lib/collections/comments'
 import { getKarmaChanges, getKarmaChangeDateRange } from '../server/karmaChanges';
 import { waitUntilCallbacksFinished } from '../lib/vulcan-lib';
 import { slugify } from '../lib/vulcan-lib/utils';
-import { isNil, omitBy } from "lodash";
 import { sleep } from "../lib/utils/asyncUtils";
+import omitBy from "lodash/omitBy";
+import isNil from "lodash/isNil";
 
 describe('Voting', function() {
   describe('batchUpdating', function() {
