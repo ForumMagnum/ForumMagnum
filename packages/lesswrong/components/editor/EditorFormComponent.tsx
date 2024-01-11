@@ -77,6 +77,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const [contents,setContents] = useState(() => getInitialEditorContents(
     value, document, fieldName, currentUser
   ));
+  const autosaveContentsRef = useRef(contents);
   const [initialEditorType] = useState(contents.type);
   const [updatedFormType, setUpdatedFormType] = useState(formType);
 
@@ -206,7 +207,11 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     // Afterwards, check whatever revision was loaded for display
     // This may or may not be the most recent one) against current content
     // If different, save a new revision
-    if (collectionName === 'Posts' && !isEqual(contents, newContents)) {
+    if (collectionName === 'Posts' && !isEqual(autosaveContentsRef.current, newContents)) {
+      // In order to avoid recreating this function (which is throttled) each time the contents change,
+      // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
+      // rather than e.g. in `wrappedSetContents`, since updating it there would result in the `isEqual` always returning true
+      autosaveContentsRef.current = newContents;
       if (updatedFormType === 'new') {
         setUpdatedFormType('edit');
         const defaultTitle = !document.title ? { title: 'Untitled draft' } : {};
@@ -219,7 +224,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         });
       }
     }
-  }, [collectionName, contents, updatedFormType, updateCurrentValues, submitForm, autosaveRevision, document._id, document.title]);
+  }, [collectionName, updatedFormType, updateCurrentValues, submitForm, autosaveRevision, document._id, document.title]);
 
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
