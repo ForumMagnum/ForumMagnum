@@ -18,7 +18,6 @@ import './server/karmaInflation/cron';
 import './server/useractivities/cron';
 import './server/pageCache/cron';
 import './server/users/cron'
-import './server/gwwcFundraisers/cron';
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
 import './server/robots';
@@ -175,8 +174,6 @@ import './server/resolvers/analyticsResolvers';
 import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
-import './server/resolvers/electionCandidateResolvers';
-import './server/resolvers/electionVoteResolvers';
 
 
 import './server/intercomSetup';
