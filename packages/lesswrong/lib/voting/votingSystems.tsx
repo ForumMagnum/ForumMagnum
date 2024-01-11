@@ -11,7 +11,6 @@ import pickBy from 'lodash/pickBy';
 import fromPairs from 'lodash/fromPairs';
 import { VotingProps } from '../../components/votes/votingProps';
 import type { ContentItemBody, ContentReplacedSubstringComponent } from '../../components/common/ContentItemBody';
-import { assertUserCanVoteInDonationElection } from '../eaGivingSeason';
 
 type VotingPropsDocument = CommentsList|PostsWithVotes|RevisionMetadataWithChangeMetrics
 
@@ -339,70 +338,6 @@ registerVotingSystem({
   },
 });
 
-registerVotingSystem<{preVote: boolean}, {preVoteCount: number}>({
-  name: "eaDonationElection",
-  description: "Donation election voting for the EA Forum",
-  userCanActivate: false,
-  isAllowedExtendedVote: (user) => {
-    try {
-      assertUserCanVoteInDonationElection(user);
-      // TODO: uncomment this if we want to run another election
-      // return { allowed: true };
-      return { allowed: false, reason: 'Pre-voting has closed. Click "Vote in the Election" above if you would like to cast your real vote' };
-    } catch (e) {
-      return {
-        allowed: false,
-        reason: e.message(),
-      };
-    }
-  },
-  addVoteClient: ({oldExtendedScore, extendedVote, currentUser}: {
-    oldExtendedScore?: Record<string, number>,
-    extendedVote?: {preVote: boolean},
-    currentUser: UsersCurrent,
-    document: VoteableType,
-    voteType: string | null,
-  }) => {
-    assertUserCanVoteInDonationElection(currentUser);
-    const oldPreVoteCount =
-      oldExtendedScore && "preVoteCount" in oldExtendedScore
-        ? oldExtendedScore.preVoteCount
-        : 0;
-    const {preVote} = extendedVote ?? {};
-    return {
-      preVoteCount: oldPreVoteCount + (preVote ? 1 : 0),
-    };
-  },
-  cancelVoteClient: ({oldExtendedScore, cancelledExtendedVote, currentUser}: {
-    oldExtendedScore?: Record<string, number>,
-    cancelledExtendedVote?: {preVote: boolean},
-    currentUser: UsersCurrent,
-  }) => {
-    assertUserCanVoteInDonationElection(currentUser);
-    const oldPreVoteCount =
-      oldExtendedScore && "preVoteCount" in oldExtendedScore
-        ? oldExtendedScore.preVoteCount
-        : 0;
-    const {preVote} = cancelledExtendedVote ?? {};
-    return {
-      preVoteCount: oldPreVoteCount - (preVote ? 1 : 0),
-    };
-  },
-  computeExtendedScore: async (votes: DbVote[], {currentUser}: ResolverContext) => {
-    assertUserCanVoteInDonationElection(currentUser);
-    let preVoteCount = 0;
-    for (const vote of votes) {
-      if (vote?.extendedVoteType?.preVote) {
-        preVoteCount++;
-      }
-    }
-    return {preVoteCount};
-  },
-  isNonblankExtendedVote: (vote: DbVote) => {
-    return typeof vote?.extendedVoteType?.preVote === "boolean";
-  },
-});
-
 function filterZeroes(obj: any) {
   return pickBy(obj, v=>!!v);
 }
@@ -423,9 +358,6 @@ export function getVotingSystems(): VotingSystem[] {
 }
 
 export async function getVotingSystemNameForDocument(document: VoteableType, context: ResolverContext): Promise<string> {
-  if ((document as DbElectionCandidate).electionName) {
-    return "eaDonationElection";
-  }
   if ((document as DbComment).tagId) {
     return "twoAxis";
   }
