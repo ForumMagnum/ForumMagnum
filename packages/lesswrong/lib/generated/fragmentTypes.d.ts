@@ -287,7 +287,6 @@ interface UsersDefaultFragment { // fragment on Users
   },
   readonly karmaChangeLastOpened: Date,
   readonly karmaChangeBatchStart: Date,
-  readonly givingSeasonNotifyForVoting: boolean,
   readonly emailSubscribedToCurated: boolean,
   readonly subscribedToDigest: boolean,
   readonly unsubscribeFromAll: boolean,
@@ -404,8 +403,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly rateLimitNextAbleToComment: any,
   readonly rateLimitNextAbleToPost: any,
   readonly recentKarmaInfo: any,
-  readonly givingSeason2023DonatedFlair: boolean,
-  readonly givingSeason2023VotedFlair: boolean,
   readonly wrapped2023Viewed: boolean,
 }
 

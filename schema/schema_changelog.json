@@ -503,5 +503,10 @@
     "acceptsSchemaHash": "2c8fcbdc99caee38d7f728acc6428352",
     "acceptedByMigration": "20231228T160733.add_wrapped2023Viewed_to_users.ts",
     "timestamp": "2023-12-28T16:07:33.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5dd77504112d1ae372839bb1dbc2bf1d",
+    "acceptedByMigration": "20240111T125251.remove_giving_season_2023_user_fields.ts",
+    "timestamp": "2024-01-11T12:52:51.000Z"
   }
 ]

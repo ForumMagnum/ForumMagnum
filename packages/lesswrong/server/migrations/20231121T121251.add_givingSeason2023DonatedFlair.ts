@@ -34,12 +34,12 @@
 export const acceptsSchemaHash = "6d8270f44805a1ee0b363924964776e7";
 
 import Users from "../../lib/collections/users/collection";
-import { addField, dropField } from "./meta/utils";
+import { addRemovedField, dropRemovedField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, Users, "givingSeason2023DonatedFlair");
+  await addRemovedField(db, Users, "givingSeason2023DonatedFlair");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropField(db, Users, "givingSeason2023DonatedFlair");
+  await dropRemovedField(db, Users, "givingSeason2023DonatedFlair");
 }
