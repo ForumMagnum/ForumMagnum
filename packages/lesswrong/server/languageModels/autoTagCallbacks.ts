@@ -86,6 +86,8 @@ import type { PostIsCriticismRequest } from '../resolvers/postResolvers';
             --train ml/tagClassification.${TAG}.train.jsonl \
             --test ml/tagClassification.${TAG}.test.jsonl \
  *    Substituting in ${TAG}, and repeat for each tag.
+ *    You can also do this with their web UI; see see
+ *        https://platform.openai.com/docs/guides/fine-tuning
  *
  * 9. Retrieve the fine-tuned model IDs. Run
  *        openai api fine_tunes.list
