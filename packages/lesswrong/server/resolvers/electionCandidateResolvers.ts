@@ -1,5 +1,5 @@
-import type { ElectionAmountRaised } from "../../components/ea-forum/giving-portal/hooks";
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from "../../lib/vulcan-lib/graphql";
+import type { ElectionAmountRaised } from "../repos/ElectionCandidatesRepo";
 
 const electionCandidateResolvers = {
   Query: {
