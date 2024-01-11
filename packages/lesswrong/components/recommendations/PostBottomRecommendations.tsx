@@ -1,4 +1,5 @@
 import React from "react";
+import NoSSR from "react-no-ssr";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "../../lib/reactRouterWrapper";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
@@ -13,6 +14,13 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.grey[55],
     padding: "60px 0 80px 0",
     marginTop: 60,
+    [theme.breakpoints.down('sm')]: {
+      // make the background flush with the sides of the screen on mobile
+      paddingLeft: 8,
+      paddingRight: 8,
+      marginLeft: -8,
+      marginRight: -8,
+    },
   },
   section: {
     maxWidth: MAX_CONTENT_WIDTH,
@@ -40,7 +48,7 @@ const styles = (theme: ThemeType) => ({
 const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   hasTableOfContents?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {
     recommendationsLoading: moreFromAuthorLoading,
@@ -77,8 +85,9 @@ const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
     (moreFromAuthorLoading || !!moreFromAuthorPosts?.length);
 
   const {
-    PostsLoading, ToCColumn, EAPostsItem, EALargePostsItem, UserTooltip,
+    PostsLoading, ToCColumn, EAPostsItem, EALargePostsItem, UserTooltip, DigestAd
   } = Components;
+
   return (
     <AnalyticsContext pageSectionContext="postPageFooterRecommendations">
       <div className={classes.root}>
@@ -87,6 +96,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
           notHideable
         >
           <div>
+            <NoSSR><DigestAd className={classes.section} /></NoSSR>
             {hasUserPosts &&
               <div className={classes.section}>
                 <div className={classes.sectionHeading}>
