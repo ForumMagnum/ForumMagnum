@@ -59,7 +59,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     maxWidth: 625,
-    height: 48,
     backgroundColor: theme.palette.grey[120],
     borderRadius: theme.borderRadius.default,
     "& .ais-SearchBox": {
