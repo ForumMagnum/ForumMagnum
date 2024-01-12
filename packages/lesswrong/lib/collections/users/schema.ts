@@ -1421,7 +1421,7 @@ const schema: SchemaType<"Users"> = {
   },
   notificationNewDialogueChecks: {
     label: "You have new people interested in dialogue-ing with you",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField({ channel: "none" }),
     hidden: !isLW,
   },
   notificationYourTurnMatchForm: {
