@@ -1,12 +1,12 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
-import { useOnSearchHotkey } from '../common/withGlobalKeydown';
 import { Link } from '../../lib/reactRouterWrapper';
 import { TRUNCATION_KARMA_THRESHOLD } from '../../lib/editor/ellipsize'
 import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
+import { useExpandAllContext } from '../common/ExpandOnSearchHotkeyPageWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -27,9 +27,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const [expandAllThreads,setExpandAllThreads] = useState(false);
-  
-  useOnSearchHotkey(() => setExpandAllThreads(true));
+  const { isAllExpanded: expandAllThreads, expandAll } = useExpandAllContext()!;
 
   const { CommentsNode, SettingsButton, CommentsListMeta, LoginPopupButton, LWTooltip } = Components
   
@@ -40,7 +38,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
       return <CommentsListMeta>
         <span>
           Some comments are truncated due to high volume. <LWTooltip title={expandTooltip}>
-            <a className={!expandAllThreads ? classes.button : undefined} onClick={()=>setExpandAllThreads(true)}>(⌘F to expand all)</a>
+            <a className={!expandAllThreads ? classes.button : undefined} onClick={()=>expandAll()}>(⌘F to expand all)</a>
           </LWTooltip>
         </span>
         {currentUser 

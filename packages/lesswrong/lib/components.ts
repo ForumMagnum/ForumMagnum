@@ -62,6 +62,7 @@ importComponent("EventBanner", () => require('../components/ea-forum/EventBanner
 importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
 importComponent("BotSiteBanner", () => require('../components/common/BotSiteBanner'));
 importComponent("HorizScrollBlock", () => require('../components/common/HorizScrollBlock'));
+importComponent("ExpandOnSearchHotkeyPageWrapper", () => require('../components/common/ExpandOnSearchHotkeyPageWrapper'));
 
 // EA Giving Season 2023
 importComponent("EAGivingPortalPage", () => require('../components/ea-forum/giving-portal/EAGivingPortalPage'));
