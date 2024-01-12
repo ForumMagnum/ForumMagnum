@@ -1,8 +1,9 @@
 import AbstractRepo from "./AbstractRepo";
 import PostEmbeddings from "../../lib/collections/postEmbeddings/collection";
 import { randomId } from "../../lib/random";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
-export default class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
+class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
   constructor() {
     super(PostEmbeddings);
   }
@@ -36,3 +37,7 @@ export default class PostEmbeddingsRepo extends AbstractRepo<"PostEmbeddings"> {
     `, [randomId(), postId, postHash, now, JSON.stringify(embeddings), model]);
   }
 }
+
+recordPerfMetrics(PostEmbeddingsRepo);
+
+export default PostEmbeddingsRepo;

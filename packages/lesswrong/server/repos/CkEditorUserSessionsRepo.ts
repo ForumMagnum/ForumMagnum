@@ -1,20 +1,8 @@
 import CkEditorUserSessions from "../../lib/collections/ckEditorUserSessions/collection";
 import AbstractRepo from "./AbstractRepo";
-import { createAdminContext, updateMutator } from "../vulcan-lib";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
-export const endCkEditorUserSession = async (documentId:string, endedBy:string, endedAt:Date = new Date()) => {
-  const adminContext = createAdminContext();
-
-  return updateMutator({
-    collection: CkEditorUserSessions,
-    documentId,
-    set: { endedAt, endedBy },
-    context: adminContext,
-    currentUser: adminContext.currentUser,
-  })
-}
-
-export default class CkEditorUserSessionsRepo extends AbstractRepo<"CkEditorUserSessions"> {
+class CkEditorUserSessionsRepo extends AbstractRepo<"CkEditorUserSessions"> {
   constructor() {
     super(CkEditorUserSessions);
   }
@@ -34,3 +22,7 @@ export default class CkEditorUserSessionsRepo extends AbstractRepo<"CkEditorUser
     `, [since])
   }
 }
+
+recordPerfMetrics(CkEditorUserSessionsRepo);
+
+export default CkEditorUserSessionsRepo;

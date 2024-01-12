@@ -1,11 +1,9 @@
-import { getUserABTestGroup, useABTest } from "../../lib/abTestImpl";
 import { getCKEditorDocumentId } from "../../lib/ckEditorUtils";
 import CkEditorUserSessions from "../../lib/collections/ckEditorUserSessions/collection";
 import {ckEditorApi, documentHelpers} from "../ckEditor/ckEditorApi";
 import { addCronJob } from "../cronUtil";
 import { createNotification } from "../notificationCallbacksHelpers";
-import {endCkEditorUserSession} from "../repos/CkEditorUserSessionsRepo";
-import { createAdminContext, updateMutator } from "../vulcan-lib";
+import { createAdminContext } from "../vulcan-lib";
 import groupBy from 'lodash/groupBy';
 
 addCronJob({
@@ -51,7 +49,7 @@ addCronJob({
       // End all sessions except the most recent one
       for (let i = 1; i < sessions.length; i++) {
         superfluousSessionPromises.push(
-          endCkEditorUserSession(sessions[i]._id, "cron")
+          documentHelpers.endCkEditorUserSession(sessions[i]._id, "cron")
         );
       }
     }
@@ -61,7 +59,7 @@ addCronJob({
     for (const session of latestSessions) {
       const isActive = await checkActiveUserSession(session.userId, session.documentId);
       if (!isActive) {
-        void endCkEditorUserSession(session._id, "cron")
+        void documentHelpers.endCkEditorUserSession(session._id, "cron")
       }
     }
   }

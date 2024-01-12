@@ -82,6 +82,9 @@ const initDatabases = ({postgresUrl, postgresReadUrl}: CommandLineArguments) =>
   ]);
 
 const initSettings = () => {
+  if (!isAnyTest) {
+    setInterval(refreshSettingsCaches, 1000 * 60 * 5) // We refresh the cache every 5 minutes on all servers
+  }
   return refreshSettingsCaches();
 }
 

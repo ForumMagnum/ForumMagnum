@@ -375,6 +375,11 @@ class ElasticQuery {
       coordinates,
     } = this.queryData;
     const {privateFields} = this.config;
+
+    // When sorting by nearest-geographically we disable custom highlighting as
+    // this isn't supported by elastic and causes an exception
+    const hasCustomHighlight = !coordinates;
+
     const {
       searchQuery,
       snippetName,
@@ -401,23 +406,25 @@ class ElasticQuery {
       body: {
         track_scores: true,
         track_total_hits: true,
-        highlight: {
-          fields: {
-            [snippetName]: {
-              ...highlightConfig,
-              highlight_query: snippetQuery,
-            },
-            ...(highlightName && {
-              [highlightName]: {
+        ...(hasCustomHighlight && {
+          highlight: {
+            fields: {
+              [snippetName]: {
                 ...highlightConfig,
-                highlight_query: highlightQuery,
+                highlight_query: snippetQuery,
               },
-            }),
+              ...(highlightName && {
+                [highlightName]: {
+                  ...highlightConfig,
+                  highlight_query: highlightQuery,
+                },
+              }),
+            },
+            number_of_fragments: 1,
+            fragment_size: 140,
+            no_match_size: 140,
           },
-          number_of_fragments: 1,
-          fragment_size: 140,
-          no_match_size: 140,
-        },
+        }),
         query: {
           script_score: {
             query: {
@@ -434,7 +441,7 @@ class ElasticQuery {
         },
         sort: this.compileSort(sorting, coordinates),
         _source: {
-          exclude: ["exportedAt", ...privateFields],
+          excludes: ["exportedAt", ...privateFields],
         },
       },
     };

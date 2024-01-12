@@ -96,7 +96,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
         const query = new SelectFragmentQuery(
           fragmentName as FragmentName,
           currentUser,
-          args,
+          (args as any).input.terms, // TODO figure out correct types for this
           parameters.selector,
           parameters.options,
         );
@@ -201,7 +201,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
           const query = new SelectFragmentQuery(
             fragmentName as FragmentName,
             currentUser,
-            {}, // TODO: Should there be some args here?
+            (args as any).input.terms, // TODO figure out correct types for this
             selector,
             {limit: 1},
           );

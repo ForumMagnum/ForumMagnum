@@ -130,9 +130,11 @@ export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestG
   }
   
   const rendered = await renderPromise;
-  // eslint-disable-next-line no-console
-  console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.relevantAbTestGroups)}`);
-  cacheStore(cacheKey, rendered.relevantAbTestGroups, rendered);
+  if (!rendered.aborted) {
+    // eslint-disable-next-line no-console
+    console.log(`Completed render with A/B test groups: ${JSON.stringify(rendered.relevantAbTestGroups)}`);
+    cacheStore(cacheKey, rendered.relevantAbTestGroups, rendered);
+  }
   
   inProgressRenders[cacheKey] = inProgressRenders[cacheKey].filter(r => r!==inProgressRender);
   if (!inProgressRenders[cacheKey].length)
@@ -184,7 +186,10 @@ const cacheLookupDB = async (cacheKey: string, abTestGroups: CompleteTestGroupAl
 
   // eslint-disable-next-line no-console
   console.log(`DB cache hit for cacheKey ${cacheKey}`);
-  return cacheResult?.renderResult;
+  return {
+    ...cacheResult?.renderResult,
+    aborted: false
+  };
 }
 
 const cacheLookup = async (cacheKey: string, abTestGroups: CompleteTestGroupAllocation): Promise<RenderResult|null|undefined> => {

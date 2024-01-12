@@ -85,7 +85,9 @@ registerFragment(`
     petrovPressedButtonDate
     petrovOptOut
     sortDraftsBy
-    ...SunshineUsersList
+    email
+    emails
+    banned
     ...SharedUserBooleans
     noindex
     paymentEmail
@@ -217,11 +219,15 @@ registerFragment(`
     optedInToDialogueFacilitation
     revealChecksToAdmins
     notificationNewDialogueChecks
+    notificationYourTurnMatchForm
 
     showDialoguesList
     showMyDialogues
     showMatches
     showRecommendedPartners
+    hideActiveDialogueUsers
+
+    wrapped2023Viewed
   }
 `);
 
@@ -496,6 +502,7 @@ registerFragment(`
     notificationSubforumUnread
     notificationNewMention
     notificationNewDialogueChecks
+    notificationYourTurnMatchForm
 
     givingSeasonNotifyForVoting
 

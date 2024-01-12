@@ -52,6 +52,7 @@ import './server/scripts/dropAndSeedJestPg';
 import './server/scripts/makeMigrations';
 import './server/scripts/reviewGetResultsPost';
 import './server/scripts/sendWrappedNotifications';
+import './server/scripts/triggerWrappedRefresh';
 import './server/scripts/removeRsvp';
 import './server/scripts/regenerateUnicodeSlugs';
 import './server/scripts/checkPostForSockpuppetVoting';
@@ -176,6 +177,7 @@ import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/electionCandidateResolvers';
 import './server/resolvers/electionVoteResolvers';
+import './server/resolvers/givingSeasonResolvers';
 
 
 import './server/intercomSetup';

@@ -1414,6 +1414,12 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  notificationYourTurnMatchForm: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
   hideDialogueFacilitation: boolean
   revealChecksToAdmins: boolean
   optedInToDialogueFacilitation: boolean
@@ -1421,6 +1427,7 @@ interface DbUser extends DbObject {
   showMyDialogues: boolean
   showMatches: boolean
   showRecommendedPartners: boolean
+  hideActiveDialogueUsers: boolean
   karmaChangeNotifierSettings: {
     updateFrequency: "disabled" | "daily" | "weekly" | "realtime",
     timeOfDayGMT: number,
@@ -1543,6 +1550,7 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean | null
   givingSeason2023DonatedFlair: boolean
   givingSeason2023VotedFlair: boolean
+  wrapped2023Viewed: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents

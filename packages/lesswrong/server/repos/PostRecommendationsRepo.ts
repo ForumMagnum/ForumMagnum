@@ -5,8 +5,9 @@ import type {
   RecommendationStrategyName,
   StrategySettings,
 } from "../../lib/collections/users/recommendationSettings";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
-export default class PostRecommendationsRepo extends AbstractRepo<"PostRecommendations"> {
+class PostRecommendationsRepo extends AbstractRepo<"PostRecommendations"> {
   constructor() {
     super(PostRecommendations);
   }
@@ -123,3 +124,7 @@ export default class PostRecommendationsRepo extends AbstractRepo<"PostRecommend
     */
   }
 }
+
+recordPerfMetrics(PostRecommendationsRepo);
+
+export default PostRecommendationsRepo;

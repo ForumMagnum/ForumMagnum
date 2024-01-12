@@ -68,6 +68,8 @@ export const sortOptions: Record<ElectionCandidatesSort | "random", SettingsOpti
   },
 };
 
+const checkboxColor = requireCssVar("palette", "givingPortal", 1000);
+
 const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect, setTotalCount, className, classes}: {
   /**
    * - "preVote": selecting a candidate (instantly) adds a pre-vote for it
@@ -107,7 +109,7 @@ const ElectionCandidatesList = ({type="preVote", selectedCandidateIds, onSelect,
         {isSelect && <div className={classes.selectAll}>
           <Checkbox
             className={classes.checkbox}
-            style={{ color: requireCssVar("palette", "givingPortal", 1000) }}
+            style={{color: checkboxColor}}
             checked={allSelected}
             onChange={() => {
               const allIds = results?.map((candidate) => candidate._id) || [];
