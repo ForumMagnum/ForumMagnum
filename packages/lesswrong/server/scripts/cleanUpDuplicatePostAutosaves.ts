@@ -27,6 +27,7 @@ Globals.cleanUpDuplicatePostAutosaves = async (adminUserId: string) => {
         GROUP BY "userId", title
         HAVING COUNT(*) > 1
       )
+      AND "deletedDraft" IS NOT TRUE
       ORDER BY "userId", "title", "postedAt" DESC
     )
     SELECT "userId", slug AS "userSlug", title, _id AS "postId", "postedAt", draft, "deletedDraft"
