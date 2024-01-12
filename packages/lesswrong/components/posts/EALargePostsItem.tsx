@@ -123,6 +123,13 @@ const EALargePostsItem = ({
   });
 
   const {postContents, loading, error} = usePostContents({
+    /*
+     * TODO: This should be `PostsList` instead of `PostsWithNavigation`, however,
+     * this requires a backend change that needs to be deployed to both LessWrong
+     * and the EA Forum before it will work. For now, we can just use
+     * `PostsWithNavigation` with a cast, then at some point in the near future
+     * once it's deployed we can change it.
+     */
     post: post as PostsWithNavigation,
     fragmentName: "PostsWithNavigation",
   });

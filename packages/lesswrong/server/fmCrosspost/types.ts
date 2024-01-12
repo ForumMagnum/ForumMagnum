@@ -1,4 +1,5 @@
 import * as t from 'io-ts';
+import { crosspostFragments } from '../../components/hooks/useForeignCrosspost';
 
 /**
  */
@@ -158,6 +159,14 @@ export type CrosspostPayload = t.TypeOf<typeof CrosspostPayloadValidator>;
 
 export type Crosspost = Pick<DbPost, "_id" | "userId" | "fmCrosspost"> & DenormalizedCrosspostData;
 
+const getCrosspostFragmentsType = () => {
+  const result: Partial<Record<FragmentName, null>> = {};
+  for (const fragmentName of crosspostFragments) {
+    result[fragmentName] = null;
+  }
+  return t.keyof(result);
+}
+
 /**
  * Intersesction creates an intersection of types (i.e. type A & type B)
  */
@@ -165,8 +174,7 @@ export const GetCrosspostRequestValidator = t.intersection([
   t.strict({
     documentId: t.string,
     collectionName: t.literal('Posts'),
-    // This is a more performant way of representing a union of string literals
-    fragmentName: t.keyof({ 'PostsWithNavigation': null, 'PostsWithNavigationAndRevision': null, 'PostsList': null }),
+    fragmentName: getCrosspostFragmentsType(),
   }),
   t.partial({
     extraVariables: t.strict({
