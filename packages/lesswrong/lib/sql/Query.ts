@@ -360,8 +360,9 @@ abstract class Query<T extends DbObject> {
     path.unshift("unnested");
     const last = path.pop();
     const selector = path.join("->") + "->>" + last;
+    const prefix = this.primaryPrefix ? `"${this.primaryPrefix}".` : "";
     return [
-      "(_id IN (SELECT _id FROM",
+      `(${prefix}_id IN (SELECT _id FROM`,
       this.table,
       `, UNNEST("${fieldName}") unnested WHERE ${selector} =`,
       this.createArg(value),

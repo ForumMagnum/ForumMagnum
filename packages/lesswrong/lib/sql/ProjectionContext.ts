@@ -68,8 +68,8 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
       : baseObj;
 
     const test = `"${primaryPrefix}"."_id"`;
-    const proj = `CASE WHEN ${test} IS NULL THEN NULL ELSE ${obj} END`;
-    const namedProj = this.isAggregate
+    const proj = `CASE WHEN ${test} IS NULL THEN NULL ELSE (${obj}) END`;
+    const namedProj = subcontext.isAggregate
       ? `'${name}', ${proj}`
       : `${proj} "${name}"`;
     this.projections.push(namedProj);
@@ -169,7 +169,11 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
   addProjection(name: string, expression?: string, jsonifyStarSelector = true) {
     if (expression) {
       const normalizedExpression = expression.trim().replace(/\s+/g, " ");
-      this.projections.push(`${normalizedExpression} "${name}"`);
+      if (this.isAggregate) {
+        this.projections.push(`'${name}', ${normalizedExpression}`);
+      } else {
+        this.projections.push(`${normalizedExpression} "${name}"`);
+      }
     } else {
       this.projections.push(this.field(name, jsonifyStarSelector));
     }
