@@ -20,7 +20,7 @@ import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicT
 import isEqual from 'lodash/isEqual';
 
 const autosaveInterval = 3000; //milliseconds
-const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
+const remoteAutosaveInterval = 1000 * 20; // 5 minutes in milliseconds
 
 export function isCollaborative(post: DbPost, fieldName: string): boolean {
   if (!post) return false;
@@ -202,6 +202,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     ${getFragment('RevisionEdit')}
   `);
 
+  // TODO: this currently clobbers the title if a new post had its contents edited before the title was edited
   const saveRemoteBackup = useCallback(async (newContents: EditorContents) => {
     // If a post hasn't ever been saved before, "submit" the form in order to create a draft post
     // Afterwards, check whatever revision was loaded for display
@@ -277,7 +278,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     if (autosave) {
       throttledSaveBackup(newContents);
       // Don't do server-side autosave if using the collaborative editor, since it autosaves through the ckEditor webhook
-      if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
+      // TODO: come back to this after the React 18 upgrade and test it properly
+      // if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
     }
     
     // We only check posts that have >300 characters, which is ~a few sentences.
@@ -295,7 +297,6 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     fieldName,
     throttledSetContentsValue,
     throttledSaveBackup,
-    throttledSaveRemoteBackup,
     contents,
     throttledCheckIsCriticismLargeDiff,
     throttledCheckIsCriticism,
