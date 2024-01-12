@@ -312,7 +312,7 @@ const PostsNewForm = ({classes}: {
                 successCallback={(post: any, options: any) => {
                   if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
                   if (options?.submitOptions?.noReload) {
-                    window.history.replaceState('', '', postGetEditUrl(post._id, true));
+                    navigate(postGetEditUrl(post._id, true), { replace: true });
                   } else if (options?.submitOptions?.redirectToEditor) {
                     navigate(postGetEditUrl(post._id));
                   } else {
