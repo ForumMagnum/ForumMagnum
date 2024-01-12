@@ -8,7 +8,6 @@ import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
-import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
 import GraphQLJSON from 'graphql-type-json';
 
 export const moderationOptionsGroup: FormGroupType<"Comments"> = {
@@ -659,7 +658,7 @@ const schema: SchemaType<"Comments"> = {
     hidden: (props) => {
       // Currently only allow titles for top level subforum comments
       const comment = props?.document
-      return !commentAllowTitle(comment)
+      return !!(comment && !commentAllowTitle(comment))
     }
   },
 
@@ -794,7 +793,7 @@ const schema: SchemaType<"Comments"> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForum', 'admins'],
     canCreate: ['alignmentForum', 'admins'],
-    hidden: (props: SmartFormProps) => isAF || !props.alignmentForumPost
+    hidden: (props) => isAF || !props.alignmentForumPost
   },
 
   suggestForAlignmentUserIds: {

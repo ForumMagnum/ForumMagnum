@@ -145,16 +145,17 @@ class PgCollection<
   find(
     selector?: MongoSelector<ObjectsByCollectionName[N]>,
     options?: MongoFindOptions<ObjectsByCollectionName[N]>,
+    projection?: MongoProjection<ObjectsByCollectionName[N]>,
   ): FindResult<ObjectsByCollectionName[N]> {
     return {
       fetch: async () => {
-        const select = new SelectQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, options);
-        const result = await this.executeReadQuery(select, {selector, options});
+        const select = new SelectQuery<ObjectsByCollectionName[N]>(this.getTable(), selector, { ...options, projection });
+        const result = await this.executeReadQuery(select, {selector, options, projection});
         return result;
       },
       count: async () => {
-        const select = new SelectQuery(this.getTable(), selector, options, {count: true});
-        const result = await this.executeReadQuery(select, {selector, options});
+        const select = new SelectQuery(this.getTable(), selector, { ...options, projection }, {count: true});
+        const result = await this.executeReadQuery(select, {selector, options, projection});
         return parseInt(result?.[0].count ?? 0);
       },
     };

@@ -15,6 +15,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   noColor: {
     color: "inherit !important"
   },
+  noKibitz: {
+    minWidth: 55,
+  },
 });
 
 type DisableNoKibitzContextType = {disableNoKibitz: boolean, setDisableNoKibitz: (disableNoKibitz: boolean)=>void};
@@ -29,19 +32,27 @@ const UsersNameDisplay = ({
   color=false,
   nofollow=false,
   simple=false,
-  classes,
   tooltipPlacement="left",
   pageSectionContext,
   className,
+  classes,
 }: {
+  /** The user whose name to show. If nullish, will show as "[anonymous]". */
   user: UsersMinimumInfo|null|undefined,
+  /** If the name is in the site primary color */
   color?: boolean,
+  /** If the name is a link, it's marked nofollow */
   nofollow?: boolean,
+  /** The name is only text, not a link, and doesn't have a hover */
   simple?: boolean,
-  classes: ClassesType,
+  /** Positioning of the tooltip, if there is one */
   tooltipPlacement?: PopperPlacementType,
+  /** If provided, a tracking string added to the link */
   pageSectionContext?: string,
+  /** An additional class to apply to the text */
   className?: string,
+
+  classes: ClassesType,
 }) => {
   const {eventHandlers, hover} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
   const currentUser = useCurrentUser();
@@ -51,19 +62,24 @@ const UsersNameDisplay = ({
     && user
     && currentUser._id !== user._id  //don't nokibitz your own name
     && !disableNoKibitz
-    && !hover
   );
+  const nameHidden = noKibitz && !hover;
 
   if (!user || user.deleted) {
     return <Components.UserNameDeleted userShownToAdmins={user}/>
   }
   const { UserTooltip } = Components
 
-  const displayName = noKibitz ? "(hidden)" : userGetDisplayName(user);
+  const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user);
   const colorClass = color?classes.color:classes.noColor;
 
   if (simple) {
-    return <span {...eventHandlers} className={classNames(colorClass, className)}>
+    return <span
+      {...eventHandlers}
+      className={classNames(colorClass, className, {
+        [classes.noKibitz]: noKibitz
+      })}
+    >
       {displayName}
     </span>
   }
@@ -81,7 +97,9 @@ const UsersNameDisplay = ({
           placement={tooltipPlacement}
           inlineBlock={false}
         >
-          <Link to={profileUrl} className={colorClass}
+          <Link
+            to={profileUrl}
+            className={classNames(colorClass, { [classes.noKibitz]: noKibitz, })}
             {...(nofollow ? {rel:"nofollow"} : {})}
           >
             {displayName}
