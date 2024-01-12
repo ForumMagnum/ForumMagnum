@@ -20,7 +20,7 @@ import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicT
 import isEqual from 'lodash/isEqual';
 
 const autosaveInterval = 3000; //milliseconds
-const remoteAutosaveInterval = 1000 * 20; // 5 minutes in milliseconds
+const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
 
 export function isCollaborative(post: DbPost, fieldName: string): boolean {
   if (!post) return false;
