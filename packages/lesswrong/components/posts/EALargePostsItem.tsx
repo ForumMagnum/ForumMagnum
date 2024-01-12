@@ -122,7 +122,7 @@ const EALargePostsItem = ({
     documentSlug: post.slug,
   });
 
-  const {postContents, loading} = usePostContents({
+  const {postContents, loading, error} = usePostContents({
     post: post as PostsWithNavigation,
     fragmentName: "PostsWithNavigation",
   });
@@ -136,6 +136,9 @@ const EALargePostsItem = ({
   if (!imageUrl && !noImagePlaceholder) {
     imageUrl = siteImageSetting.get();
   }
+
+  const description = postContents?.plaintextDescription ??
+    post?.contents?.plaintextDescription;
 
   const {TruncatedAuthorsList, ForumIcon, PostsItemTooltipWrapper, Loading} = Components;
   return (
@@ -188,8 +191,8 @@ const EALargePostsItem = ({
             </div>
           </div>
           <div className={classes.postListItemPreview}>
-            {postContents?.plaintextDescription ?? post?.contents?.plaintextDescription}
-            {loading && <Loading />}
+            {description}
+            {loading && !error && !description && <Loading />}
           </div>
         </div>
         {imageUrl && <img className={classes.postListItemImage} src={imageUrl} />}

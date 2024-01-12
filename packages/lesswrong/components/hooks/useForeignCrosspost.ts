@@ -152,6 +152,11 @@ export const usePostContents = <FragmentTypeName extends PostFragments>({
   });
 
   if (isForeign) {
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.error("Error fetching crosspost body:", error);
+    }
+
     const foreignPost: FragmentTypes[FragmentTypeName] | undefined = data?.getCrosspost;
     return {
       postContents: foreignPost?.contents,
