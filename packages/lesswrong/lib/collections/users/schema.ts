@@ -2924,6 +2924,13 @@ const schema: SchemaType<"Users"> = {
     optional: true
   },
 
+  activeRateLimits: {
+    type: GraphQLJSON,
+    canRead: ['guests'],
+    hidden: true,
+    optional: true
+  },
+
   // Giving season fields
   givingSeason2023DonatedFlair: {
     type: Boolean,

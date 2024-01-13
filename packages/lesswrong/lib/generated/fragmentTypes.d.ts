@@ -404,6 +404,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly rateLimitNextAbleToComment: any,
   readonly rateLimitNextAbleToPost: any,
   readonly recentKarmaInfo: any,
+  readonly activeRateLimits: any,
   readonly givingSeason2023DonatedFlair: boolean,
   readonly givingSeason2023VotedFlair: boolean,
   readonly wrapped2023Viewed: boolean,
@@ -2942,6 +2943,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly bigDownvoteReceivedCount: number,
   readonly recentKarmaInfo: any,
   readonly lastNotificationsCheck: Date,
+  readonly activeRateLimits: any,
 }
 
 interface SunshineUsersList_associatedClientIds { // fragment on ClientIds

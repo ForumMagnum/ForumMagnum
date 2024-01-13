@@ -1,6 +1,6 @@
 import AbstractRepo from "./AbstractRepo";
 import Votes from "../../lib/collections/votes/collection";
-import type { RecentVoteInfo } from "../../lib/rateLimits/types";
+import type { LongtermScoreResult, RecentVoteInfo } from "../../lib/rateLimits/types";
 import groupBy from "lodash/groupBy";
 import { EAOrLWReactionsVote, UserVoteOnSingleReaction } from "../../lib/voting/namesAttachedReactions";
 import type { CommentKarmaChange, KarmaChangeBase, KarmaChangesArgs, PostKarmaChange, ReactionChange, TagRevisionKarmaChange } from "../../lib/collections/users/karmaChangesGraphQL";
@@ -376,6 +376,51 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       )
     `, [userId])
     return votes
+  }
+
+  async getLongtermDownvoteScore(userId: string): Promise<LongtermScoreResult> { // TODO: can't filter for comment count like that! that has to happen elsewhere!
+    return this.getRawDb().one(`
+      SELECT
+        c."userId",
+        ARRAY_AGG(DISTINCT senior_downvoter) AS "longtermSeniorDownvoterIds",
+        COUNT(DISTINCT senior_downvoter) AS "longtermSeniorDownvoterCount",
+        COUNT(c."userId") as "commentCount",
+        (SUM(
+            CASE
+                WHEN
+                    c.total_vote_power < 0
+                    THEN GREATEST((c.total_vote_power * 20)::int, -100)
+                ELSE c.total_vote_power
+            END
+        ) / COUNT(c."userId")) AS "longtermScore"
+      FROM (
+        SELECT
+          full_c.*,
+          SUM(v.power) AS total_vote_power,
+          ARRAY_AGG(DISTINCT v."userId") FILTER (
+            WHERE v.power < 0 AND u.karma > 2000
+          ) AS senior_downvoters
+        FROM "Comments" as full_c
+        LEFT JOIN
+          "Votes" AS v
+          ON full_c._id = v."documentId"
+        LEFT JOIN
+          "Users" AS u ON v."userId" = u._id
+        WHERE
+          v.cancelled = false
+          AND full_c."userId" = $1
+          AND v."userId" != $1
+          AND full_c."postedAt" > CURRENT_DATE - interval '1 year'
+        GROUP BY full_c._id
+      ) AS c
+      LEFT JOIN LATERAL (
+        SELECT senior_downvoter
+        FROM unnest(c.senior_downvoters) AS senior_downvoter
+        WHERE c.total_vote_power < 0
+      ) AS sd ON true
+      GROUP BY c."userId"
+      ORDER BY "longtermScore" DESC
+    `, [userId])
   }
 
   async getVotesOnPreviousContentItem(userId: string, collectionName: 'Posts' | 'Comments', before: Date) {

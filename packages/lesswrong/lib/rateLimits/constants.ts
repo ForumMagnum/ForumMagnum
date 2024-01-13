@@ -147,6 +147,19 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ), // at 2000+ karma, I think your downvotes are more likely to be from people who disagree with you, rather than from people who think you're a troll
       rateLimitMessage: `Users with less than -5 karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     }, 
+    // 1 comment per 2 days rate limit
+    {
+      ...timeframe('1 Comments per 2 days'),
+      appliesToOwnPosts: false,
+      isActive: (_, {commentCount, longtermSeniorDownvoterCount, longtermScore}) => {
+        console.log("commentCount", commentCount, "longtermSeniorDownvoterCount", longtermSeniorDownvoterCount, "longtermScore", longtermScore)
+        return (
+        commentCount > 20 &&
+        longtermSeniorDownvoterCount >= 3 &&
+        longtermScore < 0
+      )},
+      rateLimitMessage: `Users who have been on average repeatedly downvoted by multiple senior users over the last year, on comments that ended up with a negative total karma (excluding users own votes), can write up to 1 comment per 2 days.<br/>${lwDefaultMessage}`
+    }, 
   // 1 comment per 3 days rate limits
     {
       ...timeframe('1 Comments per 3 days'),

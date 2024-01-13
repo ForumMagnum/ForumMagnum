@@ -1,13 +1,12 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
-import { forumSelect } from '../../../lib/forumTypeUtils';
-import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
-import { getActiveRateLimitNames, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
+import { getRateLimitName, getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
 import { getDownvoteRatio } from '../UsersReviewInfoCard';
 import classNames from 'classnames';
 import StarIcon from '@material-ui/icons/Star';
 import StarBorderIcon from '@material-ui/icons/StarBorder';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import {AutoRateLimit} from '../../../lib/rateLimits/types';
 
 const styles = (theme: ThemeType): JssStyles => ({
   padding: {
@@ -66,10 +65,9 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
   const { MetaInfo, LWTooltip } = Components
 
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
-  const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
-  const strictestRateLimits = getStrictestActiveRateLimits(user, allRateLimits);
-  const allActiveRateLimitsNames = getActiveRateLimitNames(user, allRateLimits);
-  const nonStrictestRateLimitsNames = allActiveRateLimitsNames.filter(rateLimitName => !strictestRateLimits.some(strictLimit => strictLimit.name === rateLimitName))
+  const allActiveRateLimits:AutoRateLimit[] = user?.activeRateLimits || [];
+  const strictestRateLimits = getStrictestActiveRateLimits(allActiveRateLimits);
+  const nonStrictestRateLimits = allActiveRateLimits.filter(({isActive}) => !strictestRateLimits.some(strictLimit => strictLimit.isActive === isActive));
 
   return <div>
     {showKarmaMeta && <div>
@@ -102,9 +100,9 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
     {strictestRateLimits.map(({name, isActive}) => <div key={`${user._id}rateLimitstrict${name}`}>
       <LWTooltip title={`Calculated via: ${isActive.toString()}`}><MetaInfo>{name}</MetaInfo></LWTooltip>
     </div>)}
-    {nonStrictestRateLimitsNames.length > 0 && <LWTooltip title={<div>
-      {nonStrictestRateLimitsNames.map(rateLimit => <div key={`${user._id}rateLimit${rateLimit}`}>{rateLimit}</div>)}</div>}>
-      <MetaInfo>{nonStrictestRateLimitsNames.length} More</MetaInfo>
+    {nonStrictestRateLimits.length > 0 && <LWTooltip title={<div>
+      {nonStrictestRateLimits.map(rateLimit => <div key={`${user._id}rateLimit${getRateLimitName(rateLimit)}`}>{getRateLimitName(rateLimit)}</div>)}</div>}>
+      <MetaInfo>{nonStrictestRateLimits.length} More</MetaInfo>
     </LWTooltip>}
   </div>;
 }
