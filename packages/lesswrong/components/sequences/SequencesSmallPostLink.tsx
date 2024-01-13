@@ -5,8 +5,9 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import type { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 import { isLWorAF } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     position: "relative",
     flexGrow: 1,
@@ -16,7 +17,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     marginBottom: 6,
-    marginTop: 6
+    marginTop: 6,
+    ...(isFriendlyUI && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontSize: 14,
+      fontWeight: 500,
+      lineHeight: "150%",
+    }),
   },
   large: {
     ...theme.typography.postsItemTitle,
@@ -31,7 +38,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="left-start"}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
   sequenceId: string,
   large?: boolean,
