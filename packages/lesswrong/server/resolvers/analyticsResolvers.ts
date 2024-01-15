@@ -223,37 +223,17 @@ addGraphQLResolvers({
           totalCount: 0,
         };
       }
-      const postViewTimesView = getHybridView(POST_VIEW_TIMES_IDENTIFIER);
-
-      // TODO remove these error checks once the hybrid views are collections
-      if (!postViewTimesView) throw new Error("Hybrid views not configured");
-
-      const postViewTimesTable = await postViewTimesView.virtualTable()
 
       const [viewsResults, readsResults] = await Promise.all([
         context.repos.postViews.viewsByPost({postIds}),
-        analyticsDb.any<{ _id: string; total_read_count: number; mean_reading_time: number }>(
-              `
-          SELECT
-            post_id AS _id,
-            -- A "read" is anything with a reading_time over 30 seconds
-            sum(CASE WHEN reading_time >= 30 THEN 1 ELSE 0 END) AS total_read_count,
-            avg(reading_time) AS mean_reading_time
-          FROM
-            (${postViewTimesTable}) q
-          WHERE
-            post_id IN ($1:csv)
-          GROUP BY
-            post_id;
-          `, [postIds]
-        )
+        context.repos.postViewTimes.readsByPost({postIds}),
       ]);
 
       // Flatten the results
       const viewsById = Object.fromEntries(viewsResults.map((row) => [row.postId, row.totalViews]));
       const uniqueViewsById = Object.fromEntries(viewsResults.map((row) => [row.postId, row.totalUniqueViews]));
-      const readsById = Object.fromEntries(readsResults.map((row) => [row._id, row.total_read_count]));
-      const meanReadingTimeById = Object.fromEntries(readsResults.map((row) => [row._id, row.mean_reading_time]));
+      const readsById = Object.fromEntries(readsResults.map((row) => [row.postId, row.totalReads]));
+      const meanReadingTimeById = Object.fromEntries(readsResults.map((row) => [row.postId, row.totalReads]));
 
       let sortedAndLimitedPostIds: string[] = postIds;
       if (INDIRECTLY_SORTABLE_FIELDS.includes(sortBy)) {
@@ -345,23 +325,11 @@ addGraphQLResolvers({
           startDate: adjustedStartDate?.toDate(),
           endDate: adjustedEndDate.toDate(),
         }),
-        analyticsDb.any<{ window_start_key: string; read_count: string }>(
-          `
-              SELECT
-                -- Format as YYYY-MM-DD to make grouping easier
-                to_char(window_start, 'YYYY-MM-DD') AS window_start_key,
-                sum(CASE WHEN reading_time >= 30 THEN 1 ELSE 0 END) AS read_count
-              FROM
-                (${postViewTimesTable}) q
-              WHERE
-                post_id IN ($1:csv)
-                ${adjustedStartDate ? `AND window_start >= '${adjustedStartDate.toISOString()}'::timestamp` : ""}
-                AND window_end <= '${adjustedEndDate.toISOString()}'::timestamp
-              GROUP BY
-                window_start_key;
-            `,
-          [queryPostIds]
-        ),
+        context.repos.postViewTimes.readsByDate({
+          postIds: queryPostIds,
+          startDate: adjustedStartDate?.toDate(),
+          endDate: adjustedEndDate.toDate(),
+        }),
         context.repos.votes.getDocumentKarmaChangePerDay({
           documentIds: queryPostIds,
           startDate: adjustedStartDate?.toDate(),
@@ -375,7 +343,7 @@ addGraphQLResolvers({
       ]);
 
       const viewsByDate = groupBy(viewRes, "date");
-      const readsByDate = groupBy(readRes, "window_start_key");
+      const readsByDate = groupBy(readRes, "date");
       const commentsByDate = groupBy(commentRes, "window_start_key");
       const karmaByDate = groupBy(karmaRes, "window_start_key");
 
@@ -391,7 +359,7 @@ addGraphQLResolvers({
       const result = generateDateSeries(lowestStartDate, adjustedEndDate).map((date) => ({
         date: new Date(date),
         views: viewsByDate[date]?.reduce((acc, curr) => acc + (curr.totalViews ?? 0), 0) ?? 0,
-        reads: readsByDate[date]?.reduce((acc, curr) => acc + parseInt(curr.read_count ?? 0), 0) ?? 0,
+        reads: readsByDate[date]?.reduce((acc, curr) => acc + (curr.totalReads ?? 0), 0) ?? 0,
         karma: karmaByDate[date]?.reduce((acc, curr) => acc + parseInt(curr.karma_change ?? 0), 0) ?? 0,
         comments: commentsByDate[date]?.reduce((acc, curr) => acc + parseInt(curr.comment_count ?? 0), 0) ?? 0
       }));

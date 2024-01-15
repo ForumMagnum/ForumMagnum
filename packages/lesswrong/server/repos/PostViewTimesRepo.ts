@@ -124,72 +124,69 @@ class PostViewTimesRepo extends AbstractRepo<"PostViewTimes"> {
     );
   }
 
-  // TODO read side
-  // async viewsByPost({
-  //   postIds,
-  // }: {
-  //   postIds: string[];
-  // }): Promise<{ postId: string; totalViews: number; totalUniqueViews: number }[]> {
-  //   const results = await this.getRawDb().any<{ postId: string; totalViews: string; totalUniqueViews: string }>(`
-  //     SELECT
-  //       "postId",
-  //       sum("viewCount") AS "totalViews",
-  //       sum("uniqueViewCount") AS "totalUniqueViews"
-  //     FROM
-  //       "PostViewTimes"
-  //     WHERE
-  //       "postId" IN ($1:csv)
-  //     GROUP BY
-  //       "postId"
-  //     `,
-  //     [postIds]
-  //   )
+  async readsByPost({
+    postIds,
+  }: {
+    postIds: string[];
+  }): Promise<{ postId: string; totalReads: number; }[]> {
+    const results = await this.getRawDb().any<{ postId: string; totalReads: string; }>(`
+      SELECT
+        "postId",
+        sum(CASE WHEN "totalSeconds" >= 30 THEN 1 ELSE 0 END) AS "totalReads"
+      FROM
+        "PostViewTimes"
+      WHERE
+        "postId" IN ($1:csv)
+      GROUP BY
+        "postId"
+      `,
+      [postIds]
+    )
 
-  //   // Manually convert the number fields from string to number (as this isn't handled automatically)
-  //   const typedResults = results.map((views) => ({
-  //     ...views,
-  //     totalViews: parseInt(views.totalViews),
-  //     totalUniqueViews: parseInt(views.totalUniqueViews),
-  //   }));
+    // Manually convert the number fields from string to number (as this isn't handled automatically)
+    const typedResults = results.map((views) => ({
+      ...views,
+      totalReads: parseInt(views.totalReads),
+    }));
 
-  //   return typedResults
-  // }
+    return typedResults
+  }
 
-  // async viewsByDate({
-  //   postIds,
-  //   startDate,
-  //   endDate,
-  // }: {
-  //   postIds: string[];
-  //   startDate?: Date;
-  //   endDate: Date;
-  // }): Promise<{ date: string; totalViews: number }[]> {
-  //   const results = await this.getRawDb().any<{ date: string; viewCount: string }>(`
-  //     SELECT
-  //       to_char(date_trunc('day', "windowStart"), 'YYYY-MM-DD') AS "date",
-  //       count(*) AS "viewCount"
-  //     FROM
-  //       "PostViewTimes"
-  //     WHERE
-  //       "postId" IN ($1:csv)
-  //       ${startDate ? `AND "windowStart" >= '${startDate.toISOString()}'` : ""}
-  //       AND "windowEnd" <= '${endDate.toISOString()}'
-  //     GROUP BY
-  //       "date"
-  //     ORDER BY
-  //       "date"
-  //     `,
-  //     [postIds]
-  //   );
+  async readsByDate({
+    postIds,
+    startDate,
+    endDate,
+  }: {
+    postIds: string[];
+    startDate?: Date;
+    endDate: Date;
+  }): Promise<{ date: string; totalReads: number }[]> {
+    const results = await this.getRawDb().any<{ date: string; readCount: string }>(`
+      SELECT
+        to_char(date_trunc('day', "windowStart"), 'YYYY-MM-DD') AS "date",
+        sum(CASE WHEN "totalSeconds" >= 30 THEN 1 ELSE 0 END) AS "readCount"
+      FROM
+        "PostViewTimes"
+      WHERE
+        "postId" IN ($1:csv)
+        ${startDate ? `AND "windowStart" >= '${startDate.toISOString()}'` : ""}
+        AND "windowEnd" <= '${endDate.toISOString()}'
+      GROUP BY
+        "date"
+      ORDER BY
+        "date"
+      `,
+      [postIds]
+    );
 
-  //   // Manually convert the number fields from string to number (as this isn't handled automatically)
-  //   const typedResults = results.map((views) => ({
-  //     date: views.date,
-  //     totalViews: parseInt(views.viewCount),
-  //   }));
+    // Manually convert the number fields from string to number (as this isn't handled automatically)
+    const typedResults = results.map((views) => ({
+      date: views.date,
+      totalReads: parseInt(views.readCount),
+    }));
 
-  //   return typedResults;
-  // }
+    return typedResults;
+  }
 }
 
 recordPerfMetrics(PostViewTimesRepo);
