@@ -1,3 +1,4 @@
+import { BoolType } from "../../lib/sql/Type";
 import Users from "../../lib/vulcan-users";
 import { addRemovedField, dropRemovedField } from "./meta/utils";
 
@@ -10,7 +11,7 @@ export const up = async ({db}: MigrationContext) => {
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await addRemovedField(db, Users, "givingSeasonNotifyForVoting");
-  await addRemovedField(db, Users, "givingSeason2023DonatedFlair");
-  await addRemovedField(db, Users, "givingSeason2023VotedFlair");
+  await addRemovedField(db, Users, "givingSeasonNotifyForVoting", new BoolType());
+  await addRemovedField(db, Users, "givingSeason2023DonatedFlair", new BoolType());
+  await addRemovedField(db, Users, "givingSeason2023VotedFlair", new BoolType());
 }
