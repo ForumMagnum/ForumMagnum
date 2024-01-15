@@ -41,8 +41,8 @@ type AnalyticsSeriesQueryResult = {
 };
 
 const MultiPostAnalyticsQuery = gql`
-  query MultiPostAnalyticsQuery($userId: String, $postIds: [String], $sortBy: String, $desc: Boolean, $limit: Int, $cachedOnly: Boolean) {
-    MultiPostAnalytics(userId: $userId, postIds: $postIds, sortBy: $sortBy, desc: $desc, limit: $limit, cachedOnly: $cachedOnly) {
+  query MultiPostAnalyticsQuery($userId: String, $postIds: [String], $sortBy: String, $desc: Boolean, $limit: Int) {
+    MultiPostAnalytics(userId: $userId, postIds: $postIds, sortBy: $sortBy, desc: $desc, limit: $limit) {
       posts {
         _id
         title
@@ -61,8 +61,8 @@ const MultiPostAnalyticsQuery = gql`
 `;
 
 const AnalyticsSeriesQuery = gql`
-  query AnalyticsSeriesQuery($userId: String, $postIds: [String], $startDate: Date, $endDate: Date, $cachedOnly: Boolean) {
-    AnalyticsSeries(userId: $userId, postIds: $postIds, startDate: $startDate, endDate: $endDate, cachedOnly: $cachedOnly) {
+  query AnalyticsSeriesQuery($userId: String, $postIds: [String], $startDate: Date, $endDate: Date) {
+    AnalyticsSeries(userId: $userId, postIds: $postIds, startDate: $startDate, endDate: $endDate) {
       date
       views
       reads
@@ -95,7 +95,7 @@ export const useMultiPostAnalytics = ({
   itemsPerPage?: number;
   queryLimitName?: string;
 }) => {
-  const isStaleDataAllowed = !["views", "reads"].includes(sortBy ?? "") && !!(userId || (postIds && postIds.length > 1));
+  const isStaleDataAllowed = false;
 
   const [fetchingStaleData, setFetchingStaleData] = useState(isStaleDataAllowed);
   const nonStaleFetchCountRef = useRef(0);
@@ -110,7 +110,7 @@ export const useMultiPostAnalytics = ({
   const [effectiveLimit, setEffectiveLimit] = useState(defaultLimit.current);
   const [moreLoading, setMoreLoading] = useState(false);
 
-  const variables = { userId, postIds, sortBy, desc, limit: defaultLimit.current, cachedOnly: fetchingStaleData };
+  const variables = { userId, postIds, sortBy, desc, limit: defaultLimit.current };
   const { data, loading, error, fetchMore } = useQuery<MultiPostAnalyticsQueryResult>(MultiPostAnalyticsQuery, {
     variables,
     skip: !userId && (!postIds || postIds.length === 0),
@@ -169,7 +169,7 @@ export const useMultiPostAnalytics = ({
   return {
     data: dataRef.current,
     loading: loading && nonStaleFetchCountRef.current > 0,
-    maybeStale: nonStaleFetchCountRef.current === 0,
+    maybeStale: nonStaleFetchCountRef.current === 0 && isStaleDataAllowed,
     error,
     loadMoreProps
   };
@@ -182,6 +182,7 @@ export type UseAnalyticsSeriesProps = {
   endDate: Date;
 }
 
+// TODO simplify logic here (A LOT). I need to work out how removing cachedOnly vs not affected the order in which things load
 /**
  * Get the views, reads, karma, comment numbers by day for a particular user or set of postIds. This hook does the following to manage
  * it's internal state:
@@ -218,14 +219,14 @@ export const useAnalyticsSeries = (props: UseAnalyticsSeriesProps): {
   const [activeVariables, setActiveVariables] = useState({});
   const variablesAreActive = stringify(activeVariables) === stringify({ userId, postIds, startDate, endDate });
 
-  const cachedOnly = !variablesAreActive && cachedFirst;
-  const variables = { userId, postIds, startDate, endDate, cachedOnly };
+  const variables = { userId, postIds, startDate, endDate };
   const { data, loading, error } = useQuery<AnalyticsSeriesQueryResult>(AnalyticsSeriesQuery, {
     variables,
     skip: !userId && (!postIds || postIds.length === 0),
   });
 
   useEffect(() => {
+    // TODO remove comment
     // Once one fetch has returned, set the active variables to trigger a second fetch with:
     // - the dates padded by 180 days on either side
     // - cachedOnly set to false to include the very latest data (see cachedOnly: !variablesAreActive above)

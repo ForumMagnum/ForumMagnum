@@ -13,6 +13,7 @@ type PostAnalyticsQueryResult = {
   PostAnalytics: PostAnalyticsResult
 }
 
+// TODO remove
 export const usePostAnalytics = (postId: string) => {
   const postAnalyticsQuery = gql`
     query PostAnalyticsQuery($postId: String!) {
