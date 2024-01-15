@@ -34,7 +34,7 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
   const reactDomLocation = useLocation();
   const locationContext = useRef<RouterLocation | null>(null);
   const subscribeLocationContext = useRef<RouterLocation | null>(null);
-  const navigationContext = useRef<any>();
+  const navigationContext = useRef<{ history: History<unknown> } | null>();
 
   const locale = localeSetting.get();
 

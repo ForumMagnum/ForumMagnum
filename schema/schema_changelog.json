@@ -505,8 +505,13 @@
     "timestamp": "2023-12-28T16:07:33.000Z"
   },
   {
-    "acceptsSchemaHash": "5dd77504112d1ae372839bb1dbc2bf1d",
-    "acceptedByMigration": "20240111T125251.remove_giving_season_2023_user_fields.ts",
-    "timestamp": "2024-01-11T12:52:51.000Z"
+    "acceptsSchemaHash": "2431de6961ce37514d54a17a5ca14adc",
+    "acceptedByMigration": "20240111T003312.update_notificationNewDialogueChecks_default.ts",
+    "timestamp": "2024-01-11T00:33:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "3f5776b3718d3ac264f38fad3378eb02",
+    "acceptedByMigration": "20240115T135415.remove_giving_season_2023_user_fields.ts",
+    "timestamp": "2024-01-15T13:54:15.000Z"
   }
 ]

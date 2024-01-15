@@ -222,6 +222,7 @@ export const usePostsList = ({
   return {
     children,
     showNoResults,
+    hideLastUnread,
     showLoadMore,
     showLoading,
     dimWhenLoading,

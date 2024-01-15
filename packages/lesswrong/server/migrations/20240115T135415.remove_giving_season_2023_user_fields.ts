@@ -1,7 +1,7 @@
 import Users from "../../lib/vulcan-users";
 import { addRemovedField, dropRemovedField } from "./meta/utils";
 
-export const acceptsSchemaHash = "5dd77504112d1ae372839bb1dbc2bf1d";
+export const acceptsSchemaHash = "3f5776b3718d3ac264f38fad3378eb02";
 
 export const up = async ({db}: MigrationContext) => {
   await dropRemovedField(db, Users, "givingSeasonNotifyForVoting");
