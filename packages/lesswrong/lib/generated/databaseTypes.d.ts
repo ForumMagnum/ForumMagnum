@@ -670,6 +670,20 @@ interface DbPostRelation extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type PostViewTimesCollection = CollectionBase<"PostViewTimes">;
+
+interface DbPostViewTime extends DbObject {
+  __collectionName?: "PostViewTimes"
+  updatedAt: Date
+  windowStart: Date
+  windowEnd: Date
+  clientId: string
+  postId: string
+  totalSeconds: number
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type PostViewsCollection = CollectionBase<"PostViews">;
 
 interface DbPostViews extends DbObject {
@@ -1671,6 +1685,7 @@ interface CollectionsByName {
   PostEmbeddings: PostEmbeddingsCollection
   PostRecommendations: PostRecommendationsCollection
   PostRelations: PostRelationsCollection
+  PostViewTimes: PostViewTimesCollection
   PostViews: PostViewsCollection
   Posts: PostsCollection
   RSSFeeds: RSSFeedsCollection
@@ -1735,6 +1750,7 @@ interface ObjectsByCollectionName {
   PostEmbeddings: DbPostEmbedding
   PostRecommendations: DbPostRecommendation
   PostRelations: DbPostRelation
+  PostViewTimes: DbPostViewTime
   PostViews: DbPostViews
   Posts: DbPost
   RSSFeeds: DbRSSFeed
@@ -1799,6 +1815,7 @@ interface ObjectsByTypeName {
   PostEmbedding: DbPostEmbedding
   PostRecommendation: DbPostRecommendation
   PostRelation: DbPostRelation
+  PostViewTime: DbPostViewTime
   PostViews: DbPostViews
   Post: DbPost
   RSSFeed: DbRSSFeed

@@ -1,0 +1,197 @@
+import AbstractRepo from "./AbstractRepo";
+import { recordPerfMetrics } from "./perfMetricWrapper";
+import moment from "moment";
+import { getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
+import { randomId } from "../../lib/random";
+import chunk from "lodash/chunk";
+import PostViewTimes from "../../lib/collections/postViewTimes/collection";
+
+class PostViewTimesRepo extends AbstractRepo<"PostViewTimes"> {
+  constructor() {
+    super(PostViewTimes);
+  }
+
+  async calculateDataForDateRange({
+    startDate,
+    endDate,
+  }: {
+    startDate: Date;
+    endDate: Date;
+  }): Promise<Omit<DbPostViewTime, "_id" | "schemaVersion" | "createdAt" | "legacyData">[]> {
+    // Round startDate (endDate) down (up) to the nearest UTC date boundary
+    const windowStart = moment.utc(startDate).startOf("day").toDate();
+    const windowEnd = moment.utc(endDate).endOf("day").toDate();
+
+    const analyticsDb = getAnalyticsConnectionOrThrow();
+
+    const results = await analyticsDb.any<
+      Omit<DbPostViewTime, "_id" | "schemaVersion" | "createdAt" | "legacyData"> & {
+        viewCount: string;
+        uniqueViewCount: string;
+      }
+    >(
+      `
+      SELECT
+        client_id AS "clientId",
+        post_id AS "postId",
+        (date_trunc('day', timestamp)) AS "windowStart",
+        (date_trunc('day', timestamp) + interval '1 day') AS "windowEnd",
+        sum(INCREMENT) AS "totalSeconds"
+      FROM
+        event_timer_event
+      WHERE
+        client_id IS NOT NULL
+        AND post_id IS NOT NULL
+        AND timestamp >= $1
+        AND timestamp <= $2
+      GROUP BY
+        client_id,
+        post_id,
+        date_trunc('day', timestamp)
+    `,
+      [windowStart, windowEnd]
+    );
+
+    // Manually convert the number fields from string to number (as this isn't handled automatically)
+    const typedResults = results.map((views) => ({
+      ...views,
+      viewCount: parseInt(views.viewCount),
+      uniqueViewCount: parseInt(views.uniqueViewCount),
+    }));
+
+    return typedResults;
+  }
+
+  async upsertData({ data }: { data: Omit<DbPostViewTime, "_id" | "schemaVersion" | "createdAt" | "legacyData">[] }) {
+    const dataWithIds = data.map((item) => ({
+      ...item,
+      _id: randomId(),
+    }));
+
+    // Avoid doing too many at once, expect about 5000 total per day
+    const chunks = chunk(dataWithIds, 1000);
+
+    for (const chunk of chunks) {
+      const values = chunk
+        .map(
+          (row) =>
+            `('${row._id}', '${row.clientId}', '${row.postId}', '${row.windowStart.toISOString()}', '${row.windowEnd.toISOString()}', ${
+              row.totalSeconds
+            }, NOW(), NOW())`
+        )
+        .join(",");
+
+      // Construct the on conflict update string
+      const onConflictUpdate = `
+        "clientId" = EXCLUDED."clientId",
+        "postId" = EXCLUDED."postId",
+        "windowStart" = EXCLUDED."windowStart",
+        "windowEnd" = EXCLUDED."windowEnd",
+        "totalSeconds" = EXCLUDED."totalSeconds",
+        "updatedAt" = NOW()
+      `;
+
+      // Execute the bulk INSERT query with an ON CONFLICT clause
+      await this.none(`
+        INSERT INTO "PostViewTimes" (
+          "_id",
+          "clientId",
+          "postId",
+          "windowStart",
+          "windowEnd",
+          "totalSeconds",
+          "createdAt",
+          "updatedAt"
+        ) VALUES ${values}
+        ON CONFLICT ("clientId", "postId", "windowStart", "windowEnd")
+        DO UPDATE SET ${onConflictUpdate}
+      `);
+    }
+  }
+
+  async getDateBounds(): Promise<{ earliestWindowStart: Date | null; latestWindowEnd: Date | null }> {
+    return (
+      (await this.getRawDb().oneOrNone<{ earliestWindowStart: Date | null; latestWindowEnd: Date | null }>(`
+      SELECT
+        min("windowStart") AS "earliestWindowStart",
+        max("windowEnd") AS "latestWindowEnd"
+      FROM
+        "PostViewTimes"
+    `)) || {
+        earliestWindowStart: null,
+        latestWindowEnd: null,
+      }
+    );
+  }
+
+  // TODO read side
+  // async viewsByPost({
+  //   postIds,
+  // }: {
+  //   postIds: string[];
+  // }): Promise<{ postId: string; totalViews: number; totalUniqueViews: number }[]> {
+  //   const results = await this.getRawDb().any<{ postId: string; totalViews: string; totalUniqueViews: string }>(`
+  //     SELECT
+  //       "postId",
+  //       sum("viewCount") AS "totalViews",
+  //       sum("uniqueViewCount") AS "totalUniqueViews"
+  //     FROM
+  //       "PostViewTimes"
+  //     WHERE
+  //       "postId" IN ($1:csv)
+  //     GROUP BY
+  //       "postId"
+  //     `,
+  //     [postIds]
+  //   )
+
+  //   // Manually convert the number fields from string to number (as this isn't handled automatically)
+  //   const typedResults = results.map((views) => ({
+  //     ...views,
+  //     totalViews: parseInt(views.totalViews),
+  //     totalUniqueViews: parseInt(views.totalUniqueViews),
+  //   }));
+
+  //   return typedResults
+  // }
+
+  // async viewsByDate({
+  //   postIds,
+  //   startDate,
+  //   endDate,
+  // }: {
+  //   postIds: string[];
+  //   startDate?: Date;
+  //   endDate: Date;
+  // }): Promise<{ date: string; totalViews: number }[]> {
+  //   const results = await this.getRawDb().any<{ date: string; viewCount: string }>(`
+  //     SELECT
+  //       to_char(date_trunc('day', "windowStart"), 'YYYY-MM-DD') AS "date",
+  //       count(*) AS "viewCount"
+  //     FROM
+  //       "PostViewTimes"
+  //     WHERE
+  //       "postId" IN ($1:csv)
+  //       ${startDate ? `AND "windowStart" >= '${startDate.toISOString()}'` : ""}
+  //       AND "windowEnd" <= '${endDate.toISOString()}'
+  //     GROUP BY
+  //       "date"
+  //     ORDER BY
+  //       "date"
+  //     `,
+  //     [postIds]
+  //   );
+
+  //   // Manually convert the number fields from string to number (as this isn't handled automatically)
+  //   const typedResults = results.map((views) => ({
+  //     date: views.date,
+  //     totalViews: parseInt(views.viewCount),
+  //   }));
+
+  //   return typedResults;
+  // }
+}
+
+recordPerfMetrics(PostViewTimesRepo);
+
+export default PostViewTimesRepo;

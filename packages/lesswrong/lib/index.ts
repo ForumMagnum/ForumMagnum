@@ -177,6 +177,9 @@ import './collections/posts/helpers';
 // PostViews
 import './collections/postViews/collection';
 
+// PostViewTimes
+import './collections/postViewTimes/collection';
+
 // Revisions
 import './collections/revisions/collection'
 import './collections/revisions/views'

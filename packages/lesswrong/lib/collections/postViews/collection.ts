@@ -21,6 +21,5 @@ ensureIndex(PostViews, {postId: 1, windowStart: 1, windowEnd: 1}, {unique: true}
 ensureIndex(PostViews, {postId: 1});
 ensureIndex(PostViews, {windowEnd: 1});
 ensureIndex(PostViews, {windowStart: 1});
-ensureIndex(PostViews, {postId: 1, windowEnd: 1, windowStart: 1});
 
 export default PostViews;
