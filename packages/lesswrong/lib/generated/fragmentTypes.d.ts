@@ -406,6 +406,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly recentKarmaInfo: any,
   readonly givingSeason2023DonatedFlair: boolean,
   readonly givingSeason2023VotedFlair: boolean,
+  readonly hideSunshineSidebar: boolean,
   readonly wrapped2023Viewed: boolean,
 }
 
@@ -2867,6 +2868,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly showRecommendedPartners: boolean,
   readonly hideActiveDialogueUsers: boolean,
   readonly wrapped2023Viewed: boolean,
+  readonly hideSunshineSidebar: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
