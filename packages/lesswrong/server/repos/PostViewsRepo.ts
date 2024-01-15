@@ -19,8 +19,8 @@ class PostViewsRepo extends AbstractRepo<"PostViews"> {
     endDate: Date;
   }): Promise<Omit<DbPostViews, "_id" | "schemaVersion" | "createdAt" | "legacyData">[]> {
     // Round startDate (endDate) down (up) to the nearest UTC date boundary
-    const windowStart = moment.utc(startDate).startOf('day').toDate();
-    const windowEnd = moment.utc(endDate).endOf('day').toDate();
+    const windowStart = moment.utc(startDate).startOf("day").toDate();
+    const windowEnd = moment.utc(endDate).endOf("day").toDate();
 
     const analyticsDb = getAnalyticsConnectionOrThrow();
 
@@ -51,17 +51,17 @@ class PostViewsRepo extends AbstractRepo<"PostViews"> {
     );
 
     // Manually convert the number fields from string to number (as this isn't handled automatically)
-    const typedResults = results.map(views => ({
+    const typedResults = results.map((views) => ({
       ...views,
       viewCount: parseInt(views.viewCount),
       uniqueViewCount: parseInt(views.uniqueViewCount),
-    }))
+    }));
 
     return typedResults;
   }
 
   async upsertData({ data }: { data: Omit<DbPostViews, "_id" | "schemaVersion" | "createdAt" | "legacyData">[] }) {
-    const dataWithIds = data.map(item => ({
+    const dataWithIds = data.map((item) => ({
       ...item,
       _id: randomId(),
     }));
@@ -107,18 +107,49 @@ class PostViewsRepo extends AbstractRepo<"PostViews"> {
     }
   }
 
-  async getDataRange(): Promise<{earliestWindowStart: Date | null, latestWindowEnd: Date | null}> {
-    // TODO re-check this when there is actual data
-    return await this.getRawDb().oneOrNone<{earliestWindowStart: Date | null, latestWindowEnd: Date | null}>(`
+  async getDateBounds(): Promise<{ earliestWindowStart: Date | null; latestWindowEnd: Date | null }> {
+    return (
+      (await this.getRawDb().oneOrNone<{ earliestWindowStart: Date | null; latestWindowEnd: Date | null }>(`
       SELECT
         min("windowStart") AS "earliestWindowStart",
         max("windowEnd") AS "latestWindowEnd"
       FROM
         "PostViews"
-    `) || {
-      earliestWindowStart: null,
-      latestWindowEnd: null,
-    }
+    `)) || {
+        earliestWindowStart: null,
+        latestWindowEnd: null,
+      }
+    );
+  }
+
+  async totalViews({
+    postIds,
+  }: {
+    postIds: string[];
+  }): Promise<{ postId: string; totalViews: number; totalUniqueViews: number }[]> {
+    const results = await this.getRawDb().any<{ postId: string; totalViews: string; totalUniqueViews: string }>(`
+      SELECT
+        "postId",
+        sum("viewCount") AS "totalViews",
+        sum("uniqueViewCount") AS "totalUniqueViews"
+      FROM
+        "PostViews"
+      WHERE
+        "postId" IN ($1:csv)
+      GROUP BY
+        "postId"
+      `,
+      [postIds]
+    )
+
+    // Manually convert the number fields from string to number (as this isn't handled automatically)
+    const typedResults = results.map((views) => ({
+      ...views,
+      totalViews: parseInt(views.totalViews),
+      totalUniqueViews: parseInt(views.totalUniqueViews),
+    }));
+
+    return typedResults
   }
 }
 

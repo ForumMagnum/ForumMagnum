@@ -7,7 +7,7 @@ import PostViewsRepo from "../repos/PostViewsRepo";
 async function updatePostViews({earliestStartDate, latestEndDate}: {earliestStartDate: Date, latestEndDate: Date}) {
   const postViewsRepo = new PostViewsRepo()
 
-  const { earliestWindowStart, latestWindowEnd } = await postViewsRepo.getDataRange()
+  const { earliestWindowStart, latestWindowEnd } = await postViewsRepo.getDateBounds()
 
   const ranges: {startDate: Date, endDate: Date}[] = []
 

@@ -237,21 +237,7 @@ addGraphQLResolvers({
       ]);
 
       const [viewsResults, readsResults] = await Promise.all([
-        analyticsDb.any<{ _id: string; total_view_count: number; total_unique_view_count: number }>(
-          `
-          SELECT
-            post_id AS _id,
-            sum(view_count) AS total_view_count,
-            sum(unique_view_count) AS total_unique_view_count
-          FROM
-            (${viewsTable}) q
-          WHERE
-            post_id IN ($1:csv)
-          GROUP BY
-            post_id;
-          `,
-          [postIds]
-        ),
+        context.repos.postViews.totalViews({postIds}),
         analyticsDb.any<{ _id: string; total_read_count: number; mean_reading_time: number }>(
               `
           SELECT
@@ -270,8 +256,8 @@ addGraphQLResolvers({
       ]);
 
       // Flatten the results
-      const viewsById = Object.fromEntries(viewsResults.map((row) => [row._id, row.total_view_count]));
-      const uniqueViewsById = Object.fromEntries(viewsResults.map((row) => [row._id, row.total_unique_view_count]));
+      const viewsById = Object.fromEntries(viewsResults.map((row) => [row.postId, row.totalViews]));
+      const uniqueViewsById = Object.fromEntries(viewsResults.map((row) => [row.postId, row.totalUniqueViews]));
       const readsById = Object.fromEntries(readsResults.map((row) => [row._id, row.total_read_count]));
       const meanReadingTimeById = Object.fromEntries(readsResults.map((row) => [row._id, row.mean_reading_time]));
 
