@@ -8,7 +8,6 @@ import { AnalyticsSeriesValue, MultiPostAnalyticsResult, PostAnalytics2Result } 
 import Posts from "../../lib/collections/posts/collection";
 import { getHybridView } from "../analytics/hybridViews";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
-import { POST_VIEWS_IDENTIFIER } from "../analytics/postViewsHybridView";
 import { POST_VIEW_TIMES_IDENTIFIER } from "../analytics/postViewTimesHybridView";
 import moment from "moment";
 import groupBy from "lodash/groupBy";
@@ -224,20 +223,15 @@ addGraphQLResolvers({
           totalCount: 0,
         };
       }
-
-      const postViewsView = getHybridView(POST_VIEWS_IDENTIFIER);
       const postViewTimesView = getHybridView(POST_VIEW_TIMES_IDENTIFIER);
 
       // TODO remove these error checks once the hybrid views are collections
-      if (!postViewsView || !postViewTimesView) throw new Error("Hybrid views not configured");
+      if (!postViewTimesView) throw new Error("Hybrid views not configured");
 
-      const [viewsTable, postViewTimesTable] = await Promise.all([
-        postViewsView.virtualTable(),
-        postViewTimesView.virtualTable(),
-      ]);
+      const postViewTimesTable = await postViewTimesView.virtualTable()
 
       const [viewsResults, readsResults] = await Promise.all([
-        context.repos.postViews.totalViews({postIds}),
+        context.repos.postViews.viewsByPost({postIds}),
         analyticsDb.any<{ _id: string; total_read_count: number; mean_reading_time: number }>(
               `
           SELECT
@@ -338,35 +332,19 @@ addGraphQLResolvers({
         return [];
       }
 
-      const postViewsView = getHybridView(POST_VIEWS_IDENTIFIER);
       const postViewTimesView = getHybridView(POST_VIEW_TIMES_IDENTIFIER);
 
       // TODO remove these error checks once the hybrid views are collections
-      if (!postViewsView || !postViewTimesView) throw new Error("Hybrid views not configured");
+      if (!postViewTimesView) throw new Error("Hybrid views not configured");
 
-      const [viewsTable, postViewTimesTable] = await Promise.all([
-        postViewsView.virtualTable(),
-        postViewTimesView.virtualTable(),
-      ]);
+      const postViewTimesTable = await postViewTimesView.virtualTable()
 
       const [viewRes, readRes, karmaRes, commentRes] = await Promise.all([
-        analyticsDb.any<{ window_start_key: string; view_count: string }>(
-          `
-              SELECT
-                -- Format as YYYY-MM-DD to make grouping easier
-                to_char(window_start, 'YYYY-MM-DD') AS window_start_key,
-                sum(view_count) AS view_count
-              FROM
-                (${viewsTable}) q
-              WHERE
-                post_id IN ($1:csv)
-                ${adjustedStartDate ? `AND window_start >= '${adjustedStartDate.toISOString()}'::timestamp` : ""}
-                AND window_end <= '${adjustedEndDate.toISOString()}'::timestamp
-              GROUP BY
-                window_start_key;
-          `,
-          [queryPostIds]
-        ),
+        context.repos.postViews.viewsByDate({
+          postIds: queryPostIds,
+          startDate: adjustedStartDate?.toDate(),
+          endDate: adjustedEndDate.toDate(),
+        }),
         analyticsDb.any<{ window_start_key: string; read_count: string }>(
           `
               SELECT
@@ -396,7 +374,7 @@ addGraphQLResolvers({
         }),
       ]);
 
-      const viewsByDate = groupBy(viewRes, "window_start_key");
+      const viewsByDate = groupBy(viewRes, "date");
       const readsByDate = groupBy(readRes, "window_start_key");
       const commentsByDate = groupBy(commentRes, "window_start_key");
       const karmaByDate = groupBy(karmaRes, "window_start_key");
@@ -412,7 +390,7 @@ addGraphQLResolvers({
 
       const result = generateDateSeries(lowestStartDate, adjustedEndDate).map((date) => ({
         date: new Date(date),
-        views: viewsByDate[date]?.reduce((acc, curr) => acc + parseInt(curr.view_count ?? 0), 0) ?? 0,
+        views: viewsByDate[date]?.reduce((acc, curr) => acc + (curr.totalViews ?? 0), 0) ?? 0,
         reads: readsByDate[date]?.reduce((acc, curr) => acc + parseInt(curr.read_count ?? 0), 0) ?? 0,
         karma: karmaByDate[date]?.reduce((acc, curr) => acc + parseInt(curr.karma_change ?? 0), 0) ?? 0,
         comments: commentsByDate[date]?.reduce((acc, curr) => acc + parseInt(curr.comment_count ?? 0), 0) ?? 0

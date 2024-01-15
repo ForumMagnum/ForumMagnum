@@ -122,7 +122,7 @@ class PostViewsRepo extends AbstractRepo<"PostViews"> {
     );
   }
 
-  async totalViews({
+  async viewsByPost({
     postIds,
   }: {
     postIds: string[];
@@ -150,6 +150,42 @@ class PostViewsRepo extends AbstractRepo<"PostViews"> {
     }));
 
     return typedResults
+  }
+
+  async viewsByDate({
+    postIds,
+    startDate,
+    endDate,
+  }: {
+    postIds: string[];
+    startDate?: Date;
+    endDate: Date;
+  }): Promise<{ date: string; totalViews: number }[]> {
+    const results = await this.getRawDb().any<{ date: string; viewCount: string }>(`
+      SELECT
+        to_char(date_trunc('day', "windowStart"), 'YYYY-MM-DD') AS "date",
+        count(*) AS "viewCount"
+      FROM
+        "PostViews"
+      WHERE
+        "postId" IN ($1:csv)
+        ${startDate ? `AND "windowStart" >= '${startDate.toISOString()}'` : ""}
+        AND "windowEnd" <= '${endDate.toISOString()}'
+      GROUP BY
+        "date"
+      ORDER BY
+        "date"
+      `,
+      [postIds]
+    );
+
+    // Manually convert the number fields from string to number (as this isn't handled automatically)
+    const typedResults = results.map((views) => ({
+      date: views.date,
+      totalViews: parseInt(views.viewCount),
+    }));
+
+    return typedResults;
   }
 }
 
