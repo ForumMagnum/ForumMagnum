@@ -25,8 +25,6 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
-    givingSeason2023DonatedFlair # TODO: Remove after giving season
-    givingSeason2023VotedFlair   # TODO: Remove after giving season
   }
 `);
 
@@ -184,8 +182,6 @@ registerFragment(`
     hideTaggingProgressBar
     hideFrontpageBookAd
     hideFrontpageBook2019Ad
-
-    givingSeasonNotifyForVoting
 
     abTestKey
     abTestOverrides
@@ -497,8 +493,6 @@ registerFragment(`
     notificationNewMention
     notificationNewDialogueChecks
     notificationYourTurnMatchForm
-
-    givingSeasonNotifyForVoting
 
     hideFrontpageMap
     hideTaggingProgressBar

@@ -13,7 +13,6 @@ const recentDisucssionFeedComponents = forumSelect({
     ShortformComponent: Components.RecentDiscussionThread,
     TagCommentedComponent: Components.RecentDiscussionTag,
     TagRevisionComponent: Components.RecentDiscussionTagRevisionItem,
-    ElectionVoteComponent: () => null,
     SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
     MeetupsPokeComponent: Components.RecentDiscussionMeetupsPoke,
   },
@@ -22,7 +21,6 @@ const recentDisucssionFeedComponents = forumSelect({
     ShortformComponent: Components.EARecentDiscussionQuickTake,
     TagCommentedComponent: Components.EARecentDiscussionTagCommented,
     TagRevisionComponent: Components.EARecentDiscussionTagRevision,
-    ElectionVoteComponent: Components.EARecentDiscussionElectionVote,
     SubscribeReminderComponent: Components.RecentDiscussionSubscribeReminder,
     MeetupsPokeComponent: () => null,
   },
@@ -77,7 +75,6 @@ const RecentDiscussionFeed = ({
     ShortformComponent,
     TagCommentedComponent,
     TagRevisionComponent,
-    ElectionVoteComponent,
     SubscribeReminderComponent,
     MeetupsPokeComponent,
   } = recentDisucssionFeedComponents;
@@ -157,12 +154,6 @@ const RecentDiscussionFeed = ({
                     documentId={revision.documentId}
                   />}
                 </div>,
-              },
-              electionVoted: {
-                fragmentName: "ElectionVoteRecentDiscussion",
-                render: (electionVote: ElectionVoteRecentDiscussion) => (
-                  <ElectionVoteComponent electionVote={electionVote} />
-                ),
               },
               subscribeReminder: {
                 fragmentName: null,

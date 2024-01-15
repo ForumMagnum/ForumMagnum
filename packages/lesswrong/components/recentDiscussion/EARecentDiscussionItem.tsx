@@ -48,9 +48,6 @@ const styles = (theme: ThemeType) => ({
   iconGreen: {
     backgroundColor: theme.palette.icon.recentDiscussionGreen,
   },
-  iconGivingSeason: {
-    backgroundColor: theme.palette.givingPortal.homepageHeader.main,
-  },
   container: {
     display: "flex",
     gap: "8px",
@@ -86,7 +83,7 @@ type EARecentDiscussionItemDocument = {
 
 export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
   icon: ForumIconName,
-  iconVariant: "primary" | "grey" | "green" | "givingSeason",
+  iconVariant: "primary" | "grey" | "green",
   user?: UsersMinimumInfo | null,
   action: ReactNode,
   postTitleOverride?: string,
@@ -125,7 +122,6 @@ const EARecentDiscussionItem = ({
             [classes.iconPrimary]: iconVariant === "primary",
             [classes.iconGrey]: iconVariant === "grey",
             [classes.iconGreen]: iconVariant === "green",
-            [classes.iconGivingSeason]: iconVariant === "givingSeason",
           })}>
             <ForumIcon icon={icon} />
           </div>
