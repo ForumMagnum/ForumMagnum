@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+// TODO remove a lot of these logs
 import moment from "moment";
 import { addCronJob } from "../cronUtil";
 import { Globals } from "../vulcan-lib";
@@ -32,6 +33,9 @@ async function updatePostViews({earliestStartDate, latestEndDate}: {earliestStar
     // Move to the next day
     currentDate = moment(currentDate).add(1, 'day').toDate();
   }
+
+  // Reverse ranges so the most recent days are done first
+  ranges.reverse()
 
   console.log("Calculated ranges")
 
