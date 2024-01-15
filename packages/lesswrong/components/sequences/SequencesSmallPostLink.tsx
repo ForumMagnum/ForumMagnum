@@ -15,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     color: theme.palette.grey[900],
     display: "flex",
-    alignItems: "center",
+    alignItems: isFriendlyUI ? "flex-start" : "center",
     marginBottom: 6,
     marginTop: 6,
     ...(isFriendlyUI && {
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   },
   checkbox: {
     position: "relative",
-    top: 1,
+    top: isFriendlyUI ? -1 : 1,
     marginRight: 10
   }
 });
@@ -47,7 +47,10 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
   const {PostsTooltip, PostReadCheckbox} = Components;
   return <div className={classNames(classes.title, {[classes.large]: large})}>
     <span className={classes.checkbox}>
-      <PostReadCheckbox post={post} />
+      <PostReadCheckbox
+        post={post}
+        width={isFriendlyUI ? 14 : undefined}
+      />
     </span>
     <PostsTooltip
       post={post}
