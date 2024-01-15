@@ -164,7 +164,7 @@ class PostViewsRepo extends AbstractRepo<"PostViews"> {
     const results = await this.getRawDb().any<{ date: string; viewCount: string }>(`
       SELECT
         to_char(date_trunc('day', "windowStart"), 'YYYY-MM-DD') AS "date",
-        count(*) AS "viewCount"
+        sum("viewCount") AS "viewCount"
       FROM
         "PostViews"
       WHERE
