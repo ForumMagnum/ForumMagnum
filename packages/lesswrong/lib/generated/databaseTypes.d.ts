@@ -674,10 +674,12 @@ type PostViewsCollection = CollectionBase<"PostViews">;
 
 interface DbPostViews extends DbObject {
   __collectionName?: "PostViews"
+  updatedAt: Date
   windowStart: Date
   windowEnd: Date
-  postId: string | null
+  postId: string
   viewCount: number
+  uniqueViewCount: number
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

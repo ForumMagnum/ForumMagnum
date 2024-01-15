@@ -1,6 +1,10 @@
 import { foreignKeyField } from "../../utils/schemaUtils";
 
 export const schema: SchemaType<"PostViews"> = {
+  updatedAt: {
+    type: Date,
+    nullable: false
+  },
   windowStart: {
     type: Date,
     nullable: false
@@ -17,8 +21,13 @@ export const schema: SchemaType<"PostViews"> = {
       type: "Post",
       nullable: false,
     }),
+    nullable: false
   },
   viewCount: {
+    type: Number,
+    nullable: false
+  },
+  uniqueViewCount: {
     type: Number,
     nullable: false
   },
