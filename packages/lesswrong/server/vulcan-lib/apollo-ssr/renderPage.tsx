@@ -27,12 +27,12 @@ import { renderJssSheetImports } from '../../utils/renderJssSheetImports';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
-import { getIpFromRequest } from '../../datadog/datadogMiddleware';
 import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
 import { maxRenderQueueSize, performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
 import { onStartup, isAnyTest } from '../../../lib/executionEnvironment';
+import { getIpFromRequest } from '../../utils/getIpFromRequest';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 

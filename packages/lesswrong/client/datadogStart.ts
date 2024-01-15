@@ -1,3 +1,6 @@
-import { initDatadog } from "./datadogRum";
+import { isDatadogEnabledOnSite } from "../lib/instanceSettings";
 
-void initDatadog();
+if (isDatadogEnabledOnSite()) {
+  const { initDatadog } = require("./datadogRum");
+  void initDatadog();
+}

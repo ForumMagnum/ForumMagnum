@@ -5,10 +5,9 @@ import { getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl} f
 import Button from '@material-ui/core/Button';
 import { useCurrentUser } from '../common/withUser';
 import { gql, useMutation, useApolloClient } from '@apollo/client';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isDatadogEnabledOnSite, isEAForum } from '../../lib/instanceSettings';
 import { useThemeOptions, useSetTheme } from '../themes/useTheme';
 import { captureEvent } from '../../lib/analyticsEvents';
-import { configureDatadogRum } from '../../client/datadogRum';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 
@@ -114,7 +113,10 @@ const UsersEditForm = ({terms, classes}: {
           }
 
           // reconfigure datadog RUM in case they have changed their settings
-          configureDatadogRum(user)
+          if (isDatadogEnabledOnSite()) {
+            const { configureDatadogRum } = require('../../client/datadogRum');
+            configureDatadogRum(user)
+          }
 
           flash(`User "${userGetDisplayName(user)}" edited`);
           try {
