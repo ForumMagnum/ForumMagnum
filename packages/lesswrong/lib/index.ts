@@ -174,6 +174,9 @@ import './collections/posts/views';
 import './collections/posts/permissions';
 import './collections/posts/helpers';
 
+// PostViews
+import './collections/postViews/collection';
+
 // Revisions
 import './collections/revisions/collection'
 import './collections/revisions/views'
