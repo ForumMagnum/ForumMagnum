@@ -139,7 +139,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   votingImage: {
     width: '55vw',
-    maxWidth: '1100px',
+    maxWidth: '1000px',
     marginLeft: '-22px',
     [theme.breakpoints.down('lg')]: {
       marginLeft: '-42px',
