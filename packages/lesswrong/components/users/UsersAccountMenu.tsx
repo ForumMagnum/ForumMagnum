@@ -4,7 +4,6 @@ import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { useTracking } from '../../lib/analyticsEvents';
 import { isEAForum } from '../../lib/instanceSettings';
-import { useLocation } from '../../lib/routeUtil';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
@@ -30,10 +29,43 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const UsersAccountMenu = ({classes}: {
+const EAUsersAccountMenu = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {pathname} = useLocation();
+  const [action, setAction] = useState<"login" | "signup" | null>(null);
+
+  const onLogin = useCallback(() => setAction("login"), []);
+  const onSignup = useCallback(() => setAction("signup"), []);
+  const onClose = useCallback(() => setAction(null), []);
+
+  const {EAButton, EALoginPopover} = Components;
+  return (
+    <div className={classes.root}>
+      <EAButton
+        style="grey"
+        onClick={onLogin}
+        className={classes.login}
+      >
+        Login
+      </EAButton>
+      <EAButton
+        onClick={onSignup}
+        className={classes.signUp}
+      >
+        Sign up
+      </EAButton>
+      <EALoginPopover
+        open={!!action}
+        onClose={onClose}
+        isSignup={action === "signup"}
+      />
+    </div>
+  );
+}
+
+const LWUsersAccountMenu = ({classes}: {
+  classes: ClassesType<typeof styles>,
+}) => {
   const {captureEvent} = useTracking();
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -50,45 +82,29 @@ const UsersAccountMenu = ({classes}: {
     setOpen(false);
   }, [captureEvent]);
 
-  const {EAButton, LoginForm} = Components;
+  const {LoginForm} = Components;
   return (
     <div className={classes.root}>
-      {isEAForum ? <>
-        <EAButton
-          style="grey"
-          href={`/auth/auth0?returnTo=${pathname}`}
-          className={classes.login}
-        >
+      <Button onClick={handleClick}>
+        <span className={classes.userButton}>
           Login
-        </EAButton>
-        <EAButton
-          href={`/auth/auth0?screen_hint=signup&returnTo=${pathname}`}
-          className={classes.signUp}
-        >
-          Sign up
-        </EAButton>
-      </> : <>
-        <Button onClick={handleClick}>
-          <span className={classes.userButton}>
-            Login
-          </span>
-        </Button>
-        <Popover
-          open={open}
-          anchorEl={anchorEl}
-          anchorOrigin={{horizontal: "left", vertical: "bottom"}}
-          onClose={handleRequestClose}
-        >
-          {open && <LoginForm />}
-        </Popover>
-      </>}
+        </span>
+      </Button>
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        anchorOrigin={{horizontal: "left", vertical: "bottom"}}
+        onClose={handleRequestClose}
+      >
+        {open && <LoginForm />}
+      </Popover>
     </div>
   );
 }
 
 const UsersAccountMenuComponent = registerComponent(
   "UsersAccountMenu",
-  UsersAccountMenu,
+  isEAForum ? EAUsersAccountMenu : LWUsersAccountMenu,
   {styles},
 );
 
