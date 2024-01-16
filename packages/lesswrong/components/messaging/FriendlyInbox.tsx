@@ -95,6 +95,8 @@ const styles = (theme: ThemeType) => ({
     borderBottom: theme.palette.border.grey200,
     padding: "0px 16px",
     flex: "1 1 auto",
+    display: "flex",
+    flexDirection: "column",
     [theme.breakpoints.down('xs')]: {
       padding: "0px 24px",
     },
@@ -108,7 +110,8 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
     fontSize: "1.4rem",
     fontWeight: 600,
-    padding: 16,
+    // IMO with the icons we have it looks more centered with 11px padding on the bottom
+    padding: "12px 12px 11px 16px",
   },
   headerText: {
     overflow: "hidden",
@@ -121,9 +124,14 @@ const styles = (theme: ThemeType) => ({
   },
   actionIcon: {
     color: theme.palette.grey[600],
-    width: 24,
-    height: 24,
+    width: 32,
+    height: 32,
+    padding: 4,
+    borderRadius: theme.borderRadius.small,
     cursor: "pointer",
+    '&:hover': {
+      backgroundColor: theme.palette.panelBackground.darken08
+    }
   },
   emptyState: {
     fontFamily: theme.palette.fonts.sansSerifStack,
