@@ -206,7 +206,6 @@ const removeHeartMutation = gql`
 `;
 
 const isValidTarget = (e: EventTarget): e is HTMLDivElement => {
-  console.log({e})
   return "tagName" in e && (e.tagName === "DIV" || e.tagName === "HEADER");
 }
   
@@ -299,7 +298,6 @@ const ReviewVotingCanvas = ({
   const normalizeCoords = useCallback((clientX: number, clientY: number) => {
     if (headerRef.current) {
       const bounds = headerRef.current.getBoundingClientRect();
-      console.log({bounds, clientX, clientY})
       if (
         clientX > bounds.left &&
         clientX < bounds.right &&
@@ -388,7 +386,7 @@ const ReviewVotingCanvas = ({
         setHoverPos(null);
       }
     }
-  }, [normalizeCoords, addHeart]);
+  }, [normalizeCoords, addHeart, flash, userHasVotedEnough]);
 
   
 
