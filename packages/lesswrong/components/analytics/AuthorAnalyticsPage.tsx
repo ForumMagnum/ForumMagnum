@@ -245,7 +245,6 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   const {
     data,
     loading: analyticsLoading,
-    maybeStale,
     loadMoreProps,
   } = useMultiPostAnalytics({
     userId: user?._id,
@@ -293,13 +292,6 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
           <AnalyticsGraph userId={user._id}/>
         </div>
         <div className={classes.section}>
-          <div className={classes.postsListHeader}>
-            {/* TODO since removing the title here this now causes some layout shift. Try to fix this (or ideally make it fast enough that
-                this message isn't needed) */}
-            {maybeStale && <span className={classes.fetchingLatest}>
-              checking latest data...
-            </span>}
-          </div>
           <div className={classNames(classes.grid, classes.gridHeader)}>
             <div onClick={() => onClickHeader("postedAt")} className={classes.dateHeader}>
               <div className={classes.dateHeaderLabel}>

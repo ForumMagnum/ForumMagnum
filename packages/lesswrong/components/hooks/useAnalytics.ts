@@ -73,10 +73,7 @@ const AnalyticsSeriesQuery = gql`
 `;
 
 /**
- * Fetches analytics for a given user, sorted by a given field. The reason for all the complexity here is that it
- * does one fetch for only materialized data and then a followup fetch for the latest data. This is because fetching the
- * latest data can be slow (usually it isn't, but I'm not 100% sure I've ironed out all the performance bugs) and so we
- * don't want to block the page loading on it
+ * Fetches analytics for a given user, sorted by a given field.
  */
 export const useMultiPostAnalytics = ({
   userId,
@@ -95,12 +92,6 @@ export const useMultiPostAnalytics = ({
   itemsPerPage?: number;
   queryLimitName?: string;
 }) => {
-  const isStaleDataAllowed = false;
-
-  const [fetchingStaleData, setFetchingStaleData] = useState(isStaleDataAllowed);
-  const nonStaleFetchCountRef = useRef(0);
-  const refetchKeyRef = useRef(stringify({userId, sortBy, desc}))
-
   const { query: locationQuery } = useLocation();
   const navigate = useNavigate();
 
@@ -116,30 +107,13 @@ export const useMultiPostAnalytics = ({
     skip: !userId && (!postIds || postIds.length === 0),
   });
 
-  useEffect(() => {
-    // If we already have data, then set fetchStaleData to do a followup fetch for the latest data
-    if ((fetchingStaleData && data) || isStaleDataAllowed) {
-      setFetchingStaleData(false);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, sortBy, fetchingStaleData]);
-  
-  const dataRef = useRef(data?.MultiPostAnalytics);
-  if ((data?.MultiPostAnalytics && data?.MultiPostAnalytics !== dataRef.current) || refetchKeyRef.current !== stringify({userId, sortBy, desc})) {
-    if (!fetchingStaleData) {
-      nonStaleFetchCountRef.current++;
-    }
-    dataRef.current = data?.MultiPostAnalytics;
-    refetchKeyRef.current = stringify({userId, sortBy, desc});
-  }
-
-  const currentData = dataRef.current;
+  const currentData = data?.MultiPostAnalytics
   const totalCount = currentData?.totalCount ?? 0
   const count = currentData?.posts?.length ?? 0
   const showLoadMore = userId && (count < totalCount);
 
   const loadMore = async (limitOverride?: number) => {
-    const newLimit = limitOverride || effectiveLimit + itemsPerPage;
+    const newLimit = limitOverride ?? (effectiveLimit + itemsPerPage);
     const newQuery = {...locationQuery, [queryLimitName]: newLimit}
     navigate({...location, search: `?${qs.stringify(newQuery)}`})
 
@@ -167,9 +141,8 @@ export const useMultiPostAnalytics = ({
   };
 
   return {
-    data: dataRef.current,
-    loading: loading && nonStaleFetchCountRef.current > 0,
-    maybeStale: nonStaleFetchCountRef.current === 0 && isStaleDataAllowed,
+    data: data?.MultiPostAnalytics,
+    loading: loading,
     error,
     loadMoreProps
   };
