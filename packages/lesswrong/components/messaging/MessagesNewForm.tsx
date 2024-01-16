@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import Button from "@material-ui/core/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { useSingle } from "../../lib/crud/withSingle";
@@ -59,7 +59,8 @@ const styles = (theme: ThemeType): JssStyles => ({
         }),
   },
   formButtonMinimalist: {
-    padding: "2px",
+    padding: "8px",
+    margin: "-6px -6px -6px 0",
     fontSize: "16px",
     minWidth: 28,
     minHeight: 28,
@@ -69,6 +70,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     overflowX: "hidden",  // to stop loading dots from wrapping around
     background: "transparent",
     fontWeight: 500,
+    '&:hover': {
+      backgroundColor: theme.palette.background.primaryDim,
+    }
   },
 });
 
@@ -99,21 +103,33 @@ export const MessagesNewForm = ({
     skip,
   });
 
-  const SubmitComponent = ({ submitLabel = "Submit" }) => {
-    const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton
+  const SubmitComponent = useCallback(
+    ({ submitLabel = "Submit" }) => {
+      const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton;
 
-    return (
-      <div className={classNames("form-submit", {[classes.submitMinimalist]: isMinimalist})}>
-        <Button
-          type="submit"
-          id="new-message-submit"
-          className={classNames("primary-form-submit-button", formButtonClass, classes.submitButton)}
-        >
-          {loading ? <Loading /> : (isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel)}
-        </Button>
-      </div>
-    );
-  };
+      return (
+        <div className={classNames("form-submit", { [classes.submitMinimalist]: isMinimalist })}>
+          <Button
+            type="submit"
+            id="new-message-submit"
+            className={classNames("primary-form-submit-button", formButtonClass, classes.submitButton)}
+          >
+            {loading ? <Loading /> : isMinimalist ? <ForumIcon icon="ArrowRightOutline" /> : submitLabel}
+          </Button>
+        </div>
+      );
+    },
+    [
+      ForumIcon,
+      Loading,
+      classes.formButton,
+      classes.formButtonMinimalist,
+      classes.submitButton,
+      classes.submitMinimalist,
+      isMinimalist,
+      loading,
+    ]
+  );
 
   // For some reason loading returns true even if we're skipping the query?
   if (!skip && loadingTemplate) return <Loading />;
