@@ -86,6 +86,10 @@ const givingSeasonResolvers = {
       {electionName}: {electionName: string},
       context: ResolverContext,
     ): Promise<GivingSeasonHeart[]> => {
+      if (electionName !== 'reviewVoting2022') {
+        throw new Error('Invalid electionName!');
+      }
+      
       return context.repos.databaseMetadata.getGivingSeasonHearts(electionName);
     },
   },
@@ -104,11 +108,12 @@ const givingSeasonResolvers = {
         throw new Error("Permission denied");
       }
       if (
+        electionName !== 'reviewVoting2022' || 
         typeof x !== "number" || x < 0 || x > 1 ||
         typeof y !== "number" || y < 0 || y > 1 ||
         typeof theta !== "number" || theta < -25 || theta > 25
       ) {
-        throw new Error(`Invalid parameters: ${{x, y, theta}}`);
+        throw new Error(`Invalid parameters: ${{electionName, x, y, theta}}`);
       }
 
       const voteCount = await ReviewVotes.find({
@@ -136,6 +141,11 @@ const givingSeasonResolvers = {
       if (!context.currentUser) {
         throw new Error("Permission denied");
       }
+
+      if (electionName !== 'reviewVoting2022') {
+        throw new Error('Invalid electionName!');
+      }
+
       return context.repos.databaseMetadata.removeGivingSeasonHeart(
         electionName,
         context.currentUser._id,

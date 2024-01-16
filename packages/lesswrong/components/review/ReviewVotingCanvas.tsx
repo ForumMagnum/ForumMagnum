@@ -391,7 +391,7 @@ const ReviewVotingCanvas = ({
   
 
   return (
-    <AnalyticsContext pageSectionContext="header" siteEvent="givingSeason2023">
+    <AnalyticsContext pageSectionContext="header" siteEvent="reviewVoting2022">
       <div
         {...(canAddHeart ? {onMouseMove, onMouseOut, onClick} : {})}
         ref={headerRef}
