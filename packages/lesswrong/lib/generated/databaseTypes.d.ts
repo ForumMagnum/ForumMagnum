@@ -1550,6 +1550,7 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean | null
   givingSeason2023DonatedFlair: boolean
   givingSeason2023VotedFlair: boolean
+  hideSunshineSidebar: boolean
   wrapped2023Viewed: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/

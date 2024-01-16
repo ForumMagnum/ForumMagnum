@@ -8,7 +8,6 @@ import {
 import { Revisions } from '../../lib/collections/revisions/collection';
 import { isEAForum } from '../../lib/instanceSettings';
 import { viewFieldAllowAny } from '../vulcan-lib';
-import ElectionVotes from '../../lib/collections/electionVotes/collection';
 
 const communityFilters = {
   none: {$or: [
@@ -34,7 +33,6 @@ defineFeedResolver<Date>({
     shortformCommented: Post
     tagDiscussed: Tag
     tagRevised: Revision
-    electionVoted: ElectionVote
   `,
   resolver: async ({limit=20, cutoff, offset, args, context}: {
     limit?: number, cutoff?: Date, offset?: number,
@@ -131,16 +129,6 @@ defineFeedResolver<Date>({
             fieldName: "description",
             "changeMetrics.added": {$gt: 100},
             editedAt: {$exists: true},
-          },
-        }),
-        // Election votes
-        viewBasedSubquery({
-          type: "electionVoted",
-          collection: ElectionVotes,
-          sortField: "submittedAt",
-          context,
-          selector: {
-            submittedAt: {$exists: true},
           },
         }),
         // Suggestion to subscribe to curated

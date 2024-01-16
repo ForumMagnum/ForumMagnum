@@ -13,6 +13,7 @@ import Button from "@material-ui/core/Button";
 const styles = (theme: ThemeType): JssStyles => ({
   paper: {
     width: 600,
+    margin: '48px 24px'
   },
   root: {
     maxWidth: 600,
@@ -134,16 +135,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.background.primarySlightlyDim,
   },
   submitButton: {
-    padding: "2px",
+    padding: 8,
     fontSize: "16px",
     minWidth: 28,
     minHeight: 28,
     marginLeft: "auto",
-    marginRight: 8,
     backgroundColor: "transparent",
     color: theme.palette.primary.main,
     background: "transparent",
     fontWeight: 500,
+    '&:hover': {
+      backgroundColor: theme.palette.background.primaryDim,
+    }
   },
 });
 

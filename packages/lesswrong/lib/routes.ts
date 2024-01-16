@@ -623,61 +623,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       redirect: () => '/best-of',
     },
     {
-      name: 'GivingPortal',
-      path: '/giving-portal',
-      componentName: 'EAGivingPortalPage',
-      title: 'Giving portal',
-      subtitle: 'Giving portal',
-      subtitleLink: '/giving-portal',
-      unspacedGrid: true,
-      fullscreen: true,
-    },
-    {
-      name: 'VotingPortal',
-      path: '/voting-portal',
-      componentName: 'EAVotingPortalPage',
-      title: 'Voting portal',
-      subtitle: 'Voting portal',
-      unspacedGrid: true,
-      fullscreen: true,
-    },
-    {
-      name: 'VotingPortalSelectCandidates',
-      path: '/voting-portal/select-candidates',
-      componentName: 'EAVotingPortalSelectCandidatesPage',
-      title: 'Voting portal',
-      subtitle: 'Voting portal',
-      unspacedGrid: true,
-      fullscreen: true,
-    },
-    {
-      name: 'VotingPortalCompare',
-      path: '/voting-portal/compare',
-      componentName: 'EAVotingPortalComparePage',
-      title: 'Voting portal',
-      subtitle: 'Voting portal',
-      unspacedGrid: true,
-      fullscreen: true,
-    },
-    {
-      name: 'VotingPortalAllocateVotes',
-      path: '/voting-portal/allocate-points',
-      componentName: 'EAVotingPortalAllocateVotesPage',
-      title: 'Voting portal',
-      subtitle: 'Voting portal',
-      unspacedGrid: true,
-      fullscreen: true,
-    },
-    {
-      name: 'VotingPortalSubmit',
-      path: '/voting-portal/submit',
-      componentName: 'EAVotingPortalSubmitPage',
-      title: 'Voting portal',
-      subtitle: 'Voting portal',
-      unspacedGrid: true,
-      fullscreen: true,
-    },
-    {
       name: 'contact',
       path:'/contact',
       componentName: 'PostsSingleRoute',
@@ -809,24 +754,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/admin/digests',
       componentName: 'Digests',
       title: 'Digests',
-    },
-    {
-      name: 'ElectionCandidates',
-      path: '/admin/election-candidates',
-      componentName: 'AdminElectionCandidates',
-      title: 'Election Candidates',
-    },
-    {
-      name: 'EditElectionCandidate',
-      path: '/admin/election-candidates/:id',
-      componentName: 'EditElectionCandidate',
-      title: 'Edit Election Candidate',
-    },
-    {
-      name: 'ElectionVotes',
-      path: '/admin/election-votes',
-      componentName: 'AdminElectionVotes',
-      title: 'Election Votes',
+      isAdmin: true,
     },
     {
       name: 'EditDigest',
@@ -835,13 +763,15 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       title: 'Edit Digest',
       subtitle: 'Digests',
       subtitleLink: '/admin/digests',
-      staticHeader: true
+      staticHeader: true,
+      isAdmin: true,
     },
     {
       name: 'recommendationsSample',
       path: '/admin/recommendationsSample',
       componentName: 'RecommendationsSamplePage',
-      title: "Recommendations Sample"
+      title: "Recommendations Sample",
+      isAdmin: true,
     },
     {
       name: 'CookiePolicy',
@@ -1654,6 +1584,7 @@ addRoute(
     path: '/reviewAdmin/:year',
     componentName: 'ReviewAdminDashboard',
     title: "Review Admin Dashboard",
+    isAdmin: true,
   }
 );
 

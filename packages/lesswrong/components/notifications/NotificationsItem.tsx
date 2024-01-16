@@ -9,6 +9,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { parseRouteWithErrors } from '../linkPreview/HoverPreviewLink';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/reactRouterWrapper';
+import {checkUserRouteAccess} from '../../lib/vulcan-core/appContext'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -145,7 +146,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, currentUser, c
       )
     }
 
-    const parsedPath = parseRouteWithErrors(notificationLink);
+    const parsedPath = checkUserRouteAccess(currentUser, parseRouteWithErrors(notificationLink));
     switch (notification.documentType) {
       case "tagRel":
         return (

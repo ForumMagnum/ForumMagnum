@@ -1083,14 +1083,14 @@ const setNotnullCommands = `
 `
 
 const createNewIndexesForOnConflictConstraints = `
-  ALTER INDEX "idx_DatabaseMetadata_name"
+  ALTER INDEX IF EXISTS "idx_DatabaseMetadata_name"
     RENAME TO "idx_DatabaseMetadata_name_old";
 
   CREATE UNIQUE INDEX "idx_DatabaseMetadata_name"
     ON public."DatabaseMetadata" USING btree
     (name);
 
-  ALTER INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered"
+  ALTER INDEX IF EXISTS "idx_DebouncerEvents_dispatched_af_key_name_filtered"
     RENAME TO "idx_DebouncerEvents_dispatched_af_key_name_filtered_old";
 
   CREATE UNIQUE INDEX "idx_DebouncerEvents_dispatched_af_key_name_filtered"
@@ -1098,14 +1098,14 @@ const createNewIndexesForOnConflictConstraints = `
     (dispatched, af, key, name)
     WHERE (dispatched IS FALSE);
 
-  ALTER INDEX "idx_PageCache_path_abTestGroups_bundleHash"
+  ALTER INDEX IF EXISTS "idx_PageCache_path_abTestGroups_bundleHash"
     RENAME TO "idx_PageCache_path_abTestGroups_bundleHash_old";
 
   CREATE UNIQUE INDEX "idx_PageCache_path_abTestGroups_bundleHash"
     ON public."PageCache" USING btree
     (path, "abTestGroups", "bundleHash");
 
-  ALTER INDEX "idx_ReadStatuses_userId_postId_tagId"
+  ALTER INDEX IF EXISTS "idx_ReadStatuses_userId_postId_tagId"
     RENAME TO "idx_ReadStatuses_userId_postId_tagId_old";
 
   CREATE UNIQUE INDEX "idx_ReadStatuses_userId_postId_tagId"
