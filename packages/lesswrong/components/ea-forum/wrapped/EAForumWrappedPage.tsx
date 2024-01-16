@@ -1192,7 +1192,7 @@ const ThankAuthorSection = ({authors, year, classes}: {
           </div>
         </div>
         <div className={classes.newMessageForm}>
-          <Components.NewMessageForm
+          <Components.MessagesNewForm
             conversationId={conversation._id}
             successEvent={() => {
               captureEvent("messageSent", {

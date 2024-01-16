@@ -21,7 +21,7 @@ import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-export type CommentFormDisplayMode = "default" | "minimalist"
+export type FormDisplayMode = "default" | "minimalist"
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: isFriendlyUI ? {
@@ -146,7 +146,7 @@ export type CommentsNewFormProps = {
   formProps?: any,
   enableGuidelines?: boolean,
   padding?: boolean
-  replyFormStyle?: CommentFormDisplayMode
+  formStyle?: FormDisplayMode
   classes: ClassesType
   className?: string
 }
@@ -165,7 +165,7 @@ const CommentsNewForm = ({
   formProps,
   enableGuidelines=true,
   padding=true,
-  replyFormStyle="default",
+  formStyle="default",
   classes,
   className,
 }: CommentsNewFormProps) => {
@@ -200,7 +200,7 @@ const CommentsNewForm = ({
     af: commentDefaultToAlignment(currentUser, post, parentComment),
   };
   
-  const isMinimalist = replyFormStyle === "minimalist"
+  const isMinimalist = formStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const [_,setForceRefreshState] = useState(0);

@@ -25,7 +25,7 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
   classes: ClassesType,
   currentUser: UsersCurrent,
 }) => {
-  const { SunshineSendMessageWithDefaults, NewMessageForm, UsersName, LWTooltip, MetaInfo } = Components
+  const { SunshineSendMessageWithDefaults, MessagesNewForm, UsersName, LWTooltip, MetaInfo } = Components
   const [embeddedConversationId, setEmbeddedConversationId] = useState<string | undefined>();
   const [templateQueries, setTemplateQueries] = useState<TemplateQueryStrings | undefined>();
 
@@ -65,7 +65,7 @@ export const SunshineUserMessages = ({classes, user, currentUser}: {
         embedConversation={embedConversation}
       />
     {embeddedConversationId && <div>
-      <NewMessageForm 
+      <MessagesNewForm 
         conversationId={embeddedConversationId} 
         templateQueries={templateQueries}
         successEvent={() => {
