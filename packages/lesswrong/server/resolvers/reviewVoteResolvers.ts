@@ -5,6 +5,8 @@ import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { Posts } from '../../lib/collections/posts/collection'
 import { ReviewVotes } from '../../lib/collections/reviewVotes/collection'
 import { GivingSeasonHeart } from "../../components/review/ReviewVotingCanvas";
+import { REVIEW_YEAR } from '../../lib/reviewUtils';
+import { TARGET_REVIEW_NUM } from '../../components/review/ReviewVotingProgressBar';
 
 addGraphQLResolvers({
   Mutation: {
@@ -108,6 +110,16 @@ const givingSeasonResolvers = {
       ) {
         throw new Error(`Invalid parameters: ${{x, y, theta}}`);
       }
+
+      const voteCount = await ReviewVotes.find({
+        userId: context.currentUser._id,
+        year: REVIEW_YEAR+""
+      }).count();
+
+      if (voteCount < TARGET_REVIEW_NUM) {
+        throw new Error(`User has not voted enough times: ${voteCount}`)
+      }
+
       return context.repos.databaseMetadata.addGivingSeasonHeart(
         electionName,
         context.currentUser._id,
