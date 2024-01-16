@@ -112,7 +112,7 @@ const styles = (theme: ThemeType): JssStyles => ({
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, 7fr)
+        minmax(0, ${isLW ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },
@@ -249,7 +249,7 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
-  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : (reviewIsActive() || !isLW)
+  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : (reviewIsActive() && isLW)
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
@@ -459,14 +459,18 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                {
-                  currentRoute?.name === 'home' ? 
-                    <div className={classes.imageColumn}>
-                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LessWrong_Vote_2_t7jv4s-webp_p2zqj2" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
-                    </div> : 
-                    (standaloneNavigation && <div className={classes.imageColumn}>
-                      <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
-                    </div>)
+                { isLW && <>
+                  {
+                    currentRoute?.name === 'home' ? 
+                      <div className={classes.imageColumn}>
+                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LessWrong_Vote_2_t7jv4s-webp_p2zqj2" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+                      </div> 
+                    : 
+                      (standaloneNavigation && <div className={classes.imageColumn}>
+                        <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
+                      </div>)
+                  }
+                  </>
                 }
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
