@@ -36,7 +36,7 @@ const styles = (theme: ThemeType) => ({
       fontSize: 13,
       fontWeight: 500,
       marginTop: 10,
-      marginBottom: 10,
+      marginBottom: 14,
     }),
   },
   wordcount: isFriendlyUI
