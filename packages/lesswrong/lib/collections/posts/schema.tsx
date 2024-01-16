@@ -83,6 +83,7 @@ const rsvpType = new SimpleSchema({
 
 addGraphQLSchema(`
   type SocialPreviewType {
+    _id: String
     imageId: String
     imageUrl: String
     text: String
@@ -1405,6 +1406,7 @@ const schema: SchemaType<"Posts"> = {
         const { imageId, text } = post.socialPreview || {};
         const imageUrl = getSocialPreviewImage(post);
         return {
+          _id: post._id,
           imageId,
           imageUrl,
           text,
