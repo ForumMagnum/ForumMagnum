@@ -144,10 +144,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   votingImage: {
     width: '55vw',
     maxWidth: '1000px',
-    marginLeft: '-22px',
-    [theme.breakpoints.down('lg')]: {
-      marginLeft: '-42px',
-    },
+    marginLeft: '-22px'
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -470,7 +467,7 @@ const Layout = ({currentUser, children, classes}: {
                     currentRoute?.name === 'home' ? 
                       <div className={classes.imageColumn}>
                         <ReviewVotingCanvas />
-                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LessWrong_Vote_2_t7jv4s-webp_p2zqj2" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_2_vnz12i" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
                       </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
