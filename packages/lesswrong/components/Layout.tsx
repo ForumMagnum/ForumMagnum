@@ -28,6 +28,7 @@ import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
+import { reviewIsActive } from '../lib/reviewUtils';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -248,7 +249,7 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
-  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(currentUser ? !!(currentUser?.hideNavigationSidebar) : true);
+  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(currentUser ? !!(currentUser?.hideNavigationSidebar) : (reviewIsActive() || !isLW));
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
