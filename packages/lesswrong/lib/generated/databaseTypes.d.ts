@@ -1436,7 +1436,6 @@ interface DbUser extends DbObject {
   }
   karmaChangeLastOpened: Date | null
   karmaChangeBatchStart: Date | null
-  givingSeasonNotifyForVoting: boolean
   emailSubscribedToCurated: boolean | null
   subscribedToDigest: boolean
   unsubscribeFromAll: boolean | null
@@ -1548,8 +1547,6 @@ interface DbUser extends DbObject {
   reviewForAlignmentForumUserId: string | null
   afApplicationText: string | null
   afSubmittedApplication: boolean | null
-  givingSeason2023DonatedFlair: boolean
-  givingSeason2023VotedFlair: boolean
   hideSunshineSidebar: boolean
   wrapped2023Viewed: boolean
   createdAt: Date
