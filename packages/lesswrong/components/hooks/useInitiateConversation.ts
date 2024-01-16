@@ -17,7 +17,7 @@ export const useInitiateConversation = (props?: { includeModerators?: boolean })
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
   const [userIds, setUserIds] = useState<string[] | null>(null);
-  const skip = !currentUser || !userIds || !userIds.length
+  const skip = !currentUser || !userIds?.length
 
   const alignmentFields = isAF ? { af: true } : {};
   const moderatorField = includeModerators ? { moderator: true } : {};
@@ -54,7 +54,7 @@ export const useInitiateConversation = (props?: { includeModerators?: boolean })
   const conversation = results?.[0];
 
   const initiateConversation = useCallback(
-    (userIds: string[]) => setUserIds(userIds && userIds.length ? userIds : null),
+    (userIds: string[]) => setUserIds(userIds?.length ? userIds : null),
     []
   );
 
