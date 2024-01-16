@@ -508,5 +508,15 @@
     "acceptsSchemaHash": "2431de6961ce37514d54a17a5ca14adc",
     "acceptedByMigration": "20240111T003312.update_notificationNewDialogueChecks_default.ts",
     "timestamp": "2024-01-11T00:33:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ab5cd3028069be1418fb1e7229510a52",
+    "acceptedByMigration": "20240114T014118.addHideSunshineSidebar.ts",
+    "timestamp": "2024-01-14T01:41:18.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7b3fdcd195cd62025722543603fa51e0",
+    "acceptedByMigration": "20240116T194702.remove_giving_season_2023_user_fields.ts",
+    "timestamp": "2024-01-16T19:47:02.000Z"
   }
 ]
