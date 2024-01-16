@@ -1,26 +1,34 @@
 /* eslint-disable no-console */
-// TODO remove a lot of these logs
 import moment from "moment";
 import { addCronJob } from "../cronUtil";
 import { Globals } from "../vulcan-lib";
 import PostViewsRepo from "../repos/PostViewsRepo";
 import PostViewTimesRepo from "../repos/PostViewTimesRepo";
+import IncrementalViewRepo from "../repos/IncrementalViewRepo";
 
-async function updatePostViews({earliestStartDate, latestEndDate}: {earliestStartDate: Date, latestEndDate: Date}) {
-  const postViewsRepo = new PostViewsRepo()
+async function updateDailyAnalyticsCollection<N extends CollectionNameString>({
+  repo,
+  earliestStartDate,
+  latestEndDate,
+}: {
+  repo: IncrementalViewRepo<N>;
+  earliestStartDate: Date;
+  latestEndDate: Date;
+}) {
+  const { earliestWindowStart, latestWindowEnd } = await repo.getDateBounds()
 
-  const { earliestWindowStart, latestWindowEnd } = await postViewsRepo.getDateBounds()
-
+  // `ranges` will be a list of days to recalculate the data for. When this is running as a cron job in steady state,
+  // this will just be the most recent day. In general it will be all days between `earliestStartDate` and `latestEndDate`
+  // that are not already covered by the range [`earliestWindowStart`, `latestWindowEnd`)
   const ranges: {startDate: Date, endDate: Date}[] = []
 
-  // Start from the earliestStartDate and create ranges up to endDate
   let currentDate = moment(earliestStartDate).startOf('day').toDate();
 
   // Ensure we cover the endDate if it's the same as latestWindowEnd
   const inclusiveEndDate = latestWindowEnd && moment(latestWindowEnd).subtract(1, 'day').toDate();
 
   while (currentDate <= latestEndDate) {
-    // Skip dates that are within the [earliestWindowStart, latestWindowEnd) interval
+    // Skip dates that are within the [`earliestWindowStart`, `latestWindowEnd`) interval
     if (
       earliestWindowStart === null ||
       inclusiveEndDate === null ||
@@ -38,77 +46,45 @@ async function updatePostViews({earliestStartDate, latestEndDate}: {earliestStar
   // Reverse ranges so the most recent days are done first
   ranges.reverse()
 
-  console.log("Calculated ranges")
-
   for (const range of ranges) {
-    console.log(`Updating post views data for range: ${range.startDate.toISOString()} to ${range.endDate.toISOString()}`)
+    // Allow individual days to fail
+    try {
+      console.log(`Updating data for range: ${range.startDate.toISOString()} to ${range.endDate.toISOString()}`)
 
-    const data: Omit<DbPostViews, "_id" | "schemaVersion" | "createdAt" | "legacyData">[] =
-      await postViewsRepo.calculateDataForDateRange(range);
+      const data = await repo.calculateDataForDateRange(range);
 
-    console.log(`Calculated ${data.length} rows`)
+      console.log(`Calculated ${data.length} rows, upserting data`)
 
-    console.log("Upserting data")
-    await postViewsRepo.upsertData({ data })
-    console.log("Done")
+      await repo.upsertData({ data })
+      console.log(`Finished updating data for range: ${range.startDate.toISOString()} to ${range.endDate.toISOString()}`)
+    } catch (e) {
+      console.error(e)
+      continue
+    }
   }
+}
+
+async function updatePostViews({earliestStartDate, latestEndDate}: {earliestStartDate: Date, latestEndDate: Date}) {
+  console.log("Updating PostViews collection")
+  await updateDailyAnalyticsCollection({repo: new PostViewsRepo(), earliestStartDate, latestEndDate})
+  console.log("Finished PostViews collection")
 }
 
 async function updatePostViewTimes({earliestStartDate, latestEndDate}: {earliestStartDate: Date, latestEndDate: Date}) {
-  const postViewTimesRepo = new PostViewTimesRepo()
-
-  const { earliestWindowStart, latestWindowEnd } = await postViewTimesRepo.getDateBounds()
-
-  const ranges: {startDate: Date, endDate: Date}[] = []
-
-  // Start from the earliestStartDate and create ranges up to endDate
-  let currentDate = moment(earliestStartDate).startOf('day').toDate();
-
-  // Ensure we cover the endDate if it's the same as latestWindowEnd
-  const inclusiveEndDate = latestWindowEnd && moment(latestWindowEnd).subtract(1, 'day').toDate();
-
-  while (currentDate <= latestEndDate) {
-    // Skip dates that are within the [earliestWindowStart, latestWindowEnd) interval
-    if (
-      earliestWindowStart === null ||
-      inclusiveEndDate === null ||
-      currentDate < earliestWindowStart ||
-      currentDate >= inclusiveEndDate
-    ) {
-      const startOfDay = moment(currentDate).startOf("day").toDate();
-      const endOfDay = moment(currentDate).endOf("day").toDate();
-      ranges.push({ startDate: startOfDay, endDate: endOfDay });
-    }
-    // Move to the next day
-    currentDate = moment(currentDate).add(1, 'day').toDate();
-  }
-
-  // Reverse ranges so the most recent days are done first
-  ranges.reverse()
-
-  console.log("Calculated ranges")
-
-  for (const range of ranges) {
-    console.log(`Updating post views data for range: ${range.startDate.toISOString()} to ${range.endDate.toISOString()}`)
-
-    const data: Omit<DbPostViewTime, "_id" | "schemaVersion" | "createdAt" | "legacyData">[] =
-      await postViewTimesRepo.calculateDataForDateRange(range);
-
-    console.log(`Calculated ${data.length} rows`)
-
-    console.log("Upserting data")
-    await postViewTimesRepo.upsertData({ data })
-    console.log("Done")
-  }
+  console.log("Updating PostViewTimes collection")
+  await updateDailyAnalyticsCollection({repo: new PostViewTimesRepo(), earliestStartDate, latestEndDate})
+  console.log("Finished PostViewTimes collection")
 }
 
 async function updateAnalyticsCollections(props: {startDate?: string}) {
-  console.log("Starting updateAnalyticsCollections")
   const { startDate } = props ?? {}
+
   // If no explicit start date is given, only go back 1 week to avoid this being slow
   const earliestStartDate = startDate ? moment(startDate).startOf('day').toDate() : moment().utc().subtract(1, 'week').startOf('day').toDate();
   // endDate is the end of the current day
   const endDate = moment().utc().endOf('day').toDate();
+
+  console.log(`Starting updateAnalyticsCollections. startDate (given): ${startDate}, earliestStartDate: ${earliestStartDate}, endDate: ${endDate}`)
 
   try {
     await updatePostViews({earliestStartDate, latestEndDate: endDate})

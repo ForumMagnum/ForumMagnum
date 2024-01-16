@@ -1,12 +1,12 @@
-import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import moment from "moment";
 import { getAnalyticsConnectionOrThrow } from "../analytics/postgresConnection";
 import { randomId } from "../../lib/random";
 import chunk from "lodash/chunk";
 import PostViewTimes from "../../lib/collections/postViewTimes/collection";
+import IncrementalViewRepo from "./IncrementalViewRepo";
 
-class PostViewTimesRepo extends AbstractRepo<"PostViewTimes"> {
+class PostViewTimesRepo extends IncrementalViewRepo<"PostViewTimes"> {
   constructor() {
     super(PostViewTimes);
   }

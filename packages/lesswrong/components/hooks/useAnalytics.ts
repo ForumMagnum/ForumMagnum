@@ -182,7 +182,6 @@ export type UseAnalyticsSeriesProps = {
   endDate: Date;
 }
 
-// TODO simplify logic here (A LOT). I need to work out how removing cachedOnly vs not affected the order in which things load
 /**
  * Get the views, reads, karma, comment numbers by day for a particular user or set of postIds. This hook does the following to manage
  * it's internal state:
