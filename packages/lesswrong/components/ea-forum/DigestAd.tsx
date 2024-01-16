@@ -6,7 +6,6 @@ import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
 import { userHasEmailAddress } from '../../lib/collections/users/helpers';
-import TextField from '@material-ui/core/TextField';
 import { eaForumDigestSubscribeURL } from '../recentDiscussion/RecentDiscussionSubscribeReminder';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -21,6 +20,9 @@ const styles = (theme: ThemeType) => ({
     padding: '12px 16px',
     borderRadius: theme.borderRadius.default,
   },
+  rootLarge: {
+    padding: '16px 20px',
+  },
   headingRow: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -31,6 +33,9 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     fontSize: 16,
     margin: 0
+  },
+  headingLarge: {
+    fontSize: 20,
   },
   close: {
     height: 16,
@@ -49,43 +54,46 @@ const styles = (theme: ThemeType) => ({
     textWrap: 'pretty',
     marginBottom: 15
   },
+  bodyLarge: {
+    fontSize: 14,
+    lineHeight: '20px',
+  },
   form: {
     display: 'flex',
-    alignItems: 'baseline',
     columnGap: 8,
     rowGap: '12px'
   },
   formInput: {
-    flexGrow: 1,
+    minWidth: 0,
+    flex: '1 1 0',
     background: theme.palette.grey[0],
+    padding: 11,
     borderRadius: theme.borderRadius.default,
-    '& .MuiInputLabel-outlined': {
-      transform: 'translate(14px,12px) scale(1)',
-      '&.MuiInputLabel-shrink': {
-        transform: 'translate(14px,-6px) scale(0.75)',
-      }
+    border: theme.palette.border.normal,
+    '&:hover': {
+      border: theme.palette.border.slightlyIntense2,
     },
-    '& .MuiNotchedOutline-root': {
-      borderRadius: theme.borderRadius.default,
-    },
-    '& .MuiOutlinedInput-input': {
-      padding: 11
+    '&:focus': {
+      border: `1px solid ${theme.palette.primary.main}`,
     }
   },
+  formBtn: {
+    flex: 'none'
+  },
   formBtnWideScreen: {
-    '@media(max-width: 1450px)': {
+    [theme.breakpoints.down('xs')]: {
       display: 'none'
     }
   },
   formBtnNarrowScreen: {
     display: 'none',
-    '@media(max-width: 1450px)': {
-      display: 'inline'
+    [theme.breakpoints.down('xs')]: {
+      display: 'inline',
+      height: 15
     }
   },
   formBtnArrow: {
-    transform: 'translateY(3px)',
-    fontSize: 16
+    fontSize: 15
   },
   success: {
     display: 'flex',
@@ -111,7 +119,8 @@ const styles = (theme: ThemeType) => ({
  *
  * See RecentDiscussionSubscribeReminder.tsx for the other component.
  */
-const DigestAd = ({className, classes}: {
+const DigestAd = ({largeVersion, className, classes}: {
+  largeVersion?: boolean,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -181,40 +190,27 @@ const DigestAd = ({className, classes}: {
   const { ForumIcon, EAButton } = Components
   
   const buttonProps = loading ? {disabled: true} : {}
-  // button either says "Subscribe" or has a right arrow depending on the screen width
-  const buttonContents = <>
+  const arrow = <ForumIcon icon="ArrowRight" className={classes.formBtnArrow} />
+  // By default the button is just a right arrow.
+  // For the large version of the ad, it either says "Subscribe" or has an arrow depending on the screen width.
+  const buttonContents = largeVersion ? <>
     <span className={classes.formBtnWideScreen}>Subscribe</span>
-    <span className={classes.formBtnNarrowScreen}>
-      <ForumIcon icon="ArrowRight" className={classes.formBtnArrow} />
-    </span>
-  </>
+    <span className={classes.formBtnNarrowScreen}>{arrow}</span>
+  </> : arrow
   
   // Show the form to submit to Mailchimp directly,
   // or display the logged in user's email address and the Subscribe button
   let formNode = showForm ? (
     <form action={eaForumDigestSubscribeURL} method="post" className={classes.form}>
-      <TextField
-        inputRef={emailRef}
-        variant="outlined"
-        label="Email address"
-        placeholder="example@email.com"
-        name="EMAIL"
-        required
-        className={classes.formInput}
-      />
-      <EAButton type="submit" onClick={handleUserSubscribe} {...buttonProps}>
+      <input ref={emailRef} name="EMAIL" placeholder="Email address" className={classes.formInput} required={true} />
+      <EAButton type="submit" onClick={handleUserSubscribe} className={classes.formBtn} {...buttonProps}>
         {buttonContents}
       </EAButton>
     </form>
   ) : (
     <div className={classes.form}>
-      <TextField
-        variant="outlined"
-        value={currentUser.email}
-        className={classes.formInput}
-        disabled={true}
-      />
-      <EAButton onClick={handleUserSubscribe} {...buttonProps}>
+      <input value={currentUser.email} className={classes.formInput} disabled={true} required={true} />
+      <EAButton onClick={handleUserSubscribe} className={classes.formBtn} {...buttonProps}>
         {buttonContents}
       </EAButton>
     </div>
@@ -234,9 +230,9 @@ const DigestAd = ({className, classes}: {
   }
   
   return <AnalyticsContext pageSubSectionContext="digestAd">
-    <div className={classNames(classes.root, className)}>
+    <div className={classNames(classes.root, {[classes.rootLarge]: largeVersion}, className)}>
       <div className={classes.headingRow}>
-        <h2 className={classes.heading}>Get the best posts in your email</h2>
+        <h2 className={classNames(classes.heading, {[classes.headingLarge]: largeVersion})}>Get the best posts in your email</h2>
         <ForumIcon icon="Close" className={classes.close} onClick={handleClose} />
       </div>
       <div className={classes.body}>
@@ -247,7 +243,7 @@ const DigestAd = ({className, classes}: {
   </AnalyticsContext>
 }
 
-const DigestAdComponent = registerComponent("DigestAd", DigestAd, {styles});
+const DigestAdComponent = registerComponent("DigestAd", DigestAd, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {

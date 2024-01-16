@@ -8,6 +8,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useRecommendations } from "./withRecommendations";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -25,6 +26,9 @@ const styles = (theme: ThemeType) => ({
   section: {
     maxWidth: MAX_CONTENT_WIDTH,
     margin: "0 auto 60px",
+  },
+  digestAd: {
+    marginTop: -30
   },
   sectionHeading: {
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -96,7 +100,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
           notHideable
         >
           <div>
-            <NoSSR><DigestAd className={classes.section} /></NoSSR>
+            <NoSSR><DigestAd largeVersion className={classNames(classes.section, classes.digestAd)} /></NoSSR>
             {hasUserPosts &&
               <div className={classes.section}>
                 <div className={classes.sectionHeading}>
