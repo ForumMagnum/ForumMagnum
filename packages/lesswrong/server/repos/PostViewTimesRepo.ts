@@ -81,7 +81,6 @@ class PostViewTimesRepo extends IncrementalViewRepo<"PostViewTimes"> {
         )
         .join(",");
 
-      // Construct the on conflict update string
       const onConflictUpdate = `
         "clientId" = EXCLUDED."clientId",
         "postId" = EXCLUDED."postId",
@@ -91,7 +90,7 @@ class PostViewTimesRepo extends IncrementalViewRepo<"PostViewTimes"> {
         "updatedAt" = NOW()
       `;
 
-      // Execute the bulk INSERT query with an ON CONFLICT clause
+      // If the row with this ("clientId", "postId", "windowStart", "windowEnd") already exists, just update the numbers
       await this.none(`
         INSERT INTO "PostViewTimes" (
           "_id",

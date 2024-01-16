@@ -79,7 +79,6 @@ class PostViewsRepo extends IncrementalViewRepo<"PostViews"> {
         )
         .join(",");
 
-      // Construct the on conflict update string
       const onConflictUpdate = `
         "postId" = EXCLUDED."postId",
         "windowStart" = EXCLUDED."windowStart",
@@ -89,7 +88,7 @@ class PostViewsRepo extends IncrementalViewRepo<"PostViews"> {
         "updatedAt" = NOW()
       `;
 
-      // Execute the bulk INSERT query with an ON CONFLICT clause
+      // If the row with this ("postId", "windowStart", "windowEnd") already exists, just update the numbers
       await this.none(`
         INSERT INTO "PostViews" (
           "_id",
