@@ -309,6 +309,7 @@ const Layout = ({currentUser, children, classes}: {
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
+      ExpandOnSearchHotkeyPageWrapper,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -353,6 +354,7 @@ const Layout = ({currentUser, children, classes}: {
       <SidebarsWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
+      <ExpandOnSearchHotkeyPageWrapper>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen}
@@ -453,6 +455,7 @@ const Layout = ({currentUser, children, classes}: {
             </CommentBoxManager>
           </DialogManager>
         </div>
+      </ExpandOnSearchHotkeyPageWrapper>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </SidebarsWrapper>

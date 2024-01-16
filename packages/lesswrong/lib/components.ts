@@ -63,6 +63,7 @@ importComponent("EventBanner", () => require('../components/ea-forum/EventBanner
 importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
 importComponent("BotSiteBanner", () => require('../components/common/BotSiteBanner'));
 importComponent("HorizScrollBlock", () => require('../components/common/HorizScrollBlock'));
+importComponent("ExpandOnSearchHotkeyPageWrapper", () => require('../components/common/ExpandOnSearchHotkeyPageWrapper'));
 
 importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))

@@ -9,6 +9,7 @@ import type { CommentTreeOptions } from './commentTree';
 import { HIGHLIGHT_DURATION } from './CommentFrame';
 import { getCurrentSectionMark, getLandmarkY } from '../hooks/useScrollHighlight';
 import { commentIdToLandmark } from './CommentsTableOfContents';
+import { useExpandAllContext } from '../common/ExpandOnSearchHotkeyPageWrapper';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -114,7 +115,14 @@ const CommentsNode = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene'));
+  
+  const startCollapsed = !forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene')
+  const { isAllExpanded } = useExpandAllContext()!;
+  const [collapsedState, setCollapsedState] = useState<"collapsed"|"expanded"|"initial">("initial");
+  const collapsed = (collapsedState==="initial")
+    ? (!isAllExpanded && startCollapsed)
+    : (collapsedState === "collapsed");
+
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
   const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, onToggleCollapsed } = treeOptions;
 
@@ -198,7 +206,7 @@ const CommentsNode = ({
   const toggleCollapse = useCallback(
     () => {
       onToggleCollapsed?.();
-      setCollapsed(!collapsed)
+      setCollapsedState(collapsed ? "expanded" : "collapsed")
     },
     [collapsed, onToggleCollapsed]
   );
