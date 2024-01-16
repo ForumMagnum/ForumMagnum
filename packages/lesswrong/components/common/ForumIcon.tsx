@@ -91,6 +91,8 @@ import MuiShareIcon from "@material-ui/icons/Share";
 import MuiSearchIcon from '@material-ui/icons/Search';
 import MuiMenuIcon from "@material-ui/icons/Menu";
 import MuiForumIcon from '@material-ui/icons/Forum';
+import MuiVoteIcon from '@material-ui/icons/HowToVote'
+
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -202,7 +204,9 @@ export type ForumIconName =
   "Voted" |
   "InfoCircle" |
   "BarsArrowDown" |
-  "LightbulbChat";
+  "LightbulbChat" |
+  "VoteBallot"
+  ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -286,6 +290,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
     LightbulbChat: LightbulbChatIcon,
+    VoteBallot: MuiVoteIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -368,6 +373,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
     LightbulbChat: LightbulbChatIcon,
+    VoteBallot: MuiVoteIcon,
   },
 };
 

@@ -209,6 +209,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     
     reviewUpvote: "rgba(70,125,70, .87)",
     reviewDownvote: "rgba(125,70,70, .87)",
+    reviewBallotIcon: 'rgb(47 108 152 / 50%)',
     
     aprilFools: {
       orange: "#e64a19",

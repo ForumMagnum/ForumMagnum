@@ -72,6 +72,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: 8,
     },
   },
+  wrapper: {
+    position: 'relative',
+    overflow: 'hidden'
+  },
   mainNoFooter: {
     paddingBottom: 0,
   },
@@ -139,11 +143,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   votingImage: {
     width: '55vw',
-    maxWidth: '1100px',
-    marginLeft: '-22px',
-    [theme.breakpoints.down('lg')]: {
-      marginLeft: '-42px',
-    },
+    maxWidth: '1000px',
+    marginLeft: '-22px'
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -381,6 +382,7 @@ const Layout = ({currentUser, children, classes}: {
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
         <div className={classNames(
+          classes.wrapper,
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen}
         )} id="wrapper">
@@ -463,7 +465,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     currentRoute?.name === 'home' ? 
                       <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LessWrong_Vote_2_t7jv4s-webp_p2zqj2" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_2_vnz12i" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
                       </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
