@@ -48,6 +48,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   sectionHeadingText: {
     fontWeight: 600,
     fontSize: 24,
+    textWrap: 'pretty',
     [theme.breakpoints.down('md')]: {
       fontSize: 20,
     }
@@ -69,6 +70,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   submitButtonSection: {
     marginTop: 30
   },
+  callout: {
+    background: theme.palette.background.default,
+    padding: '16px 20px',
+    borderRadius: theme.borderRadius.default
+  },
+  calloutHeadingText: {
+    fontWeight: 600,
+    fontSize: 16,
+    lineHeight: '24px',
+    fontFamily: theme.typography.fontFamily,
+    margin: '0 0 6px',
+  }
 });
 
 type NewUserCompleteProfileProps = {
@@ -209,7 +222,20 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
           label='Yes, subscribe me to EA Forum digest emails'
         />
       </div>}
-      {/* TODO: Something about bio? */}
+      {isEAForum && <div className={classes.section}>
+        <div className={classes.callout}>
+          <h2 className={classes.calloutHeadingText}>
+            Chat with an EA Forum Team member
+          </h2>
+          <Typography variant='body1' className={classes.sectionHelperText}>
+            We want to hear from you! Sign up for a user interview with a member of the EA Forum Team
+            and we'll answer any questions you have about EA or the Forum.{" "}
+            <Link to="/" target="_blank" rel="noreferrer">
+              Book a call here
+            </Link>.
+          </Typography>
+        </div>
+      </div>}
       <div className={classes.submitButtonSection}>
         {isEAForum &&
           <Typography variant="body1" className={classnames(classes.sectionHelperText, classes.tosText)} gutterBottom>
