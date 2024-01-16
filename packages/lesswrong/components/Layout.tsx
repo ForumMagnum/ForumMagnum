@@ -131,7 +131,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: '57vw',
     maxWidth: '1000px',
     top: '-30px',
-    '-webkit-mask-image': 'radial-gradient(ellipse at center top, black 42%, transparent 70%)',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 42%, transparent 70%)`,
     
     [theme.breakpoints.up(2000)]: {
       right: '0px',
@@ -335,7 +335,8 @@ const Layout = ({currentUser, children, classes}: {
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
-      CloudinaryImage2
+      CloudinaryImage2,
+      ReviewVotingCanvas
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -463,6 +464,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     currentRoute?.name === 'home' ? 
                       <div className={classes.imageColumn}>
+                        <ReviewVotingCanvas />
                         <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LessWrong_Vote_2_t7jv4s-webp_p2zqj2" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
                       </div> 
                     : 
