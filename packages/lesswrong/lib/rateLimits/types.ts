@@ -77,6 +77,14 @@ export type RateLimitComparison<T extends AutoRateLimit> = {
   strictestNewRateLimit?: undefined;
 };
 
-export type RateLimitFeatures = RecentKarmaInfo & {
+export type LongtermScoreResult = {
+  userId: string,
+  longtermSeniorDownvoterIds: string[],
+  longtermSeniorDownvoterCount: number,
+  longtermScore: number,
+  commentCount: number
+}
+
+export type RateLimitFeatures = RecentKarmaInfo & LongtermScoreResult & {
   downvoteRatio: number,
 }

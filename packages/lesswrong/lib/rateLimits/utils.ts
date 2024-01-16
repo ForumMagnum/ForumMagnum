@@ -71,17 +71,6 @@ export function getNextAbleToSubmitDate(documents: Array<DbPost|DbComment>, time
   return moment(doc.postedAt).add(timeframeLength, timeframeUnit).toDate()
 }
 
-export function getAutoRateLimitInfo(user: RateLimitUser, features: RateLimitFeatures, rateLimit: AutoRateLimit,  documents: Array<DbPost|DbComment>): RateLimitInfo|null {
-  // rate limit effects
-  const { timeframeUnit, timeframeLength, itemsPerTimeframe, rateLimitMessage, rateLimitType } = rateLimit 
-
-  if (!rateLimit.isActive(user, features)) return null 
-
-  const nextEligible = getNextAbleToSubmitDate(documents, timeframeUnit, timeframeLength, itemsPerTimeframe)
-  if (!nextEligible) return null 
-  return { nextEligible, rateLimitType, rateLimitMessage }
-}
-
 function getVotesOnLatestDocuments (votes: RecentVoteInfo[], numItems=20): RecentVoteInfo[] {
   // sort the votes via the date of the *postedAt* (joined from )
   const sortedVotes = votes.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime())
@@ -136,23 +125,23 @@ export function calculateRecentKarmaInfo(userId: string, allVotes: RecentVoteInf
   }
 }
 
-function getRateLimitName (rateLimit: AutoRateLimit) {
+export function getRateLimitName (rateLimit: AutoRateLimit) {
   return `${rateLimit.itemsPerTimeframe} ${rateLimit.actionType} per ${rateLimit.timeframeLength} ${rateLimit.timeframeUnit}`
 }
 
-function getActiveRateLimits<T extends AutoRateLimit>(user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: T[]) {
-  const nonUniversalLimits = autoRateLimits.filter(rateLimit => rateLimit.rateLimitType !== "universal")
-  return nonUniversalLimits.filter(rateLimit => (!rateLimit.isActive(user, {...user.recentKarmaInfo, downvoteRatio: getDownvoteRatio(user)})))
+export function checkActiveRateLimits<T extends AutoRateLimit>(user: AnyBecauseTodo, rateLimitsToCheck: T[]): T[] {
+  if (!user?.activeRateLimits) return [];
+  return rateLimitsToCheck.filter(rateLimit => user.activeRateLimits.includes(rateLimit)); // TODO: problem cause rateLimit big obejct? 
 }
 
-export function getActiveRateLimitNames(user: SunshineUsersList, autoRateLimits: AutoRateLimit[]) {
-  return getActiveRateLimits(user, autoRateLimits).map(rateLimit => getRateLimitName(rateLimit))
+export function getActiveRateLimitNames(user: SunshineUsersList) {
+  const allActiveRateLimits:AutoRateLimit[] = user?.activeRateLimits || [];
+  return allActiveRateLimits.map(rateLimit => getRateLimitName(rateLimit))
 }
 
-export function getStrictestActiveRateLimitNames (user: UserKarmaInfo & { recentKarmaInfo: RecentKarmaInfo }, autoRateLimits: AutoRateLimit[]) {
-  const activeRateLimits = getActiveRateLimits(user, autoRateLimits)
+export function getStrictestActiveRateLimits (allActiveRateLimits:AutoRateLimit[]) {
   const rateLimitsByType = Object.values(
-    groupBy(activeRateLimits, rateLimit => `${rateLimit.timeframeUnit}${rateLimit.actionType}`)
+    groupBy(allActiveRateLimits, rateLimit => `${rateLimit.timeframeUnit}${rateLimit.actionType}`)
   )
   const strictestRateLimits = Object.values(rateLimitsByType).map(rateLimit => {
     return rateLimit.sort((a, b) => {
@@ -226,11 +215,11 @@ export function getRateLimitStrictnessComparisons(userKarmaInfoWindow: UserKarma
   const commentRateLimits = forumSelect(autoCommentRateLimits);
   const postRateLimits = forumSelect(autoPostRateLimits);
 
-  const activeCommentRateLimits = getActiveRateLimits(currentUserKarmaInfo, commentRateLimits);
-  const previousCommentRateLimits = getActiveRateLimits(previousUserKarmaInfo, commentRateLimits);
+  const activeCommentRateLimits = checkActiveRateLimits(currentUserKarmaInfo, commentRateLimits);
+  const previousCommentRateLimits = checkActiveRateLimits(previousUserKarmaInfo, commentRateLimits);
 
-  const activePostRateLimits = getActiveRateLimits(currentUserKarmaInfo, postRateLimits);
-  const previousPostRateLimits = getActiveRateLimits(previousUserKarmaInfo, postRateLimits);
+  const activePostRateLimits = checkActiveRateLimits(currentUserKarmaInfo, postRateLimits);
+  const previousPostRateLimits = checkActiveRateLimits(previousUserKarmaInfo, postRateLimits);
 
   const commentRateLimitComparison = areNewRateLimitsStricter(activeCommentRateLimits, previousCommentRateLimits);
   const postRateLimitComparison = areNewRateLimitsStricter(activePostRateLimits, previousPostRateLimits);

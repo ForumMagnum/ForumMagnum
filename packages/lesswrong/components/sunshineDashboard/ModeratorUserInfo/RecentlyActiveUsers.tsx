@@ -172,7 +172,7 @@ const RecentlyActiveUsers = ({ classes }: {
   function userSortByRateLimitCount (users: SunshineUsersList[]) {
     const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
     return [...users].sort((a, b) => {
-      return getActiveRateLimitNames(b, allRateLimits).length - getActiveRateLimitNames(a, allRateLimits).length
+      return getActiveRateLimitNames(b).length - getActiveRateLimitNames(a).length
     })
   };
 

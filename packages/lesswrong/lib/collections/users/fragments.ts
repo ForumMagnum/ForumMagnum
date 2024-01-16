@@ -362,6 +362,8 @@ registerFragment(`
 
     recentKarmaInfo
     lastNotificationsCheck
+
+    activeRateLimits
   }
 `);
 

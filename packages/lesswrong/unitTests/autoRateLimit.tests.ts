@@ -4,7 +4,8 @@ import range from "lodash/range";
 import moment from "moment";
 import { CommentAutoRateLimit, RecentVoteInfo, UserKarmaInfo, IsActiveFunction, RateLimitFeatures } from "../lib/rateLimits/types";
 import { calculateRecentKarmaInfo } from "../lib/rateLimits/utils";
-import { getDownvoteRatio } from "../components/sunshineDashboard/UsersReviewInfoCard";
+import { getFeatures } from "../server/rateLimitUtils";
+import { getUser } from "../lib/vulcan-users/helpers";
 
 function createVote(overrideVoteFields?: Partial<RecentVoteInfo>): RecentVoteInfo {
   const defaultVoteInfo = {
@@ -67,13 +68,14 @@ function assignTotalDocumentKarma(votes: RecentVoteInfo[]) {
   }));
 }
 
-export function calculateFeatures(userId: string, userKarmaInfo: UserKarmaInfo, allVotes: RecentVoteInfo[]): RateLimitFeatures {
-  const recentKarmaInfo = calculateRecentKarmaInfo(userId, allVotes)
-  const features = {
-    ...recentKarmaInfo, 
-    downvoteRatio: getDownvoteRatio(userKarmaInfo)
-  }
-  return features
+export async function calculateFeatures(userId: string, userKarmaInfo: UserKarmaInfo, allVotes: RecentVoteInfo[]): Promise<RateLimitFeatures> {
+  
+  const user = await getUser(userId);
+  if (!user) throw new Error(`User ${userId} not found`);
+  const features = await getFeatures(user); // TODO: actually properly use the different votes passed in here for the calculation... 
+  const overwriteRecentKarmaInfo = calculateRecentKarmaInfo(userId, allVotes);
+
+  return { ...features, ...overwriteRecentKarmaInfo };
 }
 
 describe("calculateRecentKarmaInfo", function () {
@@ -167,48 +169,48 @@ describe("shouldRateLimitApply", function () {
   const commentDownVotes = range(20).map(k => createCommentVote({power: -1}))
   const oldCommentDownvotes = range(20).map(k => createCommentVote({power: -1, postedAt: moment().subtract(5, 'weeks').toDate()}))
 
-  it("returns true IFF user karma is less than karma threshold", () => {
+  it("returns true IFF user karma is less than karma threshold", async () => {
     const rateLimit = createCommentRateLimit(user => user.karma <= 0)
     const user1 = createUserKarmaInfo({karma: 0})
-    const features1 = calculateFeatures("authorId", user1, commentUpvotes) 
+    const features1 = await calculateFeatures("authorId", user1, commentUpvotes) 
     const user2 = createUserKarmaInfo({karma: 1})
-    const features2 = calculateFeatures("authorId", user2, commentUpvotes) 
+    const features2 = await calculateFeatures("authorId", user2, commentUpvotes) 
     
     expect(rateLimit.isActive(user1, features1)).toEqual(true)
     expect(rateLimit.isActive(user2, features2)).toEqual(false)
   })
-  it("returns true IFF recent user karma is less than last20KarmaThreshold", () => {
+  it("returns true IFF recent user karma is less than last20KarmaThreshold", async () => {
     const user1 = createUserKarmaInfo()
-    const features1 = calculateFeatures("authorId", user1, commentUpvotes)
-    const features2 = calculateFeatures("authorId", user1, commentDownVotes)
+    const features1 = await calculateFeatures("authorId", user1, commentUpvotes)
+    const features2 = await calculateFeatures("authorId", user1, commentDownVotes)
     const rateLimit = createCommentRateLimit((user, features) => features.last20Karma <= 0)
     
     expect(rateLimit.isActive(user1, features1)).toEqual(false)
     expect(rateLimit.isActive(user1, features2)).toEqual(true)
   })
-  it("returns true IFF recent user post karma is less than recentPostKarmaThreshold", () => {
+  it("returns true IFF recent user post karma is less than recentPostKarmaThreshold", async () => {
     const rateLimit = createCommentRateLimit((user, features) => features.last20PostKarma < 0)
     const user1 = createUserKarmaInfo()
-    const featuresPostVotes = calculateFeatures("authorId", user1, postDownVotes)
-    const featuresCommentVotes = calculateFeatures("authorId", user1, commentDownVotes)
+    const featuresPostVotes = await calculateFeatures("authorId", user1, postDownVotes)
+    const featuresCommentVotes = await calculateFeatures("authorId", user1, commentDownVotes)
     
     expect(rateLimit.isActive(user1, featuresPostVotes)).toEqual(true)
     expect(rateLimit.isActive(user1, featuresCommentVotes)).toEqual(false)
   })
-  it("returns true IFF recent user comment karma is less than recentCommentKarmaThreshold", () => {
+  it("returns true IFF recent user comment karma is less than recentCommentKarmaThreshold", async () => {
     const rateLimit = createCommentRateLimit((user, features) => features.last20CommentKarma < 0)
     const user1 = createUserKarmaInfo()
-    const featuresPostVotes = calculateFeatures("authorId", user1, postDownVotes)
-    const featuresCommentVotes = calculateFeatures("authorId", user1, commentDownVotes)
+    const featuresPostVotes = await calculateFeatures("authorId", user1, postDownVotes)
+    const featuresCommentVotes = await calculateFeatures("authorId", user1, commentDownVotes)
     
     expect(rateLimit.isActive(user1, featuresPostVotes)).toEqual(false)
     expect(rateLimit.isActive(user1, featuresCommentVotes)).toEqual(true)
   })
-  it("returns true IFF lastMonthKarma is less than lastMonthKarmaKarmaThreshold", () => {
+  it("returns true IFF lastMonthKarma is less than lastMonthKarmaKarmaThreshold", async () => {
     const user1 = createUserKarmaInfo()
     const rateLimit = createCommentRateLimit((user, features) => features.lastMonthKarma < 0)
-    const featuresOldCommentVotes = calculateFeatures("authorId", user1, oldCommentDownvotes)
-    const featuresNewCommentVotes = calculateFeatures("authorId", user1, commentDownVotes)
+    const featuresOldCommentVotes = await calculateFeatures("authorId", user1, oldCommentDownvotes)
+    const featuresNewCommentVotes = await calculateFeatures("authorId", user1, commentDownVotes)
     
     expect(rateLimit.isActive(user1, featuresOldCommentVotes)).toEqual(false)
     expect(rateLimit.isActive(user1, featuresNewCommentVotes)).toEqual(true)
