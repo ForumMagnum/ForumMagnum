@@ -149,6 +149,11 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         primaryTranslucent: "rgba(12,134,155,0.4)"
       }
     },
+    LessWrong: {
+      header: {
+        background: 'rgba(50,50,50,.75)',
+      }
+    },
     default: {},
   });
 

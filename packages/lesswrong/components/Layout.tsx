@@ -72,6 +72,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: 8,
     },
   },
+  wrapper: {
+    position: 'relative',
+    overflow: 'hidden'
+  },
   mainNoFooter: {
     paddingBottom: 0,
   },
@@ -382,6 +386,7 @@ const Layout = ({currentUser, children, classes}: {
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
         <div className={classNames(
+          classes.wrapper,
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen}
         )} id="wrapper">
