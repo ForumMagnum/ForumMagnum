@@ -335,8 +335,7 @@ const Layout = ({currentUser, children, classes}: {
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
-      CloudinaryImage2,
-      ReviewVotingCanvas
+      CloudinaryImage2
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -464,7 +463,6 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     currentRoute?.name === 'home' ? 
                       <div className={classes.imageColumn}>
-                        <ReviewVotingCanvas />
                         <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LessWrong_Vote_2_t7jv4s-webp_p2zqj2" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
                       </div> 
                     : 
