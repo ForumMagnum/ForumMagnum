@@ -67,6 +67,7 @@ const CollectionsTooltip = ({collection, children, classes}: {
       }
       tooltip={false}
       placement="bottom"
+      clickable
     >
       {children}
     </HoverOver>
