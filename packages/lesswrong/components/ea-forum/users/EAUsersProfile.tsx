@@ -6,7 +6,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { showDonatedFlair, showVotedFlair, userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
+import { userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taglineSetting } from '../../../lib/instanceSettings';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
@@ -22,7 +22,7 @@ import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from '../../users/UsersSingle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   section: {
     ...eaUsersProfileSectionStyles(theme)
   },
@@ -160,26 +160,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
     marginBottom: 20
   },
-  donatedIcon: {
-    position: "relative",
-    bottom: 1,
-    color: theme.palette.givingPortal[1000],
-    fontSize: 24,
-    marginLeft: 8
-  },
-  votedIcon: {
-    position: "relative",
-    bottom: -3,
-    color: theme.palette.givingPortal[1000],
-    fontSize: 24,
-    marginLeft: 8
-  },
 })
 
 const EAUsersProfile = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const {loading, results} = useMulti({
@@ -469,24 +455,6 @@ const EAUsersProfile = ({terms, slug, classes}: {
           <EAUsersProfileImage user={user} />
           <Typography variant="headline" className={classNames(classes.username, {[classes.deletedUsername]: user.deleted})}>
             {username}{user.deleted && <span className={classes.accountDeletedText}>(account deleted)</span>}
-            {showDonatedFlair(user) &&
-              <LWTooltip
-                placement="bottom-start"
-                title={`Donated to the Donation Election`}
-                className={classes.iconWrapper}
-              >
-                <ForumIcon icon="GivingHand" className={classes.donatedIcon} />
-              </LWTooltip>
-            }
-            {showVotedFlair(user) &&
-              <LWTooltip
-                placement="bottom-start"
-                title={`Voted in the Donation Election`}
-                className={classes.iconWrapper}
-              >
-                <ForumIcon icon="Voted" className={classes.votedIcon} />
-              </LWTooltip>
-            }
           </Typography>
           {(user.jobTitle || user.organization) && <ContentStyles contentType="comment" className={classes.roleAndOrg}>
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
