@@ -29,7 +29,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 12,
     [theme.breakpoints.down('xs')]: {
       flexDirection: "column",
-      // Make it the same height with or without "checking latest data..." to avoid layout shift on mobile
       minHeight: 56,
       marginBottom: 0,
     }
@@ -244,7 +243,7 @@ export const AnalyticsGraph = ({
 
   const { openDialog } = useDialog();
 
-  const { analyticsSeries: dataSeries, maybeStale } = useAnalyticsSeries({
+  const { analyticsSeries: dataSeries } = useAnalyticsSeries({
     userId,
     postIds,
     startDate: displayStartDate,
@@ -333,9 +332,6 @@ export const AnalyticsGraph = ({
         <Typography variant="headline" className={classNames(classes.graphHeading, {[classes.smallerTitle]: smallerTitle})}>
           {title}
         </Typography>
-        {maybeStale && <span className={classes.fetchingLatest}>
-          checking latest data...
-        </span>}
       </div>
       <div className={classes.controls}>
         <div className={classes.controlFields}>
