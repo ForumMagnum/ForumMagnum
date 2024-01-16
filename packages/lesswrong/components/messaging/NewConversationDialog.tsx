@@ -260,7 +260,10 @@ const NewConversationDialog = ({
                         {...props}
                         currentUser={currentUser}
                         onClose={onClose}
-                        onSelect={toggleUserSelected}
+                        onSelect={(u) => {
+                          toggleUserSelected(u)
+                          setQuery("")
+                        }}
                         isModInbox={isModInbox}
                         className={classes.hit}
                       />
