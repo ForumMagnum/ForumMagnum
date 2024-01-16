@@ -58,6 +58,7 @@ import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
+import ArrowRightOutlineIcon from "@heroicons/react/24/outline/PaperAirplaneIcon";
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
@@ -186,6 +187,7 @@ export type ForumIconName =
   "DocumentFilled" |
   "SoftUpArrow" |
   "ArrowRight" |
+  "ArrowRightOutline" |
   "ArrowCircle" |
   "EllipsisVertical" |
   "Share" |
@@ -269,6 +271,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
+    ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
     Share: MuiShareIcon,
@@ -351,6 +354,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
+    ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
     EllipsisVertical: EllipsisVerticalIcon,
     Share: ShareIcon,

@@ -403,6 +403,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly rateLimitNextAbleToComment: any,
   readonly rateLimitNextAbleToPost: any,
   readonly recentKarmaInfo: any,
+  readonly hideSunshineSidebar: boolean,
   readonly wrapped2023Viewed: boolean,
 }
 
@@ -1125,6 +1126,7 @@ interface PostsListBase_customHighlight { // fragment on Revisions
 }
 
 interface PostsListBase_lastPromotedComment { // fragment on Comments
+  readonly _id: string,
   readonly user: UsersMinimumInfo|null,
 }
 
@@ -1219,6 +1221,7 @@ interface PostsDetails_podcastEpisode { // fragment on PodcastEpisodes
 }
 
 interface PostsDetails_podcastEpisode_podcast { // fragment on Podcasts
+  readonly _id: string,
   readonly title: string,
   readonly applePodcastLink: string | null,
   readonly spotifyPodcastLink: string | null,
@@ -1479,6 +1482,7 @@ interface PostsBestOfList_podcastEpisode { // fragment on PodcastEpisodes
 }
 
 interface PostsBestOfList_podcastEpisode_podcast { // fragment on Podcasts
+  readonly _id: string,
   readonly title: string,
   readonly applePodcastLink: string | null,
   readonly spotifyPodcastLink: string | null,
@@ -1490,7 +1494,7 @@ interface CommentsList { // fragment on Comments
   readonly tagId: string,
   readonly tag: CommentsList_tag|null,
   readonly relevantTagIds: Array<string>,
-  readonly relevantTags: Array<TagBasicInfo>,
+  readonly relevantTags: Array<TagPreviewFragment>,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
@@ -1742,29 +1746,6 @@ interface messageListFragment_user extends UsersMinimumInfo { // fragment on Use
 interface messageListFragment_contents { // fragment on Revisions
   readonly html: string,
   readonly plaintextMainText: string,
-}
-
-interface newConversationFragment { // fragment on Conversations
-  readonly _id: string,
-  readonly title: string,
-  readonly participantIds: Array<string>,
-}
-
-interface conversationsListFragment { // fragment on Conversations
-  readonly _id: string,
-  readonly title: string,
-  readonly createdAt: Date,
-  readonly latestActivity: Date,
-  readonly participantIds: Array<string>,
-  readonly participants: Array<UsersMinimumInfo>,
-  readonly latestMessage: messageListFragment|null,
-  readonly archivedByIds: Array<string>,
-  readonly messageCount: number,
-  readonly moderator: boolean | null,
-}
-
-interface conversationIdFragment { // fragment on Conversations
-  readonly _id: string,
 }
 
 interface ConversationsMinimumInfo { // fragment on Conversations
@@ -2099,6 +2080,7 @@ interface SequencesPageTitleFragment { // fragment on Sequences
 }
 
 interface SequencesPageTitleFragment_canonicalCollection { // fragment on Collections
+  readonly _id: string,
   readonly title: string,
 }
 
@@ -2864,6 +2846,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
   readonly showRecommendedPartners: boolean,
   readonly hideActiveDialogueUsers: boolean,
   readonly wrapped2023Viewed: boolean,
+  readonly hideSunshineSidebar: boolean,
 }
 
 interface UsersCurrentCommentRateLimit { // fragment on Users
@@ -3648,9 +3631,6 @@ interface FragmentTypes {
   WithVoteRevision: WithVoteRevision
   NotificationsList: NotificationsList
   messageListFragment: messageListFragment
-  newConversationFragment: newConversationFragment
-  conversationsListFragment: conversationsListFragment
-  conversationIdFragment: conversationIdFragment
   ConversationsMinimumInfo: ConversationsMinimumInfo
   ConversationsList: ConversationsList
   RSSFeedsDefaultFragment: RSSFeedsDefaultFragment
@@ -3794,7 +3774,7 @@ interface FragmentTypesByCollection {
   Comments: "CommentsDefaultFragment"|"CommentsList"|"CommentsListWithTopLevelComment"|"ShortformComments"|"CommentWithRepliesFragment"|"CommentEdit"|"DeletedCommentsMetaData"|"DeletedCommentsModerationLog"|"CommentsListWithParentMetadata"|"StickySubforumCommentFragment"|"WithVoteComment"|"CommentsListWithModerationMetadata"|"CommentsListWithModGPTAnalysis"|"SuggestAlignmentComment"
   UserTagRels: "UserTagRelsDefaultFragment"|"UserTagRelDetails"
   Tags: "TagsDefaultFragment"|"TagBasicInfo"|"TagDetailsFragment"|"TagFragment"|"TagHistoryFragment"|"TagCreationHistoryFragment"|"TagRevisionFragment"|"TagPreviewFragment"|"TagSectionPreviewFragment"|"TagSubforumFragment"|"TagSubtagFragment"|"TagSubforumSidebarFragment"|"TagDetailedPreviewFragment"|"TagWithFlagsFragment"|"TagWithFlagsAndRevisionFragment"|"TagPageFragment"|"AllTagsPageFragment"|"TagPageWithRevisionFragment"|"TagFullContributorsList"|"TagEditFragment"|"TagRecentDiscussion"|"SunshineTagFragment"
-  Conversations: "ConversationsDefaultFragment"|"newConversationFragment"|"conversationsListFragment"|"conversationIdFragment"|"ConversationsMinimumInfo"|"ConversationsList"
+  Conversations: "ConversationsDefaultFragment"|"ConversationsMinimumInfo"|"ConversationsList"
   DialogueChecks: "DialogueChecksDefaultFragment"|"DialogueCheckInfo"
   ElectionCandidates: "ElectionCandidatesDefaultFragment"|"ElectionCandidateBasicInfo"|"ElectionCandidateSimple"|"WithVoteElectionCandidate"
   ElectionVotes: "ElectionVotesDefaultFragment"|"ElectionVoteInfo"|"ElectionVoteRecentDiscussion"
@@ -3930,9 +3910,6 @@ interface CollectionNamesByFragmentName {
   WithVoteRevision: "Revisions"
   NotificationsList: "Notifications"
   messageListFragment: "Messages"
-  newConversationFragment: "Conversations"
-  conversationsListFragment: "Conversations"
-  conversationIdFragment: "Conversations"
   ConversationsMinimumInfo: "Conversations"
   ConversationsList: "Conversations"
   RSSFeedsDefaultFragment: "RSSFeeds"

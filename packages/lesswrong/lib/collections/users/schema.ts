@@ -2913,6 +2913,18 @@ const schema: SchemaType<"Users"> = {
     optional: true
   },
 
+  hideSunshineSidebar: {
+    type: Boolean,
+    optional: true,
+    canRead: [userOwns],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    group: formGroups.adminOptions,
+    label: "Hide Sunshine Sidebar",
+    hidden: isEAForum,
+    ...schemaDefaultValue(false),
+  },
+
   // EA Forum wrapped fields
   wrapped2023Viewed: {
     type: Boolean,

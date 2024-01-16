@@ -5,6 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { userCanUseTags } from '../../lib/betas';
 import { useTracking } from "../../lib/analyticsEvents";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   addTagButton: {
@@ -36,14 +37,19 @@ const AddTagButton = ({onTagSelected, isVotingContext, classes, children}: {
   }
 
   return <a
-    onClick={(ev) => {
+    onClick={() => {
       setIsOpen(true);
       captureEvent("addTagClicked")
     }}
     className={classes.addTagButton}
     ref={anchorEl}
   >
-    {children ? children : <span className={classes.defaultButton}>+ Add {taggingNameCapitalSetting.get()}</span>}
+    {children
+      ? children
+      : <span className={classes.defaultButton}>
+        + {preferredHeadingCase(`Add ${taggingNameCapitalSetting.get()}`)}
+      </span>
+    }
 
     <LWPopper
       open={isOpen}

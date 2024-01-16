@@ -1547,6 +1547,7 @@ interface DbUser extends DbObject {
   reviewForAlignmentForumUserId: string | null
   afApplicationText: string | null
   afSubmittedApplication: boolean | null
+  hideSunshineSidebar: boolean
   wrapped2023Viewed: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/

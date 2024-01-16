@@ -83,6 +83,7 @@ const rsvpType = new SimpleSchema({
 
 addGraphQLSchema(`
   type SocialPreviewType {
+    _id: String
     imageId: String
     imageUrl: String
     text: String
@@ -613,6 +614,8 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: '[PostRelation!]!',
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      if (!post.question) return [];
+
       const result = await PostRelations.find({targetPostId: post._id}).fetch()
       return await accessFilterMultiple(context.currentUser, PostRelations, result, context);
     }
@@ -627,6 +630,8 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: '[PostRelation!]!',
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      if (!post.question) return [];
+
       const {currentUser, repos} = context;
       const postRelations = await repos.postRelations.getPostRelationsByPostId(post._id);
       if (!postRelations || postRelations.length < 1) return []
@@ -1405,6 +1410,7 @@ const schema: SchemaType<"Posts"> = {
         const { imageId, text } = post.socialPreview || {};
         const imageUrl = getSocialPreviewImage(post);
         return {
+          _id: post._id,
           imageId,
           imageUrl,
           text,
