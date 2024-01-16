@@ -249,7 +249,8 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
-  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(currentUser ? !!(currentUser?.hideNavigationSidebar) : (reviewIsActive() || !isLW));
+  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : (reviewIsActive() || !isLW)
+  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
@@ -334,6 +335,7 @@ const Layout = ({currentUser, children, classes}: {
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
+      CloudinaryImage2
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -352,7 +354,6 @@ const Layout = ({currentUser, children, classes}: {
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
-    console.log({renderSunshineSidebar, overrideLayoutOptions, baseLayoutOptions})
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
@@ -458,11 +459,15 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                {currentRoute?.name === 'home' ? <div className={classes.imageColumn}>
-                  <img className={classNames(classes.backgroundImage, classes.votingImage)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705348099/LessWrong_Vote_2_t7jv4s.webp"/>
-                </div> : (standaloneNavigation && <div className={classes.imageColumn}>
-                  <img className={classes.backgroundImage} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705363497/ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413.webp"/>
-                </div>)}
+                {
+                  currentRoute?.name === 'home' ? 
+                    <div className={classes.imageColumn}>
+                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LessWrong_Vote_2_t7jv4s-webp_p2zqj2" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+                    </div> : 
+                    (standaloneNavigation && <div className={classes.imageColumn}>
+                      <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
+                    </div>)
+                }
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   !showNewUserCompleteProfile &&

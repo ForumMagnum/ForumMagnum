@@ -45,7 +45,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
       main: '#bf360c',
     },
     header: {
-      background: 'rgba(251, 251, 251, 70%)'
+      background: shadePalette.inverseGreyAlpha(.65)
     },
     background: {
       default: '#f8f4ee'
