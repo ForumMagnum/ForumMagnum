@@ -11,7 +11,8 @@ import { Globals } from "../vulcan-lib";
 //   state
 // FROM pg_stat_activity order by duration desc;
 
-const USER_ENGAGEMENT_VIEW_NAME = 'user_engagement_wrapped_2022';
+// Note that this only has data starting from 2022
+const USER_ENGAGEMENT_VIEW_NAME = 'user_engagement_wrapped';
 const USER_ENGAGEMENT_VIEWDEF = `
 WITH normalized AS (
   SELECT

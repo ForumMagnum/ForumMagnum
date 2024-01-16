@@ -1603,6 +1603,7 @@ const MostValuablePostsSection = ({year, classes}: {
 
 /**
  * This is the primary page component for EA Forum Wrapped 2023.
+ * We also made it functional for 2022.
  */
 const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
   const { pathname, params } = useLocation()

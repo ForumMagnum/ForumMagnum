@@ -641,7 +641,7 @@ async function getEngagement(userId: string, year: number): Promise<{
         sum(total_seconds) AS total_seconds,
         user_id
       FROM
-        user_engagement_wrapped_2022
+        user_engagement_wrapped
       WHERE view_year = $2 AND user_id IS NOT NULL
       GROUP BY view_year, user_id
     ),
@@ -666,7 +666,7 @@ async function getEngagement(userId: string, year: number): Promise<{
   `;
 
   const daysActiveQuery = `
-    SELECT view_date::text FROM user_engagement_wrapped_2022 WHERE view_year = $2 AND user_id = $1 ORDER BY view_date ASC;
+    SELECT view_date::text FROM user_engagement_wrapped WHERE view_year = $2 AND user_id = $1 ORDER BY view_date ASC;
   `;
 
   const [totalResult, daysActiveResult] = await Promise.all([
