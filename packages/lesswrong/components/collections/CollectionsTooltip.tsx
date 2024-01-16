@@ -3,20 +3,18 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "../../lib/reactRouterWrapper";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
 import Card from "@material-ui/core/Card";
-import { isFriendlyUI } from "../../themes/forumTheme";
+import { FRIENDLY_HOVER_OVER_WIDTH } from "../common/FriendlyHoverOver";
 
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 16,
-    width: 450
+    width: FRIENDLY_HOVER_OVER_WIDTH,
   },
   title: {
-    ...theme.typography.body1,
-    ...theme.typography.postStyle,
-    ...theme.typography.smallCaps,
-    ...(isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: "1.3rem",
+    fontWeight: 700,
+    lineHeight: "130%",
   },
   description: {
     ...theme.typography.body2,
@@ -26,22 +24,18 @@ const styles = (theme: ThemeType) => ({
   },
   author: {
     color: theme.palette.text.dim,
-    ...(isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
-  },
-  postCount: {
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[500],
-    marginTop: 12,
-    fontSize: "1rem",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 13,
+    fontWeight: 500,
+    marginTop: 10,
+    marginBottom: 10,
   },
 });
 
 const CollectionsTooltip = ({collection, children, classes}: {
   collection: CollectionsBestOfFragment,
   children?: ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const {HoverOver, UsersName, ContentStyles, ContentItemTruncated} = Components;
   return (
@@ -51,11 +45,11 @@ const CollectionsTooltip = ({collection, children, classes}: {
           <Link to={collectionGetPageUrl(collection)}>
             <div className={classes.title}>{collection.title}</div>
           </Link>
-          {collection.user &&
-            <div className={classes.author}>
-              by <UsersName user={collection.user} />
-            </div>
-          }
+          <div className={classes.author}>
+            <UsersName user={collection.user} />
+            {" · "}
+            {collection.readPostsCount}/{collection.postsCount} posts read
+          </div>
           <ContentStyles contentType="postHighlight" className={classes.description}>
             <ContentItemTruncated
               maxLengthWords={100}
@@ -69,9 +63,6 @@ const CollectionsTooltip = ({collection, children, classes}: {
               description={`collection ${collection._id}`}
             />
           </ContentStyles>
-          <div className={classes.postCount}>
-            {collection.readPostsCount}/{collection.postsCount} posts read
-          </div>
         </Card>
       }
       tooltip={false}
