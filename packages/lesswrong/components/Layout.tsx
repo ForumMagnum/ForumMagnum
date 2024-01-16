@@ -13,7 +13,7 @@ import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { isAF, isLW } from '../lib/instanceSettings';
+import { isAF, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -383,9 +383,8 @@ const Layout = ({currentUser, children, classes}: {
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
         <div className={classNames(
-          classes.wrapper,
           "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen}
+          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
         )} id="wrapper">
           <DialogManager>
             <CommentBoxManager>
