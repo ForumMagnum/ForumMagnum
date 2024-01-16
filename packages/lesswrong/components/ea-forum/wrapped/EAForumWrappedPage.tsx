@@ -2,7 +2,7 @@ import React, { Fragment, useCallback, useEffect, useRef, useState } from "react
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext, useIsInView, useTracking } from "../../../lib/analyticsEvents";
-import { WrappedDataByYearV2, WrappedMostReadAuthor, WrappedMostReadTopic, WrappedReceivedReact, WrappedRelativeMostReadCoreTopic, WrappedTopComment, WrappedTopPost, WrappedTopShortform, useForumWrappedV2 } from "./hooks";
+import { WrappedDataByYear, WrappedMostReadAuthor, WrappedMostReadTopic, WrappedReceivedReact, WrappedRelativeMostReadCoreTopic, WrappedTopComment, WrappedTopPost, WrappedTopShortform, useForumWrapped } from "./hooks";
 import classNames from "classnames";
 import range from "lodash/range";
 import moment from "moment";
@@ -30,6 +30,8 @@ import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 import { TagCommentType } from "../../../lib/collections/comments/types";
 import NoSSR from "react-no-ssr";
+import { useLocation } from "../../../lib/routeUtil";
+import { TupleSet, UnionOf } from "../../../lib/utils/typeGuardUtils";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -683,6 +685,10 @@ const styles = (theme: ThemeType) => ({
   mt100: { marginTop: 100 },
 })
 
+// The backend data currently only supports 2022 and 2023 - see UserWrappedDataByYear() for more details
+const wrappedYears = new TupleSet([2022, 2023] as const)
+type WrappedYear = UnionOf<typeof wrappedYears>
+
 type ReceivedReact = {
   top: string,
   left: string,
@@ -693,28 +699,56 @@ const wrappedHighlightColor = requireCssVar("palette", "wrapped", "highlightText
 const wrappedSecondaryColor = requireCssVar("palette", "wrapped", "secondaryText")
 
 // A sample of data to approximate the real graph
-const ENGAGEMENT_CHART_DATA = [
-  {hours: 0, count: 878},
-  {hours: 1, count: 1857},
-  {hours: 2, count: 884},
-  {hours: 3, count: 522},
-  {hours: 4, count: 393},
-  {hours: 5, count: 309},
-  {hours: 8, count: 197},
-  {hours: 10, count: 135},
-  {hours: 12, count: 102},
-  {hours: 14, count: 97},
-  {hours: 18, count: 63},
-  {hours: 22, count: 39},
-  {hours: 26, count: 20},
-  {hours: 35, count: 14},
-  {hours: 48, count: 8},
-  {hours: 59, count: 6},
-  {hours: 70, count: 2},
-  {hours: 80, count: 2},
-  {hours: 113, count: 1},
-  {hours: 525, count: 1},
-]
+type EngagementDataPoint = {
+  hours: number,
+  count: number
+}
+const ENGAGEMENT_CHART_DATA: Record<WrappedYear, EngagementDataPoint[]> = {
+  2022: [
+    {hours: 0, count: 915},
+    {hours: 1, count: 1687},
+    {hours: 2, count: 770},
+    {hours: 3, count: 467},
+    {hours: 4, count: 346},
+    {hours: 5, count: 258},
+    {hours: 8, count: 142},
+    {hours: 10, count: 115},
+    {hours: 12, count: 92},
+    {hours: 14, count: 72},
+    {hours: 18, count: 42},
+    {hours: 22, count: 37},
+    {hours: 26, count: 34},
+    {hours: 35, count: 22},
+    {hours: 48, count: 7},
+    {hours: 59, count: 6},
+    {hours: 70, count: 1},
+    {hours: 80, count: 4},
+    {hours: 113, count: 1},
+    {hours: 445, count: 1},
+  ],
+  2023: [
+    {hours: 0, count: 878},
+    {hours: 1, count: 1857},
+    {hours: 2, count: 884},
+    {hours: 3, count: 522},
+    {hours: 4, count: 393},
+    {hours: 5, count: 309},
+    {hours: 8, count: 197},
+    {hours: 10, count: 135},
+    {hours: 12, count: 102},
+    {hours: 14, count: 97},
+    {hours: 18, count: 63},
+    {hours: 22, count: 39},
+    {hours: 26, count: 20},
+    {hours: 35, count: 14},
+    {hours: 48, count: 8},
+    {hours: 59, count: 6},
+    {hours: 70, count: 2},
+    {hours: 80, count: 2},
+    {hours: 113, count: 1},
+    {hours: 525, count: 1},
+  ]
+}
 
 /**
  * Formats the percentile as an integer > 0
@@ -733,7 +767,7 @@ const formattedKarmaChangeText = (karmaChange: number) => (
 /**
  * Adds tracking to the user profile link
  */
-const getUserProfileLink = (slug: string) => `${userGetProfileUrlFromSlug(slug)}?from=2023_wrapped`
+const getUserProfileLink = (slug: string, year: WrappedYear) => `${userGetProfileUrlFromSlug(slug)}?from=${year}_wrapped`
 
 /**
  * A single post item, used in TopPostSection and RecommendationsSection
@@ -865,8 +899,9 @@ const KarmaChangeXAxis = () => {
 /**
  * Section that displays the user's engagement relative to other users
  */
-const EngagementPercentileSection = ({data, classes}: {
-  data: WrappedDataByYearV2,
+const EngagementPercentileSection = ({data, year, classes}: {
+  data: WrappedDataByYear,
+  year: WrappedYear,
   classes: ClassesType
 }) => {
   // This is the x-axis position for the "you" arrow mark on the engagement chart.
@@ -875,6 +910,7 @@ const EngagementPercentileSection = ({data, classes}: {
   // We shift everything by 8px to account for the space that the y-axis takes up.
   const engagementHours = (data.totalSeconds / 3600)
   const markPosition = `calc(${97.5 * engagementHours / 530}% + 8px)`
+  const xMax = year === 2022 ? 450 : 530
 
   return <AnalyticsContext pageSectionContext="engagementPercentile">
     <section className={classes.section}>
@@ -890,9 +926,9 @@ const EngagementPercentileSection = ({data, classes}: {
           you
         </aside>
         <ResponsiveContainer width="100%" height={200}>
-          <LineChart width={350} height={200} data={ENGAGEMENT_CHART_DATA}>
+          <LineChart width={350} height={200} data={ENGAGEMENT_CHART_DATA[year]}>
             <YAxis dataKey="count" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} width={2} />
-            <XAxis dataKey="hours" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} height={2} scale="linear" type="number" domain={[0, 530]} />
+            <XAxis dataKey="hours" tick={false} axisLine={{strokeWidth: 2, stroke: '#FFF'}} height={2} scale="linear" type="number" domain={[0, xMax]} />
             <Line dataKey="count" dot={false} stroke={wrappedHighlightColor} strokeWidth={2} />
           </LineChart>
         </ResponsiveContainer>
@@ -904,14 +940,15 @@ const EngagementPercentileSection = ({data, classes}: {
 /**
  * Section that displays the user's hours of engagement
  */
-const EngagementHoursSection = ({engagementHours, classes}: {
+const EngagementHoursSection = ({engagementHours, year, classes}: {
   engagementHours: number,
+  year: WrappedYear,
   classes: ClassesType
 }) => {
   return <AnalyticsContext pageSectionContext="engagementHours">
     <section className={classes.section}>
       <h1 className={classes.heading3}>
-        You spent <span className={classes.highlight}>{engagementHours.toFixed(1)}</span> hours on the EA Forum in 2023
+        You spent <span className={classes.highlight}>{engagementHours.toFixed(1)}</span> hours on the EA Forum in {year}
       </h1>
       <p className={classNames(classes.textRow, classes.text, classes.mt70)}>Which is about the same as...</p>
       <div className={classNames(classes.stats, classes.mt30)}>
@@ -936,24 +973,25 @@ const EngagementHoursSection = ({engagementHours, classes}: {
  * Section that displays the calendar of days that the user visited the forum,
  * visualized as 12 rows of dots, with the visited days' dots being white
  */
-const DaysVisitedSection = ({daysVisited, classes}: {
+const DaysVisitedSection = ({daysVisited, year, classes}: {
   daysVisited: string[],
+  year: WrappedYear,
   classes: ClassesType
 }) => {
   return <AnalyticsContext pageSectionContext="daysVisited">
     <section className={classes.section}>
       <h1 className={classes.heading3}>
-        You visited the EA Forum on <span className={classes.highlight}>{daysVisited.length}</span> days in 2023
+        You visited the EA Forum on <span className={classes.highlight}>{daysVisited.length}</span> days in {year}
       </h1>
       <p className={classNames(classes.textRow, classes.text, classes.mt16)}>
         (You may have visited more times while logged out)
       </p>
       <div className={classes.calendar}>
         {range(0, 12).map((month: number) => {
-          const daysInMonth = moment(`2023-${month+1}`, 'YYYY-M').daysInMonth()
+          const daysInMonth = moment(`${year}-${month+1}`, 'YYYY-M').daysInMonth()
           return <Fragment key={`month-${month}`}>
             {range(0, daysInMonth).map(day => {
-              const date = moment(`2023-${month+1}-${day+1}`, 'YYYY-M-D')
+              const date = moment(`${year}-${month+1}-${day+1}`, 'YYYY-M-D')
               return <div
                 key={`month-${month}-day-${day}`}
                 className={classNames(classes.calendarDot, {
@@ -1082,8 +1120,9 @@ const RelativeMostReadTopicsSection = ({relativeMostReadCoreTopics, classes}: {
 /**
  * Section that displays a list of the user's most-read authors
  */
-const MostReadAuthorsSection = ({authors, classes}: {
+const MostReadAuthorsSection = ({authors, year, classes}: {
   authors: WrappedMostReadAuthor[],
+  year: WrappedYear,
   classes: ClassesType
 }) => {
   if (!authors.length) return null;
@@ -1099,7 +1138,7 @@ const MostReadAuthorsSection = ({authors, classes}: {
             <Components.UsersProfileImage size={40} user={author} />
             <div>
               <h2 className={classes.authorName}>
-                <Link to={getUserProfileLink(author.slug)}>
+                <Link to={getUserProfileLink(author.slug, year)}>
                   {author.displayName}
                 </Link>
               </h2>
@@ -1117,8 +1156,9 @@ const MostReadAuthorsSection = ({authors, classes}: {
 /**
  * Section that prompts the user to DM the author of whom they are in the highest percentile of readership
  */
-const ThankAuthorSection = ({authors, classes}: {
+const ThankAuthorSection = ({authors, year, classes}: {
   authors: WrappedMostReadAuthor[],
+  year: WrappedYear,
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser()
@@ -1146,7 +1186,7 @@ const ThankAuthorSection = ({authors, classes}: {
           <div>To:</div>
           <div><Components.UsersProfileImage size={24} user={topAuthorByEngagementPercentile} /></div>
           <div className={classes.text}>
-            <Link to={getUserProfileLink(topAuthorByEngagementPercentile.slug)}>
+            <Link to={getUserProfileLink(topAuthorByEngagementPercentile.slug, year)}>
               {topAuthorByEngagementPercentile.displayName}
             </Link>
           </div>
@@ -1160,7 +1200,7 @@ const ThankAuthorSection = ({authors, classes}: {
                 sender: currentUser._id,
                 participantIds: conversation.participantIds,
                 messageCount: (conversation.messageCount || 0) + 1,
-                from: "2023_wrapped_thank_author",
+                from: `${year}_wrapped_thank_author`,
               });
             }}
           />
@@ -1173,8 +1213,9 @@ const ThankAuthorSection = ({authors, classes}: {
 /**
  * Section that displays the user's highest-karma post plus other data on their posts
  */
-const TopPostSection = ({data, classes}: {
-  data: WrappedDataByYearV2,
+const TopPostSection = ({data, year, classes}: {
+  data: WrappedDataByYear,
+  year: WrappedYear,
   classes: ClassesType
 }) => {
   if (!data.topPosts?.length) return null;
@@ -1187,7 +1228,7 @@ const TopPostSection = ({data, classes}: {
   return <AnalyticsContext pageSectionContext="topPost">
     <section className={classes.section}>
       <h1 className={classes.heading3}>
-        Your highest-karma <span className={classes.highlight}>post</span> in 2023:
+        Your highest-karma <span className={classes.highlight}>post</span> in {year}:
       </h1>
       <div className={classes.topPost}>
         <Post post={data.topPosts[0]} classes={classes} />
@@ -1213,8 +1254,9 @@ const TopPostSection = ({data, classes}: {
 /**
  * Section that displays the user's highest-karma comment plus other data on their comments
  */
-const TopCommentSection = ({data, classes}: {
-  data: WrappedDataByYearV2,
+const TopCommentSection = ({data, year, classes}: {
+  data: WrappedDataByYear,
+  year: WrappedYear,
   classes: ClassesType
 }) => {
   if (!data.topComment) return null;
@@ -1226,7 +1268,7 @@ const TopCommentSection = ({data, classes}: {
   return <AnalyticsContext pageSectionContext="topComment">
     <section className={classes.section}>
       <h1 className={classes.heading3}>
-        Your highest-karma <span className={classes.highlight}>comment</span> in 2023:
+        Your highest-karma <span className={classes.highlight}>comment</span> in {year}:
       </h1>
       <div className={classes.topPost}>
         <Comment comment={data.topComment} classes={classes} />
@@ -1242,8 +1284,9 @@ const TopCommentSection = ({data, classes}: {
 /**
  * Section that displays the user's highest-karma quick take (shortform) plus other data on their quick takes
  */
-const TopQuickTakeSection = ({data, classes}: {
-  data: WrappedDataByYearV2,
+const TopQuickTakeSection = ({data, year, classes}: {
+  data: WrappedDataByYear,
+  year: WrappedYear,
   classes: ClassesType
 }) => {
   if (!data.topShortform) return null;
@@ -1255,7 +1298,7 @@ const TopQuickTakeSection = ({data, classes}: {
   return <AnalyticsContext pageSectionContext="topQuickTake">
     <section className={classes.section}>
       <h1 className={classes.heading3}>
-        Your highest-karma <span className={classes.highlight}>quick take</span> in 2023:
+        Your highest-karma <span className={classes.highlight}>quick take</span> in {year}:
       </h1>
       <div className={classes.topPost}>
         <Comment comment={data.topShortform} classes={classes} />
@@ -1272,7 +1315,7 @@ const TopQuickTakeSection = ({data, classes}: {
  * Section that displays the user's overall karma change and accompanying chart
  */
 const KarmaChangeSection = ({data, classes}: {
-  data: WrappedDataByYearV2,
+  data: WrappedDataByYear,
   classes: ClassesType
 }) => {
   // If the user hasn't written anything and their karma change is 0, hide the karma change section
@@ -1372,7 +1415,8 @@ const ReactsReceivedSection = ({receivedReacts, classes}: {
 /**
  * Section that thanks the user
  */
-const ThankYouSection = ({classes}: {
+const ThankYouSection = ({year, classes}: {
+  year: WrappedYear,
   classes: ClassesType
 }) => {
   return <AnalyticsContext pageSectionContext="thankYou">
@@ -1387,7 +1431,7 @@ const ThankYouSection = ({classes}: {
         {lightbulbIcon}
       </div>
       <p className={classNames(classes.summaryLinkWrapper, classes.text, classes.mt70)}>
-        Here’s your 2023 all in one page
+        Here’s your {year} all in one page
         <Components.ForumIcon icon="NarrowArrowDown" />
       </p>
     </section>
@@ -1397,8 +1441,9 @@ const ThankYouSection = ({classes}: {
 /**
  * Section that displays a screenshottable summary of the user's Wrapped data
  */
-const SummarySection = ({data, setRef, classes}: {
-  data: WrappedDataByYearV2,
+const SummarySection = ({data, year, setRef, classes}: {
+  data: WrappedDataByYear,
+  year: WrappedYear,
   setRef: (el: HTMLElement) => void,
   classes: ClassesType
 }) => {
@@ -1411,7 +1456,7 @@ const SummarySection = ({data, setRef, classes}: {
       <p className={classNames(classes.text, classes.m0)}>Effective Altruism Forum</p>
       <h1 className={classNames(classes.heading2, classes.mt10)}>
         <span className={classes.nowrap}>{currentUser?.displayName}’s</span>{" "}
-        <span className={classes.nowrap}>2023 Wrapped</span>
+        <span className={classes.nowrap}>{year} Wrapped</span>
       </h1>
       <div className={classes.summary}>
         <div className={classes.summaryBoxRow}>
@@ -1442,7 +1487,7 @@ const SummarySection = ({data, setRef, classes}: {
               {data.mostReadAuthors.map(author => {
                 return <div key={author.slug} className={classes.summaryListItem}>
                   <UsersProfileImage size={20} user={author} />
-                  <Link to={getUserProfileLink(author.slug)}>
+                  <Link to={getUserProfileLink(author.slug, year)}>
                     {author.displayName}
                   </Link>
                 </div>
@@ -1524,7 +1569,8 @@ const RecommendationsSection = ({classes}: {
 /**
  * Section that displays all the user's upvoted posts and lets them mark which were "most valuable"
  */
-const MostValuablePostsSection = ({classes}: {
+const MostValuablePostsSection = ({year, classes}: {
+  year: WrappedYear,
   classes: ClassesType
 }) => {
   const { ForumIcon, PostsByVoteWrapper } = Components
@@ -1532,10 +1578,10 @@ const MostValuablePostsSection = ({classes}: {
   return <AnalyticsContext pageSectionContext="mostValuablePosts">
     <section className={classNames(classes.section, classes.sectionNoFade)}>
       <h1 className={classes.heading3}>
-        Which posts from 2023 were most valuable for you?
+        Which posts from {year} were most valuable for you?
       </h1>
       <p className={classNames(classes.textRow, classes.text, classes.mt16)}>
-        These are your upvotes from 2023. Your choice of the most valuable posts will be really useful
+        These are your upvotes from {year}. Your choice of the most valuable posts will be really useful
         for helping us decide what to feature on the Forum. (We’ll only look at anonymized data.)
       </p>
       <div className={classNames(classes.mvpColLabels, classes.mt30)}>
@@ -1547,8 +1593,8 @@ const MostValuablePostsSection = ({classes}: {
       </div>
       <NoSSR>
         <div className={classNames(classes.mvpList, classes.mt10)}>
-          <PostsByVoteWrapper voteType="bigUpvote" year={2023} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox hideEmptyStateText />
-          <PostsByVoteWrapper voteType="smallUpvote" year={2023} limit={10} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox hideEmptyStateText />
+          <PostsByVoteWrapper voteType="bigUpvote" year={year} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox hideEmptyStateText />
+          <PostsByVoteWrapper voteType="smallUpvote" year={year} limit={10} postItemClassName={classes.mvpPostItem} showMostValuableCheckbox hideEmptyStateText />
         </div>
       </NoSSR>
     </section>
@@ -1557,26 +1603,31 @@ const MostValuablePostsSection = ({classes}: {
 
 /**
  * This is the primary page component for EA Forum Wrapped 2023.
+ * We also made it functional for 2022.
  */
-const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
+const EAForumWrappedPage = ({classes}: {classes: ClassesType}) => {
+  const { pathname, params } = useLocation()
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser();
   const { setNode, entry, node } = useIsInView();
+  
+  const paramYear = ['2022','2023'].includes(params.year) ? parseInt(params.year) : 2023
+  const year: WrappedYear = wrappedYears.has(paramYear) ? paramYear : 2023
 
-  const { data } = useForumWrappedV2({
+  const { data } = useForumWrapped({
     userId: currentUser?._id,
-    year: 2023
+    year
   })
 
   // After the user has seen the summary section,
   // we add a link in the first section to skip down to it for convenience
   useEffect(() => {
-    if (entry?.isIntersecting && !currentUser?.wrapped2023Viewed) {
+    if (year === 2023 && entry?.isIntersecting && !currentUser?.wrapped2023Viewed) {
       void updateCurrentUser({
         wrapped2023Viewed: true,
       });
     }
-  }, [entry, updateCurrentUser, currentUser?.wrapped2023Viewed]);
+  }, [year, entry, updateCurrentUser, currentUser?.wrapped2023Viewed]);
 
   const skipToSummary = useCallback(() => {
     node?.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
@@ -1588,22 +1639,22 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
   if (!currentUser) {
     return <AnalyticsContext pageContext="eaYearWrapped">
       <HeadTags
-        title="EA Forum 2023 Wrapped"
+        title={`EA Forum ${year} Wrapped`}
         image={makeCloudinaryImageUrl('2023_wrapped_wide', socialImageProps)}
       />
       <main className={classes.root}>
         <section className={classes.section}>
-          <h1 className={classes.heading1}>Your 2023 Wrapped</h1>
+          <h1 className={classes.heading1}>Your {year} Wrapped</h1>
           <div className={classes.loginWrapper}>
             <p className={classes.loginText}>
-              <a href={`/auth/auth0?returnTo=${encodeURIComponent('/wrapped')}`} className={classes.link}>
+              <a href={`/auth/auth0?returnTo=${encodeURIComponent(pathname)}`} className={classes.link}>
                 Login
               </a>{" "}
-              to see your 2023 data, or{" "}
-              <a href={`/auth/auth0?screen_hint=signup&returnTo=${encodeURIComponent('/wrapped')}`} className={classes.link}>
+              to see your {year} data, or{" "}
+              <a href={`/auth/auth0?screen_hint=signup&returnTo=${encodeURIComponent(pathname)}`} className={classes.link}>
                 Sign up
               </a>{" "}
-              to get ready for 2024
+              to get ready for next year
             </p>
           </div>
           <CloudinaryImage2 publicId="2023_wrapped" wrapperClassName={classes.loginImgWrapper} className={classes.img} />
@@ -1612,17 +1663,17 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
     </AnalyticsContext>
   }
 
-  // If the user's account was created after 2023, show this message
+  // If the user's account was created after year, show this message
   const userCreatedAt = moment(currentUser.createdAt)
-  const endOf2023 = moment('2023-12-31', "YYYY-MM-DD")
-  if (userCreatedAt.isAfter(endOf2023, 'date')) {
+  const endOfYear = moment(`${year}-12-31`, "YYYY-MM-DD")
+  if (userCreatedAt.isAfter(endOfYear, 'date')) {
     return <AnalyticsContext pageContext="eaYearWrapped">
       <main className={classes.root}>
         <section className={classes.section}>
-          <h1 className={classes.heading1}>Your 2023 Wrapped</h1>
+          <h1 className={classes.heading1}>Your {year} Wrapped</h1>
           <div className={classes.loginWrapper}>
             <p className={classes.loginText}>
-              Looks like you didn't have an account in 2023 - check back in at the end of 2024!
+              Looks like you didn't have an account in {year} - check back in at the end of this year!
             </p>
           </div>
           <CloudinaryImage2 publicId="2023_wrapped" wrapperClassName={classes.loginImgWrapper} className={classes.img} />
@@ -1639,8 +1690,8 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
         
         <AnalyticsContext pageSectionContext="top">
           <section className={classes.section}>
-            <h1 className={classes.heading1}>Your 2023 Wrapped</h1>
-            {currentUser.wrapped2023Viewed &&
+            <h1 className={classes.heading1}>Your {year} Wrapped</h1>
+            {(year !== 2023 || currentUser.wrapped2023Viewed) &&
               <button className={classNames(classes.summaryLinkWrapper, classes.skipToSummaryBtn)} onClick={skipToSummary}>
                 Skip to summary
                 <ForumIcon icon="NarrowArrowDown" />
@@ -1657,32 +1708,32 @@ const EAForumWrapped2023Page = ({classes}: {classes: ClassesType}) => {
           </section>
         </AnalyticsContext>
         
-        <EngagementPercentileSection data={data} classes={classes} />
-        <EngagementHoursSection engagementHours={(data.totalSeconds / 3600)} classes={classes} />
-        <DaysVisitedSection daysVisited={data.daysVisited} classes={classes} />
+        <EngagementPercentileSection data={data} year={year} classes={classes} />
+        <EngagementHoursSection engagementHours={(data.totalSeconds / 3600)} year={year} classes={classes} />
+        <DaysVisitedSection daysVisited={data.daysVisited} year={year} classes={classes} />
         <MostReadTopicsSection mostReadTopics={data.mostReadTopics} classes={classes} />
         <RelativeMostReadTopicsSection relativeMostReadCoreTopics={data.relativeMostReadCoreTopics} classes={classes} />
-        <MostReadAuthorsSection authors={data.mostReadAuthors} classes={classes} />
-        <ThankAuthorSection authors={data.mostReadAuthors} classes={classes} />
-        <TopPostSection data={data} classes={classes} />
-        <TopCommentSection data={data} classes={classes} />
-        <TopQuickTakeSection data={data} classes={classes} />
+        <MostReadAuthorsSection authors={data.mostReadAuthors} year={year} classes={classes} />
+        <ThankAuthorSection authors={data.mostReadAuthors} year={year} classes={classes} />
+        <TopPostSection data={data} year={year} classes={classes} />
+        <TopCommentSection data={data} year={year} classes={classes} />
+        <TopQuickTakeSection data={data} year={year} classes={classes} />
         <KarmaChangeSection data={data} classes={classes} />
         <ReactsReceivedSection receivedReacts={data.mostReceivedReacts} classes={classes} />
-        <ThankYouSection classes={classes} />
-        <SummarySection data={data} setRef={setNode} classes={classes} />
+        <ThankYouSection year={year} classes={classes} />
+        <SummarySection data={data} year={year} setRef={setNode} classes={classes} />
         <RecommendationsSection classes={classes} />
-        <MostValuablePostsSection classes={classes} />
+        <MostValuablePostsSection year={year} classes={classes} />
 
       </main>
     </AnalyticsContext>
   )
 }
 
-const EAForumWrapped2023PageComponent = registerComponent('EAForumWrapped2023Page', EAForumWrapped2023Page, {styles})
+const EAForumWrappedPageComponent = registerComponent('EAForumWrappedPage', EAForumWrappedPage, {styles})
 
 declare global {
   interface ComponentTypes {
-    EAForumWrapped2023Page: typeof EAForumWrapped2023PageComponent
+    EAForumWrappedPage: typeof EAForumWrappedPageComponent
   }
 }

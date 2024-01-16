@@ -13,7 +13,7 @@ import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { isAF, isLW } from '../lib/instanceSettings';
+import { isAF, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -44,7 +44,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews',
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum', 'EAForumWrapped'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -314,7 +314,7 @@ const Layout = ({currentUser, children, classes}: {
   );
 
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  const headerBackgroundColor = pathname === '/wrapped' ? wrappedBackgroundColor : undefined
+  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : undefined
 
   const render = () => {
     const {
@@ -383,9 +383,8 @@ const Layout = ({currentUser, children, classes}: {
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
         <div className={classNames(
-          classes.wrapper,
           "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen}
+          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
         )} id="wrapper">
           <DialogManager>
             <CommentBoxManager>

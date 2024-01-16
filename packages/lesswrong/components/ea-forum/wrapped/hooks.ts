@@ -54,7 +54,7 @@ export type WrappedReceivedReact = {
   count: number;
 }
 
-export type WrappedDataByYearV2 = {
+export type WrappedDataByYear = {
   engagementPercentile: number;
   postsReadCount: number;
   totalSeconds: number;
@@ -81,12 +81,12 @@ export type WrappedDataByYearV2 = {
 };
 
 type WrappedDataQueryResult = {
-  UserWrappedDataByYearV2: WrappedDataByYearV2;
+  UserWrappedDataByYear: WrappedDataByYear;
 };
 
 const query = gql`
   query getWrappedData($userId: String!, $year: Int!) {
-    UserWrappedDataByYearV2(userId: $userId, year: $year) {
+    UserWrappedDataByYear(userId: $userId, year: $year) {
       engagementPercentile
       postsReadCount
       totalSeconds
@@ -160,8 +160,7 @@ const query = gql`
   }
 `;
 
-// TODO Rename to just useForumWrapped
-export const useForumWrappedV2 = ({ userId, year }: { userId?: string | null; year: number }) => {
+export const useForumWrapped = ({ userId, year }: { userId?: string | null; year: number }) => {
   const { data, loading } = useQuery<WrappedDataQueryResult>(
     query,
     {
@@ -174,5 +173,5 @@ export const useForumWrappedV2 = ({ userId, year }: { userId?: string | null; ye
     }
   );
 
-  return { data: data?.UserWrappedDataByYearV2, loading };
+  return { data: data?.UserWrappedDataByYear, loading };
 };
