@@ -972,6 +972,7 @@ importComponent("ReviewDashboardButtons", () => require('../components/review/Re
 importComponent("ReviewPhaseInformation", () => require('../components/review/ReviewPhaseInformation'));
 importComponent("UserReviewsProgressBar", () => require('../components/review/UserReviewsProgressBar'));
 importComponent("ReviewVotingProgressBar", () => require('../components/review/ReviewVotingProgressBar'));
+importComponent("ReviewVotingCanvas", () => require('../components/review/ReviewVotingCanvas'));
 importComponent("FrontpageReviewWidget", () => require('../components/review/FrontpageReviewWidget'));
 // importComponent("FrontpageVotingPhase", () => require('../components/review/FrontpageVotingPhase'));
 importComponent("PostsItemReviewVote", () => require('../components/review/PostsItemReviewVote'));
