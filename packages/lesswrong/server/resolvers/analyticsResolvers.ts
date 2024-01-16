@@ -6,9 +6,7 @@ import  camelCase  from "lodash/camelCase";
 import { canUserEditPostMetadata } from "../../lib/collections/posts/helpers";
 import { AnalyticsSeriesValue, MultiPostAnalyticsResult, PostAnalytics2Result } from "../../components/hooks/useAnalytics";
 import Posts from "../../lib/collections/posts/collection";
-import { getHybridView } from "../analytics/hybridViews";
 import { userIsAdminOrMod } from "../../lib/vulcan-users";
-import { POST_VIEW_TIMES_IDENTIFIER } from "../analytics/postViewTimesHybridView";
 import moment from "moment";
 import groupBy from "lodash/groupBy";
 import { generateDateSeries } from "../../lib/helpers";
@@ -311,13 +309,6 @@ addGraphQLResolvers({
       if (!queryPostIds.length) {
         return [];
       }
-
-      const postViewTimesView = getHybridView(POST_VIEW_TIMES_IDENTIFIER);
-
-      // TODO remove these error checks once the hybrid views are collections
-      if (!postViewTimesView) throw new Error("Hybrid views not configured");
-
-      const postViewTimesTable = await postViewTimesView.virtualTable()
 
       const [viewRes, readRes, karmaRes, commentRes] = await Promise.all([
         context.repos.postViews.viewsByDate({
