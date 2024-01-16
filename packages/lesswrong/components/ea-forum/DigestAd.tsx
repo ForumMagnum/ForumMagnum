@@ -235,7 +235,7 @@ const DigestAd = ({largeVersion, className, classes}: {
         <h2 className={classNames(classes.heading, {[classes.headingLarge]: largeVersion})}>Get the best posts in your email</h2>
         <ForumIcon icon="Close" className={classes.close} onClick={handleClose} />
       </div>
-      <div className={classes.body}>
+      <div className={classNames(classes.body, {[classes.bodyLarge]: largeVersion})}>
         Sign up for the EA Forum Digest to get curated recommendations every week
       </div>
       {formNode}
