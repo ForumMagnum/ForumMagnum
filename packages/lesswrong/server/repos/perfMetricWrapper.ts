@@ -1,4 +1,4 @@
-import { performanceMetricLoggingEnabled } from "../../lib/publicSettings";
+import { performanceMetricLoggingEnabled } from "../../lib/instanceSettings";
 import { asyncLocalStorage, closePerfMetric, openPerfMetric } from "../perfMetrics";
 
 type Constructor<TResult, TParams extends any[] = any[]> = new (
@@ -38,7 +38,7 @@ function wrapWithPerfMetrics(method: Function, repoName: string, methodName: str
       ...parentTraceIdField
     });
 
-    const results = method.apply(this, args);
+    const results = asyncLocalStorage.run({ ...asyncContext, inDbRepoMethod: true }, () => method.apply(this, args));
     // Not all methods on Repos return promises.
     // The naive method of accomplishing this would just be `const results = await method.apply(...)`
     // But this would require this closure to be an async function
