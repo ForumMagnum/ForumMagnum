@@ -195,6 +195,11 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       compressedIconComponent: Info,
       showOnCompressed: true,
     }, {
+      id: 'dialogueMatchmaking',
+      title: 'Dialogue Matchmaking',
+      link: '/dialogueMatching',
+      subItem: true
+    }, {
       id: 'faq',
       title: 'FAQ',
       link: '/faq',

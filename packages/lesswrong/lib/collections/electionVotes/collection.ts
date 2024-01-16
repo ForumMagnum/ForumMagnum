@@ -1,9 +1,8 @@
 import { ensureIndex } from "../../collectionIndexUtils";
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from "../../collectionUtils";
-import { userCanVoteInDonationElection } from "../../eaGivingSeason";
 import { createCollection } from "../../vulcan-lib";
 import { isAdmin, userOwns } from "../../vulcan-users/permissions";
-import { isPastVotingDeadline } from "./helpers";
+import { isPastVotingDeadline, userCanVoteInDonationElection } from "./helpers";
 import schema from "./schema";
 
 const ElectionVotes: ElectionVotesCollection = createCollection({

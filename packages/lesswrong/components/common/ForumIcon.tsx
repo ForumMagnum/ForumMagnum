@@ -100,7 +100,6 @@ import MuiForumIcon from '@material-ui/icons/Forum';
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
-import { GivingHand } from "../icons/givingHand";
 import { StickyIcon } from "../icons/stickyIcon";
 import { ThickChevronLeftIcon } from "../icons/thickChevronLeftIcon";
 import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
@@ -144,7 +143,6 @@ export type ForumIconName =
   "Pin" |
   "Author" |
   "Sprout" |
-  "GivingHand" |
   "Close" |
   "Calendar" |
   "CalendarDays" |
@@ -228,7 +226,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: StickyIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
-    GivingHand: GivingHand,
     Close: CloseIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
@@ -311,7 +308,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: PinIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
-    GivingHand: GivingHand,
     Close: CloseIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,

@@ -37,7 +37,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "a4cbe51fa25c806a6116793b68705378";
+export const acceptsSchemaHash = "90c9bb1f95164ef02638bd9c1a15dd32";
 
 import PostViewTimes from "../../lib/collections/postViewTimes/collection";
 import PostViews from "../../lib/collections/postViews/collection";

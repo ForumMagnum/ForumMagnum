@@ -1421,7 +1421,7 @@ const schema: SchemaType<"Users"> = {
   },
   notificationNewDialogueChecks: {
     label: "You have new people interested in dialogue-ing with you",
-    ...notificationTypeSettingsField(),
+    ...notificationTypeSettingsField({ channel: "none" }),
     hidden: !isLW,
   },
   notificationYourTurnMatchForm: {
@@ -2951,6 +2951,18 @@ const schema: SchemaType<"Users"> = {
       if (!isAdmin(currentUser)) return true;
       return false;
     },
+    ...schemaDefaultValue(false),
+  },
+
+  hideSunshineSidebar: {
+    type: Boolean,
+    optional: true,
+    canRead: [userOwns],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    group: formGroups.adminOptions,
+    label: "Hide Sunshine Sidebar",
+    hidden: isEAForum,
     ...schemaDefaultValue(false),
   },
 
