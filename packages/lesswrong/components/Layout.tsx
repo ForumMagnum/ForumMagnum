@@ -61,7 +61,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
-    background: theme.palette.background.default,
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
     minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
@@ -106,19 +105,44 @@ const styles = (theme: ThemeType): JssStyles => ({
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateAreas: `
-        "navSidebar ... main ... sunshine"
+        "navSidebar ... main imageGap sunshine"
       `,
       gridTemplateColumns: `
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, 1.4fr)
+        minmax(0, 7fr)
         minmax(0, min-content)
       `,
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'
     }
+  },
+  imageColumn: {
+    gridArea: 'imageGap',
+    [theme.breakpoints.down('md')]: {
+      display: 'none'
+    }
+  },
+  backgroundImage: {
+    position: 'absolute',
+    width: '57vw',
+    maxWidth: '1000px',
+    top: '-30px',
+    '-webkit-mask-image': 'radial-gradient(ellipse at center top, black 42%, transparent 70%)',
+    
+    [theme.breakpoints.up(2000)]: {
+      right: '0px',
+    }
+  },
+  votingImage: {
+    width: '55vw',
+    maxWidth: '1100px',
+    marginLeft: '-22px',
+    [theme.breakpoints.down('lg')]: {
+      marginLeft: '-42px',
+    },
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -224,7 +248,7 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
-  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
+  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(currentUser ? !!(currentUser?.hideNavigationSidebar) : true);
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
@@ -318,7 +342,7 @@ const Layout = ({currentUser, children, classes}: {
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
       standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
-      renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')),
+      renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
       shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
@@ -327,6 +351,7 @@ const Layout = ({currentUser, children, classes}: {
 
     const standaloneNavigation = overrideLayoutOptions.standaloneNavigation ?? baseLayoutOptions.standaloneNavigation
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
+    console.log({renderSunshineSidebar, overrideLayoutOptions, baseLayoutOptions})
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
     // The friendly home page has a unique grid layout, to account for the right hand side column.
@@ -432,6 +457,11 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
+                {currentRoute?.name === 'home' ? <div className={classes.imageColumn}>
+                  <img className={classNames(classes.backgroundImage, classes.votingImage)} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705348099/LessWrong_Vote_2_t7jv4s.webp"/>
+                </div> : (standaloneNavigation && <div className={classes.imageColumn}>
+                  <img className={classes.backgroundImage} src="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705363497/ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413.webp"/>
+                </div>)}
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   !showNewUserCompleteProfile &&
