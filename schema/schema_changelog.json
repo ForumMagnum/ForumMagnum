@@ -503,5 +503,10 @@
     "acceptsSchemaHash": "2c8fcbdc99caee38d7f728acc6428352",
     "acceptedByMigration": "20231228T160733.add_wrapped2023Viewed_to_users.ts",
     "timestamp": "2023-12-28T16:07:33.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a4cbe51fa25c806a6116793b68705378",
+    "acceptedByMigration": "20240115T133711.add_PostView_PostViewTimes.ts",
+    "timestamp": "2024-01-15T13:37:11.000Z"
   }
 ]
