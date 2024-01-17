@@ -2,7 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
 import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
-import { userGroups, userOwns, userIsAdmin, userHasntChangedName, isAdmin } from '../../vulcan-users/permissions';
+import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
@@ -1563,17 +1563,6 @@ const schema: SchemaType<"Users"> = {
     logChanges: false,
   },
 
-  // User wants to get notifications when giving season voting begins
-  givingSeasonNotifyForVoting: {
-    type: Boolean,
-    optional: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: true,
-    ...schemaDefaultValue(false),
-  },
-
   // Email settings
   emailSubscribedToCurated: {
     type: Boolean,
@@ -2924,33 +2913,15 @@ const schema: SchemaType<"Users"> = {
     optional: true
   },
 
-  // Giving season fields
-  givingSeason2023DonatedFlair: {
+  hideSunshineSidebar: {
     type: Boolean,
     optional: true,
-    canRead: ['guests'],
+    canRead: [userOwns],
     canUpdate: ['admins'],
     canCreate: ['admins'],
     group: formGroups.adminOptions,
-    label: '"I Donated" flair for 2023 giving season',
-    hidden: !isEAForum,
-    ...schemaDefaultValue(false),
-  },
-  givingSeason2023VotedFlair: {
-    type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: ['members'],
-    canCreate: ['members'],
-    group: formGroups.adminOptions,
-    label: '"I Voted" flair for 2023 giving season',
-    hidden: ({ currentUser }) => {
-      if (!isEAForum) return true;
-      // Only admins can set this in the edit user form, but users can set it on themselves
-      // from the voting portal (if they have voted)
-      if (!isAdmin(currentUser)) return true;
-      return false;
-    },
+    label: "Hide Sunshine Sidebar",
+    hidden: isEAForum,
     ...schemaDefaultValue(false),
   },
 

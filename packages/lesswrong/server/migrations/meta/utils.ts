@@ -12,6 +12,7 @@ import CreateExtensionQuery from "../../../lib/sql/CreateExtensionQuery";
 import { postgresExtensions } from "../../postgresExtensions";
 import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
+import { Type } from "../../../lib/sql/Type";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -19,9 +20,8 @@ export const addField = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collection: CollectionBase<N>,
   fieldName: keyof ObjectsByCollectionName[N] & string,
-  skipValidation = false,
 ): Promise<void> => {
-  const {sql, args} = new AddFieldQuery(collection.getTable(), fieldName, skipValidation).compile();
+  const {sql, args} = new AddFieldQuery(collection.getTable(), fieldName).compile();
   await db.none(sql, args);
 }
 
@@ -35,8 +35,9 @@ export const addRemovedField = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collection: CollectionBase<N>,
   fieldName: string,
+  type: Type,
 ): Promise<void> => {
-  const {sql, args} = new AddFieldQuery(collection.getTable(), fieldName, true).compile();
+  const {sql, args} = new AddFieldQuery(collection.getTable(), fieldName, type).compile();
   await db.none(sql, args);
 }
 
@@ -44,9 +45,8 @@ export const dropField = async <N extends CollectionNameString>(
   db: SqlClientOrTx,
   collection: CollectionBase<N>,
   fieldName: keyof ObjectsByCollectionName[N] & string,
-  skipValidation = false,
 ): Promise<void> => {
-  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName, skipValidation).compile();
+  const {sql, args} = new DropFieldQuery(collection.getTable(), fieldName).compile();
   await db.none(sql, args);
 }
 

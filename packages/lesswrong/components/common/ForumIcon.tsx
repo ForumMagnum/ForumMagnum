@@ -58,6 +58,7 @@ import ArrowLongDown from "@heroicons/react/20/solid/ArrowLongDownIcon";
 import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
+import ArrowRightOutlineIcon from "@heroicons/react/24/outline/PaperAirplaneIcon";
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
@@ -91,6 +92,8 @@ import MuiShareIcon from "@material-ui/icons/Share";
 import MuiSearchIcon from '@material-ui/icons/Search';
 import MuiMenuIcon from "@material-ui/icons/Menu";
 import MuiForumIcon from '@material-ui/icons/Forum';
+import MuiVoteIcon from '@material-ui/icons/HowToVote'
+
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -100,7 +103,6 @@ import MuiForumIcon from '@material-ui/icons/Forum';
 import { PinIcon } from "../icons/pinIcon";
 import { AuthorIcon } from "../icons/authorIcon";
 import { SproutIcon } from "../icons/sproutIcon";
-import { GivingHand } from "../icons/givingHand";
 import { StickyIcon } from "../icons/stickyIcon";
 import { ThickChevronLeftIcon } from "../icons/thickChevronLeftIcon";
 import { ThickChevronRightIcon } from "../icons/thickChevronRightIcon";
@@ -144,7 +146,6 @@ export type ForumIconName =
   "Pin" |
   "Author" |
   "Sprout" |
-  "GivingHand" |
   "Close" |
   "Calendar" |
   "CalendarDays" |
@@ -188,6 +189,7 @@ export type ForumIconName =
   "DocumentFilled" |
   "SoftUpArrow" |
   "ArrowRight" |
+  "ArrowRightOutline" |
   "ArrowCircle" |
   "EllipsisVertical" |
   "Share" |
@@ -204,7 +206,9 @@ export type ForumIconName =
   "Voted" |
   "InfoCircle" |
   "BarsArrowDown" |
-  "LightbulbChat";
+  "LightbulbChat" |
+  "VoteBallot"
+  ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
   LWAF: {
@@ -228,7 +232,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: StickyIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
-    GivingHand: GivingHand,
     Close: CloseIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
@@ -272,6 +275,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
+    ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
     EllipsisVertical: MuiEllipsisVerticalIcon,
     Share: MuiShareIcon,
@@ -289,6 +293,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
     LightbulbChat: LightbulbChatIcon,
+    VoteBallot: MuiVoteIcon,
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -311,7 +316,6 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Pin: PinIcon,
     Author: AuthorIcon,
     Sprout: SproutIcon,
-    GivingHand: GivingHand,
     Close: CloseIcon,
     Calendar: CalendarIcon,
     CalendarDays: CalendarDaysIcon,
@@ -355,6 +359,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     List: ListIcon,
     SoftUpArrow: SoftUpArrowIcon,
     ArrowRight: ArrowRightIcon,
+    ArrowRightOutline: ArrowRightOutlineIcon,
     ArrowCircle: ArrowCircleIcon,
     EllipsisVertical: EllipsisVerticalIcon,
     Share: ShareIcon,
@@ -372,6 +377,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
     LightbulbChat: LightbulbChatIcon,
+    VoteBallot: MuiVoteIcon,
   },
 };
 
