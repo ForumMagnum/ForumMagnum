@@ -1,19 +1,24 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Configure, Hits, InstantSearch, SearchBox } from "react-instantsearch-dom";
 import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";
-import InfoIcon from "@material-ui/icons/Info";
 import { useCurrentUser } from "../common/withUser";
+import { useInitiateConversation } from "../hooks/useInitiateConversation";
+import { useNavigate } from "../../lib/reactRouterWrapper";
+import { Hit } from "react-instantsearch-core";
+import Chip from "@material-ui/core/Chip";
+import Button from "@material-ui/core/Button";
 
 const styles = (theme: ThemeType): JssStyles => ({
   paper: {
     width: 600,
+    margin: '48px 24px'
   },
   root: {
     maxWidth: 600,
     width: 'min(600px, 100%)',
-    maxHeight: 600,
+    maxHeight: 800,
     flex: 1,
     minHeight: 0,
     display: "flex",
@@ -36,6 +41,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   searchIcon: {
     marginLeft: 12,
+    marginRight: 6,
     color: theme.palette.grey[600],
     fontSize: 16
   },
@@ -59,16 +65,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center",
     maxWidth: 625,
+    minHeight: 48,
+    padding: 4,
     backgroundColor: theme.palette.grey[120],
     borderRadius: theme.borderRadius.default,
+  },
+  searchInputContents: {
+    flex: 1,
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
     "& .ais-SearchBox": {
       display: "inline-block",
       position: "relative",
-      width: "100%",
-      marginLeft: 8,
+      marginLeft: 2,
       height: 40,
       whiteSpace: "nowrap",
       boxSizing: "border-box",
+      flex: "1 1 auto",
     },
     "& .ais-SearchBox-form": {
       height: "100%",
@@ -115,7 +129,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 20,
     height: 20,
     cursor: "pointer",
-  }
+  },
+  chip: {
+    margin: 4,
+    backgroundColor: theme.palette.background.primarySlightlyDim,
+  },
+  submitButton: {
+    padding: 8,
+    fontSize: "16px",
+    minWidth: 28,
+    minHeight: 28,
+    marginLeft: "auto",
+    backgroundColor: "transparent",
+    color: theme.palette.primary.main,
+    background: "transparent",
+    fontWeight: 500,
+    '&:hover': {
+      backgroundColor: theme.palette.background.primaryDim,
+    }
+  },
 });
 
 const NewConversationDialog = ({
@@ -124,12 +156,40 @@ const NewConversationDialog = ({
   onClose,
 }: {
   isModInbox?: boolean;
-  classes: ClassesType;
+  classes: ClassesType<typeof styles>
   onClose: () => void;
 }) => {
-  const { LWDialog, ErrorBoundary, ExpandedUsersConversationSearchHit, ForumIcon, LWTooltip, Typography } = Components;
+  const {
+    LWDialog,
+    ErrorBoundary,
+    ExpandedUsersConversationSearchHit,
+    ForumIcon,
+    Typography,
+  } = Components;
   const currentUser = useCurrentUser();
   const [query, setQuery] = useState<string>("");
+  const navigate = useNavigate();
+
+  const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: isModInbox });
+  const [selectedUsers, setSelectedUsers] = useState<Hit<AnyBecauseTodo>[]>([])
+
+  useEffect(() => {
+    if (conversation) {
+      navigate({ pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversation._id}`, search: "?from=new_conversation_dialog" });
+      onClose();
+    }
+  }, [conversation, navigate, isModInbox, onClose]);
+
+  const toggleUserSelected = useCallback((user: Hit<AnyBecauseTodo>) => {
+    const prevSelectedUserIds = selectedUsers.map(u => u._id)
+    const newUserId = user._id
+
+    if (prevSelectedUserIds.includes(newUserId)) {
+      setSelectedUsers((prev) => prev.filter(v => v._id !== newUserId))
+    } else {
+      setSelectedUsers((prev) => [...prev, user])
+    }
+  }, [selectedUsers])
 
   if (!currentUser) return null;
 
@@ -157,16 +217,35 @@ const NewConversationDialog = ({
               <div className={classes.searchBoxRow}>
                 <div className={classes.searchInputArea}>
                   <ForumIcon icon="Search" className={classes.searchIcon} />
-                  <SearchBox
-                    defaultRefinement={query}
-                    // Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop,
-                    // when null is the only option that actually suppresses the extra X button.
-                    // @ts-ignore
-                    reset={null}
-                    focusShortcuts={[]}
-                    autoFocus={true}
-                    translations={{ placeholder: "Search for user..." }}
-                  />
+                  <div className={classes.searchInputContents}>
+                    {selectedUsers.map((u) => (
+                      <Chip
+                        key={u._id}
+                        onDelete={() => toggleUserSelected(u)}
+                        className={classes.chip}
+                        label={u.displayName}
+                      />
+                    ))}
+                    <SearchBox
+                      defaultRefinement={query}
+                      // Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop,
+                      // when null is the only option that actually suppresses the extra X button.
+                      // @ts-ignore
+                      reset={null}
+                      focusShortcuts={[]}
+                      autoFocus={true}
+                      translations={{ placeholder: "Search for user..." }}
+                    />
+                    <Button
+                      type="submit"
+                      id="new-conversation-submit"
+                      className={classes.submitButton}
+                      disabled={selectedUsers.length === 0}
+                      onClick={() => initiateConversation(selectedUsers.map(u => u._id))}
+                    >
+                      <ForumIcon icon="ArrowRightOutline" />
+                    </Button>
+                  </div>
                 </div>
               </div>
               {isModInbox && (
@@ -184,6 +263,10 @@ const NewConversationDialog = ({
                         {...props}
                         currentUser={currentUser}
                         onClose={onClose}
+                        onSelect={(u) => {
+                          toggleUserSelected(u)
+                          setQuery("")
+                        }}
                         isModInbox={isModInbox}
                         className={classes.hit}
                       />

@@ -252,10 +252,9 @@ const Heart: FC<{
       >
         <ForumIcon icon="VoteBallot" onClick={onClick}/>
         {disabled && <div className={classes.gsDisabledHeartTooltip}>
-          {eligibleToNominate(currentUser) ? 
-            "Vote on at least 6 posts in the review to leave your icon" :
-            "You need to have joined before 2022 to vote in the review"
-          }
+          {!currentUser && "Log in to vote in the review (with an account created before 2022)"}
+          {currentUser && !eligibleToNominate(currentUser) && "You need to have joined before 2022 to vote in the review"}
+          {currentUser && eligibleToNominate(currentUser) && "Vote on at least 6 posts in the review to leave your icon"}
         </div>}
       </LWTooltip>
     </div>
@@ -339,7 +338,7 @@ const ReviewVotingCanvas = ({
     await refetch();
   }, [rawRemoveHeart, refetch]);
 
-  const canAddHeart = !!currentUser && !isAddingHeart;
+  const canAddHeart = !isAddingHeart;
   const [hoverPos, setHoverPos] = useState<{x: number, y: number} | null>(null);
 
   const onMouseMove = useCallback(({target, clientX, clientY}: MouseEvent) => {
