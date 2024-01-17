@@ -30,6 +30,15 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.background.loginBackdrop,
     backdropFilter: "blur(4px)",
   },
+  close: {
+    color: theme.palette.grey[600],
+    cursor: "pointer",
+    position: "absolute",
+    top: 16,
+    right: 16,
+    width: 20,
+    height: 20,
+  },
   lightbulb: {
     color: theme.palette.primary.dark,
     width: 52,
@@ -229,6 +238,11 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
     >
       {open &&
         <div className={classes.root}>
+          <ForumIcon
+            icon="Close"
+            onClick={onClose}
+            className={classes.close}
+          />
           <div className={classes.lightbulb}>{lightbulbIcon}</div>
           <div className={classes.title}>{title}</div>
           <div className={classes.formContainer}>
