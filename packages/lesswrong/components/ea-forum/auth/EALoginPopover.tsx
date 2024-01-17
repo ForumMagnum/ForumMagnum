@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { useAuth0Client } from "../../hooks/useAuth0Client";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { FacebookIcon } from "../../icons/FacebookIcon";
@@ -75,10 +76,22 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     marginBottom: 20,
   },
+  error: {
+    color: theme.palette.text.error2,
+    marginBottom: 12,
+    fontSize: 14,
+    fontWeight: 500,
+  },
   button: {
     width: "100%",
+    height: 50,
     padding: "15px 17px",
     fontWeight: 600,
+    "& .Loading-spinner": {
+      height: "100%",
+      display: "flex",
+      alignItems: "center",
+    },
   },
   orContainer: {
     display: "flex",
@@ -148,9 +161,12 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
   isSignup: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
+  const client = useAuth0Client();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const onChangeEmail = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     setEmail(ev.target.value);
@@ -164,27 +180,45 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
     setShowPassword((showPassword) => !showPassword);
   }, []);
 
-  const onSubmit = useCallback(() => {
-    // TODO
-    // eslint-disable-next-line no-console
-    console.log("Submitting", email, password);
-  }, [email, password]);
+  const onSubmit = useCallback(async () => {
+    if (!email || !password) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      if (isSignup) {
+        // TODO: Implement sign up
+      } else {
+        const result = await client.login(email, password);
+        console.log("RESULT", result); // TODO
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+      setError(e.description || e.message || String(e) || "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  }, [email, password, isSignup, client]);
 
   useEffect(() => {
     if (!open) {
       setEmail("");
       setPassword("");
       setShowPassword(false);
+      setLoading(false);
+      setError(null);
     }
   }, [open]);
 
   const title = isSignup
-    ? "Sign in to get more from the EA Forum"
+    ? "Sign up to get more from the EA Forum"
     : "Welcome back";
 
-  const canSubmit = !!email && !!password;
+  const canSubmit = !!email && !!password && !loading;
 
-  const {ForumIcon, EAButton} = Components;
+  const {ForumIcon, EAButton, Loading} = Components;
   return (
     <Popover
       open={open}
@@ -229,13 +263,23 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
                 Forgot password?
               </Link>
             }
+            {error &&
+              <div className={classes.error}>
+                Error: {error}
+              </div>
+            }
             <EAButton
               style="primary"
               onClick={onSubmit}
               disabled={!canSubmit}
               className={classes.button}
             >
-              Continue
+              {loading
+                ? <Loading />
+                : isSignup
+                  ? "Sign up"
+                  : "Login"
+              }
             </EAButton>
             <div className={classes.orContainer}>
               <span className={classes.orHr} />OR<span className={classes.orHr} />
