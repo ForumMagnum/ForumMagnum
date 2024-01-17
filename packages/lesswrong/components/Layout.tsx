@@ -466,7 +466,7 @@ const Layout = ({currentUser, children, classes}: {
                     currentRoute?.name === 'home' ? 
                       <div className={classes.imageColumn}>
                         <ReviewVotingCanvas />
-                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_nskstf" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_3_jbqyqv" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
                       </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
