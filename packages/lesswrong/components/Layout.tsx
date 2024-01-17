@@ -135,7 +135,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: '57vw',
     maxWidth: '1000px',
     top: '-30px',
-    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 42%, transparent 70%)`,
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
     
     [theme.breakpoints.up(2000)]: {
       right: '0px',
@@ -466,7 +466,7 @@ const Layout = ({currentUser, children, classes}: {
                     currentRoute?.name === 'home' ? 
                       <div className={classes.imageColumn}>
                         <ReviewVotingCanvas />
-                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_2_vnz12i" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_nskstf" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
                       </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
