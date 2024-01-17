@@ -39,6 +39,7 @@ import TagIcon from "@heroicons/react/24/outline/TagIcon";
 import TagFilledIcon from "@heroicons/react/24/solid/TagIcon";
 import EyeOutlineIcon from "@heroicons/react/24/outline/EyeIcon";
 import EyeIcon from "@heroicons/react/24/solid/EyeIcon";
+import EyeSlashIcon from "@heroicons/react/24/solid/EyeSlashIcon";
 import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import PencilSquareIcon from "@heroicons/react/24/outline/PencilSquareIcon";
 import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
@@ -163,6 +164,7 @@ export type ForumIconName =
   "Report" |
   "ListBullet" |
   "Eye" |
+  "EyeSlash" |
   "EyeOutline" |
   "Tag" |
   "TagFilled" |
@@ -251,6 +253,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Tag: MuiTagIcon,
     TagFilled: TagFilledIcon,
     Eye: MuiVisibility,
+    EyeSlash: EyeSlashIcon,
     EyeOutline: MuiVisibilityOff,
     Edit: MuiEditIcon,
     Analytics: MuiShowChartIcon,
@@ -335,6 +338,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Tag: TagIcon,
     TagFilled: TagFilledIcon,
     Eye: EyeIcon,
+    EyeSlash: EyeSlashIcon,
     EyeOutline: EyeOutlineIcon,
     Edit: PencilIcon,
     Analytics: MuiShowChartIcon,

@@ -145,6 +145,7 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       panelBackground: {
         default: shadePalette.grey[20],
         modalBackground: "#292929",
+        loginInput: "#3d3d3d",
       },
       background: {
         primaryTranslucent: "rgba(12,134,155,0.4)",

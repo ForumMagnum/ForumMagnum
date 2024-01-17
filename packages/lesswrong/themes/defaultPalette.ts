@@ -369,6 +369,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     tooltipBackground: "rgba(75,75,75,.94)",
     tooltipBackground2: "#373737",
     modalBackground: "#fff",
+    loginInput: "#f2f2f2",
     tenPercent: shades.greyAlpha(.1),
     sunshineReportedContent: "rgba(60,0,0,.08)",
     sunshineFlaggedUser: "rgba(150,0,0,.05)",
