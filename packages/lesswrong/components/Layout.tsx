@@ -144,7 +144,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   votingImage: {
     width: '55vw',
     maxWidth: '1000px',
-    marginLeft: '-22px'
+    marginLeft: '-15px'
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
