@@ -287,7 +287,6 @@ interface UsersDefaultFragment { // fragment on Users
   },
   readonly karmaChangeLastOpened: Date,
   readonly karmaChangeBatchStart: Date,
-  readonly givingSeasonNotifyForVoting: boolean,
   readonly emailSubscribedToCurated: boolean,
   readonly subscribedToDigest: boolean,
   readonly unsubscribeFromAll: boolean,
@@ -404,8 +403,6 @@ interface UsersDefaultFragment { // fragment on Users
   readonly rateLimitNextAbleToComment: any,
   readonly rateLimitNextAbleToPost: any,
   readonly recentKarmaInfo: any,
-  readonly givingSeason2023DonatedFlair: boolean,
-  readonly givingSeason2023VotedFlair: boolean,
   readonly hideSunshineSidebar: boolean,
   readonly wrapped2023Viewed: boolean,
 }
@@ -1129,6 +1126,7 @@ interface PostsListBase_customHighlight { // fragment on Revisions
 }
 
 interface PostsListBase_lastPromotedComment { // fragment on Comments
+  readonly _id: string,
   readonly user: UsersMinimumInfo|null,
 }
 
@@ -1223,6 +1221,7 @@ interface PostsDetails_podcastEpisode { // fragment on PodcastEpisodes
 }
 
 interface PostsDetails_podcastEpisode_podcast { // fragment on Podcasts
+  readonly _id: string,
   readonly title: string,
   readonly applePodcastLink: string | null,
   readonly spotifyPodcastLink: string | null,
@@ -1483,6 +1482,7 @@ interface PostsBestOfList_podcastEpisode { // fragment on PodcastEpisodes
 }
 
 interface PostsBestOfList_podcastEpisode_podcast { // fragment on Podcasts
+  readonly _id: string,
   readonly title: string,
   readonly applePodcastLink: string | null,
   readonly spotifyPodcastLink: string | null,
@@ -1494,7 +1494,7 @@ interface CommentsList { // fragment on Comments
   readonly tagId: string,
   readonly tag: CommentsList_tag|null,
   readonly relevantTagIds: Array<string>,
-  readonly relevantTags: Array<TagBasicInfo>,
+  readonly relevantTags: Array<TagPreviewFragment>,
   readonly tagCommentType: "SUBFORUM" | "DISCUSSION",
   readonly parentCommentId: string,
   readonly topLevelCommentId: string,
@@ -2080,6 +2080,7 @@ interface SequencesPageTitleFragment { // fragment on Sequences
 }
 
 interface SequencesPageTitleFragment_canonicalCollection { // fragment on Collections
+  readonly _id: string,
   readonly title: string,
 }
 
