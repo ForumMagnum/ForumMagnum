@@ -278,7 +278,7 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
               }
               {error &&
                 <div className={classes.error}>
-                  Error: {error}
+                  {error}
                 </div>
               }
               <EAButton
