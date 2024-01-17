@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
+import React, { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useAuth0Client } from "../../hooks/useAuth0Client";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -79,15 +79,15 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
   },
   forgotPassword: {
-    display: "block",
     color: theme.palette.primary.main,
     fontSize: 14,
     fontWeight: 600,
-    marginBottom: 20,
+    marginTop: 4,
+    marginBottom: 8,
   },
   error: {
     color: theme.palette.text.error2,
-    marginBottom: 12,
+    marginBottom: 4,
     fontSize: 14,
     fontWeight: 500,
   },
@@ -189,7 +189,9 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
     setShowPassword((showPassword) => !showPassword);
   }, []);
 
-  const onSubmit = useCallback(async () => {
+  const onSubmit = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
+    ev.preventDefault();
+
     if (!email || !password) {
       return;
     }
@@ -200,6 +202,7 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
         // TODO: Implement sign up
       } else {
         const result = await client.login(email, password);
+        // eslint-disable-next-line no-console
         console.log("RESULT", result); // TODO
       }
     } catch (e) {
@@ -246,7 +249,7 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
           <div className={classes.lightbulb}>{lightbulbIcon}</div>
           <div className={classes.title}>{title}</div>
           <div className={classes.formContainer}>
-            <form className={classes.form} onSubmit={onSubmit}>
+            <form onSubmit={onSubmit} className={classes.form}>
               <input
                 type="text"
                 placeholder="Email"
@@ -268,33 +271,30 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
                   className={classes.showPasswordButton}
                 />
               </div>
-            </form>
-            {!isSignup &&
-              <Link
-                to={links.forgotPassword}
-                className={classes.forgotPassword}
-              >
-                Forgot password?
-              </Link>
-            }
-            {error &&
-              <div className={classes.error}>
-                Error: {error}
-              </div>
-            }
-            <EAButton
-              style="primary"
-              onClick={onSubmit}
-              disabled={!canSubmit}
-              className={classes.button}
-            >
-              {loading
-                ? <Loading />
-                : isSignup
-                  ? "Sign up"
-                  : "Login"
+              {!isSignup &&
+                <div className={classes.forgotPassword}>
+                  <Link to={links.forgotPassword}>Forgot password?</Link>
+                </div>
               }
-            </EAButton>
+              {error &&
+                <div className={classes.error}>
+                  Error: {error}
+                </div>
+              }
+              <EAButton
+                type="submit"
+                style="primary"
+                disabled={!canSubmit}
+                className={classes.button}
+              >
+                {loading
+                  ? <Loading />
+                  : isSignup
+                    ? "Sign up"
+                    : "Login"
+                }
+              </EAButton>
+            </form>
             <div className={classes.orContainer}>
               <span className={classes.orHr} />OR<span className={classes.orHr} />
             </div>
