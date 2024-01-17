@@ -10,6 +10,7 @@ import { useMessages } from "../common/withMessages";
 import { getUserEmail } from "../../lib/collections/users/helpers";
 import { LicenseLink, TosLink } from "../posts/PostsAcceptTos";
 import { Link } from "../../lib/reactRouterWrapper";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 /**
  * 2023-11-17 SC: This component is not used by LW/AF, though we left some forum-gating
@@ -154,101 +155,103 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
     }
   }
   
-  return <SingleColumnSection>
-    <div className={classes.root}>
-      <Typography variant="display2" gutterBottom className={classes.title}>
-        Welcome to {siteNameWithArticleSetting.get()}!
-      </Typography>
-      <div className={classes.section}>
-        <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
-          Choose a username
+  return <AnalyticsContext pageContext="newUserRegistration">
+    <SingleColumnSection>
+      <div className={classes.root}>
+        <Typography variant="display2" gutterBottom className={classes.title}>
+          Welcome to {siteNameWithArticleSetting.get()}!
         </Typography>
-        <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          We encourage you to use your real name, as it will help other people
-          in the community to identify you, but you can choose a pseudonym. If
-          you do, try to choose{' '}
-          <a href="https://jimpix.co.uk/words/random-username-generator.asp" target="_blank" rel="noopener noreferrer">
-            something recognizable like "WobblyPanda",
-          </a>{' '}
-          instead of a variation of anon7.
-        </Typography>
-        <TextField
-          label='Username'
-          error={!!validationError}
-          helperText={validationError || 'Spaces and special characters allowed'}
-          value={username}
-          onChange={(event) => setUsername(event.target.value)}
-          onBlur={(_event) => validateUsername(username)}
-          className={classes.usernameInput}
-        />
-      </div>
-      
-      {/* Facebook user with no email fix (very small % of users) */}
-      {!currentUser?.email && <div className={classes.section}>
-        <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
-          Please enter your email
-        </Typography>
-        <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          {/* I'd rather be honest than concise here. */}
-          To get here without an email you must have logged in with Facebook
-          and not given Facebook your email. We need your email to notify you of
-          direct messages, and having a tiny percentage of users without an
-          email makes the site harder to maintain.
-        </Typography>
-        <TextField
-          label='Email'
-          inputRef={emailInput}
-        />
-      </div>}
+        <div className={classes.section}>
+          <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
+            Choose a username
+          </Typography>
+          <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
+            We encourage you to use your real name, as it will help other people
+            in the community to identify you, but you can choose a pseudonym. If
+            you do, try to choose{' '}
+            <a href="https://jimpix.co.uk/words/random-username-generator.asp" target="_blank" rel="noopener noreferrer">
+              something recognizable like "WobblyPanda",
+            </a>{' '}
+            instead of a variation of anon7.
+          </Typography>
+          <TextField
+            label='Username'
+            error={!!validationError}
+            helperText={validationError || 'Spaces and special characters allowed'}
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+            onBlur={(_event) => validateUsername(username)}
+            className={classes.usernameInput}
+          />
+        </div>
+        
+        {/* Facebook user with no email fix (very small % of users) */}
+        {!currentUser?.email && <div className={classes.section}>
+          <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
+            Please enter your email
+          </Typography>
+          <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
+            {/* I'd rather be honest than concise here. */}
+            To get here without an email you must have logged in with Facebook
+            and not given Facebook your email. We need your email to notify you of
+            direct messages, and having a tiny percentage of users without an
+            email makes the site harder to maintain.
+          </Typography>
+          <TextField
+            label='Email'
+            inputRef={emailInput}
+          />
+        </div>}
 
-      {isEAForum && <div className={classes.section}>
-        <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
-          Get weekly emails with selected posts
-        </Typography>
-        <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
-          The EA Forum Digest is curated by the Forum team, and features highlights from
-          every week, announcements, and more.{" "}
-          <Link to={eaForumDigestLink} target="_blank" rel="noreferrer">
-            See recent issues here
-          </Link>.
-        </Typography>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={subscribeToDigest}
-              onChange={event => setSubscribeToDigest(event.target.checked)}
-            />
-          }
-          label='Yes, subscribe me to EA Forum digest emails'
-        />
-      </div>}
-      {isEAForum && <div className={classes.section}>
-        <div className={classes.callout}>
-          <h2 className={classes.calloutHeadingText}>
-            Chat with an EA Forum Team member
-          </h2>
-          <Typography variant='body1' className={classes.sectionHelperText}>
-            We want to hear from you! Sign up for a user interview with a member of the EA Forum Team
-            and we'll answer any questions you have about EA or the Forum.{" "}
-            <Link to="/" target="_blank" rel="noreferrer">
-              Book a call here
+        {isEAForum && <div className={classes.section}>
+          <Typography variant='display1' className={classes.sectionHeadingText} gutterBottom>
+            Get weekly emails with selected posts
+          </Typography>
+          <Typography variant='body1' className={classes.sectionHelperText} gutterBottom>
+            The EA Forum Digest is curated by the Forum team, and features highlights from
+            every week, announcements, and more.{" "}
+            <Link to={eaForumDigestLink} target="_blank" rel="noreferrer">
+              See recent issues here
             </Link>.
           </Typography>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={subscribeToDigest}
+                onChange={event => setSubscribeToDigest(event.target.checked)}
+              />
+            }
+            label='Yes, subscribe me to EA Forum digest emails'
+          />
+        </div>}
+        {isEAForum && <div className={classes.section}>
+          <div className={classes.callout}>
+            <h2 className={classes.calloutHeadingText}>
+              Chat with an EA Forum Team member
+            </h2>
+            <Typography variant='body1' className={classes.sectionHelperText}>
+              We want to hear from you! Sign up for a user interview with a member of the EA Forum Team
+              and we'll answer any questions you have about EA or the Forum.{" "}
+              <Link to="https://savvycal.com/cea/forum-team" target="_blank" rel="noreferrer">
+                Book a call here
+              </Link>.
+            </Typography>
+          </div>
+        </div>}
+        <div className={classes.submitButtonSection}>
+          {isEAForum &&
+            <Typography variant="body1" className={classnames(classes.sectionHelperText, classes.tosText)} gutterBottom>
+              I agree to the <TosLink />, including my content being available
+              under a <LicenseLink /> license.
+            </Typography>
+          }
+          <EAButton onClick={handleSave} disabled={!!validationError}>
+            Submit
+          </EAButton>
         </div>
-      </div>}
-      <div className={classes.submitButtonSection}>
-        {isEAForum &&
-          <Typography variant="body1" className={classnames(classes.sectionHelperText, classes.tosText)} gutterBottom>
-            I agree to the <TosLink />, including my content being available
-            under a <LicenseLink /> license.
-          </Typography>
-        }
-        <EAButton onClick={handleSave} disabled={!!validationError}>
-          Submit
-        </EAButton>
       </div>
-    </div>
-  </SingleColumnSection>
+    </SingleColumnSection>
+  </AnalyticsContext>
 };
 
 const NewUserCompleteProfileComponent = registerComponent(
