@@ -5,6 +5,7 @@ import { Globals } from "../vulcan-lib";
 import PostViewsRepo from "../repos/PostViewsRepo";
 import PostViewTimesRepo from "../repos/PostViewTimesRepo";
 import IncrementalViewRepo from "../repos/IncrementalViewRepo";
+import { isEAForum } from "../../lib/instanceSettings";
 
 async function updateDailyAnalyticsCollection<N extends CollectionNameString>({
   repo,
@@ -103,10 +104,12 @@ async function updateAnalyticsCollections(props: {startDate?: string}) {
   console.log("Finished updateAnalyticsCollections")
 }
 
-addCronJob({
-  name: "updateAnalyticsCollections",
-  interval: "every 1 hour",
-  job: async () => updateAnalyticsCollections({}),
-});
+if (isEAForum) {
+  addCronJob({
+    name: "updateAnalyticsCollections",
+    interval: "every 1 hour",
+    job: async () => updateAnalyticsCollections({}),
+  });
+}
 
 Globals.updateAnalyticsCollections = updateAnalyticsCollections
