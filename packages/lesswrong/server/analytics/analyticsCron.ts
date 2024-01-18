@@ -36,12 +36,12 @@ async function updateDailyAnalyticsCollection<N extends CollectionNameString>({
       currentDate < earliestWindowStart ||
       currentDate >= inclusiveEndDate
     ) {
-      const startOfDay = moment(currentDate).startOf("day").toDate();
-      const endOfDay = moment(currentDate).endOf("day").toDate();
+      const startOfDay = moment(currentDate).utc().startOf("day").toDate();
+      const endOfDay = moment(currentDate).utc().endOf("day").toDate();
       ranges.push({ startDate: startOfDay, endDate: endOfDay });
     }
     // Move to the next day
-    currentDate = moment(currentDate).add(1, 'day').toDate();
+    currentDate = moment(currentDate).utc().add(1, 'day').toDate();
   }
 
   // Reverse ranges so the most recent days are done first
@@ -81,7 +81,7 @@ async function updateAnalyticsCollections(props: {startDate?: string}) {
   const { startDate } = props ?? {}
 
   // If no explicit start date is given, only go back 1 week to avoid this being slow
-  const earliestStartDate = startDate ? moment(startDate).startOf('day').toDate() : moment().utc().subtract(1, 'week').startOf('day').toDate();
+  const earliestStartDate = startDate ? moment(startDate).utc().startOf('day').toDate() : moment().utc().subtract(1, 'week').startOf('day').toDate();
   // endDate is the end of the current day
   const endDate = moment().utc().endOf('day').toDate();
 
