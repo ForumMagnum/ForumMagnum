@@ -107,7 +107,7 @@ async function updateAnalyticsCollections(props: {startDate?: string}) {
 if (isEAForum) {
   addCronJob({
     name: "updateAnalyticsCollections",
-    interval: "every 1 hour",
+    interval: "every 30 minutes",
     job: async () => updateAnalyticsCollections({}),
   });
 }
