@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
@@ -52,10 +52,6 @@ export const NotificationsPageNotification = ({notification, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {Display, Icon, iconVariant} = getDisplayConfig(notification);
-  if (!Display) {
-    return null;
-  }
-
   const {
     createdAt, comment, post, user, tag, localgroup, link, tagRelId,
   } = notification;
@@ -67,24 +63,23 @@ export const NotificationsPageNotification = ({notification, classes}: {
   const displayPost = post ?? comment?.post;
   const displayLocalgroup = localgroup ?? post?.group;
 
-  const {UsersName, PostsTooltip, FormatDate, NotificationsPageItem} = Components;
-  const User: FC = () => (
-    <UsersName
+  const User: FC = useCallback(() => (
+    <Components.UsersName
       user={displayUser}
       tooltipPlacement="bottom-start"
       className={classes.primaryText}
     />
-  );
-  const LazyUser: FC<{userId: string}> = ({userId}) => (
-    <UsersName
+  ), [displayUser, classes]);
+  const LazyUser: FC<{userId: string}> = useCallback(({userId}) => (
+    <Components.UsersName
       documentId={userId}
       tooltipPlacement="bottom-start"
       className={classes.primaryText}
     />
-  );
-  const Post: FC = () => displayPost
+  ), [classes]);
+  const Post: FC = useCallback(() => displayPost
     ? (
-      <PostsTooltip
+      <Components.PostsTooltip
         post={displayPost as unknown as PostsList}
         tagRelId={tagRelId}
       >
@@ -95,12 +90,12 @@ export const NotificationsPageNotification = ({notification, classes}: {
         >
           {displayPost.title}
         </Link>
-      </PostsTooltip>
+      </Components.PostsTooltip>
     )
-    : null;
-  const Comment: FC = () => comment
+    : null, [displayPost, link, tagRelId, classes]);
+  const Comment: FC = useCallback(() => comment
     ? (
-      <PostsTooltip
+      <Components.PostsTooltip
         postId={displayPost?._id}
         commentId={comment._id}
         tagRelId={tagRelId}
@@ -117,10 +112,10 @@ export const NotificationsPageNotification = ({notification, classes}: {
         >
           comment
         </Link>
-      </PostsTooltip>
+      </Components.PostsTooltip>
     )
-    : null;
-  const Tag: FC = () => tag
+    : null, [comment, displayPost, tag, tagRelId, classes]);
+  const Tag: FC = useCallback(() => tag
     ? (
       <Link
         to={link ?? tagGetUrl(tag)}
@@ -130,8 +125,8 @@ export const NotificationsPageNotification = ({notification, classes}: {
         {tag.name}
       </Link>
     )
-    : null;
-  const Localgroup: FC = () => displayLocalgroup
+    : null, [link, tag, classes]);
+  const Localgroup: FC = useCallback(() => displayLocalgroup
     ? (
       <Link
         to={link ?? localgroupGetUrl(displayLocalgroup)}
@@ -141,8 +136,13 @@ export const NotificationsPageNotification = ({notification, classes}: {
         {displayLocalgroup.name}
       </Link>
     )
-    : null;
+    : null, [displayLocalgroup, link, classes]);
 
+  if (!Display) {
+    return null;
+  }
+
+  const {NotificationsPageItem} = Components;
   return (
     <NotificationsPageItem
       Icon={Icon}
@@ -158,7 +158,7 @@ export const NotificationsPageNotification = ({notification, classes}: {
         Comment={Comment}
         Tag={Tag}
         Localgroup={Localgroup}
-      /> <FormatDate date={new Date(createdAt)} includeAgo />
+      /> <Components.FormatDate date={new Date(createdAt)} includeAgo />
     </NotificationsPageItem>
   );
 }
