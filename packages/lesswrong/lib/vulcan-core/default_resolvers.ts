@@ -2,7 +2,7 @@ import { Utils, getTypeName, getCollection } from '../vulcan-lib';
 import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
-import { viewTermsToQuery } from '../utils/viewUtils';
+import { describeTerms, viewTermsToQuery } from '../utils/viewUtils';
 import type { FieldNode, GraphQLResolveInfo } from 'graphql';
 import { FragmentSpreadNode } from 'graphql';
 import SelectFragmentQuery from '../sql/SelectFragmentQuery';
@@ -12,6 +12,8 @@ interface DefaultResolverOptions {
   cacheMaxAge: number
 }
 
+const maxAllowedSkip = 2000;
+
 const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
 };
@@ -19,7 +21,7 @@ const defaultOptions: DefaultResolverOptions = {
 const getFragmentNameFromInfo = (
   {fieldName, fieldNodes}: GraphQLResolveInfo,
   resultFieldName: string,
-) => {
+): string | null => {
   const query = fieldNodes.find(
     ({name: {value}}) => value === fieldName,
   );
@@ -35,8 +37,8 @@ const getFragmentNameFromInfo = (
   if (!fragmentName) {
     const data = JSON.stringify(fieldNodes, null, 2);
     // eslint-disable-next-line no-console
-    console.error("Fragment name not found", fieldName, data);
-    throw new Error("Fragment name not found");
+    console.error("Fragment name not found for", fieldName, data);
+    return null;
   }
   return fragmentName;
 }
@@ -50,7 +52,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
   type T = ObjectsByCollectionName[N]
   const typeName = getTypeName(collectionName);
   const resolverOptions = {...defaultOptions, options};
-  
+
   return {
     // resolver for returning a list of documents based on a set of query terms
 
@@ -77,6 +79,12 @@ export function getDefaultResolvers<N extends CollectionNameString>(
         logger('multi resolver()')
         logger('multi terms', terms)
 
+        // Don't allow API requests with an offset provided >2000. This prevents some
+        // extremely-slow queries.
+        if (terms.offset && (terms.offset > maxAllowedSkip)) {
+          throw new Error("Exceeded maximum value for skip");
+        }
+
         const {cacheControl} = info;
         if (cacheControl && enableCache) {
           const maxAge = resolverOptions.cacheMaxAge || defaultOptions.cacheMaxAge;
@@ -89,39 +97,43 @@ export function getDefaultResolvers<N extends CollectionNameString>(
         // get collection based on collectionName argument
         const collection = getCollection(collectionName);
 
-        // get fragment from GraphQL AST
-        const fragmentName = getFragmentNameFromInfo(info, "results");
-
         // Get selector and options from terms and perform Mongo query
         // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
         const parameters = viewTermsToQuery(collectionName, terms as any, {}, context);
 
-        const query = new SelectFragmentQuery(
-          fragmentName as FragmentName,
-          currentUser,
-          (args as any).input.terms, // TODO figure out correct types for this
-          parameters.selector,
-          parameters.options,
-        );
-        const compiledQuery = query.compile();
-        const db = getSqlClientOrThrow();
-        let docs = await db.any(compiledQuery.sql, compiledQuery.args);
+        // get fragment from GraphQL AST
+        const fragmentName = getFragmentNameFromInfo(info, "results");
+
+        let fetchDocs: () => Promise<T[]>;
+        if (fragmentName) {
+          const query = new SelectFragmentQuery(
+            fragmentName as FragmentName,
+            currentUser,
+            (args as any).input.terms, // TODO figure out correct types for this
+            parameters.selector,
+            parameters.options,
+          );
+          const compiledQuery = query.compile();
+          const db = getSqlClientOrThrow();
+          fetchDocs = () => db.any(compiledQuery.sql, compiledQuery.args);
+        } else {
+          fetchDocs = () => performQueryFromViewParameters(
+            collection,
+            terms,
+            parameters,
+          );
+        }
+        let docs = await fetchDocs();
 
         // Create a doc if none exist, using the actual create mutation to ensure permission checks are run correctly
         if (input.createIfMissing && docs.length === 0) {
           await collection.options.mutations.create.mutation(root, {data: input.createIfMissing}, context)
-          docs = await db.any(compiledQuery.sql, compiledQuery.args);
-        }
-
-        if (docs?.length) {
-          docs = await Promise.all(docs.map(
-            (doc) => query.executeCodeResolvers(doc, context, info),
-          ));
+          docs = await fetchDocs();
         }
 
         // Were there enough results to reach the limit specified in the query?
         const saturated = parameters.options.limit && docs.length>=parameters.options.limit;
-        
+
         // if collection has a checkAccess function defined, remove any documents that doesn't pass the check
         const viewableDocs: Array<T> = collection.checkAccess
           ? await asyncFilter(docs, async (doc: T) => await collection.checkAccess(currentUser, doc, context))
@@ -145,7 +157,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
             data.totalCount = viewableDocs.length;
           }
         }
-  
+
         // const timeElapsed = Date.now() - startResolve;
         // Temporarily disabled to investigate performance issues
         // captureEvent("resolveMultiCompleted", {documentIds: restrictedDocs.map((d: DbObject) => d._id), collectionName, timeElapsed, terms}, true);
@@ -191,16 +203,16 @@ export function getDefaultResolvers<N extends CollectionNameString>(
         const { currentUser }: {currentUser: DbUser|null} = context;
         const collection = getCollection(collectionName);
 
-        // get fragment from GraphQL AST
-        const fragmentName = getFragmentNameFromInfo(info, "result");
-
         // use Dataloader if doc is selected by documentId/_id
         const documentId = selector.documentId || selector._id;
+
+        // get fragment from GraphQL AST
+        const fragmentName = getFragmentNameFromInfo(info, "results");
 
         let doc: ObjectsByCollectionName[N] | null;
         if (documentId) {
           doc = await context.loaders[collectionName].load(documentId);
-        } else {
+        } else if (fragmentName) {
           const query = new SelectFragmentQuery(
             fragmentName as FragmentName,
             currentUser,
@@ -211,9 +223,8 @@ export function getDefaultResolvers<N extends CollectionNameString>(
           const compiledQuery = query.compile();
           const db = getSqlClientOrThrow();
           doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
-          if (doc) {
-            await query.executeCodeResolvers(doc, context, info);
-          }
+        } else {
+          doc = await Utils.Connectors.get(collection, selector);
         }
 
         if (!doc) {
@@ -251,14 +262,61 @@ export function getDefaultResolvers<N extends CollectionNameString>(
         logGroupEnd();
         logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
         logger('');
-        
+
         // const timeElapsed = Date.now() - startResolve;
         // Temporarily disabled to investigate performance issues
         // captureEvent("resolveSingleCompleted", {documentId: restrictedDoc._id, collectionName, timeElapsed}, true);
-        
+
         // filter out disallowed properties and return resulting document
         return { result: restrictedDoc };
       },
     },
   };
+}
+
+const performQueryFromViewParameters = async <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  terms: ViewTermsBase,
+  parameters: AnyBecauseTodo,
+): Promise<ObjectsByCollectionName[N][]> => {
+  const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
+  const selector = parameters.selector;
+  const description = describeTerms(collection.collectionName, terms);
+  const options: MongoFindOptions<ObjectsByCollectionName[N]> = {
+    ...parameters.options,
+    skip: terms.offset,
+    comment: description
+  };
+  if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
+    const pipeline = [
+      // First stage: Filter by selector
+      { $match: {
+        ...selector,
+        $comment: description,
+      }},
+      // Second stage: Add computed fields
+      { $addFields: parameters.syntheticFields },
+
+      // Third stage: Filter by computed fields (if applicable)
+      ...(parameters.syntheticFieldSelector || []),
+
+      // Fourth stage: Sort
+      { $sort: parameters.options.sort },
+    ];
+
+    // Apply skip and limit (if applicable)
+    if (parameters.options.skip) {
+      pipeline.push({ $skip: parameters.options.skip });
+    }
+    if (parameters.options.limit) {
+      pipeline.push({ $limit: parameters.options.limit });
+    }
+    logger('aggregation pipeline', pipeline);
+    return await collection.aggregate(pipeline).toArray();
+  } else {
+    logger('performQueryFromViewParameters connector find', selector, terms, options);
+    return await collection.find({
+      ...selector,
+    }, options).fetch();
+  }
 }
