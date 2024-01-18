@@ -33,6 +33,9 @@ const getFragmentNameFromInfo = (
   ) as FragmentSpreadNode | undefined;
   const fragmentName = fragmentSpread?.name.value;
   if (!fragmentName) {
+    const data = JSON.stringify(fieldNodes, null, 2);
+    // eslint-disable-next-line no-console
+    console.error("Fragment name not found", fieldName, data);
     throw new Error("Fragment name not found");
   }
   return fragmentName;
