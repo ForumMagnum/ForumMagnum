@@ -254,11 +254,12 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
 
   const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon, AnalyticsGraph, LWTooltip } = Components;
 
-  if (!currentUser || (currentUser.slug !== slug && !userIsAdminOrMod(currentUser))) {
+  const isCurrentUser = currentUser?.slug === slug
+  if (!currentUser || (!isCurrentUser && !userIsAdminOrMod(currentUser))) {
     return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
   }
 
-  if (userLoading || !user) return null;
+  if (userLoading || !user) return <Loading />;
 
   const title = `Stats for ${user.displayName}`;
 
@@ -285,7 +286,7 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
       <SingleColumnSection className={classes.root}>
       <div className={classes.pageHeader}>
         <Typography variant="headline" className={classes.pageHeaderText}>
-          Your post stats
+          {isCurrentUser ? "Your" : `${user.displayName}'s`} post stats
         </Typography>
       </div>
         <div className={classes.section}>
