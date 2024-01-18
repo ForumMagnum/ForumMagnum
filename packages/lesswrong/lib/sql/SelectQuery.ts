@@ -72,11 +72,14 @@ export type SelectSqlOptions = Partial<{
    */
   sampleSize: number,
   /**
-   * Don't initialize the query in the constructor
+   * Don't initialize the query in the constructor (this is used by
+   * `SelectFragmentQuery` to insert a custom projection without the normal "*"
+   * projection that `SelectQuery` would generate).
    */
   deferInit: boolean,
   /**
-   * Table prefix for the primary table
+   * Table prefix for the primary table (used by `SelectFragmentQuery` for
+   * custom projections).
    */
   primaryPrefix?: string,
 }>

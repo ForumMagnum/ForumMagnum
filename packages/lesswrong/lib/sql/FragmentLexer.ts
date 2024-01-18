@@ -18,10 +18,16 @@ class FragmentLexer {
     this.lines = match[3].split("\n").map((s) => s.trim()).filter((s) => s);
   }
 
+  /**
+   * The name of this fragment (eg; PostsMinimumInfo).
+   */
   getName() {
     return this.name;
   }
 
+  /**
+   * The GraphQL type that this fragment is defined on (eg; Post).
+   */
   getBaseTypeName() {
     return this.baseTypeName;
   }

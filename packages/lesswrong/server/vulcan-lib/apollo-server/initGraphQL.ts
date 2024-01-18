@@ -222,23 +222,19 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
           type: fieldGraphQLType,
         });
 
-        const missingResolvers = new Set<string>();
-
         // then build actual resolver object and pass it to addGraphQLResolvers
         const resolver = {
           [typeName]: {
             [resolverName]: (document: ObjectsByCollectionName[N], args: any, context: ResolverContext, info: any) => {
+              // First, check if the value was already fetched by a SQL resolver.
+              // A field with a SQL resolver that returns no value (for instance,
+              // if it uses a LEFT JOIN and no matching object is found) can be
+              // distinguished from a field with no SQL resolver as the former
+              // will be `null` and the latter will be `undefined`.
               if (field.resolveAs!.sqlResolver) {
                 const typedName = resolverName as keyof ObjectsByCollectionName[N];
                 const existingValue = document[typedName];
-                if (existingValue === undefined) {
-                  const name = `${typeName}.${resolverName}`;
-                  if (!missingResolvers.has(name)) {
-                    missingResolvers.add(name);
-                    // eslint-disable-next-line no-console
-                    console.warn(`Missing SQL resolver: ${name}`);
-                  }
-                } else {
+                if (existingValue !== undefined) {
                   return existingValue;
                 }
               }

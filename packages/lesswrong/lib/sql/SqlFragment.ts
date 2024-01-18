@@ -8,11 +8,18 @@ type SqlFragmentArg = {
   outName: string,
 }
 
+/**
+ * `SqlFragmentField` specifies a single named field in a GraphQL fragment
+ */
 type SqlFragmentField = {
   type: "field",
   name: string,
 }
 
+/**
+ * `SqlFragmentPick` specifies a sub-object in a fragment that contains further
+ * fields "picked" from another fragment
+ */
 type SqlFragmentPick = {
   type: "pick",
   name: string,
@@ -38,6 +45,16 @@ const getResolverCollection = (
   return getCollectionByTypeName(type);
 }
 
+/**
+ * `SqlFragment` contains the logic for parsing GraphQL fragments into a
+ * form that can be efficiently converted into SQL projections. As this is
+ * relatively expensive, each fragment is parsed only once when it is first
+ * requested and the value is then memoized globally (see `fragments.ts`).
+ *
+ * The man external interface here is the `buildProjection` method that
+ * generates a `ProjectionContext` corresponding to a specific query with
+ * specific arguments.
+ */
 class SqlFragment {
   private lexer: FragmentLexer;
   private parsedEntries: SqlFragmentEntryMap | undefined;
@@ -55,10 +72,16 @@ class SqlFragment {
     this.lexer = new FragmentLexer(fragmentSrc);
   }
 
+  /**
+   * The name of this fragment (eg; PostsMinimumInfo).
+   */
   getName(): string {
     return this.lexer.getName();
   }
 
+  /**
+   * The GraphQL type that this fragment is defined on (eg; Post).
+   */
   getBaseTypeName(): string {
     return this.lexer.getBaseTypeName();
   }

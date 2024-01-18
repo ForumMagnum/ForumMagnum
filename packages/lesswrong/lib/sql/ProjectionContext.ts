@@ -12,6 +12,13 @@ export interface CodeResolverMap extends Record<string, CodeResolver | CodeResol
 
 export type PrefixGenerator = () => string;
 
+/**
+ * `ProjectionContext` contains the data for the projection of a specific query.
+ * In general, this should not be created manually and should instead be
+ * obtained by calling the `buildProjection` method of `SqlFragment`, which in
+ * turn should generally be accessed through the more user-friendly
+ * `SelectFragmentQuery`.
+ */
 class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
   private randIntCallback: RandIntCallback;
   private resolverArgIndexes: Record<string, number> = {};
@@ -25,7 +32,23 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
   private isAggregate: boolean;
 
   constructor(
+    /**
+     * The collection this projection is built on. This may or may not be the
+     * collection that the _fragment_ is defined on depending on whether or not
+     * this is an aggregate (see below).
+     */
     private collection: CollectionBase<N>,
+    /**
+     * Fragments are can be used recursively such that one contains another.
+     * `ProjectionContext` corresponds to exactly _one_ fragment and contains
+     * no recursion internally. If this `ProjectionContext` is the top level
+     * context correspoding to the actual fragment the user requested then this
+     * parameter will be undefined, otherwise if it's a sub-fragment this
+     * parameter will contain the table prefix and SQL argument offset to use.
+     * The sub-context can then be "absorbed" into the top-level context by
+     * calling the `aggregate` method on the top-level context with the
+     * sub-context as an argument.
+     */
     aggregate?: {prefix: string, argOffset: number},
     private prefixGenerator?: PrefixGenerator,
   ) {
@@ -52,10 +75,20 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     }
   }
 
+  /**
+   * If this is a top-level context then we name arguments using normal SQL
+   * syntax `SELECT <expr1> "<name1>"`. If this is a sub-context then it will
+   * be wrapped in a call to `JSONB_BUILD_OBJECT` which instead uses the syntax
+   * `JSONB_BUILD_OBJECT('<name1>', <expr1>, '<name2>', <expr2>)`.
+   */
   private namedExpression(name: string, expr: string): string {
     return this.isAggregate ? `'${name}', ${expr}` : `${expr} "${name}"`;
   }
 
+  /**
+   * Merge a sub-context into this context. See the doc comment for the
+   * `aggregate` constructor parameter.
+   */
   aggregate(subcontext: ProjectionContext, name: string) {
     const {primaryPrefix, projections, joins, args, codeResolvers} = subcontext;
 
@@ -145,6 +178,12 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     return `"currentUser"."${name}"`;
   }
 
+  /**
+   * This sets the current user. This method should be called exactly once
+   * if this projection is _not_ an aggregate, and exactly never if this _is_
+   * an aggregate. If we're in a logged-out context then this method should
+   * still be called, but with a value of `null`.
+   */
   setCurrentUser(currentUser: DbUser | UsersCurrent | null) {
     this.joins.push({
       table: "Users",
@@ -202,6 +241,10 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     return index ? `$${index}` : "NULL";
   }
 
+  /**
+   * Get the arguments to pass to `sqlResolver` functions defined in
+   * collection schemas.
+   */
   getSqlResolverArgs(): SqlResolverArgs {
     return {
       field: this.absoluteField.bind(this),
