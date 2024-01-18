@@ -74,7 +74,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   wrapper: {
     position: 'relative',
-    overflow: 'hidden'
+    overflow: 'clip'
   },
   mainNoFooter: {
     paddingBottom: 0,
