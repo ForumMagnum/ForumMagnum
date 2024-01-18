@@ -6,6 +6,9 @@ import { useForeignApolloClient } from "../../hooks/useForeignApolloClient";
 import { useSingle } from "../../../lib/crud/withSingle";
 import type { CommonExcerptProps } from "./ContentExcerpt";
 
+const isSunshine = (post: PostsList | SunshinePostsList): post is SunshinePostsList =>
+  "user" in post;
+
 const PostExcerpt = ({
   post,
   hash,
@@ -16,8 +19,8 @@ const PostExcerpt = ({
 }) => {
   // Get the post body, accounting for whether or not this is a crosspost
   const {postContents, loading, error} = usePostContents({
-    post: post as PostsList,
-    fragmentName: "PostsList",
+    post,
+    fragmentName: isSunshine(post) ? "SunshinePostsList" : "PostsList",
     skip: !!hash,
   });
 

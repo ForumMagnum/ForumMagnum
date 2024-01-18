@@ -44,6 +44,12 @@ export const lessWrongTheme: SiteThemeSpecification = {
     error: {
       main: '#bf360c',
     },
+    header: {
+      background: shadePalette.inverseGreyAlpha(.65)
+    },
+    background: {
+      default: '#f8f4ee'
+    }
   }),
   make: (palette: ThemePalette) => ({
     typography: {

@@ -18,7 +18,6 @@ import './server/karmaInflation/cron';
 import './server/useractivities/cron';
 import './server/pageCache/cron';
 import './server/users/cron'
-import './server/gwwcFundraisers/cron';
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
 import './server/robots';
@@ -73,6 +72,7 @@ import "./server/scripts/importEAGUserInterests";
 import "./server/scripts/importLocalgroups";
 import "./server/scripts/setUserTagFilters";
 import "./server/scripts/randomRecommendationSamples";
+import './server/scripts/cleanUpDuplicatePostAutosaves';
 import "./server/scripts/generativeModels/generateTaggingPostSets";
 import "./server/scripts/generativeModels/testModGPTOnComments";
 // doesn't pass unit tests but works fine. Leaving commented out for now
@@ -176,9 +176,6 @@ import './server/resolvers/analyticsResolvers';
 import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
-import './server/resolvers/electionCandidateResolvers';
-import './server/resolvers/electionVoteResolvers';
-import './server/resolvers/givingSeasonResolvers';
 
 
 import './server/intercomSetup';

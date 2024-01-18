@@ -8,7 +8,6 @@ import {
   PostsPreviewTooltipSingleWithComment,
   TaggedPostTooltipSingle,
 } from "./PostsPreviewTooltipSingle";
-import { isFriendlyUI } from "../../../themes/forumTheme";
 
 const PostsTooltip = ({
   post,
@@ -87,10 +86,9 @@ const PostsTooltip = ({
     return null;
   }, [tagRelId, post, postId, postsList, comment, commentId, dialogueMessageInfo, hash]);
 
-  const {EAHoverOver, LWTooltip} = Components;
-  const Tooltip = isFriendlyUI ? EAHoverOver : LWTooltip;
+  const {HoverOver} = Components;
   return (
-    <Tooltip
+    <HoverOver
       title={renderTitle()}
       placement={placement}
       tooltip={false}
@@ -107,7 +105,7 @@ const PostsTooltip = ({
       className={className}
     >
       {children}
-    </Tooltip>
+    </HoverOver>
   );
 }
 

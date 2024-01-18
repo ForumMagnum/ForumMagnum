@@ -48,9 +48,6 @@ const styles = (theme: ThemeType) => ({
   iconGreen: {
     backgroundColor: theme.palette.icon.recentDiscussionGreen,
   },
-  iconGivingSeason: {
-    backgroundColor: theme.palette.givingPortal.homepageHeader.main,
-  },
   container: {
     display: "flex",
     gap: "8px",
@@ -86,7 +83,7 @@ type EARecentDiscussionItemDocument = {
 
 export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
   icon: ForumIconName,
-  iconVariant: "primary" | "grey" | "green" | "givingSeason",
+  iconVariant: "primary" | "grey" | "green",
   user?: UsersMinimumInfo | null,
   action: ReactNode,
   postTitleOverride?: string,
@@ -114,9 +111,7 @@ const EARecentDiscussionItem = ({
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    ForumIcon, UsersNameDisplay, FormatDate, TagTooltipWrapper,
-  } = Components;
+  const {ForumIcon, UsersNameDisplay, FormatDate, TagsTooltip} = Components;
   return (
     <AnalyticsContext pageSubSectionContext={pageSubSectionContext}>
       <div className={classes.root}>
@@ -125,7 +120,6 @@ const EARecentDiscussionItem = ({
             [classes.iconPrimary]: iconVariant === "primary",
             [classes.iconGrey]: iconVariant === "grey",
             [classes.iconGreen]: iconVariant === "green",
-            [classes.iconGivingSeason]: iconVariant === "givingSeason",
           })}>
             <ForumIcon icon={icon} />
           </div>
@@ -147,11 +141,11 @@ const EARecentDiscussionItem = ({
               </Link>
             }
             {tag &&
-              <TagTooltipWrapper tag={tag} As="span">
+              <TagsTooltip tag={tag} As="span">
                 <Link to={tagGetUrl(tag)} className={classes.primaryText}>
                   {tag.name}
                 </Link>
-              </TagTooltipWrapper>
+              </TagsTooltip>
             }
             {" "}
             <FormatDate date={timestamp} includeAgo />

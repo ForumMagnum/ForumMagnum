@@ -15,9 +15,7 @@ import { PublicInstanceSetting, isEAForum } from '../../lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { hasProminentLogoSetting } from '../../lib/publicSettings';
-
 import { useLocation } from '../../lib/routeUtil';
-import { useIsGivingSeason } from '../ea-forum/giving-portal/hooks';
 
 export const forumHeaderTitleSetting = new PublicInstanceSetting<string>('forumSettings.headerTitle', "LESSWRONG", "warning")
 export const forumShortTitleSetting = new PublicInstanceSetting<string>('forumSettings.shortForumTitle', "LW", "warning")
@@ -244,7 +242,7 @@ const Header = ({
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
-  const { pathname, hash, query } = useLocation()
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
@@ -368,7 +366,7 @@ const Header = ({
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    GivingSeasonHeader, ActiveDialogues, SiteLogo, MessagesMenuButton,
+    ActiveDialogues, SiteLogo, MessagesMenuButton,
   } = Components;
 
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
@@ -420,24 +418,6 @@ const Header = ({
       />
     )
     : null;
-
-  // special case for the homepage header of EA Forum Giving Season 2023
-  // TODO: delete after 2023
-  const isGivingSeason = useIsGivingSeason();
-  if (isGivingSeason && pathname === "/" && !query.tab) {
-    return (
-      <GivingSeasonHeader
-        searchOpen={searchOpen}
-        hasLogo={hasProminentLogoSetting.get()}
-        unFixed={unFixed}
-        setUnFixed={setUnFixed}
-        NavigationMenuButton={NavigationMenuButton}
-        rightHeaderItems={rightHeaderItemsNode}
-        HeaderNavigationDrawer={HeaderNavigationDrawer}
-        HeaderNotificationsMenu={HeaderNotificationsMenu}
-      />
-    );
-  }
 
   return (
     <AnalyticsContext pageSectionContext="header">
