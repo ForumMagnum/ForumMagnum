@@ -4,6 +4,10 @@ import { getDefaultMutations } from '../../vulcan-core/default_mutations';
 import { schema } from './schema';
 import { ensureIndex } from '../../collectionIndexUtils';
 
+/**
+ * Collection containing aggregated data on viewing time for posts (per post, per client id, per day).
+ * Used by the author (/users/:_id/stats) and post (/postAnalytics?postId=) analytics pages
+ */
 export const PostViewTimes = createCollection({
   collectionName: 'PostViewTimes',
   typeName: 'PostViewTime',
