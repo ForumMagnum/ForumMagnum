@@ -1,5 +1,5 @@
-import isEqual from "lodash/isEqual";
 import { RandIntCallback, randomId, seededRandInt } from "../random";
+import isEqual from "lodash/isEqual";
 import chunk from "lodash/chunk";
 
 export type CustomResolver<N extends CollectionNameString = CollectionNameString> =
@@ -52,6 +52,10 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     }
   }
 
+  private namedExpression(name: string, expr: string): string {
+    return this.isAggregate ? `'${name}', ${expr}` : `${expr} "${name}"`;
+  }
+
   aggregate(subcontext: ProjectionContext, name: string) {
     const {primaryPrefix, projections, joins, args, codeResolvers} = subcontext;
 
@@ -69,9 +73,7 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
 
     const test = `"${primaryPrefix}"."_id"`;
     const proj = `CASE WHEN ${test} IS NULL THEN NULL ELSE (${obj}) END`;
-    const namedProj = subcontext.isAggregate
-      ? `'${name}', ${proj}`
-      : `${proj} "${name}"`;
+    const namedProj = this.namedExpression(name, proj);
     this.projections.push(namedProj);
     this.joins = this.joins.concat(joins);
     this.args = this.args.concat(args);
@@ -168,12 +170,9 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
 
   addProjection(name: string, expression?: string, jsonifyStarSelector = true) {
     if (expression) {
-      const normalizedExpression = expression.trim().replace(/\s+/g, " ");
-      if (this.isAggregate) {
-        this.projections.push(`'${name}', ${normalizedExpression}`);
-      } else {
-        this.projections.push(`${normalizedExpression} "${name}"`);
-      }
+      const normalizedExpr = expression.trim().replace(/\s+/g, " ");
+      const namedExpr = this.namedExpression(name, normalizedExpr);
+      this.projections.push(namedExpr);
     } else {
       this.projections.push(this.field(name, jsonifyStarSelector));
     }

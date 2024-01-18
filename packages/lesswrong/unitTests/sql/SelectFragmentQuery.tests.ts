@@ -19,7 +19,7 @@ describe("SelectFragmentQuery", () => {
           "t".*,
           CASE WHEN "q"."_id" IS NULL
             THEN NULL
-            ELSE TO_JSONB("q".*)
+            ELSE (TO_JSONB("q".*))
           END "testCollection3"
         FROM "TestCollection4" "t"
         LEFT JOIN "Users" "currentUser" ON "currentUser"."_id" = $1
@@ -44,7 +44,7 @@ describe("SelectFragmentQuery", () => {
           "t".*,
           CASE WHEN "q"."_id" IS NULL
             THEN NULL
-            ELSE TO_JSONB("q".*)
+            ELSE (TO_JSONB("q".*))
           END "testCollection2"
         FROM "TestCollection4" "t"
         LEFT JOIN "Users" "currentUser" ON "currentUser"."_id" = $1

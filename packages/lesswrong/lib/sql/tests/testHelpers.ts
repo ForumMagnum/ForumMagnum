@@ -20,7 +20,6 @@ export type DbTestObject = {
 export const TestCollection = {
   collectionName: "TestCollection",
   typeName: "TestCollection",
-  isPostgres: () => true,
   _schemaFields: {
     _id: {
       type: String,
@@ -66,7 +65,6 @@ export type DbTestObject2 = {
 export const TestCollection2 = {
   collectionName: "TestCollection2",
   typeName: "TestCollection2",
-  isPostgres: () => true,
   _schemaFields: {
     _id: {
       type: String,
@@ -100,7 +98,6 @@ export type DbTestObject3 = {
 export const TestCollection3 = {
   collectionName: "TestCollection3",
   typeName: "TestCollection3",
-  isPostgres: () => true,
   _schemaFields: {
     _id: {
       type: String,
@@ -135,7 +132,6 @@ export type DbTestObject4 = {
 export const TestCollection4 = {
   collectionName: "TestCollection4",
   typeName: "TestCollection4",
-  isPostgres: () => true,
   _schemaFields: {
     _id: {
       type: String,
@@ -147,6 +143,7 @@ export const TestCollection4 = {
         collectionName: "TestCollection3" as CollectionNameString,
         type: "TestCollection3",
         nullable: true,
+        autoJoin: true,
       }),
     },
     testCollection2: resolverOnlyField({
