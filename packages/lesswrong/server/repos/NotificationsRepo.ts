@@ -98,6 +98,7 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
     offset?: number,
   }): Promise<NotificationDisplay[]> {
     return this.getRawDb().any(`
+      -- NotificationsRepo.getNotificationDisplays
       SELECT
         n."_id",
         n."type",
