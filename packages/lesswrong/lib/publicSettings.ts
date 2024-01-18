@@ -122,7 +122,6 @@ export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCo
 export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('dialogueMatchmakingEnabled', false)
 
 export const maxRenderQueueSize = new DatabasePublicSetting<number>('maxRenderQueueSize', 10);
-export const performanceMetricLoggingEnabled = new DatabasePublicSetting<boolean>('performanceMetricLoggingEnabled', false)
-export const performanceMetricLoggingBatchSize = new DatabasePublicSetting<number>('performanceMetricLoggingBatchSize', 100)
+
 // Null means requests are disabled
 export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number | null>('post.requestFeedbackKarmaLevel', 100);

@@ -4,6 +4,10 @@ import { getDefaultMutations } from '../../vulcan-core/default_mutations';
 import { schema } from './schema';
 import { ensureIndex } from '../../collectionIndexUtils';
 
+/**
+ * Collection containing aggregated data on view counts (per post, per day). Used by
+ * the author (/users/:_id/stats) and post (/postAnalytics?postId=) analytics pages
+ */
 export const PostViews = createCollection({
   collectionName: 'PostViews',
   typeName: 'PostViews',

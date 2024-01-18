@@ -4,6 +4,9 @@ import type { PopperPlacementType } from "@material-ui/core/Popper";
 import type { AnalyticsProps } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 
+export const FRIENDLY_THIN_HOVER_OVER_WIDTH = 270;
+export const FRIENDLY_HOVER_OVER_WIDTH = 340;
+
 const styles = (theme: ThemeType) => ({
   root: {
     background: theme.palette.grey[0],
@@ -13,25 +16,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EAHoverOver = ({
-  title,
-  children,
-  placement,
-  inlineBlock,
-  As,
-  clickable,
-  flip,
-  analyticsProps,
-  className,
-  popperClassName,
-  classes,
-}: {
+export type FriendlyHoverOverProps = {
   /**
    * This is the contents of the hover over, named `title` for compatability
    * with LWTooltip
    */
   title: ReactNode,
-  children: ReactNode,
   placement?: PopperPlacementType,
   inlineBlock?: boolean,
   As?: keyof JSX.IntrinsicElements,
@@ -40,8 +30,28 @@ const EAHoverOver = ({
   analyticsProps?: AnalyticsProps,
   className?: string,
   popperClassName?: string,
+  children: ReactNode,
   classes: ClassesType,
-}) => {
+}
+
+/**
+ * This component should not be used directly - instead use `HoverOver` which
+ * will switch between the correct styles depending on whether or not the
+ * current site is using friendly UI.
+ */
+const FriendlyHoverOver = ({
+  title,
+  placement,
+  inlineBlock,
+  As,
+  clickable,
+  flip,
+  analyticsProps,
+  className,
+  popperClassName,
+  children,
+  classes,
+}: FriendlyHoverOverProps) => {
   const {LWTooltip} = Components;
   return (
     <LWTooltip
@@ -62,14 +72,14 @@ const EAHoverOver = ({
   );
 }
 
-const EAHoverOverComponent = registerComponent(
-  "EAHoverOver",
-  EAHoverOver,
+const FriendlyHoverOverComponent = registerComponent(
+  "FriendlyHoverOver",
+  FriendlyHoverOver,
   {styles, stylePriority: -1},
 );
 
 declare global {
   interface ComponentTypes {
-    EAHoverOver: typeof EAHoverOverComponent
+    FriendlyHoverOver: typeof FriendlyHoverOverComponent
   }
 }

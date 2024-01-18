@@ -156,6 +156,7 @@ declare global {
     
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
+      reviewBallotIcon: ColorString,
       
       eventMaybe: ColorString,
       aprilFools: {
@@ -336,6 +337,7 @@ declare global {
       searchResults: string,
       recentDiscussionMeetupsPoke: string,
       graphTooltip: string,
+      lwTagHoverOver: string,
     },
     buttons: {
       hoverGrayHighlight: ColorString,
@@ -411,6 +413,7 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      primarySlightlyDim: ColorString,
       primaryTranslucent: ColorString,
       primaryTranslucentHeavy: ColorString,
       warningTranslucent: ColorString,

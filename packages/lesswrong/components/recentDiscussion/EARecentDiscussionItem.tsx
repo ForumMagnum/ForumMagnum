@@ -111,9 +111,7 @@ const EARecentDiscussionItem = ({
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    ForumIcon, UsersNameDisplay, FormatDate, TagTooltipWrapper,
-  } = Components;
+  const {ForumIcon, UsersNameDisplay, FormatDate, TagsTooltip} = Components;
   return (
     <AnalyticsContext pageSubSectionContext={pageSubSectionContext}>
       <div className={classes.root}>
@@ -143,11 +141,11 @@ const EARecentDiscussionItem = ({
               </Link>
             }
             {tag &&
-              <TagTooltipWrapper tag={tag} As="span">
+              <TagsTooltip tag={tag} As="span">
                 <Link to={tagGetUrl(tag)} className={classes.primaryText}>
                   {tag.name}
                 </Link>
-              </TagTooltipWrapper>
+              </TagsTooltip>
             }
             {" "}
             <FormatDate date={timestamp} includeAgo />

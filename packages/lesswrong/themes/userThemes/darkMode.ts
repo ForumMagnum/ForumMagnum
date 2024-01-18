@@ -149,6 +149,11 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         primaryTranslucent: "rgba(12,134,155,0.4)"
       }
     },
+    LessWrong: {
+      header: {
+        background: 'rgba(50,50,50,.75)',
+      }
+    },
     default: {},
   });
 
@@ -211,10 +216,12 @@ export const darkModeTheme: UserThemeSpecification = {
       cookieBanner: shadePalette.grey[900],
     },
     background: {
+      default: shadePalette.grey[100],
       contrastInDarkMode: shadePalette.grey[100],
       diffInserted: "#205120",
       diffDeleted: "#b92424",
       primaryDim: "#28383e",
+      primarySlightlyDim: "#00494e",
       primaryTranslucent: "rgba(99,141,103,0.3)",
       primaryTranslucentHeavy: "rgba(99,141,103,0.6)",
       warningTranslucent: "rgba(255,173,8,0.3)",

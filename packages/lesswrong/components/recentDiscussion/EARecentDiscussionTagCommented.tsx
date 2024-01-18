@@ -55,7 +55,6 @@ const EARecentDiscussionTagCommented = ({
     refetch,
     condensed: true,
     tag,
-    replyFormStyle: "default",
   };
 
   const metadata = tag.wikiOnly
