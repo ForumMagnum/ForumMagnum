@@ -25,6 +25,7 @@
 export const acceptsSchemaHash = "5d840ee3f919bdbf70df33e470b65666";
 
 import Users from "../../lib/collections/users/collection"
+import { BoolType } from "../../lib/sql/Type";
 import { addRemovedField, dropRemovedField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
@@ -32,5 +33,5 @@ export const up = async ({db}: MigrationContext) => {
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await addRemovedField(db, Users, "noComicSans")
+  await addRemovedField(db, Users, "noComicSans", new BoolType())
 }

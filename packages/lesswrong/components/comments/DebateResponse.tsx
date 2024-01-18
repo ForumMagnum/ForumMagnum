@@ -160,7 +160,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         newForm={showInlineReplyForm}
         newFormProps={{
           parentComment: comment,
-          replyFormStyle: 'minimalist',
+          formStyle: 'minimalist',
         }}
       />;
 

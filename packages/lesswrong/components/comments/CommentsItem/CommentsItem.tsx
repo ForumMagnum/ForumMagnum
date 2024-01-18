@@ -205,7 +205,7 @@ export const CommentsItem = ({
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const [showEditState, setShowEditState] = useState(false);
   const [showParentState, setShowParentState] = useState(showParentDefault);
-  const isMinimalist = treeOptions.replyFormStyle === "minimalist"
+  const isMinimalist = treeOptions.formStyle === "minimalist"
   const currentUser = useCurrentUser();
 
   const {
@@ -291,7 +291,7 @@ export const CommentsItem = ({
           }}
           type="reply"
           enableGuidelines={enableGuidelines}
-          replyFormStyle={treeOptions.replyFormStyle}
+          formStyle={treeOptions.formStyle}
         />
       </div>
     )

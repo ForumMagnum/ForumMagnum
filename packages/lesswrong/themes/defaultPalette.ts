@@ -209,6 +209,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     
     reviewUpvote: "rgba(70,125,70, .87)",
     reviewDownvote: "rgba(125,70,70, .87)",
+    reviewBallotIcon: 'rgb(47 108 152 / 50%)',
     
     aprilFools: {
       orange: "#e64a19",
@@ -321,6 +322,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
     primaryDim: '#e2f1f4',
+    primarySlightlyDim: '#d1ecf1',
     primaryTranslucent: "rgba(95,155,101,0.1)",
     primaryTranslucentHeavy: "rgba(95,155,101,0.35)",
     warningTranslucent: "rgba(255,152,0,0.1)",
@@ -411,6 +413,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     searchResults: `0 0 20px ${shades.boxShadowColor(.2)}`,
     recentDiscussionMeetupsPoke: `5px 5px 5px ${shades.boxShadowColor(.2)}`,
     graphTooltip: `0 0 10px ${shades.boxShadowColor(.75)}`,
+    lwTagHoverOver: `0 1px 3px 0 ${shades.boxShadowColor(0.2)},0 1px 1px 0 ${shades.boxShadowColor(0.14)},0 2px 1px -1px ${shades.boxShadowColor(0.12)}`,
   },
   buttons: {
     hoverGrayHighlight: shades.greyAlpha(0.05),

@@ -19,19 +19,8 @@ const PostExcerpt = ({
 }) => {
   // Get the post body, accounting for whether or not this is a crosspost
   const {postContents, loading, error} = usePostContents({
-    /*
-     * TODO: This should use the `fragmentName` logic below, however, this
-     * requires a backend change that needs to be deployed to both LessWrong
-     * and the EA Forum before it will work. For now, we can just use `PostsList`
-     * with a cast, then at some point in the near future once it's deployed we
-     * can change it.
-     */
-    /*
     post,
     fragmentName: isSunshine(post) ? "SunshinePostsList" : "PostsList",
-     */
-    post: post as PostsList,
-    fragmentName: "PostsList",
     skip: !!hash,
   });
 

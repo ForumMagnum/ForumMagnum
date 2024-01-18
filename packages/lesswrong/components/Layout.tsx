@@ -13,7 +13,7 @@ import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { isAF, isLW } from '../lib/instanceSettings';
+import { isAF, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -28,6 +28,7 @@ import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
+import { reviewIsActive } from '../lib/reviewUtils';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -43,7 +44,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews',
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum', 'EAForumWrapped'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -61,7 +62,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
-    background: theme.palette.background.default,
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
     minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
@@ -71,6 +71,10 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingLeft: 8,
       paddingRight: 8,
     },
+  },
+  wrapper: {
+    position: 'relative',
+    overflow: 'clip'
   },
   mainNoFooter: {
     paddingBottom: 0,
@@ -106,19 +110,41 @@ const styles = (theme: ThemeType): JssStyles => ({
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateAreas: `
-        "navSidebar ... main ... sunshine"
+        "navSidebar ... main imageGap sunshine"
       `,
       gridTemplateColumns: `
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, 1.4fr)
+        minmax(0, ${isLW ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'
     }
+  },
+  imageColumn: {
+    gridArea: 'imageGap',
+    [theme.breakpoints.down('md')]: {
+      display: 'none'
+    }
+  },
+  backgroundImage: {
+    position: 'absolute',
+    width: '57vw',
+    maxWidth: '1000px',
+    top: '-30px',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+    
+    [theme.breakpoints.up(2000)]: {
+      right: '0px',
+    }
+  },
+  votingImage: {
+    width: '55vw',
+    maxWidth: '1000px',
+    marginLeft: '-15px'
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -224,7 +250,8 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
-  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
+  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : (reviewIsActive() && isLW)
+  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
@@ -287,7 +314,7 @@ const Layout = ({currentUser, children, classes}: {
   );
 
   // For the EAF Wrapped page, we change the header's background color to a dark blue.
-  const headerBackgroundColor = pathname === '/wrapped' ? wrappedBackgroundColor : undefined
+  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : undefined
 
   const render = () => {
     const {
@@ -309,6 +336,8 @@ const Layout = ({currentUser, children, classes}: {
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
+      CloudinaryImage2,
+      ReviewVotingCanvas
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -318,7 +347,7 @@ const Layout = ({currentUser, children, classes}: {
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
       standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
-      renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')),
+      renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
       shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
@@ -355,7 +384,7 @@ const Layout = ({currentUser, children, classes}: {
       <CommentOnSelectionPageWrapper>
         <div className={classNames(
           "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen}
+          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
         )} id="wrapper">
           <DialogManager>
             <CommentBoxManager>
@@ -432,6 +461,20 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
+                { isLW && <>
+                  {
+                    currentRoute?.name === 'home' ? 
+                      <div className={classes.imageColumn}>
+                        <ReviewVotingCanvas />
+                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_3_jbqyqv" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+                      </div> 
+                    : 
+                      (standaloneNavigation && <div className={classes.imageColumn}>
+                        <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
+                      </div>)
+                  }
+                  </>
+                }
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
                   !showNewUserCompleteProfile &&

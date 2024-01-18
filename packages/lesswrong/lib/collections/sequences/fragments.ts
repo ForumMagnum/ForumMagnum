@@ -6,6 +6,7 @@ registerFragment(`
     title
     canonicalCollectionSlug
     canonicalCollection {
+      _id
       title
     }
   }

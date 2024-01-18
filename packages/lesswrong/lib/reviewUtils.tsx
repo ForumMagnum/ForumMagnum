@@ -101,7 +101,7 @@ export function reviewIsActive(): boolean {
   return getReviewPhase() !== "COMPLETE"
 }
 
-export function eligibleToNominate (currentUser: UsersCurrent|null) {
+export function eligibleToNominate (currentUser: UsersCurrent|DbUser|null) {
   if (!currentUser) return false;
   if (isLWorAF && new Date(currentUser.createdAt) > new Date(`${REVIEW_YEAR}-01-01`)) return false
   if (isEAForum && new Date(currentUser.createdAt) > new Date(annualReviewStart.get())) return false
