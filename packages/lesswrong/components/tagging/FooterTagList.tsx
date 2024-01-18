@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useMutation, gql } from '@apollo/client';
@@ -15,8 +15,9 @@ import { useMessages } from '../common/withMessages';
 import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     marginTop: 8,
     marginBottom: 8,
@@ -53,9 +54,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.text.dim3,
   },
   card: {
-    width: 450,
     padding: 16,
-    paddingTop: 8
+    ...(isFriendlyUI
+      ? {
+        paddingTop: 12,
+        width: FRIENDLY_HOVER_OVER_WIDTH,
+      }
+      : {
+        width: 450,
+        paddingTop: 8,
+      }),
   },
   smallText: {
     ...smallTagTextStyle(theme),
@@ -99,7 +107,7 @@ const FooterTagList = ({
   link?: boolean
   highlightAutoApplied?: boolean,
   allowTruncate?: boolean,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const rootRef = useRef<HTMLSpanElement>(null);
@@ -109,7 +117,6 @@ const FooterTagList = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
-  const { LWTooltip, AddTagButton, CoreTagsChecklist } = Components
 
   // We already have the tags as a resolver on the post, this additional query
   // serves two purposes:
@@ -198,8 +205,6 @@ const FooterTagList = ({
     }
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
-  const { Loading, FooterTag, ContentStyles } = Components
-  
   const MaybeLink = ({to, children, className}: {
     to: string|null,
     children: React.ReactNode,
@@ -211,23 +216,33 @@ const FooterTagList = ({
       return <>{children}</>;
     }
   }
-  
+
   const contentTypeInfo = forumSelect(contentTypes);
-  
-  const PostTypeTag = ({tooltipBody, label}: {
-    tooltipBody: React.ReactNode;
-    label: string;
-  }) =>
-    <LWTooltip
-      title={<Card className={classes.card}>
-        <ContentStyles contentType="comment">
-          {tooltipBody}
-        </ContentStyles>
-      </Card>}
-      tooltip={false}
-    >
-      <div className={classNames(classes.frontpageOrPersonal, {[classes.smallText]: smallText})}>{label}</div>
-    </LWTooltip>
+
+  const PostTypeTag = useCallback(({tooltipBody, label}: {
+    tooltipBody: ReactNode,
+    label: string,
+  }) => {
+    const {HoverOver, ContentStyles} = Components;
+    return (
+      <HoverOver
+        title={
+          <Card className={classes.card}>
+            <ContentStyles contentType="comment">
+              {tooltipBody}
+            </ContentStyles>
+          </Card>
+        }
+        tooltip={false}
+      >
+        <div className={classNames(classes.frontpageOrPersonal, {
+          [classes.smallText]: smallText,
+        })}>
+          {label}
+        </div>
+      </HoverOver>
+    );
+  }, [classes, smallText]);
 
   // Post type is either Curated, Frontpage, Personal, or uncategorized (in which case
   // we don't show any indicator). It's uncategorized if it's not frontpaged and doesn't
@@ -249,6 +264,8 @@ const FooterTagList = ({
     )
 
   const sortedTagRels = results ? sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag) : []
+
+  const {Loading, FooterTag, AddTagButton, CoreTagsChecklist} = Components;
 
   const innerContent =
     (loadingInitial || !results) ? (
@@ -284,7 +301,7 @@ const FooterTagList = ({
         {isAwaiting && <Loading />}
       </>
     );
- 
+
   return <>
     <span
       ref={rootRef}

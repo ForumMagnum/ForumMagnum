@@ -25,8 +25,6 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
-    givingSeason2023DonatedFlair # TODO: Remove after giving season
-    givingSeason2023VotedFlair   # TODO: Remove after giving season
   }
 `);
 
@@ -42,10 +40,10 @@ registerFragment(`
       ...RevisionDisplay
     }
     howOthersCanHelpMe {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     howICanHelpOthers {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     profileTagIds
     profileTags {
@@ -133,13 +131,7 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    biography {
-      ...RevisionEdit
-    }
     moderationStyle
-    moderationGuidelines {
-      ...RevisionEdit
-    }
     noKibitz
     showHideKarmaOption
     markDownPostEditor
@@ -191,8 +183,6 @@ registerFragment(`
     hideFrontpageBookAd
     hideFrontpageBook2019Ad
 
-    givingSeasonNotifyForVoting
-
     abTestKey
     abTestOverrides
 
@@ -228,6 +218,8 @@ registerFragment(`
     hideActiveDialogueUsers
 
     wrapped2023Viewed
+
+    hideSunshineSidebar
   }
 `);
 
@@ -503,8 +495,6 @@ registerFragment(`
     notificationNewMention
     notificationNewDialogueChecks
     notificationYourTurnMatchForm
-
-    givingSeasonNotifyForVoting
 
     hideFrontpageMap
     hideTaggingProgressBar

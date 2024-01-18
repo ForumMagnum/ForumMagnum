@@ -57,13 +57,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const truncateGuidelines = (guidelines: string) => {
-  const truncatiseOptions = {
+  return truncatise(guidelines, {
     TruncateLength: 300,
     TruncateBy: "characters",
     Suffix: `... <a>(${preferredHeadingCase("Read More")})</a>`,
     Strict: false
-  }
-  return truncatise(guidelines, truncatiseOptions)
+  });
 }
 
 const getPostModerationGuidelines = (post: PostsList, classes: ClassesType) => {

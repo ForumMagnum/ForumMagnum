@@ -1,8 +1,14 @@
 import AbstractRepo from "./AbstractRepo";
 import ElectionCandidates from "../../lib/collections/electionCandidates/collection";
 import { getViewablePostsSelector } from "./helpers";
-import type { ElectionAmountRaised } from "../../components/ea-forum/giving-portal/hooks";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+
+export type ElectionAmountRaised = {
+  raisedForElectionFund: number,
+  electionFundTarget: number,
+  totalRaised: number,
+  totalTarget: number,
+}
 
 class ElectionCandidatesRepo extends AbstractRepo<"ElectionCandidates"> {
   constructor() {

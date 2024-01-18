@@ -55,6 +55,11 @@ Revisions.checkAccess = async (user: DbUser|null, revision: DbRevision, context:
   const document = context
     ? await context.loaders[collectionName].load(documentId)
     : await collection.findOne(documentId);
+
+  // This shouldn't happen, but `collection.findOne` has a type signature that returns null, and technically we don't enforce data consistency such that it's strictly impossible
+  if (!document) {
+    return false;
+  }
   
   if (revision.collectionName === "Posts") {
     const collabEditorAccess = await getCollaborativeEditorAccess({

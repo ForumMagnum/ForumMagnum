@@ -11,7 +11,8 @@ import { Globals } from "../vulcan-lib";
 //   state
 // FROM pg_stat_activity order by duration desc;
 
-const USER_ENGAGEMENT_VIEW_NAME = 'user_engagement_wrapped_2023';
+// Note that this only has data starting from 2022
+const USER_ENGAGEMENT_VIEW_NAME = 'user_engagement_wrapped';
 const USER_ENGAGEMENT_VIEWDEF = `
 WITH normalized AS (
   SELECT
@@ -31,7 +32,7 @@ WITH normalized AS (
     AND raw.environment = 'production'
     -- DEBUG: Uncomment below to run over a shorter time period for faster testing
     -- AND raw."timestamp" >= '2023-12-01 00:00:00'::timestamp WITHOUT time zone
-    AND raw."timestamp" >= '2023-01-01 00:00:00'::timestamp WITHOUT time zone
+    AND raw."timestamp" >= '2022-01-01 00:00:00'::timestamp WITHOUT time zone
 ),
 by_date AS (
   SELECT

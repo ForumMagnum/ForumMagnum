@@ -130,7 +130,7 @@ const documentHelpers = {
         documentId,
         fieldName,
         collectionName: "Posts",
-        version: await getNextVersion(documentId, "patch", fieldName, true),
+        version: getNextVersion(previousRev, "patch", true),
         draft: true,
         updateType: "patch",
         commitMessage: cloudEditorAutosaveCommitMessage,

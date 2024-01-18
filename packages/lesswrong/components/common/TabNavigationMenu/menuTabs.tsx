@@ -185,6 +185,11 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       divider: true,
       showOnCompressed: true,
     }, {
+      id: 'dialogueMatchmaking',
+      title: 'Dialogue Matchmaking',
+      link: '/dialogueMatching',
+      subItem: true
+    }, {
       id: 'subscribeWidget',
       customComponentName: "SubscribeWidget",
     }, {
@@ -194,7 +199,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
       compressedIconComponent: Info,
       showOnCompressed: true,
-    }, {
+    },  {
       id: 'faq',
       title: 'FAQ',
       link: '/faq',

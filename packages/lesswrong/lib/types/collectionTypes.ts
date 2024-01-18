@@ -270,6 +270,7 @@ interface PerfMetric {
   client_path?: string;
   extra_data?: Json;
   gql_string?: string;
+  sql_string?: string;
   ip?: string;
   user_agent?: string;
   user_id?: string;
@@ -323,6 +324,12 @@ type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"co
 
 // For a DbObject, gets the field-names of all the make_editable fields.
 type EditableFieldsIn<T extends DbObject> = NonAnyFieldsOfType<T,EditableFieldContents>
+
+type EditableCollectionNames = {
+  [k in CollectionNameString]: EditableFieldsIn<ObjectsByCollectionName[k]> extends undefined ? never : k;
+}[CollectionNameString];
+
+type CollectionNameOfObject<T extends DbObject> = Exclude<T['__collectionName'], undefined>;
 
 type DbInsertion<T extends DbObject> = ReplaceFieldsOfType<T, EditableFieldContents, EditableFieldInsertion>
 

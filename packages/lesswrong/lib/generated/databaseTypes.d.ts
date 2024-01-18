@@ -541,7 +541,7 @@ type ModeratorActionsCollection = CollectionBase<"ModeratorActions">;
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -666,6 +666,34 @@ interface DbPostRelation extends DbObject {
   sourcePostId: string
   targetPostId: string
   order: number | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type PostViewTimesCollection = CollectionBase<"PostViewTimes">;
+
+interface DbPostViewTime extends DbObject {
+  __collectionName?: "PostViewTimes"
+  updatedAt: Date
+  windowStart: Date
+  windowEnd: Date
+  clientId: string
+  postId: string
+  totalSeconds: number
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type PostViewsCollection = CollectionBase<"PostViews">;
+
+interface DbPostViews extends DbObject {
+  __collectionName?: "PostViews"
+  updatedAt: Date
+  windowStart: Date
+  windowEnd: Date
+  postId: string
+  viewCount: number
+  uniqueViewCount: number
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1436,7 +1464,6 @@ interface DbUser extends DbObject {
   }
   karmaChangeLastOpened: Date | null
   karmaChangeBatchStart: Date | null
-  givingSeasonNotifyForVoting: boolean
   emailSubscribedToCurated: boolean | null
   subscribedToDigest: boolean
   unsubscribeFromAll: boolean | null
@@ -1548,8 +1575,7 @@ interface DbUser extends DbObject {
   reviewForAlignmentForumUserId: string | null
   afApplicationText: string | null
   afSubmittedApplication: boolean | null
-  givingSeason2023DonatedFlair: boolean
-  givingSeason2023VotedFlair: boolean
+  hideSunshineSidebar: boolean
   wrapped2023Viewed: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1657,6 +1683,8 @@ interface CollectionsByName {
   PostEmbeddings: PostEmbeddingsCollection
   PostRecommendations: PostRecommendationsCollection
   PostRelations: PostRelationsCollection
+  PostViewTimes: PostViewTimesCollection
+  PostViews: PostViewsCollection
   Posts: PostsCollection
   RSSFeeds: RSSFeedsCollection
   ReadStatuses: ReadStatusesCollection
@@ -1720,6 +1748,8 @@ interface ObjectsByCollectionName {
   PostEmbeddings: DbPostEmbedding
   PostRecommendations: DbPostRecommendation
   PostRelations: DbPostRelation
+  PostViewTimes: DbPostViewTime
+  PostViews: DbPostViews
   Posts: DbPost
   RSSFeeds: DbRSSFeed
   ReadStatuses: DbReadStatus
@@ -1783,6 +1813,8 @@ interface ObjectsByTypeName {
   PostEmbedding: DbPostEmbedding
   PostRecommendation: DbPostRecommendation
   PostRelation: DbPostRelation
+  PostViewTime: DbPostViewTime
+  PostViews: DbPostViews
   Post: DbPost
   RSSFeed: DbRSSFeed
   ReadStatus: DbReadStatus

@@ -156,6 +156,7 @@ declare global {
     
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
+      reviewBallotIcon: ColorString,
       
       eventMaybe: ColorString,
       aprilFools: {
@@ -336,6 +337,7 @@ declare global {
       searchResults: string,
       recentDiscussionMeetupsPoke: string,
       graphTooltip: string,
+      lwTagHoverOver: string,
     },
     buttons: {
       hoverGrayHighlight: ColorString,
@@ -411,6 +413,7 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      primarySlightlyDim: ColorString,
       primaryTranslucent: ColorString,
       primaryTranslucentHeavy: ColorString,
       warningTranslucent: ColorString,
@@ -462,42 +465,6 @@ declare global {
     tocScrollbarColors: string,
     eventsHomeLoadMoreHover: ColorString,
 
-    givingPortal: Record<0 | 200 | 800 | 900 | 1000, ColorString> & {
-      ctaText: ColorString,
-      candidate: ColorString,
-      votedCandidate: ColorString,
-      selectedCandidate: ColorString,
-      ctaBackground: ColorString,
-      thankYouBackground: ColorString,
-      rhsLink: ColorString,
-      secondary: ColorString,
-      votingPortalIntroBackground: ColorString,
-      button: {
-        alwaysDark: ColorString,
-        dark: ColorString,
-        light: ColorString,
-        hoverOutlined: ColorString,
-        borderColor: ColorString,
-      },
-      homepageHeader: {
-        light4: ColorString,
-        light3: ColorString,
-        light3Opaque: ColorString,
-        light2: ColorString,
-        light2Opaque: ColorString,
-        light1: ColorString,
-        light1Opaque: ColorString,
-        heartsBackground: ColorString,
-        main: ColorString,
-        dark: ColorString,
-        secondary: ColorString,
-        secondaryDark: ColorString,
-        secondaryOpaque: ColorString,
-        secondaryOpaqueDark: ColorString,
-        secondaryButton: ColorString,
-        secondaryButtonText: ColorString,
-      }
-    },
     wrapped: {
       background: ColorString,
       highlightText: ColorString,

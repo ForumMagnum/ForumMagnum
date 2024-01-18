@@ -209,6 +209,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     
     reviewUpvote: "rgba(70,125,70, .87)",
     reviewDownvote: "rgba(125,70,70, .87)",
+    reviewBallotIcon: 'rgb(47 108 152 / 50%)',
     
     aprilFools: {
       orange: "#e64a19",
@@ -321,6 +322,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
     primaryDim: '#e2f1f4',
+    primarySlightlyDim: '#d1ecf1',
     primaryTranslucent: "rgba(95,155,101,0.1)",
     primaryTranslucentHeavy: "rgba(95,155,101,0.35)",
     warningTranslucent: "rgba(255,152,0,0.1)",
@@ -411,6 +413,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     searchResults: `0 0 20px ${shades.boxShadowColor(.2)}`,
     recentDiscussionMeetupsPoke: `5px 5px 5px ${shades.boxShadowColor(.2)}`,
     graphTooltip: `0 0 10px ${shades.boxShadowColor(.75)}`,
+    lwTagHoverOver: `0 1px 3px 0 ${shades.boxShadowColor(0.2)},0 1px 1px 0 ${shades.boxShadowColor(0.14)},0 2px 1px -1px ${shades.boxShadowColor(0.12)}`,
   },
   buttons: {
     hoverGrayHighlight: shades.greyAlpha(0.05),
@@ -509,48 +512,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',
 
-  givingPortal: {
-    [0]: "#fdfcfc",
-    [200]: "#fcf5f3",
-    [800]: "#f8e7e2",
-    [900]: "#EDD3CE",
-    [1000]: "#862115",
-    candidate: "#fef4ef",
-    votedCandidate: "#fff",
-    selectedCandidate: "#F7E5DD",
-    ctaBackground: "#fdfcfc",
-    thankYouBackground: "#fcf5f3",
-    ctaText: "#757575",
-    rhsLink: '#862115',
-    secondary: '#E7714E',
-    votingPortalIntroBackground: "#fff6f2",
-    button: {
-      alwaysDark: "#862115",
-      dark: "#862115",
-      light: "#FFF",
-      hoverOutlined: "#f5f5f5",
-      borderColor: "#d0d0d0",
-    },
-    // the special homepage header has the exact same colors in light and dark mode
-    homepageHeader: {
-      light4: "#fdfcfc",
-      light3: "#fcf5f3",
-      light3Opaque: "rgba(252, 245, 243, 0.20)",
-      light2: "#f8e7e2",
-      light2Opaque: "rgba(248, 231, 226, 0.30)",
-      light1: "#EDD3CE",
-      light1Opaque: "rgba(237, 211, 206, 0.30)",
-      heartsBackground: "#f8e7e2",
-      main: "#862115",
-      dark: "#6C0C00",
-      secondary: "#b44c42",
-      secondaryDark: "#a0443c",
-      secondaryOpaque: "rgba(253, 139, 132, 0.40)",
-      secondaryOpaqueDark: "rgba(197, 106, 101, 0.40)",
-      secondaryButton: "rgba(0, 0, 0, 0)",
-      secondaryButtonText: "#6C0C00",
-    },
-  },
   wrapped: {
     background: '#072C47',
     highlightText: '#FFC443',
