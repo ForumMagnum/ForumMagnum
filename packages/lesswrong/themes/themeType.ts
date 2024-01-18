@@ -413,6 +413,7 @@ declare global {
       diffDeleted: ColorString,
       usersListItem: ColorString,
       primaryDim: ColorString,
+      primarySlightlyDim: ColorString,
       primaryTranslucent: ColorString,
       primaryTranslucentHeavy: ColorString,
       warningTranslucent: ColorString,
