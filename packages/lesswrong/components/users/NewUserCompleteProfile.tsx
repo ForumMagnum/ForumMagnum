@@ -230,7 +230,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
               Chat with an EA Forum Team member
             </h2>
             <Typography variant='body1' className={classes.sectionHelperText}>
-              We want to hear from you! Sign up for a user interview with a member of the EA Forum Team
+              Help us improve the site! Sign up for a user interview with a member of the EA Forum Team
               and we'll answer any questions you have about EA or the Forum.{" "}
               <Link to="https://savvycal.com/cea/forum-team" target="_blank" rel="noreferrer">
                 Book a call here
