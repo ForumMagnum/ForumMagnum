@@ -14,10 +14,12 @@ describe("SqlFragment", () => {
       _id: {
         type: "field",
         name: "_id",
+        args: [],
       },
       a: {
         type: "field",
         name: "a",
+        args: [],
       },
     });
   });
@@ -38,10 +40,12 @@ describe("SqlFragment", () => {
       _id: {
         type: "field",
         name: "_id",
+        args: [],
       },
       a: {
         type: "field",
         name: "a",
+        args: [],
       },
     });
   });
@@ -64,6 +68,7 @@ describe("SqlFragment", () => {
           _id: {
             type: "field",
             name: "_id",
+            args: [],
           },
         },
       },
@@ -97,6 +102,7 @@ describe("SqlFragment", () => {
           _id: {
             type: "field",
             name: "_id",
+            args: [],
           },
         },
       },
