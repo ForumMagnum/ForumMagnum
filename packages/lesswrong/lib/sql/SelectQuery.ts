@@ -134,7 +134,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       this.appendGroup(sqlOptions.group);
       return;
     }
-    
+
     if (options?.comment) {
       this.sqlComment = sanitizeSqlComment(options.comment);
     }
@@ -190,7 +190,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       this.atoms.push("FOR UPDATE");
     }
   }
-  
+
   getSqlComment() {
     return this.sqlComment;
   }
@@ -217,7 +217,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     const fields = keys.map((key) =>
       `"${typeof (group as AnyBecauseTodo)[key] === "string" && (group as AnyBecauseTodo)[key][0] === "$" ? (group as AnyBecauseTodo)[key].slice(1) : key}"`
     );
-    this.atoms.push(fields.join(", "));
+    this.atoms.push(fields.map((f) => this.prefixify(f)).join(", "));
   }
 
   private getStarSelector() {
@@ -350,6 +350,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
       }
       this.atoms.push(sorts.join(", "));
     } else if (this.nearbySort) { // Nearby sort is overriden by a sort in `options`
+      // Field has already been resolved and prefixified by Query.compileComparison
       const {field, lng, lat} = this.nearbySort;
       this.atoms = this.atoms.concat([
         "ORDER BY EARTH_DISTANCE(LL_TO_EARTH((",

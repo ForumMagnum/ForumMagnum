@@ -27,7 +27,7 @@ class Arg {
       } else {
         this.typehint = "::JSONB[]";
       }
-    }   
+    }
   }
 }
 
@@ -254,6 +254,14 @@ abstract class Query<T extends DbObject> {
   }
 
   /**
+   * Add the (optional) table prefix to a field name
+  */
+  protected prefixify(field: string) {
+    const prefix = this.primaryPrefix ? `"${this.primaryPrefix}".` : "";
+    return prefix + field;
+  }
+
+  /**
    * Convert a Mongo selector field into a string that Postgres can understand. The
    * `field` may be a simple field name, or it may dereference a JSON object or
    * index an array.
@@ -266,8 +274,6 @@ abstract class Query<T extends DbObject> {
       throw new Error("`.$` array fields not implemented");
     }
 
-    const prefix = this.primaryPrefix ? `"${this.primaryPrefix}".` : "";
-
     const jsonIndex = field.indexOf(".");
     if (jsonIndex > -1) {
       const [first, ...rest] = field.split(".");
@@ -276,7 +282,7 @@ abstract class Query<T extends DbObject> {
         throw new NonScalarArrayAccessError(first, rest);
       } else if (fieldType) {
         const hint = this.getTypeHint(typeHint);
-        const result = `(${prefix}"${first}"` +
+        const result = "(" + this.prefixify(`"${first}"`) +
           rest.map((element) => element.match(/^\d+$/) ? `[${element}]` : `->'${element}'`).join("") +
           `)${hint}`;
         return hint === "::TEXT"
@@ -286,7 +292,7 @@ abstract class Query<T extends DbObject> {
     }
 
     if (this.getField(field) || this.syntheticFields[field]) {
-      return `${prefix}"${field}"`;
+      return this.prefixify(`"${field}"`);
     }
 
     throw new Error(`Cannot resolve field name: ${field}`);
@@ -296,7 +302,7 @@ abstract class Query<T extends DbObject> {
    * Mongo is happy to treat arrays and scalar values as being effectively
    * interchangable, but Postgres is more picky. This helper allows us to
    * localize the special handling needed when we operate on a value that
-   * is an array, despite not necessarily be marked as one explicitely in
+   * is an array, despite not necessarily being marked as one explicitely in
    * the selector.
    */
   private arrayify(unresolvedField: string, resolvedField: string, op: string, value: any): Atom<T>[] {
@@ -360,9 +366,8 @@ abstract class Query<T extends DbObject> {
     path.unshift("unnested");
     const last = path.pop();
     const selector = path.join("->") + "->>" + last;
-    const prefix = this.primaryPrefix ? `"${this.primaryPrefix}".` : "";
     return [
-      `(${prefix}_id IN (SELECT _id FROM`,
+      `(${this.prefixify("_id")} IN (SELECT _id FROM`,
       this.table,
       `, UNNEST("${fieldName}") unnested WHERE ${selector} =`,
       this.createArg(value),
@@ -468,10 +473,12 @@ abstract class Query<T extends DbObject> {
           if (!center || !Array.isArray(center) || center.length !== 2 || !locationName) {
             throw new Error("Invalid $geoWithin selector");
           }
+          const prefixedName = this.prefixify(locationName);
           const [lng, lat] = center[0];
           const distance = center[1];
           return [
-            `(EARTH_DISTANCE(LL_TO_EARTH((${locationName}->>'lng')::FLOAT8, (${locationName}->>'lat')::FLOAT8),`,
+            `(EARTH_DISTANCE(LL_TO_EARTH((${prefixedName}->>'lng')::FLOAT8, `,
+            `(${prefixedName}->>'lat')::FLOAT8),`,
             "LL_TO_EARTH(",
             this.createArg(lng),
             ",",
@@ -660,6 +667,8 @@ abstract class Query<T extends DbObject> {
       const [array, index] = expr[op];
       // This is over specialized, but most of our usage follows this pattern
       if (typeof array === "string" && array[0] === "$") { // e.g. "$cats"
+        // TODO: I think the logic inside this `if` is no longer used - can we
+        // delete it?
         const tokens = array.split(".");
         const field = `"${tokens[0][0] === "$" ? tokens[0].slice(1) : tokens[0]}"`;
         const path = tokens.slice(1).flatMap((name) => ["->", `'${name}'`]);
@@ -667,7 +676,7 @@ abstract class Query<T extends DbObject> {
           path[path.length - 2] = "->>";
         }
         // Postgres array are 1-indexed
-        return [`("${field}")[1 + ${index}]${path.join("")}`];
+        return [`(${this.prefixify(field)})[1 + ${index}]${path.join("")}`];
       }
       return [
         "(",
