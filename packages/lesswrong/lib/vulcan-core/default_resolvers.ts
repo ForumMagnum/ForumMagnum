@@ -67,7 +67,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
         root: void,
         args: {
           input: {
-            terms: ViewTermsBase,
+            terms: ViewTermsBase & Record<string, unknown>,
             enableCache?: boolean,
             enableTotal?: boolean,
             createIfMissing?: Partial<T>,
@@ -103,7 +103,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
 
         // Get selector and options from terms and perform Mongo query
         // Downcasts terms because there are collection-specific terms but this function isn't collection-specific
-        const parameters = viewTermsToQuery(collectionName, terms as any, {}, context);
+        const parameters = viewTermsToQuery(collectionName, terms, {}, context);
 
         // get fragment from GraphQL AST
         const fragmentName = getFragmentNameFromInfo(info, "results");
@@ -113,7 +113,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
           const query = new SelectFragmentQuery(
             fragmentName as FragmentName,
             currentUser,
-            (args as any).input.terms, // TODO figure out correct types for this
+            terms,
             parameters.selector,
             parameters.options,
           );
@@ -182,7 +182,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
         info: GraphQLResolveInfo,
       ) {
         // const startResolve = Date.now();
-        const { enableCache = false, allowNull = false } = input;
+        const {enableCache = false, allowNull = false, terms} = input;
         // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
         // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
         // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
@@ -220,7 +220,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
           const query = new SelectFragmentQuery(
             fragmentName as FragmentName,
             currentUser,
-            {}, //(args as any).input.terms, // TODO figure out correct types for this
+            terms,
             selector,
             {limit: 1},
           );
