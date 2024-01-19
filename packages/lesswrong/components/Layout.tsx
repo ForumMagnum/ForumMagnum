@@ -72,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       paddingRight: 8,
     },
   },
-  wrapper: {
+  wrapperForImageColumn: {
     position: 'relative',
     overflow: 'clip'
   },
@@ -384,7 +384,7 @@ const Layout = ({currentUser, children, classes}: {
       <CommentOnSelectionPageWrapper>
         <div className={classNames(
           "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
+          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapperForImageColumn]: (isLWorAF && standaloneNavigation)}
         )} id="wrapper">
           <DialogManager>
             <CommentBoxManager>
@@ -461,19 +461,16 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
-                { isLW && <>
-                  {
-                    currentRoute?.name === 'home' ? 
-                      <div className={classes.imageColumn}>
+                {(isLW && standaloneNavigation) && <>{
+                  currentRoute?.name === 'home'
+                    ? <div className={classes.imageColumn}>
                         <ReviewVotingCanvas />
                         <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_3_jbqyqv" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
-                      </div> 
-                    : 
-                      (standaloneNavigation && <div className={classes.imageColumn}>
+                      </div>
+                    : <div className={classes.imageColumn}>
                         <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
-                      </div>)
-                  }
-                  </>
+                      </div>
+                  }</>
                 }
                 {!renderSunshineSidebar &&
                   friendlyHomeLayout &&
