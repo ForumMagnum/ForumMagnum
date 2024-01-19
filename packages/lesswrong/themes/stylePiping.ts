@@ -166,7 +166,13 @@ const tableStyles = (theme: ThemeType): JssStyles => ({
   margin: "auto",
   height: "100%",
   textAlign: "left",
-  width: '100%'
+  width: '100%',
+  "& *": isFriendlyUI
+    ? {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontSize: 14,
+    }
+    : {},
 });
 
 const tableCellStyles = (theme: ThemeType): JssStyles => ({
