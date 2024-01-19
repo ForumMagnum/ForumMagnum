@@ -12,6 +12,8 @@ interface DefaultResolverOptions {
   cacheMaxAge: number
 }
 
+const logMissingFragmentNames = false;
+
 const maxAllowedSkip = 2000;
 
 const defaultOptions: DefaultResolverOptions = {
@@ -35,9 +37,11 @@ const getFragmentNameFromInfo = (
   ) as FragmentSpreadNode | undefined;
   const fragmentName = fragmentSpread?.name.value;
   if (!fragmentName) {
-    const data = JSON.stringify(fieldNodes, null, 2);
-    // eslint-disable-next-line no-console
-    console.error("Fragment name not found for", fieldName, data);
+    if (logMissingFragmentNames) {
+      const data = JSON.stringify(fieldNodes, null, 2);
+      // eslint-disable-next-line no-console
+      console.error("Fragment name not found for", fieldName, data);
+    }
     return null;
   }
   return fragmentName;
