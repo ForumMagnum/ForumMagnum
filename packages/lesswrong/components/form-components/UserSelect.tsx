@@ -6,10 +6,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     alignItems: "center"
   },
-  list: {
-    display: "flex",
-    flexWrap: "wrap"
-  },
   item: {
     listStyle: "none",
     fontFamily: theme.typography.fontFamily
