@@ -807,7 +807,7 @@ const schema: SchemaType<"Comments"> = {
     canUpdate: ['members', 'alignmentForum', 'alignmentForumAdmins'],
     optional: true,
     label: "Suggested for Alignment by",
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     group: alignmentOptionsGroup,
     hidden: true
   },

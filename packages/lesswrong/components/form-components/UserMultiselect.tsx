@@ -1,5 +1,4 @@
 import React, {useCallback} from 'react';
-import PropTypes from 'prop-types';
 import { makeSortableListComponent } from './sortableList';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
@@ -26,7 +25,7 @@ export const SortableList = makeSortableListComponent({
   }
 });
 
-const UsersListEditor = ({value, setValue, label, classes}: {
+const UserMultiselect = ({value, setValue, label, classes}: {
   value: string[],
   setValue: (newValue: string[])=>void
   label: string,
@@ -53,34 +52,29 @@ const UsersListEditor = ({value, setValue, label, classes}: {
   )
 }
 
-const FormUsersListEditor = ({value, path, label}: {
+const FormUserMultiselect = ({value, path, label, updateCurrentValues}: {
   value: string[],
   path: string,
   label: string,
-}, context: any) => {
-  const { updateCurrentValues } = context;
-  
+  updateCurrentValues: Function,
+}) => {
   const setValue = useCallback((newValue: string[]) => {
     updateCurrentValues({[path]: newValue});
   }, [updateCurrentValues, path]);
-  
-  return <Components.UsersListEditor
+
+  return <Components.UserMultiselect
     value={value}
     setValue={setValue}
     label={label}
   />
 };
 
-(FormUsersListEditor as any).contextTypes = {
-  updateCurrentValues: PropTypes.func,
-};
-
-const UsersListEditorComponent = registerComponent("UsersListEditor", UsersListEditor, {styles});
-const FormUsersListEditorComponent = registerComponent("FormUsersListEditor", FormUsersListEditor);
+const UserMultiselectComponent = registerComponent("UserMultiselect", UserMultiselect, {styles});
+const FormUserMultiselectComponent = registerComponent("FormUserMultiselect", FormUserMultiselect, {styles});
 
 declare global {
   interface ComponentTypes {
-    UsersListEditor: typeof UsersListEditorComponent
-    FormUsersListEditor: typeof FormUsersListEditorComponent
+    UserMultiselect: typeof UserMultiselectComponent
+    FormUserMultiselect: typeof FormUserMultiselectComponent
   }
 }
