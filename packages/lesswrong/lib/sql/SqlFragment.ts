@@ -14,6 +14,7 @@ type SqlFragmentArg = {
 type SqlFragmentField = {
   type: "field",
   name: string,
+  args: SqlFragmentArg[],
 }
 
 /**
@@ -106,10 +107,15 @@ class SqlFragment {
         break;
       }
 
-      let match = line.match(/^[a-zA-Z0-9-_]+$/);
+      let match = line.match(/^([a-zA-Z0-9-_]+)(\(.*\))?$/);
       if (match?.[0]) {
-        const name = match[0];
-        entries[name] = {type: "field", name};
+        const name = match[1];
+        const args = match[2];
+        entries[name] = {
+          type: "field",
+          name,
+          args: this.parseArgs(args),
+        };
         continue;
       }
 
