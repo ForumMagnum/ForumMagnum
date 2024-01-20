@@ -1,13 +1,12 @@
 import React from 'react';
 import md5 from "md5";
 import Users from "../../lib/collections/users/collection";
-import { isAdmin, userGetGroups } from '../../lib/vulcan-users/permissions';
+import { userGetGroups } from '../../lib/vulcan-users/permissions';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { Posts } from '../../lib/collections/posts'
 import { Comments } from '../../lib/collections/comments'
 import { bellNotifyEmailVerificationRequired } from '../notificationCallbacks';
 import { isAnyTest } from '../../lib/executionEnvironment';
-import { randomId } from '../../lib/random';
 import { getCollectionHooks, UpdateCallbackProperties } from '../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { encodeIntlError } from '../../lib/vulcan-lib/utils';
@@ -31,8 +30,6 @@ import Tags from '../../lib/collections/tags/collection';
 import keyBy from 'lodash/keyBy';
 import {userFindOneByEmail} from "../commonQueries";
 import { hasDigests } from '../../lib/betas';
-import ElectionVotes from '../../lib/collections/electionVotes/collection';
-import { eaGivingSeason23ElectionName } from '../../lib/eaGivingSeason';
 
 const MODERATE_OWN_PERSONAL_THRESHOLD = 50
 const TRUSTLEVEL1_THRESHOLD = 2000
@@ -84,7 +81,7 @@ getCollectionHooks("Users").editSync.add(function maybeSendVerificationEmail (mo
   }
 });
 
-getCollectionHooks("Users").updateBefore.add(async function updateProfileTagsSubscribesUser(data, {oldDocument, newDocument}: UpdateCallbackProperties<DbUser>) {
+getCollectionHooks("Users").updateBefore.add(async function updateProfileTagsSubscribesUser(data, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
   // check if the user added any tags to their profile
   const tagIdsAdded = newDocument.profileTagIds?.filter(tagId => !oldDocument.profileTagIds?.includes(tagId)) || []
   
@@ -133,7 +130,7 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
     // to now so that it goes to the right place int he latest posts list.
     const unreviewedPosts = await Posts.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
     for (let post of unreviewedPosts) {
-      await updateMutator<DbPost>({
+      await updateMutator<"Posts">({
         collection: Posts,
         documentId: post._id,
         set: {
@@ -149,7 +146,7 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
     // in that case, we want to trigger the relevant comment notifications once the author is reviewed.
     const unreviewedComments = await Comments.find({userId: newUser._id, authorIsUnreviewed: true}).fetch();
     for (let comment of unreviewedComments) {
-      await updateMutator<DbComment>({
+      await updateMutator<"Comments">({
         collection: Comments,
         documentId: comment._id,
         set: {
@@ -161,7 +158,7 @@ getCollectionHooks("Users").editAsync.add(async function approveUnreviewedSubmis
   }
 });
 
-getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document, data}: UpdateCallbackProperties<DbUser>) {
+getCollectionHooks("Users").updateAsync.add(function updateUserMayTriggerReview({document, data}: UpdateCallbackProperties<"Users">) {
   const reviewTriggerFields: (keyof DbUser)[] = ['voteCount', 'mapLocation', 'postCount', 'commentCount', 'biography', 'profileImageId'];
   if (reviewTriggerFields.some(field => field in data)) {
     void triggerReviewIfNeeded(document._id)
@@ -475,26 +472,6 @@ getCollectionHooks("Users").updateBefore.add(async function UpdateDisplayName(da
     }
     if (await Users.findOne({displayName: data.displayName})) {
       throw new Error("This display name is already taken");
-    }
-  }
-  return data;
-});
-
-/**
- * Only allow users to update givingSeason2023VotedFlair if they have voted in the 2023 donation election
- */
-getCollectionHooks("Users").updateBefore.add(async function UpdateGivingSeason2023VotedFlair(data: DbUser, {oldDocument}) {
-  if (isAdmin(oldDocument)) return data;
-
-  if (data.givingSeason2023VotedFlair && data.givingSeason2023VotedFlair !== oldDocument.givingSeason2023VotedFlair) {
-    const vote = await ElectionVotes.findOne({
-      electionName: eaGivingSeason23ElectionName,
-      userId: oldDocument._id,
-      submittedAt: { $exists: true },
-    });
-
-    if (!vote) {
-      throw new Error("You must vote in the 2023 donation election to set this flair");
     }
   }
   return data;

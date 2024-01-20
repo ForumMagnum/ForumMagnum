@@ -1,7 +1,9 @@
 import AbstractRepo from "./AbstractRepo";
 import Users from "../../lib/collections/users/collection";
-import { UpvotedUser, CommentCountTag, TopCommentedTagUser } from "../../components/users/DialogueMatchingPage";
-import {calculateVotePower} from "../../lib/voting/voteTypes";
+import { UpvotedUser } from "../../components/users/DialogueMatchingPage";
+import { calculateVotePower } from "../../lib/voting/voteTypes";
+import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -38,7 +40,8 @@ LIMIT 1
 `;
 
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
-export default class UsersRepo extends AbstractRepo<DbUser> {
+
+class UsersRepo extends AbstractRepo<"Users"> {
   constructor() {
     super(Users);
   }
@@ -198,7 +201,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaUser> {
+  getSearchDocumentById(id: string): Promise<SearchUser> {
     return this.getRawDb().one(`
       -- UsersRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
@@ -206,7 +209,7 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaUser[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchUser[]> {
     return this.getRawDb().any(`
       -- UsersRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
@@ -540,4 +543,37 @@ export default class UsersRepo extends AbstractRepo<DbUser> {
       LIMIT $1;
     `, [limit])
   }
+
+  async getActiveDialogues(userIds: string[]): Promise<ActiveDialogueServer[]> {
+    const result = await this.getRawDb().any(`
+    SELECT
+        p._id,
+        p.title,
+        p."userId",
+        p."coauthorStatuses",
+        ARRAY_AGG(DISTINCT s."userId") AS "activeUserIds",
+        MAX(r."editedAt") AS "mostRecentEditedAt"
+    FROM "Posts" AS p
+    INNER JOIN "Revisions" AS r ON p._id = r."documentId"
+    INNER JOIN "CkEditorUserSessions" AS s ON p._id = s."documentId",
+        unnest(p."coauthorStatuses") AS coauthors
+    WHERE
+        (
+            coauthors ->> 'userId' = any($1)
+            OR p."userId" = any($1)
+        )
+        AND s."endedAt" IS NULL
+        AND (
+          s."createdAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
+          OR r."editedAt" > CURRENT_TIMESTAMP - INTERVAL '30 minutes'
+        )
+    GROUP BY p._id
+    `, [userIds]);
+  
+    return result;
+  }
 }
+
+recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });
+
+export default UsersRepo;

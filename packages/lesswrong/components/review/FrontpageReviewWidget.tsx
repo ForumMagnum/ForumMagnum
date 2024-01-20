@@ -129,6 +129,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 12
   },
   nominationTimeRemaining: {
+    [theme.breakpoints.down('sm')]: {
+      display: "none"
+    },
     marginRight: "auto",
     marginLeft: 4,
     textAlign: "left"
@@ -394,11 +397,9 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear}: {
         Review Leaderboard
       </Link>
     </LWTooltip>
-    {
-      <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
-        Cast Final Votes
-      </Link>
-    }
+    <Link to={"/reviewVoting"} className={classes.actionButtonCTA}>
+      Cast Final Votes
+    </Link>
     {/* If there's less than 24 hours remaining, show the remaining time */}
     {isLastDay(voteEndDate) && <span className={classes.timeRemaining}>
       {voteEndDate.fromNow()} remaining

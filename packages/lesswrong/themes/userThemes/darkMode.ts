@@ -149,6 +149,11 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         primaryTranslucent: "rgba(12,134,155,0.4)"
       }
     },
+    LessWrong: {
+      header: {
+        background: 'rgba(50,50,50,.75)',
+      }
+    },
     default: {},
   });
 
@@ -211,14 +216,16 @@ export const darkModeTheme: UserThemeSpecification = {
       cookieBanner: shadePalette.grey[900],
     },
     background: {
+      default: shadePalette.grey[100],
       contrastInDarkMode: shadePalette.grey[100],
       diffInserted: "#205120",
       diffDeleted: "#b92424",
       primaryDim: "#28383e",
+      primarySlightlyDim: "#00494e",
       primaryTranslucent: "rgba(99,141,103,0.3)",
       primaryTranslucentHeavy: "rgba(99,141,103,0.6)",
       warningTranslucent: "rgba(255,173,8,0.3)",
-      transparent: 'transparent'
+      transparent: 'transparent',
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
@@ -254,42 +261,18 @@ export const darkModeTheme: UserThemeSpecification = {
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
     },
-    givingPortal: {
-      [0]: "#202020",
-      [200]: "#34201E",
-      [800]: "#49201C",
-      [900]: "#5B3633",
-      [1000]: "#FFF",
-      candidate: "#64342E",
-      votedCandidate: "#8A5751",
-      selectedCandidate: "#49201C",
-      thankYouBackground: shadePalette.grey[100],
-      ctaBackground: "#64342E",
-      ctaText: "#FFF",
-      rhsLink: '#E7714E',
-      votingPortalIntroBackground: "#202020",
-      button: {
-        alwaysDark: "#862115",
-        dark: "#FFF",
-        light: "#862115",
-        hoverOutlined: "#744843",
-        borderColor: "#FFF",
-      },
-      homepageHeader: {
-        light4: "#fdfcfc",
-        light3: "#fcf5f3",
-        light3Opaque: "rgba(252, 245, 243, 0.20)",
-        light2: "#f8e7e2",
-        light2Opaque: "rgba(248, 231, 226, 0.30)",
-        light1: "#EDD3CE",
-        light1Opaque: "rgba(237, 211, 206, 0.30)",
-        main: "#862115",
-        dark: "#6C0C00",
-        secondary: "#b44c42",
-        secondaryDark: "#a0443c",
-        secondaryOpaque: "rgba(253, 139, 132, 0.40)",
-        secondaryOpaqueDark: "rgba(197, 106, 101, 0.40)",
-      },
+    wrapped: {
+      background: '#072C47',
+      highlightText: '#FFC443',
+      secondaryText: '#008DAC',
+      tertiaryText: "rgba(255, 255, 255, 0.50)",
+      black: '#212121',
+      darkGrey: '#424242',
+      grey: '#757575',
+      darkDot: "rgba(255, 255, 255, 0.40)",
+      panelBackground: "rgba(255, 255, 255, 0.10)",
+      panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
+      postScoreArrow: '#BCBCBC',
     },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({

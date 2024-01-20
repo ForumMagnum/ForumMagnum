@@ -15,7 +15,6 @@ export const acceptsSchemaHash = "ea71916ffaa87ae0a21302ce831261e6";
 
 import Spotlights from "../../lib/collections/spotlights/collection"
 import Tags from "../../lib/collections/tags/collection"
-import PgCollection from "../../lib/sql/PgCollection"
 import Users from "../../lib/vulcan-users"
 import { addField } from "./meta/utils"
 
@@ -30,52 +29,45 @@ export const up = async ({db}: MigrationContext) => {
   ]
 
   for (const {collection, fieldName} of collectionsAndFieldsToMigrate) {
-    if (collection.isPostgres()) {
-      // eslint-disable-next-line no-console
-      console.log(`Migrating ${collection.collectionName} ${fieldName}`);
+    // eslint-disable-next-line no-console
+    console.log(`Migrating ${collection.collectionName} ${fieldName}`);
 
-      // Hand-jamming these types, it was annoying to do it properly, and we can
-      // tell they're correct by looking just above
-      await addField(db, collection as  PgCollection<DbObject>, fieldName as keyof DbObject);
+    await addField(db, collection, fieldName as keyof DbObject);
 
-      // -- Migrate data --
-      const ids = await db.any(`SELECT _id FROM "${collection.collectionName}"`);
+    // -- Migrate data --
+    const ids = await db.any(`SELECT _id FROM "${collection.collectionName}"`);
 
-      // eslint-disable-next-line no-console
-      console.log(`  Updating ${ids.length} documents`);
+    // eslint-disable-next-line no-console
+    console.log(`  Updating ${ids.length} documents`);
 
-      const promises: Promise<null>[] = [];
-      for (const {_id} of ids) {
-        promises.push(db.none(`
-          UPDATE "${collection.collectionName}"
-          SET "${fieldName}" = (
-            SELECT row_to_json(q.*)
-            FROM (
-              SELECT
-                r."html",
-                r."userId",
-                r."version",
-                r."editedAt",
-                r."wordCount",
-                r."updateType",
-                r."commitMessage",
-                r."originalContents"
-              FROM "Revisions" r
-              JOIN "${collection.collectionName}" t ON
-                t."_id" = $1 AND
-                t."${fieldName}_latest" = r."_id") q
-            )
-          WHERE "_id" = $1
-        `, [_id]));
-      }
-      await Promise.all(promises);
-
-      // eslint-disable-next-line no-console
-      console.log("    Done!");
-    } else {
-      // eslint-disable-next-line no-console
-      console.log(`Skipping ${collection.collectionName} ${fieldName}`);
+    const promises: Promise<null>[] = [];
+    for (const {_id} of ids) {
+      promises.push(db.none(`
+        UPDATE "${collection.collectionName}"
+        SET "${fieldName}" = (
+          SELECT row_to_json(q.*)
+          FROM (
+            SELECT
+              r."html",
+              r."userId",
+              r."version",
+              r."editedAt",
+              r."wordCount",
+              r."updateType",
+              r."commitMessage",
+              r."originalContents"
+            FROM "Revisions" r
+            JOIN "${collection.collectionName}" t ON
+              t."_id" = $1 AND
+              t."${fieldName}_latest" = r."_id") q
+          )
+        WHERE "_id" = $1
+      `, [_id]));
     }
+    await Promise.all(promises);
+
+    // eslint-disable-next-line no-console
+    console.log("    Done!");
   }
 }
 

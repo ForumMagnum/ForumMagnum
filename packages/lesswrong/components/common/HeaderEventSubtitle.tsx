@@ -3,11 +3,6 @@ import { useCurrentFrontpageSpotlight } from "../hooks/useCurrentFrontpageSpotli
 import { registerComponent } from "../../lib/vulcan-lib";
 import { getSpotlightUrl } from "../../lib/collections/spotlights/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
-import { eaGivingSeason23ElectionName, userCanVoteInDonationElection } from "../../lib/eaGivingSeason";
-import { useLocation } from "../../lib/routeUtil";
-import { useCurrentUser } from "./withUser";
-import { useElectionVote } from "../ea-forum/voting-portal/hooks";
-import { useIsGivingSeason } from "../ea-forum/giving-portal/hooks";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -38,23 +33,6 @@ const useCurrentEvent = (): CurrentEvent | null => {
   const spotlight = useCurrentFrontpageSpotlight({
     fragmentName: "SpotlightHeaderEventSubtitle",
   });
-  const { pathname } = useLocation()
-  
-  // special case for EA Forum Giving Season 2023
-  const isGivingSeason = useIsGivingSeason();
-  const { electionVote } = useElectionVote(eaGivingSeason23ElectionName);
-  const currentUser = useCurrentUser();
-  // We only advertise voting for users who are eligible -
-  // i.e. those that created their accounts before Oct 23 and haven't voted yet.
-  const advertiseVoting = currentUser && userCanVoteInDonationElection(currentUser) && !electionVote?.submittedAt
-  // home page has its own unique header for giving season
-  if (!spotlight && isGivingSeason && pathname !== '/') {
-    return {
-      title: advertiseVoting ? 'Vote in the Donation Election' : 'Giving season 2023',
-      link: '/giving-portal',
-      background: makeBackground('#AA1200', '#B65F54')
-    }
-  }
   
   if (!spotlight?.headerTitle) {
     return null;

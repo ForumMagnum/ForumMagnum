@@ -225,7 +225,7 @@ const PostsNewForm = ({classes}: {
     NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
   } = Components;
 
-  const userHasModerationGuidelines = currentUser && currentUser.moderationGuidelines && currentUser.moderationGuidelines.originalContents
+  const userHasModerationGuidelines = !!currentUser?.moderationGuidelines?.html;
   const debateForm = !!(query && query.debate);
 
   const questionInQuery = query && !!query.question
@@ -311,7 +311,9 @@ const PostsNewForm = ({classes}: {
                 prefilledProps={prefilledProps}
                 successCallback={(post: any, options: any) => {
                   if (!post.draft) afNonMemberSuccessHandling({currentUser, document: post, openDialog, updateDocument: updatePost});
-                  if (options?.submitOptions?.redirectToEditor) {
+                  if (options?.submitOptions?.noReload) {
+                    navigate(postGetEditUrl(post._id, true), { replace: true });
+                  } else if (options?.submitOptions?.redirectToEditor) {
                     navigate(postGetEditUrl(post._id));
                   } else {
                     // If they are publishing a non-draft post, show the share popup

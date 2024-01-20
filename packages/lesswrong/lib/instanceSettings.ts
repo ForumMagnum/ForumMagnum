@@ -126,14 +126,6 @@ export const forumTitleSetting = new PublicInstanceSetting<string>('title', 'Les
 export const siteNameWithArticleSetting = new PublicInstanceSetting<string>('siteNameWithArticle', "LessWrong", "warning")
 
 /**
- * By default, we switch between using Mongo or Postgres based on the forum type. This can make it difficult to
- * test changes with different forum types to find regressions. Setting this to either "mongo" or "pg" will force
- * all collections to be of that type whatever the forum type setting might be, making cross-forum testing much
- * easier.
- */
-export const forceCollectionTypeSetting = new PublicInstanceSetting<CollectionType|null>("forceCollectionType", null, "optional");
-
-/**
  * Name of the tagging feature on your site. The EA Forum is going to try
  * calling them topics. You should set this setting with the lowercase singular
  * form of the name. We assume this is a single word currently. Spaces will
@@ -197,3 +189,12 @@ export const noIndexSetting = new PublicInstanceSetting<boolean>('noindex', fals
 export const verifyEmailsSetting = new PublicInstanceSetting<boolean>("verifyEmails", true, "optional");
 
 export const hasCuratedPostsSetting = new PublicInstanceSetting<boolean>("hasCuratedPosts", false, "optional");
+
+export const performanceMetricLoggingEnabled = new PublicInstanceSetting<boolean>('performanceMetricLogging.enabled', false, "optional");
+export const performanceMetricLoggingBatchSize = new PublicInstanceSetting<number>('performanceMetricLogging.batchSize', 100, "optional");
+export const performanceMetricLoggingSqlSampleRate = new PublicInstanceSetting<number>('performanceMetricLogging.sqlSampleRate', 0.05, "optional");
+
+export const hasSideCommentsSetting = new PublicInstanceSetting<boolean>("comments.sideCommentsEnabled", isLWorAF, "optional");
+export const hasCommentsTableOfContentSetting = new PublicInstanceSetting<boolean>("comments.tableOfContentsEnabled", isLWorAF, "optional");
+export const hasDialoguesSetting = new PublicInstanceSetting<boolean>("dialogues.enabled", true, "optional");
+export const hasPostInlineReactionsSetting = new PublicInstanceSetting<boolean>("posts.inlineReactionsEnabled", isLWorAF, "optional");

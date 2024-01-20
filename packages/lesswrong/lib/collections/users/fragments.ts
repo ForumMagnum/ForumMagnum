@@ -25,8 +25,6 @@ registerFragment(`
     spamRiskScore
     tagRevisionCount
     reviewedByUserId
-    givingSeason2023DonatedFlair # TODO: Remove after giving season
-    givingSeason2023VotedFlair   # TODO: Remove after giving season
   }
 `);
 
@@ -42,10 +40,10 @@ registerFragment(`
       ...RevisionDisplay
     }
     howOthersCanHelpMe {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     howICanHelpOthers {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     profileTagIds
     profileTags {
@@ -85,7 +83,9 @@ registerFragment(`
     petrovPressedButtonDate
     petrovOptOut
     sortDraftsBy
-    ...SunshineUsersList
+    email
+    emails
+    banned
     ...SharedUserBooleans
     noindex
     paymentEmail
@@ -131,13 +131,7 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    biography {
-      ...RevisionEdit
-    }
     moderationStyle
-    moderationGuidelines {
-      ...RevisionEdit
-    }
     noKibitz
     showHideKarmaOption
     markDownPostEditor
@@ -189,8 +183,6 @@ registerFragment(`
     hideFrontpageBookAd
     hideFrontpageBook2019Ad
 
-    givingSeasonNotifyForVoting
-
     abTestKey
     abTestOverrides
 
@@ -217,11 +209,17 @@ registerFragment(`
     optedInToDialogueFacilitation
     revealChecksToAdmins
     notificationNewDialogueChecks
+    notificationYourTurnMatchForm
 
     showDialoguesList
     showMyDialogues
     showMatches
     showRecommendedPartners
+    hideActiveDialogueUsers
+
+    wrapped2023Viewed
+
+    hideSunshineSidebar
   }
 `);
 
@@ -496,8 +494,7 @@ registerFragment(`
     notificationSubforumUnread
     notificationNewMention
     notificationNewDialogueChecks
-
-    givingSeasonNotifyForVoting
+    notificationYourTurnMatchForm
 
     hideFrontpageMap
     hideTaggingProgressBar

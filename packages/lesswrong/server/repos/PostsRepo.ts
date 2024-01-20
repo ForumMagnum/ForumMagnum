@@ -1,12 +1,12 @@
 import Posts from "../../lib/collections/posts/collection";
-import { ensureIndex } from '../../lib/collectionIndexUtils';
 import AbstractRepo from "./AbstractRepo";
 import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
 import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
-export type MeanPostKarma = {
+type MeanPostKarma = {
   _id: number,
   meanKarma: number,
 }
@@ -29,7 +29,7 @@ const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>(
   updateAgeOnGet: false,
 });
 
-export default class PostsRepo extends AbstractRepo<DbPost> {
+class PostsRepo extends AbstractRepo<"Posts"> {
   constructor() {
     super(Posts);
   }
@@ -363,14 +363,14 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaPost> {
+  getSearchDocumentById(id: string): Promise<SearchPost> {
     return this.getRawDb().one(`
       ${this.getSearchDocumentQuery()}
       WHERE p."_id" = $1
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaPost[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchPost[]> {
     return this.getRawDb().any(`
       -- PostsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
@@ -412,5 +412,246 @@ export default class PostsRepo extends AbstractRepo<DbPost> {
       WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
     `);
   }
+
+  /**
+   * Returns the number of posts that a user has authored in a given year, and their percentile among all users who
+   * authored at least one post in that year. This is currently used for Wrapped.
+   */
+  async getAuthorshipStats({
+    userId,
+    year,
+  }: {
+    userId: string;
+    year: number;
+  }): Promise<{ totalCount: number; percentile: number }> {
+    const startPostedAt = new Date(year, 0).toISOString();
+    const endPostedAt = new Date(year + 1, 0).toISOString();
+
+    const result = await this.getRawDb().oneOrNone<{ total_count: string; percentile: number }>(
+      `
+      -- PostsRepo.getAuthorshipStats
+      WITH visible_posts AS (
+        SELECT
+          "userId",
+          "coauthorStatuses"
+        FROM
+          "Posts"
+        WHERE
+          ${getViewablePostsSelector()}
+          AND "postedAt" > $1
+          AND "postedAt" < $2
+      ),
+      authorships AS ((
+          SELECT
+            "userId"
+          FROM
+            visible_posts)
+        UNION ALL (
+          SELECT
+            unnest("coauthorStatuses") ->> 'userId' AS "userId"
+          FROM
+            visible_posts)
+      ),
+      authorship_counts AS (
+        SELECT
+          "userId",
+          count(*) AS total_count
+        FROM
+          authorships
+        GROUP BY
+          "userId"
+      ),
+      authorship_percentiles AS (
+        SELECT
+          "userId",
+          total_count,
+          percent_rank() OVER (ORDER BY total_count ASC) percentile
+        FROM
+          authorship_counts
+      )
+      SELECT
+        total_count,
+        percentile
+      FROM
+        authorship_percentiles
+      WHERE
+        "userId" = $3;
+    `,
+      [startPostedAt, endPostedAt, userId]
+    );
+
+    return {
+      totalCount: result?.total_count ? parseInt(result.total_count) : 0,
+      percentile: result?.percentile ?? 0,
+    };
+  }
+
+  /**
+   * Returns the number of posts that a user has read that were authored by a given user in a given year, and their
+   * percentile among all users who read at least one post by that author in that year. This is currently used for Wrapped.
+   */
+  async getReadAuthorStats({
+    userId,
+    authorUserId,
+    year,
+  }: {
+    userId: string;
+    authorUserId: string;
+    year: number;
+  }): Promise<{ totalCount: number; percentile: number }> {
+    const startPostedAt = new Date(year, 0, 1);
+    const endPostedAt = new Date(year + 1, 0, 1);
+
+    const result = await this.getRawDb().oneOrNone<{ total_count: string; percentile: number }>(
+      `
+      -- PostsRepo.getReadAuthorStats
+      WITH authored_posts AS (
+        SELECT DISTINCT
+          _id AS "postId"
+        FROM
+          "Posts" p
+          LEFT JOIN LATERAL UNNEST(p."coauthorStatuses") AS unnested ON true
+        WHERE
+          ${getViewablePostsSelector("p")}
+          AND (p."userId" = $3 OR unnested ->> 'userId' = $3)
+      ),
+      read_counts AS (
+        SELECT
+          "userId",
+          count(*) AS total_count
+        FROM
+          authored_posts
+          INNER JOIN "ReadStatuses" rs ON authored_posts."postId" = rs."postId" AND rs."isRead" IS TRUE
+        WHERE
+          "lastUpdated" >= $1
+          AND "lastUpdated" < $2
+        GROUP BY
+          "userId"
+      ),
+      reader_percentiles AS (
+        SELECT
+          "userId",
+          total_count,
+          percent_rank() OVER (ORDER BY total_count ASC) percentile
+        FROM
+          read_counts
+      )
+      SELECT
+        total_count,
+        percentile
+      FROM
+        reader_percentiles
+      WHERE
+        "userId" = $4;
+    `,
+      [startPostedAt, endPostedAt, authorUserId, userId]
+    );
+
+    return {
+      totalCount: result?.total_count ? parseInt(result.total_count) : 0,
+      percentile: result?.percentile ?? 0,
+    };
+  }
+
+  /**
+   * Get stats on how much the given user reads each core topic, relative to the average user. This is currently used
+   * for Wrapped.
+   */
+  async getReadCoreTagStats({
+    userId,
+    year,
+  }: {
+    userId: string;
+    year: number;
+  }): Promise<{ tagId: string; tagName: string; tagShortName: string; userReadCount: number; readLikelihoodRatio: number }[]> {
+    const startPostedAt = new Date(year, 0, 1);
+    const endPostedAt = new Date(year + 1, 0, 1);
+
+    const results = await this.getRawDb().any<{ tagId: string; name: string; shortName: string; read_count: number; ratio: number }>(
+      `
+      -- PostsRepo.getReadCoreTagStats
+      WITH core_tags AS (
+          SELECT _id
+          FROM tags
+          WHERE core IS TRUE
+      ),
+      read_posts AS (
+          SELECT
+              *
+          FROM
+              "ReadStatuses" rs
+          WHERE
+              rs."lastUpdated" >= $1
+              AND rs."lastUpdated" < $2
+              AND rs."isRead" IS TRUE
+      ),
+      total_reads_by_tag AS (
+          SELECT
+              tr."tagId",
+              count(*) AS read_count
+          FROM
+              read_posts
+              INNER JOIN "TagRels" tr ON read_posts."postId" = tr."postId"
+          WHERE
+              tr."tagId" IN (SELECT _id FROM core_tags)
+              AND tr."deleted" IS FALSE
+          GROUP BY
+              tr."tagId"
+      ),
+      user_reads_by_tag AS (
+          SELECT
+              tr."tagId",
+              count(*) AS read_count
+          FROM
+              read_posts
+              INNER JOIN "TagRels" tr ON read_posts."postId" = tr."postId"
+          WHERE
+              read_posts."userId" = $3
+              AND tr."tagId" IN (SELECT _id FROM core_tags)
+              AND tr."deleted" IS FALSE
+          GROUP BY
+              tr."tagId"
+      ),
+      total_reads AS (
+          SELECT
+              sum(read_count) AS total_count
+          FROM
+              total_reads_by_tag
+      ),
+      user_reads AS (
+          SELECT
+              sum(read_count) AS total_count
+          FROM
+              user_reads_by_tag
+      )
+      SELECT
+          tr."tagId",
+          t.name,
+          t."shortName",
+          ur.read_count,
+          (coalesce(ur.read_count::float, 0.0) / user_reads.total_count) / (tr.read_count::float / total_reads.total_count) AS ratio
+      FROM
+          total_reads_by_tag tr
+          LEFT JOIN user_reads_by_tag ur ON tr."tagId" = ur."tagId"
+          INNER JOIN "Tags" t ON tr."tagId" = t._id,
+          total_reads,
+          user_reads
+      ORDER BY
+          ratio DESC;
+    `,
+      [startPostedAt, endPostedAt, userId]
+    );
+
+    return results.map(({ tagId, name, shortName, read_count, ratio }) => ({
+      tagId,
+      tagName: name,
+      tagShortName: shortName,
+      userReadCount: read_count,
+      readLikelihoodRatio: ratio
+    }));
+  }
 }
-ensureIndex(Posts, {debate:-1})
+
+recordPerfMetrics(PostsRepo);
+
+export default PostsRepo;

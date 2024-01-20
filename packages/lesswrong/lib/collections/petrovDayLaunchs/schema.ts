@@ -1,5 +1,5 @@
 
-const schema: SchemaType<DbPetrovDayLaunch> = {
+const schema: SchemaType<"PetrovDayLaunchs"> = {
   launchCode: {
     type: String,
     optional: true,

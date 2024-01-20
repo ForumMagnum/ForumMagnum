@@ -15,7 +15,7 @@ import * as _ from 'underscore';
  * query type, and so we have to make sure to not resubmit any data that we
  * queried
  */
-function WrappedSmartForm(props: WrappedSmartFormProps) {
+function WrappedSmartForm<T extends CollectionNameString>(props: WrappedSmartFormProps<T>) {
   const { collectionName } = props
 
   if (editableCollections.has(collectionName)) {

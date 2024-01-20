@@ -6,6 +6,7 @@ import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -13,7 +14,7 @@ type ExtendedCommentWithReactions = DbComment & {
   userVote?: string,
 }
 
-export default class CommentsRepo extends AbstractRepo<DbComment> {
+class CommentsRepo extends AbstractRepo<"Comments"> {
   constructor() {
     super(Comments);
   }
@@ -27,6 +28,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
           SELECT "postId", MAX("promotedAt") AS max_promotedAt
           FROM "Comments"
           WHERE "postId" IN ($1:csv)
+          AND "promotedAt" IS NOT NULL
           GROUP BY "postId"
       ) sq
       ON c."postId" = sq."postId" AND c."promotedAt" = sq.max_promotedAt;
@@ -38,7 +40,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
   }
 
   async getRecentCommentsOnPosts(postIds: string[], limit: number, filter: MongoSelector<DbComment>): Promise<DbComment[][]> {
-    const selectQuery = new SelectQuery(this.getCollection().table, filter)
+    const selectQuery = new SelectQuery(this.getCollection().getTable(), filter)
     const selectQueryAtoms = selectQuery.compileSelector(filter);
     const {sql: filterWhereClause, args: filterArgs} = selectQuery.compileAtoms(selectQueryAtoms, 2);
 
@@ -233,7 +235,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `;
   }
 
-  getSearchDocumentById(id: string): Promise<AlgoliaComment> {
+  getSearchDocumentById(id: string): Promise<SearchComment> {
     return this.getRawDb().one(`
       -- CommentsRepo.getSearchDocumentById
       ${this.getSearchDocumentQuery()}
@@ -241,7 +243,7 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
     `, [id]);
   }
 
-  getSearchDocuments(limit: number, offset: number): Promise<AlgoliaComment[]> {
+  getSearchDocuments(limit: number, offset: number): Promise<SearchComment[]> {
     return this.getRawDb().any(`
       -- CommentsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
@@ -304,4 +306,77 @@ export default class CommentsRepo extends AbstractRepo<DbComment> {
       WHERE contents->>'html' LIKE '%elicit-binary-prediction%'
     `);
   }
+
+  /**
+   * Returns the number of comments that a user has authored in a given year, and their percentile among all users who
+   * authored at least one comment in that year (for either regular comments or shortform). This is currently used for Wrapped.
+   */
+  async getAuthorshipStats({
+    userId,
+    year,
+    shortform,
+  }: {
+    userId: string;
+    year: number;
+    shortform: boolean;
+  }): Promise<{ totalCount: number; percentile: number }> {
+    const startPostedAt = new Date(year, 0).toISOString();
+    const endPostedAt = new Date(year + 1, 0).toISOString();
+    const shortformCondition = shortform
+      ? `"shortform" IS TRUE AND "topLevelCommentId" IS NULL`
+      : `("shortform" IS FALSE OR "topLevelCommentId" IS NOT NULL)`;
+
+    const result = await this.getRawDb().oneOrNone<{ total_count: string; percentile: number }>(
+      `
+      -- CommentsRepo.getAuthorshipStats
+      WITH comment_counts AS (
+        SELECT
+          "userId",
+          count(*) AS total_count
+        FROM
+          "Comments"
+        WHERE
+          "deleted" IS FALSE
+          AND "postId" IS NOT NULL
+          AND "needsReview" IS NOT TRUE
+          AND "retracted" IS NOT TRUE
+          AND "deletedPublic" IS NOT TRUE
+          AND "moderatorHat" IS NOT TRUE
+          AND ${shortformCondition}
+          AND "postedAt" > $1
+          AND "postedAt" < $2
+        GROUP BY
+          "userId"
+      ), authorship_percentiles AS (
+        SELECT
+          "userId",
+          slug,
+          total_count,
+          percent_rank() OVER (ORDER BY total_count ASC) percentile
+        FROM
+          comment_counts
+          left join "Users" u on "userId" = u._id
+        ORDER BY
+          percentile DESC
+      )
+      SELECT
+        total_count AS total_count,
+        percentile
+      FROM
+        authorship_percentiles
+      WHERE
+        "userId" = $3;
+    `,
+      [startPostedAt, endPostedAt, userId]
+    );
+
+    return {
+      totalCount: result?.total_count ? parseInt(result.total_count) : 0,
+      percentile: result?.percentile ?? 0,
+    };
+  }
 }
+
+recordPerfMetrics(CommentsRepo);
+
+export default CommentsRepo;

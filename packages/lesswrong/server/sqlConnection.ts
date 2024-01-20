@@ -5,6 +5,7 @@ import { isAnyTest } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
 import { logAllQueries } from "../lib/sql/sqlClient";
+import { recordSqlQueryPerfMetric } from "./perfMetrics";
 
 const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
 
@@ -146,6 +147,7 @@ let queriesExecuted = 0;
 const logIfSlow = async <T>(
   execute: () => Promise<T>,
   describe: SqlDescription,
+  originalQuery: string,
   quiet?: boolean,
 ) => {
   const getDescription = (): string => {
@@ -165,10 +167,12 @@ const logIfSlow = async <T>(
   const result = await execute();
   const endTime = new Date().getTime();
 
+  recordSqlQueryPerfMetric(originalQuery, startTime, endTime);
+
   const milliseconds = endTime - startTime;
   if (logAllQueries) {
     // eslint-disable-next-line no-console
-    console.log(`Finished query #${queryID} (${milliseconds} ms)`);
+    console.log(`Finished query #${queryID} (${milliseconds} ms) (${JSON.stringify(result).length}b)`);
   } else if (milliseconds > SLOW_QUERY_REPORT_CUTOFF_MS && !quiet && !isAnyTest) {
     // eslint-disable-next-line no-console
     console.trace(`Slow Postgres query detected (${milliseconds} ms): ${getDescription()}`);
@@ -193,6 +197,7 @@ const wrapQueryMethod = <T>(
   ) => logIfSlow(
     () => queryMethod(query, values),
     describe ?? query,
+    query,
     quiet,
   ) as ReturnType<typeof queryMethod>;
 }

@@ -2,7 +2,7 @@ import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
 import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
-import { userGroups, userOwns, userIsAdmin, userHasntChangedName, isAdmin } from '../../vulcan-users/permissions';
+import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
 import * as _ from 'underscore';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF, taggingNamePluralCapitalSetting, taggingNamePluralSetting, taggingNameSetting } from "../../instanceSettings";
@@ -279,7 +279,7 @@ export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
  * @summary Users schema
  * @type {Object}
  */
-const schema: SchemaType<DbUser> = {
+const schema: SchemaType<"Users"> = {
   username: {
     type: String,
     optional: true,
@@ -1421,10 +1421,14 @@ const schema: SchemaType<DbUser> = {
   },
   notificationNewDialogueChecks: {
     label: "You have new people interested in dialogue-ing with you",
+    ...notificationTypeSettingsField({ channel: "none" }),
+    hidden: !isLW,
+  },
+  notificationYourTurnMatchForm: {
+    label: "Fill in the topics form for your dialogue match",
     ...notificationTypeSettingsField(),
     hidden: !isLW,
   },
-
   hideDialogueFacilitation: {
     type: Boolean,
     canRead: [userOwns, 'sunshineRegiment', 'admins'],
@@ -1511,6 +1515,17 @@ const schema: SchemaType<DbUser> = {
     label: "Show a list of recommended dialogue partners inside frontpage widget",
     ...schemaDefaultValue(true)
   },
+  hideActiveDialogueUsers: {
+    type: Boolean,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    optional: true,
+    group: formGroups.siteCustomizations,
+    hidden: !isLW,
+    label: "Hides/collapses the active dialogue users in the header",
+    ...schemaDefaultValue(false)
+  },
 
   // Karma-change notifier settings
   karmaChangeNotifierSettings: {
@@ -1546,17 +1561,6 @@ const schema: SchemaType<DbUser> = {
     canUpdate: [userOwns, 'admins'],
     canRead: [userOwns, 'admins'],
     logChanges: false,
-  },
-
-  // User wants to get notifications when giving season voting begins
-  givingSeasonNotifyForVoting: {
-    type: Boolean,
-    optional: true,
-    canRead: [userOwns, 'sunshineRegiment', 'admins'],
-    canCreate: ['members'],
-    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
-    hidden: true,
-    ...schemaDefaultValue(false),
   },
 
   // Email settings
@@ -1871,6 +1875,7 @@ const schema: SchemaType<DbUser> = {
     canCreate: ['members'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true,
+    hidden: !isLWorAF,
     order: 47,
     group: formGroups.siteCustomizations,
     label: "Hide the frontpage book ad"
@@ -2278,7 +2283,7 @@ const schema: SchemaType<DbUser> = {
     resolveAs: {
       arguments: 'limit: Int = 5',
       type: '[Post]',
-      resolver: async (user: DbUser, args: { limit: number }, context: ResolverContext): Promise<Array<DbPost>> => {
+      resolver: async (user: DbUser, args: { limit: number }, context: ResolverContext): Promise<Partial<DbPost>[]> => {
         const { limit } = args;
         const { currentUser, Posts } = context;
         const posts = await Posts.find({ userId: user._id }, { limit }).fetch();
@@ -2360,6 +2365,7 @@ const schema: SchemaType<DbUser> = {
     canRead: ['guests'],
     canUpdate: ['admins'],
     group: formGroups.adminOptions,
+    hidden: !isLWorAF,
   },
   hideWalledGardenUI: {
     type: Boolean,
@@ -2399,6 +2405,7 @@ const schema: SchemaType<DbUser> = {
     label: "Payment Contact Email",
     tooltip: "An email you'll definitely check where you can receive information about receiving payments",
     group: formGroups.paymentInfo,
+    hidden: !isLWorAF,
   },
   paymentInfo: {
     type: String,
@@ -2408,6 +2415,7 @@ const schema: SchemaType<DbUser> = {
     label: "PayPal Info",
     tooltip: "Your PayPal account info, for sending small payments",
     group: formGroups.paymentInfo,
+    hidden: !isLWorAF,
   },
   
   // Cloudinary image id for the profile image (high resolution)
@@ -2862,7 +2870,8 @@ const schema: SchemaType<DbUser> = {
     canUpdate: ['alignmentForumAdmins', 'admins'],
     canCreate: ['alignmentForumAdmins', 'admins'],
     group: formGroups.adminOptions,
-    label: "AF Review UserId"
+    label: "AF Review UserId",
+    hidden: !isLWorAF,
   },
 
   afApplicationText: {
@@ -2904,33 +2913,26 @@ const schema: SchemaType<DbUser> = {
     optional: true
   },
 
-  // Giving season fields
-  givingSeason2023DonatedFlair: {
+  hideSunshineSidebar: {
     type: Boolean,
     optional: true,
-    canRead: ['guests'],
+    canRead: [userOwns],
     canUpdate: ['admins'],
     canCreate: ['admins'],
     group: formGroups.adminOptions,
-    label: '"I Donated" flair for 2023 giving season',
-    hidden: !isEAForum,
+    label: "Hide Sunshine Sidebar",
+    hidden: isEAForum,
     ...schemaDefaultValue(false),
   },
-  givingSeason2023VotedFlair: {
+
+  // EA Forum wrapped fields
+  wrapped2023Viewed: {
     type: Boolean,
-    optional: true,
-    canRead: ['guests'],
-    canUpdate: ['members'],
+    optional: false,
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
     canCreate: ['members'],
-    group: formGroups.adminOptions,
-    label: '"I Voted" flair for 2023 giving season',
-    hidden: ({ currentUser }) => {
-      if (!isEAForum) return true;
-      // Only admins can set this in the edit user form, but users can set it on themselves
-      // from the voting portal (if they have voted)
-      if (!isAdmin(currentUser)) return true;
-      return false;
-    },
+    hidden: true,
     ...schemaDefaultValue(false),
   },
 };

@@ -19,10 +19,10 @@ export const zIndexes = {
   frontpageBooks: 0,
   frontpageSplashImage: 0,
   sequenceBanner: 0,
-  singleColumnSection: 1,
   modTopBar: 1, 
   spotlightItem: 1,
   editorPresenceList: 1,
+  singleColumnSection: 2,
   spotlightItemCloseButton: 2,
   commentsMenu: 2,
   sequencesPageContent: 2,
@@ -72,6 +72,7 @@ export const baseTheme: BaseThemeSpecification = {
     const spacingUnit = 8
   
     return {
+      baseFontSize: 13,
       breakpoints: {
         values: {
           xs: 0,

@@ -22,14 +22,8 @@ export function generateDbTypes(): string {
 }
 
 function generateCollectionType(collection: any): string {
-  let sb: Array<string> = [];
   const collectionName = collection.collectionName;
-  const typeName = collection.typeName;
-  
-  sb.push(`interface ${collectionName}Collection extends CollectionBase<Db${typeName}, "${collectionName}"> {\n`);
-  sb.push("}\n\n");
-  
-  return sb.join('');
+  return `type ${collectionName}Collection = CollectionBase<"${collectionName}">;\n\n`;
 }
 
 function generateCollectionDbType(collection: CollectionBase<any>): string {

@@ -1,7 +1,8 @@
 import PostRelations from "../../lib/collections/postRelations/collection";
 import AbstractRepo from "./AbstractRepo";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
-export default class PostRelationsRepo extends AbstractRepo<DbPostRelation> {
+class PostRelationsRepo extends AbstractRepo<"PostRelations"> {
   constructor() {
     super(PostRelations);
   }
@@ -26,3 +27,7 @@ export default class PostRelationsRepo extends AbstractRepo<DbPostRelation> {
     `, [postId, depth]);
   }
 }
+
+recordPerfMetrics(PostRelationsRepo);
+
+export default PostRelationsRepo;

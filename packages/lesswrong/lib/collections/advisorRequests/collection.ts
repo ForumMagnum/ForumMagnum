@@ -6,7 +6,6 @@ import { getDefaultMutations } from '../../vulcan-core/default_mutations';
 export const AdvisorRequests: AdvisorRequestsCollection = createCollection({
   collectionName: 'AdvisorRequests',
   typeName: 'AdvisorRequest',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('AdvisorRequests'),
   mutations: getDefaultMutations('AdvisorRequests'),

@@ -478,5 +478,50 @@
     "acceptsSchemaHash": "989958afb8a5cef47f6f8bd33d5a499f",
     "acceptedByMigration": "20231208T021726.add_soft_delete_to_forms.ts",
     "timestamp": "2023-12-08T02:17:26.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e30b5ca4f4989161f627585b747ee83e",
+    "acceptedByMigration": "20231212T223511.add_table_for_ckeditorusersessions.ts",
+    "timestamp": "2023-12-12T22:35:11.000Z"
+  },
+  {
+    "acceptsSchemaHash": "592612513ed7bd3260014fe27c8ae328",
+    "acceptedByMigration": "20231215T014943.add_endedby_field_for_ckeditorusersessions.ts",
+    "timestamp": "2023-12-15T01:49:43.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4f18d5a0849cc239555c6263c3e20df4",
+    "acceptedByMigration": "20231219T213759.add_hideactivedialogueusers_field.ts",
+    "timestamp": "2023-12-19T21:37:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4a1a03e638557cba881d59cb63b0ed02",
+    "acceptedByMigration": "20231220T212520.add_yourTurnNotifications_post_migration_conflict.ts",
+    "timestamp": "2023-12-20T21:25:20.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2c8fcbdc99caee38d7f728acc6428352",
+    "acceptedByMigration": "20231228T160733.add_wrapped2023Viewed_to_users.ts",
+    "timestamp": "2023-12-28T16:07:33.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2431de6961ce37514d54a17a5ca14adc",
+    "acceptedByMigration": "20240111T003312.update_notificationNewDialogueChecks_default.ts",
+    "timestamp": "2024-01-11T00:33:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ab5cd3028069be1418fb1e7229510a52",
+    "acceptedByMigration": "20240114T014118.addHideSunshineSidebar.ts",
+    "timestamp": "2024-01-14T01:41:18.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7b3fdcd195cd62025722543603fa51e0",
+    "acceptedByMigration": "20240116T194702.remove_giving_season_2023_user_fields.ts",
+    "timestamp": "2024-01-16T19:47:02.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7dbf024fc86645c003e6ca3f42cf3af5",
+    "acceptedByMigration": "20240118T104751.add_PostView_PostViewTimes.ts",
+    "timestamp": "2024-01-18T10:47:51.000Z"
   }
 ]

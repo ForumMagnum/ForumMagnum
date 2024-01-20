@@ -174,6 +174,12 @@ import './collections/posts/views';
 import './collections/posts/permissions';
 import './collections/posts/helpers';
 
+// PostViews
+import './collections/postViews/collection';
+
+// PostViewTimes
+import './collections/postViewTimes/collection';
+
 // Revisions
 import './collections/revisions/collection'
 import './collections/revisions/views'
@@ -268,6 +274,10 @@ import './collections/dialogueChecks/views';
 import './collections/dialogueMatchPreferences/collection';
 import './collections/dialogueMatchPreferences/fragments';
 import './collections/dialogueMatchPreferences/views';
+
+// dialogue match preferences
+import './collections/ckEditorUserSessions/collection';
+import './collections/ckEditorUserSessions/fragments';
 
 // Alignment Forum
 import './alignment-forum/permissions';

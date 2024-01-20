@@ -8,10 +8,9 @@ import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
-import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
 import GraphQLJSON from 'graphql-type-json';
 
-export const moderationOptionsGroup: FormGroupType = {
+export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
   name: "moderation",
   label: "Moderator Options",
@@ -25,7 +24,7 @@ export const alignmentOptionsGroup = {
   startCollapsed: true
 };
 
-const schema: SchemaType<DbComment> = {
+const schema: SchemaType<"Comments"> = {
   // The `_id` of the parent comment, if there is one
   parentCommentId: {
     ...foreignKeyField({
@@ -659,7 +658,7 @@ const schema: SchemaType<DbComment> = {
     hidden: (props) => {
       // Currently only allow titles for top level subforum comments
       const comment = props?.document
-      return !commentAllowTitle(comment)
+      return !!(comment && !commentAllowTitle(comment))
     }
   },
 
@@ -794,7 +793,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForum', 'admins'],
     canCreate: ['alignmentForum', 'admins'],
-    hidden: (props: SmartFormProps) => isAF || !props.alignmentForumPost
+    hidden: (props) => isAF || !props.alignmentForumPost
   },
 
   suggestForAlignmentUserIds: {

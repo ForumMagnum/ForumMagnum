@@ -20,13 +20,11 @@ import { updateFieldType } from "./meta/utils";
 export const up = async ({db}: MigrationContext) => {
   const collections = getAllCollections();
   for (const collection of collections) {
-    if (collection.isPostgres()) {
-      const fields = collection.table.getFields();
-      for (const fieldName in fields) {
-        const type = fields[fieldName];
-        if (type.toConcrete() instanceof FloatType) {
-          await updateFieldType(db, collection, fieldName);
-        }
+    const fields = collection.getTable().getFields();
+    for (const fieldName in fields) {
+      const type = fields[fieldName];
+      if (type.toConcrete() instanceof FloatType) {
+        await updateFieldType(db, collection, fieldName);
       }
     }
   }

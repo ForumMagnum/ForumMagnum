@@ -42,17 +42,13 @@ const newDefaultValue = {"channel":"onsite","batchingFrequency":"realtime","time
 const oldDefaultValue = {"channel":"onsite","batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}
 
 export const up = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await updateDefaultValue(db, Users, "notificationNewDialogueChecks")
-    const {sql, args} = new UpdateQuery(Users.getTable(), {}, {$set: {"notificationNewDialogueChecks": newDefaultValue} }).compile()
-    await db.manyOrNone(sql, args)
-  }
+  await updateDefaultValue(db, Users, "notificationNewDialogueChecks")
+  const {sql, args} = new UpdateQuery(Users.getTable(), {}, {$set: {"notificationNewDialogueChecks": newDefaultValue} }).compile()
+  await db.manyOrNone(sql, args)
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (Users.isPostgres()) {
-    await updateDefaultValue(db, Users, "notificationNewDialogueChecks")
-    const {sql, args} = new UpdateQuery(Users.getTable(), {}, {$set: {"notificationNewDialogueChecks": oldDefaultValue} }).compile()
-    await db.manyOrNone(sql, args)
-  }
+  await updateDefaultValue(db, Users, "notificationNewDialogueChecks")
+  const {sql, args} = new UpdateQuery(Users.getTable(), {}, {$set: {"notificationNewDialogueChecks": oldDefaultValue} }).compile()
+  await db.manyOrNone(sql, args)
 }

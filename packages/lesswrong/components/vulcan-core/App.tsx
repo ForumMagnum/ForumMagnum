@@ -6,7 +6,15 @@ import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
 // eslint-disable-next-line no-restricted-imports
 import { useLocation, withRouter } from 'react-router';
 import { useQueryCurrentUser } from '../../lib/crud/withCurrentUser';
-import { LocationContext, parseRoute, ServerRequestStatusContext, SubscribeLocationContext, ServerRequestStatusContextType, NavigationContext } from '../../lib/vulcan-core/appContext';
+import {
+  LocationContext,
+  parseRoute,
+  ServerRequestStatusContext,
+  SubscribeLocationContext,
+  ServerRequestStatusContextType,
+  NavigationContext,
+  checkUserRouteAccess,
+} from '../../lib/vulcan-core/appContext'
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { MessageContextProvider } from '../common/FlashMessages';
 import type { History } from 'history'
@@ -26,7 +34,7 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
   const reactDomLocation = useLocation();
   const locationContext = useRef<RouterLocation | null>(null);
   const subscribeLocationContext = useRef<RouterLocation | null>(null);
-  const navigationContext = useRef<any>();
+  const navigationContext = useRef<{ history: History<unknown> } | null>();
 
   const locale = localeSetting.get();
 
@@ -47,7 +55,8 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
   }, [currentUser?._id]);
 
   // Parse the location into a route/params/query/etc.
-  const location = parseRoute({location: reactDomLocation});
+  const location = checkUserRouteAccess(currentUser, parseRoute({location: reactDomLocation}));
+  
   if (location.redirected) {
     return (
       <Components.PermanentRedirect url={location.url} />

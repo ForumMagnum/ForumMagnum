@@ -444,8 +444,8 @@ addGraphQLResolvers({
                 window_start_key;
             `, batch)
         }, queryPostIds, batchSize, MAX_CONCURRENT_QUERIES),
-        context.repos.votes.getPostKarmaChangePerDay({
-          postIds: queryPostIds,
+        context.repos.votes.getDocumentKarmaChangePerDay({
+          documentIds: queryPostIds,
           startDate: adjustedStartDate?.toDate(),
           endDate: adjustedEndDate.toDate(),
         }),

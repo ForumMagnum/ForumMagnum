@@ -8,13 +8,14 @@ export const TRUNCATION_KARMA_THRESHOLD = 10
 
 export const highlightFromHTML = (html: string | null): string => {
   if (!html) return ""
-  const styles = html.match(/<style[\s\S]*?<\/style>/g) || ""
-  const htmlRemovedStyles = html.replace(/<style[\s\S]*?<\/style>/g, '');
+  const styles: string[]|null = html.match(/<style[\s\S]*?<\/style>/g);
+  const htmlWithoutStyles = styles ? html.replace(/<style[\s\S]*?<\/style>/g, '') : html;
+  const suffix = styles ? `... ${styles}` : '... ';
 
-  return truncatise(htmlRemovedStyles, {
+  return truncatise(htmlWithoutStyles, {
     TruncateLength: highlightMaxChars,
     TruncateBy: "characters",
-    Suffix: `... ${styles}`,
+    Suffix: suffix,
   });
 };
 
@@ -69,7 +70,7 @@ export const answerTocExcerptFromHTML = (html: string): string => {
 
   const firstParagraph = truncatise(htmlRemovedStyles, {
     TruncateLength: 1,
-    TruncateBy: "paragraph",
+    TruncateBy: "paragraphs",
     Suffix: '',
   });
 

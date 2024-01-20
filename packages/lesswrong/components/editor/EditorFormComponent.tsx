@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
 import { debateEditorPlaceholder, defaultEditorPlaceholder, editableCollectionsFieldOptions, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from './localStorageHandlers'
 import { userCanCreateCommitMessages } from '../../lib/betas';
@@ -10,15 +10,17 @@ import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorConten
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
-import { gql, useLazyQuery } from '@apollo/client';
+import { gql, useLazyQuery, useMutation } from '@apollo/client';
 import { useUpdate } from "../../lib/crud/withUpdate";
 import { isEAForum } from '../../lib/instanceSettings';
 import Transition from 'react-transition-group/Transition';
 import { useTracking } from '../../lib/analyticsEvents';
 import { PostCategory } from '../../lib/collections/posts/helpers';
 import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
+import isEqual from 'lodash/isEqual';
 
 const autosaveInterval = 3000; //milliseconds
+const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
 
 export function isCollaborative(post: DbPost, fieldName: string): boolean {
   if (!post) return false;
@@ -57,7 +59,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
 }, context: any) => {
   const { commentEditor, collectionName, hideControls } = (form || {});
   const { editorHintText, maxHeight } = (formProps || {});
-  const { updateCurrentValues } = context;
+  const { updateCurrentValues, submitForm } = context;
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);
   const hasUnsavedDataRef = useRef({hasUnsavedData: false});
@@ -75,7 +77,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const [contents,setContents] = useState(() => getInitialEditorContents(
     value, document, fieldName, currentUser
   ));
+  const autosaveContentsRef = useRef(contents);
   const [initialEditorType] = useState(contents.type);
+  const [updatedFormType, setUpdatedFormType] = useState(formType);
 
   const dynamicTableOfContents = useContext(DynamicTableOfContentsContext)
   
@@ -86,7 +90,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   // to show it to people using the html editor. Converting from markdown to ckEditor
   // is error prone and we don't want to encourage it. We no longer support draftJS
   // but some old posts still are using it so we show the warning for them too.
-  const showEditorWarning = (formType !== "new") && (currentEditorType === 'html' || currentEditorType === 'draftJS')
+  const showEditorWarning = (updatedFormType !== "new") && (currentEditorType === 'html' || currentEditorType === 'draftJS')
   
   // On the EA Forum, our bot checks if posts are potential criticism,
   // and if so we show a little card with tips on how to make it more likely to go well.
@@ -103,7 +107,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     captureEvent('criticismTipsDismissed', {postId: document._id})
     // make sure not to show the card for this post ever again
     updateCurrentValues({criticismTipsDismissed: true})
-    if (formType !== 'new' && document._id) {
+    if (updatedFormType !== 'new' && document._id) {
       void updatePostCriticismTips({
         selector: {_id: document._id},
         data: {
@@ -189,6 +193,40 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     }
   }, [getLocalStorageHandlers, currentEditorType, document, fieldName]);
 
+  const [autosaveRevision] = useMutation(gql`
+    mutation autosaveRevision($postId: String!, $contents: AutosaveContentType!) {
+      autosaveRevision(postId: $postId, contents: $contents) {
+        ...RevisionEdit
+      }
+    }
+    ${getFragment('RevisionEdit')}
+  `);
+
+  // TODO: this currently clobbers the title if a new post had its contents edited before the title was edited
+  const saveRemoteBackup = useCallback(async (newContents: EditorContents) => {
+    // If a post hasn't ever been saved before, "submit" the form in order to create a draft post
+    // Afterwards, check whatever revision was loaded for display
+    // This may or may not be the most recent one) against current content
+    // If different, save a new revision
+    if (collectionName === 'Posts' && !isEqual(autosaveContentsRef.current, newContents)) {
+      // In order to avoid recreating this function (which is throttled) each time the contents change,
+      // we need to use a ref rather than using the `contents` directly.  We also need to update it here,
+      // rather than e.g. in `wrappedSetContents`, since updating it there would result in the `isEqual` always returning true
+      autosaveContentsRef.current = newContents;
+      if (updatedFormType === 'new') {
+        setUpdatedFormType('edit');
+        const defaultTitle = !document.title ? { title: 'Untitled draft' } : {};
+        await updateCurrentValues({ draft: true, ...defaultTitle });
+        // We pass in noReload: true and then check that in PostsNewForm's successCallback to avoid refreshing the page
+        await submitForm(null, { noReload: true });
+      } else {
+        await autosaveRevision({ 
+          variables: { postId: document._id, contents: newContents }
+        });
+      }
+    }
+  }, [collectionName, updatedFormType, updateCurrentValues, submitForm, autosaveRevision, document._id, document.title]);
+
   /**
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
    * was for SocialPreviewUpload, which needs to know the body of the post in order to generate a preview description and image.
@@ -205,6 +243,12 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const throttledSaveBackup = useCallback(
     _.throttle(saveBackup, autosaveInterval, {leading: false}),
     [saveBackup, autosaveInterval]
+  );
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const throttledSaveRemoteBackup = useCallback(
+    _.throttle(saveRemoteBackup, remoteAutosaveInterval, {leading: false}),
+    [saveRemoteBackup, remoteAutosaveInterval]
   );
   
   const wrappedSetContents = useCallback((change: EditorChangeEvent) => {
@@ -233,6 +277,9 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     
     if (autosave) {
       throttledSaveBackup(newContents);
+      // Don't do server-side autosave if using the collaborative editor, since it autosaves through the ckEditor webhook
+      // TODO: come back to this after the React 18 upgrade and test it properly
+      // if (!isCollabEditor) void throttledSaveRemoteBackup(newContents);
     }
     
     // We only check posts that have >300 characters, which is ~a few sentences.
@@ -244,7 +291,18 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         throttledCheckIsCriticism(newContents)
       }
     }
-  }, [isCollabEditor, updateCurrentValues, fieldName, throttledSetContentsValue, throttledSaveBackup, contents, throttledCheckIsCriticismLargeDiff, throttledCheckIsCriticism, dynamicTableOfContents, editableFieldOptions.hasToc]);
+  }, [
+    isCollabEditor,
+    updateCurrentValues,
+    fieldName,
+    throttledSetContentsValue,
+    throttledSaveBackup,
+    contents,
+    throttledCheckIsCriticismLargeDiff,
+    throttledCheckIsCriticism,
+    dynamicTableOfContents,
+    editableFieldOptions.hasToc
+  ]);
   
   const hasGeneratedFirstToC = useRef({generated: false});
   useEffect(() => {
@@ -287,7 +345,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       });
       const cleanupSuccessForm = context.addToSuccessForm((result: any, form: any, submitOptions: any) => {
         getLocalStorageHandlers(currentEditorType).reset();
-        if (editorRef.current && !submitOptions?.redirectToEditor && !isCollabEditor) {
+        // If we're autosaving (noReload: true), don't clear the editor!  Also no point in clearing it if we're getting redirected anyways
+        if (editorRef.current && (!submitOptions?.redirectToEditor && !submitOptions?.noReload) && !isCollabEditor) {
           wrappedSetContents({
             contents: getBlankEditorContents(initialEditorType),
             autosave: false,
@@ -306,7 +365,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   const fieldHasCommitMessages = editableCollectionsFieldOptions[collectionName as CollectionNameString][fieldName].revisionsHaveCommitMessages;
   const hasCommitMessages = fieldHasCommitMessages
     && currentUser && userCanCreateCommitMessages(currentUser)
-    && (collectionName!=="Tags" || formType==="edit");
+    && (collectionName!=="Tags" || updatedFormType==="edit");
 
   const actualPlaceholder = ((collectionName === "Posts" && getPostPlaceholder(document)) || editorHintText || hintText || placeholder);
 
@@ -342,7 +401,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
       _classes={classes}
       currentUser={currentUser}
       label={label}
-      formType={formType}
+      formType={updatedFormType}
       documentId={document._id}
       collectionName={collectionName}
       fieldName={fieldName}
@@ -387,6 +446,7 @@ export const EditorFormComponentComponent = registerComponent('EditorFormCompone
   addToSubmitForm: PropTypes.func,
   addToSuccessForm: PropTypes.func,
   updateCurrentValues: PropTypes.func,
+  submitForm: PropTypes.func,
 };
 
 declare global {

@@ -29,7 +29,7 @@ export const eventTypes = [
   }
 ]
 
-const schema: SchemaType<DbGardenCode> = {
+const schema: SchemaType<"GardenCodes"> = {
   code: {
     type: String,
     optional: true,
@@ -189,7 +189,6 @@ const schema: SchemaType<DbGardenCode> = {
 export const GardenCodes: GardenCodesCollection = createCollection({
   collectionName: 'GardenCodes',
   typeName: 'GardenCode',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('GardenCodes'),
   mutations: getDefaultMutations('GardenCodes'), //, options),

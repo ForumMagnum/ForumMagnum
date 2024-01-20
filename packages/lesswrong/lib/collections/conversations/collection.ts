@@ -34,7 +34,6 @@ const options: MutationOptions<DbConversation> = {
 export const Conversations: ConversationsCollection = createCollection({
   collectionName: 'Conversations',
   typeName: 'Conversation',
-  collectionType: 'pg',
   schema,
   resolvers: getDefaultResolvers('Conversations'),
   mutations: getDefaultMutations('Conversations', options)

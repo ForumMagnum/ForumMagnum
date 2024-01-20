@@ -1,4 +1,4 @@
-const schema: SchemaType<DbFeaturedResource> = {
+const schema: SchemaType<"FeaturedResources"> = {
   title: {
     type: String,
     nullable: false,

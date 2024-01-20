@@ -1,8 +1,9 @@
 import AbstractRepo from "./AbstractRepo";
 import Conversations from "../../lib/collections/conversations/collection";
 import keyBy from "lodash/keyBy";
+import { recordPerfMetrics } from "./perfMetricWrapper";
 
-export default class ConversationsRepo extends AbstractRepo<DbConversation> {
+class ConversationsRepo extends AbstractRepo<"Conversations"> {
   constructor() {
     super(Conversations);
   }
@@ -34,3 +35,7 @@ export default class ConversationsRepo extends AbstractRepo<DbConversation> {
     return conversationIds.map(id => messagesByConversation[id] ?? null);
   }
 }
+
+recordPerfMetrics(ConversationsRepo);
+
+export default ConversationsRepo;

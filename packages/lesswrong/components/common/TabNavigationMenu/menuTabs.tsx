@@ -185,6 +185,11 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       divider: true,
       showOnCompressed: true,
     }, {
+      id: 'dialogueMatchmaking',
+      title: 'Dialogue Matchmaking',
+      link: '/dialogueMatching',
+      subItem: true
+    }, {
       id: 'subscribeWidget',
       customComponentName: "SubscribeWidget",
     }, {
@@ -194,7 +199,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       subItem: true,
       compressedIconComponent: Info,
       showOnCompressed: true,
-    }, {
+    },  {
       id: 'faq',
       title: 'FAQ',
       link: '/faq',
@@ -260,12 +265,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       tooltip: 'See recent posts on strategies for doing the most good, plus recent activity from all across the Forum.',
       showOnMobileStandalone: true,
       showOnCompressed: true,
-    }, {
-      id: 'giving-portal',
-      title: 'Giving portal',
-      link: '/giving-portal',
-      iconComponent: TakeActionSelectedIcon,
-      customComponentName: 'GivingPortalMobileMenuItem'
     }, {
       id: 'bestOf',
       title: 'Best of the Forum',

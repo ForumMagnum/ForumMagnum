@@ -1,12 +1,9 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useEffect } from 'react';
+import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@material-ui/icons/LocationOn'
-import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
-import { useInitiateConversation } from '../hooks/useInitiateConversation';
-import { useNavigate } from '../../lib/reactRouterWrapper';
 import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -73,6 +70,7 @@ const ExpandedUsersConversationSearchHit = ({
   hit,
   currentUser,
   onClose,
+  onSelect,
   isModInbox = false,
   className,
   classes,
@@ -80,26 +78,17 @@ const ExpandedUsersConversationSearchHit = ({
   hit: Hit<any>;
   currentUser: UsersCurrent;
   onClose: () => void;
+  onSelect: (userId: Hit<any>) => void;
   isModInbox?: boolean;
   className?: string;
   classes: ClassesType;
 }) => {
   const { FormatDate, UsersProfileImage, ForumIcon } = Components;
-  const user = hit as AlgoliaUser;
-
-  const navigate = useNavigate();
-  const { conversation, initiateConversation } = useInitiateConversation({ includeModerators: isModInbox });
-
-  useEffect(() => {
-    if (conversation) {
-      navigate({ pathname: `/${isModInbox ? "moderatorInbox" : "inbox"}/${conversation._id}`, search: "?from=new_conversation_dialog" });
-      onClose();
-    }
-  }, [conversation, navigate, isModInbox, onClose]);
+  const user = hit as SearchUser;
 
   return (
     <div className={classNames(className, classes.root)}>
-      <div onClick={() => initiateConversation(user._id)} className={classes.link}>
+      <div onClick={() => onSelect(user)} className={classes.link}>
         {isFriendlyUI && (
           <div className={classes.profilePhotoCol}>
             <UsersProfileImage user={user} size={36} />

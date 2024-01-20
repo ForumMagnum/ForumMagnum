@@ -28,10 +28,12 @@ import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
 import { getIpFromRequest } from '../../datadog/datadogMiddleware';
-import { isLWorAF } from '../../../lib/instanceSettings';
-import { maxRenderQueueSize, performanceMetricLoggingEnabled } from '../../../lib/publicSettings';
-import { closePerfMetric, openPerfMetric } from '../../perfMetrics';
+import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
+import { maxRenderQueueSize } from '../../../lib/publicSettings';
+import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
+import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
+import { onStartup, isAnyTest } from '../../../lib/executionEnvironment';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -53,7 +55,10 @@ export type RenderResult = {
   allAbTestGroups: CompleteTestGroupAllocation
   themeOptions: AbstractThemeOptions,
   renderedAt: Date,
-  timings: RenderTimings
+  timings: RenderTimings,
+  aborted: false,
+} | {
+  aborted: true
 }
 
 interface RenderRequestParams {
@@ -65,8 +70,9 @@ interface RenderRequestParams {
   userAgent?: string,
 }
 
-interface RenderQueueSlot {
-  callback: () => Promise<void>
+interface RenderPriorityQueueSlot extends RequestData {
+  callback: () => Promise<void>;
+  renderRequestParams: RenderRequestParams;
 }
 
 export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
@@ -103,14 +109,12 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   // twitter:card meta tag (see also: HeadTags.tsx, Head.tsx).
   const isSlackBot = userAgent && userAgent.startsWith("Slackbot-LinkExpanding");
   
+  const userDescription = user?.username ?? `logged out ${ip} (${userAgent})`;
+  
   if ((!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) || isSlackBot) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
     recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
-    //eslint-disable-next-line no-console
-    const rendered = await queueRenderRequest({
-      req, user, startTime, res, clientId, userAgent,
-    });
-
+    
     if (performanceMetricLoggingEnabled.get()) {
       const perfMetric = openPerfMetric({
         op_type: "ssr",
@@ -118,13 +122,27 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
         client_path: req.originalUrl,
         //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
         ip: getForwardedWhitelist().getClientIP(req),
-        user_agent: userAgent
-      }, startTime)      
+        user_agent: userAgent,
+        user_id: user?._id
+      }, startTime);
 
-      closePerfMetric(perfMetric)
+      setAsyncStoreValue('requestPerfMetric', perfMetric);
+    }
+
+    const rendered = await queueRenderRequest({
+      req, user, startTime, res, clientId, userAgent,
+    });
+
+    if (performanceMetricLoggingEnabled.get()) {
+      closeRequestPerfMetric();
+    }
+    
+    if (rendered.aborted) {
+      return rendered;
     }
 
     if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+      // Capture an analytics event at the conclusion of the render
       Vulcan.captureEvent("ssr", {
         ...ssrEventParams,
         userId: user?._id,
@@ -136,36 +154,52 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     }
 
     // eslint-disable-next-line no-console
-    console.log(`Rendered ${url} for ${user?.username ?? `logged out ${ip}`}: ${printTimings(rendered.timings)}`);
+    console.log(`Finished SSR of ${url} for ${userDescription} (${formatTimings(rendered.timings)}, tab ${tabId})`);
     
     return {
       ...rendered,
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     };
   } else {
-    const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => queueRenderRequest({
-      req, user: null, startTime, res, clientId, userAgent
-    }));
-    
-    if (rendered.cached) {
-      // eslint-disable-next-line no-console
-      console.log(`Served ${url} from cache for logged out ${ip} (${userAgent})`);
-    } else {
-      // eslint-disable-next-line no-console
-      console.log(`Rendered ${url} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
-    }
-
     if (performanceMetricLoggingEnabled.get()) {
       const perfMetric = openPerfMetric({
         op_type: "ssr",
-        op_name: rendered.cached ? "cacheHit" : "cacheMiss",
+        op_name: "unknown",
         client_path: req.originalUrl,
         //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
         ip: getForwardedWhitelist().getClientIP(req),
         user_agent: userAgent
-      }, startTime)      
+      }, startTime);
 
-      closePerfMetric(perfMetric)
+      setAsyncStoreValue('requestPerfMetric', perfMetric);
+    }
+
+    const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => queueRenderRequest({
+      req, user: null, startTime, res, clientId, userAgent
+    }));
+    
+    if (rendered.aborted) {
+      return rendered;
+    }
+
+    if (rendered.cached) {
+      // eslint-disable-next-line no-console
+      console.log(`Served ${url} from cache for ${userDescription}`);
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`Finished SSR of ${url} for ${userDescription}: (${formatTimings(rendered.timings)}, tab ${tabId})`);
+    }
+
+    if (performanceMetricLoggingEnabled.get()) {
+      setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+        if (!incompletePerfMetric) return;
+        return {
+          ...incompletePerfMetric,
+          op_name: rendered.cached ? "cacheHit" : "cacheMiss"
+        }
+      });
+
+      closeRequestPerfMetric();
     }
 
     if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
@@ -189,7 +223,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
 };
 
 let inFlightRenderCount = 0;
-const requestQueue: RenderQueueSlot[] = [];
+const requestPriorityQueue = new PriorityBucketQueue<RenderPriorityQueueSlot>();
 
 /**
  * We (maybe) have a problem where too many concurrently rendering requests cause our servers to fall over
@@ -198,9 +232,13 @@ const requestQueue: RenderQueueSlot[] = [];
  */
 function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
   return new Promise((resolve) => {
-    requestQueue.push({
+    requestPriorityQueue.enqueue({
+      ip: getForwardedWhitelist().getClientIP(params.req),
+      userAgent: params.userAgent ?? 'sus-missing-user-agent',
+      userId: params.user?._id,
       callback: async () => {
         let result: RenderResult;
+        addStartRenderTimeToPerfMetric();
         try {
           result = await renderRequest(params);
         } finally {
@@ -208,7 +246,8 @@ function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> 
         }
         resolve(result);
         maybeStartQueuedRequests();
-      }
+      },
+      renderRequestParams: params,
     });
 
     maybeStartQueuedRequests();
@@ -216,12 +255,48 @@ function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> 
 }
 
 function maybeStartQueuedRequests() {
-  while (inFlightRenderCount < maxRenderQueueSize.get() && requestQueue.length > 0) {
-    let requestToStartRendering = requestQueue.shift();
-    if (requestToStartRendering) {
+  while (inFlightRenderCount < maxRenderQueueSize.get() && requestPriorityQueue.size() > 0) {
+    let requestToStartRendering = requestPriorityQueue.dequeue();
+    if (requestToStartRendering.request) {
+      const { preOpPriority, request } = requestToStartRendering;
+
+      // If the request that we're kicking off is coming from the queue, we want to track this in the perf metrics
+      setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+        if (!incompletePerfMetric) return;
+        return {
+          ...incompletePerfMetric,
+          queue_priority: preOpPriority
+        }
+      });
+
       inFlightRenderCount++;
-      void requestToStartRendering.callback();
+      void request.callback();
     }
+  }
+}
+
+onStartup(() => {
+  if (!isAnyTest && performanceMetricLoggingEnabled.get()) {
+    setInterval(logRenderQueueState, 5000)
+  }
+})
+
+function logRenderQueueState() {
+  if (requestPriorityQueue.size() > 0) {
+    const queueState = requestPriorityQueue.getQueueState().map(([{ renderRequestParams }, priority]) => {
+      return {
+        userId: renderRequestParams.user?._id,
+        ip: getIpFromRequest(renderRequestParams.req),
+        userAgent: renderRequestParams.userAgent,
+        url: getPathFromReq(renderRequestParams.req),
+        startTime: renderRequestParams.startTime,
+        priority
+      }
+    })
+
+    Vulcan.captureEvent("renderQueueState", {
+      queueState
+    });
   }
 }
 
@@ -268,7 +343,17 @@ const buildSSRBody = (htmlContent: string, userAgent?: string) => {
 
 const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
+  if (req.closed) {
+    // eslint-disable-next-line no-console
+    console.log(`Request for ${req.url} from ${user?._id ?? getIpFromRequest(req)} was closed before render started`);
+    return {
+      aborted: true,
+    };
+  }
   configureSentryScope(requestContext);
+  if (performanceMetricLoggingEnabled.get()) {
+    setAsyncStoreValue('resolverContext', requestContext);
+  }
   
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
@@ -361,9 +446,10 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
     themeOptions,
     renderedAt: now,
     timings,
+    aborted: false,
   };
 }
 
-const printTimings = (timings: RenderTimings): string => {
-  return `${timings.totalTime}ms (prerender: ${timings.prerenderTime}ms, render: ${timings.renderTime}ms)`;
+const formatTimings = (timings: RenderTimings): string => {
+  return `${timings.totalTime}ms`;
 }

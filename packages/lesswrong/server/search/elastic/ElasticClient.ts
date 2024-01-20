@@ -8,7 +8,7 @@ import {
   isElasticEnabled,
 } from "./elasticSettings";
 
-export type ElasticDocument = Exclude<AlgoliaDocument, "_id">;
+export type ElasticDocument = Exclude<SearchDocument, "_id">;
 export type ElasticSearchHit = SearchHit<ElasticDocument>;
 export type ElasticSearchResponse = SearchResponse<ElasticDocument>;
 

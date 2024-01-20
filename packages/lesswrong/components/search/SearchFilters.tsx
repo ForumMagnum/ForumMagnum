@@ -1,17 +1,17 @@
 import React, { MutableRefObject } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { RefinementListExposed, RefinementListProvided } from 'react-instantsearch/connectors';
-import { AlgoliaIndexCollectionName } from '../../lib/search/algoliaUtil';
 import { ToggleRefinement, NumericMenu, ClearRefinements, connectRefinementList } from 'react-instantsearch-dom';
-import { forumTypeSetting, isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import Select from '@material-ui/core/Select';
 import {
+  SearchIndexCollectionName,
   ElasticSorting,
   elasticCollectionIsCustomSortable,
   formatElasticSorting,
   getElasticSortingsForCollection,
-} from '../../lib/search/elasticUtil';
+} from '../../lib/search/searchUtil';
 import { communityPath } from '../../lib/routes';
 import IconButton from '@material-ui/core/IconButton';
 
@@ -106,7 +106,7 @@ const CustomTagsRefinementList = connectRefinementList(TagsRefinementList) as Re
 
 const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues, setModalOpen}:{
   classes: ClassesType
-  tab: AlgoliaIndexCollectionName
+  tab: SearchIndexCollectionName
   tagsFilter: Array<string>
   handleUpdateTagsFilter: (tags: Array<string>) => void
   onSortingChange: (sorting: string) => void
