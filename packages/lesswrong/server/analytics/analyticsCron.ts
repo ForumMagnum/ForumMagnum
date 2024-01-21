@@ -16,6 +16,8 @@ async function updateDailyAnalyticsCollection<N extends CollectionNameString>({
   earliestStartDate: Date;
   latestEndDate: Date;
 }) {
+  // The dates do we already have data for, and therefore for which we don't need to recalculate
+  // (apart from the end date due to possible partial data)
   const { earliestWindowStart, latestWindowEnd } = await repo.getDateBounds()
 
   // `ranges` will be a list of days to recalculate the data for. When this is running as a cron job in steady state,
@@ -29,7 +31,7 @@ async function updateDailyAnalyticsCollection<N extends CollectionNameString>({
   const inclusiveEndDate = latestWindowEnd && moment(latestWindowEnd).subtract(1, 'day').toDate();
 
   while (currentDate <= latestEndDate) {
-    // Skip dates that are within the [`earliestWindowStart`, `latestWindowEnd`) interval
+    // Skip dates for which we already have the data
     if (
       earliestWindowStart === null ||
       inclusiveEndDate === null ||
