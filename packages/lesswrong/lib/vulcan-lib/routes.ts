@@ -30,6 +30,7 @@ export type Route = {
   path: string,
   
   componentName?: keyof ComponentTypes,
+  componentProps?: Record<string, any>,
   title?: string,
   titleComponentName?: keyof ComponentTypes,
   subtitle?: string,
