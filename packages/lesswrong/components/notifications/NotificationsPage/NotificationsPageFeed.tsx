@@ -11,6 +11,7 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
 import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
+import type { KarmaChangeUpdateFrequency } from "../../../lib/collections/users/schema";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -45,10 +46,13 @@ const styles = (theme: ThemeType) => ({
   },
   karmaBatching: {
     marginBottom: 32,
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.grey[600],
     "& a": {
-      color: theme.palette.grey[600],
-      fontSize: 14,
+      color: theme.palette.primary.dark,
       fontWeight: 600,
+      marginLeft: 4,
     },
   },
   notifications: {
@@ -70,6 +74,13 @@ const query = gql`
 `;
 
 const DEFAULT_LIMIT = 20;
+
+const batchingMessages: Record<KarmaChangeUpdateFrequency, string> = {
+  disabled: "Karma change batching is disabled",
+  daily: "Karma changes are batched daily",
+  weekly: "Karma changes are batched weekly",
+  realtime: "Karma changes are shown in realtime",
+};
 
 export const NotificationsPageFeed = ({
   karmaChanges,
@@ -173,6 +184,7 @@ export const NotificationsPageFeed = ({
               />
             )}
             <div className={classes.karmaBatching}>
+              {batchingMessages[karmaChanges!.updateFrequency]}{" "}
               <Link to="/account?highlightField=karmaChangeNotifierSettings">
                 Change settings
               </Link>
