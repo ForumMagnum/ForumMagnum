@@ -3,9 +3,17 @@ import Votes from "../../lib/collections/votes/collection";
 import type { RecentVoteInfo } from "../../lib/rateLimits/types";
 import groupBy from "lodash/groupBy";
 import { NamesAttachedReactionsVote } from "../../lib/voting/namesAttachedReactions";
-import type { AnyKarmaChange, CommentKarmaChange, KarmaChangeBase, KarmaChangesArgs, PostKarmaChange, ReactionChange, TagRevisionKarmaChange } from "../../lib/collections/users/karmaChangesGraphQL";
 import { getEAEmojisForKarmaChanges } from "../../lib/voting/eaEmojiPalette";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+import type {
+  AnyKarmaChange,
+  CommentKarmaChange,
+  KarmaChangeBase,
+  KarmaChangesArgs,
+  PostKarmaChange,
+  ReactionChange,
+  TagRevisionKarmaChange,
+} from "../../lib/collections/users/karmaChangesGraphQL";
 
 export const RECENT_CONTENT_COUNT = 20
 
@@ -297,7 +305,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     const {publicEmojis, privateEmojis} = getEAEmojisForKarmaChanges(showNegative);
     const publicSelectors = publicEmojis.map((emoji) =>
       `'${emoji}', ARRAY_AGG(
-        JSONB_BUILD_OBJECT('_id', v."userId", 'displayName', u."displayName")
+        DISTINCT JSONB_BUILD_OBJECT('_id', v."userId", 'displayName', u."displayName")
       ) FILTER (WHERE v."extendedVoteType"->'${emoji}' = TO_JSONB(TRUE))`,
     );
     const privateSelectors = privateEmojis.map((emoji) =>
