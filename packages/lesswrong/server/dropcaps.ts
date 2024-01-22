@@ -1,5 +1,5 @@
 import cheerio from 'cheerio';
-import { tagIsHeading } from './tableOfContents';
+import { tagIsHeading } from './utils/tocUtil';
 
 export function addDropcapsTo(postBody: cheerio.Root) {
   // Search for a paragraph to add a dropcap to. It must:
@@ -107,6 +107,5 @@ export function getDropcapStylesheet(): string {
       `);
     }
   }
-  console.log(sb.join(""));
   return sb.join('');
 }
