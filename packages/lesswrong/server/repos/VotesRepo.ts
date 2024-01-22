@@ -353,9 +353,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           NOT (v."authorIds" @> ARRAY[v."userId"]) AND
           v."votedAt" >= $2 AND
           v."votedAt" <= $3 AND
-          v."silenceNotification" IS NOT TRUE AND
-          v."cancelled" IS NOT TRUE AND
-          v."isUnvote" IS NOT TRUE
+          v."silenceNotification" IS NOT TRUE
         GROUP BY v."documentId", v."collectionName"
       ) q
       LEFT JOIN "Posts" post ON
