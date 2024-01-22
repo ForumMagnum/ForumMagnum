@@ -9,6 +9,10 @@ import classNames from 'classnames';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 
+/**
+ * These same styles are also used by `MessagesMenuButton`, so changes here
+ * should also be checked there as well.
+ */
 export const styles = (theme: ThemeType) => ({
   badgeContainer: {
     padding: "none",

@@ -31,7 +31,11 @@ const MessagesMenuButton = ({className, classes}: {
       <Badge
         classes={{
           root: classes.badgeContainer,
-          badge: hasBadge ? classes.badge : undefined,
+          badge: classNames(classes.badge, {
+            [classes.badgeBackground]: hasBadge,
+            [classes.badge1Char]: badgeText.length === 1,
+            [classes.badge2Chars]: badgeText.length === 2,
+          })
         }}
         badgeContent={badgeText}
       >
