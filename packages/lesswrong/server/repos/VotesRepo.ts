@@ -2,10 +2,9 @@ import AbstractRepo from "./AbstractRepo";
 import Votes from "../../lib/collections/votes/collection";
 import type { RecentVoteInfo } from "../../lib/rateLimits/types";
 import groupBy from "lodash/groupBy";
-import { EAOrLWReactionsVote, UserVoteOnSingleReaction } from "../../lib/voting/namesAttachedReactions";
+import { NamesAttachedReactionsVote } from "../../lib/voting/namesAttachedReactions";
 import type { AnyKarmaChange, CommentKarmaChange, KarmaChangeBase, KarmaChangesArgs, PostKarmaChange, ReactionChange, TagRevisionKarmaChange } from "../../lib/collections/users/karmaChangesGraphQL";
-import { eaAnonymousEmojiPalette, eaEmojiNames, getEAEmojisForKarmaChanges } from "../../lib/voting/eaEmojiPalette";
-import { isEAForum } from "../../lib/instanceSettings";
+import { getEAEmojisForKarmaChanges } from "../../lib/voting/eaEmojiPalette";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
 export const RECENT_CONTENT_COUNT = 20
@@ -35,6 +34,9 @@ class VotesRepo extends AbstractRepo<"Votes"> {
    * appears in the header for logged-in users). The query here starts with the
    * Votes collection, summing up net vote power for votes within a given date
    * range.
+   *
+   * Note that, for the EA Forum, this logic is handled by the completely
+   * separate `getEAKarmaChanges` function.
    *
    * Cancelled votes *are* counted when summing up vote powers here; for each
    * cancelled vote the Votes collection will have a matching "unvote", with the
@@ -195,17 +197,17 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     }
     return {changedComments, changedPosts, changedTagRevisions};
   }
-  
+
   private lwReactionVotesToReactionChanges(votes: DbVote[]): ReactionChange[] {
     if (!votes?.length) return [];
     const votesByUser = groupBy(votes, v=>v.userId);
     let reactionChanges: ReactionChange[] = [];
     
     type FlattenedReaction = {
-        reactionType: string
-        quote: string|undefined
-        count: number
-      }
+      reactionType: string
+      quote: string|undefined
+      count: number
+    }
     
     function addNormalizedReact(flattenedReactions: FlattenedReaction[], reactionType: string, quote: string|undefined, isCancellation?: boolean) {
       const idx = flattenedReactions.findIndex(r => r.reactionType===reactionType && r.quote===quote);
@@ -228,13 +230,8 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       for (let vote of votesByUser[userId]) {
         if (!vote.extendedVoteType)
           continue;
-        const extendedVote = (vote.extendedVoteType as EAOrLWReactionsVote);
-        const eaReacts: UserVoteOnSingleReaction[] = eaEmojiNames.filter(emojiName => extendedVote[emojiName]).map(emojiName => ({
-          vote: "created",
-          react: emojiName,
-          "quotes": [],
-        }));
-        const formattedReacts = [...(extendedVote.reacts ?? []), ...eaReacts];
+        const extendedVote: NamesAttachedReactionsVote = vote.extendedVoteType;
+        const formattedReacts = extendedVote.reacts ?? [];
 
         if (!vote.isUnvote && formattedReacts) {
           for (let react of formattedReacts) {
@@ -257,13 +254,8 @@ class VotesRepo extends AbstractRepo<"Votes"> {
       for (let vote of votesByUser[userId]) {
         if (!vote.extendedVoteType)
           continue;
-        const extendedUnvote = (vote.extendedVoteType as EAOrLWReactionsVote);
-        const eaReacts: UserVoteOnSingleReaction[] = eaEmojiNames.filter(emojiName => extendedUnvote[emojiName]).map(emojiName => ({
-          vote: "created",
-          react: emojiName,
-          "quotes": [],
-        }));
-        const formattedReacts = [...(extendedUnvote.reacts ?? []), ...eaReacts];
+        const extendedUnvote: NamesAttachedReactionsVote = vote.extendedVoteType;
+        const formattedReacts = extendedUnvote.reacts ?? [];
         
         if (vote.isUnvote && formattedReacts) {
           for (let react of formattedReacts) {
@@ -290,17 +282,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         }
       }
     }
-    
-    // On EAF, some reacts are anonymous (currently agree and disagree). For those, remove the userId.
-    if (isEAForum) {
-      reactionChanges = reactionChanges.map(change => {
-        if (eaAnonymousEmojiPalette.some(emoji => emoji.name === change.reactionType)) {
-          return {reactionType: change.reactionType}
-        }
-        return change
-      })
-    }
-    
+
     return reactionChanges;
   }
 
