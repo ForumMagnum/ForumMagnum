@@ -736,6 +736,7 @@ interface DbPost extends DbObject {
   reviewCount: number
   reviewVoteCount: number
   positiveReviewVoteCount: number
+  manifoldReviewMarketId: string | null
   reviewVoteScoreAF: number
   reviewVotesAF: Array<number>
   reviewVoteScoreHighKarma: number

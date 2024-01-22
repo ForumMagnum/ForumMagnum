@@ -752,6 +752,15 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
   },
 
+  manifoldReviewMarketId: {
+    type: String,
+    nullable: true,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins']
+  },
+
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
   reviewVoteScoreAF: {
     type: Number, 
