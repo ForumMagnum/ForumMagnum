@@ -24,7 +24,7 @@ addCronJob({
   }
 });
 
-const manifoldAPIKey = "API KEY GOES HERE"
+const manifoldAPIKey = ""
 
 addCronJob({
   name: 'makeReviewManifoldMarket',
@@ -60,19 +60,23 @@ addCronJob({
         })
       })
 
-      console.log(await result.json())
 
-      console.log(await result.text())
+      // don't run this and also await result.text(), weirdly that causes the latter one to explode
+      const liteMarket = await result.json() // get this from the result
+
+      console.log("liteMarket", liteMarket)
+      console.log("liteMarket id", liteMarket.id)
+      console.log("post id", post._id)
 
       console.log(result)
 
-      // update database with marketIds when they are made 
+      await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
+
       // make comments on the posts with the markets after creation
       // make a description for the market, including link to explanation of what's going on 
       // move to LessWrong manifold account
       // add field for resolved markets? not clear how we want to handle this 
       // write autoresolving code -- when review finishes want to resolve the market -- can use code about whether review is over and what ranking the post got in the review
-
 
       async function pingSlackWebhook(webhookURL: string, data: any) {
         try {
@@ -94,8 +98,7 @@ addCronJob({
 
       // ping the slack webhook to inform team of market creation. We will get rid of this before pushing to prod
       const webhookURL = "https://hooks.slack.com/triggers/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"
-      const data = await result.json()
-      void pingSlackWebhook(webhookURL, data)
+      void pingSlackWebhook(webhookURL, liteMarket)
 
     })
 
