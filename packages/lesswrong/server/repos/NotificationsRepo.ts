@@ -105,7 +105,10 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         n."link",
         n."createdAt",
         tr."_id" "tagRelId",
-        ${buildNotificationPost("p", "pu", "pl")} "post",
+        COALESCE(
+          ${buildNotificationPost("p", "pu", "pl")},
+          ${buildNotificationPost("trp", "trpu", "trpl")}
+        ) "post",
         ${buildNotificationComment("c", "cu", "cp", "cpu", "cpl")} "comment",
         ${buildNotificationTag("t")} "tag",
         COALESCE(
@@ -137,6 +140,12 @@ export default class NotificationsRepo extends AbstractRepo<"Notifications"> {
         n."documentId" = tr."_id"
       LEFT JOIN "Tags" t ON
         t."_id" = tr."tagId"
+      LEFT JOIN "Posts" trp ON
+        trp."_id" = tr."postId"
+      LEFT JOIN "Users" trpu ON
+        trpu."_id" = trp."userId"
+      LEFT JOIN "Localgroups" trpl ON
+        trpl."_id" = trp."groupId"
       LEFT JOIN "Users" u ON
         n."documentType" = 'user' AND
         n."documentId" = u."_id"
