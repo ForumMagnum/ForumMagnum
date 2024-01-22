@@ -130,6 +130,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight2}, ${theme.palette.border.primaryHighlight2})`,
     },
   },
+  sideComment: {
+    border: 'none'
+  }
 });
 
 const CommentFrame = ({
@@ -171,7 +174,7 @@ const CommentFrame = ({
   className?: string,
   classes: ClassesType,
 }) => {
-  const { condensed, postPage, switchAlternatingHighlights } = treeOptions;
+  const { condensed, postPage, switchAlternatingHighlights, isSideComment } = treeOptions;
   const effectiveNestingLevel = nestingLevel + (switchAlternatingHighlights ? 1 : 0);
   
   const nodeClass = classNames(
@@ -196,7 +199,8 @@ const CommentFrame = ({
       [classes.shortformTop]: postPage && shortform && (effectiveNestingLevel===1),
       [classes.hoverPreview]: hoverPreview,
       [classes.moderatorHat]: comment.hideModeratorHat ? false : comment.moderatorHat,
-      [classes.promoted]: comment.promoted
+      [classes.promoted]: comment.promoted,
+      [classes.sideComment]: isSideComment && !isChild
     }
   )
   

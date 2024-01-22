@@ -3,7 +3,7 @@ import React from 'react';
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 
-const DEFAULT_TOC_MARGIN = 100
+const DEFAULT_TOC_MARGIN = 65
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
 export const MAX_CONTENT_WIDTH = 720;
@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       minmax(0px, ${DEFAULT_TOC_MARGIN}px)
       minmax(min-content, ${MAX_COLUMN_WIDTH}px)
       minmax(0px, ${DEFAULT_TOC_MARGIN}px)
-      min-content
+      minmax(min-content, 4fr)
       10px
       1.5fr
     `,
