@@ -173,7 +173,9 @@ export const NotificationsPageFeed = ({
               />
             )}
             <div className={classes.karmaBatching}>
-              <Link to="/account">Change settings</Link>
+              <Link to="/account?highlightField=karmaChangeNotifierSettings">
+                Change settings
+              </Link>
             </div>
           </div>
           <SectionTitle title="All other" />
