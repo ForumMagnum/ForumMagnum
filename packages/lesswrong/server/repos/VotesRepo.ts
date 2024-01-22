@@ -306,10 +306,18 @@ class VotesRepo extends AbstractRepo<"Votes"> {
     const publicSelectors = publicEmojis.map((emoji) =>
       `'${emoji}', ARRAY_AGG(
         DISTINCT JSONB_BUILD_OBJECT('_id', v."userId", 'displayName', u."displayName")
-      ) FILTER (WHERE v."extendedVoteType"->'${emoji}' = TO_JSONB(TRUE))`,
+      ) FILTER (WHERE
+        v."cancelled" IS NOT TRUE AND
+        v."isUnvote" IS NOT TRUE AND
+        fm_vote_added_emoji(v."_id", '${emoji}')
+      )`,
     );
     const privateSelectors = privateEmojis.map((emoji) =>
-      `'${emoji}', NULLIF(COUNT(*) FILTER (WHERE v."extendedVoteType"->'${emoji}' = TO_JSONB(TRUE)), 0)`,
+      `'${emoji}', NULLIF(COUNT(DISTINCT "userId") FILTER (WHERE
+        v."cancelled" IS NOT TRUE AND
+        v."isUnvote" IS NOT TRUE AND
+        fm_vote_added_emoji(v."_id", '${emoji}')
+      ), 0)`,
     );
     return this.getRawDb().any(`
       -- VotesRepo.getEAKarmaChanges

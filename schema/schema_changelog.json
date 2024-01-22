@@ -523,5 +523,10 @@
     "acceptsSchemaHash": "7dbf024fc86645c003e6ca3f42cf3af5",
     "acceptedByMigration": "20240118T104751.add_PostView_PostViewTimes.ts",
     "timestamp": "2024-01-18T10:47:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "be9f2f07d19841b17f8005c2c8b5f2c4",
+    "acceptedByMigration": "20240122T161800.add_fm_vote_added_emoji_function.ts",
+    "timestamp": "2024-01-22T16:18:00.000Z"
   }
 ]
