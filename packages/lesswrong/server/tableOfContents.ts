@@ -15,6 +15,7 @@ import type { ToCData, ToCSection } from '../lib/tableOfContents';
 import { defineQuery } from './utils/serverGraphqlUtil';
 import { htmlToTextDefault } from '../lib/htmlToText';
 import { commentsTableOfContentsEnabled } from '../lib/betas';
+import { addDropcapsTo } from './dropcaps';
 
 // Number of headings below which a table of contents won't be generated.
 // If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
@@ -112,6 +113,9 @@ export function extractTableOfContents(postHTML: string | null)
   if (headings.length) {
     headings.push({divider:true, level: 0, anchor: "postHeadingsDivider"})
   }
+  
+  addDropcapsTo(postBody);
+  
   return {
     html: postBody.html(),
     sections: headings,
