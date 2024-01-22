@@ -73,7 +73,7 @@ export function extractTableOfContents(postHTML: string | null)
     if (tag.type !== "tag") {
       continue;
     }
-    if (tagIsHeadingIfWholeParagraph(tag.tagName) && !tagIsWholeParagraph(tag)) {
+    if (!tagIsHeading) {
       continue;
     }
 
@@ -159,6 +159,20 @@ function titleToAnchor(title: string, usedAnchors: Record<string,boolean>): stri
   while(usedAnchors[anchor + anchorSuffix])
     anchorSuffix++;
   return anchor+anchorSuffix;
+}
+
+export function tagIsHeading(tag: cheerio.Element): boolean {
+  if (tag.type !== "tag") {
+    return false;
+  }
+  if (!(tag.tagName in headingTags)) {
+    return false;
+  }
+  if (tagIsWholeParagraph(tag)) {
+    return tagIsHeadingIfWholeParagraph(tag.tagName);
+  } else {
+    return true;
+  }
 }
 
 // `<b>` and `<strong>` tags are headings iff they are the only thing in their

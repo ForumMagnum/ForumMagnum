@@ -1,11 +1,11 @@
 import cheerio from 'cheerio';
+import { tagIsHeading } from './tableOfContents';
 
 export function addDropcapsTo(postBody: cheerio.Root) {
   // Search for a paragraph to add a dropcap to. It must:
   //  * Be one of the first three top-level elements
-  //  * Be at least 300 characters long
-  //  * Not have any formatting (bold, italic, heading, link, etc) applied to
-  //    its first character
+  //  * Be at least 100 characters long
+  //  * Not be a heading, in the ToC-sense
   //  * Have a capital roman letter (/[A-Z]/) as its first character
   const topLevelElements = postBody.root().children();
   for (let i=0; i<topLevelElements.length && i<3; i++) {
@@ -21,11 +21,13 @@ function isValidParagraphForDropcap(paragraph: cheerio.Element): boolean {
   const text = cheerio(paragraph).text();
   
   // Minimum length
-  if (text.length < 300) {
+  if (text.length < 100) {
     return false;
   }
   
-  // TODO: Check for formatting on the first character
+  // Not a heading
+  return !tagIsHeading(paragraph);
+  
   return true;
 }
 
