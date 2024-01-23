@@ -14,6 +14,8 @@ import { DatabaseServerSetting } from '../databaseSettings';
 import { createMutator } from '../vulcan-lib/mutators';
 import { Comments } from '../../lib/collections/comments';
 import { createAdminContext } from '../vulcan-lib';
+import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
+import Tags from '../../lib/collections/tags/collection';
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
@@ -148,6 +150,11 @@ const reviewUserBot = reviewUserBotSetting.get()
 if (manifoldAPIKey === null) throw new Error("manifoldAPIKey is null")
 if (reviewUserBot === null) throw new Error("reviewUserBot is null")
 
+async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
+  const tag = await Tags.findOne({slug: tagSlug})
+  if (!tag) throw new Error(`Tag with slug "${tagSlug}" not found`)
+  await addOrUpvoteTag({tagId: tag._id, postId: postId, currentUser: botUser, context});
+}
 
 voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collection, user, context) => {
 
@@ -171,6 +178,8 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   const closeTime = new Date(year + 2, 1, 1) // i.e. february 1st of the next next year (so if year is 2022, feb 1 of 2024)
   const visibility = "unlisted" // set this based on whether we're in dev or prod?
   const groupIds = ["LessWrong Annual Review", `LessWrong ${year} Annual Review`]
+
+  if (!botUser) throw new Error("Bot user not found")
 
   try {
     const result = await fetch("https://api.manifold.markets/v0/market", {
@@ -199,6 +208,13 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
     // update the database to include the market id
     await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
 
+    const reviewTagSlug = 'annual-review-market';
+    const reviewYearTagSlug = `annual-review-${year}-market`;
+
+    // add the review tags to the post
+    await addTagToPost(post._id, reviewTagSlug, botUser, context);
+    await addTagToPost(post._id, reviewYearTagSlug, botUser, context);
+
     // make a comment on the post with the market
     await makeComment(post._id, year, liteMarket.url, botUser)
   } catch (error) {
@@ -208,7 +224,7 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   }
 })
 
-const makeComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser | null) => {
+const makeComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser) => {
 
   const commentString = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year. Will this post make the top 50?</p><figure class="media"><div data-oembed-url="${marketUrl}">
         <div class="manifold-preview">
