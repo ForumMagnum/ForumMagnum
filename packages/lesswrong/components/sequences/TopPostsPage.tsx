@@ -11,6 +11,8 @@ import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions'
 import Tooltip from '@material-ui/core/Tooltip';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
+export type LWReviewWinnerSortOrder = 'curated' | 'ranking' | 'year';
+
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
     cursor: "pointer",
@@ -39,14 +41,28 @@ const formatSort = (sorting: PostSortingMode) => {
   return isFriendlyUI ? sort : `Sorted by ${sort}`;
 }
 
+const getReviewWinnerResolverName = (sortOrder: LWReviewWinnerSortOrder) => {
+  switch (sortOrder) {
+    case 'curated':
+      return 'ReviewWinnersCuratedOrder';
+    case 'ranking':
+      return 'ReviewWinnersRankingOrder';
+    case 'year':
+      return 'ReviewWinnersYearOrder';
+  }
+};
+
 const TopPostsPage = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser();
   const {query} = useLocation();
+  const [sortOrder, setSortOrder] = useState<LWReviewWinnerSortOrder>('curated');
 
   const {
     SingleColumnSection, SectionTitle, SortButton, SettingsButton, PostsListSettings, HeadTags,
-    AllPostsList,
+    PostsList2
   } = Components;
+
+  const resolverName = getReviewWinnerResolverName(sortOrder);
 
   return (
     <>
@@ -54,6 +70,10 @@ const TopPostsPage = ({classes}: {classes: ClassesType}) => {
       {/** TODO: change pageContext when/if we rename component */}
       <AnalyticsContext pageContext="topPostsPage">
         <SingleColumnSection>
+          <PostsList2
+            terms={{ limit: 20 }}
+            resolverName={resolverName}
+          />
           {/** TODO: posts list goes here */}
         </SingleColumnSection>
       </AnalyticsContext>

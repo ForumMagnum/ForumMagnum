@@ -5,6 +5,7 @@ import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+import { LWReviewWinnerSortOrder } from "../../components/sequences/TopPostsPage";
 
 type MeanPostKarma = {
   _id: number,
@@ -23,8 +24,6 @@ const postEmojiReactorCache = new LRU<string, Promise<PostEmojiReactors>>({
 
 // Map from comment ids to maps from emoji names to an array of user display names
 type CommentEmojiReactors = Record<string, Record<string, string[]>>;
-
-type LWReviewWinnerSortOrder = "curated" | "ranking" | "year"
 
 const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>({
   maxAge: 30 * 1000, // 30 second TTL

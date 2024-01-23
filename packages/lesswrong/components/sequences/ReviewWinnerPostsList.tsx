@@ -2,6 +2,10 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
+import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
+import { usePostsList } from '../posts/usePostsList';
+
+export type LWReviewWinnerSortOrder = 'curated' | 'ranking' | 'year';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -9,10 +13,34 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const ReviewWinnerPostsList = ({classes}: {
+const getReviewWinnerResolverName = (sortOrder: LWReviewWinnerSortOrder) => {
+  switch (sortOrder) {
+    case 'curated':
+      return 'ReviewWinnersCuratedOrder';
+    case 'ranking':
+      return 'ReviewWinnersRankingOrder';
+    case 'year':
+      return 'ReviewWinnersYearOrder';
+  }
+}
+
+export const ReviewWinnerPostsList = ({ sortOrder, classes }: {
+  sortOrder: LWReviewWinnerSortOrder,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
+  const resolverName = getReviewWinnerResolverName(sortOrder);
+  usePostsList({
+    terms: { limit: 20 },
+    resolverName,
+    
+  })
+  // const { results, loading, loadMore, loadMoreProps } = usePaginatedResolver({
+  //   resolverName,
+  //   fragmentName: 'PostsListWithVotes',
+  //   limit: 20,
+
+  // });
+
   return <div className={classes.root}>
 
   </div>;
