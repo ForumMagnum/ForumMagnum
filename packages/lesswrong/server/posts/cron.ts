@@ -3,6 +3,7 @@ import { Posts } from '../../lib/collections/posts';
 import * as _ from 'underscore';
 import { Comments } from '../../lib/collections/comments';
 import { createAdminContext, createMutator } from '../vulcan-lib';
+import { DatabaseServerSetting } from '../databaseSettings';
 
 
 addCronJob({
@@ -26,8 +27,15 @@ addCronJob({
   }
 });
 
-const manifoldAPIKey = ""
-const lwReviewUserBot = ""
+
+const manifoldAPIKeySetting = new DatabaseServerSetting<string | null>('manifold.reviewBotKey', null)
+const manifoldAPIKey = manifoldAPIKeySetting.get()
+
+const reviewUserBotSetting = new DatabaseServerSetting<string | null>('reviewBotId', null)
+const reviewUserBot = reviewUserBotSetting.get()
+
+if (manifoldAPIKey === null) throw new Error("manifoldAPIKey is null")
+if (reviewUserBot === null) throw new Error("reviewUserBot is null")
 
 const makeComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser | null) => {
 
@@ -42,7 +50,7 @@ const makeComment = async (postId: string, year: number, marketUrl: string, botU
     collection: Comments,
     document: {
       postId: postId,
-      userId: lwReviewUserBot,
+      userId: reviewUserBot,
       contents: {originalContents: {
         type: "html",
         data: commentString
@@ -82,7 +90,7 @@ addCronJob({
 
     const context = createAdminContext();
 
-    const botUser = await context.Users.findOne({_id: lwReviewUserBot})
+    const botUser = await context.Users.findOne({_id: reviewUserBot})
 
     highKarmaNoMarketPosts.forEach(async post => {
 
@@ -117,12 +125,6 @@ addCronJob({
 
         // don't run this and also await result.text(), weirdly that causes the latter one to explode
         const liteMarket = await result.json() // get this from the result
-
-        console.log("liteMarket", liteMarket)
-        console.log("liteMarket id", liteMarket.id)
-        console.log("post id", post._id)
-
-        console.log(result)
 
         if (!result.ok) {
           throw new Error(`HTTP error! status: ${result.status}`);
