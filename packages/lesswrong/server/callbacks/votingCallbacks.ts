@@ -16,6 +16,7 @@ import { Comments } from '../../lib/collections/comments';
 import { createAdminContext } from '../vulcan-lib';
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import Tags from '../../lib/collections/tags/collection';
+import { isProduction } from '../../lib/executionEnvironment';
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
@@ -179,7 +180,7 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   const question = `Will "${post.title.length < 50 ? post.title : (post.title.slice(0,45)+"...")}" make the top fifty posts in LessWrong's ${year} Annual Review?`
   const descriptionMarkdown = `As part of LessWrong's [Annual Review](${annualReviewLink}), the community nominates, writes reviews, and votes on the most valuable posts. Posts are reviewable once they have been up for at least 12 months, and the ${year} Review resolves in February ${year+2}.\n\n\nThis market will resolve to 100% if the post [${post.title}](${postLink}) is one of the top fifty posts of the ${year} Review, and 0% otherwise. The market was initialized to ${initialProb}%.` // post.title
   const closeTime = new Date(year + 2, 1, 1) // i.e. february 1st of the next next year (so if year is 2022, feb 1 of 2024)
-  const visibility = "unlisted" // set this based on whether we're in dev or prod?
+  const visibility = isProduction ? "public" : "unlisted"
   const groupIds = ["LessWrong Annual Review", `LessWrong ${year} Annual Review`]
 
   if (!botUser) throw new Error("Bot user not found")
