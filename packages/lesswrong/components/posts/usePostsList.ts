@@ -122,7 +122,6 @@ export const usePostsList = ({
     }
     : {};
 
-  console.log({ useCustomResolver, resolverTerms, resolverName: getResolverName(resolverTerms) });
   const multiResult = useMulti({
     terms: resolverTerms.terms,
     skip: useCustomResolver,
