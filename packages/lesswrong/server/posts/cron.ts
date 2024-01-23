@@ -28,20 +28,25 @@ const manifoldAPIKey = ""
 
 addCronJob({
   name: 'makeReviewManifoldMarket',
-  interval: 'every 10 minutes',
+  interval: 'every 1 minute',
   async job() {
 
     // fetch all posts above X karma without markets posted in 2022 or later
-    const highKarmaNoMarketPosts = await Posts.find({baseScore: {$gte: 100}, postedAt: {$gte: `2022-01-01`}, manifoldReviewMarketId: null}, {projection: {_id: 1, title: 1, postedAt: 1}, limit:1}).fetch();
+    const highKarmaNoMarketPosts = await Posts.find({baseScore: {$gte: 100}, postedAt: {$gte: `2022-01-01`}, manifoldReviewMarketId: null}, {projection: {_id: 1, title: 1, postedAt: 1, slug: 1}, limit:1}).fetch();
 
     highKarmaNoMarketPosts.forEach(async post => {
 
+      const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
+      const postLink = 'https://www.lesswrong.com/posts/' + post._id + '/' + post.slug
       const year = post.postedAt.getFullYear()
+      const initialProb = 14
       const question = `Will the post "${post.title}" make the top fifty in the LessWrong ${year} Annual Review?`
-      const description = "" // post.title
+      const descriptionMarkdown = `As part of LessWrong's [Annual Review](${annualReviewLink}), the community nominates, writes reviews, and votes on the most valuable posts. Posts are reviewable once they have been up for at least 12 months, and the ${year} Review resolves in February ${year+2}.\n\nThis market will resolve to 100% if the post [${post.title}](${postLink}) is one of the top fifty posts of the ${year} Review, and 0% otherwise. The market was initialized to ${initialProb}%.` // post.title
       const closeTime = new Date(year + 2, 1, 1) // i.e. february 1st of the next next year (so if year is 2022, feb 1 of 2024)
       const visibility = "unlisted" // set this based on whether we're in dev or prod?
       const groupIds = ["LessWrong Annual Review", `LessWrong ${year} Annual Review`]
+
+      console.log("markdown", descriptionMarkdown)
 
       const result = await fetch("https://api.manifold.markets./v0/market", {
         method: "POST",
@@ -52,14 +57,13 @@ addCronJob({
         body: JSON.stringify({
           outcomeType: "BINARY",
           question: question,
-          description: description,
+          descriptionMarkdown: descriptionMarkdown,
           closeTime: Number(closeTime),
           visibility: visibility,
           // groupIds: groupIds,
-          initialProb: 14
+          initialProb: initialProb
         })
       })
-
 
       // don't run this and also await result.text(), weirdly that causes the latter one to explode
       const liteMarket = await result.json() // get this from the result
