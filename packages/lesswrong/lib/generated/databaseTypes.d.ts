@@ -960,6 +960,7 @@ interface DbReviewWinner extends DbObject {
   postId: string
   reviewYear: number
   curatedOrder: number
+  reviewRanking: number
   isAI: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
