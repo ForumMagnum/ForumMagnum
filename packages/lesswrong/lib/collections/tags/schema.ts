@@ -160,6 +160,7 @@ const schema: SchemaType<"Tags"> = {
       foreignTypeName: "TagRel",
       foreignFieldName: "tagId",
       //filterFn: tagRel => tagRel.baseScore > 0, //TODO: Didn't work with filter; votes are bypassing the relevant callback?
+      filterFn: tagRel => !tagRel.deleted // TODO: per the above, we still need to make this check baseScore > 0
     }),
     canRead: ['guests'],
   },

@@ -20,7 +20,7 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { captureException } from '@sentry/core';
 import { TOS_NOT_ACCEPTED_ERROR } from '../fmCrosspost/resolvers';
 import TagRels from '../../lib/collections/tagRels/collection';
-import { updatePostDenormalizedTags } from '../tagging/tagCallbacks';
+import { updatePostDenormalizedTags } from '../tagging/helpers';
 import Conversations from '../../lib/collections/conversations/collection';
 import Messages from '../../lib/collections/messages/collection';
 import { isAnyTest } from '../../lib/executionEnvironment';
@@ -541,7 +541,7 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: CreateCa
   if (!currentUser) return post; // Shouldn't happen, but just in case
 
   if (post.tagRelevance) {
-    const existingTagRels = await TagRels.find({ postId: post._id, baseScore: {$gt: 0} }).fetch()
+    const existingTagRels = await TagRels.find({ postId: post._id, baseScore: {$gt: 0}, deleted: false }).fetch()
     const existingTagIds = existingTagRels.map(tr => tr.tagId);
 
     const formTagIds = Object.keys(post.tagRelevance);

@@ -351,7 +351,7 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
     // delete post notifications
     const postNotifications = await Notifications.find({documentId: newPost._id}).fetch()
     postNotifications.forEach(notification => removeNotification(notification._id))
-    // delete tagRel notifications
+    // delete tagRel notifications (note this deletes them even if the TagRel itself has `deleted: true`)
     const tagRels = await TagRels.find({postId:newPost._id}).fetch()
     await asyncForeachSequential(tagRels, async (tagRel) => {
       const tagRelNotifications = await Notifications.find({documentId: tagRel._id}).fetch()
