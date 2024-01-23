@@ -74,6 +74,7 @@ addCronJob({
 
       console.log(result)
 
+      // CHANGE THIS so that it runs iff the market was successfully created
       await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
 
       // make comments on the posts with the markets after creation
