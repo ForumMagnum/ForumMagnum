@@ -70,6 +70,7 @@ const TopPostsPage = ({classes}: {classes: ClassesType}) => {
       {/** TODO: change pageContext when/if we rename component */}
       <AnalyticsContext pageContext="topPostsPage">
         <SingleColumnSection>
+          <SectionTitle title={preferredHeadingCase("Best of LessWrong")} />
           <PostsList2
             terms={{ limit: 20 }}
             resolverName={resolverName}
