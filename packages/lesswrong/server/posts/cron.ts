@@ -59,6 +59,24 @@ addCronJob({
   interval: 'every 1 minute',
   async job() {
 
+    async function pingSlackWebhook(webhookURL: string, data: any) {
+      try {
+        const response = await fetch(webhookURL, {
+          method: 'POST',
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return response
+      } catch (error) {
+        //eslint-disable-next-line no-console
+        console.error('There was a problem with the fetch operation: ', error);
+      }
+    }
+
     // fetch all posts above X karma without markets posted in 2022 or later
     const highKarmaNoMarketPosts = await Posts.find({baseScore: {$gte: 100}, postedAt: {$gte: `2022-01-01`}, manifoldReviewMarketId: null}, {projection: {_id: 1, title: 1, postedAt: 1, slug: 1}, limit:1}).fetch();
 
@@ -79,67 +97,52 @@ addCronJob({
       const visibility = "unlisted" // set this based on whether we're in dev or prod?
       const groupIds = ["LessWrong Annual Review", `LessWrong ${year} Annual Review`]
 
-      const result = await fetch("https://api.manifold.markets./v0/market", {
-        method: "POST",
-        headers: {
-          authorization: `Key ${manifoldAPIKey}`,
-          "content-type": "application/json"
-        },
-        body: JSON.stringify({
-          outcomeType: "BINARY",
-          question: question,
-          descriptionMarkdown: descriptionMarkdown,
-          closeTime: Number(closeTime),
-          visibility: visibility,
-          // groupIds: groupIds,
-          initialProb: initialProb
+      try {
+        const result = await fetch("https://api.manifold.markets./v0/market", {
+          method: "POST",
+          headers: {
+            authorization: `Key ${manifoldAPIKey}`,
+            "content-type": "application/json"
+          },
+          body: JSON.stringify({
+            outcomeType: "BINARY",
+            question: question,
+            descriptionMarkdown: descriptionMarkdown,
+            closeTime: Number(closeTime),
+            visibility: visibility,
+            // groupIds: groupIds,
+            initialProb: initialProb
+          })
         })
-      })
-
-      // don't run this and also await result.text(), weirdly that causes the latter one to explode
-      const liteMarket = await result.json() // get this from the result
-
-      console.log("liteMarket", liteMarket)
-      console.log("liteMarket id", liteMarket.id)
-      console.log("post id", post._id)
-
-      console.log(result)
-
-      await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
-
-      await makeComment(post._id, year, liteMarket.url, botUser)
-
-      // make comments on the posts with the markets after creation
-      // make a description for the market, including link to explanation of what's going on 
-      // move to LessWrong manifold account
-      // add field for resolved markets? not clear how we want to handle this 
-      // write autoresolving code -- when review finishes want to resolve the market -- can use code about whether review is over and what ranking the post got in the review
-
-      async function pingSlackWebhook(webhookURL: string, data: any) {
-        try {
-          const response = await fetch(webhookURL, {
-            method: 'POST',
-            body: JSON.stringify(data),
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          return response
-        } catch (error) {
-          //eslint-disable-next-line no-console
-          console.error('There was a problem with the fetch operation: ', error);
+        
+        if (!result.ok) {
+          throw new Error(`HTTP error! status: ${result.status}`);
         }
+
+        // don't run this and also await result.text(), weirdly that causes the latter one to explode
+        const liteMarket = await result.json() // get this from the result
+
+        console.log("liteMarket", liteMarket)
+        console.log("liteMarket id", liteMarket.id)
+        console.log("post id", post._id)
+
+        console.log(result)
+
+        // update the database to include the market id
+        await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
+
+        // make a comment on the post with the market
+        await makeComment(post._id, year, liteMarket.url, botUser)
+      
+        // ping the slack webhook to inform team of market creation. We will get rid of this before pushing to prod
+        const webhookURL = "https://hooks.slack.com/triggers/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"
+        void pingSlackWebhook(webhookURL, liteMarket)
+
+        
+      } catch (error) {
+        //eslint-disable-next-line no-console
+        console.error('There was a problem with the fetch operation for creating a Manifold Market: ', error);
       }
-
-      // ping the slack webhook to inform team of market creation. We will get rid of this before pushing to prod
-      const webhookURL = "https://hooks.slack.com/triggers/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"
-      void pingSlackWebhook(webhookURL, liteMarket)
-
     })
-
-
-
   }
 });
