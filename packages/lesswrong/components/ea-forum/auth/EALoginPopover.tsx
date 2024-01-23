@@ -256,6 +256,7 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
                 value={email}
                 onChange={onChangeEmail}
                 className={classes.input}
+                autoFocus
               />
               <div className={classes.showPasswordContainer}>
                 <input
