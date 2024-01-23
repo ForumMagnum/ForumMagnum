@@ -67,7 +67,7 @@ const makeComment = async (postId: string, year: number, marketUrl: string, botU
 
 addCronJob({
   name: 'makeReviewManifoldMarket',
-  interval: 'every 1 minute',
+  interval: 'every 10 minutes',
   async job() {
 
     async function pingSlackWebhook(webhookURL: string, data: any) {
