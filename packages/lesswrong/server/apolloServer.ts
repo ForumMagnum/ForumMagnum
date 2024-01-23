@@ -220,7 +220,14 @@ export function startWebserver() {
   
   // Static files folder
   app.use(express.static(path.join(__dirname, '../../client')))
-  app.use(express.static(path.join(__dirname, '../../../public')))
+  app.use(express.static(path.join(__dirname, '../../../public'), {
+    setHeaders: (res, requestPath) => {
+      const relativePath = path.relative(__dirname, requestPath);
+      if (relativePath.startsWith("../../../public/reactionImages")) {
+        res.set("Cache-Control", "public, max-age=604800, immutable");
+      }
+    }
+  }))
   
   // Voyager is a GraphQL schema visual explorer
   app.use("/graphql-voyager", voyagerMiddleware({
