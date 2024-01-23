@@ -11,6 +11,10 @@ export const schema: SchemaType<"ReviewWinners"> = {
     type: Number,
     nullable: false
   },
+  reviewRanking: {
+    type: Number,
+    nullable: false
+  },
   isAI: {
     type: Boolean,
     nullable: false

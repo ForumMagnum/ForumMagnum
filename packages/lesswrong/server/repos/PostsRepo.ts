@@ -24,6 +24,8 @@ const postEmojiReactorCache = new LRU<string, Promise<PostEmojiReactors>>({
 // Map from comment ids to maps from emoji names to an array of user display names
 type CommentEmojiReactors = Record<string, Record<string, string[]>>;
 
+type LWReviewWinnerSortOrder = "curated" | "ranking" | "year"
+
 const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>({
   maxAge: 30 * 1000, // 30 second TTL
   updateAgeOnGet: false,
@@ -649,6 +651,28 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       userReadCount: read_count,
       readLikelihoodRatio: ratio
     }));
+  }
+
+  private getReviewWinnerOrderByClause(sortOrder: LWReviewWinnerSortOrder, tableAlias: string): string {
+    switch (sortOrder) {
+      case "curated":
+        return `ORDER BY ${tableAlias}."curatedOrder" ASC`;
+      case "ranking":
+        return `ORDER BY ${tableAlias}."reviewRanking" ASC, ${tableAlias}."reviewYear DESC"`;
+      case "year":
+        return `ORDER BY ${tableAlias}."reviewYear" DESC, ${tableAlias}."reviewRanking" ASC`;
+    }
+  }
+
+  async getReviewWinners(limit: Number, sortOrder: LWReviewWinnerSortOrder): Promise<DbPost[]> {
+    const orderByClause = this.getReviewWinnerOrderByClause(sortOrder, 'rw');
+    return this.any(`
+      -- PostsRepo.getReviewWinners
+      SELECT p.*
+      FROM "Posts" p
+      JOIN "ReviewWinners" rw ON p."_id" = rw."postId"
+      ${orderByClause}
+    `);
   }
 }
 

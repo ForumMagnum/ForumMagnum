@@ -2,15 +2,13 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { MutationOptions, getDefaultMutations } from '../../vulcan-core/default_mutations';
 import { schema } from './schema';
-import { mongoFindOne } from '../../mongoQueries';
-import { userCanDo, userIsAdmin } from '../../vulcan-users';
+import { userIsAdmin } from '../../vulcan-users';
 
 /**
- * 
- * 
+ * This collection stores information about the LessWrong Annual Review winners, used primarily for sort orderings
  */
 
-export const commentMutationOptions: MutationOptions<DbReviewWinner> = {
+export const reviewWinnerMutationOptions: MutationOptions<DbReviewWinner> = {
   newCheck: (user: DbUser|null, document: DbReviewWinner|null) => {
     return false
   },
@@ -24,13 +22,12 @@ export const commentMutationOptions: MutationOptions<DbReviewWinner> = {
   },
 }
 
-
 export const ReviewWinners = createCollection({
   collectionName: 'ReviewWinners',
   typeName: 'ReviewWinner',
   schema,
   resolvers: getDefaultResolvers('ReviewWinners'),
-  mutations: getDefaultMutations('ReviewWinners'),
+  mutations: getDefaultMutations('ReviewWinners', reviewWinnerMutationOptions),
   logChanges: true,
 });
 
