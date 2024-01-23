@@ -1,6 +1,8 @@
 import { addCronJob } from '../cronUtil';
 import { Posts } from '../../lib/collections/posts';
 import * as _ from 'underscore';
+import { Comments } from '../../lib/collections/comments';
+import { createAdminContext, createMutator } from '../vulcan-lib';
 
 
 addCronJob({
@@ -25,19 +27,49 @@ addCronJob({
 });
 
 const manifoldAPIKey = ""
+const lwReviewUserBot = ""
+
+const makeComment = async (postId: string, title: string, year: string, marketUrl: string, botUser: DbUser | null) => {
+
+  const commentString = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of 2025. The top fifty or so posts are featured prominently on the site throughout the year. Will this post make the top 50?</p><figure class="media"><div data-oembed-url="${marketUrl}">
+        <div class="manifold-preview">
+          <iframe src="https://manifold.markets/embed/MrMagnolia/what-will-the-next-curated-lesswron">
+        </iframe></div>
+      </div></figure>
+  `
+
+  const createdComment = await createMutator({
+    collection: Comments,
+    document: {
+      postId: postId,
+      userId: lwReviewUserBot,
+      contents: {originalContents: {
+        type: "html",
+        data: commentString
+      }}
+    },
+    currentUser: botUser
+  })
+
+}
 
 addCronJob({
   name: 'makeReviewManifoldMarket',
-  interval: 'every 10 minutes',
+  interval: 'every 1 minutes',
   async job() {
 
     // fetch all posts above X karma without markets posted in 2022 or later
     const highKarmaNoMarketPosts = await Posts.find({baseScore: {$gte: 100}, postedAt: {$gte: `2022-01-01`}, manifoldReviewMarketId: null}, {projection: {_id: 1, title: 1, postedAt: 1}, limit:1}).fetch();
 
+    const context = createAdminContext();
+
+    const botUser = await context.Users.findOne({_id: lwReviewUserBot})
+
     highKarmaNoMarketPosts.forEach(async post => {
 
+
       const year = post.postedAt.getFullYear()
-      const question = `Will the post "${post.title}" make the top fifty in the LessWrong ${year} Annual Review?`
+      const question = `Will the post "${post.title.length < 72 ? post.title : post.title.slice(0,69)+"..."}" make the top fifty in the LessWrong ${year} Annual Review?`
       const description = "" // post.title
       const closeTime = new Date(year + 2, 1, 1) // i.e. february 1st of the next next year (so if year is 2022, feb 1 of 2024)
       const visibility = "unlisted" // set this based on whether we're in dev or prod?
@@ -72,6 +104,8 @@ addCronJob({
 
       await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
 
+      await makeComment(post._id, post.title, String(year), liteMarket.url, botUser)
+
       // make comments on the posts with the markets after creation
       // make a description for the market, including link to explanation of what's going on 
       // move to LessWrong manifold account
@@ -84,11 +118,11 @@ addCronJob({
             method: 'POST',
             body: JSON.stringify(data),
           });
-      
+
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-      
+
           return response
         } catch (error) {
           //eslint-disable-next-line no-console
