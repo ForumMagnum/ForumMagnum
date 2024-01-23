@@ -158,6 +158,9 @@ async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, co
 
 voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collection, user, context) => {
 
+  // Forum gate
+  if (!isLWorAF) return;
+
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return;
   // TODO: does this already include the vote power or must I add it? Think it's included
