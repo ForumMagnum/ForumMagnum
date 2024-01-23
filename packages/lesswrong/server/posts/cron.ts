@@ -91,8 +91,8 @@ addCronJob({
       const postLink = 'https://www.lesswrong.com/posts/' + post._id + '/' + post.slug
       const year = post.postedAt.getFullYear()
       const initialProb = 14
-      const question = `Will "${post.title.length < 60 ? post.title : (post.title.slice(0,40)+"...")}" make the top fifty in the LessWrong ${year} Annual Review?`
-      const descriptionMarkdown = `As part of LessWrong's [Annual Review](${annualReviewLink}), the community nominates, writes reviews, and votes on the most valuable posts. Posts are reviewable once they have been up for at least 12 months, and the ${year} Review resolves in February ${year+2}.\n\nThis market will resolve to 100% if the post [${post.title}](${postLink}) is one of the top fifty posts of the ${year} Review, and 0% otherwise. The market was initialized to ${initialProb}%.` // post.title
+      const question = `Will "${post.title.length < 50 ? post.title : (post.title.slice(0,45)+"...")}" make the top fifty posts in LessWrong's ${year} Annual Review?`
+      const descriptionMarkdown = `As part of LessWrong's [Annual Review](${annualReviewLink}), the community nominates, writes reviews, and votes on the most valuable posts. Posts are reviewable once they have been up for at least 12 months, and the ${year} Review resolves in February ${year+2}.\n\n\nThis market will resolve to 100% if the post [${post.title}](${postLink}) is one of the top fifty posts of the ${year} Review, and 0% otherwise. The market was initialized to ${initialProb}%.` // post.title
       const closeTime = new Date(year + 2, 1, 1) // i.e. february 1st of the next next year (so if year is 2022, feb 1 of 2024)
       const visibility = "unlisted" // set this based on whether we're in dev or prod?
       const groupIds = ["LessWrong Annual Review", `LessWrong ${year} Annual Review`]
@@ -114,10 +114,6 @@ addCronJob({
             initialProb: initialProb
           })
         })
-        
-        if (!result.ok) {
-          throw new Error(`HTTP error! status: ${result.status}`);
-        }
 
         // don't run this and also await result.text(), weirdly that causes the latter one to explode
         const liteMarket = await result.json() // get this from the result
@@ -127,6 +123,10 @@ addCronJob({
         console.log("post id", post._id)
 
         console.log(result)
+
+        if (!result.ok) {
+          throw new Error(`HTTP error! status: ${result.status}`);
+        }
 
         // update the database to include the market id
         await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
