@@ -95,6 +95,7 @@ build({
   bundle: true,
   target: "es6",
   sourcemap: true,
+  metafile: true,
   sourcesContent: true,
   outfile: clientOutfilePath,
   minify: isProduction,
@@ -129,6 +130,14 @@ build({
       latestCompletedBuildId = inProgressBuildId;
       if (cliopts.watch) {
         initiateRefresh({serverPort});
+      }
+
+      if (buildResult.metafile) {
+        fs.writeFile(
+          "client_meta.json",
+          JSON.stringify(buildResult.metafile, null, 2),
+          () => {},
+        );
       }
     }
     inProgressBuildId = null;
