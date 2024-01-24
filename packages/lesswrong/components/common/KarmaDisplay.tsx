@@ -3,9 +3,11 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { forumTypeSetting } from "../../lib/instanceSettings";
 
-const KarmaDisplay = ({document, placement="left"}: {
+const KarmaDisplay = ({document, placement="left", probabilityAnnualReviewWinner = null, annualReviewYear = null}: {
   document: VoteableType,
   placement?: PopperPlacementType,
+  probabilityAnnualReviewWinner? : number | null,
+  annualReviewYear? : number | null,
 }) => {
   const baseScore = forumTypeSetting.get() === "AlignmentForum"
     ? document.afBaseScore
@@ -19,6 +21,9 @@ const KarmaDisplay = ({document, placement="left"}: {
       placement={placement}
       title={
         <div>
+          {probabilityAnnualReviewWinner &&
+            <div>{probabilityAnnualReviewWinner}% chance of YEAR annual review winner</div>
+          }
           <div>{baseScore ?? 0} karma</div>
           <div>({document.voteCount} votes)</div>
           {afBaseScore &&

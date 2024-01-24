@@ -72,7 +72,7 @@ export type PostsItemConfig = {
   forceSticky?: boolean,
   showReadCheckbox?: boolean,
   showKarma?: boolean,
-  karmaPredictedReviewWinner?: boolean,
+  probabilityAnnualReviewWinner?: number,
   showMostValuableCheckbox?: boolean,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
@@ -180,10 +180,12 @@ export const usePostsItem = ({
     isSticky: isSticky(post, terms),
   };
 
-  const KARMA_REVIEW_WINNER_THRESHOLD = 0.5
+  // const KARMA_REVIEW_WINNER_THRESHOLD = 0.5
 
-  const karmaProbabilityReviewWinner = post.probabilityReviewWinner
-  const karmaPredictedReviewWinner = !!karmaProbabilityReviewWinner && karmaProbabilityReviewWinner > KARMA_REVIEW_WINNER_THRESHOLD
+  // const karmaProbabilityReviewWinner = post.probabilityReviewWinner
+  // const karmaPredictedReviewWinner = !!karmaProbabilityReviewWinner && karmaProbabilityReviewWinner > KARMA_REVIEW_WINNER_THRESHOLD
+
+  const probabilityAnnualReviewWinner = post.probabilityReviewWinner
 
   return {
     post,
@@ -207,7 +209,7 @@ export const usePostsItem = ({
     showReviewCount,
     showIcons,
     showKarma,
-    karmaPredictedReviewWinner,
+    probabilityAnnualReviewWinner,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,

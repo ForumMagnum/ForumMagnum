@@ -54,6 +54,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '45%',
     textAlign: "center",
   },
+  // predictedAnnualReviewWinner: {
+  //   color: theme.palette.aprilFools.orange
+  // },
   secondaryVoteScore: {
     fontSize: '35%',
     marginBottom: 2,
@@ -73,6 +76,7 @@ const PostsVoteDefault = ({
   useHorizontalLayout,
   votingSystem,
   isFooter,
+  // probabilityAnnualReviewWinner,
   classes,
 }: {
   post: PostsWithVotes,
@@ -80,6 +84,7 @@ const PostsVoteDefault = ({
   useHorizontalLayout?: boolean,
   votingSystem?: VotingSystem<PostsWithVotes>,
   isFooter?: boolean,
+  // probabilityAnnualReviewWinner?: number | null,
   classes: ClassesType
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
@@ -133,6 +138,7 @@ const PostsVoteDefault = ({
               variant="headline"
               className={classNames(classes.voteScore, {
                 [classes.voteScoreFooter]: isFooter,
+                // [classes.predictedAnnualReviewWinner]: !!probabilityAnnualReviewWinner && probabilityAnnualReviewWinner > 0.5,
               })}
             >
               {voteProps.baseScore}

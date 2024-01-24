@@ -334,6 +334,8 @@ export const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
+const PROBABILITY_REVIEW_WINNER_THRESHOLD = 0.5
+
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 export type PostsList2Props = PostsItemConfig & {
@@ -361,7 +363,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showReviewCount,
     showIcons,
     showKarma,
-    karmaPredictedReviewWinner,
+    probabilityAnnualReviewWinner,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,
@@ -431,13 +433,14 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
             {showKarma && <PostsItem2MetaInfo className={classNames(
                 classes.karma, {
-                  [classes.karmaPredictedReviewWinner]: karmaPredictedReviewWinner
+                  [classes.karmaPredictedReviewWinner]: !!probabilityAnnualReviewWinner && probabilityAnnualReviewWinner > PROBABILITY_REVIEW_WINNER_THRESHOLD
+
                 }
               )}
               >
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
-                : <KarmaDisplay document={post} />
+                : <KarmaDisplay document={post} probabilityAnnualReviewWinner={parseFloat((probabilityAnnualReviewWinner*100).toFixed(2))} />
               }
             </PostsItem2MetaInfo>}
 

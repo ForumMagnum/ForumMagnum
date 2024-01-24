@@ -27,6 +27,7 @@ const PostsVote = ({post, useHorizontalLayout, isFooter}: {
         useHorizontalLayout={useHorizontalLayout}
         votingSystem={votingSystem}
         isFooter={isFooter}
+        // probabilityAnnualReviewWinner={post.probabilityAnnualReviewWinner}
       />
     );
 }
