@@ -183,7 +183,7 @@ export const usePostsItem = ({
   const KARMA_REVIEW_WINNER_THRESHOLD = 0.5
 
   const karmaProbabilityReviewWinner = post.probabilityReviewWinner
-  const karmaPredictedReviewWinner = karmaProbabilityReviewWinner && karmaProbabilityReviewWinner > KARMA_REVIEW_WINNER_THRESHOLD
+  const karmaPredictedReviewWinner = !!karmaProbabilityReviewWinner && karmaProbabilityReviewWinner > KARMA_REVIEW_WINNER_THRESHOLD
 
   return {
     post,
