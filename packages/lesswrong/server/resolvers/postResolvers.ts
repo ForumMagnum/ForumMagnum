@@ -94,7 +94,7 @@ augmentFieldsDict(Posts, {
   },
   totalDialogueResponseCount: {
     resolveAs: {
-      type: 'Int', 
+      type: 'Int!', 
       resolver: (post, _, context) => {
         if (!post.debate) return 0;
         return getDialogueResponseIds(post).length
@@ -103,8 +103,8 @@ augmentFieldsDict(Posts, {
   },
   unreadDebateResponseCount: {
     resolveAs: {
-      type: 'Int',
-      resolver: async (post, _, context) => {
+      type: 'Int!',
+      resolver: async (post, _, context): Promise<number> => {
         if (!post.collabEditorDialogue) return 0;
 
         const lastReadStatus = await getLastReadStatus(post, context);

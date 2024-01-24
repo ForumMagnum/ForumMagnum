@@ -131,7 +131,7 @@ const EARecentDiscussionThread = ({
         <div className={classes.postInfo}>
           <PostsTitle
             post={post}
-            read={post.isRead}
+            read={post.isRead ?? undefined}
             className={classes.postTitle}
             linkEventProps={{intent: 'expandPost'}}
           />
