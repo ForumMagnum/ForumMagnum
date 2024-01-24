@@ -89,6 +89,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginRight: theme.spacing.unit
     }
   },
+  karmaPredictedReviewWinner: {
+    color: theme.palette.text.aprilFools.orange
+  },
   title: {
     minHeight: 26,
     flex: 1500,
