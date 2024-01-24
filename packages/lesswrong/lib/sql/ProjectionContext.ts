@@ -160,10 +160,11 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
   }
 
   absoluteField(name: string, jsonifyStarSelector = true) {
-    if (name !== "*") {
-      name = `"${name}"`;
+    let absoluteName: string = name;
+    if (absoluteName !== "*") {
+      absoluteName = `"${name}"`;
     }
-    const absoluteField = `"${this.primaryPrefix}".${name}`;
+    const absoluteField = `"${this.primaryPrefix}".${absoluteName}`;
     return name.indexOf("*") > -1 && jsonifyStarSelector
       ? `ROW_TO_JSON(${absoluteField})`
       : absoluteField;
@@ -217,9 +218,9 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     }
   }
 
-  addJoin({resolver, ...joinBase}: SqlResolverJoin) {
+  addJoin<J extends CollectionNameString>({resolver, ...joinBase}: SqlResolverJoin<J>) {
     const spec = this.getJoinSpec(joinBase);
-    const subField = (name: string) => `"${spec.prefix}"."${name}"`;
+    const subField = (name: FieldName<J>) => `"${spec.prefix}"."${name}"`;
     return resolver(subField);
   }
 
@@ -245,7 +246,7 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
    * Get the arguments to pass to `sqlResolver` functions defined in
    * collection schemas.
    */
-  getSqlResolverArgs(): SqlResolverArgs {
+  getSqlResolverArgs(): SqlResolverArgs<N> {
     return {
       field: this.absoluteField.bind(this),
       currentUserField: this.currentUserField.bind(this),
@@ -261,7 +262,7 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
       : randomId(5, this.randIntCallback);
   }
 
-  private getJoinSpec({table, type, on}: SqlJoinBase): SqlJoinSpec {
+  private getJoinSpec<J extends CollectionNameString>({table, type, on}: SqlJoinBase<J>): SqlJoinSpec {
     for (const join of this.joins) {
       if (
         join.table === table &&
@@ -279,7 +280,7 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
   private compileJoin({table, type = "inner", on, prefix}: SqlJoinSpec): string {
     const selectors: string[] = [];
     for (const field in on) {
-      selectors.push(`"${prefix}"."${field}" = ${on[field]}`);
+      selectors.push(`"${prefix}"."${field}" = ${on[(field as keyof typeof on)]}`);
     }
     const selector = selectors.join(" AND ");
     return `${type.toUpperCase()} JOIN "${table}" "${prefix}" ON ${selector}`;

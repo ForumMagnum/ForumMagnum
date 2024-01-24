@@ -146,11 +146,11 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({
         nullable,
       }),
       ...(autoJoin ? {
-        sqlResolver: ({field, join}: SqlResolverArgs) => join({
+        sqlResolver: ({field, join}: SqlResolverArgs<CollectionName>) => join<HasIdCollectionNames>({
           table: collectionName,
           type: nullable ? "left" : "inner",
           on: {
-            _id: field(idFieldName),
+            _id: field(idFieldName as FieldName<CollectionName>),
           },
           resolver: (foreignField) => foreignField("*"),
         })
@@ -207,7 +207,7 @@ export const simplSchemaToGraphQLtype = (type: any): string|null => {
 
 interface ResolverOnlyFieldArgs<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
   resolver: (doc: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
-  sqlResolver?: SqlResolver,
+  sqlResolver?: SqlResolver<N>,
   graphQLtype?: string|GraphQLScalarType|null,
   graphqlArguments?: string|null,
 }
