@@ -83,7 +83,7 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();
   const {tagsRead, setTagRead} = useItemsRead();
-  const isRead = tag && ((tag._id in tagsRead) ? tagsRead[tag._id] : tag.isRead ?? false)
+  const isRead = tag && !!((tag._id in tagsRead) ? tagsRead[tag._id] : tag.isRead)
   
   const recordTagView = useCallback(async ({tag, extraEventProperties}) => {
     try {

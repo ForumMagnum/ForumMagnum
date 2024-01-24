@@ -538,7 +538,7 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: 'Int!',
     type: Number,
     canRead: ['guests'],
-    resolver: ({readTimeMinutesOverride, contents}: DbPost) : number =>
+    resolver: ({readTimeMinutesOverride, contents}: DbPost): number =>
       Math.max(
         1,
         Math.round(typeof readTimeMinutesOverride === "number"
@@ -1090,7 +1090,7 @@ const schema: SchemaType<"Posts"> = {
     type: String,
     graphQLtype: 'String!',
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) : Promise<string> => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<string> => {
       // We need access to the linkSharingKey field here, which the user (of course) does not have access to. 
       // Since the post at this point is already filtered by fields that this user has access, we have to grab
       // an unfiltered version of the post from cache

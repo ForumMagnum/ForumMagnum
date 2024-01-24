@@ -36,7 +36,7 @@ augmentFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String!',
-      resolver: ({originalContents}) : string => originalContents
+      resolver: ({originalContents}): string => originalContents
         ? dataToMarkdown(originalContents.data, originalContents.type)
         : null,
     }
@@ -64,7 +64,7 @@ augmentFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String!',
-      resolver: ({html}) : string => highlightFromHTML(html)
+      resolver: ({html}): string => highlightFromHTML(html)
     }
   },
   htmlHighlightStartingAtHash: {
@@ -93,7 +93,7 @@ augmentFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String!',
-      resolver: ({html}) : string => {
+      resolver: ({html}): string => {
         if (!html) return ""
         const truncatedHtml = truncate(sanitize(html), PLAINTEXT_HTML_TRUNCATION_LENGTH)
         return htmlToTextPlaintextDescription(truncatedHtml).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
@@ -105,7 +105,7 @@ augmentFieldsDict(Revisions, {
     type: String,
     resolveAs: {
       type: 'String!',
-      resolver: ({html}) : string => {
+      resolver: ({html}): string => {
         if (!html) return ""
 
         const mainTextHtml = sanitizeHtml(

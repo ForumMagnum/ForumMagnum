@@ -2168,7 +2168,7 @@ const schema: SchemaType<"Users"> = {
     graphQLtype: 'Int!',
     type: Number,
     canRead: ['admins', 'sunshineRegiment'],
-    resolver: async (document, args, context: ResolverContext) : Promise<number> => {
+    resolver: async (document, args, context: ResolverContext): Promise<number> => {
       const { ReviewVotes } = context;
       const voteCount = await ReviewVotes.find({
         userId: document._id,

@@ -78,7 +78,7 @@ const schema: SchemaType<"Collections"> = {
     graphQLtype: 'Int!',
     type: Number,
     canRead: ['guests'],
-    resolver: async (collection: DbCollection, args: void, context: ResolverContext) : Promise<number> => {
+    resolver: async (collection: DbCollection, args: void, context: ResolverContext): Promise<number> => {
       const currentUser = context.currentUser;
       
       if (!currentUser) return 0;
