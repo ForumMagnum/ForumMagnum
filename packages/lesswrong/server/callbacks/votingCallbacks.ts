@@ -10,6 +10,13 @@ import { createNotification } from '../notificationCallbacksHelpers';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
+import { DatabaseServerSetting } from '../databaseSettings';
+import { createMutator } from '../vulcan-lib/mutators';
+import { Comments } from '../../lib/collections/comments';
+import { createAdminContext } from '../vulcan-lib';
+import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
+import Tags from '../../lib/collections/tags/collection';
+import { isProduction } from '../../lib/executionEnvironment';
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
@@ -130,3 +137,118 @@ postPublishedCallback.add(async (publishedPost: DbPost) => {
   
   await batchUpdateScore({collection: Posts});
 });
+
+// When a vote is cast, if it's new karma is above review_market_threshold, create a Manifold
+// on it making top 50 in the review, and create a comment linking to the market.
+
+const reviewMarketThreshold = 100;
+const manifoldAPIKeySetting = new DatabaseServerSetting<string | null>('manifold.reviewBotKey', null)
+const manifoldAPIKey = manifoldAPIKeySetting.get()
+
+const reviewUserBotSetting = new DatabaseServerSetting<string | null>('reviewBotId', null)
+const reviewUserBot = reviewUserBotSetting.get()
+
+if (manifoldAPIKey === null) throw new Error("manifoldAPIKey is null")
+if (reviewUserBot === null) throw new Error("reviewUserBot is null")
+
+async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
+  const tag = await Tags.findOne({slug: tagSlug})
+  if (!tag) throw new Error(`Tag with slug "${tagSlug}" not found`)
+  await addOrUpvoteTag({tagId: tag._id, postId: postId, currentUser: botUser, context});
+}
+
+voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collection, user, context) => {
+
+  // Forum gate
+  if (!isLWorAF) return;
+
+  if (collection.collectionName !== "Posts") return;
+  if (vote.power <= 0 || vote.cancelled) return;
+  // TODO: does this already include the vote power or must I add it? Think it's included
+  if (newDocument.baseScore < reviewMarketThreshold) return;
+  const post = await Posts.findOne({_id: newDocument._id})
+  if (!post) return;
+  if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
+  if (post.manifoldReviewMarketId) return; // don't make a market if one already exists
+
+  const botUser = await context.Users.findOne({_id: reviewUserBot})
+  const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
+  const postLink = 'https://www.lesswrong.com/posts/' + post._id + '/' + post.slug
+
+  const year = post.postedAt.getFullYear()
+  const initialProb = 14
+  const question = `Will "${post.title.length < 50 ? post.title : (post.title.slice(0,45)+"...")}" make the top fifty posts in LessWrong's ${year} Annual Review?`
+  const descriptionMarkdown = `As part of LessWrong's [Annual Review](${annualReviewLink}), the community nominates, writes reviews, and votes on the most valuable posts. Posts are reviewable once they have been up for at least 12 months, and the ${year} Review resolves in February ${year+2}.\n\n\nThis market will resolve to 100% if the post [${post.title}](${postLink}) is one of the top fifty posts of the ${year} Review, and 0% otherwise. The market was initialized to ${initialProb}%.` // post.title
+  const closeTime = new Date(year + 2, 1, 1) // i.e. february 1st of the next next year (so if year is 2022, feb 1 of 2024)
+  const visibility = isProduction ? "public" : "unlisted"
+  const groupIds = ["LessWrong Annual Review", `LessWrong ${year} Annual Review`]
+
+  if (!botUser) throw new Error("Bot user not found")
+
+  try {
+    const result = await fetch("https://api.manifold.markets/v0/market", {
+      method: "POST",
+      headers: {
+        authorization: `Key ${manifoldAPIKey}`,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        outcomeType: "BINARY",
+        question: question,
+        descriptionMarkdown: descriptionMarkdown,
+        closeTime: Number(closeTime),
+        visibility: visibility,
+        // groupIds: groupIds,
+        initialProb: initialProb
+      })
+    })
+
+    const liteMarket = await result.json()
+
+    if (!result.ok) {
+      throw new Error(`HTTP error! status: ${result.status}`);
+    }
+
+    // update the database to include the market id
+    await Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
+
+    const reviewTagSlug = 'annual-review-market';
+    const reviewYearTagSlug = `annual-review-${year}-market`;
+
+    // add the review tags to the post
+    await addTagToPost(post._id, reviewTagSlug, botUser, context);
+    await addTagToPost(post._id, reviewYearTagSlug, botUser, context);
+
+    // make a comment on the post with the market
+    await makeComment(post._id, year, liteMarket.url, botUser)
+  } catch (error) {
+
+    //eslint-disable-next-line no-console
+    console.error('There was a problem with the fetch operation for creating a Manifold Market: ', error);
+  }
+})
+
+const makeComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser) => {
+
+  const commentString = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year. Will this post make the top 50?</p><figure class="media"><div data-oembed-url="${marketUrl}">
+        <div class="manifold-preview">
+          <iframe src=${marketUrl}>
+        </iframe></div>
+      </div></figure>
+  `
+
+  await createMutator({
+    collection: Comments,
+    document: {
+      postId: postId,
+      userId: reviewUserBot,
+      contents: {originalContents: {
+        type: "html",
+        data: commentString
+      }}
+    },
+    currentUser: botUser,
+    context: createAdminContext()
+  })
+
+}
