@@ -22,7 +22,7 @@ const KarmaDisplay = ({document, placement="left", probabilityAnnualReviewWinner
       title={
         <div>
           {probabilityAnnualReviewWinner &&
-            <div>{probabilityAnnualReviewWinner}% chance of YEAR annual review winner</div>
+            <div>{probabilityAnnualReviewWinner}% chance of annual review winner</div>
           }
           <div>{baseScore ?? 0} karma</div>
           <div>({document.voteCount} votes)</div>

@@ -191,7 +191,7 @@ export const usePostsItem = ({
   // const karmaProbabilityReviewWinner = post.probabilityReviewWinner
   // const karmaPredictedReviewWinner = !!karmaProbabilityReviewWinner && karmaProbabilityReviewWinner > KARMA_REVIEW_WINNER_THRESHOLD
 
-  const probabilityAnnualReviewWinner = post.probabilityReviewWinner
+  const probabilityAnnualReviewWinner = post.annualReviewMarketInfo
 
   return {
     post,
