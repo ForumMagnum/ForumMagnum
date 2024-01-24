@@ -363,7 +363,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showReviewCount,
     showIcons,
     showKarma,
-    probabilityAnnualReviewWinner,
+    annualReviewMarketInfo,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,
@@ -433,14 +433,14 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
             {showKarma && <PostsItem2MetaInfo className={classNames(
                 classes.karma, {
-                  [classes.karmaPredictedReviewWinner]: !!probabilityAnnualReviewWinner && probabilityAnnualReviewWinner > PROBABILITY_REVIEW_WINNER_THRESHOLD
+                  [classes.karmaPredictedReviewWinner]: !!annualReviewMarketInfo && annualReviewMarketInfo.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD
 
                 }
               )}
               >
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
-                : <KarmaDisplay document={post} probabilityAnnualReviewWinner={parseFloat((probabilityAnnualReviewWinner*100).toFixed(2))} />
+                : <KarmaDisplay document={post} annualReviewMarketInfo={annualReviewMarketInfo} />
               }
             </PostsItem2MetaInfo>}
 

@@ -12,6 +12,7 @@ import {
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import type { PopperPlacementType } from "@material-ui/core/Popper"
+import { MarketInfo } from "../../lib/annualReviewMarkets";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
@@ -72,7 +73,7 @@ export type PostsItemConfig = {
   forceSticky?: boolean,
   showReadCheckbox?: boolean,
   showKarma?: boolean,
-  probabilityAnnualReviewWinner?: number,
+  annualReviewMarketInfo?: MarketInfo | null,
   showMostValuableCheckbox?: boolean,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
@@ -191,7 +192,7 @@ export const usePostsItem = ({
   // const karmaProbabilityReviewWinner = post.probabilityReviewWinner
   // const karmaPredictedReviewWinner = !!karmaProbabilityReviewWinner && karmaProbabilityReviewWinner > KARMA_REVIEW_WINNER_THRESHOLD
 
-  const probabilityAnnualReviewWinner = post.annualReviewMarketInfo
+  const annualReviewMarketInfo = post.annualReviewMarketInfo
 
   return {
     post,
@@ -215,7 +216,7 @@ export const usePostsItem = ({
     showReviewCount,
     showIcons,
     showKarma,
-    probabilityAnnualReviewWinner,
+    annualReviewMarketInfo,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,

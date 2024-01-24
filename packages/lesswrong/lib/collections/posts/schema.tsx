@@ -90,16 +90,6 @@ addGraphQLSchema(`
   }
 `)
 
-addGraphQLSchema(`
-  type ReviewMarketInfoType {
-    id: String!,
-    probability: Float,
-    outcomeType: String!,
-    isResolved: Boolean!,
-    year: Int!,
-  }
-`)
-
 export const MINIMUM_COAUTHOR_KARMA = 1;
 
 export const EVENT_TYPES = [
@@ -881,15 +871,14 @@ const schema: SchemaType<"Posts"> = {
 
   annualReviewMarketInfo: {
     type: new SimpleSchema({
-      id: String,
-      probability: { type: Number, optional: true, nullable: true },
-      outcomeType: String,
-      isResolved: Boolean,
-      year: Number,
+      id: {type: String, optional: false, nullable: false},
+      probability: { type: Number, optional: false, nullable: false },
+      isResolved: {type: Boolean, optional: false, nullable: false},
+      year: {type: Number, optional: false, nullable: false},
     }),
     optional: true,
     nullable: true,
-    canRead: ['guests'],
+    canRead: ['guests']
     // Implementation in postResolvers.ts
   },
 

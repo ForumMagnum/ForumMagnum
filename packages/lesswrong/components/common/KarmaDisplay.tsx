@@ -2,11 +2,12 @@ import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { forumTypeSetting } from "../../lib/instanceSettings";
+import { MarketInfo } from "../../lib/annualReviewMarkets";
 
-const KarmaDisplay = ({document, placement="left", probabilityAnnualReviewWinner = null, annualReviewYear = null}: {
+const KarmaDisplay = ({document, placement="left", annualReviewMarketInfo = null, annualReviewYear = null}: {
   document: VoteableType,
   placement?: PopperPlacementType,
-  probabilityAnnualReviewWinner? : number | null,
+  annualReviewMarketInfo? : MarketInfo | null,
   annualReviewYear? : number | null,
 }) => {
   const baseScore = forumTypeSetting.get() === "AlignmentForum"
@@ -21,8 +22,8 @@ const KarmaDisplay = ({document, placement="left", probabilityAnnualReviewWinner
       placement={placement}
       title={
         <div>
-          {probabilityAnnualReviewWinner &&
-            <div>{probabilityAnnualReviewWinner}% chance of annual review winner</div>
+          {annualReviewMarketInfo && annualReviewMarketInfo.probability &&
+            <div>{parseFloat((annualReviewMarketInfo.probability*100).toFixed(2))}% chance of {annualReviewMarketInfo.year} annual review winner</div>
           }
           <div>{baseScore ?? 0} karma</div>
           <div>({document.voteCount} votes)</div>

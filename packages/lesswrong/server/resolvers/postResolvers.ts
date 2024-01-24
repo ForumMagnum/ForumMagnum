@@ -36,6 +36,15 @@ const getDialogueMessageContents = async (post: DbPost, messageId: string): Prom
   return message.html();
 }
 
+addGraphQLSchema(`
+  type ReviewMarketInfoType {
+    id: String!,
+    probability: Float,
+    outcomeType: String!,
+    isResolved: Boolean!,
+    year: Int!,
+  }
+`)
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
