@@ -80,6 +80,12 @@ export type PostsItemConfig = {
 
 export type UsePostsItem = ReturnType<typeof usePostsItem>;
 
+const areNewComments = (lastCommentedAt : Date | null, lastVisitedAt: Date | null) => {
+  if (!lastCommentedAt) return false;
+  if (!lastVisitedAt) return true;
+  return lastVisitedAt < lastCommentedAt;
+}
+
 export const usePostsItem = ({
   post,
   tagRel = null,
@@ -140,10 +146,10 @@ export const usePostsItem = ({
   );
 
   const compareVisitedAndCommentedAt = (
-    lastVisitedAt: Date,
+    lastVisitedAt: Date | null,
     lastCommentedAt: Date | null,
   ) => {
-    const newComments = lastCommentedAt ? lastVisitedAt < lastCommentedAt : false;
+    const newComments = areNewComments(lastCommentedAt, lastVisitedAt)
     return (isRead && newComments && !readComments);
   }
 

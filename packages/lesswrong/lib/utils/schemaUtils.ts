@@ -202,7 +202,7 @@ export const resolverOnlyField = <N extends CollectionNameString>({
 }: ResolverOnlyFieldArgs<N>): CollectionFieldSpecification<N> => {
   const resolverType = graphQLtype || simplSchemaToGraphQLtype(type);
   if (!type || !resolverType)
-    throw new Error("Could not determine resolver graphQL type");
+    throw new Error("Could not determine resolver graphQL type:" + type + ' ' + graphQLtype);
   return {
     type: type,
     optional: true,

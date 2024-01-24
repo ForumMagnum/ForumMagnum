@@ -346,7 +346,7 @@ augmentFieldsDict(Tags, {
 augmentFieldsDict(TagRels, {
   autoApplied: {
     resolveAs: {
-      type: "Boolean",
+      type: "Boolean!",
       resolver: async (document: DbTagRel, args: void, context: ResolverContext) => {
         const tagBotUserId = await getTagBotUserId(context);
         if (!tagBotUserId) return false;
