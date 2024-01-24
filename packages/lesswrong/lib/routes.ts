@@ -1201,9 +1201,6 @@ addRoute(...forumSelect<Route[]>({
       name: 'inbox',
       path: '/inbox',
       componentName: 'InboxWrapper',
-      componentProps: {
-        friendlyInbox: false,
-      },
       title: "Inbox",
     },
     {
@@ -1217,9 +1214,6 @@ addRoute(...forumSelect<Route[]>({
       name: 'moderatorInbox',
       path: '/moderatorInbox',
       componentName: 'ModeratorInboxWrapper',
-      componentProps: {
-        friendlyInbox: false,
-      },
       title: "Moderator Inbox",
       fullscreen: true,
     },

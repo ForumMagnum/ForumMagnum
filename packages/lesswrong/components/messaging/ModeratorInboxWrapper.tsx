@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-const ModeratorInboxWrapper = ({friendlyInbox = isFriendlyUI}: { friendlyInbox: boolean }) => {
+const ModeratorInboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
 
@@ -24,7 +24,7 @@ const ModeratorInboxWrapper = ({friendlyInbox = isFriendlyUI}: { friendlyInbox: 
     return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} isModInbox />;
   }
 
-  const InboxComponent = friendlyInbox ? FriendlyInbox : InboxNavigation;
+  const InboxComponent = isFriendlyUI ? FriendlyInbox : InboxNavigation;
   return (
     <InboxComponent
       terms={terms}

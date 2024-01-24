@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
-import {isFriendlyUI} from '../../themes/forumTheme.ts'
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export type InboxComponentProps = {
   terms: ConversationsViewTerms;
@@ -12,7 +12,7 @@ export type InboxComponentProps = {
   classes: ClassesType;
 };
 
-const InboxWrapper = ({friendlyInbox = isFriendlyUI}: { friendlyInbox: boolean }) => {
+const InboxWrapper = () => {
   const currentUser = useCurrentUser();
   const { query, params } = useLocation();
 
@@ -35,7 +35,7 @@ const InboxWrapper = ({friendlyInbox = isFriendlyUI}: { friendlyInbox: boolean }
     return <FriendlyInbox terms={terms} currentUser={currentUser} conversationId={conversationId} />
   }
 
-  const InboxComponent = friendlyInbox ? FriendlyInbox : InboxNavigation;
+  const InboxComponent = isFriendlyUI ? FriendlyInbox : InboxNavigation;
   return <InboxComponent terms={terms} currentUser={currentUser}/>
 }
 
