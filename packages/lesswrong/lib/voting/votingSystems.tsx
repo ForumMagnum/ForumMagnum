@@ -342,7 +342,7 @@ function filterZeroes(obj: any) {
   return pickBy(obj, v=>!!v);
 }
 
-export function getVotingSystemByName(name: string | null): VotingSystem {
+export function getVotingSystemByName(name: string): VotingSystem {
   if (name && votingSystems[name])
     return votingSystems[name]!;
   else

@@ -449,7 +449,7 @@ const schema: SchemaType<"Posts"> = {
     type: 'String',
     graphQLtype: 'String!',
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) : string => postGetPageUrl(post, true),
+    resolver: (post: DbPost, args: void, context: ResolverContext): string => postGetPageUrl(post, true),
   }),
   
   pageUrlRelative: resolverOnlyField({

@@ -1540,7 +1540,7 @@ interface CommentsList { // fragment on Comments
   readonly promoted: boolean,
   readonly promotedByUser: UsersMinimumInfo|null,
   readonly directChildrenCount: number,
-  readonly votingSystem: string|null,
+  readonly votingSystem: string,
   readonly isPinnedOnProfile: boolean,
   readonly debateResponse: boolean | null,
   readonly rejected: boolean,

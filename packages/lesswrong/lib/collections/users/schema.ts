@@ -1251,7 +1251,7 @@ const schema: SchemaType<"Users"> = {
     graphQLtype: '[String!]',
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: async (user: DbUser, args: void, context: ResolverContext) : Promise<string[]> => {
+    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<string[]> => {
       const { currentUser, LWEvents } = context;
       const events: Array<DbLWEvent> = await LWEvents.find(
         {userId: user._id, name: 'login'},

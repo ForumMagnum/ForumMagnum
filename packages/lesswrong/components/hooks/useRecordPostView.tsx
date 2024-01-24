@@ -32,7 +32,7 @@ export const useRecordPostView = (post: ViewablePost): {recordPostView: any, isR
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();
   const {postsRead, setPostRead} = useItemsRead();
-  const isRead = post && ((post._id in postsRead) ? postsRead[post._id] : post.isRead ?? false)
+  const isRead = post && !!((post._id in postsRead) ? postsRead[post._id] : post.isRead)
   
   const recordPostView = useCallback(async ({post, extraEventProperties}) => {
     try {

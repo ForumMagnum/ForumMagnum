@@ -60,7 +60,7 @@ const schema: SchemaType<"Collections"> = {
     graphQLtype: 'Int!',
     type: Number,
     canRead: ['guests'],
-    resolver: async (collection: DbCollection, args: void, context: ResolverContext) : Promise<number> => {
+    resolver: async (collection: DbCollection, args: void, context: ResolverContext): Promise<number> => {
       const count = await getWithCustomLoader<number, string>(
         context,
         "collectionPostsCount",

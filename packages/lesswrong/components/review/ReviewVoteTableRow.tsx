@@ -216,7 +216,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   // note: this needs to be ||, not ??, because quadraticScore defaults to 0 rather than null
   const userReviewVote = post.currentUserReviewVote?.quadraticScore || qualitativeScoreDisplay;
 
-  const visitedDate = markedVisitedAt || post.lastVisitedAt
+  const visitedDate = markedVisitedAt ?? post.lastVisitedAt
   const unreadComments = visitedDate ? visitedDate < post.lastCommentedAt : true
 
   // TODO: debug reviewCount = null

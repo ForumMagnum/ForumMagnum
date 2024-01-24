@@ -310,7 +310,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
-  const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post && post.lastVisitedAt && new Date(post.lastVisitedAt));
+  const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);

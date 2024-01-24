@@ -77,8 +77,8 @@ const EAPostsItemTagRelevance = ({tagRel, classes}: {
     }
   }
 
-  const isUpvoted = document.currentUserVote ? document.currentUserVote?.indexOf("Up") > 0 : false;
-  const isDownvoted = document.currentUserVote ? document.currentUserVote?.indexOf("Down") > 0 : false;
+  const isUpvoted = document.currentUserVote ? document.currentUserVote.indexOf("Up") > 0 : false;
+  const isDownvoted = document.currentUserVote ? document.currentUserVote.indexOf("Down") > 0 : false;
 
   const {LWTooltip, ForumIcon} = Components;
 
