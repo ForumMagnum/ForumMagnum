@@ -10,7 +10,7 @@ import type { Option } from '../common/InlineSelect';
 import { getCommentViewOptions } from '../../lib/commentViewOptions';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 
-const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRestoreScrollPos?: Function}) => {
+const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRestoreScrollPos?: (pos: number) => void}) => {
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,10 +37,8 @@ const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRes
     const view = opt.value
     const { query } = location;
     const currentQuery = isEmpty(query) ? {view: 'postCommentsTop'} : query
-    const { commentId = undefined, ...newQuery } =  {...currentQuery, view: view, postId: post ? post._id : undefined}
-    if (setRestoreScrollPos) {
-      setRestoreScrollPos(window.scrollY - permalinkedCommentHeight());
-    }
+    const newQuery = {...currentQuery, view: view, postId: post ? post._id : undefined, commentId: undefined}
+    setRestoreScrollPos?.(window.scrollY - permalinkedCommentHeight());
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
   };
 
