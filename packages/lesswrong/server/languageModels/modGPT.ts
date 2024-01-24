@@ -147,59 +147,61 @@ async function checkModGPT(comment: DbComment): Promise<void> {
     })
     
     // if ModGPT recommends intervening, we collapse the comment and PM the comment author
-    if (rec === 'Intervene') {
-      const user = await Users.findOne(comment.userId)
-      if (!user) throw new Error(`Could not find ${comment.userId}`)
+    // 2024-01-18: We've temporarily disabled the user-facing components of ModGPT
+    // while we attempt reduce its false positive rate
+    // if (rec === 'Intervene') {
+    //   const user = await Users.findOne(comment.userId)
+    //   if (!user) throw new Error(`Could not find ${comment.userId}`)
 
-      const commentLink = commentGetPageUrlFromIds({
-        postId: comment.postId,
-        commentId: comment._id,
-        permalink: true,
-        isAbsolute: true
-      })
-      const flagMatches = topResult.match(/^Flag: (.+)/m)
-      const flag = (flagMatches?.length && flagMatches.length > 1) ? flagMatches[1] : undefined
+    //   const commentLink = commentGetPageUrlFromIds({
+    //     postId: comment.postId,
+    //     commentId: comment._id,
+    //     permalink: true,
+    //     isAbsolute: true
+    //   })
+    //   const flagMatches = topResult.match(/^Flag: (.+)/m)
+    //   const flag = (flagMatches?.length && flagMatches.length > 1) ? flagMatches[1] : undefined
       
-      // create a new conversation between the commenter and the admin team account
-      const adminsAccount = await getAdminTeamAccount()
-      if (!adminsAccount) throw new Error("Could not find admin account")
-      const conversationData = {
-        participantIds: [user._id, adminsAccount._id],
-        title: 'Your comment was auto-flagged'
-      }
-      const conversation = await createMutator({
-        collection: Conversations,
-        document: conversationData,
-        currentUser: adminsAccount,
-        validate: false
-      })
+    //   // create a new conversation between the commenter and the admin team account
+    //   const adminsAccount = await getAdminTeamAccount()
+    //   if (!adminsAccount) throw new Error("Could not find admin account")
+    //   const conversationData = {
+    //     participantIds: [user._id, adminsAccount._id],
+    //     title: 'Your comment was auto-flagged'
+    //   }
+    //   const conversation = await createMutator({
+    //     collection: Conversations,
+    //     document: conversationData,
+    //     currentUser: adminsAccount,
+    //     validate: false
+    //   })
       
-      const messageDocument = {
-        userId: adminsAccount._id,
-        contents: {
-          originalContents: {
-            type: "html",
-            data: getMessageToCommenter(user, commentLink, flag)
-          }
-        },
-        conversationId: conversation.data._id,
-      }
-      await createMutator({
-        collection: Messages,
-        document: messageDocument,
-        currentUser: adminsAccount,
-        validate: false
-      })
+    //   const messageDocument = {
+    //     userId: adminsAccount._id,
+    //     contents: {
+    //       originalContents: {
+    //         type: "html",
+    //         data: getMessageToCommenter(user, commentLink, flag)
+    //       }
+    //     },
+    //     conversationId: conversation.data._id,
+    //   }
+    //   await createMutator({
+    //     collection: Messages,
+    //     document: messageDocument,
+    //     currentUser: adminsAccount,
+    //     validate: false
+    //   })
       
-      // also add a note for mods
-      const context = createAdminContext();
-      await appendToSunshineNotes({
-        moderatedUserId: comment.userId,
-        adminName: "ModGPT",
-        text: `Intervened on comment ID=${comment._id}`,
-        context,
-      });
-    }
+    //   // also add a note for mods
+    //   const context = createAdminContext();
+    //   await appendToSunshineNotes({
+    //     moderatedUserId: comment.userId,
+    //     adminName: "ModGPT",
+    //     text: `Intervened on comment ID=${comment._id}`,
+    //     context,
+    //   });
+    // }
     
   } catch (error) {
     if (error instanceof OpenAI.APIError) {
@@ -227,8 +229,19 @@ async function checkModGPT(comment: DbComment): Promise<void> {
 }
 
 getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}) => {
-  if (!isEAForum || !newDocument.postId || newDocument.deleted) return
-  if (!oldDocument.contents.originalContents?.data || !newDocument.contents.originalContents?.data) return
+  // on the EA Forum, ModGPT checks earnest comments on posts for norm violations
+  if (
+    !isEAForum ||
+    !newDocument.postId ||
+    newDocument.deleted ||
+    newDocument.spam ||
+    newDocument.retracted ||
+    newDocument.shortform ||
+    !oldDocument.contents.originalContents?.data ||
+    !newDocument.contents.originalContents?.data
+  ) {
+    return
+  }
   
   const noChange = oldDocument.contents.originalContents.data === newDocument.contents.originalContents.data
   if (noChange) return
@@ -240,7 +253,17 @@ getCollectionHooks("Comments").updateAsync.add(async ({oldDocument, newDocument}
 })
 
 getCollectionHooks("Comments").createAsync.add(async ({document}) => {
-  if (!isEAForum || !document.postId || document.deleted) return
+  // on the EA Forum, ModGPT checks earnest comments on posts for norm violations
+  if (
+    !isEAForum ||
+    !document.postId ||
+    document.deleted ||
+    document.spam ||
+    document.retracted ||
+    document.shortform
+  ) {
+    return
+  }
   // only have ModGPT check comments on posts tagged with "Community"
   const postTags = (await Posts.findOne({_id: document.postId}))?.tagRelevance
   if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return

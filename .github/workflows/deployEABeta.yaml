@@ -3,7 +3,7 @@ concurrency: deploy-ea-beta
 on:
   workflow_dispatch:
   push:
-    branches: [wrapped-2023]
+    branches: [ea-deploy]
 jobs:
   deploy:
     runs-on: ubuntu-latest
