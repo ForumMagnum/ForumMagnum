@@ -3,25 +3,25 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { MutationOptions, getDefaultMutations } from '../../vulcan-core/default_mutations';
 import { schema } from './schema';
 import { userIsAdmin } from '../../vulcan-users';
+import { ensureIndex } from '../../collectionIndexUtils';
+
+export const reviewWinnerMutationOptions: MutationOptions<DbReviewWinner> = {
+  newCheck: (user: DbUser|null) => {
+    return userIsAdmin(user);
+  },
+
+  editCheck: (user: DbUser|null) => {
+    return userIsAdmin(user);
+  },
+
+  removeCheck: () => {
+    return false;
+  },
+}
 
 /**
  * This collection stores information about the LessWrong Annual Review winners, used primarily for sort orderings
  */
-
-export const reviewWinnerMutationOptions: MutationOptions<DbReviewWinner> = {
-  newCheck: (user: DbUser|null, document: DbReviewWinner|null) => {
-    return false
-  },
-
-  editCheck: (user: DbUser|null, document: DbReviewWinner|null) => {
-    return userIsAdmin(user)
-  },
-
-  removeCheck: (user: DbUser|null, document: DbReviewWinner|null) => {
-    return false
-  },
-}
-
 export const ReviewWinners = createCollection({
   collectionName: 'ReviewWinners',
   typeName: 'ReviewWinner',
@@ -34,5 +34,9 @@ export const ReviewWinners = createCollection({
 addUniversalFields({
   collection: ReviewWinners,
 });
+
+ensureIndex(ReviewWinners, { postId: 1 }, { unique: true });
+ensureIndex(ReviewWinners, { curatedOrder: 1 }, { unique: true });
+ensureIndex(ReviewWinners, { reviewYear: 1, reviewRanking: 1 }, { unique: true });
 
 export default ReviewWinners;

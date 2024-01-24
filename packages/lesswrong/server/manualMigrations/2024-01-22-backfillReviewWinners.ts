@@ -1,150 +1,175 @@
 import ReviewWinners from "../../lib/collections/reviewWinners/collection";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
-import { createMutator } from "../vulcan-lib";
+import { createAdminContext, createMutator } from "../vulcan-lib";
 import { registerMigration } from "./migrationUtils"
+import zip from 'lodash/zip'
 
-type ReviewWinnerPost = DbPost & {
-  collectionId: string;
-  bookId: string;
-  reviewYear: number;
-  rankWithinYear: number;
-};
-
-const BEST_OF_LESSWRONG_COLLECTION_ID = 'nmk3nLpQE89dMRzzN';
+const AI_TAG_ID = 'sYm3HiWcfZvrGu3ui';
 
 const reviewWinners2018 = [
-  [ 'Embedded Agents', 1 ],
-  [ 'The Rocket Alignment Problem', 2 ],
-  [ 'Local Validity as a Key to Sanity and Civilization', 3 ],
-  [ 'Arguments about fast takeoff', 4 ],
-  [ 'The Costly Coordination Mechanism of Common Knowledge', 5 ],
-  [ 'Anti-social Punishment', 7 ],
-  [ 'The Tails Coming Apart As Metaphor For Life', 8 ],
-  [ 'Babble', 9 ],
-  [ 'More Babble', 9 ],
-  [ 'Prune', 9 ],
-  [ 'The Loudest Alarm Is Probably False', 10 ],
-  [ 'The Intelligent Social Web', 11 ],
-  [ 'Prediction Markets: When Do They Work?', 12 ],
-  [ 'Coherence arguments do not imply goal-directed behavior', 13 ],
-  [ 'Is Science Slowing Down?', 14 ],
-  [ 'Robustness to Scale', 15.5 ],
-  [ 'A voting theory primer for rationalists', 15.5 ],
-  [ 'Toolbox-thinking and Law-thinking', 17 ],
-  [ 'A Sketch of Good Communication', 18 ],
-  [ "Paul's research agenda FAQ", 20 ],
-  [ 'An Untrollable Mathematician', 22 ],
-  [ 'Varieties Of Argumentative Experience', 24 ],
-  [ 'Specification gaming examples in AI', 24 ],
-  [ 'Meta-Honesty: Firming Up Honesty Around Its Edge-Cases', 26 ],
-  [
-    'My attempt to explain Looking, insight meditation, and enlightenment in non-mysterious terms',
-    28
-  ],
-  [ 'Naming the Nameless', 28 ],
-  [ 'Inadequate Equilibria vs. Governance of the Commons', 28 ],
-  [ 'Noticing the Taste of Lotus', 32.5 ],
-  [ 'The Pavlov Strategy', 32.5 ],
-  [ 'Being a Robust Agent', 32.5 ],
-  [ 'Spaghetti Towers', 35 ],
-  [ 'Beyond Astronomical Waste', 36.5 ],
-  [ 'Research: Rescuers during the Holocaust', 36.5 ],
-  [ 'Open question: are minimal circuits daemon-free?', 38.5 ],
-  [ 'On the Loss and Preservation of Knowledge', 40 ],
-  [ 'Is Clickbait Destroying Our General Intelligence?', 41 ],
-  [ 'What makes people intellectually active?', 42 ],
-  [ 'Why did everything take so long?', 43 ],
-  [
-    'Challenges to Christiano’s capability amplification proposal',
-    44
-  ],
-  [
-    'Historical mathematicians exhibit a birth order effect too',
-    63.5
-  ],
-  [ 'Towards a New Impact Measure', 63.5 ],
-  [ 'Birth order effect found in Nobel Laureates in Physics', 73 ]
+  'X5RyaEDHNq5qutSHK',
+  '5bd75cc58225bf0670375533',
+  'AfGmsjGPXN97kNp57',
+  'yeADMcScw8EW9yxpH',
+  'D6trAzh6DApKPhbv4',
+  'i42Dfoh4HtsCAfXxL',
+  '2jfiMgKkh7qw9z8Do',
+  'Qz6w4GYZpgeDp6ATB',
+  'QTLTic5nZ2DaBtoCv',
+  'S7csET9CgBtpi7sCh',
+  'NxF5G6CJiof6cemTw',
+  'p7x32SEt43ZMC9r7r',
+  'tj8QP2EFdP8p54z6i',
+  '2G8j8D5auZKKAjSfY',
+  'YicoiQurNBxSp7a65',
+  'v7c47vjta3mavY3QC',
+  'WQFioaudEH8R7fyhm',
+  'xdwbX9pFEr7Pomaxv',
+  'wQACBmK5bioNCgDoG',
+  'mELQFMi9egPn5EAjK',
+  '4ZwGqkMTyAvANYEDw',
+  'KwdcMts8P8hacqwrX',
+  'nnNdz7XQrd5bWTgoP',
+  'nyCHnY7T5PHPLjxmN',
+  'Djs38EWYZG8o7JMWY',
+  'a4jRN9nbD79PAhWTB',
+  'rYJKvagRYeDM8E9Rf',
+  'BhXA6pvAbsFz3gvn4',
+  'bBdfbWfWxHN9Chjcq',
+  'NQgWL7tvAPgN2LTLn',
+  'AanbbjYr5zckMKde7',
+  '9QxnfMYccz9QRgZ5z',
+  'AqbWna2S85pFTsHH4',
+  'B2CfMNfay2P8f2yyc',
+  '3rxMBRCYEmHCNDLhu',
+  'Gg9a4y8reWKtLe3Tn',
+  'asmZvCPHcB4SkSCMW',
+  'CPP2uLcaywEokFKQG',
+  'yEa7kwoMpsBgaBCgb',
+  'NLBbCQeNLFvBJJkrt',
+  'XYYyzgyuRH5rFN64K',
+  'mFqG58s4NE3EE68Lq'
 ];
 
 const reviewWinners2019 = [
-  [ 'What failure looks like', 1 ],
-  [ 'Risks from Learned Optimization: Introduction', 2 ],
-  [ 'The Parable of Predict-O-Matic', 3 ],
-  [ 'Being the (Pareto) Best in the World', 4.5 ],
-  [ 'Book Review: The Secret Of Our Success', 4.5 ],
-  [ 'Rule Thinkers In, Not Out', 6 ],
-  [ 'Book summary: Unlocking the Emotional Brain', 7 ],
-  [ 'Asymmetric Justice', 8.5 ],
-  [
-    'Heads I Win, Tails?—Never Heard of Her; Or, Selective Reporting and the Tragedy of the Green Rationalists',
-    8.5
-  ],
-  [ 'Selection vs Control', 11.5 ],
-  [ `You Get About Five Words`, 11.5 ],
-  [ 'The Schelling Choice is "Rabbit", not "Stag"', 13 ],
-  [ 'Noticing Frame Differences', 14 ],
-  [ `Yes Requires the Possibility of No
-`, 15 ],
-  [ '"Other people are wrong" vs "I am right"', 16 ],
-  [ 'Rest Days vs Recovery Days', 17 ],
-  [`Seeking Power is Often Convergently Instrumental in MDPs`, 18.5],
-  [ `Chris Olah’s views on AGI safety`, 20.5 ],
-  [
-    'Reframing Superintelligence: Comprehensive AI Services as General Intelligence',
-    22
-  ],
-  [ 'The strategy-stealing assumption', 23.5 ],
-  [ 'Reframing Impact', 26.5 ],
-  [ 'Understanding “Deep Double Descent”', 26.5 ],
-  [ `Moloch Hasn’t Won`, 26.5 ],
-  [
-    'Integrity and accountability are core parts of rationality',
-    26.5
-  ],
-  [ 'Gears-Level Models are Capital Investments', 30.5 ],
-  [ 'In My Culture', 30.5 ],
-  [ 'Make more land', 30.5 ],
-  [ 'Forum participation as a research strategy', 30.5 ],
-  [ 'Unconscious Economics', 33 ],
-  [ 'Mistakes with Conservation of Expected Evidence', 34.5 ],
-  [ 'Bioinfohazards', 34.5 ],
-  [ 'Excerpts from a larger discussion about simulacra', 37 ],
-  [ 'human psycholinguists: a critical appraisal', 38 ],
-  [ 'AI Safety "Success Stories"', 40 ],
-  [ 'Do you fear the rock or the hard place?', 40 ],
-  [ 'Propagating Facts into Aesthetics', 40 ],
-  [ 'Gradient hacking', 42 ],
-  [ 'The Amish, and Strategic Norms around Technology', 44 ],
-  [ 'Power Buys You Distance From The Crime', 44 ],
-  [ 'Paper-Reading for Gears', 44 ],
-  [
-    "How to Ignore Your Emotions (while also thinking you're awesome at emotions)",
-    48.5
-  ],
-  [ 'The Real Rules Have No Exceptions', 48.5 ],
-  [ 'Coherent decisions imply consistent utilities', 48.5 ],
-  [ 'Alignment Research Field Guide', 48.5 ],
-  [ 'Blackmail', 48.5 ],
-  [ 'The Curse Of The Counterfactual', 48.5 ],
-  [ 'The Credit Assignment Problem', 52.5 ],
-  [ "Reason isn't magic", 52.5 ],
-  [ 'Mental Mountains', 54 ],
-  [ 'Simple Rules of Law', 56.5 ],
-  [ 'Is Rationalist Self-Improvement Real?', 56.5 ],
-  [ 'Literature Review: Distributed Teams', 56.5 ],
-  [ 'Steelmanning Divination', 59 ],
-  [ 'Book Review: Design Principles of Biological Circuits', 60 ],
-  [ 'Building up to an Internal Family Systems model', 61 ],
-  [ 'Evolution of Modularity', 62 ],
-  [ "[Answer] Why wasn't science invented in China?", 63 ],
-  [ 'Gears vs Behavior', 79 ]
+  'bnY3L48TtDrKTzGRb', 'PqMT9zGrNsGJNfiFR', '8SEvTvYFX2KDRZjti',
+  'YRgMCXMbkKBZgMz4M', 'XvN2QQpKTuEzgkZHY', 'ygFc4caQ6Nws62dSW',
+  'EYd63hYSzadcNnZTD', 'bNXdnRTpSXk9p4zmi', 'Zm7WAJMTaFvuh2Wc7',
+  'i9xyZBS3qzA8nFXNQ', '5gfqG3Xcopscta3st', 'X2i9dQQK3gETCyqh2',
+  'RQpNHSiWaXTvDxt6R', 'cM8GNMpzfKCkPnd5v', 'JBFHzfPkXHB2XfDGj',
+  '8XDZjfThxDxLvKWiM', 'rBkZvbGDQZhEymReM', 'nEBbw2Bc2CnN2RMxy',
+  'gvK5QWRLk3H8iqcNy', 'uXH4r6MmKPedk8rMA', 'DoPo4PDjgSySquHX8',
+  'qmXqHKpgRfg83Nif9', 'ZFtesgbY9XwtqqyZ5', '4EGYhyyJXSnE7xJ9H',
+  'xhE4TriBSPywGuhqi', '8xLtE3BwgegJ7WBbf', 'f2GF3q6fgyx8TqZcn',
+  'vKErZy7TFhjxtyBuG', 'JJFphYfMsdFMuprBy', 'zTfSXQracE7TW8x4w',
+  'ham9i5wf4JCexXnkN', 'f886riNJcArmpFahm', '4QemtxDFaGXyGSrGD',
+  'TPjbTXntR54XSZ3F2', '9fB4gvoooNYa4t56S', 'YN6daWakNnkXEeznB',
+  'TMFNQoRZxM4CuRCY6', 'xCxeBSHqMEaP3jDvY', 'x3fNwSe5aWZb5yXEG',
+  'ximou2kyQorm6MPjX', 'FkgsxrGf3QxhfLWHG', 'u8GMcpEN9Z6aQiCvp',
+  '6DuJxY8X45Sco4bS2', 'ZDZmopKquzHYPRNxq', 'kKSFsbjdX3kxsYaTM',
+  'fnkbdwckdfHS2H22Q', '36Dhz325MZNq3Cs6B', 'Ajcq9xWi2fmgn8RBJ',
+  'E4zGWYzh6ZiG85b2z', 'SwcyMEgLyd4C3Dern', 'duxy4Hby5qMsv42i8',
+  'zp5AEENssb8ZDnoZR', 'nRAMpjnb6Z4Qv3imF', 'PrCmeuBPC4XLDQz8C',
+  'FRv7ryoqtvSuqBxuT', 'HBxe6wdjxK239zajf', 'G5TwJ9BGxcgh5DsmQ',
+  '4ZvJab25tDebB8FGE'
 ];
 
-const getReviewYear = (bookId: string) => {
-  switch (bookId) {
+const reviewWinners2020 = [
+  'KrJfoZzpSDpnrv9va',
+  'fRsjBseRuvRhMPPE5',
+  'wEebEiPpEwjYvnyqq',
+  'krarE7WFijAtHf3hm',
+  'Nwgdq6kHke5LY692J',
+  'Tr7tAyt5zZpdTwTQK',
+  '5okDRahtDewnWfFmz',
+  'bx3gkHJehRCYZAF3r',
+  'znfkdCoHMANwqc2WE',
+  'qDmnyEMtJkE9Wrpau',
+  'YABJKJ3v97k9sbxwg',
+  '8xRSjC76HasLnMGSf',
+  'gQY6LrTWJNkTv8YJR',
+  'P6fSj3t4oApQQTB7E',
+  'ZyWyAJbedvEgRT2uF',
+  'ivpKSjM4D6FbqF4pZ',
+  'diruo47z32eprenTg',
+  'AHhCrJ2KpTjsCSwbt',
+  'aFaKhG86tTrKvtAnT',
+  'RcifQCKkRc9XTjxC2',
+  'hyShz2ABiKX56j5tJ',
+  'KkwtLtroaNToWs2H6',
+  'A8iGaZ3uHNNGgJeaD',
+  'D4hHASaZuLCW92gMy',
+  'zB4f7QqKhBHa5b37a',
+  'xJyY5QkQvNJpZLJRo',
+  'byewoxJiAfwE6zpep',
+  'q3JY4iRzjq56FyjGF',
+  'hvGoYXi2kgnS3vxqb',
+  'r3NHPD3dLFNk9QE2Y',
+  'rz73eva3jv267Hy7B',
+  'CeZXDmp8Z363XaM6b',
+  'YcdArE79SDxwWAuyF',
+  'WFopenhCXyHX3ukw3',
+  '4K5pJnKBGkqqTbyxx',
+  'L6Ktf952cwdMJnzWm',
+  'eccTPEonRe4BAvNpD',
+  'sTwW3QLptTQKuyRXx',
+  'sT6NxFxso6Z9xjS7o',
+  'N9oKuQKuf7yvCCtfq',
+  'x6hpkYyzMG6Bf8T3W',
+  'GZSzMqr8hAB2dR8pk',
+  '4s2gbwMHSdh2SByyZ',
+  'JPan54R525D68NoEt',
+  'nNqXfnjiezYukiMJi',
+  'ax695frGJEzGxFBK4'
+];
 
-  }
-}
+const reviewWinners2021 = [
+  'JD7fwtRQ27yc8NoqS',
+  'SWxnP5LZeJzuT3ccd',
+  'MzKKi7niyEqkBPnyu',
+  'qHCDysDnvhteW7kRd',
+  '5FZxhdi6hZp8QwK7k',
+  'qc7P2NwfxQMC3hdgm',
+  'gNodQGNoPDjztasbh',
+  'rzqACeBGycZtqCfaX',
+  '6Xgy6CAf2jqHhynHL',
+  '7im8at9PmhbT4JHsW',
+  'Psr9tnQFuEXiuqGcR',
+  '4XRjPocTprL4L8tmB',
+  'DQKgYhEYP86PLW7tZ',
+  '2cYebKxNp47PapHTL',
+  'niQ3heWwF6SydhS7R',
+  'BcYfsi7vmhDvzQGiF',
+  'F5ktR95qqpmGXXmLq',
+  'AyNHoTWWAJ5eb99ji',
+  't2LGSDwT7zSnAGybG',
+  'LpM3EAakwYdS6aRKf',
+  'fRwdkop6tyhi3d22L',
+  '3L46WGauGpr7nYubu',
+  'hNqte2p48nqKux3wS',
+  'N5Jm6Nj4HkNKySA5Z',
+  'G2Lne2Fi7Qra5Lbuf',
+  '3qX2GipDuCq5jstMG',
+  'EF5M6CmKRd6qZk27Z',
+  'DtcbfwSrcewFubjxp',
+  '57sq9qA3wurjres4K',
+  'tTWL6rkfEuQN9ivxj',
+  'dYspinGtiba5oDCcv',
+  'vQKbgEKjGZcpbCqDs',
+  'pv7Qpu8WSge8NRbpB',
+  'cujpciCqNbawBihhQ',
+  'cCMihiwtZx7kdcKgt',
+  'o4cgvYmNZnfS4xhxL',
+  'tF8z9HBoBn783Cirz',
+  'vLRxmYCKpmZAAJ3KC',
+  'mRwJce3npmzbKfxws',
+  'XtRAkvvaQSaQEyASj',
+  '9cbEPEuCa9E7uHMXT',
+  'CSZnj2YNMKGfsMbZA',
+  'X79Rc5cA5mSWBexnd',
+  'Cf2xxC3Yx9g6w7yXN',
+  'ThvvCE2HsLohJYd7b'
+];
 
 registerMigration({
   name: "backfillReviewWinners",
@@ -153,66 +178,53 @@ registerMigration({
   action: async () => {
     const db = getSqlClientOrThrow();
 
-    const reviewWinner20And21Posts = await db.any<ReviewWinnerPost>(`
-      WITH review_winners AS (
-        SELECT
-          b._id AS "bookId",
-          p.*
-        FROM "Collections" c
-        JOIN "Books" b
-          ON b."collectionId" = c._id
-        JOIN LATERAL UNNEST(b."sequenceIds") AS sequence_id
-          ON TRUE
-        JOIN "Sequences" s
-          ON s._id = sequence_id
-        JOIN "Chapters" ch
-          ON s._id = ch."sequenceId"
-        JOIN LATERAL UNNEST(ch."postIds") AS post_id
-          ON TRUE
-        JOIN "Posts" p
-          ON p._id = post_id
-        WHERE c._id = 'nmk3nLpQE89dMRzzN'
-      )
-      SELECT
-        (
-          SELECT
-            COALESCE(MIN(rv.year::SMALLINT), 2018)
-          FROM "ReviewVotes" rv
-          WHERE rv."postId" IN (
-            SELECT _id
-            FROM review_winners rw2
-            WHERE rw2."bookId" = rw."bookId"
-          )
-        ) AS "reviewYear",
-        rw."finalReviewVoteScoreHighKarma",
-        (ROW_NUMBER() OVER (PARTITION BY rw."bookId" ORDER BY rw."finalReviewVoteScoreHighKarma" DESC) - 1) AS "rankWithinYear",
-        rw.title
-      FROM review_winners rw
-      WHERE (
-        SELECT
-          COALESCE(MIN(rv.year::SMALLINT), 2018)
-        FROM "ReviewVotes" rv
-        WHERE rv."postId" IN (
-          SELECT _id
-          FROM review_winners rw2
-          WHERE rw2."bookId" = rw."bookId"
-        )
-      ) > 2019
-      GROUP BY 2, 4
-      ORDER BY 1 ASC, 3 ASC
-    `, [BEST_OF_LESSWRONG_COLLECTION_ID]);
+    const naiveTotalIdRanking = zip(reviewWinners2018, reviewWinners2019, reviewWinners2020, reviewWinners2021).flat().filter((id): id is string => !!id);
 
-    reviewWinner20And21Posts.map(reviewWinnerPost => {
-      const { collectionId, bookId, reviewYear, rankWithinYear, ...post } = reviewWinnerPost;
-      return createMutator({
-        collection: ReviewWinners,
-        document: {
-          postId: post._id,
-          reviewYear,
-          reviewRanking: rankWithinYear,
-          // TODO
-        }
-      });
-    });
+    // eslint-disable-next-line no-console
+    console.log(`Starting to create ${naiveTotalIdRanking.length} ReviewWinners`);
+
+    const naiveAiPostIds = await db.any<{ _id: string }>(`
+      SELECT _id
+      FROM "Posts"
+      WHERE ("tagRelevance" -> '${AI_TAG_ID}')::INT > 0
+      AND _id IN ($1:csv)
+    `, [naiveTotalIdRanking]);
+
+    // eslint-disable-next-line no-console
+    console.log(`Found ${naiveAiPostIds.length} posts tagged as AI posts`);
+
+    const naiveAiPostIdSet = new Set(naiveAiPostIds.map(({ _id }) => _id));
+
+    const allReviewWinnersByYear = [
+      [reviewWinners2018, 2018],
+      [reviewWinners2019, 2019],
+      [reviewWinners2020, 2020],
+      [reviewWinners2021, 2021]
+    ] as const;
+
+    const adminContext = createAdminContext();
+
+    for (let [reviewWinnerIds, reviewYear] of allReviewWinnersByYear) {
+      // eslint-disable-next-line no-console
+      console.log(`Starting to create ${reviewWinnerIds.length} ReviewWinners for year ${reviewYear}`);
+
+      await Promise.all(reviewWinnerIds.map((reviewWinnerPostId, idx) => {
+        const naiveCuratedOrder = naiveTotalIdRanking.indexOf(reviewWinnerPostId);
+        const naiveIsAI = naiveAiPostIdSet.has(reviewWinnerPostId);
+
+        return createMutator({
+          collection: ReviewWinners,
+          document: {
+            postId: reviewWinnerPostId,
+            reviewYear,
+            reviewRanking: idx,
+            curatedOrder: naiveCuratedOrder,
+            isAI: naiveIsAI
+          },
+          context: adminContext,
+          currentUser: adminContext.currentUser
+        });
+      }));
+    }
   }
 })
