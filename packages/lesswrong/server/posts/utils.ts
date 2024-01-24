@@ -63,11 +63,6 @@ const postGetMarketInfoFromManifold = async (post: DbPost): Promise<MarketInfo|n
 
     // do we want this error to get thrown here?
     if (fullMarket.outcomeType !== "BINARY") throw new Error(`Market ${post.manifoldReviewMarketId} is not a binary market`);
-
-    // const id = fullMarket.id
-    // const probability = fullMarket.probability
-    // const outcomeType = fullMarket.outcomeType
-    // const isResolved = fullMarket.isResolved
   
     return {id:fullMarket.id, probability:fullMarket.probability, outcomeType:fullMarket.outcomeType, isResolved:fullMarket.isResolved}
 }
