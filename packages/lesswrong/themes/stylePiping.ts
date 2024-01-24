@@ -167,12 +167,15 @@ const tableStyles = (theme: ThemeType): JssStyles => ({
   height: "100%",
   textAlign: "left",
   width: '100%',
-  "& *": isFriendlyUI
-    ? {
+  ...(isFriendlyUI && {
+    "& *": {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 14,
-    }
-    : {},
+    },
+    "& ul": {
+      paddingLeft: "2em",
+    },
+  }),
 });
 
 const tableCellStyles = (theme: ThemeType): JssStyles => ({
@@ -181,7 +184,12 @@ const tableCellStyles = (theme: ThemeType): JssStyles => ({
   border: theme.palette.border.tableCell,
   '& p': {
     marginTop: '0.5em',
-    marginBottom: '0.5em'
+    marginBottom: '0.5em',
+    ...(isFriendlyUI && {
+      marginLeft: 4,
+      marginRight: 4,
+      lineHeight: "1.65em",
+    }),
   },
   '& p:first-of-type': {
     marginTop: 0
