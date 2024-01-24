@@ -1,12 +1,7 @@
 import { addCronJob } from '../cronUtil';
 import { Posts } from '../../lib/collections/posts';
 import * as _ from 'underscore';
-import { Comments } from '../../lib/collections/comments';
-import { createAdminContext, createMutator } from '../vulcan-lib';
-import { DatabaseServerSetting } from '../databaseSettings';
-import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
-import Tags from "../../lib/collections/tags/collection";
-import Users from "../../lib/collections/users/collection";
+
 
 addCronJob({
   name: 'checkScheduledPosts',
@@ -28,4 +23,3 @@ addCronJob({
     }
   }
 });
-
