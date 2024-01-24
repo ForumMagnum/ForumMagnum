@@ -40,11 +40,11 @@ export const getDialogueMessageTimestamps = (post: DbPost): Date[] => {
   return timestamps
 }
 
-interface marketInfo {
+export type MarketInfo = {
   id: string;
   probability: number | null;
   outcomeType: string;
-  isResolved: boolean
+  isResolved: boolean;
 }
 
 const postGetMarketInfoFromManifold = async (post: DbPost): Promise<marketInfo|null> => {
