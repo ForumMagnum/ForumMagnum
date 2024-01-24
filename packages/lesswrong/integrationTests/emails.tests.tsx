@@ -76,10 +76,10 @@ describe('renderEmail', () => {
         collectionName: "Posts",
         fragmentName: 'PostsRevision',
         extraVariables: {
-          postVersion: 'String'
+          version: 'String'
         },
         extraVariablesValues: {
-          postVersion: null,
+          version: null,
         },
       });
       return <div>{document?.title}</div>;
@@ -101,10 +101,10 @@ describe('renderEmail', () => {
         collectionName: "Posts",
         fragmentName: 'PostsRevision',
         extraVariables: {
-          version: 'String!'
+          version: 'String'
         },
         extraVariablesValues: {
-          version: "draft",
+          version: null,
         },
       });
       return <div>{document?.title}</div>

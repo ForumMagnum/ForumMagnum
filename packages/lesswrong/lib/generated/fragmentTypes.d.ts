@@ -1263,13 +1263,13 @@ interface PostsPlaintextDescription_contents { // fragment on Revisions
 }
 
 interface PostsRevision extends PostsDetails { // fragment on Posts
-  readonly version: string,
+  readonly version: string|null,
   readonly contents: RevisionDisplay|null,
   readonly revisions: Array<RevisionMetadata>,
 }
 
 interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
-  readonly version: string,
+  readonly version: string|null,
   readonly contents: RevisionEdit|null,
   readonly revisions: Array<RevisionMetadata>,
 }
@@ -1318,7 +1318,7 @@ interface PostSequenceNavigation_nextPost_sequence { // fragment on Sequences
 }
 
 interface PostsPage extends PostsDetails { // fragment on Posts
-  readonly version: string,
+  readonly version: string|null,
   readonly contents: RevisionDisplay|null,
   readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
@@ -1328,7 +1328,7 @@ interface PostsPage extends PostsDetails { // fragment on Posts
 interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
-  readonly version: string,
+  readonly version: string|null,
   readonly coauthorStatuses: Array<{
     userId: string,
     confirmed: boolean,

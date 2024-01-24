@@ -249,7 +249,7 @@ export const makeEditable = <N extends CollectionNameString>({
       canRead: ['guests'],
       optional: true,
       resolveAs: {
-        type: 'String!',
+        type: 'String',
         resolver: (post: ObjectsByCollectionName[N]): string => {
           return (post as AnyBecauseTodo)[fieldName || "contents"]?.version
         }
