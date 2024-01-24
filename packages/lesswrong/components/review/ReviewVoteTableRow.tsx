@@ -153,6 +153,12 @@ const styles = (theme: ThemeType) => ({
 
 export type voteTooltipType = 'Showing votes by 1000+ Karma LessWrong users'|'Showing all votes'|'Showing votes from Alignment Forum members'
 
+const hasUnreadComments = (visitedDate : Date|null, lastCommentedAt : Date | null) => {
+  if (!lastCommentedAt) return false
+  if (!visitedDate) return true
+  return visitedDate < lastCommentedAt
+}
+
 const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
   post: PostsReviewVotingList,
   costTotal?: number,
@@ -217,7 +223,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   const userReviewVote = post.currentUserReviewVote?.quadraticScore || qualitativeScoreDisplay;
 
   const visitedDate = markedVisitedAt ?? post.lastVisitedAt
-  const unreadComments = visitedDate ? visitedDate < post.lastCommentedAt : true
+  const unreadComments = hasUnreadComments(visitedDate, post.lastCommentedAt)
 
   // TODO: debug reviewCount = null
   return <AnalyticsContext pageElementContext="voteTableRow">
