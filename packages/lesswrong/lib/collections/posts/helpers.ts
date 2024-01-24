@@ -254,33 +254,6 @@ export const postGetKarma = (post: PostsBase|DbPost): number => {
   return baseScore || 0
 }
 
-// export const postGetPredictedReviewWinner = async (post: PostsBase|DbPost): Promise<boolean> => {
-//   if (!post.manifoldReviewMarketId) return false
-
-//   try {
-    
-//     const result = await fetch(`https://api.manifold.markets./v0/market/${post.manifoldReviewMarketId}` , {
-//       method: "GET",
-//       headers: {
-//         "content-type": "application/json"
-//       },
-//     })
-
-    
-//     const fullMarket = await result.json() // don't run this and also await result.text(), weirdly that causes the latter one to explode
-
-//     if (!result.ok) throw new Error(`HTTP error! status: ${result.status}`);
-//     if (fullMarket.outcomeType !== "BINARY") throw new Error(`Market ${post.manifoldReviewMarketId} is not a binary market`);
-
-//     return fullMarket.probability > 0.5
-    
-//   } catch (error) {
-//     //eslint-disable-next-line no-console
-//     console.error('There was a problem with the fetch operation for creating a Manifold Market: ', error);
-//     return false
-//   }
-// }
-
 // User can add/edit the hideCommentKarma setting if:
 //  1) The user is logged in and has the requisite setting enabled
 //  And
