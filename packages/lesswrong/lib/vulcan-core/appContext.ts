@@ -100,9 +100,7 @@ export function parseRoute({location, followRedirects=true, onError=null}: {
   const RouteComponent = currentRoute?.componentName ? Components[currentRoute.componentName] : Components.Error404;
   const result: RouterLocation = {
     currentRoute: currentRoute!, //TODO: Better null handling than this
-    RouteComponent: (props: AnyBecauseHard) => React.createElement(RouteComponent, {...currentRoute?.componentProps, ...props}), 
-    location, 
-    params,
+    RouteComponent: () => React.createElement(RouteComponent, currentRoute?.componentProps), location, params,
     pathname: location.pathname,
     url: location.pathname + location.search + location.hash,
     hash: location.hash,
