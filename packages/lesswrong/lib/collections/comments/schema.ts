@@ -420,7 +420,8 @@ const schema: SchemaType<"Comments"> = {
   }),
   
   votingSystem: resolverOnlyField({
-    type: String,
+    type: 'String',
+    graphQLtype: 'String!',
     canRead: ['guests'],
     resolver: (comment: DbComment, args: void, context: ResolverContext): Promise<string> => {
       return getVotingSystemNameForDocument(comment, context)
