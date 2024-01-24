@@ -35,11 +35,12 @@ augmentFieldsDict(Revisions, {
   markdown: {
     type: String,
     resolveAs: {
-      type: 'String!',
-      resolver: ({originalContents}): string => originalContents
+      type: 'String',
+      resolver: ({originalContents}): string | null => originalContents
         ? dataToMarkdown(originalContents.data, originalContents.type)
         : null,
-    }
+    },
+    nullable: true,
   },
   draftJS: {
     type: Object,
