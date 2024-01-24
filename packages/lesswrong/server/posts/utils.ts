@@ -47,7 +47,7 @@ export type MarketInfo = {
   isResolved: boolean;
 }
 
-const postGetMarketInfoFromManifold = async (post: DbPost): Promise<marketInfo|null> => {
+const postGetMarketInfoFromManifold = async (post: DbPost): Promise<MarketInfo|null> => {
   if (!post.manifoldReviewMarketId) return null;
 
     const result = await fetch(`https://api.manifold.markets./v0/market/${post.manifoldReviewMarketId}` , {
@@ -75,7 +75,7 @@ const postGetMarketInfoFromManifold = async (post: DbPost): Promise<marketInfo|n
 
 // Define a type for the cache item
 interface CacheItem {
-  marketInfo: marketInfo | null;
+  marketInfo: MarketInfo | null;
   lastUpdated: Date;
 }
 // Define a type for the cache object
