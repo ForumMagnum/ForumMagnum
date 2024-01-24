@@ -121,6 +121,7 @@ registerFragment(`
     reviewVoteCount
     positiveReviewVoteCount
     manifoldReviewMarketId
+    probabilityReviewWinner
 
     group {
       _id

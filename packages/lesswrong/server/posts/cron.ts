@@ -8,7 +8,6 @@ import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import Tags from "../../lib/collections/tags/collection";
 import Users from "../../lib/collections/users/collection";
 
-
 addCronJob({
   name: 'checkScheduledPosts',
   interval: 'every 10 minutes',
@@ -29,7 +28,6 @@ addCronJob({
     }
   }
 });
-
 
 const manifoldAPIKeySetting = new DatabaseServerSetting<string | null>('manifold.reviewBotKey', null)
 const manifoldAPIKey = manifoldAPIKeySetting.get()

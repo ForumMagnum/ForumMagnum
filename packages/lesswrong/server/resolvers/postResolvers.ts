@@ -14,7 +14,7 @@ import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
-import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
+import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps, getPostProbabilityReviewWinner } from "../posts/utils";
 import { getLatestRev } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
@@ -242,7 +242,15 @@ augmentFieldsDict(Posts, {
         return getDialogueMessageContents(post, dialogueMessageId)
       }
     }
-  }
+  },
+  probabilityReviewWinner: {
+    resolveAs: {
+      type: 'Float',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        return getPostProbabilityReviewWinner(post)
+      }
+    }
+  },
 })
 
 

@@ -358,6 +358,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showReviewCount,
     showIcons,
     showKarma,
+    karmaPredictedReviewWinner,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,
@@ -425,7 +426,12 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             )}
           >
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
-            {showKarma && <PostsItem2MetaInfo className={classes.karma}>
+            {showKarma && <PostsItem2MetaInfo className={classNames(
+                classes.karma, {
+                  [classes.karmaPredictedReviewWinner]: karmaPredictedReviewWinner
+                }
+              )}
+              >
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
                 : <KarmaDisplay document={post} />

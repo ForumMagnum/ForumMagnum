@@ -867,6 +867,14 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
   },
 
+  probabilityReviewWinner: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    // Implementation in postResolvers.ts
+  },
+
   lastCommentPromotedAt: {
     type: Date,
     optional: true,
