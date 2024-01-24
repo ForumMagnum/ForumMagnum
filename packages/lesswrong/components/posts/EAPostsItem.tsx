@@ -346,7 +346,7 @@ const EAPostsItem = ({
                 terms={commentTerms}
                 post={post}
                 treeOptions={{
-                  highlightDate: post.lastVisitedAt,
+                  highlightDate: post.lastVisitedAt ?? undefined,
                   condensed: condensedAndHiddenComments,
                 }}
               />

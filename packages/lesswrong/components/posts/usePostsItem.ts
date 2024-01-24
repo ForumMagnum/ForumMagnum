@@ -140,10 +140,10 @@ export const usePostsItem = ({
   );
 
   const compareVisitedAndCommentedAt = (
-    lastVisitedAt: Date,
+    lastVisitedAt: Date | null,
     lastCommentedAt: Date | null,
   ) => {
-    const newComments = lastCommentedAt ? lastVisitedAt < lastCommentedAt : false;
+    const newComments = lastCommentedAt ? lastVisitedAt ? lastVisitedAt < lastCommentedAt : true : false;
     return (isRead && newComments && !readComments);
   }
 

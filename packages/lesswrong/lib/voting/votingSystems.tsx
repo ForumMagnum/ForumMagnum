@@ -342,8 +342,8 @@ function filterZeroes(obj: any) {
   return pickBy(obj, v=>!!v);
 }
 
-export function getVotingSystemByName(name: string): VotingSystem {
-  if (votingSystems[name])
+export function getVotingSystemByName(name: string | null): VotingSystem {
+  if (name && votingSystems[name])
     return votingSystems[name]!;
   else
     return getDefaultVotingSystem();
