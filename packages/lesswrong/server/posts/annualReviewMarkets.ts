@@ -10,7 +10,7 @@ const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReview
     },
   })
 
-  const fullMarket = await result.json() // don't run this and also await result.text(), weirdly that causes the latter one to explode
+  const fullMarket = await result.json()
 
   if (!result.ok) throw new Error(`HTTP error! status: ${result.status}`);
 
