@@ -46,12 +46,12 @@ async function updateMarketInfoInCache(post: DbPost) {
   };
 }
 
-// Function to get marketInfo from cache, and update cache if it's been more than 5 minutes since the last update
+// Function to get marketInfo from cache, and update cache if it's been more than 2 seconds since the last update
 export const getPostMarketInfo = (post: DbPost) => {
   const postId = post._id;
   const cacheItem = postMarketInfoCache[postId];
 
-  const FIVE_MINUTES = 5 * 60 * 1000; // 5 minutes in milliseconds
+  const TWO_SECONDS = 2 * 1000; // 2 seconds in milliseconds
   
   if (!cacheItem) {
     // If the item is not in the cache, trigger an asynchronous update and return null
@@ -66,7 +66,7 @@ export const getPostMarketInfo = (post: DbPost) => {
   const timeDifference = new Date().getTime() - cacheItem.lastUpdated.getTime();
 
   // If it's been more than 5 minutes since the last update, update the cache asynchronously
-  if (timeDifference >= FIVE_MINUTES) {
+  if (timeDifference >= TWO_SECONDS) {
     updateMarketInfoInCache(post).catch(error => {
       // eslint-disable-next-line no-console
       console.error("Failed to update cache for post:", postId, error);

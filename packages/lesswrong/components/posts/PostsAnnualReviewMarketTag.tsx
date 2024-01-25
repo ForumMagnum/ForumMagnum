@@ -8,7 +8,7 @@ import { useHover } from '../common/withHover';
 
 const styles = (theme: ThemeType) => ({
     expectedWinner: {
-        color: 'gold', // theme.palette.text.aprilFools.orange,
+        color:  'hsl(42, 60%, 50%)', // theme.palette.text.aprilFools.orange,
         border: '2px solid gold', // Set the border color to gold
         borderRadius: '4px', // Slightly rounded borders
         // backgroundColor: 'gold', // Set the background color to gold
