@@ -8,6 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { AnnualReviewMarketInfo, PROBABILITY_REVIEW_WINNER_THRESHOLD } from '../../lib/annualReviewMarkets';
 
 const styles = (theme: ThemeType): JssStyles => ({
   voteBlock: {
@@ -54,9 +55,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: '45%',
     textAlign: "center",
   },
-  // predictedAnnualReviewWinner: {
-  //   color: theme.palette.aprilFools.orange
-  // },
+  predictedAnnualReviewWinner: {
+    color: theme.palette.text.aprilFools.orange,
+  },
   secondaryVoteScore: {
     fontSize: '35%',
     marginBottom: 2,
@@ -76,7 +77,7 @@ const PostsVoteDefault = ({
   useHorizontalLayout,
   votingSystem,
   isFooter,
-  // probabilityAnnualReviewWinner,
+  annualReviewMarketInfo,
   classes,
 }: {
   post: PostsWithVotes,
@@ -84,7 +85,7 @@ const PostsVoteDefault = ({
   useHorizontalLayout?: boolean,
   votingSystem?: VotingSystem<PostsWithVotes>,
   isFooter?: boolean,
-  // probabilityAnnualReviewWinner?: number | null,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo | null,
   classes: ClassesType
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
@@ -138,7 +139,7 @@ const PostsVoteDefault = ({
               variant="headline"
               className={classNames(classes.voteScore, {
                 [classes.voteScoreFooter]: isFooter,
-                // [classes.predictedAnnualReviewWinner]: !!probabilityAnnualReviewWinner && probabilityAnnualReviewWinner > 0.5,
+                [classes.predictedAnnualReviewWinner]: !!annualReviewMarketInfo && (annualReviewMarketInfo.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD) // && !annualReviewMarketInfo.isResolved,
               })}
             >
               {voteProps.baseScore}

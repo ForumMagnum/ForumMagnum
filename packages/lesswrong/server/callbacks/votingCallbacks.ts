@@ -230,7 +230,7 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
 const makeComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser) => {
 
-  const commentString = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year. Will this post make the top 50?</p><figure class="media"><div data-oembed-url="${marketUrl}">
+  const commentString = `<p>The <a href="https://www.lesswrong.com/bestoflesswrong">LessWrong Review</a> runs every year to select the posts that have most stood the test of time. This post is not yet eligible for review, but will be at the end of ${year+1}. The top fifty or so posts are featured prominently on the site throughout the year. Will this post make the top fifty?</p><figure class="media"><div data-oembed-url="${marketUrl}">
         <div class="manifold-preview">
           <iframe src=${marketUrl}>
         </iframe></div>

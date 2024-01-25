@@ -7,3 +7,14 @@ export type AnnualReviewMarketInfo = {
   isResolved: boolean;
   year: number;
 }
+
+export const getMarketInfo = (post: PostsBase): AnnualReviewMarketInfo | null => {
+    if (post.annualReviewMarketProbability == null) return null
+    if (post.annualReviewMarketIsResolved == null) return null
+    if (post.annualReviewMarketYear == null) return null
+    return {
+      probability: post.annualReviewMarketProbability,
+      isResolved: post.annualReviewMarketIsResolved,
+      year: post.annualReviewMarketYear
+    }
+  }

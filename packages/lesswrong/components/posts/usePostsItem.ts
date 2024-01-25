@@ -12,7 +12,7 @@ import {
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import type { PopperPlacementType } from "@material-ui/core/Popper"
-import { AnnualReviewMarketInfo } from "../../lib/annualReviewMarkets";
+import { AnnualReviewMarketInfo, getMarketInfo } from "../../lib/annualReviewMarkets";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
@@ -88,16 +88,6 @@ const areNewComments = (lastCommentedAt : Date | null, lastVisitedAt: Date | nul
   return lastVisitedAt < lastCommentedAt;
 }
 
-const getMarketInfo = (post: PostsList): AnnualReviewMarketInfo | null => {
-  if (post.annualReviewMarketProbability == null) return null
-  if (post.annualReviewMarketIsResolved == null) return null
-  if (post.annualReviewMarketYear == null) return null
-  return {
-    probability: post.annualReviewMarketProbability,
-    isResolved: post.annualReviewMarketIsResolved,
-    year: post.annualReviewMarketYear
-  }
-}
 
 export const usePostsItem = ({
   post,
