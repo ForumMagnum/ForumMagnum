@@ -378,14 +378,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {
-      id: 'library',
-      title: 'Library',
-      link: '/library',
-      iconComponent: LocalLibrary,
-      tooltip: eaSequencesHomeDescription,
-      showOnMobileStandalone: true,
-      showOnCompressed: true,
-    }, {
       id: 'events',
       title: 'Community and Events',
       mobileTitle: 'Events',
