@@ -1,6 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useQuickTakesTags } from "../quickTakes/useQuickTakesTags";
+
+const styles = (theme: ThemeType): JssStyles => ({
+  tagContainer: {
+    display: "flex",
+    flexWrap: "wrap",
+    rowGap: "4px",
+    alignItems: "center",
+    marginTop: 16,
+  },
+  tagLabel: {
+    fontWeight: 600,
+    fontSize: 13,
+    marginRight: 8,
+  },
+})
 
 const FormComponentQuickTakesTags = ({
   value,
@@ -21,33 +36,43 @@ const FormComponentQuickTakesTags = ({
     frontpageTagId,
     onTagSelected,
     onTagRemoved,
-  } = useQuickTakesTags();
+  } = useQuickTakesTags(value);
+  
+  useEffect(() => {
+    updateCurrentValues({[path]: selectedTagIds})
+  }, [updateCurrentValues, path, selectedTagIds])
 
   const {TagsChecklist, Loading} = Components;
-  return loading
-    ? (
-      <Loading />
-    )
-    :(
-      <TagsChecklist
-        tags={tags}
-        displaySelected="highlight"
-        selectedTagIds={[
-          ...(frontpage ? [frontpageTagId] : []),
-          ...selectedTagIds,
-        ]}
-        onTagSelected={onTagSelected}
-        onTagRemoved={onTagRemoved}
-        tooltips={false}
-        truncate
-        smallText
-      />
-    );
+  
+  return <div className={classes.tagContainer}>
+    <span className={classes.tagLabel}>Set topic</span>
+    {loading
+      ? (
+        <Loading />
+      )
+      :(
+        <TagsChecklist
+          tags={tags}
+          displaySelected="highlight"
+          selectedTagIds={[
+            ...(frontpage ? [frontpageTagId] : []),
+            ...selectedTagIds,
+          ]}
+          onTagSelected={onTagSelected}
+          onTagRemoved={onTagRemoved}
+          tooltips={false}
+          truncate
+          smallText
+        />
+    )}
+  </div>
+
 }
 
 const FormComponentQuickTakesTagsComponent = registerComponent(
   "FormComponentQuickTakesTags",
   FormComponentQuickTakesTags,
+  {styles}
 );
 
 declare global {

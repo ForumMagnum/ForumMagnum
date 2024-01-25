@@ -46,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   smallTag: {
     ...smallTagTextStyle(theme),
     "& .TagsChecklist-removeTag svg": {
-      transform: "translateY(-4px)",
+      top: 2
     },
   },
   removeTag: {
