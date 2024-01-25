@@ -220,7 +220,9 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
     await addTagToPost(post._id, reviewYearTagSlug, botUser, context);
 
     // make a comment on the post with the market
-    await makeComment(post._id, year, liteMarket.url, botUser)
+    const comment = await makeComment(post._id, year, liteMarket.url, botUser)
+    await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
+
   } catch (error) {
 
     //eslint-disable-next-line no-console
@@ -237,7 +239,7 @@ const makeComment = async (postId: string, year: number, marketUrl: string, botU
       </div></figure>
   `
 
-  await createMutator({
+  const result = await createMutator({
     collection: Comments,
     document: {
       postId: postId,
@@ -250,5 +252,7 @@ const makeComment = async (postId: string, year: number, marketUrl: string, botU
     currentUser: botUser,
     context: createAdminContext()
   })
+
+  return result.data
 
 }

@@ -763,6 +763,20 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['admins']
   },
 
+  annualReviewMarketCommentId: {
+    ...foreignKeyField({
+      idFieldName: 'annualReviewMarketCommentId',
+      resolverName: 'comment',
+      collectionName: 'Comments',
+      type: 'Comment',
+      nullable: true
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins']
+  },
+
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
   reviewVoteScoreAF: {
     type: Number, 

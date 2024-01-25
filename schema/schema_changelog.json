@@ -528,5 +528,10 @@
     "acceptsSchemaHash": "6ca26a8acc2d3e6d12a2dc0da191d9f9",
     "acceptedByMigration": "20240122T212531.add_manifoldReviewMarketId_posts.ts",
     "timestamp": "2024-01-22T21:25:31.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e6818754f387c455a5b3db87f495859e",
+    "acceptedByMigration": "20240125T192445.add_annualReviewMarketCommentId_posts.ts",
+    "timestamp": "2024-01-25T19:24:45.000Z"
   }
 ]
