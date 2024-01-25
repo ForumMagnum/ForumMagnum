@@ -157,6 +157,8 @@ async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, co
   await addOrUpvoteTag({tagId: tag._id, postId: postId, currentUser: botUser, context});
 }
 
+// AFAIU the flow, this has a race condition. If a post is voted on twice in quick succession, it will create two markets.
+// This is probably fine, but it's worth noting. We can deal with it if it comes up.
 voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collection, user, context) => {
 
   // Forum gate
@@ -164,7 +166,6 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return;
-  // TODO: does this already include the vote power or must I add it? Think it's included
   if (newDocument.baseScore < MINIMUM_KARMA_REVIEW_MARKET_CREATION) return;
   const post = await Posts.findOne({_id: newDocument._id})
   if (!post) return;
