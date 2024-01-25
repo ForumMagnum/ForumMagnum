@@ -139,7 +139,7 @@ const PostsVoteDefault = ({
               variant="headline"
               className={classNames(classes.voteScore, {
                 [classes.voteScoreFooter]: isFooter,
-                [classes.predictedAnnualReviewWinner]: !!annualReviewMarketInfo && (annualReviewMarketInfo.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD) // && !annualReviewMarketInfo.isResolved,
+                [classes.predictedAnnualReviewWinner]: !!annualReviewMarketInfo && (annualReviewMarketInfo.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD) && !annualReviewMarketInfo.isResolved,
               })}
             >
               {voteProps.baseScore}

@@ -21,7 +21,7 @@ const KarmaDisplay = ({document, placement="left", annualReviewMarketInfo = null
       placement={placement}
       title={
         <div>
-          {annualReviewMarketInfo &&  // !annualReviewMarketInfo.isResolved &&
+          {annualReviewMarketInfo &&  !annualReviewMarketInfo.isResolved &&
             <div>{parseFloat((annualReviewMarketInfo.probability*100).toFixed(2))}% chance of {annualReviewMarketInfo.year} annual review winner</div>
           }
           <div>{baseScore ?? 0} karma</div>
