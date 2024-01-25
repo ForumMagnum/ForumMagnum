@@ -188,11 +188,6 @@ export const usePostsItem = ({
     isSticky: isSticky(post, terms),
   };
 
-  // const KARMA_REVIEW_WINNER_THRESHOLD = 0.5
-
-  // const karmaProbabilityReviewWinner = post.probabilityReviewWinner
-  // const karmaPredictedReviewWinner = !!karmaProbabilityReviewWinner && karmaProbabilityReviewWinner > KARMA_REVIEW_WINNER_THRESHOLD
-
   const annualReviewMarketInfo : AnnualReviewMarketInfo | null = getMarketInfo(post)
 
   return {

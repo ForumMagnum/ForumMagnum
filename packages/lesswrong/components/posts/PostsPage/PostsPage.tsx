@@ -33,6 +33,7 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import isEqual from 'lodash/isEqual';
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { getMarketInfo } from '../../../lib/annualReviewMarkets';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -572,7 +573,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-            dialogueResponses={debateResponses} />
+            dialogueResponses={debateResponses} 
+            annualReviewMarketInfo={getMarketInfo(post)}/>
         </div>
       </div>
     </AnalyticsContext>
