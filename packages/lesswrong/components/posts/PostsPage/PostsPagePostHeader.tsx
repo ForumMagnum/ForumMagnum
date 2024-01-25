@@ -434,7 +434,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         </AnalyticsContext>}
       </div>
       <div className={classes.annualReviewMarketInfo}>
-        {annualReviewMarketInfo && <PostsAnnualReviewMarketTag annualReviewMarketInfo={annualReviewMarketInfo} />}
+        {annualReviewMarketInfo && !annualReviewMarketInfo.isResolved && <PostsAnnualReviewMarketTag annualReviewMarketInfo={annualReviewMarketInfo} />}
       </div>
     </div>
     {post.isEvent && <PostsPageEventData post={post}/>}
