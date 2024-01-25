@@ -102,7 +102,10 @@ describe('renderEmail', () => {
         fragmentName: 'PostsRevision',
         extraVariables: {
           version: 'String'
-        }
+        },
+        extraVariablesValues: {
+          version: null,
+        },
       });
       return <div>{document?.title}</div>
     }

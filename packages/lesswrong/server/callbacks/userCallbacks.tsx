@@ -280,6 +280,18 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
   return modifier;
 });
 
+/**
+ * When a user explicitly unsubscribes from all emails, we also want to unsubscribe them from digest emails.
+ * They can then explicitly re-subscribe to the digest while keeping "unsubscribeFromAll" checked while still being
+ * unsubscribed from all other emails, if they want.
+ */
+getCollectionHooks("Users").updateBefore.add(async function unsubscribeFromAll(data: DbUser, {oldDocument}) {
+  if (data.unsubscribeFromAll && !oldDocument.unsubscribeFromAll && hasDigests) {
+    data.subscribedToDigest = false
+  }
+  return data;
+});
+
 getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest (newUser: DbUser, oldUser: DbUser) {
   if (
     isAnyTest ||
@@ -299,7 +311,7 @@ getCollectionHooks("Users").editAsync.add(async function subscribeToForumDigest 
     return;
   }
   const { lat: latitude, lng: longitude, known } = userGetLocation(newUser);
-  const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed'; 
+  const status = newUser.subscribedToDigest ? 'subscribed' : 'unsubscribed';
   
   const email = getUserEmail(newUser)
   const emailHash = md5(email!.toLowerCase());

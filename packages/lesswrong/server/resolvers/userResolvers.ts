@@ -82,7 +82,7 @@ augmentFieldsDict(Users, {
   },
   htmlBio: {
     resolveAs: {
-      type: "String",
+      type: "String!",
       resolver: (user: DbUser, args: void, { Users }: ResolverContext) => {
         const bio = user.biography;
         return bio?.html || "";
@@ -146,36 +146,12 @@ type NewUserUpdates = {
 }
 
 addGraphQLSchema(`
-  type MostReadAuthor {
-    slug: String,
-    displayName: String,
-    count: Int
-  }
   type MostReadTopic {
     slug: String,
     name: String,
     shortName: String,
     count: Int
   }
-  type WrappedDataByYear {
-    alignment: String,
-    totalSeconds: Int,
-    engagementPercentile: Float,
-    postsReadCount: Int,
-    mostReadAuthors: [MostReadAuthor],
-    mostReadTopics: [MostReadTopic],
-    postCount: Int,
-    topPost: Post,
-    commentCount: Int,
-    topComment: Comment,
-    shortformCount: Int,
-    topShortform: Comment,
-    karmaChange: Int
-  }
-`)
-
-// TODO remove all the V2s when done
-addGraphQLSchema(`
   type TagReadLikelihoodRatio {
     tagId: String,
     tagName: String,
@@ -183,7 +159,7 @@ addGraphQLSchema(`
     userReadCount: Int,
     readLikelihoodRatio: Float
   }
-  type MostReadAuthorV2 {
+  type MostReadAuthor {
     _id: String,
     slug: String,
     displayName: String,
@@ -213,14 +189,14 @@ addGraphQLSchema(`
     postKarma: Int!,
     commentKarma: Int!
   }
-  type WrappedDataByYearV2 {
+  type WrappedDataByYear {
     engagementPercentile: Float,
     postsReadCount: Int,
     totalSeconds: Int,
     daysVisited: [String],
     mostReadTopics: [MostReadTopic],
     relativeMostReadCoreTopics: [TagReadLikelihoodRatio]
-    mostReadAuthors: [MostReadAuthorV2],
+    mostReadAuthors: [MostReadAuthor],
     topPosts: [Post],
     postCount: Int,
     authorPercentile: Float,
@@ -339,35 +315,40 @@ addGraphQLResolvers({
   },
 
   Query: {
-    // UserWrappedDataByYearV2 includes:
+    // UserWrappedDataByYear includes:
     // - You’re a top X% reader of the EA Forum
     // - You read X posts this year
     // - You spend N hours on the EA Forum
-    // - You visited the EA Forum on X days in 2023
+    // - You visited the EA Forum on X days in <year>
     // - You spent the most time on X topics
     // - Compared to other users, you spent more time on X core topics
     // - Your most-read author was Y
     // - Your top 5 most-read authors are A, B, C, D, E
     // - You’re in the top X% of Y’s readers (one of your top 5 most-read authors)
-    // - Your highest-karma post in 2023 was N (and your next 3 highest-karma posts are A, B, C)
+    // - Your highest-karma post in <year> was N (and your next 3 highest-karma posts are A, B, C)
     // - You wrote X posts in total this year
     // - This means you're in the top Y% of post authors
-    // - Your highest-karma comment in 2023 was N
+    // - Your highest-karma comment in <year> was N
     // - You wrote X comments in total this year
     // - This means you're in the top Y% of commenters
-    // - Your highest-karma quick take in 2023 was N
+    // - Your highest-karma quick take in <year> was N
     // - You wrote X quick takes in total this year
     // - This means you're in the top Y% of quick takes authors
     // - Your overall karma change this year was X (Y from comments, Z from posts)
     // - Others gave you X [most received react] reacts
     // - And X reacts in total (X insightful, Y helpful, Z changed my mind)
-    async UserWrappedDataByYearV2(root: void, {userId, year}: {userId: string, year: number}, context: ResolverContext) {
+    async UserWrappedDataByYear(root: void, {userId, year}: {userId: string, year: number}, context: ResolverContext) {
       const { currentUser } = context
       const user = await Users.findOne({_id: userId})
 
       // Must be logged in and have permission to view this user's data
       if (!userId || !currentUser || !user || !userCanEditUser(currentUser, user)) {
         throw new Error('Not authorized')
+      }
+      
+      // Currently we only have data for 2022 and 2023
+      if (![2022, 2023].includes(year)) {
+        throw new Error('Only 2022 and 2023 are supported')
       }
 
       // Get all the user's posts read for the given year
@@ -493,7 +474,7 @@ addGraphQLResolvers({
       let postKarma = 0
       let commentKarma = 0
       const combinedKarmaVals = range(1, 366).map(i => {
-        const day = moment('2023', 'YYYY').dayOfYear(i)
+        const day = moment(year, 'YYYY').dayOfYear(i)
         if (postKarmaChanges?.length && moment(postKarmaChanges[0].window_start_key).isSame(day, 'date')) {
           try {
             const postKarmaChange = postKarmaChanges.shift()
@@ -553,7 +534,7 @@ addGraphQLResolvers({
         }));
       }
 
-      const { engagementPercentile, totalSeconds, daysVisited }  = await getEngagementV2(user._id, year);
+      const { engagementPercentile, totalSeconds, daysVisited }  = await getEngagement(user._id, year);
       const mostReadTopics = topTags
         .reverse()
         .map((id) => {
@@ -618,134 +599,6 @@ addGraphQLResolvers({
       }
       return results
     },
-    async UserWrappedDataByYear(root: void, {year}: {year: number}, context: ResolverContext) {
-      const { currentUser } = context
-      if (!currentUser) {
-        throw new Error('Must be logged in to view forum wrapped data')
-      }
-
-      // Get all the user's posts read for the given year
-      const start = moment().year(year).dayOfYear(1).toDate()
-      const end = moment().year(year+1).dayOfYear(0).toDate()
-      const readStatuses = await ReadStatuses.find({
-        userId: currentUser._id,
-        isRead: true,
-        lastUpdated: {$gte: start, $lte: end},
-        postId: {$exists: true, $ne: null}
-      }).fetch()
-
-      // Filter out the posts that the user themselves authored or co-authored,
-      // plus events and shortform posts
-      const posts = (await Posts.find({
-        _id: {$in: readStatuses.map(rs => rs.postId)},
-        userId: {$ne: currentUser._id},
-        isEvent: false,
-        shortform: false,
-      }, {projection: {userId: 1, coauthorStatuses: 1, tagRelevance: 1}}).fetch()).filter(p => {
-        return !p.coauthorStatuses?.some(cs => cs.userId === currentUser._id)
-      })
-
-      // Get the top 3 authors that the user has read
-      const userIds = posts.map(p => {
-        let authors = p.coauthorStatuses?.map(cs => cs.userId) ?? []
-        authors.push(p.userId)
-        return authors
-      }).flat()
-      const authorCounts = countBy(userIds)
-      const topAuthors = sortBy(entries(authorCounts), last).slice(-3).map(a => a![0])
-
-      // Get the top 3 topics that the user has read (filtering out the Community topic)
-      const tagIds = posts.map(p => Object.keys(p.tagRelevance ?? {}) ?? []).flat().filter(t => t !== EA_FORUM_COMMUNITY_TOPIC_ID)
-      const tagCounts = countBy(tagIds)
-      const topTags = sortBy(entries(tagCounts), last).slice(-3).map(t => t![0])
-
-      // Get the number of posts, comments, and shortforms that the user posted this year,
-      // including which were the most popular
-      const [authors, topics, userPosts, userComments, userShortforms] = await Promise.all([
-        Users.find({
-          _id: {$in: topAuthors}
-        }, {projection: {displayName: 1, slug: 1}}).fetch(),
-        Tags.find({
-          _id: {$in: topTags}
-        }, {projection: {name: 1, slug: 1}}).fetch(),
-        Posts.find({
-          $or: [
-            {userId: currentUser._id},
-            {"coauthorStatuses.userId": currentUser._id}
-          ],
-          postedAt: {$gte: start, $lte: end},
-          draft: false,
-          deletedDraft: false,
-          isEvent: false,
-          isFuture: false,
-          unlisted: false,
-          shortform: false,
-        }, {projection: {title: 1, slug: 1, baseScore: 1}, sort: {baseScore: -1}}).fetch(),
-        Comments.find({
-          userId: currentUser._id,
-          postedAt: {$gte: start, $lte: end},
-          deleted: false,
-          postId: {$exists: true},
-          $or: [
-            {shortform: false},
-            {topLevelCommentId: {$exists: true}}
-          ]
-        }, {projection: {postId: 1, baseScore: 1, contents: 1}, sort: {baseScore: -1}}).fetch(),
-        Comments.find({
-          userId: currentUser._id,
-          postedAt: {$gte: start, $lte: end},
-          deleted: false,
-          shortform: true,
-          topLevelCommentId: {$exists: false},
-        }, {projection: {postId: 1, baseScore: 1, contents: 1}, sort: {baseScore: -1}}).fetch()
-      ])
-
-      let totalKarmaChange
-      if (context.repos?.votes) {
-        const karmaQueryArgs = {
-          userId: currentUser._id,
-          startDate: start,
-          endDate: end,
-          af: false,
-          showNegative: true
-        }
-        const {changedComments, changedPosts, changedTagRevisions} = await context.repos.votes.getKarmaChanges(karmaQueryArgs);
-        totalKarmaChange =
-          sumBy(changedPosts, (doc: any)=>doc.scoreChange)
-        + sumBy(changedComments, (doc: any)=>doc.scoreChange)
-        + sumBy(changedTagRevisions, (doc: any)=>doc.scoreChange)
-      }
-
-      const results: AnyBecauseTodo = {
-        ...await getEngagement(currentUser._id),
-        postsReadCount: posts.length,
-        mostReadAuthors: topAuthors.reverse().map(id => {
-          const author = authors.find(a => a._id === id)
-          return author ? {
-            displayName: author.displayName,
-            slug: author.slug,
-            count: authorCounts[author._id]
-          } : null
-        }).filter(a => !!a),
-        mostReadTopics: topTags.reverse().map(id => {
-          const topic = topics.find(t => t._id === id)
-          return topic ? {
-            name: topic.name,
-            slug: topic.slug,
-            count: tagCounts[topic._id]
-          } : null
-        }).filter(t => !!t),
-        postCount: userPosts.length,
-        topPost: userPosts.shift() ?? null,
-        commentCount: userComments.length,
-        topComment: userComments.shift() ?? null,
-        shortformCount: userShortforms.length,
-        topShortform: userShortforms.shift() ?? null,
-        karmaChange: totalKarmaChange
-      }
-      results['alignment'] = getAlignment(results)
-      return results
-    },
     async GetRandomUser(root: void, {userIsAuthor}: {userIsAuthor: 'optional'|'required'}, context: ResolverContext) {
       const { currentUser } = context
       if (!userIsAdminOrMod(currentUser)) {
@@ -763,30 +616,11 @@ addGraphQLResolvers({
   },
 })
 
-function getAlignment(results: AnyBecauseTodo) {
-  let goodEvil = 'neutral', lawfulChaotic = 'Neutral';
-  if (results.engagementPercentile < 0.33) {
-    goodEvil = 'evil'
-  } else if  (results.engagementPercentile > 0.66) {
-    goodEvil = 'good'
-  }
-  const ratio = results.commentCount / results.postCount;
-  if (ratio < 3) {
-    lawfulChaotic = 'Chaotic'
-  } else if  (ratio > 6) {
-    lawfulChaotic = 'Lawful'
-  }
-  if (lawfulChaotic === 'Neutral' && goodEvil  === 'neutral') {
-    return 'True neutral'
-  }
-  return lawfulChaotic + ' ' + goodEvil
-}
-
 /*
   Note: this just returns the values from a materialized view that never automatically refreshes
   So the code for the materialized view will need to be changed if we do this in future years
 */
-async function getEngagementV2(userId: string, year: number): Promise<{
+async function getEngagement(userId: string, year: number): Promise<{
   totalSeconds: number;
   daysVisited: string[];
   engagementPercentile: number;
@@ -807,7 +641,7 @@ async function getEngagementV2(userId: string, year: number): Promise<{
         sum(total_seconds) AS total_seconds,
         user_id
       FROM
-        user_engagement_wrapped_2023
+        user_engagement_wrapped
       WHERE view_year = $2 AND user_id IS NOT NULL
       GROUP BY view_year, user_id
     ),
@@ -832,7 +666,7 @@ async function getEngagementV2(userId: string, year: number): Promise<{
   `;
 
   const daysActiveQuery = `
-    SELECT view_date::text FROM user_engagement_wrapped_2023 WHERE view_year = $2 AND user_id = $1 ORDER BY view_date ASC;
+    SELECT view_date::text FROM user_engagement_wrapped WHERE view_year = $2 AND user_id = $1 ORDER BY view_date ASC;
   `;
 
   const [totalResult, daysActiveResult] = await Promise.all([
@@ -852,50 +686,6 @@ async function getEngagementV2(userId: string, year: number): Promise<{
   };
 }
 
-/*
-  Note: this just returns the values from a materialized view that never automatically refreshes
-  So the code for the materialized view will need to be changed if we do this in future years
-*/
-async function getEngagement(userId : string): Promise<{totalSeconds: number, engagementPercentile: number}> {
-  const postgres = getAnalyticsConnection();
-  if (!postgres) {
-    return {
-      totalSeconds: 0,
-      engagementPercentile: 0
-    }
-  }
-
-  const query = `
-    with ranked as (
-      select user_id
-        , total_seconds
-        , percent_rank() over (order by total_seconds asc) engagementPercentile
-      from user_engagement_wrapped
-      -- semi-arbitrarily exclude users with less than 1000 seconds from the ranking
-      where total_seconds > 1000
-    )
-    select user_id
-      , user_engagement_wrapped.total_seconds
-      , coalesce(engagementPercentile, 0) engagementPercentile
-    from user_engagement_wrapped
-    left join ranked using (user_id)
-    where user_id = $1`
-
-  const pgResult = await postgres.query(query, [userId]);
-  
-  if (!pgResult || !pgResult.length) {
-    return {
-      totalSeconds: 0,
-      engagementPercentile: 0
-    }
-  }
-  
-  return {
-    totalSeconds: pgResult[0]['total_seconds'],
-    engagementPercentile: pgResult[0]['engagementpercentile']
-  }
-}
-
 addGraphQLMutation(
   'NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile'
 )
@@ -909,8 +699,7 @@ addGraphQLMutation(
 addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )
-addGraphQLQuery('UserWrappedDataByYear(year: Int!): WrappedDataByYear')
-addGraphQLQuery('UserWrappedDataByYearV2(userId: String!, year: Int!): WrappedDataByYearV2')
+addGraphQLQuery('UserWrappedDataByYear(userId: String!, year: Int!): WrappedDataByYear')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
 
 defineQuery({

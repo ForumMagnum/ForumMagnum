@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button, { ButtonProps } from '@material-ui/core/Button';
 import classNames from 'classnames';
+import { useTracking } from '../../lib/analyticsEvents';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -49,12 +50,25 @@ const styles = (theme: ThemeType) => ({
  * Button component with the standard EA Forum styling
  * (see login and sign up site header buttons for example)
  */
-const EAButton = ({style, variant="contained", className, children, classes, ...buttonProps}: {
+const EAButton = ({style, variant="contained", eventProps, className, children, classes, ...buttonProps}: {
   style?: 'primary'|'grey',
+  eventProps?: Record<string, string>,
   className?: string,
   children: React.ReactNode,
   classes: ClassesType<typeof styles>,
 } & ButtonProps) => {
+  const { captureEvent } = useTracking();
+
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (buttonProps.href) {
+      captureEvent('linkClicked', {to: buttonProps.href, ...eventProps})
+    } else {
+      captureEvent('buttonClicked', eventProps)
+    }
+    
+    buttonProps.onClick?.(e)
+  }
+
   return (
     <Button
       variant={variant}
@@ -65,6 +79,7 @@ const EAButton = ({style, variant="contained", className, children, classes, ...
         [classes.greyOutlined]: variant === 'outlined' && style === 'grey',
       })}
       {...buttonProps}
+      onClick={handleClick}
     >
       {children}
     </Button>

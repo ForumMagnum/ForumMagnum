@@ -55,7 +55,7 @@ augmentFieldsDict(DialogueChecks, {
   match: {
     resolveAs: {
       fieldName: 'match',
-      type: 'Boolean',
+      type: 'Boolean!',
       resolver: async (dialogueCheck: DbDialogueCheck, args: void, context: ResolverContext): Promise<boolean> => {
         const currentUser = context.currentUser
         if (!currentUser) throw Error("Can't get match without current User")

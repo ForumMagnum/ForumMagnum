@@ -173,8 +173,7 @@ const DigestAd = ({largeVersion, className, classes}: {
     if (currentUser) {
       try {
         await updateCurrentUser({
-          subscribedToDigest: true,
-          unsubscribeFromAll: false
+          subscribedToDigest: true
         })
       } catch(e) {
         flash('There was a problem subscribing you to the digest. Please try again later.')

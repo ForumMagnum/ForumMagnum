@@ -202,7 +202,5 @@ import './server/search/elastic/ElasticExporter';
 import './server/search/elastic/elasticCallbacks';
 import './server/search/elastic/elasticGraphQL';
 
-// Hybrid views
-import './server/analytics/postViewsHybridView';
-import './server/analytics/postViewTimesHybridView';
-import './server/analytics/hybridViews';
+// Incremental views
+import './server/analytics/analyticsCron';
