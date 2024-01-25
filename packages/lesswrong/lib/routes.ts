@@ -1521,7 +1521,7 @@ addRoute(
     name: 'reviewWinners',
     path: '/reviewWinners',
     componentName: 'TopPostsPage',
-    enableResourcePrefetch: true,
+    // enableResourcePrefetch: true,
     title: 'Annual Review Winners'
   },
   {
