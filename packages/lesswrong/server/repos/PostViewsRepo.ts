@@ -165,8 +165,7 @@ class PostViewsRepo extends IncrementalViewRepo<"PostViews"> {
   }: {
     postIds: string[];
   }): Promise<{ postId: string; totalViews: number; totalUniqueViews: number }[]> {
-    const results = await this.getRawDb().any<{ postId: string; totalViews: string; totalUniqueViews: string }>(
-      `
+    const results = await this.getRawDb().any<{ postId: string; totalViews: string; totalUniqueViews: string }>(`
       SELECT
         "postId",
         sum("viewCount") AS "totalViews",
@@ -179,7 +178,7 @@ class PostViewsRepo extends IncrementalViewRepo<"PostViews"> {
         "postId"
       `,
       [postIds]
-    );
+    )
 
     // Manually convert the number fields from string to number (as this isn't handled automatically)
     const typedResults = results.map((views) => ({
@@ -188,7 +187,7 @@ class PostViewsRepo extends IncrementalViewRepo<"PostViews"> {
       totalUniqueViews: parseInt(views.totalUniqueViews),
     }));
 
-    return typedResults;
+    return typedResults
   }
 
   async viewsByDate({
@@ -200,8 +199,7 @@ class PostViewsRepo extends IncrementalViewRepo<"PostViews"> {
     startDate?: Date;
     endDate: Date;
   }): Promise<{ date: string; totalViews: number }[]> {
-    const results = await this.getRawDb().any<{ date: string; viewCount: string }>(
-      `
+    const results = await this.getRawDb().any<{ date: string; viewCount: string }>(`
       SELECT
         to_char(date_trunc('day', "windowStart"), 'YYYY-MM-DD') AS "date",
         sum("viewCount") AS "viewCount"
