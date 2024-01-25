@@ -165,8 +165,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     flex: 1
   },
   annualReviewMarketInfo: {
-    // marginBottom: theme.spacing.unit*2,
-  },
+    // display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'right',
+    },
 });
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
@@ -434,7 +436,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         </AnalyticsContext>}
       </div>
       <div className={classes.annualReviewMarketInfo}>
-        {annualReviewMarketInfo && !annualReviewMarketInfo.isResolved && <PostsAnnualReviewMarketTag annualReviewMarketInfo={annualReviewMarketInfo} />}
+        {annualReviewMarketInfo && !annualReviewMarketInfo.isResolved && <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
       </div>
     </div>
     {post.isEvent && <PostsPageEventData post={post}/>}
