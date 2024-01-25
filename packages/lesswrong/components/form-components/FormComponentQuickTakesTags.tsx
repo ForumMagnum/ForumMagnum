@@ -9,6 +9,7 @@ const styles = (_theme: ThemeType): JssStyles => ({
     rowGap: "4px",
     alignItems: "center",
     marginTop: 16,
+    marginLeft: 8,
   },
   tagLabel: {
     fontWeight: 600,
