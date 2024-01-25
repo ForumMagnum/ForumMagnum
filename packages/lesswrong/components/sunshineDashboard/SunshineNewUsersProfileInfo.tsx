@@ -32,7 +32,7 @@ const SunshineNewUsersProfileInfo = ({userId, classes}:{userId:string, classes: 
   
   if (user.reviewedByUserId && !user.snoozedUntilContentCount && !expanded) {
     return <div className={classes.root} onClick={() => setExpanded(true)}>
-      <SectionButton>Expand</SectionButton>
+      <SectionButton>Expand Moderation Tools</SectionButton>
     </div>
   }
   
@@ -50,5 +50,3 @@ declare global {
     SunshineNewUsersProfileInfo: typeof SunshineNewUsersProfileInfoComponent
   }
 }
-
-
