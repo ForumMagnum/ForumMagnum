@@ -19,6 +19,8 @@ import { captureException } from '@sentry/core';
 import moment from 'moment';
 import {userFindOneByEmail, usersFindAllByEmail} from "./commonQueries";
 import type { AddMiddlewareType } from './apolloServer';
+import { Request, Response, NextFunction, json } from "express";
+import { AUTH0_SCOPE, loginAuth0User } from './authentication/auth0';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -236,7 +238,7 @@ function createAccessTokenStrategy(auth0Strategy: AnyBecauseTodo) {
     if (typeof(accessToken) !== 'string') {
       return done("Invalid token")
     } else {
-      auth0Strategy.userProfile(accessToken, (err: AnyBecauseTodo, profile: AnyBecauseTodo) => {
+      auth0Strategy.userProfile(accessToken, (_err: AnyBecauseTodo, profile: AnyBecauseTodo) => {
         if (profile) {
           void accessTokenUserHandler(accessToken, resumeToken, profile, done)
         } else {
@@ -260,8 +262,8 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
   addConnectHandler(passport.initialize())
   passport.use(cookieAuthStrategy)
   
-  addConnectHandler('/', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
-    passport.authenticate('custom', (err, user, info) => {
+  addConnectHandler('/', (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate('custom', (err, user, _info) => {
       if (err) return next(err)
       if (!user) return next()
       req.logIn(user, (err: AnyBecauseTodo) => {
@@ -271,8 +273,8 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
     })(req, res, next) 
   })
 
-  addConnectHandler('/logout', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
-    passport.authenticate('custom', (err, user, info) => {
+  addConnectHandler('/logout', (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate('custom', (err, _user, _info) => {
       if (err) return next(err)
       req.logOut()
 
@@ -377,8 +379,22 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
       }))
     ));
   }
-  
-  const handleAuthenticate = (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo, err: AnyBecauseTodo, user: AnyBecauseTodo, info: AnyBecauseTodo) => {
+
+  const loginUser = (req: Request, res: Response, next: NextFunction, user: DbUser) => {
+    req.logIn(user, async (err: AnyBecauseTodo) => {
+      if (err) {
+        return next(err);
+      }
+      await createAndSetToken(req, res, user);
+
+      const returnTo = getReturnTo(req);
+      res.statusCode = 302;
+      res.setHeader('Location', returnTo);
+      return res.end();
+    })
+  }
+
+  const handleAuthenticate = (req: Request, res: Response, next: NextFunction, err: AnyBecauseTodo, user: DbUser | null | undefined, _info: AnyBecauseTodo) => {
     if (err) {
       if (err.message === "banned") {
         res.redirect(301, '/banNotice');
@@ -392,17 +408,8 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
       return next(new Error(`${error}: ${error_description}`))
     }
     if (!user) return next()
-    req.logIn(user, async (err: AnyBecauseTodo) => {
-      if (err) return next(err)
-      await createAndSetToken(req, res, user)
-      
-      const returnTo = getReturnTo(req)
-      res.statusCode=302;
-      res.setHeader('Location', returnTo)
-      return res.end();
-    })
+    loginUser(req, res, next, user);
   }
-  
 
   // NB: You must also set the expressSessionSecret setting in your database
   // settings - auth0 passport strategy relies on express-session to store state
@@ -423,20 +430,42 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
 
     passport.use('access_token', createAccessTokenStrategy(auth0Strategy))
 
-    addConnectHandler('/auth/useAccessToken', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+    addConnectHandler('/auth/useAccessToken', (req: Request, res: Response, next: NextFunction) => {
       passport.authenticate('access_token', {}, (err, user, info) => {
         handleAuthenticate(req, res, next, err, user, info)
       })(req, res, next)
     })
+
+    addConnectHandler("/auth/auth0/embedded-login", json({limit: "1mb"}));
+    addConnectHandler("/auth/auth0/embedded-login", async (req: Request, res: Response) => {
+      try {
+        const {email, password} = req.body;
+        if (!email || typeof email !== "string") {
+          throw new Error("Email is required");
+        }
+        if (!password || typeof password !== "string") {
+          throw new Error("Password is required");
+        }
+        const {user} = await loginAuth0User(email, password);
+        const errorHandler: NextFunction = (err) => {
+          if (err) {
+            res.status(400).send({error: err.message});
+          }
+        }
+        loginUser(req, res, errorHandler, user);
+      } catch (e) {
+        res.status(400).send({error: e.message});
+      }
+    });
   }
 
-  addConnectHandler('/auth/google/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+  addConnectHandler('/auth/google/callback', (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('google', {}, (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/google', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+  addConnectHandler('/auth/google', (req: Request, res: Response, next: NextFunction) => {
     saveReturnTo(req)
     passport.authenticate('google', {
       scope: [
@@ -448,40 +477,40 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/facebook/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+  addConnectHandler('/auth/facebook/callback', (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('facebook', {}, (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/facebook', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+  addConnectHandler('/auth/facebook', (req: Request, res: Response, next: NextFunction) => {
     saveReturnTo(req)
     passport.authenticate('facebook')(req, res, next)
   })
 
-  addConnectHandler('/auth/auth0/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+  addConnectHandler('/auth/auth0/callback', (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('auth0', (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info)
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/auth0', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+  addConnectHandler('/auth/auth0', (req: Request, res: Response, next: NextFunction) => {
     const extraParams = pick(req.query, ['screen_hint', 'prompt'])
     saveReturnTo(req)
     
     passport.authenticate('auth0', {
-      scope: 'profile email openid offline_access',
+      scope: AUTH0_SCOPE,
       ...extraParams
     } as AuthenticateOptions)(req, res, next)
   })
 
-  addConnectHandler('/auth/github/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+  addConnectHandler('/auth/github/callback', (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('github', {}, (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
   })
 
-  addConnectHandler('/auth/github', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+  addConnectHandler('/auth/github', (req: Request, res: Response, next: NextFunction) => {
     saveReturnTo(req)
     passport.authenticate('github', { scope: ['user:email']})(req, res, next)
   })
