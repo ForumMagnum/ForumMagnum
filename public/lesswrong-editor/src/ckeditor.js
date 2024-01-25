@@ -59,6 +59,7 @@ import AutoLink from '@ckeditor/ckeditor5-link/src/autolink';
 import Mathematics from './ckeditor5-math/math';
 import Spoilers from './spoilers-plugin';
 import RestyledCommentButton from './restyled-comment-button-plugin';
+import CTAButton from './ckeditor5-cta-button/cta-button';
 import Footnote from './ckeditor5-footnote/src/footnote';
 import UrlValidator from './url-validator-plugin';
 import RemoveRedirect from './remove-redirect-plugin';
@@ -128,6 +129,7 @@ const postEditorPlugins = [
 	BlockToolbar,
 	FontFamily,
 	FontSize,
+	CTAButton,
 	// FontColor,
 	// FontBackgroundColor,
 ];
