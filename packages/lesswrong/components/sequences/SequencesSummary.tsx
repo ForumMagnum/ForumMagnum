@@ -47,6 +47,12 @@ const styles = (theme: ThemeType) => ({
       marginTop: 12,
       fontSize: "1rem"
     },
+  morePosts: {
+    color: theme.palette.grey[600],
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
+    size: 14,
+  },
 });
 
 const SequenceMeta: FC<{
@@ -73,16 +79,48 @@ const SequenceMeta: FC<{
     );
 }
 
-export const SequencesSummary = ({classes, sequence, showAuthor=true}: {
+const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
+  sequence: SequencesPageFragment,
+  chapters: ChaptersFragment[],
+  maxPosts: number,
+  totalPosts: number,
+  classes: ClassesType<typeof styles>,
+}) => {
+  let postsRendered = 0;
+  const nodes: ReactNode[] = [];
+  const {SequencesSmallPostLink, ChapterTitle} = Components;
+  for (let i = 0; i < chapters.length && postsRendered < maxPosts; i++) {
+    const chapter = chapters[i];
+    const posts = chapter.posts.slice(0, maxPosts - postsRendered);
+    nodes.push(
+      <div>
+        {chapter.title && <ChapterTitle title={chapter.title}/>}
+        {posts.map(post => (
+          <SequencesSmallPostLink
+            key={sequence._id + post._id}
+            post={post}
+            sequenceId={sequence._id}
+          />
+        ))}
+      </div>
+    );
+  }
+  if (maxPosts < totalPosts) {
+    nodes.push(
+      <div className={classes.morePosts}>
+        +{totalPosts - maxPosts} more
+      </div>
+    );
+  }
+  return <>{nodes}</>;
+}
+
+export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}: {
   classes: ClassesType<typeof styles>,
   sequence: SequencesPageFragment|null,
   showAuthor?: boolean
+  maxPosts?: number,
 }) => {
-  const {
-    SequencesSmallPostLink, Loading, ContentStyles, ContentItemTruncated,
-    LWTooltip, ChapterTitle,
-  } = Components;
-
   const { results: chapters, loading: chaptersLoading } = useMulti({
     terms: {
       view: "SequenceChapters",
@@ -94,6 +132,8 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true}: {
     enableTotal: false,
   });
 
+  const {Loading, ContentStyles, ContentItemTruncated, LWTooltip} = Components;
+
   const posts = chapters?.flatMap(chapter => chapter.posts ?? []) ?? []
   const totalWordcount = posts.reduce((prev, curr) => prev + (curr?.contents?.wordCount || 0), 0)
 
@@ -102,6 +142,10 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true}: {
       <div className={classes.wordcount}>{Math.round(totalWordcount / 300)} min read</div>
     </LWTooltip>
   );
+
+  if (typeof maxPosts !== "number") {
+    maxPosts = posts.length;
+  }
 
   return <Card className={classes.root}>
     {sequence && <Link to={getCollectionOrSequenceUrl(sequence)}>
@@ -130,16 +174,15 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true}: {
     }
     {/* show a loading spinner if either sequences hasn't loaded or chapters haven't loaded */}
     {(!sequence || (!chapters && chaptersLoading)) && <Loading/>}
-    {sequence && chapters?.flatMap(chapter => {
-      return <div>
-        {chapter.title && <ChapterTitle title={chapter.title}/>}
-        {chapter.posts.map(post => <SequencesSmallPostLink
-          key={sequence._id + post._id}
-          post={post}
-          sequenceId={sequence._id}
-        />)}
-      </div>
-    })}
+    {sequence && chapters &&
+      <SequencePosts
+        sequence={sequence}
+        chapters={chapters}
+        maxPosts={maxPosts}
+        totalPosts={posts.length}
+        classes={classes}
+      />
+    }
     {!isFriendlyUI && wordCountNode}
   </Card>;
 }

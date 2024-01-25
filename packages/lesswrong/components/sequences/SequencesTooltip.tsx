@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { isFriendlyUI } from "../../themes/forumTheme";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 
 export const SequencesTooltip = ({
@@ -18,7 +19,13 @@ export const SequencesTooltip = ({
   const {HoverOver, SequencesSummary} = Components;
   return (
     <HoverOver
-      title={<SequencesSummary sequence={sequence} showAuthor={showAuthor} />}
+      title={
+        <SequencesSummary
+          sequence={sequence}
+          showAuthor={showAuthor}
+          maxPosts={isFriendlyUI ? 8 : undefined}
+        />
+      }
       tooltip={false}
       flip={!allowOverflow}
       placement={placement}
