@@ -8,7 +8,13 @@ import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
 import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
-import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taglineSetting } from '../../../lib/instanceSettings';
+import {
+  siteNameWithArticleSetting,
+  taggingNameIsSet,
+  taggingNameCapitalSetting,
+  taglineSetting,
+  isEAForum,
+} from '../../../lib/instanceSettings'
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
 import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/dropdownOptions';
 import { PROGRAM_PARTICIPATION } from '../../../lib/collections/users/schema';
@@ -441,7 +447,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
         <div className={classNames(classes.section, classes.mainSection)}>
-          {userCanEditUser(currentUser, user) &&
+          {isEAForum && userCanEditUser(currentUser, user) &&
             <div className={classes.editProfile}>
               <Button
                 type="submit"
