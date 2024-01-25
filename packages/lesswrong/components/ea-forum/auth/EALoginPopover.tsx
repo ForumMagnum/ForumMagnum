@@ -1,6 +1,6 @@
 import React, { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { useAuth0Client } from "../../hooks/useAuth0Client";
+import { useAuth0Client } from "../../hooks/useAuth0Client"; // TODO
 import { Link } from "../../../lib/reactRouterWrapper";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { FacebookIcon } from "../../icons/FacebookIcon";
@@ -200,19 +200,18 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
       setLoading(true);
       if (isSignup) {
         // TODO: Implement sign up
+        setLoading(false);
       } else {
-        const result = await client.login(email, password);
-        // eslint-disable-next-line no-console
-        console.log("RESULT", result); // TODO
+        await client.login(email, password);
+        window.location.reload();
       }
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
       setError(e.description || e.message || String(e) || "An error occurred");
-    } finally {
       setLoading(false);
     }
-  }, [email, password, isSignup, client]);
+  }, [client, email, password, isSignup]);
 
   useEffect(() => {
     if (!open) {
