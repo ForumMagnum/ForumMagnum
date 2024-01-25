@@ -2,12 +2,12 @@ import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import { MarketInfo } from "../../lib/annualReviewMarkets";
+import { AnnualReviewMarketInfo } from "../../lib/annualReviewMarkets";
 
 const KarmaDisplay = ({document, placement="left", annualReviewMarketInfo = null, annualReviewYear = null}: {
   document: VoteableType,
   placement?: PopperPlacementType,
-  annualReviewMarketInfo? : MarketInfo | null,
+  annualReviewMarketInfo? : AnnualReviewMarketInfo | null,
   annualReviewYear? : number | null,
 }) => {
   const baseScore = forumTypeSetting.get() === "AlignmentForum"

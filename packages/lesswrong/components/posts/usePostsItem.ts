@@ -12,7 +12,7 @@ import {
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import type { PopperPlacementType } from "@material-ui/core/Popper"
-import { MarketInfo } from "../../lib/annualReviewMarkets";
+import { AnnualReviewMarketInfo } from "../../lib/annualReviewMarkets";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
@@ -73,7 +73,7 @@ export type PostsItemConfig = {
   forceSticky?: boolean,
   showReadCheckbox?: boolean,
   showKarma?: boolean,
-  annualReviewMarketInfo?: MarketInfo | null,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo | null,
   showMostValuableCheckbox?: boolean,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
@@ -88,7 +88,7 @@ const areNewComments = (lastCommentedAt : Date | null, lastVisitedAt: Date | nul
   return lastVisitedAt < lastCommentedAt;
 }
 
-const getMarketInfo = (post: PostsList): MarketInfo | null => {
+const getMarketInfo = (post: PostsList): AnnualReviewMarketInfo | null => {
   if (post.annualReviewMarketProbability == null) return null
   if (post.annualReviewMarketIsResolved == null) return null
   if (post.annualReviewMarketYear == null) return null
@@ -203,7 +203,7 @@ export const usePostsItem = ({
   // const karmaProbabilityReviewWinner = post.probabilityReviewWinner
   // const karmaPredictedReviewWinner = !!karmaProbabilityReviewWinner && karmaProbabilityReviewWinner > KARMA_REVIEW_WINNER_THRESHOLD
 
-  const annualReviewMarketInfo : MarketInfo | null = getMarketInfo(post)
+  const annualReviewMarketInfo : AnnualReviewMarketInfo | null = getMarketInfo(post)
 
   return {
     post,

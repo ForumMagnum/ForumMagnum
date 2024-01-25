@@ -17,6 +17,7 @@ import { createAdminContext } from '../vulcan-lib';
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
+import { MINIMUM_KARMA_REVIEW_MARKET_CREATION } from '../../lib/annualReviewMarkets';
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
@@ -141,7 +142,6 @@ postPublishedCallback.add(async (publishedPost: DbPost) => {
 // When a vote is cast, if it's new karma is above review_market_threshold, create a Manifold
 // on it making top 50 in the review, and create a comment linking to the market.
 
-const reviewMarketThreshold = 100;
 const manifoldAPIKeySetting = new DatabaseServerSetting<string | null>('manifold.reviewBotKey', null)
 const manifoldAPIKey = manifoldAPIKeySetting.get()
 
@@ -165,7 +165,7 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return;
   // TODO: does this already include the vote power or must I add it? Think it's included
-  if (newDocument.baseScore < reviewMarketThreshold) return;
+  if (newDocument.baseScore < MINIMUM_KARMA_REVIEW_MARKET_CREATION) return;
   const post = await Posts.findOne({_id: newDocument._id})
   if (!post) return;
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed

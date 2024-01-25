@@ -12,6 +12,7 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
+import { PROBABILITY_REVIEW_WINNER_THRESHOLD } from '../../lib/annualReviewMarkets';
 
 export const KARMA_WIDTH = 32
 
@@ -333,8 +334,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   }
 })
-
-const PROBABILITY_REVIEW_WINNER_THRESHOLD = 0.5
 
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
