@@ -495,7 +495,7 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
   })
 
   addConnectHandler('/auth/auth0', (req: Request, res: Response, next: NextFunction) => {
-    const extraParams = pick(req.query, ['screen_hint', 'prompt'])
+    const extraParams = pick(req.query, ['screen_hint', 'prompt', 'connection'])
     saveReturnTo(req)
     
     passport.authenticate('auth0', {

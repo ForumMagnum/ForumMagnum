@@ -21,6 +21,11 @@ class Auth0Client {
       throw new Auth0ClientError(data.error);
     }
   }
+
+  async socialLogin(connection: "google-oauth2" | "facebook") {
+    const returnTo = encodeURIComponent(window.location.href);
+    window.location.href = `/auth/auth0?returnTo=${returnTo}&connection=${connection}`;
+  }
 }
 
 let client: Auth0Client;

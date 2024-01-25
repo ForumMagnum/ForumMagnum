@@ -1,6 +1,6 @@
 import React, { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { useAuth0Client } from "../../hooks/useAuth0Client"; // TODO
+import { useAuth0Client } from "../../hooks/useAuth0Client";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { FacebookIcon } from "../../icons/FacebookIcon";
@@ -213,6 +213,14 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
     }
   }, [client, email, password, isSignup]);
 
+  const onClickGoogle = useCallback(async () => {
+    await client.socialLogin("google-oauth2");
+  }, [client]);
+
+  const onClickFacebook = useCallback(async () => {
+    await client.socialLogin("facebook");
+  }, [client]);
+
   useEffect(() => {
     if (!open) {
       setEmail("");
@@ -302,6 +310,7 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
               <EAButton
                 style="grey"
                 variant="outlined"
+                onClick={onClickGoogle}
                 className={classNames(classes.button, classes.socialButton)}
               >
                 <img src={links.googleLogo} /> Continue with Google
@@ -309,6 +318,7 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
               <EAButton
                 style="grey"
                 variant="outlined"
+                onClick={onClickFacebook}
                 className={classNames(classes.button, classes.socialButton)}
               >
                 <FacebookIcon /> Continue with Facebook
