@@ -674,7 +674,7 @@ const schema: SchemaType<"Comments"> = {
     canCreate: ['members', 'admins', 'sunshineRegiment'],
     canUpdate: [userOwns, 'admins', 'sunshineRegiment'],
     optional: true,
-    hidden: ({document}) => !isEAForum || !document.shortform,
+    hidden: ({document}) => !isEAForum || !document?.shortform,
     control: "FormComponentQuickTakesTags",
   },
   'relevantTagIds.$': {

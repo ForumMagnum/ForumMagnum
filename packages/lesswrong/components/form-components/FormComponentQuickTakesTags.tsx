@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useQuickTakesTags } from "../quickTakes/useQuickTakesTags";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (_theme: ThemeType): JssStyles => ({
   tagContainer: {
     display: "flex",
     flexWrap: "wrap",
@@ -20,10 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const FormComponentQuickTakesTags = ({
   value,
   path,
-  document,
-  formType,
   updateCurrentValues,
-  placeholder,
   classes,
 }: FormComponentProps<AnyBecauseTodo> & {
   classes: ClassesType,
@@ -37,13 +34,12 @@ const FormComponentQuickTakesTags = ({
     onTagSelected,
     onTagRemoved,
   } = useQuickTakesTags(value);
-  
+
   useEffect(() => {
-    updateCurrentValues({[path]: selectedTagIds})
+    void updateCurrentValues({[path]: selectedTagIds})
   }, [updateCurrentValues, path, selectedTagIds])
 
   const {TagsChecklist, Loading} = Components;
-  
   return <div className={classes.tagContainer}>
     <span className={classes.tagLabel}>Set topic</span>
     {loading
@@ -66,7 +62,6 @@ const FormComponentQuickTakesTags = ({
         />
     )}
   </div>
-
 }
 
 const FormComponentQuickTakesTagsComponent = registerComponent(
