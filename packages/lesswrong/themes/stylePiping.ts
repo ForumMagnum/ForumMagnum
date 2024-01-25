@@ -171,6 +171,7 @@ const tableStyles = (theme: ThemeType): JssStyles => ({
     "& *": {
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 14,
+      lineHeight: "1.4em",
     },
     "& ul": {
       paddingLeft: "2em",
@@ -181,14 +182,14 @@ const tableStyles = (theme: ThemeType): JssStyles => ({
 const tableCellStyles = (theme: ThemeType): JssStyles => ({
   minWidth: "2em",
   padding: ".4em",
-  border: theme.palette.border.tableCell,
+  border:  theme.palette.border.tableCell,
   '& p': {
     marginTop: '0.5em',
     marginBottom: '0.5em',
     ...(isFriendlyUI && {
-      marginLeft: 4,
-      marginRight: 4,
-      lineHeight: "1.65em",
+      marginLeft: 2,
+      marginRight: 2,
+      lineHeight: "1.4em",
     }),
   },
   '& p:first-of-type': {
