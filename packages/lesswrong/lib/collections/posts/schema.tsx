@@ -869,13 +869,23 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
   },
 
-  annualReviewMarketInfo: {
-    type: new SimpleSchema({
-      id: {type: String, optional: false, nullable: false},
-      probability: { type: Number, optional: false, nullable: false },
-      isResolved: {type: Boolean, optional: false, nullable: false},
-      year: {type: Number, optional: false, nullable: false},
-    }),
+
+  annualReviewMarketProbability: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests']
+    // Implementation in postResolvers.ts
+  },
+  annualReviewMarketIsResolved: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests']
+    // Implementation in postResolvers.ts
+  },
+  annualReviewMarketYear: {
+    type: Number,
     optional: true,
     nullable: true,
     canRead: ['guests']

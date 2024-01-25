@@ -36,15 +36,6 @@ const getDialogueMessageContents = async (post: DbPost, messageId: string): Prom
   return message.html();
 }
 
-addGraphQLSchema(`
-  type ReviewMarketInfoType {
-    id: String!,
-    probability: Float,
-    outcomeType: String!,
-    isResolved: Boolean!,
-    year: Int!,
-  }
-`)
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -253,11 +244,27 @@ augmentFieldsDict(Posts, {
       }
     }
   },
-  annualReviewMarketInfo: {
+  annualReviewMarketProbability: {
     resolveAs: {
-      type: 'ReviewMarketInfoType',
+      type: 'Float',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-        return getPostMarketInfo(post)
+        return getPostMarketInfo(post)?.probability
+      }
+    }
+  },
+  annualReviewMarketIsResolved: {
+    resolveAs: {
+      type: 'Boolean',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        return getPostMarketInfo(post)?.isResolved
+      }
+    }
+  },
+  annualReviewMarketYear: {
+    resolveAs: {
+      type: 'Int',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        return getPostMarketInfo(post)?.year
       }
     }
   },

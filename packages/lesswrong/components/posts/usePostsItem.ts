@@ -88,6 +88,17 @@ const areNewComments = (lastCommentedAt : Date | null, lastVisitedAt: Date | nul
   return lastVisitedAt < lastCommentedAt;
 }
 
+const getMarketInfo = (post: PostsList): MarketInfo | null => {
+  if (post.annualReviewMarketProbability == null) return null
+  if (post.annualReviewMarketIsResolved == null) return null
+  if (post.annualReviewMarketYear == null) return null
+  return {
+    probability: post.annualReviewMarketProbability,
+    isResolved: post.annualReviewMarketIsResolved,
+    year: post.annualReviewMarketYear
+  }
+}
+
 export const usePostsItem = ({
   post,
   tagRel = null,
@@ -192,7 +203,7 @@ export const usePostsItem = ({
   // const karmaProbabilityReviewWinner = post.probabilityReviewWinner
   // const karmaPredictedReviewWinner = !!karmaProbabilityReviewWinner && karmaProbabilityReviewWinner > KARMA_REVIEW_WINNER_THRESHOLD
 
-  const annualReviewMarketInfo = post.annualReviewMarketInfo
+  const annualReviewMarketInfo : MarketInfo | null = getMarketInfo(post)
 
   return {
     post,
