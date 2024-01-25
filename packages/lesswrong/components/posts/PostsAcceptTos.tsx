@@ -1,6 +1,6 @@
 import React, { FC, useState, useCallback } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { isEAForum } from "../../lib/instanceSettings";
+import { isLWorAF } from "../../lib/instanceSettings";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useMessages } from "../common/withMessages";
 import { Link } from "../../lib/reactRouterWrapper";
@@ -60,7 +60,7 @@ const PostsAcceptTos = ({currentUser, classes}: {
     }
   }, [loading, setLoading, flash, updateCurrentUser]);
 
-  if (!isEAForum || accepted) {
+  if (isLWorAF || accepted) {
     return null;
   }
 

@@ -8,6 +8,8 @@ import { getCollectionHooks } from '../mutationCallbacks';
 import { updateDenormalizedContributorsList } from '../resolvers/tagResolvers';
 import { taggingNameSetting } from '../../lib/instanceSettings';
 import { updateMutator } from '../vulcan-lib';
+import { elasticSyncDocument } from '../search/elastic/elasticCallbacks';
+import { isElasticEnabled } from '../search/elastic/elasticSettings';
 
 function isValidTagName(name: string) {
   if (!name || !name.length)
@@ -31,14 +33,17 @@ export async function updatePostDenormalizedTags(postId: string) {
   }
 
   const tagRels: Array<DbTagRel> = await TagRels.find({postId, deleted: false}).fetch();
-  const tagRelDict: Partial<Record<string,number>> = {};
-  
+  const tagRelDict: Record<string, number> = {};
+
   for (let tagRel of tagRels) {
     if (tagRel.baseScore > 0)
       tagRelDict[tagRel.tagId] = tagRel.baseScore;
   }
-  
+
   await Posts.rawUpdateOne({_id:postId}, {$set: {tagRelevance: tagRelDict}});
+  if (isElasticEnabled) {
+    void elasticSyncDocument("Posts", postId);
+  }
 }
 
 getCollectionHooks("Tags").createValidate.add(async (validationErrors: Array<any>, {document: tag}: {document: DbTag}) => {

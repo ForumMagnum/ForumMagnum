@@ -29,11 +29,11 @@ Vulcan.validateAllDenormalizedValues = validateAllDenormalizedValues;
 // If validateOnly is true, compare them with the existing values in the database and
 // report how many differ; otherwise update them to the correct values. If fieldName
 // is given, recompute a single field; otherwise recompute all fields on the collection.
-export const recomputeDenormalizedValues = async <T extends CollectionNameString>({collectionName, fieldName=null, validateOnly=false, projection, nullToZero=false}: {
-  collectionName: T,
-  fieldName?: (keyof ObjectsByCollectionName[T] & string)|null,
+export const recomputeDenormalizedValues = async <N extends CollectionNameString>({collectionName, fieldName=null, validateOnly=false, projection, nullToZero=false}: {
+  collectionName: N,
+  fieldName?: (keyof ObjectsByCollectionName[N] & string)|null,
   validateOnly?: boolean,
-  projection?: MongoProjection<ObjectsByCollectionName[T]>,
+  projection?: MongoProjection<ObjectsByCollectionName[N]>,
   nullToZero?: boolean
 }) => {
   // eslint-disable-next-line no-console
@@ -63,10 +63,10 @@ export const recomputeDenormalizedValues = async <T extends CollectionNameString
       throw new Error(`${collectionName}.${fieldName} is missing its getValue function`)
     }
 
-    await runDenormalizedFieldMigration<ObjectsByCollectionName[T]>({ collection, fieldName, getValue, projection, validateOnly, nullToZero })
+    await runDenormalizedFieldMigration({ collection, fieldName, getValue, projection, validateOnly, nullToZero })
   } else {
     const denormalizedFields = getFieldsWithAttribute(schema, 'canAutoDenormalize')
-    if (denormalizedFields.length == 0) {
+    if (denormalizedFields.length === 0) {
       // eslint-disable-next-line no-console
       console.log(`${collectionName} does not have any fields with "canAutoDenormalize", not computing denormalized values`)
       return;
@@ -76,7 +76,7 @@ export const recomputeDenormalizedValues = async <T extends CollectionNameString
     console.log(`Recomputing denormalized values for ${collection.collectionName} in fields: ${denormalizedFields}`);
 
     for (let j=0; j<denormalizedFields.length; j++) {
-      const fieldName = denormalizedFields[j] as keyof ObjectsByCollectionName[T] & string;
+      const fieldName = denormalizedFields[j] as keyof ObjectsByCollectionName[N] & string;
       const getValue = schema[fieldName].getValue
       await runDenormalizedFieldMigration({ collection, fieldName, getValue, projection, validateOnly, nullToZero })
     }
@@ -87,12 +87,20 @@ export const recomputeDenormalizedValues = async <T extends CollectionNameString
 }
 Vulcan.recomputeDenormalizedValues = recomputeDenormalizedValues;
 
-async function runDenormalizedFieldMigration<T extends DbObject>({ collection, fieldName, getValue, unmigratedDocumentQuery, projection, validateOnly, nullToZero }: {
-  collection: CollectionBase<T>,
-  fieldName: keyof T,
+async function runDenormalizedFieldMigration<N extends CollectionNameString>({
+  collection,
+  fieldName,
+  getValue,
+  unmigratedDocumentQuery,
+  projection,
+  validateOnly,
+  nullToZero,
+}: {
+  collection: CollectionBase<N>,
+  fieldName: keyof ObjectsByCollectionName[N],
   getValue: AnyBecauseTodo,
-  unmigratedDocumentQuery?: MongoSelector<T>,
-  projection?: MongoProjection<T>,
+  unmigratedDocumentQuery?: MongoSelector<ObjectsByCollectionName[N]>,
+  projection?: MongoProjection<ObjectsByCollectionName[N]>,
   validateOnly: boolean,
   nullToZero: boolean
 }) {

@@ -128,6 +128,7 @@ export type AnalyticsProps = {
   hoverPreviewType?: string,
   sortedBy?: string,
   branch?: string,
+  siteEvent?: string,
   href?: string,
   limit?: number,
   capturePostItemOnMount?: boolean,
@@ -264,11 +265,11 @@ export function useOnMountTracking<T>({eventType="unnamed", eventProps=emptyEven
   return {captureEvent: track}
 }
 
-export function useIsInView({rootMargin='0px', threshold=0}={}) {
-  const [entry, setEntry] = useState<any>(null)
-  const [node, setNode] = useState<any>(null)
+export function useIsInView<T extends HTMLElement>({rootMargin='0px', threshold=0}={}) {
+  const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null)
+  const [node, setNode] = useState<T | null>(null)
 
-  const observer = useRef<any>(null)
+  const observer = useRef<IntersectionObserver | null>(null)
 
   useEffect(() => {
     if (!window.IntersectionObserver) return
@@ -289,7 +290,7 @@ export function useIsInView({rootMargin='0px', threshold=0}={}) {
     return () => currentObserver.disconnect()
   }, [node, rootMargin, threshold])
 
-  return { setNode, entry }
+  return { setNode, entry, node }
 }
 
 

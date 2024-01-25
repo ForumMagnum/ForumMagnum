@@ -30,7 +30,10 @@ type CurrentEvent = {
 }
 
 const useCurrentEvent = (): CurrentEvent | null => {
-  const spotlight = useCurrentFrontpageSpotlight();
+  const spotlight = useCurrentFrontpageSpotlight({
+    fragmentName: "SpotlightHeaderEventSubtitle",
+  });
+  
   if (!spotlight?.headerTitle) {
     return null;
   }

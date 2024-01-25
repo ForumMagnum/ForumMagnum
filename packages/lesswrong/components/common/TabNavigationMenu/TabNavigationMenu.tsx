@@ -8,7 +8,7 @@ import menuTabs from './menuTabs'
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
-import { isEAForum } from '../../../lib/instanceSettings';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 export const TAB_NAVIGATION_MENU_WIDTH = 250
 
@@ -17,10 +17,16 @@ const styles = (theme: ThemeType): JssStyles => {
     root: {
       display: "flex",
       flexDirection: "column",
-      justifyContent: "space-around",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
       paddingTop: 15,
-      paddingLeft: isEAForum ? 6 : undefined,
+      ...(isFriendlyUI
+        ? {
+          paddingLeft: 6,
+          height: "100%",
+        }
+        : {
+          justifyContent: "space-around",
+        }),
     },
     noTopMargin: {
       paddingTop: "0px !important",
@@ -34,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => {
       width: 50,
       borderBottom: theme.palette.border.normal,
       marginBottom: theme.spacing.unit * 2.5,
-      ...(isEAForum
+      ...(isFriendlyUI
         ? {
           marginLeft: theme.spacing.unit * 2.5,
           marginTop: theme.spacing.unit * 2.5,
@@ -85,6 +91,7 @@ const TabNavigationMenu = ({
               const CustomComponent: any = Components[tab.customComponentName as keyof ComponentTypes];
               return <CustomComponent
                 key={tab.id}
+                tab={tab}
                 onClick={(e: React.BaseSyntheticEvent) => handleClick(e, tab.id)}
                 {...customComponentProps}
               />

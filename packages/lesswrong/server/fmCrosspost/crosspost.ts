@@ -13,7 +13,7 @@ export async function performCrosspost<T extends Crosspost>(post: T): Promise<T>
   const logger = loggerConstructor('callbacks-posts')
   logger('performCrosspost()')
   logger('post info:', pick(post, ['title', 'fmCrosspost']))
-  // TODO; validate userId owns foreignPost && currentUser === userId || currentUser.isAdmin
+  // TODO: validate userId owns foreignPost && currentUser === userId || currentUser.isAdmin
   if (!post.fmCrosspost || !post.userId || post.draft) {
     logger('post is not a crosspost or is a draft, returning')
     return post;
@@ -89,7 +89,7 @@ const removeCrosspost = async <T extends Crosspost>(post: T) => {
 
 export async function handleCrosspostUpdate(
   data: Partial<DbPost>,
-  {oldDocument, newDocument, currentUser}: UpdateCallbackProperties<DbPost>
+  {oldDocument, newDocument, currentUser}: UpdateCallbackProperties<"Posts">
 ): Promise<Partial<DbPost>> {
   const logger = loggerConstructor('callbacks-posts')
   logger('handleCrosspostUpdate()')

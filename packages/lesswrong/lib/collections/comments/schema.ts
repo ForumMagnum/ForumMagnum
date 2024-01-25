@@ -1,18 +1,16 @@
 import { documentIsNotDeleted, userOwns } from '../../vulcan-users/permissions';
-import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences } from '../../utils/schemaUtils';
+import { arrayOfForeignKeysField, foreignKeyField, resolverOnlyField, denormalizedField, denormalizedCountOfReferences, schemaDefaultValue } from '../../utils/schemaUtils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userGetDisplayNameById } from '../../vulcan-users/helpers';
-import { schemaDefaultValue } from '../../collectionUtils';
 import { Utils } from '../../vulcan-lib';
-import { forumTypeSetting, isEAForum } from "../../instanceSettings";
+import { isAF, isEAForum, isLWorAF } from "../../instanceSettings";
 import { commentAllowTitle, commentGetPageUrlFromDB } from './helpers';
 import { tagCommentTypes } from './types';
 import { getVotingSystemNameForDocument } from '../../voting/votingSystems';
 import { viewTermsToQuery } from '../../utils/viewUtils';
-import type { SmartFormProps } from '../../../components/vulcan-forms/propTypes';
 import GraphQLJSON from 'graphql-type-json';
 
-export const moderationOptionsGroup: FormGroupType = {
+export const moderationOptionsGroup: FormGroupType<"Comments"> = {
   order: 50,
   name: "moderation",
   label: "Moderator Options",
@@ -26,9 +24,7 @@ export const alignmentOptionsGroup = {
   startCollapsed: true
 };
 
-const alignmentForum = forumTypeSetting.get() === 'AlignmentForum'
-
-const schema: SchemaType<DbComment> = {
+const schema: SchemaType<"Comments"> = {
   // The `_id` of the parent comment, if there is one
   parentCommentId: {
     ...foreignKeyField({
@@ -65,6 +61,7 @@ const schema: SchemaType<DbComment> = {
     optional: true,
     canRead: ['guests'],
     onInsert: (document, currentUser) => new Date(),
+    nullable: false
   },
   // The comment author's name
   author: {
@@ -141,6 +138,7 @@ const schema: SchemaType<DbComment> = {
       nullable: true,
     }),
     optional: true,
+    nullable: false,
     canRead: [isEAForum ? documentIsNotDeleted : 'guests'],
     canCreate: ['members'],
     hidden: true,
@@ -422,7 +420,8 @@ const schema: SchemaType<DbComment> = {
   }),
   
   votingSystem: resolverOnlyField({
-    type: String,
+    type: 'String',
+    graphQLtype: 'String!',
     canRead: ['guests'],
     resolver: (comment: DbComment, args: void, context: ResolverContext): Promise<string> => {
       return getVotingSystemNameForDocument(comment, context)
@@ -453,8 +452,9 @@ const schema: SchemaType<DbComment> = {
   legacyPoll: {
     type: Boolean,
     optional: true,
+    nullable: false,
     hidden: true,
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     canCreate: ['members'],
@@ -659,7 +659,7 @@ const schema: SchemaType<DbComment> = {
     hidden: (props) => {
       // Currently only allow titles for top level subforum comments
       const comment = props?.document
-      return !commentAllowTitle(comment)
+      return !!(comment && !commentAllowTitle(comment))
     }
   },
 
@@ -780,6 +780,7 @@ const schema: SchemaType<DbComment> = {
       ) {
         return {};
       }
+      if (!comment.postId) return {};
       const reactors = await context.repos.posts.getCommentEmojiReactorsWithCache(comment.postId);
       return reactors[comment._id] ?? {};
     },
@@ -794,7 +795,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForum', 'admins'],
     canCreate: ['alignmentForum', 'admins'],
-    hidden: (props: SmartFormProps) => alignmentForum || !props.alignmentForumPost
+    hidden: (props) => isAF || !props.alignmentForumPost
   },
 
   suggestForAlignmentUserIds: {
@@ -824,7 +825,7 @@ const schema: SchemaType<DbComment> = {
     canRead: ['guests'],
     canUpdate: ['alignmentForumAdmins', 'admins'],
     label: "AF Review UserId",
-    hidden: forumTypeSetting.get() === 'EAForum'
+    hidden: !isLWorAF
   },
 
   afDate: {
@@ -862,6 +863,22 @@ const schema: SchemaType<DbComment> = {
     canCreate: ['admins'],
     canUpdate: [userOwns, 'admins'],
   },
+
+  originalDialogueId: {
+    ...foreignKeyField({
+      idFieldName: "originalDialogueId",
+      resolverName: "originalDialogue",
+      collectionName: "Posts",
+      type: "Post",
+      nullable: true,
+    }),
+    optional: true,
+    hidden: true,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['members', 'sunshineRegiment', 'admins'],
+  } 
 };
 
 export default schema;

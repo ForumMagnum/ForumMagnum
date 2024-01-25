@@ -1,13 +1,7 @@
-import React from 'react';
 import { ApolloError, gql } from '@apollo/client';
-import { Mutation } from '@apollo/client/react/components';
 import { useApolloClient, useMutation } from '@apollo/client/react/hooks';
-import type { MutationResult } from '@apollo/client/react';
-import { withApollo } from '@apollo/client/react/hoc';
-import { extractCollectionInfo, extractFragmentInfo, getCollection } from '../vulcan-lib';
-import { compose, withHandlers } from 'recompose';
+import { extractFragmentInfo, getCollection } from '../vulcan-lib';
 import { updateCacheAfterCreate } from './cacheUpdates';
-import { getExtraVariables } from './utils'
 import { loggerConstructor } from '../utils/logging';
 
 /**
@@ -39,49 +33,6 @@ const createClientTemplate = ({ typeName, fragmentName, extraVariablesString }: 
 );
 
 /**
- * Higher-order-component wrapper that adds a prop createFoo to the wrapped
- * component, which can be called to create a new entry in the chosen
- * collection. DEPRECATED; use the hook version, useCreate, if possible.
- */
-export const withCreate = (options: any) => {
-  const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
-
-  const typeName = collection.options.typeName;
-  const query = gql`
-    ${createClientTemplate({ typeName, fragmentName })}
-    ${fragment}
-  `;
-
-  const mutationWrapper = (Component: any) => (props: any) => (
-    <Mutation mutation={query}>
-      {(mutate: any, result: MutationResult<any>) => (
-        <Component
-          {...props}
-          mutate={mutate}
-          ownProps={props}
-        />
-      )}
-    </Mutation>
-  )
-
-  // wrap component with graphql HoC
-  return compose(
-    mutationWrapper,
-    withApollo,
-    withHandlers({
-      [`create${typeName}`]: ({ mutate, ownProps }) => ({data}: {data: any}) => {
-        const extraVariables = getExtraVariables(ownProps, options.extraVariables)
-        return mutate({
-          variables: { data, ...extraVariables },
-          update: updateCacheAfterCreate(typeName, ownProps.client)
-        });
-      },
-    })
-  )
-};
-
-/**
  * Hook that returns a function for creating a new object in a collection, along
  * with some metadata about the status of that create operation if it's been
  * started.
@@ -96,7 +47,7 @@ export const useCreate = <CollectionName extends CollectionNameString>({
   fragment?: any,
   ignoreResults?: boolean,
 }): {
-  create: WithCreateFunction<CollectionBase<ObjectsByCollectionName[CollectionName]>>,
+  create: WithCreateFunction<CollectionName>,
   loading: boolean,
   error: ApolloError|undefined,
   called: boolean,

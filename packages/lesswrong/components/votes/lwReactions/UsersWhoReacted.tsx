@@ -21,19 +21,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes}:{
-  usersWhoReacted: UserReactInfo[],
+const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}:{
+  reactions: UserReactInfo[],
   wrap?: boolean,
   showTooltip?: boolean,
   classes:ClassesType,
 }) => {
   const { LWTooltip } = Components;
-  const usersWhoReactedWithoutQuotes = usersWhoReacted.filter(r => !r.quotes || r.quotes.length === 0)
 
-  if (usersWhoReactedWithoutQuotes.length === 0) return null;
+  if (reactions.length === 0) return null;
 
-  const usersWhoProReacted = usersWhoReactedWithoutQuotes.filter(r=>r.reactType!=="disagreed")
-  const usersWhoAntiReacted = usersWhoReactedWithoutQuotes.filter(r=>r.reactType==="disagreed")
+  const usersWhoProReacted = reactions.filter(r=>r.reactType!=="disagreed")
+  const usersWhoAntiReacted = reactions.filter(r=>r.reactType==="disagreed")
 
   const tooltip = <div>
     <p>Users Who Reacted:</p>
@@ -45,26 +44,26 @@ const UsersWhoReacted = ({usersWhoReacted, wrap=false, showTooltip=true, classes
   </div>
 
   const component = <div className={classes.usersWhoReactedRoot}>
-      {usersWhoProReacted.length > 0 &&
-        <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
-          {usersWhoProReacted.map((userReactInfo,i) =>
-            <span key={userReactInfo.userId}>
-              {(i>0) && <span>{", "}</span>}
-              {userReactInfo.displayName}
-            </span>
-          )}
-        </div>
-      }
-      {usersWhoAntiReacted.length > 0 &&
-        <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
-          {usersWhoAntiReacted.map((userReactInfo,i) =>
-            <span key={userReactInfo.userId} className={classes.userWhoAntiReacted}>
-              {(i>0) && <span>{", "}</span>}
-              {userReactInfo.displayName}
-            </span>
-          )}
-        </div>
-      }
+    {usersWhoProReacted.length > 0 &&
+      <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
+        {usersWhoProReacted.map((userReactInfo,i) =>
+          <span key={userReactInfo.userId}>
+            {(i>0) && <span>{", "}</span>}
+            {userReactInfo.displayName}
+          </span>
+        )}
+      </div>
+    }
+    {usersWhoAntiReacted.length > 0 &&
+      <div className={classNames(classes.usersWhoReacted, {[classes.usersWhoReactedWrap]: wrap})}>
+        {usersWhoAntiReacted.map((userReactInfo,i) =>
+          <span key={userReactInfo.userId} className={classes.userWhoAntiReacted}>
+            {(i>0) && <span>{", "}</span>}
+            {userReactInfo.displayName}
+          </span>
+        )}
+      </div>
+    }
   </div>
 
   if (showTooltip) {

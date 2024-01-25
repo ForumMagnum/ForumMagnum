@@ -41,8 +41,8 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
   name: string,
   description: string,
   userCanActivate?: boolean, // toggles whether non-admins use this voting system
-  getCommentVotingComponent: ()=>CommentVotingComponent,
-  getCommentBottomComponent?: ()=>CommentVotingBottomComponent,
+  getCommentVotingComponent?: () => CommentVotingComponent,
+  getCommentBottomComponent?: () => CommentVotingBottomComponent,
   getPostBottomVotingComponent?: () => PostVotingComponent,
   getPostBottomSecondaryVotingComponent?: () => PostVotingComponent,
   addVoteClient: (props: {
@@ -343,7 +343,7 @@ function filterZeroes(obj: any) {
 }
 
 export function getVotingSystemByName(name: string): VotingSystem {
-  if (votingSystems[name])
+  if (name && votingSystems[name])
     return votingSystems[name]!;
   else
     return getDefaultVotingSystem();
@@ -362,7 +362,7 @@ export async function getVotingSystemNameForDocument(document: VoteableType, con
     return "twoAxis";
   }
   if ((document as DbComment).postId) {
-    const post = await context.loaders.Posts.load((document as DbComment).postId);
+    const post = await context.loaders.Posts.load((document as DbComment).postId!);
     if (post?.votingSystem) {
       return post.votingSystem;
     }

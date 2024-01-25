@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { combineIndexWithDefaultViewIndex, ensureIndex } from '../../collectionIndexUtils';
+import { combineIndexWithDefaultViewIndex, ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
 import { forumTypeSetting, isEAForum } from '../../instanceSettings';
 import { hideUnreviewedAuthorCommentsSettings } from '../../publicSettings';
 import { ReviewYear } from '../../reviewUtils';
@@ -14,6 +14,8 @@ declare global {
     postId?: string,
     userId?: string,
     tagId?: string,
+    relevantTagId?: string,
+    maxAgeDays?: number,
     parentCommentId?: string,
     parentAnswerId?: string,
     topLevelCommentId?: string,
@@ -460,6 +462,19 @@ Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
 });
 ensureIndex(Comments, augmentForDefaultView({parentAnswerId:1, baseScore:-1}));
 
+Comments.addView('answersAndReplies', ({postId}: CommentsViewTerms) => {
+  return {
+    selector: {
+      postId,
+      $or: [
+        { answer: true },
+        { parentAnswerId: {$exists: true} },
+      ],
+    },
+    options: {sort: {baseScore: -1}}
+  };
+});
+
 // Used in moveToAnswers
 ensureIndex(Comments, {topLevelCommentId:1});
 
@@ -505,16 +520,26 @@ Comments.addView('shortform', (terms: CommentsViewTerms) => {
 
 Comments.addView('shortformFrontpage', (terms: CommentsViewTerms) => {
   const twoHoursAgo = moment().subtract(2, 'hours').toDate();
+  const maxAgeDays = terms.maxAgeDays ?? 5;
   return {
     selector: {
       shortform: true,
       shortformFrontpage: true,
       deleted: false,
       parentCommentId: viewFieldNullOrMissing,
-      createdAt: {$gt: moment().subtract(5, 'days').toDate()},
-      ...(!terms.showCommunity && {
-        relevantTagIds: {$ne: EA_FORUM_COMMUNITY_TOPIC_ID},
-      }),
+      createdAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
+      $and: [
+        !terms.showCommunity
+          ? {
+            relevantTagIds: {$ne: EA_FORUM_COMMUNITY_TOPIC_ID},
+          }
+          : {},
+        !!terms.relevantTagId
+          ? {
+            relevantTagIds: terms.relevantTagId,
+          }
+          : {},
+      ],
       // Quick takes older than 2 hours must have at least 1 karma, quick takes
       // younger than 2 hours must have at least -5 karma
       $or: [
@@ -563,7 +588,7 @@ Comments.addView('nominations2018', ({userId, postId, sortBy="top"}: CommentsVie
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -577,7 +602,7 @@ Comments.addView('nominations2019', function ({userId, postId, sortBy="top"}) {
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -596,7 +621,7 @@ Comments.addView('reviews2018', ({userId, postId, sortBy="top"}: CommentsViewTer
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -610,7 +635,7 @@ Comments.addView('reviews2019', function ({userId, postId, sortBy="top"}) {
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -626,7 +651,7 @@ Comments.addView('reviews', function ({userId, postId, reviewYear, sortBy="top"}
       deleted: false
     },
     options: {
-      sort: { ...sortings[sortBy], top: -1, postedAt: -1 }
+      sort: { ...sortings[sortBy], postedAt: -1 }
     }
   };
 });
@@ -720,3 +745,17 @@ Comments.addView("recentDebateResponses", (terms: CommentsViewTerms) => {
     options: {sort: {postedAt: -1}, limit: terms.limit || 7},
   };
 });
+
+
+// For allowing `CommentsRepo.getPromotedCommentsOnPosts` to use an index-only scan, which is much faster than an index scan followed by pulling each comment from disk to get its "promotedAt".
+void ensureCustomPgIndex(`
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_postId_promotedAt"
+  ON "Comments" ("postId", "promotedAt")
+  WHERE "promotedAt" IS NOT NULL;
+`);
+
+// For allowing `TagsRepo.getUserTopTags` to use an index-only scan, since given previous indexes it needed to pull all the comments to get their "postId".
+void ensureCustomPgIndex(`
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_userId_postId_postedAt"
+  ON "Comments" ("userId", "postId", "postedAt");
+`);

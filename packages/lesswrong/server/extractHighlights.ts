@@ -1,11 +1,12 @@
 import { cheerioParse } from './utils/htmlUtil';
 
-export function htmlStartingAtHash(html: string, hash: string): string {
+export function htmlStartingAtHash(html: string | null, hash: string): string {
+  if (!html) return '';
   try {
     // Find the given anchor, if present
     const $ = cheerioParse(html);
     const matchesWithID = $(`#${hash}`);
-    if (matchesWithID.length==0)
+    if (matchesWithID.length===0)
       return html;
     const sectionElement = matchesWithID[0];
     

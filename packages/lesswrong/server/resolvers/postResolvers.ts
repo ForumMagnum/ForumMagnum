@@ -2,7 +2,7 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../lib/collections/comments/collection';
 import { SideCommentsCache, SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
-import { augmentFieldsDict, denormalizedField } from '../../lib/utils/schemaUtils'
+import { augmentFieldsDict, denormalizedField, accessFilterMultiple } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
 import { isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { matchSideComments } from '../sideComments';
@@ -15,6 +15,26 @@ import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulca
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
+import { getLatestRev } from '../editor/make_editable_callbacks';
+import { cheerioParse } from '../utils/htmlUtil';
+import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
+
+/**
+ * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
+ * Do not use this for anyone who doesn't have privileged access to document since it can return unpublished edits
+*/
+const getDialogueMessageContents = async (post: DbPost, messageId: string): Promise<string|null> => {
+  if (!post.collabEditorDialogue) throw new Error("Post is not a dialogue!")
+
+  // fetch remote document from storage / fetch latest revision / post latest contents
+  const latestRevision = await getLatestRev(post._id, "contents")
+  const html = latestRevision?.html ?? post.contents.html ?? ""
+
+  const $ = cheerioParse(html)
+  const message = $(`[message-id="${messageId}"]`);
+  return message.html();
+}
+
 
 augmentFieldsDict(Posts, {
   // Compute a denormalized start/end time for events, accounting for the
@@ -74,7 +94,7 @@ augmentFieldsDict(Posts, {
   },
   totalDialogueResponseCount: {
     resolveAs: {
-      type: 'Int', 
+      type: 'Int!', 
       resolver: (post, _, context) => {
         if (!post.debate) return 0;
         return getDialogueResponseIds(post).length
@@ -83,8 +103,8 @@ augmentFieldsDict(Posts, {
   },
   unreadDebateResponseCount: {
     resolveAs: {
-      type: 'Int',
-      resolver: async (post, _, context) => {
+      type: 'Int!',
+      resolver: async (post, _, context): Promise<number> => {
         if (!post.collabEditorDialogue) return 0;
 
         const lastReadStatus = await getLastReadStatus(post, context);
@@ -117,7 +137,7 @@ augmentFieldsDict(Posts, {
         }
         const cache = post.sideCommentsCache as SideCommentsCache|undefined;
         const cacheIsValid = cache
-          && cache.generatedAt>post.lastCommentedAt
+          && (!post.lastCommentedAt || cache.generatedAt > post.lastCommentedAt)
           && cache.generatedAt > post.contents?.editedAt
           && cache.version === sideCommentCacheVersion;
         let unfilteredResult: {annotatedHtml: string, commentsByBlock: Record<string,string[]>}|null = null;
@@ -133,7 +153,7 @@ augmentFieldsDict(Posts, {
         } else {
           const toc = await getToCforPost({document: post, version: null, context});
           const html = toc?.html || post?.contents?.html
-          const sideCommentMatches = await matchSideComments({
+          const sideCommentMatches = matchSideComments({
             postId: post._id,
             html: html,
             comments: comments.map(comment => ({_id: comment._id, html: comment.contents?.html ?? ""})),
@@ -206,6 +226,23 @@ augmentFieldsDict(Posts, {
       }
     },
   },
+  dialogueMessageContents: {
+    resolveAs: {
+      type: 'String',
+      arguments: 'dialogueMessageId: String',
+      resolver: async (post: DbPost, args: {dialogueMessageId?: string}, context: ResolverContext): Promise<string|null> => {
+        const { currentUser } = context
+        const { dialogueMessageId } = args
+        if (!post.collabEditorDialogue) return null;
+        if (!dialogueMessageId) return null;
+        if (!currentUser) return null;
+        const isParticipant = isDialogueParticipant(currentUser._id, post)
+        if (!isParticipant) return null;
+
+        return getDialogueMessageContents(post, dialogueMessageId)
+      }
+    }
+  }
 })
 
 
@@ -224,8 +261,9 @@ addGraphQLResolvers({
       }
 
       const posts = await repos.posts.getReadHistoryForUser(currentUser._id, args.limit ?? 10)
+      const filteredPosts = accessFilterMultiple(currentUser, Posts, posts, context);
       return {
-        posts: posts,
+        posts: filteredPosts,
       }
     },
     async PostIsCriticism(root: void, { args }: { args: PostIsCriticismRequest }, context: ResolverContext) {
@@ -266,9 +304,20 @@ addGraphQLResolvers({
           rating: 0
         }
       })
-    }
+    },
+    async UsersReadPostsOfTargetUser(root: void, { userId, targetUserId, limit = 20 }: { userId: string, targetUserId: string, limit: number }, context: ResolverContext) {
+      const { currentUser, repos } = context
+      if (!currentUser) {
+        throw new Error('Must be logged in to view read posts of target user')
+      }
+
+      const posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId, limit)
+      return await accessFilterMultiple(currentUser, Posts, posts, context)
+    }, 
   },
 })
+
+addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]");
 
 addGraphQLSchema(`
   type UserReadHistoryResult {
@@ -327,4 +376,19 @@ createPaginatedResolver({
     limit: number,
   ): Promise<DbPost[]> => repos.posts.getRecentlyActiveDialogues(limit),
   cacheMaxAgeMs: 1000 * 60 * 10, // 10 min
+});
+
+createPaginatedResolver({
+  name: "MyDialogues",
+  graphQLType: "Post",
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+  ): Promise<DbPost[]> => {
+      const {repos, currentUser} = context
+      if (!currentUser) return []
+      return repos.posts.getMyActiveDialogues(currentUser._id, limit);
+    },
+  // Caching is not user specific, do not use caching here else you will share users' drafts
+  cacheMaxAgeMs: 0, 
 });

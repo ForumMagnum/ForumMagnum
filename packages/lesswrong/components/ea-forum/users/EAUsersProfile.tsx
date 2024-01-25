@@ -22,7 +22,7 @@ import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from '../../users/UsersSingle';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   section: {
     ...eaUsersProfileSectionStyles(theme)
   },
@@ -165,7 +165,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const EAUsersProfile = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser()
   const {loading, results} = useMulti({
@@ -240,7 +240,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
-    ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks,
+    ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks, ForumIcon
   } = Components
 
   if (loading) {
@@ -291,13 +291,13 @@ const EAUsersProfile = ({terms, slug, classes}: {
 
   const privateSectionTabs: Array<UserProfileTabType> = [{
     id: 'drafts',
-    label: `${ownPage ? 'My' : `${username}'s`} Drafts`,
+    label: `Drafts`,
     secondaryNode: <LWTooltip title="This section is only visible to you and site admins.">
       <InfoIcon className={classes.privateSectionIcon} />
     </LWTooltip>,
     body: <>
       <div className={classes.sectionSubHeadingRow}>
-        <Typography variant="headline" className={classes.sectionSubHeading}>Posts</Typography>
+        <Typography variant="headline" className={classes.sectionSubHeading}>Draft/hidden posts</Typography>
         {ownPage && <Link to="/newPost">
           <SectionButton>
             <DescriptionIcon /> New post
@@ -305,19 +305,19 @@ const EAUsersProfile = ({terms, slug, classes}: {
         </Link>}
       </div>
       <AnalyticsContext listContext="userPageDrafts">
-        <DraftsList userId={user._id} limit={5} hideHeaderRow />
+        <DraftsList userId={user._id} limit={2} hideHeaderRow />
         <PostsList2 hideAuthor showDraftTag={false} terms={scheduledPostsTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
         <PostsList2 hideAuthor showDraftTag={false} terms={unlistedTerms} showNoResults={false} showLoading={false} showLoadMore={false} boxShadow={false} />
       </AnalyticsContext>
       <div className={classes.sectionSubHeadingRow}>
-        <Typography variant="headline" className={classes.sectionSubHeading}>Sequences</Typography>
+        <Typography variant="headline" className={classes.sectionSubHeading}>Draft/hidden sequences</Typography>
         {ownPage && <Link to="/sequencesnew">
           <SectionButton>
             <LibraryAddIcon /> New sequence
           </SectionButton>
         </Link>}
       </div>
-      <SequencesGridWrapper terms={{view: "userProfilePrivate", userId: user._id, limit: 9}} showLoadMore={true} />
+      <SequencesGridWrapper terms={{view: "userProfilePrivate", userId: user._id, limit: 3}} showLoadMore={true} />
     </>
   }]
   if (userOrganizesGroups?.length) {
@@ -377,7 +377,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
       collapsable: true
     })
   }
-  if (user.organizerOfGroupIds || user.programParticipation) {
+  if (user.organizerOfGroupIds?.length || user.programParticipation?.length) {
     bioSectionTabs.push({
       id: 'participation',
       label: 'Participation',
@@ -422,7 +422,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
   if (user.tagRevisionCount) {
     commentsSectionTabs.push({
       id: 'tagRevisions',
-      label: `${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Wiki'} Contributions`,
+      label: `${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Wiki'} contributions`,
       count: user.tagRevisionCount,
       body: <AnalyticsContext listContext="userPageWiki">
         <TagEditsByUser userId={user._id} limit={10} />
@@ -460,7 +460,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
             {user.jobTitle} {user.organization ? `@ ${user.organization}` : ''}
           </ContentStyles>}
           <EAUsersMetaInfo user={user} />
-          {currentUser?._id != user._id && <div className={classes.btns}>
+          {currentUser?._id !== user._id && <div className={classes.btns}>
             <NewConversationButton
               user={user}
               currentUser={currentUser}

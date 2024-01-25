@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
-import { getActiveRateLimitNames, getStrictestActiveRateLimitNames } from '../../../lib/rateLimits/utils';
+import { getActiveRateLimitNames, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
 import { getDownvoteRatio } from '../UsersReviewInfoCard';
 import classNames from 'classnames';
 import StarIcon from '@material-ui/icons/Star';
@@ -67,9 +67,9 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
 
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
   const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
-  const strictestRateLimitsNames = getStrictestActiveRateLimitNames(user, allRateLimits);
+  const strictestRateLimits = getStrictestActiveRateLimits(user, allRateLimits);
   const allActiveRateLimitsNames = getActiveRateLimitNames(user, allRateLimits);
-  const nonStrictestRateLimitsNames = allActiveRateLimitsNames.filter(rateLimit => !strictestRateLimitsNames.includes(rateLimit))
+  const nonStrictestRateLimitsNames = allActiveRateLimitsNames.filter(rateLimitName => !strictestRateLimits.some(strictLimit => strictLimit.name === rateLimitName))
 
   return <div>
     {showKarmaMeta && <div>
@@ -80,7 +80,7 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
       </LWTooltip>
       <LWTooltip title={recentKarmaTooltip(user)}>
         <MetaInfo className={classNames(classes.info, {[classes.negativeRecentKarma]: user.recentKarmaInfo.last20Karma < 0, [classes.lowRecentKarma]: user.recentKarmaInfo.last20Karma < 5})}>
-          <StarBorderIcon className={classes.icon}/>{user.recentKarmaInfo.last20Karma ?? 0}
+          <StarBorderIcon className={classes.icon}/>{user.recentKarmaInfo.last20karma}
         </MetaInfo>
       </LWTooltip>
       <LWTooltip title={downvoterTooltip(user)}>
@@ -99,8 +99,8 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta=false, classes}: 
         </MetaInfo>
       </LWTooltip>
     </div>}
-    {strictestRateLimitsNames.map(rateLimit => <div key={`${user._id}rateLimitstrict${rateLimit}`}>
-      <MetaInfo>{rateLimit}</MetaInfo>
+    {strictestRateLimits.map(({name, isActive}) => <div key={`${user._id}rateLimitstrict${name}`}>
+      <LWTooltip title={`Calculated via: ${isActive.toString()}`}><MetaInfo>{name}</MetaInfo></LWTooltip>
     </div>)}
     {nonStrictestRateLimitsNames.length > 0 && <LWTooltip title={<div>
       {nonStrictestRateLimitsNames.map(rateLimit => <div key={`${user._id}rateLimit${rateLimit}`}>{rateLimit}</div>)}</div>}>
@@ -116,4 +116,3 @@ declare global {
     UserAutoRateLimitsDisplay: typeof UserAutoRateLimitsDisplayComponent
   }
 }
-

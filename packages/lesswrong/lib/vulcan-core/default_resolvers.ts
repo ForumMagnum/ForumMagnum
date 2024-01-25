@@ -1,5 +1,5 @@
 import { Utils, getTypeName, getCollection } from '../vulcan-lib';
-import { restrictViewableFields } from '../vulcan-users/permissions';
+import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '../vulcan-users/permissions';
 import { asyncFilter } from '../utils/asyncUtils';
 import { loggerConstructor, logGroupConstructor } from '../utils/logging';
 import { describeTerms, viewTermsToQuery } from '../utils/viewUtils';
@@ -67,7 +67,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
           : docs;
 
         // take the remaining documents and remove any fields that shouldn't be accessible
-        const restrictedDocs = restrictViewableFields(currentUser, collection, viewableDocs);
+        const restrictedDocs = restrictViewableFieldsMultiple(currentUser, collection, viewableDocs);
 
         // prime the cache
         restrictedDocs.forEach((doc: AnyBecauseTodo) => context.loaders[collectionName].prime(doc._id, doc));
@@ -160,7 +160,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
           }
         }
 
-        const restrictedDoc = restrictViewableFields(currentUser, collection, doc);
+        const restrictedDoc = restrictViewableFieldsSingle(currentUser, collection, doc);
 
         logGroupEnd();
         logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
@@ -177,7 +177,11 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
   };
 }
 
-const performQueryFromViewParameters = async <T extends DbObject>(collection: CollectionBase<T>, terms: ViewTermsBase, parameters: any): Promise<Array<T>> => {
+const performQueryFromViewParameters = async <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  terms: ViewTermsBase,
+  parameters: AnyBecauseTodo,
+): Promise<ObjectsByCollectionName[N][]> => {
   const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
   const selector = parameters.selector;
   
@@ -187,16 +191,18 @@ const performQueryFromViewParameters = async <T extends DbObject>(collection: Co
     throw new Error("Exceeded maximum value for skip");
   }
   
-  const options = {
+  const description = describeTerms(collection.collectionName, terms);
+  const options: MongoFindOptions<ObjectsByCollectionName[N]> = {
     ...parameters.options,
     skip: terms.offset,
+    comment: description
   };
   if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
     const pipeline = [
       // First stage: Filter by selector
       { $match: {
         ...selector,
-        $comment: describeTerms(terms),
+        $comment: description,
       }},
       // Second stage: Add computed fields
       { $addFields: parameters.syntheticFields },
@@ -221,7 +227,6 @@ const performQueryFromViewParameters = async <T extends DbObject>(collection: Co
     logger('performQueryFromViewParameters connector find', selector, terms, options);
     return await collection.find({
       ...selector,
-      $comment: describeTerms(terms),
     }, options).fetch();
   }
 }

@@ -1,5 +1,5 @@
 import { ensureIndex } from '../../collectionIndexUtils';
-import { forumTypeSetting } from '../../instanceSettings';
+import { isAF } from '../../instanceSettings';
 import { viewFieldNullOrMissing } from '../../vulcan-lib';
 import Conversations from "./collection";
 
@@ -9,12 +9,13 @@ declare global {
     userId?: string
     participantIds?: Array<string>
     showArchive?: boolean
+    moderator?: boolean
   }
 }
 
 // will be common to all other view unless specific properties are overwritten
 Conversations.addDefaultView(function (terms: ConversationsViewTerms) {
-  const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
+  const alignmentForum = isAF ? {af: true} : {}
   return {
     selector: {
       ...alignmentForum
@@ -44,15 +45,30 @@ Conversations.addView("userConversations", function (terms: ConversationsViewTer
 });
 ensureIndex(Conversations, { participantIds: 1, messageCount: 1, latestActivity: -1 })
 
+Conversations.addView("userConversationsAll", function (terms: ConversationsViewTerms) {
+  const showArchivedFilter = terms.showArchive ? {} : {archivedByIds: {$ne: terms.userId}}
+  return {
+    selector: {participantIds: terms.userId, ...showArchivedFilter},
+    options: {sort: {latestActivity: -1}}
+  };
+});
+
 Conversations.addView("userGroupUntitledConversations", function (terms: ConversationsViewTerms) {
+  const moderatorSelector = terms.moderator ? {moderator: true} : {}
+
   // returns a list of conversations where the participant list is exactly terms.participantIds
   return {
     selector: {
-      participantIds: terms.participantIds ? {$size: terms.participantIds.length, $all: terms.participantIds} : terms.userId,
+      participantIds: terms.participantIds
+        ? { $size: terms.participantIds.length, $all: terms.participantIds }
+        : terms.userId,
       title: viewFieldNullOrMissing,
       // pass in a terms.userId to exclude conversations that this user archived
-      archivedByIds: {$ne: terms.userId}
+      archivedByIds: { $ne: terms.userId },
+      ...moderatorSelector,
     },
+    // Prefer non-mod conversations
+    options: { sort: { moderator: 1 } },
   };
 });
 ensureIndex(Conversations, { participantIds: 1, title: 1 })

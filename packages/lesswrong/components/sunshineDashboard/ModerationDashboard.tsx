@@ -2,8 +2,8 @@ import classNames from 'classnames';
 import qs from 'qs';
 import React from 'react';
 import { useMulti } from '../../lib/crud/withMulti';
-import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
+import { useLocation } from '../../lib/routeUtil';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import { Components, registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
@@ -112,12 +112,12 @@ const ModerationDashboard = ({ classes }: {
 
   const currentUser = useCurrentUser();
 
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const { query, location } = useLocation();
   const currentView = getCurrentView(query);
 
   const changeView = (newView: DashboardTabs) => {
-    history.push({
+    navigate({
       ...location,
       search: qs.stringify({
         view: newView

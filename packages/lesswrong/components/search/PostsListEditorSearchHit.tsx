@@ -1,9 +1,9 @@
 import React from 'react';
 import { Components, registerComponent} from '../../lib/vulcan-lib';
-import { isEAForum } from '../../lib/instanceSettings';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   postLink: {
     float:"right",
     marginRight: theme.spacing.unit,
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   titleRow: {
     textOverflow: "ellipsis",
@@ -31,7 +31,7 @@ const PostsListEditorSearchHit = ({hit, classes}: {
   hit: Hit<AnyBecauseTodo>,
   classes: ClassesType,
 }) => {
-  const post = hit as AlgoliaPost;
+  const post = hit as SearchPost;
   const {PostsTooltip, PostsTitle, MetaInfo, FormatDate} = Components;
   return (
     <PostsTooltip postId={post._id} postsList placement="left">

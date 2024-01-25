@@ -149,6 +149,11 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         primaryTranslucent: "rgba(12,134,155,0.4)"
       }
     },
+    LessWrong: {
+      header: {
+        background: 'rgba(50,50,50,.75)',
+      }
+    },
     default: {},
   });
 
@@ -211,13 +216,16 @@ export const darkModeTheme: UserThemeSpecification = {
       cookieBanner: shadePalette.grey[900],
     },
     background: {
+      default: shadePalette.grey[100],
+      contrastInDarkMode: shadePalette.grey[100],
       diffInserted: "#205120",
       diffDeleted: "#b92424",
       primaryDim: "#28383e",
+      primarySlightlyDim: "#00494e",
       primaryTranslucent: "rgba(99,141,103,0.3)",
       primaryTranslucentHeavy: "rgba(99,141,103,0.6)",
       warningTranslucent: "rgba(255,173,8,0.3)",
-      transparent: 'transparent'
+      transparent: 'transparent',
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
@@ -252,6 +260,19 @@ export const darkModeTheme: UserThemeSpecification = {
       sideCommentEditorBackground: shadePalette.grey[100],
       commentMarker: "#80792e",
       commentMarkerActive: "#cbc14f",
+    },
+    wrapped: {
+      background: '#072C47',
+      highlightText: '#FFC443',
+      secondaryText: '#008DAC',
+      tertiaryText: "rgba(255, 255, 255, 0.50)",
+      black: '#212121',
+      darkGrey: '#424242',
+      grey: '#757575',
+      darkDot: "rgba(255, 255, 255, 0.40)",
+      panelBackground: "rgba(255, 255, 255, 0.10)",
+      panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
+      postScoreArrow: '#BCBCBC',
     },
   }, forumComponentPalette(shadePalette)),
   make: (palette: ThemePalette): PartialDeep<ThemeType> => ({

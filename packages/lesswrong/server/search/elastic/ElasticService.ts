@@ -50,7 +50,8 @@ class ElasticService {
       limit: hitsPerPage,
       preTag: params.highlightPreTag,
       postTag: params.highlightPostTag,
-      filters: this.parseFilters(params.facetFilters, params.numericFilters),
+      filters: this.parseFilters(params.facetFilters, params.numericFilters, params.existsFilters),
+      coordinates: this.parseLatLng(params.aroundLatLng),
     });
 
     const nbHits = typeof result.hits.total === "number"
@@ -113,6 +114,7 @@ class ElasticService {
   parseFilters(
     facetFilters?: string[][],
     numericFilters?: string[],
+    existsFilters?: string[],
   ): QueryFilter[] {
     const result: QueryFilter[] = [];
 
@@ -167,6 +169,13 @@ class ElasticService {
         op,
       });
     }
+    
+    for (const filter of existsFilters ?? []) {
+      result.push({
+        type: "exists",
+        field: filter,
+      });
+    }
 
     return result;
   }
@@ -190,6 +199,26 @@ class ElasticService {
     return parsed;
   }
 
+  /**
+   * We want coordinates in the format [lng, lat], not [lat, lng]
+   * They're passed in as a string like "75, -0.5"
+   */
+  private parseLatLng(value?: string): number[] | undefined {
+    if (!value) {
+      return undefined;
+    }
+    const coordinates = value.split(", ").map((n) => parseFloat(n));
+    if (coordinates.length !== 2) {
+      return undefined;
+    }
+    for (const coordinate of coordinates) {
+      if (typeof coordinate !== "number" || !Number.isFinite(coordinate)) {
+        return undefined;
+      }
+    }
+    return [coordinates[1], coordinates[0]];
+  }
+
   private urlEncode(params: Record<string, unknown>): string {
     const data = Object.keys(params).map((key) => `${key}=${params[key]}`);
     return encodeURIComponent(data.join("&"));
@@ -209,7 +238,7 @@ class ElasticService {
     };
   }
 
-  private getHits(indexName: string, hits: ElasticSearchHit[]): AlgoliaDocument[] {
+  private getHits(indexName: string, hits: ElasticSearchHit[]): SearchDocument[] {
     const config = indexNameToConfig(indexName);
     return hits.map(({_id, _source, highlight}) => ({
       ..._source,

@@ -3,13 +3,30 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { tagGetUrl } from "../../../lib/collections/tags/helpers";
 import { CommonExcerptProps } from "./ContentExcerpt";
 
+type ExcerptableTag =
+  TagRecentDiscussion |
+  TagPreviewFragment |
+  TagSectionPreviewFragment;
+
+export const getTagDescriptionHtml = (tag: ExcerptableTag) => {
+  if (!tag.description) {
+    return undefined;
+  }
+
+  if ("htmlHighlight" in tag.description) {
+    return tag.description.htmlHighlight;
+  }
+
+  return tag.description.htmlHighlightStartingAtHash;
+}
+
 const TagExcerpt = ({
   tag,
   ...commonExcerptProps
 }: CommonExcerptProps & {
-  tag: TagRecentDiscussion,
+  tag: ExcerptableTag,
 }) => {
-  const contentHtml = tag.description?.htmlHighlight;
+  const contentHtml = getTagDescriptionHtml(tag);
   if (!contentHtml) {
     return null;
   }

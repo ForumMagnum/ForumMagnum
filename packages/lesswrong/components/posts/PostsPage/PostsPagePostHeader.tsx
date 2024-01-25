@@ -7,14 +7,15 @@ import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
 import moment from 'moment';
-import { isEAForum, isLWorAF } from '../../../lib/instanceSettings';
+import { isLWorAF } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
+import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 
 const SECONDARY_SPACING = 20;
-const PODCAST_ICON_SIZE = isEAForum ? 22 : 24;
+const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
 // some padding around the icon to make it look like a stateful toggle button
-const PODCAST_ICON_PADDING = isEAForum ? 4 : 2
+const PODCAST_ICON_PADDING = isFriendlyUI ? 4 : 2
 
 const styles = (theme: ThemeType): JssStyles => ({
   header: {
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: isEAForum ? 20 : theme.spacing.unit*2,
+    marginBottom: isFriendlyUI ? 20 : theme.spacing.unit*2,
   },
   headerLeft: {
     width: "100%"
@@ -30,9 +31,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   headerVote: {
     textAlign: 'center',
     fontSize: 42,
-    position: isEAForum ? 'absolute' : "relative",
-    top: isEAForum ? 0 : undefined,
-    left: isEAForum ? -93 : undefined,
+    position: isFriendlyUI ? 'absolute' : "relative",
+    top: isFriendlyUI ? 0 : undefined,
+    left: isFriendlyUI ? -93 : undefined,
     [theme.breakpoints.down("sm")]: {
       position: 'relative',
       top: 'auto',
@@ -47,12 +48,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     alignItems: 'baseline',
     columnGap: SECONDARY_SPACING,
     flexWrap: 'wrap',
-    fontSize: isEAForum ? theme.typography.body1.fontSize : '1.4rem',
-    fontWeight: isEAForum ? 450 : undefined,
+    fontSize: isFriendlyUI ? theme.typography.body1.fontSize : '1.4rem',
+    fontWeight: isFriendlyUI ? 450 : undefined,
     fontFamily: theme.typography.uiSecondary.fontFamily,
     color: theme.palette.text.dim3,
-    paddingBottom: isEAForum ? 12 : undefined,
-    borderBottom: isEAForum ? theme.palette.border.grey300 : undefined
+    paddingBottom: isFriendlyUI ? 12 : undefined,
+    borderBottom: isFriendlyUI ? theme.palette.border.grey300 : undefined
   },
   secondaryInfo: {
     flexGrow: 1,
@@ -78,25 +79,25 @@ const styles = (theme: ThemeType): JssStyles => ({
     columnGap: SECONDARY_SPACING
   },
   secondaryInfoLink: {
-    fontWeight: isEAForum ? 450 : undefined,
-    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
+    fontWeight: isFriendlyUI ? 450 : undefined,
+    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
   wordCount: {
-    fontWeight: isEAForum ? 450 : undefined,
-    fontSize: isEAForum ? undefined : theme.typography.body2.fontSize,
+    fontWeight: isFriendlyUI ? 450 : undefined,
+    fontSize: isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default',
     "@media print": { display: "none" },
   },
   togglePodcastContainer: {
     alignSelf: 'center',
-    color: isEAForum ? undefined : theme.palette.primary.main,
-    height: isEAForum ? undefined : PODCAST_ICON_SIZE,
+    color: isFriendlyUI ? undefined : theme.palette.primary.main,
+    height: isFriendlyUI ? undefined : PODCAST_ICON_SIZE,
   },
   audioIcon: {
     width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
     height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    transform: isEAForum ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
+    transform: isFriendlyUI ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
     padding: PODCAST_ICON_PADDING
   },
   audioNewFeaturePulse: {
@@ -107,7 +108,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: theme.borderRadius.small
   },
   actions: {
-    color: isEAForum ? undefined : theme.palette.grey[500],
+    color: isFriendlyUI ? undefined : theme.palette.grey[500],
     "&:hover": {
       opacity: 0.5,
     },
@@ -218,7 +219,7 @@ const CommentsLink: FC<{
     }
   }
   return (
-    <a className={className} {...(isEAForum ? {onClick} : {href: anchor})}>
+    <a className={className} {...(isFriendlyUI ? {onClick} : {href: anchor})}>
       {children}
     </a>
   );
@@ -290,7 +291,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
     commentCount,
   } = useMemo(() => getResponseCounts(post, answers), [post, answers]);
 
-  const minimalSecondaryInfo = post.isEvent || (isEAForum && post.shortform);
+  const minimalSecondaryInfo = post.isEvent || (isFriendlyUI && post.shortform);
 
   const readingTimeNode = minimalSecondaryInfo
     ? null
@@ -332,28 +333,30 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const tripleDotMenuNode = !hideMenu &&
     <span className={classes.actions}>
       <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton post={post} includeBookmark={!isEAForum} flip={true}/>
+        <PostActionsButton post={post} includeBookmark={isBookUI} flip={true}/>
       </AnalyticsContext>
     </span>
 
-  // this is the info section under the post title, to the right of the author names
-  let secondaryInfoNode = <div className={classes.secondaryInfo}>
-    <div className={classes.secondaryInfoLeft}>
-      {crosspostNode}
-      {readingTimeNode}
-      {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
-      {post.isEvent && <GroupLinks document={post} noMargin />}
-      {answersNode}
-      <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
-        {postGetCommentCountStr(post, commentCount)}
-      </CommentsLink>
-      {audioNode}
-      {addToCalendarNode}
-      {tripleDotMenuNode}
+  let secondaryInfoNode;
+  if (isBookUI) {
+    // this is the info section under the post title, to the right of the author names
+    secondaryInfoNode = <div className={classes.secondaryInfo}>
+      <div className={classes.secondaryInfoLeft}>
+        {crosspostNode}
+        {readingTimeNode}
+        {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}
+        {post.isEvent && <GroupLinks document={post} noMargin />}
+        {answersNode}
+        <CommentsLink anchor="#comments" className={classes.secondaryInfoLink}>
+          {postGetCommentCountStr(post, commentCount)}
+        </CommentsLink>
+        {audioNode}
+        {addToCalendarNode}
+        {tripleDotMenuNode}
+      </div>
     </div>
-  </div>
-  // EA Forum splits the info into two sections, plus has the info in a different order
-  if (isEAForum) {
+  } else {
+    // EA Forum splits the info into two sections, plus has the info in a different order
     secondaryInfoNode = <div className={classes.secondaryInfo}>
       <div className={classes.secondaryInfoLeft}>
         {!minimalSecondaryInfo && <PostsPageDate post={post} hasMajorRevision={hasMajorRevision} />}

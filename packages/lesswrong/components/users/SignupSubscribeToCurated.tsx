@@ -3,8 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import Checkbox from '@material-ui/core/Checkbox';
 import Info from '@material-ui/icons/Info';
 import Tooltip from '@material-ui/core/Tooltip';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isLWorAF } from '../../lib/instanceSettings';
 import InputLabel from '@material-ui/core/InputLabel';
+import { forumHeaderTitleSetting } from '../common/Header';
 
 const styles = (theme: ThemeType): JssStyles => ({
   checkboxLabel: {
@@ -40,8 +41,8 @@ const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
 
   // this component is not used in the EA Forum signup flow,
   // but it does appear on the EA Forum via RecentDiscussionSubscribeReminder.tsx
-  const emailType = forumTypeSetting.get() === 'EAForum' ?
-    'the EA Forum weekly digest email' : 'Curated posts';
+  const emailType = isLWorAF ? 
+    'Curated posts' : `the ${forumHeaderTitleSetting.get()} weekly digest email`;
 
   return <div className={classes.root}>
     <InputLabel className={classes.checkboxLabel}>
@@ -54,7 +55,7 @@ const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
         }}
       />
       Subscribe to {emailType}
-      {forumTypeSetting.get() !== 'EAForum' && (
+      {isLWorAF && (
         <Tooltip title="Emails 2-3 times per week with the best posts, chosen by the LessWrong moderation team.">
           <Info className={classes.infoIcon}/>
         </Tooltip>

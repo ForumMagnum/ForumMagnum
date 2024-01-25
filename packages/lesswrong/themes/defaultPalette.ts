@@ -209,6 +209,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     
     reviewUpvote: "rgba(70,125,70, .87)",
     reviewDownvote: "rgba(125,70,70, .87)",
+    reviewBallotIcon: 'rgb(47 108 152 / 50%)',
     
     aprilFools: {
       orange: "#e64a19",
@@ -216,11 +217,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       green: "#1b5e20",
     },
 
-    debateComment: '#1192e8',
-    debateComment2: '#198038',
-    debateComment3: '#b28600',
-    debateComment4: '#9f1853',
-    debateComment5: '#a56eff',
+    debateComment: {
+      [1]: '#1192e8',
+      [2]: '#198038',
+      [3]: '#b28600',
+      [4]: '#9f1853',
+      [5]: '#a56eff',
+      [6]: '#6C7BFF',
+    },
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -267,6 +271,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     yellow: '#ffc500',
     recentDiscussionGreen: "#72B065",
     recentDiscussionGrey: "#757575",
+    activeDotOrange: "#fdbd48",
 
     commentsBubble: {
       commentCount: "#fff",
@@ -284,6 +289,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     intense: shades.greyBorder("2px", .5),
     faint: shades.greyBorder("1px", .1),
     extraFaint: shades.greyBorder("1px", .08),
+    grey200: `1px solid ${shades.grey[200]}`,
     grey300: `1px solid ${shades.grey[300]}`,
     grey400: `1px solid ${shades.grey[400]}`,
     maxIntensity: shades.greyBorder("1px", 1.0),
@@ -304,16 +310,19 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     primaryTranslucent: 'rgba(12,134,155,.7)',
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
+    wrappedSummary: "2px solid rgba(255, 168, 50, 0.6)",
   },
   background: {
     default: shades.grey[60],
     paper: shades.grey[0], //Used by MUI
+    contrastInDarkMode: shades.grey[0],
     pageActiveAreaBackground: shades.grey[0],
     translucentBackground: "rgba(255,255,255,.5)",
     diffInserted: "#d4ead4",
     diffDeleted: "#f0d3d3",
     usersListItem: shades.greyAlpha(.05),
     primaryDim: '#e2f1f4',
+    primarySlightlyDim: '#d1ecf1',
     primaryTranslucent: "rgba(95,155,101,0.1)",
     primaryTranslucentHeavy: "rgba(95,155,101,0.35)",
     warningTranslucent: "rgba(255,152,0,0.1)",
@@ -373,6 +382,14 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sequenceImageGradient: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)',
     sequencesBanner: shades.greyAlpha(.5),
     cookieBanner: shades.grey[800],
+    strawpoll: "rgba(251, 191, 36, 1)", // Color used by StrawPoll
+    userProfileImageHover: "rgba(0, 0, 0, 0.5)",
+    userProfileImageLoading: `linear-gradient(
+      90deg,
+      rgba(0,0,0,0) 33%,
+      rgba(255,255,255,0.25) 50%,
+      rgba(0,0,0,0) 66%
+    ) ${shades.grey[500]}`,
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -396,6 +413,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     searchResults: `0 0 20px ${shades.boxShadowColor(.2)}`,
     recentDiscussionMeetupsPoke: `5px 5px 5px ${shades.boxShadowColor(.2)}`,
     graphTooltip: `0 0 10px ${shades.boxShadowColor(.75)}`,
+    lwTagHoverOver: `0 1px 3px 0 ${shades.boxShadowColor(0.2)},0 1px 1px 0 ${shades.boxShadowColor(0.14)},0 2px 1px -1px ${shades.boxShadowColor(0.12)}`,
   },
   buttons: {
     hoverGrayHighlight: shades.greyAlpha(0.05),
@@ -493,7 +511,30 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   commentParentScrollerHover: shades.greyAlpha(.075),
   tocScrollbarColors: `rgba(255,255,255,0) ${shades.grey[300]}`,
   eventsHomeLoadMoreHover: '#085d6c',
-  
+
+  wrapped: {
+    background: '#072C47',
+    highlightText: '#FFC443',
+    secondaryText: '#008DAC',
+    tertiaryText: "rgba(255, 255, 255, 0.50)",
+    black: '#212121',
+    darkGrey: '#424242',
+    grey: '#757575',
+    darkDot: "rgba(255, 255, 255, 0.40)",
+    panelBackground: "rgba(255, 255, 255, 0.10)",
+    panelBackgroundDark: "rgba(255, 255, 255, 0.05)",
+    postScoreArrow: '#BCBCBC',
+  },
+  dialogueMatching: {
+    checkedNotMatched: "#ADD8E6",
+    checkedMatched: "#00000038",
+    optIn: "#9a9a9a",
+    warning: "yellow",
+  },
+  namesAttachedReactions: {
+    selectedAnti: "rgb(255, 189, 189, .23)",
+  },
+
   contrastText: shades.grey[0],
   event: 'rgba(67,151,71,.65)',
   group: 'rgba(24,68,155,.65)',

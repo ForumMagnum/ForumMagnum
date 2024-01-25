@@ -51,11 +51,10 @@ const EARecentDiscussionTagCommented = ({
   const treeOptions: CommentTreeOptions = {
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    highlightDate: tag.lastVisitedAt,
+    highlightDate: tag.lastVisitedAt ?? undefined,
     refetch,
     condensed: true,
     tag,
-    replyFormStyle: "default",
   };
 
   const metadata = tag.wikiOnly

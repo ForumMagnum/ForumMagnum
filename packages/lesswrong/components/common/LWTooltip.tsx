@@ -11,9 +11,31 @@ const styles = (_theme: ThemeType): JssStyles => ({
     display: "inline-block",
   },
   tooltip: {
-    maxWidth: 300
+    maxWidth: 300,
+    
+    "& img": {
+      maxWidth: "100%",
+    },
   }
 })
+
+export type LWTooltipProps = {
+  title?: ReactNode,
+  placement?: PopperPlacementType,
+  tooltip?: boolean,
+  flip?: boolean,
+  clickable?: boolean,
+  inlineBlock?: boolean,
+  As?: keyof JSX.IntrinsicElements,
+  disabled?: boolean,
+  hideOnTouchScreens?: boolean,
+  className?: string,
+  analyticsProps?: AnalyticsProps,
+  titleClassName?: string
+  popperClassName?: string,
+  children?: ReactNode,
+  classes: ClassesType,
+}
 
 const LWTooltip = ({
   children,
@@ -31,23 +53,7 @@ const LWTooltip = ({
   analyticsProps,
   titleClassName,
   popperClassName,
-}: {
-  children?: ReactNode,
-  title?: ReactNode,
-  placement?: PopperPlacementType,
-  tooltip?: boolean,
-  flip?: boolean,
-  clickable?: boolean,
-  inlineBlock?: boolean,
-  As?: keyof JSX.IntrinsicElements,
-  disabled?: boolean,
-  hideOnTouchScreens?: boolean,
-  classes: ClassesType,
-  className?: string,
-  analyticsProps?: AnalyticsProps,
-  titleClassName?: string
-  popperClassName?: string,
-}) => {
+}: LWTooltipProps) => {
   const { LWPopper } = Components
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
     pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps

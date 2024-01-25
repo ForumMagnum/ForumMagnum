@@ -79,25 +79,7 @@ import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
 }
 
 export async function getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
-  return Users.isPostgres() ? new UsersRepo().getUsersWhereLocationIsInNotificationRadius(location) : await Users.aggregate([
-    {
-      "$geoNear": {
-        "near": location, 
-        "spherical": true,
-        "distanceField": "distance",
-        "distanceMultiplier": 0.001,
-        "maxDistance": 300000, // 300km is maximum distance we allow to set in the UI
-        "key": "nearbyEventsNotificationsMongoLocation"
-      }
-    },
-    {
-      "$match": {
-        "$expr": {
-            "$gt": ["$nearbyEventsNotificationsRadius", "$distance"]
-        }
-      }
-    }
-  ]).toArray()
+  return new UsersRepo().getUsersWhereLocationIsInNotificationRadius(location);
 }
 ensureIndex(Users, {nearbyEventsNotificationsMongoLocation: "2dsphere"}, {name: "users.nearbyEventsNotifications"})
 
@@ -123,9 +105,9 @@ const getNotificationTiming = (typeSettings: AnyBecauseTodo): DebouncerTiming =>
   }
 }
 
-const notificationMessage = async (notificationType: string, documentType: NotificationDocument|null, documentId: string|null) => {
+const notificationMessage = async (notificationType: string, documentType: NotificationDocument|null, documentId: string|null, extraData: Record<string,any>) => {
   return await getNotificationTypeByName(notificationType)
-    .getMessage({documentType, documentId});
+    .getMessage({documentType, documentId, extraData});
 }
 
 const getLink = async (context: ResolverContext, notificationTypeName: string, documentType: NotificationDocument|null, documentId: string|null, extraData: any) => {
@@ -189,7 +171,7 @@ export const createNotification = async ({userId, notificationType, documentType
     userId: userId,
     documentId: documentId||undefined,
     documentType: documentType||undefined,
-    message: await notificationMessage(notificationType, documentType, documentId),
+    message: await notificationMessage(notificationType, documentType, documentId, extraData),
     type: notificationType,
     link: await getLink(context, notificationType, documentType, documentId, extraData),
     extraData,

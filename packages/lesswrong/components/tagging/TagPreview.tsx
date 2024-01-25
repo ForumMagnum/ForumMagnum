@@ -4,13 +4,32 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPage';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, isEAForum } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
+import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
+import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  root: {
+    paddingTop: 8,
+    paddingLeft: 16,
+    paddingRight: 16,
+    ...(!isFriendlyUI && {
+      width: 500,
+      paddingBottom: 6,
+    }),
+    [theme.breakpoints.down('xs')]: {
+      width: "100%",
+    }
+  },
+  rootEAWidth: {
+    width: FRIENDLY_HOVER_OVER_WIDTH,
+  },
   relatedTagWrapper: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
-    fontFamily: isEAForum ? theme.palette.fonts.sansSerifStack : undefined,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     fontSize: "1.1rem",
     color: theme.palette.grey[900],
     display: '-webkit-box',
@@ -20,16 +39,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   relatedTagLink : {
     color: theme.palette.lwTertiary.dark
-  },
-  card: {
-    paddingTop: 8,
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingBottom: 6,
-    width: 500,
-    [theme.breakpoints.down('xs')]: {
-      width: "100%",
-    }
   },
   footer: {
     borderTop: theme.palette.border.extraFaint,
@@ -44,80 +53,165 @@ const styles = (theme: ThemeType): JssStyles => ({
   autoApplied: {
     flexGrow: 1,
   },
-  footerCount: {
-  },
   posts: {
     marginTop: 10,
     paddingTop: 8,
     borderTop: theme.palette.border.extraFaint,
-    marginBottom: 8
+    marginBottom: 8,
+    overflow: "hidden",
   },
   relatedTags: {
     marginTop: 12,
     paddingTop: 8,
     borderTop: theme.palette.border.extraFaint,
-  }
+  },
+  footerCount: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    fontWeight: 600,
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  footerMarginTop: {
+    marginTop: 16,
+  },
 });
 
-export type TagPreviewProps = {
-  tag: TagPreviewFragment | TagSectionPreviewFragment | null,
-  loading?: boolean,
-  classes: ClassesType,
+const TagPreview = ({
+  tag,
+  hash,
+  showCount=true,
+  hideRelatedTags,
+  postCount=6,
+  autoApplied=false,
+  classes,
+}: {
+  tag: TagPreviewFragment | TagSectionPreviewFragment,
+  hash?: string,
   showCount?: boolean,
-  showRelatedTags?: boolean,
+  hideRelatedTags?: boolean,
   postCount?: number,
   autoApplied?: boolean,
-  hash?: string,
-}
-
-const TagPreview = ({tag, loading, classes, showCount=true, showRelatedTags=true, postCount=6, autoApplied=false, hash}: TagPreviewProps) => {
-  const { TagPreviewDescription, TagSmallPostLink, Loading } = Components;
-  const showPosts = postCount > 0 && !!(tag?._id)
-  const { results, loading: tagPostsLoading } = useMulti({
+  classes: ClassesType,
+}) => {
+  const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI;
+  const {results} = useMulti({
     skip: !showPosts,
     terms: tagPostTerms(tag, {}),
     collectionName: "Posts",
     fragmentName: "PostsList",
     limit: postCount,
   });
-  
-  // I kinda want the type system to forbid this, but the obvious union approach
-  // didn't work
-  if (!loading && !tag) {
-    return null
+
+  // In theory the type system doesn't allow this, but I'm too scared to
+  // remove it
+  if (!tag) {
+    return (
+      <div className={classes.root} />
+    );
   }
-  
-  const hasFooter = (showCount || autoApplied);
-  
-  return (<div className={classes.card}>
-    {loading && <Loading />}
-    {tag && <>
-      <TagPreviewDescription tag={tag} hash={hash}/>
-      {showRelatedTags && (tag.parentTag || tag.subTags.length) ?
+
+  const showRelatedTags =
+    !isFriendlyUI &&
+    !hideRelatedTags &&
+    !!(tag.parentTag || tag.subTags.length);
+
+  const hasFooter = showCount || autoApplied;
+  const subTagName = "Sub-" + (
+    tag.subTags.length > 1
+      ? taggingNamePluralCapitalSetting.get()
+      : taggingNameCapitalSetting.get()
+  );
+
+  const hasDescription = !!getTagDescriptionHtml(tag);
+
+  const {TagPreviewDescription, TagSmallPostLink, Loading} = Components;
+  return (
+    <div className={classNames(classes.root, {
+      [classes.rootEAWidth]: isFriendlyUI && hasDescription,
+    })}>
+      <TagPreviewDescription tag={tag} hash={hash} />
+      {showRelatedTags &&
         <div className={classes.relatedTags}>
-          {tag.parentTag && <div className={classes.relatedTagWrapper}>Parent topic:&nbsp;<Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
-          {tag.subTags.length ? <div className={classes.relatedTagWrapper}><span>Sub-{tag.subTags.length > 1 ? taggingNamePluralCapitalSetting.get() : taggingNameCapitalSetting.get()}:&nbsp;{tag.subTags.map((subTag, idx) => {
-            return <Fragment key={idx}>
-              <Link className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>{idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}
-            </Fragment>
-          })}</span></div> : <></>}
-        </div> : <></>
+          {tag.parentTag &&
+            <div className={classes.relatedTagWrapper}>
+              Parent topic:{" "}
+              <Link
+                className={classes.relatedTagLink}
+                to={tagGetUrl(tag.parentTag)}
+              >
+                {tag.parentTag.name}
+              </Link>
+            </div>
+          }
+          {tag.subTags.length
+            ? (
+              <div className={classes.relatedTagWrapper}>
+                <span>
+                  {subTagName}:&nbsp;{tag.subTags.map((subTag, idx) => (
+                    <Fragment key={idx}>
+                      <Link
+                        className={classes.relatedTagLink}
+                        to={tagGetUrl(subTag)}
+                      >
+                        {subTag.name}
+                      </Link>
+                      {idx < tag.subTags.length - 1 ? ", " : null}
+                    </Fragment>
+                  ))}
+                </span>
+              </div>
+            )
+            : null
+          }
+        </div>
       }
-      {showPosts && !tag.wikiOnly && <>
-        {results ? <div className={classes.posts}>
-          {results.map((post,i) => post && <TagSmallPostLink key={post._id} post={post} widerSpacing={postCount > 3} />)}
-        </div> : <Loading />}
-        {hasFooter && <div className={classes.footer}>
-          {autoApplied && <span className={classes.autoApplied}>
-            Tag was auto-applied
-          </span>}
-          {showCount && <span className={classes.footerCount}>
-            <Link to={tagGetUrl(tag)}>View all {tag.postCount} posts</Link>
-          </span>}
-        </div>}
-      </>}
-    </>}
-  </div>)
+      {showPosts && !tag.wikiOnly &&
+        <>
+          {results
+            ? (
+              <div className={classes.posts}>
+                {results.map((post) => post &&
+                  <TagSmallPostLink
+                    key={post._id}
+                    post={post}
+                    widerSpacing={postCount > 3}
+                  />
+                )}
+              </div>
+            )
+            : <Loading />
+          }
+          {hasFooter &&
+            <div className={classes.footer}>
+              {autoApplied &&
+                <span className={classes.autoApplied}>
+                  Tag was auto-applied
+                </span>
+              }
+              {showCount &&
+                <span>
+                  <Link to={tagGetUrl(tag)}>
+                    View all {tag.postCount} posts
+                  </Link>
+                </span>
+              }
+            </div>
+          }
+        </>
+      }
+      {isFriendlyUI &&
+        <div className={classNames(classes.footerCount, {
+          [classes.footerMarginTop]: hasDescription,
+        })}>
+          <Link to={tagGetUrl(tag)}>
+            View all {tag.postCount} posts
+          </Link>
+        </div>
+      }
+    </div>
+  );
 }
 
 const TagPreviewComponent = registerComponent("TagPreview", TagPreview, {styles});

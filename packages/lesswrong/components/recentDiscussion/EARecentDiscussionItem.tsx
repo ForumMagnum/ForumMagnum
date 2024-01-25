@@ -85,10 +85,11 @@ export type EARecentDiscussionItemProps = EARecentDiscussionItemDocument & {
   icon: ForumIconName,
   iconVariant: "primary" | "grey" | "green",
   user?: UsersMinimumInfo | null,
-  action: string,
+  action: ReactNode,
   postTitleOverride?: string,
   postUrlOverride?: string,
   timestamp: Date,
+  anonymous?: boolean,
   pageSubSectionContext?: string,
 }
 
@@ -102,17 +103,15 @@ const EARecentDiscussionItem = ({
   post,
   tag,
   timestamp,
+  anonymous,
   pageSubSectionContext = "recentDiscussionThread",
   children,
   classes,
 }: EARecentDiscussionItemProps & {
-  children: ReactNode,
-  classes: ClassesType,
+  children?: ReactNode,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const {
-    ForumIcon, UsersNameDisplay, FormatDate, PostsItemTooltipWrapper,
-    TagTooltipWrapper,
-  } = Components;
+  const {ForumIcon, UsersNameDisplay, FormatDate, TagsTooltip} = Components;
   return (
     <AnalyticsContext pageSubSectionContext={pageSubSectionContext}>
       <div className={classes.root}>
@@ -125,38 +124,41 @@ const EARecentDiscussionItem = ({
             <ForumIcon icon={icon} />
           </div>
           <div className={classes.meta}>
-            <UsersNameDisplay user={user} className={classes.primaryText} />
+            {anonymous
+              ? "Somebody"
+              : <UsersNameDisplay user={user} className={classes.primaryText} />
+            }
             {" "}
             {action}
             {" "}
             {post &&
-              <PostsItemTooltipWrapper post={post} placement="bottom" As="span">
-                <Link
-                  to={postUrlOverride ?? postGetPageUrl(post)}
-                  className={classes.primaryText}
-                  eventProps={postUrlOverride ? undefined : {intent: 'expandPost'}}
-                >
-                  {postTitleOverride ?? post.title}
-                </Link>
-              </PostsItemTooltipWrapper>
+              <Link
+                to={postUrlOverride ?? postGetPageUrl(post)}
+                className={classes.primaryText}
+                eventProps={postUrlOverride ? undefined : {intent: 'expandPost'}}
+              >
+                {postTitleOverride ?? post.title}
+              </Link>
             }
             {tag &&
-              <TagTooltipWrapper tag={tag} As="span">
+              <TagsTooltip tag={tag} As="span">
                 <Link to={tagGetUrl(tag)} className={classes.primaryText}>
                   {tag.name}
                 </Link>
-              </TagTooltipWrapper>
+              </TagsTooltip>
             }
             {" "}
             <FormatDate date={timestamp} includeAgo />
           </div>
         </div>
-        <div className={classes.container}>
-          <div className={classNames(classes.iconContainer, classes.hideOnMobile)} />
-          <div className={classes.content}>
-            {children}
+        {children &&
+          <div className={classes.container}>
+            <div className={classNames(classes.iconContainer, classes.hideOnMobile)} />
+            <div className={classes.content}>
+              {children}
+            </div>
           </div>
-        </div>
+        }
       </div>
     </AnalyticsContext>
   );

@@ -37,7 +37,7 @@ export class DatabasePublicSetting<SettingValueType> {
   }
   get(): SettingValueType {
     // eslint-disable-next-line no-console
-    if (!getPublicSettingsLoaded()) throw Error("Tried to access public setting before it was initialized")
+    if (!getPublicSettingsLoaded()) throw Error(`Tried to access public setting ${this.settingName} before it was initialized`)
     const cacheValue = getNestedProperty(getPublicSettings(), this.settingName)
     if (typeof cacheValue === 'undefined') return this.defaultValue
     return cacheValue
@@ -50,10 +50,9 @@ export class DatabasePublicSetting<SettingValueType> {
 
 export const googleTagManagerIdSetting = new DatabasePublicSetting<string | null>('googleTagManager.apiKey', null) // Google Tag Manager ID
 export const reCaptchaSiteKeySetting = new DatabasePublicSetting<string | null>('reCaptcha.apiKey', null) // ReCaptcha API Key
-// Algolia Search Settings
-export const algoliaAppIdSetting = new DatabasePublicSetting<string | null>('algolia.appId', null)
-export const algoliaSearchKeySetting = new DatabasePublicSetting<string | null>('algolia.searchKey', null)
-export const algoliaPrefixSetting = new DatabasePublicSetting<string | null>('algolia.indexPrefix', null)
+
+// Despite the name, this setting is also used to set the index prefix for Elasticsearch for legacy reasons
+export const algoliaPrefixSetting = new DatabasePublicSetting<string>('algolia.indexPrefix', '')
 
 export const ckEditorUploadUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.uploadUrl', null) // Image Upload URL for CKEditor
 export const ckEditorWebsocketUrlSetting = new DatabasePublicSetting<string | null>('ckEditor.webSocketUrl', null) // Websocket URL for CKEditor (for collaboration)
@@ -91,8 +90,7 @@ export const mailchimpEAForumListIdSetting = new DatabasePublicSetting<string | 
 
 export const isProductionDBSetting = new DatabasePublicSetting<boolean>('isProductionDB', false)
 
-// You will need to restart your server after changing these at present;
-// FrontpageReviewWidget reads them at startup.
+export const showReviewOnFrontPageIfActive = new DatabasePublicSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true)
 export const annualReviewStart = new DatabasePublicSetting('annualReview.start', "2021-11-30")
 // The following dates cut off their phase at the end of the day
 export const annualReviewNominationPhaseEnd = new DatabasePublicSetting('annualReview.nominationPhaseEnd', "2021-12-14")
@@ -104,9 +102,26 @@ export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
 
 export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")
+type AccountInfo = {
+  username: string,
+  email: string,
+};
+export const adminAccountSetting = new DatabasePublicSetting<AccountInfo|null>('adminAccount', null);
 
 export const crosspostKarmaThreshold = new DatabasePublicSetting<number | null>('crosspostKarmaThreshold', 100);
 
 export const ddTracingSampleRate = new DatabasePublicSetting<number>('datadog.tracingSampleRate', 100) // Sample rate for backend traces, between 0 and 100
 export const ddRumSampleRate = new DatabasePublicSetting<number>('datadog.rumSampleRate', 100) // Sample rate for backend traces, between 0 and 100
 export const ddSessionReplaySampleRate = new DatabasePublicSetting<number>('datadog.sessionReplaySampleRate', 100) // Sample rate for backend traces, between 0 and 100
+
+/** Will we show our logo prominently, such as in the header */
+export const hasProminentLogoSetting = new DatabasePublicSetting<boolean>("hasProminentLogo", false);
+
+export const hasCookieConsentSetting = new DatabasePublicSetting<boolean>('hasCookieConsent', false)
+
+export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('dialogueMatchmakingEnabled', false)
+
+export const maxRenderQueueSize = new DatabasePublicSetting<number>('maxRenderQueueSize', 10);
+
+// Null means requests are disabled
+export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number | null>('post.requestFeedbackKarmaLevel', 100);

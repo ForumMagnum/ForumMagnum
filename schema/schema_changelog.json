@@ -353,5 +353,175 @@
     "acceptsSchemaHash": "5e28a08c9be1ba704a99a94dab5c4fae",
     "acceptedByMigration": "20231027T154313.add_election_candidates_collection.ts",
     "timestamp": "2023-10-27T15:43:13.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ee9f40a8166012becef3bf0f5a9726b0",
+    "acceptedByMigration": "20231028T012012.add_notificationAddedAsCoauthor.ts",
+    "timestamp": "2023-10-28T01:20:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0cc5ac04b5c4340a894f1bef511f22a9",
+    "acceptedByMigration": "20231101T215739.add_givingSeasonNotifyForVoting_and_election_candidate_links.ts",
+    "timestamp": "2023-11-01T21:57:39.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e02a31666a33984e158e485e3a0c5f30",
+    "acceptedByMigration": "20231103T202008.originalDialogueIdForShortform.ts",
+    "timestamp": "2023-11-03T20:20:08.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f5e4a3d5459008e1e5f5e83555a849b1",
+    "acceptedByMigration": "20231104T020734.add_DialogueCheck_table_and_check_fields.ts",
+    "timestamp": "2023-11-04T02:07:34.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5ec9053a5ae6f6135087becd69fa485e",
+    "acceptedByMigration": "20231107T174131.add_notify_votes.ts",
+    "timestamp": "2023-11-07T17:41:31.000Z"
+  },
+  {
+    "acceptsSchemaHash": "060a65a6bb00ba7b0a4da5397165f444",
+    "acceptedByMigration": "20231107T231716.addElicitTables.ts",
+    "timestamp": "2023-11-07T23:17:16.000Z"
+  },
+  {
+    "acceptsSchemaHash": "0d5156717800f18b4407edd0caa14def",
+    "acceptedByMigration": "20231108T032435.add_notificationDialogueMatch.ts",
+    "timestamp": "2023-11-08T03:24:35.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ee6df59dfe7fc9440ca415ce5cb2d762",
+    "acceptedByMigration": "20231108T110035.add_fundraiser_amounts.ts",
+    "timestamp": "2023-11-08T11:00:35.000Z"
+  },
+  {
+    "acceptsSchemaHash": "9993689a4229639120ef85f8531151ad",
+    "acceptedByMigration": "20231108T122236.ElectionCandidates_tagId_not_null.ts",
+    "timestamp": "2023-11-08T12:22:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "559874dae2627ec571ac2748d5cf6bc2",
+    "acceptedByMigration": "20231116T010948.update_karma_default_value.ts",
+    "timestamp": "2023-11-16T01:09:48.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4a83029d46e8b6afd17ced17bfeb6cf7",
+    "acceptedByMigration": "20231116T195724.addDialogueMatchTable.ts",
+    "timestamp": "2023-11-16T19:57:24.000Z"
+  },
+  {
+    "acceptsSchemaHash": "cdea3c2caa55eb651988dcb30e827b07",
+    "acceptedByMigration": "20231117T215406.addNotificationKarmaPowersGainedSetting.ts",
+    "timestamp": "2023-11-17T21:54:06.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6d8270f44805a1ee0b363924964776e7",
+    "acceptedByMigration": "20231121T121251.add_givingSeason2023DonatedFlair.ts",
+    "timestamp": "2023-11-21T12:12:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2e28d7576d143428c88b6c5a8ece4690",
+    "acceptedByMigration": "20231124T200925.move_on_connect_queries_into_migration.ts",
+    "timestamp": "2023-11-24T20:09:25.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7db476f93913b50f646a44166768ced6",
+    "acceptedByMigration": "20231128T152304.add_ElectionVotes.ts",
+    "timestamp": "2023-11-28T15:23:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8b861e3bf25c8edf6522b62bea9bf389",
+    "acceptedByMigration": "20231129T080701.add_givingSeason2023VotedFlair.ts",
+    "timestamp": "2023-11-29T08:07:01.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5cb40349b3ff94014c31fb0418ffa6ea",
+    "acceptedByMigration": "20231129T190047.add_four_fields_for_frontpage_dialogue_widget_customisation.ts",
+    "timestamp": "2023-11-29T19:00:47.000Z"
+  },
+  {
+    "acceptsSchemaHash": "6ee0467b3cdea6d954c14e9bee545c42",
+    "acceptedByMigration": "20231129T200215.addNotificationNewDialogueChecks.ts",
+    "timestamp": "2023-11-29T20:02:15.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ea10555b6fef67efb7ab0cbbdfdb8772",
+    "acceptedByMigration": "20231130T012654.changeDefaultNewCheckNotificationFrequencyRealtime.ts",
+    "timestamp": "2023-11-30T01:26:54.000Z"
+  },
+  {
+    "acceptsSchemaHash": "edca7fde4fce09bf9031f2f3f9b18fda",
+    "acceptedByMigration": "20231130T140404.add_submissionComments.ts",
+    "timestamp": "2023-11-30T14:04:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2d5747e2acdbe83c754cbbda258623ed",
+    "acceptedByMigration": "20231201T022744.add_field_for_hiding_specific_users_in_reciprocity.ts",
+    "timestamp": "2023-12-01T02:27:44.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2ace126a36fc6b5cdb4e4a0264fec6f9",
+    "acceptedByMigration": "20231204T235404.fill_in_AbTestKey_and_make_nonnullable.ts",
+    "timestamp": "2023-12-04T23:54:04.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d8ecd5f29746164d6bf5b3e064f241ac",
+    "acceptedByMigration": "20231205T204412.make_fields_not_nullable.ts",
+    "timestamp": "2023-12-05T20:44:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "a09712836b72d69f7456155ccc81ac83",
+    "acceptedByMigration": "20231208T004014.addCalendlyLinkDialogueMatchPreferencesField.ts",
+    "timestamp": "2023-12-08T00:40:14.000Z"
+  },
+  {
+    "acceptsSchemaHash": "989958afb8a5cef47f6f8bd33d5a499f",
+    "acceptedByMigration": "20231208T021726.add_soft_delete_to_forms.ts",
+    "timestamp": "2023-12-08T02:17:26.000Z"
+  },
+  {
+    "acceptsSchemaHash": "e30b5ca4f4989161f627585b747ee83e",
+    "acceptedByMigration": "20231212T223511.add_table_for_ckeditorusersessions.ts",
+    "timestamp": "2023-12-12T22:35:11.000Z"
+  },
+  {
+    "acceptsSchemaHash": "592612513ed7bd3260014fe27c8ae328",
+    "acceptedByMigration": "20231215T014943.add_endedby_field_for_ckeditorusersessions.ts",
+    "timestamp": "2023-12-15T01:49:43.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4f18d5a0849cc239555c6263c3e20df4",
+    "acceptedByMigration": "20231219T213759.add_hideactivedialogueusers_field.ts",
+    "timestamp": "2023-12-19T21:37:59.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4a1a03e638557cba881d59cb63b0ed02",
+    "acceptedByMigration": "20231220T212520.add_yourTurnNotifications_post_migration_conflict.ts",
+    "timestamp": "2023-12-20T21:25:20.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2c8fcbdc99caee38d7f728acc6428352",
+    "acceptedByMigration": "20231228T160733.add_wrapped2023Viewed_to_users.ts",
+    "timestamp": "2023-12-28T16:07:33.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2431de6961ce37514d54a17a5ca14adc",
+    "acceptedByMigration": "20240111T003312.update_notificationNewDialogueChecks_default.ts",
+    "timestamp": "2024-01-11T00:33:12.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ab5cd3028069be1418fb1e7229510a52",
+    "acceptedByMigration": "20240114T014118.addHideSunshineSidebar.ts",
+    "timestamp": "2024-01-14T01:41:18.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7b3fdcd195cd62025722543603fa51e0",
+    "acceptedByMigration": "20240116T194702.remove_giving_season_2023_user_fields.ts",
+    "timestamp": "2024-01-16T19:47:02.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7dbf024fc86645c003e6ca3f42cf3af5",
+    "acceptedByMigration": "20240118T104751.add_PostView_PostViewTimes.ts",
+    "timestamp": "2024-01-18T10:47:51.000Z"
   }
 ]

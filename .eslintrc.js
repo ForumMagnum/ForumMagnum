@@ -45,6 +45,7 @@ module.exports = {
     "eol-last": 1,
     "no-await-in-loop": 0,
     "comma-dangle": 0,
+    "eqeqeq": [1, "always", {"null": "ignore"}],
     "key-spacing": 0,
     "no-extra-boolean-cast": 0,
     "no-undef": 1,
@@ -65,7 +66,18 @@ module.exports = {
     "react/no-unescaped-entities": 0,
     "react/display-name": 0,
     "react/jsx-no-comment-textnodes": 1,
-    "no-mixed-operators": 1,
+
+    // Differs from no-mixed-operators default only in that "??" is added to the first group
+    "no-mixed-operators": ["warn", {
+      "groups": [
+        ["??", "+", "-", "*", "/", "%", "**"],
+        ["&", "|", "^", "~", "<<", ">>", ">>>"],
+        ["==", "!=", "===", "!==", ">", ">=", "<", "<="],
+        ["&&", "||"],
+        ["in", "instanceof"]
+      ],
+      "allowSamePrecedence": true
+    }],
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "import/no-unresolved": 1,

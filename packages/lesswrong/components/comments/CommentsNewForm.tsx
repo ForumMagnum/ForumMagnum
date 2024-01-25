@@ -17,13 +17,14 @@ import { TagCommentType } from '../../lib/collections/comments/types';
 import { commentDefaultToAlignment } from '../../lib/collections/comments/helpers';
 import { isInFuture } from '../../lib/utils/timeUtil';
 import moment from 'moment';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isLWorAF } from '../../lib/instanceSettings';
 import { useTracking } from "../../lib/analyticsEvents";
+import { isFriendlyUI } from '../../themes/forumTheme';
 
-export type CommentFormDisplayMode = "default" | "minimalist"
+export type FormDisplayMode = "default" | "minimalist"
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: isEAForum ? {
+  root: isFriendlyUI ? {
     '& .form-component-EditorFormComponent': {
       marginTop: 0
     }
@@ -43,7 +44,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.5
   },
   form: {
-    padding: isEAForum ? 12 : 10,
+    padding: isFriendlyUI ? 12 : 10,
   },
   formMinimalist: {
     padding: '12px 10px 8px 10px',
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   submit: {
     textAlign: 'right',
   },
-  formButton: isEAForum ? {
+  formButton: isFriendlyUI ? {
     fontSize: 14,
     textTransform: 'none',
     padding: '6px 12px',
@@ -77,9 +78,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   cancelButton: {
-    color: isEAForum ? undefined : theme.palette.grey[400],
+    color: isFriendlyUI ? undefined : theme.palette.grey[400],
   },
-  submitButton: isEAForum ? {
+  submitButton: isFriendlyUI ? {
     backgroundColor: theme.palette.buttons.alwaysPrimary,
     color: theme.palette.text.alwaysWhite,
     '&:disabled': {
@@ -136,7 +137,7 @@ export type CommentsNewFormProps = {
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
   tagCommentType?: TagCommentType,
-  parentComment?: any,
+  parentComment?: CommentsList,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
   type: string,
@@ -145,7 +146,7 @@ export type CommentsNewFormProps = {
   formProps?: any,
   enableGuidelines?: boolean,
   padding?: boolean
-  replyFormStyle?: CommentFormDisplayMode
+  formStyle?: FormDisplayMode
   classes: ClassesType
   className?: string
 }
@@ -164,7 +165,7 @@ const CommentsNewForm = ({
   formProps,
   enableGuidelines=true,
   padding=true,
-  replyFormStyle="default",
+  formStyle="default",
   classes,
   className,
 }: CommentsNewFormProps) => {
@@ -199,7 +200,7 @@ const CommentsNewForm = ({
     af: commentDefaultToAlignment(currentUser, post, parentComment),
   };
   
-  const isMinimalist = replyFormStyle === "minimalist"
+  const isMinimalist = formStyle === "minimalist"
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const [_,setForceRefreshState] = useState(0);
@@ -227,7 +228,7 @@ const CommentsNewForm = ({
         noClickawayCancel: true
       });
     }
-    if (!isEAForum) {
+    if (isLWorAF) {
       setShowGuidelines(true);
     }
   }, 0);
@@ -278,8 +279,8 @@ const CommentsNewForm = ({
   const SubmitComponent = ({submitLabel = "Submit"}) => {
     const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton
     // by default, the EA Forum uses MUI contained buttons here
-    const cancelBtnProps: BtnProps = isEAForum && !isMinimalist ? {variant: 'contained'} : {}
-    const submitBtnProps: BtnProps = isEAForum && !isMinimalist ? {variant: 'contained', color: 'primary'} : {}
+    const cancelBtnProps: BtnProps = isFriendlyUI && !isMinimalist ? {variant: 'contained'} : {}
+    const submitBtnProps: BtnProps = isFriendlyUI && !isMinimalist ? {variant: 'contained', color: 'primary'} : {}
     if (formDisabledDueToRateLimit) {
       submitBtnProps.disabled = true
     }
@@ -375,7 +376,7 @@ const CommentsNewForm = ({
                 ...extraFormProps,
                 ...formProps,
               }}
-              submitLabel={isEAForum && !prefilledProps.shortform ? 'Comment' : 'Submit'}
+              submitLabel={isFriendlyUI && !prefilledProps.shortform ? 'Comment' : 'Submit'}
             />
           </div>
         </div>

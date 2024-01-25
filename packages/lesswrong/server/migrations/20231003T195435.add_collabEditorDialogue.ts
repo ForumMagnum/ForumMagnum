@@ -39,15 +39,14 @@
 export const acceptsSchemaHash = "2e10471e3641d01fe309198fb9ecff32";
 
 import { Posts } from "../../lib/collections/posts/collection"
-import { updateDefaultValue, addField } from "./meta/utils"
+import { updateDefaultValue, addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Posts.isPostgres()) {
-    return
-  }
   await addField(db, Posts, "collabEditorDialogue");
   await updateDefaultValue(db, Posts, "shareWithUsers");
 }
 
 export const down = async ({db}: MigrationContext) => {
+  await dropField(db, Posts, "collabEditorDialogue");
+  await updateDefaultValue(db, Posts, "shareWithUsers");
 }

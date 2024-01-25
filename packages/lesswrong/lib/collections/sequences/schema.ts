@@ -1,8 +1,7 @@
-import { foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue, foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
 import { getWithCustomLoader } from '../../loaders';
 
-const schema: SchemaType<DbSequence> = {
+const schema: SchemaType<"Sequences"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -12,6 +11,7 @@ const schema: SchemaType<DbSequence> = {
       nullable: true,
     }),
     optional: true,
+    nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -38,7 +38,7 @@ const schema: SchemaType<DbSequence> = {
     resolveAs: {
       fieldName: 'chapters',
       type: '[Chapter]',
-      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Array<DbChapter>> => {
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Partial<DbChapter>[]> => {
         const chapters = await context.Chapters.find(
           {sequenceId: sequence._id},
           {sort: {number: 1}},
@@ -135,7 +135,7 @@ const schema: SchemaType<DbSequence> = {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<DbCollection|null> => {
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Partial<DbCollection>|null> => {
         if (!sequence.canonicalCollectionSlug) return null;
         const collection = await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
         return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
@@ -172,6 +172,7 @@ const schema: SchemaType<DbSequence> = {
 
   postsCount: resolverOnlyField({
     type: Number,
+    graphQLtype: 'Int!',
     canRead: ['guests'],
     resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
       const count = await getWithCustomLoader<number, string>(
@@ -189,6 +190,7 @@ const schema: SchemaType<DbSequence> = {
 
   readPostsCount: resolverOnlyField({
     type: Number,
+    graphQLtype: 'Int!',
     canRead: ['guests'],
     resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
       const currentUser = context.currentUser;
@@ -219,8 +221,9 @@ const schema: SchemaType<DbSequence> = {
   af: {
     type: Boolean,
     optional: true,
+    nullable: false,
     label: "Alignment Forum",
-    defaultValue: false,
+    ...schemaDefaultValue(false),
     canRead: ['guests'],
     canUpdate: ['alignmentVoters'],
     canCreate: ['alignmentVoters'],

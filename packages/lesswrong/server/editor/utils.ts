@@ -12,7 +12,7 @@ export const trimLatexAndAddCSS = (dom: any, css: string) => {
   // want to adjust this part.
   for (var i = 0, len = paragraphs.length; i < len; i++) {
       var elem = paragraphs[i];
-      if (elem.textContent.trim() == '') {
+      if (elem.textContent.trim() === '') {
           elem.parentNode.removeChild(elem);
           i--;
           len--;
@@ -117,9 +117,9 @@ const revisionFieldsToCopy: (keyof DbRevision)[] = [
  * if there's a bug. This function will update a document to match the most
  * recent *version* in the revisions schema.
  */
-export async function syncDocumentWithLatestRevision<T extends DbObject>(
-  collection: CollectionBase<T>,
-  document: T,
+export async function syncDocumentWithLatestRevision<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  document: ObjectsByCollectionName[N],
   fieldName: string
 ): Promise<void> {
   const latestRevision = await Revisions.findOne(

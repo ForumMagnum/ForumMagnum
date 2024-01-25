@@ -1,18 +1,20 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../../common/withUser";
-import { useTracking } from "../../../lib/analyticsEvents";
-import { isEAForum, isLW} from "../../../lib/instanceSettings";
+import { isLW } from "../../../lib/instanceSettings";
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useCreate } from '../../../lib/crud/withCreate';
+import { EditorContext } from '../PostsEditForm';
+import { useNavigate } from '../../../lib/reactRouterWrapper';
 
 export const styles = (theme: ThemeType): JssStyles => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: isEAForum ? 14 : 16,
+    fontSize: isFriendlyUI ? 14 : 16,
     marginLeft: 5,
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       textTransform: 'none',
     } : {
       paddingBottom: 4,
@@ -23,18 +25,15 @@ export const styles = (theme: ThemeType): JssStyles => ({
     })
   },
   secondaryButton: {
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       color: theme.palette.grey[680],
       padding: '8px 12px'
     } : {
       color: theme.palette.text.dim40,
     })
   },
-  submitButtons: {
-    marginLeft: 'auto'
-  },
   submitButton: {
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       backgroundColor: theme.palette.buttons.alwaysPrimary,
       color: theme.palette.text.alwaysWhite,
       boxShadow: 'none',
@@ -43,45 +42,35 @@ export const styles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.secondary.main
     })
   },
-  cancelButton: {
-  },
-  draft: {
-  },
-  feedback: {
-  }
 });
 
 export type DialogueSubmitProps = FormButtonProps & {
   saveDraftLabel?: string,
   feedbackLabel?: string,
   document: PostsPage,
-  classes: ClassesType
-}
-
-type CoauthorSignoff = {
-  displayName: string,
-  signedOff: boolean
+  classes: ClassesType<typeof styles>,
 }
 
 const DialogueSubmit = ({
+  updateCurrentValues,
+  submitForm,
   submitLabel = "Submit",
-  cancelLabel = "Cancel",
   saveDraftLabel = "Save as draft",
-  document, collectionName, classes
-}: DialogueSubmitProps, { updateCurrentValues, addToSuccessForm, submitForm }: any) => {
+  document,
+  collectionName,
+  classes,
+}: DialogueSubmitProps) => {
   const currentUser = useCurrentUser();
-  const { captureEvent } = useTracking();
   if (!currentUser) throw Error("must be logged in to post")
 
-  const { SectionFooterCheckbox, Row } = Components;
+  const { create: createShortform, loading, error } = useCreate({
+    collectionName: "Comments",
+    fragmentName: 'CommentEdit',
+  })
+  const userShortformId = currentUser?.shortformFeedId;
+  const [editor, _] = React.useContext(EditorContext)
 
-  const defaultCoauthorSignoffs = document.coauthors.reduce((result: Record<string, CoauthorSignoff>, coauthor: UsersMinimumInfo) => {
-    result[coauthor._id] = {displayName: coauthor.displayName, signedOff: false};
-      return result;
-  }, {});
-
-  const [coauthorSignoffs, setCoauthorSignoffs] = React.useState<Record<string, CoauthorSignoff>>(defaultCoauthorSignoffs)
-  
+  const navigate = useNavigate();
 
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -94,54 +83,60 @@ const DialogueSubmit = ({
   const submitWithoutConfirmation = () => collectionName === "Posts" && updateCurrentValues({draft: false});
 
   const requireConfirmation = isLW && collectionName === 'Posts' && !!document.debate;
+  const showShortformButton = !!userShortformId && !isFriendlyUI;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
 
-
+  const {Row} = Components;
   return (
-    <React.Fragment>
-      <Row justifyContent="flex-end">
-        <Button type="submit"
-          className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
-          onClick={() => updateCurrentValues({draft: true})}
-        >
-          {saveDraftLabel}
-        </Button>
-        <Button
-          type="submit"
-          onClick={onSubmitClick}
-          className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          {...(isEAForum ? {
-            variant: "contained",
-            color: "primary",
-          } : {})}
-        >
-          {submitLabel}
-        </Button>
-      </Row>
-    </React.Fragment>
+    <Row justifyContent="flex-end">
+      <Button type="submit"
+        className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
+        onClick={() => updateCurrentValues({draft: true})}
+      >
+        {saveDraftLabel}
+      </Button>
+      {showShortformButton && <Button
+        className={classNames(classes.formButton)}
+        disabled={loading || !!error}
+        onClick={async e => {
+          e.preventDefault()
+
+          // So getData() does exist on the Editor. But the typings don't agree. For now, #AnyBecauseHard
+          // @ts-ignore
+          const shortformString = editor && editor.getData()
+          // Casting because the current type we have for new comment creation doesn't quite line up with our actual GraphQL API
+          const shortformContents = {originalContents: {type: "ckEditorMarkup", data: shortformString}} as DbComment['contents']
+
+          const response = await createShortform({
+            data: {
+              contents: shortformContents,
+              shortform: true,
+              postId: userShortformId,
+              originalDialogueId: document._id,
+            }
+          })
+
+          response.data && navigate(`/posts/${userShortformId}?commentId=${response.data.createComment.data._id}`)
+        }}
+      >{loading ? "Publishing to shortform ..." : `Publish to ${currentUser?.displayName}'s shortform`}</Button>
+      }
+      <Button
+        type="submit"
+        onClick={onSubmitClick}
+        className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+        {...(isFriendlyUI ? {
+          variant: "contained",
+          color: "primary",
+        } : {})}
+      >
+        {submitLabel}
+      </Button>
+    </Row>
   );
 }
 
-DialogueSubmit.propTypes = {
-  submitLabel: PropTypes.string,
-  cancelLabel: PropTypes.string,
-  cancelCallback: PropTypes.func,
-  document: PropTypes.object,
-  collectionName: PropTypes.string,
-  classes: PropTypes.object,
-};
-
-DialogueSubmit.contextTypes = {
-  updateCurrentValues: PropTypes.func,
-  addToSuccessForm: PropTypes.func,
-  addToSubmitForm: PropTypes.func,
-  submitForm: PropTypes.func
-}
-
-
-// HACK: Cast DialogueSubmit to hide the legacy context arguments, to make the type checking work
-const DialogueSubmitComponent = registerComponent('DialogueSubmit', (DialogueSubmit as React.ComponentType<DialogueSubmitProps>), {styles});
+const DialogueSubmitComponent = registerComponent('DialogueSubmit', DialogueSubmit, {styles});
 
 declare global {
   interface ComponentTypes {

@@ -51,20 +51,23 @@ const styles = (theme: ThemeType): JssStyles => ({
   editForm: {
     width: '100%'
   },
-  greenBorder: {
-    borderColor: theme.palette.text.debateComment
+  border0: {
+    borderColor: theme.palette.text.debateComment[1],
   },
-  redBorder: {
-    borderColor: theme.palette.text.debateComment2
+  border1: {
+    borderColor: theme.palette.text.debateComment[2],
   },
-  blueBorder: {
-    borderColor: theme.palette.text.debateComment3
+  border2: {
+    borderColor: theme.palette.text.debateComment[3],
   },
-  purpleBorder: {
-    borderColor: theme.palette.text.debateComment4
+  border3: {
+    borderColor: theme.palette.text.debateComment[4],
   },
-  yellowBorder: {
-    borderColor: theme.palette.text.debateComment5
+  border4: {
+    borderColor: theme.palette.text.debateComment[5],
+  },
+  border5: {
+    borderColor: theme.palette.text.debateComment[6],
   },
   bottomUI: {
     position: 'absolute',
@@ -75,23 +78,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const getParticipantBorderStyle = (participantIndex: number) => {
-  switch (participantIndex) {
-    case 0:
-      return 'greenBorder';
-    case 1:
-      return 'redBorder';
-    case 2:
-      return 'blueBorder';
-    case 3:
-      return 'purpleBorder';
-    default:
-      return 'yellowBorder';
-  }
-};
+const getParticipantBorderStyle = (
+  classes: ClassesType<typeof styles>,
+  participantIndex: number
+) => classes[`border${participantIndex}`] ?? classes.border0;
 
 export const DebateResponse = ({classes, comment, replies, idx, responseCount, orderedParticipantList, responses, post}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   comment: CommentsList,
   replies: CommentsList[],
   idx: number,
@@ -128,7 +121,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
     const showInlineReplyForm = isLastCommentInBlock && !readerIsParticipant;
     const showReplyLink = replies.length > 0 || showInlineReplyForm;
     const addBottomMargin = isLastCommentInBlock;
-    const borderStyle = getParticipantBorderStyle(commentParticipantIndex);
+    const borderStyle = getParticipantBorderStyle(classes, commentParticipantIndex);
 
     const header = showHeader && <>
       <CommentUserName comment={comment} className={classes.username} />
@@ -167,7 +160,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
         newForm={showInlineReplyForm}
         newFormProps={{
           parentComment: comment,
-          replyFormStyle: 'minimalist',
+          formStyle: 'minimalist',
         }}
       />;
 
@@ -177,7 +170,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
       <div
         key={`debate-comment-${comment._id}`}
         id={`debate-comment-${comment._id}`}
-        className={classNames(classes.innerDebateComment, classes[borderStyle], { [classes.blockMargin]: addBottomMargin })}
+        className={classNames(classes.innerDebateComment, borderStyle, { [classes.blockMargin]: addBottomMargin })}
       >
         {header}
         {menu}

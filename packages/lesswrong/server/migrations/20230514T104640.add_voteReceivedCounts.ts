@@ -28,8 +28,6 @@ import Users from "../../lib/collections/users/collection"
 import { addField, dropField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  if (!Users.isPostgres()) return
-  
   await addField(db, Users, 'voteReceivedCount')
   await addField(db, Users, 'smallUpvoteReceivedCount')
   await addField(db, Users, 'smallDownvoteReceivedCount')
@@ -38,8 +36,6 @@ export const up = async ({db}: MigrationContext) => {
 }
 
 export const down = async ({db}: MigrationContext) => {
-  if (!Users.isPostgres()) return
-  
   await dropField(db, Users, 'voteReceivedCount')
   await dropField(db, Users, 'smallUpvoteReceivedCount')
   await dropField(db, Users, 'smallDownvoteReceivedCount')

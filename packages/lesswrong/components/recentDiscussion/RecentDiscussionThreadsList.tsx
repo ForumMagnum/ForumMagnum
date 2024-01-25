@@ -4,7 +4,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import AddBoxIcon from '@material-ui/icons/AddBox';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const RecentDiscussionThreadsList = ({
   terms, commentsLimit, maxAgeHours, af,
@@ -40,7 +40,7 @@ const RecentDiscussionThreadsList = ({
 
   useGlobalKeydown((event: KeyboardEvent) => {
     const F_Key = 70
-    if ((event.metaKey || event.ctrlKey) && event.keyCode == F_Key) {
+    if ((event.metaKey || event.ctrlKey) && event.keyCode === F_Key) {
       setExpandAllThreads(true);
     }
   });
@@ -69,7 +69,7 @@ const RecentDiscussionThreadsList = ({
         {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
           <SectionButton>
             <AddBoxIcon />
-            {isEAForum ? "New Quick Take" : "New Shortform Post"}
+            {isFriendlyUI ? "New quick take" : "New Shortform Post"}
           </SectionButton>
         </div>}
       </SectionTitle>
@@ -106,4 +106,3 @@ declare global {
     RecentDiscussionThreadsList: typeof RecentDiscussionThreadsListComponent,
   }
 }
-

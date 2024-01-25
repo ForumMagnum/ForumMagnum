@@ -10,7 +10,7 @@ registerFragment(`
     }
     relevantTagIds
     relevantTags {
-      ...TagBasicInfo
+      ...TagPreviewFragment
     }
     tagCommentType
     parentCommentId
@@ -72,6 +72,7 @@ registerFragment(`
     rejected
     rejectedReason
     modGPTRecommendation
+    originalDialogueId
   }
 `);
 

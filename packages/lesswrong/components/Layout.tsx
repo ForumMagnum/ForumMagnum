@@ -1,4 +1,4 @@
-import React, {useRef, useState, useCallback, useEffect, FC, ReactNode} from 'react';
+import React, {useRef, useState, useCallback, useEffect, FC, ReactNode, useMemo} from 'react';
 import { Components, registerComponent } from '../lib/vulcan-lib';
 import { useUpdate } from '../lib/crud/withUpdate';
 import { Helmet } from 'react-helmet';
@@ -9,11 +9,11 @@ import { AnalyticsContext } from '../lib/analyticsEvents'
 import { UserContext } from './common/withUser';
 import { TimezoneWrapper } from './common/withTimezone';
 import { DialogManager } from './common/withDialog';
-import { CommentBoxManager } from './common/withCommentBox';
+import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { forumTypeSetting, isEAForum } from '../lib/instanceSettings';
+import { isAF, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -22,10 +22,13 @@ import { DisableNoKibitzContext } from './users/UsersNameDisplay';
 import { LayoutOptions, LayoutOptionsContext } from './hooks/useLayoutOptions';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '../lib/cookies/cookies';
+import { HEADER_HEIGHT } from './common/Header';
 import { useCookiePreferences } from './hooks/useCookiesWithConsent';
-import { EA_FORUM_HEADER_HEIGHT } from './common/Header';
 import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
+import { isFriendlyUI } from '../themes/forumTheme';
+import { requireCssVar } from '../themes/cssVars';
+import { reviewIsActive } from '../lib/reviewUtils';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -41,7 +44,7 @@ const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
     'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews',
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
-  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum', 'EAForumWrapped'],
+  'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum'],
   'default': ['home', 'allPosts', 'questions', 'Community', 'Shortform',],
 }
 
@@ -59,16 +62,19 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingBottom: 15,
     marginLeft: "auto",
     marginRight: "auto",
-    background: theme.palette.background.default,
     // Make sure the background extends to the bottom of the page, I'm sure there is a better way to do this
     // but almost all pages are bigger than this anyway so it's not that important
-    minHeight: `calc(100vh - ${forumTypeSetting.get() === "EAForum" ? EA_FORUM_HEADER_HEIGHT : 64}px)`,
+    minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
     gridArea: 'main',
     [theme.breakpoints.down('sm')]: {
       paddingTop: 0,
       paddingLeft: 8,
       paddingRight: 8,
     },
+  },
+  wrapper: {
+    position: 'relative',
+    overflowX: 'clip'
   },
   mainNoFooter: {
     paddingBottom: 0,
@@ -96,24 +102,49 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexBasis: 0,
     flexGrow: 1,
     overflow: "auto",
+    [theme.breakpoints.down('xs')]: {
+      overflow: "visible",
+    },
   },
   spacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
       display: 'grid',
       gridTemplateAreas: `
-        "navSidebar ... main ... sunshine"
+        "navSidebar ... main imageGap sunshine"
       `,
       gridTemplateColumns: `
         minmax(0, min-content)
         minmax(0, 1fr)
         minmax(0, min-content)
-        minmax(0, 1.4fr)
+        minmax(0, ${isLW ? 7 : 1}fr)
         minmax(0, min-content)
       `,
     },
     [theme.breakpoints.down('md')]: {
       display: 'block'
     }
+  },
+  imageColumn: {
+    gridArea: 'imageGap',
+    [theme.breakpoints.down('md')]: {
+      display: 'none'
+    }
+  },
+  backgroundImage: {
+    position: 'absolute',
+    width: '57vw',
+    maxWidth: '1000px',
+    top: '-30px',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+    
+    [theme.breakpoints.up(2000)]: {
+      right: '0px',
+    }
+  },
+  votingImage: {
+    width: '55vw',
+    maxWidth: '1000px',
+    marginLeft: '-15px'
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -187,9 +218,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 20,
   },
   stickyWrapperHeaderVisible: {
-    transform: `translateY(${EA_FORUM_HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
+    transform: `translateY(${HEADER_HEIGHT + STICKY_SECTION_TOP_MARGIN}px)`,
   },
 });
+
+const wrappedBackgroundColor = requireCssVar("palette", "wrapped", "background")
 
 const StickyWrapper: FC<{
   eaHomeLayout: boolean,
@@ -217,9 +250,10 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
-  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(!!(currentUser?.hideNavigationSidebar));
+  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : (reviewIsActive() && isLW)
+  const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
-  const { currentRoute, pathname} = useLocation();
+  const {currentRoute, pathname} = useLocation();
   const layoutOptionsState = React.useContext(LayoutOptionsContext);
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
@@ -228,7 +262,7 @@ const Layout = ({currentUser, children, classes}: {
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
   const renderCommunityMap = false // replace with following line to enable during ACX Everywhere
-  // (forumTypeSetting.get() === "LessWrong") && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+  // (isLW) && (currentRoute?.name === 'home') && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
   const {mutate: updateUser} = useUpdate({
     collectionName: "Users",
@@ -273,7 +307,15 @@ const Layout = ({currentUser, children, classes}: {
   if (!layoutOptionsState) {
     throw new Error("LayoutOptionsContext not set");
   }
-  
+
+  const noKibitzContext = useMemo(
+    () => ({ disableNoKibitz, setDisableNoKibitz }),
+    [disableNoKibitz, setDisableNoKibitz]
+  );
+
+  // For the EAF Wrapped page, we change the header's background color to a dark blue.
+  const headerBackgroundColor = pathname.startsWith('/wrapped') ? wrappedBackgroundColor : undefined
+
   const render = () => {
     const {
       NavigationStandalone,
@@ -294,6 +336,8 @@ const Layout = ({currentUser, children, classes}: {
       AdminToggle,
       SunshineSidebar,
       EAHomeRightHandSide,
+      CloudinaryImage2,
+      ReviewVotingCanvas
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -303,7 +347,7 @@ const Layout = ({currentUser, children, classes}: {
       // FIXME: This is using route names, but it would be better if this was
       // a property on routes themselves.
       standaloneNavigation: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
-      renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')),
+      renderSunshineSidebar: !!currentRoute?.sunshineSidebar && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar,
       shouldUseGridLayout: !currentRoute || forumSelect(standaloneNavMenuRouteNames).includes(currentRoute.name),
       unspacedGridLayout: !!currentRoute?.unspacedGrid,
     }
@@ -314,8 +358,8 @@ const Layout = ({currentUser, children, classes}: {
     const renderSunshineSidebar = overrideLayoutOptions.renderSunshineSidebar ?? baseLayoutOptions.renderSunshineSidebar
     const shouldUseGridLayout = overrideLayoutOptions.shouldUseGridLayout ?? baseLayoutOptions.shouldUseGridLayout
     const unspacedGridLayout = overrideLayoutOptions.unspacedGridLayout ?? baseLayoutOptions.unspacedGridLayout
-    // The EA Forum home page has a unique grid layout, to account for the right hand side column.
-    const eaHomeLayout = isEAForum && currentRoute?.name === 'home'
+    // The friendly home page has a unique grid layout, to account for the right hand side column.
+    const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
     const showNewUserCompleteProfile = currentUser?.usernameUnset &&
       !allowedIncompletePaths.includes(currentRoute?.name ?? "404");
@@ -325,9 +369,8 @@ const Layout = ({currentUser, children, classes}: {
       const beforeTime = petrovBeforeTime.get()
       const afterTime = petrovAfterTime.get()
     
-      return currentRoute?.name === "home"
-        && ('LessWrong' === forumTypeSetting.get())
-        && beforeTime < currentTime 
+      return currentRoute?.name === "home" && isLW
+        && beforeTime < currentTime
         && currentTime < afterTime
     }
 
@@ -337,9 +380,12 @@ const Layout = ({currentUser, children, classes}: {
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
       <SidebarsWrapper>
-      <DisableNoKibitzContext.Provider value={{ disableNoKibitz, setDisableNoKibitz }}>
+      <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
-        <div className={classNames("wrapper", {'alignment-forum': forumTypeSetting.get() === 'AlignmentForum', [classes.fullscreen]: currentRoute?.fullscreen}) } id="wrapper">
+        <div className={classNames(
+          "wrapper",
+          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
+        )} id="wrapper">
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
@@ -368,22 +414,24 @@ const Layout = ({currentUser, children, classes}: {
                 standaloneNavigationPresent={standaloneNavigation}
                 sidebarHidden={hideNavigationSidebar}
                 toggleStandaloneNavigation={toggleStandaloneNavigation}
-                stayAtTop={Boolean(currentRoute?.fullscreen || currentRoute?.staticHeader)}
+                stayAtTop={!!currentRoute?.staticHeader}
+                backgroundColor={headerBackgroundColor}
               />}
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
-              
+
               <div className={classNames(classes.standaloneNavFlex, {
                 [classes.spacedGridActivated]: shouldUseGridLayout && !unspacedGridLayout,
                 [classes.unspacedGridActivated]: shouldUseGridLayout && unspacedGridLayout,
-                [classes.eaHomeLayout]: eaHomeLayout && !renderSunshineSidebar,
-                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen}
+                [classes.eaHomeLayout]: friendlyHomeLayout && !renderSunshineSidebar,
+                [classes.fullscreenBodyWrapper]: currentRoute?.fullscreen,
+              }
               )}>
-                {isEAForum && <AdminToggle />}
+                {isFriendlyUI && <AdminToggle />}
                 {standaloneNavigation &&
                   <StickyWrapper
-                    eaHomeLayout={eaHomeLayout}
+                    eaHomeLayout={friendlyHomeLayout}
                     headerVisible={headerVisible}
                     headerAtTop={headerAtTop}
                     classes={classes}
@@ -391,7 +439,7 @@ const Layout = ({currentUser, children, classes}: {
                     <NavigationStandalone
                       sidebarHidden={hideNavigationSidebar}
                       unspacedGridLayout={unspacedGridLayout}
-                      noTopMargin={eaHomeLayout}
+                      noTopMargin={friendlyHomeLayout}
                     />
                   </StickyWrapper>
                 }
@@ -413,11 +461,25 @@ const Layout = ({currentUser, children, classes}: {
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
+                { isLW && <>
+                  {
+                    currentRoute?.name === 'home' ? 
+                      <div className={classes.imageColumn}>
+                        <ReviewVotingCanvas />
+                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_3_jbqyqv" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+                      </div> 
+                    : 
+                      (standaloneNavigation && <div className={classes.imageColumn}>
+                        <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
+                      </div>)
+                  }
+                  </>
+                }
                 {!renderSunshineSidebar &&
-                  eaHomeLayout &&
+                  friendlyHomeLayout &&
                   !showNewUserCompleteProfile &&
                   <StickyWrapper
-                    eaHomeLayout={eaHomeLayout}
+                    eaHomeLayout={friendlyHomeLayout}
                     headerVisible={headerVisible}
                     headerAtTop={headerAtTop}
                     classes={classes}

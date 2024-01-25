@@ -17,7 +17,7 @@ import { userIsDefaultSubscribed } from "../../lib/subscriptionUtil";
 const currentUserIsSubscribed = (
   currentUser: UsersCurrent|null,
   results: SubscriptionState[]|undefined,
-  subscriptionType: AnyBecauseTodo,
+  subscriptionType: SubscriptionType,
   collectionName: CollectionNameString,
   document: AnyBecauseTodo,
 ) => {
@@ -55,10 +55,12 @@ export const useNotifyMe = ({
   document,
   overrideSubscriptionType,
   hideIfNotificationsDisabled,
+  hideForLoggedOutUsers,
 }: {
   document: AnyBecauseTodo,
   overrideSubscriptionType?: SubscriptionType,
   hideIfNotificationsDisabled?: boolean,
+  hideForLoggedOutUsers?: boolean,
 }): NotifyMeConfig => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
@@ -81,8 +83,6 @@ export const useNotifyMe = ({
     eventProps: {documentId: document._id, documentType: documentType},
   });
 
-  const skip = !currentUser;
-
   // Get existing subscription, if there is one
   const {results, loading, invalidateCache} = useMulti({
     terms: {
@@ -96,40 +96,9 @@ export const useNotifyMe = ({
     collectionName: "Subscriptions",
     fragmentName: "SubscriptionState",
     enableTotal: false,
-    skip
+    skip: !currentUser
   });
-
-  if (loading) {
-    return {
-      // Apollo returns `loading: true` when you skip the query.
-      // If we skipped fetching subscription state because there's no logged-in user, don't return loading: true.
-      loading: skip ? false : true,
-    };
-  };
-
-  const isSubscribed = currentUserIsSubscribed(
-    currentUser,
-    results,
-    subscriptionType,
-    collectionName,
-    document,
-  );
-
-  // Can't subscribe to yourself
-  if (collectionName === 'Users' && document._id === currentUser?._id) {
-    return {
-      disabled: true,
-      loading: false,
-    };
-  }
-
-  if (hideIfNotificationsDisabled && !isSubscribed) {
-    return {
-      disabled: true,
-      loading: false,
-    };
-  }
-
+  
   const onSubscribe = async (e: MouseEvent) => {
     if (!currentUser) {
       openDialog({componentName: "LoginPopup"});
@@ -163,6 +132,52 @@ export const useNotifyMe = ({
     } catch(error) {
       flash({messageString: error.message});
     }
+  }
+  
+  // If we are hiding the notify element, don't return an onSubscribe.
+  if (!currentUser && hideForLoggedOutUsers) {
+    return {
+      loading: false
+    }
+  }
+  // By default, we allow logged out users to see the element and click on it,
+  // so that we can prompt them with the login/sign up buttons.
+  if (!currentUser) {
+    return {
+      loading: false,
+      disabled: false,
+      isSubscribed: false,
+      onSubscribe,
+    }
+  }
+
+  if (loading) {
+    return {
+      loading: true,
+    };
+  };
+
+  const isSubscribed = currentUserIsSubscribed(
+    currentUser,
+    results,
+    subscriptionType,
+    collectionName,
+    document,
+  );
+
+  // Can't subscribe to yourself
+  if (collectionName === 'Users' && document._id === currentUser?._id) {
+    return {
+      disabled: true,
+      loading: false,
+    };
+  }
+
+  if (hideIfNotificationsDisabled && !isSubscribed) {
+    return {
+      disabled: true,
+      loading: false,
+    };
   }
 
   return {

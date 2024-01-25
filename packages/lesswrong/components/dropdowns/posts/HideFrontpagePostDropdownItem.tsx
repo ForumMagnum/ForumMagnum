@@ -58,7 +58,7 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
     if (isHidden) {
       const alreadyHidden = some(
         oldHiddenList,
-        (hiddenMetadata) => hiddenMetadata.postId == post._id,
+        (hiddenMetadata) => hiddenMetadata.postId === post._id,
       );
       newHiddenList = alreadyHidden
         ? oldHiddenList

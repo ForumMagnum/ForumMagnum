@@ -1,4 +1,6 @@
 import * as _ from 'underscore';
+// eslint-disable-next-line no-restricted-imports
+import {matchPath} from 'react-router'
 
 export type PingbackDocument = {
   collectionName: CollectionNameString,
@@ -62,6 +64,7 @@ export type Route = {
   // Not used for post-pages because we don't know whether a post page is going
   // to be a 404 until we render it.
   enableResourcePrefetch?: boolean
+  isAdmin?: boolean
 };
 
 /** Populated by calls to addRoute */
@@ -99,3 +102,34 @@ export const addRoute = (...routes: Route[]): void => {
     };
   }
 };
+
+export const overrideRoute = (...routes: Route[]): void => {
+  // remove the old route if it exists, then call addRoute
+  for (let route of routes) {
+    const {name, path} = route;
+    delete Routes[name];
+
+    // @ts-ignore The @types/underscore signature for _.findWhere is narrower than the real function; this works fine
+    const routeWithSamePath = _.findWhere(Routes, { path });
+
+    if (routeWithSamePath) {
+      delete Routes[routeWithSamePath.name];
+    }
+  }
+  addRoute(...routes);
+}
+
+export const getRouteMatchingPathname = (pathname: string): Route | undefined  => {
+  return Object.values(Routes).reverse().find((route) => matchPath(pathname, {
+    path: route.path,
+    exact: true,
+    strict: false,
+  }))
+}
+
+export const userCanAccessRoute = (user?: UsersCurrent | DbUser | null, route?: Route | null): boolean => {
+  if (!route) return true // Anyone can access a non-existent route (which would 404)
+  if (user?.isAdmin) return true
+
+  return !route.isAdmin
+}

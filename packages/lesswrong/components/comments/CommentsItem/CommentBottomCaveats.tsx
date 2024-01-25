@@ -5,6 +5,9 @@ import { commentIsHidden } from '../../../lib/collections/comments/helpers';
 import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
+  caveatText: {
+    flexGrow: 1,
+  },
   blockedReplies: {
     padding: "5px 0",
   },
@@ -30,11 +33,15 @@ const CommentBottomCaveats = ({comment, classes}: {
         {!blockIsForever && <>until <Components.CalendarDate date={comment.repliesBlockedUntil}/></>}
       </div>
     }
-    { comment.retracted && <Components.MetaInfo>[This comment is no longer endorsed by its author]</Components.MetaInfo>}
-    { commentIsHidden(comment) && !comment.rejected && <Components.MetaInfo>
-      [This comment will not be visible to other users until the moderation
-      team checks it for spam or norm violations.]
-    </Components.MetaInfo>
+    {comment.retracted
+      && <Components.MetaInfo className={classes.caveatText}>
+        [This comment is no longer endorsed by its author]
+      </Components.MetaInfo>
+    }
+    {commentIsHidden(comment) && !comment.rejected
+      && <Components.MetaInfo className={classes.caveatText}>
+        [This comment will not be visible to other users until the moderation team checks it for spam or norm violations.]
+      </Components.MetaInfo>
     }
   </>
 }

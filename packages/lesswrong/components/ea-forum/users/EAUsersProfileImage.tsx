@@ -8,7 +8,7 @@ import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 
 const SIZE = 96;
 
-const styles = (_theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType): JssStyles => ({
   root: {
     marginBottom: 14,
     position: "relative",
@@ -19,8 +19,8 @@ const styles = (_theme: ThemeType): JssStyles => ({
     position: "absolute",
     width: "100%",
     height: "100%",
-    color: "#fff", // These colors are dark-mode independent
-    background: "rgba(0, 0, 0, 0.5)",
+    color: theme.palette.text.alwaysWhite, // These colors are dark-mode independent
+    background: theme.palette.panelBackground.userProfileImageHover,
     borderRadius: "50%",
     display: "flex",
     alignItems: "center",

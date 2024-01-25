@@ -8,7 +8,7 @@ import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -166,10 +166,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-
 export type EAPostsItemProps = PostsItemConfig & {
   hideSecondaryInfo?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 };
 
 const EAPostsItem = ({
@@ -217,9 +216,10 @@ const EAPostsItem = ({
     PostsTitle, ForumIcon, PostActionsButton, EAKarmaDisplay, EAPostMeta,
     PostsItemTagRelevance, PostsItemTooltipWrapper, PostsVote,
     PostsItemTrailingButtons, PostReadCheckbox, PostsItemNewCommentsWrapper,
+    PostMostValuableCheckbox,
   } = Components;
 
-  const SecondaryInfo = () => hideSecondaryInfo ? null : (
+  const SecondaryInfo = () => (hideSecondaryInfo || showMostValuableCheckbox) ? null : (
     <>
       <InteractionWrapper className={classes.interactionWrapper}>
         <a onClick={toggleComments} className={classNames(
@@ -320,6 +320,11 @@ const EAPostsItem = ({
                 */}
               <SecondaryInfo />
             </div>
+            {showMostValuableCheckbox && <div className={classes.secondaryContainer}>
+              <InteractionWrapper className={classes.interactionWrapper}>
+                <PostMostValuableCheckbox post={post} />
+              </InteractionWrapper>
+            </div>}
             <InteractionWrapper className={classes.interactionWrapper}>
               <PostsItemTrailingButtons
                 showArchiveButton={false}
@@ -341,7 +346,7 @@ const EAPostsItem = ({
                 terms={commentTerms}
                 post={post}
                 treeOptions={{
-                  highlightDate: post.lastVisitedAt,
+                  highlightDate: post.lastVisitedAt ?? undefined,
                   condensed: condensedAndHiddenComments,
                 }}
               />

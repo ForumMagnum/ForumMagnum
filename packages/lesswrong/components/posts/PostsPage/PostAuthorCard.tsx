@@ -2,8 +2,8 @@ import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
-import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { truncate } from '../../../lib/editor/ellipsize';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -77,7 +77,7 @@ const PostAuthorCard = ({author, currentUser, classes}: {
     <div className={classes.root}>
       <Typography variant="subheading" component="div" className={classes.about}>About the author</Typography>
       <div className={classes.usernameRow}>
-        {forumTypeSetting.get() === 'EAForum' && author.profileImageId && <Link
+        {isFriendlyUI && author.profileImageId && <Link
           to={`/users/${author.slug}?from=post_author_card`}
           className={classes.photoLink}
         >
@@ -95,7 +95,7 @@ const PostAuthorCard = ({author, currentUser, classes}: {
           </Link>
         </Typography>
         <div className={classes.btns}>
-          {currentUser?._id != author._id && <NewConversationButton
+          {currentUser?._id !== author._id && <NewConversationButton
             user={author}
             currentUser={currentUser}
             from="post_author_card"
@@ -104,7 +104,7 @@ const PostAuthorCard = ({author, currentUser, classes}: {
               Message
             </a>
           </NewConversationButton>}
-          {currentUser?._id != author._id && <NotifyMeButton
+          {currentUser?._id !== author._id && <NotifyMeButton
             document={author}
             className={classes.subscribeBtn}
             subscribeMessage="Subscribe"

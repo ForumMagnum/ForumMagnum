@@ -30,6 +30,8 @@ export type QueryFilter = {
   type: "numeric",
   value: number,
   op: QueryFilterOperator,
+} | {
+  type: "exists"
 });
 
 export type QueryData = {
@@ -41,6 +43,8 @@ export type QueryData = {
   preTag?: string,
   postTag?: string,
   filters: QueryFilter[],
+  // Providing coordinates will trigger a special case, which sorts results by distance and ignores relevance
+  coordinates?: number[],
 }
 
 export type Fuzziness = "AUTO" | number;
@@ -123,6 +127,18 @@ class ElasticQuery {
               [filter.op]: filter.value,
             },
           },
+        });
+        break;
+      case "exists":
+        terms.push({
+          bool: {
+            should: [],
+            must: [{
+              exists: {
+                field: filter.field
+              }
+            }]
+          }
         });
         break;
       }
@@ -305,7 +321,24 @@ class ElasticQuery {
       : this.compileSimpleQuery();
   }
 
-  private compileSort(sorting?: string): Sort {
+  private compileSort(sorting?: string, coordinates?: number[]): Sort {
+    // Special case:
+    // When providing coordinates in the format [lng, lat], we sort by distance
+    // and ignore the relevance score. See also parseLatLng()
+    if (coordinates) {
+      if (!this.config.locationField) {
+        throw new Error("Index cannot be sorted by location");
+      }
+      return [
+        {
+          _geo_distance : {
+            [this.config.locationField]: coordinates,
+            order : "asc",
+          },
+        },
+        {[this.config.tiebreaker]: {order: "desc"}},
+      ];
+    }
     const sort: Sort = [
       {_score: {order: "desc"}},
       {[this.config.tiebreaker]: {order: "desc"}},
@@ -339,8 +372,14 @@ class ElasticQuery {
       sorting,
       offset = 0,
       limit = 10,
+      coordinates,
     } = this.queryData;
     const {privateFields} = this.config;
+
+    // When sorting by nearest-geographically we disable custom highlighting as
+    // this isn't supported by elastic and causes an exception
+    const hasCustomHighlight = !coordinates;
+
     const {
       searchQuery,
       snippetName,
@@ -367,23 +406,25 @@ class ElasticQuery {
       body: {
         track_scores: true,
         track_total_hits: true,
-        highlight: {
-          fields: {
-            [snippetName]: {
-              ...highlightConfig,
-              highlight_query: snippetQuery,
-            },
-            ...(highlightName && {
-              [highlightName]: {
+        ...(hasCustomHighlight && {
+          highlight: {
+            fields: {
+              [snippetName]: {
                 ...highlightConfig,
-                highlight_query: highlightQuery,
+                highlight_query: snippetQuery,
               },
-            }),
+              ...(highlightName && {
+                [highlightName]: {
+                  ...highlightConfig,
+                  highlight_query: highlightQuery,
+                },
+              }),
+            },
+            number_of_fragments: 1,
+            fragment_size: 140,
+            no_match_size: 140,
           },
-          number_of_fragments: 1,
-          fragment_size: 140,
-          no_match_size: 140,
-        },
+        }),
         query: {
           script_score: {
             query: {
@@ -398,9 +439,9 @@ class ElasticQuery {
             },
           },
         },
-        sort: this.compileSort(sorting),
+        sort: this.compileSort(sorting, coordinates),
         _source: {
-          exclude: ["exportedAt", ...privateFields],
+          excludes: ["exportedAt", ...privateFields],
         },
       },
     };

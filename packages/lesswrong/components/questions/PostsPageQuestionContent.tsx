@@ -3,10 +3,11 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import withErrorBoundary from '../common/withErrorBoundary';
+import { CommentTreeNode } from '../../lib/utils/unflatten';
 
-const PostsPageQuestionContent = ({post, answers, refetch}: {
+const PostsPageQuestionContent = ({post, answersTree, refetch}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  answers: CommentsList[],
+  answersTree: CommentTreeNode<CommentsList>[],
   refetch: ()=>void,
 }) => {
   const currentUser = useCurrentUser();
@@ -18,7 +19,7 @@ const PostsPageQuestionContent = ({post, answers, refetch}: {
       {currentUser && !userIsAllowedToComment(currentUser, post, author, false) &&
         <CantCommentExplanation post={post}/>
       }
-      <AnswersList post={post} answers={answers} />
+      <AnswersList post={post} answersTree={answersTree} />
       <RelatedQuestionsList post={post} />
     </div>
   )
