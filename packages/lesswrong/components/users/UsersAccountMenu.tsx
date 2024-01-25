@@ -75,7 +75,7 @@ class UsersAccountMenu extends PureComponent<UsersAccountMenuProps,UsersAccountM
 
     return (
       <div className={classes.root}>
-        {isEAForum ? <>
+        {isFriendlyUI ? <>
           <EAButton style="grey" href={`/auth/auth0?returnTo=${pathname}`} className={classes.login}>
             Login
           </EAButton>
