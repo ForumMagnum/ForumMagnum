@@ -2,33 +2,25 @@ import { AnnualReviewMarketInfo } from '../../lib/annualReviewMarkets';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { CommentTreeOptions } from '../comments/commentTree';
-import { PostsPreviewTooltip } from './PostsPreviewTooltip/PostsPreviewTooltip';
 import { useHover } from '../common/withHover';
 
 const styles = (theme: ThemeType) => ({
-    root: {
-        // marginTop: 8,
-        // marginBottom: 8,
-      },
-    expectedWinner: {
-        color: theme.palette.text.annualReviewMarketKarma,
-        border: '1px solid', // Set the border color to gold
-        borderColor: theme.palette.text.annualReviewMarketKarma,
-        borderRadius: '4px', // Slightly rounded borders
-        fontFamily: theme.typography.fontFamily,
-        // backgroundColor: 'gold', // Set the background color to gold
-        width: 'fit-content',
-        display: 'inline-block',
-        // textAlign: 'right', // Align text to the right
-        padding: '5px', // Optional: Add some padding inside the box
-        margin: '8px', // Optional: margins make it easier to align the text when using borders
-        boxSizing: 'border-box', // Optional: Make sure padding doesn't affect the total width of the box
-      },
-    preview: {
-      maxWidth: 400,
-    },
-  });
+  expectedWinner: {
+    color: theme.palette.text.annualReviewMarketKarma,
+    border: '1px solid',
+    borderColor: theme.palette.text.annualReviewMarketKarma,
+    borderRadius: '4px',
+    fontFamily: theme.typography.fontFamily,
+    width: 'fit-content',
+    display: 'inline-block',
+    padding: '5px',
+    margin: '8px',
+    boxSizing: 'border-box',
+  },
+  preview: {
+    maxWidth: 400,
+  },
+});
 
 const PostsAnnualReviewMarketTag = ({post, annualReviewMarketInfo, classes}: {
     post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
@@ -52,7 +44,7 @@ const PostsAnnualReviewMarketTag = ({post, annualReviewMarketInfo, classes}: {
     }
     
     const decimalPlaces = 0;
-    return <span className={classes.root}>
+    return <span>
       <div className={classes.expectedWinner} {...eventHandlers}>
         {annualReviewMarketInfo?.year} Top Fifty: {parseFloat((annualReviewMarketInfo?.probability*100).toFixed(decimalPlaces))}%
         {!!comment && 
@@ -68,12 +60,8 @@ const PostsAnnualReviewMarketTag = ({post, annualReviewMarketInfo, classes}: {
               nestingLevel={1}
               comment={comment}
               treeOptions={{
-                // ...treeOptions,
                 post: post,
-                // hideReply: true,
-                // forceSingleLine: false,
                 forceNotSingleLine: true,
-                // switchAlternatingHighlights: false,
               }}
               hoverPreview
             >
