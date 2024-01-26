@@ -173,8 +173,8 @@ const tableStyles = (theme: ThemeType): JssStyles => ({
       fontSize: 14,
       lineHeight: "1.4em",
     },
-    "& ul": {
-      paddingLeft: "2em",
+    "& ul, & ol": {
+      paddingLeft: "1.5em",
     },
   }),
 });
