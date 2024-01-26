@@ -182,7 +182,8 @@ const tableStyles = (theme: ThemeType): JssStyles => ({
 const tableCellStyles = (theme: ThemeType): JssStyles => ({
   minWidth: "2em",
   padding: ".4em",
-  border:  theme.palette.border.tableCell,
+  border: theme.palette.border.tableCell,
+  wordBreak: "normal",
   '& p': {
     marginTop: '0.5em',
     marginBottom: '0.5em',
