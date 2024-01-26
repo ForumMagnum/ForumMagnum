@@ -48,9 +48,9 @@ makeEditable({
     // Determines whether to use the comment editor styles (e.g. Fonts)
     commentStyles: true,
     permissions: {
-      viewableBy: ['members'],
-      insertableBy: ['members'],
-      editableBy: userOwns,
+      canRead: ['members'],
+      canCreate: ['members'],
+      canUpdate: userOwns,
     },
     order: 2,
   }
@@ -58,7 +58,7 @@ makeEditable({
 
 addUniversalFields({
   collection: Messages,
-  createdAtOptions: {viewableBy: ['members']},
+  createdAtOptions: {canRead: ['members']},
 });
 
 export default Messages;

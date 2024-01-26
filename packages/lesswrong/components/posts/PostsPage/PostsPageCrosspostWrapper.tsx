@@ -1,8 +1,9 @@
 import React, { createContext, useContext } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { useSingle, UseSingleProps } from "../../../lib/crud/withSingle";
+import { UseSingleProps } from "../../../lib/crud/withSingle";
 import { isMissingDocumentError, isOperationNotAllowedError } from "../../../lib/utils/errorUtil";
-import { useCrosspostApolloClient } from "../../hooks/useCrosspostApolloClient";
+import { useForeignCrosspost } from "../../hooks/useForeignCrosspost";
+import type { EagerPostComments } from "./PostsPage";
 
 type PostType = PostsWithNavigation | PostsWithNavigationAndRevision;
 
@@ -31,44 +32,41 @@ export const isPostWithForeignId = (post: PostType): post is PostWithForeignId =
   typeof post.fmCrosspost.hostedHere === "boolean" &&
   !!post.fmCrosspost.foreignPostId;
 
-const PostsPageCrosspostWrapper = ({post, refetch, fetchProps}: {
+const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps}: {
   post: PostWithForeignId,
+  eagerPostComments?: EagerPostComments,
   refetch: () => Promise<void>,
   fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision">,
 }) => {
-  const apolloClient = useCrosspostApolloClient();
-  const { document, loading, error } = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">({
-    ...fetchProps,
-    documentId: post.fmCrosspost.foreignPostId,
-    apolloClient,
-  });
+  const {
+    loading,
+    error,
+    localPost,
+    foreignPost,
+    combinedPost,
+  } = useForeignCrosspost(post, fetchProps);
 
   const { Error404, Loading, PostsPage } = Components;
-  if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
+  // If we get a error fetching the foreign xpost data, that should not stop us
+  // from rendering the post if we have it locally
+  if (error && !post.fmCrosspost.hostedHere && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
   } else if (loading) {
     return <div><Loading/></div>
-  } else if (!document && !post.draft) {
+  } else if (!post.fmCrosspost.hostedHere && !foreignPost && !post.draft) {
     return <Error404/>
   }
 
   const contextValue: CrosspostContext = {
     hostedHere: !!post.fmCrosspost.hostedHere,
-    localPost: post,
-    foreignPost: document,
+    localPost,
+    foreignPost,
+    combinedPost,
   };
-
-  if (!contextValue.hostedHere) {
-    contextValue.combinedPost = {
-      ...document,
-      ...post,
-      contents: document?.contents ?? post.contents,
-    };
-  }
 
   return (
     <crosspostContext.Provider value={contextValue}>
-      <PostsPage post={contextValue.combinedPost ?? post} refetch={refetch} />
+      <PostsPage post={contextValue.combinedPost ?? post} eagerPostComments={eagerPostComments} refetch={refetch} />
     </crosspostContext.Provider>
   );
 }

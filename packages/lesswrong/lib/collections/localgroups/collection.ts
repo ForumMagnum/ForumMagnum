@@ -44,9 +44,9 @@ makeEditable({
     commentStyles: true,
     order: 25,
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members']
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members']
     },
     hintText: "Short description"
   }

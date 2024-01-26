@@ -1,19 +1,20 @@
-import React, {useCallback, useState} from 'react';
+import React, {FC, useCallback, useState} from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
-import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import { userCanUseSharing } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { SharingSettings, defaultSharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
 import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PropTypes from 'prop-types';
 import PersonAddIcon from '@material-ui/icons/PersonAdd';
 import { moderationEmail } from '../../lib/publicSettings';
 import { getPostCollaborateUrl } from '../../lib/collections/posts/helpers';
+import { ckEditorName } from './Editor';
+import { isEAForum } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   linkSharingPreview: {
@@ -42,6 +43,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   buttonIcon: {
     cursor: "pointer"
   },
+  disabledIcon: {
+    opacity: .35,
+  },
   spacer: {
     flexGrow: 1,
   },
@@ -56,16 +60,37 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const PostSharingSettings = ({document, formType, value, path, label, classes}: {
+const PostSharingIcon: FC<{
+  className?: string,
+  onClick?: () => void,
+}> = (props) => {
+  const {ForumIcon} = Components;
+  return isFriendlyUI
+    ? (
+      <ForumIcon icon="Share" {...props} />
+    )
+    : (
+      <PersonAddIcon {...props} />
+    );
+}
+
+const shareTooltip = isFriendlyUI
+  ? "Share this post"
+  : "Share this document";
+
+const noSharePermissionTooltip = isFriendlyUI
+  ? "You need at least 1 karma or to be approved by a moderator to share this post"
+  : "You need at least 1 karma or to be approved by a mod to share";
+
+const PostSharingSettings = ({document, formType, value, classes}: {
   formType: "edit"|"new",
   document: PostsEditQueryFragment,
   value: SharingSettings,
   path: string,
   label: string,
   classes: ClassesType
-}, context) => {
+}, context: any) => {
   const {updateCurrentValues, submitForm} = context;
-  const { LWTooltip } = Components
   const {openDialog, closeDialog} = useDialog();
   const currentUser = useCurrentUser();
   const initialSharingSettings = value || defaultSharingSettings;
@@ -91,15 +116,15 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       flash("Edit the document first to enable sharing");
       return;
     } else if(editorType !== "ckEditorMarkup") {
-      flash("Change the editor type to LessWrong Docs to enable sharing");
+      flash(`Change the editor type to ${ckEditorName} to enable sharing`);
       return;
     }
     
     openDialog({
       componentName: "PostSharingSettingsDialog",
       componentProps: {
-        postId: document._id,
-        linkSharingKey: document.linkSharingKey,
+        post: document,
+        linkSharingKey: document.linkSharingKey ?? undefined,
         initialSharingSettings,
         onConfirm: async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
           if (isChanged || formType==="new") {
@@ -127,13 +152,20 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
       noClickawayCancel: true,
     });
   }, [openDialog, closeDialog, formType, document, updateCurrentValues, initialSharingSettings, flash, submitForm]);
-  
-  if (!userCanUseSharing(currentUser))
-    return null;
-  
-  return <LWTooltip title="Share this document (Beta)">
-    <PersonAddIcon className={classes.buttonIcon} onClick={onClickShare}/>
-  </LWTooltip>
+
+  const {LWTooltip} = Components;
+  if (!userCanUseSharing(currentUser)) {
+    return (
+      <LWTooltip title={noSharePermissionTooltip}>
+        <PostSharingIcon className={classes.disabledIcon}/>
+      </LWTooltip>
+    )
+  };
+  return (
+    <LWTooltip title={shareTooltip}>
+      <PostSharingIcon className={classes.buttonIcon} onClick={onClickShare}/>
+    </LWTooltip>
+  );
 }
 
 (PostSharingSettings as any).contextTypes = {
@@ -143,16 +175,18 @@ const PostSharingSettings = ({document, formType, value, path, label, classes}: 
 };
 
 
-const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
-  postId: string,
-  linkSharingKey: string,
+const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm, classes}: {
+  // postId: string,
+  post: PostsEditQueryFragment,
+  // linkSharingKey is only marked nullable for security-mindset reasons; in practice it's filled in by a callback and shouldn't be missing
+  linkSharingKey?: string,
   initialSharingSettings: SharingSettings,
   initialShareWithUsers: string[],
   onClose: ()=>void,
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean)=>void
   classes: ClassesType
 }) => {
-  const { EditableUsersList, LWDialog, LWTooltip } = Components;
+  const { EditableUsersList, LWDialog, LWTooltip, MenuItem } = Components;
   const [sharingSettings, setSharingSettingsState] = useState({...initialSharingSettings});
   const [shareWithUsers, setShareWithUsersState] = useState(initialShareWithUsers);
   const [isChanged, setIsChanged] = useState(false);
@@ -167,7 +201,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
     setIsChanged(true);
   };
   
-  const collabEditorLink = getPostCollaborateUrl(postId, true, linkSharingKey)
+  const collabEditorLink = getPostCollaborateUrl(post._id, true, linkSharingKey)
   
   const commentingTooltip = "(suggest changes requires edit permission)"
 
@@ -194,7 +228,7 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
             updateSharingSettings({...sharingSettings, explicitlySharedUsersCan: e.target.value as any});
           }}
         >
-          <MenuItem value="none">None</MenuItem>
+          <MenuItem value="none" disabled={!!post.collabEditorDialogue}>None</MenuItem>
           <MenuItem value="read">Read</MenuItem>
           {/* TODO: Figure out how to wrap a menu item in a tooltip without breaking the Select dropdown */}
           <MenuItem value="comment">
@@ -232,10 +266,10 @@ const PostSharingSettingsDialog = ({postId, linkSharingKey, initialSharingSettin
       </p>
 
       <div className={classes.buttonRow}>
-        {(sharingSettings.anyoneWithLinkCan!=="none" && postId)
+        {(sharingSettings.anyoneWithLinkCan!=="none" && post._id)
           ? <CopyToClipboard
               text={collabEditorLink}
-              onCopy={(text,result) => {
+              onCopy={(_text, _result) => {
                 flash("Link copied");
               }}
             >

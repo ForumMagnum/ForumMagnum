@@ -1,33 +1,48 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    ...theme.typography.commentStyle,
-    color: theme.palette.text.normal,
-    
-    border: theme.palette.border.normal,
-    padding: 8,
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    columnGap: 10,
+    fontFamily: theme.typography.commentStyle.fontFamily,
+    color: theme.palette.text.primaryAlert,
+    fontSize: 14,
+    lineHeight: '18px',
+    fontWeight: '500',
+    padding: '10px 8px',
     borderRadius: 4,
-    backgroundColor: theme.palette.panelBackground.restoreSavedContentNotice,
-    marginTop: 10,
-    marginBottom: 10,
+    backgroundColor: theme.palette.background.primaryTranslucent,
+    marginBottom: 8,
     
     "& a": {
       textDecoration: "underline",
+      '&:hover': {
+        color: theme.palette.primary.dark,
+        opacity: 1
+      }
     }
   },
   restoreLink: {
-    color: theme.palette.lwTertiary.main,
+    color: theme.palette.text.primaryAlert,
   },
+  closeIcon: {
+    fontSize: 16,
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.primary.dark,
+    }
+  }
 });
 
 type RestorableState = {
   savedDocument: SerializedEditorContents,
 }
-const restorableStateHasMetadata = (savedState) => {
+const restorableStateHasMetadata = (savedState: any) => {
   return typeof savedState === "object"
 }
 const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: (editorType?: string) => any): RestorableState|null => {
@@ -69,17 +84,20 @@ const LocalStorageCheck = ({getLocalStorageHandlers, onRestore, classes}: {
     return null;
   
   return <div className={classes.root}>
-    You have autosaved text.{" "}
-    <a className={classes.restoreLink} onClick={() => {
-      setRestorableState(null);
-      const restored = deserializeEditorContents(restorableState.savedDocument);
-      if (restored) {
-        onRestore(restored);
-      } else {
-        // eslint-disable-next-line no-console
-        console.error("Error restoring from localStorage");
-      }
-    }}>Restore</a>
+    <div>
+      You have autosaved text.{" "}
+      <a className={classes.restoreLink} onClick={() => {
+        setRestorableState(null);
+        const restored = deserializeEditorContents(restorableState.savedDocument);
+        if (restored) {
+          onRestore(restored);
+        } else {
+          // eslint-disable-next-line no-console
+          console.error("Error restoring from localStorage");
+        }
+      }}>Restore</a>
+    </div>
+    <Components.ForumIcon icon="Close" className={classes.closeIcon} onClick={() => setRestorableState(null)}/>
   </div>
 }
 

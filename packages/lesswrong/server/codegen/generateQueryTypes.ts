@@ -17,7 +17,7 @@ const queryFileHeader = generatedFileHeader+`//
 
 export function generateQueryTypes(context: TypeGenerationContext): string {
   const sb: string[] = [];
-  const queryNames = Object.keys(allQueries);
+  const queryNames = Object.keys(allQueries) as (keyof typeof allQueries)[];
   
   for (const queryName of queryNames) {
     const queryGraphqlStr = allQueries[queryName];
@@ -122,7 +122,11 @@ function generateQueryTypeDefinition({context, queryName, parsedQuery}: {
   
   sb.push(`interface ${interfaceName} {\n`);
   
-  for (let selection of parsedQuery?.selectionSet?.selections) {
+  if (!parsedQuery?.selectionSet?.selections) {
+    throw new Error(`Missing selections in parsedQuery: ${parsedQuery}`);
+  }
+
+  for (let selection of parsedQuery.selectionSet.selections) {
     switch(selection.kind) {
       case "Field":
         const resolverName = selection.name.value;
@@ -270,7 +274,7 @@ export function getCollectionResolverTypeGql({context, collection, fieldName}: {
   
   for (let schemaFieldName of Object.keys(schema)) {
     const fieldWithResolver = schema[schemaFieldName];
-    if (fieldWithResolver?.resolveAs?.fieldName == fieldName) {
+    if (fieldWithResolver?.resolveAs?.fieldName === fieldName) {
       assert(!!fieldWithResolver.resolveAs.type);
       return graphqlTypeStringOrScalarTypeToString(fieldWithResolver.resolveAs.type);
     }

@@ -15,18 +15,25 @@ import { createClient } from './apolloClient';
 import { cachedPageRender, recordCacheBypass} from './pageCache';
 import { getAllUserABTestGroups, CompleteTestGroupAllocation, RelevantTestGroupAllocation } from '../../../lib/abTestImpl';
 import Head from './components/Head';
-import { embedAsGlobalVar } from './renderUtil';
+import { embedAsGlobalVar, healthCheckUserAgentSetting } from './renderUtil';
 import AppGenerator from './components/AppGenerator';
 import { captureException } from '@sentry/core';
 import { randomId } from '../../../lib/random';
 import { getPublicSettings, getPublicSettingsLoaded } from '../../../lib/settingsCache'
-import { getMergedStylesheet } from '../../styleGeneration';
 import { ServerRequestStatusContextType } from '../../../lib/vulcan-core/appContext';
 import { getCookieFromReq, getPathFromReq } from '../../utils/httpUtil';
-import { isValidSerializedThemeOptions, defaultThemeOptions, ThemeOptions, getThemeOptions } from '../../../themes/themeNames';
+import { getThemeOptions, AbstractThemeOptions } from '../../../themes/themeNames';
+import { renderJssSheetImports } from '../../utils/renderJssSheetImports';
 import { DatabaseServerSetting } from '../../databaseSettings';
 import type { Request, Response } from 'express';
 import type { TimeOverride } from '../../../lib/utils/timeUtil';
+import { getIpFromRequest } from '../../datadog/datadogMiddleware';
+import { addStartRenderTimeToPerfMetric, asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '../../perfMetrics';
+import { maxRenderQueueSize } from '../../../lib/publicSettings';
+import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
+import { getForwardedWhitelist } from '../../forwarded_whitelist';
+import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
+import { onStartup, isAnyTest } from '../../../lib/executionEnvironment';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -40,24 +47,38 @@ export type RenderResult = {
   ssrBody: string
   headers: Array<string>
   serializedApolloState: string
+  serializedForeignApolloState: string
   jssSheets: string
   status: number|undefined,
   redirectUrl: string|undefined
   relevantAbTestGroups: RelevantTestGroupAllocation
   allAbTestGroups: CompleteTestGroupAllocation
-  themeOptions: ThemeOptions,
+  themeOptions: AbstractThemeOptions,
   renderedAt: Date,
-  timings: RenderTimings
+  timings: RenderTimings,
+  aborted: false,
+} | {
+  aborted: true
+}
+
+interface RenderRequestParams {
+  req: Request,
+  user: DbUser|null,
+  startTime: Date,
+  res: Response,
+  clientId: string,
+  userAgent?: string,
+}
+
+interface RenderPriorityQueueSlot extends RequestData {
+  callback: () => Promise<void>;
+  renderRequestParams: RenderRequestParams;
 }
 
 export const renderWithCache = async (req: Request, res: Response, user: DbUser|null) => {
   const startTime = new Date();
   
-  let ipOrIpArray = req.headers['x-forwarded-for'] || req.headers["x-real-ip"] || req.connection.remoteAddress || "unknown";
-  let ip: string = typeof ipOrIpArray==="object" ? (ipOrIpArray[0]) : (ipOrIpArray as string);
-  if (ip.indexOf(",")>=0)
-    ip = ip.split(",")[0];
-  
+  const ip = getIpFromRequest(req)
   const userAgent = req.headers["user-agent"];
   
   // Inject a tab ID into the page, by injecting a script fragment that puts
@@ -79,53 +100,120 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
     clientId, tabId,
     userAgent: userAgent,
   };
+
+  const isHealthCheck = userAgent === healthCheckUserAgentSetting.get();
+  const abTestGroups = getAllUserABTestGroups(user ? {user} : {clientId});
   
-  if (user) {
+  // Skip the page-cache if the user-agent is Slackbot's link-preview fetcher
+  // because we need to render that page with a different value for the
+  // twitter:card meta tag (see also: HeadTags.tsx, Head.tsx).
+  const isSlackBot = userAgent && userAgent.startsWith("Slackbot-LinkExpanding");
+  
+  const userDescription = user?.username ?? `logged out ${ip} (${userAgent})`;
+  
+  if ((!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) || isSlackBot) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)
-    recordCacheBypass();
-    //eslint-disable-next-line no-console
-    const rendered = await renderRequest({
-      req, user, startTime, res, clientId,
+    recordCacheBypass({path: getPathFromReq(req), userAgent: userAgent ?? ''});
+    
+    if (performanceMetricLoggingEnabled.get()) {
+      const perfMetric = openPerfMetric({
+        op_type: "ssr",
+        op_name: "skipCache",
+        client_path: req.originalUrl,
+        //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
+        ip: getForwardedWhitelist().getClientIP(req),
+        user_agent: userAgent,
+        user_id: user?._id
+      }, startTime);
+
+      setAsyncStoreValue('requestPerfMetric', perfMetric);
+    }
+
+    const rendered = await queueRenderRequest({
+      req, user, startTime, res, clientId, userAgent,
     });
-    Vulcan.captureEvent("ssr", {
-      ...ssrEventParams,
-      userId: user._id,
-      timings: rendered.timings,
-      cached: false,
-      abTestGroups: rendered.allAbTestGroups,
-      ip
-    });
+
+    if (performanceMetricLoggingEnabled.get()) {
+      closeRequestPerfMetric();
+    }
+    
+    if (rendered.aborted) {
+      return rendered;
+    }
+
+    if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+      // Capture an analytics event at the conclusion of the render
+      Vulcan.captureEvent("ssr", {
+        ...ssrEventParams,
+        userId: user?._id,
+        timings: rendered.timings,
+        cached: false,
+        abTestGroups: rendered.allAbTestGroups,
+        ip
+      });
+    }
+
     // eslint-disable-next-line no-console
-    console.log(`Rendered ${url} for ${user.username}: ${printTimings(rendered.timings)}`);
+    console.log(`Finished SSR of ${url} for ${userDescription} (${formatTimings(rendered.timings)}, tab ${tabId})`);
     
     return {
       ...rendered,
       headers: [...rendered.headers, tabIdHeader, publicSettingsHeader],
     };
   } else {
-    const abTestGroups = getAllUserABTestGroups(user, clientId);
-    const rendered = await cachedPageRender(req, abTestGroups, (req: Request) => renderRequest({
-      req, user: null, startTime, res, clientId,
+    if (performanceMetricLoggingEnabled.get()) {
+      const perfMetric = openPerfMetric({
+        op_type: "ssr",
+        op_name: "unknown",
+        client_path: req.originalUrl,
+        //we compute ip via two different methods in the codebase, using this one to be consistent with other perf_metrics
+        ip: getForwardedWhitelist().getClientIP(req),
+        user_agent: userAgent
+      }, startTime);
+
+      setAsyncStoreValue('requestPerfMetric', perfMetric);
+    }
+
+    const rendered = await cachedPageRender(req, abTestGroups, userAgent, (req: Request) => queueRenderRequest({
+      req, user: null, startTime, res, clientId, userAgent
     }));
     
+    if (rendered.aborted) {
+      return rendered;
+    }
+
     if (rendered.cached) {
       // eslint-disable-next-line no-console
-      console.log(`Served ${url} from cache for logged out ${ip} (${userAgent})`);
+      console.log(`Served ${url} from cache for ${userDescription}`);
     } else {
       // eslint-disable-next-line no-console
-      console.log(`Rendered ${url} for logged out ${ip}: ${printTimings(rendered.timings)} (${userAgent})`);
+      console.log(`Finished SSR of ${url} for ${userDescription}: (${formatTimings(rendered.timings)}, tab ${tabId})`);
     }
-    
-    Vulcan.captureEvent("ssr", {
-      ...ssrEventParams,
-      userId: null,
-      timings: {
-        totalTime: new Date().valueOf()-startTime.valueOf(),
-      },
-      abTestGroups: rendered.allAbTestGroups,
-      cached: rendered.cached,
-      ip
-    });
+
+    if (performanceMetricLoggingEnabled.get()) {
+      setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+        if (!incompletePerfMetric) return;
+        return {
+          ...incompletePerfMetric,
+          op_name: rendered.cached ? "cacheHit" : "cacheMiss"
+        }
+      });
+
+      closeRequestPerfMetric();
+    }
+
+    if (shouldRecordSsrAnalytics(ssrEventParams.userAgent)) {
+      Vulcan.captureEvent("ssr", {
+        ...ssrEventParams,
+        userId: null,
+        timings: {
+          totalTime: new Date().valueOf()-startTime.valueOf(),
+        },
+        abTestGroups: rendered.allAbTestGroups,
+        cached: rendered.cached,
+        ip
+      });
+    }
     
     return {
       ...rendered,
@@ -134,24 +222,143 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   }
 };
 
-export function getThemeOptionsFromReq(req: Request, user: DbUser|null) {
+let inFlightRenderCount = 0;
+const requestPriorityQueue = new PriorityBucketQueue<RenderPriorityQueueSlot>();
+
+/**
+ * We (maybe) have a problem where too many concurrently rendering requests cause our servers to fall over
+ * To solve this, we introduce a queue for incoming requests, such that we have a maximum number of requests being rendered at the same time
+ * See {@link maybeStartQueuedRequests} for the part that kicks off requests when appropriate
+ */
+function queueRenderRequest(params: RenderRequestParams): Promise<RenderResult> {
+  return new Promise((resolve) => {
+    requestPriorityQueue.enqueue({
+      ip: getForwardedWhitelist().getClientIP(params.req),
+      userAgent: params.userAgent ?? 'sus-missing-user-agent',
+      userId: params.user?._id,
+      callback: async () => {
+        let result: RenderResult;
+        addStartRenderTimeToPerfMetric();
+        try {
+          result = await renderRequest(params);
+        } finally {
+          inFlightRenderCount--;
+        }
+        resolve(result);
+        maybeStartQueuedRequests();
+      },
+      renderRequestParams: params,
+    });
+
+    maybeStartQueuedRequests();
+  });
+}
+
+function maybeStartQueuedRequests() {
+  while (inFlightRenderCount < maxRenderQueueSize.get() && requestPriorityQueue.size() > 0) {
+    let requestToStartRendering = requestPriorityQueue.dequeue();
+    if (requestToStartRendering.request) {
+      const { preOpPriority, request } = requestToStartRendering;
+
+      // If the request that we're kicking off is coming from the queue, we want to track this in the perf metrics
+      setAsyncStoreValue('requestPerfMetric', (incompletePerfMetric) => {
+        if (!incompletePerfMetric) return;
+        return {
+          ...incompletePerfMetric,
+          queue_priority: preOpPriority
+        }
+      });
+
+      inFlightRenderCount++;
+      void request.callback();
+    }
+  }
+}
+
+onStartup(() => {
+  if (!isAnyTest && performanceMetricLoggingEnabled.get()) {
+    setInterval(logRenderQueueState, 5000)
+  }
+})
+
+function logRenderQueueState() {
+  if (requestPriorityQueue.size() > 0) {
+    const queueState = requestPriorityQueue.getQueueState().map(([{ renderRequestParams }, priority]) => {
+      return {
+        userId: renderRequestParams.user?._id,
+        ip: getIpFromRequest(renderRequestParams.req),
+        userAgent: renderRequestParams.userAgent,
+        url: getPathFromReq(renderRequestParams.req),
+        startTime: renderRequestParams.startTime,
+        priority
+      }
+    })
+
+    Vulcan.captureEvent("renderQueueState", {
+      queueState
+    });
+  }
+}
+
+function isExcludedFromPageCache(path: string, abTestGroups: CompleteTestGroupAllocation): boolean {
+  if (path.startsWith("/collaborateOnPost") || path.startsWith("/editPost")) return true;
+  return false
+}
+
+const userAgentExclusions = [
+  'health',
+  'bot',
+  'spider',
+  'crawler',
+  'curl',
+  'node',
+  'python'
+];
+
+function shouldRecordSsrAnalytics(userAgent?: string) {
+  if (!userAgent) {
+    return true;
+  }
+
+  return !userAgentExclusions.some(excludedAgent => userAgent.toLowerCase().includes(excludedAgent));
+}
+
+export const getThemeOptionsFromReq = (req: Request, user: DbUser|null): AbstractThemeOptions => {
   const themeCookie = getCookieFromReq(req, "theme");
   return getThemeOptions(themeCookie, user);
 }
 
-export const renderRequest = async ({req, user, startTime, res, clientId}: {
-  req: Request,
-  user: DbUser|null,
-  startTime: Date,
-  res: Response,
-  clientId: string,
-}): Promise<RenderResult> => {
+const buildSSRBody = (htmlContent: string, userAgent?: string) => {
+  // When the theme name is "auto", we load the correct style by combining @import url()
+  // with prefers-color-scheme (see `renderJssSheetImports`). There's a long-standing
+  // Firefox bug where this can cause a flash of unstyled content. For reasons that
+  // aren't entirely obvious to me, this can be fixed by adding <script>0</script> as the
+  // first child of <body> which forces the browser to load the CSS before rendering.
+  // See https://bugzilla.mozilla.org/show_bug.cgi?id=1404468
+  const prefix = userAgent?.match(/.*firefox.*/i) ? "<script>0</script>" : "";
+  // TODO: there should be a cleaner way to set this wrapper
+  // id must always match the client side start.jsx file
+  return `${prefix}<div id="react-app">${htmlContent}</div>`;
+}
+
+const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: RenderRequestParams): Promise<RenderResult> => {
   const requestContext = await computeContextFromUser(user, req, res);
+  if (req.closed) {
+    // eslint-disable-next-line no-console
+    console.log(`Request for ${req.url} from ${user?._id ?? getIpFromRequest(req)} was closed before render started`);
+    return {
+      aborted: true,
+    };
+  }
   configureSentryScope(requestContext);
+  if (performanceMetricLoggingEnabled.get()) {
+    setAsyncStoreValue('resolverContext', requestContext);
+  }
   
   // according to the Apollo doc, client needs to be recreated on every request
   // this avoids caching server side
   const client = await createClient(requestContext);
+  const foreignClient = await createClient(requestContext, true);
 
   // Used by callbacks to handle side effects
   // E.g storing the stylesheet generated by styled-components
@@ -173,7 +380,9 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   const now = new Date();
   const timeOverride: TimeOverride = {currentTime: now};
   const App = <AppGenerator
-    req={req} apolloClient={client}
+    req={req}
+    apolloClient={client}
+    foreignApolloClient={foreignClient}
     serverRequestStatus={serverRequestStatus}
     abTestGroupsUsed={abTestGroups}
     timeOverride={timeOverride}
@@ -192,39 +401,18 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
   }
   const afterPrerenderTime = new Date();
 
-  // TODO: there should be a cleaner way to set this wrapper
-  // id must always match the client side start.jsx file
-  const ssrBody = `<div id="react-app">${htmlContent}</div>`;
+  const ssrBody = buildSSRBody(htmlContent, userAgent);
 
   // add headers using helmet
-  const head = ReactDOM.renderToString(<Head />);
+  const head = ReactDOM.renderToString(<Head userAgent={userAgent}/>);
 
   // add Apollo state, the client will then parse the string
   const initialState = client.extract();
   const serializedApolloState = embedAsGlobalVar("__APOLLO_STATE__", initialState);
-  
-  // HACK: The sheets registry was created in wrapWithMuiTheme and added to the
-  // context.
-  const sheetsRegistry = context.sheetsRegistry;
-  
-  // Experimental handling to make default theme (dark mode or not) depend on
-  // the user's system setting. Currently doesn't work because, while this does
-  // successfully customize everything that goes through our merged stylesheet,
-  // it can't handle the material-UI stuff that gets stuck into the page header.
-  /*const defaultStylesheet = getMergedStylesheet({name: "default", siteThemeOverride: {}});
-  const darkStylesheet = getMergedStylesheet({name: "dark", siteThemeOverride: {}});
-  const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
-    +'<style id="jss-insertion-point"></style>'
-    +'<style>'
-    +`@import url("${defaultStylesheet.url}") screen and (prefers-color-scheme: light);\n`
-    +`@import url("${darkStylesheet.url}") screen and (prefers-color-scheme: dark);\n`
-    +'</style>'*/
-  
-  const stylesheet = getMergedStylesheet(themeOptions);
-  const jssSheets = `<style id="jss-server-side">${sheetsRegistry.toString()}</style>`
-    +'<style id="jss-insertion-point"></style>'
-    +`<link rel="stylesheet" onerror="window.missingMainStylesheet=true" href="${stylesheet.url}">`
-  
+  const serializedForeignApolloState = embedAsGlobalVar("__APOLLO_FOREIGN_STATE__", foreignClient.extract());
+
+  const jssSheets = renderJssSheetImports(themeOptions);
+
   const finishedTime = new Date();
   const timings: RenderTimings = {
     prerenderTime: afterPrerenderTime.valueOf() - startTime.valueOf(),
@@ -243,22 +431,25 @@ export const renderRequest = async ({req, user, startTime, res, clientId}: {
     });
   }
   
-  await client.clearStore();
-  
+  client.stop();
+
   return {
     ssrBody,
     headers: [head],
-    serializedApolloState, jssSheets,
+    serializedApolloState,
+    serializedForeignApolloState,
+    jssSheets,
     status: serverRequestStatus.status,
     redirectUrl: serverRequestStatus.redirectUrl,
     relevantAbTestGroups: abTestGroups,
-    allAbTestGroups: getAllUserABTestGroups(user, clientId),
-    themeOptions: themeOptions,
+    allAbTestGroups: getAllUserABTestGroups(user ? {user} : {clientId}),
+    themeOptions,
     renderedAt: now,
     timings,
+    aborted: false,
   };
 }
 
-const printTimings = (timings: RenderTimings): string => {
-  return `${timings.totalTime}ms (prerender: ${timings.prerenderTime}ms, render: ${timings.renderTime}ms)`;
+const formatTimings = (timings: RenderTimings): string => {
+  return `${timings.totalTime}ms`;
 }

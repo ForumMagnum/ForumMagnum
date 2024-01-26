@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 import Input from '@material-ui/core/Input';
 import Geosuggest from 'react-geosuggest';
-import { pickBestReverseGeocodingResult } from '../../server/mapsUtils';
+import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -29,10 +29,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxWidth: 500,
   },
   
+  locationInputWrapper: {
+    display: "flex",
+  },
   locationInput: {
     display: "inline-block",
     borderBottom: `1px solid ${theme.palette.text.normal}`,
-    width: 350,
+    flexGrow: 1,
     marginTop: 40,
     marginBottom: 40,
     position: "relative",
@@ -77,16 +80,16 @@ const RecentDiscussionMeetupsPoke = ({classes}: {
     setHidden(true);
     void updateCurrentUser({hideMeetupsPoke: true});
   }
-  const onSetLocation = (location) => {
+  const onSetLocation = (location?: google.maps.GeocoderResult) => {
     setLocation(location);
     
     // Re-apply the two checkboxes
     onSetEnableNotificationsChecked(enableNotificationsChecked);
     onSetLocationOnPublicProfileChecked(locationOnPublicProfileChecked);
   }
-  const setPublicProfileLocation = (location) => {
+  const setPublicProfileLocation = (location?: google.maps.GeocoderResult) => {
     void updateCurrentUser({
-      location: location.formatted_address,
+      location: location?.formatted_address,
     });
   }
   const clearPublicProfileLocation = () => {
@@ -165,7 +168,7 @@ const RecentDiscussionMeetupsPoke = ({classes}: {
     <div>Did you know that there are LessWrong meetups? To get email notification
     of meetups near you, enter your location:</div>
     
-    <div>
+    <div className={classes.locationInputWrapper}>
       {mapsLoaded ? <Geosuggest
         ref={geosuggestElement}
         placeholder="My Location"

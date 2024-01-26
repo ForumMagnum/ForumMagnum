@@ -2,7 +2,7 @@ import { isAnyTest } from "../../lib/executionEnvironment";
 import pgp, { IDatabase } from "pg-promise";
 import type { IClient } from "pg-promise/typescript/pg-subset";
 import { DatabaseServerSetting } from "../databaseSettings";
-import { forumTypeSetting } from "../../lib/instanceSettings";
+import { isEAForum } from "../../lib/instanceSettings";
 
 export const pgPromiseLib = pgp({});
 
@@ -13,16 +13,17 @@ export type AnalyticsConnectionPool = IDatabase<{}, IClient>;
 let analyticsConnectionPools: Map<string, AnalyticsConnectionPool> = new Map();
 let missingConnectionStringWarned = false;
 
-
 function getAnalyticsConnectionFromString(connectionString: string | null): AnalyticsConnectionPool | null{
-  if (isAnyTest && forumTypeSetting.get() !== 'EAForum') {
+  if (isAnyTest && !isEAForum) {
     return null;
   }
   if (!connectionString) {
     if (!missingConnectionStringWarned) {
       missingConnectionStringWarned = true;
-      //eslint-disable-next-line no-console
-      console.log("Analytics logging disabled: no analytics connectionString passed in");
+      if (!isAnyTest) {
+        //eslint-disable-next-line no-console
+        console.log("Analytics logging disabled: no analytics connectionString passed in");
+      }
     }
     return null;
   }
@@ -37,6 +38,14 @@ export const getAnalyticsConnection = (): AnalyticsConnectionPool | null => {
   // We make sure that the settingsCache is initialized before we access the connection strings
   const connectionString = connectionStringSetting.get();
   return getAnalyticsConnectionFromString(connectionString);
+};
+
+export const getAnalyticsConnectionOrThrow = (): AnalyticsConnectionPool => {
+  const connection = getAnalyticsConnection();
+  if (!connection) {
+    throw new Error("No analytics DB configured");
+  }
+  return connection;
 };
 
 export const getMirrorAnalyticsConnection = (): AnalyticsConnectionPool | null => {

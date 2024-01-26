@@ -23,16 +23,19 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
     fragmentName: 'CommentsListWithParentMetadata',
     enableTotal: false,
   });
-  if (!loadingInitial && results && !results.length) {
+  // Filter out comments where the user doesn't have access to the post or tag (mostly for posts that are converted to draft)
+  const validResults = results?.filter(comment => comment.post?._id || comment.tag?._id)
+
+  if (!loadingInitial && validResults && !validResults.length) {
     return (<Components.Typography variant="body2">{noResultsMessage}</Components.Typography>)
   }
-  if (loadingInitial || !results) {
+  if (loadingInitial || !validResults) {
     return <Components.Loading />
   }
   
   return (
     <div className={classes.root}>
-      {results.map(comment =>
+      {validResults.map(comment =>
         <div key={comment._id}>
           <Components.CommentsNode
             treeOptions={{
@@ -40,10 +43,10 @@ const RecentComments = ({classes, terms, truncated=false, showPinnedOnProfile=fa
               post: comment.post || undefined,
               tag: comment.tag || undefined,
               showPostTitle: true,
+              forceNotSingleLine: true
             }}
             comment={comment}
             startThreadTruncated={truncated}
-            forceNotSingleLine
             showPinnedOnProfile={showPinnedOnProfile}
           />
         </div>

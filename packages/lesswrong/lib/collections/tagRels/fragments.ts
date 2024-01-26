@@ -8,9 +8,9 @@ registerFragment(`
     extendedScore
     afBaseScore
     voteCount
-    userId
     tagId
     postId
+    autoApplied
   }
 `);
 
@@ -79,7 +79,6 @@ registerFragment(`
   fragment WithVoteTagRel on TagRel {
     __typename
     _id
-    userId
     score
     baseScore
     extendedScore

@@ -5,22 +5,34 @@ import { gql, useMutation } from '@apollo/client';
 import Input from '@material-ui/core/Input';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
-import { useNavigation } from '../../../lib/routeUtil';
 import DialogActions from '@material-ui/core/DialogActions';
 import { useCurrentUser } from '../../common/withUser';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useNavigate } from '../../../lib/reactRouterWrapper';
 
-export const responseToText = {
+export type RsvpResponse = "yes"|"maybe"|"no";
+export const responseToText: Record<RsvpResponse,string> = {
   yes: "Going",
   maybe: "Maybe",
   no: "Can't Go"
 }
 
-const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
+const styles = (theme: ThemeType): JssStyles => ({
+  emailMessage: isFriendlyUI
+    ? {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }
+    : {
+      fontStyle: "italic",
+    },
+});
+
+const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   initialResponse: string,
   onClose?: ()=>void,
+  classes: ClassesType,
 }) => {
   const [registerRSVP] = useMutation(gql`
     mutation RegisterRSVP($postId: String, $name: String, $email: String, $private: Boolean, $response: String) {
@@ -30,19 +42,20 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
     }
     ${getFragment("PostsDetails")}
   `)
-  const { history } = useNavigation()
+  const navigate = useNavigate();
   const currentUser = useCurrentUser()
   const [name, setName] = useState(currentUser?.displayName || "")
   const [email, setEmail] = useState(currentUser?.email ?? "")
   const [response, setResponse] = useState(initialResponse)
   const [error, setError] = useState("")
+  const { MenuItem } = Components;
 
   return (
     <Components.LWDialog
       title={`RSVP to ${post.title}`}
       open={true}
       onClose={() => {
-        history.push({...location, search: ``})
+        navigate({...location, search: ``})
         if (onClose)
           onClose()
       }}
@@ -72,8 +85,8 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
         {error && <div>
           {error}
         </div>}
-        <p>
-          <i>The provided email is only visible to the organizer.</i>
+        <p className={classes.emailMessage}>
+          The provided email is only visible to the organizer.
         </p>
       </DialogContent>
       <DialogActions>
@@ -101,7 +114,7 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes" }: {
   )
 }
 
-const RSVPFormComponent = registerComponent('RSVPForm', RSVPForm);
+const RSVPFormComponent = registerComponent('RSVPForm', RSVPForm, {styles});
 
 declare global {
   interface ComponentTypes {

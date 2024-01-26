@@ -2,7 +2,7 @@ import React from 'react';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { useSingle } from '../../lib/crud/withSingle';
 import { Link } from '../../lib/reactRouterWrapper';
-import { REVIEW_YEAR } from '../../lib/reviewUtils';
+import { ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import * as _ from 'underscore';
@@ -51,7 +51,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const recommendationsAlgorithm: RecommendationsAlgorithm = {
   method: 'sample',
-  count: 1,
+  count: 2,
   scoreOffset: 0,
   scoreExponent: 0,
   personalBlogpostModifier: 0,
@@ -64,35 +64,24 @@ export const recommendationsAlgorithm: RecommendationsAlgorithm = {
   excludeDefaultRecommendations: true
 }
 
-export const FrontpageBestOfLWWidget = ({classes}: {
+export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   classes: ClassesType,
+  reviewYear: ReviewYear
 }) => {
-  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem2 } = Components
+  const { SectionTitle, RecommendationsList, SingleColumnSection, PostsItem } = Components
 
   const { document: postVoting } = useSingle({
-    documentId: "TSaJ9Zcvc3KWh3bjX",
+    documentId: "zajNa9fdr8JYJpxrG",
     collectionName: "Posts",
-    fragmentName: "PostsList"
-  });
-
-  const { document: postPrizes } = useSingle({
-    documentId: "y2qydZosrttzgm65H",
-    collectionName: "Posts",
-    fragmentName: "PostsList"
+    fragmentName: "PostsListWithVotes",
   });
   
   return <div className={classes.root}>
-    <Link className={classes.imageWrapper} to="/posts/y2qydZosrttzgm65H/prizes-for-the-2020-review"><img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644368355/enlarge_books-8_bk0yj6_eoige0_gpqvvr.webp"}/></Link>
+    <Link className={classes.imageWrapper} to="/posts/zajNa9fdr8JYJpxrG/voting-results-for-the-2021-review"><img className={classes.image} src={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1644368355/enlarge_books-8_bk0yj6_eoige0_gpqvvr.webp"}/></Link>
     <SingleColumnSection>
-      <div className={classes.title}><SectionTitle title="Best of LessWrong 2020">
-        {/* <Link to="/posts/y2qydZosrttzgm65H/prizes-for-the-2020-review#Results">
-          <div className={classes.viewResultsCTA}>
-            Donate to Thank Authors
-          </div>
-        </Link> */}
+      <div className={classes.title}><SectionTitle title={`Best of LessWrong ${reviewYear}`}>
       </SectionTitle></div>
-      {postPrizes && <PostsItem2 post={postPrizes} translucentBackground forceSticky />}
-      {postVoting && <PostsItem2 post={postVoting} translucentBackground forceSticky />}
+      {postVoting && <PostsItem post={postVoting} translucentBackground forceSticky />}
       <RecommendationsList algorithm={recommendationsAlgorithm} translucentBackground/>
     </SingleColumnSection>
   </div>;

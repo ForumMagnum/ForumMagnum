@@ -33,7 +33,7 @@ const EventsPast = ({ classes }: {
           })}
           before={getBeforeDefault({timeBlock: 'day', timezone: timezone})}
           postListParameters={terms}
-          displayShortform={false}
+          shortform="none"
           includeTags={false}
         />
       </div>

@@ -5,12 +5,14 @@ import { Posts } from '../../lib/collections/posts/collection';
 import { performVoteServer } from '../voteServer';
 import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 
-const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
+export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent = false, context, selfVote = false}: {
   tagId: string,
   postId: string,
   currentUser: DbUser,
+  ignoreParent?: boolean,
   context: ResolverContext,
-}): Promise<any> => {
+  selfVote?: boolean,
+}): Promise<DbTagRel> => {
   // Validate that tagId and postId refer to valid non-deleted documents
   // and that this user can see both.
   const post = await Posts.findOne({_id: postId});
@@ -28,25 +30,28 @@ const addOrUpvoteTag = async ({tagId, postId, currentUser, context}: {
       document: { tagId, postId, userId: currentUser._id },
       validate: false,
       currentUser,
+      context,
     });
     
     // If the tag has a parent which has not been applied to this post, apply it
-    if (tag?.parentTagId && !await TagRels.findOne({ tagId: tag.parentTagId, postId })) {
+    if (!ignoreParent && tag?.parentTagId && !await TagRels.findOne({ tagId: tag.parentTagId, postId })) {
       // RECURSIVE CALL, should only ever go one level deep because we disallow chaining of parent tags (see packages/lesswrong/lib/collections/tags/schema.ts)
-      await addOrUpvoteTag({tagId: tag?.parentTagId, postId, currentUser, context});
+      await addOrUpvoteTag({tagId: tag?.parentTagId, postId, currentUser, context, selfVote: true});
     }
     return tagRel.data;
   } else {
     // Upvote the tag
-    // TODO: Don't *remove* an upvote in this case
-    const votedTagRel = await performVoteServer({
+    const {modifiedDocument: votedTagRel} = await performVoteServer({
       document: existingTagRel,
       voteType: 'smallUpvote',
       collection: TagRels,
       user: currentUser,
       toggleIfAlreadyVoted: false,
+      skipRateLimits: true,
+      selfVote
     });
-    return votedTagRel;
+    // performVoteServer should be generic but it ain't, and returns a DbVoteableType
+    return votedTagRel as DbTagRel;
   }
 }
 

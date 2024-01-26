@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles =>  ({
   }
 })
 
-const UserCommentsReplies = ({ classes }) => {
+const UserCommentsReplies = ({ classes }: { classes: ClassesType }) => {
   const { SingleColumnSection, SectionTitle, Loading } = Components
 
   const { params } = useLocation();
@@ -50,10 +50,10 @@ const UserCommentsReplies = ({ classes }) => {
                 post: comment.post || undefined,
                 tag: comment.tag || undefined,
                 showPostTitle: true,
+                forceNotSingleLine: true
               }}
               comment={comment}
               startThreadTruncated={true}
-              forceNotSingleLine
               loadChildrenSeparately
               loadDirectReplies
             />

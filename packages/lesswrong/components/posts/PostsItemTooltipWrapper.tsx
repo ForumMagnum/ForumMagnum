@@ -1,28 +1,38 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
-import { useHover } from "../common/withHover";
+import type { PopperPlacementType } from '@material-ui/core/Popper';
 
-const PostsItemTooltipWrapper = ({children, post, className}: {
+/**
+ * This is mostly deprecated - you should probably just use `PostsTooltip`
+ * directly instead
+ */
+const PostsItemTooltipWrapper = ({
+  children,
+  post,
+  placement="bottom-end",
+  As="div",
+  className,
+}: {
   children?: React.ReactNode,
   post: PostsList,
+  placement?: PopperPlacementType,
+  As?: keyof JSX.IntrinsicElements,
   className?: string,
 }) => {
-  const { LWPopper, PostsPreviewTooltip } = Components
-  const {eventHandlers, hover, anchorEl} = useHover({
-    pageElementContext: "postItemTooltip",
-    postId: post?._id
-  });
-  return <div {...eventHandlers} className={className}>
-      <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        clickable={false}
-        placement="bottom-end"
-      >
-        <PostsPreviewTooltip post={post} postsList />
-      </LWPopper>
-      { children }
-  </div>
+  const {PostsTooltip} = Components;
+  return (
+    <PostsTooltip
+      post={post}
+      postsList
+      placement={placement}
+      pageElementContext="postItemTooltip"
+      As={As}
+      className={className}
+      inlineBlock={false}
+    >
+      {children}
+    </PostsTooltip>
+  );
 }
 
 const PostsItemTooltipWrapperComponent = registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper

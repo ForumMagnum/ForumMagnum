@@ -5,6 +5,7 @@ registerFragment(`
     _id
     userId
     name
+    shortName
     slug
     core
     postCount
@@ -16,23 +17,30 @@ registerFragment(`
     createdAt
     wikiOnly
     deleted
+    isSubforum
+    noindex
   }
 `);
 
 registerFragment(`
   fragment TagDetailsFragment on Tag {
     ...TagBasicInfo
+    subtitle
     oldSlugs
     isRead
     defaultOrder
     reviewedByUserId
     wikiGrade
-    isSubforum
     subforumModeratorIds
     subforumModerators {
       ...UsersMinimumInfo
     }
+    moderationGuidelines {
+      _id
+      html
+    }
     bannerImageId
+    squareImageId
     lesswrongWikiImportSlug
     lesswrongWikiImportRevision
     sequence {
@@ -45,14 +53,11 @@ registerFragment(`
   fragment TagFragment on Tag {
     ...TagDetailsFragment
     parentTag {
-      name
-      slug
+      ...TagBasicInfo
     }
     subTags {
-      name
-      slug
+      ...TagBasicInfo
     }
-    
     description {
       _id
       html
@@ -60,13 +65,7 @@ registerFragment(`
       plaintextDescription
       version
     }
-  }
-`);
-
-registerFragment(`
-  fragment TagWithTocFragment on Tag {
-    ...TagFragment
-    descriptionHtmlWithToc
+    canVoteOnRels
   }
 `);
 
@@ -95,12 +94,10 @@ registerFragment(`
   fragment TagRevisionFragment on Tag {
     ...TagDetailsFragment
     parentTag {
-      name
-      slug
+      ...TagBasicInfo
     }
     subTags {
-      name
-      slug
+      ...TagBasicInfo
     }
     isRead
     description(version: $version) {
@@ -121,28 +118,62 @@ registerFragment(`
   fragment TagPreviewFragment on Tag {
     ...TagBasicInfo
     parentTag {
-      name
-      slug
+      ...TagBasicInfo
     }
     subTags {
-      name
-      slug
+      ...TagBasicInfo
     }
     description {
       _id
       htmlHighlight
     }
+    canVoteOnRels
+  }
+`);
+
+registerFragment(`
+  fragment TagSectionPreviewFragment on Tag {
+    ...TagBasicInfo
+    parentTag {
+      ...TagBasicInfo
+    }
+    subTags {
+      ...TagBasicInfo
+    }
+    description {
+      _id
+      htmlHighlightStartingAtHash(hash: $hash)
+    }
+    canVoteOnRels
   }
 `);
 
 registerFragment(`
   fragment TagSubforumFragment on Tag {
     ...TagPreviewFragment
-    isSubforum
+    subforumModeratorIds
+    tableOfContents
     subforumWelcomeText {
       _id
       html
     }
+  }
+`);
+
+// TODO: would prefer to fetch subtags in fewer places
+registerFragment(`
+  fragment TagSubtagFragment on Tag {
+    _id
+    subforumModeratorIds
+    subTags {
+      ...TagPreviewFragment
+    }
+  }
+`);
+
+registerFragment(`
+  fragment TagSubforumSidebarFragment on Tag {
+    ...TagBasicInfo
   }
 `);
 
@@ -181,6 +212,13 @@ registerFragment(`
     ...TagWithFlagsFragment
     tableOfContents
     postsDefaultSortOrder
+    subforumIntroPost {
+      ...PostsList
+    }
+    subforumWelcomeText {
+      _id
+      html
+    }
     contributors(limit: $contributorsLimit) {
       totalCount
       contributors {
@@ -192,6 +230,14 @@ registerFragment(`
         voteCount
       }
     }
+    canVoteOnRels
+  }
+`);
+
+registerFragment(`
+  fragment AllTagsPageFragment on Tag {
+    ...TagWithFlagsFragment
+    tableOfContents
   }
 `);
 
@@ -200,6 +246,13 @@ registerFragment(`
     ...TagWithFlagsAndRevisionFragment
     tableOfContents(version: $version)
     postsDefaultSortOrder
+    subforumIntroPost {
+      ...PostsList
+    }
+    subforumWelcomeText {
+      _id
+      html
+    }
     contributors(limit: $contributorsLimit, version: $version) {
       totalCount
       contributors {
@@ -211,6 +264,7 @@ registerFragment(`
         voteCount
       }
     }
+    canVoteOnRels
   }
 `);
 
@@ -233,17 +287,26 @@ registerFragment(`
 registerFragment(`
   fragment TagEditFragment on Tag {
     ...TagDetailsFragment
+    isPostType
+    parentTagId
     parentTag {
-      _id
-      name
-      slug
+      ...TagBasicInfo
     }
+    subforumIntroPostId
     tagFlagsIds
     postsDefaultSortOrder
+    introSequenceId
+    
+    autoTagModel
+    autoTagPrompt
+    
     description {
       ...RevisionEdit
     }
     subforumWelcomeText {
+      ...RevisionEdit
+    }
+    moderationGuidelines {
       ...RevisionEdit
     }
   }
@@ -254,16 +317,6 @@ registerFragment(`
     ...TagFragment
     lastVisitedAt
     recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
-      ...CommentsList
-    }
-  }
-`);
-
-registerFragment(`
-  fragment TagRecentSubforumComments on Tag {
-    ...TagFragment
-    lastVisitedAt
-    recentComments(tagCommentsLimit: $tagCommentsLimit, maxAgeHours: $maxAgeHours, af: $af, tagCommentType: "SUBFORUM") {
       ...CommentsList
     }
   }

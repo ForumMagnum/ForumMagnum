@@ -21,10 +21,10 @@ const SingleLineReviewsList = () => {
               hideSingleLineMeta: true,
               singleLinePostTitle: true,
               showPostTitle: true,
-              post: comment.post || undefined
+              post: comment.post || undefined,
+              forceSingleLine: true
             }}
             comment={comment}
-            forceSingleLine
           />
         </div>
       )}

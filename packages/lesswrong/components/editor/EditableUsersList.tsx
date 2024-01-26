@@ -18,7 +18,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const SortableList = makeSortableListComponent({
   renderItem: ({contents, removeItem, classes}) => <li className={classes.item}>
-    <Components.SingleUsersItemWrapper documentId={contents} removeItem={removeItem} />
+    <Components.SingleUsersItem userId={contents} removeItem={removeItem} />
   </li>
 });
 

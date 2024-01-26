@@ -41,7 +41,7 @@ const styles = createStyles(
   })
 );
 
-const MaintenanceBanner = ({ classes }) => {
+const MaintenanceBanner = ({ classes }: { classes: ClassesType }) => {
   const maintenanceTimeValue = maintenanceTime.get();
   if (!maintenanceTimeValue) return <></>;
   const isUrgent = new Date(maintenanceTimeValue).getTime() - Date.now() < urgentCutoff;

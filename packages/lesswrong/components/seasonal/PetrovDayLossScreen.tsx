@@ -32,7 +32,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const PetrovDayLossScreen = ({classes}) => {
+const PetrovDayLossScreen = ({classes}: {
+  classes: ClassesType;
+}) => {
   return (
     <div className={classes.root}>
       <Components.Typography variant="display3" className={classes.title}>

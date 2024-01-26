@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Geosuggest from 'react-geosuggest';
+// These imports need to be separate to satisfy eslint, for some reason
+import type { Suggest } from 'react-geosuggest';
 import { isClient } from '../../lib/executionEnvironment';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import FormLabel from '@material-ui/core/FormLabel';
@@ -129,7 +131,11 @@ export const useGoogleMaps = (): [boolean, any] => {
 }
 
 
-const LocationFormComponent = ({document, path, label, value, updateCurrentValues, stringVersionFieldName, classes}: {
+/**
+ * LocationPicker: A textbox for typing in a location. This is split from LocationFormComponent
+ * so that it can be used outside of vulcan-forms.
+ */
+const LocationPicker = ({document, path, label, value, updateCurrentValues, stringVersionFieldName, classes}: {
   document: any,
   path: string,
   label?: string,
@@ -155,7 +161,7 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
     }
   }, [value])
   
-  const handleCheckClear = (value) => {
+  const handleCheckClear = (value: any) => {
     // clear location fields if the user deletes the input text
     if (value === '') {
       updateCurrentValues({
@@ -165,7 +171,7 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
     }
   }
 
-  const handleSuggestSelect = (suggestion) => {
+  const handleSuggestSelect = (suggestion: Suggest) => {
     if (suggestion && suggestion.gmaps) {
       updateCurrentValues({
         ...(locationFieldName ? {
@@ -193,10 +199,25 @@ const LocationFormComponent = ({document, path, label, value, updateCurrentValue
   }
 }
 
+const LocationFormComponent = ({document, path, label, value, updateCurrentValues, stringVersionFieldName}: FormComponentProps<any> & {
+  stringVersionFieldName?: string|null,
+}) => {
+  return <Components.LocationPicker
+    document={document}
+    path={path}
+    label={label}
+    value={value}
+    updateCurrentValues={updateCurrentValues}
+    stringVersionFieldName={stringVersionFieldName}
+  />
+}
+
+const LocationPickerComponent = registerComponent("LocationPicker", LocationPicker, {styles});
 const LocationFormComponentComponent = registerComponent("LocationFormComponent", LocationFormComponent, {styles});
 
 declare global {
   interface ComponentTypes {
+    LocationPicker: typeof LocationPickerComponent
     LocationFormComponent: typeof LocationFormComponentComponent
   }
 }

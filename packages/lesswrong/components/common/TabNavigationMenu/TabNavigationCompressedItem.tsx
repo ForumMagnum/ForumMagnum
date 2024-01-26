@@ -1,6 +1,5 @@
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import React from 'react';
-import MenuItem from '@material-ui/core/MenuItem';
 import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { MenuTabRegular } from './menuTabs';
@@ -39,16 +38,12 @@ type TabNavigationCompressedItemProps = {
 }
 
 const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompressedItemProps) => {
-  // MenuItem takes a component and passes unrecognized props to that component,
-  // but its material-ui-provided type signature does not include this feature.
-  // Case to any to work around it, to be able to pass a "to" parameter.
-  const MenuItemUntyped = MenuItem as any;
-  const { LWTooltip } = Components
+  const { LWTooltip, MenuItemLink } = Components
   
   return <LWTooltip placement='right-start' title={tab.tooltip || ''}>
-    <MenuItemUntyped
+    <MenuItemLink
       onClick={onClick}
-      component={Link} to={tab.link}
+      to={tab.link}
     >
       <span
         className={classNames(classes.icon, {[classes.homeIcon]: tab.id === 'home'})}
@@ -57,7 +52,7 @@ const TabNavigationCompressedItem = ({tab, onClick, classes}: TabNavigationCompr
         {tab.icon && tab.icon}
         {tab.compressedIconComponent && <tab.compressedIconComponent />}
       </span>
-    </MenuItemUntyped>
+    </MenuItemLink>
   </LWTooltip>;
 }
 

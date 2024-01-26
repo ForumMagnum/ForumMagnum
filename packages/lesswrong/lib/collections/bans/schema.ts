@@ -1,13 +1,14 @@
 import SimpleSchema from 'simpl-schema';
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbBan> = {
+const schema: SchemaType<"Bans"> = {
   expirationDate: {
     type: Date,
-    optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: true,
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     control: 'datetime',
   },
   userId: {
@@ -18,43 +19,45 @@ const schema: SchemaType<DbBan> = {
       type: "User",
       nullable: true
     }),
-    viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
+    nullable: false,
     hidden: true,
   },
   ip: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     regEx: SimpleSchema.RegEx.IP,
   },
   reason: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     label: 'Reason (shown to the user)',
   },
   comment: {
     type: String,
     optional:true,
-    viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     label: 'Comment (shown to other mods)',
+    ...schemaDefaultValue(""),
   },
   properties: {
     type: Object,
     optional: true,
     blackbox: true,
-    viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
     hidden: true,
   },
 };

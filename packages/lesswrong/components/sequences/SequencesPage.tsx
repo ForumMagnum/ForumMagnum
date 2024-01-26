@@ -1,14 +1,16 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Components, registerComponent, } from '../../lib/vulcan-lib';
 import { useSingle } from '../../lib/crud/withSingle';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
 import NoSSR from 'react-no-ssr';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { legacyBreakpoints } from '../../lib/utils/theme';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { DatabasePublicSetting, nofollowKarmaThreshold } from '../../lib/publicSettings';
+import { HEADER_HEIGHT, MOBILE_HEADER_HEIGHT } from '../common/Header';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -19,17 +21,19 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.sequenceImageGradient,
 })
 
+const defaultSequenceBannerIdSetting = new DatabasePublicSetting<string|null>("defaultSequenceBannerId", null)
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    paddingTop: 380,
+    paddingTop: isFriendlyUI ? (270 + HEADER_HEIGHT) : 380,
   },
   titleWrapper: {
     paddingLeft: theme.spacing.unit/2
   },
   title: {
     fontFamily: theme.typography.uiSecondary.fontFamily,
-    fontVariant: "small-caps",
     marginTop: 0,
+    ...theme.typography.smallCaps,
   },
   description: {
     marginTop: theme.spacing.unit * 2,
@@ -39,12 +43,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   banner: {
     position: "absolute",
     right: 0,
-    top: 60,
+    top: HEADER_HEIGHT,
     width: "100vw",
     height: 380,
     zIndex: theme.zIndexes.sequenceBanner,
-    [legacyBreakpoints.maxTiny]: {
-      top: 40,
+    [theme.breakpoints.down('sm')]: {
+      top: MOBILE_HEADER_HEIGHT,
     },
     "& img": {
       width: "100vw",
@@ -66,14 +70,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: theme.spacing.unit * 4,
     position: 'relative',
     backgroundColor: theme.palette.panelBackground.default,
-    marginTop: -200,
+    borderRadius: theme.borderRadius.default,
+    marginTop: -127,
     zIndex: theme.zIndexes.sequencesPageContent,
     [theme.breakpoints.down('sm')]: {
       marginTop: -100,
     },
     [theme.breakpoints.down('xs')]: {
-      marginTop: theme.spacing.unit,
-      padding: theme.spacing.unit
+      marginTop: isFriendlyUI ? undefined : theme.spacing.unit,
+      padding: isFriendlyUI ? 16 : theme.spacing.unit
     },
   },
   leftAction: {
@@ -92,6 +97,8 @@ const SequencesPage = ({ documentId, classes }: {
 }) => {
   const [edit,setEdit] = useState(false);
   const [showNewChapterForm,setShowNewChapterForm] = useState(false);
+  const nextSuggestedNumberRef = useRef(1);
+
   const currentUser = useCurrentUser();
   const { document, loading } = useSingle({
     documentId,
@@ -127,27 +134,45 @@ const SequencesPage = ({ documentId, classes }: {
 
   const canEdit = userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document))
   const canCreateChapter = userCanDo(currentUser, 'chapters.new.all')
-  const { html = "" } = document.contents || {}
+  const canEditChapter = userCanDo(currentUser, 'chapters.edit.all') || canEdit
+  const { html = "", plaintextDescription } = document.contents || {}
 
   if (!canEdit && document.draft)
     throw new Error('This sequence is a draft and is not publicly visible')
+
+  const bannerId = document.bannerImageId || defaultSequenceBannerIdSetting.get();
+  const socialImageId = document.gridImageId || document.bannerImageId;
+  const socialImageUrl = socialImageId ? makeCloudinaryImageUrl(socialImageId, {
+    c: "fill",
+    dpr: "auto",
+    q: "auto",
+    f: "auto",
+    g: "auto:faces",
+  }) : undefined;
     
   return <div className={classes.root}>
-    <HeadTags canonicalUrl={sequenceGetPageUrl(document, true)} title={document.title}/>
-    <div className={classes.banner}>
+    <HeadTags
+      canonicalUrl={sequenceGetPageUrl(document, true)}
+      title={document.title}
+      description={plaintextDescription || undefined}
+      image={socialImageUrl}
+      noIndex={document.noindex}
+    />
+    {bannerId && <div className={classes.banner}>
       <div className={classes.bannerWrapper}>
         <NoSSR>
           <div>
             <CloudinaryImage
-              publicId={document.bannerImageId || "sequences/vnyzzznenju0hzdv6pqb.jpg"}
+              publicId={bannerId}
               width="auto"
               height="380"
+              imgProps={{quality: '100'}}
             />
             <div className={classes.imageScrim}/>
           </div>
         </NoSSR>
       </div>
-    </div>
+    </div>}
     <SingleColumnSection>
       <div className={classes.content}>
         <div className={classes.titleWrapper}>
@@ -158,9 +183,7 @@ const SequencesPage = ({ documentId, classes }: {
         <SectionFooter>
           <div className={classes.meta}>
             <span className={classes.metaItem}><FormatDate date={document.createdAt} format="MMM DD, YYYY"/></span>
-            {document.user && <span className={classes.metaItem}> by <UsersName user={document.user}>
-              {document.user.displayName}
-            </UsersName></span>}
+            {document.user && <span className={classes.metaItem}> by <UsersName user={document.user} /></span>}
           </div>
           {canEdit && <span className={classes.leftAction}><SectionSubtitle>
             <a onClick={showEdit}>edit</a>
@@ -172,14 +195,14 @@ const SequencesPage = ({ documentId, classes }: {
         </ContentStyles>
         <div>
           <AnalyticsContext listContext={"sequencePage"} sequenceId={document._id} capturePostItemOnMount>
-            <ChaptersList sequenceId={document._id} canEdit={canEdit} />
+            <ChaptersList sequenceId={document._id} canEdit={canEditChapter} nextSuggestedNumberRef={nextSuggestedNumberRef} />
           </AnalyticsContext>
           {canCreateChapter && <SectionFooter>
             <SectionButton>
               <a onClick={() => setShowNewChapterForm(true)}>Add Chapter</a>
             </SectionButton>
           </SectionFooter>}
-          {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id}}/>}
+          {showNewChapterForm && <ChaptersNewForm prefilledProps={{sequenceId: document._id, number: nextSuggestedNumberRef.current}}/>}
         </div>
       </div>
     </SingleColumnSection>

@@ -5,7 +5,7 @@ import {
   fmCrosspostBaseUrlSetting,
 } from "../../lib/instanceSettings";
 import { useSingle } from "../../lib/crud/withSingle";
-import { useCrosspostApolloClient } from "../hooks/useCrosspostApolloClient";
+import { useForeignApolloClient } from "../hooks/useForeignApolloClient";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import Button from "@material-ui/core/Button";
@@ -19,6 +19,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
     margin: 8,
+    "& .MuiTypography-root": {
+      color: theme.palette.text.normal,
+    },
   },
   link: {
     color: theme.palette.primary.main,
@@ -51,7 +54,7 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
   fmCrosspostUserId: string,
   classes: ClassesType,
 }) => {
-  const apolloClient = useCrosspostApolloClient();
+  const apolloClient = useForeignApolloClient();
   const {document, loading} = useSingle({
     documentId: fmCrosspostUserId,
     collectionName: "Users",
@@ -62,18 +65,16 @@ const FMCrosspostAccount = ({fmCrosspostUserId, classes}: {
   const link = `${fmCrosspostBaseUrlSetting.get()}users/${document?.slug}`;
 
   const {Loading} = Components;
-  return document && !loading
-    ? (
-      <div className={classes.crosspostMessage}>
-        This post will be crossposted to {fmCrosspostSiteNameSetting.get()} by
-        your account <a className={classes.link} href={link} target="_blank" rel="noreferrer">
-          {document.username}
-        </a>
-      </div>
-    )
-    : (
-      <Loading />
-    );
+  
+  if (!document || loading) {
+    return <Loading/>
+  }
+  return <div className={classes.crosspostMessage}>
+    This post will be crossposted to {fmCrosspostSiteNameSetting.get()} by
+    your account <a className={classes.link} href={link} target="_blank" rel="noreferrer">
+      {document.username}
+    </a>
+  </div>
 }
 
 /**
@@ -144,26 +145,9 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
     fragmentName: "UsersCrosspostInfo",
     notifyOnNetworkStatusChange: true,
   });
-  const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const loading = loadingUnlink || loadingDocument;
-
-  useEffect(() => {
-    const getToken = async () => {
-      if (!document?.fmCrosspostUserId) {
-        try {
-          const result = await fetch("/api/crosspostToken");
-          const {token} = await result.json();
-          setToken(token);
-          setError(null);
-        } catch {
-          setError("Couldn't create login token");
-        }
-      }
-    }
-    void getToken();
-  }, [document?.fmCrosspostUserId]);
 
   useOnFocusTab(() => {
     if (!loading && !document?.fmCrosspostUserId) {
@@ -171,12 +155,20 @@ const FMCrosspostControl = ({updateCurrentValues, classes, value, path, currentU
     }
   });
 
-  const onClickLogin = () => {
-    if (token?.length) {
-      const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `crosspostLogin?token=${token}`);
-      window.open(url, "_blank")?.focus();
-    } else {
-      setError("Invalid login token - please try again");
+  const onClickLogin = async () => {
+    try {
+      const result = await fetch("/api/crosspostToken");
+      const {token, error} = await result.json();
+      if (token) {
+        const url = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `crosspostLogin?token=${token}`);
+        window.open(url, "_blank")?.focus();
+      } else if (typeof error === 'string') {
+        setError(error);
+      } else {
+        setError("Couldn't create login token");
+      }
+    } catch {
+      setError("Couldn't create login token");
     }
   }
 

@@ -3,6 +3,7 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { taggingNameCapitalSetting, taggingNameIsSet, taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
 import { QueryLink } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
+import { fieldIn } from '../../lib/utils/typeGuardUtils';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
@@ -84,10 +85,10 @@ const TaggingDashboard = ({classes}: {
       allPages: {view: "allPagesByNewest"},
       myPages: {view: "userTags", userId: currentUser?._id},
       //tagFlagId handled as default case below
-  }
+  } as const
     
   const { results: tags, loading, loadMoreProps } = useMulti({
-    terms: ["allPages", "myPages"].includes(query.focus) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
+    terms: fieldIn(query.focus, multiTerms) ? multiTerms[query.focus] : {view: "tagsByTagFlag", tagFlagId: query.focus},
     collectionName: "Tags",
     fragmentName: "TagWithFlagsFragment",
     limit: 10,

@@ -4,7 +4,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import CommentOutlinedIcon from "@material-ui/icons/ModeCommentOutlined";
 import { useHover } from "../common/withHover";
 import { useMulti } from "../../lib/crud/withMulti";
-import { taggingNameIsSet, taggingNamePluralSetting } from "../../lib/instanceSettings";
+import { tagGetDiscussionUrl } from "../../lib/collections/tags/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   discussionButton: {
@@ -58,11 +58,11 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabelOnMobile = fals
   
   return <Link
     className={classes.discussionButton}
-    to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}/discussion`}
+    to={tagGetDiscussionUrl(tag)}
     {...eventHandlers}
   >
     <CommentOutlinedIcon className={classes.discussionButtonIcon} />
-    <span className={hideLabelOnMobile ? classes.hideOnMobile : null}>{text}</span>
+    <span className={hideLabelOnMobile ? classes.hideOnMobile : undefined}>{text}</span>
     {!loading && <span className={classes.discussionCount}>&nbsp;{`(${totalCount || 0})`}</span>}
     <PopperCard open={hover} anchorEl={anchorEl} placement="bottom-start" >
       <TagDiscussion tag={tag}/>

@@ -55,7 +55,7 @@ addGraphQLResolvers({
         validate: false
       })).data
 
-      await createNotification({userId: post.userId, notificationType: "newRSVP", documentType: "post", documentId: post._id})
+      await createNotification({userId: post.userId, notificationType: "newRSVP", documentType: "post", documentId: post._id, context})
       return await accessFilterSingle(currentUser, Posts, updatedPost, context);
     }
   }
@@ -72,6 +72,9 @@ addGraphQLResolvers({
       if (currentUser?._id !== userId && currentUser?._id !== post.userId) {
         throw new Error("user does not have permission to remove rsvps of this userId")
       }
+      if (!post.rsvps) {
+        throw new Error("There are no RSVPs to cancel on this event")
+      }
 
       const rsvps = post.rsvps.filter(rsvp => rsvp.name !== name)
 
@@ -85,7 +88,7 @@ addGraphQLResolvers({
         validate: false
       })).data
 
-      await createNotification({userId: post.userId, notificationType: "cancelledRSVP", documentType: "post", documentId: post._id})
+      await createNotification({userId: post.userId, notificationType: "cancelledRSVP", documentType: "post", documentId: post._id, context})
       return accessFilterSingle(currentUser, Posts, updatedPost, context);
     }
   }

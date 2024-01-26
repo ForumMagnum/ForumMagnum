@@ -1,11 +1,13 @@
 import React from 'react';
-import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import UpArrowIcon from '@material-ui/icons/KeyboardArrowUp';
 import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
-import { useTheme } from '../themes/useTheme';
+import { useVoteColors } from './useVoteColors';
+import type { VoteColor } from './voteColors';
+import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -23,7 +25,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   smallArrow: {
     fontSize: '50%',
-    opacity: 0.6
+    opacity: isEAForum ? 0.7 : 0.6
   },
   up: {},
   right: {
@@ -67,7 +69,7 @@ export interface VoteArrowIconProps {
   strongVoteDelay: number,
   orientation: "up"|"down"|"left"|"right",
   enabled?: boolean,
-  color: "error"|"primary"|"secondary",
+  color: VoteColor,
   voted: boolean,
   eventHandlers: {
     handleMouseDown?: ()=>void,
@@ -81,24 +83,29 @@ export interface VoteArrowIconProps {
   alwaysColored: boolean,
 }
 
-const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = true, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
+const VoteArrowIcon = ({
+  solidArrow,
+  strongVoteDelay,
+  orientation,
+  enabled = true,
+  color,
+  voted,
+  eventHandlers,
+  bigVotingTransition,
+  bigVoted,
+  bigVoteCompleted,
+  alwaysColored,
+  classes,
+}: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
-  const theme = useTheme();
   const Icon = solidArrow ? ArrowDropUpIcon : UpArrowIcon
-  const { LWTooltip } = Components;
-
-  const Tooltip = enabled
-    ? ({ children }) => children
-    : ({ children }) => (
-      <LWTooltip title={"You do not have permission to vote on this"} placement="top">
-        {children}
-      </LWTooltip>
-    );
 
   if (!enabled) {
     eventHandlers = {};
   }
+
+  const {mainColor, lightColor} = useVoteColors(color);
 
   return (
     <IconButton
@@ -109,19 +116,16 @@ const VoteArrowIcon = ({ solidArrow, strongVoteDelay, orientation, enabled = tru
       onClick={eventHandlers.handleClick}
       disableRipple
     >
-      <Tooltip>
-        <Icon
-          className={classes.smallArrow}
-          color={(voted || alwaysColored) ? color : 'inherit'}
-          viewBox='6 6 12 12'
-        />
-      </Tooltip>
+      <Icon
+        style={{color: voted || alwaysColored ? mainColor : "inherit"}}
+        className={classes.smallArrow}
+        viewBox='6 6 12 12'
+      />
       <Transition in={!!(bigVotingTransition || bigVoted)} timeout={strongVoteDelay}>
         {(state) => (
           <UpArrowIcon
-            style={bigVoteCompleted ? {color: theme.palette[color].light} : undefined}
+            style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
             className={classNames(classes.bigArrow, {[classes.bigArrowCompleted]: bigVoteCompleted, [classes.bigArrowSolid]: solidArrow}, classes[state])}
-            color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
             viewBox='6 6 12 12'
           />)}
       </Transition>
@@ -136,7 +140,3 @@ declare global {
     VoteArrowIcon: typeof VoteIconComponent
   }
 }
-
-
-
-

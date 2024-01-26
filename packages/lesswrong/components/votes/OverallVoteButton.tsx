@@ -4,29 +4,33 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 
+export interface OverallVoteButtonProps<T extends VoteableTypeClient> {
+  vote?: (props: {
+    document: T,
+    voteType: string|null,
+    extendedVote?: any,
+    currentUser: UsersCurrent,
+  }) => void,
+  collectionName: CollectionNameString,
+  document: T,
+  upOrDown: "Upvote"|"Downvote",
+  color: "error"|"primary"|"secondary",
+  orientation: "up"|"down"|"left"|"right",
+  enabled: boolean,
+  solidArrow?: boolean,
+}
+
 const OverallVoteButton = <T extends VoteableTypeClient>({
   vote, collectionName, document, upOrDown,
   color = "secondary",
   orientation = "up",
-  enabled = true,
+  enabled,
   solidArrow,
-  classes,
-}: {
-  vote: (props: {document: T, voteType: string|null, extendedVote?: any, currentUser: UsersCurrent})=>void,
-  collectionName: CollectionNameString,
-  document: T,
-  
-  upOrDown: "Upvote"|"Downvote",
-  color: "error"|"primary"|"secondary",
-  orientation: "up"|"down"|"left"|"right",
-  enabled?: boolean,
-  solidArrow?: boolean
-  classes: ClassesType
-}) => {
+}: OverallVoteButtonProps<T>) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking();
-  
+
   const wrappedVote = (strength: "big"|"small"|"neutral") => {
     const voteType = strength+upOrDown;
     if(!currentUser){
@@ -36,9 +40,9 @@ const OverallVoteButton = <T extends VoteableTypeClient>({
       });
     } else {
       if (strength === "neutral") {
-        vote({document, voteType: "neutral", extendedVote: document?.currentUserExtendedVote, currentUser});
+        vote?.({document, voteType: "neutral", extendedVote: document?.currentUserExtendedVote, currentUser});
       } else {
-        vote({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote, currentUser});
+        vote?.({document, voteType: voteType, extendedVote: document?.currentUserExtendedVote, currentUser});
       }
       captureEvent("vote", {collectionName});
     }

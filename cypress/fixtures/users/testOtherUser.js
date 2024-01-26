@@ -14,6 +14,7 @@ module.exports = {
         },
     ],
     usernameUnset: false,
+    acceptedTos: true,
     /** code below not relevant to any existing test as of
      * 2021-10-15, but added for dev-prod parity.
      **/
@@ -112,4 +113,12 @@ module.exports = {
     schemaVersion: 1,
     afCommentCount: 0,
     commentCount: 0,
+    hideDialogueFacilitation: false,
+    optedInToDialogueFacilitation: false,
+    revealChecksToAdmins: false,
+    showDialoguesList: true,
+    showMyDialogues: true,
+    showMatches: true,
+    showRecommendedPartners: true,
+    abTestKey: "test-user-ab-test-key",
 }

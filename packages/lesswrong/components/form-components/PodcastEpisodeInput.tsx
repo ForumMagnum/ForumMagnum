@@ -1,11 +1,9 @@
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
-import { useSingle } from '../../lib/crud/withSingle';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import debounce from 'lodash/debounce';
 
@@ -19,15 +17,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurrentValues }: {
-  value: string,
-  path: string,
+const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurrentValues }: FormComponentProps<string> & {
   document: PostsBase,
   classes: ClassesType,
-  label?: string,
-  updateCurrentValues<T extends {}>(values: T): void,
 }) => {
-  const { Loading } = Components;
+  const { Loading, MenuItem } = Components;
 
   const { title: postTitle } = document;
 
@@ -62,7 +56,7 @@ const PodcastEpisodeInput = ({ value, path, document, classes, label, updateCurr
 
   const syncPodcastEpisodeId = useCallback((id: string) => {
     setPodcastEpisodeId(id);
-    updateCurrentValues({
+    void updateCurrentValues({
       [path]: id
     });
   }, [path, updateCurrentValues]);

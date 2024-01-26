@@ -4,9 +4,11 @@ import EmailPropTypes from '../PropTypes'
 import includeDataProps from '../includeDataProps'
 
 export default function Item(props: any) {
-  // Bypass type system because it doesn't know "valign" is a real prop (in HTML5, it wouldn't be)
-  const valignProp: any = {
-    valign: props.valign
+  // Bypass type system because it doesn't know that "valign" and "bgcolor" are real
+  // props (in HTML5, they wouldn't be)
+  const extraProps: AnyBecauseTodo = {
+    valign: props.valign,
+    bgcolor: props.bgcolor,
   };
   return (
     <tr>
@@ -14,8 +16,7 @@ export default function Item(props: any) {
         {...includeDataProps(props)}
         className={props.className}
         align={props.align}
-        {...valignProp}
-        bgcolor={props.bgcolor}
+        {...extraProps}
         style={props.style}
       >
         {props.children}

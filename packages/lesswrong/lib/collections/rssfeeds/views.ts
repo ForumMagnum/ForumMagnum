@@ -1,5 +1,5 @@
 import RSSFeeds from "./collection"
-import { ensureIndex } from '../../collectionUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 
 declare global {
   interface RSSFeedsViewTerms extends ViewTermsBase {

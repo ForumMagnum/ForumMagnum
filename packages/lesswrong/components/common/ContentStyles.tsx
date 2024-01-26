@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { CSSProperties } from 'react';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import { registerComponent } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   base: {
@@ -12,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   postHighlight: {
     ...smallPostStyles(theme),
     '& h1, & h2, & h3': {
-      fontSize: "1.6rem",
+      fontSize: isFriendlyUI ? "1.1rem" : "1.6rem",
       // Cancel out a negative margin which would cause clipping
       marginBlickStart: "0 !important",
     },
@@ -22,6 +23,16 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   commentBodyExceptPointerEvents: {
     ...commentBodyStyles(theme, true)
+  },
+  debateResponseBody: {
+    ...commentBodyStyles(theme),
+    fontSize: '1.35rem',
+    '& .dialogue-message-header + p': {
+      marginTop: 0,
+    },
+    '& blockquote, & li': {
+      fontSize: '1.35rem'
+    }
   },
   answerBody: {
     ...smallPostStyles(theme)
@@ -46,9 +57,14 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: '1.5rem',
       fontWeight:500,
       ...theme.typography.commentStyle
-    }
+    },
+    '&& h1:first-child, h2:first-child, h3:first-child': {
+      marginTop: 0,
+    },
   },
 });
+
+export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse";
 
 // Styling wrapper for user-provided content. This includes descendent
 // selectors for all the various things that might show up in a
@@ -72,13 +88,14 @@ const styles = (theme: ThemeType): JssStyles => ({
 // so some things want to inherit all of the comment styles *except* for that.
 // (This hack exists to support spoiler blocks and we should probably clean it
 // up.)
-const ContentStyles = ({contentType, className, children, classes}: {
-  contentType: "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag",
+const ContentStyles = ({contentType, className, style, children, classes}: {
+  contentType: ContentStyleType,
   className?: string,
+  style?: CSSProperties,
   children: React.ReactNode,
   classes: ClassesType,
 }) => {
-  return <div className={classNames(
+  return <div style={style} className={classNames(
     className, classes.base, "content", {
       [classes.postBody]: contentType==="post",
       [classes.postHighlight]: contentType==="postHighlight",
@@ -86,6 +103,7 @@ const ContentStyles = ({contentType, className, children, classes}: {
       [classes.commentBodyExceptPointerEvents]: contentType==="commentExceptPointerEvents",
       [classes.answerBody]: contentType==="answer",
       [classes.tagBody]: contentType==="tag",
+      [classes.debateResponseBody]: contentType==="debateResponse"
     }
   )}>
     {children}

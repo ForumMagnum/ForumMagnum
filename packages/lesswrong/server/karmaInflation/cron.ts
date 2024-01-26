@@ -1,9 +1,10 @@
 import { onStartup } from '../../lib/executionEnvironment';
 import { DatabaseMetadata } from "../../lib/collections/databaseMetadata/collection";
-import { Posts } from '../../lib/collections/posts';
-import { nullKarmaInflationSeries, setKarmaInflationSeries, TimeSeries, timeSeriesIndexExpr } from './cache';
+import { nullKarmaInflationSeries, setKarmaInflationSeries, TimeSeries } from '../../lib/collections/posts/karmaInflation';
 import { addCronJob } from '../cronUtil';
-import { postStatuses } from '../../lib/collections/posts/constants';
+import { Vulcan } from '../vulcan-lib';
+import PostsRepo from '../repos/PostsRepo';
+import DatabaseMetadataRepo from '../repos/DatabaseMetadataRepo';
 
 const AVERAGING_WINDOW_MS = 1000 * 60 * 60 * 24 * 28; // 28 days
 
@@ -11,36 +12,12 @@ export async function refreshKarmaInflation() {
   // eslint-disable-next-line no-console
   console.log("Refreshing karma inflation");
 
+  const postsRepo = new PostsRepo();
+
   // use the postedAt of the earliest post as the start time for the series
-  const selector = {
-    status: postStatuses.STATUS_APPROVED,
-    draft: false,
-    isFuture: false,
-    unlisted: false,
-    shortform: false,
-    authorIsUnreviewed: false,
-    hiddenRelatedQuestion: false,
-    postedAt: { $exists: true },
-    isEvent: false
-  };
-  const earliestPost = await Posts.aggregate([{
-    $match: selector
-  }, { $group: { _id: null, minPostedAt: { $min: "$postedAt" } } }]).toArray();
-  const start = earliestPost[0].minPostedAt.getTime();
-
-  const meanKarmaByInterval = await Posts.aggregate([{
-    $match: selector
-  }, {
-    $group: { _id: timeSeriesIndexExpr("$postedAt", start, AVERAGING_WINDOW_MS), meanKarma: { $avg: "$baseScore" } }
-  }, {
-    $sort: { _id: 1 }
-  }]).toArray();
-
-  const meanKarmaOverall: number = (await Posts.aggregate([{
-    $match: selector
-  }, {
-    $group: { _id: null, meanKarma: { $avg: "$baseScore" } }
-  }]).toArray())[0].meanKarma;
+  const startDate = await postsRepo.getEarliestPostTime();
+  const meanKarmaByInterval = await postsRepo.getMeanKarmaByInterval(startDate, AVERAGING_WINDOW_MS);
+  const meanKarmaOverall = await postsRepo.getMeanKarmaOverall();
 
   const reciprocalOrOne = (x: number) => x === 0 ? 1 : 1 / x;
 
@@ -61,15 +38,18 @@ export async function refreshKarmaInflation() {
   }
 
   const karmaInflationSeries: TimeSeries = {
-    start,
+    start: startDate.getTime(),
     interval: AVERAGING_WINDOW_MS,
     values: values
   };
 
   // insert the new series into the db
-  await DatabaseMetadata.rawUpdateOne({ name: "karmaInflationSeries" }, {
-    $set: { value: karmaInflationSeries }
-  }, { upsert: true });
+  try {
+    await new DatabaseMetadataRepo().upsertKarmaInflationSeries(karmaInflationSeries);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(err);
+  }
 
   // refresh the cache after every update
   // it's a bit wasteful to immediately go and fetch the thing we just calculated from the db again,
@@ -93,3 +73,5 @@ addCronJob({
     void refreshKarmaInflation();
   }
 });
+
+Vulcan.refreshKarmaInflation = refreshKarmaInflation;

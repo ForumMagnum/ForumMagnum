@@ -55,7 +55,7 @@ const MigrationsDashboardRow = ({migration: {name, dateWritten, runs, lastRun}, 
       <span className={classes.lastRun}>{lastRun}</span>
     </div>
     {expanded && <ul className={classes.runs}>
-      {runs.map(run => <li key={run.started}>
+      {runs.map((run: AnyBecauseTodo) => <li key={run.started}>
         Started {run.started}
         {run.finished && <>, finished {run.finished}</>}
         {run.failed && <>, FAILED</>}

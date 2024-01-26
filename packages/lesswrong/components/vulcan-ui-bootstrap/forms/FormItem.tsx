@@ -10,7 +10,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import { registerComponent } from '../../../lib/vulcan-lib';
 
-const FormItem = ({ path, label, children, beforeInput, afterInput, layout = 'horizontal', ...rest }) => {
+const FormItem = ({ path, label, children, beforeInput, afterInput, layout = 'horizontal', ...rest }: AnyBecauseTodo) => {
   if (layout === 'inputOnly' || !label) { // input only layout
     return (
       <Form.Group controlId={path} {...rest}>

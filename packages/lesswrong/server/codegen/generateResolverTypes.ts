@@ -40,7 +40,7 @@ export function generateResolverTypes(context: TypeGenerationContext): string {
   sb.push('interface ResolverResultTypes {\n');
   for (let {query,description} of gqlQueries) {
     const {name: queryName, returnTypeGql} = graphqlQueryPrototypeToNameAndReturnType(query);
-    const returnTypeTS = graphqlTypeToTypescript(context, returnTypeGql);
+    const returnTypeTS = graphqlTypeToTypescript(context, returnTypeGql, undefined, true);
     sb.push(`  ${queryName}: ${returnTypeTS}\n`);
   }
   sb.push('}\n');

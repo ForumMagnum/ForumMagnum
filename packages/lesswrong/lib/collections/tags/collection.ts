@@ -4,19 +4,14 @@ import { makeEditable } from '../../editor/make_editable'
 import { userCanCreateTags } from '../../betas';
 import { userIsAdmin } from '../../vulcan-users/permissions';
 import schema from './schema';
-import { tagUserHasSufficientKarma } from './helpers';
+import { tagUserHasSufficientKarma, userIsSubforumModerator } from './helpers';
 import { formGroups } from './formGroups';
 
-type getUrlOptions = {
-  edit?: boolean, 
-  flagId?: string
-}
-interface ExtendedTagsCollection extends TagsCollection {
-  // From search/utils.ts
-  toAlgolia: (tag: DbTag) => Promise<Array<AlgoliaDocument>|null>
-}
+export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
+export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';
+export const EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID = '4saLTjJHsbduczFti';
 
-export const Tags: ExtendedTagsCollection = createCollection({
+export const Tags = createCollection({
   collectionName: 'Tags',
   typeName: 'Tag',
   schema,
@@ -38,7 +33,7 @@ export const Tags: ExtendedTagsCollection = createCollection({
       if (!user.isAdmin) {  // skip further checks for admins
         // If canEditUserIds is set only those users can edit the tag
         const restricted = tag && tag.canEditUserIds
-        if (restricted && !tag.canEditUserIds.includes(user._id)) return false;
+        if (restricted && !tag.canEditUserIds?.includes(user._id)) return false;
         if (!restricted && !tagUserHasSufficientKarma(user, "edit")) return false
       }
       return userCanCreateTags(user);
@@ -72,9 +67,9 @@ makeEditable({
     },
     revisionsHaveCommitMessages: true,
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['members'],
-      insertableBy: ['members']
+      canRead: ['guests'],
+      canUpdate: ['members'],
+      canCreate: ['members']
     },
     order: 10
   }
@@ -86,11 +81,30 @@ makeEditable({
     formGroup: formGroups.subforumWelcomeMessage,
     fieldName: "subforumWelcomeText",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
     },
   }
 });
+
+makeEditable({
+  collection: Tags,
+  options: {
+    // Determines whether to use the comment editor configuration (e.g. Toolbars)
+    commentEditor: true,
+    // Determines whether to use the comment editor styles (e.g. Fonts)
+    commentStyles: true,
+    formGroup: formGroups.subforumModerationGuidelines,
+    hidden: true,
+    order: 50,
+    fieldName: "moderationGuidelines",
+    permissions: {
+      canRead: ['guests'],
+      canUpdate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+      canCreate: [userIsSubforumModerator, 'sunshineRegiment', 'admins'],
+    },
+  }
+})
 
 export default Tags;

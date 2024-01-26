@@ -1,12 +1,25 @@
 import React from 'react';
 import { registerComponent, Components, slugify } from '../../lib/vulcan-lib';
 import classNames from 'classnames'
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { Link } from '../../lib/reactRouterWrapper';
 
-export const sectionTitleStyle = (theme: ThemeType): JssStyles => ({
-  margin:0,
-  ...theme.typography.postStyle,
-  fontSize: "2.2rem"
-})
+export const sectionTitleStyle = isFriendlyUI
+  ? (theme: ThemeType): JssStyles => ({
+    margin: 0,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: "14px",
+    lineHeight: "21px",
+    fontWeight: 700,
+    letterSpacing: "0.03em",
+    color: theme.palette.grey[600],
+    textTransform: "uppercase",
+  })
+  : (theme: ThemeType): JssStyles => ({
+    margin: 0,
+    ...theme.typography.postStyle,
+    fontSize: "2.2rem",
+  });
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -19,9 +32,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   noTopMargin: {
     marginTop: 0
   },
-  title: {
-    ...sectionTitleStyle(theme)
+  noBottomPadding: {
+    paddingBottom: 0
   },
+  title: sectionTitleStyle(theme),
   children: {
     ...theme.typography.commentStyle,
     [theme.breakpoints.down('sm')]: {
@@ -31,7 +45,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const getAnchorId = (anchor: string|undefined, title: React.ReactNode) => {
+// TODO: figure out what to do when title isn't a string. It currently returns
+// undefined, which prevents anchor links from working 
+export const getAnchorId = (anchor: string|undefined, title: React.ReactNode) => {
   if (anchor) {
     return anchor;
   }
@@ -40,29 +56,47 @@ const getAnchorId = (anchor: string|undefined, title: React.ReactNode) => {
   }
 }
 
-const SectionTitle = ({children, classes, className, title, noTopMargin, anchor}: {
+export type SectionTitleProps = {
   children?: React.ReactNode,
-  classes: ClassesType,
   className?: string,
   title: React.ReactNode,
   noTopMargin?: boolean,
+  noBottomPadding?: boolean,
+  centered?: boolean,
   anchor?: string,
-}) => {
+  href?: string,
+}
+
+// This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
+const SectionTitle = ({
+  title,
+  noTopMargin,
+  noBottomPadding,
+  centered,
+  anchor,
+  href,
+  children,
+  className,
+  classes,
+}: SectionTitleProps & {classes: ClassesType}) => {
   return (
-    <div className={noTopMargin ? classNames(classes.root, classes.noTopMargin) : classes.root}>
+    <div className={classNames(classes.root, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
       <Components.Typography
         id={getAnchorId(anchor, title)}
         variant='display1'
         className={classNames(classes.title, className)}
       >
-        {title}
+        {href
+          ? <Link to={href}>{title}</Link>
+          : title
+        }
       </Components.Typography>
-      <div className={classes.children}>{ children }</div>
+      {!centered && <div className={classes.children}>{ children }</div>}
     </div>
   )
 }
 
-const SectionTitleComponent = registerComponent('SectionTitle', SectionTitle, {styles});
+const SectionTitleComponent = registerComponent('SectionTitle', SectionTitle, {styles, stylePriority: -1});
 
 declare global {
   interface ComponentTypes {

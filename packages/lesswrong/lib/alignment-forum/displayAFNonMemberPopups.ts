@@ -21,13 +21,13 @@ export const afNonMemberSuccessHandling = ({currentUser, document, openDialog, u
   currentUser: UsersCurrent|null,
   document: PostsBase | CommentsList,
   openDialog: OpenDialogContextType["openDialog"],
-  updateDocument: WithUpdateFunction<CommentsCollection | PostsCollection>
+  updateDocument: WithUpdateFunction<"Comments" | "Posts">
 }) => {
-//displays explanation of what happens upon non-member submission and submits to queue
+  //displays explanation of what happens upon non-member submission and submits to queue
 
-  if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, false)) { 
+  if (!!currentUser && userNeedsAFNonMemberWarning(currentUser, false)) {
     if (isComment(document)) {
-      void commentSuggestForAlignment({currentUser, comment: document, updateComment: updateDocument}) 
+      void commentSuggestForAlignment({currentUser, comment: document, updateComment: updateDocument})
       openDialog({
         componentName: "AFNonMemberSuccessPopup",
         componentProps: {_id: document._id, postId: document.postId}

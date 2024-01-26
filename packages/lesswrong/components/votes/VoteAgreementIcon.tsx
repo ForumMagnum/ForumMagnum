@@ -7,6 +7,8 @@ import CheckIcon from '@material-ui/icons/Check';
 import ClearIcon from '@material-ui/icons/Clear';
 import IconButton from '@material-ui/core/IconButton';
 import Transition from 'react-transition-group/Transition';
+import { useVoteColors } from './useVoteColors';
+import type { VoteColor } from './voteColors';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -114,20 +116,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   iconsContainer: {
     position: 'relative',
     width: 25,
-    height: 20
+    height: 18
   },
   noClickCatch: {
     /* pointerEvents: none prevents elements under the IconButton from interfering with mouse
        events during a bigVote transition. */
     pointerEvents: 'none'
-  }
+  },
+  disabled: {
+    cursor: 'not-allowed',
+  },
 })
 
 export interface VoteArrowIconProps {
   solidArrow?: boolean,
   strongVoteDelay: number,
   orientation: "up"|"down"|"left"|"right",
-  color: "error"|"primary"|"secondary",
+  enabled?: boolean,
+  color: VoteColor,
   voted: boolean,
   eventHandlers: {
     handleMouseDown?: ()=>void,
@@ -141,7 +147,19 @@ export interface VoteArrowIconProps {
   alwaysColored: boolean,
 }
 
-const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, color, voted, eventHandlers, bigVotingTransition, bigVoted, bigVoteCompleted, alwaysColored, classes }: VoteArrowIconProps & {
+const VoteAgreementIcon = ({
+  solidArrow,
+  orientation,
+  enabled = true,
+  color,
+  voted,
+  eventHandlers,
+  bigVotingTransition,
+  bigVoted,
+  bigVoteCompleted,
+  alwaysColored,
+  classes,
+}: VoteArrowIconProps & {
   classes: ClassesType
 }) => {
   const theme = useTheme();
@@ -154,10 +172,16 @@ const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, color, vo
   const bigVoteAccentStyling = (upOrDown === "Downvote") ? classes.smallArrowBigVoted : classes.smallCheckBigVoted
   const bigVoteCompletedStyling = (upOrDown === "Downvote") ? classes.bigClearCompleted : classes.bigCheckCompleted
   const bigVoteStyling = (upOrDown === "Downvote") ? classes.bigClear : classes.bigCheck
-  
+
+  if (!enabled) {
+    eventHandlers = {};
+  }
+
+  const {mainColor, lightColor} = useVoteColors(color);
+
   return (
     <IconButton
-      className={classNames(classes.root)}
+      className={classNames(classes.root, {[classes.disabled]: !enabled})}
       onMouseDown={eventHandlers.handleMouseDown}
       onMouseUp={eventHandlers.handleMouseUp}
       onMouseOut={eventHandlers.clearState}
@@ -167,7 +191,7 @@ const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, color, vo
       <span className={classes.iconsContainer}>
         <PrimaryIcon
           className={classNames(primaryIconStyling, classes.noClickCatch, {[classes.hideIcon]: bigVotingTransition || bigVoted})}
-          color={voted ? color : 'inherit'}
+          style={{color: voted || alwaysColored ? mainColor : "inherit"}}
           viewBox='6 6 12 12'
         />
         <Transition in={(bigVotingTransition || bigVoted)} timeout={theme.voting.strongVoteDelay}>
@@ -175,17 +199,16 @@ const VoteAgreementIcon = ({ solidArrow, strongVoteDelay, orientation, color, vo
             <>
               <BigVoteAccentIcon
                 className={classNames(bigVoteAccentStyling, classes.noClickCatch, {[classes.hideIcon]: !bigVoted})}
-                color={voted ? color : 'inherit'}
+                style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
                 viewBox='6 6 12 12'
               />
               <PrimaryIcon
-                style={bigVoteCompleted ? {color: theme.palette[color].light} : {}}
+                style={bigVoteCompleted || bigVoted ? {color: lightColor} : undefined}
                 className={classNames(bigVoteStyling, classes.noClickCatch, {
                   [bigVoteCompletedStyling]: bigVoteCompleted,
                   // [classes.bigCheckCompleted]: bigVoteCompleted,
                   [classes.bigCheckSolid]: solidArrow
                 }, classes[state])}
-                color={(bigVoted || bigVoteCompleted) ? color : 'inherit'}
                 viewBox='6 6 12 12'
               />
             </>)}

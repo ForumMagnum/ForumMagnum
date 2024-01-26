@@ -9,6 +9,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { useCurrentUser } from '../common/withUser';
 
 import { sortings as defaultSortings } from './DraftsList'
+import { preferredHeadingCase } from '../../themes/forumTheme';
+
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -65,7 +67,7 @@ const DraftsListSettings = ({
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
-  const setSetting = (type, newSetting) => {
+  const setSetting = (type: keyof typeof USER_SETTING_NAMES, newSetting: any) => {
     if (currentUser && persistentSettings) {
       void updateCurrentUser({
         [USER_SETTING_NAMES[type]]: newSetting,
@@ -96,7 +98,7 @@ const DraftsListSettings = ({
             <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeArchived}/>
       
             <MetaInfo className={classes.checkboxLabel}>
-              Show Archived
+              {preferredHeadingCase("Show Archived")}
             </MetaInfo>
           </QueryLink>
         </Tooltip>
@@ -111,7 +113,7 @@ const DraftsListSettings = ({
             <Checkbox classes={{root: classes.checkbox, checked: classes.checkboxChecked}} checked={currentIncludeShared}/>
       
             <MetaInfo className={classes.checkboxLabel}>
-              Show Shared with You
+              {preferredHeadingCase("Show Shared with You")}
             </MetaInfo>
           </QueryLink>
         </Tooltip>

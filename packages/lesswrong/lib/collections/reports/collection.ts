@@ -16,8 +16,8 @@ const Reports: ReportsCollection = createCollection({
 addUniversalFields({
   collection: Reports,
   createdAtOptions: {
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
   },
 });
 

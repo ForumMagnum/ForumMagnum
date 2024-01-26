@@ -16,7 +16,7 @@ const EmailTokenPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   
-  const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName]
+  const ResultComponent = useTokenResult?.componentName && Components[useTokenResult.componentName as keyof ComponentTypes]
   return <SingleColumnSection>
     {(emailTokenLoading || !ResultComponent) ? <Loading/> : <ResultComponent {...useTokenResult.props}/>}
   </SingleColumnSection>

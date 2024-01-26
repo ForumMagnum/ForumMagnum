@@ -35,7 +35,7 @@ export function generateTypes(repoRoot?: string) {
   
   try {
     const context: TypeGenerationContext = {
-      collections: keyBy(getAllCollections(), c=>c.collectionName),
+      collections: Object.fromEntries(getAllCollections().map(c => [c.collectionName, c] as const)),
       gqlSchemaFieldTypes: getGraphqlSchemaFieldTypes(),
       resolverResultTypes: getResolverResultTypes(),
     };

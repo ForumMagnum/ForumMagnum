@@ -4,15 +4,21 @@ import { useAllABTests, useClientId, getUserABTestKey, getABTestsMetadata } from
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 import * as _ from 'underscore';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   explanatoryText: {
     ...theme.typography.body1,
+    ...(isFriendlyUI && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
   },
   abTestsTable: {
     ...theme.typography.body1,
+    ...(isFriendlyUI && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+    }),
     marginTop: 24,
     "& th": {
       textAlign: "left",
@@ -26,7 +32,7 @@ const styles = (theme: ThemeType) => ({
 const UsersViewABTests = ({classes}: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, SectionTitle } = Components;
+  const { SingleColumnSection, SectionTitle, MenuItem } = Components;
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const allABtests = useAllABTests();
@@ -38,7 +44,7 @@ const UsersViewABTests = ({classes}: {
     
     <div className={classes.explanatoryText}>
       <p>
-        Your A/B test key is {getUserABTestKey(currentUser, clientId)}. This is used to randomize your test group in future A/B tests. You can see which A/B tests are active and which group you are in below, and override your group allocation. (This may cause data you generate to not be counted in certain experiments.)
+        Your A/B test key is {getUserABTestKey(currentUser ? {user:currentUser} : {clientId})}. This is used to randomize your test group in future A/B tests. You can see which A/B tests are active and which group you are in below, and override your group allocation. (This may cause data you generate to not be counted in certain experiments.)
       </p>
       
       {!currentUser && <p>

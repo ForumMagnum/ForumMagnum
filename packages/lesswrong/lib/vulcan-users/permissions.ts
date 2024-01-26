@@ -1,7 +1,9 @@
 import intersection from 'lodash/intersection';
 import moment from 'moment';
 import * as _ from 'underscore';
+import { isLW } from '../instanceSettings';
 import { getSchema } from'../utils/getSchema';
+import { hideUnreviewedAuthorCommentsSettings } from '../publicSettings';
 
 class Group {
   actions: Array<string>
@@ -30,12 +32,20 @@ export const createGroup = (groupName: string): Group => {
   return userGroups[groupName];
 };
 
+export type PermissionableUser = UsersMinimumInfo & Pick<DbUser,
+  "groups" |
+  "banned" |
+  "allCommentingDisabled" |
+  "isAdmin" |
+  "reviewedByUserId"
+>;
+
 // get a list of a user's groups
-export const userGetGroups = (user: UsersProfile|DbUser|null): Array<string> => {
+export const userGetGroups = (user: PermissionableUser|DbUser|null): Array<string> => {
   if (!user) { // guests user
     return ['guests'];
   }
-  if (user.banned > moment().toDate()) { // banned users have no membership permissions
+  if (user.banned && user.banned > moment().toDate()) { // banned users have no membership permissions
     return ['guests'];
   }
   let userGroups: Array<string> = ['members'];
@@ -67,13 +77,18 @@ export const userGetActions = (user: UsersProfile|DbUser|null): Array<string> =>
 };
 
 // Check if a user is a member of a group
-export const userIsMemberOf = (user: UsersCurrent|UsersProfile|DbUser|null, group: string): boolean => {
+export const userIsMemberOf = (user: PermissionableUser|DbUser|null, group: PermissionGroups): boolean => {
   const userGroups = userGetGroups(user);
   for (let userGroup of userGroups) {
     if (userGroup === group)
       return true;
   }
   return false;
+};
+
+
+export const userIsPodcaster = (user: UsersProfile|UsersProfile|DbUser|null): boolean => {
+  return userIsMemberOf(user, 'podcasters');
 };
 
 // Check if a user can perform at least one of the specified actions
@@ -83,8 +98,10 @@ export const userCanDo = (user: UsersProfile|DbUser|null, actionOrActions: strin
   return userIsAdmin(user) || intersection(authorizedActions, actions).length > 0;
 };
 
+export type OwnableDocument = HasUserIdType|DbUser|UsersMinimumInfo;
+
 // Check if a user owns a document
-export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo|DbObject): boolean {
+export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
   if (!user) {
     // not logged in
     return false;
@@ -104,90 +121,172 @@ export const userOwns = function (user: UsersMinimumInfo|DbUser|null, document: 
   }
 };
 
+export const userOwnsAndOnLW = function (user:UsersMinimumInfo|DbUser|null, document: OwnableDocument): boolean {
+  return isLW && userOwns(user, document)
+}
+
+export const documentIsNotDeleted = (
+  user: PermissionableUser|DbUser|null,
+  document: OwnableDocument,
+) => {
+  // Admins and mods can see deleted content
+  if (userIsAdminOrMod(user)) {
+    return true;
+  }
+  // Authors can see their deleted content
+  if (userOwns(user, document)) {
+    return true;
+  }
+  // Unfortunately, different collections use different field names
+  // to represent "deleted-ness"
+  return !(
+    (document as unknown as DbComment).deleted ||
+    (document as unknown as DbPost).deletedDraft ||
+    (document as unknown as DbSequence).isDeleted
+  );
+}
+
+export const userCanComment = (user: PermissionableUser|DbUser|null): boolean => {
+  if (!user) {
+    return false;
+  }
+  if (userIsAdminOrMod(user)) {
+    return true;
+  }
+  if (user.allCommentingDisabled) {
+    return false;
+  }
+  if (hideUnreviewedAuthorCommentsSettings.get() && !user.reviewedByUserId) {
+    return false;
+  }
+  return true;
+}
 
 export const userOverNKarmaFunc = (n: number) => {
     return (user: UsersMinimumInfo|DbUser|null): boolean => {
       if (!user) return false
-      return (user.karma > n)
+      return ((user.karma) > n)
     }
+}
+
+export const userOverNKarmaOrApproved = (n: number) => {
+  return (user: UsersMinimumInfo|DbUser|null): boolean => {
+    if (!user) return false
+    return ((user.karma) > n || !!user.reviewedByUserId)
+  }
 }
 
 export const userHasntChangedName = (user: UsersMinimumInfo|DbUser|null, document: HasUserIdType|DbUser|UsersMinimumInfo|DbObject): boolean => {
   if (!user) return false
   return !user.previousDisplayName
 }
-  
 
 // Check if a user is an admin
-export const userIsAdmin = function (user: UsersMinimumInfo|DbUser|null): boolean {
+export const userIsAdmin = function <T extends UsersMinimumInfo|DbUser|null>(user: T): user is Exclude<T, null> & { isAdmin: true } {
   if (!user) return false;
   return user.isAdmin;
 };
 
 export const isAdmin = userIsAdmin;
 
+export const userIsAdminOrMod = function <T extends PermissionableUser|DbUser|null> (user: T): boolean {
+  if (!user) return false;
+  return user.isAdmin || userIsMemberOf(user, 'sunshineRegiment');
+};
+
 // Check if a user can view a field
-export const userCanReadField = <T extends DbObject>(user: UsersCurrent|DbUser|null, field: CollectionFieldSpecification<T>, document: T): boolean => {
-  const canRead = field.canRead || field.viewableBy; //OpenCRUD backwards compatibility
+export const userCanReadField = <N extends CollectionNameString>(
+  user: UsersCurrent|DbUser|null,
+  field: CollectionFieldSpecification<N>,
+  document: ObjectsByCollectionName[N],
+): boolean => {
+  const canRead = field.canRead;
   if (canRead) {
-    if (typeof canRead === 'function') {
-      // if canRead is a function, execute it with user and document passed. it must return a boolean
-      return canRead(user, document);
-    } else if (typeof canRead === 'string') {
-      // if canRead is just a string, we assume it's the name of a group and pass it to isMemberOf
-      return canRead === 'guests' || userIsMemberOf(user, canRead);
-    } else if (Array.isArray(canRead) && canRead.length > 0) {
-      // if canRead is an array, we do a recursion on every item and return true if one of the items return true
-      return canRead.some(group => userCanReadField(user, { canRead: group }, document));
-    }
+    return userHasFieldPermissions(user, canRead, document);
   }
   return false;
 };
 
-// @summary Get a list of fields viewable by a user
-// @param {Object} user - The user performing the action
-// @param {Object} collection - The collection
-// @param {Object} document - Optionally, get a list for a specific document
-const getViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, document: T): Set<string> {
-  const schema = getSchema(collection);
-  let result: Set<string> = new Set();
-  for (let fieldName of Object.keys(schema)) {
-    if (fieldName.indexOf('.$') > -1)
-      continue;
-    if (userCanReadField(user, schema[fieldName], document))
-      result.add(fieldName);
+const userHasFieldPermissions = <T extends DbObject>(user: UsersCurrent|DbUser|null, canRead: FieldPermissions, document: T): boolean => {
+  if (typeof canRead === 'string') {
+    // if canRead is just a string, we assume it's the name of a group and pass it to isMemberOf
+    return canRead === 'guests' || userIsMemberOf(user, canRead);
+  } else if (typeof canRead === 'function') {
+    // if canRead is a function, execute it with user and document passed. it must return a boolean
+    return canRead(user, document);
+  } else if (Array.isArray(canRead) && canRead.length > 0) {
+    // if canRead is an array, we do a recursion on every item and return true if one of the items return true
+    for (const group of canRead) {
+      if (userHasFieldPermissions(user, group, document)) {
+        return true;
+      }
+    }
+    return false;
+  } else {
+    return false;
   }
-  return result;
-};
+}
 
 // For a given document or list of documents, keep only fields viewable by current user
 // @param {Object} user - The user performing the action
 // @param {Object} collection - The collection
 // @param {Object} document - The document being returned by the resolver
 // TODO: Integrate permissions-filtered DbObjects into the type system
-export const restrictViewableFields = function <T extends DbObject>(user: UsersCurrent|DbUser|null, collection: CollectionBase<T>, docOrDocs: T|Array<T>): any {
-  if (!docOrDocs) return {};
-
-  const restrictDoc = (document: T) => {
-    // get array of all keys viewable by user
-    const viewableKeys: Set<string> = getViewableFields(user, collection, document);
-    
-    // return a filtered document
-    const restrictedDocument: Record<string,any> = {};
-    for (let key of Object.keys(document)) {
-      if (viewableKeys.has(key))
-        restrictedDocument[key] = (document as any)[key];
-    }
-
-    return restrictedDocument;
-  };
-
-  return Array.isArray(docOrDocs) ? docOrDocs.map(restrictDoc) : restrictDoc(docOrDocs);
+export function restrictViewableFields<N extends CollectionNameString>(
+  user: UsersCurrent|DbUser|null,
+  collection: CollectionBase<N>,
+  docOrDocs: ObjectsByCollectionName[N] | undefined | null,
+): Partial<ObjectsByCollectionName[N]>;
+export function restrictViewableFields<N extends CollectionNameString>(
+  user: UsersCurrent|DbUser|null,
+  collection: CollectionBase<N>,
+  docOrDocs: ObjectsByCollectionName[N][] | undefined | null,
+): Partial<ObjectsByCollectionName[N]>[];
+export function restrictViewableFields<N extends CollectionNameString>(
+  user: UsersCurrent|DbUser|null,
+  collection: CollectionBase<N>,
+  docOrDocs?: ObjectsByCollectionName[N][] | undefined | null,
+): Partial<ObjectsByCollectionName[N]> | Partial<ObjectsByCollectionName[N]>[] {
+  if (Array.isArray(docOrDocs)) {
+    return restrictViewableFieldsMultiple(user, collection, docOrDocs);
+  } else {
+    return restrictViewableFieldsSingle(user, collection, docOrDocs);
+  }
 };
 
+export const restrictViewableFieldsMultiple = function <N extends CollectionNameString>(
+  user: UsersCurrent|DbUser|null,
+  collection: CollectionBase<N>,
+  docs: ObjectsByCollectionName[N][],
+): Partial<ObjectsByCollectionName[N]>[] {
+  if (!docs) return [];
+  return docs.map(doc => restrictViewableFieldsSingle(user, collection, doc));
+};
+
+export const restrictViewableFieldsSingle = function <N extends CollectionNameString>(
+  user: UsersCurrent|DbUser|null,
+  collection: CollectionBase<N>,
+  doc: ObjectsByCollectionName[N] | undefined | null,
+): Partial<ObjectsByCollectionName[N]> {
+  if (!doc) return {};
+  const schema = getSchema(collection);
+  const restrictedDocument: Partial<ObjectsByCollectionName[N]> = {};
+  for (const fieldName in doc) {
+    const fieldSchema = schema[fieldName];
+    if (fieldSchema && userCanReadField(user, fieldSchema, doc)) {
+      restrictedDocument[fieldName] = doc[fieldName];
+    }
+  }
+
+  return restrictedDocument;
+}
+
 // Check if a user can submit a field
-export const userCanCreateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>): boolean => {
-  const canCreate = field.canCreate || field.insertableBy; //OpenCRUD backwards compatibility
+export const userCanCreateField = <N extends CollectionNameString>(
+  user: DbUser|UsersCurrent|null,
+  field: CollectionFieldSpecification<N>,
+): boolean => {
+  const canCreate = field.canCreate; //OpenCRUD backwards compatibility
   if (canCreate) {
     if (typeof canCreate === 'function') {
       // if canCreate is a function, execute it with user and document passed. it must return a boolean
@@ -205,8 +304,12 @@ export const userCanCreateField = <T extends DbObject>(user: DbUser|UsersCurrent
 };
 
 // Check if a user can edit a field
-export const userCanUpdateField = <T extends DbObject>(user: DbUser|UsersCurrent|null, field: CollectionFieldSpecification<T>, document: Partial<T>): boolean => {
-  const canUpdate = field.canUpdate || field.editableBy; //OpenCRUD backwards compatibility
+export const userCanUpdateField = <N extends CollectionNameString>(
+  user: DbUser|UsersCurrent|null,
+  field: CollectionFieldSpecification<N>,
+  document: Partial<ObjectsByCollectionName[N]>,
+): boolean => {
+  const canUpdate = field.canUpdate;
 
   if (canUpdate) {
     if (typeof canUpdate === 'function') {

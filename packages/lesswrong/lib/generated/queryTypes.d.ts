@@ -11,11 +11,11 @@ interface QueryRecommendationsQueryResult {
   readonly Recommendations: Array<QueryRecommendationsQueryResult_Recommendations>,
 }
 
-interface QueryRecommendationsQueryResult_Recommendations extends PostsList {
+interface QueryRecommendationsQueryResult_Recommendations extends PostsListWithVotesAndSequence {
 }
 interface QueryRecommendationsQueryVariables {
   count: number|null
-  algorithm: any
+  algorithm: any /*JSON*/
 }
 
 interface QueryMozillaHubsRoomDataResult {
@@ -23,14 +23,14 @@ interface QueryMozillaHubsRoomDataResult {
 }
 
 interface QueryMozillaHubsRoomDataResult_MozillaHubsRoomData {
-  id: string
-  previewImage: string
-  lobbyCount: number
-  memberCount: number
-  roomSize: number
-  description: string
-  url: string
-  name: string
+  id: string|null
+  previewImage: string|null
+  lobbyCount: number|null
+  memberCount: number|null
+  roomSize: number|null
+  description: string|null
+  url: string|null
+  name: string|null
 }
 interface QueryMozillaHubsRoomDataVariables {
   roomId: string|null
@@ -41,10 +41,10 @@ interface QueryEmailPreviewQueryResult {
 }
 
 interface QueryEmailPreviewQueryResult_EmailPreview {
-  to: string
-  subject: string
-  html: string
-  text: string
+  to: string|null
+  subject: string|null
+  html: string|null
+  text: string|null
 }
 interface QueryEmailPreviewQueryVariables {
   notificationIds: Array<string|null>
@@ -107,28 +107,28 @@ interface QueryElicitQueryResult {
 }
 
 interface QueryElicitQueryResult_ElicitBlockData {
-  _id: string
-  title: string
-  notes: string
-  resolvesBy: Date
-  resolution: boolean
+  _id: string|null
+  title: string|null
+  notes: string|null
+  resolvesBy: Date|null
+  resolution: boolean|null
   predictions: Array<QueryElicitQueryResult__predictionspredictions>
 }
 interface QueryElicitQueryResult__predictionspredictions {
-  _id: string
-  predictionId: string
-  prediction: number
-  createdAt: Date
-  notes: string
-  sourceUrl: string
-  sourceId: string
-  binaryQuestionId: string
+  _id: string|null
+  predictionId: string|null
+  prediction: number|null
+  createdAt: Date|null
+  notes: string|null
+  sourceUrl: string|null
+  sourceId: string|null
+  binaryQuestionId: string|null
   creator: QueryElicitQueryResult__predictions_creatorcreator
 }
 interface QueryElicitQueryResult__predictions_creatorcreator {
-  _id: string
-  displayName: string
-  sourceUserId: string
+  _id: string|null
+  displayName: string|null
+  sourceUserId: string|null
   lwUser: QueryElicitQueryResult__predictions_creator_lwUserlwUser
 }
 interface QueryElicitQueryResult__predictions_creator_lwUserlwUser extends UsersMinimumInfo {
@@ -194,12 +194,12 @@ interface QueryTagUpdatesInTimeBlockResult {
 interface QueryTagUpdatesInTimeBlockResult_TagUpdatesInTimeBlock {
   tag: QueryTagUpdatesInTimeBlockResult__tagtag
   revisionIds: Array<string>
-  commentCount: number
+  commentCount: number|null
   commentIds: Array<string>
-  lastRevisedAt: Date
+  lastRevisedAt: Date|null
   lastCommentedAt: Date|null
-  added: number
-  removed: number
+  added: number|null
+  removed: number|null
   users: Array<QueryTagUpdatesInTimeBlockResult__usersusers>
 }
 interface QueryTagUpdatesInTimeBlockResult__tagtag extends TagBasicInfo {
@@ -219,9 +219,9 @@ interface QueryContinueReadingQueryResult_ContinueReading {
   sequence: QueryContinueReadingQueryResult__sequencesequence
   collection: QueryContinueReadingQueryResult__collectioncollection
   nextPost: QueryContinueReadingQueryResult__nextPostnextPost
-  numRead: number
-  numTotal: number
-  lastReadTime: Date
+  numRead: number|null
+  numTotal: number|null
+  lastReadTime: Date|null
 }
 interface QueryContinueReadingQueryResult__sequencesequence {
   _id: string
@@ -264,6 +264,111 @@ interface QueryRevisionsDiffVariables {
   trim: boolean|null
 }
 
+interface QueryGetTwoUserTopicRecommendationsResult {
+  readonly GetTwoUserTopicRecommendations: Array<QueryGetTwoUserTopicRecommendationsResult_GetTwoUserTopicRecommendations>,
+}
+
+interface QueryGetTwoUserTopicRecommendationsResult_GetTwoUserTopicRecommendations {
+  comment: QueryGetTwoUserTopicRecommendationsResult__commentcomment
+  recommendationReason: string|null
+  yourVote: string|null
+  theirVote: string|null
+}
+interface QueryGetTwoUserTopicRecommendationsResult__commentcomment {
+  _id: string
+  contents: QueryGetTwoUserTopicRecommendationsResult__comment_contentscontents
+}
+interface QueryGetTwoUserTopicRecommendationsResult__comment_contentscontents {
+  html: string
+  plaintextMainText: string
+}
+interface QueryGetTwoUserTopicRecommendationsVariables {
+  userId: string
+  targetUserId: string
+  limit: number
+}
+
+interface QueryUserTopTagsResult {
+  readonly UserTopTags: Array<QueryUserTopTagsResult_UserTopTags>,
+}
+
+interface QueryUserTopTagsResult_UserTopTags {
+  tag: QueryUserTopTagsResult__tagtag
+  commentCount: number
+}
+interface QueryUserTopTagsResult__tagtag {
+  name: string
+  _id: string
+}
+interface QueryUserTopTagsVariables {
+  userId: string
+}
+
+interface QueryUsersReadPostsOfTargetUserResult {
+  readonly UsersReadPostsOfTargetUser: Array<QueryUsersReadPostsOfTargetUserResult_UsersReadPostsOfTargetUser>,
+}
+
+interface QueryUsersReadPostsOfTargetUserResult_UsersReadPostsOfTargetUser {
+  _id: string
+  title: string
+  slug: string
+}
+interface QueryUsersReadPostsOfTargetUserVariables {
+  userId: string
+  targetUserId: string
+  limit: number
+}
+
+interface QueryUsersRecommendedCommentsOfTargetUserResult {
+  readonly UsersRecommendedCommentsOfTargetUser: Array<QueryUsersRecommendedCommentsOfTargetUserResult_UsersRecommendedCommentsOfTargetUser>,
+}
+
+interface QueryUsersRecommendedCommentsOfTargetUserResult_UsersRecommendedCommentsOfTargetUser {
+  _id: string
+  postId: string
+  contents: QueryUsersRecommendedCommentsOfTargetUserResult__contentscontents
+}
+interface QueryUsersRecommendedCommentsOfTargetUserResult__contentscontents {
+  html: string
+  plaintextMainText: string
+}
+interface QueryUsersRecommendedCommentsOfTargetUserVariables {
+  userId: string
+  targetUserId: string
+  limit: number
+}
+
+interface QueryGetUserDialogueUsefulDataResult {
+  readonly GetUserDialogueUsefulData: QueryGetUserDialogueUsefulDataResult_GetUserDialogueUsefulData,
+}
+
+interface QueryGetUserDialogueUsefulDataResult_GetUserDialogueUsefulData {
+  dialogueUsers: Array<QueryGetUserDialogueUsefulDataResult__dialogueUsersdialogueUsers>
+  topUsers: Array<QueryGetUserDialogueUsefulDataResult__topUserstopUsers>
+  activeDialogueMatchSeekers: Array<QueryGetUserDialogueUsefulDataResult__activeDialogueMatchSeekersactiveDialogueMatchSeekers>
+}
+interface QueryGetUserDialogueUsefulDataResult__dialogueUsersdialogueUsers {
+  _id: string
+  displayName: string
+}
+interface QueryGetUserDialogueUsefulDataResult__topUserstopUsers {
+  _id: any /*ID*/
+  displayName: string
+  username: string
+  power_values: string
+  agreement_values: string
+  vote_counts: number
+  total_power: number
+  total_agreement: number
+  recently_active_matchmaking: boolean
+}
+interface QueryGetUserDialogueUsefulDataResult__activeDialogueMatchSeekersactiveDialogueMatchSeekers {
+  _id: string
+  displayName: string
+}
+interface QueryGetUserDialogueUsefulDataVariables {
+}
+
 interface QueryResultTypes {
   RecommendationsQuery: QueryRecommendationsQueryResult
   MozillaHubsRoomData: QueryMozillaHubsRoomDataResult
@@ -279,6 +384,11 @@ interface QueryResultTypes {
   ContinueReadingQuery: QueryContinueReadingQueryResult
   PetrovDayLaunchResolvers: QueryPetrovDayLaunchResolversResult
   RevisionsDiff: QueryRevisionsDiffResult
+  GetTwoUserTopicRecommendations: QueryGetTwoUserTopicRecommendationsResult
+  UserTopTags: QueryUserTopTagsResult
+  UsersReadPostsOfTargetUser: QueryUsersReadPostsOfTargetUserResult
+  UsersRecommendedCommentsOfTargetUser: QueryUsersRecommendedCommentsOfTargetUserResult
+  GetUserDialogueUsefulData: QueryGetUserDialogueUsefulDataResult
 }
 
 interface QueryArgumentTypes {
@@ -296,6 +406,11 @@ interface QueryArgumentTypes {
   readonly ContinueReadingQuery: QueryContinueReadingQueryVariables
   readonly PetrovDayLaunchResolvers: QueryPetrovDayLaunchResolversVariables
   readonly RevisionsDiff: QueryRevisionsDiffVariables
+  readonly GetTwoUserTopicRecommendations: QueryGetTwoUserTopicRecommendationsVariables
+  readonly UserTopTags: QueryUserTopTagsVariables
+  readonly UsersReadPostsOfTargetUser: QueryUsersReadPostsOfTargetUserVariables
+  readonly UsersRecommendedCommentsOfTargetUser: QueryUsersRecommendedCommentsOfTargetUserVariables
+  readonly GetUserDialogueUsefulData: QueryGetUserDialogueUsefulDataVariables
 }
 
-type QueryName = "RecommendationsQuery"|"MozillaHubsRoomData"|"EmailPreviewQuery"|"ArbitalPageRequest"|"GetRandomTag"|"AdminMetadataQuery"|"MigrationsDashboardQuery"|"ElicitQuery"|"PostAnalyticsQuery"|"CoronaVirusData"|"TagUpdatesInTimeBlock"|"ContinueReadingQuery"|"PetrovDayLaunchResolvers"|"RevisionsDiff"
+type QueryName = "RecommendationsQuery"|"MozillaHubsRoomData"|"EmailPreviewQuery"|"ArbitalPageRequest"|"GetRandomTag"|"AdminMetadataQuery"|"MigrationsDashboardQuery"|"ElicitQuery"|"PostAnalyticsQuery"|"CoronaVirusData"|"TagUpdatesInTimeBlock"|"ContinueReadingQuery"|"PetrovDayLaunchResolvers"|"RevisionsDiff"|"GetTwoUserTopicRecommendations"|"UserTopTags"|"UsersReadPostsOfTargetUser"|"UsersRecommendedCommentsOfTargetUser"|"GetUserDialogueUsefulData"

@@ -6,7 +6,9 @@ Run a GraphQL request from the server with the proper context
 import { graphql, GraphQLError } from 'graphql';
 import { localeSetting } from '../../lib/publicSettings';
 import { getExecutableSchema } from './apollo-server/initGraphQL';
-import { getCollectionsByName, generateDataLoaders } from './apollo-server/context';
+import { generateDataLoaders } from './apollo-server/context';
+import { getAllRepos } from '../repos';
+import { getCollectionsByName } from '../../lib/vulcan-lib/getCollection';
 
 function writeGraphQLErrorToStderr(errors: readonly GraphQLError[])
 {
@@ -44,10 +46,13 @@ export const runQuery = async (query: string, variables: any = {}, context?: Par
 export const createAnonymousContext = (options?: Partial<ResolverContext>): ResolverContext => {
   const queryContext = {
     userId: null,
+    clientId: null,
+    visitorActivity: null,
     currentUser: null,
     headers: null,
     locale: localeSetting.get(),
     isGreaterWrong: false,
+    repos: getAllRepos(),
     ...getCollectionsByName(),
     ...generateDataLoaders(),
     ...options,

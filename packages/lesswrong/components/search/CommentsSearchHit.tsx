@@ -1,9 +1,11 @@
 import { Components, registerComponent} from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
-import type { Hit } from 'react-instantsearch-core';
 import React from 'react';
 import ChatBubbleOutlineIcon from '@material-ui/icons/ChatBubbleOutline';
+import { tagGetCommentLink } from '../../lib/collections/tags/helpers';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import type { SearchHitComponentProps } from './types';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -31,15 +33,22 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: {
-  hit: Hit<any>,
-  clickAction?: any,
-  classes: ClassesType,
-  showIcon?: boolean
-}) => {
-  const comment = (hit as AlgoliaComment);
+const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+  const comment = (hit as SearchComment);
   const { LWTooltip } = Components
-  const url = "/posts/" + comment.postId + "/" + comment.postSlug + "#" + comment._id
+
+  let url = "";
+  if (comment.postId && comment.postSlug) {
+    url = `${postGetPageUrl({
+      _id: comment.postId ?? "",
+      slug: comment.postSlug ?? "",
+      isEvent: comment.postIsEvent,
+      groupId: comment.postGroupId,
+    })}#${comment._id}`;
+  } else if (comment.tagSlug && comment.tagCommentType) {
+    url = tagGetCommentLink({tagSlug: comment.tagSlug, commentId: comment._id, tagCommentType: comment.tagCommentType})
+  }
+
   return <div className={classes.root}>
     {showIcon && <LWTooltip title="Comment">
       <ChatBubbleOutlineIcon className={classes.icon}/>

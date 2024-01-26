@@ -44,18 +44,18 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading }: {
       }
     }
   }
-  
-  const { PostsItem2, PostsLoading, SectionFooter } = Components;
+
+  const { PostsItem, PostsLoading, SectionFooter } = Components;
   if (continueReadingLoading || !continueReading)
     return <PostsLoading/>
-  
+
   const { entries, showAllLink } = limitResumeReading(continueReading);
 
   return <div>
-    <AnalyticsContext listContext={"continueReading"} capturePostItemOnMount>
+    <AnalyticsContext pageSubSectionContext="continueReadingList" capturePostItemOnMount>
       {entries.map(resumeReading => {
         const { nextPost, sequence, collection } = resumeReading;
-        return <PostsItem2
+        return <PostsItem
           post={nextPost}
           sequenceId={sequence?._id}
           resumeReading={resumeReading}

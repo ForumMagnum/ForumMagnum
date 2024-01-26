@@ -1,6 +1,7 @@
-import { getCollection } from '../../vulcan-lib/getCollection';
-import { userCanDo, userOwns } from '../../vulcan-users/permissions';
 import * as _ from 'underscore';
+import { constantTimeCompare } from '../../helpers';
+import { userCanDo, userOwns } from '../../vulcan-users/permissions';
+import { userIsPostGroupOrganizer, userIsPostCoauthor } from './helpers';
 
 export type CollaborativeEditingAccessLevel = "none"|"read"|"comment"|"edit";
 
@@ -25,37 +26,60 @@ export function accessLevelCan(accessLevel: CollaborativeEditingAccessLevel, ope
   }
 }
 
-export async function getCollaborativeEditorAccess({formType, post, user, useAdminPowers}: {
+export function getSharingKeyFromContext(context: ResolverContext|null) {
+  const key = context?.req?.query.key;
+  if (typeof key === 'string') {
+    return key;
+  }
+
+  return '';
+}
+
+export async function getCollaborativeEditorAccess({formType, post, user, context, useAdminPowers}: {
   formType: "new"|"edit",
   post: DbPost|null,
   user: DbUser|null,
+  context: ResolverContext|null,
   
   // If true and the user is a moderator/admin, take their admin powers into
   // account. If false, return permissions as they would be given no moderator
   // powers.
   useAdminPowers: boolean,
 }): Promise<CollaborativeEditingAccessLevel> {
-  const canEditAsAdmin = useAdminPowers && userCanDo(user, 'posts.edit.all');
-  const canEdit = post && (userOwns(user, post) || canEditAsAdmin)
-  const canView = post && await getCollection("Posts").checkAccess(user, post, null);
-  let accessLevel: CollaborativeEditingAccessLevel = "none";
+  // FIXME: There's a lot of redundancy between this function and
+  // canUserEditPostMetadata in lib/collections/posts/helpers.ts, but they are
+  // tricky to merge because of the `useAdminPowers` flag and because
+  // `canUserEditPostMetadata` can't check for group-organizer status because it
+  // isn't async. This function is used for controlling access to the body
+  // (getting a ckEditor token).
   
   if (formType === "new" && user && !post) {
-    accessLevel = strongerAccessLevel(accessLevel, "edit");
     return "edit";
   }
-  if (!post || !user) {
+  if (!post) {
     return "none";
   }
   
+  const canEditAsAdmin = useAdminPowers && userCanDo(user, 'posts.edit.all');
+  const canEdit = userOwns(user, post) ||
+    canEditAsAdmin ||
+    await userIsPostGroupOrganizer(user, post, context) ||
+    userIsPostCoauthor(user, post);
+  let accessLevel: CollaborativeEditingAccessLevel = "none";
+  
   if (canEdit) {
     accessLevel = strongerAccessLevel(accessLevel, "edit");
-  }
-  
-  accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.anyoneWithLinkCan);
-  
-  if (_.contains(post.shareWithUsers, user._id)) {
+  } 
+
+  if (user && _.contains(post.shareWithUsers, user._id)) {
     accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.explicitlySharedUsersCan);
+  } 
+  
+  const canonicalLinkSharingKey = post.linkSharingKey;
+  const unvalidatedLinkSharingKey = getSharingKeyFromContext(context);
+  const keysMatch = !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey });
+  if (keysMatch) {
+    accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.anyoneWithLinkCan);
   }
   
   return accessLevel;

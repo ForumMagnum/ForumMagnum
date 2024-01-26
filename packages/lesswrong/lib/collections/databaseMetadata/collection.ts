@@ -1,13 +1,17 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields, ensureIndex } from '../../collectionUtils'
-
+import { addUniversalFields } from '../../collectionUtils';
+import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils'
 
 export const DatabaseMetadata: DatabaseMetadataCollection = createCollection({
   collectionName: "DatabaseMetadata",
   typeName: "DatabaseMetadata",
-  schema
+  schema,
 });
 addUniversalFields({collection: DatabaseMetadata});
 
-ensureIndex(DatabaseMetadata, { name:1 });
+void ensureCustomPgIndex(`
+  CREATE UNIQUE INDEX IF NOT EXISTS "idx_DatabaseMetadata_name"
+  ON public."DatabaseMetadata" USING btree
+  (name)
+`);

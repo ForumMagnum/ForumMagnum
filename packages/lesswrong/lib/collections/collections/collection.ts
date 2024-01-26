@@ -22,8 +22,8 @@ makeEditable({
 addUniversalFields({
   collection: Collections,
   createdAtOptions: {
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   },
 });
 

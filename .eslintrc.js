@@ -45,6 +45,7 @@ module.exports = {
     "eol-last": 1,
     "no-await-in-loop": 0,
     "comma-dangle": 0,
+    "eqeqeq": [1, "always", {"null": "ignore"}],
     "key-spacing": 0,
     "no-extra-boolean-cast": 0,
     "no-undef": 1,
@@ -65,7 +66,18 @@ module.exports = {
     "react/no-unescaped-entities": 0,
     "react/display-name": 0,
     "react/jsx-no-comment-textnodes": 1,
-    "no-mixed-operators": 1,
+
+    // Differs from no-mixed-operators default only in that "??" is added to the first group
+    "no-mixed-operators": ["warn", {
+      "groups": [
+        ["??", "+", "-", "*", "/", "%", "**"],
+        ["&", "|", "^", "~", "<<", ">>", ">>>"],
+        ["==", "!=", "===", "!==", ">", ">=", "<", "<="],
+        ["&&", "||"],
+        ["in", "instanceof"]
+      ],
+      "allowSamePrecedence": true
+    }],
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
     "import/no-unresolved": 1,
@@ -82,8 +94,31 @@ module.exports = {
     "import/extensions": 0,
     "import/no-cycle": 1,
     "import/no-mutable-exports": 1,
+    "import/no-restricted-paths": ["error", {"zones": [
+      {
+        target: "packages/lesswrong/components",
+        from: "packages/lesswrong/server",
+        message: "server cannot be imported into components - move the shared code into lib",
+      },
+      {
+        target: "packages/lesswrong/lib",
+        from: "packages/lesswrong/server",
+        message: "server cannot be imported into lib - move the shared code into lib",
+      },
+      {
+        target: "packages/lesswrong/client",
+        from: "packages/lesswrong/server",
+        message: "server cannot be imported into client - move the shared code into lib",
+      },
+      {
+        target: "packages/lesswrong/themes",
+        from: "packages/lesswrong/server",
+        message: "server cannot be imported into themes - move the shared code into lib",
+      },
+    ]}],
     "no-restricted-imports": ["error", {"paths": [
       { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" },
+      { name: "lodash/fp", message: "Don't import all of lodash/fp, import a specific lodash function, eg lodash/fp/capitalize" },
       { name: "@material-ui", message: "Don't import all of material-ui/icons" },
       { name: "@material-ui/core", message: "Don't import all of material-ui/core" },
       { name: "@material-ui/core/colors", message: "Don't use material-ui/core/colors, use the theme palette" },
@@ -92,6 +127,8 @@ module.exports = {
       { name: "@material-ui/core/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
       { name: "@material-ui/core/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
       { name: "@material-ui/core/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
+      { name: "@material-ui/core/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
+      { name: "@material-ui/core/NoSsr", importNames: ["Popper"], message: "Don't use @material-ui/core/NoSsr/NoSsr; use react-no-ssr instead" },
       { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
       { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
     ],

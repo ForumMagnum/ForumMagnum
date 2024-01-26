@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const separatorBulletStyles = (theme: ThemeType) => ({
   '& > *': {
@@ -30,7 +31,14 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: theme.spacing.unit/2,
     color: theme.palette.lwTertiary.main,
     flexWrap: "wrap",
-    ...separatorBulletStyles(theme)
+    ...separatorBulletStyles(theme),
+    ...(isFriendlyUI
+      ? {
+        fontSize: 14,
+        fontWeight: 600,
+        lineHeight: "24px",
+      }
+      : {}),
   }
 })
 

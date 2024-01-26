@@ -11,7 +11,7 @@ const VoteButton = ({
   vote, currentStrength, upOrDown,
   color = "secondary",
   orientation = "up",
-  enabled = true,
+  enabled,
   solidArrow,
   VoteIconComponent,
 }: {
@@ -21,7 +21,7 @@ const VoteButton = ({
   upOrDown: "Upvote"|"Downvote",
   color: "error"|"primary"|"secondary",
   orientation: "up"|"down"|"left"|"right",
-  enabled?: boolean,
+  enabled: boolean,
   solidArrow?: boolean
   VoteIconComponent: React.ComponentType<VoteArrowIconProps>,
 }) => {

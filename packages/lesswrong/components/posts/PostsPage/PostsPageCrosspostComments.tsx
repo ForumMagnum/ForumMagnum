@@ -5,6 +5,7 @@ import {
   fmCrosspostBaseUrlSetting,
 } from "../../../lib/instanceSettings";
 import { useCrosspostContext } from "./PostsPageCrosspostWrapper";
+import { postGetPageUrl } from "../../../lib/collections/posts/helpers";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -25,11 +26,13 @@ const PostsPageCrosspostComments = ({classes}: {classes: ClassesType}) => {
   const {hostedHere, foreignPost} = context;
 
   const relation = hostedHere ? "to" : "from";
-  const comments = foreignPost.commentCount ?? 0;
-  const commentsText = comments === 0
+  const commentCount = foreignPost.commentCount ?? 0;
+  const noComments = commentCount === 0;
+
+  const commentsText = noComments
     ? "Click to view."
-    : `Click to view ${comments} comment${comments === 1 ? "" : "s"}.`;
-  const link = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `posts/${foreignPost._id}`);
+    : `Click to view ${commentCount} comment${commentCount === 1 ? "" : "s"}.`;
+  const link = combineUrls(fmCrosspostBaseUrlSetting.get() ?? "", `${postGetPageUrl(foreignPost)}${noComments ? "" : "#comments"}`);
 
   const {Typography} = Components;
   return (

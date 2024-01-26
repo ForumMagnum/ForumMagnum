@@ -1,24 +1,27 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import _filter from 'lodash/filter';
+import { isLWorAF } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing.unit,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap"
   },
   comment: {
-    marginTop: 4,
-    marginBottom: 4,
-    color: theme.palette.text.slightlyDim2,
-    border: theme.palette.border.slightlyFaint,
-    marginLeft: -12,
-    marginRight: -12,
-    padding: 12,
-    paddingTop: 8,
-    paddingBottom: 8
+    marginBottom: 16,
+    marginTop: 16,
   },
   meta: {
     display: "inline-block"
+  },
+  rejection: {
+    display: "flex",
+    justifyContent: "flex-end",
+    marginBottom: 2
   }
 })
 
@@ -27,7 +30,7 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
   classes: ClassesType,
   user: SunshineUsersList
 }) => {
-  const { CommentsNode } = Components
+  const { CommentsNode, RejectContentButton, RejectedReasonDisplay } = Components
 
   if (!comments) return null 
 
@@ -35,15 +38,22 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
 
   return (
     <div className={classes.root}>
-      {(newComments.length > 0) && newComments.map(comment=><CommentsNode 
-              key={`sunshine-new-user-${comment._id}`}
-              treeOptions={{
-                condensed: false,
-                post: comment.post || undefined,
-                showPostTitle: true,
-              }}
-              comment={comment}
-            />)}
+      {(newComments.length > 0) && newComments.map(comment=><div className={classes.comment} key={`sunshine-new-user-${comment._id}`}>
+        {isLWorAF && <div className={classes.rejection}>
+          {comment.rejected && <RejectedReasonDisplay reason={comment.rejectedReason}/>}
+          <RejectContentButton contentWrapper={{collectionName:"Comments", content:comment}}/>
+        </div>}
+        <CommentsNode 
+          treeOptions={{
+            condensed: false,
+            post: comment.post || undefined,
+            showPostTitle: true,
+          }}
+          forceUnTruncated
+          forceUnCollapsed
+          comment={comment}
+        />
+      </div>)}
     </div>
   )
 }

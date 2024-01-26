@@ -39,7 +39,7 @@ export const eventTime = (theme: ThemeType) => ({
   display: "inline-block"
 })
 
-export const eventFormat = (startTime) => {
+export const eventFormat = (startTime: AnyBecauseTodo) => {
   return moment(new Date(startTime)).format("ddd h:mma, MMM D")
 }
 
@@ -56,7 +56,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 
-export const getAddToCalendarLink = (gcalEvent) => {
+export const getAddToCalendarLink = (gcalEvent: AnyBecauseTodo) => {
   const { LWTooltip } = Components
   
   const UrlClass = getUrlClass()

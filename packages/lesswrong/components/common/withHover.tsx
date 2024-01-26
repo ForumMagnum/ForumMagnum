@@ -6,30 +6,21 @@ function datesDifference(a:Date, b:Date): number {
   return (a as any)-(b as any);
 }
 
-export const withHover = (trackingData?: any, propsToTrackingData?: any) => {
-  return (WrappedComponent) => (props) => {
-    const eventProps = {...trackingData, ...(propsToTrackingData || (props=>{}))(props)};
-    const { eventHandlers, hover, anchorEl } = useHover(eventProps);
-    return (
-      <span {...eventHandlers}>
-        <WrappedComponent {...props} hover={hover} anchorEl={anchorEl}/>
-      </span>
-    );
-  }
-}
-
 export const useHover = (eventProps?: Record<string,any>) => {
   const [hover, setHover] = useState(false)
   const [everHovered, setEverHovered] = useState(false)
   const [anchorEl, setAnchorEl] = useState<any>(null)
   const delayTimer = useRef<any>(null)
-  const mouseOverStart = useRef<Date>(null)
+  const mouseOverStart = useRef<Date|null>(null)
 
   const { captureEvent } = useTracking({eventType:"hoverEventTriggered", eventProps})
 
   const captureHoverEvent = useCallback(() => {
-    !isMobile() && captureEvent("hoverEventTriggered",
-      {timeToCapture: datesDifference(new Date(), mouseOverStart.current as Date)})
+    if (!isMobile()) {
+      captureEvent("hoverEventTriggered",
+        {timeToCapture: new Date()}
+      )
+    }
     clearTimeout(delayTimer.current)
   }, [captureEvent])
 
@@ -37,7 +28,7 @@ export const useHover = (eventProps?: Record<string,any>) => {
     setHover(true)
     setEverHovered(true);
     setAnchorEl(event.currentTarget);
-    (mouseOverStart as any).current = new Date()
+    mouseOverStart.current = new Date()
     clearTimeout(delayTimer.current)
     delayTimer.current = setTimeout(captureHoverEvent,500)
   }, [captureHoverEvent])
@@ -46,11 +37,25 @@ export const useHover = (eventProps?: Record<string,any>) => {
     setHover(false)
     setAnchorEl(null)
     clearTimeout(delayTimer.current)
-    const hoverDuration = datesDifference(new Date(), mouseOverStart.current as Date)
-    if ( hoverDuration > 2000 ) captureEvent("hoverEventTriggered",
-      {hoverEventType: "longHoverEvent", hoverDuration});
-    (mouseOverStart as any).current = undefined
+
+    if (mouseOverStart.current) {
+      const hoverDuration = datesDifference(new Date(), mouseOverStart.current)
+      if (hoverDuration > 2000) {
+        captureEvent("hoverEventTriggered", {hoverEventType: "longHoverEvent", hoverDuration});
+      }
+      mouseOverStart.current = null
+    }
   },[captureEvent])
+  
+  /**
+   * Simulate un-hovering, making this effectively not-hovered until the mouse
+   * moves away and reenters. Used to make hover-menus close.
+   */
+  const forceUnHover = useCallback(() => {
+    setHover(false)
+    setAnchorEl(null)
+    clearTimeout(delayTimer.current)
+  }, []);
   
   return {
     eventHandlers: {
@@ -60,7 +65,6 @@ export const useHover = (eventProps?: Record<string,any>) => {
     hover,
     everHovered,
     anchorEl,
+    forceUnHover,
   }
 }
-
-export default withHover

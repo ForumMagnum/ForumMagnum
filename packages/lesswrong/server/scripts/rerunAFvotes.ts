@@ -12,12 +12,12 @@ Vulcan.rerunAFVotes = async () => {
   //eslint-disable-next-line no-console
   console.log(afVotes.length)
   await asyncForeachSequential(afVotes, async (vote, i) => {
-    if (i%20 == 0) {
+    if (i%20 === 0) {
       //eslint-disable-next-line no-console
       console.log(i)
     }
     const collection = getCollection(vote.collectionName as VoteableCollectionName);
-    const document = await collection.findOne({_id: vote.documentId}) as VoteableType;
+    const document = await collection.findOne({_id: vote.documentId}) as DbVoteableType;
     if (document.af) {
       await Users.rawUpdateOne({_id:document.userId}, {$inc: {afKarma: vote.afPower}})
     }

@@ -1,4 +1,3 @@
-import { UserThemeName } from '../themeNames';
 import { darkModeTheme } from './darkMode';
 
 export const getUserTheme = (name: UserThemeName): UserThemeSpecification => {

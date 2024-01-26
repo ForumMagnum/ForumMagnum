@@ -1,27 +1,36 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
+import Button from '@material-ui/core/Button';
 import {
   Components,
   registerComponent,
 } from '../../lib/vulcan-lib';
+import CloseIcon from '@material-ui/icons/Close';
 
 import classNames from 'classnames';
-import { unflattenComments, CommentTreeNode } from '../../lib/utils/unflatten';
+import { CommentTreeNode } from '../../lib/utils/unflatten';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { useRecordPostView } from '../common/withRecordPostView';
 
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import type { CommentTreeOptions } from '../comments/commentTree';
+import { useCurrentUser } from '../common/withUser';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { useRecentDiscussionThread } from './useRecentDiscussionThread';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
+    marginBottom: isFriendlyUI ? theme.spacing.unit*2 : theme.spacing.unit*4,
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: 3,
+    borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
+  },
+  plainBackground: {
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
+  },
+  primaryBackground: {
+    backgroundColor: theme.palette.background.primaryDim,
   },
   postStyle: theme.typography.postStyle,
   postItem: {
@@ -54,6 +63,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1
     },
   },
+  smallerMeta: {
+    '& .PostsItemMeta-info': {
+      fontSize: '1rem'
+    }
+  },
   showHighlight: {
     opacity: 0,
   },
@@ -73,12 +87,11 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   post: {
-    paddingTop: 18,
+    paddingTop: isFriendlyUI ? 12 : 18,
     paddingLeft: 16,
     paddingRight: 16,
-    background: theme.palette.panelBackground.default,
-    borderRadius: 3,
-    marginBottom:4,
+    borderRadius: theme.borderRadius[isFriendlyUI ? "default" : "small"],
+    marginBottom: 4,
     
     [theme.breakpoints.down('xs')]: {
       paddingTop: 16,
@@ -97,9 +110,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 8,
     display: "block",
     fontSize: "1.75rem",
+    ...(isFriendlyUI ? {
+      fontSize: 22,
+      fontWeight: 600,
+      lineHeight: 1.25,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      marginBottom: 10,
+    } : {})
+  },
+  smallerTitle: {
+    fontSize: '1.5rem',
+    lineHeight: '1.5em'
   },
   actions: {
-    "& .PostsPageActions-icon": {
+    "& .PostActionsButton-icon": {
       fontSize: "1.5em",
     },
     opacity: 0.2,
@@ -109,101 +133,121 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginRight: -8,
     marginTop: -8,
   },
+  closeButton: {
+    padding: 0,
+    margin: "-6px 4px 0em 0em",
+    width: 32,
+    height: 32,
+    minHeight: 'unset',
+    minWidth: 'unset',
+  },
+  closeIcon: {
+    width: '1em',
+    height: '1em',
+    color: theme.palette.icon.dim6,
+  },
 })
 
 const RecentDiscussionThread = ({
   post,
-  comments, refetch,
+  comments,
+  refetch,
   expandAllThreads: initialExpandAllThreads,
+  maxLengthWords,
+  smallerFonts,
+  isSubforumIntroPost,
+  commentTreeOptions = {},
+  dismissCallback = () => {},
   classes,
 }: {
   post: PostsRecentDiscussion,
-  comments: Array<CommentsList>,
-  refetch: any,
+  comments?: Array<CommentsList>,
+  refetch: () => void,
   expandAllThreads?: boolean,
+  maxLengthWords?: number,
+  smallerFonts?: boolean,
+  isSubforumIntroPost?: boolean,
+  commentTreeOptions?: CommentTreeOptions,
+  dismissCallback?: () => void,
   classes: ClassesType,
 }) => {
-  const [highlightVisible, setHighlightVisible] = useState(false);
-  const [readStatus, setReadStatus] = useState(false);
-  const [markedAsVisitedAt, setMarkedAsVisitedAt] = useState<Date|null>(null);
-  const [expandAllThreads, setExpandAllThreads] = useState(false);
-  const { isRead, recordPostView } = useRecordPostView(post);
-  const [showSnippet] = useState(!isRead || post.commentCount === null); // This state should never change after mount, so we don't grab the setter from useState
+  const currentUser = useCurrentUser();
+  const {
+    isSkippable,
+    showHighlight,
+    expandAllThreads,
+    lastVisitedAt,
+    nestedComments,
+    treeOptions,
+  } = useRecentDiscussionThread({
+    post,
+    comments,
+    refetch,
+    commentTreeOptions,
+    initialExpandAllThreads,
+  });
 
-  const markAsRead = useCallback(
-    () => {
-      setReadStatus(true);
-      setMarkedAsVisitedAt(new Date());
-      setExpandAllThreads(true);
-      recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}})
-    },
-    [setReadStatus, setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post]
-  );
-  const showHighlight = useCallback(
-    () => {
-      setHighlightVisible(!highlightVisible);
-      markAsRead();
-    },
-    [setHighlightVisible, highlightVisible, markAsRead]
-  );
-
-  const { PostsGroupDetails, PostsItemMeta, CommentsNode, PostsHighlight, PostsPageActions } = Components
-
-  const lastCommentId = comments && comments[0]?._id
-  const nestedComments = unflattenComments(comments);
-
-  const lastVisitedAt = markedAsVisitedAt ?? post.lastVisitedAt ?? undefined;
-
-  if (comments && !comments.length && post.commentCount != null) {
-    // New posts should render (to display their highlight).
-    // Posts with at least one comment should only render if that those comments meet the frontpage filter requirements
+  if (isSkippable) {
     return null
   }
 
   const highlightClasses = classNames(classes.postHighlight, {
+    // TODO verify whether/how this should be interacting with afCommentCount
     [classes.noComments]: post.commentCount === null
-  })
-  
-  const treeOptions: CommentTreeOptions = {
-    scrollOnExpand: true,
-    lastCommentId: lastCommentId,
-    markAsRead: markAsRead,
-    highlightDate: lastVisitedAt,
-    refetch: refetch,
-    condensed: true,
-    post: post,
-  };
+  });
 
+  const {
+    PostsGroupDetails, PostsItemMeta, CommentsNode, PostsHighlight,
+    PostActionsButton,
+  } = Components;
   return (
     <AnalyticsContext pageSubSectionContext='recentDiscussionThread'>
-      <div className={classes.root}>
-        <div className={classes.post}>
+      <div className={classNames(
+        classes.root,
+        {
+          [classes.plainBackground]: !isSubforumIntroPost,
+          [classes.primaryBackground]: isSubforumIntroPost
+        }
+      )}>
+        <div className={classNames(
+          classes.post,
+          {
+            [classes.plainBackground]: !isSubforumIntroPost,
+            [classes.primaryBackground]: isSubforumIntroPost
+          }
+        )}>
           <div className={classes.postItem}>
             {post.group && <PostsGroupDetails post={post} documentId={post.group._id} inRecentDiscussion={true} />}
             <div className={classes.titleAndActions}>
-              <Link to={postGetPageUrl(post)} className={classes.title}>
+              <Link to={postGetPageUrl(post)} className={classNames(classes.title, {[classes.smallerTitle]: smallerFonts})} eventProps={{intent: 'expandPost'}}>
                 {post.title}
               </Link>
-              <div className={classes.actions}>
-                <PostsPageActions post={post} vertical />
-              </div>
+              {isSubforumIntroPost && currentUser ? <Button
+                className={classes.closeButton}
+                onClick={dismissCallback}
+              >
+                <CloseIcon className={classes.closeIcon} />
+              </Button> : <div className={classes.actions}>
+                <PostActionsButton post={post} autoPlace vertical />
+              </div>}
             </div>
-            <div className={classes.threadMeta} onClick={showHighlight}>
+            <div className={classNames(classes.threadMeta, {[classes.smallerMeta]: smallerFonts})} onClick={showHighlight}>
               <PostsItemMeta post={post}/>
             </div>
           </div>
           <div className={highlightClasses}>
-            <PostsHighlight post={post} maxLengthWords={lastVisitedAt ? 50 : 170} />
+            <PostsHighlight post={post} maxLengthWords={maxLengthWords ?? lastVisitedAt ? 50 : 170} smallerFonts={smallerFonts} />
           </div>
         </div>
-        {nestedComments.length ? <div className={classes.content}>
+        <div className={classes.content}>
           <div className={classes.commentsList}>
-            {nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
+            {!!nestedComments.length && nestedComments.map((comment: CommentTreeNode<CommentsList>) =>
               <div key={comment.item._id}>
                 <CommentsNode
                   treeOptions={treeOptions}
                   startThreadTruncated={true}
-                  expandAllThreads={initialExpandAllThreads || expandAllThreads}
+                  expandAllThreads={expandAllThreads}
+                  expandNewComments={false}
                   nestingLevel={1}
                   comment={comment.item}
                   childComments={comment.children}
@@ -212,7 +256,7 @@ const RecentDiscussionThread = ({
               </div>
             )}
           </div>
-        </div> : null}
+        </div>
       </div>
     </AnalyticsContext>
   )
@@ -234,4 +278,3 @@ declare global {
     RecentDiscussionThread: typeof RecentDiscussionThreadComponent,
   }
 }
-

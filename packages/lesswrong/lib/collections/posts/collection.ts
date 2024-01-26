@@ -1,6 +1,6 @@
 import schema from './schema';
 import { createCollection } from '../../vulcan-lib';
-import { userOwns, userCanDo } from '../../vulcan-users/permissions';
+import { userOwns, userCanDo, userIsMemberOf, userIsPodcaster } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from './helpers';
@@ -22,12 +22,13 @@ const options: MutationOptions<DbPost> = {
   editCheck: async (user: DbUser|null, document: DbPost|null) => {
     if (!user || !document) return false;
     if (userCanDo(user, 'posts.alignment.move.all') ||
-        userCanDo(user, 'posts.alignment.suggest')) {
+        userCanDo(user, 'posts.alignment.suggest') ||
+        userIsMemberOf(user, 'canSuggestCuration')) {
       return true
     }
-    
-    return canUserEditPostMetadata(user, document) || await userIsPostGroupOrganizer(user, document)
-    // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPost, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPost
+
+    return canUserEditPostMetadata(user, document) || userIsPodcaster(user) || await userIsPostGroupOrganizer(user, document, null)
+    // note: we can probably get rid of the userIsPostGroupOrganizer call since that's now covered in canUserEditPostMetadata, but the implementation is slightly different and isn't otherwise part of the PR that restrutured canUserEditPostMetadata
   },
 
   removeCheck: (user: DbUser|null, document: DbPost|null) => {
@@ -36,13 +37,7 @@ const options: MutationOptions<DbPost> = {
   },
 }
 
-interface ExtendedPostsCollection extends PostsCollection {
-  getSocialPreviewImage: (post: DbPost) => string
-  // In search/utils.ts
-  toAlgolia: (post: DbPost) => Promise<Array<AlgoliaDocument>|null>
-}
-
-export const Posts: ExtendedPostsCollection = createCollection({
+export const Posts = createCollection({
   collectionName: 'Posts',
   typeName: 'Post',
   schema,
@@ -57,7 +52,7 @@ const userHasModerationGuidelines = (currentUser: DbUser|null): boolean => {
 
 addUniversalFields({
   collection: Posts,
-  createdAtOptions: {viewableBy: ['admins']},
+  createdAtOptions: {canRead: ['admins']},
 });
 
 makeEditable({
@@ -67,10 +62,12 @@ makeEditable({
     order: 25,
     pingbacks: true,
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
-      insertableBy: ['members']
+      canRead: ['guests'],
+      // TODO: we also need to cover userIsPostGroupOrganizer somehow, but we can't right now since it's async
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: ['members']
     },
+    hasToc: true,
   }
 })
 
@@ -85,9 +82,9 @@ makeEditable({
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['members', 'sunshineRegiment', 'admins'],
-      insertableBy: [userHasModerationGuidelines]
+      canRead: ['guests'],
+      canUpdate: ['members', 'sunshineRegiment', 'admins'],
+      canCreate: [userHasModerationGuidelines]
     },
   }
 })
@@ -98,9 +95,9 @@ makeEditable({
     formGroup: formGroups.highlight,
     fieldName: "customHighlight",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: ['sunshineRegiment', 'admins'],
-      insertableBy: ['sunshineRegiment', 'admins'],
+      canRead: ['guests'],
+      canUpdate: ['sunshineRegiment', 'admins'],
+      canCreate: ['sunshineRegiment', 'admins'],
     },
   }
 })

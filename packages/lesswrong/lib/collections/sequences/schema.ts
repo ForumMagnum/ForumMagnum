@@ -1,7 +1,7 @@
-import { foreignKeyField, accessFilterSingle, accessFilterMultiple } from '../../utils/schemaUtils';
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue, foreignKeyField, accessFilterSingle, accessFilterMultiple, resolverOnlyField } from '../../utils/schemaUtils';
+import { getWithCustomLoader } from '../../loaders';
 
-const schema: SchemaType<DbSequence> = {
+const schema: SchemaType<"Sequences"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -11,9 +11,10 @@ const schema: SchemaType<DbSequence> = {
       nullable: true,
     }),
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['admins'],
-    editableBy: ['admins'],
+    nullable: false,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
     control: 'text',
     tooltip: 'The user id of the author',
   },
@@ -21,9 +22,9 @@ const schema: SchemaType<DbSequence> = {
   title: {
     type: String,
     optional: false,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     order: 10,
     placeholder: "Sequence Title",
     control: 'EditSequenceTitle',
@@ -33,13 +34,14 @@ const schema: SchemaType<DbSequence> = {
   chaptersDummy: {
     type: Array,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     resolveAs: {
       fieldName: 'chapters',
       type: '[Chapter]',
-      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Array<DbChapter>> => {
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Partial<DbChapter>[]> => {
         const chapters = await context.Chapters.find(
           {sequenceId: sequence._id},
+          {sort: {number: 1}},
         ).fetch();
         return await accessFilterMultiple(context.currentUser, context.Chapters, chapters, context);
       }
@@ -57,9 +59,9 @@ const schema: SchemaType<DbSequence> = {
     type: String,
     optional: true,
     order:25,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     control: "ImageUpload",
     label: "Card Image"
   },
@@ -68,9 +70,9 @@ const schema: SchemaType<DbSequence> = {
   bannerImageId: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     label: "Banner Image",
     control: "ImageUpload",
   },
@@ -78,25 +80,25 @@ const schema: SchemaType<DbSequence> = {
   curatedOrder: {
     type: Number,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
   },
 
   userProfileOrder: {
     type: Number,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    insertableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
   },
 
   draft: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     control: "checkbox",
     ...schemaDefaultValue(false),
   },
@@ -104,9 +106,9 @@ const schema: SchemaType<DbSequence> = {
   isDeleted: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     hidden: true,
     control: "checkbox",
     ...schemaDefaultValue(false),
@@ -119,9 +121,9 @@ const schema: SchemaType<DbSequence> = {
       field: "slug",
     },
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
     hidden: false,
     control: "text",
     order: 30,
@@ -133,7 +135,7 @@ const schema: SchemaType<DbSequence> = {
       type: "Collection",
       // TODO: Make sure we run proper access checks on this. Using slugs means it doesn't
       // work out of the box with the id-resolver generators
-      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<DbCollection|null> => {
+      resolver: async (sequence: DbSequence, args: void, context: ResolverContext): Promise<Partial<DbCollection>|null> => {
         if (!sequence.canonicalCollectionSlug) return null;
         const collection = await context.Collections.findOne({slug: sequence.canonicalCollectionSlug})
         return await accessFilterSingle(context.currentUser, context.Collections, collection, context);
@@ -144,33 +146,88 @@ const schema: SchemaType<DbSequence> = {
   hidden: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
-    insertableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    canCreate: ['admins', 'sunshineRegiment'],
     ...schemaDefaultValue(false),
   },
 
   hideFromAuthorPage: {
     type: Boolean,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     ...schemaDefaultValue(false),
   },
-};
 
-/* Alignment Forum fields */
-Object.assign(schema, {
+  noindex: {
+    type: Boolean,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins', 'sunshineRegiment'],
+    canUpdate: ['admins', 'sunshineRegiment'],
+    ...schemaDefaultValue(false),
+  },
+
+  postsCount: resolverOnlyField({
+    type: Number,
+    graphQLtype: 'Int!',
+    canRead: ['guests'],
+    resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
+      const count = await getWithCustomLoader<number, string>(
+        context,
+        "sequencePostsCount",
+        sequence._id,
+        (sequenceIds): Promise<number[]> => {
+          return context.repos.sequences.postsCount(sequenceIds);
+        }
+      );
+
+      return count;
+    }
+  }),
+
+  readPostsCount: resolverOnlyField({
+    type: Number,
+    graphQLtype: 'Int!',
+    canRead: ['guests'],
+    resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
+      const currentUser = context.currentUser;
+      
+      if (!currentUser) return 0;
+
+      const createCompositeId = (sequenceId: string, userId: string) => `${sequenceId}-${userId}`;
+      const splitCompositeId = (compositeId: string) => {
+        const [sequenceId, userId] = compositeId.split('-')
+        return {sequenceId, userId};
+      };
+
+      const count = await getWithCustomLoader<number, string>(
+        context,
+        "sequenceReadPostsCount",
+        createCompositeId(sequence._id, currentUser._id),
+        (compositeIds): Promise<number[]> => {
+          return context.repos.sequences.readPostsCount(compositeIds.map(splitCompositeId));
+        }
+      );
+
+      return count;
+    }
+  }),
+
+  /* Alignment Forum fields */
+
   af: {
     type: Boolean,
     optional: true,
+    nullable: false,
     label: "Alignment Forum",
-    defaultValue: false,
-    viewableBy: ['guests'],
-    editableBy: ['alignmentVoters'],
-    insertableBy: ['alignmentVoters'],
+    ...schemaDefaultValue(false),
+    canRead: ['guests'],
+    canUpdate: ['alignmentVoters'],
+    canCreate: ['alignmentVoters'],
   },
-});
+};
 
 export default schema;

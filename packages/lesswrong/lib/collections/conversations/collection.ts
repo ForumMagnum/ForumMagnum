@@ -42,7 +42,7 @@ export const Conversations: ConversationsCollection = createCollection({
 // Conversations,
 addUniversalFields({
   collection: Conversations,
-  createdAtOptions: {viewableBy: ['members']},
+  createdAtOptions: {canRead: ['members']},
 })
 
 export default Conversations;

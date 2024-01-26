@@ -1,5 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib';
-import React, {useState} from 'react';
+import React, {ReactNode, useState} from 'react';
 import type { PopperPlacementType } from '@material-ui/core/Popper'
 import classNames from 'classnames';
 import { usePopper } from 'react-popper';
@@ -28,35 +28,78 @@ const styles = (theme: ThemeType): JssStyles => ({
   noMouseEvents: {
     pointerEvents: "none",
   },
+  hideOnTouchScreens: {
+    "@media (pointer:coarse)": {
+      display: "none",
+    },
+  },
 })
 
 // This is a wrapper around the Popper library so we can easily replace it with different versions and
 // implementations
-const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, open, anchorEl, placement, clickable = true}: {
+const LWPopper = ({
+  classes,
+  children,
+  className,
+  tooltip=false,
+  allowOverflow,
+  flip,
+  open,
+  anchorEl,
+  placement,
+  clickable = true,
+  hideOnTouchScreens,
+}: {
   classes: ClassesType,
-  children: any,
+  children: ReactNode,
   tooltip?: boolean,
   allowOverflow?: boolean,
+  flip?: boolean,
   open: boolean,
   placement?: PopperPlacementType,
   anchorEl: any,
   className?: string,
-  clickable?: boolean
+  clickable?: boolean,
+  hideOnTouchScreens?: boolean,
 }) => {
   const [popperElement, setPopperElement] = useState<HTMLElement | null>(null);
 
-  const preventOverflowModifier = allowOverflow ? [{
-    name: 'preventOverflow',
-    enabled: false, 
-  }] : undefined
+  const flipModifier = !flip && allowOverflow ? [
+    {
+      name: 'flip',
+      enabled: false,
+    }
+  ] : [];
+
+  const preventOverflowModifier = allowOverflow ? [
+    {
+      name: 'preventOverflow',
+      enabled: false,
+    }
+  ] : [];
 
   const { styles, attributes } = usePopper(anchorEl, popperElement, {
     placement,
-    modifiers: preventOverflowModifier
+    modifiers: [
+      {
+        name: 'computeStyles',
+        options: {
+          gpuAcceleration: false, // true by default
+        },
+      },
+      ...flipModifier,
+      ...preventOverflowModifier
+    ],
   });
 
   if (!open)
     return null;
+  
+  // In some cases, interacting with something inside a popper will cause a rerender that detaches the anchorEl
+  // This happened in hovers on in-line reacts, and the button to create a new react ended up on the top-left corner of the page
+  if (anchorEl && !anchorEl.isConnected) {
+    return null;
+  }
   
   return (
     // We use createPortal here to avoid having to deal with overflow problems and styling from the current child
@@ -65,7 +108,13 @@ const LWPopper = ({classes, children, className, tooltip=false, allowOverflow, o
     createPortal(
       <div
         ref={setPopperElement}
-        className={classNames({[classes.tooltip]: tooltip, [classes.default]: !tooltip, [classes.noMouseEvents]: !clickable}, className)}
+        className={classNames({
+          [classes.tooltip]: tooltip,
+          [classes.default]: !tooltip,
+          [classes.noMouseEvents]: !clickable,
+          [classes.hideOnTouchScreens]: hideOnTouchScreens},
+          className
+        )}
         style={styles.popper}
         {...attributes.popper}
       >

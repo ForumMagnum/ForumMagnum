@@ -34,8 +34,19 @@ function graphqlMaybeNullable(type: string, nullable: boolean) {
   return nullable ? type : `${type}!`;
 }
 
-export function simplSchemaTypeToTypescript(context: TypeGenerationContext, schema: SchemaType<DbObject>, fieldName: string, simplSchemaType, indent = 2): string {
-  if (simplSchemaType.singleType == Array) {
+export function simplSchemaTypeToTypescript(
+  context: TypeGenerationContext,
+  schema: SchemaType<CollectionNameString>,
+  fieldName: string,
+  simplSchemaType: AnyBecauseTodo,
+  indent = 2,
+  DbType = false,
+): string {
+  let nullable = !!schema[fieldName]?.nullable;
+  if (DbType) {
+    nullable = schema[fieldName]?.nullable !== false
+  }
+  if (simplSchemaType.singleType === Array) {
     const elementFieldName = `${fieldName}.$`;
     if (!(elementFieldName in schema)) {
       throw new Error(`Field ${fieldName} has an array type but ${fieldName}.$ is not in the schema`);
@@ -47,17 +58,17 @@ export function simplSchemaTypeToTypescript(context: TypeGenerationContext, sche
     const allowedValues = simplSchemaType.definitions[0]?.allowedValues;
     const nullable = !!schema[fieldName]?.nullable;
     
-    if (simplSchemaType.singleType == String) {
+    if (simplSchemaType.singleType === String) {
       if (allowedValues) {
         const unionType = simplSchemaUnionTypeToTypescript(allowedValues);
         return typescriptMaybeNullable(unionType, nullable);
       }
       return typescriptMaybeNullable("string", nullable);
     }
-    else if (simplSchemaType.singleType == Boolean) return typescriptMaybeNullable("boolean", nullable);
-    else if (simplSchemaType.singleType == Number) return typescriptMaybeNullable("number", nullable);
-    else if (simplSchemaType.singleType == Date) return typescriptMaybeNullable("Date", nullable);
-    else if (simplSchemaType.singleType == SimpleSchema.Integer) return typescriptMaybeNullable("number", nullable);
+    else if (simplSchemaType.singleType === Boolean) return typescriptMaybeNullable("boolean", nullable);
+    else if (simplSchemaType.singleType === Number) return typescriptMaybeNullable("number", nullable);
+    else if (simplSchemaType.singleType === Date) return typescriptMaybeNullable("Date", nullable);
+    else if (simplSchemaType.singleType === SimpleSchema.Integer) return typescriptMaybeNullable("number", nullable);
     
     const graphQLtype = simplSchemaToGraphQLtype(simplSchemaType.singleType, nullable);
     if (graphQLtype) {
@@ -81,10 +92,10 @@ export function simplSchemaTypeToTypescript(context: TypeGenerationContext, sche
   return graphqlTypeToTypescript(context, graphqlType);*/
 }
 
-export function simplSchemaTypeToGraphql(context: TypeGenerationContext, schema: SchemaType<DbObject>, fieldName: string, indent=2): string|null {
+export function simplSchemaTypeToGraphql(context: TypeGenerationContext, schema: SchemaType<CollectionNameString>, fieldName: string, indent=2): string|null {
   const simplSchemaType = schema[fieldName].type;
   
-  if (simplSchemaType.singleType == Array) {
+  if (simplSchemaType.singleType === Array) {
     const elementFieldName = `${fieldName}.$`;
     if (!(elementFieldName in schema)) {
       throw new Error(`Field ${fieldName} has an array type but ${fieldName}.$ is not in the schema`);
@@ -96,17 +107,17 @@ export function simplSchemaTypeToGraphql(context: TypeGenerationContext, schema:
     const allowedValues = simplSchemaType.definitions[0]?.allowedValues;
     const nullable = !!schema[fieldName]?.nullable;
 
-    if (simplSchemaType.singleType == String) {
+    if (simplSchemaType.singleType === String) {
       if (allowedValues) {
         const unionType = simplSchemaUnionTypeToTypescript(allowedValues);
         return typescriptMaybeNullable(unionType, nullable);
       }
       return graphqlMaybeNullable("String", nullable);
     }
-    else if (simplSchemaType.singleType == Boolean) return graphqlMaybeNullable("Boolean", nullable);
-    else if (simplSchemaType.singleType == Number) return graphqlMaybeNullable("Float", nullable);
-    else if (simplSchemaType.singleType == Date) return graphqlMaybeNullable("Date", nullable);
-    else if (simplSchemaType.singleType == SimpleSchema.Integer) return graphqlMaybeNullable("Int", nullable);
+    else if (simplSchemaType.singleType === Boolean) return graphqlMaybeNullable("Boolean", nullable);
+    else if (simplSchemaType.singleType === Number) return graphqlMaybeNullable("Float", nullable);
+    else if (simplSchemaType.singleType === Date) return graphqlMaybeNullable("Date", nullable);
+    else if (simplSchemaType.singleType === SimpleSchema.Integer) return graphqlMaybeNullable("Int", nullable);
     
     const graphQLtype = simplSchemaToGraphQLtype(simplSchemaType.singleType, nullable);
     if (graphQLtype) {
@@ -129,39 +140,57 @@ function simplSchemaUnionTypeToTypescript(allowedValues: string[]) {
   return allowedValues.map(allowedValue => `"${allowedValue}"`).join(" | ");
 }
 
-function simplSchemaObjectTypeToTypescript(context: TypeGenerationContext, innerSchema, indent: number) {
+function simplSchemaObjectTypeToTypescript(context: TypeGenerationContext, innerSchema: AnyBecauseTodo, indent: number) {
   const indentSpaces = Array(indent + 2).fill(' ').join('');
-  const fields = Object.keys(innerSchema).map(innerSchemaField => {
-    const fieldTypeDef = simplSchemaTypeToTypescript(context, innerSchema, innerSchemaField, innerSchema[innerSchemaField].type, indent + 2);
-    return `\n${indentSpaces}${innerSchemaField}: ${fieldTypeDef},`;
-  }).join('');
+  const fields = Object.keys(innerSchema)
+    .filter((innerSchemaField) => !innerSchemaField.includes(".$")) // filter out array type definitions
+    .map((innerSchemaField) => {
+      const fieldTypeDef = simplSchemaTypeToTypescript(
+        context,
+        innerSchema,
+        innerSchemaField,
+        innerSchema[innerSchemaField].type,
+        indent + 2
+      );
+      return `\n${indentSpaces}${innerSchemaField}: ${fieldTypeDef},`;
+    })
+    .join("");
   return `{${fields}\n${indentSpaces.slice(0, indentSpaces.length - 2)}}`;
 }
 
-export function graphqlTypeToTypescript(context: TypeGenerationContext, graphqlType: any, nonnull?: boolean): string {
+function maybePartialReturnType(typeString: string, partialReturnType?: boolean) {
+  if (partialReturnType) {
+    return `Partial<${typeString}>`;
+  }
+
+  return typeString;
+}
+
+export function graphqlTypeToTypescript(context: TypeGenerationContext, graphqlType: any, nonnull?: boolean, partialDbReturnType?: boolean): string {
   if (!graphqlType) throw new Error("Type cannot be undefined");
-  if (graphqlType == GraphQLJSON) return "any";
+  if (graphqlType === GraphQLJSON) return "any";
   
   if (graphqlType.endsWith("!")) {
-    return graphqlTypeToTypescript(context, graphqlType.substr(0, graphqlType.length-1), true);
+    return graphqlTypeToTypescript(context, graphqlType.substr(0, graphqlType.length-1), true, partialDbReturnType);
   }
   
   if (graphqlType.startsWith("[") && graphqlType.endsWith("]")) {
     const arrayElementType = graphqlType.substr(1,graphqlType.length-2);
-    return `Array<${graphqlTypeToTypescript(context, arrayElementType, false)}>`;
+    return `Array<${graphqlTypeToTypescript(context, arrayElementType, false, partialDbReturnType)}>`;
   }
+
+  const nullabilitySuffix = nonnull ? "" : "|null";
   
   const convertedPrimitiveType = graphqlPrimitiveTypeToTypescript(graphqlType, !!nonnull);
   if (convertedPrimitiveType)
     return convertedPrimitiveType;
   
-  if (typeof graphqlType=="string") {
+  if (typeof graphqlType === "string") {
     if (isValidCollectionName(getCollectionName(graphqlType))) {
-      if (nonnull) return `Db${graphqlType}`;
-      else return `Db${graphqlType}|null`;
+      const dbTypeString = maybePartialReturnType(`Db${graphqlType}`, partialDbReturnType);
+      return `${dbTypeString}${nullabilitySuffix}`;
     } else if (context.gqlSchemaFieldTypes[graphqlType]) {
-      if (nonnull) return graphqlType;
-      else return `${graphqlType}|null`;
+      return `${graphqlType}${nullabilitySuffix}`;
     }
   }
   

@@ -4,14 +4,13 @@ import { GraphQLError, GraphQLFormattedError } from 'graphql';
 import { isDevelopment, getInstanceSettings, getServerPort } from '../lib/executionEnvironment';
 import { renderWithCache, getThemeOptionsFromReq } from './vulcan-lib/apollo-ssr/renderPage';
 
-import bodyParser from 'body-parser';
 import { pickerMiddleware } from './vendor/picker';
 import voyagerMiddleware from 'graphql-voyager/middleware/express';
 import { graphiqlMiddleware } from './vulcan-lib/apollo-server/graphiql';
 import getPlaygroundConfig from './vulcan-lib/apollo-server/playground';
 
 import { getExecutableSchema } from './vulcan-lib/apollo-server/initGraphQL';
-import { getUserFromReq, computeContextFromUser, configureSentryScope } from './vulcan-lib/apollo-server/context';
+import { getUserFromReq, configureSentryScope, getContextFromReqAndRes } from './vulcan-lib/apollo-server/context';
 
 import universalCookiesMiddleware from 'universal-cookie-express';
 
@@ -25,91 +24,98 @@ import { getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
 import { addAuthMiddlewares, expressSessionSecretSetting } from './authenticationMiddlewares';
+import { addForumSpecificMiddleware } from './forumSpecificMiddleware';
 import { addSentryMiddlewares, logGraphqlQueryStarted, logGraphqlQueryFinished } from './logging';
 import { addClientIdMiddleware } from './clientIdMiddleware';
 import { addStaticRoute } from './vulcan-lib/staticRoutes';
 import { classesForAbTestGroups } from '../lib/abTestImpl';
-import fs from 'fs';
-import crypto from 'crypto';
 import expressSession from 'express-session';
-import MongoStore from 'connect-mongo'
+import MongoStore from './vendor/ConnectMongo/MongoStore';
 import { ckEditorTokenHandler } from './ckEditor/ckEditorToken';
-import { getMongoClient } from '../lib/mongoCollection';
 import { getEAGApplicationData } from './zohoUtils';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { faviconUrlSetting, isEAForum, testServerSetting, performanceMetricLoggingEnabled } from '../lib/instanceSettings';
 import { parseRoute, parsePath } from '../lib/vulcan-core/appContext';
-import { getMergedStylesheet } from './styleGeneration';
 import { globalExternalStylesheets } from '../themes/globalStyles/externalStyles';
-import { addCrosspostRoutes } from './fmCrosspost';
+import { addCypressRoutes } from './testingSqlClient';
+import { addCrosspostRoutes } from './fmCrosspost/routes';
 import { getUserEmail } from "../lib/collections/users/helpers";
+import { inspect } from "util";
+import { renderJssSheetPreloads } from './utils/renderJssSheetImports';
+import { datadogMiddleware } from './datadog/datadogMiddleware';
+import { Sessions } from '../lib/collections/sessions';
+import { addServerSentEventsEndpoint } from "./serverSentEvents";
+import { botRedirectMiddleware } from './botRedirect';
+import { hstsMiddleware } from './hsts';
+import { getClientBundle } from './utils/bundleUtils';
+import { isElasticEnabled } from './search/elastic/elasticSettings';
+import ElasticController from './search/elastic/ElasticController';
+import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
+import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
+import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
 
-const loadClientBundle = () => {
-  const bundlePath = path.join(__dirname, "../../client/js/bundle.js");
-  const bundleBrotliPath = `${bundlePath}.br`;
+class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
+  requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
+    const { operationName = 'unknownGqlOperation', query, variables } = request;
 
-  const lastModified = fs.statSync(bundlePath).mtimeMs;
-  // there is a brief window on rebuild where a stale brotli file is present, fall back to the uncompressed file in this case
-  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
+    //remove sensitive data from variables such as password
+    let filteredVariables = variables;
+    if (variables) {
+      filteredVariables =  Object.keys(variables).reduce((acc, key) => {
+        return (key === 'password') ?  acc : { ...acc, [key]: variables[key] };
+      }, {});
+    }
 
-  const bundleText = fs.readFileSync(bundlePath, 'utf8');
-  const bundleBrotliBuffer = brotliFileIsValid ? fs.readFileSync(bundleBrotliPath) : null;
+    let startedRequestMetric: IncompletePerfMetric;
+    if (performanceMetricLoggingEnabled.get()) {
+      startedRequestMetric = openPerfMetric({
+        op_type: 'query',
+        op_name: operationName,
+        parent_trace_id: context.perfMetric?.trace_id,
+        extra_data: filteredVariables,
+        gql_string: query
+      });  
+    }
 
-  // Store the bundle in memory as UTF-8 (the format it will be sent in), to
-  // save a conversion and a little memory
-  const bundleBuffer = Buffer.from(bundleText, 'utf8');
-  return {
-    bundlePath,
-    bundleHash: crypto.createHash('sha256').update(bundleBuffer).digest('hex'),
-    lastModified,
-    bundleBuffer,
-    bundleBrotliBuffer,
-  };
-}
-let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer, bundleBrotliBuffer: Buffer|null}|null = null;
-const getClientBundle = () => {
-  if (!clientBundle) {
-    clientBundle = loadClientBundle();
-    return clientBundle;
-  }
-  
-  // Reload if bundle.js has changed or there is a valid brotli version when there wasn't before
-  const lastModified = fs.statSync(clientBundle.bundlePath).mtimeMs;
-  const bundleBrotliPath = `${clientBundle.bundlePath}.br`
-  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
-  if (clientBundle.lastModified !== lastModified || (clientBundle.bundleBrotliBuffer === null && brotliFileIsValid)) {
-    clientBundle = loadClientBundle();
-    return clientBundle;
-  }
-  
-  return clientBundle;
-}
-
-class ApolloServerLogging {
-  requestDidStart(context: any) {
-    const {request} = context;
-    const {operationName, query, variables} = request;
-    logGraphqlQueryStarted(operationName, query, variables);
+    if (query) {
+      logGraphqlQueryStarted(operationName, query, variables);
+    }
     
     return {
-      willSendResponse(props) {
-        logGraphqlQueryFinished(operationName, query);
+      willSendResponse() { // hook for transaction finished
+        if (performanceMetricLoggingEnabled.get()) {
+          closePerfMetric(startedRequestMetric);
+        }
+
+        if (query) {
+          logGraphqlQueryFinished(operationName, query);
+        }
       }
     };
   }
 }
 
+export type AddMiddlewareType = typeof app.use;
+
 export function startWebserver() {
-  const addMiddleware = (...args) => app.use(...args);
+  const addMiddleware: AddMiddlewareType = (...args: any[]) => app.use(...args);
   const config = { path: '/graphql' };
   const expressSessionSecret = expressSessionSecretSetting.get()
 
   app.use(universalCookiesMiddleware());
+
   // Required for passport-auth0, and for login redirects
   if (expressSessionSecret) {
-    const store = MongoStore.create({
-      client: getMongoClient()
-    })
-    app.use(expressSession({
+    // express-session middleware, with MongoStore providing it a collection
+    // to store stuff in. This adds a `req.session` field to requests, with
+    // fancy accessors/setters. The only thing we actually use this for, however,
+    // is redirects that happen on return from an OAuth login. So we can scope
+    // this to only routes that start with /auth without loss of functionality.
+    // We do this because if we don't it adds a webserver-to-database roundtrip
+    // (or sometimes three) to each request.
+    const store = new MongoStore({
+      collection: Sessions,
+    });
+    app.use('/auth', expressSession({
       secret: expressSessionSecret,
       resave: false,
       saveUninitialized: false,
@@ -121,18 +127,22 @@ export function startWebserver() {
       }
     }))
   }
-  app.use(bodyParser.urlencoded({ extended: true })) // We send passwords + username via urlencoded form parameters
-  app.use('/analyticsEvent', bodyParser.json({ limit: '50mb' }));
-  app.use('/ckeditor-webhook', bodyParser.json({ limit: '50mb' }));
+
+  app.use(express.urlencoded({ extended: true })); // We send passwords + username via urlencoded form parameters
+  app.use('/analyticsEvent', express.json({ limit: '50mb' }));
+  app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
 
   addStripeMiddleware(addMiddleware);
+  // Most middleware need to run after those added by addAuthMiddlewares, so that they can access the user that passport puts on the request.  Be careful if moving it!
   addAuthMiddlewares(addMiddleware);
+  addAdminRoutesMiddleware(addMiddleware);
+  addForumSpecificMiddleware(addMiddleware);
   addSentryMiddlewares(addMiddleware);
   addClientIdMiddleware(addMiddleware);
+  app.use(datadogMiddleware);
   app.use(pickerMiddleware);
-  
-  //eslint-disable-next-line no-console
-  console.log("Starting ForumMagnum server. Versions: "+JSON.stringify(process.versions));
+  app.use(botRedirectMiddleware);
+  app.use(hstsMiddleware);
   
   // create server
   // given options contains the schema
@@ -145,8 +155,9 @@ export function startWebserver() {
     schema: getExecutableSchema(),
     formatError: (e: GraphQLError): GraphQLFormattedError => {
       Sentry.captureException(e);
+      const {message, ...properties} = e;
       // eslint-disable-next-line no-console
-      console.error(e);
+      console.error(`[GraphQLError: ${message}]`, inspect(properties, {depth: null}));
       // TODO: Replace sketchy apollo-errors package with something first-party
       // and that doesn't require a cast here
       return formatError(e) as any;
@@ -154,22 +165,23 @@ export function startWebserver() {
     //tracing: isDevelopment,
     tracing: false,
     cacheControl: true,
-    context: async ({ req, res }) => {
-      const user = await getUserFromReq(req);
-      const context = await computeContextFromUser(user, req, res);
+    context: async ({ req, res }: { req: express.Request, res: express.Response }) => {
+      const context = await getContextFromReqAndRes(req, res);
       configureSentryScope(context);
+      setAsyncStoreValue('resolverContext', context);
       return context;
     },
-    plugins: [new ApolloServerLogging()]
+    plugins: [new ApolloServerLogging()],
   });
 
-  app.use('/graphql', bodyParser.json({ limit: '50mb' }));
-  app.use('/graphql', bodyParser.text({ type: 'application/graphql' }));
+  app.use('/graphql', express.json({ limit: '50mb' }));
+  app.use('/graphql', express.text({ type: 'application/graphql' }));
+  app.use('/graphql', perfMetricMiddleware);
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
     const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
-    let headers = {}
+    let headers: Record<string,string> = {}
     const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
 
     if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
@@ -207,12 +219,15 @@ export function startWebserver() {
   app.use("/ckeditor-token", ckEditorTokenHandler)
   
   // Static files folder
-  // eslint-disable-next-line no-console
-  console.log(`Serving static files from ${path.join(__dirname, '../../client')}`);
   app.use(express.static(path.join(__dirname, '../../client')))
-  // eslint-disable-next-line no-console
-  console.log(`Serving static files from ${path.join(__dirname, '../../../public')}`);
-  app.use(express.static(path.join(__dirname, '../../../public')))
+  app.use(express.static(path.join(__dirname, '../../../public'), {
+    setHeaders: (res, requestPath) => {
+      const relativePath = path.relative(__dirname, requestPath);
+      if (relativePath.startsWith("../../../public/reactionImages")) {
+        res.set("Cache-Control", "public, max-age=604800, immutable");
+      }
+    }
+  }))
   
   // Voyager is a GraphQL schema visual explorer
   app.use("/graphql-voyager", voyagerMiddleware({
@@ -225,22 +240,51 @@ export function startWebserver() {
   }));
   
   app.get('/api/eag-application-data', async function(req, res, next) {
-    if (forumTypeSetting.get() !== 'EAForum') {
+    if (!isEAForum) {
       next()
       return
     }
     
     const currentUser = await getUserFromReq(req)
-    if (!currentUser || !getUserEmail(currentUser)){
-      res.status(403).send("Not logged in or current user has no email address")
+    if (!currentUser) {
+      res.status(403).send("Not logged in")
+      return
+    }
+
+    const userEmail = getUserEmail(currentUser)
+    if (!userEmail) {
+      res.status(403).send("User does not have email")
       return
     }
     
-    const eagApp = await getEAGApplicationData(currentUser.email)
-    res.send(eagApp)
+    const eagApp = await getEAGApplicationData(userEmail)
   })
 
   addCrosspostRoutes(app);
+  addCypressRoutes(app);
+
+  if (isElasticEnabled) {
+    ElasticController.addRoutes(app);
+  }
+
+  if (testServerSetting.get()) {
+    app.post('/api/quit', (_req, res) => {
+      res.status(202).send('Quiting server');
+      process.kill(estrellaPid, 'SIGQUIT');
+    })
+  }
+
+  addServerSentEventsEndpoint(app);
+
+  app.get('/node_modules/*', (req, res) => {
+    // Under some circumstances (I'm not sure exactly what the trigger is), the
+    // Chrome JS debugger tries to load a bunch of /node_modules/... paths
+    // (presumably for some sort of source mapping). If these were treated as
+    // normal pageloads, this would produce a ton of console-log spam, which is
+    // disruptive. So instead just serve a minimal 404.
+    res.status(404);
+    res.end("");
+  });
 
   app.get('*', async (request, response) => {
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
@@ -260,10 +304,12 @@ export function startWebserver() {
     
     const user = await getUserFromReq(request);
     const themeOptions = getThemeOptionsFromReq(request, user);
-    const stylesheet = getMergedStylesheet(themeOptions);
+    const jssStylePreload = renderJssSheetPreloads(themeOptions);
     const externalStylesPreload = globalExternalStylesheets.map(url =>
       `<link rel="stylesheet" type="text/css" href="${url}">`
     ).join("");
+    
+    const faviconHeader = `<link rel="shortcut icon" href="${faviconUrlSetting.get()}"/>`;
     
     // The part of the header which can be sent before the page is rendered.
     // This includes an open tag for <html> and <head> but not the matching
@@ -274,9 +320,10 @@ export function startWebserver() {
       '<!doctype html>\n'
       + '<html lang="en">\n'
       + '<head>\n'
-        + `<link rel="preload" href="${stylesheet.url}" as="style">`
+        + jssStylePreload
         + externalStylesPreload
         + instanceSettingsHeader
+        + faviconHeader
         + clientScript
     );
     
@@ -286,9 +333,27 @@ export function startWebserver() {
       response.write(prefetchPrefix);
     }
     
-    const renderResult = await renderWithCache(request, response, user);
+    const renderResult = performanceMetricLoggingEnabled.get()
+      ? await asyncLocalStorage.run({}, () => renderWithCache(request, response, user))
+      : await renderWithCache(request, response, user);
     
-    const {ssrBody, headers, serializedApolloState, jssSheets, status, redirectUrl, renderedAt, allAbTestGroups} = renderResult;
+    if (renderResult.aborted) {
+      response.status(499);
+      response.end();
+      return;
+    }
+    
+    const {
+      ssrBody,
+      headers,
+      serializedApolloState,
+      serializedForeignApolloState,
+      jssSheets,
+      status,
+      redirectUrl,
+      renderedAt,
+      allAbTestGroups,
+    } = renderResult;
 
     if (!getPublicSettingsLoaded()) throw Error('Failed to render page because publicSettings have not yet been initialized on the server')
     
@@ -316,6 +381,7 @@ export function startWebserver() {
         + '</body>\n'
         + embedAsGlobalVar("ssrRenderedAt", renderedAt) + '\n'
         + serializedApolloState + '\n'
+        + serializedForeignApolloState + '\n'
         + '</html>\n')
       response.end();
     }
@@ -329,4 +395,11 @@ export function startWebserver() {
     return console.info(`Server running on http://localhost:${port} [${env}]`)
   })
   server.keepAliveTimeout = 120000;
+  
+  // Route used for checking whether the server is ready for an auto-refresh
+  // trigger. Added last so that async stuff can't lead to auto-refresh
+  // happening before the server is ready.
+  addStaticRoute('/api/ready', ({query}, _req, res, next) => {
+    res.end('true');
+  });
 }

@@ -40,11 +40,11 @@ class SmallMapPreview extends Component<SmallMapPreviewProps,SmallMapPreviewStat
     }
   }
 
-  handleMarkerClick = (id) => {
+  handleMarkerClick = (id: string) => {
     this.setState({openWindows: [...this.state.openWindows, id]})
   }
 
-  handleInfoWindowClose = (id) => {
+  handleInfoWindowClose = (id: string) => {
     this.setState({openWindows: _.without(this.state.openWindows, id)})
   }
 

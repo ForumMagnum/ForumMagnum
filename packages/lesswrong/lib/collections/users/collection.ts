@@ -4,14 +4,9 @@ import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { addUniversalFields, getDefaultMutations, getDefaultResolvers } from '../../collectionUtils';
 import { makeEditable } from '../../editor/make_editable';
 import { formGroups } from './formGroups';
-import { forumTypeSetting } from '../../instanceSettings';
+import { isEAForum } from '../../instanceSettings';
 
-interface ExtendedUsersCollection extends UsersCollection {
-  // Fron search/utils.ts
-  toAlgolia: (user: DbUser) => Promise<Array<AlgoliaDocument>|null>
-}
-
-export const Users: ExtendedUsersCollection = createCollection({
+export const Users = createCollection({
   collectionName: 'Users',
   typeName: 'User',
   schema,
@@ -37,7 +32,6 @@ export const Users: ExtendedUsersCollection = createCollection({
   logChanges: true,
 });
 
-
 addUniversalFields({collection: Users});
 
 makeEditable({
@@ -51,9 +45,9 @@ makeEditable({
     order: 50,
     fieldName: "moderationGuidelines",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
     }
   }
 })
@@ -70,9 +64,9 @@ makeEditable({
     label: "How others can help me",
     hintText: "Ex: I am looking for opportunities to do...",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
     },
   }
 })
@@ -89,9 +83,9 @@ makeEditable({
     label: "How I can help others",
     hintText: "Ex: Reach out to me if you have questions about...",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
     },
   }
 })
@@ -106,18 +100,33 @@ makeEditable({
   options: {
     commentEditor: true,
     commentStyles: true,
-    hidden: forumTypeSetting.get() === "EAForum",
-    order: forumTypeSetting.get() === "EAForum" ? 6 : 40,
-    formGroup: forumTypeSetting.get() === "EAForum" ? formGroups.aboutMe : formGroups.default,
+    hidden: isEAForum,
+    order: isEAForum ? 6 : 40,
+    formGroup: isEAForum ? formGroups.aboutMe : formGroups.default,
     fieldName: "biography",
     label: "Bio",
     hintText: "Tell us about yourself",
     permissions: {
-      viewableBy: ['guests'],
-      editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-      insertableBy: [userOwns, 'sunshineRegiment', 'admins']
+      canRead: ['guests'],
+      canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+      canCreate: [userOwns, 'sunshineRegiment', 'admins']
     },
   }
-})
+});
+
+Users.postProcess = (user: DbUser): DbUser => {
+  // The `node-postgres` library is smart enough to automatically convert string
+  // representations of dates into Javascript Date objects when we have columns
+  // of type TIMESTAMPTZ, however, it can't do this automatic conversion when the
+  // date is hidden inside a JSON blob. Here, `partiallyReadSequences` is a
+  // strongly typed JSON blob (using SimpleSchema) so we need to manually convert
+  // to a Date object to avoid a GraphQL error.
+  if (user.partiallyReadSequences) {
+    for (const partiallyReadSequence of user.partiallyReadSequences) {
+      partiallyReadSequence.lastReadTime = new Date(partiallyReadSequence.lastReadTime);
+    }
+  }
+  return user;
+}
 
 export default Users;

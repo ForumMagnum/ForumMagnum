@@ -42,23 +42,24 @@ async function getCompleteCollection(id: string) {
   return result
 }
 
-async function getAllCollectionPosts(id: string) {
+async function getAllCollectionPosts(id: string | null) {
+  if (!id) return Promise.resolve({posts: [], sequences: [], collectionSlug: ""});
   let queryResult: any = await getCompleteCollection(id);
 
   let allCollectionPosts: Array<any> = [];
   let allCollectionSequences: Array<any> = [];
   const collection = queryResult.data.collection.result
 
-  collection.books.forEach((book) => {
-    const bookPosts = book.posts.map((post) => {
+  collection.books.forEach((book: AnyBecauseTodo) => {
+    const bookPosts = book.posts.map((post: AnyBecauseTodo) => {
       post.canonicalBookId = book._id
       return post
     })
     allCollectionPosts = allCollectionPosts.concat(bookPosts);
     allCollectionSequences = allCollectionSequences.concat(book.sequences);
-    book.sequences.forEach((sequence) => {
-      sequence.chapters.forEach((chapter) => {
-        const newPosts = chapter.posts.map((post) => {
+    book.sequences.forEach((sequence: AnyBecauseTodo) => {
+      sequence.chapters.forEach((chapter: AnyBecauseTodo) => {
+        const newPosts = chapter.posts.map((post: AnyBecauseTodo) => {
           post.canonicalBookId = book._id
           post.canonicalSequenceId = sequence._id
           return post

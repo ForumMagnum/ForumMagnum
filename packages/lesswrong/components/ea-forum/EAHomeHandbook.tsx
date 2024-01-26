@@ -2,13 +2,14 @@ import React from 'react'
 import { createStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button';
 import { useSingle } from '../../lib/crud/withSingle';
-import { useCookies } from 'react-cookie'
 import { useMessages } from '../common/withMessages';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { PublicInstanceSetting } from '../../lib/instanceSettings';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_HANDBOOK_COOKIE } from '../../lib/cookies/cookies';
 
 const bannerHeight = 250
 
@@ -66,7 +67,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     margin: 0,
     textAlign: 'center',
     fontFamily: theme.typography.postStyle.fontFamily,
-    color: '#FFFFFF',
+    color: theme.palette.text.alwaysWhite,
     '& a:hover': {
       // Don't change opacity on hover
       opacity: 1,
@@ -80,7 +81,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     width: 70,
     marginTop: 10,
     marginBottom: 10,
-    borderBottom: "solid 1px #FFFFFF",
+    borderBottom: `solid 1px ${theme.palette.text.alwaysWhite}`,
   },
   description: {
     width: 200,
@@ -92,7 +93,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 17,
     fontStyle: "italic",
-    color: '#FFFFFF',
+    color: theme.palette.text.alwaysWhite,
     textTransform: 'none',
   },
   dismiss: {
@@ -105,16 +106,18 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     fontFamily: theme.typography.uiSecondary.fontFamily,
     fontSize: 14,
     textAlign: 'right',
-    color: '#BBB',
+    color: theme.palette.grey.A400,
     zIndex: 1,
   },
 }))
 
-const COOKIE_NAME = 'hide_home_handbook'
 const END_OF_TIME = new Date('2038-01-18')
 const eaHomeSequenceFirstPostId = new PublicInstanceSetting<string | null>('eaHomeSequenceFirstPostId', null, "optional") // Post ID for the first post in the EAHomeHandbook Sequence
 
-const EAHomeHandbook = ({ classes, documentId }) => {
+const EAHomeHandbook = ({ classes, documentId }: {
+  classes: ClassesType;
+  documentId: string;
+}) => {
   const { SingleColumnSection, CloudinaryImage2, Loading, Typography } = Components
   const { document, loading } = useSingle({
     documentId,
@@ -122,14 +125,14 @@ const EAHomeHandbook = ({ classes, documentId }) => {
     fragmentName: 'SequencesPageFragment',
   });
   const { flash } = useMessages();
-  const [cookies, setCookie] = useCookies([COOKIE_NAME]);
-  const hideHandbook = cookies[COOKIE_NAME]
+  const [cookies, setCookie] = useCookiesWithConsent([HIDE_HANDBOOK_COOKIE]);
+  const hideHandbook = cookies[HIDE_HANDBOOK_COOKIE]
   if (hideHandbook) return null
   if (loading || !document) return <Loading />
 
 
   const handleDismiss = () => {
-    setCookie(COOKIE_NAME, 'true', {
+    setCookie(HIDE_HANDBOOK_COOKIE, 'true', {
       expires: END_OF_TIME
     })
     flash({

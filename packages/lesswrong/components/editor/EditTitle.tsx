@@ -2,33 +2,35 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import React, {useCallback, useState} from 'react';
 import Input from '@material-ui/core/Input';
 import PropTypes from 'prop-types'
-import classNames from 'classnames';
 import {useMessages} from "../common/withMessages";
 import { useUpdate } from '../../lib/crud/withUpdate';
+import { PostCategory } from '../../lib/collections/posts/helpers';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
+    ...(isFriendlyUI && {
+      fontWeight: 700,
+      fontSize: "3rem",
+      marginBottom: 12,
+    }),
     width: "100%",
     resize: "none",
     textAlign: "left",
     marginTop: 0,
-    borderBottom: theme.palette.border.normal,
-    '&:focused': {
-      borderBottom: theme.palette.border.normal
-    },
     "& textarea": {
       overflowY: "hidden",
     },
-  },
-  question: {
-    fontSize: theme.typography.display1.fontSize,
-    minHeight: 65,
-    paddingTop: theme.spacing.unit*1.5,
-    lineHeight: '1.2em',
-  },
+  }
 })
+
+const placeholders: Record<PostCategory, string> = {
+  "post": "Post title",
+  "question": "Question title",
+  "linkpost": "Linkpost title"
+}
 
 const EditTitle = ({document, value, path, placeholder, updateCurrentValues, classes}: {
   document: PostsBase,
@@ -44,7 +46,10 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
     collectionName: "Posts",
     fragmentName: 'PostsMinimumInfo',
   });
-  const { question } = document;
+  const { question, postCategory } = document;
+
+  const effectiveCategory = question ? "question" as const : postCategory as PostCategory;
+  const displayPlaceholder = placeholders[effectiveCategory];
 
   const handleChangeTitle = useCallback((event) => {
     if (event.target.value !== lastSavedTitle && !!document._id) {
@@ -57,8 +62,8 @@ const EditTitle = ({document, value, path, placeholder, updateCurrentValues, cla
   }, [document, updatePost, lastSavedTitle, flash])
 
   return <Input
-    className={classNames(classes.root, {[classes.question]: question})}
-    placeholder={ question ? "Question Title" : placeholder }
+    className={classes.root}
+    placeholder={displayPlaceholder}
     value={value}
     onChange={(event) => {
       updateCurrentValues({
@@ -83,4 +88,3 @@ declare global {
     EditTitle: typeof EditTitleComponent
   }
 }
-

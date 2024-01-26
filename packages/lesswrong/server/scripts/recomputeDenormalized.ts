@@ -1,6 +1,6 @@
 import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { getFieldsWithAttribute } from './utils';
-import { migrateDocuments } from '../migrations/migrationUtils'
+import { migrateDocuments } from '../manualMigrations/migrationUtils'
 import { createAdminContext } from '../vulcan-lib/query';
 import { getSchema } from '../../lib/utils/getSchema';
 import * as _ from 'underscore';
@@ -29,10 +29,12 @@ Vulcan.validateAllDenormalizedValues = validateAllDenormalizedValues;
 // If validateOnly is true, compare them with the existing values in the database and
 // report how many differ; otherwise update them to the correct values. If fieldName
 // is given, recompute a single field; otherwise recompute all fields on the collection.
-export const recomputeDenormalizedValues = async ({collectionName, fieldName=null, validateOnly=false}: {
-  collectionName: CollectionNameString,
-  fieldName?: string|null,
+export const recomputeDenormalizedValues = async <N extends CollectionNameString>({collectionName, fieldName=null, validateOnly=false, projection, nullToZero=false}: {
+  collectionName: N,
+  fieldName?: (keyof ObjectsByCollectionName[N] & string)|null,
   validateOnly?: boolean,
+  projection?: MongoProjection<ObjectsByCollectionName[N]>,
+  nullToZero?: boolean
 }) => {
   // eslint-disable-next-line no-console
   console.log(`Recomputing denormalize values for ${collectionName} ${fieldName ? `and ${fieldName}` : ""}`)
@@ -61,10 +63,10 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
       throw new Error(`${collectionName}.${fieldName} is missing its getValue function`)
     }
 
-    await runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly })
+    await runDenormalizedFieldMigration({ collection, fieldName, getValue, projection, validateOnly, nullToZero })
   } else {
     const denormalizedFields = getFieldsWithAttribute(schema, 'canAutoDenormalize')
-    if (denormalizedFields.length == 0) {
+    if (denormalizedFields.length === 0) {
       // eslint-disable-next-line no-console
       console.log(`${collectionName} does not have any fields with "canAutoDenormalize", not computing denormalized values`)
       return;
@@ -74,9 +76,9 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
     console.log(`Recomputing denormalized values for ${collection.collectionName} in fields: ${denormalizedFields}`);
 
     for (let j=0; j<denormalizedFields.length; j++) {
-      const fieldName = denormalizedFields[j];
+      const fieldName = denormalizedFields[j] as keyof ObjectsByCollectionName[N] & string;
       const getValue = schema[fieldName].getValue
-      await runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly })
+      await runDenormalizedFieldMigration({ collection, fieldName, getValue, projection, validateOnly, nullToZero })
     }
   }
 
@@ -85,12 +87,30 @@ export const recomputeDenormalizedValues = async ({collectionName, fieldName=nul
 }
 Vulcan.recomputeDenormalizedValues = recomputeDenormalizedValues;
 
-async function runDenormalizedFieldMigration({ collection, fieldName, getValue, validateOnly }) {
+async function runDenormalizedFieldMigration<N extends CollectionNameString>({
+  collection,
+  fieldName,
+  getValue,
+  unmigratedDocumentQuery,
+  projection,
+  validateOnly,
+  nullToZero,
+}: {
+  collection: CollectionBase<N>,
+  fieldName: keyof ObjectsByCollectionName[N],
+  getValue: AnyBecauseTodo,
+  unmigratedDocumentQuery?: MongoSelector<ObjectsByCollectionName[N]>,
+  projection?: MongoProjection<ObjectsByCollectionName[N]>,
+  validateOnly: boolean,
+  nullToZero: boolean
+}) {
   let numDifferent = 0;
 
   await migrateDocuments({
-    description: `Recomputing denormalized values for ${collection.collectionName} field ${fieldName}`,
+    description: `Recomputing denormalized values for ${collection.collectionName} field ${String(fieldName)}`,
     collection,
+    unmigratedDocumentQuery,
+    projection,
     batchSize: 100,
     migrate: async (documents) => {
       const context = createAdminContext();
@@ -100,6 +120,8 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue, 
         const newValue = await getValue(doc, context)
         // If the correct value is already present, don't make a database update
         if ((isNullOrDefined(newValue) && isNullOrDefined(doc[fieldName])) || doc[fieldName] === newValue) return null
+        // If we don't want to update null or missing values to 0, don't make a database update
+        if (!nullToZero && isNullOrDefined(doc[fieldName]) && newValue === 0) return null
         return {
           updateOne: {
             filter: {_id: doc._id},
@@ -140,6 +162,6 @@ async function runDenormalizedFieldMigration({ collection, fieldName, getValue, 
   console.log(`${numDifferent} total documents had wrong denormalized value`)
 }
 
-function isNullOrDefined(value) {
+function isNullOrDefined(value: AnyBecauseTodo) {
   return value === null || value === undefined
 }

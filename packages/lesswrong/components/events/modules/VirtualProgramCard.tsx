@@ -12,7 +12,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     position: 'relative',
     width: 373,
     height: 374,
-    borderRadius: 0,
+    borderRadius: theme.borderRadius.default,
     overflow: 'visible',
     boxShadow: theme.palette.boxShadow.eventCard,
     [theme.breakpoints.down('xs')]: {
@@ -24,7 +24,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     padding: '50px 24px',
     '& .VirtualProgramCard-eventCardDescription': {
       opacity: 1,
-      lineHeight: '1.8em',
+      lineHeight: '1.6em',
       marginTop: 30
     },
     '& .VirtualProgramCard-eventCardDeadline': {
@@ -48,7 +48,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   inDepthSection: {
     background: "linear-gradient(rgba(0, 87, 102, 0.7), rgba(0, 87, 102, 0.7)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/f2cbeqvjyhyl6rhhzdsu.jpg')",
-    clipPath: 'polygon(0 0, 100% 0, 100% 54%, 0 100%)'
+    clipPath: 'polygon(0 0, 100% 0, 100% 54%, 0 100%)',
+    borderRadius: `${theme.borderRadius.default}px ${theme.borderRadius.default}px 0 0`,
   },
   precipiceSection: {
     background: "linear-gradient(rgb(168, 114, 51, 0.5), rgb(168, 114, 51, 0.5)), url('https://res.cloudinary.com/cea/image/upload/w_374,h_243,c_fill,q_auto,f_auto/Event/xfhrtorwdxxmplaofqa8.jpg')",
@@ -56,7 +57,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     position: 'absolute',
     bottom: 0,
     alignItems: 'flex-end',
-    textAlign: 'right'
+    textAlign: 'right',
+    borderRadius: `0 0 ${theme.borderRadius.default}px ${theme.borderRadius.default}px`,
   },
   eventCardTime: {
     ...theme.typography.commentStyle,
@@ -65,8 +67,10 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   },
   eventCardTitle: {
     ...theme.typography.headline,
+    fontFamily: theme.palette.fonts.sansSerifStack,
     color: 'white',
-    fontSize: 22,
+    fontSize: 20,
+    fontWeight: 600,
     marginTop: 8,
     marginBottom: 0
   },
@@ -88,7 +92,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   eventCardDeadline: {
     ...theme.typography.commentStyle,
     display: 'inline-block',
-    fontWeight: 'bold',
+    fontWeight: 600,
     color: 'white',
     fontSize: 16,
     paddingBottom: 5,
@@ -104,20 +108,19 @@ const VirtualProgramCard = ({program, classes}: {
 }) => {
   const { captureEvent } = useTracking()
   
-  // find the next deadline for applying to the Intro VP, which is the last Sunday of every month
-  let deadline = moment()
-  // Iterate through 5 Sundays to find the one we want
-  for (const sunday of _.range(5).map(x => moment().day(0).add(x, 'week'))) {
-    const nextSunday = moment(sunday).add(1, 'week')
-    // needs to be in the future, and needs to be the last Sunday of the month
-    if (sunday.isSameOrAfter(moment(), 'day') && nextSunday.month() !== sunday.month()) {
-      deadline = sunday
-      break
-    }
+  // Find the next deadline for applying to the Intro VP, which is usually the 4th Sunday of every month
+  // (though it will sometimes move to the 3rd or 5th Sunday - this is not accounted for in the code).
+  // This defaults to the Sunday in the week of the 28th day of this month.
+  // NOTE: I changed it to the 2nd Sunday since that's what they used for Jan 2024, but that might change back later.
+  const now = moment()
+  let deadline = now.date(14).day(0)
+  // If that Sunday is in the past, use next month's 4th Sunday.
+  if (deadline.isBefore(now)) {
+    deadline = moment(now).add(1, 'months').date(14).day(0)
   }
   
-  // VP starts 8 days after the deadline, on a Monday
-  const startOfVp = moment(deadline).add(8, 'days')
+  // VP starts 22 days after the deadline, on a Monday
+  const startOfVp = moment(deadline).add(22, 'days')
   // VP ends 8 weeks after the start (subtract a day to end on a Sunday)
   const endOfVp = moment(startOfVp).add(8, 'weeks').subtract(1, 'day')
 
@@ -144,6 +147,22 @@ const VirtualProgramCard = ({program, classes}: {
   }
   
   if (program === 'advanced') {
+    // Find the next deadline for applying to the Precipice VP, which is some Sunday every 3 months
+    // (as with the Intro/Advanced VP deadline, it will prob sometimes be off by a week or two).
+    // The first confirmed deadline is Nov 19, 2023, so we assume the deadlines will be
+    // ~the 3rd Sunday in Feb, May, Aug, and Nov each year. Start by checking Feb of this year.
+    // NOTE: I changed it to the 2nd Sunday since that's what they used for Feb 2024, but that might change back later.
+    let precipiceDeadline = moment(now).month(1).date(14).day(0)
+    // While that day is in the past, keep adding 3 months.
+    while (precipiceDeadline.isBefore(now)) {
+      precipiceDeadline = moment(precipiceDeadline).add(3, 'months').date(14).day(0)
+    }
+    
+    // VP starts 22 days after the deadline, on a Monday
+    const startOfPrecipice = moment(precipiceDeadline).add(22, 'days')
+    // VP ends 8 weeks after the start (subtract a day to end on a Sunday)
+    const endOfPrecipice = moment(startOfPrecipice).add(8, 'weeks').subtract(1, 'day')
+    
     return <Card className={classes.eventCard}>
       <a
         href="https://www.effectivealtruism.org/virtual-programs/in-depth-program?utm_source=ea_forum&utm_medium=vp_card&utm_campaign=events_page"
@@ -170,7 +189,7 @@ const VirtualProgramCard = ({program, classes}: {
       >
         <div>
           <div className={classes.eventCardTime}>
-            {startOfVp.format('MMMM D')} - {endOfVp.format('MMMM D')}
+            {startOfPrecipice.format('MMMM D')} - {endOfPrecipice.format('MMMM D')}
           </div>
           <div className={classes.eventCardTitle}>
             <em>The Precipice</em> Reading Group
@@ -178,7 +197,7 @@ const VirtualProgramCard = ({program, classes}: {
           <div className={classes.eventCardDescription}>
             Join weekly discussions about existential risks and safeguarding the future of humanity
           </div>
-          <div className={classes.eventCardDeadline}>Apply by Sunday, {deadline.format('MMMM D')}</div>
+          <div className={classes.eventCardDeadline}>Apply by Sunday, {precipiceDeadline.format('MMMM D')}</div>
         </div>
       </a>
     </Card>

@@ -4,25 +4,30 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Meteor: Chrome",
+            "name": "Chrome: launch",
             "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}"
+            "webRoot": "${workspaceFolder}/build/client"
+        },
+        {
+            "type": "chrome",
+            "request": "attach",
+            "name": "Chrome: attach",
+            "port": 9222,
+            "urlFilter": "http://localhost:3000/*",
+            "webRoot": "${workspaceFolder}/build/client",
         },
         {
             "type": "node",
-            "request": "launch",
-            "name": "Meteor: Node",
-            "runtimeExecutable": "yarn",
-            "runtimeArgs": ["run", "debug"],
-            "outputCapture": "std",
-            "port": 9229,
-            "timeout": 60000
+            "request": "attach",
+            "name": "Server: attach",
+            "restart": true,
+            "port": 9229
         }
     ],
     "compounds": [
         {
-            "name": "Meteor: All",
-            "configurations": ["Meteor: Node", "Meteor: Chrome"]
+            "name": "Attach to chrome and server",
+            "configurations": ["Server: attach", "Chrome: attach"]
         }
     ]
 }

@@ -1,6 +1,6 @@
 import { foreignKeyField } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbReport> = {
+const schema: SchemaType<"Reports"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -9,10 +9,11 @@ const schema: SchemaType<DbReport> = {
       type: "User",
       nullable: false,
     }),
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
     hidden: true,
     optional: true,
+    nullable: false
   },
   reportedUserId: {
     ...foreignKeyField({
@@ -22,8 +23,8 @@ const schema: SchemaType<DbReport> = {
       type: "User",
       nullable: true,
     }),
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
     hidden: true,
     optional: true,
   },
@@ -36,8 +37,8 @@ const schema: SchemaType<DbReport> = {
       nullable: true,
     }),
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
     hidden: true,
   },
   postId: {
@@ -49,15 +50,15 @@ const schema: SchemaType<DbReport> = {
       nullable: true,
     }),
     optional: true,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canCreate: ['members'],
     hidden: true,
   },
   link: {
     type: String,
     optional: false,
-    insertableBy: ['members'],
-    viewableBy: ['guests'],
+    canCreate: ['members'],
+    canRead: ['guests'],
     hidden: true,
   },
   claimedUserId: {
@@ -69,32 +70,33 @@ const schema: SchemaType<DbReport> = {
       nullable: true,
     }),
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
     hidden: true,
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['sunshineRegiment', 'admins'],
   },
   description: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
-    editableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['members'],
+    canCreate: ['members'],
     label: "Reason",
     placeholder: "What are you reporting this comment for?",
   },
   closedAt: {
     optional: true,
+    nullable: true,
     type: Date,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
   },
   // Only set when report is closed. Indicates whether content is spam or not.
   markedAsSpam: {
     optional: true,
     type: Boolean,
-    viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
   },
   // Set when report is created, indicates whether content was reported as spam
   // (currently only used for Akismet integration)
@@ -102,9 +104,9 @@ const schema: SchemaType<DbReport> = {
     optional: true,
     hidden: true,
     type: Boolean,
-    viewableBy: ['guests'],
-    editableBy: ['sunshineRegiment', 'admins'],
-    insertableBy: ['members']
+    canRead: ['guests'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    canCreate: ['members']
   }
 };
 

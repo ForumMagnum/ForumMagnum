@@ -20,13 +20,17 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const DraftsPage = ({classes}) => {
+const DraftsPage = ({classes}: {
+  classes: ClassesType;
+}) => {
   const {SingleColumnSection, DraftsList } = Components
   
   const currentUser = useCurrentUser()
   const { query } = useLocation();
   
-  if (!currentUser) return <span>You must sign in to view your drafts.</span>
+  if (!currentUser) {
+    return <Components.ErrorAccessDenied />
+  }
   
   return <SingleColumnSection>
     <AnalyticsContext listContext={"draftsPage"}>

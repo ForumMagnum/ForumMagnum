@@ -27,7 +27,7 @@ const banUser = async (user: DbUser, adminUser: DbUser) => {
 
 Vulcan.oneOffBanSpammers = wrapVulcanAsyncScript(
   'oneOffBanSpammers',
-  async (adminId) => {
+  async (adminId: string) => {
     const spammers = Users.find({
       // signUpReCaptchaRating: {$exists: false},
       reviewedByUserId: {$exists: false},

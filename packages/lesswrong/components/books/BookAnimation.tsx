@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { registerComponent } from '../../lib/vulcan-lib';
 
@@ -221,7 +221,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const BookAnimation = ({ classes, children, successContent }: {
   classes: ClassesType,
-  children: any,
+  children: ReactNode,
   successContent?: any
 }) => {
   const { query } = useLocation();

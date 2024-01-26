@@ -1,10 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { getBookAnchor } from '../../lib/collections/books/helpers';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 
 const styles = (theme: ThemeType): JssStyles => ({
-  root: {
-  },
   description: {
     marginTop: theme.spacing.unit,
     marginBottom: 20,
@@ -37,8 +36,8 @@ const BooksItem = ({ book, canEdit, classes }: {
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}
-  const { BooksProgressBar, SingleColumnSection, SectionTitle, SectionButton, LargeSequencesItem,
-    SequencesPostsList, Divider, ContentItemBody, ContentStyles, SequencesGrid } = Components
+  const { BooksProgressBar, SectionTitle, SectionButton, LargeSequencesItem,
+    SequencesPostsList, ContentItemBody, ContentStyles, SequencesGrid } = Components
   
   const showEdit = useCallback(() => {
     setEdit(true);
@@ -54,9 +53,8 @@ const BooksItem = ({ book, canEdit, classes }: {
       cancelCallback={showBook}
     />
   } else {
-    return <div className="books-item">
-      <SingleColumnSection>
-        <SectionTitle title={book.title}>
+    return <div>
+        <SectionTitle title={book.title} anchor={getBookAnchor(book)}>
           {canEdit && <SectionButton><a onClick={showEdit}>Edit</a></SectionButton>}
         </SectionTitle>
         {book.subtitle && <div className={classes.subtitle}>{book.subtitle}</div>}
@@ -80,8 +78,6 @@ const BooksItem = ({ book, canEdit, classes }: {
         {!book.displaySequencesAsGrid && book.sequences.map(sequence =>
           <LargeSequencesItem key={sequence._id} sequence={sequence} showChapters={book.showChapters} />
         )}
-      </SingleColumnSection>
-      <Divider />
     </div>
   }
 }

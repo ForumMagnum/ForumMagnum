@@ -1,4 +1,6 @@
 import * as _ from 'underscore';
+// eslint-disable-next-line no-restricted-imports
+import {matchPath} from 'react-router'
 
 export type PingbackDocument = {
   collectionName: CollectionNameString,
@@ -6,14 +8,15 @@ export type PingbackDocument = {
 };
 
 export type RouterLocation = {
-  currentRoute: Route,
+  // Null in 404
+  currentRoute: Route|null,
   RouteComponent: any,
   location: any,
   pathname: string,
   url: string,
   hash: string,
   params: Record<string,string>,
-  query: Record<string,string>,
+  query: Record<string,string>, // TODO: this should be Record<string,string|string[]>
   redirected?: boolean,
 };
 
@@ -32,6 +35,7 @@ export type Route = {
   subtitle?: string,
   subtitleLink?: string,
   subtitleComponentName?: keyof ComponentTypes,
+  description?: string,
   redirect?: (location: RouterLocation)=>string,
   getPingback?: (parsedUrl: RouterLocation) => Promise<PingbackDocument|null> | PingbackDocument|null,
   previewComponentName?: keyof ComponentTypes,
@@ -41,9 +45,11 @@ export type Route = {
   sunshineSidebar?: boolean
   disableAutoRefresh?: boolean,
   initialScroll?: "top"|"bottom",
+  noFooter?: boolean,
   standalone?: boolean // if true, this page has no header / intercom
-  hideFooter?: boolean // if true, this page has no footer
-  noPadding?: boolean
+  staticHeader?: boolean // if true, the page header is not sticky to the top of the screen
+  fullscreen?: boolean // if true, the page contents are put into a flexbox with the header such that the page contents take up the full height of the screen without scrolling
+  unspacedGrid?: boolean // for routes with standalone navigation, setting this to true allows the page body to be full-width (the default is to have empty columns providing padding)
   
   // enablePrefetch: Start loading stylesheet and JS bundle before the page is
   // rendered. This requires sending headers before rendering, which means
@@ -58,6 +64,7 @@ export type Route = {
   // Not used for post-pages because we don't know whether a post page is going
   // to be a 404 until we render it.
   enableResourcePrefetch?: boolean
+  isAdmin?: boolean
 };
 
 /** Populated by calls to addRoute */
@@ -95,3 +102,34 @@ export const addRoute = (...routes: Route[]): void => {
     };
   }
 };
+
+export const overrideRoute = (...routes: Route[]): void => {
+  // remove the old route if it exists, then call addRoute
+  for (let route of routes) {
+    const {name, path} = route;
+    delete Routes[name];
+
+    // @ts-ignore The @types/underscore signature for _.findWhere is narrower than the real function; this works fine
+    const routeWithSamePath = _.findWhere(Routes, { path });
+
+    if (routeWithSamePath) {
+      delete Routes[routeWithSamePath.name];
+    }
+  }
+  addRoute(...routes);
+}
+
+export const getRouteMatchingPathname = (pathname: string): Route | undefined  => {
+  return Object.values(Routes).reverse().find((route) => matchPath(pathname, {
+    path: route.path,
+    exact: true,
+    strict: false,
+  }))
+}
+
+export const userCanAccessRoute = (user?: UsersCurrent | DbUser | null, route?: Route | null): boolean => {
+  if (!route) return true // Anyone can access a non-existent route (which would 404)
+  if (user?.isAdmin) return true
+
+  return !route.isAdmin
+}

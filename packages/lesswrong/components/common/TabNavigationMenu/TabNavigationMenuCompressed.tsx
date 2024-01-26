@@ -22,7 +22,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const TabNavigationMenuCompressed = ({onClickSection, classes}) => {
+const TabNavigationMenuCompressed = ({onClickSection, classes}: {
+  onClickSection: (e?: React.BaseSyntheticEvent) => void,
+  classes: ClassesType
+}) => {
   const { TabNavigationCompressedItem } = Components
 
   return (

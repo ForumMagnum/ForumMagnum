@@ -14,7 +14,7 @@ const EmailPostAuthors = ({post}: {
   return <>
     {groupName}
     <span>by <EmailUsername user={post.user}/>
-      {post.coauthors.map((coauthor,i) => [
+      {post.coauthors?.map((coauthor,i) => [
         ", ", <EmailUsername key={i} user={coauthor}/>
       ])}
     </span>

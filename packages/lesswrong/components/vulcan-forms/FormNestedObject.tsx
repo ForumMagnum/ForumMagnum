@@ -4,7 +4,11 @@ import { registerComponent, mergeWithComponents } from '../../lib/vulcan-lib';
 import * as _ from 'underscore';
 
 // Replaceable layout
-const FormNestedObjectLayout = ({ hasErrors, label, content }) => (
+const FormNestedObjectLayout = ({ hasErrors, label, content }: {
+  hasErrors: boolean
+  label: React.ReactNode
+  content: React.ReactNode
+}) => (
   <div
     className={`form-group row form-nested ${hasErrors ? 'input-error' : ''}`}
   >
@@ -12,14 +16,12 @@ const FormNestedObjectLayout = ({ hasErrors, label, content }) => (
     <div className="col-sm-9">{content}</div>
   </div>
 );
-FormNestedObjectLayout.propTypes = {
-  hasErrors: PropTypes.bool,
-  label: PropTypes.node,
-  content: PropTypes.node
-};
 const FormNestedObjectLayoutComponent = registerComponent('FormNestedObjectLayout', FormNestedObjectLayout);
 
-class FormNestedObject extends PureComponent<any> {
+interface FormNestedObjectProps extends FormComponentProps<any> {
+}
+
+class FormNestedObject extends PureComponent<FormNestedObjectProps> {
   render() {
     const FormComponents = mergeWithComponents(this.props.formComponents);
     //const value = this.getCurrentValue()
@@ -36,10 +38,10 @@ class FormNestedObject extends PureComponent<any> {
     const nestedObjectErrors = errors.filter(
       error => error.path && error.path === this.props.path
     );
-    const hasErrors = nestedObjectErrors && nestedObjectErrors.length;
+    const hasErrors = !!(nestedObjectErrors && nestedObjectErrors.length);
     return (
       <FormComponents.FormNestedObjectLayout
-        hasErros={hasErrors}
+        hasErrors={hasErrors}
         label={this.props.label}
         content={[
           <FormComponents.FormNestedItem

@@ -13,7 +13,7 @@ registerFragment(`
     sequenceId
     postIds
     posts {
-      ...PostsList
+      ...PostsListWithVotes
     }
   }
 `);

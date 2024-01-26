@@ -52,7 +52,27 @@ const embedConfig = {
 			url: /^manifold\.markets\/(?:embed\/)?(\w+\/[\w-]+)$/,
 			html: ([match, longslug]) => `
 				<div data-manifold-id="${longslug}" class="manifold-preview">
-					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://${match}"/>
+					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://manifold.markets/embed/${longslug}"/>
+				</div>
+			`
+		},
+		{
+			name: "StrawPoll",
+			url: /^https:\/\/strawpoll\.com\/polls\/([\w-]+)$/,
+			html: ([match, pollId]) => `
+				<div class="strawpoll-embed" id="strawpoll_${pollId}" style="height: 480px; max-width: 640px; width: 100%; margin: 0 auto; display: flex; flex-direction: column;">
+					<iframe title="StrawPoll Embed" id="strawpoll_iframe_${pollId}" src="https://strawpoll.com/embed/polls/${pollId}" style="position: static; visibility: visible; display: block; width: 100%; flex-grow: 1;" frameborder="0" allowfullscreen allowtransparency>Loading...</iframe>
+					<script async src="https://cdn.strawpoll.com/dist/widgets.js" charset="utf-8"></script>
+				</div>
+			`
+		}
+		,
+		{
+			name: "Metaforecast",
+			url: /^metaforecast\.org\/questions\/([\w-]+)$/,
+			html: ([match, slug]) => `
+				<div data-metaforecast-id="${slug}" class="metaforecast-preview">
+					<iframe style="height: 405px; width: 100%; border: 1px solid gray;" src="https://metaforecast.org/questions/embed/${slug}"/>
 				</div>
 			`
 		},
@@ -67,6 +87,42 @@ const embedConfig = {
 				`
 			}
 		},
+		{
+			name: 'Estimaker',
+			url: /^estimaker\.app\/_\/([\w-]+).*/,
+			html: ([match]) => {
+				return `
+					<div class="estimaker-preview">
+						<iframe style="height: 400px; width: 100%; border: none;" src="https://${match}"/>
+					</div>
+				`
+			}
+		},
+		{
+			name: 'Viewpoints',
+			url: /^viewpoints\.xyz\/polls\/([\w-]+)$/,
+			html: ([match, slug]) => {
+				return `
+					<div data-viewpoints-slug="${slug}" class="viewpoints-preview">
+						<iframe style="height: 400px; width: 100%; border: none;" src="https://viewpoints.xyz/embed/polls/${slug}"/>
+					</div>
+				`
+			}
+		},
+		{
+			name: 'Calendly',
+			url: /^calendly\.com\/[\w-]+(\/[\w-]+)?\/?$/,
+			html: ([match]) => {
+				return `
+					<div class="calendly-preview">
+						<iframe
+							sandbox="allow-scripts allow-same-origin allow-forms"
+							src="https://${match}"
+						/>
+					</div>
+				`
+			}
+		}
 	]
 }
 
@@ -154,4 +210,3 @@ export const commentEditorConfig = {
 	math: mathConfig,
 	mediaEmbed: embedConfig,
 };
-

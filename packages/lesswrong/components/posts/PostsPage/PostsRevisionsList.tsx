@@ -1,10 +1,7 @@
 import React from 'react'
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { useSingle } from '../../../lib/crud/withSingle';
-import MenuItem from '@material-ui/core/MenuItem';
-import { QueryLink } from '../../../lib/reactRouterWrapper';
-import { useNavigation } from '../../../lib/routeUtil';
-
+import { QueryLink, useNavigate } from '../../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   version: {
@@ -16,29 +13,26 @@ const PostsRevisionsList = ({post, classes}: {
   post: PostsBase,
   classes: ClassesType,
 }) => {
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const { document, loading } = useSingle({
     documentId: post._id,
     collectionName: "Posts",
     fetchPolicy: 'network-only', // Ensure that we load the list of revisions a new every time we click (this is useful after editing a post)
     fragmentName: 'PostsRevisionsList'
   });
-  const { FormatDate } = Components
+  const { FormatDate, MenuItem } = Components
   if (loading || !document) {return <MenuItem disabled> Loading... </MenuItem>} 
   const { revisions } = document
   
-  // MenuItem takes a component and passes unrecognized props to that component,
-  // but its material-ui-provided type signature does not include this feature.
-  // Cast to any to work around it, to be able to pass a "to" parameter.
-  const MenuItemUntyped = MenuItem as any;
-  
   return <React.Fragment>
     {revisions.map(({editedAt, version}) =>
-      <MenuItemUntyped key={version} component={QueryLink} query={{revision: version}} merge>
-        <span className={classes.version}>View v{version}</span> (<FormatDate date={editedAt}/>)
-      </MenuItemUntyped>)}
+      <QueryLink key={version} query={{revision: version}} merge>
+        <MenuItem>
+          <span className={classes.version}>View v{version}</span> (<FormatDate date={editedAt}/>)
+        </MenuItem>
+      </QueryLink>)}
     
-    <MenuItem onClick={ev => history.push(`/revisions/post/${post._id}/${post.slug}`)}>
+    <MenuItem onClick={ev => navigate(`/revisions/post/${post._id}/${post.slug}`)}>
       Compare Revisions
     </MenuItem>
   </React.Fragment>

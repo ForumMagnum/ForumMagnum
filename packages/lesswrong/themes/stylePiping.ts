@@ -1,13 +1,14 @@
+import { isFriendlyUI } from "./forumTheme";
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
   backgroundColor: theme.palette.panelBackground.spoilerBlock,
   color: theme.palette.panelBackground.spoilerBlock,
-  '& a, & a:hover, & a:focus, & a::after': {
+  '& a, & a:hover, & a:focus, & a::after, & li': {
     color: theme.palette.panelBackground.spoilerBlock
   },
   '& code': {
     backgroundColor: theme.palette.panelBackground.spoilerBlock,
-  }
+  },
 });
 
 const spoilerStyles = (theme: ThemeType): JssStyles => ({
@@ -75,11 +76,68 @@ const manifoldPreviewStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+export const calendlyPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.calendly-preview": {
+    "& iframe": {
+      "width": "calc(100% - 10px)",
+      "height": 750,
+      border: "2px solid",
+      borderRadius: 10,
+      borderColor: theme.palette.grey[200],
+      padding: 0,
+      marginRight: 5,
+      marginLeft: 5
+    },
+  },
+});
+
+const strawpollPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.strawpoll-embed": {
+    "& iframe": {
+      width: "100%",
+      height: 400,
+      border: "none",
+    },
+  },
+});
+
+const metaforecastPreviewStyles = (theme: ThemeType): JssStyles => ({
+  "& div.metaforecast-preview": {
+    "& iframe": {
+      width: "100%",
+      height: 400,
+      border: "none",
+    },
+  },
+});
+
 const owidPreviewStyles = (theme: ThemeType): JssStyles => ({
   '& div.owid-preview': {
     '& iframe': {
       width: '100%',
       height: 400,
+      border: 'none'
+    }
+  }
+})
+
+const estimakerPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& div.estimaker-preview': {
+    display: 'flex',
+    '& iframe': {
+      width: '100%',
+      height: 400,
+      border: 'none'
+    }
+  }
+})
+
+const viewpointsPreviewStyles = (theme: ThemeType): JssStyles => ({
+  '& div.viewpoints-preview': {
+    display: 'flex',
+    '& iframe': {
+      width: '100%',
+      height: 300,
       border: 'none'
     }
   }
@@ -189,6 +247,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& h1': {
     ...theme.typography.display2,
     ...theme.typography.headerStyle,
+    color: theme.palette.text.contentHeader,
   },
   // If a post starts with a header, it should still be flush with the top of
   // the container
@@ -200,6 +259,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& h2': {
     ...theme.typography.display1,
     ...theme.typography.headerStyle,
+    color: theme.palette.text.contentHeader,
   },
   '& h2:first-child': {
     marginTop: 0,
@@ -208,6 +268,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& h3': {
     ...theme.typography.display0,
     ...theme.typography.headerStyle,
+    color: theme.palette.text.contentHeader,
   },
   '& h3:first-child': {
     marginTop: 0,
@@ -217,6 +278,13 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.body1,
     ...theme.typography.postStyle,
     fontWeight:600,
+    color: theme.palette.text.contentHeader,
+  },
+  '& h5': {
+    color: theme.palette.text.contentHeader,
+  },
+  '& h6': {
+    color: theme.palette.text.contentHeader,
   },
   '& img': {
     maxWidth: "100%",
@@ -241,12 +309,28 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
       textDecoration: "none"
     }
   },
+  '& a:visited': isFriendlyUI ? {
+    color: theme.palette.link.visited,
+  } : {},
+  '& a:visited:hover, & a:visited:active': isFriendlyUI ? {
+    color: theme.palette.link.visitedHover,
+  } : {},
   '& table': {
     ...tableStyles(theme)
   },
   // CKEditor wraps tables in a figure element
   '& figure.table': {
-    display: 'table'
+    width: 'fit-content !important',
+    height: 'fit-content !important',
+  },
+  // Many column tables should overflow instead of squishing
+  //  - NB: As of Jan 2023, this does not work on firefox, so ff users will have
+  //    squishy tables (which is the default behavior above)
+  '& figure.table:has(> table > tbody > tr > td + td + td + td)': {
+    overflowX: 'auto',
+    '& table': {
+      width: 700,
+    },
   },
   '& td, & th': {
     ...tableCellStyles(theme)
@@ -255,6 +339,7 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
     ...tableHeadingStyles(theme)
   },
   '& figure': {
+    maxWidth: '100%',
     margin: '1em auto',
     textAlign: "center"
   },
@@ -268,6 +353,9 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   '& ol > li > ol > li > ol': {
     listStyle: 'lower-roman',
   },
+  "& u": {
+    textDecoration: "none",
+  },
 })
 
 export const postBodyStyles = (theme: ThemeType): JssStyles => {
@@ -276,7 +364,12 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...spoilerStyles(theme),
     ...metaculusPreviewStyles(theme),
     ...manifoldPreviewStyles(theme),
+    ...calendlyPreviewStyles(theme),
+    ...strawpollPreviewStyles(theme),
+    ...metaforecastPreviewStyles(theme),
     ...owidPreviewStyles(theme),
+    ...estimakerPreviewStyles(theme),
+    ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
@@ -284,7 +377,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
       marginTop: 40,
       fontSize: '0.9em',
       paddingTop: 40,
-      borderTop: theme.palette.border.normal,
+      borderTop: isFriendlyUI ? theme.palette.border.grey300 : theme.palette.border.normal,
       '& sup': {
         marginRight: 10,
       },
@@ -374,7 +467,7 @@ export const emailBodyStyles = baseBodyStyles
 export const smallPostStyles = (theme: ThemeType) => {
   return {
     ...theme.typography.body2,
-    fontSize: "1.28rem",
+    fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
     lineHeight: "1.75rem",
     ...theme.typography.postStyle,
     '& blockquote': {
@@ -387,9 +480,9 @@ export const smallPostStyles = (theme: ThemeType) => {
     '& li': {
       ...theme.typography.body2,
       ...theme.typography.postStyle,
-      fontSize: "1.28rem",
+      fontSize: isFriendlyUI ? "1.1rem" : "1.28rem",
       lineHeight: "1.8rem",
-    },
+    }
   };
 }
 
@@ -458,6 +551,15 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '& hr': {
           ...hrStyles(theme)
         },
+        '& ol, & ul': {
+          listStyleType: "revert !important",
+        },
+        '& ol > li > ol': {
+          listStyle: 'lower-alpha !important',
+        },
+        '& ol > li > ol > li > ol': {
+          listStyle: 'lower-roman !important',
+        },
       },
       '& .ck-placeholder:before': {
         whiteSpace: 'break-spaces'
@@ -514,7 +616,7 @@ export const ckEditorStyles = (theme: ThemeType): JssStyles => {
         '& .ck-annotation__user, & .ck-thread__user': {
           display: "none"
         },
-        '--ck-color-comment-count': theme.palette.primary.main
+        '--ck-color-comment-count': theme.palette.primary.main,
       },
       
       "--ck-color-base-background": theme.palette.editor.commentPanelBackground,

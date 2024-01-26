@@ -44,6 +44,12 @@ export const lessWrongTheme: SiteThemeSpecification = {
     error: {
       main: '#bf360c',
     },
+    header: {
+      background: shadePalette.inverseGreyAlpha(.65)
+    },
+    background: {
+      default: '#f8f4ee'
+    }
   }),
   make: (palette: ThemePalette) => ({
     typography: {
@@ -64,6 +70,9 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
       commentStyle: {
         fontFamily: sansSerifStack,
+        '& b, & strong': {
+          fontWeight: 600
+        }
       },
       errorStyle: {
         color: palette.error.main,
@@ -84,7 +93,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
       },
     },
     overrides: {
-      PostsVote: {
+      PostsVoteDefault: {
         voteScores: {
           margin: "25% 15% 15% 15%"
         }
@@ -108,7 +117,7 @@ export const lessWrongTheme: SiteThemeSpecification = {
           fontFamily: sansSerifStack,
           color: palette.grey[800],
           fontSize: "1.1rem",
-          lineHeight: "1em"
+          lineHeight: "1.1em"
         }
       },
       MuiListItem: {

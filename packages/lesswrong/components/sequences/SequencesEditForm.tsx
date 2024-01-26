@@ -13,7 +13,7 @@ const SequencesEditForm = ({ documentId, successCallback, cancelCallback, remove
   return (
     <div className={classes.sequencesForm}>
       <Components.WrappedSmartForm
-        collection={Sequences}
+        collectionName="Sequences"
         documentId={documentId}
         successCallback={successCallback}
         cancelCallback={cancelCallback}

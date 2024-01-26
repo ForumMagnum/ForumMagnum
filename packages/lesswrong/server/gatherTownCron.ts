@@ -1,14 +1,13 @@
 import { addCronJob, removeCronJob } from './cronUtil';
 import { createMutator, Globals } from './vulcan-lib';
 import { LWEvents } from '../lib/collections/lwevents/collection';
-import fetch from 'node-fetch';
 import WebSocket from 'ws';
 import { DatabaseServerSetting } from './databaseSettings';
 import { gatherTownRoomId, gatherTownRoomName } from '../lib/publicSettings';
 import { isProduction, onStartup } from '../lib/executionEnvironment';
 import { toDictionary } from '../lib/utils/toDictionary';
 import * as _ from 'underscore';
-import { forumTypeSetting } from '../lib/instanceSettings';
+import { isLW } from '../lib/instanceSettings';
 import type { OpenEvent } from 'ws';
 
 const gatherTownRoomPassword = new DatabaseServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
@@ -24,7 +23,7 @@ const currentGatherTownTrackerVersion = 7;
 // server can update it instead.
 const minGatherTownTrackerVersion = new DatabaseServerSetting<number>("gatherTownTrackerVersion", currentGatherTownTrackerVersion);
 
-if (isProduction && forumTypeSetting.get() === "LessWrong") {
+if (isProduction && isLW) {
   onStartup(() => {
     if (currentGatherTownTrackerVersion >= minGatherTownTrackerVersion.get()) {
       addCronJob({

@@ -52,7 +52,7 @@ export default class UrlValidator extends Plugin {
 			new URL(newUrl);
 			return newUrl;
 		} catch (e) {
-			return url;
+			return oldUrl;
 		}
 	}
 }

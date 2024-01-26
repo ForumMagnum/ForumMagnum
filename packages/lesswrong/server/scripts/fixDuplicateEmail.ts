@@ -35,7 +35,7 @@ export type ClassifiedUser = {
 
 export function classifyDuplicateUser(user: DuplicateUser)
   : ClassifiedUser {
-  if (user.comments.length == 0 && user.posts.length == 0) {
+  if (user.comments.length === 0 && user.posts.length === 0) {
     return { user, classification: MergeType.RemoveAccount }
   }
   return { user, classification: MergeType.KeepAccount }
@@ -46,7 +46,7 @@ export function mergeSingleUser(userList: Array<DuplicateUser>)
   const classifications = userList.map(classifyDuplicateUser)
 
   // If we only want to keep one user, we are done
-  if (classifications.filter(x => x.classification == MergeType.KeepAccount).length === 1) {
+  if (classifications.filter(x => x.classification === MergeType.KeepAccount).length === 1) {
     const destinationUser = classifications.filter(x => x.classification === MergeType.KeepAccount)[0].user
     const sourceIds = classifications.filter(x => x.classification !== MergeType.KeepAccount).map(x => x.user['_id'])
     
@@ -79,7 +79,7 @@ export function mergeSingleUser(userList: Array<DuplicateUser>)
 
   // Otherwise, we need to check if they all share the same name
   const keptUsers = classifications.filter(x => x.classification === MergeType.KeepAccount)
-  const cleanName = x => x.user.matches?.displayName?.toLocaleLowerCase()?.replace(/\s|_/g, '')
+  const cleanName = (x: AnyBecauseTodo) => x.user.matches?.displayName?.toLocaleLowerCase()?.replace(/\s|_/g, '')
   const keptUsersNames = keptUsers.map(cleanName)
   const allshareName = keptUsersNames.every(username => username === keptUsersNames[0])
   if (allshareName) {
@@ -104,7 +104,7 @@ function identifyTargetUser(userList: Array<ClassifiedUser>): { destinationId: s
   const usersWithEmails = userList.filter(x => x.user.matches?.arrayEmail
     && x.user.matches.arrayEmail.length > 0)
   // No users with emails, choose one arbitrarily
-  if (usersWithEmails.length == 0) {
+  if (usersWithEmails.length === 0) {
     return {
       destinationId: userList[0].user._id,
       sourceIds: userList.map(x => x.user._id).filter(x => x !== userList[0].user._id)

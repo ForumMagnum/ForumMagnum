@@ -2,7 +2,7 @@ import { defineGqlQuery } from '../utils/serverGraphqlUtil';
 import fetch from 'node-fetch'
 import markdownIt from 'markdown-it'
 import markdownItMathjax from '../editor/markdown-mathjax'
-import { mjPagePromise } from '../editor/make_editable_callbacks';
+import { mjPagePromise } from '../editor/conversionUtils';
 import { trimLatexAndAddCSS } from '../editor/utils';
 
 
@@ -36,7 +36,7 @@ defineGqlQuery({
   fn: async function ArbitalPageData(root: void, { pageAlias }: { pageAlias:string }, context: ResolverContext): Promise<ArbitalPageData|null> {
     const rawRoomData:any = await getArbitalPageData(pageAlias)
     if (!rawRoomData) return null
-    let processedData;
+    let processedData: AnyBecauseTodo;
     try {
       processedData = JSON.parse(rawRoomData)
     } catch(e) {

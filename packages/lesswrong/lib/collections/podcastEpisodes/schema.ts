@@ -1,8 +1,8 @@
 import { foreignKeyField } from '../../utils/schemaUtils';
 
-const schema: SchemaType<DbPodcastEpisode> = {
+const schema: SchemaType<"PodcastEpisodes"> = {
   podcastId: {
-      ...foreignKeyField({
+    ...foreignKeyField({
       idFieldName: 'podcastId',
       resolverName: 'podcast',
       collectionName: 'Podcasts',
@@ -10,26 +10,27 @@ const schema: SchemaType<DbPodcastEpisode> = {
       nullable: false
     }),
     optional: true, // ???
-    viewableBy: ['guests'],
-    insertableBy: ['podcasters', 'admins']
+    nullable: false,
+    canRead: ['guests'],
+    canCreate: ['podcasters', 'admins']
   },
   title: {
     type: String,
     optional: false,
-    viewableBy: ['guests'],
-    insertableBy: ['podcasters', 'admins']
+    canRead: ['guests'],
+    canCreate: ['podcasters', 'admins']
   },
   episodeLink: {
     type: String,
     optional: false,
-    viewableBy: ['guests'],
-    insertableBy: ['podcasters', 'admins']
+    canRead: ['guests'],
+    canCreate: ['podcasters', 'admins']
   },
   externalEpisodeId: {
     type: String,
     optional: false,
-    viewableBy: ['guests'],
-    insertableBy: ['podcasters', 'admins']
+    canRead: ['guests'],
+    canCreate: ['podcasters', 'admins']
   }
 };
 

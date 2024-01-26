@@ -1,7 +1,7 @@
 import { createCollection } from '../../vulcan-lib';
 import { Utils, slugify } from '../../vulcan-lib/utils';
-import { addUniversalFields, getDefaultResolvers, getDefaultMutations, schemaDefaultValue } from '../../collectionUtils'
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { addUniversalFields, getDefaultResolvers, getDefaultMutations } from '../../collectionUtils'
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils';
 import './fragments';
 import './permissions';
 import { userOwns } from '../../vulcan-users/permissions';
@@ -29,22 +29,23 @@ export const eventTypes = [
   }
 ]
 
-const schema: SchemaType<DbGardenCode> = {
+const schema: SchemaType<"GardenCodes"> = {
   code: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
+    nullable: false,
     onInsert: (gardenCode) => {
       return generateCode(4)
     },
   },
   title: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     label: "Event Name",
-    defaultValue: "Guest Day Pass",
+    ...schemaDefaultValue("Guest Day Pass"),
     order: 10
   },
   userId: {
@@ -56,8 +57,9 @@ const schema: SchemaType<DbGardenCode> = {
       nullable: true,
     }),
     onCreate: ({currentUser}) => currentUser!._id,
-    viewableBy: ['guests'],
-    optional: true
+    canRead: ['guests'],
+    optional: true,
+    nullable: false,
   },
   // gatherTownUsername: {
   //   optional: true,
@@ -70,30 +72,32 @@ const schema: SchemaType<DbGardenCode> = {
   slug: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
+    canRead: ['guests'],
+    nullable: false,
     onInsert: async (gardenCode) => {
       return await Utils.getUnusedSlugByCollectionName("GardenCodes", slugify(gardenCode.title))
     },
   },
   startTime: {
     type: Date,
-    viewableBy: ['guests'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
-    insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
+    canCreate: ['members'],
     control: 'datetime',
     label: "Start Time",
     optional: true,
-    defaultValue: new Date,
+    onInsert: () => new Date(),
     order: 20
   },
   endTime: {
     type: Date,
-    viewableBy: ['guests'],
-    editableBy: ['admins'],
-    // insertableBy: ['members'],
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    // canCreate: ['members'],
     control: 'datetime',
     label: "End Time",
     optional: true,
+    nullable: false,
     order: 25,
     onInsert: (gardenCode) => {
       return moment(gardenCode.startTime).add(12, 'hours').toDate()
@@ -101,18 +105,18 @@ const schema: SchemaType<DbGardenCode> = {
   },
   fbLink: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     label: "FB Event Link",
     optional: true,
     order: 25
   },
   type: {
     type: String,
-    viewableBy: ['guests'],
-    insertableBy: ['members'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canCreate: ['members'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     label: "Event Visibility:",
     optional: true,
     control: "radiogroup",
@@ -124,8 +128,8 @@ const schema: SchemaType<DbGardenCode> = {
   },
   hidden: {
     type: Boolean,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     optional: true,
     order: 32,
     hidden: true,
@@ -133,8 +137,8 @@ const schema: SchemaType<DbGardenCode> = {
   },
   deleted: {
     type: Boolean,
-    viewableBy: ['guests'],
-    editableBy: ['admins', 'sunshineRegiment'],
+    canRead: ['guests'],
+    canUpdate: ['admins', 'sunshineRegiment'],
     optional: true,
     ...schemaDefaultValue(false),
     order: 35
@@ -142,9 +146,9 @@ const schema: SchemaType<DbGardenCode> = {
   afOnly: {
     type: Boolean,
     label: "Limit attendance to AI Alignment Forum members",
-    viewableBy: ['guests'],
-    insertableBy: ['alignmentForum'],
-    editableBy: [userOwns, 'sunshineRegiment', 'admins'],
+    canRead: ['guests'],
+    canCreate: ['alignmentForum'],
+    canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     optional: true, 
     ...schemaDefaultValue(false),
     order: 36,
@@ -153,8 +157,8 @@ const schema: SchemaType<DbGardenCode> = {
 
   // validOnlyWithHost: {
   //   type: Boolean,
-  //   viewableBy: ['guests'],
-  //   insertableBy: ['members'],
+  //   canRead: ['guests'],
+  //   canCreate: ['members'],
   //   optional: true,
   //   label: 'Only valid while host (you) is present',
   //   ...schemaDefaultValue(false),

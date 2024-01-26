@@ -5,12 +5,13 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 
 export const useRecommendations = (algorithm: RecommendationsAlgorithm): {
   recommendationsLoading: boolean,
-  recommendations: PostsList[]|undefined,
+  recommendations: PostsListWithVotesAndSequence[]|undefined,
 }=> {
   const {data, loading} = useQuery("RecommendationsQuery", {
     variables: {
       count: algorithm?.count || 10,
       algorithm: algorithm || defaultAlgorithmSettings,
+      batchKey: "recommendations"
     },
     ssr: true,
   });

@@ -36,17 +36,16 @@ const PostCollaborationEditor = ({ classes }: {
 }) => {
   const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm } = Components
   const currentUser = useCurrentUser();
-  const [editorLoaded, setEditorLoaded] = useState(false)
 
   const { query: { postId, key } } = useLocation();
 
   const { data, loading, error } = useQuery(gql`
     query LinkSharingQuery($postId: String!, $linkSharingKey: String!) {
       getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {
-        ...PostsPage
+        ...PostsEdit
       }
     }
-    ${fragmentTextForQuery("PostsPage")}
+    ${fragmentTextForQuery("PostsEdit")}
   `, {
     variables: {
       postId,
@@ -55,12 +54,6 @@ const PostCollaborationEditor = ({ classes }: {
     ssr: true,
   });
   const post: PostsPage = data?.getLinkSharedPost;
-  
-  // If logged out, show a login form. (Even if link-sharing is enabled, you still
-  // need to be logged into LessWrong with some account.)
-  if (!currentUser) {
-    return <ErrorAccessDenied/>
-  }
   
   // Error handling and loading state
   if (error) {
@@ -83,7 +76,7 @@ const PostCollaborationEditor = ({ classes }: {
   // If you're the primary author, an admin, or have edit permissions, redirect to the main editor (rather than the
   // collab editor) so you can edit metadata etc
   if (canUserEditPostMetadata(currentUser, post)) {
-      return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey)}/>
+      return <PermanentRedirect url={postGetEditUrl(post._id, false, post.linkSharingKey ?? undefined)}/>
   }
 
   // If the post has a link-sharing key which is not in the URL, redirect to add
@@ -110,9 +103,14 @@ const PostCollaborationEditor = ({ classes }: {
           collectionName="Posts"
           fieldName="contents"
           formType="edit"
-          userId={currentUser._id}
+          userId={currentUser?._id}
           isCollaborative={true}
           accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
+          document={post}
+        />
+        <Components.PostVersionHistoryButton
+          post={post}
+          postId={postId}
         />
       </NoSSR>
     </ContentStyles>

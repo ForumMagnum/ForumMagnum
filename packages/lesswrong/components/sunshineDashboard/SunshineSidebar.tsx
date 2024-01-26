@@ -5,7 +5,7 @@ import { useCurrentUser } from '../common/withUser';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { forumTypeSetting } from '../../lib/instanceSettings';
+import { isLWorAF } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -50,15 +50,15 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
   if (!currentUser) return null
 
   const showInitialSidebar = userCanDo(currentUser, 'posts.moderate.all') || currentUser.groups?.includes('alignmentForumAdmins')
-  const underbellyName = forumTypeSetting.get() === 'EAForum' ? 'Low Priority' : 'the Underbelly'
+  const underbellyName = isLWorAF ? 'the Underbelly' : 'Low Priority'
 
   return (
     <div className={classes.root}>
       {showInitialSidebar && <div className={classes.background}>
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
-        <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}}/>
-        <SunshineReportedContentList />
+        <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}} currentUser={currentUser}/>
+        <SunshineReportedContentList currentUser={currentUser}/>
         <SunshineNewTagsList />
         
         {/* alignmentForumAdmins see AF content above the fold */}
@@ -105,7 +105,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
           <KeyboardArrowRightIcon/>
         </div>}
         { showUnderbelly && <div>
-          <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} />
+          <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} currentUser={currentUser} />
         </div>}
       </div>}
     </div>

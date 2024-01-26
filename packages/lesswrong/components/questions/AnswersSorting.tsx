@@ -1,21 +1,34 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
-import { useLocation, useNavigation } from '../../lib/routeUtil';
+import { useLocation } from '../../lib/routeUtil';
 import qs from 'qs'
 import * as _ from 'underscore';
 import type { Option } from '../common/InlineSelect';
+import { getCommentViewOptions } from '../../lib/commentViewOptions';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
-export const sortingNames = {
-  'top': 'top scoring',
-  'newest': 'newest',
-  'oldest': 'oldest',
-}
+const viewOptions = getCommentViewOptions();
+
+const sortOrder = [
+  'postCommentsTop',
+  'postCommentsMagic',
+  'postCommentsNew',
+  'postCommentsOld',
+  'postCommentsRecentReplies'
+];
+
+viewOptions.sort((a, b) => sortOrder.indexOf(a.value) - sortOrder.indexOf(b.value));
+
+const sortingNames = viewOptions.reduce((sortingName: Record<string, string>, viewOption) => {
+  sortingName[viewOption.value] = viewOption.label;
+  return sortingName;
+}, {});
 
 const AnswersSorting = ({ post, classes }: {
   post?: PostsList,
   classes: ClassesType,
 }) => {
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
   
@@ -26,10 +39,10 @@ const AnswersSorting = ({ post, classes }: {
     const { query } = location;
     const currentQuery = _.isEmpty(query) ? { answersSorting: "top" } : query;
     const newQuery = { ...currentQuery, answersSorting: sorting, postId: post ? post._id : undefined };
-    history.push({ ...location.location, search: `?${qs.stringify(newQuery)}` });
+    navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
-  const sortings = [...Object.keys(sortingNames)];
+  const sortings = [...Object.keys(sortingNames)] as (keyof typeof sortingNames)[];
   const currentSorting = query?.answersSorting || "top";
   
   const viewOptions: Array<Option> = sortings.map((view) => {
@@ -47,4 +60,3 @@ declare global {
     AnswersSorting: typeof AnswersSortingComponent,
   }
 }
-

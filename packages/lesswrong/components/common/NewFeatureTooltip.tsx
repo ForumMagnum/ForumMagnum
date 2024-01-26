@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { useHover } from './withHover';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
@@ -104,7 +104,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const NewFeatureTooltip = ({classes, children, title = 'New feature!', placement = 'left'}: {
-  children?: any,
+  children?: ReactNode,
   title?: string,
   placement?: 'top'|'right'|'left'|'bottom',
   classes: ClassesType,

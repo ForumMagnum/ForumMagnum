@@ -15,7 +15,7 @@ const parseQuery = (queryName: QueryName) => {
 const parsedQueries: Partial<Record<QueryName,GqlDocumentNode>> = {};
 
 interface QueryHookOptionsWithArgumentTypes<N extends QueryName> extends QueryHookOptions {
-  variables?: QueryArgumentTypes[N]
+  variables?: QueryArgumentTypes[N] & { batchKey?: string }
 }
 
 export function useQuery<N extends QueryName>(queryName: N, options: QueryHookOptionsWithArgumentTypes<N>): ApolloQueryResult<QueryResultTypes[N],any> {

@@ -168,8 +168,8 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
     ${getFragment("UsersMinimumInfo")}  
   `);
   const sortedPredictions = sortBy(data?.ElicitBlockData?.predictions || [], ({prediction}) => prediction)
-  const roughlyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction / 10) * 10)
-  const finelyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction))
+  const roughlyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor((prediction ?? 0) / 10) * 10)
+  const finelyGroupedData = groupBy(sortedPredictions, ({prediction}) => Math.floor(prediction ?? 0))
   const userHasPredicted = currentUser && some(
     sortedPredictions,
     (prediction: any) => prediction?.creator?.lwUser?._id === currentUser._id
@@ -200,11 +200,11 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
             data-num-largebucket={roughlyGroupedData[`${bucket*10}`]?.length || 0}
             data-num-smallbucket={finelyGroupedData[`${prob}`]?.length || 0}
             onClick={() => {
-              if (currentUser && data?.ElicitBlockData) {
+              if (currentUser && data?.ElicitBlockData?._id) {
                 const predictions = data?.ElicitBlockData?.predictions || []
-                const filteredPredictions = predictions.filter(prediction => prediction?.creator?.sourceUserId !== currentUser._id)
+                const filteredPredictions = predictions.filter((prediction: any) => prediction?.creator?.sourceUserId !== currentUser._id)
                 // When you click on the slice that corresponds to your current prediction, you cancel it (i.e. double-clicking cancels any current predictions)
-                const newPredictions = isCurrentUserSlice ? filteredPredictions : [createNewElicitPrediction(data?.ElicitBlockData?._id, prob, currentUser), ...filteredPredictions]
+                const newPredictions = isCurrentUserSlice ? filteredPredictions : [createNewElicitPrediction(data.ElicitBlockData._id, prob, currentUser), ...filteredPredictions]
 
                 setRevealed(true);
 

@@ -4,15 +4,14 @@ import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     ...theme.typography.postStyle,
 
-    width: "calc(33% - 5px)",
     boxShadow: theme.palette.boxShadow.default,
     paddingBottom: 0,
-    marginBottom: 10,
     display: "flex",
     flexDirection: "column",
 
@@ -31,15 +30,23 @@ const styles = (theme: ThemeType): JssStyles => ({
 
   title: {
     fontSize: 16,
-    lineHeight: 1.0,
-    maxHeight: 32,
+    ...(isFriendlyUI
+      ? {
+        lineHeight: 1.25,
+        maxHeight: 42,
+        minHeight: 42,
+      }
+      : {
+        lineHeight: 1.0,
+        maxHeight: 32,
+      }),
     paddingTop: 2,
     display: "-webkit-box",
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": "vertical",
     textOverflow: "ellipsis",
     overflow: "hidden",
-    fontVariant: "small-caps",
+    ...theme.typography.smallCaps,
     marginBottom: 0,
     "&:hover": {
       color: "inherit",
@@ -66,6 +73,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexDirection: "column",
     justifyContent: "center",
     background: theme.palette.panelBackground.default,
+    ...(isFriendlyUI
+      ? {
+        borderRadius: `0 0 ${theme.borderRadius.small}px ${theme.borderRadius.small}px`,
+        fontFamily: theme.palette.fonts.sansSerifStack,
+      }
+      : {
+      }),
   },
   bookItemShadowStyle: {
     boxShadow: "none",
@@ -84,12 +98,18 @@ const styles = (theme: ThemeType): JssStyles => ({
     backgroundColor: theme.palette.grey[200],
     display: 'block',
     height: 95,
+    borderRadius: isFriendlyUI
+      ? `${theme.borderRadius.small}px ${theme.borderRadius.small}px 0 0`
+      : undefined,
     [legacyBreakpoints.maxSmall]: {
       height: "124px !important",
     },
     "& img": {
       width: "100%",
       height: 95,
+      borderRadius: isFriendlyUI
+        ? `${theme.borderRadius.small}px ${theme.borderRadius.small}px 0 0`
+        : undefined,
       [legacyBreakpoints.maxSmall]: {
         width: "335px !important",
         height: "124px !important",
@@ -107,11 +127,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   classes: ClassesType,
   bookItemStyle?: boolean
 }) => {
-  const getSequenceUrl = () => {
-    return '/s/' + sequence._id
-  }
   const { LinkCard, SequencesHoverOver } = Components;
-  const url = getSequenceUrl()
 
   // The hoverover is adjusted so that it's title lines up with where the SequencesGridItem title would have been, to avoid seeing the title twice
   let positionAdjustment = -35

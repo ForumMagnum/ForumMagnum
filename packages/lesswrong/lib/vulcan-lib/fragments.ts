@@ -68,7 +68,11 @@ const getFragmentObject = (fragmentText: string, subFragments: Array<FragmentNam
 };
 
 // Create default "dumb" gql fragment object for a given collection
-export const getDefaultFragmentText = <T extends DbObject>(collection: CollectionBase<T>, schema: SchemaType<T>, options={onlyViewable: true}): string|null => {
+export const getDefaultFragmentText = <N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  schema: SchemaType<N>,
+  options={onlyViewable: true},
+): string|null => {
   const fieldNames = _.reject(_.keys(schema), (fieldName: string) => {
     /*
 
@@ -78,11 +82,11 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
     3. it's not viewable (if onlyViewable option is true)
 
     */
-    const field: CollectionFieldSpecification<T> = schema[fieldName];
+    const field: CollectionFieldSpecification<N> = schema[fieldName];
     // OpenCRUD backwards compatibility
 
     const isResolverField = field.resolveAs && !field.resolveAs.addOriginalField && field.resolveAs.type !== "ContentType";
-    return isResolverField || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !(field.canRead || field.viewableBy));
+    return isResolverField || fieldName.includes('$') || fieldName.includes('.') || (options.onlyViewable && !field.canRead);
   });
 
   if (fieldNames.length) {
@@ -98,11 +102,10 @@ export const getDefaultFragmentText = <T extends DbObject>(collection: Collectio
   } else {
     return null;
   }
-
 };
 
 // Get fragment name from fragment object
-export const getFragmentName = fragment => fragment && fragment.definitions[0] && fragment.definitions[0].name.value;
+export const getFragmentName = (fragment: AnyBecauseTodo) => fragment && fragment.definitions[0] && fragment.definitions[0].name.value;
 
 // Get actual gql fragment
 export const getFragment = (fragmentName: FragmentName): DocumentNode => {
@@ -148,7 +151,7 @@ const addFragmentDependencies = (fragments: Array<FragmentName>): Array<Fragment
     const dependencies = fragment.subFragments;
     if (dependencies) {
       _.forEach(dependencies, (subfragment: FragmentName) => {
-        if (!_.find(result, (s: FragmentName)=>s==subfragment))
+        if (!_.find(result, (s: FragmentName)=>s===subfragment))
           result.push(subfragment);
       });
     }

@@ -1,11 +1,8 @@
-import React from 'react';
-import { extractCollectionInfo, extractFragmentInfo } from '../vulcan-lib';
-import { compose, withHandlers } from 'recompose';
+import { useCallback } from 'react';
+import { getCollection, extractFragmentInfo } from '../vulcan-lib';
 import { updateCacheAfterDelete } from './cacheUpdates';
-import { getExtraVariables } from './utils'
-import { gql } from '@apollo/client';
-import { Mutation } from '@apollo/client/react/components';
-import type { MutationResult } from '@apollo/client/react';
+import { useMutation, gql } from '@apollo/client';
+import type { ApolloError } from '@apollo/client';
 
 // Delete mutation query used on the client. Eg:
 //
@@ -32,16 +29,24 @@ const deleteClientTemplate = ({ typeName, fragmentName, extraVariablesString }: 
   }
 }`;
 
-// Generic mutation wrapper to remove a document from a collection.
-//
-// Arguments:
-//   - input
-//     - input.selector: the id of the document to remove
-// Child Props:
-//   - deleteMovie({ selector })
-export const withDelete = options => {
-  const { collectionName, collection } = extractCollectionInfo(options);
-  const { fragmentName, fragment } = extractFragmentInfo(options, collectionName);
+/**
+ * Hook that returns a function for a delete operation. This should mostly never
+ * be used, because we strongly prefer to do soft deletes (ie, setting a
+ * 'deleted' flag on the object to true).
+ */
+export const useDelete = <CollectionName extends CollectionNameString>(options: {
+  collectionName: CollectionName,
+  fragmentName?: FragmentName,
+  fragment?: any,
+}): {
+  deleteDocument: (props: {selector: any})=>Promise<any>,
+  loading: boolean,
+  error: ApolloError|undefined,
+  called: boolean,
+  data: ObjectsByCollectionName[CollectionName],
+} => {
+  const collection = getCollection(options.collectionName);
+  const {fragmentName, fragment} = extractFragmentInfo({fragmentName: options.fragmentName, fragment: options.fragment}, options.collectionName);
 
   const typeName = collection.options.typeName;
   const query = gql`
@@ -49,31 +54,16 @@ export const withDelete = options => {
     ${fragment}
   `;
 
-  const mutationWrapper = (Component) => (props) => (
-    <Mutation mutation={query}>
-      {(mutate, mutationResult: MutationResult<any>) => (
-        <Component
-          {...props}
-          mutate={mutate}
-          ownProps={props}
-        />
-      )}
-    </Mutation>
-  )
-
-  // wrap component with graphql HoC
-  return compose(
-    mutationWrapper,
-    withHandlers({
-      [`delete${typeName}`]: ({ mutate, ownProps }) => ({ selector }) => {
-        const extraVariables = getExtraVariables(ownProps, options.extraVariables)
-        return mutate({
-          variables: { selector, ...extraVariables },
-          update: updateCacheAfterDelete(typeName)
-        });
-      },
+  const [mutate, {loading, error, called, data}] = useMutation(query);
+  const wrappedDelete = useCallback(({selector, extraVariables}: {
+    selector: MongoSelector<ObjectsByCollectionName[CollectionName]>,
+    data: Partial<ObjectsByCollectionName[CollectionName]>,
+    extraVariables?: any,
+  }) => {
+    return mutate({
+      variables: { selector, ...extraVariables },
+      update: updateCacheAfterDelete(typeName)
     })
-  )
-};
-
-export default withDelete;
+  }, [mutate, typeName]);
+  return {deleteDocument: wrappedDelete, loading, error, called, data};
+}

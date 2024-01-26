@@ -1,34 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, FC } from 'react';
 import PropTypes from 'prop-types';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import { registerComponent } from '../../lib/vulcan-lib';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-
-const defaultTooltipLWAF = ({classes}: {classes: ClassesType}) => <div className={classes.tooltip}>
-  <p>LW moderators will consider this post for frontpage</p>
-  <p className={classes.guidelines}>Things to aim for:</p>
-  <ul>
-    <li className={classes.guidelines}>
-      Usefulness, novelty and fun
-    </li>
-    <li className={classes.guidelines}>
-      Timeless content (minimize reference to current events)
-    </li>
-    <li className={classes.guidelines}>
-      Explain rather than persuade
-    </li>
-  </ul>
-</div>
-
-const forumDefaultTooltip: ForumOptions<(classes?: ClassesType) => JSX.Element | string> = {
-  LessWrong: defaultTooltipLWAF,
-  AlignmentForum: defaultTooltipLWAF,
-  EAForum: () => "Uncheck this box if you want your post to stay on your personal blog.",
-  default: () => "Uncheck this box if you want your post to stay on your personal blog."
-}
-
-const defaultTooltip = forumSelect(forumDefaultTooltip)
+import InputLabel from '@material-ui/core/InputLabel';
 
 const styles = (theme: ThemeType): JssStyles => ({
   submitToFrontpageWrapper: {
@@ -40,7 +16,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   submitToFrontpage: {
     display: "flex",
     alignItems: "center",
-    maxWidth: 200,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
       maxWidth: "none",
@@ -49,12 +24,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   checkboxLabel: {
-    fontWeight:500,
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: 16,
-    color: theme.palette.text.dim40,
+    fontSize: 14,
+    color: theme.palette.grey[680],
     verticalAlign: 'middle',
-    lineHeight: '1.25em'
+    lineHeight: '1.25em',
+    marginTop: '3px',
+    cursor: 'pointer'
+  },
+  checkbox: {
+    padding: 6
   },
   tooltip: {
     '& ul': {
@@ -73,7 +52,37 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
+const defaultTooltipLWAF = ({classes}: {classes: ClassesType<typeof styles>}) => <div className={classes.tooltip}>
+  <p>LW moderators will consider this post for frontpage</p>
+  <p className={classes.guidelines}>Things to aim for:</p>
+  <ul>
+    <li className={classes.guidelines}>
+      Usefulness, novelty and fun
+    </li>
+    <li className={classes.guidelines}>
+      Timeless content (minimize reference to current events)
+    </li>
+    <li className={classes.guidelines}>
+      Explain rather than persuade
+    </li>
+  </ul>
+</div>
+
+const defaultTooltipEAF = () =>
+  <>
+    Uncheck this box if you don't want your post to show in the Frontpage list. It will still appear in Recent discussion, Topics pages, and All posts.
+  </>
+
+const forumDefaultTooltip: ForumOptions<FC<{classes?: ClassesType<typeof styles>}>> = {
+  LessWrong: defaultTooltipLWAF,
+  AlignmentForum: defaultTooltipLWAF,
+  EAForum: defaultTooltipEAF,
+  default: defaultTooltipEAF,
+}
+
+const defaultTooltip = forumSelect(forumDefaultTooltip)
+
+export interface SubmitToFrontpageCheckboxProps extends WithStylesProps {
   fieldName?: string,
   currentValues: any,
   document: any,
@@ -111,8 +120,10 @@ class SubmitToFrontpageCheckbox extends Component<SubmitToFrontpageCheckboxProps
     return <div className={classes.submitToFrontpageWrapper}>
       <Tooltip title={displayedTooltip}>
         <div className={classes.submitToFrontpage}>
-          <Checkbox checked={this.getCurrentValue()} onClick={this.handleClick}/>
-          <span className={classes.checkboxLabel}>{label}</span>
+          <InputLabel className={classes.checkboxLabel}>
+            <Checkbox checked={this.getCurrentValue()} onClick={this.handleClick} className={classes.checkbox} />
+            {label}
+          </InputLabel>
         </div>
       </Tooltip>
     </div>

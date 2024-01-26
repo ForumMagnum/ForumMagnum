@@ -28,7 +28,7 @@ export const elicitDataFragment = `
 export const allQueries = {
   RecommendationsQuery: `query RecommendationsQuery($count: Int, $algorithm: JSON) {
     Recommendations(count: $count, algorithm: $algorithm) {
-      ...PostsList
+      ...PostsListWithVotesAndSequence
     }
   }`,
   MozillaHubsRoomData: `
@@ -184,4 +184,77 @@ export const allQueries = {
       RevisionsDiff(collectionName: $collectionName, fieldName: $fieldName, id: $id, beforeRev: $beforeRev, afterRev: $afterRev, trim: $trim)
     }
   `,
+  GetTwoUserTopicRecommendations: `
+    query getTopicRecommendations($userId: String!, $targetUserId: String!, $limit: Int!) {
+      GetTwoUserTopicRecommendations(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
+        comment {
+          _id
+          contents {
+            html
+            plaintextMainText
+          }
+        }
+        recommendationReason
+        yourVote
+        theirVote
+      }
+    }
+  `,
+  UserTopTags: `
+    query UserTopTags($userId: String!) {
+      UserTopTags(userId: $userId) {
+        tag {
+          name
+          _id
+        }
+        commentCount
+      }
+    }
+  `,
+  UsersReadPostsOfTargetUser: `
+    query UsersReadPostsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
+      UsersReadPostsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
+        _id
+        title
+        slug
+      }
+    }
+  `,
+  UsersRecommendedCommentsOfTargetUser: `
+    query UsersRecommendedCommentsOfTargetUser($userId: String!, $targetUserId: String!, $limit: Int!) {
+      UsersRecommendedCommentsOfTargetUser(userId: $userId, targetUserId: $targetUserId, limit: $limit) {
+        _id
+        postId
+        contents {
+          html
+          plaintextMainText
+        }
+      }
+    }
+  `,
+  GetUserDialogueUsefulData: `
+    query getDialogueUsers {
+      GetUserDialogueUsefulData {
+        dialogueUsers {
+          _id
+          displayName
+        }
+        topUsers {
+          _id
+          displayName
+          username
+          power_values
+          agreement_values
+          vote_counts
+          total_power
+          total_agreement
+          recently_active_matchmaking
+        }
+        activeDialogueMatchSeekers {
+          _id
+          displayName
+        }
+      }
+    }
+  `
 };

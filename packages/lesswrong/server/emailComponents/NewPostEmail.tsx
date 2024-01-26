@@ -17,6 +17,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   headingRow: {
     marginBottom: 8
   },
+
+  podcastRow: {
+    '& p': {
+      marginBottom: 16,
+    },
+    fontStyle: "italic"
+  },
   
   headingLink: {
     color: theme.palette.text.maxIntensity,
@@ -38,6 +45,31 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 30,
   },
 });
+
+const getPodcastInfoElement = (podcastEpisode: PostsDetails_podcastEpisode) => {
+  const { podcast: { applePodcastLink, spotifyPodcastLink }, episodeLink, externalEpisodeId } = podcastEpisode;
+  const episodeUrl = new URL(episodeLink);
+
+  // episodeLink is something like https://www.buzzsprout.com/2037297/11391281-...
+  // But they can also have multiple forward slashes between the origin and the podcast ID
+  // Therefore, the first element returned by `episodeUrl.pathname.split('/').filter(pathSection => !!pathSection)` is `2037297`
+  const [buzzsproutPodcastId] = episodeUrl.pathname.split('/').filter(pathSection => !!pathSection);
+  const buzzsproutEpisodePath = `${buzzsproutPodcastId}/${externalEpisodeId}`;
+
+  const directEpisodeUrl = new URL(episodeUrl.origin);
+  directEpisodeUrl.pathname = buzzsproutEpisodePath;
+
+  const buzzsproutLinkElement = <a href={directEpisodeUrl.toString()}>Buzzsprout</a>
+  const spotifyLinkElement = spotifyPodcastLink ? <a href={spotifyPodcastLink}>Spotify</a> : undefined;
+  const appleLinkElement = applePodcastLink ? <a href={applePodcastLink}>Apple Podcasts</a> : undefined;
+
+  const externalDirectoryAvailability = !!spotifyLinkElement && !!appleLinkElement;
+
+  return <p>
+    Listen to the podcast version of this post on {buzzsproutLinkElement}.
+    {externalDirectoryAvailability ? <>  You can also find it on {spotifyLinkElement} and {appleLinkElement}.</> : <></>}
+  </p>;
+};
 
 const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
   documentId: string,
@@ -93,6 +125,11 @@ const NewPostEmail = ({documentId, reason, hideRecommendations, classes}: {
         This is a linkpost for <a href={postGetLink(document)} target={postGetLinkTarget(document)}>{document.url}</a>
       </div>}
     </div>
+
+    {document.podcastEpisode && <div className={classes.podcastRow}>
+      {getPodcastInfoElement(document.podcastEpisode)}
+      <hr />
+    </div>}
     
     {document.contents && <EmailContentItemBody className="post-body" dangerouslySetInnerHTML={{
       __html: document.contents.html

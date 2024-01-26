@@ -1,75 +1,85 @@
 import { userOwns } from '../../vulcan-users/permissions';
-import { schemaDefaultValue } from '../../collectionUtils';
+import { schemaDefaultValue } from '../../utils/schemaUtils';
 
-const schema: SchemaType<DbNotification> = {
+const schema: SchemaType<"Notifications"> = {
   userId: {
     type: String,
     foreignKey: "Users",
     optional: true,
-    viewableBy: userOwns,
+    nullable: false,
+    canRead: userOwns,
   },
   documentId: {
     type: String,
     // No explicit foreign-key relation because which collection this is depends on notification type
     optional: true,
-    viewableBy: userOwns,
+    canRead: userOwns,
   },
   documentType: {
     type: String,
     optional: true,
-    viewableBy: userOwns,
+    canRead: userOwns,
   },
   extraData: {
     type: Object,
     blackbox: true,
     optional: true,
-    viewableBy: userOwns,
+    canRead: userOwns,
   },
   link: {
     type: String,
     optional: true,
-    viewableBy: userOwns,
+    canRead: userOwns,
   },
   title: {
     type: String,
     optional: true,
-    viewableBy: userOwns,
+    canRead: userOwns,
   },
   message: {
     type: String,
     optional: true,
-    viewableBy: userOwns,
+    nullable: false,
+    canRead: userOwns,
   },
   type: {
     type: String,
     optional: true,
-    viewableBy: userOwns,
+    nullable: false,
+    canRead: userOwns,
   },
   deleted: {
     type: Boolean,
     optional: true,
-    viewableBy: userOwns,
+    canRead: userOwns,
     ...schemaDefaultValue(false),
   },
   viewed: {
     type: Boolean,
     optional: true,
-    defaultValue: false,
-    viewableBy: ['members'],
-    insertableBy: ['members'],
-    editableBy: ['members'],
+    ...schemaDefaultValue(false),
+    canRead: ['members'],
+    canCreate: ['members'],
+    canUpdate: ['members'],
     ...schemaDefaultValue(false),
   },
   emailed: {
     type: Boolean,
     ...schemaDefaultValue(false),
-    viewableBy: userOwns,
+    canRead: userOwns,
   },
   waitingForBatch: {
     type: Boolean,
     ...schemaDefaultValue(false),
-    viewableBy: userOwns,
+    canRead: userOwns,
   },
 };
+
+export type NotificationCountsResult = {
+  checkedAt: Date,
+  unreadNotifications: number
+  unreadPrivateMessages: number
+  faviconBadgeNumber: number
+}
 
 export default schema;

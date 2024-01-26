@@ -1,4 +1,4 @@
-function math (state, silent) {
+function math (state: AnyBecauseTodo, silent: AnyBecauseTodo) {
   var startMathPos = state.pos
   if (state.src.charCodeAt(startMathPos) !== 0x5C /* \ */) {
     return false
@@ -8,7 +8,7 @@ function math (state, silent) {
     return false
   }
   startMathPos += match[0].length
-  var type, endMarker, includeMarkers
+  var type: AnyBecauseTodo, endMarker: AnyBecauseTodo, includeMarkers: AnyBecauseTodo
   if (match[0] === '\\[') {
     type = 'display_math'
     endMarker = '\\\\]'
@@ -35,7 +35,7 @@ function math (state, silent) {
   return true
 }
 
-function texMath (state, silent) {
+function texMath (state: AnyBecauseTodo, silent: boolean) {
   var startMathPos = state.pos
   if (state.src.charCodeAt(startMathPos) !== 0x24 /* $ */) {
     return false
@@ -85,11 +85,11 @@ function texMath (state, silent) {
   return true
 }
 
-function escapeHtml (html) {
+function escapeHtml (html: string) {
   return html.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\u00a0/g, ' ')
 }
 
-function extend (options, defaults) {
+function extend (options: AnyBecauseTodo, defaults: AnyBecauseTodo) {
   return Object.keys(defaults).reduce(function (result, key) {
     if (result[key] === undefined) {
       result[key] = defaults[key]
@@ -98,7 +98,7 @@ function extend (options, defaults) {
   }, options)
 }
 
-var mapping = {
+var mapping: AnyBecauseTodo = {
   'math': 'Math',
   'inline_math': 'InlineMath',
   'display_math': 'DisplayMath'
@@ -115,14 +115,14 @@ export default function (options?: any) {
   }
   options = extend(options || {}, defaults)
 
-  return function (md) {
+  return function (md: AnyBecauseTodo) {
     md.inline.ruler.before('escape', 'math', math)
     md.inline.ruler.push('texMath', texMath)
 
     Object.keys(mapping).forEach(function (key) {
       var before = options['before' + mapping[key]]
       var after = options['after' + mapping[key]]
-      md.renderer.rules[key] = function (tokens, idx) {
+      md.renderer.rules[key] = function (tokens: AnyBecauseTodo, idx: AnyBecauseTodo) {
         return before + escapeHtml(tokens[idx].content) + after
       }
     })

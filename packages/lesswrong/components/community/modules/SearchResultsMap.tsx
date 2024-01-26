@@ -3,12 +3,12 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { createStyles } from '@material-ui/core/styles';
 import ReactMapGL, { Marker } from 'react-map-gl';
 import { Helmet } from 'react-helmet'
-import { forumTypeSetting } from '../../../lib/instanceSettings';
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { connectHits } from 'react-instantsearch-dom';
 import PersonIcon from '@material-ui/icons/PersonPin';
 import { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -24,7 +24,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   popupTitle: {
     display: 'flex',
     columnGap: 10,
-    alignItems: 'center'
+    alignItems: 'center',
+    color: theme.palette.text.alwaysBlack,
   },
   profileImage: {
     'box-shadow': '3px 3px 1px ' + theme.palette.boxShadowColor(.25),
@@ -36,7 +37,6 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     fontSize: 12,
-    fontStyle: 'italic',
     fontWeight: 'normal',
     marginTop: 2
   },
@@ -44,7 +44,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[800],
     fontSize: 14,
-    lineHeight: '1.8em',
+    lineHeight: '20px',
     display: '-webkit-box',
     "-webkit-line-clamp": 3,
     "-webkit-box-orient": 'vertical',
@@ -54,10 +54,15 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 const defaultCenter = {lat: 18.586392, lng: -11.334020}
 
+interface LatLng {
+  lat: number;
+  lng: number;
+}
+
 const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, classes}: {
-  center: {lat: number, lng: number},
+  center: LatLng,
   zoom: number,
-  hits: Array<Hit<AlgoliaUser>>,
+  hits: Array<Hit<SearchUser>>,
   className?: string,
   classes: ClassesType,
 }) => {
@@ -80,15 +85,15 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
   
   // to make sure that map markers with exactly the same lat/lng don't appear exactly on top of each other,
   // we slightly shift all markers by a random distance
-  const [markerLocations, setMarkerLocations] = useState({})
+  const [markerLocations, setMarkerLocations] = useState<Record<string, LatLng>>({})
   useEffect(() => {
     const locations = {...markerLocations}
     hits.forEach(hit => {
       if (!hit._geoloc || locations[hit._id]) return
       
       // within about a quarter mile radius
-      const lat = ((Math.random() - 0.5) * 0.01) + hit._geoloc.lat
-      const lng = ((Math.random() - 0.5) * 0.01) + hit._geoloc.lng
+      const lng = ((Math.random() - 0.5) * 0.01) + hit._geoloc.coordinates[0];
+      const lat = ((Math.random() - 0.5) * 0.01) + hit._geoloc.coordinates[1];
 
       locations[hit._id] = {lat, lng}
     })
@@ -99,8 +104,6 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
   
   const { StyledMapPopup } = Components
   
-  const isEAForum = forumTypeSetting.get() === 'EAForum'
-  
   return <div className={classNames(classes.root, className)}>
     <Helmet>
       <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
@@ -109,7 +112,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
       {...viewport}
       width="100%"
       height="100%"
-      mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+      mapStyle={isFriendlyUI ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
       onViewportChange={viewport => setViewport(viewport)}
       mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
     >
@@ -145,7 +148,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
             onClose={() => setActiveResultId('')}
             hideBottomLinks
           >
-            {hit.htmlBio && <div className={classes.popupBio} dangerouslySetInnerHTML={{__html: hit.htmlBio}} />}
+            {hit.bio && <div className={classes.popupBio}>{hit.bio}</div>}
           </StyledMapPopup>}
         </React.Fragment>
       })}
@@ -159,7 +162,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
 type SearchResultsMapProps = {
   center?: {lat: number, lng: number},
   zoom?: number,
-  hits?: Array<Hit<AlgoliaUser>>,
+  hits?: Array<Hit<SearchUser>>,
   className?: string
 }
 const ConnectedSearchResultsMap: React.ComponentClass<SearchResultsMapProps, any> = connectHits(SearchResultsMap)

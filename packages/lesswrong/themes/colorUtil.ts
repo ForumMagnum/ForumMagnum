@@ -1,3 +1,4 @@
+import { isLWorAF } from "../lib/instanceSettings";
 
 type ColorTuple=[number,number,number,number]; //RGBA, all channels floating point zero to one
 
@@ -48,11 +49,10 @@ export function parseColor(color: string): ColorTuple|null
   return null;
 }
 
+export const zeroTo255 = (n: number): string => ""+Math.floor(n*255);
+
 export function colorToString(color: ColorTuple): string
 {
-  function zeroTo255(n: number): string {
-    return ""+Math.floor(n*255);
-  }
   const [r,g,b,a] = color;
   if (a>=1.0) {
     return `#${toHex2(r)}${toHex2(g)}${toHex2(b)}`;
@@ -61,28 +61,32 @@ export function colorToString(color: ColorTuple): string
   }
 }
 
+// HACK: Gamma here is tuned empirically for a visual result, not based on
+// anything principled.
+const GAMMA = !isLWorAF ? 1.24 : 1.5;
+
+const applyInversionBias = !isLWorAF
+  ? (color: number) => (0.92 * color) + 0.08
+  : (color: number) => color;
+
+const invertChannel = (channel: number) => {
+  const linearized = Math.pow(channel, GAMMA);
+  const invertedLinearized = 1.0-linearized;
+  const inverted = Math.pow(invertedLinearized, 1.0 / GAMMA);
+  return applyInversionBias(inverted);
+}
+
 export function invertColor(color: ColorTuple): ColorTuple
 {
-  // HACK: Gamma here is tuned empirically for a visual result, not based on
-  // anything principled.
-  const gamma=1.5;
-  
-  function invertChannel(channel: number) {
-    const linearized = Math.pow(channel, gamma);
-    const invertedLinearized = 1.0-linearized;
-    const inverted = Math.pow(invertedLinearized, 1.0/gamma);
-    return inverted;
-  }
   const [r,g,b,a] = color;
   return [invertChannel(r),invertChannel(g),invertChannel(b),1];
 }
 
 function validateColor(color: ColorTuple) {
   const [r,g,b,a] = color;
-  if (r<0 || r>1) throw new Error("Invalid color");
-  if (g<0 || g>1) throw new Error("Invalid color");
-  if (b<0 || b>1) throw new Error("Invalid color");
-  if (a<0 || a>1) throw new Error("Invalid color");
+  if (r < 0 || r > 1 || g < 0 || g > 1 || b < 0 || b > 1 || a < 0 || a > 1) {
+    throw new Error(`Invalid color: ${color}`);
+  }
 }
 
 export function invertHexColor(color: string): string {

@@ -24,8 +24,8 @@ export const EmailHistory = ({terms}: {terms: LWEventsViewTerms}) => {
   });
   if (!results) return <Components.Loading/>
   
-  return <>{results.map((email,i) =>
-    <Components.EmailPreview key={email._id} email={email.properties}/>)
+  return <>{results.map((lwEvent,i) =>
+    <Components.EmailPreview key={lwEvent._id} email={lwEvent.properties} sentDate={lwEvent.createdAt}/>)
   }</>
 }
 

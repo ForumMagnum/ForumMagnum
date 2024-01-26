@@ -4,7 +4,7 @@ import QuestionAnswerIcon from '@material-ui/icons/QuestionAnswer';
 import ArrowForwardIcon from '@material-ui/icons/ArrowForward';
 import AllInclusiveIcon from '@material-ui/icons/AllInclusive';
 import StarIcon from '@material-ui/icons/Star';
-import { forumTypeSetting } from '../../instanceSettings';
+import { isEAForum } from '../../instanceSettings';
 
 export const postStatuses = {
   STATUS_PENDING: 1, // Unused
@@ -39,8 +39,6 @@ export const postStatusLabels = [
   }
 ];
 
-const isEAForum = forumTypeSetting.get() === 'EAForum'
-
 const amaTagIdSetting = new DatabasePublicSetting<string | null>('amaTagId', null)
 const openThreadTagIdSetting = new DatabasePublicSetting<string | null>('openThreadTagId', null)
 export const startHerePostIdSetting = new DatabasePublicSetting<string | null>('startHerePostId', null)
@@ -62,3 +60,6 @@ export const idSettingIcons = new Map([
   // use an imposter to avoid duplicating annualReviewAnnouncementPostPathSetting, which is a path not a post id
   [reviewPostIdSetting as DatabasePublicSetting<string | null>, StarIcon]
 ]);
+
+export const sideCommentFilterMinKarma = 10;
+export const sideCommentAlwaysExcludeKarma = -1;

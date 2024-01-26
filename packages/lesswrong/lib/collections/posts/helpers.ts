@@ -1,13 +1,19 @@
-import { forumTypeSetting, siteUrlSetting } from '../../instanceSettings';
+import { PublicInstanceSetting, isAF, siteUrlSetting } from '../../instanceSettings';
 import { getOutgoingUrl, getSiteUrl } from '../../vulcan-lib/utils';
 import { mongoFindOne } from '../../mongoQueries';
 import { userOwns, userCanDo } from '../../vulcan-users/permissions';
 import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
-import { cloudinaryCloudNameSetting } from '../../publicSettings';
+import { DatabasePublicSetting, cloudinaryCloudNameSetting } from '../../publicSettings';
 import Localgroups from '../localgroups/collection';
 import moment from '../../moment-timezone';
+import { max } from "underscore";
+import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 
+export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
+export type PostCategory = UnionOf<typeof postCategories>;
+export const postDefaultCategory = 'post';
+export const isPostCategory = (tab: string): tab is PostCategory => postCategories.has(tab)
 
 //////////////////
 // Link Helpers //
@@ -15,8 +21,13 @@ import moment from '../../moment-timezone';
 
 // Return a post's link if it has one, else return its post page URL
 export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false, isRedirected=true): string {
-  const url = isRedirected ? getOutgoingUrl(post.url) : post.url;
-  return !!post.url ? url : postGetPageUrl(post, isAbsolute);
+  const foreignId = "fmCrosspost" in post && post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere
+    ? post.fmCrosspost.foreignPostId
+    : undefined;
+  if (post.url) {
+    return isRedirected ? getOutgoingUrl(post.url, foreignId ?? undefined) : post.url;
+  }
+  return postGetPageUrl(post, isAbsolute);
 };
 
 // Whether a post's link should open in a new tab or not
@@ -29,12 +40,12 @@ export const postGetLinkTarget = function (post: PostsBase|DbPost): string {
 ///////////////////
 
 // Get a post author's name
-export const postGetAuthorName = async function (post: DbPost) {
+export const postGetAuthorName = async function (post: DbPost): Promise<string> {
   var user = await mongoFindOne("Users", post.userId);
   if (user) {
     return userGetDisplayName(user);
   } else {
-    return post.author;
+    return post.author ?? "[unknown author]";
   }
 };
 
@@ -78,12 +89,18 @@ ${postGetLink(post, true, false)}
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
-// Select the social preview image for the post, using the manually-set
-// cloudinary image if available, or the auto-set from the post contents. If
-// neither of those are available, it will return null.
+// Select the social preview image for the post.
+// For events, we use their event image if that is set.
+// For other posts, we use the manually-set cloudinary image if available,
+// or the auto-set from the post contents. If neither of those are available,
+// it will return null.
 export const getSocialPreviewImage = (post: DbPost): string => {
-  const manualId = post.socialPreviewImageId
-  if (manualId) return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
+  // Note: in case of bugs due to failed migration of socialPreviewImageId -> socialPreview.imageId,
+  // edit this to support the old field "socialPreviewImageId", which still has the old data
+  const manualId = (post.isEvent && post.eventImageId) ? post.eventImageId : post.socialPreview?.imageId
+  if (manualId) {
+    return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
+  }
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''
 }
@@ -94,7 +111,7 @@ export interface PostsMinimumForGetPageUrl {
   _id: string
   slug: string
   isEvent?: boolean
-  groupId?: string|undefined
+  groupId?: string | undefined | null
 }
 
 // Get URL of a post page.
@@ -111,6 +128,14 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   }
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
+
+export const postGetCommentsUrl = (
+  post: PostsMinimumForGetPageUrl,
+  isAbsolute = false,
+  sequenceId: string | null = null,
+): string => {
+  return postGetPageUrl(post, isAbsolute, sequenceId) + "#comments";
+}
 
 export const getPostCollaborateUrl = function (postId: string, isAbsolute=false, linkSharingKey?: string): string {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
@@ -130,31 +155,40 @@ export const postGetEditUrl = function(postId: string, isAbsolute=false, linkSha
   }
 }
 
-export const postGetCommentCount = (post: PostsBase|DbPost): number => {
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+export const postGetCommentCount = (post: PostsBase|DbPost|PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost): number => {
+  if (isAF) {
     return post.afCommentCount || 0;
   } else {
     return post.commentCount || 0;
   }
 }
 
-export const postGetCommentCountStr = (post: PostsBase|DbPost, commentCount?: number|undefined): string => {
-  // can be passed in a manual comment count, or retrieve the post's cached comment count
-
-  const count = commentCount != undefined ? commentCount :  postGetCommentCount(post)
-
+/**
+ * Can pass in a manual comment count, or retrieve the post's cached comment count
+ */
+export const postGetCommentCountStr = (post?: PostsBase|DbPost|null, commentCount?: number|undefined): string => {
+  const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
   if (!count) {
-    return "No comments"
-  } else if (count == 1) {
-    return "1 comment"
+    return "No comments";
+  } else if (count === 1) {
+    return "1 comment";
   } else {
-    return count + " comments"
+    return count + " comments";
   }
 }
 
+export const postGetAnswerCountStr = (count: number): string => {
+  if (!count) {
+    return "No answers";
+  } else if (count === 1) {
+    return "1 answer";
+  } else {
+    return count + " answers";
+  }
+}
 
-export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
-  if (forumTypeSetting.get() === 'AlignmentForum') {
+export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
+  if (isAF) {
     return post.afLastCommentedAt;
   } else {
     return post.lastCommentedAt;
@@ -162,7 +196,7 @@ export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date => {
 }
 
 export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost):Date|null => {
-  if (forumTypeSetting.get() === 'AlignmentForum') return null
+  if (isAF) return null
   // TODO: add an afLastCommentPromotedAt
   return post.lastCommentPromotedAt;
 }
@@ -173,12 +207,14 @@ export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost):Date|null =
  * @param post
  * @returns {Promise} Promise object resolves to true if the post has a group and the user is an organizer for that group
  */
-export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost): Promise<boolean> => {
+export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|null, post: PostsBase|DbPost, context: ResolverContext|null): Promise<boolean> => {
   const groupId = ('group' in post) ? post.group?._id : post.groupId;
   if (!user || !groupId)
     return false
     
-  const group = await Localgroups.findOne({_id: groupId});
+  const group = context
+    ? await context.loaders.Localgroups.load(groupId)
+    : await Localgroups.findOne({_id: groupId});
   return !!group && group.organizerIds.some(id => id === user._id);
 }
 
@@ -195,7 +231,7 @@ export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, p
   if (userOwns(currentUser, post)) return true
   if (userCanDo(currentUser, 'posts.edit.all')) return true
   // Shared as a coauthor? Always give access
-  if (post.coauthorStatuses?.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
+  if (post.coauthorStatuses && post.coauthorStatuses.findIndex(({ userId }) => userId === currentUser._id) >= 0) return true
 
   if (userIsSharedOn(currentUser, post) && post.sharingSettings?.anyoneWithLinkCan === "edit") return true 
 
@@ -214,7 +250,7 @@ export const postCanDelete = (currentUser: UsersCurrent|null, post: PostsBase): 
 }
 
 export const postGetKarma = (post: PostsBase|DbPost): number => {
-  const baseScore = forumTypeSetting.get() === 'AlignmentForum' ? post.afBaseScore : post.baseScore
+  const baseScore = isAF ? post.afBaseScore : post.baseScore
   return baseScore || 0
 }
 
@@ -293,16 +329,18 @@ export const prettyEventDateTimes = (post: PostsBase|DbPost, timezone?: string, 
   return `${startDate}${startYear} at ${startTime}${startAmPm} - ${endDate}${endYear} at ${endTime}${tz}`
 }
 
-export const postCoauthorIsPending = (post: DbPost|PostsList|PostsDetails, coauthorUserId: string) => {
+export type CoauthoredPost = Partial<Pick<DbPost, "hasCoauthorPermission" | "coauthorStatuses">>
+
+export const postCoauthorIsPending = (post: CoauthoredPost, coauthorUserId: string) => {
   if (post.hasCoauthorPermission) {
     return false;
   }
-  const status = post.coauthorStatuses.find(({ userId }) => coauthorUserId === userId);
+  const status = post.coauthorStatuses?.find(({ userId }) => coauthorUserId === userId);
   return status && !status.confirmed;
 }
 
-export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): string[] => {
-  let { coauthorStatuses = [], hasCoauthorPermission = true } = post;
+export const getConfirmedCoauthorIds = (post: CoauthoredPost): string[] => {
+  let { coauthorStatuses, hasCoauthorPermission = true } = post;
   if (!coauthorStatuses) return []
 
   if (!hasCoauthorPermission) {
@@ -311,6 +349,65 @@ export const getConfirmedCoauthorIds = (post: DbPost|PostsList|PostsDetails): st
   return coauthorStatuses.map(({ userId }) => userId);
 }
 
-export const isNotHostedHere = (post: PostsPage) => {
+export const userIsPostCoauthor = (user: UsersMinimumInfo|DbUser|null, post: CoauthoredPost): boolean => {
+  if (!user) {
+    return false;
+  }
+  const userIds = getConfirmedCoauthorIds(post);
+  return userIds.indexOf(user._id) >= 0;
+}
+
+export const isNotHostedHere = (post: PostsPage|DbPost) => {
   return post?.fmCrosspost?.isCrosspost && !post?.fmCrosspost?.hostedHere
+}
+
+const mostRelevantTag = (
+  tags: TagPreviewFragment[],
+  tagRelevance: Record<string, number>,
+): TagPreviewFragment | null => max(tags, ({_id}) => tagRelevance[_id] ?? 0);
+
+export const postGetPrimaryTag = (post: PostsListWithVotes, includeNonCore = false) => {
+  const {tags, tagRelevance} = post;
+  const core = tags.filter(({core}) => core);
+  const potentialTags = core.length < 1 && includeNonCore ? tags : core;
+  const result = mostRelevantTag(potentialTags, tagRelevance);
+  return typeof result === "object" ? result : undefined;
+}
+
+const allowTypeIIIPlayerSetting = new PublicInstanceSetting<boolean>('allowTypeIIIPlayer', false, "optional")
+const type3DateCutoffSetting = new DatabasePublicSetting<string>('type3.cutoffDate', '2023-05-01')
+const type3ExplicitlyAllowedPostIdsSetting = new DatabasePublicSetting<string[]>('type3.explicitlyAllowedPostIds', [])
+/** type3KarmaCutoffSetting is here to allow including high karma posts from before type3DateCutoffSetting */
+const type3KarmaCutoffSetting = new DatabasePublicSetting<number>('type3.karmaCutoff', Infinity)
+
+/**
+ * Whether the post is allowed AI generated audio
+ */
+export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
+  if (!allowTypeIIIPlayerSetting.get()) return false
+
+  try {
+    const TYPE_III_DATE_CUTOFF = new Date(type3DateCutoffSetting.get())
+    const TYPE_III_ALLOWED_POST_IDS = type3ExplicitlyAllowedPostIdsSetting.get()
+
+    return (
+      (new Date(post.postedAt) >= TYPE_III_DATE_CUTOFF ||
+        TYPE_III_ALLOWED_POST_IDS.includes(post._id) ||
+        post.baseScore > type3KarmaCutoffSetting.get() ||
+        post.forceAllowType3Audio) &&
+      !post.draft &&
+      !post.authorIsUnreviewed &&
+      !post.rejected &&
+      !post.podcastEpisodeId &&
+      !post.isEvent &&
+      !post.question &&
+      !post.debate &&
+      !post.shortform &&
+      post.status === postStatuses.STATUS_APPROVED
+    );
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error(e)
+    return false
+  }
 }

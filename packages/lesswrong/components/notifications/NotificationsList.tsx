@@ -4,17 +4,20 @@ import ListItem from '@material-ui/core/ListItem';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     width: 270,
     overflowY: "auto",
     padding: 0,
   },
-  
+
   empty: {
+    ...(isFriendlyUI ? theme.typography.body2 : {}),
     padding: 10
   },
-  
+
   loadMoreButton: {
     fontSize: "14px",
     padding: 0,
@@ -23,6 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: 16,
     textAlign: "center",
     width: "100%",
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
 });
 
@@ -38,7 +42,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
     limit: 20,
     enableTotal: false
   });
-  const [lastNotificationsCheck, setLastNotificationsCheck] = useState(
+  const [lastNotificationsCheck] = useState(
     ((currentUser?.lastNotificationsCheck) || ""),
   );
 
@@ -60,7 +64,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
             onClick={() => loadMore()}
           >
             <div className={classes.loadMoreLabel}>
-              Load More
+              {preferredHeadingCase("Load More")}
             </div>
           </ListItem>}
       </List>
@@ -74,7 +78,7 @@ const NotificationsList = ({ terms, currentUser, classes }: {
       : (terms.type === 'newComment') ? (<b>new comment</b>)
       : (terms.type === 'newMessage') ? (<b>new message</b>)
       : "of these";
-    return <div className={classes.empty}> You don't have any {modifier} notifications yet!</div>
+    return <div className={classes.empty}> You don't have any {modifier} notifications yet</div>
   }
 }
 
@@ -85,4 +89,3 @@ declare global {
     NotificationsList: typeof NotificationsListComponent
   }
 }
-

@@ -7,7 +7,10 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const UsersAutoCompleteHit = ({document, classes}) => {
+const UsersAutoCompleteHit = ({document, classes}: {
+  document: SearchUser
+  classes: ClassesType
+}) => {
   if (document) {
     return <div className={classes.root}>
       <Components.MetaInfo>

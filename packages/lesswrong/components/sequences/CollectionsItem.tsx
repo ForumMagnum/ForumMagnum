@@ -7,8 +7,9 @@ import { CoreReadingCollection } from './LWCoreReading';
 import Tooltip from '@material-ui/core/Tooltip';
 import Button from '@material-ui/core/Button';
 import CloseIcon from '@material-ui/icons/Close';
-import { useCookies } from 'react-cookie';
 import moment from 'moment';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HIDE_COLLECTION_ITEM_PREFIX } from '../../lib/cookies/cookies';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -57,7 +58,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   title: {
     ...theme.typography.headerStyle,
     fontSize: 20,
-    fontVariant: "small-caps"
+    ...theme.typography.smallCaps,
   },
   subtitle: {
     ...theme.typography.body2,
@@ -93,19 +94,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const HIDE_COLLECTION_ITEM_PREFIX = 'hide_collection_item_';
-
 export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   collection: CoreReadingCollection,
   showCloseIcon?: boolean,
   classes: ClassesType,
 }) => {
-  const { Typography, LinkCard, ContentStyles, ContentItemBody, LWTooltip, PostsPreviewTooltipSingle } = Components
+  const {
+    Typography, LinkCard, ContentStyles, ContentItemBody, PostsTooltip
+  } = Components;
 
   const { firstPost } = collection;
-  
+
   const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`; //hiding in one place, hides everywhere
-  const [cookies, setCookie] = useCookies([cookieName]);
+  const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
 
   if (cookies[cookieName]) {
     return null;
@@ -138,12 +139,12 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
           </div> : description}
         </ContentStyles>
         {firstPost && <div className={classes.firstPost}>
-          First Post: <LWTooltip title={<PostsPreviewTooltipSingle postId={firstPost.postId}/>} tooltip={false}>
+          First Post: <PostsTooltip inlineBlock postId={firstPost.postId}>
             <Link to={firstPost.postUrl}>{firstPost.postTitle}</Link>
-          </LWTooltip>
+          </PostsTooltip>
         </div>}
       </div>
-      
+
       {collection.imageUrl && <img src={collection.imageUrl} className={classes.image} style={{width: collection.imageWidth || 130}}/>}
 
       {showCloseIcon && <Tooltip title="Hide this for the next month">

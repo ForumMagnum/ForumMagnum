@@ -4,6 +4,7 @@ import {
   fmCrosspostSiteNameSetting,
   fmCrosspostBaseUrlSetting,
 } from "../../lib/instanceSettings";
+import { Link } from "../../lib/reactRouterWrapper";
 
 const styles = (theme: ThemeType): JssStyles => ({
   link: {
@@ -30,9 +31,19 @@ const ForeignCrosspostEditForm = ({post, classes}: {
   return (
     <SingleColumnSection>
       <PostsPagePostHeader post={postWithNavigation} hideMenu hideTags />
-      <Typography variant="body2">
-        This post cannot be edited as it is a crosspost. <a href={url} className={classes.link}>Click here</a> to edit on {fmCrosspostSiteNameSetting.get()}.
+      <Typography variant="body2" gutterBottom>
+        This post cannot be edited as it is a crosspost.{' '}
+        <a href={url} className={classes.link}>Click here</a> to edit on{' '}
+        {fmCrosspostSiteNameSetting.get()}.
       </Typography>
+      {post.draft && <Typography variant="body2">
+        This crosspost is a draft. Crosspost drafts cannot be undrafted. You
+        will need to{' '}
+        <Link to='/contact' className={classes.link}>
+          contact a site admin
+        </Link>{' '}
+        for help. Sorry about that!
+      </Typography>}
     </SingleColumnSection>
   );
 }

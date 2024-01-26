@@ -6,6 +6,7 @@ registerFragment(`
     title
     canonicalCollectionSlug
     canonicalCollection {
+      _id
       title
     }
   }
@@ -29,9 +30,21 @@ registerFragment(`
     isDeleted
     hidden
     hideFromAuthorPage
+    noindex
     curatedOrder
     userProfileOrder
     af
+    postsCount
+    readPostsCount
+  }
+`);
+
+registerFragment(`
+  fragment SequenceContinueReadingFragment on Sequence {
+    _id
+    title
+    gridImageId
+    canonicalCollectionSlug
   }
 `);
 

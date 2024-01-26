@@ -1,71 +1,68 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils';
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
 import { userOwns } from '../../vulcan-users/permissions';
+import SimpleSchema from 'simpl-schema';
 
-const schema: SchemaType<DbAdvisorRequest> = {
+export interface JobAdsType {
+  state: 'seen'|'expanded'|'interested'|'uninterested'
+  uninterestedReason?: string
+  lastUpdated: Date
+}
+const jobAdsType = new SimpleSchema({
+  state: {
+    type: String,
+    allowedValues: ['seen', 'expanded', 'interested', 'uninterested'],
+  },
+  uninterestedReason: {
+    type: String,
+    optional: true,
+    nullable: true
+  },
+  lastUpdated: {
+    type: Date,
+    optional: true
+  },
+})
+
+const schema: SchemaType<"AdvisorRequests"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
       resolverName: "user",
       collectionName: "Users",
       type: "User",
+      // TODO not-null: is this collection being used at all?
       nullable: true,
     }),
+    nullable: false,
     hidden: true,
-    insertableBy: ['members', 'admins'],
-    viewableBy: [userOwns, 'admins'],
-    editableBy: [userOwns, 'admins'],
+    canCreate: ['members', 'admins'],
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
   },
-  timezone: {
+  interestedInMetaculus: {
+    type: Boolean,
     optional: true,
-    type: String,
-    viewableBy: [userOwns, 'admins'],
-    editableBy: [userOwns, 'admins'],
-    control: "select",
-    form: {
-      options: () => new Array(24).fill(0).map((n, i) => ({value: i - 11, label: `UTC ${i - 11 >= 0 ? "+" : ""}${i - 11}`})),
-    },
+    // TODO not-null: is this collection being used at all?
+    hidden: true,
+    canCreate: ['members', 'admins'],
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    ...schemaDefaultValue(false),
   },
-  availability: {
+  jobAds: {
+    type: Object,
     optional: true,
-    type: String,
-    viewableBy: [userOwns, 'admins'],
-    editableBy: [userOwns, 'admins'],
+    nullable: true,
+    // TODO not-null: is this collection being used at all?
+    hidden: true,
+    blackbox: true,
+    canCreate: ['members', 'admins'],
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
   },
-  questions: {
-    optional: true,
-    type: String,
-    viewableBy: [userOwns, 'admins'],
-    editableBy: [userOwns, 'admins'],
-  },
-  linkedinProfile: {
-    optional: true,
-    type: String,
-    viewableBy: [userOwns, 'admins'],
-    editableBy: [userOwns, 'admins'],
-  },
-  previousExperience: {
-    optional: true,
-    type: String,
-    viewableBy: [userOwns, 'admins'],
-    editableBy: [userOwns, 'admins'],
-  },
-  selectedAdvisors: {
-    optional: true,
-    type: Array,
-    viewableBy: [userOwns, 'admins'],
-    editableBy: [userOwns, 'admins'],
-  },
-  'selectedAdvisors.$': {
-    optional: true,
-    type: String,
-    viewableBy: [userOwns, 'admins'],
-  },
-  referrer: {
-    optional: true,
-    type: String,
-    viewableBy: [userOwns, 'admins'],
-    editableBy: [userOwns, 'admins'],
+  'jobAds.$': {
+    type: jobAdsType,
+    canRead: ['members'],
   },
 };
 

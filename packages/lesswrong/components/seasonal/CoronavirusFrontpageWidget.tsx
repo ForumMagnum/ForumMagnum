@@ -5,7 +5,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
-const CoronavirusFrontpageWidget = ({settings}) => {
+const CoronavirusFrontpageWidget = ({settings}: {
+  settings: RecommendationsAlgorithm & { hideCoronavirus?: boolean }
+}) => {
   const { SectionSubtitle, RecommendationsList, LWTooltip, SectionFooter } = Components
 
   const currentUser = useCurrentUser();

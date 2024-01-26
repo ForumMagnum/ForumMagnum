@@ -1,27 +1,62 @@
-import React from 'react';
+import React, { ComponentType } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useRecommendations } from './withRecommendations';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
-const RecommendationsList = ({algorithm, translucentBackground}: {
+export type RecommendationsListItem = ComponentType<{
+  post: PostsListWithVotes|PostsListWithVotesAndSequence,
+  translucentBackground?: boolean,
+}>;
+
+const styles = (theme: ThemeType) => ({
+  noMoreMessage: {
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+  },
+});
+
+const RecommendationsList = ({
+  algorithm,
+  translucentBackground,
+  ListItem = Components.PostsItem,
+  loadingFallback,
+  className,
+  classes,
+}: {
   algorithm: RecommendationsAlgorithm,
-  translucentBackground?: boolean
+  translucentBackground?: boolean,
+  ListItem?: RecommendationsListItem,
+  loadingFallback?: JSX.Element,
+  className?: string,
+  classes: ClassesType,
 }) => {
-  const { PostsItem2, PostsLoading, Typography } = Components;
+  const {PostsLoading, Typography} = Components;
   const {recommendationsLoading, recommendations} = useRecommendations(algorithm);
 
   if (recommendationsLoading || !recommendations)
-    return <PostsLoading/>
+    return loadingFallback ?? <PostsLoading/>;
 
-  return <div>
+  return <div className={className}>
     {recommendations.map(post =>
-      <PostsItem2 post={post} key={post._id} translucentBackground={translucentBackground}/>)}
-    {recommendations.length===0 &&
-      <Typography variant="body1"><small>There are no more recommendations left.</small></Typography>}
+      <ListItem
+        key={post._id}
+        post={post}
+        translucentBackground={translucentBackground}
+      />
+    )}
+    {recommendations.length === 0 &&
+      <Typography variant="body1" className={classes.noMoreMessage}>
+        <small>There are no more recommendations left.</small>
+      </Typography>
+    }
   </div>
 }
 
-const RecommendationsListComponent = registerComponent('RecommendationsList', RecommendationsList);
+const RecommendationsListComponent = registerComponent(
+  'RecommendationsList',
+  RecommendationsList,
+  {styles, stylePriority: -1},
+);
 
 declare global {
   interface ComponentTypes {

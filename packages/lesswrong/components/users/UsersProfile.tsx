@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { userCanEdit, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
+import { userCanEditUser, userGetDisplayName, userGetProfileUrl, userGetProfileUrlFromSlug } from "../../lib/collections/users/helpers";
 import { userGetEditUrl } from '../../lib/vulcan-users/helpers';
 import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 import StarIcon from '@material-ui/icons/Star'
@@ -15,11 +15,15 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import Tooltip from '@material-ui/core/Tooltip';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { forumTypeSetting, hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF } from '../../lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
-import { taglineSetting } from '../common/HeadTags';
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/sortOrderOptions';
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { useMessages } from '../common/withMessages';
+import CopyIcon from '@material-ui/icons/FileCopy'
+import { getUserStructuredData } from './UsersSingle';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -42,6 +46,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.display3,
     ...theme.typography.postStyle,
     marginTop: 0,
+  },
+  deletedUserName: {
+    textDecoration: "line-through",
   },
   userInfo: {
     display: "flex",
@@ -70,10 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   bio: {
     marginTop: theme.spacing.unit*3,
   },
-  primaryColor: {
-    color: theme.palette.primary.light
-  },
-  title: {
+  postsTitle: {
     cursor: "pointer"
   },
   // Dark Magick
@@ -82,6 +86,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   userMetaInfo: {
     display: "inline-flex"
   },
+  copyIcon: {
+    fontSize: 14
+  }
 })
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
@@ -97,6 +104,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const [showSettings, setShowSettings] = useState(false);
 
   const currentUser = useCurrentUser();
+  const { flash } = useMessages();
   
   const {loading, results} = useMulti({
     terms,
@@ -109,7 +117,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
   const { query } = useLocation()
 
   const displaySequenceSection = (canEdit: boolean, user: UsersProfile) => {
-    if (forumTypeSetting.get() === 'AlignmentForum') {
+    if (isAF) {
         return !!((canEdit && user.afSequenceDraftCount) || user.afSequenceCount) || !!(!canEdit && user.afSequenceCount)
     } else {
         return !!((canEdit && user.sequenceDraftCount) || user.sequenceCount) || !!(!canEdit && user.sequenceCount)
@@ -122,12 +130,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
     const userKarma = karma || 0
     const userAfKarma = afKarma || 0
-    const userPostCount = forumTypeSetting.get() !== 'AlignmentForum' ? postCount || 0 : afPostCount || 0
-    const userCommentCount = forumTypeSetting.get() !== 'AlignmentForum' ? commentCount || 0 : afCommentCount || 0
+    const userPostCount = !isAF ? postCount || 0 : afPostCount || 0
+    const userCommentCount = !isAF ? commentCount || 0 : afCommentCount || 0
 
       return <div className={classes.meta}>
 
-        { forumTypeSetting.get() !== 'AlignmentForum' && <Tooltip title={`${userKarma} karma`}>
+        { !isAF && <Tooltip title={`${userKarma} karma`}>
           <span className={classes.userMetaInfo}>
             <StarIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo title="Karma">
@@ -136,7 +144,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </span>
         </Tooltip>}
 
-        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma${(forumTypeSetting.get() !== 'AlignmentForum') ? " on alignmentforum.org" : ""}`}>
+        {!!userAfKarma && <Tooltip title={`${userAfKarma} karma${(!isAF) ? " on alignmentforum.org" : ""}`}>
           <span className={classes.userMetaInfo}>
             <Components.OmegaIcon className={classNames(classes.icon, classes.specificalz)}/>
             <Components.MetaInfo title="Alignment Karma">
@@ -178,7 +186,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
       PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
       SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
-      Typography, ContentStyles, ReportUserButton } = Components
+      Typography, ContentStyles, ReportUserButton, LWTooltip } = Components
 
     if (loading) {
       return <div className={classNames("page", "users-profile", classes.profilePage)}>
@@ -186,13 +194,13 @@ const UsersProfileFn = ({terms, slug, classes}: {
       </div>
     }
 
-    if (!user || !user._id || user.deleted) {
+    if (!user || !user._id || (user.deleted && !currentUser?.isAdmin)) {
       //eslint-disable-next-line no-console
       console.error(`// missing user (_id/slug: ${slug})`);
       return <Error404/>
     }
 
-    if (user.oldSlugs?.includes(slug)) {
+    if (user.oldSlugs?.includes(slug) && !user.deleted) {
       return <PermanentRedirect url={userGetProfileUrlFromSlug(user.slug)} />
     }
 
@@ -217,7 +225,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const sequenceAllTerms: SequencesViewTerms = {view: "userProfileAll", userId: user._id, limit:9}
 
     // maintain backward compatibility with bookmarks
-    const currentSorting = query.sortedBy || query.view ||  "new"
+    const currentSorting = (query.sortedBy || query.view ||  "new") as PostSortingMode
     const currentFilter = query.filter ||  "all"
     const ownPage = currentUser?._id === user._id
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
@@ -228,38 +236,50 @@ const UsersProfileFn = ({terms, slug, classes}: {
     const username = userGetDisplayName(user)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
     
-    const nonAFMember = (forumTypeSetting.get()==="AlignmentForum" && !userCanDo(currentUser, "posts.alignment.new"))
+    const nonAFMember = (isAF && !userCanDo(currentUser, "posts.alignment.new"))
 
-    const showMessageButton = currentUser?._id != user._id
+    const showMessageButton = currentUser?._id !== user._id
 
     return (
       <div className={classNames("page", "users-profile", classes.profilePage)}>
         <HeadTags
           description={metaDescription}
           noIndex={(!user.postCount && !user.commentCount) || user.karma <= 0 || user.noindex}
+          structuredData={getUserStructuredData(user)}
           image={user.profileImageId && `https://res.cloudinary.com/cea/image/upload/c_crop,g_custom,q_auto,f_auto/${user.profileImageId}.jpg`}
         />
         <AnalyticsContext pageContext={"userPage"}>
           {/* Bio Section */}
           <SingleColumnSection>
-            <div className={classes.usernameTitle}>
+            <div className={classNames(classes.usernameTitle, {
+              [classes.deletedUserName]: user.deleted
+            })}>
               {username}
             </div>
+            {user.deleted && "(account deleted)"}
             <Typography variant="body2" className={classes.userInfo}>
               { renderMeta() }
               { currentUser?.isAdmin &&
                 <div>
+                  <LWTooltip title="Click to copy userId" placement="right">
+                    <CopyToClipboard text={user._id} onCopy={()=>flash({messageString:"userId copied!"})}>
+                      <CopyIcon className={classes.copyIcon} />
+                    </CopyToClipboard>
+                  </LWTooltip>
+                </div>
+              }
+              { currentUser?.isAdmin &&
+                <div>
                   <DialogGroup
                     actions={[]}
-                    trigger={<span>Register RSS</span>}
+                    trigger={<a>Register RSS</a>}
                   >
-                    { /*eslint-disable-next-line react/jsx-pascal-case*/ }
-                    <div><Components.newFeedButton user={user} /></div>
+                    <div><Components.NewFeedButton user={user} /></div>
                   </DialogGroup>
                 </div>
               }
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-                Manage Subscriptions
+                {preferredHeadingCase("Manage Subscriptions")}
               </Link>}
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
                 <a data-cy="message">Message</a>
@@ -269,8 +289,8 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
-              {userCanEdit(currentUser, user) && <Link to={userGetEditUrl(user)}>
-                Account Settings
+              {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
+                {preferredHeadingCase("Account Settings")}
               </Link>}
             </Typography>
 
@@ -315,7 +335,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           }
           {/* Posts Section */}
           <SingleColumnSection>
-            <div className={classes.title} onClick={() => setShowSettings(!showSettings)}>
+            <div className={classes.postsTitle} onClick={() => setShowSettings(!showSettings)}>
               <SectionTitle title={"Posts"}>
                 <SettingsButton label={`Sorted by ${ SORT_ORDER_OPTIONS[currentSorting].label }`}/>
               </SectionTitle>

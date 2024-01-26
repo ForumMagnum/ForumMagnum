@@ -4,53 +4,122 @@
 // which will cause this file to be regenerated. This file should nevertheless be
 // checked in to version control.
 interface ResolverArgumentTypes {
-  currentUser: void
   getTokenParams: { token: string|null }
   SiteData: void
+  RssPostChanges: { postId: string }
   EmailPreview: { notificationIds: Array<string|null>, postId: string|null }
   getLinkSharedPost: { postId: string, linkSharingKey: string }
+  SubforumMagicFeed: { limit: number|null, cutoff: number|null, offset: number|null, tagId: string, af: boolean|null }
+  SubforumTopFeed: { limit: number|null, cutoff: number|null, offset: number|null, tagId: string, af: boolean|null }
+  SubforumRecentCommentsFeed: { limit: number|null, cutoff: Date|null, offset: number|null, tagId: string, af: boolean|null }
+  SubforumNewFeed: { limit: number|null, cutoff: Date|null, offset: number|null, tagId: string, af: boolean|null }
+  SubforumOldFeed: { limit: number|null, cutoff: Date|null, offset: number|null, tagId: string, af: boolean|null }
   TagUpdatesInTimeBlock: { before: Date, after: Date }
   TagUpdatesByUser: { userId: string, limit: number, skip: number }
   RandomTag: void
+  UserTopTags: { userId: string }
   MigrationsDashboard: void
   AdminMetadata: void
   ContinueReading: void
-  Recommendations: { count: number|null, algorithm: any }
+  Recommendations: { count: number|null, algorithm: any /*JSON*/ }
+  CommentsWithReacts: { limit: number|null }
+  PopularComments: { limit: number|null }
+  GetTwoUserTopicRecommendations: { userId: string, targetUserId: string, limit: number }
+  UsersRecommendedCommentsOfTargetUser: { userId: string, targetUserId: string, limit: number }
+  unreadNotificationCounts: void
+  latestDialogueMessages: { dialogueId: string, numMessages: number }
+  getCrosspost: { args: any /*JSON*/ }
+  generateTableOfContents: { html: string }
   RevisionsDiff: { collectionName: string, fieldName: string, id: string|null, beforeRev: string|null, afterRev: string, trim: boolean|null }
-  convertDocument: { document: any, targetFormat: string|null }
+  convertDocument: { document: any /*JSON*/, targetFormat: string|null }
+  UsersReadPostsOfTargetUser: { userId: string, targetUserId: string, limit: number|null }
+  UserReadHistory: { limit: number|null }
+  PostIsCriticism: { args: any /*JSON*/ }
+  DigestPlannerData: { digestId: string|null, startDate: Date|null, endDate: Date|null }
+  DigestHighlights: { limit: number|null }
+  DigestPostsThisWeek: { limit: number|null }
+  CuratedAndPopularThisWeek: { limit: number|null }
+  RecentlyActiveDialogues: { limit: number|null }
+  MyDialogues: { limit: number|null }
+  currentUser: void
+  UserWrappedDataByYear: { userId: string, year: number }
+  GetRandomUser: { userIsAuthor: string }
+  GetUserDialogueUsefulData: void
+  GetDialogueMatchedUsers: void
+  GetDialogueRecommendedUsers: void
   CoronaVirusData: void
   MozillaHubsRoomData: { roomId: string|null }
   ArbitalPageData: { pageAlias: string|null }
   TagHistoryFeed: { limit: number|null, cutoff: Date|null, offset: number|null, tagId: string }
   AllTagsActivityFeed: { limit: number|null, cutoff: Date|null, offset: number|null }
   RecentDiscussionFeed: { limit: number|null, cutoff: Date|null, offset: number|null, af: boolean|null }
+  GivingSeasonHearts: { electionName: string }
   PetrovDayCheckIfIncoming: void
   PostAnalytics: { postId: string }
+  MultiPostAnalytics: { userId: string|null, postIds: Array<string|null>, sortBy: string|null, desc: boolean|null, limit: number|null }
+  AnalyticsSeries: { userId: string|null, postIds: Array<string|null>, startDate: Date|null, endDate: Date|null }
+  moderatorViewIPAddress: { ipAddress: string }
+  SearchSynonyms: void
   ElicitBlockData: { questionId: string|null }
 }
 interface ResolverResultTypes {
-  currentUser: DbUser|null
-  getTokenParams: any
+  getTokenParams: any /*JSON*/
   SiteData: Site|null
+  RssPostChanges: RssPostChangeInfo
   EmailPreview: Array<EmailPreview|null>
-  getLinkSharedPost: DbPost|null
+  getLinkSharedPost: Partial<DbPost>|null
+  SubforumMagicFeed: SubforumMagicFeedQueryResults
+  SubforumTopFeed: SubforumTopFeedQueryResults
+  SubforumRecentCommentsFeed: SubforumRecentCommentsFeedQueryResults
+  SubforumNewFeed: SubforumNewFeedQueryResults
+  SubforumOldFeed: SubforumOldFeedQueryResults
   TagUpdatesInTimeBlock: Array<TagUpdates>
   TagUpdatesByUser: Array<TagUpdates>
-  RandomTag: DbTag
+  RandomTag: Partial<DbTag>
+  UserTopTags: Array<TagWithCommentCount>
   MigrationsDashboard: MigrationsDashboardData|null
   AdminMetadata: string
   ContinueReading: Array<RecommendResumeSequence>
-  Recommendations: Array<DbPost>
+  Recommendations: Array<Partial<DbPost>>
+  CommentsWithReacts: CommentsWithReactsResult|null
+  PopularComments: PopularCommentsResult|null
+  GetTwoUserTopicRecommendations: Array<TopicRecommendation|null>
+  UsersRecommendedCommentsOfTargetUser: Array<Partial<DbComment>|null>
+  unreadNotificationCounts: NotificationCounts
+  latestDialogueMessages: Array<string>
+  getCrosspost: any /*JSON*/
+  generateTableOfContents: any /*JSON*/
   RevisionsDiff: string|null
-  convertDocument: any
+  convertDocument: any /*JSON*/
+  UsersReadPostsOfTargetUser: Array<Partial<DbPost>>
+  UserReadHistory: UserReadHistoryResult|null
+  PostIsCriticism: boolean|null
+  DigestPlannerData: Array<DigestPlannerPost|null>
+  DigestHighlights: DigestHighlightsResult|null
+  DigestPostsThisWeek: DigestPostsThisWeekResult|null
+  CuratedAndPopularThisWeek: CuratedAndPopularThisWeekResult|null
+  RecentlyActiveDialogues: RecentlyActiveDialoguesResult|null
+  MyDialogues: MyDialoguesResult|null
+  currentUser: Partial<DbUser>|null
+  UserWrappedDataByYear: WrappedDataByYear|null
+  GetRandomUser: Partial<DbUser>|null
+  GetUserDialogueUsefulData: UserDialogueUsefulData|null
+  GetDialogueMatchedUsers: Array<Partial<DbUser>|null>
+  GetDialogueRecommendedUsers: Array<Partial<DbUser>|null>
   CoronaVirusData: CoronaVirusDataSchema|null
   MozillaHubsRoomData: MozillaHubsData|null
   ArbitalPageData: ArbitalPageData|null
   TagHistoryFeed: TagHistoryFeedQueryResults
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults
+  GivingSeasonHearts: any /*[GivingSeasonHeart!]!
+*/
   PetrovDayCheckIfIncoming: PetrovDayCheckIfIncomingData|null
   PostAnalytics: PostAnalyticsResult
+  MultiPostAnalytics: MultiPostAnalyticsResult
+  AnalyticsSeries: Array<AnalyticsSeriesValue|null>
+  moderatorViewIPAddress: ModeratorIPAddressInfo|null
+  SearchSynonyms: Array<string>
   ElicitBlockData: ElicitBlockData|null
 }
-type ResolverName = "currentUser"|"getTokenParams"|"SiteData"|"EmailPreview"|"getLinkSharedPost"|"TagUpdatesInTimeBlock"|"TagUpdatesByUser"|"RandomTag"|"MigrationsDashboard"|"AdminMetadata"|"ContinueReading"|"Recommendations"|"RevisionsDiff"|"convertDocument"|"CoronaVirusData"|"MozillaHubsRoomData"|"ArbitalPageData"|"TagHistoryFeed"|"AllTagsActivityFeed"|"RecentDiscussionFeed"|"PetrovDayCheckIfIncoming"|"PostAnalytics"|"ElicitBlockData"
+type ResolverName = "getTokenParams"|"SiteData"|"RssPostChanges"|"EmailPreview"|"getLinkSharedPost"|"SubforumMagicFeed"|"SubforumTopFeed"|"SubforumRecentCommentsFeed"|"SubforumNewFeed"|"SubforumOldFeed"|"TagUpdatesInTimeBlock"|"TagUpdatesByUser"|"RandomTag"|"UserTopTags"|"MigrationsDashboard"|"AdminMetadata"|"ContinueReading"|"Recommendations"|"CommentsWithReacts"|"PopularComments"|"GetTwoUserTopicRecommendations"|"UsersRecommendedCommentsOfTargetUser"|"unreadNotificationCounts"|"latestDialogueMessages"|"getCrosspost"|"generateTableOfContents"|"RevisionsDiff"|"convertDocument"|"UsersReadPostsOfTargetUser"|"UserReadHistory"|"PostIsCriticism"|"DigestPlannerData"|"DigestHighlights"|"DigestPostsThisWeek"|"CuratedAndPopularThisWeek"|"RecentlyActiveDialogues"|"MyDialogues"|"currentUser"|"UserWrappedDataByYear"|"GetRandomUser"|"GetUserDialogueUsefulData"|"GetDialogueMatchedUsers"|"GetDialogueRecommendedUsers"|"CoronaVirusData"|"MozillaHubsRoomData"|"ArbitalPageData"|"TagHistoryFeed"|"AllTagsActivityFeed"|"RecentDiscussionFeed"|"GivingSeasonHearts"|"PetrovDayCheckIfIncoming"|"PostAnalytics"|"MultiPostAnalytics"|"AnalyticsSeries"|"moderatorViewIPAddress"|"SearchSynonyms"|"ElicitBlockData"

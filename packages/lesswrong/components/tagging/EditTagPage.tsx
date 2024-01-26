@@ -1,11 +1,11 @@
 import React from 'react';
 import { registerComponent, Components, getFragment } from '../../lib/vulcan-lib';
-import { useLocation, useNavigation } from '../../lib/routeUtil'
-import { Tags } from '../../lib/collections/tags/collection';
+import { useLocation } from '../../lib/routeUtil'
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client";
 import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 export const EditTagForm = ({tag, successCallback, cancelCallback}: {
   tag: TagFragment,
@@ -14,7 +14,7 @@ export const EditTagForm = ({tag, successCallback, cancelCallback}: {
 }) => {
   return <Components.WrappedSmartForm
     key={`${tag?._id}_${tag?.description?.version}`}
-    collection={Tags}
+    collectionName="Tags"
     documentId={tag._id}
     queryFragment={getFragment('TagEditFragment')}
     mutationFragment={getFragment('TagWithFlagsFragment')}
@@ -27,7 +27,7 @@ const EditTagPage = () => {
   const { params } = useLocation();
   const { slug } = params;
   const { tag, loading } = useTagBySlug(slug, "TagFragment");
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   const client = useApolloClient()
 
   if (loading)
@@ -40,9 +40,9 @@ const EditTagPage = () => {
       <Components.SectionTitle title={`Edit ${taggingNameCapitalSetting.get()} #${tag.name}`}/>
       <EditTagForm 
         tag={tag} 
-        successCallback={ async (tag) => {
+        successCallback={ async (tag: any) => {
           await client.resetStore()
-          history.push({pathname: tagGetUrl(tag)})
+          navigate({pathname: tagGetUrl(tag)})
         }}
       />
     </Components.SingleColumnSection>

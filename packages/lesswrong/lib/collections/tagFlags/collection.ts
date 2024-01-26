@@ -1,15 +1,16 @@
 import { createCollection } from '../../vulcan-lib';
 import { Utils, slugify } from '../../vulcan-lib/utils';
-import { addUniversalFields, getDefaultResolvers, schemaDefaultValue } from '../../collectionUtils'
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
+import { schemaDefaultValue } from '../../utils/schemaUtils';
 import { getDefaultMutations, MutationOptions } from '../../vulcan-core/default_mutations';
 import { makeEditable } from '../../editor/make_editable';
 import './fragments'
 import { adminsGroup, userCanDo } from '../../vulcan-users/permissions';
 
-
-const schema: SchemaType<DbTagFlag> = {
+const schema: SchemaType<"TagFlags"> = {
   name: {
     type: String,
+    nullable: false,
     canRead: ['guests'],
     canUpdate: ['members', 'admins', 'sunshineRegiment'],
     canCreate: ['members', 'admins', 'sunshineRegiment'],
@@ -17,6 +18,7 @@ const schema: SchemaType<DbTagFlag> = {
   },
   deleted: {
     optional: true,
+    nullable: false,
     type: Boolean,
     canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
@@ -27,7 +29,8 @@ const schema: SchemaType<DbTagFlag> = {
   slug: {
     type: String,
     optional: true,
-    viewableBy: ['guests'],
+    nullable: false,
+    canRead: ['guests'],
     onInsert: async (tagFlag) => {
       return await Utils.getUnusedSlugByCollectionName("TagFlags", slugify(tagFlag.name))
     },
@@ -40,10 +43,11 @@ const schema: SchemaType<DbTagFlag> = {
   order: {
     type: Number,
     optional: true,
-    viewableBy: ['guests'],
+    nullable: true,
+    canRead: ['guests'],
     canUpdate: ['admins', 'sunshineRegiment'],
     canCreate: ['admins', 'sunshineRegiment'], 
-  }
+  },
 };
 
 

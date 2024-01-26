@@ -52,7 +52,7 @@ const CollectionsEditForm = ({documentId, successCallback, cancelCallback, class
   return (
     <div className={classNames(classes.newOrEditForm,classes.editForm)}>
       <Components.WrappedSmartForm
-        collection={Collections}
+        collectionName="Collections"
         documentId={documentId}
         successCallback={successCallback}
         cancelCallback={cancelCallback}

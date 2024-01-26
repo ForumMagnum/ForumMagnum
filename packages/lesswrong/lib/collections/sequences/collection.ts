@@ -26,12 +26,7 @@ const options: MutationOptions<DbSequence> = {
   },
 }
 
-interface ExtendedSequencesCollection extends SequencesCollection {
-  // Functions in search/utils.ts
-  toAlgolia: (sequence: DbSequence) => Promise<Array<AlgoliaDocument>|null>
-}
-
-export const Sequences: ExtendedSequencesCollection = createCollection({
+export const Sequences = createCollection({
   collectionName: 'Sequences',
   typeName: 'Sequence',
   schema,

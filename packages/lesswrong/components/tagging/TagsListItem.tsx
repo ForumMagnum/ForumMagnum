@@ -2,7 +2,7 @@ import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
-import { taggingNameIsSet, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType): JssStyles => ({
   tag: {
@@ -46,7 +46,7 @@ const TagsListItem = ({tag, classes, postCount=3}: {
     >
       <div className={classes.hideOnMobile}><TagPreview tag={tag} postCount={postCount}/></div>
     </PopperCard>
-    <Link to={`/${taggingNameIsSet.get() ? taggingNamePluralSetting.get() : 'tag'}/${tag.slug}`}>
+    <Link to={tagGetUrl(tag)}>
       {tag.name} { tag.needsReview }
     </Link>
     <span className={classes.count}>

@@ -1,14 +1,13 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
 import { useMessages } from '../common/withMessages';
 import React from 'react';
-import { Localgroups } from '../../lib/collections/localgroups/collection';
-import { useNavigation } from '../../lib/routeUtil'
 import { useCurrentUser } from '../common/withUser';
 import DialogContent from '@material-ui/core/DialogContent';
 import { withStyles, createStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
+import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -93,20 +92,20 @@ const SubmitComponent = withStyles(styles, {name: "GroupFormLinkSubmit"})(({subm
 const GroupFormDialog =  ({ onClose, classes, documentId, isOnline }: {
   onClose: ()=>void,
   classes: ClassesType,
-  documentId: string,
+  documentId?: string,
   isOnline?: boolean
 }) => {
   const { WrappedSmartForm, LWDialog } = Components
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
-  const { history } = useNavigation();
+  const navigate = useNavigate();
   return <LWDialog
     open={true}
     onClose={onClose}
   >
     <DialogContent className={classes.localGroupForm}>
       <WrappedSmartForm
-        collection={Localgroups}
+        collectionName="Localgroups"
         documentId={documentId}
         queryFragment={getFragment('localGroupsEdit')}
         mutationFragment={getFragment('localGroupsHomeFragment')}
@@ -114,13 +113,13 @@ const GroupFormDialog =  ({ onClose, classes, documentId, isOnline }: {
           FormSubmit: SubmitComponent
         }}
         prefilledProps={documentId ? {} : {organizerIds: [currentUser!._id], isOnline: isOnline}} // If edit form, do not prefill any data
-        successCallback={group => {
+        successCallback={(group: any) => {
           onClose();
           if (documentId) {
             flash({messageString: "Successfully edited local group " + group.name});
           } else {
             flash({messageString: "Successfully created new local group " + group.name})
-            history.push({pathname: '/groups/' + group._id});
+            navigate({pathname: '/groups/' + group._id});
           }
         }}
       />

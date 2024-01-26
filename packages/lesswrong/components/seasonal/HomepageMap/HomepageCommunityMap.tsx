@@ -9,9 +9,11 @@ import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { ArrowSVG } from '../../localGroups/Icons';
 import { postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
-import { LocalEvent, localEvents } from './acxEvents';
+import { ACX_EVENTS_LAST_UPDATED, LocalEvent, localEvents } from './acxEvents';
+import classNames from 'classnames';
+import moment from 'moment';
 
-const styles = theme => ({
+const styles = (theme: JssStyles) => ({
   root: {
     width: "100%",
     height: 440,
@@ -68,7 +70,8 @@ const LocalEventWrapperPopUp = ({localEvent, handleClose}:{
     metaInfo={document.contactInfo}
     cornerLinks={<GroupLinks document={document}/>}
     onClose={() => handleClose(document._id)}
-    offsetTop={-25}
+    offsetTop={-15}
+    offsetLeft={10}
   >
     <div dangerouslySetInnerHTML={htmlBody} />
   </StyledMapPopup>
@@ -81,7 +84,16 @@ const localEventMapMarkerWrappersStyles = (theme: ThemeType): JssStyles => ({
     height: 20,
     width: 20,
     fill: theme.palette.event,
-    opacity: 0.8
+    opacity: 0.8,
+    cursor: "pointer",
+    '&:hover': {
+      fill: theme.palette.primary.dark,
+      opacity: 1
+    }
+  },
+  iconSelected: {
+    fill: theme.palette.primary.dark,
+    opacity: 1
   }
 })
 const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
@@ -98,6 +110,13 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
       setOpenWindows(openWindows.filter(windowId => windowId !== id))
     }, [openWindows]
   )
+
+  // Sanity check that we updated the acxEvents.ts file with the new events.
+  // If we didn't, it's much more obvious during testing that we forgot to update the map pins (since they'll be missing)
+  const threeMonthsAgo = moment().subtract(3, 'months');
+  if (threeMonthsAgo.isAfter(ACX_EVENTS_LAST_UPDATED)) {
+    return null;
+  }
   
   return <React.Fragment>
     {localEvents.map(localEvent => {
@@ -110,7 +129,7 @@ const LocalEventMapMarkerWrappers = ({localEvents, classes}: {
         offsetTop={-25}
       >
         <span onClick={() => handleClick(localEvent._id)}>
-          <ArrowSVG className={classes.icon}/>
+          <ArrowSVG className={classNames(classes.icon, {[classes.iconSelected]: infoOpen})}/>
         </span>
       </Marker>
       {infoOpen && <LocalEventWrapperPopUp localEvent={localEvent} handleClose={handleClose}/>}
@@ -123,15 +142,16 @@ const LocalEventMapMarkerWrappersComponent = registerComponent("LocalEventMapMar
 });
 
 
-export const HomepageCommunityMap = ({classes}: {
+export const HomepageCommunityMap = ({dontAskUserLocation = false, classes}: {
+  dontAskUserLocation?: boolean,
   classes: ClassesType,
 }) => {
   const { LocalEventMapMarkerWrappers, HomepageMapFilter } = Components
-  
+
   const currentUser = useCurrentUser()
  
   // this is unused in this component, but for Meetup Month it seems good to force the prompt to enter location.
-  useUserLocation(currentUser)
+  useUserLocation(currentUser, dontAskUserLocation)
 
   const [ viewport, setViewport ] = useState({
     latitude: defaultCenter.lat,

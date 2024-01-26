@@ -2,12 +2,14 @@
 const schema = {
   name: {
     type: String,
+    nullable: false
   },
   af: {
     type: Boolean,
   },
   dispatched: {
     type: Boolean,
+    nullable: false
   },
   failed: {
     type: Boolean,
@@ -15,20 +17,22 @@ const schema = {
   
   delayTime: {
     type: Date,
+    nullable: false
   },
   upperBoundTime: {
     type: Date,
+    nullable: false
   },
   
   key: {
     type: String,
+    nullable: false
   },
   pendingEvents: {
     type: Array,
   },
   "pendingEvents.$": {
-    type: Object,
-    blackbox: true,
+    type: String,
   },
 }
 

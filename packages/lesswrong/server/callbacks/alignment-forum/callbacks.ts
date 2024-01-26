@@ -6,7 +6,8 @@ import { getCollection } from '../../vulcan-lib';
 import { calculateVotePower } from '../../../lib/voting/voteTypes'
 import { getCollectionHooks } from '../../mutationCallbacks';
 import { voteCallbacks, VoteDocTuple } from '../../../lib/voting/vote';
-import { ensureIndex } from "../../../lib/collectionUtils";
+import { ensureIndex } from "../../../lib/collectionIndexUtils";
+import { UsersRepo } from "../../repos";
 
 export const recalculateAFBaseScore = async (document: VoteableType): Promise<number> => {
   let votes = await Votes.find({
@@ -14,7 +15,7 @@ export const recalculateAFBaseScore = async (document: VoteableType): Promise<nu
     afPower: {$exists: true},
     cancelled: false,
   }).fetch()
-  return votes ? votes.reduce((sum, vote) => { return vote.afPower + sum}, 0) : 0
+  return votes ? votes.reduce((sum, vote) => { return (vote.afPower ?? 0) + sum }, 0) : 0
 }
 
 async function updateAlignmentKarmaServer (newDocument: DbVoteableType, vote: DbVote): Promise<VoteDocTuple> {
@@ -56,21 +57,20 @@ async function updateAlignmentKarmaServerCallback ({newDocument, vote}: VoteDocT
 
 voteCallbacks.castVoteSync.add(updateAlignmentKarmaServerCallback);
 
-async function updateAlignmentUserServer (newDocument: VoteableType, vote: DbVote, multiplier: number) {
-  if (newDocument.af && (newDocument.userId != vote.userId)) {
+async function updateAlignmentUserServer (newDocument: DbVoteableType, vote: DbVote, multiplier: number) {
+  if (newDocument.af && (newDocument.userId !== vote.userId)) {
     const documentUser = await Users.findOne({_id:newDocument.userId})
     if (!documentUser) throw Error("Can't find user to update Alignment Karma")
-    const newAfKarma = (documentUser.afKarma || 0) + ((vote.afPower || 0) * multiplier)
+    const karmaUpdate = (vote.afPower || 0) * multiplier;
+    const newAfKarma = (documentUser.afKarma || 0) + karmaUpdate;
     if (newAfKarma > 0) {
       await Users.rawUpdateOne({_id:newDocument.userId}, {
         $set: {afKarma: newAfKarma },
         $addToSet: {groups: 'alignmentVoters'}
       })
     } else {
-      await Users.rawUpdateOne({_id:newDocument.userId}, {
-        $set: {afKarma: newAfKarma },
-        $pull: {groups: 'alignmentVoters'}
-      })
+      // Need to use Math.abs since the multiplier is -1 for downvotes (which is almost certainly what's triggering this)
+      await new UsersRepo().removeAlignmentGroupAndKarma(newDocument.userId!, Math.abs(karmaUpdate));
     }
   }
 }
@@ -96,7 +96,7 @@ voteCallbacks.cancelSync.add(function cancelAlignmentKarmaServerCallback({newDoc
 async function MoveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocument: DbPost|DbComment) {
   if (document.af && !oldDocument.af) {
     await Users.rawUpdateOne({_id:document.userId}, {
-      $inc: {afKarma: document.afBaseScore || 0},
+      $inc: {afKarma: document.afBaseScore ?? 0},
       $addToSet: {groups: 'alignmentVoters'}
     })
     await Votes.rawUpdateMany({documentId: document._id}, {
@@ -105,14 +105,13 @@ async function MoveToAFUpdatesUserAFKarma (document: DbPost|DbComment, oldDocume
   } else if (!document.af && oldDocument.af) {
     const documentUser = await Users.findOne({_id:document.userId})
     if (!documentUser) throw Error("Can't find user for updating karma after moving document to AIAF")
-    const newAfKarma = (documentUser.afKarma || 0) - (document.afBaseScore || 0)
+    const karmaUpdate = -(document.afBaseScore ?? 0);
+    const newAfKarma = (documentUser.afKarma || 0) + karmaUpdate;
     if (newAfKarma > 0) {
-      await Users.rawUpdateOne({_id:document.userId}, {$inc: {afKarma: -document.afBaseScore || 0}})
+      await Users.rawUpdateOne({_id:document.userId}, {$inc: {afKarma: karmaUpdate}})
     } else {
-      await Users.rawUpdateOne({_id:document.userId}, {
-        $inc: {afKarma: -document.afBaseScore || 0},
-        $pull: {groups: 'alignmentVoters'}
-      })
+      // Need to use Math.abs since the multiplier is -1 for downvotes (which is almost certainly what's triggering this)
+      await new UsersRepo().removeAlignmentGroupAndKarma(document.userId, Math.abs(karmaUpdate));
     }
     await Votes.rawUpdateMany({documentId: document._id}, {
       $set: {documentIsAf: false}

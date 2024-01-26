@@ -1,7 +1,8 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { useMulti } from '../../lib/crud/withMulti';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
+import { isFriendlyUI } from '../../themes/forumTheme';
+import { CommentTreeNode } from '../../lib/utils/unflatten';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -18,45 +19,41 @@ const styles = (theme: ThemeType): JssStyles => ({
   answersSorting:{
     ...theme.typography.body1,
     color: theme.palette.text.secondary,
+    ...(isFriendlyUI
+      ? {
+        fontFamily: theme.palette.fonts.sansSerifStack,
+      }
+      : {}),
   },
   loading: {
     opacity: .5,
   },
 })
 
-const MAX_ANSWERS_QUERIED = 100
-
-const AnswersList = ({post, classes}: {
+const AnswersList = ({post, answersTree, classes}: {
   post: PostsList,
+  answersTree: CommentTreeNode<CommentsList>[],
   classes: ClassesType,
 }) => {
   const location = useLocation();
   const { query } = location;
-  const sortBy = query.answersSorting || "top";
-  const { results } = useMulti({
-    terms: {
-      view: "questionAnswers",
-      postId: post._id,
-      limit: MAX_ANSWERS_QUERIED,
-      sortBy
-    },
-    collectionName: "Comments",
-    fragmentName: 'CommentsList',
-    fetchPolicy: 'cache-and-network',
-    enableTotal: true,
-  });
   const { Answer, SectionTitle, AnswersSorting } = Components
 
-  if (results && results.length) {
+  if (answersTree?.length) {
     return <div className={classes.root}>
       <SectionTitle title={
-        <div><span>{ results.length } Answers </span>
+        <div><span>{ answersTree.length } Answers </span>
         <span className={classes.answersSorting}>sorted by <AnswersSorting post={post}/></span>
       </div>}/>
 
       <div className={classes.answersList}>
-        { results.map((comment, i) => {
-          return <Answer comment={comment} post={post} key={comment._id} />
+        { answersTree.map((answerNode, i) => {
+          return <Answer
+            key={answerNode.item._id}
+            comment={answerNode.item}
+            post={post}
+            childComments={answerNode.children}
+          />
           })
         }
       </div>
@@ -73,4 +70,3 @@ declare global {
     AnswersList: typeof AnswersListComponent
   }
 }
-

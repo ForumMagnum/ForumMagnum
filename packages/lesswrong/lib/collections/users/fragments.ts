@@ -7,6 +7,7 @@ registerFragment(`
     createdAt
     username
     displayName
+    profileImageId
     previousDisplayName
     fullName
     karma
@@ -14,6 +15,8 @@ registerFragment(`
     deleted
     isAdmin
     htmlBio
+    jobTitle
+    organization
     postCount
     commentCount
     sequenceCount
@@ -21,6 +24,7 @@ registerFragment(`
     afCommentCount
     spamRiskScore
     tagRevisionCount
+    reviewedByUserId
   }
 `);
 
@@ -36,10 +40,10 @@ registerFragment(`
       ...RevisionDisplay
     }
     howOthersCanHelpMe {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     howICanHelpOthers {
-      ...RevisionEdit
+      ...RevisionDisplay
     }
     profileTagIds
     profileTags {
@@ -63,7 +67,6 @@ registerFragment(`
     moderationGuidelines {
       ...RevisionDisplay
     }
-    profileImageId
     bannedUserIds
     location
     googleLocation
@@ -80,7 +83,9 @@ registerFragment(`
     petrovPressedButtonDate
     petrovOptOut
     sortDraftsBy
-    ...SunshineUsersList
+    email
+    emails
+    banned
     ...SharedUserBooleans
     noindex
     paymentEmail
@@ -100,20 +105,25 @@ registerFragment(`
     beta
     email
     services
+    acceptedTos
     pageUrl
-    voteBanned
     banned
     isReviewed
     nullifyVotes
     hideIntercom
     hideNavigationSidebar
+    hideCommunitySection
+    expandedFrontpageSections
+    hidePostsRecommendations
     currentFrontpageFilter
     frontpageFilterSettings
+    hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsSorting
     allPostsFilter
     allPostsShowLowKarma
     allPostsIncludeEvents
+    allPostsHideCommunity
     allPostsOpenSettings
     draftsListSorting
     draftsListShowArchived
@@ -121,13 +131,8 @@ registerFragment(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    biography {
-      ...RevisionEdit
-    }
     moderationStyle
-    moderationGuidelines {
-      ...RevisionEdit
-    }
+    noKibitz
     showHideKarmaOption
     markDownPostEditor
     hideElicitPredictions
@@ -152,9 +157,11 @@ registerFragment(`
     whenConfirmationEmailSent
     hideSubscribePoke
     hideMeetupsPoke
+    hideHomeRHS
     noCollapseCommentsFrontpage
     noCollapseCommentsPosts
     noSingleLineComments
+    showCommunityInRecentDiscussion
     karmaChangeNotifierSettings
     karmaChangeLastOpened
     shortformFeedId
@@ -180,12 +187,59 @@ registerFragment(`
     abTestOverrides
 
     sortDraftsBy
+    reactPaletteStyle
 
     petrovPressedButtonDate
     petrovLaunchCodeDate
     petrovOptOut
     lastUsedTimezone
     ...SharedUserBooleans
+
+    acknowledgedNewUserGuidelines
+    notificationSubforumUnread
+    subforumPreferredLayout
+    
+    experiencedIn
+    interestedIn
+    
+    allowDatadogSessionReplay
+    hideFrontpageBook2020Ad
+
+    hideDialogueFacilitation
+    optedInToDialogueFacilitation
+    revealChecksToAdmins
+    notificationNewDialogueChecks
+    notificationYourTurnMatchForm
+
+    showDialoguesList
+    showMyDialogues
+    showMatches
+    showRecommendedPartners
+    hideActiveDialogueUsers
+
+    wrapped2023Viewed
+
+    hideSunshineSidebar
+  }
+`);
+
+/**
+ * Fragment containing rate-limit information (ie, whether the user is rate limited and when
+ * they're next eligible to comment). Separated from `UsersCurrent` because figuring that out can
+ * involve some DB queries that we don't want to have to finish in serial before the rest of the
+ * page can start loading.
+ */
+registerFragment(`
+  fragment UsersCurrentCommentRateLimit on User {
+    _id
+    rateLimitNextAbleToComment(postId: $postId)
+  }
+`);
+
+registerFragment(`
+  fragment UsersCurrentPostRateLimit on User {
+    _id
+    rateLimitNextAbleToPost(eventForm: $eventForm)
   }
 `);
 
@@ -212,6 +266,10 @@ registerFragment(`
         scoreChange
         title
         slug
+        addedReacts {
+          reactionType
+          userId
+        }
       }
       comments {
         _id
@@ -219,6 +277,11 @@ registerFragment(`
         description
         postId
         tagSlug
+        tagCommentType
+        addedReacts {
+          reactionType
+          userId
+        }
       }
       tagRevisions {
         _id
@@ -226,6 +289,10 @@ registerFragment(`
         tagId
         tagSlug
         tagName
+        addedReacts {
+          reactionType
+          userId
+        }
       }
     }
   }
@@ -237,6 +304,7 @@ registerFragment(`
     slug
     displayName
     bannedUserIds
+    bannedPersonalUserIds
   }
 `)
 
@@ -262,7 +330,7 @@ registerFragment(`
     reviewedByUserId
     reviewedAt
     signUpReCaptchaRating
-    
+    mapLocation
     needsReview
     sunshineNotes
     sunshineFlagged
@@ -271,6 +339,36 @@ registerFragment(`
     commentingOnOtherUsersDisabled
     conversationsDisabled
     snoozedUntilContentCount
+    nullifyVotes
+    deleteContent
+    
+    moderatorActions {
+      ...ModeratorActionDisplay
+    }
+    usersContactedBeforeReview
+    associatedClientIds {
+      clientId
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
+    altAccountsDetected
+
+    voteReceivedCount
+    smallUpvoteReceivedCount
+    bigUpvoteReceivedCount
+    smallDownvoteReceivedCount
+    bigDownvoteReceivedCount
+
+    recentKarmaInfo
+    lastNotificationsCheck
+  }
+`);
+
+registerFragment(`
+  fragment UserAltAccountsFragment on User {
+    ...SunshineUsersList
+    IPs
   }
 `);
 
@@ -322,7 +420,11 @@ registerFragment(`
     noCollapseCommentsPosts
     noCollapseCommentsFrontpage
     noSingleLineComments
+    hideCommunitySection
+    showCommunityInRecentDiscussion
+    hidePostsRecommendations
     beta
+    theme
 
     # Emails
     email
@@ -337,10 +439,10 @@ registerFragment(`
     collapseModerationGuidelines
     bannedUserIds
     bannedPersonalUserIds
+    noKibitz
     showHideKarmaOption
 
     # Ban & Purge
-    voteBanned
     nullifyVotes
     deleteContent
     banned
@@ -357,6 +459,9 @@ registerFragment(`
     
     # Map Location (public)
     mapLocation
+    
+    # Privacy settings
+    allowDatadogSessionReplay
 
     # Admin & Review
     reviewedByUserId
@@ -386,11 +491,15 @@ registerFragment(`
     notificationCommentsOnDraft
     notificationPostsNominatedReview
     notificationGroupAdministration
+    notificationSubforumUnread
+    notificationNewMention
+    notificationNewDialogueChecks
+    notificationYourTurnMatchForm
 
     hideFrontpageMap
     hideTaggingProgressBar
     hideFrontpageBookAd
-    hideFrontpageBook2019Ad
+    hideFrontpageBook2020Ad
 
     deleted
   }
@@ -459,3 +568,10 @@ registerFragment(`
     fmCrosspostUserId
   }
 `)
+
+registerFragment(`
+  fragment UsersOptedInToDialogueFacilitation on User {
+    _id
+    displayName
+  }
+`);

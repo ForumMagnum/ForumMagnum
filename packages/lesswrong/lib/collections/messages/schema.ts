@@ -1,7 +1,6 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
-import { schemaDefaultValue } from '../../collectionUtils'
+import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
 
-const schema: SchemaType<DbMessage> = {
+const schema: SchemaType<"Messages"> = {
   userId: {
     ...foreignKeyField({
       idFieldName: "userId",
@@ -10,9 +9,10 @@ const schema: SchemaType<DbMessage> = {
       type: "User",
       nullable: true
     }),
-    viewableBy: ['members'],
-    insertableBy: ['admins'],
+    canRead: ['members'],
+    canCreate: ['admins'],
     optional: true,
+    nullable: false,
     hidden: true,
   },
   conversationId: {
@@ -23,15 +23,16 @@ const schema: SchemaType<DbMessage> = {
       type: "Conversation",
       nullable: false,
     }),
-    viewableBy: ['members'],
-    insertableBy: ['members'],
+    canRead: ['members'],
+    canCreate: ['members'],
+    nullable: false,
     hidden: true,
   },
   noEmail: {
     optional: true,
     type: Boolean,
-    viewableBy: ['admins'],
-    insertableBy: ['admins'],
+    canRead: ['admins'],
+    canCreate: ['admins'],
     ...schemaDefaultValue(false)
   },
 };

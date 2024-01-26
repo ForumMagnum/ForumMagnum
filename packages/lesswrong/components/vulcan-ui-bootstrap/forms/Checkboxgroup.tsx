@@ -7,12 +7,12 @@ import intersection from 'lodash/intersection';
 import * as _ from 'underscore';
 
 // note: treat checkbox group the same as a nested component, using `path`
-const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, updateCurrentValues, inputProperties, itemProperties }) => {
+const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, updateCurrentValues, inputProperties, itemProperties }: AnyBecauseTodo) => {
 
   const { options } = inputProperties;
 
   // get rid of duplicate values or any values that are not included in the options provided
-  value = uniq(intersection(value, options.map(o => o.value)));
+  value = uniq(intersection(value, options.map((o: AnyBecauseTodo) => o.value)));
 
   // if this is a "new document" form check options' "checked" property to populate value
   if (formType === 'new' && value.length === 0) {
@@ -25,7 +25,7 @@ const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, upd
   return (
     <Components.FormItem path={inputProperties.path} label={inputProperties.label} {...itemProperties}>
       <div>
-        {options.map((option, i) => (
+        {options.map((option: AnyBecauseTodo, i: number) => (
           <Form.Check
             {...inputProperties}
             layout="elementOnly"
@@ -36,7 +36,7 @@ const CheckboxGroupComponent = ({ refFunction, label, path, value, formType, upd
             id={`${path}.${i}`}
             path={`${path}.${i}`}
             ref={refFunction}
-            onChange={event => {
+            onChange={(event: AnyBecauseTodo) => {
               const isChecked = event.target.checked;
               const newValue = isChecked ? [...value, option.value] : without(value, option.value);
               updateCurrentValues({ [path]: newValue });

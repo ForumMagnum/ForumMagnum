@@ -1,6 +1,7 @@
-import pick from 'lodash/pick';
+import pick from 'lodash/pick'
 import mjAPI from 'mathjax-node'
-import Revisions from '../../lib/collections/revisions/collection';
+import Revisions from '../../lib/collections/revisions/collection'
+import {isAnyTest, isMigrations} from '../../lib/executionEnvironment'
 
 export const trimLatexAndAddCSS = (dom: any, css: string) => {
   // Remove empty paragraphs
@@ -11,7 +12,7 @@ export const trimLatexAndAddCSS = (dom: any, css: string) => {
   // want to adjust this part.
   for (var i = 0, len = paragraphs.length; i < len; i++) {
       var elem = paragraphs[i];
-      if (elem.textContent.trim() == '') {
+      if (elem.textContent.trim() === '') {
           elem.parentNode.removeChild(elem);
           i--;
           len--;
@@ -37,12 +38,14 @@ const MATHJAX_OPTIONS = {
   delayStartupTypeset: true,
 }
 
-mjAPI.config({
-  MathJax: MATHJAX_OPTIONS
-});
-mjAPI.start();
+if (!isAnyTest && !isMigrations) {
+  mjAPI.config({
+    MathJax: MATHJAX_OPTIONS
+  });
+  mjAPI.start();
+}
 
-export const preProcessLatex = async (content) => {
+export const preProcessLatex = async (content: AnyBecauseTodo) => {
   // MathJax-rendered LaTeX elements have an associated stylesheet. We put this
   // inline with the first (and only the first) MathJax element; this ensures
   // that it ends up in feeds, in greaterwrong's scrapes, etc, whereas if it
@@ -114,9 +117,9 @@ const revisionFieldsToCopy: (keyof DbRevision)[] = [
  * if there's a bug. This function will update a document to match the most
  * recent *version* in the revisions schema.
  */
-export async function syncDocumentWithLatestRevision<T extends DbObject>(
-  collection: CollectionBase<T>,
-  document: T,
+export async function syncDocumentWithLatestRevision<N extends CollectionNameString>(
+  collection: CollectionBase<N>,
+  document: ObjectsByCollectionName[N],
   fieldName: string
 ): Promise<void> {
   const latestRevision = await Revisions.findOne(
@@ -143,3 +146,6 @@ export async function syncDocumentWithLatestRevision<T extends DbObject>(
     }
   })
 }
+
+export type MaybeDrafteable = { draft?: boolean } 
+export const isBeingUndrafted = (oldDocument: MaybeDrafteable, newDocument: MaybeDrafteable) => oldDocument.draft && !newDocument.draft
