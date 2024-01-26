@@ -32,7 +32,7 @@ export const useRecordPostView = (post: ViewablePost): {recordPostView: any, isR
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();
   const {postsRead, setPostRead} = useItemsRead();
-  const isRead = post && ((post._id in postsRead) ? postsRead[post._id] : post.isRead)
+  const isRead = post && !!((post._id in postsRead) ? postsRead[post._id] : post.isRead)
   
   const recordPostView = useCallback(async ({post, extraEventProperties}) => {
     try {
@@ -83,7 +83,7 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
   const {recordEvent} = useNewEvents()
   const currentUser = useCurrentUser();
   const {tagsRead, setTagRead} = useItemsRead();
-  const isRead = tag && ((tag._id in tagsRead) ? tagsRead[tag._id] : tag.isRead)
+  const isRead = tag && !!((tag._id in tagsRead) ? tagsRead[tag._id] : tag.isRead)
   
   const recordTagView = useCallback(async ({tag, extraEventProperties}) => {
     try {
