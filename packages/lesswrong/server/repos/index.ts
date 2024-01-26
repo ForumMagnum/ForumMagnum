@@ -11,6 +11,8 @@ import PageCacheRepo from "./PageCacheRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
 import PostRelationsRepo from "./PostRelationsRepo";
+import PostViewTimesRepo from "./PostViewTimesRepo";
+import PostViewsRepo from "./PostViewsRepo";
 import PostsRepo from "./PostsRepo";
 import ReadStatusesRepo from "./ReadStatusesRepo";
 import SequencesRepo from "./SequencesRepo";
@@ -38,6 +40,8 @@ const getAllRepos = () => ({
   postRecommendations: new PostRecommendationsRepo(),
   postRelations: new PostRelationsRepo(),
   posts: new PostsRepo(),
+  postViews: new PostViewsRepo(),
+  postViewTimes: new PostViewTimesRepo(),
   readStatuses: new ReadStatusesRepo(),
   sequences: new SequencesRepo(),
   tags: new TagsRepo(),

@@ -24,7 +24,7 @@ const schema: SchemaType<"Conversations"> = {
     canCreate: ['members'],
     canUpdate: ['members'],
     optional: true,
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     label: "Participants",
   },
   'participantIds.$': {

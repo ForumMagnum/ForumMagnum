@@ -114,7 +114,7 @@ const CommentsNode = ({
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
-  const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold || comment.modGPTRecommendation === 'Intervene'));
+  const [collapsed, setCollapsed] = useState(!forceUnCollapsed && (comment.deleted || comment.baseScore < karmaCollapseThreshold));
   const [truncatedState, setTruncated] = useState(!!startThreadTruncated);
   const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, noHash, onToggleCollapsed } = treeOptions;
 

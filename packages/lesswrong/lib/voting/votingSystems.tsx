@@ -343,7 +343,7 @@ function filterZeroes(obj: any) {
 }
 
 export function getVotingSystemByName(name: string): VotingSystem {
-  if (votingSystems[name])
+  if (name && votingSystems[name])
     return votingSystems[name]!;
   else
     return getDefaultVotingSystem();
