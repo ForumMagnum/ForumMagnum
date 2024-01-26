@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const SunshineReportedItem = ({report, updateReport, classes, currentUser, refetch}: {
-  report: any,
+  report: UnclaimedReportsList,
   updateReport: WithUpdateFunction<"Reports">,
   classes: ClassesType,
   currentUser: UsersCurrent,

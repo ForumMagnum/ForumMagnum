@@ -1823,60 +1823,38 @@ interface ReportsDefaultFragment { // fragment on Reports
   readonly reportedAsSpam: boolean,
 }
 
-interface unclaimedReportsList { // fragment on Reports
+interface UnclaimedReportsList { // fragment on Reports
   readonly _id: string,
   readonly userId: string,
-  readonly user: unclaimedReportsList_user,
+  readonly user: UnclaimedReportsList_user,
   readonly commentId: string,
-  readonly comment: unclaimedReportsList_comment|null,
+  readonly comment: UnclaimedReportsList_comment|null,
   readonly postId: string,
-  readonly post: unclaimedReportsList_post|null,
+  readonly post: PostsList|null,
   readonly reportedUser: SunshineUsersList|null,
   readonly closedAt: Date | null,
   readonly createdAt: Date,
   readonly claimedUserId: string,
-  readonly claimedUser: unclaimedReportsList_claimedUser|null,
+  readonly claimedUser: UnclaimedReportsList_claimedUser|null,
   readonly link: string,
   readonly description: string,
   readonly reportedAsSpam: boolean,
   readonly markedAsSpam: boolean,
 }
 
-interface unclaimedReportsList_user { // fragment on Users
+interface UnclaimedReportsList_user { // fragment on Users
   readonly _id: string,
   readonly displayName: string,
   readonly username: string,
   readonly slug: string,
 }
 
-interface unclaimedReportsList_comment { // fragment on Comments
-  readonly _id: string,
-  readonly userId: string,
-  readonly user: UsersMinimumInfo|null,
-  readonly baseScore: number,
-  readonly contents: RevisionDisplay|null,
-  readonly postedAt: Date,
-  readonly deleted: boolean,
-  readonly postId: string,
-  readonly post: unclaimedReportsList_comment_post|null,
+interface UnclaimedReportsList_comment extends CommentsList { // fragment on Comments
+  readonly post: PostsMinimumInfo|null,
+  readonly tag: TagBasicInfo|null,
 }
 
-interface unclaimedReportsList_comment_post { // fragment on Posts
-  readonly _id: string,
-  readonly slug: string,
-  readonly title: string,
-  readonly isEvent: boolean,
-}
-
-interface unclaimedReportsList_post { // fragment on Posts
-  readonly _id: string,
-  readonly slug: string,
-  readonly title: string,
-  readonly isEvent: boolean,
-  readonly contents: RevisionDisplay|null,
-}
-
-interface unclaimedReportsList_claimedUser { // fragment on Users
+interface UnclaimedReportsList_claimedUser { // fragment on Users
   readonly _id: string,
   readonly displayName: string,
   readonly username: string,
@@ -3638,7 +3616,7 @@ interface FragmentTypes {
   newRSSFeedFragment: newRSSFeedFragment
   RSSFeedMutationFragment: RSSFeedMutationFragment
   ReportsDefaultFragment: ReportsDefaultFragment
-  unclaimedReportsList: unclaimedReportsList
+  UnclaimedReportsList: UnclaimedReportsList
   TagFlagFragment: TagFlagFragment
   TagFlagEditFragment: TagFlagEditFragment
   TagFlagsDefaultFragment: TagFlagsDefaultFragment
@@ -3796,7 +3774,7 @@ interface FragmentTypesByCollection {
   ModeratorActions: "ModeratorActionsDefaultFragment"|"ModeratorActionDisplay"
   Revisions: "RevisionDisplay"|"RevisionEdit"|"RevisionMetadata"|"RevisionMetadataWithChangeMetrics"|"RevisionHistoryEntry"|"RevisionTagFragment"|"RecentDiscussionRevisionTagFragment"|"WithVoteRevision"|"RevisionsDefaultFragment"
   RSSFeeds: "RSSFeedsDefaultFragment"|"RSSFeedMinimumInfo"|"newRSSFeedFragment"|"RSSFeedMutationFragment"
-  Reports: "ReportsDefaultFragment"|"unclaimedReportsList"
+  Reports: "ReportsDefaultFragment"|"UnclaimedReportsList"
   TagFlags: "TagFlagFragment"|"TagFlagEditFragment"|"TagFlagsDefaultFragment"
   GardenCodes: "GardenCodeFragment"|"GardenCodeFragmentEdit"|"GardenCodesDefaultFragment"
   Bans: "BansDefaultFragment"|"BansAdminPageFragment"
@@ -3917,7 +3895,7 @@ interface CollectionNamesByFragmentName {
   newRSSFeedFragment: "RSSFeeds"
   RSSFeedMutationFragment: "RSSFeeds"
   ReportsDefaultFragment: "Reports"
-  unclaimedReportsList: "Reports"
+  UnclaimedReportsList: "Reports"
   TagFlagFragment: "TagFlags"
   TagFlagEditFragment: "TagFlags"
   TagFlagsDefaultFragment: "TagFlags"

@@ -1,7 +1,7 @@
 import { registerFragment } from '../../vulcan-lib/fragments';
 
 registerFragment(`
-  fragment unclaimedReportsList on Report {
+  fragment UnclaimedReportsList on Report {
     _id
     userId
     user {
@@ -12,34 +12,17 @@ registerFragment(`
     }
     commentId
     comment {
-      _id
-      userId
-      user {
-        ...UsersMinimumInfo
-      }
-      baseScore
-      contents {
-        ...RevisionDisplay
-      }
-      postedAt
-      deleted
-      postId
+      ...CommentsList
       post {
-        _id
-        slug
-        title
-        isEvent
+        ...PostsMinimumInfo
+      }
+      tag {
+        ...TagBasicInfo
       }
     }
     postId
     post {
-      _id
-      slug
-      title
-      isEvent
-      contents {
-        ...RevisionDisplay
-      }
+      ...PostsList
     }
     reportedUser {
       ...SunshineUsersList
