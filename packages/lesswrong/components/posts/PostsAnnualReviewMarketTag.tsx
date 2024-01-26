@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
         // backgroundColor: 'gold', // Set the background color to gold
         width: 'fit-content',
         display: 'inline-block',
-        maxHeight: '104', // Fixed height size
+        maxHeight: '100', // Fixed height size
         // textAlign: 'right', // Align text to the right
         padding: '5px', // Optional: Add some padding inside the box
         margin: '8px', // Optional: margins make it easier to align the text when using borders
