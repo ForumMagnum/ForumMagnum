@@ -33,12 +33,12 @@ const KarmaDisplay = ({document, placement="left", annualReviewMarketInfo = null
   return (
     <LWTooltip
       placement={placement}
-      clickable={!!annualReviewMarketInfo} // && !annualReviewMarketInfo.isResolved}
+      clickable={!!annualReviewMarketInfo && !annualReviewMarketInfo.isResolved}
       title={
         <div>
           <div>{baseScore ?? 0} karma</div>
           <div>({document.voteCount} votes)</div>
-          {annualReviewMarketInfo && // !annualReviewMarketInfo.isResolved &&
+          {annualReviewMarketInfo && !annualReviewMarketInfo.isResolved &&
             !!comment && 
               <Link to={commentGetPageUrl(comment)}><span style={{ color: 'gold' }}>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(decimalPlaces))}%</span></Link>
           }

@@ -169,7 +169,7 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   if (newDocument.baseScore < MINIMUM_KARMA_REVIEW_MARKET_CREATION) return;
   const post = await Posts.findOne({_id: newDocument._id})
   if (!post) return;
-//  if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
+  if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
   if (post.manifoldReviewMarketId) return; // don't make a market if one already exists
 
   const botUser = await context.Users.findOne({_id: reviewUserBot})
