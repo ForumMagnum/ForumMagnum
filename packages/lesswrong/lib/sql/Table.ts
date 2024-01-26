@@ -20,7 +20,7 @@ import { forumTypeSetting, ForumTypeString } from "../instanceSettings";
 class Table<T extends DbObject> {
   private fields: Record<string, Type> = {};
   private indexes: TableIndex<T>[] = [];
-  wal = true;
+  private wal = true;
 
   constructor(private name: string) {}
 
@@ -60,6 +60,10 @@ class Table<T extends DbObject> {
 
   getIndexes() {
     return this.indexes;
+  }
+
+  isWriteAheadLogged() {
+    return this.wal;
   }
 
   static fromCollection<
