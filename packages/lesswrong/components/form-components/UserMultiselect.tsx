@@ -56,10 +56,10 @@ const FormUserMultiselect = ({value, path, label, updateCurrentValues}: {
   value: string[],
   path: string,
   label: string,
-  updateCurrentValues: Function,
+  updateCurrentValues: UpdateCurrentValues,
 }) => {
   const setValue = useCallback((newValue: string[]) => {
-    updateCurrentValues({[path]: newValue});
+    void updateCurrentValues({[path]: newValue});
   }, [updateCurrentValues, path]);
 
   return <Components.UserMultiselect

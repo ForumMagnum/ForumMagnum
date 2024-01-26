@@ -39,11 +39,10 @@ const FormUserSelect = ({value, path, label, updateCurrentValues}: {
   value: string | null,
   path: string,
   label: string,
-  updateCurrentValues: Function,
+  updateCurrentValues: UpdateCurrentValues,
 }) => {
-
   const setValue = useCallback((newValue: string | null) => {
-    updateCurrentValues({[path]: newValue});
+    void updateCurrentValues({[path]: newValue});
   }, [updateCurrentValues, path]);
 
   return <Components.UserSelect
