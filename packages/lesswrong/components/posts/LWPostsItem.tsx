@@ -91,7 +91,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   karmaPredictedReviewWinner: {
-    color: theme.palette.text.aprilFools.orange
+    color: theme.palette.text.annualReviewMarketKarma
   },
   title: {
     minHeight: 26,
@@ -432,7 +432,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
             {showKarma && <PostsItem2MetaInfo className={classNames(
                 classes.karma, {
-                  [classes.karmaPredictedReviewWinner]: !!annualReviewMarketInfo && annualReviewMarketInfo.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD
+                  [classes.karmaPredictedReviewWinner]: !!annualReviewMarketInfo && !annualReviewMarketInfo.isResolved && annualReviewMarketInfo.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD
 
                 }
               )}

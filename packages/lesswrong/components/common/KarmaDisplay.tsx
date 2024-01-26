@@ -16,13 +16,14 @@ const KarmaDisplay = ({document, placement="left", annualReviewMarketInfo = null
     ? document.afBaseScore
     : null;
   const {LWTooltip} = Components;
+  const decimalPlaces = 0;
   return (
     <LWTooltip
       placement={placement}
       title={
         <div>
-          {annualReviewMarketInfo &&  !annualReviewMarketInfo.isResolved &&
-            <div>{parseFloat((annualReviewMarketInfo.probability*100).toFixed(2))}% chance of {annualReviewMarketInfo.year} annual review winner</div>
+          {annualReviewMarketInfo && !annualReviewMarketInfo.isResolved &&
+            <div>{parseFloat((annualReviewMarketInfo.probability*100).toFixed(decimalPlaces))}% chance of {annualReviewMarketInfo.year} annual review winner</div>
           }
           <div>{baseScore ?? 0} karma</div>
           <div>({document.voteCount} votes)</div>

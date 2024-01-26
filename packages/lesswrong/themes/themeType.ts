@@ -157,6 +157,7 @@ declare global {
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       reviewBallotIcon: ColorString,
+      annualReviewMarketKarma: ColorString,
       
       eventMaybe: ColorString,
       aprilFools: {

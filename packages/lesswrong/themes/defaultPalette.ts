@@ -211,6 +211,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     reviewDownvote: "rgba(125,70,70, .87)",
     reviewBallotIcon: 'rgb(47 108 152 / 50%)',
     
+    annualReviewMarketKarma: "#B3884F",
+
     aprilFools: {
       orange: "#e64a19",
       yellow: "#f57f17",
@@ -225,6 +227,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       [5]: '#a56eff',
       [6]: '#6C7BFF',
     },
+
   },
   link: {
     unmarked: shades.greyAlpha(.87),

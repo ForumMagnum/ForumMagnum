@@ -7,15 +7,22 @@ import { PostsPreviewTooltip } from './PostsPreviewTooltip/PostsPreviewTooltip';
 import { useHover } from '../common/withHover';
 
 const styles = (theme: ThemeType) => ({
+    root: {
+        // marginTop: 8,
+        // marginBottom: 8,
+      },
     expectedWinner: {
-        color:  'hsl(42, 60%, 50%)', // theme.palette.text.aprilFools.orange,
-        border: '2px solid gold', // Set the border color to gold
+        color: theme.palette.text.annualReviewMarketKarma,
+        border: '2px solid', // Set the border color to gold
+        borderColor: theme.palette.text.annualReviewMarketKarma,
         borderRadius: '4px', // Slightly rounded borders
         // backgroundColor: 'gold', // Set the background color to gold
-        width: '100%', // Set the width to 100%
-        maxHeight: '100px', // Fixed height size
+        width: 'fit-content',
+        display: 'inline-block',
+        maxHeight: '104', // Fixed height size
         // textAlign: 'right', // Align text to the right
         padding: '5px', // Optional: Add some padding inside the box
+        margin: '8px', // Optional: margins make it easier to align the text when using borders
         boxSizing: 'border-box', // Optional: Make sure padding doesn't affect the total width of the box
       },
     preview: {
@@ -43,15 +50,18 @@ const PostsAnnualReviewMarketTag = ({post, annualReviewMarketInfo, classes}: {
     if (!annualReviewMarketInfo) {
       return <div></div>;
     }
-
-  return <div className={classes.expectedWinner} {...eventHandlers}>
-    {annualReviewMarketInfo?.year} Top Fifty: {parseFloat((annualReviewMarketInfo?.probability*100).toFixed(2))}%
-    {!!comment && <LWPopper
-        open={hover}
-        anchorEl={anchorEl}
-        placement="bottom-end"
-        clickable={true}
-      >
+    
+    const decimalPlaces = 0;
+    return <span className={classes.root}>
+      <div className={classes.expectedWinner} {...eventHandlers}>
+        {annualReviewMarketInfo?.year} Top Fifty: {parseFloat((annualReviewMarketInfo?.probability*100).toFixed(decimalPlaces))}%
+        {!!comment && 
+        <LWPopper
+            open={hover}
+            anchorEl={anchorEl}
+            placement="bottom-end"
+            clickable={true}
+        >
           <div className={classes.preview}>
             <CommentsNode
               truncated
@@ -59,18 +69,21 @@ const PostsAnnualReviewMarketTag = ({post, annualReviewMarketInfo, classes}: {
               comment={comment}
               treeOptions={{
                 // ...treeOptions,
-                hideReply: true,
-                forceSingleLine: false,
+                post: post,
+                // hideReply: true,
+                // forceSingleLine: false,
                 forceNotSingleLine: true,
-                switchAlternatingHighlights: false,
+                // switchAlternatingHighlights: false,
               }}
               hoverPreview
             >
             </CommentsNode>
           </div>
-      </LWPopper>}
+        </LWPopper>
+        }
       {/* If the comment is not found, we should probably still have a tooltip explaining what it means, maybe with a link to the market? e.g. if the comment gets deleted */}
     </div>
+    </span>
 };
 
 const PostsAnnualReviewMarketTagComponent = registerComponent('PostsAnnualReviewMarketTag', PostsAnnualReviewMarketTag, {styles});
