@@ -46,6 +46,9 @@ export type PostsListConfig = {
    */
   hideLastUnread?: boolean,
   showPostedAt?: boolean,
+  showKarma?: boolean,
+  showReviewRanking?: boolean,
+  showCommentCount?: boolean,
   enableTotal?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
@@ -89,6 +92,9 @@ export const usePostsList = ({
   showNoResults = true,
   hideLastUnread = false,
   showPostedAt = true,
+  showKarma = true,
+  showReviewRanking = false,
+  showCommentCount = true,
   enableTotal = false,
   showNominationCount,
   showReviewCount,
@@ -236,9 +242,12 @@ export const usePostsList = ({
     hideTrailingButtons,
     curatedIconLeft: curatedIconLeft,
     tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
-    defaultToShowUnreadComments, showPostedAt,
-    showBottomBorder: showFinalBottomBorder ||
-      (hasResults && i < (orderedResults!.length - 1)),
+    defaultToShowUnreadComments,
+    showPostedAt,
+    showKarma,
+    showReviewRanking,
+    showCommentCount,
+    showBottomBorder: showFinalBottomBorder || (hasResults && i < (orderedResults!.length - 1)),
     tooltipPlacement,
   }));
 

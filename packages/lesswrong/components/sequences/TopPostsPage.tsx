@@ -13,9 +13,9 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 import keyBy from 'lodash/keyBy';
 import classNames from 'classnames';
 import TextField from '@material-ui/core/TextField';
-import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
-
-export type LWReviewWinnerSortOrder = 'curated' | 'ranking' | 'year';
+// import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
+import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
+import { usePostBySlug } from '../posts/usePost';
 
 export interface ReviewWinnerWithPostTitle {
   reviewWinner: DbReviewWinner;
@@ -108,9 +108,19 @@ function validateDisplacedReviewWinners(displacedReviewWinnerIds: DisplacedRevie
 }
 
 const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
-  const [sortOrder, setSortOrder] = useState<LWReviewWinnerSortOrder>('curated');
+  const location = useLocation();
+  const { query } = location;
+  
+  const {
+    currentSortOrder,
+    currentAIVisibility
+  } = getCurrentTopPostDisplaySettings(query);
 
-  const { SingleColumnSection, SectionTitle, HeadTags, PostsList2 } = Components;
+  // const [sortOrder, setSortOrder] = useState<LWReviewWinnerSortOrder>('curated');
+
+  const { SingleColumnSection, SectionTitle, HeadTags, PostsList2, TopPostsDisplaySettings, ContentStyles, ContentItemBody } = Components;
+
+  const { post: reviewDescriptionPost } = usePostBySlug({ slug: 'top-posts-review-description' });
 
   const { data } = useQuery(gql`
     query GetAllReviewWinners {
@@ -192,7 +202,7 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
     });
   }
 
-  const resolverName = getReviewWinnerResolverName(sortOrder);
+  const resolverName = getReviewWinnerResolverName(currentSortOrder);
 
   return (
     <>
@@ -201,6 +211,10 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
       <AnalyticsContext pageContext="topPostsPage">
         <SingleColumnSection>
           <SectionTitle title={preferredHeadingCase("Best of LessWrong")} />
+          <ContentStyles contentType="post" className={classes.description}>
+            {reviewDescriptionPost && <ContentItemBody dangerouslySetInnerHTML={{__html: reviewDescriptionPost.contents?.html ?? ''}} description={`A description of the top posts page`}/>}
+          </ContentStyles>
+          <TopPostsDisplaySettings />
           {/* <Autosuggest
             suggestions={hits}
             onSuggestionSelected={onSuggestionSelected}
@@ -220,8 +234,13 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
           <PostsList2
             terms={{ limit: 20 }}
             resolverName={resolverName}
+            topLoading
+            dimWhenLoading
+            showPostedAt={false}
+            showKarma={false}
+            showReviewRanking
+            showCommentCount={false}
           />
-          {/** TODO: posts list goes here */}
         </SingleColumnSection>
       </AnalyticsContext>
     </>

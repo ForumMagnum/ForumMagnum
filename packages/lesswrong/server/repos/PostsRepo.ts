@@ -5,7 +5,7 @@ import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import type { LWReviewWinnerSortOrder } from "../../components/sequences/TopPostsPage";
+import { LWReviewWinnerSortOrder } from "../../components/sequences/TopPostsDisplaySettings";
 
 type MeanPostKarma = {
   _id: number,
@@ -657,7 +657,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       case "curated":
         return `ORDER BY ${tableAlias}."curatedOrder" ASC`;
       case "ranking":
-        return `ORDER BY ${tableAlias}."reviewRanking" ASC, ${tableAlias}."reviewYear DESC"`;
+        return `ORDER BY ${tableAlias}."reviewRanking" ASC, ${tableAlias}."reviewYear" DESC`;
       case "year":
         return `ORDER BY ${tableAlias}."reviewYear" DESC, ${tableAlias}."reviewRanking" ASC`;
     }

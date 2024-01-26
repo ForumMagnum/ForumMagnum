@@ -869,6 +869,7 @@ importComponent("BestOfLessWrong", () => require('../components/sequences/BestOf
 importComponent("CuratedSequences", () => require('../components/sequences/CuratedSequences'));
 importComponent("EAIntroCurriculum", () => require('../components/sequences/EAIntroCurriculum'));
 importComponent("TopPostsPage", () => require('../components/sequences/TopPostsPage'));
+importComponent("TopPostsDisplaySettings", () => require('../components/sequences/TopPostsDisplaySettings'));
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("EditPostCategory", () => require('../components/form-components/EditPostCategory'));
