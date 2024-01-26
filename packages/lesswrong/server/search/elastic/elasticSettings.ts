@@ -1,5 +1,6 @@
-import { isAnyTest } from "../../../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../../../lib/instanceSettings";
+
+export {isElasticEnabled} from '../../../lib/instanceSettings'
 
 export const elasticCloudIdSetting = new PublicInstanceSetting<string|null>(
   "elasticsearch.cloudId",
@@ -24,11 +25,3 @@ export const searchOriginDate = new PublicInstanceSetting<string>(
   "2014-06-01T01:00:00Z",
   "optional",
 );
-
-const disableElastic = new PublicInstanceSetting<boolean>(
-  "disableElastic",
-  false,
-  "optional",
-);
-
-export const isElasticEnabled = !isAnyTest && !disableElastic.get();
