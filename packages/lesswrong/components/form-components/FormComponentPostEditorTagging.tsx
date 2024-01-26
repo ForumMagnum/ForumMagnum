@@ -80,6 +80,12 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
     [postTypeResult.results],
   );
 
+  // Filter out core tags that are also post type tags (only show them as post types)
+  const filteredCoreTags = useMemo(() => {
+    const postTypeTagIds = new Set(postTypeTags.map(tag => tag._id));
+    return coreTags.filter(tag => !postTypeTagIds.has(tag._id));
+  }, [coreTags, postTypeTags]);
+
   const selectedTagIds = Object.keys(value || {});
 
   const [
@@ -87,8 +93,8 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
     selectedPostTypeTagIds,
     selectedOtherTagIds,
   ] = splitBy([
-    (tagId: string) => !!coreTags?.find((tag) => tag._id === tagId),
-    (tagId: string) => !!postTypeTags?.find((tag) => tag._id === tagId),
+    (tagId: string) => !!filteredCoreTags.find((tag) => tag._id === tagId),
+    (tagId: string) => !!postTypeTags.find((tag) => tag._id === tagId),
     () => true,
   ], selectedTagIds);
 
@@ -183,11 +189,11 @@ const FormComponentPostEditorTagging = ({value, path, document, formType, update
     <div className={classes.root}>
       {showCoreAndTypesTopicSections && (
         <>
-          {!!coreTags.length &&
+          {!!filteredCoreTags.length &&
             <>
               <h3 className={classNames(classes.coreTagHeader, classes.header)}>Core topics</h3>
               <TagsChecklist
-                tags={coreTags}
+                tags={filteredCoreTags}
                 selectedTagIds={selectedTagIds}
                 onTagSelected={onTagSelected}
                 onTagRemoved={onTagRemoved}

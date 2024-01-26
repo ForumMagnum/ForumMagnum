@@ -7,7 +7,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
 import { useOnNotificationsChanged } from "../hooks/useUnreadNotifications";
 import stringify from "json-stringify-deterministic";
-import { isEAForum } from "../../lib/instanceSettings";
+import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
   conversationTitle: {
@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       // on mobile. This fixes that.
       display: "flex",
     },
-    ...(isEAForum ? {
+    ...(isFriendlyUI ? {
       padding: '18px 0px',
       marginTop: "auto",
     } : {
@@ -145,7 +145,7 @@ const ConversationContents = ({
           key={`sendMessage-${messageSentCount}`}
           conversationId={conversation._id}
           templateQueries={{ templateId: query.templateId, displayName: query.displayName }}
-          formStyle={isEAForum ? "minimalist" : undefined}
+          formStyle={isFriendlyUI ? "minimalist" : undefined}
           successEvent={() => {
             setMessageSentCount(messageSentCount + 1);
             captureEvent("messageSent", {
