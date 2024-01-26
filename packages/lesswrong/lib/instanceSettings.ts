@@ -206,3 +206,5 @@ const disableElastic = new PublicInstanceSetting<boolean>(
 );
 
 export const isElasticEnabled = !isAnyTest && !disableElastic.get();
+
+export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', !isEAForum, "optional")
