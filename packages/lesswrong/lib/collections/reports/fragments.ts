@@ -5,10 +5,7 @@ registerFragment(`
     _id
     userId
     user {
-      _id
-      displayName
-      username
-      slug
+      ...UsersMinimumInfo
     }
     commentId
     comment {

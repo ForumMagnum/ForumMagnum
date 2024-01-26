@@ -1826,7 +1826,7 @@ interface ReportsDefaultFragment { // fragment on Reports
 interface UnclaimedReportsList { // fragment on Reports
   readonly _id: string,
   readonly userId: string,
-  readonly user: UnclaimedReportsList_user,
+  readonly user: UsersMinimumInfo,
   readonly commentId: string,
   readonly comment: UnclaimedReportsList_comment|null,
   readonly postId: string,
@@ -1840,13 +1840,6 @@ interface UnclaimedReportsList { // fragment on Reports
   readonly description: string,
   readonly reportedAsSpam: boolean,
   readonly markedAsSpam: boolean,
-}
-
-interface UnclaimedReportsList_user { // fragment on Users
-  readonly _id: string,
-  readonly displayName: string,
-  readonly username: string,
-  readonly slug: string,
 }
 
 interface UnclaimedReportsList_comment extends CommentsList { // fragment on Comments
