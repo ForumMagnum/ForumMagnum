@@ -213,7 +213,7 @@ const ScrollTo: FC<{
 }
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
-const SearchPageTabbed = ({classes}:{
+const SearchPageTabbed = ({classes}: {
   classes: ClassesType
 }) => {
   const scrollToRef = useRef<HTMLDivElement>(null);

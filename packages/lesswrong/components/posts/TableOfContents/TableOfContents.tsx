@@ -11,7 +11,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const TableOfContents = ({sectionData, title, onClickSection, displayOptions, classes}: {
   sectionData: ToCData,
   title: string,
-  onClickSection?: ()=>void,
+  onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType,
 }) => {

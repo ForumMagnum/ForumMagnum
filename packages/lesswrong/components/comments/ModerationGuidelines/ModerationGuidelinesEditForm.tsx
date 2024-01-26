@@ -23,7 +23,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClose, classes }: {
   commentType?: "post" | "subforum",
   documentId: string,
-  onClose?: ()=>void,
+  onClose?: () => void,
   classes: ClassesType,
 }) => {
   const isPost = commentType === "post"

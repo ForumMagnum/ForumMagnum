@@ -152,7 +152,7 @@ export function combineIndexWithDefaultViewIndex<T extends DbObject>({viewFields
 }
 
 
-let deferredIndexes: Array<()=>Promise<void>> = [];
+let deferredIndexes: Array<() => Promise<void>> = [];
 let deferredIndexesTimer: NodeJS.Timeout|null = null;
 
 /**

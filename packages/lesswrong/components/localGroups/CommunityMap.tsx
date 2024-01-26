@@ -200,8 +200,8 @@ const personalMapMarkerStyles = (theme: ThemeType): JssStyles => ({
 })
 const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindows, classes}: {
   users: Array<UsersMapEntry>,
-  handleClick: (userId: string)=>void,
-  handleClose: (userId: string)=>void,
+  handleClick: (userId: string) => void,
+  handleClose: (userId: string) => void,
   openWindows: any,
   classes: ClassesType,
 }) => {
@@ -243,8 +243,8 @@ const PersonalMapLocationMarkersTypes = registerComponent("PersonalMapLocationMa
 
 const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}: {
   events: Array<PostsList>,
-  handleClick: (eventId: string)=>void,
-  handleClose: (eventId: string)=>void,
+  handleClick: (eventId: string) => void,
+  handleClose: (eventId: string) => void,
   openWindows: any,
 }) => {
   return <>{events.map((event) => {
@@ -261,8 +261,8 @@ const LocalEventsMapMarkers = ({events, handleClick, handleClose, openWindows}: 
 
 const LocalGroupsMapMarkers = ({groups, handleClick, handleClose, openWindows}: {
   groups: Array<localGroupsHomeFragment>,
-  handleClick: (eventId: string)=>void,
-  handleClose: (eventId: string)=>void,
+  handleClick: (eventId: string) => void,
+  handleClose: (eventId: string) => void,
   openWindows: any,
 }) => {
   return <>{groups.map((group) => {

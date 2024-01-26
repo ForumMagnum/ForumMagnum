@@ -79,7 +79,7 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|undefined): Array<T> {
+export function sortTags<T>(list: Array<T>, toTag: (item: T) => TagBasicInfo|null|undefined): Array<T> {
   return sortBy(
     list,
     isFriendlyUI ? (item) => !toTag(item)?.core : (item) => toTag(item)?.core,

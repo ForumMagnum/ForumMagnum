@@ -27,7 +27,7 @@ export const SortableList = makeSortableListComponent({
 
 const UserMultiselect = ({value, setValue, label, classes}: {
   value: string[],
-  setValue: (newValue: string[])=>void
+  setValue: (newValue: string[]) => void
   label: string,
   classes: ClassesType,
 }) => {

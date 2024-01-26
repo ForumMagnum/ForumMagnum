@@ -9,8 +9,8 @@ type CloseableComponents = {
 }[keyof ComponentTypes];
 
 interface CommentBoxContextType {
-  openCommentBox: <T extends CloseableComponents>({componentName, componentProps}: {componentName: T, componentProps: Omit<ComponentProps<ComponentTypes[T]>, 'onClose' | 'classes'>})=>void,
-  close: ()=>void,
+  openCommentBox: <T extends CloseableComponents>({componentName, componentProps}: {componentName: T, componentProps: Omit<ComponentProps<ComponentTypes[T]>, 'onClose' | 'classes'>}) => void,
+  close: () => void,
 }
 export const CommentBoxContext = React.createContext<CommentBoxContextType|null>(null);
 

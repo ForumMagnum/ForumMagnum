@@ -40,7 +40,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const NotificationsMenuButton = ({ unreadNotifications, open, toggle, className, classes }: {
   unreadNotifications: number,
   open: boolean,
-  toggle: ()=>void,
+  toggle: () => void,
   className?: string,
   classes: ClassesType,
 }) => {

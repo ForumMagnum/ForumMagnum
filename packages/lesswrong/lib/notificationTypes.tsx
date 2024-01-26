@@ -51,10 +51,10 @@ interface NotificationType {
   name: string
   userSettingField: keyof DbUser|null
   allowedChannels?: NotificationChannelOption[],
-  getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>})=>Promise<string>
-  getIcon: ()=>React.ReactNode
-  onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
-  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: Record<string,any> })=>string
+  getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>}) => Promise<string>
+  getIcon: () => React.ReactNode
+  onsiteHoverView?: (props: {notification: NotificationsList}) => React.ReactNode
+  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: Record<string,any> }) => string
   causesRedBadge?: boolean
 }
 

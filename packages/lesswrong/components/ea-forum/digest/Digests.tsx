@@ -26,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const Digests = ({classes}:{classes: ClassesType}) => {
+const Digests = ({classes}: {classes: ClassesType}) => {
   const currentUser = useCurrentUser()
   const { results } = useMulti({
     terms: {

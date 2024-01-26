@@ -48,7 +48,7 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
 
   getTable: () => Table<ObjectsByCollectionName[N]>;
 
-  rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
+  rawCollection: () => {bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
   find: (
     selector?: MongoSelector<ObjectsByCollectionName[N]>,
     options?: MongoFindOptions<ObjectsByCollectionName[N]>,
@@ -113,8 +113,8 @@ type CollectionOptions<N extends CollectionNameString> = {
 };
 
 interface FindResult<T> {
-  fetch: ()=>Promise<Array<T>>
-  count: ()=>Promise<number>
+  fetch: () => Promise<Array<T>>
+  count: () => Promise<number>
 }
 
 type ViewFunction<N extends CollectionNameString = CollectionNameString> = (

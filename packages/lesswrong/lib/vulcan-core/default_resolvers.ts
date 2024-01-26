@@ -98,7 +98,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(collectionNa
     single: {
       description: `A single ${typeName} document fetched by ID or slug`,
 
-      async resolver(root: void, { input = {} }: {input:any}, context: ResolverContext, { cacheControl }: AnyBecauseTodo) {
+      async resolver(root: void, { input = {} }: {input: any}, context: ResolverContext, { cacheControl }: AnyBecauseTodo) {
         const startResolve = Date.now();
         const { enableCache = false, allowNull = false } = input;
         // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.

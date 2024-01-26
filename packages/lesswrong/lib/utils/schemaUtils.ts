@@ -40,7 +40,7 @@ export const generateIdResolverSingle = <CollectionName extends CollectionNameSt
 
 const generateIdResolverMulti = <CollectionName extends CollectionNameString>({
   collectionName, fieldName,
-  getKey = ((a:any)=>a)
+  getKey = ((a: any)=>a)
 }: {
   collectionName: CollectionName,
   fieldName: string,
@@ -143,7 +143,7 @@ export function arrayOfForeignKeysField<CollectionName extends keyof Collections
   resolverName: string,
   collectionName: CollectionName,
   type: string,
-  getKey?: (key: any)=>string,
+  getKey?: (key: any) => string,
 }) {
   if (!idFieldName || !resolverName || !collectionName || !type)
     throw new Error("Missing argument to foreignKeyField");
@@ -318,7 +318,7 @@ export function denormalizedCountOfReferences<
   foreignCollectionName: TargetCollectionName,
   foreignTypeName: string,
   foreignFieldName: string & keyof ObjectsByCollectionName[TargetCollectionName],
-  filterFn?: (doc: ObjectsByCollectionName[TargetCollectionName])=>boolean,
+  filterFn?: (doc: ObjectsByCollectionName[TargetCollectionName]) => boolean,
 }): CollectionFieldSpecification<SourceCollectionName> {
   const denormalizedLogger = loggerConstructor(`callbacks-${collectionName.toLowerCase()}-denormalized-${fieldName}`)
 

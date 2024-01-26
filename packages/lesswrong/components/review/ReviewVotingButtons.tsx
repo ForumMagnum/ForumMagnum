@@ -62,8 +62,8 @@ const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTota
   const [selection, setSelection] = useState(currentUserVote?.score || DEFAULT_QUALITATIVE_VOTE)
   const [isDefaultVote, setIsDefaultVote] = useState(!currentUserVote?.score)
 
-  const createClickHandler = (index:number) => {
-    return (e:React.MouseEvent) => {
+  const createClickHandler = (index: number) => {
+    return (e: React.MouseEvent) => {
       // We don't want to change the currently focused post when clicking
       // on the vote buttons, so we stop the event here
       e.preventDefault()

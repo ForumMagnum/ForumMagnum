@@ -15,7 +15,7 @@ declare global {
     __APOLLO_FOREIGN_STATE__: any,
     missingMainStylesheet?: boolean,
     
-    googleMapsFinishedLoading?: ()=>void,
+    googleMapsFinishedLoading?: () => void,
     Intercom: any,
     grecaptcha?: any,
     google?: any,

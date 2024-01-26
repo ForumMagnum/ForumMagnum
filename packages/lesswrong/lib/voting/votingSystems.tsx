@@ -51,15 +51,15 @@ export interface VotingSystem<ExtendedVoteType=any, ExtendedScoreType=any> {
     oldExtendedScore: ExtendedScoreType,
     extendedVote: ExtendedVoteType,
     currentUser: UsersCurrent
-  })=>ExtendedScoreType,
+  }) => ExtendedScoreType,
   cancelVoteClient: (props: {
     voteType: string|null,
     document: VoteableTypeClient,
     oldExtendedScore: ExtendedScoreType,
     cancelledExtendedVote: ExtendedVoteType,
     currentUser: UsersCurrent
-  })=>ExtendedScoreType
-  computeExtendedScore: (votes: DbVote[], context: ResolverContext)=>Promise<ExtendedScoreType>
+  }) => ExtendedScoreType
+  computeExtendedScore: (votes: DbVote[], context: ResolverContext) => Promise<ExtendedScoreType>
   isAllowedExtendedVote?: (user: UsersCurrent|DbUser, document: DbVoteableType, oldExtendedScore: ExtendedScoreType, extendedVote: ExtendedVoteType) => {allowed: true}|{allowed: false, reason: string},
   isNonblankExtendedVote: (vote: DbVote) => boolean,
   getCommentHighlights?: (props: {

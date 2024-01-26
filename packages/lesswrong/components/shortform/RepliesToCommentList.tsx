@@ -10,7 +10,7 @@ const RepliesToCommentList = ({ post, parentCommentId, directReplies = false }: 
   directReplies?: boolean
 }) => {
   const { CommentsList, Loading } = Components;
-  const terms : CommentsViewTerms = directReplies ? {
+  const terms: CommentsViewTerms = directReplies ? {
     view: "commentReplies",
     parentCommentId,
     limit: 500

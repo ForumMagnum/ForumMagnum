@@ -8,7 +8,7 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
   tag?: TagBasicInfo,
-  showEdit: ()=>void,
+  showEdit: () => void,
 }) => {
   const {
     EditCommentDropdownItem, ReportCommentDropdownItem, DeleteCommentDropdownItem,
