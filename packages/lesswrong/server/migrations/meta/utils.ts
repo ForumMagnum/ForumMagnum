@@ -13,7 +13,6 @@ import { postgresExtensions } from "../../postgresExtensions";
 import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
 import { Type } from "../../../lib/sql/Type";
-import UnlogTableQuery from "../../../lib/sql/UnlogTableQuery";
 import LogTableQuery from "../../../lib/sql/LogTableQuery";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
@@ -139,7 +138,7 @@ export const unlogTable = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
 ): Promise<void> => {
   const table = collection.getTable();
-  const {sql, args} = new UnlogTableQuery(table).compile();
+  const {sql, args} = new LogTableQuery(table, "UNLOGGED").compile();
   await db.none(sql, args);
 }
 
@@ -148,7 +147,7 @@ export const logTable = async <N extends CollectionNameString>(
   collection: CollectionBase<N>,
 ): Promise<void> => {
   const table = collection.getTable();
-  const {sql, args} = new LogTableQuery(table).compile();
+  const {sql, args} = new LogTableQuery(table, "LOGGED").compile();
   await db.none(sql, args);
 }
 

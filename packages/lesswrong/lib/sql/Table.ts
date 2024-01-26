@@ -20,7 +20,7 @@ import { forumTypeSetting, ForumTypeString } from "../instanceSettings";
 class Table<T extends DbObject> {
   private fields: Record<string, Type> = {};
   private indexes: TableIndex<T>[] = [];
-  private wal = true;
+  private writeAheadLogged = true;
 
   constructor(private name: string) {}
 
@@ -63,7 +63,7 @@ class Table<T extends DbObject> {
   }
 
   isWriteAheadLogged() {
-    return this.wal;
+    return this.writeAheadLogged;
   }
 
   static fromCollection<
@@ -76,7 +76,7 @@ class Table<T extends DbObject> {
     const table = new Table<T>(collection.collectionName);
     forumType ??= forumTypeSetting.get() ?? "EAForum";
 
-    table.wal = collection.options?.wal ?? true;
+    table.writeAheadLogged = collection.options?.writeAheadLogged ?? true;
 
     const schema = collection._schemaFields;
     for (const field of Object.keys(schema)) {

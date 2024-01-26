@@ -8,7 +8,7 @@ export const PageCache: PageCacheCollection = createCollection({
   typeName: 'PageCacheEntry',
   schema,
   logChanges: false,
-  wal: false,
+  writeAheadLogged: false,
 });
 
 addUniversalFields({collection: PageCache})
