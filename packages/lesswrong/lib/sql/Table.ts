@@ -20,6 +20,7 @@ import { forumTypeSetting, ForumTypeString } from "../instanceSettings";
 class Table<T extends DbObject> {
   private fields: Record<string, Type> = {};
   private indexes: TableIndex<T>[] = [];
+  wal = true;
 
   constructor(private name: string) {}
 
@@ -70,6 +71,8 @@ class Table<T extends DbObject> {
   ): Table<T> {
     const table = new Table<T>(collection.collectionName);
     forumType ??= forumTypeSetting.get() ?? "EAForum";
+
+    table.wal = collection.options?.wal ?? true;
 
     const schema = collection._schemaFields;
     for (const field of Object.keys(schema)) {
