@@ -1,28 +1,16 @@
 import React, { useState } from 'react';
-import { Components, fragmentTextForQuery, getFragmentText, registerComponent } from '../../lib/vulcan-lib';
-import { useLocation } from '../../lib/routeUtil';
-import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
-import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
+import { useLocation } from '../../lib/routeUtil';
+import { Components, fragmentTextForQuery, getFragmentText, registerComponent } from '../../lib/vulcan-lib';
 import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
-import { makeSortableListComponent } from '../form-components/sortableList';
-import { useMulti } from '../../lib/crud/withMulti';
 
 import { gql, useMutation, useQuery } from '@apollo/client';
 import keyBy from 'lodash/keyBy';
-import classNames from 'classnames';
-import TextField from '@material-ui/core/TextField';
-// import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
-import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
 import { usePostBySlug } from '../posts/usePost';
+import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
 
-export interface ReviewWinnerWithPostTitle {
-  reviewWinner: DbReviewWinner;
-  postTitle: string;
-}
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     cursor: "pointer",
     "& .SectionTitle-title": isFriendlyUI
@@ -48,38 +36,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 8,
     paddingBottom: 8
   },
+  widerColumn: {
+    maxWidth: 1200
+  }
 });
 
 // TODO: update the description to be appropriate for this page
 const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
-
-const formatSort = (sorting: PostSortingMode) => {
-  const sort = SORT_ORDER_OPTIONS[sorting].label
-  return isFriendlyUI ? sort : `Sorted by ${sort}`;
-}
-
-const getReviewWinnerResolverName = (sortOrder: LWReviewWinnerSortOrder) => {
-  switch (sortOrder) {
-    case 'curated':
-      return 'ReviewWinnersCuratedOrder';
-    case 'ranking':
-      return 'ReviewWinnersRankingOrder';
-    case 'year':
-      return 'ReviewWinnersYearOrder';
-  }
-};
-
-const SortableList = makeSortableListComponent({
-  renderItem: ({contents, removeItem, classes}) => <li className={classNames(classes.item, classes.form)}>
-    <Components.WrappedSmartForm
-      collectionName='ReviewWinners'
-      documentId={contents}
-      queryFragmentName='ReviewWinnersDefaultFragment'
-      mutationFragmentName='ReviewWinnersDefaultFragment'
-      fields={['postId', 'curatedOrder']}
-    />
-  </li>
-});
 
 type DisplacedReviewWinner = readonly [displacement: number, reviewWinnerId: string];
 type ValidatedDisplacedReviewWinner = {
@@ -107,50 +70,104 @@ function validateDisplacedReviewWinners(displacedReviewWinnerIds: DisplacedRevie
   return { valid: true, displacedReviewWinner };
 }
 
+type GetAllReviewWinnersQueryResult = Array<{
+  reviewWinner: ReviewWinnerEditDisplay;
+  post: PostsTopItemInfo;
+}>;
+
+function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOrder: LWReviewWinnerSortOrder) {
+  const sortedReviewWinners = [...reviewWinners];
+  switch (sortOrder) {
+    case 'curated':
+      return sortedReviewWinners.sort((a, b) => a.reviewWinner.curatedOrder - b.reviewWinner.curatedOrder);
+    case 'ranking':
+      return sortedReviewWinners.sort((a, b) => {
+        const rankingDiff = a.reviewWinner.reviewRanking - b.reviewWinner.reviewRanking;
+        if (rankingDiff === 0) {
+          return a.reviewWinner.reviewYear - b.reviewWinner.reviewYear;
+        }
+        
+        return rankingDiff;
+      });
+    case 'year':
+      return sortedReviewWinners.sort((a, b) => {
+        const yearDiff = a.reviewWinner.reviewYear - b.reviewWinner.reviewYear;
+        if (yearDiff === 0) {
+          return a.reviewWinner.reviewRanking - b.reviewWinner.reviewRanking;
+        }
+        
+        return yearDiff;
+      });
+  }
+}
+
 const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
   const { query } = location;
+  // TODO: make an admin-only edit icon somewhere
+  const [editOrderEnabled, setEditOrderEnabled] = useState(true);
   
   const {
     currentSortOrder,
-    currentAIVisibility
+    aiPostsHidden
   } = getCurrentTopPostDisplaySettings(query);
 
-  // const [sortOrder, setSortOrder] = useState<LWReviewWinnerSortOrder>('curated');
-
-  const { SingleColumnSection, SectionTitle, HeadTags, PostsList2, TopPostsDisplaySettings, ContentStyles, ContentItemBody } = Components;
+  const { SingleColumnSection, SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, ContentItemBody, TopPostItem, TopPostEditOrder } = Components;
 
   const { post: reviewDescriptionPost } = usePostBySlug({ slug: 'top-posts-review-description' });
 
-  const { data } = useQuery(gql`
+  const { data, refetch } = useQuery(gql`
     query GetAllReviewWinners {
       GetAllReviewWinners {
         reviewWinner {
           ...ReviewWinnerEditDisplay
         }
-        postTitle
+        post {
+          ...PostsTopItemInfo
+        }
       }
     }
     ${fragmentTextForQuery('ReviewWinnerEditDisplay')}
+    ${fragmentTextForQuery('PostsTopItemInfo')}
   `);
 
-  const reviewWinnersWithPostTitles: ReviewWinnerWithPostTitle[] | undefined = data?.GetAllReviewWinners;
-  const sortedReviewWinners = [...reviewWinnersWithPostTitles ?? []].sort((a, b) => a.reviewWinner.curatedOrder - b.reviewWinner.curatedOrder);
-  const reviewWinnerIdMap = sortedReviewWinners ? keyBy(sortedReviewWinners, ({ reviewWinner }) => reviewWinner._id) : undefined;
+  const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
+  const reviewWinnerIdMap = keyBy(reviewWinnersWithPosts, ({ reviewWinner }) => reviewWinner._id);
+
+  const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
+  // If AI posts are hidden, only show those posts that are not marked as "AI" posts
+  const visibleReviewWinners = sortedReviewWinners.filter(({ reviewWinner: { isAI } }) => !aiPostsHidden || !isAI);
 
   const [updateReviewWinnerOrder] = useMutation(gql`
     mutation UpdateReviewWinnerOrder($reviewWinnerId: String!, $newCuratedOrder: Int!) {
       UpdateReviewWinnerOrder(reviewWinnerId: $reviewWinnerId, newCuratedOrder: $newCuratedOrder) {
-        ...ReviewWinnerEditDisplay
+        reviewWinner {
+          ...ReviewWinnerEditDisplay
+        }
+        post {
+          ...PostsTopItemInfo
+        }
       }
     }
     ${fragmentTextForQuery('ReviewWinnerEditDisplay')}
+    ${fragmentTextForQuery('PostsTopItemInfo')}
   `);
 
-  const setNewReviewWinnerOrder = async (updatedReviewWinnerIds: string[]) => {
-    if (!sortedReviewWinners || !reviewWinnerIdMap) return;
+  const updateReviewWinnerOrderAndRefetch = async (displacedReviewWinnerId: string, newOrder: number) => {
+    await updateReviewWinnerOrder({
+      variables: {
+        reviewWinnerId: displacedReviewWinnerId,
+        newCuratedOrder: newOrder,
+      },
+    });
 
-    const originalOrderMap = Object.fromEntries(sortedReviewWinners.map(({ reviewWinner }, idx) => [reviewWinner._id, idx] as const));
+    await refetch();
+  }
+
+  const setNewReviewWinnerOrder = async (updatedReviewWinnerIds: string[]) => {
+    if (!reviewWinnersWithPosts || !reviewWinnerIdMap) return;
+
+    const originalOrderMap = Object.fromEntries(reviewWinnersWithPosts.map(({ reviewWinner }, idx) => [reviewWinner._id, idx] as const));
     const displacedReviewWinners = updatedReviewWinnerIds.map((updatedReviewWinnerId, newOrder) => {
       const originalOrder = originalOrderMap[updatedReviewWinnerId];
       const displacement = Math.abs(newOrder - originalOrder);
@@ -202,45 +219,28 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
     });
   }
 
-  const resolverName = getReviewWinnerResolverName(currentSortOrder);
-
   return (
     <>
       <HeadTags description={description} />
       {/** TODO: change pageContext when/if we rename component */}
       <AnalyticsContext pageContext="topPostsPage">
-        <SingleColumnSection>
+        <SingleColumnSection className={classes.widerColumn}>
           <SectionTitle title={preferredHeadingCase("Best of LessWrong")} />
-          <ContentStyles contentType="post" className={classes.description}>
+          <ContentStyles contentType="post">
             {reviewDescriptionPost && <ContentItemBody dangerouslySetInnerHTML={{__html: reviewDescriptionPost.contents?.html ?? ''}} description={`A description of the top posts page`}/>}
           </ContentStyles>
           <TopPostsDisplaySettings />
-          {/* <Autosuggest
-            suggestions={hits}
-            onSuggestionSelected={onSuggestionSelected}
-            onSuggestionsFetchRequested={({ value }) => refine(value)}
-            onSuggestionsClearRequested={() => refine('')}
-            getSuggestionValue={hit => hit.title}
-            renderInputComponent={renderInputComponent}
-            renderSuggestion={renderSuggestion}
-            inputProps={{
-              placeholder: placeholder,
-              value: currentRefinement,
-              onChange: () => {},
-            }}
-            highlightFirstSuggestion
-          /> */}
-          {/* <SortableList classes={classes} value={sortedReviewWinners.map(r => r._id)} setValue={setNewReviewWinnerOrder} /> */}
-          <PostsList2
-            terms={{ limit: 20 }}
-            resolverName={resolverName}
-            topLoading
-            dimWhenLoading
-            showPostedAt={false}
-            showKarma={false}
-            showReviewRanking
-            showCommentCount={false}
-          />
+          {visibleReviewWinners.map(({ post, reviewWinner }) => {
+            return (<div key={reviewWinner._id} >
+              <TopPostItem post={post} />
+              {editOrderEnabled && (
+                <TopPostEditOrder
+                  reviewWinner={reviewWinner}
+                  updateCuratedOrder={(newOrder) => updateReviewWinnerOrderAndRefetch(reviewWinner._id, newOrder)}
+                />
+              )}
+            </div>);
+          })}
         </SingleColumnSection>
       </AnalyticsContext>
     </>

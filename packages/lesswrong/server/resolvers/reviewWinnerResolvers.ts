@@ -1,15 +1,39 @@
+import moment from "moment";
 import { userIsAdmin } from "../../lib/vulcan-users";
 import { defineMutation, defineQuery } from "../utils/serverGraphqlUtil";
+import { onStartup } from "../../lib/executionEnvironment";
+import { createAnonymousContext } from "../vulcan-lib";
+import type { ReviewWinnerWithPost } from "../repos/ReviewWinnersRepo";
+
+interface ReviewWinnerCache {
+  reviewWinners: ReviewWinnerWithPost[];
+  lastUpdatedAt: Date;
+}
+
+const REVIEW_WINNER_CACHE: ReviewWinnerCache = {
+  reviewWinners: [],
+  lastUpdatedAt: new Date()
+};
+
+async function updateReviewWinnerCache(context: ResolverContext) {
+  const updatedReviewWinners = await context.repos.reviewWinners.getAllReviewWinnersWithPosts();
+  REVIEW_WINNER_CACHE.reviewWinners = updatedReviewWinners;
+  REVIEW_WINNER_CACHE.lastUpdatedAt = new Date();
+}
+
+onStartup(async () => {
+  await updateReviewWinnerCache(createAnonymousContext());
+});
 
 defineQuery({
   name: 'GetAllReviewWinners',
   schema: `
-  type ReviewWinnerWithPostTitle {
-    reviewWinner: ReviewWinner!
-    postTitle: String!
-  }
+    type ReviewWinnerWithPost {
+      reviewWinner: ReviewWinner!
+      post: Post!
+    }
   `,
-  resultType: '[ReviewWinnerWithPostTitle!]!',
+  resultType: '[ReviewWinnerWithPost!]!',
   fn: async (root, args, context) => {
     const { currentUser } = context;
 
@@ -17,13 +41,18 @@ defineQuery({
       throw new Error('Only admins may fetch all review winners using this API!');
     }
 
-    return await context.repos.reviewWinners.getAllReviewWinnersWithPostTitles();
+    const cacheStale = moment(REVIEW_WINNER_CACHE.lastUpdatedAt).isBefore(moment(new Date()).subtract(1, 'hour'));
+    if (cacheStale) {
+      await updateReviewWinnerCache(context);
+    }
+
+    return REVIEW_WINNER_CACHE.reviewWinners;
   }
 })
 
 defineMutation({
   name: 'UpdateReviewWinnerOrder',
-  resultType: '[ReviewWinnerWithPostTitle!]!',
+  resultType: '[ReviewWinnerWithPost!]!',
   argTypes: '(reviewWinnerId: String!, newCuratedOrder: Int!)',
   fn: async (_, { reviewWinnerId, newCuratedOrder }: { reviewWinnerId: string, newCuratedOrder: number }, context) => {
     const { currentUser } = context;
@@ -32,19 +61,9 @@ defineMutation({
       throw new Error('Only admins may update review winner ordering!');
     }
 
-    // const updates: MongoBulkWriteOperations<DbReviewWinner> = orderedReviewWinnerIds.map((reviewWinnerId, idx) => ({
-    //   updateOne: {
-    //     filter: { _id: reviewWinnerId },
-    //     update: { $set: { curatedOrder: idx } }
-    //   }
-    // }));
-
-    // await context.ReviewWinners.rawCollection().bulkWrite(updates);
-
     await context.repos.reviewWinners.updateCuratedOrder(reviewWinnerId, newCuratedOrder);
+    await updateReviewWinnerCache(context);
 
-    // return true;
-
-    return await context.repos.reviewWinners.getAllReviewWinnersWithPostTitles(); //.find(undefined, { sort: { curatedOrder: 1 } }).fetch();
+    return REVIEW_WINNER_CACHE.reviewWinners;
   }
 });

@@ -1,7 +1,11 @@
-import { ReviewWinnerWithPostTitle } from "../../components/sequences/TopPostsPage";
 import ReviewWinners from "../../lib/collections/reviewWinners/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+
+export interface ReviewWinnerWithPost {
+  reviewWinner: DbReviewWinner;
+  post: DbPost;
+}
 
 class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
   constructor() {
@@ -47,7 +51,7 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
           -- the newCuratedOrder (the "rightmost" boundary, hence the "<" comparison), and
           -- the old currentOrder (the "leftmost" boundary, hence the ">" comparison)
           SET "curatedOrder" = "curatedOrder" - 1
-          WHERE "curatedOrder" < $(newCuratedOrder)
+          WHERE "curatedOrder" <= $(newCuratedOrder)
           AND "curatedOrder" > $(currentOrder);
 
           UPDATE "ReviewWinners"
@@ -58,23 +62,21 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
     });
   }
 
-  async getAllReviewWinnersWithPostTitles(): Promise<ReviewWinnerWithPostTitle[]> {
-    const reviewWinnersWithPostTitles = await this.getRawDb().any<DbReviewWinner & { postTitle: string }>(`
+  async getAllReviewWinnersWithPosts(): Promise<ReviewWinnerWithPost[]> {
+    const postsWithMetadata = await this.getRawDb().any<DbPost & { reviewWinner: DbReviewWinner }>(`
       SELECT
-        rw.*,
-        p.title AS "postTitle"
+        TO_JSONB(rw.*) AS "reviewWinner",
+        p.*
       FROM "ReviewWinners" rw
       JOIN "Posts" p
       ON rw."postId" = p._id
     `);
 
-    return reviewWinnersWithPostTitles.map(reviewWinnerWithPostTitle => {
-      const { postTitle, ...reviewWinner } = reviewWinnerWithPostTitle;
-      return {
-        reviewWinner,
-        postTitle
-      };
-    })
+    // We need to do this annoying munging in code because `TO_JSONB` causes date fields to be returned without being serialized into JS Date objects
+    return postsWithMetadata.map(postWithMetadata => {
+      const { reviewWinner, ...post } = postWithMetadata;
+      return { reviewWinner, post };
+    });
   }
 }
 

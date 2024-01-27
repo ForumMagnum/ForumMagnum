@@ -25,6 +25,26 @@ registerFragment(`
   }
 `);
 
+// ...PostsAuthors
+
+registerFragment(`
+  fragment PostsTopItemInfo on Post {
+    ...PostsMinimumInfo
+    ...PostsAuthors
+    isRead
+    contents {
+      _id
+      htmlHighlight
+      wordCount
+      version
+    }
+    customHighlight {
+      _id
+      html
+    }
+  }
+`);
+
 registerFragment(`
   fragment PostsBase on Post {
     ...PostsMinimumInfo

@@ -814,6 +814,14 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly agentFoundationsId: string,
 }
 
+interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
+  readonly postId: string,
+  readonly reviewYear: number,
+  readonly curatedOrder: number,
+  readonly reviewRanking: number,
+  readonly isAI: boolean,
+}
+
 interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
   readonly userId: string,
   readonly documentId: string,
@@ -970,6 +978,24 @@ interface PostsMinimumInfo_currentUserReviewVote { // fragment on ReviewVotes
   readonly _id: string,
   readonly qualitativeScore: number,
   readonly quadraticScore: number,
+}
+
+interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment on Posts
+  readonly isRead: boolean,
+  readonly contents: PostsTopItemInfo_contents|null,
+  readonly customHighlight: PostsTopItemInfo_customHighlight|null,
+}
+
+interface PostsTopItemInfo_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly htmlHighlight: string,
+  readonly wordCount: number | null,
+  readonly version: string,
+}
+
+interface PostsTopItemInfo_customHighlight { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts
@@ -3531,14 +3557,6 @@ interface CkEditorUserSessionInfo { // fragment on CkEditorUserSessions
   readonly endedBy: string,
 }
 
-interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
-  readonly postId: string,
-  readonly reviewYear: number,
-  readonly curatedOrder: number,
-  readonly reviewRanking: number,
-  readonly isAI: boolean,
-}
-
 interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
   readonly _id: string,
   readonly postId: string,
@@ -3577,6 +3595,7 @@ interface FragmentTypes {
   BooksDefaultFragment: BooksDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
+  ReviewWinnersDefaultFragment: ReviewWinnersDefaultFragment
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   LWEventsDefaultFragment: LWEventsDefaultFragment
@@ -3592,6 +3611,7 @@ interface FragmentTypes {
   NotificationsDefaultFragment: NotificationsDefaultFragment
   ModeratorActionsDefaultFragment: ModeratorActionsDefaultFragment
   PostsMinimumInfo: PostsMinimumInfo
+  PostsTopItemInfo: PostsTopItemInfo
   PostsBase: PostsBase
   PostsWithVotes: PostsWithVotes
   PostsListWithVotes: PostsListWithVotes
@@ -3781,7 +3801,6 @@ interface FragmentTypes {
   DialogueMatchPreferenceInfo: DialogueMatchPreferenceInfo
   CkEditorUserSessionsDefaultFragment: CkEditorUserSessionsDefaultFragment
   CkEditorUserSessionInfo: CkEditorUserSessionInfo
-  ReviewWinnersDefaultFragment: ReviewWinnersDefaultFragment
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
   SuggestAlignmentComment: SuggestAlignmentComment
 }
@@ -3803,7 +3822,8 @@ interface FragmentTypesByCollection {
   TagRels: "TagRelsDefaultFragment"|"TagRelBasicInfo"|"TagRelFragment"|"TagRelHistoryFragment"|"TagRelCreationFragment"|"TagRelMinimumFragment"|"WithVoteTagRel"
   Books: "BooksDefaultFragment"|"BookPageFragment"|"BookEdit"
   Sequences: "SequencesDefaultFragment"|"SequencesPageTitleFragment"|"SequencesPageFragment"|"SequenceContinueReadingFragment"|"SequencesPageWithChaptersFragment"|"SequencesEdit"
-  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
+  Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
+  ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
@@ -3838,7 +3858,6 @@ interface FragmentTypesByCollection {
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
-  ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"
 }
 
 interface CollectionNamesByFragmentName {
@@ -3859,6 +3878,7 @@ interface CollectionNamesByFragmentName {
   BooksDefaultFragment: "Books"
   SequencesDefaultFragment: "Sequences"
   PostsDefaultFragment: "Posts"
+  ReviewWinnersDefaultFragment: "ReviewWinners"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
   VotesDefaultFragment: "Votes"
   LWEventsDefaultFragment: "LWEvents"
@@ -3874,6 +3894,7 @@ interface CollectionNamesByFragmentName {
   NotificationsDefaultFragment: "Notifications"
   ModeratorActionsDefaultFragment: "ModeratorActions"
   PostsMinimumInfo: "Posts"
+  PostsTopItemInfo: "Posts"
   PostsBase: "Posts"
   PostsWithVotes: "Posts"
   PostsListWithVotes: "Posts"
@@ -4063,7 +4084,6 @@ interface CollectionNamesByFragmentName {
   DialogueMatchPreferenceInfo: "DialogueMatchPreferences"
   CkEditorUserSessionsDefaultFragment: "CkEditorUserSessions"
   CkEditorUserSessionInfo: "CkEditorUserSessions"
-  ReviewWinnersDefaultFragment: "ReviewWinners"
   ReviewWinnerEditDisplay: "ReviewWinners"
   SuggestAlignmentComment: "Comments"
 }
