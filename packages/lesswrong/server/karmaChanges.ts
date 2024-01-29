@@ -16,7 +16,7 @@ import type {
   TagRevisionKarmaChange,
   AnyKarmaChange,
 } from '../lib/collections/users/karmaChangesGraphQL';
-import { isEAForum } from '../lib/instanceSettings';
+import { isFriendlyUI } from '../themes/forumTheme';
 
 // Use html-to-text's compile() wrapper (baking in the default options) to make it faster when called repeatedly
 const htmlToTextDefault = compileHtmlToText();
@@ -116,7 +116,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
     showNegative: showNegativeKarma,
   };
 
-  if (isEAForum) {
+  if (isFriendlyUI) {
     return getEAKarmaChanges(votesRepo, queryArgs, nextBatchDate, updateFrequency);
   }
 
