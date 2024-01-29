@@ -19,6 +19,7 @@ import type { AddMiddlewareType } from './apolloServer';
 import { Request, Response, NextFunction, json } from "express";
 import { AUTH0_SCOPE, loginAuth0User, signupAuth0User } from './authentication/auth0';
 import { IdFromProfile, UserDataFromProfile, getOrCreateForumUser } from './authentication/getOrCreateForumUser';
+import { promisify } from 'util';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -41,7 +42,7 @@ declare global {
 
 // Extend Auth0Strategy to include the missing userProfile method
 class Auth0StrategyFixed extends Auth0Strategy {
-  userProfile!: any;
+  userProfile!: (accessToken: string, done: (err: Error | null, profile?: Auth0Profile) => void) => void;
 }
 
 const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null)
@@ -356,7 +357,9 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
         if (!password || typeof password !== "string") {
           throw new Error("Password is required");
         }
-        const {user} = await loginAuth0User(email, password);
+        const getUserProfileCallbackStyle = auth0Strategy.userProfile.bind(auth0Strategy)
+        const getUserProfile = promisify(getUserProfileCallbackStyle)
+        const {user} = await loginAuth0User(email, password, getUserProfile);
         const errorHandler: NextFunction = (err) => {
           if (err) {
             res.status(400).send({error: err.message});

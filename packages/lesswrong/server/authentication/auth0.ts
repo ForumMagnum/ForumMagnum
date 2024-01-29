@@ -3,6 +3,10 @@ import { AuthenticationClient, ManagementClient } from "auth0";
 import Profile from "passport-auth0/lib/Profile";
 import { getAuth0Id } from "../../lib/collections/users/helpers";
 import { UsersRepo } from "../repos";
+import { Profile as Auth0Profile } from 'passport-auth0';
+import { getOrCreateForumUser } from "./getOrCreateForumUser";
+import { promisify } from "util";
+import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./auth0Accounts";
 
 type Auth0Settings = {
   appId: string;
@@ -92,6 +96,7 @@ const realm = "Forum-User-Migration";
 export const loginAuth0User = async (
   email: string,
   password: string,
+  profileFromAccessToken: (accessToken: string) => Promise<Auth0Profile|undefined>,
 ): Promise<{user: DbUser, token: string}> => {
   const client = auth0Client.getAuthClient();
   try {
@@ -107,8 +112,17 @@ export const loginAuth0User = async (
       throw new Error("Incorrect email or password");
     }
 
-    // TODO This should use the login in `getOrCreateForumUser instead`
-    const user = await new UsersRepo().getUserByEmail(email);
+    const profile = await profileFromAccessToken(grant.access_token);
+    if (!profile) {
+      throw new Error("Profile not found");
+    }
+    const asyncGetOrCreateForumUser = promisify(getOrCreateForumUser);
+    const user = await asyncGetOrCreateForumUser(
+      auth0ProfilePath,
+      profile,
+      idFromAuth0Profile,
+      userFromAuth0Profile
+    );
     if (!user) {
       // TODO: Create user?
       throw new Error("User not found");
@@ -142,7 +156,7 @@ export const signupAuth0User = async (
       password,
       connection: realm,
     });
-    return loginAuth0User(email, password);
+    return loginAuth0User(email, password, "TODO" as any);
   } catch (e) {
     throw new Error(getAuthError(e, "Signup failed"));
   }
