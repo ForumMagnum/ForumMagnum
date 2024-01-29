@@ -211,7 +211,7 @@ export const NotificationsPageKarmaChange = ({
   return (
     <>
       {karmaChange !== 0 &&
-        <NotificationsPageItem Icon="Sparkles" iconVariant="yellow">
+        <NotificationsPageItem Icon="Star" iconVariant="yellow">
           <div>
             <span className={classes.amount}>{amountText} karma</span> {display}
           </div>
