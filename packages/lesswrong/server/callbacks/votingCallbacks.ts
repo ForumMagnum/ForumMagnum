@@ -148,9 +148,6 @@ const manifoldAPIKey = manifoldAPIKeySetting.get()
 const reviewUserBotSetting = new DatabaseServerSetting<string | null>('reviewBotId', null)
 const reviewUserBot = reviewUserBotSetting.get()
 
-if (manifoldAPIKey === null) throw new Error("manifoldAPIKey is null")
-if (reviewUserBot === null) throw new Error("reviewUserBot is null")
-
 async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
   const tag = await Tags.findOne({slug: tagSlug})
   if (!tag) throw new Error(`Tag with slug "${tagSlug}" not found`)
@@ -158,11 +155,14 @@ async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, co
 }
 
 // AFAIU the flow, this has a race condition. If a post is voted on twice in quick succession, it will create two markets.
-// This is probably fine, but it's worth noting. We can deal with it if it comes up.
+// This is probably fine, but it's wor  th noting. We can deal with it if it comes up.
 voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collection, user, context) => {
 
   // Forum gate
   if (!isLWorAF) return;
+
+  if (!manifoldAPIKey) throw new Error("Manifold API key not found");
+  if (!reviewUserBot) throw new Error("Review bot user not found");
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return;
