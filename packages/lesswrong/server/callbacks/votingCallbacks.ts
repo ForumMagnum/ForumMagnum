@@ -3,7 +3,7 @@ import Notifications from '../../lib/collections/notifications/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { collectionsThatAffectKarma, voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
+import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { userSmallVotePower } from '../../lib/voting/voteTypes';
 import { postPublishedCallback } from '../notificationCallbacks';
 import { createNotification } from '../notificationCallbacksHelpers';
@@ -18,6 +18,8 @@ import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
 import { MINIMUM_KARMA_REVIEW_MARKET_CREATION } from '../../lib/annualReviewMarkets';
+
+export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
 /**
  * @summary Update the karma of the item's owner

@@ -4,8 +4,6 @@ import { recalculateScore } from '../scoring';
 import { voteTypes, calculateVotePower } from './voteTypes';
 import type { VotingSystem } from './votingSystems';
 
-export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
-
 export interface VoteDocTuple {
   newDocument: DbVoteableType
   vote: DbVote
