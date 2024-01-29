@@ -133,11 +133,10 @@ const hasKarmaChange = (
     return false;
   }
   const {
-    totalChange, updateFrequency, endDate, posts, comments, tagRevisions,
+    updateFrequency, endDate, posts, comments, tagRevisions,
   } = karmaChanges.karmaChanges;
   if (
     !(posts?.length || comments?.length || tagRevisions?.length) ||
-    !totalChange ||
     updateFrequency === "disabled"
   ) {
     return false;
