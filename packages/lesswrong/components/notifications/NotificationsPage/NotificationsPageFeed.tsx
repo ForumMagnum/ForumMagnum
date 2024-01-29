@@ -126,7 +126,10 @@ export const NotificationsPageFeed = ({
     notifications.current = data.NotificationDisplays.results;
   }
 
-  const canLoadMore = notifications.current.length > 0;
+  const canLoadMore = !loading &&
+    notifications.current.length > 0 &&
+    notifications.current.length >= limit;
+
   const hasKarmaChanges = Boolean(
     karmaChanges?.posts?.length ||
     karmaChanges?.comments?.length ||
@@ -206,7 +209,7 @@ export const NotificationsPageFeed = ({
           ))}
         </div>
       }
-      {loading && notifications?.current?.length === 0 && <Loading />}
+      {loading && <Loading />}
       {canLoadMore &&
         <LoadMore
           loadMore={loadMore}
