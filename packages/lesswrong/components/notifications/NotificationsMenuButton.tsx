@@ -84,10 +84,16 @@ export const styles = (theme: ThemeType) => ({
     color: theme.palette.icon.headerKarma,
     transform: "rotate(-15deg)",
     position: "absolute",
-    left: -6,
-    top: -6,
     width: 16,
     height: 16,
+  },
+  karmaStarWithBadge: {
+    left: -6,
+    top: -6,
+  },
+  karmaStarWithoutBadge: {
+    left: 1,
+    top: 1,
   },
 });
 
@@ -188,7 +194,13 @@ const FriendlyNotificationsMenuButton = ({
           <>
             {badgeText}
             {showKarmaStar &&
-              <ForumIcon icon="Star" className={classes.karmaStar} />
+              <ForumIcon
+                icon="Star"
+                className={classNames(classes.karmaStar, {
+                  [classes.karmaStarWithBadge]: hasBadge,
+                  [classes.karmaStarWithoutBadge]: !hasBadge,
+                })}
+              />
             }
           </>
         }
