@@ -42,6 +42,11 @@ defineQuery({
         createdAt: {$gt: lastNotificationsCheck},
       }),
     }).fetch();
+
+    // Notifications are shown separately from new messages in friendly UI.
+    // The `viewed` parameter is currently only actually used for messages,
+    // but we check it here for all notifications as it's quite likely we'll
+    // expand this in the future.
     const unreadNotifications = isFriendlyUI
       ? newNotifications.filter(
         ({type, viewed}) => type !== "newMessage" && !viewed,
