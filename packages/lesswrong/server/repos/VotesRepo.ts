@@ -338,7 +338,16 @@ class VotesRepo extends AbstractRepo<"Votes"> {
         SELECT
           v."documentId" "_id",
           v."collectionName",
-          SUM(v."${powerField}") "scoreChange",
+          CASE
+            WHEN (
+              SELECT ("karmaChangeNotifierSettings"->'showNegativeKarma')::JSONB = TO_JSONB(TRUE)
+              FROM "Users"
+              WHERE "_id" = $1
+            )
+              THEN SUM(v."${powerField}")
+            ELSE
+              GREATEST(SUM(v."${powerField}"), 0)
+            END "scoreChange",
           NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
             ${[...publicSelectors, ...privateSelectors].join(",\n")}
           )), '{}'::JSONB) "eaAddedReacts"
