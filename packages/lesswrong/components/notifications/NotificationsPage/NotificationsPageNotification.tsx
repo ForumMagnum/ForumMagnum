@@ -63,6 +63,10 @@ export const NotificationsPageNotification = ({notification, classes}: {
   const displayPost = post ?? comment?.post;
   const displayLocalgroup = localgroup ?? post?.group;
 
+  // These temporary components are passed into the `Display` functions of
+  // the various notification types (see `lib/notificationTypes.ts`) to generate
+  // interactive notification displays. They _must_ be wrapped in `useCallback`
+  // otherwise rerenders will badly break referential transparency.
   const User: FC = useCallback(() => (
     <Components.UsersName
       user={displayUser}
