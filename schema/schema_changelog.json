@@ -533,5 +533,10 @@
     "acceptsSchemaHash": "bf5c33d1f46ea5444810c9f48d5a39f0",
     "acceptedByMigration": "20240126T233218.add_manifoldMarketFieldsPosts.ts",
     "timestamp": "2024-01-26T23:32:18.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ac7e693c0bf355ca12c2eb99772f93f5",
+    "acceptedByMigration": "20240127T045452.create_ManifoldProbabilitiesCaches_table.ts",
+    "timestamp": "2024-01-27T04:54:52.000Z"
   }
 ]

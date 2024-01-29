@@ -1,4 +1,6 @@
 import { AnnualReviewMarketInfo } from "../../lib/annualReviewMarkets";
+import ManifoldProbabilitiesCaches from "../../lib/collections/manifoldProbabilitiesCaches/collection";
+import { createAdminContext, createMutator } from "../vulcan-lib";
 
 const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReviewMarketInfo | null > => {
   if (!post.manifoldReviewMarketId) return null;
@@ -22,34 +24,33 @@ const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReview
 }
 
 
-// Define a type for the cache item
-interface CacheItem {
-  marketInfo: AnnualReviewMarketInfo | null;
-  lastUpdated: Date;
-}
-// Define a type for the cache object
-interface Cache {
-  [key: string]: CacheItem;
-}
-
-// Create the cache object with the correct type
-const postMarketInfoCache: Cache = {};
-
 // Function to update marketInfo in cache
 async function updateMarketInfoInCache(post: DbPost) {
-  const postId = post._id;
   const marketInfo = await postGetMarketInfoFromManifold(post);
+  if (!marketInfo || !post.manifoldReviewMarketId) return null;
 
-  postMarketInfoCache[postId] = {
-    marketInfo,
-    lastUpdated: new Date(),
-  };
+  await createMutator({
+    collection: ManifoldProbabilitiesCaches,
+    document: {
+      marketId: post.manifoldReviewMarketId,
+      probability: marketInfo.probability,
+      isResolved: marketInfo.isResolved,
+      year: marketInfo.year,
+      lastUpdated: new Date(),
+    },
+    context: createAdminContext(),
+  }).catch(error => {
+    // eslint-disable-next-line no-console
+    console.error("Failed to update cache for post:", post._id, error.data.errors);
+  })
 }
 
 // Function to get marketInfo from cache, and update cache if it's been more than 2 seconds since the last update
-export const getPostMarketInfo = (post: DbPost) => {
+export const getPostMarketInfo = async (post: DbPost) => {
   const postId = post._id;
-  const cacheItem = postMarketInfoCache[postId];
+  const cacheItem = await ManifoldProbabilitiesCaches.findOne({
+    marketId: post.manifoldReviewMarketId
+  });
 
   const TWO_SECONDS = 2 * 1000; // 2 seconds in milliseconds
   
@@ -74,5 +75,5 @@ export const getPostMarketInfo = (post: DbPost) => {
   }
 
   // Return the cached marketInfo immediately
-  return cacheItem.marketInfo
+  return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year };
 }
