@@ -314,6 +314,7 @@ declare global {
       strawpoll: ColorString,
       userProfileImageHover: ColorString,
       userProfileImageLoading: string,
+      reviewGold: ColorString
     },
     boxShadow: {
       default: string,

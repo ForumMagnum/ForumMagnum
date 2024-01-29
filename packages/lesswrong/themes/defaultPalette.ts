@@ -390,6 +390,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       rgba(255,255,255,0.25) 50%,
       rgba(0,0,0,0) 66%
     ) ${shades.grey[500]}`,
+    reviewGold: 'lch(68 34.48 85.39 / 76%)'
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -458,7 +459,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     background: shades.grey[200],
     border: `solid 1px ${shades.grey[200]}`,
     coreTagText: shades.grey[600],
-    coreTagBackground: "transparent",
+    coreTagBackground: shades.grey[0],
     coreTagBorder: shades.greyBorder("1px", .15),
     hollowTagBackground: shades.grey[0],
     hollowTagBorder: shades.greyBorder("1px", .15),

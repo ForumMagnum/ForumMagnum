@@ -449,7 +449,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
     PostBottomRecommendations, NotifyMeDropdownItem, Row,
     AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
-    CommentsListSection, CommentsTableOfContents
+    CommentsListSection, CommentsTableOfContents, PostsPageSplashHeader
   } = Components
 
   useEffect(() => {
@@ -533,7 +533,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? <TableOfContents sectionData={sectionData} title={post.title} />
+    ? <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc />
     : null;
 
   const noIndex = post.noIndex || post.rejected;
@@ -555,7 +555,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       />
     </>}
     {/* Header/Title */}
-    <AnalyticsContext pageSectionContext="postHeader">
+    {commentId && !isDebateResponseLink && <AnalyticsContext pageSectionContext="postHeader">
       <div className={classes.title}>
         <div className={classes.centralColumn}>
           {commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={post} />}
@@ -575,7 +575,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             dialogueResponses={debateResponses} />
         </div>
       </div>
-    </AnalyticsContext>
+    </AnalyticsContext>}
   </>;
 
   const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
@@ -726,6 +726,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
+    {!commentId && !isDebateResponseLink && <PostsPageSplashHeader post={post} />}
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[

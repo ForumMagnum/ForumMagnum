@@ -19,11 +19,13 @@ import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginTop: 8,
-    marginBottom: 8,
+    display: 'flex',
+    gap: '4px',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
   },
   allowTruncate: {
-    display: "block",
+    display: "inline-flex",
     // Truncate to 3 rows (webkit-line-clamp would be ideal here but it adds an ellipsis
     // which can't be removed)
     maxHeight: 104,
@@ -47,8 +49,8 @@ const styles = (theme: ThemeType) => ({
         },
       }
       : {
-        paddingTop: 4,
-        paddingBottom: 4,
+        paddingTop: 4.5,
+        paddingBottom: 4.5,
       }),
     border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,

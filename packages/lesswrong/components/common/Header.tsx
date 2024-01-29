@@ -131,6 +131,7 @@ export const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     fontWeight: isFriendlyUI ? 400 : undefined,
+    height: isFriendlyUI ? undefined : '19px'
   },
   menuButton: {
     marginLeft: -theme.spacing.unit,

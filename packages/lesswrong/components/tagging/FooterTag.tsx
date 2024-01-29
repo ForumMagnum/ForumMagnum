@@ -14,11 +14,9 @@ import type { TagsTooltipPreviewWrapper } from './TagsTooltip';
 const useExperimentalTagStyleSetting = new DatabasePublicSetting<boolean>('useExperimentalTagStyle', false)
 
 export const tagStyle = (theme: ThemeType): JssStyles => ({
-  marginRight: 3,
   padding: 5,
   paddingLeft: 6,
   paddingRight: 6,
-  marginBottom: 8,
   fontWeight: theme.typography.body1.fontWeight,
   backgroundColor: theme.palette.tag.background,
   border: theme.palette.tag.border,
