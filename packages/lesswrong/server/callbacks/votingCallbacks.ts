@@ -244,7 +244,7 @@ const makeComment = async (postId: string, year: number, marketUrl: string, botU
     collection: Comments,
     document: {
       postId: postId,
-      userId: reviewUserBot,
+      userId: botUser._id,
       contents: {originalContents: {
         type: "html",
         data: commentString
