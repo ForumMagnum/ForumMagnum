@@ -69,6 +69,23 @@ const getEAKarmaChanges = async (
   };
 }
 
+const limitDateRange = ({startDate, endDate, maxDays}: {
+  startDate: Date,
+  endDate: Date,
+  maxDays: number,
+}): {
+  startDate: Date,
+  endDate: Date,
+} => {
+  const start = startDate.getTime();
+  const end = endDate.getTime();
+  const maxDelta = maxDays * 24 * 60 * 60 * 1000;
+  return {
+    startDate: new Date(Math.max(start, end - maxDelta)),
+    endDate,
+  };
+};
+
 // Given a user and a date range, get a summary of karma changes that occurred
 // during that date range.
 //
@@ -117,7 +134,11 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   };
 
   if (isFriendlyUI) {
-    return getEAKarmaChanges(votesRepo, queryArgs, nextBatchDate, updateFrequency);
+    const args = {
+      ...queryArgs,
+      ...limitDateRange({...queryArgs, maxDays: 40}),
+    };
+    return getEAKarmaChanges(votesRepo, args, nextBatchDate, updateFrequency);
   }
 
   const { changedComments, changedPosts, changedTagRevisions } = await votesRepo.getLWKarmaChanges(queryArgs);
