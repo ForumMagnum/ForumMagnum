@@ -6,9 +6,9 @@ import { useHover } from '../common/withHover';
 
 const styles = (theme: ThemeType) => ({
   expectedWinner: {
-    color: theme.palette.text.annualReviewMarketKarma,
+    color: theme.palette.review.winner,
     border: '1px solid',
-    borderColor: theme.palette.text.annualReviewMarketKarma,
+    borderColor: theme.palette.review.winner,
     borderRadius: '4px',
     fontFamily: theme.typography.fontFamily,
     width: 'fit-content',
@@ -22,37 +22,37 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PostsAnnualReviewMarketTag = ({post, annualReviewMarketInfo, classes}: {
-    post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
-    annualReviewMarketInfo: AnnualReviewMarketInfo | null,
-    classes: ClassesType<typeof styles>,
-  })  => {
+const PostsAnnualReviewMarketTag = ({ post, annualReviewMarketInfo, classes }: {
+  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
+  annualReviewMarketInfo: AnnualReviewMarketInfo | null,
+  classes: ClassesType<typeof styles>,
+}) => {
 
-    const { CommentsNode, LWPopper } = Components;
-    const {anchorEl, hover, eventHandlers} = useHover();
+  const { CommentsNode, LWPopper } = Components;
+  const { anchorEl, hover, eventHandlers } = useHover();
 
-    const annualReviewMarketCommentId = post.annualReviewMarketCommentId
+  const annualReviewMarketCommentId = post.annualReviewMarketCommentId
 
-    const {document: comment} = useSingle({
-        documentId: annualReviewMarketCommentId,
-        collectionName: "Comments",
-        fragmentName: "CommentsList",
-      });
+  const { document: comment } = useSingle({
+    documentId: annualReviewMarketCommentId,
+    collectionName: "Comments",
+    fragmentName: "CommentsList",
+  });
 
-    if (!annualReviewMarketInfo) {
-      return <div></div>;
-    }
-    
-    const decimalPlaces = 0;
-    return <span>
-      <div className={classes.expectedWinner} {...eventHandlers}>
-        {annualReviewMarketInfo?.year} Top Fifty: {parseFloat((annualReviewMarketInfo?.probability*100).toFixed(decimalPlaces))}%
-        {!!comment && 
+  if (!annualReviewMarketInfo) {
+    return <div></div>;
+  }
+
+  const decimalPlaces = 0;
+  return <span>
+    <div className={classes.expectedWinner} {...eventHandlers}>
+      {annualReviewMarketInfo?.year} Top Fifty: {parseFloat((annualReviewMarketInfo?.probability * 100).toFixed(decimalPlaces))}%
+      {!!comment &&
         <LWPopper
-            open={hover}
-            anchorEl={anchorEl}
-            placement="bottom-end"
-            clickable={true}
+          open={hover}
+          anchorEl={anchorEl}
+          placement="bottom-end"
+          clickable={true}
         >
           <div className={classes.preview}>
             <CommentsNode
@@ -68,13 +68,12 @@ const PostsAnnualReviewMarketTag = ({post, annualReviewMarketInfo, classes}: {
             </CommentsNode>
           </div>
         </LWPopper>
-        }
-      {/* If the comment is not found, we should probably still have a tooltip explaining what it means, maybe with a link to the market? e.g. if the comment gets deleted */}
+      }
     </div>
-    </span>
+  </span>
 };
 
-const PostsAnnualReviewMarketTagComponent = registerComponent('PostsAnnualReviewMarketTag', PostsAnnualReviewMarketTag, {styles});
+const PostsAnnualReviewMarketTagComponent = registerComponent('PostsAnnualReviewMarketTag', PostsAnnualReviewMarketTag, { styles });
 
 declare global {
   interface ComponentTypes {

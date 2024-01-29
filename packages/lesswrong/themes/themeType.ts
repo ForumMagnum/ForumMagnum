@@ -157,7 +157,6 @@ declare global {
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       reviewBallotIcon: ColorString,
-      annualReviewMarketKarma: ColorString,
       
       eventMaybe: ColorString,
       aprilFools: {
@@ -403,6 +402,7 @@ declare global {
       activeProgress: ColorString,
       progressBar: ColorString,
       adminButton: ColorString,
+      winner: ColorString,
     },
     background: {
       default: ColorString

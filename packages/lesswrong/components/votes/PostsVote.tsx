@@ -8,7 +8,7 @@ const PostsVote = ({post, useHorizontalLayout, isFooter}: {
   /** if true, display the vote arrows to the left & right of the score */
   useHorizontalLayout?: boolean,
   /** if true, this vote is in the footer underneath the post */
-  isFooter?: boolean
+  isFooter?: boolean,
 }) => {
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);

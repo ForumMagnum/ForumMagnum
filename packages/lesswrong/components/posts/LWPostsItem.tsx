@@ -12,7 +12,7 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
-import { PROBABILITY_REVIEW_WINNER_THRESHOLD } from '../../lib/annualReviewMarkets';
+import { PROBABILITY_REVIEW_WINNER_THRESHOLD, highlightMarket } from '../../lib/annualReviewMarkets';
 
 export const KARMA_WIDTH = 32
 
@@ -91,7 +91,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   karmaPredictedReviewWinner: {
-    color: theme.palette.text.annualReviewMarketKarma
+    color: theme.palette.review.winner
   },
   title: {
     minHeight: 26,
@@ -431,12 +431,10 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
           >
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
             {showKarma && <PostsItem2MetaInfo className={classNames(
-                classes.karma, {
-                  [classes.karmaPredictedReviewWinner]: !!annualReviewMarketInfo && annualReviewMarketInfo.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD && !annualReviewMarketInfo.isResolved
+              classes.karma, {
+                [classes.karmaPredictedReviewWinner]: !!annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo)
 
-                }
-              )}
-              >
+              })}>
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
                 : <KarmaDisplay document={post} annualReviewMarketInfo={annualReviewMarketInfo} annualReviewMarketCommentId={post.annualReviewMarketCommentId}/>

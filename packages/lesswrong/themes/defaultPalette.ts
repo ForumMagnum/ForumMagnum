@@ -211,7 +211,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     reviewDownvote: "rgba(125,70,70, .87)",
     reviewBallotIcon: 'rgb(47 108 152 / 50%)',
     
-    annualReviewMarketKarma: "#B3884F",
 
     aprilFools: {
       orange: "#e64a19",
@@ -480,6 +479,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     activeProgress: 'rgba(127, 175, 131, 0.5)',
     progressBar: 'rgba(127, 175, 131, 0.7)',
     adminButton: "rgba(200,150,100)",
+    winner: "rgba(179, 136, 79, 1)",
   },
   header: {
     text: shades.greyAlpha(.87),
