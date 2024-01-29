@@ -105,7 +105,7 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
   const { query } = location;
   // TODO: make an admin-only edit icon somewhere
-  const [editOrderEnabled, setEditOrderEnabled] = useState(true);
+  const [editOrderEnabled, setEditOrderEnabled] = useState(false);
   
   const {
     currentSortOrder,
