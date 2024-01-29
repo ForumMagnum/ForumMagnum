@@ -1,17 +1,14 @@
 class Auth0ClientError extends Error {
   constructor(message?: string | null) {
-    super(message || "Incorrect login details");
+    super(message || "Something went wrong");
   }
 }
 
 class Auth0Client {
-  async login(email: string, password: string): Promise<void> {
-    const result = await fetch("/auth/auth0/embedded-login", {
+  private async post(endpoint: string, body: JsonRecord): Promise<void> {
+    const result = await fetch(endpoint, {
       method: "POST",
-      body: JSON.stringify({
-        email,
-        password,
-      }),
+      body: JSON.stringify(body),
       headers: {
         "Content-Type": "application/json",
       },
@@ -20,6 +17,14 @@ class Auth0Client {
       const data = await result.json();
       throw new Auth0ClientError(data.error);
     }
+  }
+
+  async login(email: string, password: string): Promise<void> {
+    await this.post("/auth/auth0/embedded-login", {email, password});
+  }
+
+  async signup(email: string, password: string): Promise<void> {
+    await this.post("/auth/auth0/embedded-signup", {email, password});
   }
 
   async socialLogin(connection: "google-oauth2" | "facebook") {

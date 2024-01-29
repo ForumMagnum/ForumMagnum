@@ -81,6 +81,9 @@ const getAuthError = (e: AnyBecauseIsInput, defaultMessage: string): string => {
   return message;
 }
 
+// TODO: Move this into a setting
+const realm = "Forum-User-Migration";
+
 /**
  * Login a user using an email and password.
  * For this to work, you must manually enable the "password" grant type in
@@ -95,7 +98,7 @@ export const loginAuth0User = async (
     const grant = await client.passwordGrant({
       username: email,
       password,
-      realm: "Forum-User-Migration",
+      realm,
       scope: AUTH0_SCOPE,
     });
 
@@ -104,6 +107,7 @@ export const loginAuth0User = async (
       throw new Error("Incorrect email or password");
     }
 
+    // TODO This should use the login in `getOrCreateForumUser instead`
     const user = await new UsersRepo().getUserByEmail(email);
     if (!user) {
       // TODO: Create user?
@@ -116,5 +120,30 @@ export const loginAuth0User = async (
     };
   } catch (e) {
     throw new Error(getAuthError(e, "Login failed"));
+  }
+}
+
+/**
+ * Signup a new user using an email and password.
+ * For this to work, you must manually enable the "password" grant type in
+ * the Auth0 dashboard.
+ */
+export const signupAuth0User = async (
+  email: string,
+  password: string,
+): Promise<{user: DbUser, token: string}> => {
+  const client = auth0Client.getAuthClient();
+  try {
+    if (!client.database) {
+      throw new Error("Database authenticator not initialized");
+    }
+    await client.database.signUp({
+      email,
+      password,
+      connection: realm,
+    });
+    return loginAuth0User(email, password);
+  } catch (e) {
+    throw new Error(getAuthError(e, "Signup failed"));
   }
 }

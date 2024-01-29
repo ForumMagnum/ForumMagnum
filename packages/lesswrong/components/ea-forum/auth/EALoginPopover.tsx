@@ -198,13 +198,12 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
 
     try {
       setLoading(true);
-      if (isSignup) {
-        // TODO: Implement sign up
-        setLoading(false);
-      } else {
-        await client.login(email, password);
-        window.location.reload();
-      }
+      await (
+        isSignup
+          ? client.signup(email, password)
+          : client.login(email, password)
+      );
+      window.location.reload();
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
