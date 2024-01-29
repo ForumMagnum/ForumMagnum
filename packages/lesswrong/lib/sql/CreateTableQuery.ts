@@ -10,7 +10,7 @@ class CreateTableQuery<T extends DbObject> extends Query<T> {
   constructor(table: Table<T>, ifNotExists = false) {
     const fields = table.getFields();
     super(table, [
-      `CREATE TABLE${ifNotExists ? " IF NOT EXISTS" : ""}`,
+      `CREATE${table.isWriteAheadLogged() ? "" : " UNLOGGED"} TABLE${ifNotExists ? " IF NOT EXISTS" : ""}`,
       table,
       `(_id ${fields["_id"].toString()} PRIMARY KEY`,
     ]);
