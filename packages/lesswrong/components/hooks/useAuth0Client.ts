@@ -27,7 +27,7 @@ class Auth0Client {
     await this.post("/auth/auth0/embedded-signup", {email, password});
   }
 
-  async socialLogin(connection: "google-oauth2" | "facebook") {
+  socialLogin(connection: "google-oauth2" | "facebook"): void {
     const returnTo = encodeURIComponent(window.location.href);
     window.location.href = `/auth/auth0?returnTo=${returnTo}&connection=${connection}`;
   }

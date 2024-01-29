@@ -347,6 +347,10 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
       })(req, res, next)
     })
 
+    const profileFromAccessToken = promisify(
+      auth0Strategy.userProfile.bind(auth0Strategy),
+    );
+
     addConnectHandler("/auth/auth0/embedded-login", json({limit: "1mb"}));
     addConnectHandler("/auth/auth0/embedded-login", async (req: Request, res: Response) => {
       try {
@@ -357,9 +361,7 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
         if (!password || typeof password !== "string") {
           throw new Error("Password is required");
         }
-        const getUserProfileCallbackStyle = auth0Strategy.userProfile.bind(auth0Strategy)
-        const getUserProfile = promisify(getUserProfileCallbackStyle)
-        const {user} = await loginAuth0User(email, password, getUserProfile);
+        const {user} = await loginAuth0User(profileFromAccessToken, email, password);
         const errorHandler: NextFunction = (err) => {
           if (err) {
             res.status(400).send({error: err.message});
@@ -381,7 +383,7 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
         if (!password || typeof password !== "string") {
           throw new Error("Password is required");
         }
-        const {user} = await signupAuth0User(email, password);
+        const {user} = await signupAuth0User(profileFromAccessToken, email, password);
         const errorHandler: NextFunction = (err) => {
           if (err) {
             res.status(400).send({error: err.message});

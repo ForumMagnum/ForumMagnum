@@ -2,10 +2,8 @@ import { DatabaseServerSetting } from "../databaseSettings";
 import { AuthenticationClient, ManagementClient } from "auth0";
 import Profile from "passport-auth0/lib/Profile";
 import { getAuth0Id } from "../../lib/collections/users/helpers";
-import { UsersRepo } from "../repos";
 import { Profile as Auth0Profile } from 'passport-auth0';
-import { getOrCreateForumUser } from "./getOrCreateForumUser";
-import { promisify } from "util";
+import { getOrCreateForumUserAsync } from "./getOrCreateForumUser";
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./auth0Accounts";
 
 type Auth0Settings = {
@@ -88,15 +86,17 @@ const getAuthError = (e: AnyBecauseIsInput, defaultMessage: string): string => {
 // TODO: Move this into a setting
 const realm = "Forum-User-Migration";
 
+type ProfileFromAccessToken = (token: string) => Promise<Auth0Profile|undefined>;
+
 /**
  * Login a user using an email and password.
  * For this to work, you must manually enable the "password" grant type in
  * the Auth0 dashboard.
  */
 export const loginAuth0User = async (
+  profileFromAccessToken: ProfileFromAccessToken,
   email: string,
   password: string,
-  profileFromAccessToken: (accessToken: string) => Promise<Auth0Profile|undefined>,
 ): Promise<{user: DbUser, token: string}> => {
   const client = auth0Client.getAuthClient();
   try {
@@ -116,15 +116,14 @@ export const loginAuth0User = async (
     if (!profile) {
       throw new Error("Profile not found");
     }
-    const asyncGetOrCreateForumUser = promisify(getOrCreateForumUser);
-    const user = await asyncGetOrCreateForumUser(
+
+    const user = await getOrCreateForumUserAsync(
       auth0ProfilePath,
       profile,
       idFromAuth0Profile,
-      userFromAuth0Profile
+      userFromAuth0Profile,
     );
     if (!user) {
-      // TODO: Create user?
       throw new Error("User not found");
     }
 
@@ -143,6 +142,7 @@ export const loginAuth0User = async (
  * the Auth0 dashboard.
  */
 export const signupAuth0User = async (
+  profileFromAccessToken: ProfileFromAccessToken,
   email: string,
   password: string,
 ): Promise<{user: DbUser, token: string}> => {
@@ -156,7 +156,7 @@ export const signupAuth0User = async (
       password,
       connection: realm,
     });
-    return loginAuth0User(email, password, "TODO" as any);
+    return loginAuth0User(profileFromAccessToken, email, password);
   } catch (e) {
     throw new Error(getAuthError(e, "Signup failed"));
   }

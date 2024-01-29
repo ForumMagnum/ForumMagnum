@@ -213,11 +213,11 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
   }, [client, email, password, isSignup]);
 
   const onClickGoogle = useCallback(async () => {
-    await client.socialLogin("google-oauth2");
+    client.socialLogin("google-oauth2");
   }, [client]);
 
   const onClickFacebook = useCallback(async () => {
-    await client.socialLogin("facebook");
+    client.socialLogin("facebook");
   }, [client]);
 
   useEffect(() => {

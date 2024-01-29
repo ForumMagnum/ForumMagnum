@@ -4,6 +4,7 @@ import { captureException } from "@sentry/core";
 import { userFindOneByEmail, usersFindAllByEmail } from "../commonQueries";
 import { createMutator, updateMutator } from "../vulcan-lib";
 import Users from "../../lib/vulcan-users";
+import { promisify } from "util";
 
 export type IdFromProfile<P extends Profile> = (profile: P) => string | number;
 
@@ -114,3 +115,5 @@ export const getOrCreateForumUser = async <P extends Profile>(
     return callback(err);
   }
 }
+
+export const getOrCreateForumUserAsync = promisify(getOrCreateForumUser);
