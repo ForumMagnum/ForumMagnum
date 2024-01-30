@@ -20,8 +20,28 @@ const styles = (theme: ThemeType) => ({
     padding: '12px 16px',
     borderRadius: theme.borderRadius.default,
   },
+  // large = larger font sizes and spacing
   rootLarge: {
+    display: 'none',
     padding: '16px 20px',
+    '@media (max-width: 812px)': {
+      display: 'block'
+    }
+  },
+  // horizontal = the version that appears on wider screens,
+  //              where the form is to the right of the text
+  rootHorizontal: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    columnGap: 20,
+    paddingRight: 16,
+    '@media (max-width: 812px)': {
+      display: 'none'
+    }
+  },
+  textCol: {
+    flexGrow: 1
   },
   headingRow: {
     display: 'flex',
@@ -35,7 +55,10 @@ const styles = (theme: ThemeType) => ({
     margin: 0
   },
   headingLarge: {
-    fontSize: 20,
+    fontSize: 19,
+    [theme.breakpoints.down('md')]: {
+      fontSize: 18,
+    }
   },
   close: {
     height: 16,
@@ -45,6 +68,9 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       color: theme.palette.grey[800],
     }
+  },
+  closeHorizontal: {
+    alignSelf: 'flex-start'
   },
   body: {
     fontSize: 13,
@@ -57,8 +83,17 @@ const styles = (theme: ThemeType) => ({
   bodyLarge: {
     fontSize: 14,
     lineHeight: '20px',
+    [theme.breakpoints.down('md')]: {
+      fontSize: 13,
+      lineHeight: '19px',
+    }
+  },
+  bodyHorizontal: {
+    marginTop: 4,
+    marginBottom: 0
   },
   form: {
+    flexGrow: 1,
     display: 'flex',
     columnGap: 8,
     rowGap: '12px'
@@ -239,6 +274,17 @@ const DigestAd = ({largeVersion, className, classes}: {
       </div>
       {formNode}
     </div>
+    
+    {largeVersion && <div className={classNames(classes.root, classes.rootHorizontal, {[classes.rootLarge]: largeVersion}, className)}>
+      <div className={classes.textCol}>
+        <h2 className={classNames(classes.heading, {[classes.headingLarge]: largeVersion})}>Get the best posts in your email</h2>
+        <div className={classNames(classes.body, classes.bodyHorizontal, {[classes.bodyLarge]: largeVersion})}>
+          Sign up for the EA Forum Digest to get curated recommendations every week
+        </div>
+      </div>
+      {formNode}
+      <ForumIcon icon="Close" className={classNames(classes.close, classes.closeHorizontal)} onClick={handleClose} />
+    </div>}
   </AnalyticsContext>
 }
 
