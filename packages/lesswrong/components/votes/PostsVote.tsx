@@ -1,6 +1,7 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { getVotingSystemByName } from '../../lib/voting/votingSystems';
+import { AnnualReviewMarketInfo, getMarketInfo } from '../../lib/annualReviewMarkets';
 
 const PostsVote = ({post, useHorizontalLayout, isFooter}: {
   post: PostsWithVotes,
@@ -13,6 +14,7 @@ const PostsVote = ({post, useHorizontalLayout, isFooter}: {
   const votingSystem = getVotingSystemByName(votingSystemName);
   const {PostsVoteDefault} = Components;
   const Component = votingSystem?.getPostBottomVotingComponent?.();
+  const annualReviewMarketInfo : AnnualReviewMarketInfo | null = getMarketInfo(post)
 
   return Component
     ? (
@@ -28,6 +30,7 @@ const PostsVote = ({post, useHorizontalLayout, isFooter}: {
         useHorizontalLayout={useHorizontalLayout}
         votingSystem={votingSystem}
         isFooter={isFooter}
+        annualReviewMarketInfo={annualReviewMarketInfo}
       />
     );
 }
