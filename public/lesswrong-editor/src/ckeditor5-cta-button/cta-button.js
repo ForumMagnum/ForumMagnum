@@ -1,5 +1,6 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
+import ClickObserver from '@ckeditor/ckeditor5-engine/src/view/observer/clickobserver';
 import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget/src/utils';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import DropdownView from '@ckeditor/ckeditor5-ui/src/dropdown/dropdownview';
@@ -11,17 +12,18 @@ import BalloonPanelView from '@ckeditor/ckeditor5-ui/src/panel/balloon/balloonpa
 
 export default class CTAButton extends Plugin {
     static get requires() {
-        return [ ContextualBalloon, Widget ];
+        return [ Widget ];
     }
 
     init() {
+        const editor = this.editor
+
+        // Define the properties of the ctaButton element to allow in the model
         this._defineSchema()
+        // Define the conversions from model -> data view, model -> editing view, editing view -> model
         this._defineConverters()
 
-        const editor = this.editor
-        // Initialize the ContextualBalloon plugin
-        this._balloon = editor.plugins.get(ContextualBalloon);
-
+        // Add the toolbar item for inserting a cta button
         editor.ui.componentFactory.add('ctaButtonToolbarItem', locale => {
             const view = new ButtonView(locale);
 
@@ -42,7 +44,7 @@ export default class CTAButton extends Plugin {
                     const positionAfterCurrentBlock = writer.createPositionAfter(currentElement);
 
                     const buttonElement = writer.createElement('ctaButton');
-                    const buttonText = writer.createText('Hello world'); // Create a text node
+                    const buttonText = writer.createText('Apply now'); // Create a text node
                     writer.append(buttonText, buttonElement); // Append the text node to the buttonElement
 
                     // Insert the 'ctaButton' element at the calculated position
@@ -52,144 +54,67 @@ export default class CTAButton extends Plugin {
 
             return view;
         });
-
-        // Create and add the dropdown to the component factory
-        editor.ui.componentFactory.add('ctaButtonDropdown', locale => {
-            const dropdownView = this._createDropdownView(locale);
-            // ... setup dropdown behavior
-
-            return dropdownView;
-        });
-
-        this._setupWidgetInteraction()
     }
 
     _defineSchema() {
         const schema = this.editor.model.schema;
     
         schema.register('ctaButton', {
-            // Allow where block elements (e.g. paragraphs) are allowed
-            allowWhere: '$block',
+            allowWhere: '$block', // Allow where block elements (e.g. paragraphs) are allowed
             isBlock: true,
-            allowContentOf: '$block', // Allow block content inside the button for editing
+            isObject: true, // Required to make the whole block selectable (to delete) and the text content non-editable
+            allowContentOf: '$text',
             allowIn: '$root',
-            // Allow attributes which should be preserved in the model
-            allowAttributes: ['id', 'class']
+            allowAttributes: ['id', 'classes', 'onclick']
         });
-    }
-
-    _createDropdownView(locale) {
-        const editor = this.editor;
-        const dropdownView = createDropdown(locale);
-
-        // Add a simple list to the dropdown for demonstration purposes
-        const items = new Collection();
-
-        items.add({
-            type: 'button',
-            model: new Model({
-                withText: true,
-                label: 'Edit CTA Text'
-            })
-        });
-
-        addListToDropdown(dropdownView, items);
-
-        console.log('created dropdown')
-        // Set up the dropdown's behavior (e.g., what happens when an item is clicked)
-        dropdownView.on('execute', evt => {
-            const commandName = evt.source.commandName;
-            if (commandName === 'editCtaText') {
-                // Logic to handle the editing of the CTA button's text
-                console.log('CTA text edit action triggered');
-            }
-        });
-
-        return dropdownView;
     }
     
     _defineConverters() {
         const editor = this.editor;
     
-        // Editing downcast conversion: model 'ctaButton' to a 'div' in the editing view
+        // Model -> Editing view
         editor.conversion.for('editingDowncast').elementToElement({
-            model: 'ctaButton',
-            view: (modelElement, { writer: viewWriter }) => {
-                const div = viewWriter.createEditableElement('div', {
-                    class: 'cta-button'
-                });
-    
-                // Enable the widget handling on a div element inside the editing view.
-                // Note: toWidgetEditable removes the block level enter icons
-                return toWidget(div, viewWriter);
-            }
-        });
-    
-        // Data downcast conversion: model 'ctaButton' to a 'div' in the data view
-        editor.conversion.for('dataDowncast').elementToElement({
             model: 'ctaButton',
             view: (modelElement, { writer: viewWriter }) => {
                 const div = viewWriter.createContainerElement('div', {
                     class: 'cta-button'
                 });
+    
+                // Enable the widget handling on a div element inside the editing view.
+                // Note: toWidgetEditable removes the block level enter icons
+                // FIXME you can still backspace the final character for some reason
+                return toWidget(div, viewWriter, 'div');
+            }
+        });
+    
+        // Model -> Data view
+        editor.conversion.for('dataDowncast').elementToElement({
+            model: 'ctaButton',
+            view: (modelElement, { writer: viewWriter }) => {
+                const div = viewWriter.createContainerElement('div', {
+                    class: 'cta-button',
+                    onclick: "window.location.href='https://www.google.com';"
+                });
                 return div;
             }
         });
     
-        // Upcast conversion: 'div' in the data view to model 'ctaButton'
+        // Editing view -> model
         editor.conversion.for('upcast').elementToElement({
             view: {
                 name: 'div',
-                classes: 'cta-button'
+                class: 'cta-button'
             },
             model: (viewElement, { writer: modelWriter }) => {
-                return modelWriter.createElement('ctaButton');
-            }
-        });
-    }
+                const ctaButton = modelWriter.createElement('ctaButton');
 
-    _setupWidgetInteraction() {
-        const editor = this.editor;
-        const balloon = editor.plugins.get('ContextualBalloon');
-    
-        // Listen for the widget being clicked
-        editor.editing.view.document.on('click', (evt, data) => {
-            const viewElement = data.target;
-    
-            if (viewElement.hasClass('cta-button')) {
-                // Prevent the default click action
-                data.preventDefault();
-    
-                // Check if the balloon panel is already visible
-                if (balloon.hasView(this.balloonPanel)) {
-                    return;
-                }
-    
-                // Create the BalloonPanelView if it doesn't exist
-                if (!this.balloonPanel) {
-                    this.balloonPanel = new BalloonPanelView(editor.locale);
-    
-                    // Add content to the balloon panel
-                    this.balloonPanel.content.add({
-                        text: 'Edit CTA Text'
-                    });
-    
-                    // Render the balloon panel
-                    this.balloonPanel.render();
-                }
-    
-                // Add the BalloonPanelView to the ContextualBalloon plugin
-                balloon.add({
-                    view: this.balloonPanel,
-                    position: {
-                        target: viewElement,
-                        positions: BalloonPanelView.defaultPositions
-                    }
-                });
-    
-                // Show the balloon panel
-                balloon.showStack('main');
+                // Map the text nodes from the view to the model (not entirely sure why this is necessary)
+                const innerText = viewElement.getChild(0).data;
+                const textNode = modelWriter.createText(innerText);
+                modelWriter.append(textNode, ctaButton);
+
+                return ctaButton;
             }
-        });
+        })
     }
 }
