@@ -73,9 +73,14 @@ const getAuthError = (e: AnyBecauseIsInput, defaultMessage: string): string => {
   let message: string;
   try {
     const data = JSON.parse(e.message);
-    message = data.error_description ?? data.message ?? e.message ?? defaultMessage;
+    message = data.error_description
+      || data.description
+      || data.message
+      || e.description
+      || e.message
+      || defaultMessage;
   } catch (_e) {
-    message = e.message ?? defaultMessage;
+    message = e.description || e.message || defaultMessage;
   }
   // Remove the ugly full-stop that auth0 appends to its error messages
   if (message[message.length - 1] === ".") {

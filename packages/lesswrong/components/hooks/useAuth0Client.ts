@@ -18,7 +18,10 @@ class Auth0Client {
     });
     if (result.status !== 200) {
       const data = await result.json();
-      let message = data.error || data.error_description || "Something went wrong";
+      let message = data.error
+        || data.description
+        || data.error_description
+        || "Something went wrong";
       // Remove the ugly full-stop that auth0 appends to its error messages
       if (message[message.length - 1] === ".") {
         message = message.slice(0, -1);
