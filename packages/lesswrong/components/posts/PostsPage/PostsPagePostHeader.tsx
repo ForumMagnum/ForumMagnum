@@ -436,7 +436,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       <div className={classes.tagSection}>
         {!post.shortform && !post.isEvent && !hideTags && 
         <AnalyticsContext pageSectionContext="tagHeader">
-          <FooterTagList post={post} hideScore allowTruncate />
+          <FooterTagList post={post} hideScore allowTruncate overrideMargins={true}/>
         </AnalyticsContext>}
       </div>
       <div className={classes.annualReviewMarketInfo}>

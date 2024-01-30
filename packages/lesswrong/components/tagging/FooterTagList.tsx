@@ -19,8 +19,8 @@ import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    // marginTop: 8,
-    // marginBottom: 8,
+    marginTop: 8,
+    marginBottom: 8,
   },
   allowTruncate: {
     display: "block",
@@ -28,6 +28,10 @@ const styles = (theme: ThemeType) => ({
     // which can't be removed)
     maxHeight: 104,
     overflow: "hidden",
+  },
+  overrideMargins: {
+    marginTop: 0,
+    marginBottom: 0,
   },
   postTypeLink: {
     "&:hover": isFriendlyUI ? {opacity: 1} : {},
@@ -96,6 +100,7 @@ const FooterTagList = ({
   link=true,
   highlightAutoApplied=false,
   allowTruncate=false,
+  overrideMargins=false,
   classes
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
@@ -107,6 +112,7 @@ const FooterTagList = ({
   link?: boolean
   highlightAutoApplied?: boolean,
   allowTruncate?: boolean,
+  overrideMargins?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
@@ -305,7 +311,7 @@ const FooterTagList = ({
   return <>
     <span
       ref={rootRef}
-      className={classNames(classes.root, {[classes.allowTruncate]: !showAll})}
+      className={classNames(classes.root, {[classes.allowTruncate]: !showAll}, {[classes.overrideMargins] : overrideMargins})}
     >
       {innerContent}
     </span>

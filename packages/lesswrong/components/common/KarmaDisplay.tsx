@@ -2,7 +2,7 @@ import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import { AnnualReviewMarketInfo, PROBABILITY_REVIEW_WINNER_THRESHOLD, highlightMarket } from "../../lib/annualReviewMarkets";
+import { AnnualReviewMarketInfo, highlightMarket } from "../../lib/annualReviewMarkets";
 import { Link } from "../../lib/reactRouterWrapper";
 import { commentGetPageUrl } from "../../lib/collections/comments/helpers";
 import { useSingle } from "../../lib/crud/withSingle";
