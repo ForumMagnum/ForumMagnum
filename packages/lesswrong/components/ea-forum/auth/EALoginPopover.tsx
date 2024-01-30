@@ -4,31 +4,17 @@ import { useAuth0Client } from "../../hooks/useAuth0Client";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { FacebookIcon } from "../../icons/FacebookIcon";
-import Popover from "@material-ui/core/Popover";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    background: theme.palette.panelBackground.modalBackground,
-    borderRadius: theme.borderRadius.default,
-    padding: 32,
     width: 386,
-    maxWidth: "100%",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     gap: "24px",
     textAlign: "center",
-  },
-  modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  backdrop: {
-    background: theme.palette.background.loginBackdrop,
-    backdropFilter: "blur(4px)",
   },
   close: {
     color: theme.palette.grey[600],
@@ -277,142 +263,132 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
 
   const canSubmit = !!email && !!password && !loading;
 
-  const {ForumIcon, EAButton, Loading} = Components;
+  const {BlurredBackgroundModal, ForumIcon, EAButton, Loading} = Components;
   return (
-    <Popover
-      open={open}
-      onClose={onClose}
-      anchorReference="none"
-      ModalClasses={{root: classes.modal}}
-      BackdropProps={{className: classes.backdrop}}
-    >
-      {open &&
-        <div className={classes.root}>
-          <ForumIcon
-            icon="Close"
-            onClick={onClose}
-            className={classes.close}
+    <BlurredBackgroundModal open={open} onClose={onClose} className={classes.root}>
+      <ForumIcon
+        icon="Close"
+        onClick={onClose}
+        className={classes.close}
+      />
+      <div className={classes.lightbulb}>{lightbulbIcon}</div>
+      <div className={classes.title}>{title}</div>
+      <div className={classes.formContainer}>
+        <form onSubmit={onSubmit} className={classes.form}>
+          <input
+            type="text"
+            placeholder="Email"
+            value={email}
+            onChange={onChangeEmail}
+            className={classes.input}
+            autoFocus
           />
-          <div className={classes.lightbulb}>{lightbulbIcon}</div>
-          <div className={classes.title}>{title}</div>
-          <div className={classes.formContainer}>
-            <form onSubmit={onSubmit} className={classes.form}>
-              <input
-                type="text"
-                placeholder="Email"
-                value={email}
-                onChange={onChangeEmail}
-                className={classes.input}
-                autoFocus
-              />
-              <div className={classes.showPasswordContainer}>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={password}
-                  onChange={onChangePassword}
-                  className={classes.input}
-                />
-                <ForumIcon
-                  icon={showPassword ? "EyeSlash" : "Eye"}
-                  onClick={toggleShowPassword}
-                  className={classes.showPasswordButton}
-                />
-              </div>
-              {!isSignup &&
-                <div className={classes.forgotPassword}>
-                  {resetPasswordLoading
-                    ? <Loading />
-                    : <a onClick={onForgotPassword}>Forgot password?</a>
-                  }
-                </div>
+          <div className={classes.showPasswordContainer}>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={onChangePassword}
+              className={classes.input}
+            />
+            <ForumIcon
+              icon={showPassword ? "EyeSlash" : "Eye"}
+              onClick={toggleShowPassword}
+              className={classes.showPasswordButton}
+            />
+          </div>
+          {!isSignup &&
+            <div className={classes.forgotPassword}>
+              {resetPasswordLoading
+                ? <Loading />
+                : <a onClick={onForgotPassword}>Forgot password?</a>
               }
-              {message &&
-                <div className={classes.message}>
-                  {message}
-                </div>
-              }
-              {error &&
-                <div className={classes.error}>
-                  {error}
-                </div>
-              }
-              <EAButton
-                type="submit"
-                style="primary"
-                disabled={!canSubmit}
-                className={classes.button}
-              >
-                {loading
-                  ? <Loading />
-                  : isSignup
-                    ? "Sign up"
-                    : "Login"
-                }
-              </EAButton>
-            </form>
-            <div className={classes.orContainer}>
-              <span className={classes.orHr} />OR<span className={classes.orHr} />
             </div>
-            <div className={classes.socialContainer}>
-              <EAButton
-                style="grey"
-                variant="outlined"
-                onClick={onClickGoogle}
-                className={classNames(classes.button, classes.socialButton)}
-              >
-                <img src={links.googleLogo} /> Continue with Google
-              </EAButton>
-              <EAButton
-                style="grey"
-                variant="outlined"
-                onClick={onClickFacebook}
-                className={classNames(classes.button, classes.socialButton)}
-              >
-                <FacebookIcon /> Continue with Facebook
-              </EAButton>
+          }
+          {message &&
+            <div className={classes.message}>
+              {message}
             </div>
-            {isSignup
-              ? (
-                <div className={classes.switchPrompt}>
-                  Already have an account?{" "}
-                  <a
-                    onClick={onLinkToLogin}
-                    className={classes.switchPromptButton}
-                  >
-                    Login
-                  </a>
-                </div>
-              )
-              : (
-                <div className={classes.switchPrompt}>
-                  Don't have an account?{" "}
-                  <a
-                    onClick={onLinkToSignup}
-                    className={classes.switchPromptButton}
-                  >
-                    Sign up
-                  </a>
-                </div>
-              )
+          }
+          {error &&
+            <div className={classes.error}>
+              {error}
+            </div>
+          }
+          <EAButton
+            type="submit"
+            style="primary"
+            disabled={!canSubmit}
+            className={classes.button}
+          >
+            {loading
+              ? <Loading />
+              : isSignup
+                ? "Sign up"
+                : "Login"
             }
-          </div>
-          <div className={classes.finePrint}>
-            By creating an{" "}
-            <Link to={links.eaOrg} target="_blank" rel="noopener noreferrer">
-              EffectiveAltruism.org
-            </Link>{" "}
-            account, you agree to the{" "}
-            <Link to={links.terms} target="_blank" rel="noopener noreferrer">
-              Terms of Use
-            </Link> and{" "}
-            <Link to={links.privacy} target="_blank" rel="noopener noreferrer">
-              Privacy Policy
-            </Link>.
-          </div>
+          </EAButton>
+        </form>
+        <div className={classes.orContainer}>
+          <span className={classes.orHr} />OR<span className={classes.orHr} />
         </div>
-      }
-    </Popover>
+        <div className={classes.socialContainer}>
+          <EAButton
+            style="grey"
+            variant="outlined"
+            onClick={onClickGoogle}
+            className={classNames(classes.button, classes.socialButton)}
+          >
+            <img src={links.googleLogo} /> Continue with Google
+          </EAButton>
+          <EAButton
+            style="grey"
+            variant="outlined"
+            onClick={onClickFacebook}
+            className={classNames(classes.button, classes.socialButton)}
+          >
+            <FacebookIcon /> Continue with Facebook
+          </EAButton>
+        </div>
+        {isSignup
+          ? (
+            <div className={classes.switchPrompt}>
+              Already have an account?{" "}
+              <a
+                onClick={onLinkToLogin}
+                className={classes.switchPromptButton}
+              >
+                Login
+              </a>
+            </div>
+          )
+          : (
+            <div className={classes.switchPrompt}>
+              Don't have an account?{" "}
+              <a
+                onClick={onLinkToSignup}
+                className={classes.switchPromptButton}
+              >
+                Sign up
+              </a>
+            </div>
+          )
+        }
+      </div>
+      <div className={classes.finePrint}>
+        By creating an{" "}
+        <Link to={links.eaOrg} target="_blank" rel="noopener noreferrer">
+          EffectiveAltruism.org
+        </Link>{" "}
+        account, you agree to the{" "}
+        <Link to={links.terms} target="_blank" rel="noopener noreferrer">
+          Terms of Use
+        </Link> and{" "}
+        <Link to={links.privacy} target="_blank" rel="noopener noreferrer">
+          Privacy Policy
+        </Link>.
+      </div>
+    </BlurredBackgroundModal>
   );
 }
 
