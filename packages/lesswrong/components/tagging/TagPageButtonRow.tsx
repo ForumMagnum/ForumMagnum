@@ -115,7 +115,7 @@ const TagPageButtonRow = ({ tag, editing, setEditing, className, classes }: {
   const noEditKarmaTooLow = !restricted && currentUser && !tagUserHasSufficientKarma(currentUser, "edit")
   const canEdit = !editing && !noEditKarmaTooLow && !noEditNotAuthor
 
-  const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || numFlags
+  const editTooltipHasContent = noEditNotAuthor || noEditKarmaTooLow || numFlags || beginnersGuideContentTag
   const editTooltip = editTooltipHasContent && <>
     {noEditNotAuthor && <>
       <div>
