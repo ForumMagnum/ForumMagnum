@@ -36,20 +36,14 @@ export interface ToCDisplayOptions {
 const topSection = "top";
 
 const normalizeOffsets = (sections: ToCSectionWithOffset[]) => {
-  let subtract = 0
-  const firstSectionOffset: ToCSectionWithOffset = {
-    ...sections[0],
-    offset: 0
-  }
-  
-  return sections.map(section => {
-    const normalizedOffset = {
-      ...section,
-      offset: section.offset - subtract
-    }
-    subtract = section.offset
-    return normalizedOffset
-  })
+  const firstSection = sections[0];
+
+  const normalizedSections: ToCSectionWithOffset[] = sections.slice(1).map((section, idx) => ({
+    ...section,
+    offset: section.offset - sections[idx].offset
+  }));
+
+  return [firstSection, ...normalizedSections];
 }
 
 const isRegularClick = (ev: React.MouseEvent) => {
@@ -97,8 +91,6 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
 
   const { TableOfContentsRow, AnswerTocRow } = Components;
 
-  console.log("in component!! AAAA", {tocSections})
-
   let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
     ? filter(tocSections, s=>s.level <= displayOptions.maxHeadingDepth!)
     : tocSections;
@@ -145,13 +137,9 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
     filteredSections = sectionsWithAnswersSorted(filteredSections, answersSorting);
   }
 
-
-  console.log({filteredSections})
   if(sectionsHaveOffsets(filteredSections)) {
     filteredSections = normalizeOffsets(filteredSections);
-    console.log("offsets assigned!")
   }
-
 
   function adjustHeadingText(text: string|undefined) {
     if (!text) return "";

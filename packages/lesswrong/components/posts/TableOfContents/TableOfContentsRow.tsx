@@ -3,6 +3,11 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
+const sectionOffsetStyling = {
+  display: 'flex',
+  flexDirection: 'column-reverse'
+};
+
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: "relative",
@@ -69,20 +74,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   level1: {
     paddingLeft: 0,
+    ...sectionOffsetStyling,
   },
   level2: {
     fontSize:"1.1rem",
     paddingLeft: 16,
+    ...sectionOffsetStyling,
   },
   level3: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
     paddingLeft: 32,
+    ...sectionOffsetStyling,
   },
   level4: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
     paddingLeft: 48,
+    ...sectionOffsetStyling,
   },
 });
 
