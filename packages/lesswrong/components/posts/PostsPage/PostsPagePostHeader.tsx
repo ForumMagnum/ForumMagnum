@@ -157,6 +157,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   headerFooter: { 
     display: 'flex',
     justifyContent: 'space-between',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    }
   },
   tagSection: {
     flex: 1
