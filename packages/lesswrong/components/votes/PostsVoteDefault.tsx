@@ -8,7 +8,7 @@ import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { AnnualReviewMarketInfo, PROBABILITY_REVIEW_WINNER_THRESHOLD } from '../../lib/annualReviewMarkets';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
 
 const styles = (theme: ThemeType): JssStyles => ({
   voteBlock: {
@@ -139,7 +139,7 @@ const PostsVoteDefault = ({
               variant="headline"
               className={classNames(classes.voteScore, {
                 [classes.voteScoreFooter]: isFooter,
-                [classes.predictedAnnualReviewWinner]: !!annualReviewMarketInfo && (annualReviewMarketInfo.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD) && !annualReviewMarketInfo.isResolved,
+                [classes.predictedAnnualReviewWinner]: !!annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo)
               })}
             >
               {voteProps.baseScore}
