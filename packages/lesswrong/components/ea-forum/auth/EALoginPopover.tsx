@@ -137,6 +137,7 @@ const styles = (theme: ThemeType) => ({
   switchPromptButton: {
     color: theme.palette.primary.main,
     fontWeight: 700,
+    userSelect: "none",
   },
   finePrint: {
     color: theme.palette.grey[600],
@@ -158,15 +159,12 @@ const links = {
   googleLogo: "/googleLogo.png",
   eaOrg: "https://effectivealtruism.org",
   terms: "/termsOfUse",
-  privacy: "#", // TODO
-  forgotPassword: "#", // TODO
-  login: "#", // TODO
-  signUp: "#", // TODO
+  privacy: "https://ev.org/ops/about/privacy-policy",
 } as const;
 
-export const EALoginPopover = ({open, onClose, isSignup, classes}: {
+export const EALoginPopover = ({open, setAction, isSignup, classes}: {
   open: boolean,
-  onClose: () => void,
+  setAction: (action: "login" | "signup" | null) => void,
   isSignup: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -219,6 +217,24 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
   const onClickFacebook = useCallback(async () => {
     client.socialLogin("facebook");
   }, [client]);
+
+  const onForgotPassword = useCallback(() => {
+    // TODO
+    // eslint-disable-next-line no-console
+    console.log("Forgot password");
+  }, []);
+
+  const onLinkToLogin = useCallback(() => {
+    setAction("login");
+  }, [setAction]);
+
+  const onLinkToSignup = useCallback(() => {
+    setAction("signup");
+  }, [setAction]);
+
+  const onClose = useCallback(() => {
+    setAction(null);
+  }, [setAction]);
 
   useEffect(() => {
     if (!open) {
@@ -280,7 +296,7 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
               </div>
               {!isSignup &&
                 <div className={classes.forgotPassword}>
-                  <Link to={links.forgotPassword}>Forgot password?</Link>
+                  <a onClick={onForgotPassword}>Forgot password?</a>
                 </div>
               }
               {error &&
@@ -327,27 +343,39 @@ export const EALoginPopover = ({open, onClose, isSignup, classes}: {
               ? (
                 <div className={classes.switchPrompt}>
                   Already have an account?{" "}
-                  <Link to={links.login} className={classes.switchPromptButton}>
+                  <a
+                    onClick={onLinkToLogin}
+                    className={classes.switchPromptButton}
+                  >
                     Login
-                  </Link>
+                  </a>
                 </div>
               )
               : (
                 <div className={classes.switchPrompt}>
                   Don't have an account?{" "}
-                  <Link to={links.signUp} className={classes.switchPromptButton}>
+                  <a
+                    onClick={onLinkToSignup}
+                    className={classes.switchPromptButton}
+                  >
                     Sign up
-                  </Link>
+                  </a>
                 </div>
               )
             }
           </div>
           <div className={classes.finePrint}>
             By creating an{" "}
-            <Link to={links.eaOrg}>EffectiveAltruism.org</Link>{" "}
+            <Link to={links.eaOrg} target="_blank" rel="noopener noreferrer">
+              EffectiveAltruism.org
+            </Link>{" "}
             account, you agree to the{" "}
-            <Link to={links.terms}>Terms of Use</Link> and{" "}
-            <Link to={links.privacy}>Privacy Policy</Link>.
+            <Link to={links.terms} target="_blank" rel="noopener noreferrer">
+              Terms of Use
+            </Link> and{" "}
+            <Link to={links.privacy} target="_blank" rel="noopener noreferrer">
+              Privacy Policy
+            </Link>.
           </div>
         </div>
       }

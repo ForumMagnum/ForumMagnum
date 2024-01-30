@@ -36,7 +36,6 @@ const EAUsersAccountMenu = ({classes}: {
 
   const onLogin = useCallback(() => setAction("login"), []);
   const onSignup = useCallback(() => setAction("signup"), []);
-  const onClose = useCallback(() => setAction(null), []);
 
   const {EAButton, EALoginPopover} = Components;
   return (
@@ -56,7 +55,7 @@ const EAUsersAccountMenu = ({classes}: {
       </EAButton>
       <EALoginPopover
         open={!!action}
-        onClose={onClose}
+        setAction={setAction}
         isSignup={action === "signup"}
       />
     </div>
