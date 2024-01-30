@@ -68,12 +68,8 @@ const PostsAnnualReviewMarketTag = ({post, annualReviewMarketInfo, classes}: {
               nestingLevel={1}
               comment={comment}
               treeOptions={{
-                // ...treeOptions,
                 post: post,
-                // hideReply: true,
-                // forceSingleLine: false,
                 forceNotSingleLine: true,
-                // switchAlternatingHighlights: false,
               }}
               hoverPreview
             >
