@@ -124,8 +124,7 @@ const TableOfContentsRow = ({
     return <Components.TableOfContentsDivider />
   }
 
-  const offsetStyling = offset !== undefined ? {flex: offset} : undefined
-  console.log({offsetStyling, offset, href})
+  const offsetStyling = offset !== undefined ? { flex: offset } : undefined;
 
   return <div
     className={classNames(

@@ -53,10 +53,9 @@ const isRegularClick = (ev: React.MouseEvent) => {
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
-    position: 'fixed',
     left: 0,
     top: 0,
-    height: '100%',
+    minHeight: '100vh',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-evenly'
@@ -137,7 +136,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
     filteredSections = sectionsWithAnswersSorted(filteredSections, answersSorting);
   }
 
-  if(sectionsHaveOffsets(filteredSections)) {
+  if (sectionsHaveOffsets(filteredSections)) {
     filteredSections = normalizeOffsets(filteredSections);
   }
 

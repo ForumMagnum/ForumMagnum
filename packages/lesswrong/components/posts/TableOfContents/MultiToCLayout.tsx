@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import React from 'react';
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
+import { fullHeightToCEnabled } from '../../../lib/betas';
 
 const DEFAULT_TOC_MARGIN = 100
 const MAX_TOC_WIDTH = 270
@@ -33,8 +34,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'unset',
     width: 'unset',
     left: -DEFAULT_TOC_MARGIN,
-    marginTop: -TOC_OFFSET_TOP,
-    marginBottom: -TOC_OFFSET_BOTTOM,
+    marginTop: fullHeightToCEnabled ? undefined : -TOC_OFFSET_TOP,
+    marginBottom: fullHeightToCEnabled ? undefined : -TOC_OFFSET_BOTTOM,
 
     [theme.breakpoints.down('sm')]:{
       display: "none",
@@ -50,7 +51,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
-    maxHeight: "100vh",
+    // TODO: change to height and forumGate
+    ...(fullHeightToCEnabled ? { height: "100vh" } : { maxHeight: "100vh" }),
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
@@ -66,8 +68,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Cancels the direction:rtl in stickyBlockScroller
     direction: "ltr",
     
-    paddingTop: TOC_OFFSET_TOP,
-    paddingBottom: TOC_OFFSET_BOTTOM,
+    paddingTop: fullHeightToCEnabled ? undefined : TOC_OFFSET_TOP,
+    paddingBottom: fullHeightToCEnabled ? undefined : TOC_OFFSET_BOTTOM,
   },
   content: {},
   gap1: { gridArea: 'gap1'},
