@@ -10,7 +10,7 @@ import { tagGetUrl } from "../../lib/collections/tags/helpers";
 import { gql, useMutation } from "@apollo/client";
 import { useMessages } from "../common/withMessages";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
@@ -113,7 +113,6 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   const onSubmit = useCallback(async () => {
     try {
-
       await mergeTags({ variables: { sourceTagId, targetTagId, transferSubtags, redirectSource } });
 
       void refetchSource();
@@ -123,7 +122,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     }
   }, [mergeTags, sourceTagId, targetTagId, transferSubtags, redirectSource, refetchSource, refetchTarget, flash]);
 
-  if (!currentUser || !userIsAdminOrMod(currentUser)) {
+  if (!userIsAdminOrMod(currentUser)) {
     return null;
   }
 
@@ -180,7 +179,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
               disabled={true}
             />
           </LWTooltip>
-          <Typography className={classes.inline} variant="body2" component="label">
+          <Typography variant="body2" component="label">
             Transfer posts
           </Typography>
         </div>
@@ -193,7 +192,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
               disabled={true}
             />
           </LWTooltip>
-          <Typography className={classes.inline} variant="body2" component="label">
+          <Typography variant="body2" component="label">
             {`Remove posts from source ${taggingNameSetting.get()}`}
           </Typography>
         </div>
@@ -203,7 +202,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             checked={transferSubtags}
             onChange={(_, checked) => setTransferSubtags(checked)}
           />
-          <Typography className={classes.inline} variant="body2" component="label">
+          <Typography variant="body2" component="label">
             Transfer subtags (also removes them from source {taggingNameSetting.get()})
           </Typography>
         </div>
@@ -213,7 +212,7 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             checked={redirectSource}
             onChange={(_, checked) => setDeleteSource(checked)}
           />
-          <Typography className={classes.inline} variant="body2" component="label">
+          <Typography variant="body2" component="label">
             Redirect source topic slug to target (The source {taggingNameSetting.get()} will be soft deleted and have
             "-deleted" added to its slug to avoid colliding with the target. You may want to first merge without this
             checked, and then do this as a final step.)
