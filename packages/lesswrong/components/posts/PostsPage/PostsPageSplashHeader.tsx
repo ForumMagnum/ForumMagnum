@@ -213,6 +213,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.commentStyle,
   },
   rightSection: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    height: 'min-content',
     padding: 8,
     opacity: 0.76
   },
@@ -234,6 +237,21 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       fontSize: '2rem'
     }
+  },
+  postActionsButton: {
+    backgroundColor: theme.palette.tag.coreTagBackground,
+    marginLeft: 4,
+    borderRadius: 3,
+    cursor: "pointer",
+    border: theme.palette.tag.border,
+    alignItems: "center",
+    '& .PostActionsButton-icon': {
+      opacity: 0.5
+    },
+    "&:hover": {
+      backgroundColor: theme.palette.tag.coreTagBackgroundHover,
+      borderColor: theme.palette.tag.coreTagBackgroundHover,
+    },
   },
   reviewNavigation: {
     display: 'block',
@@ -348,7 +366,7 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
   hideTags?: boolean,
   classes: ClassesType,
 }) => {
-  const { FooterTagList, UsersName, CommentBody } = Components;
+  const { FooterTagList, UsersName, CommentBody, PostActionsButton } = Components;
   const [visible, setVisible] = React.useState(true);
   const {setToCVisible} = useContext(SidebarsContext)!;
   const transitionHeader = (headerVisibile: boolean) => {
@@ -378,11 +396,12 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
           #2 in 2021 Review
         </Link>
       </div>
-      <div className={classes.rightSection}>
+      <span className={classes.rightSection}>
         {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
           <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} />
+          <PostActionsButton post={post} className={classes.postActionsButton} autoPlace/>
         </AnalyticsContext>}
-      </div>
+      </span>
     </div>
 
     <div className={classes.reviewContainer} onMouseLeave={(e) => {
