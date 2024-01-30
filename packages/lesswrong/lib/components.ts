@@ -68,6 +68,7 @@ importComponent("EAOnboardingFlow", () => require('../components/ea-forum/onboar
 importComponent("EAOnboardingInput", () => require('../components/ea-forum/onboarding/EAOnboardingInput'));
 importComponent("EAOnboardingStage", () => require('../components/ea-forum/onboarding/EAOnboardingStage'));
 importComponent("EAOnboardingUserStage", () => require('../components/ea-forum/onboarding/EAOnboardingUserStage'));
+importComponent("EAOnboardingSubscribeStage", () => require('../components/ea-forum/onboarding/EAOnboardingSubscribeStage'));
 
 importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))

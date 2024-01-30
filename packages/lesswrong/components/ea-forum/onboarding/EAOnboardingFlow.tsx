@@ -7,13 +7,20 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
+const stages = {
+  user: Components.EAOnboardingUserStage,
+  subscribe: Components.EAOnboardingSubscribeStage,
+} as const;
+
 export const EAOnboardingFlow = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {BlurredBackgroundModal, EAOnboardingUserStage} = Components;
+  const stage = "subscribe";
+  const StageComponent = stages[stage];
+  const {BlurredBackgroundModal} = Components;
   return (
     <BlurredBackgroundModal open className={classes.root}>
-      <EAOnboardingUserStage />
+      <StageComponent />
     </BlurredBackgroundModal>
   );
 }

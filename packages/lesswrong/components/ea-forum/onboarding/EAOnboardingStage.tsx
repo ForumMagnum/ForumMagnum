@@ -6,7 +6,6 @@ import classNames from "classnames";
 const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    width: 540,
     maxHeight: "80%",
     "& a": {
       textDecoration: "underline",
@@ -48,6 +47,11 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
   },
   skip: {
+    fontWeight: 600,
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "underline",
+    },
   },
   continue: {
     minWidth: "128px",
@@ -59,6 +63,7 @@ const styles = (theme: ThemeType) => ({
 export const EAOnboardingStage = ({
   title,
   skippable,
+  onSkip,
   canContinue,
   onContinue,
   footer,
@@ -68,6 +73,7 @@ export const EAOnboardingStage = ({
 }: {
   title: string,
   skippable?: boolean,
+  onSkip?: () => void | Promise<void>,
   canContinue?: boolean,
   onContinue?: () => void | Promise<void>,
   footer?: ReactNode,
@@ -90,9 +96,9 @@ export const EAOnboardingStage = ({
           {footer}
         </div>
         {skippable &&
-          <div className={classes.skip}>
+          <a onClick={onSkip} className={classes.skip}>
             Skip for now
-          </div>
+          </a>
         }
         <EAButton
           onClick={onContinue}

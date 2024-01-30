@@ -8,6 +8,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     gap: "12px",
+    width: 540,
     marginBottom: 60,
   },
   secondaryText: {
