@@ -1081,7 +1081,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (All)",
-    control: 'FormUsersListEditor'
+    control: 'FormUserMultiselect'
   },
   'bannedUserIds.$': {
     type: String,
@@ -1098,7 +1098,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (Personal)",
-    control: 'FormUsersListEditor',
+    control: 'FormUserMultiselect',
     tooltip: "Users who are banned from commenting on your personal blogposts (will not affect posts promoted to frontpage)"
   },
   "bannedPersonalUserIds.$": {
@@ -1248,10 +1248,10 @@ const schema: SchemaType<"Users"> = {
   // IPs: All Ips that this user has ever logged in with
   IPs: resolverOnlyField({
     type: Array,
-    graphQLtype: '[String]',
+    graphQLtype: '[String!]',
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: async (user: DbUser, args: void, context: ResolverContext) => {
+    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<string[]> => {
       const { currentUser, LWEvents } = context;
       const events: Array<DbLWEvent> = await LWEvents.find(
         {userId: user._id, name: 'login'},
@@ -1965,7 +1965,7 @@ const schema: SchemaType<"Users"> = {
   //   1.0: Reviewed user with 20+ karma
   spamRiskScore: resolverOnlyField({
     type: Number,
-    graphQLtype: "Float",
+    graphQLtype: "Float!",
     canRead: ['guests'],
     resolver: (user: DbUser, args: void, context: ResolverContext) => {
       const isReviewed = !!user.reviewedByUserId;
@@ -2165,9 +2165,10 @@ const schema: SchemaType<"Users"> = {
     hidden: true
   },
   reviewVoteCount:resolverOnlyField({
+    graphQLtype: 'Int!',
     type: Number,
     canRead: ['admins', 'sunshineRegiment'],
-    resolver: async (document, args, context: ResolverContext) => {
+    resolver: async (document, args, context: ResolverContext): Promise<number> => {
       const { ReviewVotes } = context;
       const voteCount = await ReviewVotes.find({
         userId: document._id,
@@ -2719,7 +2720,8 @@ const schema: SchemaType<"Users"> = {
   },
   
   altAccountsDetected: resolverOnlyField({
-    type: Boolean,
+    type: 'Boolean',
+    graphQLtype: 'Boolean!',
     canRead: ['sunshineRegiment', 'admins'],
     resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<boolean> => {
       const clientIds = await context.ClientIds.find(

@@ -168,7 +168,8 @@ const VerifyEmailToken = new EmailTokenType({
 export async function sendVerificationEmail(user: DbUser) {
   const verifyEmailLink = await VerifyEmailToken.generateLink(user._id);
   await wrapAndSendEmail({
-    user, 
+    user,
+    force: true,
     subject: `Verify your ${forumTitleSetting.get()} email`,
     body: <div>
       <p>
@@ -294,6 +295,7 @@ const authenticationResolvers = {
       const tokenLink = await ResetPasswordToken.generateLink(user._id)
       const emailSucceeded = await wrapAndSendEmail({
         user,
+        force: true,
         subject: "Password Reset Request",
         body: <div>
           <p>

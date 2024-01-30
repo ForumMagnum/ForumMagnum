@@ -82,7 +82,7 @@ augmentFieldsDict(Users, {
   },
   htmlBio: {
     resolveAs: {
-      type: "String",
+      type: "String!",
       resolver: (user: DbUser, args: void, { Users }: ResolverContext) => {
         const bio = user.biography;
         return bio?.html || "";

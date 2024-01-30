@@ -194,7 +194,7 @@ const schema: SchemaType<"Tags"> = {
     optional: true,
     label: "Restrict to these authors",
     tooltip: "Only these authors will be able to edit the topic",
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     group: formGroups.advancedOptions,
   },
   'canEditUserIds.$': {
@@ -550,7 +550,7 @@ const schema: SchemaType<"Tags"> = {
     canUpdate: ['admins', 'sunshineRegiment'],
     group: formGroups.advancedOptions,
     optional: true,
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     label: "Subforum Moderators",
   },
   'subforumModeratorIds.$': {
