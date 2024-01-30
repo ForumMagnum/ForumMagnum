@@ -23,6 +23,7 @@ const styles = (theme: ThemeType) => ({
     gap: '4px',
     flexWrap: 'wrap',
     justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   allowTruncate: {
     display: "inline-flex",
@@ -78,7 +79,20 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     marginTop: -6,
     width: 'fit-content',
-  }
+  },
+  altAddTagButton: {
+    backgroundColor: theme.palette.panelBackground.default,
+    display: "inline-block",
+    paddingLeft: 8,
+    paddingTop: 4.5,
+    paddingBottom: 4.5,
+    paddingRight: 8,
+    borderRadius: 3,
+    fontWeight: 700,
+    gap: 4,
+    cursor: "pointer",
+    border: theme.palette.tag.border
+  },
 });
 
 export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|undefined): Array<T> {
@@ -92,6 +106,8 @@ const FooterTagList = ({
   post,
   hideScore,
   hideAddTag,
+  //used for PostsPageSplashHeader
+  useAltAddTagButton,
   smallText=false,
   showCoreTags,
   hidePostTypeTag,
@@ -103,6 +119,7 @@ const FooterTagList = ({
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
   hideAddTag?: boolean,
+  useAltAddTagButton?: boolean,
   showCoreTags?: boolean
   hidePostTypeTag?: boolean,
   smallText?: boolean,
@@ -269,6 +286,8 @@ const FooterTagList = ({
 
   const {Loading, FooterTag, AddTagButton, CoreTagsChecklist} = Components;
 
+  const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
+
   const innerContent =
     (loadingInitial || !results) ? (
       <>
@@ -299,7 +318,10 @@ const FooterTagList = ({
             )
         )}
         {!hidePostTypeTag && postType}
-        {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} isVotingContext />}
+        {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+            {useAltAddTagButton && <span className={classes.altAddTagButton}>+</span>}
+          </AddTagButton>
+        }
         {isAwaiting && <Loading />}
       </>
     );

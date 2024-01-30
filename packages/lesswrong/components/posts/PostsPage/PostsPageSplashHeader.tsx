@@ -380,7 +380,7 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
       </div>
       <div className={classes.rightSection}>
         {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
-          <FooterTagList post={post} hideScore hideAddTag />
+          <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} />
         </AnalyticsContext>}
       </div>
     </div>
