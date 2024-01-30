@@ -19,8 +19,8 @@ import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginTop: 8,
-    marginBottom: 8,
+    // marginTop: 8,
+    // marginBottom: 8,
   },
   allowTruncate: {
     display: "block",

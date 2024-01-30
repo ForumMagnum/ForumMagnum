@@ -32,7 +32,7 @@ const KarmaDisplay = ({document, placement="left", annualReviewMarketInfo = null
   return (
     <LWTooltip
       placement={placement}
-      clickable={!!annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo)}
+      clickable={highlightMarket(annualReviewMarketInfo)}
       title={
         <div>
           <div>{baseScore ?? 0} karma</div>

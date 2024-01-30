@@ -432,7 +432,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
             {showKarma && <PostsItem2MetaInfo className={classNames(
               classes.karma, {
-                [classes.karmaPredictedReviewWinner]: !!annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo)
+                [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo)
 
               })}>
               {post.isEvent

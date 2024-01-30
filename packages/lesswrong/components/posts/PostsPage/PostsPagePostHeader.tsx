@@ -159,10 +159,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: 'space-between',
     [theme.breakpoints.down('sm')]: {
       flexDirection: 'column',
-    }
+    },
+    marginTop: 8,
+    marginBottom: 16,
   },
   tagSection: {
-    flex: 1
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
   },
   annualReviewMarketInfo: {
     justifyContent: 'center',

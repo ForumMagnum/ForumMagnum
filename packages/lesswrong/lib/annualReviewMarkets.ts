@@ -19,5 +19,5 @@ export const getMarketInfo = (post: PostsBase): AnnualReviewMarketInfo | null =>
   }
 }
 
-export const highlightMarket = (info : AnnualReviewMarketInfo) : boolean =>
-  !info.isResolved && info.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD
+export const highlightMarket = (info : AnnualReviewMarketInfo | null) : boolean =>
+  !!info && !info.isResolved && info.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD

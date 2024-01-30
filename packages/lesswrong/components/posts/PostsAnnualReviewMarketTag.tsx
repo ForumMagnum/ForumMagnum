@@ -14,7 +14,8 @@ const styles = (theme: ThemeType) => ({
     width: 'fit-content',
     display: 'inline-block',
     padding: '5px',
-    margin: '8px',
+    // marginTop: 8,
+    // marginBottom: 8,
     boxSizing: 'border-box',
   },
   preview: {
