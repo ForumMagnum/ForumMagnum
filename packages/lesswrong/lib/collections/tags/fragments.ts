@@ -330,3 +330,12 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment TagOnboarding on Tag {
+    _id
+    name
+    slug
+    squareImageId
+  }
+`);

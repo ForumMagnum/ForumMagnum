@@ -575,3 +575,13 @@ registerFragment(`
     displayName
   }
 `);
+
+registerFragment(`
+  fragment UserOnboarding on User {
+    _id
+    displayName
+    profileImageId
+    karma
+    htmlBio
+  }
+`);
