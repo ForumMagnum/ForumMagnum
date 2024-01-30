@@ -1,11 +1,10 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React, { useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
-import { gql, useMutation, DocumentNode } from '@apollo/client';
-import { forumTypeSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { gql, useMutation } from '@apollo/client';
+import { isAF, isEAForum } from '../../lib/instanceSettings';
 import { useMessages } from '../common/withMessages';
 import { getUserABTestKey, useClientId } from '../../lib/abTestImpl';
-import classnames from 'classnames'
 import { useLocation } from '../../lib/routeUtil';
 import type { GraphQLError } from 'graphql';
 
@@ -229,8 +228,14 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
   </Components.ContentStyles>;
 }
 
-const LoginFormEA = ({startingState, immediateRedirect, classes}: LoginFormProps) => {
+const LoginFormEA = ({
+  startingState = "login",
+  immediateRedirect,
+}: LoginFormProps) => {
   const { pathname, query } = useLocation()
+  const [action, setAction] = useState<"login" | "signup" | null>(
+    startingState === "pwReset" ? "login" : startingState,
+  );
   const returnUrl = `${pathname}?${new URLSearchParams(query).toString()}`;
   const returnTo = encodeURIComponent(returnUrl);
 
@@ -240,18 +245,17 @@ const LoginFormEA = ({startingState, immediateRedirect, classes}: LoginFormProps
   };
 
   if (immediateRedirect) {
-    window.location.href = urls[startingState ?? "login"];
+    window.location.href = urls[startingState];
     return <Components.Loading />;
   }
 
-  return <Components.ContentStyles contentType="commentExceptPointerEvents">
-    <div className={classnames(classes.oAuthBlock, 'ea-forum')}>
-      <a className={startingState === 'login' ? classes.primaryBtn : classes.oAuthLink}
-        href={urls.login}>Login</a>
-      <a className={startingState === 'signup' ? classes.primaryBtn : classes.oAuthLink}
-        href={urls.signup}>Sign Up</a>
-    </div>
-  </Components.ContentStyles>
+  return (
+    <Components.EALoginPopover
+      open={!!action}
+      setAction={setAction}
+      isSignup={action === "signup"}
+    />
+  );
 }
 
 const LoginFormComponent = registerComponent('LoginForm', LoginForm, { styles });

@@ -14,6 +14,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    zIndex: 50000,
   },
   backdrop: {
     background: theme.palette.background.loginBackdrop,
