@@ -27,6 +27,7 @@ import Button from '@material-ui/core/Button';
 import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import classNames from 'classnames';
 import { getUserStructuredData } from './UsersSingle';
+import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -317,7 +318,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
       </AnalyticsContext>
       <div className={classes.sectionSubHeadingRow}>
         <Typography variant="headline" className={classes.sectionSubHeading}>Draft/hidden sequences</Typography>
-        {ownPage && <Link to="/sequencesnew">
+        {ownPage && currentUser.karma >= SHOW_NEW_SEQUENCE_KARMA_THRESHOLD && <Link to="/sequencesnew">
           <SectionButton>
             <LibraryAddIcon /> New sequence
           </SectionButton>

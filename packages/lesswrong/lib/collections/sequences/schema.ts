@@ -15,7 +15,7 @@ const schema: SchemaType<"Sequences"> = {
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
-    control: 'text',
+    control: 'FormUserSelect',
     tooltip: 'The user id of the author',
   },
 

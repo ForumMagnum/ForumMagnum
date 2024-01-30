@@ -79,7 +79,7 @@ const styles = (theme: ThemeType) => ({
 const EASequenceOrCollectionCard = ({
   title,
   author,
-  hoverOver,
+  TitleWrapper,
   postCount,
   readCount,
   imageId,
@@ -90,7 +90,7 @@ const EASequenceOrCollectionCard = ({
 }: {
   title: string,
   author: UsersMinimumInfo | null,
-  hoverOver?: ReactNode,
+  TitleWrapper: FC<{children: ReactNode}>,
   postCount: number,
   readCount: number,
   imageId: string,
@@ -104,16 +104,7 @@ const EASequenceOrCollectionCard = ({
 }) => {
   const {onClick} = useClickableCell({href});
   const readProgress = `${readCount}/${postCount}`;
-  const {CloudinaryImage2, UsersNameDisplay, LWTooltip} = Components;
-
-  const TitleWrapper: FC<{children: ReactNode}> = hoverOver
-    ? ({children}) => (
-      <LWTooltip title={hoverOver} tooltip={false} placement="bottom">
-        {children}
-      </LWTooltip>
-    )
-    : ({children}) => <>{children}</>;
-
+  const {CloudinaryImage2, UsersNameDisplay} = Components;
   return (
     <div
       {...eventHandlers}

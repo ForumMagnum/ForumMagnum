@@ -23,7 +23,7 @@ export const addOrUpvoteTag = async ({tagId, postId, currentUser, ignoreParent =
     throw new Error(`Invalid tagId ${tagId}, either this tag does not exist, or you do not have access`);
   
   // Check whether this document already has this tag applied
-  const existingTagRel = await TagRels.findOne({ tagId, postId });
+  const existingTagRel = await TagRels.findOne({ tagId, postId, deleted: false });
   if (!existingTagRel) {
     const tagRel = await createMutator({
       collection: TagRels,
