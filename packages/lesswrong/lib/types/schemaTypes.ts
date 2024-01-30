@@ -23,31 +23,33 @@ interface CollectionFieldPermissions {
 
 type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
 
-type SqlFieldFunction = (fieldName: string) => string;
+type FieldName<N extends CollectionNameString> = (keyof ObjectsByCollectionName[N] & string) | '*';
 
-type SqlJoinBase = {
-  table: string,
+type SqlFieldFunction<N extends CollectionNameString> = (fieldName: FieldName<N>) => string;
+
+type SqlJoinBase<N extends CollectionNameString> = {
+  table: N,
   type?: "inner" | "full" | "left" | "right",
-  on: Record<string, string>,
+  on: Partial<Record<FieldName<N>, string>>,
 }
 
-type SqlResolverJoin = SqlJoinBase & {
-  resolver: (field: SqlFieldFunction) => string,
+type SqlResolverJoin<N extends CollectionNameString> = SqlJoinBase<N> & {
+  resolver: (field: SqlFieldFunction<N>) => string,
 };
 
-type SqlJoinSpec = SqlJoinBase & {
+type SqlJoinSpec<N extends CollectionNameString = CollectionNameString> = SqlJoinBase<N> & {
   prefix: string,
 };
 
-type SqlResolverArgs = {
-  field: SqlFieldFunction,
-  currentUserField: SqlFieldFunction,
-  join: (args: SqlResolverJoin) => string,
+type SqlResolverArgs<N extends CollectionNameString> = {
+  field: SqlFieldFunction<N>,
+  currentUserField: SqlFieldFunction<'Users'>,
+  join: <J extends CollectionNameString>(args: SqlResolverJoin<J>) => string,
   arg: (value: unknown) => string,
   resolverArg: (name: string) => string,
 }
 
-type SqlResolver = (args: SqlResolverArgs) => string;
+type SqlResolver<N extends CollectionNameString> = (args: SqlResolverArgs<N>) => string;
 
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
@@ -65,7 +67,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
     addOriginalField?: boolean,
     arguments?: string|null,
     resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext, info?: any)=>any,
-    sqlResolver?: SqlResolver,
+    sqlResolver?: SqlResolver<N>,
   },
   blackbox?: boolean,
   denormalized?: boolean,

@@ -34,20 +34,20 @@ describe("ProjectionContext", () => {
   });
   it("detects duplicate joins", () => {
     const context = new ProjectionContext(TestCollection);
-    const join1: SqlResolverJoin = {
-      table: "TestTable2",
+    const join1: SqlResolverJoin<CollectionNameString> = {
+      table: "TestTable2" as CollectionNameString,
       type: "left",
       on: {
         _id: "_id",
       },
       resolver: () => "",
     };
-    const join2: SqlResolverJoin = {
-      table: "TestTable2",
+    const join2: SqlResolverJoin<CollectionNameString> = {
+      table: "TestTable2" as CollectionNameString,
       type: "left",
       on: {
         userId: "userId",
-      },
+      } as AnyBecauseHard,
       resolver: () => "",
     };
     expect(context.getJoins()).toHaveLength(0);

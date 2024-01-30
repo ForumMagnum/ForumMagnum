@@ -152,7 +152,7 @@ export const TestCollection4 = {
       graphqlArguments: "testCollection2Id: String",
       resolver: async () => null,
       sqlResolver: ({resolverArg, join}) => join({
-        table: "TestCollection2",
+        table: "TestCollection2" as CollectionNameString,
         type: "left",
         on: {
           _id: resolverArg("testCollection2Id"),

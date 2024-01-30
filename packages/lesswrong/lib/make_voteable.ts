@@ -32,9 +32,9 @@ export const apolloCacheVoteablePossibleTypes = () => {
   }
 }
 
-const currentUserVoteResolver = (
-  resolver: SqlResolverJoin["resolver"],
-): SqlResolver => ({field, currentUserField, join}) => join({
+const currentUserVoteResolver = <N extends CollectionNameString>(
+  resolver: SqlResolverJoin<'Votes'>["resolver"],
+): SqlResolver<N> => ({field, currentUserField, join}) => join({
   table: "Votes",
   type: "left",
   on: {
