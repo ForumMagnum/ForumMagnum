@@ -5,6 +5,7 @@ import { getAuth0Id } from "../../lib/collections/users/helpers";
 import { Profile as Auth0Profile } from 'passport-auth0';
 import { getOrCreateForumUserAsync } from "./getOrCreateForumUser";
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./auth0Accounts";
+import { auth0ClientSettings } from "../../lib/publicSettings";
 
 type Auth0Settings = {
   appId: string;
@@ -83,10 +84,20 @@ const getAuthError = (e: AnyBecauseIsInput, defaultMessage: string): string => {
   return message;
 }
 
-// TODO: Move this into a setting
-const realm = "Forum-User-Migration";
-
 type ProfileFromAccessToken = (token: string) => Promise<Auth0Profile|undefined>;
+
+/**
+ * Note that some Auth0 endpoints call this the `connection`, and others call
+ * it the `realm` for reasons that aren't entirely obvious. The default value
+ * for a new Auth0 tenant is "Username-Password-Authentication".
+ */
+const getAuth0Connection = (): string => {
+  const {connection} = auth0ClientSettings.get() ?? {};
+  if (!connection) {
+    throw new Error("Auth0 connection not configured");
+  }
+  return connection;
+}
 
 /**
  * Login a user using an email and password.
@@ -103,7 +114,7 @@ export const loginAuth0User = async (
     const grant = await client.passwordGrant({
       username: email,
       password,
-      realm,
+      realm: getAuth0Connection(),
       scope: AUTH0_SCOPE,
     });
 
@@ -154,7 +165,7 @@ export const signupAuth0User = async (
     await client.database.signUp({
       email,
       password,
-      connection: realm,
+      connection: getAuth0Connection(),
     });
     return loginAuth0User(profileFromAccessToken, email, password);
   } catch (e) {

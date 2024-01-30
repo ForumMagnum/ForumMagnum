@@ -8,11 +8,7 @@ class Auth0ClientError extends Error {
 }
 
 class Auth0Client {
-  private async post(
-    endpoint: string,
-    body: JsonRecord,
-    errorType: "json" | "text" = "json",
-  ): Promise<void> {
+  private async post(endpoint: string, body: JsonRecord): Promise<void> {
     const result = await fetch(endpoint, {
       method: "POST",
       body: JSON.stringify(body),
@@ -21,8 +17,13 @@ class Auth0Client {
       },
     });
     if (result.status !== 200) {
-      const data = await (errorType === "json" ? result.json() : result.text());
-      throw new Auth0ClientError(data.error);
+      const data = await result.json();
+      let message = data.error || data.error_description || "Something went wrong";
+      // Remove the ugly full-stop that auth0 appends to its error messages
+      if (message[message.length - 1] === ".") {
+        message = message.slice(0, -1);
+      }
+      throw new Auth0ClientError(message);
     }
   }
 
@@ -49,15 +50,12 @@ class Auth0Client {
       throw new Error("Auth0 client settings not configured");
     }
 
-    await this.post(
-      combineUrls(`https://${settings.domain}`, "/dbconnections/change_password"),
-      {
-        client_id: settings.clientId,
-        connection: settings.realm,
-        email,
-      },
-      "text",
-    );
+    const url = combineUrls(`https://${settings.domain}`, "/dbconnections/change_password");
+    await this.post(url, {
+      client_id: settings.clientId,
+      connection: settings.connection,
+      email,
+    });
   }
 }
 

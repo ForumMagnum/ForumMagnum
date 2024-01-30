@@ -126,8 +126,7 @@ export const maxRenderQueueSize = new DatabasePublicSetting<number>('maxRenderQu
 export type Auth0ClientSettings = {
   domain: string,
   clientId: string,
-  realm: string,
-  credentialType: string,
+  connection: string,
 }
 export const auth0ClientSettings = new DatabasePublicSetting<Auth0ClientSettings | null>("auth0", null);
 
