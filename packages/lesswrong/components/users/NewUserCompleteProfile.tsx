@@ -154,9 +154,11 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
       flash(`${err}`)
     }
   }
-  
+
+  const {EAOnboardingFlow} = Components;
   return <AnalyticsContext pageContext="newUserRegistration">
     <SingleColumnSection>
+      <EAOnboardingFlow />
       <div className={classes.root}>
         <Typography variant="display2" gutterBottom className={classes.title}>
           Welcome to {siteNameWithArticleSetting.get()}!

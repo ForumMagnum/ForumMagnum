@@ -64,6 +64,11 @@ importComponent("BotSiteBanner", () => require('../components/common/BotSiteBann
 importComponent("HorizScrollBlock", () => require('../components/common/HorizScrollBlock'));
 importComponent("BlurredBackgroundModal", () => require('../components/common/BlurredBackgroundModal'));
 
+importComponent("EAOnboardingFlow", () => require('../components/ea-forum/onboarding/EAOnboardingFlow'));
+importComponent("EAOnboardingInput", () => require('../components/ea-forum/onboarding/EAOnboardingInput'));
+importComponent("EAOnboardingStage", () => require('../components/ea-forum/onboarding/EAOnboardingStage'));
+importComponent("EAOnboardingUserStage", () => require('../components/ea-forum/onboarding/EAOnboardingUserStage'));
+
 importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
 importComponent("TargetedJobAdSection", () => require('../components/ea-forum/TargetedJobAdSection'))
