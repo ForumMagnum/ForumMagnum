@@ -1441,6 +1441,12 @@ addRoute(
     title: "Moderation Dashboard"
   },
   {
+    name: 'tagMergeTool',
+    path: '/admin/tagMerge',
+    componentName: 'TagMergePage',
+    title: `${taggingNameCapitalSetting.get()} merging tool`
+  },
+  {
     name: 'recentlyActiveUsers',
     path: '/admin/recentlyActiveUsers',
     componentName: 'RecentlyActiveUsers',
