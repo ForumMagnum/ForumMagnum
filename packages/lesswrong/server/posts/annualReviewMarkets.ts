@@ -17,7 +17,6 @@ const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReview
   const fullMarket = await result.json()
   if (fullMarket.probability == null) throw new Error("Manifold market probability is null");
   if (fullMarket.isResolved == null) throw new Error("Manifold market isResolved is null");
-  if (fullMarket.postedAt == null) throw new Error("Manifold market postedAt is null");
 
   return { probability: fullMarket.probability, isResolved: fullMarket.isResolved, year: post.postedAt.getFullYear() }
 }
