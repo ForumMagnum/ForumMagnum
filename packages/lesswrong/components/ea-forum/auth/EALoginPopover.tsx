@@ -85,6 +85,11 @@ const styles = (theme: ThemeType) => ({
     marginTop: 4,
     marginBottom: 8,
   },
+  message: {
+    marginBottom: 4,
+    fontSize: 14,
+    fontWeight: 500,
+  },
   error: {
     color: theme.palette.text.error2,
     marginBottom: 4,
@@ -173,6 +178,8 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const onChangeEmail = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
@@ -191,8 +198,12 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
     ev.preventDefault();
 
     if (!email || !password) {
+      setError("Email and password are required");
       return;
     }
+
+    setMessage(null);
+    setError(null);
 
     try {
       setLoading(true);
@@ -211,18 +222,31 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
   }, [client, email, password, isSignup]);
 
   const onClickGoogle = useCallback(async () => {
+    setMessage(null);
+    setError(null);
     client.socialLogin("google-oauth2");
   }, [client]);
 
   const onClickFacebook = useCallback(async () => {
+    setMessage(null);
+    setError(null);
     client.socialLogin("facebook");
   }, [client]);
 
-  const onForgotPassword = useCallback(() => {
-    // TODO
-    // eslint-disable-next-line no-console
-    console.log("Forgot password");
-  }, []);
+  const onForgotPassword = useCallback(async () => {
+    setError(null);
+    setMessage(null);
+    try {
+      setResetPasswordLoading(true);
+      await client.resetPassword(email);
+      setMessage("Password reset email sent");
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+      setError(e.description || e.message || String(e) || "An error occurred");
+    }
+    setResetPasswordLoading(false);
+  }, [client, email]);
 
   const onLinkToLogin = useCallback(() => {
     setAction("login");
@@ -242,6 +266,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
       setPassword("");
       setShowPassword(false);
       setLoading(false);
+      setMessage(null);
       setError(null);
     }
   }, [open]);
@@ -296,7 +321,15 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
               </div>
               {!isSignup &&
                 <div className={classes.forgotPassword}>
-                  <a onClick={onForgotPassword}>Forgot password?</a>
+                  {resetPasswordLoading
+                    ? <Loading />
+                    : <a onClick={onForgotPassword}>Forgot password?</a>
+                  }
+                </div>
+              }
+              {message &&
+                <div className={classes.message}>
+                  {message}
                 </div>
               }
               {error &&
