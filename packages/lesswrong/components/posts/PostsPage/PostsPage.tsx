@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef, useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { getConfirmedCoauthorIds, isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
@@ -33,6 +33,8 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import isEqual from 'lodash/isEqual';
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { SidebarsContext } from '../../common/SidebarsWrapper';
+import { AnchorOffset } from '../../../lib/tableOfContents';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -311,6 +313,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
+  const { toc, setToCOffsets } = useContext(SidebarsContext)!;
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
@@ -360,6 +363,22 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
     readingProgressBarRef.current.style.setProperty("--scrollAmount", `${scrollPercent}%`)
   }
+
+  useEffect(() => {
+    console.log("in postpage useEffect BBBB")
+    if (!postBodyRef.current) return
+
+    //Get all elements with href corresponding to anchors from the table of contents
+    const postBodyBlocks = postBodyRef.current.querySelectorAll('[id]')
+    const sectionHeaders = Array.from(postBodyBlocks).filter(block => toc?.sectionData.sections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''))
+    const postBodyHeight = postBodyRef.current.getBoundingClientRect().height
+    const anchorOffsets = sectionHeaders.map(sectionHeader => ({
+      anchorHref: sectionHeader.getAttribute('id'), 
+      offset: (sectionHeader as HTMLElement).offsetTop/postBodyHeight
+    }))
+    setToCOffsets(anchorOffsets)
+    console.log("in postpage useEffect BBCC", {anchors: postBodyBlocks, anchorOffsets, toc})
+  }, [toc, setToCOffsets]) //TODO: change on window height change
 
   const getSequenceId = () => {
     const { params } = location;

@@ -97,7 +97,7 @@ const levelToClassName = (level: number, classes: ClassesType) => {
 }
 
 const TableOfContentsRow = ({
-  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense
+  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense, offset
 }: {
   indentLevel?: number,
   highlighted?: boolean,
@@ -109,10 +109,14 @@ const TableOfContentsRow = ({
   divider?: boolean,
   answer?: boolean,
   dense?: boolean,
+  offset?: number,
 }) => {
   if (divider) {
     return <Components.TableOfContentsDivider />
   }
+
+  const offsetStyling = offset !== undefined ? {flex: offset} : undefined
+  console.log({offsetStyling, offset, href})
 
   return <div
     className={classNames(
@@ -120,6 +124,7 @@ const TableOfContentsRow = ({
       levelToClassName(indentLevel, classes),
       { [classes.highlighted]: highlighted }
     )}
+    style={offsetStyling}
   >
     <a href={href} onClick={onClick} className={classNames(classes.link, {
       [classes.title]: title,

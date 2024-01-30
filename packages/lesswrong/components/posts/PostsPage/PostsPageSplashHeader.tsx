@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
+import React, { FC, MouseEvent, useContext, useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
@@ -16,6 +16,7 @@ import { useMulti } from '../../../lib/crud/withMulti';
 import { useHover } from '../../common/withHover';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { HashLink } from '../../common/HashLink';
+import { SidebarsContext } from '../../common/SidebarsWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
 // CSS version
@@ -349,7 +350,12 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
 }) => {
   const { FooterTagList, UsersName, CommentBody } = Components;
   const [visible, setVisible] = React.useState(true);
-  const observerRef = useObserver<HTMLDivElement>({onEnter: () => setVisible(true), onExit: () => setVisible(false), threshold: 0.95});
+  const {setToCVisible} = useContext(SidebarsContext)!;
+  const transitionHeader = (headerVisibile: boolean) => {
+    setToCVisible(!headerVisibile);
+    setVisible(headerVisibile);
+  }
+  const observerRef = useObserver<HTMLDivElement>({onEnter: () => transitionHeader(true), onExit: () => transitionHeader(false), threshold: 0.95});
   const { loading, results: reviews, loadMoreProps } = useMulti({
     terms: {
       view: "reviews",

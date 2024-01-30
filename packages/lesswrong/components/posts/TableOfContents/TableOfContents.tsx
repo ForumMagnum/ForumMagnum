@@ -17,7 +17,7 @@ const TableOfContents = ({sectionData, title, onClickSection, displayOptions, cl
   fixedPositionToc?: boolean
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const {setToC} = useContext(SidebarsContext)!;
+  const {setToC, toc} = useContext(SidebarsContext)!;
 
   useEffect(() => {
     if (setToC) {
@@ -30,13 +30,13 @@ const TableOfContents = ({sectionData, title, onClickSection, displayOptions, cl
     }
   }, [title, sectionData, setToC]);
 
-  if (!sectionData)
+  if (!toc)
     return <div/>
 
   if (fixedPositionToc) {
     return (
-      <Components.FixedPositionToc
-        tocSections={sectionData.sections}
+      <Components.FixedPositionToC
+        tocSections={toc.sectionData.sections}
         title={title}
         onClickSection={onClickSection}
         displayOptions={displayOptions}

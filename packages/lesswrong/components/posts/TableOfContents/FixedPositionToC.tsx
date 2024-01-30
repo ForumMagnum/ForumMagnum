@@ -3,12 +3,13 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
 import { useLocation } from '../../../lib/routeUtil';
-import type { ToCData, ToCSection } from '../../../lib/tableOfContents';
+import type { AnchorOffset, ToCData, ToCSection, ToCSectionWithOffset } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
 import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { sectionsHaveOffsets } from '../../common/SidebarsWrapper';
 
 export interface ToCDisplayOptions {
   /**
@@ -34,6 +35,23 @@ export interface ToCDisplayOptions {
 
 const topSection = "top";
 
+const normalizeOffsets = (sections: ToCSectionWithOffset[]) => {
+  let subtract = 0
+  const firstSectionOffset: ToCSectionWithOffset = {
+    ...sections[0],
+    offset: 0
+  }
+  
+  return sections.map(section => {
+    const normalizedOffset = {
+      ...section,
+      offset: section.offset - subtract
+    }
+    subtract = section.offset
+    return normalizedOffset
+  })
+}
+
 const isRegularClick = (ev: React.MouseEvent) => {
   if (!ev) return false;
   return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
@@ -43,7 +61,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   root: {
     position: 'fixed',
     left: 0,
-    top: 0
+    top: 0,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-evenly'
   }
 })
 
@@ -74,6 +96,8 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   }
 
   const { TableOfContentsRow, AnswerTocRow } = Components;
+
+  console.log("in component!! AAAA", {tocSections})
 
   let filteredSections = (displayOptions?.maxHeadingDepth && tocSections)
     ? filter(tocSections, s=>s.level <= displayOptions.maxHeadingDepth!)
@@ -120,7 +144,15 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   if (answersSorting === "newest" || answersSorting === "oldest") {
     filteredSections = sectionsWithAnswersSorted(filteredSections, answersSorting);
   }
-  
+
+
+  console.log({filteredSections})
+  if(sectionsHaveOffsets(filteredSections)) {
+    filteredSections = normalizeOffsets(filteredSections);
+    console.log("offsets assigned!")
+  }
+
+
   function adjustHeadingText(text: string|undefined) {
     if (!text) return "";
     if (displayOptions?.downcaseAllCapsHeadings) {
@@ -133,6 +165,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   return <div className={classes.root}>
     <TableOfContentsRow key="postTitle"
       href="#"
+      offset={0}
       onClick={ev => {
         if (isRegularClick(ev)) {
           void handleClick(ev, () => {
@@ -155,6 +188,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
           divider={section.divider}
           highlighted={section.anchor === currentSection}
           href={"#"+section.anchor}
+          offset={section.offset}
           onClick={(ev) => {
             if (isRegularClick(ev)) {
               void handleClick(ev, () => {
@@ -206,7 +240,7 @@ export const jumpToY = (y: number) => {
 
 
 const FixedPositionTocComponent = registerComponent(
-  "FixedPositionToc", FixedPositionToc, {
+  "FixedPositionToC", FixedPositionToc, {
     hocs: [withErrorBoundary],
     styles
   }
@@ -262,6 +296,6 @@ function downcaseIfAllCaps(text: string) {
 
 declare global {
   interface ComponentTypes {
-    FixedPositionToc: typeof FixedPositionTocComponent
+    FixedPositionToC: typeof FixedPositionTocComponent
   }
 }
