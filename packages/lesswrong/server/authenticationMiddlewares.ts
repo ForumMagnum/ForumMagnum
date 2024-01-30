@@ -287,20 +287,6 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
     ));
   }
 
-  const loginUser = (req: Request, res: Response, next: NextFunction, user: DbUser) => {
-    req.logIn(user, async (err: AnyBecauseTodo) => {
-      if (err) {
-        return next(err);
-      }
-      await createAndSetToken(req, res, user);
-
-      const returnTo = getReturnTo(req);
-      res.statusCode = 302;
-      res.setHeader('Location', returnTo);
-      return res.end();
-    })
-  }
-
   const handleAuthenticate = (req: Request, res: Response, next: NextFunction, err: AnyBecauseTodo, user: DbUser | null | undefined, _info: AnyBecauseTodo) => {
     if (err) {
       if (err.message === "banned") {
@@ -315,7 +301,17 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
       return next(new Error(`${error}: ${error_description}`))
     }
     if (!user) return next()
-    loginUser(req, res, next, user);
+    req.logIn(user, async (err: AnyBecauseTodo) => {
+      if (err) {
+        return next(err);
+      }
+      await createAndSetToken(req, res, user);
+
+      const returnTo = getReturnTo(req);
+      res.statusCode = 302;
+      res.setHeader('Location', returnTo);
+      return res.end();
+    })
   }
 
   // NB: You must also set the expressSessionSecret setting in your database
@@ -367,7 +363,7 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
             res.status(400).send({error: err.message});
           }
         }
-        loginUser(req, res, errorHandler, user);
+        handleAuthenticate(req, res, errorHandler, null, user, null);
       } catch (e) {
         res.status(400).send({error: e.message});
       }
@@ -389,7 +385,7 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
             res.status(400).send({error: err.message});
           }
         }
-        loginUser(req, res, errorHandler, user);
+        handleAuthenticate(req, res, errorHandler, null, user, null);
       } catch (e) {
         res.status(400).send({error: e.message});
       }
