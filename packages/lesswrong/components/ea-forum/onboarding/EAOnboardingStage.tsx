@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -61,6 +62,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 export const EAOnboardingStage = ({
+  stageName,
   title,
   skippable,
   onSkip,
@@ -71,6 +73,7 @@ export const EAOnboardingStage = ({
   className,
   classes,
 }: {
+  stageName: string,
   title: string,
   skippable?: boolean,
   onSkip?: () => void | Promise<void>,
@@ -83,32 +86,37 @@ export const EAOnboardingStage = ({
 }) => {
   const {EAButton} = Components;
   return (
-    <div className={classes.root}>
-      <div className={classes.header}>
-        <div className={classes.lightbulb}>{lightbulbIcon}</div>
-        {title}
-      </div>
-      <div className={classNames(classes.content, className)}>
-        {children}
-      </div>
-      <div className={classes.footer}>
-        <div className={classes.footerContent}>
-          {footer}
+    <AnalyticsContext
+      pageElementContext="onboardingFlow"
+      pageElementSubContext={stageName}
+    >
+      <div className={classes.root}>
+        <div className={classes.header}>
+          <div className={classes.lightbulb}>{lightbulbIcon}</div>
+          {title}
         </div>
-        {skippable &&
-          <a onClick={onSkip} className={classes.skip}>
-            Skip for now
-          </a>
-        }
-        <EAButton
-          onClick={onContinue}
-          disabled={!canContinue}
-          className={classes.continue}
-        >
-          Continue -&gt;
-        </EAButton>
+        <div className={classNames(classes.content, className)}>
+          {children}
+        </div>
+        <div className={classes.footer}>
+          <div className={classes.footerContent}>
+            {footer}
+          </div>
+          {skippable &&
+            <a onClick={onSkip} className={classes.skip}>
+              Skip for now
+            </a>
+          }
+          <EAButton
+            onClick={onContinue}
+            disabled={!canContinue}
+            className={classes.continue}
+          >
+            Continue -&gt;
+          </EAButton>
+        </div>
       </div>
-    </div>
+    </AnalyticsContext>
   );
 }
 

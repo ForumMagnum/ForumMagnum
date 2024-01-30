@@ -26,6 +26,7 @@ export const EAOnboardingSubscribeStage = ({classes}: {
   const {EAOnboardingStage} = Components;
   return (
     <EAOnboardingStage
+      stageName="subscribe"
       title={`Welcome to the EA Forum, ${currentUser?.displayName}!`}
       canContinue={canContinue}
       skippable

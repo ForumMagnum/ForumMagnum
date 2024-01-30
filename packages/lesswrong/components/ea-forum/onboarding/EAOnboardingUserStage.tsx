@@ -58,6 +58,7 @@ export const EAOnboardingUserStage = ({classes}: {
   const {EAOnboardingStage, EAOnboardingInput, ForumIcon} = Components;
   return (
     <EAOnboardingStage
+      stageName="username"
       title="Choose your user name"
       footer={
         <div onClick={onToggleAcceptedTos} className={classes.footer}>
