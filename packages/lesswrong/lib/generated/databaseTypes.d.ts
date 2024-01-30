@@ -497,6 +497,19 @@ interface DbLocalgroup extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ManifoldProbabilitiesCachesCollection = CollectionBase<"ManifoldProbabilitiesCaches">;
+
+interface DbManifoldProbabilitiesCache extends DbObject {
+  __collectionName?: "ManifoldProbabilitiesCaches"
+  marketId: string
+  probability: number
+  isResolved: boolean
+  year: number
+  lastUpdated: Date
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type MessagesCollection = CollectionBase<"Messages">;
 
 interface DbMessage extends DbObject {
@@ -1673,6 +1686,7 @@ interface CollectionsByName {
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
   Localgroups: LocalgroupsCollection
+  ManifoldProbabilitiesCaches: ManifoldProbabilitiesCachesCollection
   Messages: MessagesCollection
   Migrations: MigrationsCollection
   ModerationTemplates: ModerationTemplatesCollection
@@ -1738,6 +1752,7 @@ interface ObjectsByCollectionName {
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
   Localgroups: DbLocalgroup
+  ManifoldProbabilitiesCaches: DbManifoldProbabilitiesCache
   Messages: DbMessage
   Migrations: DbMigration
   ModerationTemplates: DbModerationTemplate
@@ -1803,6 +1818,7 @@ interface ObjectsByTypeName {
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData
   Localgroup: DbLocalgroup
+  ManifoldProbabilitiesCache: DbManifoldProbabilitiesCache
   Message: DbMessage
   Migration: DbMigration
   ModerationTemplate: DbModerationTemplate

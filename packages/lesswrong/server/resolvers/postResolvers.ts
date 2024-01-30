@@ -248,7 +248,7 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: 'Float',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-        return getPostMarketInfo(post)?.probability
+        return (await getPostMarketInfo(post))?.probability
       }
     }
   },
@@ -256,7 +256,7 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: 'Boolean',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-        return getPostMarketInfo(post)?.isResolved
+        return (await getPostMarketInfo(post))?.isResolved
       }
     }
   },
@@ -264,7 +264,7 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: 'Int',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-        return getPostMarketInfo(post)?.year
+        return (await getPostMarketInfo(post))?.year
       }
     }
   },

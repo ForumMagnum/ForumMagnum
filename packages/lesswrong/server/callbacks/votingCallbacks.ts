@@ -139,7 +139,7 @@ postPublishedCallback.add(async (publishedPost: DbPost) => {
   await batchUpdateScore({collection: Posts});
 });
 
-// When a vote is cast, if it's new karma is above review_market_threshold, create a Manifold
+// When a vote is cast, if its new karma is above review_market_threshold, create a Manifold
 // on it making top 50 in the review, and create a comment linking to the market.
 
 const manifoldAPIKeySetting = new DatabaseServerSetting<string | null>('manifold.reviewBotKey', null)
@@ -147,9 +147,6 @@ const manifoldAPIKey = manifoldAPIKeySetting.get()
 
 const reviewUserBotSetting = new DatabaseServerSetting<string | null>('reviewBotId', null)
 const reviewUserBot = reviewUserBotSetting.get()
-
-if (manifoldAPIKey === null) throw new Error("manifoldAPIKey is null")
-if (reviewUserBot === null) throw new Error("reviewUserBot is null")
 
 async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
   const tag = await Tags.findOne({slug: tagSlug})
@@ -164,13 +161,16 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   // Forum gate
   if (!isLWorAF) return;
 
+  if (!manifoldAPIKey) throw new Error("Manifold API key not found");
+  if (!reviewUserBot) throw new Error("Review bot user not found");
+
   if (collection.collectionName !== "Posts") return;
-  if (vote.power <= 0 || vote.cancelled) return;
+  if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
   if (newDocument.baseScore < MINIMUM_KARMA_REVIEW_MARKET_CREATION) return;
   const post = await Posts.findOne({_id: newDocument._id})
   if (!post) return;
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
-  if (post.manifoldReviewMarketId) return; // don't make a market if one already exists
+  if (post.manifoldReviewMarketId) return;
 
   const botUser = await context.Users.findOne({_id: reviewUserBot})
   const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
@@ -182,7 +182,6 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   const descriptionMarkdown = `As part of LessWrong's [Annual Review](${annualReviewLink}), the community nominates, writes reviews, and votes on the most valuable posts. Posts are reviewable once they have been up for at least 12 months, and the ${year} Review resolves in February ${year+2}.\n\n\nThis market will resolve to 100% if the post [${post.title}](${postLink}) is one of the top fifty posts of the ${year} Review, and 0% otherwise. The market was initialized to ${initialProb}%.` // post.title
   const closeTime = new Date(year + 2, 1, 1) // i.e. february 1st of the next next year (so if year is 2022, feb 1 of 2024)
   const visibility = isProduction ? "public" : "unlisted"
-  const groupIds = ["LessWrong Annual Review", `LessWrong ${year} Annual Review`]
 
   if (!botUser) throw new Error("Bot user not found")
 
@@ -244,7 +243,7 @@ const makeComment = async (postId: string, year: number, marketUrl: string, botU
     collection: Comments,
     document: {
       postId: postId,
-      userId: reviewUserBot,
+      userId: botUser._id,
       contents: {originalContents: {
         type: "html",
         data: commentString

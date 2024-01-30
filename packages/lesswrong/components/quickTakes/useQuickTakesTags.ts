@@ -44,9 +44,9 @@ export type QuickTakesTags = {
   ) => void,
 };
 
-export const useQuickTakesTags = (): QuickTakesTags => {
+export const useQuickTakesTags = (initialSelectedTagIds: string[] = []): QuickTakesTags => {
   const [frontpage, setFrontpage] = useState(true);
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(initialSelectedTagIds);
 
   const {results, loading} = useMulti({
     terms: {

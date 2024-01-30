@@ -56,7 +56,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     textAlign: "center",
   },
   predictedAnnualReviewWinner: {
-    color: theme.palette.text.annualReviewMarketKarma
+    color: theme.palette.review.winner
   },
   secondaryVoteScore: {
     fontSize: '35%',

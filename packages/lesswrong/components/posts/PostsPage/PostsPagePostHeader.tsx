@@ -155,17 +155,16 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[500],
   },
   headerFooter: { 
-    // marginTop: theme.spacing.unit*2,
-    // marginBottom: theme.spacing.unit*2,
     display: 'flex',
     justifyContent: 'space-between',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    }
   },
   tagSection: {
-    // marginBottom: theme.spacing.unit*2,
     flex: 1
   },
   annualReviewMarketInfo: {
-    // display: 'flex',
     justifyContent: 'center',
     alignItems: 'right',
     },
