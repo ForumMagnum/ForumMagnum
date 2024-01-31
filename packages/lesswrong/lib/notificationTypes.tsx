@@ -652,6 +652,8 @@ export const NewUserNotification = registerNotificationType({
   Display: ({User}) => <><User /> just signed up</>,
 });
 
+// This has no `Display` as messages are handled separately from notifications
+// in the friendly UI
 export const NewMessageNotification = registerNotificationType({
   name: "newMessage",
   userSettingField: "notificationPrivateMessage",
