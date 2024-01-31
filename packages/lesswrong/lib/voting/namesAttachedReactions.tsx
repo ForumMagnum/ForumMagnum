@@ -230,8 +230,6 @@ export type NamesAttachedReactionsVote = {
   reacts?: UserVoteOnSingleReaction[]
 }
 
-export type EAOrLWReactionsVote = NamesAttachedReactionsVote & Record<string, boolean>;
-
 export type UserReactInfo = {
   userId: string
   reactType: VoteOnReactionType
