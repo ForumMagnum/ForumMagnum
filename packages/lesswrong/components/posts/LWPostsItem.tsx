@@ -559,7 +559,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               terms={commentTerms}
               post={post}
               treeOptions={{
-                highlightDate: post.lastVisitedAt,
+                highlightDate: post.lastVisitedAt ?? undefined,
                 condensed: condensedAndHiddenComments,
               }}
             />

@@ -46,8 +46,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   smallTag: {
     ...smallTagTextStyle(theme),
     "& .TagsChecklist-removeTag svg": {
-      transform: "translateY(-4px)",
+      top: 2
     },
+  },
+  finalTag: {
+    marginRight: 8,
   },
   removeTag: {
     background: 'transparent',
@@ -65,7 +68,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     },
   },
   loadMore: {
-    marginLeft: 8,
     color: theme.palette.grey[500],
     whiteSpace: "nowrap",
   },
@@ -133,7 +135,7 @@ const TagsChecklist = ({
 
   let tagsToDisplay = allRelevantTags;
   // The first 5 tags can always be displayed if the list is truncated.
-  // If another tag beyonf this is selected, it should be added to the front of the list.
+  // If another tag beyond this is selected, it should be added to the front of the list.
   if (actuallyTruncate) {
     const initialTagsToDisplay = allRelevantTags.slice(0, 5);
     const selectedHiddenTags = selectedTags.filter((tag) => !initialTagsToDisplay.includes(tag));
@@ -153,12 +155,13 @@ const TagsChecklist = ({
 
   return (
     <>
-      {tagsToDisplay?.map((tagChecklistItem) =>
+      {tagsToDisplay?.map((tagChecklistItem, i) =>
         tagChecklistItem.selected ? (
           <div
             key={tagChecklistItem.tag._id}
             className={classNames(classes.selectedTag, {
               [classes.smallTag]: smallText,
+              [classes.finalTag]: i === tagsToDisplay.length - 1,
             })}
           >
             {getTagName(tagChecklistItem)}
@@ -184,6 +187,7 @@ const TagsChecklist = ({
             <div
               className={classNames(classes.tag, {
                 [classes.smallTag]: smallText,
+                [classes.finalTag]: i === tagsToDisplay.length - 1,
               })}
               onClick={() => handleOnTagSelected(tagChecklistItem.tag, selectedTagIds)}
             >

@@ -295,8 +295,7 @@ const UsersMenu = ({classes}: {
                   />
                 </ThemePickerMenu>
               }
-              {/* TODO un-admin gate when ready for production use */}
-              {isEAForum && userIsAdminOrMod(currentUser) && <DropdownItem
+              {isEAForum && <DropdownItem
                 title={"Post stats"}
                 to={`/users/${currentUser.slug}/stats`}
                 icon="BarChart"
@@ -321,7 +320,6 @@ const UsersMenu = ({classes}: {
                   iconClassName={classes.icon}
                 />
               }
-              {isFriendlyUI && messagesNode}
               {isFriendlyUI && accountSettingsNode}
   
               {/*

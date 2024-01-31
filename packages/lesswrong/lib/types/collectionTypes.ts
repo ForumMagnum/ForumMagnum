@@ -110,6 +110,7 @@ type CollectionOptions<N extends CollectionNameString> = {
   interfaces?: string[],
   description?: string,
   logChanges?: boolean,
+  writeAheadLogged?: boolean
 };
 
 interface FindResult<T> {

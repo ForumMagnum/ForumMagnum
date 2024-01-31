@@ -126,6 +126,7 @@ import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/resolvers/notificationResolvers';
+import './server/resolvers/conversationResolvers';
 import './server/resolvers/dialogueMessageResolvers';
 import './server/callbacks/postCallbacks';
 import './server/posts/validatePost';
@@ -175,6 +176,7 @@ import './server/resolvers/analyticsResolvers';
 import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
+import './server/resolvers/databaseSettingsResolvers';
 
 
 import './server/intercomSetup';
@@ -202,7 +204,5 @@ import './server/search/elastic/ElasticExporter';
 import './server/search/elastic/elasticCallbacks';
 import './server/search/elastic/elasticGraphQL';
 
-// Hybrid views
-import './server/analytics/postViewsHybridView';
-import './server/analytics/postViewTimesHybridView';
-import './server/analytics/hybridViews';
+// Incremental views
+import './server/analytics/analyticsCron';

@@ -7,10 +7,13 @@ import DialogueChecksRepo from "./DialogueChecksRepo";
 import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
 import ElectionVotesRepo from "./ElectionVotesRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
+import NotificationsRepo from "./NotificationsRepo";
 import PageCacheRepo from "./PageCacheRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
 import PostRelationsRepo from "./PostRelationsRepo";
+import PostViewTimesRepo from "./PostViewTimesRepo";
+import PostViewsRepo from "./PostViewsRepo";
 import PostsRepo from "./PostsRepo";
 import ReadStatusesRepo from "./ReadStatusesRepo";
 import SequencesRepo from "./SequencesRepo";
@@ -33,11 +36,14 @@ const getAllRepos = () => ({
   electionCandidates: new ElectionCandidatesRepo(),
   electionVotes: new ElectionVotesRepo(),
   localgroups: new LocalgroupsRepo(),
+  notifications: new NotificationsRepo(),
+  postEmbeddings: new PostEmbeddingsRepo(),
   pageCaches: new PageCacheRepo(),
-  PostEmbeddingsRepo: new PostEmbeddingsRepo(),
   postRecommendations: new PostRecommendationsRepo(),
   postRelations: new PostRelationsRepo(),
   posts: new PostsRepo(),
+  postViews: new PostViewsRepo(),
+  postViewTimes: new PostViewTimesRepo(),
   readStatuses: new ReadStatusesRepo(),
   sequences: new SequencesRepo(),
   tags: new TagsRepo(),
@@ -56,6 +62,7 @@ export {
   ElectionCandidatesRepo,
   ElectionVotesRepo,
   LocalgroupsRepo,
+  NotificationsRepo,
   PageCacheRepo,
   PostEmbeddingsRepo,
   PostRecommendationsRepo,

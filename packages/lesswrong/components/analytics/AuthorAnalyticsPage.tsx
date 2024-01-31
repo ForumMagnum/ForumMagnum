@@ -245,7 +245,6 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
   const {
     data,
     loading: analyticsLoading,
-    maybeStale,
     loadMoreProps,
   } = useMultiPostAnalytics({
     userId: user?._id,
@@ -255,11 +254,12 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
 
   const { SingleColumnSection, HeadTags, Typography, Loading, LoadMore, ForumIcon, AnalyticsGraph, LWTooltip } = Components;
 
-  if (!currentUser || (currentUser.slug !== slug && !userIsAdminOrMod(currentUser))) {
+  const isCurrentUser = currentUser?.slug === slug
+  if (!currentUser || (!isCurrentUser && !userIsAdminOrMod(currentUser))) {
     return <SingleColumnSection>You don't have permission to view this page.</SingleColumnSection>;
   }
 
-  if (userLoading || !user) return null;
+  if (userLoading || !user) return <Loading />;
 
   const title = `Stats for ${user.displayName}`;
 
@@ -286,20 +286,13 @@ const AuthorAnalyticsPage = ({ classes }: { classes: ClassesType }) => {
       <SingleColumnSection className={classes.root}>
       <div className={classes.pageHeader}>
         <Typography variant="headline" className={classes.pageHeaderText}>
-          Your post stats
+          {isCurrentUser ? "Your" : `${user.displayName}'s`} post stats
         </Typography>
       </div>
         <div className={classes.section}>
           <AnalyticsGraph userId={user._id}/>
         </div>
         <div className={classes.section}>
-          <div className={classes.postsListHeader}>
-            {/* TODO since removing the title here this now causes some layout shift. Try to fix this (or ideally make it fast enough that
-                this message isn't needed) */}
-            {maybeStale && <span className={classes.fetchingLatest}>
-              checking latest data...
-            </span>}
-          </div>
           <div className={classNames(classes.grid, classes.gridHeader)}>
             <div onClick={() => onClickHeader("postedAt")} className={classes.dateHeader}>
               <div className={classes.dateHeaderLabel}>
