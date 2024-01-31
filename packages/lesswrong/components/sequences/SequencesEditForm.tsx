@@ -5,8 +5,8 @@ import { styles } from './SequencesNewForm';
 
 const SequencesEditForm = ({ documentId, successCallback, cancelCallback, removeSuccessCallback, classes }: {
   documentId: string,
-  successCallback?: ()=>void,
-  cancelCallback?: ()=>void,
+  successCallback?: () => void,
+  cancelCallback?: () => void,
   removeSuccessCallback?: any,
   classes: ClassesType,
 }) => {

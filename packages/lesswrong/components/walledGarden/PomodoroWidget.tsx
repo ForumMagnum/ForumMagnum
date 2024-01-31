@@ -13,7 +13,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const PomodoroWidget = ({classes}:{classes:ClassesType}) => {
+export const PomodoroWidget = ({classes}: {classes: ClassesType}) => {
   const { LWTooltip } = Components
 
   return <LWTooltip title="Open the Garden pomodoro timer in a separate tab">

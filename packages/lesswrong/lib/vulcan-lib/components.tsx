@@ -5,7 +5,7 @@ import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '..
 import { isClient } from '../executionEnvironment';
 import * as _ from 'underscore';
 
-type ComparisonFn = (prev: any, next: any)=>boolean
+type ComparisonFn = (prev: any, next: any) => boolean
 type ComparePropsDict = { [propName: string]: "default"|"shallow"|"ignore"|"deep"|ComparisonFn }
 type AreEqualOption = ComparisonFn|ComparePropsDict|"auto"
 
@@ -78,7 +78,7 @@ const PreparedComponents: Record<string,any> = {};
 // storage for infos about components
 export const ComponentsTable: Record<string, ComponentsTableEntry> = {};
 
-export const DeferredComponentsTable: Record<string,()=>void> = {};
+export const DeferredComponentsTable: Record<string,() => void> = {};
 
 type EmailRenderContextType = {
   isEmailRender: boolean
@@ -113,7 +113,7 @@ const addClassnames = (componentName: string, styles: any) => {
   })
 }
 
-export const useStyles = (styles: (theme: ThemeType)=>JssStyles, componentName: keyof ComponentTypes) => {
+export const useStyles = (styles: (theme: ThemeType) => JssStyles, componentName: keyof ComponentTypes) => {
   return classNameProxy(componentName);
 };
 
@@ -164,7 +164,7 @@ export function registerComponent<PropType>(name: string, rawComponent: React.Co
 // lot of log-spam.
 const debugComponentImports = false;
 
-export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: ()=>void) {
+export function importComponent(componentName: keyof ComponentTypes|Array<keyof ComponentTypes>, importFn: () => void) {
   if (Array.isArray(componentName)) {
     for (let name of componentName) {
       DeferredComponentsTable[name] = importFn;

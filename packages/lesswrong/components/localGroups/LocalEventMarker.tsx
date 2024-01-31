@@ -24,8 +24,8 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, infoOpen, location, classes }: {
   event: PostsList,
-  handleMarkerClick: (eventId: string)=>void,
-  handleInfoWindowClose: (eventId: string)=>void,
+  handleMarkerClick: (eventId: string) => void,
+  handleInfoWindowClose: (eventId: string) => void,
   infoOpen: boolean,
   location: any,
   classes: ClassesType,

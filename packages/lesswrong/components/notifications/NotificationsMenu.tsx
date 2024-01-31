@@ -79,7 +79,7 @@ const NotificationsMenu = ({open, setIsOpen, hasOpened, classes}: {
   if (!currentUser) {
     return null;
   }
-  const notificationCategoryTabs: Array<{ name: string, icon: ()=>React.ReactNode, terms: NotificationsViewTerms }> = [
+  const notificationCategoryTabs: Array<{ name: string, icon: () => React.ReactNode, terms: NotificationsViewTerms }> = [
     {
       name: "All Notifications",
       icon: () => (<Components.ForumIcon icon="Bell" className={classes.icon}/>),

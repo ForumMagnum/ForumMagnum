@@ -102,7 +102,7 @@ const TableOfContentsRow = ({
   indentLevel?: number,
   highlighted?: boolean,
   href: string,
-  onClick?: (ev: any)=>void,
+  onClick?: (ev: any) => void,
   children?: React.ReactNode,
   classes: ClassesType,
   title?: boolean,

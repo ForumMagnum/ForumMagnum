@@ -50,7 +50,7 @@ const frontpageTab = {_id: '0', name: FRONTPAGE_TAB_NAME}
  * which includes the topics bar and the topic-specific tabs.
  * The "Frontpage" tab content comes from EAHome.
  */
-const EAHomeMainContent = ({FrontpageNode, classes}:{
+const EAHomeMainContent = ({FrontpageNode, classes}: {
   FrontpageNode: ComponentType,
   classes: ClassesType
 }) => {

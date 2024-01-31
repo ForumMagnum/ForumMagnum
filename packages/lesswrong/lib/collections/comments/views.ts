@@ -398,7 +398,7 @@ Comments.addView("sunshineNewCommentsList", (terms: CommentsViewTerms) => {
   };
 });
 
-export const questionAnswersSortings : Record<CommentSortingMode,MongoSelector<DbComment>> = {
+export const questionAnswersSortings: Record<CommentSortingMode,MongoSelector<DbComment>> = {
   ...sortings,
   "top": {promoted: -1, baseScore: -1, postedAt: -1},
   "magic": {promoted: -1, score: -1, postedAt: -1},

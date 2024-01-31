@@ -22,7 +22,7 @@ const SubscriptionsList = ({collectionName, fragmentName, subscriptionType, noSu
   fragmentName: keyof FragmentTypes,
   subscriptionType: string,
   noSubscriptionsMessage: string,
-  renderDocument: (document: any)=>ReactNode,
+  renderDocument: (document: any) => ReactNode,
   title: React.ReactNode,
   classes: ClassesType,
 }) => {
@@ -78,7 +78,7 @@ const SubscribedItem = ({collectionName, fragmentName, subscription, renderDocum
   collectionName: CollectionNameString,
   fragmentName: keyof FragmentTypes,
   subscription: SubscriptionState,
-  renderDocument: (document: any)=>ReactNode,
+  renderDocument: (document: any) => ReactNode,
   classes: ClassesType,
 }) => {
   const { Loading, NotifyMeButton } = Components;

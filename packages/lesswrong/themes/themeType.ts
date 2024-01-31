@@ -498,8 +498,8 @@ declare global {
     
     breakpoints: {
       /** Down is *inclusive* - down(sm) will go up to the md breakpoint */
-      down:  (breakpoint: BreakpointName|number)=>string,
-      up: (breakpoint: BreakpointName|number)=>string,
+      down:  (breakpoint: BreakpointName|number) => string,
+      up: (breakpoint: BreakpointName|number) => string,
       values: Record<BreakpointName,number>,
     },
     spacing: {

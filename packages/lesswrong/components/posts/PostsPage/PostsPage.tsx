@@ -302,7 +302,7 @@ export const postsCommentsThreadMultiOptions = {
 const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   eagerPostComments?: EagerPostComments,
-  refetch: ()=>void,
+  refetch: () => void,
   classes: ClassesType,
 }) => {
   const location = useSubscribedLocation();

@@ -5,12 +5,12 @@ import type {SortableContainerProps, SortEvent, SortEventWithTag} from 'react-so
 import * as _ from 'underscore';
 
 export const makeSortableListComponent = ({renderItem}: {
-  renderItem: ({contents, removeItem, classes}: { contents: string, removeItem: (id:string)=>void, classes: ClassesType }) => React.ReactNode
+  renderItem: ({contents, removeItem, classes}: { contents: string, removeItem: (id: string) => void, classes: ClassesType }) => React.ReactNode
 }) => {
   // eslint-disable-next-line babel/new-cap
   const SortableItem = SortableElement(({contents, removeItem, classes}: {
     contents: string,
-    removeItem: (id:string)=>void,
+    removeItem: (id: string) => void,
     classes: ClassesType
   }) => <>
     {renderItem({contents, removeItem, classes})}
@@ -18,7 +18,7 @@ export const makeSortableListComponent = ({renderItem}: {
   // eslint-disable-next-line babel/new-cap
   const SortableList = SortableContainer(({items, removeItem, className, classes}: {
     items: string[],
-    removeItem: (id:string)=>void,
+    removeItem: (id: string) => void,
     className?: string,
     classes: ClassesType
   }) => {
