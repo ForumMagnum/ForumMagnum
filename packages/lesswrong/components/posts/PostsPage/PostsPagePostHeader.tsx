@@ -11,7 +11,7 @@ import { isLWorAF } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
+import { AnnualReviewMarketInfo, PROBABILITY_REVIEW_WINNER_THRESHOLD } from '../../../lib/annualReviewMarkets';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
@@ -440,7 +440,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         </AnalyticsContext>}
       </div>
       <div className={classes.annualReviewMarketInfo}>
-        {annualReviewMarketInfo && !annualReviewMarketInfo.isResolved && 
+        {annualReviewMarketInfo && !annualReviewMarketInfo.isResolved && annualReviewMarketInfo.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD &&
           <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
       </div>
     </div>

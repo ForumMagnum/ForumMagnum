@@ -2,7 +2,7 @@ import moment from 'moment';
 import Notifications from '../../lib/collections/notifications/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
-import { isLWorAF } from '../../lib/instanceSettings';
+import { isLWorAF, reviewUserBotSetting } from '../../lib/instanceSettings';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { userSmallVotePower } from '../../lib/voting/voteTypes';
 import { postPublishedCallback } from '../notificationCallbacks';
@@ -19,6 +19,7 @@ import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
 import { MINIMUM_KARMA_REVIEW_MARKET_CREATION } from '../../lib/annualReviewMarkets';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { createManifoldMarket } from '../posts/annualReviewMarkets';
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
@@ -143,10 +144,6 @@ postPublishedCallback.add(async (publishedPost: DbPost) => {
 // When a vote is cast, if its new karma is above review_market_threshold, create a Manifold
 // on it making top 50 in the review, and create a comment linking to the market.
 
-const manifoldAPIKeySetting = new DatabaseServerSetting<string | null>('manifold.reviewBotKey', null)
-const manifoldAPIKey = manifoldAPIKeySetting.get()
-
-const reviewUserBotSetting = new DatabaseServerSetting<string | null>('reviewBotId', null)
 const reviewUserBot = reviewUserBotSetting.get()
 
 async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
@@ -161,9 +158,7 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
   // Forum gate
   if (!isLWorAF) return;
-
-  if (!manifoldAPIKey) throw new Error("Manifold API key not found");
-  if (!reviewUserBot) throw new Error("Review bot user not found");
+  if (!reviewUserBot) throw new Error("Review bot user not configured");
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
@@ -185,35 +180,13 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   const closeTime = new Date(year + 2, 1, 1) // i.e. february 1st of the next next year (so if year is 2022, feb 1 of 2024)
   const visibility = isProduction ? "public" : "unlisted"
 
-
-  try {
-    const result = await fetch("https://api.manifold.markets/v0/market", {
-      method: "POST",
-      headers: {
-        authorization: `Key ${manifoldAPIKey}`,
-        "content-type": "application/json"
-      },
-      body: JSON.stringify({
-        outcomeType: "BINARY",
-        question: question,
-        descriptionMarkdown: descriptionMarkdown,
-        closeTime: Number(closeTime),
-        visibility: visibility,
-        initialProb: initialProb
-      })
-    })
-
-    const liteMarket = await result.json()
-
-    if (!result.ok) {
-      throw new Error(`HTTP error! status: ${result.status}`);
-    }
+  const liteMarket = await createManifoldMarket(question, descriptionMarkdown, closeTime, visibility, initialProb)
 
     // update the database to include the market id
-    
+
     const reviewTagSlug = 'annual-review-market';
     const reviewYearTagSlug = `annual-review-${year}-market`;
-    
+
     // add the review tags to the post
     const [comment] = await Promise.all([
       makeMarketComment(post._id, year, liteMarket.url, botUser),
@@ -224,11 +197,6 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
   await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
 
-  } catch (error) {
-
-    //eslint-disable-next-line no-console
-    console.error('There was a problem with the fetch operation for creating a Manifold Market: ', error);
-  }
 })
 
 const makeMarketComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser) => {

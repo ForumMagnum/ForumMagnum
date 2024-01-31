@@ -1,7 +1,7 @@
 import schema from './schema';
 import { createCollection } from "../../vulcan-lib";
 import { addUniversalFields } from '../../collectionUtils';
-import { ensureCustomPgIndex } from '../../collectionIndexUtils';
+import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
 
 export const ManifoldProbabilitiesCaches = createCollection({
   collectionName: 'ManifoldProbabilitiesCaches',
@@ -13,10 +13,8 @@ export const ManifoldProbabilitiesCaches = createCollection({
 
 addUniversalFields({collection: ManifoldProbabilitiesCaches});
 
-void ensureCustomPgIndex(`
-  CREATE UNIQUE INDEX IF NOT EXISTS "idx_ManifoldProbabilitiesCaches_manifoldId"
-  ON public."ManifoldProbabilitiesCaches" USING btree
-  ("marketId")
-`);
+void ensureIndex(ManifoldProbabilitiesCaches, {
+  marketId: 1
+}, {unique: true})
 
 export default ManifoldProbabilitiesCaches;

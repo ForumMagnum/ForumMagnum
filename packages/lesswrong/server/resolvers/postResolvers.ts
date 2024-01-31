@@ -19,6 +19,7 @@ import { getLatestRev } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
 import { getPostMarketInfo } from '../posts/annualReviewMarkets';
+import { getWithCustomLoader } from '../../lib/loaders';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -248,7 +249,10 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: 'Float',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-        return (await getPostMarketInfo(post))?.probability
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
+          Promise.all(ids.map(id => Posts.findOne({_id: id}).then(p => !!p ? getPostMarketInfo(p) : undefined)))
+        )
+        return market?.probability
       }
     }
   },
@@ -256,7 +260,10 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: 'Boolean',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-        return (await getPostMarketInfo(post))?.isResolved
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
+          Promise.all(ids.map(id => Posts.findOne({_id: id}).then(p => !!p ? getPostMarketInfo(p) : undefined)))
+        )
+        return market?.isResolved
       }
     }
   },
@@ -264,7 +271,10 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: 'Int',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
-        return (await getPostMarketInfo(post))?.year
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
+          Promise.all(ids.map(id => Posts.findOne({_id: id}).then(p => !!p ? getPostMarketInfo(p) : undefined)))
+        )
+        return market?.year
       }
     }
   },
