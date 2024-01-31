@@ -69,6 +69,11 @@ const getEAKarmaChanges = async (
   };
 }
 
+/**
+ * The the amount of time between two dates to at-most `maxDays` days.
+ * `endDate` is always unchanged, and if the number of days is greater than
+ * `maxDays` the `startDate` will be pulled closer.
+ */
 const limitDateRange = ({startDate, endDate, maxDays}: {
   startDate: Date,
   endDate: Date,
