@@ -102,4 +102,4 @@ client_stats.html
 
 
 # temp
-scripts/keys.ts
+packages/lesswrong/server/scripts/generativeModels/keys.ts
