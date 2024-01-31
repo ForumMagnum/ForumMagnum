@@ -219,6 +219,7 @@ declare global {
       yellow: ColorString,
       recentDiscussionGreen: ColorString,
       recentDiscussionGrey: ColorString,
+      headerKarma: ColorString,
       activeDotOrange: ColorString,
 
       commentsBubble: {

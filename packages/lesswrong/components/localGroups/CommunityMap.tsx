@@ -11,6 +11,7 @@ import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
+import {isFriendlyUI} from '../../themes/forumTheme'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -54,7 +55,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
   mapButtons: {
     alignItems: "flex-end",
     position: "absolute",
-    top: 10,
+    top: isFriendlyUI ? 40 : 10,
     right: 10,
     display: "flex",
     flexDirection: "column",
@@ -180,7 +181,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
         {...viewport}
         width="100%"
         height="100%"
-        mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapStyle={isFriendlyUI ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         onViewportChange={viewport => setViewport(viewport)}
         mapboxApiAccessToken={mapboxAPIKeySetting.get() || undefined}
       >

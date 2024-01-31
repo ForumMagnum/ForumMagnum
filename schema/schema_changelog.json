@@ -523,5 +523,15 @@
     "acceptsSchemaHash": "7dbf024fc86645c003e6ca3f42cf3af5",
     "acceptedByMigration": "20240118T104751.add_PostView_PostViewTimes.ts",
     "timestamp": "2024-01-18T10:47:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8d498c2c299a4fdf9ab47fcb9f045078",
+    "acceptedByMigration": "20240126T225542.unlog_PageCache.ts",
+    "timestamp": "2024-01-26T22:55:42.000Z"
+  },
+  {
+    "acceptsSchemaHash": "bd3603a518355f1cbb6346c93702811d",
+    "acceptedByMigration": "20240129T102321.add_fm_vote_added_emoji_function.ts",
+    "timestamp": "2024-01-29T10:23:21.000Z"
   }
 ]
