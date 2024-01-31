@@ -8,7 +8,6 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { HashLink } from '../../common/HashLink';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useObserver } from '../../hooks/useObserver';
-import { audioIconStyles } from './PostsPagePostHeader';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
