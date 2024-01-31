@@ -1,5 +1,7 @@
-import { imagine_key, openai_key, openai_org } from './keys.ts'
+import { imagine_key, openai_key, openai_org, slack_api_token } from './keys.ts'
 import OpenAI from 'openai'
+import axios from 'axios';
+
 
 const openai = new OpenAI({
   apiKey: openai_key,
@@ -556,7 +558,7 @@ const getElements = async (essay: string) => {
 const prompter = (el: string) => `https://s.mj.run/Bkrf46MPWyo  Aquarelle book cover inspired by topographic river maps and mathematical diagrams and equations. ${el}. Fade to white --no text --ar 8:5 --iw 2.0 --s 250 --chaos 30 --v 6.0`
 
 
-async function go(el: string) {
+async function go(postTitle: string, el: string) {
   let promptResponseData : any;
   // generate the image
   try {
@@ -576,6 +578,9 @@ async function go(el: string) {
     throw error;
   }
 
+  // make a thread here in slack for the post
+  const threadTs = await createThread(`Post title: ${postTitle}\nMidjourney prompt: ${el.substring(0,50)}`);
+
   // check if the image has finished generating
   // let's repeat this code every 5000 milliseconds (5 seconds, set at the bottom)
   const intervalId = setInterval(async function () {
@@ -594,7 +599,10 @@ async function go(el: string) {
       if (responseData.data.status === 'completed' || responseData.data.status === 'failed') {
         // stop repeating
         clearInterval(intervalId);
-        console.log('Completed image detials', responseData.data);
+        console.log('Completed image details', responseData.data);
+        if(threadTs) {
+          await postReply(responseData.data.url, threadTs);
+        }
       } else {
         console.log("Image is not finished generation. Status: ", responseData.data.status)
       }
@@ -606,13 +614,55 @@ async function go(el: string) {
   // TODO: add a check to ensure this does not run indefinitely
 }
 
+const slackToken = slack_api_token
+const channelId = 'C06G79HMK9C';
+
+// Header configuration for the Slack API
+const headers = {
+  'Authorization': `Bearer ${slackToken}`,
+  'Content-Type': 'application/json'
+};
+
+// Function to post a message
+async function postMessage(text: string, threadTs?: string) {
+  const data = {
+    channel: channelId,
+    text: text,
+    ...(threadTs && { thread_ts: threadTs }) // Add thread_ts if provided
+  };
+
+  try {
+    const response = await axios.post('https://slack.com/api/chat.postMessage', data, { headers });
+    return response.data;
+  } catch (error) {
+    console.error('Error posting message:', error);
+  }
+}
+
+// Create a thread by posting a message
+async function createThread(initialText: string) {
+  const response = await postMessage(initialText);
+  
+  if (response && response.ok) {
+    return response.message.ts; // Timestamp of the message, used as thread ID
+  } else {
+    console.error('Failed to create thread:', response);
+  }
+}
+
+// Post a reply to the thread
+async function postReply(text: string, threadTs: string) {
+  await postMessage(text, threadTs);
+}
+
 async function main () {
-  let i = 0
+  let i = 0 // essays.length - 1 // 0
   while (i < essays.length) {
     const elements = await getElements(essays[i])
-    let j = 0
+    const postTitle = essays[i].substring(0,50)
+    let j = 0 // elements.length - 2 // 0
     while (j < elements.length) {
-      await go(elements[j])
+      await go(postTitle, elements[j])
       j++
     }
     i++
