@@ -8,8 +8,7 @@ const openai = new OpenAI({
   organization: openai_org
 })
 
-const llm_prompt = (essay: string) => `
-Please generate 5 phrases, each 1 to 7 words long. They should describe simple concrete objects and  will go in this instruction for an image prompt: "Aquarelle book cover inspired by topographic river maps and mathematical diagrams and equations. [BLANK]. Fade to white"
+const llm_prompt = (essay: string) => `Please generate 5 phrases, each 1 to 7 words long. They should describe simple concrete objects and  will go in this instruction for an image prompt: "Aquarelle book cover inspired by topographic river maps and mathematical diagrams and equations. [BLANK]. Fade to white"
 
 Some examples for other essays would be:
 * "Coins and shaking hands"
@@ -589,7 +588,7 @@ async function go(postTitle: string, el: string) {
       const response = await fetch(`https://cl.imagineapi.dev/items/images/${promptResponseData.data.id}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${imagine_key}`, // <<<< TODO: remember to change this
+          'Authorization': `Bearer ${imagine_key}`,
           'Content-Type': 'application/json'
         }
       })
