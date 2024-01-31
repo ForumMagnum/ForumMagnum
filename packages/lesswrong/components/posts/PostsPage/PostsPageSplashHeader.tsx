@@ -1,27 +1,24 @@
-import React, { FC, MouseEvent, useContext, useEffect, useMemo } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { extractVersionsFromSemver } from '../../../lib/editor/utils'
-import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
-import { isServer } from '../../../lib/executionEnvironment';
-import moment from 'moment';
-import { isLWorAF } from '../../../lib/instanceSettings';
-import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
-import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import { useObserver } from '../../hooks/useObserver';
+import React, { useContext } from 'react';
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from '../../../lib/crud/withMulti';
-import { useHover } from '../../common/withHover';
+import { isLWorAF } from '../../../lib/instanceSettings';
 import { Link } from '../../../lib/reactRouterWrapper';
+import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { HashLink } from '../../common/HashLink';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
-import { PostsAudioPlayerWrapper } from './PostsAudioPlayerWrapper';
+import { useObserver } from '../../hooks/useObserver';
+import { audioIconStyles } from './PostsPagePostHeader';
+import { isFriendlyUI } from '../../../themes/forumTheme';
+
+const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
+// some padding around the icon to make it look like a stateful toggle button
+const PODCAST_ICON_PADDING = isFriendlyUI ? 4 : 2
 
 const styles = (theme: ThemeType) => ({
 // JSS styles
-
+  // ...audioIconStyles(theme),
+  
   root: {
     zIndex: theme.zIndexes.postsPageSplashHeader,
     height: '100vh',
@@ -76,11 +73,12 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-between'
   },
   leftSection: {
-    maxWidth: '600px',
-  },
-  narrowLeftElements: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: 'fit-content',
     maxWidth: '350px',
     textAlign: 'left',
+    marginLeft: 6,
     padding: 8,
     whiteSpace: 'nowrap',
     ...theme.typography.commentStyle,
@@ -91,6 +89,35 @@ const styles = (theme: ThemeType) => ({
     height: 'min-content',
     padding: 8,
     opacity: 0.76
+  },
+  audioPlayerContainer: {
+    [theme.breakpoints.up('sm')]: {
+      width: '480px',
+    }
+  },
+  audioPlayer: {
+    padding: 8,
+    marginLeft: 6,
+  },
+  togglePodcastContainer: {
+    marginTop: 6,
+    color: isFriendlyUI ? undefined : theme.palette.primary.main,
+    height: isFriendlyUI ? undefined : PODCAST_ICON_SIZE,
+  },
+  audioIcon: {
+    width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
+    height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
+    transform: isFriendlyUI ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
+    padding: PODCAST_ICON_PADDING,
+    background: theme.palette.grey[100],
+    opacity: 0.76,
+  },
+  audioIconOn: {
+    background: theme.palette.grey[200],
+    borderRadius: 4
+  },
+  nonhumanAudio: {
+    color: theme.palette.grey[500],
   },
   title: {
     color: 'rgba(0,0,0,0.75)',
@@ -267,21 +294,18 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
     </a>
   </LWTooltip>
 
-  console.log("do we have toggleEmbeddedPlayer?", toggleEmbeddedPlayer)
-
   return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef}>
     <div className={classes.top}>
       <div className={classes.leftSection}>
-        <div className={classes.narrowLeftElements}>
+        {/* <div className={classes.narrowLeftElements}> */}
           <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
             Ranked #2 of 3220 posts in the 2021 Review
           </Link>
           <Link className={classes.reviewNavigationMobile} to="/best-of-lesswrong">
             #2 in 2021 Review
           </Link>
-        </div>
-        {toggleEmbeddedPlayer && audioIcon}
-        <PostsAudioPlayerWrapper post={post} showEmbeddedPlayer={!!showEmbeddedPlayer} />
+          {toggleEmbeddedPlayer && audioIcon}
+        {/* </div> */}
       </div>
       <span className={classes.rightSection}>
         {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
@@ -289,6 +313,12 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
           <PostActionsButton post={post} className={classes.postActionsButton} autoPlace/>
         </AnalyticsContext>}
       </span>
+    </div>
+
+    <div className={classes.audioPlayerContainer}>
+      <div className={classes.audioPlayer}>
+        <PostsAudioPlayerWrapper post={post} showEmbeddedPlayer={!!showEmbeddedPlayer} />
+      </div>
     </div>
 
     <div className={classes.reviewContainer} onMouseLeave={(e) => {

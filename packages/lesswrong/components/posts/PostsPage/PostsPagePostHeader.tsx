@@ -17,7 +17,32 @@ const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
 // some padding around the icon to make it look like a stateful toggle button
 const PODCAST_ICON_PADDING = isFriendlyUI ? 4 : 2
 
+export const audioIconStyles = (theme: ThemeType) => ({
+  togglePodcastContainer: {
+    alignSelf: 'center',
+    color: isFriendlyUI ? undefined : theme.palette.primary.main,
+    height: isFriendlyUI ? undefined : PODCAST_ICON_SIZE,
+  },
+  audioIcon: {
+    width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
+    height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
+    transform: isFriendlyUI ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
+    padding: PODCAST_ICON_PADDING
+  },
+  audioNewFeaturePulse: {
+    top: PODCAST_ICON_PADDING * 1.5,
+  },
+  audioIconOn: {
+    background: theme.palette.grey[200],
+    borderRadius: theme.borderRadius.small
+  },
+  nonhumanAudio: {
+    color: theme.palette.grey[500],
+  }
+});
+
 const styles = (theme: ThemeType): JssStyles => ({
+  ...audioIconStyles(theme),
   header: {
     position: 'relative',
     display:"flex",
@@ -89,24 +114,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     cursor: 'default',
     "@media print": { display: "none" },
   },
-  togglePodcastContainer: {
-    alignSelf: 'center',
-    color: isFriendlyUI ? undefined : theme.palette.primary.main,
-    height: isFriendlyUI ? undefined : PODCAST_ICON_SIZE,
-  },
-  audioIcon: {
-    width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    transform: isFriendlyUI ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
-    padding: PODCAST_ICON_PADDING
-  },
-  audioNewFeaturePulse: {
-    top: PODCAST_ICON_PADDING * 1.5,
-  },
-  audioIconOn: {
-    background: theme.palette.grey[200],
-    borderRadius: theme.borderRadius.small
-  },
+  // togglePodcastContainer: {
+  //   alignSelf: 'center',
+  //   color: isFriendlyUI ? undefined : theme.palette.primary.main,
+  //   height: isFriendlyUI ? undefined : PODCAST_ICON_SIZE,
+  // },
+  // audioIcon: {
+  //   width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
+  //   height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
+  //   transform: isFriendlyUI ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
+  //   padding: PODCAST_ICON_PADDING
+  // },
+  // audioNewFeaturePulse: {
+  //   top: PODCAST_ICON_PADDING * 1.5,
+  // },
+  // audioIconOn: {
+  //   background: theme.palette.grey[200],
+  //   borderRadius: theme.borderRadius.small
+  // },
   actions: {
     color: isFriendlyUI ? undefined : theme.palette.grey[500],
     "&:hover": {
@@ -150,9 +175,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       opacity: 0.5,
     },
   },
-  nonhumanAudio: {
-    color: theme.palette.grey[500],
-  }
 });
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
