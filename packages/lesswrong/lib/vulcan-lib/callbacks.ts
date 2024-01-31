@@ -27,7 +27,7 @@ export class CallbackChainHook<IteratorType,ArgumentsType extends any[]> {
     addCallback(this.name, fn);
   }
   
-  remove = (fn: (doc: IteratorType, ...args: ArgumentsType)=>IteratorType|Promise<IteratorType>|undefined|void) => {
+  remove = (fn: (doc: IteratorType, ...args: ArgumentsType) => IteratorType|Promise<IteratorType>|undefined|void) => {
     removeCallback(this.name, fn);
   }
   
@@ -58,7 +58,7 @@ export class CallbackHook<ArgumentsType extends any[]> {
     this.name = name;
   }
   
-  add = (fn: (...args: ArgumentsType)=>void|Promise<void>) => {
+  add = (fn: (...args: ArgumentsType) => void|Promise<void>) => {
     addCallback(this.name, fn);
   }
   

@@ -83,7 +83,7 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: GraphQLJSON,
       arguments: 'version: String',
-      resolver: async (document: DbPost, args: {version:string}, context: ResolverContext) => {
+      resolver: async (document: DbPost, args: {version: string}, context: ResolverContext) => {
         const { version=null } = args;
         try {
           return await getToCforPost({document, version, context});
@@ -121,7 +121,7 @@ augmentFieldsDict(Posts, {
   },
   mostRecentPublishedDialogueResponseDate: {
     ...denormalizedField({
-      getValue: (post:DbPost) => {
+      getValue: (post: DbPost) => {
         if ((!post.debate && !post.collabEditorDialogue) || post.draft) return null;
         const messageTimestamps = getDialogueMessageTimestamps(post)
         if (messageTimestamps.length === 0) { return null } 

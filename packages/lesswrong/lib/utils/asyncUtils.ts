@@ -5,7 +5,7 @@ import { inspect } from "util";
 /// same order. Filters will be run on array elements in parallel (to the extent async is parallel).
 /// This function assumes that the array is not modified in the background, and that the filter
 /// doesn't care about execution order.
-export const asyncFilter = async <T>(list: Array<T>, filter: (x:T)=>Promise<boolean>): Promise<Array<T>> => {
+export const asyncFilter = async <T>(list: Array<T>, filter: (x: T) => Promise<boolean>): Promise<Array<T>> => {
   const filterPromises: Array<Promise<boolean>> = list.map(filter);
   const filterMatches: Array<boolean> = await Promise.all(filterPromises);
   
@@ -19,14 +19,14 @@ export const asyncFilter = async <T>(list: Array<T>, filter: (x:T)=>Promise<bool
 
 /// Like Array.forEach, but with an async function. Runs the function on elements
 /// sequentially (no parallelism).
-export const asyncForeachSequential = async <T>(list: Array<T>, fn: (x:T,i:number)=>Promise<void>): Promise<void> => {
+export const asyncForeachSequential = async <T>(list: Array<T>, fn: (x: T,i: number) => Promise<void>): Promise<void> => {
   let i=0;
   for (let x of list)
     await fn(x, i++);
 }
 
 /// Like Array.forEach, but with an async function. Runs the function on elements in parallel.
-export const asyncForeachParallel = async <T>(list: Array<T>, fn: (x:T, i:number)=>Promise<void>): Promise<void> => {
+export const asyncForeachParallel = async <T>(list: Array<T>, fn: (x: T, i: number) => Promise<void>): Promise<void> => {
   await Promise.all(list.map((x,i) => fn(x,i)));
 }
 

@@ -163,7 +163,7 @@ const transferServices = async (sourceUser: DbUser, targetUser: DbUser, dryRun: 
   }
 }
 
-Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}:{
+Vulcan.mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
   sourceUserId: string, 
   targetUserId: string, 
   dryRun: boolean

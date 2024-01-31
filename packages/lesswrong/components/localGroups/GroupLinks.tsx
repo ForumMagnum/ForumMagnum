@@ -5,6 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
+import {isFriendlyUI} from '../../themes/forumTheme'
 
 
 // just the "f", used for the FB Group link
@@ -149,7 +150,7 @@ const GroupLinks = ({ document, noMargin, classes }: {
 
   return(
     <div className={classes.root}>
-      {!isEAForum && <div className={noMargin ? classNames(classes.groupTypes, classes.noMargin) : classes.groupTypes}>
+      {!isFriendlyUI && <div className={noMargin ? classNames(classes.groupTypes, classes.noMargin) : classes.groupTypes}>
         {document.types && document.types.map(type => {
           return (
             <Tooltip

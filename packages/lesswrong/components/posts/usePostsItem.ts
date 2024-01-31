@@ -82,7 +82,7 @@ export type PostsItemConfig = {
 
 export type UsePostsItem = ReturnType<typeof usePostsItem>;
 
-const areNewComments = (lastCommentedAt : Date | null, lastVisitedAt: Date | null) => {
+const areNewComments = (lastCommentedAt: Date | null, lastVisitedAt: Date | null) => {
   if (!lastCommentedAt) return false;
   if (!lastVisitedAt) return true;
   return lastVisitedAt < lastCommentedAt;

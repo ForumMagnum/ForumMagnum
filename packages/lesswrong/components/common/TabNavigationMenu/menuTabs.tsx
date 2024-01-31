@@ -1,7 +1,6 @@
 import React from 'react';
 import { communityPath, getAllTagsPath } from '../../../lib/routes';
 import { REVIEW_YEAR } from '../../../lib/reviewUtils';
-import { eaSequencesHomeDescription } from '../../ea-forum/EASequencesHome';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { ForumOptions } from '../../../lib/forumTypeUtils';
 import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../../lib/instanceSettings';
@@ -17,7 +16,6 @@ import Home from '@material-ui/icons/Home'
 import LocalOffer from '@material-ui/icons/LocalOffer';
 import Sort from '@material-ui/icons/Sort'
 import Info from '@material-ui/icons/Info';
-import LocalLibrary from '@material-ui/icons/LocalLibrary';
 import SupervisedUserCircleIcon from '@material-ui/icons/SupervisedUserCircle';
 
 // EA Forum menu icons
@@ -375,14 +373,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       link: getAllTagsPath(),
       iconComponent: LocalOffer,
       tooltip: 'Collaboratively edited Tags and Wiki Articles',
-      showOnMobileStandalone: true,
-      showOnCompressed: true,
-    }, {
-      id: 'library',
-      title: 'Library',
-      link: '/library',
-      iconComponent: LocalLibrary,
-      tooltip: eaSequencesHomeDescription,
       showOnMobileStandalone: true,
       showOnCompressed: true,
     }, {

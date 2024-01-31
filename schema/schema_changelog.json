@@ -530,13 +530,13 @@
     "timestamp": "2024-01-26T22:55:42.000Z"
   },
   {
-    "acceptsSchemaHash": "bf5c33d1f46ea5444810c9f48d5a39f0",
-    "acceptedByMigration": "20240126T233218.add_manifoldMarketFieldsPosts.ts",
-    "timestamp": "2024-01-26T23:32:18.000Z"
+    "acceptsSchemaHash": "bd3603a518355f1cbb6346c93702811d",
+    "acceptedByMigration": "20240129T102321.add_fm_vote_added_emoji_function.ts",
+    "timestamp": "2024-01-29T10:23:21.000Z"
   },
   {
-    "acceptsSchemaHash": "ac7e693c0bf355ca12c2eb99772f93f5",
-    "acceptedByMigration": "20240127T045452.create_ManifoldProbabilitiesCaches_table.ts",
-    "timestamp": "2024-01-27T04:54:52.000Z"
+    "acceptsSchemaHash": "44cc1cc66be79573b597f5f1168df8ec",
+    "acceptedByMigration": "20240131T230552.add_ManifoldProbabilitiesCaches_table_and_annual_review_fields_to_Posts.ts",
+    "timestamp": "2024-01-31T23:05:52.000Z"
   }
 ]

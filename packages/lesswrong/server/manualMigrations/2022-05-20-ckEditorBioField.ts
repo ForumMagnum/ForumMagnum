@@ -9,7 +9,7 @@ registerMigration({
     await forEachDocumentInCollection({
       collection: Users,
       callback: async (user: DbUser) => {
-        type LegacyUserType = DbUser&{bio?:string, htmlBio?:string};
+        type LegacyUserType = DbUser&{bio?: string, htmlBio?: string};
         const legacyUser: LegacyUserType = user as LegacyUserType;
         if (legacyUser.bio && !legacyUser.biography) {
           await Users.rawUpdateOne(

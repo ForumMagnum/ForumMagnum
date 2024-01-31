@@ -153,7 +153,7 @@ const getGraphQLType = <N extends CollectionNameString>(
   }
 };
 
-export type SchemaGraphQLFieldArgument = {name:string, type: string|GraphQLScalarType|null}
+export type SchemaGraphQLFieldArgument = {name: string, type: string|GraphQLScalarType|null}
 export type SchemaGraphQLFieldDescription = {
   description?: string
   name: string

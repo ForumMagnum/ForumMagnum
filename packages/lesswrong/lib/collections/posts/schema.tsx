@@ -26,6 +26,8 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 
+export const READ_WORDS_PER_MINUTE = 250;
+
 const urlHintText = isEAForum
     ? 'UrlHintText'
     : 'Please write what you liked about the post and sample liberally! If the author allows it, copy in the entire post text. (Link-posts without text get far fewer views and most people don\'t click offsite links.)'
@@ -543,7 +545,7 @@ const schema: SchemaType<"Posts"> = {
         1,
         Math.round(typeof readTimeMinutesOverride === "number"
           ? readTimeMinutesOverride
-          : (contents?.wordCount ?? 0) / 250)
+          : (contents?.wordCount ?? 0) / READ_WORDS_PER_MINUTE)
       ),
   }),
 
@@ -941,7 +943,7 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { currentUser } = context;
-      const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
+      const tagRelevanceRecord: Record<string, number> = post.tagRelevance || {}
       const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
       const tags = await loadByIds(context, "Tags", tagIds);
       return await accessFilterMultiple(currentUser, context.Tags, tags, context)
@@ -1118,7 +1120,7 @@ const schema: SchemaType<"Posts"> = {
     group: formGroups.adminOptions,
     control: "select",
     form: {
-      options: ({currentUser}:{currentUser: UsersCurrent}) => {
+      options: ({currentUser}: {currentUser: UsersCurrent}) => {
         const votingSystems = getVotingSystems()
         const filteredVotingSystems = currentUser.isAdmin ? votingSystems : votingSystems.filter(votingSystem => votingSystem.userCanActivate)
         return filteredVotingSystems.map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));

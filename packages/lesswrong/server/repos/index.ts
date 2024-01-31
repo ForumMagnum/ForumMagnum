@@ -8,6 +8,7 @@ import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
 import ElectionVotesRepo from "./ElectionVotesRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
+import NotificationsRepo from "./NotificationsRepo";
 import PageCacheRepo from "./PageCacheRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
@@ -36,9 +37,10 @@ const getAllRepos = () => ({
   electionCandidates: new ElectionCandidatesRepo(),
   electionVotes: new ElectionVotesRepo(),
   localgroups: new LocalgroupsRepo(),
+  notifications: new NotificationsRepo(),
+  postEmbeddings: new PostEmbeddingsRepo(),
   pageCaches: new PageCacheRepo(),
   manifoldProbabilitiesCachesRepo: new ManifoldProbabilitiesCachesRepo(),
-  PostEmbeddingsRepo: new PostEmbeddingsRepo(),
   postRecommendations: new PostRecommendationsRepo(),
   postRelations: new PostRelationsRepo(),
   posts: new PostsRepo(),
@@ -63,6 +65,7 @@ export {
   ElectionVotesRepo,
   LocalgroupsRepo,
   ManifoldProbabilitiesCachesRepo,
+  NotificationsRepo,
   PageCacheRepo,
   PostEmbeddingsRepo,
   PostRecommendationsRepo,

@@ -11,7 +11,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
  * adding additional participants.
  */
 const ConversationTitleEditForm = ({onClose, documentId}: {
-  onClose?: ()=>void,
+  onClose?: () => void,
   documentId: string,
 }) =>{
   return <Components.LWDialog open onClose={onClose}>

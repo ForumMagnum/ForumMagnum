@@ -146,7 +146,7 @@ type paletteView = "listView"|"gridView";
 
 const ReactionsPalette = ({getCurrentUserReactionVote, toggleReaction, quote, classes}: {
   getCurrentUserReactionVote: (name: EmojiReactName, quote: QuoteLocator|null) => VoteOnReactionType|null,
-  toggleReaction: (reactionName: string, quote: QuoteLocator|null)=>void,
+  toggleReaction: (reactionName: string, quote: QuoteLocator|null) => void,
   quote: QuoteLocator|null,
   classes: ClassesType,
 }) => {

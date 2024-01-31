@@ -81,7 +81,7 @@ export async function getPredictionsFromElicit(questionId: string): Promise<null
   return JSON.parse(responseText)
 }
 
-export async function getPredictionDataFromElicit(questionId:string) {
+export async function getPredictionDataFromElicit(questionId: string) {
   const response = await fetch(`${elicitAPIUrl}/binary-questions/${questionId}?${encode({
     "binaryQuestion.fields":"notes,resolvesBy,resolution,title"
   })}`, {

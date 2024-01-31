@@ -14,7 +14,7 @@ const ReplyCommentDialog = ({post, initialHtml, onClose}: {
   post: PostsList,
   initialHtml: string,
   parentComment?: CommentsList,
-  onClose: ()=>void,
+  onClose: () => void,
 }) => {
   const { PopupCommentEditor } = Components;
   

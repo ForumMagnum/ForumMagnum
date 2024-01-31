@@ -10,9 +10,9 @@ declare global {
 
 type PermissionGroups = typeof permissionGroups[number];
 
-type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null)=>boolean);
+type SingleFieldCreatePermission = PermissionGroups | ((user: DbUser|UsersCurrent|null) => boolean);
 type FieldCreatePermissions = SingleFieldCreatePermission|Array<SingleFieldCreatePermission>
-type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any)=>boolean)
+type SingleFieldPermissions = PermissionGroups | ((user: DbUser|UsersCurrent|null, object: any) => boolean)
 type FieldPermissions = SingleFieldPermissions|Array<SingleFieldPermissions>
 
 interface CollectionFieldPermissions {
@@ -38,7 +38,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
     fieldName?: string,
     addOriginalField?: boolean,
     arguments?: string|null,
-    resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext, info?: any)=>any,
+    resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext, info?: any) => any,
   },
   blackbox?: boolean,
   denormalized?: boolean,
