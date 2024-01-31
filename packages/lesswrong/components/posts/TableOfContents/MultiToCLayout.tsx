@@ -10,13 +10,14 @@ const MIN_TOC_WIDTH = 200
 export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
 const TOC_OFFSET_BOTTOM = 64
+const LEFT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1fr';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     display: "grid",
     gridTemplateColumns: `
-      1fr
+      ${LEFT_COLUMN_WIDTH}
       minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
       minmax(0px, ${DEFAULT_TOC_MARGIN}px)
       minmax(min-content, ${MAX_COLUMN_WIDTH}px)
@@ -34,7 +35,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'unset',
     width: 'unset',
     left: -DEFAULT_TOC_MARGIN,
-    marginTop: fullHeightToCEnabled ? undefined : -TOC_OFFSET_TOP,
+    marginTop: fullHeightToCEnabled ? '-100vh' : -TOC_OFFSET_TOP,
     marginBottom: fullHeightToCEnabled ? undefined : -TOC_OFFSET_BOTTOM,
 
     [theme.breakpoints.down('sm')]:{
@@ -42,6 +43,9 @@ const styles = (theme: ThemeType): JssStyles => ({
       marginTop: 0,
       marginBottom: 0,
     },
+  },
+  commentToCMargin: {
+    marginTop: 'unset'
   },
   stickyBlockScroller: {
     position: "sticky",
@@ -103,11 +107,13 @@ export type ToCLayoutSegment = {
   toc?: React.ReactNode,
   centralColumn: React.ReactNode,
   rightColumn?: React.ReactNode,
+  unsetMargin?: boolean,
+  // className?: string,
 };
 
 const MultiToCLayout = ({segments, classes}: {
   segments: ToCLayoutSegment[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const tocVisible = true;
   const gridTemplateAreas = segments
@@ -116,7 +122,7 @@ const MultiToCLayout = ({segments, classes}: {
   return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
     {segments.map((segment,i) => <React.Fragment key={i}>
       {segment.toc && tocVisible && <>
-        <div className={classes.toc} style={{ "gridArea": `toc${i}` }} >
+        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.unsetMargin })} style={{ "gridArea": `toc${i}` }} >
           <div className={classes.stickyBlockScroller}>
             <div className={classes.stickyBlock}>
               {segment.toc}

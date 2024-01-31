@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
 import { useLocation } from '../../../lib/routeUtil';
-import type { AnchorOffset, ToCData, ToCSection, ToCSectionWithOffset } from '../../../lib/tableOfContents';
+import type { ToCSection, ToCSectionWithOffset } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
 import filter from 'lodash/filter';
@@ -35,15 +35,17 @@ export interface ToCDisplayOptions {
 
 const topSection = "top";
 
-const normalizeOffsets = (sections: ToCSectionWithOffset[]) => {
-  const firstSection = sections[0];
+const normalizeOffsets = (sections: ToCSectionWithOffset[]): ToCSectionWithOffset[] => {
+  const titleSection = sections[0];
 
-  const normalizedSections: ToCSectionWithOffset[] = sections.slice(1).map((section, idx) => ({
+  const remainingSections = sections.slice(1);
+
+  const normalizedSections: ToCSectionWithOffset[] = remainingSections.map((section, idx) => ({
     ...section,
-    offset: section.offset - sections[idx].offset
+    offset: section.divider ? (1 - sections[idx].offset) : (section.offset - sections[idx].offset)
   }));
 
-  return [firstSection, ...normalizedSections];
+  return [titleSection, ...normalizedSections];
 }
 
 const isRegularClick = (ev: React.MouseEvent) => {
@@ -51,15 +53,15 @@ const isRegularClick = (ev: React.MouseEvent) => {
   return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
 }
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     left: 0,
     top: 0,
     minHeight: '100vh',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-evenly'
-  }
+    justifyContent: 'space-evenly',
+  },
 })
 
 const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, classes}: {
@@ -67,7 +69,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
   title: string|null,
   onClickSection?: ()=>void,
   displayOptions?: ToCDisplayOptions,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -138,6 +140,8 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
 
   if (sectionsHaveOffsets(filteredSections)) {
     filteredSections = normalizeOffsets(filteredSections);
+  } else if (filteredSections.length === 1) {
+    filteredSections = [{ ...filteredSections[0], offset: 1 }];
   }
 
   function adjustHeadingText(text: string|undefined) {
@@ -148,7 +152,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
       return text.trim();
     }
   }
-
+  // { [classes.headerVisible]: headerVisible }
   return <div className={classes.root}>
     <TableOfContentsRow key="postTitle"
       href="#"
@@ -163,6 +167,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
       }}
       highlighted={currentSection === "above"}
       title
+      fullHeight
     >
       {title?.trim()}
     </TableOfContentsRow>
@@ -184,6 +189,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
             }
           }}
           answer={!!section.answer}
+          fullHeight
         >
           {section.answer
             ? <AnswerTocRow answer={section.answer} />

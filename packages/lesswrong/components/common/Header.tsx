@@ -251,7 +251,7 @@ const Header = ({
     if (!hash) {
       setUnFixed(true);
     }
-  }, [pathname, hash]);
+  }, [pathname, hash, setUnFixed]);
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -410,6 +410,7 @@ const Header = ({
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
           disable={stayAtTop}
+          
         >
           <header className={classNames(classes.appBar, {[classes.appBarDarkBackground]: !!backgroundColor})} style={backgroundColor ? {backgroundColor} : {}}>
             <Toolbar disableGutters={isFriendlyUI}>

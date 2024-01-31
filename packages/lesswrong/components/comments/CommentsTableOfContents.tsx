@@ -80,6 +80,8 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
       }}
       highlighted={highlightedLandmarkName==="above"}
       title
+      fullHeight
+      commentToC
     >
       <span className={classes.postTitle}>
         {post.title?.trim()}

@@ -380,7 +380,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         offset: (sectionHeader as HTMLElement).offsetTop / containerHeight
       }));
 
-      setToCOffsets(anchorOffsets);  
+      setToCOffsets(anchorOffsets);
     }
   }, [toc, setToCOffsets]) //TODO: change on window height change
 
@@ -763,6 +763,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             {
               toc: commentsToC,
               centralColumn: commentsSection,
+              unsetMargin: true
             },
           ]}
         />

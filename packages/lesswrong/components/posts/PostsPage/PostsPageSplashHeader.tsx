@@ -386,7 +386,6 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
     </div>
 
     <div className={classes.reviewContainer} onMouseLeave={(e) => {
-      console.log({...e, target: e.target, currentTarget: e.currentTarget})
       setSelectedReview(null)
     }}>
       {selectedReview && <div className={classes.reviewPreviewContainer}> 

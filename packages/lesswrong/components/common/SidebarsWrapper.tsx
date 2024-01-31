@@ -14,8 +14,10 @@ import isEqual from 'lodash/isEqual';
 type ToCWithTitle = {title: string, sectionData: ToCData};
 type SidebarsContextType = {
   toc: ToCWithTitle|null,
+  tocTitleVisible: boolean,
   setToC: (toc: ToCWithTitle|null)=>void,
   setToCVisible: (visible: boolean)=>void,
+  setToCTitleVisible: (visible: boolean)=>void,
   setToCOffsets: (offsets: AnchorOffset[])=>void,
   sideCommentsActive: boolean,
   setSideCommentsActive: (active: boolean)=>void,
@@ -26,11 +28,11 @@ export const sectionsHaveOffsets = (sections: ToCSection[]): sections is ToCSect
   return sections.some(section => section.offset !== undefined) //TODO: Maybe should be every instead of some
 }
 
-
 const SidebarsWrapper = ({children}: {
   children: React.ReactNode
 }) => {
   const [tocVisible, setTocVisibleState] = useState(true);
+  const [tocTitleVisible, setTocTitleVisibleState] = useState(true);
   const [toc,setToCState] = useState<ToCWithTitle|null>(null);
   const [sideCommentsActive,setSideCommentsActive] = useState(false);
   
@@ -40,15 +42,17 @@ const SidebarsWrapper = ({children}: {
 
   const setToCVisible = useCallback((visible: boolean) => {
     setTocVisibleState(visible);
+  }, []);
+
+  const setToCTitleVisible = useCallback((visible: boolean) => {
+    setTocTitleVisibleState(visible);
   }, [])
 
   const setToCOffsets = useCallback((offsets: AnchorOffset[]) => {
-    console.log("Setting ToC offsets 123", {toc, offsets})
     if (!toc || sectionsHaveOffsets(toc.sectionData.sections)) return;
     
     const newSections = toc.sectionData.sections.map((section) => {
       const anchorOffset = offsets.find((offset) => offset.anchorHref === section.anchor);
-      console.log("Setting ToC offsets 456", {anchorOffset, section})
       return {
         ...section,
         offset: anchorOffset?.offset,
@@ -57,9 +61,7 @@ const SidebarsWrapper = ({children}: {
 
     const newToCState = { ...toc, sectionData: { ...toc.sectionData, sections: newSections } }
 
-    console.log({newToCState, newSections})
     if (!isEqual(newToCState, toc)) {
-      console.log("Setting new ToC state", newToCState, toc);
       setToCState(newToCState);
     }
   }, [toc])
@@ -73,12 +75,14 @@ const SidebarsWrapper = ({children}: {
 
   const sidebarsContext = useMemo((): SidebarsContextType => ({
     toc: tocWithVisibility,
+    tocTitleVisible,
     setToC,
     setToCVisible,
+    setToCTitleVisible,
     setToCOffsets,
     sideCommentsActive,
     setSideCommentsActive,
-  }), [tocWithVisibility, setToC, setToCVisible, setToCOffsets, sideCommentsActive, setSideCommentsActive]);
+  }), [tocWithVisibility, tocTitleVisible, setToC, setToCVisible, setToCTitleVisible, setToCOffsets, sideCommentsActive, setSideCommentsActive]);
 
   return <SidebarsContext.Provider value={sidebarsContext}>
     {children}

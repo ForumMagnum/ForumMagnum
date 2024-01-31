@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { fullHeightToCEnabled } from '../../../lib/betas';
+import { HEADER_HEIGHT } from '../../common/Header';
 
-const sectionOffsetStyling = {
+const sectionOffsetStyling = (fullHeightToCEnabled ? {
   display: 'flex',
-  flexDirection: 'column-reverse'
-};
+  flexDirection: 'column-reverse',
+  top: -1
+} : {});
 
-const styles = (theme: ThemeType): JssStyles => ({
+const TITLE_CONTAINER_CLASS_NAME = 'ToCTitleContainer';
+
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     ...theme.typography.body2,
@@ -41,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingTop: 6,
     paddingBottom: 6,
     color: theme.palette.link.tocLink,
-    lineHeight: "1.2em",
+    lineHeight: fullHeightToCEnabled ? "1em" : "1.2em",
     '&:hover':{
       opacity:1,
       color: theme.palette.link.tocLinkHighlighted,
@@ -71,6 +76,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     '& $link:after': {
       content: `""`
     },
+    ...sectionOffsetStyling,
   },
   level1: {
     paddingLeft: 0,
@@ -93,9 +99,23 @@ const styles = (theme: ThemeType): JssStyles => ({
     paddingLeft: 48,
     ...sectionOffsetStyling,
   },
+  titleContainer: {
+    maxHeight: 200,
+    minHeight: HEADER_HEIGHT,
+    display: 'flex',
+    flexDirection: 'column-reverse',
+    transition: 'opacity 0.4s ease-in-out, max-height 0.4s ease-in-out',
+  },
+  '@global': {
+    // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
+    [`body:has(.headroom--pinned) .${TITLE_CONTAINER_CLASS_NAME}`]: {
+      opacity: 0,
+      maxHeight: HEADER_HEIGHT,
+    } 
+  }
 });
 
-const levelToClassName = (level: number, classes: ClassesType) => {
+const levelToClassName = (level: number, classes: ClassesType<typeof styles>) => {
   switch(level) {
     case 0: return classes.level0;
     case 1: return classes.level1;
@@ -106,33 +126,58 @@ const levelToClassName = (level: number, classes: ClassesType) => {
 }
 
 const TableOfContentsRow = ({
-  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense, offset
+  indentLevel=0, highlighted=false, href, onClick, children, classes, title, divider, answer, dense, offset, fullHeight, commentToC
 }: {
   indentLevel?: number,
   highlighted?: boolean,
   href: string,
   onClick?: (ev: any)=>void,
   children?: React.ReactNode,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   title?: boolean,
   divider?: boolean,
   answer?: boolean,
   dense?: boolean,
+  /**
+   * Used to dynamically set `flex` ratios for the full-height ToC
+   */
   offset?: number,
+  fullHeight?: boolean,
+  commentToC?: boolean,
 }) => {
-  if (divider) {
-    return <Components.TableOfContentsDivider />
-  }
+  const [isPinned, setIsPinned] = useState(true);
+  const rowRef = useRef<HTMLDivElement>(null);
+  
+  const fullHeightTitle = !!(title && fullHeight);
+  const hideTitleContainer = !commentToC ? fullHeightTitle : fullHeightTitle && isPinned;
 
   const offsetStyling = offset !== undefined ? { flex: offset } : undefined;
 
+  useEffect(() => {
+    if (rowRef.current) {
+      window.addEventListener('scroll', updatePinnedState);
+    }
+    return () => window.removeEventListener('scroll', updatePinnedState);
+  }, []);
+
+  const updatePinnedState = () => {
+    const newIsPinned = rowRef.current?.getBoundingClientRect().y === -1;
+    setIsPinned(newIsPinned);
+  };
+
+  if (divider) {
+    return <Components.TableOfContentsDivider offsetStyling={offsetStyling} />
+  }
+  
   return <div
     className={classNames(
       classes.root,
       levelToClassName(indentLevel, classes),
-      { [classes.highlighted]: highlighted }
+      { [classes.titleContainer]: fullHeightTitle, [TITLE_CONTAINER_CLASS_NAME]: hideTitleContainer },
+      { [classes.highlighted]: highlighted },
     )}
     style={offsetStyling}
+    ref={rowRef}
   >
     <a href={href} onClick={onClick} className={classNames(classes.link, {
       [classes.title]: title,
