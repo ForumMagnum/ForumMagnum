@@ -6,8 +6,7 @@ const openai = new OpenAI({
   organization: openai_org
 })
 
-const llm_prompt = (essay: string) => `
-Please generate 5 phrases, each 1 to 7 words long. They should describe simple concrete objects and  will go in this instruction for an image prompt: "Aquarelle book cover inspired by topographic river maps and mathematical diagrams and equations. [BLANK]. Fade to white"
+const llm_prompt = (essay: string) => `Please generate 5 phrases, each 1 to 7 words long. They should describe simple concrete objects and  will go in this instruction for an image prompt: "Aquarelle book cover inspired by topographic river maps and mathematical diagrams and equations. [BLANK]. Fade to white"
 
 Some examples for other essays would be:
 * "Coins and shaking hands"
@@ -33,7 +32,7 @@ I'm here to tell you a story about what it was like to be a rationalist decades 
 My goal in writing this essay is to give the LW community a sense of the prehistory of their movement.  It is not intended to be "where Eliezer got his ideas"; that would be stupidly reductive.  I aim more to exhibit where the drive and spirit of the Yudkowskian reform came from, and the interesting ways in which Eliezer's formative experiences were not unique.
 
 My standing to write this essay begins with the fact that I am roughly 20 years older than Eliezer and read many of his sources before he was old enough to read.  I was acquainted with him over an email list before he wrote the Sequences, though I somehow managed to forget those interactions afterwards and only rediscovered them while researching for this essay. In 2005 he had even sent me a book manuscript to review that covered some of the Sequences topics.
-  
+
 My reaction on reading "The Twelve Virtues of Rationality" a few years later was dual. It was a different kind of writing than the book manuscript - stronger, more individual, taking some serious risks.  On the one hand, I was deeply impressed by its clarity and courage.  On the other hand, much of it seemed very familiar, full of hints and callbacks and allusions to books I knew very well.
 
 Today it is probably more difficult to back-read Eliezer's sources than it was in 2006, because the body of more recent work within his reformation of rationalism tends to get in the way.  I'm going to attempt to draw aside that veil by talking about four specific topics: General Semantics, analytic philosophy, science fiction, and Zen Buddhism.
@@ -584,7 +583,7 @@ async function go(el: string) {
       const response = await fetch(`https://cl.imagineapi.dev/items/images/${promptResponseData.data.id}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${imagine_key}`, // <<<< TODO: remember to change this
+          'Authorization': `Bearer ${imagine_key}`,
           'Content-Type': 'application/json'
         }
       })
