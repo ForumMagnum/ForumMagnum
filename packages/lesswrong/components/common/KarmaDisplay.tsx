@@ -7,11 +7,11 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { commentGetPageUrl } from "../../lib/collections/comments/helpers";
 import { useSingle } from "../../lib/crud/withSingle";
 
-const KarmaDisplay = ({document, placement="left", annualReviewMarketInfo = null, annualReviewMarketCommentId = null}: {
+const KarmaDisplay = ({document, placement="left", annualReviewMarketInfo, annualReviewMarketCommentId}: {
   document: VoteableType,
   placement?: PopperPlacementType,
-  annualReviewMarketInfo? : AnnualReviewMarketInfo | null,
-  annualReviewMarketCommentId? : string | null,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
+  annualReviewMarketCommentId?: string,
 }) => {
   const baseScore = forumTypeSetting.get() === "AlignmentForum"
     ? document.afBaseScore
@@ -21,12 +21,11 @@ const KarmaDisplay = ({document, placement="left", annualReviewMarketInfo = null
     : null;
   const {LWTooltip} = Components;
 
-  const commentId = !!annualReviewMarketCommentId ? annualReviewMarketCommentId : undefined
-
   const {document: comment} = useSingle({
-    documentId: commentId,
+    documentId: annualReviewMarketCommentId,
     collectionName: "Comments",
     fragmentName: "CommentsListWithParentMetadata",
+    skip: !annualReviewMarketCommentId,
   })
 
   return (

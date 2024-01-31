@@ -544,6 +544,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const noIndex = post.noIndex || post.rejected;
 
+  const marketInfo = getMarketInfo(post)
+
   const header = <>
     {!commentId && <>
       <HeadTags
@@ -562,7 +564,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     </>}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">
-      <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(getMarketInfo(post))})}>
+      <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo)})}>
         <div className={classes.centralColumn}>
           {commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={post} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
@@ -579,7 +581,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             showEmbeddedPlayer={showEmbeddedPlayer}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             dialogueResponses={debateResponses} 
-            annualReviewMarketInfo={getMarketInfo(post)}/>
+            annualReviewMarketInfo={marketInfo}/>
         </div>
       </div>
     </AnalyticsContext>

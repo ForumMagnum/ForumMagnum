@@ -73,7 +73,7 @@ export type PostsItemConfig = {
   forceSticky?: boolean,
   showReadCheckbox?: boolean,
   showKarma?: boolean,
-  annualReviewMarketInfo?: AnnualReviewMarketInfo | null,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showMostValuableCheckbox?: boolean,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
@@ -188,7 +188,7 @@ export const usePostsItem = ({
     isSticky: isSticky(post, terms),
   };
 
-  const annualReviewMarketInfo : AnnualReviewMarketInfo | null = getMarketInfo(post)
+  const annualReviewMarketInfo = getMarketInfo(post)
 
   return {
     post,

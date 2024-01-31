@@ -11,7 +11,7 @@ import { isLWorAF } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
+import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
@@ -247,7 +247,7 @@ const CommentsLink: FC<{
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo = null, classes}: {
+const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   answers?: CommentsList[],
   dialogueResponses?: CommentsList[],
@@ -255,7 +255,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,
   hideTags?: boolean,
-  annualReviewMarketInfo?: AnnualReviewMarketInfo | null,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType,
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,

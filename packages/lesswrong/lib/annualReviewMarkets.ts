@@ -8,10 +8,10 @@ export type AnnualReviewMarketInfo = {
   year: number;
 }
 
-export const getMarketInfo = (post: PostsBase): AnnualReviewMarketInfo | null => {
-  if (post.annualReviewMarketProbability == null) return null
-  if (post.annualReviewMarketIsResolved == null) return null
-  if (post.annualReviewMarketYear == null) return null
+export const getMarketInfo = (post: PostsBase): AnnualReviewMarketInfo | undefined => {
+  if (typeof post.annualReviewMarketProbability !== 'number') return undefined
+  if (typeof post.annualReviewMarketIsResolved !== 'boolean') return undefined
+  if (typeof post.annualReviewMarketYear !== 'number') return undefined
   return {
     probability: post.annualReviewMarketProbability,
     isResolved: post.annualReviewMarketIsResolved,
@@ -19,5 +19,5 @@ export const getMarketInfo = (post: PostsBase): AnnualReviewMarketInfo | null =>
   }
 }
 
-export const highlightMarket = (info : AnnualReviewMarketInfo | null) : boolean =>
+export const highlightMarket = (info: AnnualReviewMarketInfo | undefined) : boolean =>
   !!info && !info.isResolved && info.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD
