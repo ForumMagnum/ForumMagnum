@@ -10,6 +10,7 @@ declare global {
     slug?: string
     tagFlagId?: string
     parentTagId?: string
+    _id?: string | string[]
   }
 }
 
@@ -18,7 +19,8 @@ Tags.addDefaultView((terms: TagsViewTerms) => {
     selector: {
       deleted: false,
       adminOnly: false,
-      wikiOnly: false
+      wikiOnly: false,
+      _id: Array.isArray(terms._id) ? {$in: terms._id} : terms._id,
     },
   };
 });

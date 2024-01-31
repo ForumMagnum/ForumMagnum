@@ -2479,6 +2479,7 @@ interface TagOnboarding { // fragment on Tags
   readonly _id: string,
   readonly name: string,
   readonly slug: string,
+  readonly bannerImageId: string,
   readonly squareImageId: string,
 }
 

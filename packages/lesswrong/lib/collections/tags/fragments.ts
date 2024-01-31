@@ -336,6 +336,7 @@ registerFragment(`
     _id
     name
     slug
+    bannerImageId
     squareImageId
   }
 `);

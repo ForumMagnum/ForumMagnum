@@ -7,6 +7,7 @@ import classNames from "classnames";
 const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
+    width: "min-content",
     maxHeight: "80%",
     "& a": {
       textDecoration: "underline",
