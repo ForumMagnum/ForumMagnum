@@ -35,6 +35,7 @@ import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { AnchorOffset } from '../../../lib/tableOfContents';
+import { PostsAudioPlayerWrapper, postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -322,9 +323,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
-  const allowTypeIIIPlayer = isPostAllowedType3Audio(post);
 
-  const toggleEmbeddedPlayer = post.podcastEpisode || allowTypeIIIPlayer ? () => {
+  const toggleEmbeddedPlayer = postHasAudioPlayer(post) ? () => {
+    console.log('player toggled')
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("toggleAudioPlayer", { action });
@@ -472,7 +473,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
     PostBottomRecommendations, NotifyMeDropdownItem, Row,
     AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
-    CommentsListSection, CommentsTableOfContents, PostsPageSplashHeader
+    CommentsListSection, CommentsTableOfContents, PostsPageSplashHeader, PostsAudioPlayerWrapper
   } = Components
 
   useEffect(() => {
@@ -642,11 +643,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const postBodySection =
     <div id="postBody" ref={postBodyRef} className={classes.centralColumn}>
       {/* Body */}
-      {/* The embedded player for posts with a manually uploaded podcast episode */}
-      {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
-        <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
-      </div>}
-      {allowTypeIIIPlayer && <T3AudioPlayer showEmbeddedPlayer={showEmbeddedPlayer} postId={post._id}/>}
+      <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={post}/>
       { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
       {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
         <PostBodyPrefix post={post} query={query}/>
@@ -749,7 +746,11 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {!commentId && !isDebateResponseLink && <PostsPageSplashHeader post={post} />}
+    {!commentId && !isDebateResponseLink && <PostsPageSplashHeader 
+      post={post} 
+      showEmbeddedPlayer={showEmbeddedPlayer} 
+      toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+      />}
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[

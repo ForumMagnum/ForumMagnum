@@ -17,143 +17,13 @@ import { useHover } from '../../common/withHover';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { HashLink } from '../../common/HashLink';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
+import { PostsAudioPlayerWrapper } from './PostsAudioPlayerWrapper';
 
-const styles = (theme: ThemeType): JssStyles => ({
-// CSS version
-//   .PostsPageSplashHeader-root {
-//     height: 100vh;
-//     margin-top: calc(-50px - 64px);
-//     background-image: url(
-//     "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png");
-//     background-size: cover;
-//     /* padding-top: 30vh; */
-//     position: relative;
-//     text-align: center;
-//     display: block;
-//     font-family: warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif;
-// }
-
-// .PostsPageSplashHeader-centralSection {
-//     text-align: center;
-//     padding-top: 35vh;
-//     /* width: max-content; */
-//     /* height: 70vh; */
-//     /* margin-left: auto; */
-//     /* margin-right: auto; */
-//     /* left: 33%; */
-//     display: flex;
-//     flex-direction: column;
-//     position: relative;
-//     /* transform: translateX(-50%); */
-//     color: white;
-//     text-shadow: 0 0 2px BLACK;
-// }
-
-// .PostsPageSplashHeader-leftSection {
-//     max-width: 350px;
-//     /* float: left; */
-//     /* height: 100%; */
-//     text-align: left;
-//     position: absolute;
-//     bottom: 0px;
-//     left: 0px;
-//     /* display: flex; */
-//     /* align-items: flex-end; */
-//     padding: 16px;
-//     /* shape-outside: inset(0 0 0); */
-//     font-family: GreekFallback,Calibri,"Gill Sans","Gill Sans MT",Myriad Pro,Myriad,"Liberation Sans","Nimbus Sans L",Tahoma,Geneva,"Helvetica Neue",Helvetica,Arial,sans-serif;
-// }
-
-// .PostsPageSplashHeader-rightSection {
-//     /* float: right; */
-//     /* width: 350px; */
-//     text-align: right;
-//     /* height: 70vh; */
-//     /* max-width: 350px; */
-//     /* float: right; */
-//     /* height: 70vh; */
-//     /* text-align: left; */
-//     /* display: flex; */
-//     /* align-items: flex-end; */
-//     padding-right: 16px;
-//     padding-bottom: 6px;
-//     /* shape-outside: inset(calc(100% - 300px) 0 0); */
-//     position: absolute;
-//     right: 0px;
-//     bottom: 0px;
-// }
-
-// h1.PostsPageSplashHeader-title {
-//     color: white;
-//     font-size: 3rem;
-//     margin: 0px;
-//     line-height: 1.2;
-// }
-
-// a.PostsPageSplashHeader-reviewNavigation {
-//     font-size: 1.4rem;
-// }
-
-// .PostsPageSplashHeader-author {
-//     font-size: 1.4rem;
-// }
-
-// h4 {}
-
-// .PostsPageSplashHeader-reviews h4 {
-//     font-size: 16px;
-//     color: #c4a454;
-//     margin: 0px;
-//     margin-bottom: 8px;
-// }
-
-// .PostsPageSplashHeader-reviews {}
-
-// .PostsPageSplashHeader-review {
-//     display: flex;
-//     padding: 4px;
-//     border-radius: 4px;
-//     border: 1px solid #c4a454;
-//     background-color: rgba(255,255,255,0.8);
-//     gap: 8px;
-//     white-space: nowrap;
-//     margin-top: 8px;
-//     /* margin-bottom: 8px; */
-//     /* overflow: hidden; */
-// }
-
-// .PostsPageSplashHeader-reviewBody {
-//     text-overflow: ellipsis;
-//     overflow: hidden;
-// }
-
-// .PostsPageSplashHeader-reviewAuthor {
-//     font-weight: 600;
-// }
-
-// .intercom-lightweight-app {
-//     display: none;
-// }
-
-
-// Mobile styles
-
-// h1.PostsPageSplashHeader-title.PostsPageSplashHeader-titleSmaller {
-//   font-size: 2rem;
-// }
-
-// .PostsPageSplashHeader-centralSection {
-//   padding-bottom: 1vh;
-// }
-
-// a.PostsPageSplashHeader-reviewNavigation::before {
-//   content: "#2 in 2021 Review";
-//   font-size: 1rem;
-// }
-
+const styles = (theme: ThemeType) => ({
 // JSS styles
 
   root: {
+    zIndex: theme.zIndexes.postsPageSplashHeader,
     height: '100vh',
     marginTop: 'calc(-50px - 64px)',
     paddingTop: 64,
@@ -206,6 +76,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     justifyContent: 'space-between'
   },
   leftSection: {
+    maxWidth: '600px',
+  },
+  narrowLeftElements: {
     maxWidth: '350px',
     textAlign: 'left',
     padding: 8,
@@ -364,9 +237,9 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,
   hideTags?: boolean,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
-  const { FooterTagList, UsersName, CommentBody, PostActionsButton } = Components;
+  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, ForumIcon, PostsAudioPlayerWrapper } = Components;
   const [visible, setVisible] = React.useState(true);
   const {setToCVisible} = useContext(SidebarsContext)!;
   const transitionHeader = (headerVisibile: boolean) => {
@@ -386,15 +259,29 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
   });
   const [selectedReview, setSelectedReview] = React.useState<CommentsList | null>(null);
 
+  const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF
+
+  const audioIcon = <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio})}>
+    <a href="#" onClick={toggleEmbeddedPlayer}>
+      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
+    </a>
+  </LWTooltip>
+
+  console.log("do we have toggleEmbeddedPlayer?", toggleEmbeddedPlayer)
+
   return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef}>
     <div className={classes.top}>
       <div className={classes.leftSection}>
-        <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
-          Ranked #2 of 3220 posts in the 2021 Review
-        </Link>
-        <Link className={classes.reviewNavigationMobile} to="/best-of-lesswrong">
-          #2 in 2021 Review
-        </Link>
+        <div className={classes.narrowLeftElements}>
+          <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
+            Ranked #2 of 3220 posts in the 2021 Review
+          </Link>
+          <Link className={classes.reviewNavigationMobile} to="/best-of-lesswrong">
+            #2 in 2021 Review
+          </Link>
+        </div>
+        {toggleEmbeddedPlayer && audioIcon}
+        <PostsAudioPlayerWrapper post={post} showEmbeddedPlayer={!!showEmbeddedPlayer} />
       </div>
       <span className={classes.rightSection}>
         {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">

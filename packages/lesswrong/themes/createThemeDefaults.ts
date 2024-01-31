@@ -22,6 +22,7 @@ export const zIndexes = {
   modTopBar: 1, 
   spotlightItem: 1,
   editorPresenceList: 1,
+  postsPageSplashHeader: 1,
   singleColumnSection: 2,
   spotlightItemCloseButton: 2,
   commentsMenu: 2,
