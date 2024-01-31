@@ -89,6 +89,9 @@ ${postGetLink(post, true, false)}
   return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 };
 
+const getSocialImagePreviewPrefix = () =>
+  `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/`;
+
 // Select the social preview image for the post.
 // For events, we use their event image if that is set.
 // For other posts, we use the manually-set cloudinary image if available,
@@ -99,11 +102,22 @@ export const getSocialPreviewImage = (post: DbPost): string => {
   // edit this to support the old field "socialPreviewImageId", which still has the old data
   const manualId = (post.isEvent && post.eventImageId) ? post.eventImageId : post.socialPreview?.imageId
   if (manualId) {
-    return `https://res.cloudinary.com/${cloudinaryCloudNameSetting.get()}/image/upload/c_fill,ar_1.91,g_auto/${manualId}`
+    return getSocialImagePreviewPrefix() + manualId;
   }
   const autoUrl = post.socialPreviewImageAutoUrl
   return autoUrl || ''
 }
+
+export const getSocialPreviewSql = (tablePrefix: string) => `JSON_BUILD_OBJECT(
+  'imageUrl',
+  CASE
+    WHEN ${tablePrefix}."isEvent" AND ${tablePrefix}."eventImageId" IS NOT NULL
+      THEN '${getSocialImagePreviewPrefix()}' || ${tablePrefix}."eventImageId"
+    WHEN ${tablePrefix}."socialPreview"->>'imageId' IS NOT NULL
+      THEN '${getSocialImagePreviewPrefix()}' || (${tablePrefix}."socialPreview"->>'imageId')
+    ELSE COALESCE(${tablePrefix}."socialPreviewImageAutoUrl", '')
+  END
+)`;
 
 // The set of fields required for calling postGetPageUrl. Could be supplied by
 // either a fragment or a DbPost.

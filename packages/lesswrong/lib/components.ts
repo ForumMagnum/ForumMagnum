@@ -89,6 +89,7 @@ importComponent("ProfilePhoto", () => require('../components/messaging/ProfilePh
 importComponent("InboxWrapper", () => require('../components/messaging/InboxWrapper'));
 importComponent("ModeratorInboxWrapper", () => require('../components/messaging/ModeratorInboxWrapper'));
 importComponent("InboxNavigation", () => require('../components/messaging/InboxNavigation'));
+importComponent("MessagesMenuButton", () => require('../components/messaging/MessagesMenuButton'));
 // "Friendly UI" messaging components
 importComponent("FriendlyInbox", () => require('../components/messaging/FriendlyInbox'));
 importComponent("FriendlyInboxNavigation", () => require('../components/messaging/FriendlyInboxNavigation'));
@@ -178,6 +179,12 @@ importComponent("ResyncRssDropdownItem", () => require('../components/dropdowns/
 importComponent("NewFeedButton", () => require('../components/rss/NewFeedButton'));
 //importComponent("EditFeedButton", () => require('../components/rss/EditFeedButton'));
 
+importComponent("NotificationsPage", () => require('../components/notifications/NotificationsPage/NotificationsPage'));
+importComponent("NotificationsPageFeed", () => require('../components/notifications/NotificationsPage/NotificationsPageFeed'));
+importComponent("NotificationsPageEmpty", () => require('../components/notifications/NotificationsPage/NotificationsPageEmpty'));
+importComponent("NotificationsPageItem", () => require('../components/notifications/NotificationsPage/NotificationsPageItem'));
+importComponent("NotificationsPageNotification", () => require('../components/notifications/NotificationsPage/NotificationsPageNotification'));
+importComponent("NotificationsPageKarmaChange", () => require('../components/notifications/NotificationsPage/NotificationsPageKarmaChange'));
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
 importComponent("TagRelNotificationItem", () => require('../components/notifications/TagRelNotificationItem'));

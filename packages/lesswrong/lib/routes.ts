@@ -590,6 +590,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
+      name:'notifications',
+      path:'/notifications',
+      componentName: 'NotificationsPage',
+      title: "Notifications",
+    },
+    {
       name: 'handbook',
       path: '/handbook',
       componentName: 'EAIntroCurriculum',

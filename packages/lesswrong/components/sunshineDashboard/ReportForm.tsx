@@ -28,7 +28,7 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
       <DialogContent>
         <Components.WrappedSmartForm
           collectionName="Reports"
-          mutationFragment={getFragment('unclaimedReportsList')}
+          mutationFragment={getFragment('UnclaimedReportsList')}
           prefilledProps={{
             userId: userId,
             postId: postId,
