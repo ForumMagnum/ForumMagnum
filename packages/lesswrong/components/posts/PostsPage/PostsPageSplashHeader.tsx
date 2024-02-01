@@ -8,11 +8,7 @@ import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { HashLink } from '../../common/HashLink';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useObserver } from '../../hooks/useObserver';
-import { isFriendlyUI } from '../../../themes/forumTheme';
-
-const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
-// some padding around the icon to make it look like a stateful toggle button
-const PODCAST_ICON_PADDING = isFriendlyUI ? 4 : 2
+import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
 const styles = (theme: ThemeType) => ({
 // JSS styles
@@ -84,10 +80,21 @@ const styles = (theme: ThemeType) => ({
   },
   rightSection: {
     display: 'flex',
+    flexDirection: 'column'
+  },
+  rightSectionTopRow: {
+    display: 'flex',
     alignItems: 'flex-start',
     height: 'min-content',
     padding: 8,
     opacity: 0.76
+  },
+  rightSectionBottomRow: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingBottom: 8,
   },
   audioPlayerContainer: {
     [theme.breakpoints.up('sm')]: {
@@ -100,20 +107,24 @@ const styles = (theme: ThemeType) => ({
   },
   togglePodcastContainer: {
     marginTop: 6,
-    color: isFriendlyUI ? undefined : theme.palette.primary.main,
-    height: isFriendlyUI ? undefined : PODCAST_ICON_SIZE,
+    background: theme.palette.grey[200],
+    opacity: 0.76,
+    color: theme.palette.primary.main,
+    height: 28,
+    width: 28,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 4,
   },
   audioIcon: {
-    width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2),
-    transform: isFriendlyUI ? `translateY(${5-PODCAST_ICON_PADDING}px)` : `translateY(-${PODCAST_ICON_PADDING}px)`,
-    padding: PODCAST_ICON_PADDING,
-    background: theme.palette.grey[100],
-    opacity: 0.76,
+    width: 24,
+    height: 24,
+    transform: 'translateY(2px)',
+    padding: 2,
   },
   audioIconOn: {
-    background: theme.palette.grey[200],
-    borderRadius: 4
+    background: theme.palette.grey[400],
   },
   nonhumanAudio: {
     color: theme.palette.grey[500],
@@ -265,7 +276,7 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
   hideTags?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, ForumIcon, PostsAudioPlayerWrapper } = Components;
+  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, ForumIcon, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
   const [visible, setVisible] = React.useState(true);
   const {setToCVisible} = useContext(SidebarsContext)!;
   const transitionHeader = (headerVisibile: boolean) => {
@@ -287,11 +298,13 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
 
   const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF
 
-  const audioIcon = <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio})}>
+  const audioIcon = <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio, [classes.audioIconOn]: showEmbeddedPlayer})}>
     <a href="#" onClick={toggleEmbeddedPlayer}>
-      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {[classes.audioIconOn]: showEmbeddedPlayer})} />
+      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {})} />
     </a>
   </LWTooltip>
+
+  const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
   return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef}>
     <div className={classes.top}>
@@ -306,12 +319,17 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
           {toggleEmbeddedPlayer && audioIcon}
         {/* </div> */}
       </div>
-      <span className={classes.rightSection}>
-        {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
-          <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} />
-          <PostActionsButton post={post} className={classes.postActionsButton} autoPlace/>
-        </AnalyticsContext>}
-      </span>
+      <div className={classes.rightSection}>
+        <AnalyticsContext pageSectionContext="tagHeader">
+          <div className={classes.rightSectionTopRow}>
+            <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} />
+            <PostActionsButton post={post} className={classes.postActionsButton} autoPlace/>
+          </div>
+        </AnalyticsContext>
+        <div className={classes.rightSectionBottomRow}>
+          <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} useHorizontalLayout />
+        </div>
+      </div>
     </div>
 
     <div className={classes.audioPlayerContainer}>

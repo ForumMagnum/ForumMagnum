@@ -325,7 +325,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
 
   const toggleEmbeddedPlayer = postHasAudioPlayer(post) ? () => {
-    console.log('player toggled')
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("toggleAudioPlayer", { action });
