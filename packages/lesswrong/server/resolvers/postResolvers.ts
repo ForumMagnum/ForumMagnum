@@ -20,6 +20,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
 import { getPostMarketInfo } from '../posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
+import { isLWorAF } from '../../lib/instanceSettings';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -249,6 +250,9 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: 'Float',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        if (!isLWorAF) {
+          return 0;
+        }
         const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
           Posts.find({_id: {$in : ids}}).fetch().then(posts => posts.map(getPostMarketInfo))
         )
@@ -260,6 +264,9 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: 'Boolean',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        if (!isLWorAF) {
+          return false;
+        }
         const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
           Posts.find({_id: {$in : ids}}).fetch().then(posts => posts.map(getPostMarketInfo))
         )
@@ -271,6 +278,9 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: 'Int',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        if (!isLWorAF) {
+          return 0;
+        }
         const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
           Posts.find({_id: {$in : ids}}).fetch().then(posts => posts.map(getPostMarketInfo))
         )
