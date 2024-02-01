@@ -10,6 +10,8 @@ import filter from 'lodash/filter';
 import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { sectionsHaveOffsets } from '../../common/SidebarsWrapper';
+import moment from 'moment';
+import { useTimezone } from '../../common/withTimezone';
 
 export interface ToCDisplayOptions {
   /**
@@ -61,18 +63,35 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
+    //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
+    '& .TableOfContentsRow-title': {
+      borderBottom: "none",
+    }
+  },
+  //Use our PostTitle styling with small caps
+  tocTitle: {
+    ...theme.typography.postStyle,
+    ...theme.typography.smallCaps,
+    fontSize: "1.3rem",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  tocPostedAt: {
+    color: theme.palette.link.tocLink
   },
 })
 
-const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, classes}: {
+const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, displayOptions, classes}: {
   tocSections: ToCSection[],
   title: string|null,
+  postedAt?: Date,
   onClickSection?: ()=>void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { timezone } = useTimezone();
   const { query } = location;
 
   const jumpToAnchor = (anchor: string) => {
@@ -153,6 +172,7 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
     }
   }
   // { [classes.headerVisible]: headerVisible }
+
   return <div className={classes.root}>
     <TableOfContentsRow key="postTitle"
       href="#"
@@ -169,7 +189,12 @@ const FixedPositionToc = ({tocSections, title, onClickSection, displayOptions, c
       title
       fullHeight
     >
-      {title?.trim()}
+      <div className={classes.tocTitle}>
+        {title?.trim()}
+      </div>
+      {postedAt && <div className={classes.tocPostedAt}>
+        {moment(new Date(postedAt)).tz(timezone).format("Do MMM YYYY")}
+      </div>}
     </TableOfContentsRow>
     
     {filteredSections.map((section, index) => {
