@@ -72,7 +72,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 interface PostTypeOptions {
   name: ContentTypeString
-  postIsType: (post: PostsBase)=>boolean
+  postIsType: (post: PostsBase) => boolean
   label: string
 }
 
@@ -127,7 +127,7 @@ const PostsTimeBlock = ({
   includeTags=true,
 }: {
   terms: PostsViewTerms,
-  timeBlockLoadComplete: ()=>void,
+  timeBlockLoadComplete: () => void,
   startDate: moment.Moment,
   hideIfEmpty: boolean,
   timeframe: TimeframeType,

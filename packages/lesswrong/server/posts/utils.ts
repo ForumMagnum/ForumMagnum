@@ -11,7 +11,7 @@ export async function getDefaultPostLocationFields(post: DbPost) {
   return {}
 }
 
-export const getDialogueResponseIds = (post:DbPost) => {
+export const getDialogueResponseIds = (post: DbPost) => {
   const html = post.contents.originalContents?.data
   if (!html) return [];
 

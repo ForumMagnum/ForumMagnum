@@ -46,7 +46,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const NewDialogueDialog = ({onClose, classes}: {
-  onClose: ()=>void,
+  onClose: () => void,
   classes: ClassesType,
 }) => {
   const { UserMultiselect, LWDialog, Loading, EAButton } = Components;

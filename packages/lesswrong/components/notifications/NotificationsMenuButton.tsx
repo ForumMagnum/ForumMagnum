@@ -99,7 +99,7 @@ export const styles = (theme: ThemeType) => ({
 
 type NotificationsMenuButtonProps = {
   open: boolean,
-  toggle: ()=>void,
+  toggle: () => void,
   className?: string,
   classes: ClassesType<typeof styles>,
 }

@@ -18,6 +18,8 @@ import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessag
 import { getLatestRev } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
+import { getPostMarketInfo } from '../posts/annualReviewMarkets';
+import { getWithCustomLoader } from '../../lib/loaders';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -81,7 +83,7 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: GraphQLJSON,
       arguments: 'version: String',
-      resolver: async (document: DbPost, args: {version:string}, context: ResolverContext) => {
+      resolver: async (document: DbPost, args: {version: string}, context: ResolverContext) => {
         const { version=null } = args;
         try {
           return await getToCforPost({document, version, context});
@@ -119,7 +121,7 @@ augmentFieldsDict(Posts, {
   },
   mostRecentPublishedDialogueResponseDate: {
     ...denormalizedField({
-      getValue: (post:DbPost) => {
+      getValue: (post: DbPost) => {
         if ((!post.debate && !post.collabEditorDialogue) || post.draft) return null;
         const messageTimestamps = getDialogueMessageTimestamps(post)
         if (messageTimestamps.length === 0) { return null } 
@@ -242,7 +244,40 @@ augmentFieldsDict(Posts, {
         return getDialogueMessageContents(post, dialogueMessageId)
       }
     }
-  }
+  },
+  annualReviewMarketProbability: {
+    resolveAs: {
+      type: 'Float',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
+          Posts.find({_id: {$in : ids}}).fetch().then(posts => posts.map(getPostMarketInfo))
+        )
+        return market?.probability
+      }
+    }
+  },
+  annualReviewMarketIsResolved: {
+    resolveAs: {
+      type: 'Boolean',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
+          Posts.find({_id: {$in : ids}}).fetch().then(posts => posts.map(getPostMarketInfo))
+        )
+        return market?.isResolved
+      }
+    }
+  },
+  annualReviewMarketYear: {
+    resolveAs: {
+      type: 'Int',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
+          Posts.find({_id: {$in : ids}}).fetch().then(posts => posts.map(getPostMarketInfo))
+        )
+        return market?.year
+      }
+    }
+  },
 })
 
 

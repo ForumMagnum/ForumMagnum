@@ -1,27 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useMulti } from '../../../lib/crud/withMulti';
-import { useCurrentUser } from '../../common/withUser';
-import { useLocation } from '../../../lib/routeUtil';
-import { Link } from '../../../lib/reactRouterWrapper';
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { userCanDo } from '../../../lib/vulcan-users/permissions';
-import { userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug } from "../../../lib/collections/users/helpers";
-import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
-import { siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taglineSetting } from '../../../lib/instanceSettings';
-import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../../lib/collections/posts/views'
-import { SORT_ORDER_OPTIONS } from '../../../lib/collections/posts/dropdownOptions';
-import { PROGRAM_PARTICIPATION } from '../../../lib/collections/users/schema';
-import { eaUsersProfileSectionStyles, UserProfileTabType } from './modules/EAUsersProfileTabbedSection';
-import { getUserFromResults } from '../../users/UsersProfile';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { useMulti } from '../../lib/crud/withMulti';
+import { useCurrentUser } from '../common/withUser';
+import { useLocation } from '../../lib/routeUtil';
+import { Link } from '../../lib/reactRouterWrapper';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
+import { userCanDo } from '../../lib/vulcan-users/permissions';
+import { userCanEditUser, userGetDisplayName, userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
+import { getBrowserLocalStorage } from '../editor/localStorageHandlers';
+import {
+  siteNameWithArticleSetting,
+  taggingNameIsSet,
+  taggingNameCapitalSetting,
+  taglineSetting,
+  isEAForum,
+} from '../../lib/instanceSettings'
+import { DEFAULT_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
+import { SORT_ORDER_OPTIONS } from '../../lib/collections/posts/dropdownOptions';
+import { PROGRAM_PARTICIPATION } from '../../lib/collections/users/schema';
+import { eaUsersProfileSectionStyles, UserProfileTabType } from '../ea-forum/users/modules/EAUsersProfileTabbedSection';
+import { getUserFromResults } from './UsersProfile';
 import InfoIcon from '@material-ui/icons/Info'
 import DescriptionIcon from '@material-ui/icons/Description'
 import LibraryAddIcon from '@material-ui/icons/LibraryAdd'
 import Button from '@material-ui/core/Button';
-import { nofollowKarmaThreshold } from '../../../lib/publicSettings';
+import { nofollowKarmaThreshold } from '../../lib/publicSettings';
 import classNames from 'classnames';
-import { getUserStructuredData } from '../../users/UsersSingle';
-import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../../lib/collections/sequences/permissions';
+import { getUserStructuredData } from './UsersSingle';
+import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
 
 const styles = (theme: ThemeType) => ({
   section: {
@@ -163,7 +169,7 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const EAUsersProfile = ({terms, slug, classes}: {
+const FriendlyUsersProfile = ({terms, slug, classes}: {
   terms: UsersViewTerms,
   slug: string,
   classes: ClassesType<typeof styles>,
@@ -442,7 +448,7 @@ const EAUsersProfile = ({terms, slug, classes}: {
     <AnalyticsContext pageContext="userPage">
       <SingleColumnSection>
         <div className={classNames(classes.section, classes.mainSection)}>
-          {userCanEditUser(currentUser, user) &&
+          {isEAForum && userCanEditUser(currentUser, user) &&
             <div className={classes.editProfile}>
               <Button
                 type="submit"
@@ -536,12 +542,12 @@ const EAUsersProfile = ({terms, slug, classes}: {
   </div>
 }
 
-const EAUsersProfileComponent = registerComponent(
-  'EAUsersProfile', EAUsersProfile, {styles}
+const FriendlyUsersProfileComponent = registerComponent(
+  'FriendlyUsersProfile', FriendlyUsersProfile, {styles}
 );
 
 declare global {
   interface ComponentTypes {
-    EAUsersProfile: typeof EAUsersProfileComponent
+    FriendlyUsersProfile: typeof FriendlyUsersProfileComponent
   }
 }

@@ -83,7 +83,7 @@ const SubforumSubforumTab = ({
 
   const { query } = useLocation();
   const currentUser = useCurrentUser();
-  const refetchRef = useRef<null|(()=>void)>(null);
+  const refetchRef = useRef<null|(() => void)>(null);
   const refetch = useCallback(() => {
     if (refetchRef.current)
       refetchRef.current();

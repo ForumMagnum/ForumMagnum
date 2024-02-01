@@ -5,7 +5,7 @@ import { useCurrentUser } from '../../common/withUser';
 
 const EditCommentDropdownItem = ({comment, showEdit}: {
   comment: CommentsList,
-  showEdit: ()=>void,
+  showEdit: () => void,
 }) => {
   const currentUser = useCurrentUser();
 

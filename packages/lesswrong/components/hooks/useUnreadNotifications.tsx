@@ -14,7 +14,7 @@ import type { NotificationCountsResult } from '../../lib/collections/notificatio
  * prior to React hydration.
  */
 type ServerSentEventsAPI = {
-  setServerSentEventsActive: ((active:boolean)=>void)|null
+  setServerSentEventsActive: ((active: boolean) => void)|null
 }
 export const serverSentEventsAPI: ServerSentEventsAPI = {
   setServerSentEventsActive: null,
@@ -213,7 +213,7 @@ export const UnreadNotificationsContextProvider: FC<{
 
 export const useUnreadNotifications = () => useContext(unreadNotificationsContext);
 
-export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (message: ServerSentEventsMessage)=>void) => {
+export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (message: ServerSentEventsMessage) => void) => {
   useEffect(() => {
     if (!currentUser)
       return;
@@ -260,7 +260,7 @@ function setFaviconBadge(notificationCount: number) {
   }
 }
 
-let notificationEventListeners: Array<(message: ServerSentEventsMessage)=>void> = [];
+let notificationEventListeners: Array<(message: ServerSentEventsMessage) => void> = [];
 
 export function onServerSentNotificationEvent(message: ServerSentEventsMessage) {
   for (let listener of [...notificationEventListeners]) {

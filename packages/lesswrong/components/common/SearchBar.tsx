@@ -104,7 +104,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
-  onSetIsActive: (active:boolean)=>void,
+  onSetIsActive: (active: boolean) => void,
   searchResultsArea: any,
   classes: ClassesType
 }) => {

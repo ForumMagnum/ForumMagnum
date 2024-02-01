@@ -194,7 +194,7 @@ export const getKarmaChanges = async ({user, startDate, endDate, nextBatchDate=n
   };
 }
 
-const mapTagIdsToMetadata = async (tagIds: Array<string>, context: ResolverContext|undefined): Promise<Record<string,{slug:string, name:string}>> => {
+const mapTagIdsToMetadata = async (tagIds: Array<string>, context: ResolverContext|undefined): Promise<Record<string,{slug: string, name: string}>> => {
   const mapping: Record<string,{slug: string, name: string}> = {};
   await Promise.all(tagIds.map(async (tagId: string) => {
     const tag = context
@@ -215,7 +215,7 @@ export function getKarmaChangeDateRange({settings, now, lastOpened=null, lastBat
   now: Date,
   lastOpened?: Date|null,
   lastBatchStart?: Date|null,
-}): null|{start:any, end:any}
+}): null|{start: any, end: any}
 {
   // Greatest date prior to lastOpened at which the time of day matches
   // settings.timeOfDay.

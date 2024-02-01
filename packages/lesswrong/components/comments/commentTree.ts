@@ -57,7 +57,7 @@ export interface CommentTreeOptions {
    * Refetch whatever query generated this comment tree. Called after
    * replying to or editing a comment..
    */
-  refetch?: ()=>void,
+  refetch?: () => void,
   
   /**
    * If passed, expanding this comment (from single-line or truncated)
@@ -138,7 +138,7 @@ export interface CommentTreeOptions {
    * If provided, Reply buttons are replaced with something else. Used
    * in side-comments, to replace Reply with See In Context.
    */
-  replaceReplyButtonsWith?: (comment: CommentsList|CommentsListWithParentMetadata,)=>ReactNode
+  replaceReplyButtonsWith?: (comment: CommentsList|CommentsListWithParentMetadata,) => ReactNode
   
   /**
    * Which comment in the tree is moderated, if any.

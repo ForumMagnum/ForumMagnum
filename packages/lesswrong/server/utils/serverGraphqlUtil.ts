@@ -23,7 +23,7 @@ export const defineQuery = ({name, resultType, argTypes=null, schema=null, fn}: 
   resultType: string,
   argTypes?: string|null,
   schema?: string|null,
-  fn: (root: any, args: any, context: ResolverContext)=>any,
+  fn: (root: any, args: any, context: ResolverContext) => any,
 }) => {
   if (schema) {
     addGraphQLSchema(schema);
@@ -43,7 +43,7 @@ export const defineMutation = ({name, resultType, argTypes=null, schema=null, fn
   resultType: string,
   argTypes?: string|null,
   schema?: string|null,
-  fn: (root: any, args: any, context: ResolverContext)=>any,
+  fn: (root: any, args: any, context: ResolverContext) => any,
 }) => {
   if (schema) {
     addGraphQLSchema(schema);

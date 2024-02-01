@@ -18,7 +18,7 @@ const styles = (_: ThemeType): JssStyles => ({
 const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   before: string,
   after: string,
-  reportEmpty: ()=>void,
+  reportEmpty: () => void,
   classes: ClassesType
 }) => {
   const { ContentType, SingleLineTagUpdates, LoadMore } = Components;

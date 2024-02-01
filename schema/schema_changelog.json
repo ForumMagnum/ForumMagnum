@@ -533,5 +533,10 @@
     "acceptsSchemaHash": "bd3603a518355f1cbb6346c93702811d",
     "acceptedByMigration": "20240129T102321.add_fm_vote_added_emoji_function.ts",
     "timestamp": "2024-01-29T10:23:21.000Z"
+  },
+  {
+    "acceptsSchemaHash": "44cc1cc66be79573b597f5f1168df8ec",
+    "acceptedByMigration": "20240131T230552.add_ManifoldProbabilitiesCaches_table_and_annual_review_fields_to_Posts.ts",
+    "timestamp": "2024-01-31T23:05:52.000Z"
   }
 ]

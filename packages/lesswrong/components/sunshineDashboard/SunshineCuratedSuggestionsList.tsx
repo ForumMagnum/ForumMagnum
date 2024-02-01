@@ -32,7 +32,7 @@ const shouldShow = (belowFold: boolean, curatedDate: Date, currentUser: UsersCur
   }
 }
 
-const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }:{
+const SunshineCuratedSuggestionsList = ({ terms, belowFold, classes }: {
   terms: PostsViewTerms,
   belowFold?: boolean,
   classes: ClassesType,

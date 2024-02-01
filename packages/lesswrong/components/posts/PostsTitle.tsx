@@ -137,7 +137,7 @@ const PostsTitle = ({
   Wrapper=DefaultWrapper,
   linkEventProps,
   className,
-}:{
+}: {
   post: PostsBase|PostsListBase,
   postLink?: string,
   classes: ClassesType,
