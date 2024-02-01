@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
@@ -6,6 +6,7 @@ import { useLocation } from '../../../lib/routeUtil';
 import type { ToCSection, ToCSectionWithOffset } from '../../../lib/tableOfContents';
 import qs from 'qs'
 import isEmpty from 'lodash/isEmpty';
+import isEqual from 'lodash/isEqual';
 import filter from 'lodash/filter';
 import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
@@ -37,23 +38,32 @@ export interface ToCDisplayOptions {
 
 const topSection = "top";
 
-const normalizeOffsets = (sections: ToCSectionWithOffset[]): ToCSectionWithOffset[] => {
-  const titleSection = sections[0];
+const normalizeOffsets = (sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] => {
+  const titleSection: ToCSectionWithOffset = { ...sections[0], offset: sections[0].offset ?? 0 };
 
   const remainingSections = sections.slice(1);
 
   const normalizedSections: ToCSectionWithOffset[] = remainingSections.map((section, idx) => ({
     ...section,
-    offset: section.divider ? (1 - sections[idx].offset) : (section.offset - sections[idx].offset)
+    offset: section.divider ? (1 - (sections[idx].offset ?? 0)) : ((section.offset ?? 0) - (sections[idx].offset ?? 0))
   }));
 
   return [titleSection, ...normalizedSections];
-}
+};
 
 const isRegularClick = (ev: React.MouseEvent) => {
   if (!ev) return false;
   return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
-}
+};
+
+const adjustHeadingText = (text: string|undefined, displayOptions?: ToCDisplayOptions) => {
+  if (!text) return "";
+  if (displayOptions?.downcaseAllCapsHeadings) {
+    return downcaseIfAllCaps(text.trim());
+  } else {
+    return text.trim();
+  }
+};
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -94,6 +104,8 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   const { timezone } = useTimezone();
   const { query } = location;
 
+  const [normalizedSections, setNormalizedSections] = useState<ToCSectionWithOffset[]>([]);
+
   const jumpToAnchor = (anchor: string) => {
     if (isServer) return;
 
@@ -132,9 +144,6 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     },
   ]);
 
-  if (!tocSections)
-    return <div/>
-
   const handleClick = async (ev: React.SyntheticEvent, jumpToSection: () => void): Promise<void> => {
     ev.preventDefault();
     if (onClickSection) {
@@ -157,21 +166,46 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     filteredSections = sectionsWithAnswersSorted(filteredSections, answersSorting);
   }
 
+  useEffect(() => {
+    const postBodyRef = document.getElementById('postBody');
+    if (!postBodyRef) return;
+
+    //Get all elements with href corresponding to anchors from the table of contents
+    const postBodyBlocks = postBodyRef.querySelectorAll('[id]');
+    const sectionHeaders = Array.from(postBodyBlocks).filter(block => filteredSections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
+    
+    const parentContainer = sectionHeaders[0]?.parentElement;
+    if (parentContainer) {
+      const containerHeight = parentContainer.getBoundingClientRect().height;
+
+      const anchorOffsets = sectionHeaders.map(sectionHeader => ({
+        anchorHref: sectionHeader.getAttribute('id'), 
+        offset: (sectionHeader as HTMLElement).offsetTop / containerHeight
+      }));
+
+      const sectionsWithOffsets = filteredSections.map((section) => {
+        const anchorOffset = anchorOffsets.find((anchorOffset) => anchorOffset.anchorHref === section.anchor);
+        return {
+          ...section,
+          offset: anchorOffset?.offset,
+        };
+      });
+
+      const newNormalizedSections = normalizeOffsets(sectionsWithOffsets);
+      if (!isEqual(normalizedSections, newNormalizedSections)) {
+        setNormalizedSections(newNormalizedSections);
+      }
+    }
+  }, [filteredSections, normalizedSections]);
+
   if (sectionsHaveOffsets(filteredSections)) {
     filteredSections = normalizeOffsets(filteredSections);
   } else if (filteredSections.length === 1) {
     filteredSections = [{ ...filteredSections[0], offset: 1 }];
   }
 
-  function adjustHeadingText(text: string|undefined) {
-    if (!text) return "";
-    if (displayOptions?.downcaseAllCapsHeadings) {
-      return downcaseIfAllCaps(text.trim());
-    } else {
-      return text.trim();
-    }
-  }
-  // { [classes.headerVisible]: headerVisible }
+  if (!tocSections)
+    return <div/>
 
   return <div className={classes.root}>
     <TableOfContentsRow key="postTitle"
@@ -197,7 +231,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
       </div>}
     </TableOfContentsRow>
     
-    {filteredSections.map((section, index) => {
+    {normalizedSections.map((section, index) => {
       return (
         <TableOfContentsRow
           key={section.anchor}

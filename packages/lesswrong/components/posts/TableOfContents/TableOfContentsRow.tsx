@@ -100,7 +100,7 @@ const styles = (theme: ThemeType) => ({
   },
   titleContainer: {
     maxHeight: 200,
-    minHeight: HEADER_HEIGHT,
+    minHeight: 70,
     display: 'flex',
     flexDirection: 'column-reverse',
     transition: 'opacity 0.4s ease-in-out, max-height 0.4s ease-in-out',
@@ -109,7 +109,7 @@ const styles = (theme: ThemeType) => ({
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${TITLE_CONTAINER_CLASS_NAME}`]: {
       opacity: 0,
-      maxHeight: HEADER_HEIGHT,
+      maxHeight: 70,
     } 
   }
 });

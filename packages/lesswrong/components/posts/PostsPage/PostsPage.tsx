@@ -372,26 +372,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     readingProgressBarRef.current.style.setProperty("--scrollAmount", `${scrollPercent}%`)
   }
 
-  useEffect(() => {
-    if (!postBodyRef.current) return;
-
-    //Get all elements with href corresponding to anchors from the table of contents
-    const postBodyBlocks = postBodyRef.current.querySelectorAll('[id]');
-    const sectionHeaders = Array.from(postBodyBlocks).filter(block => toc?.sectionData.sections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
-    
-    const parentContainer = sectionHeaders[0]?.parentElement;
-    if (parentContainer) {
-      const containerHeight = parentContainer.getBoundingClientRect().height;
-
-      const anchorOffsets = sectionHeaders.map(sectionHeader => ({
-        anchorHref: sectionHeader.getAttribute('id'), 
-        offset: (sectionHeader as HTMLElement).offsetTop / containerHeight
-      }));
-
-      setToCOffsets(anchorOffsets);
-    }
-  }, [toc, setToCOffsets]) //TODO: change on window height change
-
   const getSequenceId = () => {
     const { params } = location;
     return params.sequenceId || post?.canonicalSequenceId;
