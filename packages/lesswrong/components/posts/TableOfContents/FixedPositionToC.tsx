@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
     '& .TableOfContentsRow-title': {
       borderBottom: "none",
-    }
+    },
   },
   //Use our PostTitle styling with small caps
   tocTitle: {
