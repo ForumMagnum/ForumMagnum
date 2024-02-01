@@ -39,7 +39,7 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
      */
     private collection: CollectionBase<N>,
     /**
-     * Fragments are can be used recursively such that one contains another.
+     * Fragments can be used recursively such that one contains another.
      * `ProjectionContext` corresponds to exactly _one_ fragment and contains
      * no recursion internally. If this `ProjectionContext` is the top level
      * context correspoding to the actual fragment the user requested then this
@@ -49,15 +49,19 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
      * calling the `aggregate` method on the top-level context with the
      * sub-context as an argument.
      */
-    aggregate?: {prefix: string, argOffset: number},
+    aggregateDefinition?: {prefix: string, argOffset: number},
+    /**
+     * Generator for table perfixes - this is only configurable to make
+     * testing easier and should generally be left undefined for real code.
+     */
     private prefixGenerator?: PrefixGenerator,
   ) {
-    const seed = collection.collectionName + (aggregate?.prefix ?? "");
+    const seed = collection.collectionName + (aggregateDefinition?.prefix ?? "");
     this.randIntCallback = seededRandInt(seed);
 
-    if (aggregate) {
-      this.primaryPrefix = aggregate.prefix;
-      this.argOffset = aggregate.argOffset;
+    if (aggregateDefinition) {
+      this.primaryPrefix = aggregateDefinition.prefix;
+      this.argOffset = aggregateDefinition.argOffset;
       this.isAggregate = true;
     } else {
       this.primaryPrefix = collection.getTable().getName()[0].toLowerCase();
