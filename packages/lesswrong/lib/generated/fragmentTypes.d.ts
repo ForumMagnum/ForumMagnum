@@ -848,7 +848,7 @@ interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly curatedOrder: number,
   readonly reviewRanking: number,
   readonly isAI: boolean,
-  readonly splashArtImageId: string | null,
+  readonly splashArtImageUrl: string | null,
 }
 
 interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators

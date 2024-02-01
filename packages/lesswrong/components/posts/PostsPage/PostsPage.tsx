@@ -324,7 +324,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
 
   // Must be a review winner that has splash art
-  const showSplashPageHeader = !!post.reviewWinner?.splashArtImageId; 
+  const showSplashPageHeader = !!post.reviewWinner?.splashArtImageUrl; 
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 

@@ -977,7 +977,7 @@ interface DbReviewWinner extends DbObject {
   curatedOrder: number
   reviewRanking: number
   isAI: boolean
-  splashArtImageId: string | null
+  splashArtImageUrl: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
