@@ -18,3 +18,4 @@ class ManifoldProbabilitiesCachesRepo extends AbstractRepo<"ManifoldProbabilitie
 }
 
 export default ManifoldProbabilitiesCachesRepo;
+

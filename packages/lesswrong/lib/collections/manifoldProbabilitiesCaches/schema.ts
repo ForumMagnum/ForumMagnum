@@ -1,4 +1,4 @@
-const schema : SchemaType<"ManifoldProbabilitiesCaches"> = {
+const schema: SchemaType<"ManifoldProbabilitiesCaches"> = {
   marketId: {
     type: String,
     optional: false,
