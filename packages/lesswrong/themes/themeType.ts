@@ -403,6 +403,7 @@ declare global {
       activeProgress: ColorString,
       progressBar: ColorString,
       adminButton: ColorString,
+      winner: ColorString,
     },
     background: {
       default: ColorString

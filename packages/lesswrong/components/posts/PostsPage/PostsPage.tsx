@@ -33,6 +33,7 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import isEqual from 'lodash/isEqual';
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -191,6 +192,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 32,
     [theme.breakpoints.down('sm')]: {
       marginBottom: theme.spacing.titleDividerSpacing,
+    }
+  },
+  titleWithMarket: {
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 35,
     }
   },
   centralColumn: {
@@ -538,6 +544,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const noIndex = post.noIndex || post.rejected;
 
+  const marketInfo = getMarketInfo(post)
+
   const header = <>
     {!commentId && <>
       <HeadTags
@@ -556,7 +564,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     </>}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">
-      <div className={classes.title}>
+      <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo)})}>
         <div className={classes.centralColumn}>
           {commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={post} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
@@ -572,7 +580,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-            dialogueResponses={debateResponses} />
+            dialogueResponses={debateResponses} 
+            annualReviewMarketInfo={marketInfo}/>
         </div>
       </div>
     </AnalyticsContext>

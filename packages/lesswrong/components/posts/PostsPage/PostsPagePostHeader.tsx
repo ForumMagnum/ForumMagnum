@@ -11,6 +11,7 @@ import { isLWorAF } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
@@ -152,7 +153,26 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   nonhumanAudio: {
     color: theme.palette.grey[500],
-  }
+  },
+  headerFooter: { 
+    display: 'flex',
+    justifyContent: 'space-between',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+    },
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  tagSection: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+  },
+  annualReviewMarketInfo: {
+    justifyContent: 'center',
+    alignItems: 'right',
+    },
 });
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
@@ -227,7 +247,7 @@ const CommentsLink: FC<{
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
+const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   answers?: CommentsList[],
   dialogueResponses?: CommentsList[],
@@ -235,12 +255,13 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   toggleEmbeddedPlayer?: () => void,
   hideMenu?: boolean,
   hideTags?: boolean,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType,
 }) => {
   const {PostsPageTitle, PostsAuthors, LWTooltip, PostsPageDate, CrosspostHeaderIcon,
     PostActionsButton, PostsVote, PostsGroupDetails, PostsTopSequencesNav,
     PostsPageEventData, FooterTagList, AddToCalendarButton, BookmarkButton,
-    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton} = Components;
+    NewFeaturePulse, ForumIcon, GroupLinks, SharePostButton, PostsAnnualReviewMarketTag} = Components;
   const [cookies, setCookie] = useCookiesWithConsent([PODCAST_TOOLTIP_SEEN_COOKIE]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const cachedTooltipSeen = useMemo(() => cookies[PODCAST_TOOLTIP_SEEN_COOKIE], []);
@@ -411,9 +432,18 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         <PostsVote post={post} />
       </div>}
     </div>
-    {!post.shortform && !post.isEvent && !hideTags && <AnalyticsContext pageSectionContext="tagHeader">
-      <FooterTagList post={post} hideScore allowTruncate />
-    </AnalyticsContext>}
+    <div className={classes.headerFooter}>
+      <div className={classes.tagSection}>
+        {!post.shortform && !post.isEvent && !hideTags && 
+        <AnalyticsContext pageSectionContext="tagHeader">
+          <FooterTagList post={post} hideScore allowTruncate overrideMargins={true}/>
+        </AnalyticsContext>}
+      </div>
+      <div className={classes.annualReviewMarketInfo}>
+        {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) &&
+          <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
+      </div>
+    </div>
     {post.isEvent && <PostsPageEventData post={post}/>}
   </>
 }

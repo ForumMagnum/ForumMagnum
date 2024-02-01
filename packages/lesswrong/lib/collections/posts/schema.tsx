@@ -756,6 +756,31 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
   },
 
+  manifoldReviewMarketId: {
+    type: String,
+    nullable: true,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: !isLWorAF
+  },
+
+  annualReviewMarketCommentId: {
+    ...foreignKeyField({
+      idFieldName: 'annualReviewMarketCommentId',
+      resolverName: 'comment',
+      collectionName: 'Comments',
+      type: 'Comment',
+      nullable: true
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: !isLWorAF
+  },
+
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
   reviewVoteScoreAF: {
     type: Number, 
@@ -860,6 +885,32 @@ const schema: SchemaType<"Posts"> = {
   'finalReviewVotesAF.$': {
     type: Number,
     optional: true,
+  },
+
+
+  annualReviewMarketProbability: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+  annualReviewMarketIsResolved: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+  annualReviewMarketYear: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
   },
 
   lastCommentPromotedAt: {
