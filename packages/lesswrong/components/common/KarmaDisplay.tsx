@@ -21,6 +21,7 @@ const KarmaDisplay = ({document, placement="left", annualReviewMarketInfo, annua
     : null;
   const {LWTooltip} = Components;
 
+  // TODO: See if we can refactor after #8314 gets merged in
   const {document: comment} = useSingle({
     documentId: annualReviewMarketCommentId,
     collectionName: "Comments",

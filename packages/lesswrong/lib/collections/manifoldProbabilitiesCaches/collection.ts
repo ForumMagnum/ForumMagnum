@@ -1,7 +1,7 @@
 import schema from './schema';
 import { createCollection } from "../../vulcan-lib";
 import { addUniversalFields } from '../../collectionUtils';
-import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
+import { ensureIndex } from '../../collectionIndexUtils';
 
 export const ManifoldProbabilitiesCaches = createCollection({
   collectionName: 'ManifoldProbabilitiesCaches',
@@ -13,7 +13,7 @@ export const ManifoldProbabilitiesCaches = createCollection({
 
 addUniversalFields({collection: ManifoldProbabilitiesCaches});
 
-void ensureIndex(ManifoldProbabilitiesCaches, {
+ensureIndex(ManifoldProbabilitiesCaches, {
   marketId: 1
 }, {unique: true})
 
