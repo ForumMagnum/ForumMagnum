@@ -762,7 +762,8 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     canRead: ['guests'],
     canCreate: ['admins'],
-    canUpdate: ['admins']
+    canUpdate: ['admins'],
+    hidden: !isLWorAF
   },
 
   annualReviewMarketCommentId: {
@@ -776,7 +777,8 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     canRead: ['guests'],
     canCreate: ['admins'],
-    canUpdate: ['admins']
+    canUpdate: ['admins'],
+    hidden: !isLWorAF
   },
 
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
@@ -890,21 +892,24 @@ const schema: SchemaType<"Posts"> = {
     type: Number,
     optional: true,
     nullable: true,
-    canRead: ['guests']
+    canRead: ['guests'],
+    hidden: !isLWorAF
     // Implementation in postResolvers.ts
   },
   annualReviewMarketIsResolved: {
     type: Boolean,
     optional: true,
     nullable: true,
-    canRead: ['guests']
+    canRead: ['guests'],
+    hidden: !isLWorAF
     // Implementation in postResolvers.ts
   },
   annualReviewMarketYear: {
     type: Number,
     optional: true,
     nullable: true,
-    canRead: ['guests']
+    canRead: ['guests'],
+    hidden: !isLWorAF
     // Implementation in postResolvers.ts
   },
 
