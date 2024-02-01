@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, getOutgoingUrl, registerComponent } from '../../lib/vulcan-lib';
 import { captureException }from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { rawExtractElementChildrenToReactComponent, reduceRangeToText, splitRangeIntoReplaceableSubRanges, wrapRangeWithSpan } from '../../lib/utils/rawDom';
+import { withTracking } from '../../lib/analyticsEvents';
 
 interface ExternalProps {
   /**
@@ -61,7 +62,7 @@ export type ContentReplacedSubstringComponent = (props: {
   children: React.ReactNode
 }) => React.ReactNode;
 
-interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps {}
+interface ContentItemBodyProps extends ExternalProps, WithStylesProps, WithUserProps, WithLocationProps, WithTrackingProps {}
 interface ContentItemBodyState {
   updatedElements: boolean,
   renderIndex: number
@@ -348,20 +349,24 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.replaceElement(strawpollBlock, replacementElement)
     }
   }
-  
+
+  /**
+   * CTA buttons added in ckeditor need the following things doing to make them fully functional:
+   * - Convert data-href to href
+   * - Add analytics to button clicks
+   */
   addCTAButtonEventListeners = (element: HTMLElement) => {
     const ctaButtons = element.getElementsByClassName('ck-cta-button');
     for (let i = 0; i < ctaButtons.length; i++) {
       const button = ctaButtons[i] as HTMLAnchorElement;
       const dataHref = button.getAttribute('data-href');
       if (dataHref) {
-        button.setAttribute('href', dataHref);
+        button.setAttribute('href', getOutgoingUrl(dataHref));
       }
-      button.addEventListener('click', (event) => {
-        console.log('CTA button clicked!');
-        // If you want to prevent the default link behavior, uncomment the next line:
-        event.preventDefault();
-      });
+      button.addEventListener('click', () => {
+        // Note: there is some concern about this 
+        this.props.captureEvent("ctaButtonClicked", {href: dataHref})
+      })
     }
   }
 
@@ -448,6 +453,8 @@ const addNofollowToHTML = (html: string): string => {
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
   // This component can't have HoCs because it's used with a ref, to call
   // methods on it from afar, and many HoCs won't pass the ref through.
+  // TODO clarify in PR review
+  hocs: [withTracking]
 });
 
 declare global {

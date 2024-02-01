@@ -3,14 +3,6 @@ import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 
-// What parameters need to be set:
-// - Text (regular text node)
-// - Link (literally an href)
-// - Alignment (a class)
-//
-// What should the resulting element be?:
-// - A div throughout, because of the double upcasting issue with <a>s
-
 const CTA_CLASS = "ck-cta-button";
 const CENTERED_CLASS = "ck-cta-button-centered";
 
@@ -113,9 +105,13 @@ export default class CTAButton extends Plugin {
                 // breaks things. I'm also using a div instead of a <button> to simplify what we
                 // allow in `sanitize()` (see packages/lesswrong/lib/vulcan-lib/utils.ts)
                 const div = viewWriter.createContainerElement('a', {
-                    // Add any classes from the model (ck-cta-button itself is not included on the model)
                     class: [CTA_CLASS, ...(modelElement.getAttribute("class") || "").split(" ")].join(" "),
-                    'data-href': modelElement.getAttribute('href') || ''
+                    // The href on the <a> element appears to also get picked up by another plugin, which
+                    // breaks things, so use data-href and map it to href in ContentItemBody
+                    'data-href': modelElement.getAttribute('href') || '',
+                    // Make the link open in a new tab to ensure we can capture analytics
+                    target: '_blank',
+                    rel: 'noopener noreferrer'
                 });
                 return div;
             }
