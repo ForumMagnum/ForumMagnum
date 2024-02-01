@@ -94,6 +94,8 @@ import './collections/reviewVotes/collection'
 import './collections/reviewVotes/views'
 import './collections/reviewVotes/fragments'
 
+import './collections/manifoldProbabilitiesCaches/collection';
+import './collections/manifoldProbabilitiesCaches/schema';
 
 import './collections/localgroups/collection'
 import './collections/localgroups/views';
@@ -278,6 +280,10 @@ import './collections/dialogueMatchPreferences/views';
 // dialogue match preferences
 import './collections/ckEditorUserSessions/collection';
 import './collections/ckEditorUserSessions/fragments';
+
+// Review winners
+import './collections/reviewWinners/collection';
+import './collections/reviewWinners/fragments';
 
 // Alignment Forum
 import './alignment-forum/permissions';

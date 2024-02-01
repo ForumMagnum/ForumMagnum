@@ -1,5 +1,13 @@
 import AbstractRepo from "./AbstractRepo";
 
+export type IncrementalViewDataType<N extends CollectionNameString> = Omit<
+  ObjectsByCollectionName[N],
+  "_id" | "schemaVersion" | "createdAt" | "legacyData" | "windowStart" | "windowEnd"
+> & {
+  windowStart: string;
+  windowEnd: string;
+};
+
 /**
  * `IncrementalViewRepo` is designed for collections that operate as materialized views,
  * with "Incremental View Maintenance" (e.g. for cases where REFRESH MATERIALIZED VIEW is too slow).
@@ -15,9 +23,11 @@ export default abstract class IncrementalViewRepo<N extends CollectionNameString
   }: {
     startDate: Date;
     endDate: Date;
-  }): Promise<Omit<ObjectsByCollectionName[N], "_id" | "schemaVersion" | "createdAt" | "legacyData">[]>;
+  }): Promise<IncrementalViewDataType<N>[]>;
 
-  abstract upsertData({ data }: { data: Omit<ObjectsByCollectionName[N], "_id" | "schemaVersion" | "createdAt" | "legacyData">[] }): void
+  abstract deleteRange({ startDate, endDate }: { startDate: Date; endDate: Date }): Promise<void>;
 
-  abstract getDateBounds(): Promise<{ earliestWindowStart: Date | null; latestWindowEnd: Date | null }>
+  abstract upsertData({ data }: { data: IncrementalViewDataType<N>[] }): void;
+
+  abstract getDateBounds(): Promise<{ earliestWindowStart: Date | null; latestWindowEnd: Date | null }>;
 }

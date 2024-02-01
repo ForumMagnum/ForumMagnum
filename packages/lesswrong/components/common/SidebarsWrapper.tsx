@@ -20,7 +20,7 @@ type SidebarsContextType = {
   setToCTitleVisible: (visible: boolean)=>void,
   setToCOffsets: (offsets: AnchorOffset[])=>void,
   sideCommentsActive: boolean,
-  setSideCommentsActive: (active: boolean)=>void,
+  setSideCommentsActive: (active: boolean) => void,
 }
 export const SidebarsContext = React.createContext<SidebarsContextType|null>(null);
 

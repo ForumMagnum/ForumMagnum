@@ -36,7 +36,7 @@ export type Route = {
   subtitleLink?: string,
   subtitleComponentName?: keyof ComponentTypes,
   description?: string,
-  redirect?: (location: RouterLocation)=>string,
+  redirect?: (location: RouterLocation) => string,
   getPingback?: (parsedUrl: RouterLocation) => Promise<PingbackDocument|null> | PingbackDocument|null,
   previewComponentName?: keyof ComponentTypes,
   _id?: string|null,
@@ -119,12 +119,13 @@ export const overrideRoute = (...routes: Route[]): void => {
   addRoute(...routes);
 }
 
-export const getRouteMatchingPathname = (pathname: string): Route | undefined  =>
-  Object.values(Routes).findLast((route) => matchPath(pathname, {
+export const getRouteMatchingPathname = (pathname: string): Route | undefined  => {
+  return Object.values(Routes).reverse().find((route) => matchPath(pathname, {
     path: route.path,
     exact: true,
     strict: false,
   }))
+}
 
 export const userCanAccessRoute = (user?: UsersCurrent | DbUser | null, route?: Route | null): boolean => {
   if (!route) return true // Anyone can access a non-existent route (which would 404)

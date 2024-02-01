@@ -78,7 +78,7 @@ function versionIsDraft(semver: string, collectionName: CollectionNameString) {
 
 ensureIndex(Revisions, {documentId: 1, version: 1, fieldName: 1, editedAt: 1})
 
-export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }:{
+export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions }: {
   originalContents: DbRevision["originalContents"],
   currentUser: DbUser,
   dataWithDiscardedSuggestions?: string

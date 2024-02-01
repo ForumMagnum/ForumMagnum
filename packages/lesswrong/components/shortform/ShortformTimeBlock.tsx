@@ -38,7 +38,7 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
 }
 
 const ShortformTimeBlock  = ({reportEmpty, terms, classes}: {
-  reportEmpty: ()=>void,
+  reportEmpty: () => void,
   terms: CommentsViewTerms,
   classes: ClassesType,
 }) => {

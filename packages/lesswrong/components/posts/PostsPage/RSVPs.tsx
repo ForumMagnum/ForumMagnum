@@ -171,7 +171,7 @@ const RSVPs = ({post, classes}: {
         </span>)}
       </div>
       <div className={classes.rsvpBlock}>
-        {post.rsvps.map((rsvp:RSVPType) => {
+        {post.rsvps.map((rsvp: RSVPType) => {
           const canCancel = currentUser?._id === post.userId || currentUser?._id === rsvp.userId
           return <span className={classes.rsvpItem} key={`${rsvp.name}-${rsvp.response}`}>
             <div>

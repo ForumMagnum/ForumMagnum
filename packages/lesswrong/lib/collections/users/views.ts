@@ -147,7 +147,7 @@ Users.addView("sunshineNewUsers", function (terms: UsersViewTerms) {
 })
 ensureIndex(Users, {needsReview: 1, signUpReCaptchaRating: 1, createdAt: -1})
 
-Users.addView("recentlyActive", function (terms:UsersViewTerms) {
+Users.addView("recentlyActive", function (terms: UsersViewTerms) {
   return {
     selector: {
       $or: [

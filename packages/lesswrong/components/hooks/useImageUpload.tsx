@@ -42,7 +42,7 @@ type CloundinaryImageUploadResult = {
     public_id?: string,
   },
 } | {
-  event:string,
+  event: string,
   info: Record<string, unknown>,
 };
 

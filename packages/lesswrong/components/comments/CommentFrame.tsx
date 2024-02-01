@@ -153,7 +153,7 @@ const CommentFrame = ({
 }: {
   comment: CommentsList,
   treeOptions: CommentTreeOptions,
-  onClick?: (event: any)=>void,
+  onClick?: (event: any) => void,
   id?: string,
   
   nestingLevel: number,

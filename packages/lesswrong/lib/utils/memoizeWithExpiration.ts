@@ -1,6 +1,6 @@
 
-export function memoizeWithExpiration<T>(recompute: ()=>T, timeout: number): {
-  get: ()=>T
+export function memoizeWithExpiration<T>(recompute: () => T, timeout: number): {
+  get: () => T
 } {
   let cachedValue: { value: T, expiresAt: number }|null = null;
   

@@ -29,6 +29,7 @@ import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
 import { reviewIsActive } from '../lib/reviewUtils';
+import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -41,7 +42,7 @@ const STICKY_SECTION_TOP_MARGIN = 20;
 // like to include
 const standaloneNavMenuRouteNames: ForumOptions<string[]> = {
   'LessWrong': [
-    'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews',
+    'home', 'allPosts', 'questions', 'library', 'Shortform', 'Sequences', 'collections', 'nominations', 'reviews'
   ],
   'AlignmentForum': ['alignment.home', 'library', 'allPosts', 'questions', 'Shortform'],
   'EAForum': ['home', 'allPosts', 'questions', 'Shortform', 'eaLibrary', 'tagsSubforum'],
@@ -74,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   wrapper: {
     position: 'relative',
-    overflow: 'clip'
+    overflowX: 'clip'
   },
   mainNoFooter: {
     paddingBottom: 0,
@@ -377,6 +378,7 @@ const Layout = ({currentUser, children, classes}: {
     return (
       <AnalyticsContext path={pathname}>
       <UserContext.Provider value={currentUser}>
+      <UnreadNotificationsContextProvider>
       <TimezoneWrapper>
       <ItemsReadContextWrapper>
       <SidebarsWrapper>
@@ -501,6 +503,7 @@ const Layout = ({currentUser, children, classes}: {
       </SidebarsWrapper>
       </ItemsReadContextWrapper>
       </TimezoneWrapper>
+      </UnreadNotificationsContextProvider>
       </UserContext.Provider>
       </AnalyticsContext>
     )

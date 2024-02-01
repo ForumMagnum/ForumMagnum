@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const AddTagButton = ({onTagSelected, tooltipPlacement = "bottom-start", isVotingContext, classes, children}: {
-  onTagSelected: (props: {tagId: string, tagName: string})=>void,
+  onTagSelected: (props: {tagId: string, tagName: string}) => void,
   tooltipPlacement?: PopperPlacementType,
   isVotingContext?: boolean,
   classes: ClassesType,

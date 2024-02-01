@@ -530,7 +530,7 @@ export const PostAddedAsCoauthorNotification = serverRegisterNotificationType({
   },
 });
 
-export const isComment = (document: DbPost | DbComment) : document is DbComment => {
+export const isComment = (document: DbPost | DbComment): document is DbComment => {
   if (document.hasOwnProperty("answer")) return true //only comments can be answers
   return false
 }

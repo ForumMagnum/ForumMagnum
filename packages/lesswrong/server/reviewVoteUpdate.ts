@@ -1,10 +1,11 @@
 import ReviewVotes from "../lib/collections/reviewVotes/collection"
 import Users from "../lib/collections/users/collection"
-import { getCostData, REVIEW_YEAR } from "../lib/reviewUtils"
+import { getCostData, REVIEW_YEAR, ReviewYear } from "../lib/reviewUtils"
 import groupBy from 'lodash/groupBy';
 import { Posts } from '../lib/collections/posts';
 import { postGetPageUrl } from "../lib/collections/posts/helpers";
 import moment from "moment";
+import { Globals } from "./vulcan-lib";
 
 export interface Dictionary<T> {
   [index: string]: T;
@@ -121,8 +122,9 @@ async function updateVoteTotals(usersByUserId: Dictionary<DbUser[]>, votesByUser
   console.log("finished updating review vote toals")
 } 
 
-export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
-  const votes = await ReviewVotes.find({year: REVIEW_YEAR+""}).fetch()
+export async function updateReviewVoteTotals (votePhase: reviewVotePhase, overrideReviewYear?: ReviewYear, cutoffDate?: string) {
+  const createdAtCutoff = cutoffDate ? { createdAt: { $lt: new Date(cutoffDate) } } : {};
+  const votes = await ReviewVotes.find({ year: (overrideReviewYear ?? REVIEW_YEAR)+"", ...createdAtCutoff }).fetch()
 
   // we group each user's votes, so we can weight them appropriately
   // based on the user's vote cost total. 
@@ -146,6 +148,8 @@ export async function updateReviewVoteTotals (votePhase: reviewVotePhase) {
     await updateVoteTotals(usersByUserId, votesByUserId, votePhase, postIds)
   }
 }
+
+Globals.updateReviewVoteTotals = updateReviewVoteTotals;
 
 export async function createVotingPostHtml () {
   const style = `

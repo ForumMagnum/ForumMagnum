@@ -26,6 +26,7 @@ type ImagesViewName = never
 type LWEventsViewName = "adminView"|"postVisits"|"emailHistory"|"gatherTownUsers"|"postEverPublished";
 type LegacyDataViewName = never
 type LocalgroupsViewName = "userOrganizesGroups"|"userActiveGroups"|"userInactiveGroups"|"all"|"nearby"|"single"|"local"|"online";
+type ManifoldProbabilitiesCachesViewName = never
 type MessagesViewName = "messagesConversation"|"conversationPreview";
 type MigrationsViewName = never
 type ModerationTemplatesViewName = "moderationTemplatesPage"|"moderationTemplatesList";
@@ -45,6 +46,7 @@ type RSSFeedsViewName = "usersFeed";
 type ReadStatusesViewName = never
 type ReportsViewName = "allReports"|"unclaimedReports"|"claimedReports"|"adminClaimedReports"|"sunshineSidebarReports"|"closedReports";
 type ReviewVotesViewName = "reviewVotesFromUser"|"reviewVotesForPost"|"reviewVotesForPostAndUser"|"reviewVotesAdminDashboard";
+type ReviewWinnersViewName = never
 type RevisionsViewName = "revisionsByUser"|"revisionsOnDocument";
 type SequencesViewName = "userProfile"|"userProfilePrivate"|"userProfileAll"|"curatedSequences"|"communitySequences";
 type SessionsViewName = never
@@ -90,6 +92,7 @@ interface ViewTermsByCollectionName {
   LWEvents: LWEventsViewTerms
   LegacyData: ViewTermsBase
   Localgroups: LocalgroupsViewTerms
+  ManifoldProbabilitiesCaches: ViewTermsBase
   Messages: MessagesViewTerms
   Migrations: ViewTermsBase
   ModerationTemplates: ModerationTemplatesViewTerms
@@ -109,6 +112,7 @@ interface ViewTermsByCollectionName {
   ReadStatuses: ViewTermsBase
   Reports: ReportsViewTerms
   ReviewVotes: ReviewVotesViewTerms
+  ReviewWinners: ViewTermsBase
   Revisions: RevisionsViewTerms
   Sequences: SequencesViewTerms
   Sessions: ViewTermsBase

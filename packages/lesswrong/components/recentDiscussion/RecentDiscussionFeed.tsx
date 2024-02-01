@@ -38,7 +38,7 @@ const RecentDiscussionFeed = ({
 }) => {
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const [showShortformFeed, setShowShortformFeed] = useState(false);
-  const refetchRef = useRef<null|(()=>void)>(null);
+  const refetchRef = useRef<null|(() => void)>(null);
   const currentUser = useCurrentUser();
   const expandAll = currentUser?.noCollapseCommentsFrontpage || expandAllThreads
 

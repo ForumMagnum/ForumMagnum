@@ -4,7 +4,8 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { hasDigests } from '../../lib/betas';
-import { taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
 
 // Also used in ModerationLog
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -27,14 +28,19 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   link: {
     color: theme.palette.primary.main,
+    cursor: "pointer",
+    "&:hover": {
+      opacity: 0.8,
+    },
   },
 });
 
 const AdminHome = ({ classes }: {
   classes: ClassesType
 }) => {
-  const { SingleColumnSection, AdminMetadata } = Components;
+  const {SingleColumnSection, AdminMetadata, Loading} = Components;
   const currentUser = useCurrentUser();
+  const {refreshDbSettings, isRefreshingDbSettings} = useRefreshDbSettings();
   
   if (!userIsAdmin(currentUser)) {
     return <SingleColumnSection>
@@ -66,6 +72,9 @@ const AdminHome = ({ classes }: {
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>
         <li><Link className={classes.link} to="/admin/migrations">Migrations</Link></li>
         <li><Link className={classes.link} to="/admin/synonyms">Search Synonyms</Link></li>
+        <li><Link className={classes.link} to="/admin/tagMerge">{taggingNameCapitalSetting.get()} Merging Tool</Link></li>
+        <li><span className={classes.link} onClick={refreshDbSettings}>Refresh DB Settings</span></li>
+        {isRefreshingDbSettings && <Loading />}
       </ul>
       
       <h3>Debug Tools</h3>

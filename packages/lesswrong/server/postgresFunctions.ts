@@ -164,6 +164,28 @@ export const postgresFunctions = [
     WHERE c."_id" = comment_id;
   $$
   `,
+  // Returns true if the given vote added a specific emoji, false if the
+  // given vote did not add that emoji, or null if the given vote does not
+  // exist (currently only works for EA emojis)
+  `CREATE OR REPLACE FUNCTION fm_vote_added_emoji(
+    vote_id TEXT,
+    emoji_name TEXT
+  ) RETURNS BOOLEAN LANGUAGE sql AS $$
+    SELECT
+      COALESCE(target."extendedVoteType"->emoji_name = TO_JSONB(TRUE), FALSE) AND
+      COALESCE(v."extendedVoteType"->emoji_name <> TO_JSONB(TRUE), TRUE)
+    FROM "Votes" target
+    LEFT JOIN "Votes" v ON
+      v."votedAt" < target."votedAt" AND
+      v."userId" = target."userId" AND
+      v."documentId" = target."documentId" AND
+      v."collectionName" = target."collectionName"
+    WHERE
+      target."_id" = vote_id
+    ORDER BY v."votedAt" DESC
+    LIMIT 1
+  $$
+  `,
 ] as const;
 
 export type PostgresFunction = typeof postgresFunctions[number];
