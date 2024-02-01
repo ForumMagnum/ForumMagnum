@@ -315,6 +315,7 @@ registerFragment(`
 
     # Podcast
     podcastEpisode {
+      _id
       title
       podcast {
         _id

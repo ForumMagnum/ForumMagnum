@@ -1232,6 +1232,7 @@ interface PostsDetails_canonicalCollection { // fragment on Collections
 }
 
 interface PostsDetails_podcastEpisode { // fragment on PodcastEpisodes
+  readonly _id: string,
   readonly title: string,
   readonly podcast: PostsDetails_podcastEpisode_podcast,
   readonly episodeLink: string,
