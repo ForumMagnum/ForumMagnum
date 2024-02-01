@@ -226,6 +226,12 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
         const resolver = {
           [typeName]: {
             [resolverName]: (document: ObjectsByCollectionName[N], args: any, context: ResolverContext, info: any) => {
+              // Check that current user has permission to access the original
+              // non-resolved field.
+              if (!userCanReadField(context.currentUser, field, document)) {
+                return null;
+              }
+
               // First, check if the value was already fetched by a SQL resolver.
               // A field with a SQL resolver that returns no value (for instance,
               // if it uses a LEFT JOIN and no matching object is found) can be
@@ -239,12 +245,9 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
                 }
               }
 
-              const { currentUser } = context;
-              // check that current user has permission to access the original non-resolved field
-              const canReadField = userCanReadField(currentUser, field, document);
-              return canReadField
-                ? field.resolveAs!.resolver(document, args, context, info)
-                : null;
+              // If the value wasn't supplied by a SQL resolver then we need
+              // to run the code resolver instead.
+              return field.resolveAs!.resolver(document, args, context, info);
             },
           },
         };
