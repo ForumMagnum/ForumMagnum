@@ -221,5 +221,4 @@ const makeMarketComment = async (postId: string, year: number, marketUrl: string
   })
 
   return result.data
-
 }
