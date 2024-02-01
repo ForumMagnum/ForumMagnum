@@ -42,7 +42,7 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
      * Fragments can be used recursively such that one contains another.
      * `ProjectionContext` corresponds to exactly _one_ fragment and contains
      * no recursion internally. If this `ProjectionContext` is the top level
-     * context correspoding to the actual fragment the user requested then this
+     * context corresponding to the actual fragment the user requested then this
      * parameter will be undefined, otherwise if it's a sub-fragment this
      * parameter will contain the table prefix and SQL argument offset to use.
      * The sub-context can then be "absorbed" into the top-level context by
@@ -51,7 +51,7 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
      */
     aggregateDefinition?: {prefix: string, argOffset: number},
     /**
-     * Generator for table perfixes - this is only configurable to make
+     * Generator for table prefixes - this is only configurable to make
      * testing easier and should generally be left undefined for real code.
      */
     private prefixGenerator?: PrefixGenerator,
