@@ -11,8 +11,8 @@ class ManifoldProbabilitiesCachesRepo extends AbstractRepo<"ManifoldProbabilitie
   async upsertMarketInfoInCache (marketId: string, marketInfo: AnnualReviewMarketInfo): Promise<unknown> {
     return this.getRawDb().none(`
       INSERT INTO "ManifoldProbabilitiesCaches" (_id, "marketId", probability, "isResolved", year, "lastUpdated")
-      VALUES ($/_id/, $/marketId/, $/marketInfo.probability/, $/marketInfo.isResolved/, $/marketInfo.year/, NOW())
-      ON CONFLICT ("marketId") DO UPDATE SET probability = $/marketInfo.probability/, "isResolved" = $/marketInfo.isResolved/, year = $/marketInfo.year/, "lastUpdated" = NOW()`,
+      VALUES ($(_id), $(marketId), $(marketInfo.probability), $(marketInfo.isResolved), $(marketInfo.year), NOW())
+      ON CONFLICT ("marketId") DO UPDATE SET probability = $(marketInfo.probability), "isResolved" = $(marketInfo.isResolved), year = $(marketInfo.year), "lastUpdated" = NOW()`,
     {_id: randomId(), marketId: marketId, marketInfo});
   }
 }
