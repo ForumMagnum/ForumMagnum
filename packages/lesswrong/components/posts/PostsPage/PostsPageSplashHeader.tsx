@@ -327,7 +327,7 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
           </div>
         </AnalyticsContext>
         <div className={classes.rightSectionBottomRow}>
-          <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} useHorizontalLayout />
+          <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
         </div>
       </div>
     </div>

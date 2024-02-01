@@ -42,10 +42,6 @@ const styles = (theme: ThemeType) => ({
     zIndex: theme.zIndexes.postsVote,
     fontSize: '80%',
   },
-  voteScoreFooter: {
-    fontSize: 18,
-    fontWeight: 500,
-  },
   voteScoreGoodHeart: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
@@ -67,16 +63,11 @@ const styles = (theme: ThemeType) => ({
 
 const PostsSplashPageHeaderVote = ({
   post,
-  useHorizontalLayout,
   votingSystem,
-  isFooter,
   classes,
 }: {
   post: PostsWithVotes,
-  /** if true, display the vote arrows to the left & right of the score */
-  useHorizontalLayout?: boolean,
-  votingSystem?: VotingSystem<PostsWithVotes>,
-  isFooter?: boolean,
+  votingSystem: VotingSystem<PostsWithVotes>,
   classes: ClassesType<typeof styles>
 }) => {
   const voteProps = useVote(post, "Posts", votingSystem);
@@ -117,9 +108,7 @@ const PostsSplashPageHeaderVote = ({
               * a child that takes refs */}
             <Typography
               variant="headline"
-              className={classNames(classes.voteScore, {
-                [classes.voteScoreFooter]: isFooter,
-              })}
+              className={classes.voteScore}
             >
               {voteProps.baseScore}
             </Typography>
@@ -134,9 +123,7 @@ const PostsSplashPageHeaderVote = ({
           >
             <Typography
               variant="headline"
-              className={classNames(classes.voteScore, classes.secondaryVoteScore, {
-                [classes.voteScoreFooter]: isFooter,
-              })}>
+              className={classNames(classes.voteScore, classes.secondaryVoteScore)}>
               Ω {post.afBaseScore}
             </Typography>
           </Tooltip>
