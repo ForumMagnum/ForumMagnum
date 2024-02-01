@@ -1,14 +1,15 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
-import ClickObserver from '@ckeditor/ckeditor5-engine/src/view/observer/clickobserver';
-import { toWidget, toWidgetEditable } from '@ckeditor/ckeditor5-widget/src/utils';
+import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
-import DropdownView from '@ckeditor/ckeditor5-ui/src/dropdown/dropdownview';
-import ContextualBalloon from '@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon';
-import Model from '@ckeditor/ckeditor5-ui/src/model';
-import { addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
-import Collection from '@ckeditor/ckeditor5-utils/src/collection';
-import BalloonPanelView from '@ckeditor/ckeditor5-ui/src/panel/balloon/balloonpanelview';
+
+// What parameters need to be set:
+// - Text (regular text node)
+// - Link (literally an href)
+// - Alignment (a class)
+//
+// What should the resulting element be?:
+// - A div throughout, because of the double upcasting issue with <a>s
 
 export default class CTAButton extends Plugin {
     static get requires() {
@@ -41,14 +42,26 @@ export default class CTAButton extends Plugin {
                     // Insert the button as a new block after the current block
                     const selection = editor.model.document.selection;
                     const currentElement = selection.getFirstPosition().parent;
-                    const positionAfterCurrentBlock = writer.createPositionAfter(currentElement);
+                    let insertPosition;
+
+                    // Check if the current block has any content
+                    if (currentElement.childCount > 0) {
+                        // If there is content, insert after the current block
+                        insertPosition = writer.createPositionAfter(currentElement);
+                    } else {
+                        // If there is no content, use the current block itself
+                        insertPosition = writer.createPositionAt(currentElement, 0);
+                    }
 
                     const buttonElement = writer.createElement('ctaButton');
-                    const buttonText = writer.createText('Apply now'); // Create a text node
-                    writer.append(buttonText, buttonElement); // Append the text node to the buttonElement
+                    const buttonText = writer.createText('Apply now');
+                    writer.append(buttonText, buttonElement);
+
+                    // Set the href attribute for the buttonElement
+                    writer.setAttribute('href', 'https://google.com', buttonElement);
 
                     // Insert the 'ctaButton' element at the calculated position
-                    model.insertContent(buttonElement, positionAfterCurrentBlock);
+                    model.insertContent(buttonElement, insertPosition);
                 });
             });
 
@@ -65,7 +78,7 @@ export default class CTAButton extends Plugin {
             isObject: true, // Required to make the whole block selectable (to delete) and the text content non-editable
             allowContentOf: '$text',
             allowIn: '$root',
-            allowAttributes: ['id', 'classes', 'onclick']
+            allowAttributes: ['id', 'class', 'href']
         });
     }
     
@@ -77,12 +90,10 @@ export default class CTAButton extends Plugin {
             model: 'ctaButton',
             view: (modelElement, { writer: viewWriter }) => {
                 const div = viewWriter.createContainerElement('div', {
-                    class: 'cta-button'
+                    class: 'ck-cta-button',
+                    href: modelElement.getAttribute('href') || ''
                 });
-    
-                // Enable the widget handling on a div element inside the editing view.
-                // Note: toWidgetEditable removes the block level enter icons
-                // FIXME you can still backspace the final character for some reason
+
                 return toWidget(div, viewWriter, 'div');
             }
         });
@@ -91,9 +102,13 @@ export default class CTAButton extends Plugin {
         editor.conversion.for('dataDowncast').elementToElement({
             model: 'ctaButton',
             view: (modelElement, { writer: viewWriter }) => {
+                // Note: I'm using a div rather than a plain <a> element because the
+                // href on the <a> element appears to also get picked up by another plugin which
+                // breaks things. I'm also using a div instead of a <button> to simplify what we
+                // allow in `sanitize()` (see packages/lesswrong/lib/vulcan-lib/utils.ts)
                 const div = viewWriter.createContainerElement('div', {
-                    class: 'cta-button',
-                    onclick: "window.location.href='https://www.google.com';"
+                    class: 'ck-cta-button',
+                    'data-href': modelElement.getAttribute('href') || ''
                 });
                 return div;
             }
@@ -103,18 +118,21 @@ export default class CTAButton extends Plugin {
         editor.conversion.for('upcast').elementToElement({
             view: {
                 name: 'div',
-                class: 'cta-button'
+                classes: 'ck-cta-button',
             },
             model: (viewElement, { writer: modelWriter }) => {
                 const ctaButton = modelWriter.createElement('ctaButton');
+                modelWriter.setAttribute('href', viewElement.getAttribute('data-href') || '', ctaButton);
 
-                // Map the text nodes from the view to the model (not entirely sure why this is necessary)
+                // Map the text nodes from the view to the model
                 const innerText = viewElement.getChild(0).data;
                 const textNode = modelWriter.createText(innerText);
                 modelWriter.append(textNode, ctaButton);
 
+                console.log("pos 2", ctaButton)
+
                 return ctaButton;
-            }
+            },
         })
     }
 }
