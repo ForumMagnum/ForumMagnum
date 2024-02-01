@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
 
 const PostsAnnualReviewMarketTag = ({ post, annualReviewMarketInfo, classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
-  annualReviewMarketInfo?: AnnualReviewMarketInfo,
+  annualReviewMarketInfo: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
 
@@ -38,14 +38,10 @@ const PostsAnnualReviewMarketTag = ({ post, annualReviewMarketInfo, classes }: {
     fragmentName: "CommentsList",
   });
 
-  if (!annualReviewMarketInfo) {
-    return <div></div>;
-  }
-
   const decimalPlaces = 0;
   return <span>
     <div className={classes.expectedWinner} {...eventHandlers}>
-      {annualReviewMarketInfo?.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability * 100).toFixed(decimalPlaces))}%
+      {annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability * 100).toFixed(decimalPlaces))}%
       {!!comment &&
         <LWPopper
           open={hover}
