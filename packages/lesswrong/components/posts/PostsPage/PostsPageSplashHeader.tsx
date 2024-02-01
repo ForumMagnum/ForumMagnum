@@ -282,19 +282,15 @@ const styles = (theme: ThemeType) => ({
 
 /// PostsPageSplashHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
+const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  answers?: CommentsList[],
-  dialogueResponses?: CommentsList[],
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
-  hideMenu?: boolean,
-  hideTags?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, ForumIcon, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
   const [visible, setVisible] = React.useState(true);
-  const {setToCVisible} = useContext(SidebarsContext)!;
+  const { setToCVisible } = useContext(SidebarsContext)!;
   const transitionHeader = (headerVisibile: boolean) => {
     setToCVisible(!headerVisibile);
     setVisible(headerVisibile);
@@ -381,7 +377,7 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
   </div>
 }
 
-const ReviewPill = ({review, classes, setReview}: {review: CommentsList, classes: ClassesType, setReview: (r: CommentsList | null) => void}) => {
+const ReviewPill = ({review, classes, setReview}: {review: CommentsList, classes: ClassesType<typeof styles>, setReview: (r: CommentsList | null) => void}) => {
   return <HashLink to={`#${review._id}`}>
     <div className={classes.review} onMouseOver={() => setReview(review)}>
       <div className={classes.reviewScore}>
