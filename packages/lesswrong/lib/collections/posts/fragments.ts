@@ -42,6 +42,9 @@ registerFragment(`
       _id
       html
     }
+    tags {
+      ...TagPreviewFragment
+    }
   }
 `);
 

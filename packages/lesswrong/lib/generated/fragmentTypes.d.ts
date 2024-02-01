@@ -984,6 +984,7 @@ interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment 
   readonly isRead: boolean,
   readonly contents: PostsTopItemInfo_contents|null,
   readonly customHighlight: PostsTopItemInfo_customHighlight|null,
+  readonly tags: Array<TagPreviewFragment>,
 }
 
 interface PostsTopItemInfo_contents { // fragment on Revisions
