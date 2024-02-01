@@ -224,6 +224,37 @@ const footnoteStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
+  '& .ck-cta-button': {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    minWidth: 30,
+    width: 'fit-content',
+    cursor: 'pointer',
+    fontSize: 14,
+    fontWeight: 600,
+    lineHeight: '20px',
+    textTransform: 'none',
+    padding: '12px 16px',
+    borderRadius: theme.borderRadius.default,
+    boxShadow: 'none',
+    backgroundColor: theme.palette.buttons.alwaysPrimary,
+    color: theme.palette.text.alwaysWhite,
+    transition: 'background-color 0.3s ease',
+    '&:hover': {
+      opacity: 1,
+      backgroundColor: theme.palette.primary.dark,
+    },
+    '&:disabled': {
+      backgroundColor: theme.palette.buttons.alwaysPrimary,
+      color: theme.palette.text.alwaysWhite,
+      opacity: .5,
+    }
+  },
+  '& .ck-cta-button-centered': {
+    margin: 'auto'
+  },
+});
+
 const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   ...theme.typography.body1,
   ...theme.typography.postStyle,
@@ -372,6 +403,7 @@ export const postBodyStyles = (theme: ThemeType): JssStyles => {
     ...viewpointsPreviewStyles(theme),
     ...youtubePreviewStyles(theme),
     ...footnoteStyles(theme),
+    ...ctaButtonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
     '& .footnotes': {
       marginTop: 40,

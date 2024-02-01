@@ -11,6 +11,9 @@ import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 // What should the resulting element be?:
 // - A div throughout, because of the double upcasting issue with <a>s
 
+const CTA_CLASS = "ck-cta-button";
+const CENTERED_CLASS = "ck-cta-button-centered";
+
 export default class CTAButton extends Plugin {
     static get requires() {
         return [ Widget ];
@@ -59,6 +62,8 @@ export default class CTAButton extends Plugin {
 
                     // Set the href attribute for the buttonElement
                     writer.setAttribute('href', 'https://google.com', buttonElement);
+                    // Set it to be centered by default
+                    writer.setAttribute('class', CENTERED_CLASS, buttonElement);
 
                     // Insert the 'ctaButton' element at the calculated position
                     model.insertContent(buttonElement, insertPosition);
@@ -89,10 +94,11 @@ export default class CTAButton extends Plugin {
         editor.conversion.for('editingDowncast').elementToElement({
             model: 'ctaButton',
             view: (modelElement, { writer: viewWriter }) => {
-                const div = viewWriter.createContainerElement('div', {
-                    class: 'ck-cta-button',
-                    href: modelElement.getAttribute('href') || ''
-                });
+                const div = viewWriter.createContainerElement("div", {
+                    // Add any classes from the model (ck-cta-button itself is not included on the model)
+					class: [CTA_CLASS, ...(modelElement.getAttribute("class") || "").split(" ")].join(" "),
+					href: modelElement.getAttribute("href") || "",
+				});
 
                 return toWidget(div, viewWriter, 'div');
             }
@@ -107,7 +113,8 @@ export default class CTAButton extends Plugin {
                 // breaks things. I'm also using a div instead of a <button> to simplify what we
                 // allow in `sanitize()` (see packages/lesswrong/lib/vulcan-lib/utils.ts)
                 const div = viewWriter.createContainerElement('div', {
-                    class: 'ck-cta-button',
+                    // Add any classes from the model (ck-cta-button itself is not included on the model)
+                    class: [CTA_CLASS, ...(modelElement.getAttribute("class") || "").split(" ")].join(" "),
                     'data-href': modelElement.getAttribute('href') || ''
                 });
                 return div;
@@ -124,12 +131,15 @@ export default class CTAButton extends Plugin {
                 const ctaButton = modelWriter.createElement('ctaButton');
                 modelWriter.setAttribute('href', viewElement.getAttribute('data-href') || '', ctaButton);
 
+                const viewClass = viewElement.getAttribute('class')
+                if (viewClass.includes(CENTERED_CLASS)) {
+                    modelWriter.setAttribute('class', CENTERED_CLASS, ctaButton);
+                }
+
                 // Map the text nodes from the view to the model
                 const innerText = viewElement.getChild(0).data;
                 const textNode = modelWriter.createText(innerText);
                 modelWriter.append(textNode, ctaButton);
-
-                console.log("pos 2", ctaButton)
 
                 return ctaButton;
             },
