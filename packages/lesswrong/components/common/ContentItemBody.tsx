@@ -131,6 +131,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       // elements that other substitutions work on (in particular it can split
       // an <a> tag into two).
       this.replaceSubstrings(element);
+      this.addCTAButtonEventListeners(element);
 
       this.markScrollableBlocks(element);
       this.collapseFootnotes(element);
@@ -293,7 +294,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     const linkTags = this.htmlCollectionToArray(element.getElementsByTagName("a"));
     for (let linkTag of linkTags) {
       const href = linkTag.getAttribute("href");
-      if (!href || linkIsExcludedFromPreview(href))
+      if (!href || linkIsExcludedFromPreview(href) || linkTag.classList.contains('ck-cta-button'))
         continue;
 
       const TagLinkContents = rawExtractElementChildrenToReactComponent(linkTag);
@@ -348,6 +349,22 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     }
   }
   
+  addCTAButtonEventListeners = (element: HTMLElement) => {
+    const ctaButtons = element.getElementsByClassName('ck-cta-button');
+    for (let i = 0; i < ctaButtons.length; i++) {
+      const button = ctaButtons[i] as HTMLAnchorElement;
+      const dataHref = button.getAttribute('data-href');
+      if (dataHref) {
+        button.setAttribute('href', dataHref);
+      }
+      button.addEventListener('click', (event) => {
+        console.log('CTA button clicked!');
+        // If you want to prevent the default link behavior, uncomment the next line:
+        event.preventDefault();
+      });
+    }
+  }
+
   replaceSubstrings = (element: HTMLElement) => {
     if(this.props.replacedSubstrings) {
       for (let str of Object.keys(this.props.replacedSubstrings)) {

@@ -112,7 +112,7 @@ export default class CTAButton extends Plugin {
                 // href on the <a> element appears to also get picked up by another plugin which
                 // breaks things. I'm also using a div instead of a <button> to simplify what we
                 // allow in `sanitize()` (see packages/lesswrong/lib/vulcan-lib/utils.ts)
-                const div = viewWriter.createContainerElement('div', {
+                const div = viewWriter.createContainerElement('a', {
                     // Add any classes from the model (ck-cta-button itself is not included on the model)
                     class: [CTA_CLASS, ...(modelElement.getAttribute("class") || "").split(" ")].join(" "),
                     'data-href': modelElement.getAttribute('href') || ''
@@ -124,7 +124,7 @@ export default class CTAButton extends Plugin {
         // Editing view -> model
         editor.conversion.for('upcast').elementToElement({
             view: {
-                name: 'div',
+                name: 'a',
                 classes: 'ck-cta-button',
             },
             model: (viewElement, { writer: modelWriter }) => {

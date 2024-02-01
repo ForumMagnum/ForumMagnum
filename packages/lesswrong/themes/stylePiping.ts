@@ -226,6 +226,7 @@ const footnoteStyles = (theme: ThemeType): JssStyles => ({
 
 const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
   '& .ck-cta-button': {
+    display: 'block',
     fontFamily: theme.palette.fonts.sansSerifStack,
     minWidth: 30,
     width: 'fit-content',
@@ -243,6 +244,10 @@ const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
     '&:hover': {
       opacity: 1,
       backgroundColor: theme.palette.primary.dark,
+      color: theme.palette.text.alwaysWhite, // Override default <a> style
+    },
+    '&:visited': {
+      color: theme.palette.text.alwaysWhite, // Override default <a> style
     },
     '&:disabled': {
       backgroundColor: theme.palette.buttons.alwaysPrimary,
