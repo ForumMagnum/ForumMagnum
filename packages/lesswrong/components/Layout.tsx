@@ -144,7 +144,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   votingImage: {
     width: '55vw',
     maxWidth: '1000px',
-    marginLeft: '-15px'
+    marginLeft: '-15px',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 86%)`,
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -466,7 +467,7 @@ const Layout = ({currentUser, children, classes}: {
                     currentRoute?.name === 'home' ? 
                       <div className={classes.imageColumn}>
                         <ReviewVotingCanvas />
-                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_3_jbqyqv" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote-Recovered_copy_txa21o" darkPublicId="LWVote-Recovered_copy_Dark2_qidtjp"/>
                       </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
