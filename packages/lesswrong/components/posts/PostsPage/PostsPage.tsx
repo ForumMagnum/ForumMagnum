@@ -324,6 +324,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
 
+  // TODO: derive this properly
+  const showSplashPageHeader = true;
+
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
@@ -597,13 +600,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          <PostsPagePostHeader
+          {!showSplashPageHeader && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             dialogueResponses={debateResponses} 
-            annualReviewMarketInfo={marketInfo}/>
+            annualReviewMarketInfo={marketInfo}/>}
         </div>
       </div>
     </AnalyticsContext>
@@ -753,7 +756,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {!commentId && !isDebateResponseLink && <PostsPageSplashHeader 
+    {showSplashPageHeader && !commentId && !isDebateResponseLink && <PostsPageSplashHeader 
       post={post} 
       showEmbeddedPlayer={showEmbeddedPlayer} 
       toggleEmbeddedPlayer={toggleEmbeddedPlayer}
