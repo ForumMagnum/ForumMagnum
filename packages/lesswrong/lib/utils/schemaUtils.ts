@@ -145,6 +145,10 @@ export const foreignKeyField = <CollectionName extends CollectionNameString>({
         fieldName: idFieldName,
         nullable,
       }),
+      // Currently `sqlResolver`s are only used by the default resolvers which
+      // handle permissions checks automatically. If we ever expand this system
+      // to make SQL resolvers useable by arbitrary resolvers then we (probably)
+      // need to add some permission checks here somehow.
       ...(autoJoin ? {
         sqlResolver: ({field, join}: SqlResolverArgs<CollectionName>) => join<HasIdCollectionNames>({
           table: collectionName,
