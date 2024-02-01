@@ -250,7 +250,7 @@ augmentFieldsDict(Posts, {
       type: 'Float',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
         const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
-          Promise.all(ids.map(id => Posts.findOne({_id: id}).then(p => !!p ? getPostMarketInfo(p) : undefined)))
+          Posts.find({_id: {$in : ids}}).fetch().then(posts => posts.map(getPostMarketInfo))
         )
         return market?.probability
       }
@@ -261,7 +261,7 @@ augmentFieldsDict(Posts, {
       type: 'Boolean',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
         const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
-          Promise.all(ids.map(id => Posts.findOne({_id: id}).then(p => !!p ? getPostMarketInfo(p) : undefined)))
+          Posts.find({_id: {$in : ids}}).fetch().then(posts => posts.map(getPostMarketInfo))
         )
         return market?.isResolved
       }
@@ -272,7 +272,7 @@ augmentFieldsDict(Posts, {
       type: 'Int',
       resolver: async (post: DbPost, args: void, context: ResolverContext) => {
         const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
-          Promise.all(ids.map(id => Posts.findOne({_id: id}).then(p => !!p ? getPostMarketInfo(p) : undefined)))
+          Posts.find({_id: {$in : ids}}).fetch().then(posts => posts.map(getPostMarketInfo))
         )
         return market?.year
       }
