@@ -35,7 +35,7 @@ type MultiselectOption = {
  */
 const MultiSelect = ({ value, setValue, label, placeholder, separator, options, classes }: {
   value: string[],
-  setValue: (newValue: any)=>void,
+  setValue: (newValue: any) => void,
   
   label?: string,
   placeholder?: string,

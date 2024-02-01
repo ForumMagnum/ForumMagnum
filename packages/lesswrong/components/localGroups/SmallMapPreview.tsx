@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import {isFriendlyUI} from '../../themes/forumTheme'
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   previewWrapper: {
@@ -69,7 +70,7 @@ class SmallMapPreview extends Component<SmallMapPreviewProps,SmallMapPreviewStat
         {...viewport}
         width="100%"
         height="100%"
-        mapStyle={isEAForum ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
+        mapStyle={isFriendlyUI ? undefined : "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra"}
         onViewportChange={viewport => this.setState({ viewport })}
         mapboxApiAccessToken={mapboxAPIKeySetting.get()}
       >

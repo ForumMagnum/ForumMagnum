@@ -30,12 +30,11 @@ import qs from 'qs';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnNotificationsChanged } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
-import isEqual from 'lodash/isEqual';
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
-import { AnchorOffset } from '../../../lib/tableOfContents';
-import { PostsAudioPlayerWrapper, postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -196,6 +195,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: theme.spacing.titleDividerSpacing,
     }
   },
+  titleWithMarket: {
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 35,
+    }
+  },
   centralColumn: {
     maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
@@ -305,7 +309,7 @@ export const postsCommentsThreadMultiOptions = {
 const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   eagerPostComments?: EagerPostComments,
-  refetch: ()=>void,
+  refetch: () => void,
   classes: ClassesType,
 }) => {
   const location = useSubscribedLocation();
@@ -313,7 +317,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
-  const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
+  const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const { toc, setToCOffsets } = useContext(SidebarsContext)!;
 
   const { captureEvent } = useTracking();
@@ -469,7 +473,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
-    PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
+    PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row,
     AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
     CommentsListSection, CommentsTableOfContents, PostsPageSplashHeader, PostsAudioPlayerWrapper
@@ -561,6 +565,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const noIndex = post.noIndex || post.rejected;
 
+  const marketInfo = getMarketInfo(post)
+
   const header = <>
     {!commentId && <>
       <HeadTags
@@ -578,8 +584,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       />
     </>}
     {/* Header/Title */}
-    {commentId && !isDebateResponseLink && <AnalyticsContext pageSectionContext="postHeader">
-      <div className={classes.title}>
+    <AnalyticsContext pageSectionContext="postHeader">
+      <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo)})}>
         <div className={classes.centralColumn}>
           {commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={post} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
@@ -595,7 +601,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-            dialogueResponses={debateResponses} />
+            dialogueResponses={debateResponses} 
+            annualReviewMarketInfo={marketInfo}/>
         </div>
       </div>
     </AnalyticsContext>}
@@ -720,7 +727,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             loadingMoreComments={loadingMore}
             post={post}
             newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
-            highlightDate={highlightDate}
+            highlightDate={highlightDate ?? undefined}
             setHighlightDate={setHighlightDate}
           />
           {isAF && <AFUnreviewedCommentCount post={post}/>}
@@ -738,7 +745,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       commentTree={commentTree}
       answersTree={answersTree}
       post={post}
-      highlightDate={highlightDate}
+      highlightDate={highlightDate ?? undefined}
     />
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>

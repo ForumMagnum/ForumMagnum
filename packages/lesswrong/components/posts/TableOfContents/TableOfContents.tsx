@@ -12,7 +12,7 @@ const TableOfContents = ({sectionData, title, postedAt, onClickSection, displayO
   sectionData: ToCData,
   title: string,
   postedAt?: Date,
-  onClickSection?: ()=>void,
+  onClickSection?: () =>void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType,
   fixedPositionToc?: boolean

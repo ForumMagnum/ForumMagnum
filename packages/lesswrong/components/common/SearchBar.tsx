@@ -77,7 +77,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: 34,
   } : {},
   searchIcon: {
-    color: isFriendlyUI ? undefined : theme.palette.header.text,
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.header.text,
   },
   searchIconSmall: isFriendlyUI ? {
     padding: 6,
@@ -104,7 +104,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
-  onSetIsActive: (active:boolean)=>void,
+  onSetIsActive: (active: boolean) => void,
   searchResultsArea: any,
   classes: ClassesType
 }) => {

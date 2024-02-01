@@ -56,7 +56,8 @@ const PostExcerpt = ({
   const contentHtml =
     postHighlight?.contents?.htmlHighlightStartingAtHash ||
     post.customHighlight?.html ||
-    postContents?.htmlHighlight;
+    postContents?.htmlHighlight ||
+    (postContents as AnyBecauseHard)?.html;
   if (!contentHtml) {
     return null;
   }

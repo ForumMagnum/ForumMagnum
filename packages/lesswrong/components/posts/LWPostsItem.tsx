@@ -12,6 +12,7 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
+import { highlightMarket } from '../../lib/annualReviewMarkets';
 
 export const KARMA_WIDTH = 32
 
@@ -88,6 +89,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginLeft: 2,
       marginRight: theme.spacing.unit
     }
+  },
+  karmaPredictedReviewWinner: {
+    color: theme.palette.review.winner
   },
   title: {
     minHeight: 26,
@@ -358,6 +362,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showReviewCount,
     showIcons,
     showKarma,
+    annualReviewMarketInfo,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,
@@ -425,10 +430,14 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             )}
           >
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
-            {showKarma && <PostsItem2MetaInfo className={classes.karma}>
+            {showKarma && <PostsItem2MetaInfo className={classNames(
+              classes.karma, {
+                [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo)
+
+              })}>
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
-                : <KarmaDisplay document={post} />
+                : <KarmaDisplay document={post} annualReviewMarketInfo={annualReviewMarketInfo} annualReviewMarketCommentId={post.annualReviewMarketCommentId}/>
               }
             </PostsItem2MetaInfo>}
 
@@ -559,7 +568,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               terms={commentTerms}
               post={post}
               treeOptions={{
-                highlightDate: post.lastVisitedAt,
+                highlightDate: post.lastVisitedAt ?? undefined,
                 condensed: condensedAndHiddenComments,
               }}
             />

@@ -94,6 +94,8 @@ import './collections/reviewVotes/collection'
 import './collections/reviewVotes/views'
 import './collections/reviewVotes/fragments'
 
+import './collections/manifoldProbabilitiesCaches/collection';
+import './collections/manifoldProbabilitiesCaches/schema';
 
 import './collections/localgroups/collection'
 import './collections/localgroups/views';

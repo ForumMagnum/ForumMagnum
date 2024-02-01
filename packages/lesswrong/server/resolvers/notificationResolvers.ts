@@ -1,13 +1,15 @@
 import { defineMutation, defineQuery } from '../utils/serverGraphqlUtil';
 import { Notifications } from '../../lib/collections/notifications/collection';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
-import { getNotificationTypeByName } from '../../lib/notificationTypes';
+import { getNotificationTypeByName, NotificationDisplay } from '../../lib/notificationTypes';
 import { NotificationCountsResult } from '../../lib/collections/notifications/schema';
 import { isDialogueParticipant } from "../../components/posts/PostsPage/PostsPage";
 import { notifyDialogueParticipantsNewMessage } from "../notificationCallbacks";
 import { cheerioParse } from '../utils/htmlUtil';
 import { DialogueMessageInfo } from '../../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { handleDialogueHtml } from '../editor/conversionUtils';
+import { createPaginatedResolver } from './paginatedResolver';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 defineQuery({
   name: "unreadNotificationCounts",
@@ -31,7 +33,7 @@ defineQuery({
         faviconBadgeNumber: 0,
       }
     }
-    
+
     const lastNotificationsCheck = currentUser.lastNotificationsCheck;
     const newNotifications = await Notifications.find({
       ...getDefaultViewSelector("Notifications"),
@@ -40,12 +42,23 @@ defineQuery({
         createdAt: {$gt: lastNotificationsCheck},
       }),
     }).fetch();
-    const unreadNotifications = newNotifications.length;
-    const unreadPrivateMessages = newNotifications.filter(notif => notif.type === "newMessage").length;
+
+    // Notifications are shown separately from new messages in friendly UI.
+    // The `viewed` parameter is currently only actually used for messages,
+    // but we check it here for all notifications as it's quite likely we'll
+    // expand this in the future.
+    const unreadNotifications = isFriendlyUI
+      ? newNotifications.filter(
+        ({type, viewed}) => type !== "newMessage" && !viewed,
+      ).length
+      : newNotifications.length;
+    const unreadPrivateMessages = newNotifications.filter(
+      ({type, viewed}) => type === "newMessage" && !viewed,
+    ).length;
     const badgeNotifications = newNotifications.filter(notif =>
       !!getNotificationTypeByName(notif.type).causesRedBadge
     );
-    
+
     return {
       checkedAt,
       unreadNotifications,
@@ -90,3 +103,26 @@ defineMutation({
     return true
   }
 })
+
+createPaginatedResolver({
+  name: "NotificationDisplays",
+  graphQLType: "JSON",
+  args: {
+    type: "String",
+  },
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+    args?: {type?: string | null},
+  ): Promise<NotificationDisplay[]> => {
+    const {repos, currentUser} = context;
+    if (!currentUser) {
+      return [];
+    }
+    return repos.notifications.getNotificationDisplays({
+      userId: currentUser._id,
+      type: args?.type ?? undefined,
+      limit,
+    });
+  },
+});

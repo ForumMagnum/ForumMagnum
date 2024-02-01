@@ -194,7 +194,7 @@ export async function convertImagesInObject<N extends CollectionNameString>(
   collectionName: N,
   _id: string,
   fieldName = "contents",
-  urlFilterFn: (url: string)=>boolean = ()=>true
+  urlFilterFn: (url: string) => boolean = ()=>true
 ): Promise<number> {
   const logger = loggerConstructor("image-conversion")
   let totalUploaded = 0;

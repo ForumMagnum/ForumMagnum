@@ -15,7 +15,7 @@ const schema: SchemaType<"Sequences"> = {
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
-    control: 'text',
+    control: 'FormUserSelect',
     tooltip: 'The user id of the author',
   },
 
@@ -172,6 +172,7 @@ const schema: SchemaType<"Sequences"> = {
 
   postsCount: resolverOnlyField({
     type: Number,
+    graphQLtype: 'Int!',
     canRead: ['guests'],
     resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
       const count = await getWithCustomLoader<number, string>(
@@ -189,6 +190,7 @@ const schema: SchemaType<"Sequences"> = {
 
   readPostsCount: resolverOnlyField({
     type: Number,
+    graphQLtype: 'Int!',
     canRead: ['guests'],
     resolver: async (sequence: DbSequence, args: void, context: ResolverContext) => {
       const currentUser = context.currentUser;

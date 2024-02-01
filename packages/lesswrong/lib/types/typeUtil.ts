@@ -42,7 +42,7 @@ type NameOfFieldWithType<ObjType,FieldName,FieldType> =
 type FromPartial<T> = T extends Partial<infer U> ? U : never;
 
 /** Either T, or a function taking P and returning T. */
-export type MaybeFunction<T,P> = T|((props:P)=>T)
+export type MaybeFunction<T,P> = T|((props: P) => T)
 
 /**
  * Has Typescript type "any" because it's a JSON blob coming from a user input,

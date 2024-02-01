@@ -14,7 +14,7 @@ export function addCronJob(options: {
   interval?: string,
   // uses later.js parser, no seconds allowed though
   cronStyleSchedule?: string,
-  job: ()=>void,
+  job: () => void,
 })
 {
   onStartup(function() {

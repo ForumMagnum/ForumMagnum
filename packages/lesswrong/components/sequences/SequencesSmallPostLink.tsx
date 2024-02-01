@@ -5,8 +5,9 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import type { PopperPlacementType } from '@material-ui/core/Popper/Popper';
 import { isLWorAF } from '../../lib/instanceSettings';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   title: {
     position: "relative",
     flexGrow: 1,
@@ -14,9 +15,15 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.postStyle,
     color: theme.palette.grey[900],
     display: "flex",
-    alignItems: "center",
+    alignItems: isFriendlyUI ? "flex-start" : "center",
     marginBottom: 6,
-    marginTop: 6
+    marginTop: 6,
+    ...(isFriendlyUI && {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontSize: 14,
+      fontWeight: 500,
+      lineHeight: "150%",
+    }),
   },
   large: {
     ...theme.typography.postsItemTitle,
@@ -25,13 +32,13 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   checkbox: {
     position: "relative",
-    top: 1,
+    top: isFriendlyUI ? -1 : 1,
     marginRight: 10
   }
 });
 
 const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="left-start"}: {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   post: PostsList,
   sequenceId: string,
   large?: boolean,
@@ -40,7 +47,10 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
   const {PostsTooltip, PostReadCheckbox} = Components;
   return <div className={classNames(classes.title, {[classes.large]: large})}>
     <span className={classes.checkbox}>
-      <PostReadCheckbox post={post} />
+      <PostReadCheckbox
+        post={post}
+        width={isFriendlyUI ? 14 : undefined}
+      />
     </span>
     <PostsTooltip
       post={post}

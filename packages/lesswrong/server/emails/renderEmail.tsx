@@ -135,7 +135,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   from?: string,
   subject: string,
   bodyComponent: React.ReactNode,
-  boilerplateGenerator?: (props: {css:string, title: string, body: string})=>string,
+  boilerplateGenerator?: (props: {css: string, title: string, body: string}) => string,
 }): Promise<RenderedEmail>
 {
   if (!subject) throw new Error("Missing required argument: subject");
@@ -230,8 +230,9 @@ export const wrapAndRenderEmail = async ({user, to, from, subject, body}: {user:
   });
 }
 
-export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
+export const wrapAndSendEmail = async ({user, force = false, to, from, subject, body}: {
   user: DbUser|null,
+  force?: boolean,
   to?: string,
   from?: string,
   subject: string,
@@ -240,7 +241,14 @@ export const wrapAndSendEmail = async ({user, to, from, subject, body}: {
   if (!to && !user) throw new Error("No destination email address for logged-out user email");
   const destinationAddress = to || getUserEmail(user)
   if (!destinationAddress) throw new Error("No destination email address for user email");
-  
+
+  const _reasonUserCantReceiveEmails = user && reasonUserCantReceiveEmails(user)
+  if(!force && user && !!_reasonUserCantReceiveEmails) {
+    //eslint-disable-next-line no-console
+    console.log(`Skipping user ${user.username} when emailing: ${_reasonUserCantReceiveEmails}`);
+    return false
+  }
+
   try {
     const email = await wrapAndRenderEmail({ user, to: destinationAddress, from, subject, body });
     const succeeded = await sendEmail(email);
@@ -322,6 +330,8 @@ export async function logSentEmail(renderedEmail: RenderedEmail, user: DbUser | 
 // null if there is no such reason and we can email them.
 export function reasonUserCantReceiveEmails(user: DbUser): string|null
 {
+  if (user.deleted)
+    return "User is deactivated"
   if (!user.email)
     return "No email address";
   if (!userEmailAddressIsVerified(user) && !isEAForum) // TODO: make this an instance setting?
