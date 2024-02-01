@@ -81,6 +81,12 @@ class SelectFragmentQuery<
    * passed to the front-end via GraphQL as Apollo will fill in the missing
    * fields for us automatically (set `getFields` in `initGraphQL.ts`).
    */
+  /**
+   * This is commented out for now as it's not needed (due to Apollo filling
+   * in any missing fields) and it has no test coverage.
+   * TODO: Do we actually need this, or can we delete?
+   */
+  /*
   async executeCodeResolvers<T extends DbObject>(
     obj: T,
     context: ResolverContext,
@@ -122,6 +128,7 @@ class SelectFragmentQuery<
 
     return obj;
   }
+  */
 }
 
 export default SelectFragmentQuery;
