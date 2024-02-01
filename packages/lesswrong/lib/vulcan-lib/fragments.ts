@@ -122,6 +122,7 @@ export const getFragment = (fragmentName: FragmentName): DocumentNode => {
 };
 
 export const getSqlFragment = (fragmentName: FragmentName): SqlFragment => {
+  // TODO: Should we also check that nested fragment names are also defined?
   if (!isValidFragmentName(fragmentName)) {
     throw new Error(`Fragment "${fragmentName}" not registered.`);
   }
