@@ -1185,7 +1185,8 @@ const schema: SchemaType<"Posts"> = {
       resolverName: 'podcastEpisode',
       collectionName: 'PodcastEpisodes',
       type: 'PodcastEpisode',
-      nullable: true
+      nullable: true,
+      autoJoin: true,
     }),
     optional: true,
     canRead: ['guests'],
