@@ -85,7 +85,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   tocSections: ToCSection[],
   title: string|null,
   postedAt?: Date,
-  onClickSection?: ()=>void,
+  onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -135,7 +135,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   if (!tocSections)
     return <div/>
 
-  const handleClick = async (ev: React.SyntheticEvent, jumpToSection: ()=>void): Promise<void> => {
+  const handleClick = async (ev: React.SyntheticEvent, jumpToSection: () => void): Promise<void> => {
     ev.preventDefault();
     if (onClickSection) {
       onClickSection();

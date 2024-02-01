@@ -381,7 +381,7 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
   </div>
 }
 
-const ReviewPill = ({review, classes, setReview}: {review: CommentsList, classes: ClassesType, setReview: (r:CommentsList | null) => void}) => {
+const ReviewPill = ({review, classes, setReview}: {review: CommentsList, classes: ClassesType, setReview: (r: CommentsList | null) => void}) => {
   return <HashLink to={`#${review._id}`}>
     <div className={classes.review} onMouseOver={() => setReview(review)}>
       <div className={classes.reviewScore}>
@@ -392,7 +392,6 @@ const ReviewPill = ({review, classes, setReview}: {review: CommentsList, classes
       </div>
     </div>
   </HashLink>
-    
 }
 
 const PostsPageSplashHeaderComponent = registerComponent(

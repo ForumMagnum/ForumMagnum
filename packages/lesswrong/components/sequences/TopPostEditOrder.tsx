@@ -20,11 +20,7 @@ export const TopPostEditOrder = ({ reviewWinner, updateCuratedOrder, classes }: 
   classes: ClassesType<typeof styles>,
 }) => {
   const [currentOrder, setCurrentOrder] = useState(reviewWinner.curatedOrder);
-
-  if (reviewWinner.curatedOrder === 0) {
-    console.log({ reviewWinner, currentOrder });
-  }
-
+  
   return (
     <div className={classes.root}>
       <TextField

@@ -15,10 +15,10 @@ type ToCWithTitle = {title: string, sectionData: ToCData};
 type SidebarsContextType = {
   toc: ToCWithTitle|null,
   tocTitleVisible: boolean,
-  setToC: (toc: ToCWithTitle|null)=>void,
-  setToCVisible: (visible: boolean)=>void,
-  setToCTitleVisible: (visible: boolean)=>void,
-  setToCOffsets: (offsets: AnchorOffset[])=>void,
+  setToC: (toc: ToCWithTitle|null) => void,
+  setToCVisible: (visible: boolean) => void,
+  setToCTitleVisible: (visible: boolean) => void,
+  setToCOffsets: (offsets: AnchorOffset[]) => void,
   sideCommentsActive: boolean,
   setSideCommentsActive: (active: boolean) => void,
 }
