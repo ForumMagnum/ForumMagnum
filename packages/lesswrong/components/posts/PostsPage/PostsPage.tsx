@@ -35,6 +35,7 @@ import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
+import isEqual from 'lodash/isEqual';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -605,7 +606,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             annualReviewMarketInfo={marketInfo}/>
         </div>
       </div>
-    </AnalyticsContext>}
+    </AnalyticsContext>
   </>;
 
   const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
