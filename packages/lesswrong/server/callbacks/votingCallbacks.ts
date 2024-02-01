@@ -182,17 +182,15 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
   const liteMarket = await createManifoldMarket(question, descriptionMarkdown, closeTime, visibility, initialProb)
 
-    // update the database to include the market id
+  const reviewTagSlug = 'annual-review-market';
+  const reviewYearTagSlug = `annual-review-${year}-market`;
 
-    const reviewTagSlug = 'annual-review-market';
-    const reviewYearTagSlug = `annual-review-${year}-market`;
-
-    // add the review tags to the post
-    const [comment] = await Promise.all([
-      makeMarketComment(post._id, year, liteMarket.url, botUser),
-      Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}}),
-      addTagToPost(post._id, reviewTagSlug, botUser, context),
-      addTagToPost(post._id, reviewYearTagSlug, botUser, context),
+  // add the review tags to the post
+  const [comment] = await Promise.all([
+    makeMarketComment(post._id, year, liteMarket.url, botUser),
+    Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}}),
+    addTagToPost(post._id, reviewTagSlug, botUser, context),
+    addTagToPost(post._id, reviewYearTagSlug, botUser, context)
   ])
 
   await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
