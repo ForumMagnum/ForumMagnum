@@ -26,6 +26,7 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 
+// TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
 
 const urlHintText = isEAForum
@@ -547,6 +548,10 @@ const schema: SchemaType<"Posts"> = {
           ? readTimeMinutesOverride
           : (contents?.wordCount ?? 0) / READ_WORDS_PER_MINUTE)
       ),
+    sqlResolver: ({field}) => `GREATEST(1, ROUND(COALESCE(
+      ${field("readTimeMinutesOverride")},
+      (${field("contents")}->'wordCount')::INTEGER
+    ) / ${READ_WORDS_PER_MINUTE}))`,
   }),
 
   // DEPRECATED field for GreaterWrong backwards compatibility
@@ -939,7 +944,16 @@ const schema: SchemaType<"Posts"> = {
       if (filteredTagRels?.length) {
         return filteredTagRels[0]
       }
-    }
+    },
+    sqlResolver: ({field, resolverArg, join}) => join({
+      table: "TagRels",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        tagId: resolverArg("tagId"),
+      },
+      resolver: (tagRelField) => tagRelField("*"),
+    }),
   }),
 
   tags: resolverOnlyField({
@@ -1114,7 +1128,16 @@ const schema: SchemaType<"Posts"> = {
       if (!votes.length) return null;
       const vote = await accessFilterSingle(currentUser, ReviewVotes, votes[0], context);
       return vote;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReviewVotes",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (reviewVotesField) => reviewVotesField("*"),
+    }),
   }),
   
   votingSystem: {
@@ -1162,7 +1185,8 @@ const schema: SchemaType<"Posts"> = {
       resolverName: 'podcastEpisode',
       collectionName: 'PodcastEpisodes',
       type: 'PodcastEpisode',
-      nullable: true
+      nullable: true,
+      autoJoin: true,
     }),
     optional: true,
     canRead: ['guests'],
@@ -1261,16 +1285,34 @@ const schema: SchemaType<"Posts"> = {
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const lastReadStatus = await getLastReadStatus(post, context);
       return lastReadStatus?.lastUpdated;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReadStatuses",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (readStatusField) => `${readStatusField("lastUpdated")}`,
+    }),
   }),
-  
+
   isRead: resolverOnlyField({
     type: Boolean,
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const lastReadStatus = await getLastReadStatus(post, context);
       return lastReadStatus?.isRead;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReadStatuses",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (readStatusField) => `${readStatusField("isRead")} IS TRUE`,
+    }),
   }),
 
   // curatedDate: Date at which the post was promoted to curated (null or false
@@ -1328,6 +1370,11 @@ const schema: SchemaType<"Posts"> = {
           return null
         }
       },
+      sqlResolver: ({field}) => `(
+        SELECT ARRAY_AGG(u."displayName")
+        FROM UNNEST(${field("suggestForCuratedUserIds")}) AS "ids"
+        JOIN "Users" u ON u."_id" = "ids"
+      )`,
       addOriginalField: true,
     }
   },

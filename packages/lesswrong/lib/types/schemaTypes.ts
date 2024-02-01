@@ -23,6 +23,34 @@ interface CollectionFieldPermissions {
 
 type FormInputType = 'text' | 'number' | 'url' | 'email' | 'textarea' | 'checkbox' | 'checkboxgroup' | 'radiogroup' | 'select' | 'datetime' | 'date' | keyof ComponentTypes;
 
+type FieldName<N extends CollectionNameString> = (keyof ObjectsByCollectionName[N] & string) | '*';
+
+type SqlFieldFunction<N extends CollectionNameString> = (fieldName: FieldName<N>) => string;
+
+type SqlJoinBase<N extends CollectionNameString> = {
+  table: N,
+  type?: "inner" | "full" | "left" | "right",
+  on: Partial<Record<FieldName<N>, string>>,
+}
+
+type SqlResolverJoin<N extends CollectionNameString> = SqlJoinBase<N> & {
+  resolver: (field: SqlFieldFunction<N>) => string,
+};
+
+type SqlJoinSpec<N extends CollectionNameString = CollectionNameString> = SqlJoinBase<N> & {
+  prefix: string,
+};
+
+type SqlResolverArgs<N extends CollectionNameString> = {
+  field: SqlFieldFunction<N>,
+  currentUserField: SqlFieldFunction<'Users'>,
+  join: <J extends CollectionNameString>(args: SqlResolverJoin<J>) => string,
+  arg: (value: unknown) => string,
+  resolverArg: (name: string) => string,
+}
+
+type SqlResolver<N extends CollectionNameString> = (args: SqlResolverArgs<N>) => string;
+
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
@@ -39,6 +67,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
     addOriginalField?: boolean,
     arguments?: string|null,
     resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext, info?: any) => any,
+    sqlResolver?: SqlResolver<N>,
   },
   blackbox?: boolean,
   denormalized?: boolean,

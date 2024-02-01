@@ -218,6 +218,8 @@ interface HasIdType {
   _id: string
 }
 
+type HasIdCollectionNames = Exclude<Extract<ObjectsByCollectionName[CollectionNameString], HasIdType>['__collectionName'], undefined>;
+
 // Common base type for everything with a userId field
 interface HasUserIdType {
   userId: string | null
