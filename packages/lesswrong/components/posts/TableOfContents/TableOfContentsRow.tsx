@@ -110,7 +110,11 @@ const styles = (theme: ThemeType) => ({
     [`body:has(.headroom--pinned) .${TITLE_CONTAINER_CLASS_NAME}`]: {
       opacity: 0,
       maxHeight: 70,
-    } 
+    },
+    [`body:has(.headroom--unfixed) .${TITLE_CONTAINER_CLASS_NAME}`]: {
+      opacity: 0,
+      maxHeight: 70,
+    }
   }
 });
 
