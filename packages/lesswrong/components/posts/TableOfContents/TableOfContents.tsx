@@ -8,9 +8,10 @@ import type { ToCDisplayOptions } from './TableOfContentsList';
 const styles = (theme: ThemeType): JssStyles => ({
 });
 
-const TableOfContents = ({sectionData, title, onClickSection, displayOptions, classes, fixedPositionToc = false}: {
+const TableOfContents = ({sectionData, title, postedAt, onClickSection, displayOptions, classes, fixedPositionToc = false}: {
   sectionData: ToCData,
   title: string,
+  postedAt?: Date,
   onClickSection?: ()=>void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType,
@@ -38,6 +39,7 @@ const TableOfContents = ({sectionData, title, onClickSection, displayOptions, cl
       <Components.FixedPositionToC
         tocSections={toc.sectionData.sections}
         title={tocTitleVisible ? title : null}
+        postedAt={postedAt}
         onClickSection={onClickSection}
         displayOptions={displayOptions}
       />

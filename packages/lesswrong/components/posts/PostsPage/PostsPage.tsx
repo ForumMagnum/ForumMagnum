@@ -556,7 +556,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc />
+    ? <TableOfContents sectionData={sectionData} title={post.title} postedAt={post.postedAt} fixedPositionToc />
     : null;
 
   const noIndex = post.noIndex || post.rejected;
