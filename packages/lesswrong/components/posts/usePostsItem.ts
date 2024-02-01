@@ -74,6 +74,9 @@ export type PostsItemConfig = {
   showReadCheckbox?: boolean,
   showKarma?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
+  /** showReviewRanking: instead of showing karma, show the post's ranking in its review year */
+  showReviewRanking?: boolean,
+  showCommentCount?: boolean,
   showMostValuableCheckbox?: boolean,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
@@ -120,6 +123,8 @@ export const usePostsItem = ({
   showReadCheckbox = false,
   showMostValuableCheckbox = false,
   showKarma = true,
+  showReviewRanking = false,
+  showCommentCount = true,
   isVoteable = false,
   className,
 }: PostsItemConfig) => {
@@ -213,6 +218,8 @@ export const usePostsItem = ({
     showIcons,
     showKarma,
     annualReviewMarketInfo,
+    showReviewRanking,
+    showCommentCount,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,

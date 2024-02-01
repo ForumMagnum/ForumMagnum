@@ -878,6 +878,11 @@ importComponent("Codex", () => require('../components/sequences/Codex'));
 importComponent("BestOfLessWrong", () => require('../components/sequences/BestOfLessWrong'));
 importComponent("CuratedSequences", () => require('../components/sequences/CuratedSequences'));
 importComponent("EAIntroCurriculum", () => require('../components/sequences/EAIntroCurriculum'));
+importComponent("TopPostsPage", () => require('../components/sequences/TopPostsPage'));
+importComponent("TopPostsDisplaySettings", () => require('../components/sequences/TopPostsDisplaySettings'));
+importComponent("TopPostItem", () => require('../components/sequences/TopPostItem'));
+importComponent("TopPostItemTooltip", () => require('../components/sequences/TopPostItemTooltip'));
+importComponent("TopPostEditOrder", () => require('../components/sequences/TopPostEditOrder'));
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("EditPostCategory", () => require('../components/form-components/EditPostCategory'));

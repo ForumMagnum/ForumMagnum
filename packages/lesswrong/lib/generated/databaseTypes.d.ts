@@ -968,6 +968,19 @@ interface DbReviewVote extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ReviewWinnersCollection = CollectionBase<"ReviewWinners">;
+
+interface DbReviewWinner extends DbObject {
+  __collectionName?: "ReviewWinners"
+  postId: string
+  reviewYear: number
+  curatedOrder: number
+  reviewRanking: number
+  isAI: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type RevisionsCollection = CollectionBase<"Revisions">;
 
 interface DbRevision extends DbObject {
@@ -1706,6 +1719,7 @@ interface CollectionsByName {
   ReadStatuses: ReadStatusesCollection
   Reports: ReportsCollection
   ReviewVotes: ReviewVotesCollection
+  ReviewWinners: ReviewWinnersCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
@@ -1772,6 +1786,7 @@ interface ObjectsByCollectionName {
   ReadStatuses: DbReadStatus
   Reports: DbReport
   ReviewVotes: DbReviewVote
+  ReviewWinners: DbReviewWinner
   Revisions: DbRevision
   Sequences: DbSequence
   Sessions: DbSession
@@ -1838,6 +1853,7 @@ interface ObjectsByTypeName {
   ReadStatus: DbReadStatus
   Report: DbReport
   ReviewVote: DbReviewVote
+  ReviewWinner: DbReviewWinner
   Revision: DbRevision
   Sequence: DbSequence
   Session: DbSession

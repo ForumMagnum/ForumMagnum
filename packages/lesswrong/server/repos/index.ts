@@ -17,6 +17,7 @@ import PostViewTimesRepo from "./PostViewTimesRepo";
 import PostViewsRepo from "./PostViewsRepo";
 import PostsRepo from "./PostsRepo";
 import ReadStatusesRepo from "./ReadStatusesRepo";
+import ReviewWinnersRepo from "./ReviewWinnersRepo";
 import SequencesRepo from "./SequencesRepo";
 import TagsRepo from "./TagsRepo";
 import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
@@ -47,6 +48,7 @@ const getAllRepos = () => ({
   postViews: new PostViewsRepo(),
   postViewTimes: new PostViewTimesRepo(),
   readStatuses: new ReadStatusesRepo(),
+  reviewWinners: new ReviewWinnersRepo(),
   sequences: new SequencesRepo(),
   tags: new TagsRepo(),
   typingIndicators: new TypingIndicatorsRepo(),

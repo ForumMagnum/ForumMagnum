@@ -6,12 +6,20 @@ import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
+
+type ResolverTerms = {
+  /** The search terms used to select the posts that will be shown. */
+  terms: PostsViewTerms,
+  resolverName?: never,
+} | {
+  terms: { limit: number },
+  resolverName: string,
+};
 
 export type PostsListConfig = {
   /** Child elements will be put in a footer section */
   children?: React.ReactNode,
-  /** The search terms used to select the posts that will be shown. */
-  terms?: any,
   /**
    * Apply a style that grays out the list while it's in a loading state
    * (default false)
@@ -38,6 +46,9 @@ export type PostsListConfig = {
    */
   hideLastUnread?: boolean,
   showPostedAt?: boolean,
+  showKarma?: boolean,
+  showReviewRanking?: boolean,
+  showCommentCount?: boolean,
   enableTotal?: boolean,
   showNominationCount?: boolean,
   showReviewCount?: boolean,
@@ -57,15 +68,22 @@ export type PostsListConfig = {
   hideHiddenFrontPagePosts?: boolean
   hideShortform?: boolean,
   loadMoreMessage?: string,
-}
+} & ResolverTerms;
 
 const defaultTooltipPlacement = isFriendlyUI
   ? "bottom-start"
   : "bottom-end";
 
+const getResolverName = (config: ResolverTerms) => {
+  return 'resolverName' in config ? config.resolverName! : 'FakeResolver';
+};
+
+const usesCustomResolver = (config: ResolverTerms) => {
+  return 'resolverName' in config && !!config.resolverName;
+}
+
 export const usePostsList = ({
   children,
-  terms,
   dimWhenLoading = false,
   topLoading = false,
   showLoading = true,
@@ -74,6 +92,9 @@ export const usePostsList = ({
   showNoResults = true,
   hideLastUnread = false,
   showPostedAt = true,
+  showKarma = true,
+  showReviewRanking = false,
+  showCommentCount = true,
   enableTotal = false,
   showNominationCount,
   showReviewCount,
@@ -93,8 +114,10 @@ export const usePostsList = ({
   hideHiddenFrontPagePosts = false,
   hideShortform = false,
   loadMoreMessage,
+  ...resolverTerms
 }: PostsListConfig) => {
   const [haveLoadedMore, setHaveLoadedMore] = useState(false);
+  const useCustomResolver = usesCustomResolver(resolverTerms);
 
   const tagVariables = tagId
     ? {
@@ -105,8 +128,9 @@ export const usePostsList = ({
     }
     : {};
 
-  const {results, loading, error, loadMore, loadMoreProps, limit} = useMulti({
-    terms,
+  const multiResult = useMulti({
+    terms: resolverTerms.terms,
+    skip: useCustomResolver,
     collectionName: "Posts",
     fragmentName: !!tagId ? 'PostsListTagWithVotes' : 'PostsListWithVotes',
     enableTotal,
@@ -114,8 +138,18 @@ export const usePostsList = ({
     nextFetchPolicy: "cache-first",
     itemsPerPage,
     alwaysShowLoadMore,
-    ...tagVariables
+    ...tagVariables,
   });
+
+  const paginatedResolverResult = usePaginatedResolver({
+    resolverName: getResolverName(resolverTerms),
+    skip: !useCustomResolver,
+    fragmentName: !!tagId ? 'PostsListTagWithVotes' : 'PostsListWithVotes',
+    itemsPerPage,
+    limit: resolverTerms.terms?.limit
+  });
+
+  const {results, loading, error, loadMore, loadMoreProps, limit} = useCustomResolver ? paginatedResolverResult : multiResult;
 
   // Map from post._id to whether to hide it. Used for client side post filtering
   // like e.g. hiding read posts
@@ -198,7 +232,7 @@ export const usePostsList = ({
   ).map((post, i) => ({
     post,
     index: i,
-    terms,
+    terms: resolverTerms.terms,
     showNominationCount,
     showReviewCount,
     showDraftTag,
@@ -208,9 +242,12 @@ export const usePostsList = ({
     hideTrailingButtons,
     curatedIconLeft: curatedIconLeft,
     tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
-    defaultToShowUnreadComments, showPostedAt,
-    showBottomBorder: showFinalBottomBorder ||
-      (hasResults && i < (orderedResults!.length - 1)),
+    defaultToShowUnreadComments,
+    showPostedAt,
+    showKarma,
+    showReviewRanking,
+    showCommentCount,
+    showBottomBorder: showFinalBottomBorder || (hasResults && i < (orderedResults!.length - 1)),
     tooltipPlacement,
   }));
 

@@ -281,6 +281,10 @@ import './collections/dialogueMatchPreferences/views';
 import './collections/ckEditorUserSessions/collection';
 import './collections/ckEditorUserSessions/fragments';
 
+// Review winners
+import './collections/reviewWinners/collection';
+import './collections/reviewWinners/fragments';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';

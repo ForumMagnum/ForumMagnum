@@ -1538,6 +1538,14 @@ addRoute(
     title: "All Posts",
   },
   {
+    name: 'reviewWinners',
+    path: '/reviewWinners',
+    componentName: 'TopPostsPage',
+    // enableResourcePrefetch: true,
+    title: 'Annual Review Winners',
+    background: "#f8f4ee"
+  },
+  {
     name: 'questions',
     path: '/questions',
     componentName: 'QuestionsPage',

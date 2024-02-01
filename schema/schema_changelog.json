@@ -538,5 +538,10 @@
     "acceptsSchemaHash": "44cc1cc66be79573b597f5f1168df8ec",
     "acceptedByMigration": "20240131T230552.add_ManifoldProbabilitiesCaches_table_and_annual_review_fields_to_Posts.ts",
     "timestamp": "2024-01-31T23:05:52.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f3add36e62e14d409e005ef7ed969bb2",
+    "acceptedByMigration": "20240201T210658.add_ReviewWinners.ts",
+    "timestamp": "2024-02-01T21:06:58.000Z"
   }
 ]
