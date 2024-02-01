@@ -1,9 +1,7 @@
 import { imagine_key, openai_key, openai_org, slack_api_token } from './keys.ts'
 import OpenAI from 'openai'
 import axios from 'axios';
-import fs from 'fs';
-import path from 'path'
-import { readFile, writeFile } from 'fs/promises'
+import FormData from 'form-data';
 import { Globals } from '../../vulcan-lib/index.ts';
 import Posts from '../../../lib/collections/posts/collection.ts';
 
@@ -86,61 +84,11 @@ const getElements = async (essay: {title: string, content: string}): Promise<str
 
 const prompter = (el: string) => `https://s.mj.run/Bkrf46MPWyo  Aquarelle illustration inspired by topographic river maps and mathematical diagrams and equations. A clear image of ${el} --no text --ar 8:5 --iw 2.0 --s 150 --chaos 10 --v 6.0`
 
-async function downloadImage(url : string, filePath : string) : Promise<void> {
-  const response = await axios({
-    url: url,
-    method: 'GET',
-    responseType: 'stream',
-  });
-
-  console.log('Download image response data: ', response.data)
-  response.data.pipe(fs.createWriteStream(filePath));
-
-  return new Promise((resolve, reject) => {
-    response.data.on('end', () => {
-      resolve();
-    });
-
-    response.data.on('error', (err : Error) => {
-      reject(err);
-    });
-  });
-}
-
-async function uploadImageToSlack(filePath : string, threadTs : string) {
-  const formData = {
-    file: fs.readFileSync(filePath),
-    channels: channelId,
-    thread_ts: threadTs
-  };
-  const response = await axios.post('https://slack.com/api/files.upload', formData, {
-    headers: {
-      'Authorization': `Bearer ${slackToken}`,
-      'Content-Type': 'multipart/form-data',
-    },
-    // maxContentLength: Infinity,
-    // maxBodyLength: Infinity
-  });
-  console.log('Upload image response data: ', response.data)
-  console.log('Upload image response statusText: ', response.statusText)
-  return response.data;
-}
-
-const postPromptImages = async (prompt: string, {threadTs}: {title: string, threadTs?: string}, url: string, images: string[], aspect_ratio?: {width : number, height : number}) => {
+const postPromptImages = async (prompt: string, {title, threadTs}: {title: string, threadTs?: string}, images: string[]) => {
   if (!threadTs) return
   await postReply(`*Prompt: ${prompt}*`, threadTs);
   return await Promise.all(images.map(async (image) => {
-
-    const imageUrl = image;
-    const filePath = './image.png'; // ${image}
-    await downloadImage(imageUrl, filePath);
-
-    const filePathDummy = 'lw_big.png'
-    // const fullFilePath = path.join(__dirname, filePathDummy);
- 
-    // console.log("Full file path: ", fullFilePath)
-    await uploadImageToSlack(filePathDummy, threadTs)
-    // await postReply(url, threadTs);
+    await postReply(image, threadTs);
   }))
 }
 
@@ -159,7 +107,7 @@ async function go(essays: Essay[], essayIx: number, el: string) {
     });
 
     promptResponseData = await response.json();
-    console.log(promptResponseData);
+    // console.log(promptResponseData);
   } catch (error) {
     console.error('Error generating image:', error);
     throw error;
@@ -179,16 +127,16 @@ async function go(essays: Essay[], essayIx: number, el: string) {
       })
 
       const responseData = await response.json()
-      console.log(responseData)
+      // console.log(responseData)
       if (responseData.data.status === 'completed') {
         // stop repeating
         clearInterval(intervalId);
         console.log('Completed image details', responseData.data);
-        await postPromptImages(el, essays[essayIx], responseData.data.url, responseData.data.upscaled_urls)
+        await postPromptImages(el, essays[essayIx], responseData.data.upscaled_urls)
         releaseMidjourneyRights()
-        console.log('Completed image details', responseData.data);
+        // console.log('Completed image details', responseData.data);
       } else {
-        console.log("Image is not finished generation. Status: ", responseData.data.status)
+        // console.log("Image is not finished generation. Status: ", responseData.data.status)
       }
     } catch (error) {
       console.error('Error getting updates', error);
@@ -237,8 +185,7 @@ async function createThread(initialText: string) {
 }
 
 async function makeEssayThread(essay: {title: string, content: string, threadTs?: string}) {
-  const threadTs = await createThread(`Post title: ${essay.title}`);
-  essay.threadTs = threadTs
+  essay.threadTs = await createThread(`Post title: ${essay.title}`);
 }
 
 // Post a reply to the thread
@@ -247,14 +194,15 @@ async function postReply(text: string, threadTs: string, blocks? : any) {
 }
 
 async function main () {
-  const limit = 1
-  const essays = (await getEssays()).slice(0, limit)
-  await Promise.all(essays.map(makeEssayThread))
-  const elementss = await Promise.all(essays.slice(0, limit).map(getElements))
-  await Promise.all(
-    elementss.slice(0,limit)
-    .map((els,i) => els.map(el => go(essays, i, el)))
-  )
+  // const limit = 1
+  // const essays = (await getEssays()).slice(0, limit)
+  // await Promise.all(essays.map(makeEssayThread))
+  // const elementss = await Promise.all(essays.slice(0, limit).map(getElements))
+  // await Promise.all(
+  //   elementss.slice(0,limit)
+  //   .map((els,i) => els.slice(1).map(el => go(essays, i, el)))
+  // )
+  await postPromptImages('test', {title: 'test', threadTs: 'p1706745567571679'}, ['https://cdn.discordapp.com/attachments/1202405316231299112/1202405771225079818/lwbot_Aquarelle_illustration_inspired_by_topographic_river_maps_a0467f69-0f26-4760-9544-9bf022abe9db.png?ex=65cd56a3&is=65bae1a3&hm=aa8518f72e38cdd3dcb740499723912e18541b50eceb36cd85cbb096e0218906&'])
 }
 
 Globals.coverImages = () => main()
