@@ -11,9 +11,6 @@ import { useObserver } from '../../hooks/useObserver';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 
 const styles = (theme: ThemeType) => ({
-// JSS styles
-  // ...audioIconStyles(theme),
-  
   root: {
     zIndex: theme.zIndexes.postsPageSplashHeader,
     height: '100vh',
@@ -38,7 +35,7 @@ const styles = (theme: ThemeType) => ({
       background: 'linear-gradient(0deg, white 3%, transparent 48%)',
       pointerEvents: 'none'
     },
-    transition: 'opacity 0.2s ease-in-out',
+    transition: 'opacity 0.5s ease-in-out',
     opacity: 1,
     [theme.breakpoints.down('sm')]: {
       marginTop: '-64px',
@@ -47,8 +44,25 @@ const styles = (theme: ThemeType) => ({
       marginRight: -8
     },
   },
+  // These fade effects (for the title/author "fading out" vertically) also rely on the `transition` properties in the `title` and `author` classes
+  fadeIn: {
+    '& .PostsPageSplashHeader-title, .PostsPageSplashHeader-Author': {
+      transitionDelay: '0s',
+      transitionTimingFunction: 'ease-out',
+    },
+  },
   fadeOut: {
     opacity: 0,
+    '& .PostsPageSplashHeader-title': {
+      opacity: 0,
+      transform: 'translateY(-100px)',
+      transitionTimingFunction: 'ease-in',
+    },
+    '& .PostsPageSplashHeader-author': {
+      opacity: 0,
+      transform: 'translateY(-70px)',
+      transitionTimingFunction: 'ease-in',
+    },
   },
   centralSection: {
     textAlign: 'center',
@@ -140,7 +154,8 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       fontSize: '2.5rem',
       maxWidth: '90vw'
-    }
+    },
+    transition: 'opacity .5s, transform .5s'
   },
   titleSmaller: {
     fontSize: '3.8rem',
@@ -188,6 +203,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1.6rem',
     fontWeight: '700',
     color: 'rgba(0,0,0,0.65)',
+    transition: 'opacity .5s, transform .5s',
   },
   reviews: {
     display: 'flex',
@@ -284,7 +300,7 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
     setVisible(headerVisibile);
   }
   const observerRef = useObserver<HTMLDivElement>({onEnter: () => transitionHeader(true), onExit: () => transitionHeader(false), threshold: 0.95});
-  const { loading, results: reviews, loadMoreProps } = useMulti({
+  const { results: reviews } = useMulti({
     terms: {
       view: "reviews",
       postId: post._id,
@@ -306,18 +322,16 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
-  return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef}>
+  return <div className={classNames(classes.root, {[classes.fadeOut]: !visible, [classes.fadeIn]: visible})} ref={observerRef}>
     <div className={classes.top}>
       <div className={classes.leftSection}>
-        {/* <div className={classes.narrowLeftElements}> */}
-          <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
-            Ranked #2 of 3220 posts in the 2021 Review
-          </Link>
-          <Link className={classes.reviewNavigationMobile} to="/best-of-lesswrong">
-            #2 in 2021 Review
-          </Link>
-          {toggleEmbeddedPlayer && audioIcon}
-        {/* </div> */}
+        <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
+          Ranked #2 of 3220 posts in the 2021 Review
+        </Link>
+        <Link className={classes.reviewNavigationMobile} to="/best-of-lesswrong">
+          #2 in 2021 Review
+        </Link>
+        {toggleEmbeddedPlayer && audioIcon}
       </div>
       <div className={classes.rightSection}>
         <AnalyticsContext pageSectionContext="tagHeader">
@@ -357,8 +371,7 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
     </div>
     
     <div className={classes.centralSection}>
-      
-      <h1 className={classNames(classes.title, {[classes.titleSmaller]: post.title.length > 80})}>
+      <h1 className={classNames(classes.title, { [classes.titleSmaller]: post.title.length > 80 })}>
         {post.title}
       </h1>
       <div className={classes.author}>

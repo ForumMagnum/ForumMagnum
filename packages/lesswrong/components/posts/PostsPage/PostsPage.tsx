@@ -763,7 +763,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             {
               toc: commentsToC,
               centralColumn: commentsSection,
-              unsetMargin: true
+              isCommentToC: true
             },
           ]}
         />

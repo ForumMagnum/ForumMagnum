@@ -8,7 +8,6 @@ import { HEADER_HEIGHT } from '../../common/Header';
 const sectionOffsetStyling = (fullHeightToCEnabled ? {
   display: 'flex',
   flexDirection: 'column-reverse',
-  top: -1
 } : {});
 
 const TITLE_CONTAINER_CLASS_NAME = 'ToCTitleContainer';
@@ -155,15 +154,16 @@ const TableOfContentsRow = ({
 
   useEffect(() => {
     if (rowRef.current) {
-      window.addEventListener('scroll', updatePinnedState);
+      // To prevent the comment ToC title from being hidden when scrolling up
+      // This relies on the complementary `top: -1px` styling in `MultiToCLayout` on the parent sticky element
+      const observer = new IntersectionObserver(([e]) => {
+        const newIsPinned = e.intersectionRatio < 1;
+        setIsPinned(newIsPinned);
+      }, { threshold: [1] });
+  
+      observer.observe(rowRef.current);  
     }
-    return () => window.removeEventListener('scroll', updatePinnedState);
   }, []);
-
-  const updatePinnedState = () => {
-    const newIsPinned = rowRef.current?.getBoundingClientRect().y === -1;
-    setIsPinned(newIsPinned);
-  };
 
   if (divider) {
     return <Components.TableOfContentsDivider offsetStyling={offsetStyling} />

@@ -7,7 +7,6 @@ import { isAF } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
-import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   voteBlockHorizontal: {
@@ -40,13 +39,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
-    fontSize: '80%',
-  },
-  voteScoreGoodHeart: {
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[700],
-    fontSize: '45%',
-    textAlign: "center",
+    fontSize: '90%',
   },
   secondaryVoteScore: {
     fontSize: '35%',

@@ -45,7 +45,12 @@ const styles = (theme: ThemeType) => ({
     },
   },
   commentToCMargin: {
-    marginTop: 'unset'
+    marginTop: 'unset',
+  },
+  // This is needed for an annoying IntersectionObserver hack to prevent the title from being hidden when scrolling up
+  commentToCIntersection: {
+    // And unfortunately we need !important because otherwise this style gets overriden by the `top: 0` in `stickyBlockScroller`
+    top: '-1px !important',
   },
   stickyBlockScroller: {
     position: "sticky",
@@ -107,8 +112,7 @@ export type ToCLayoutSegment = {
   toc?: React.ReactNode,
   centralColumn: React.ReactNode,
   rightColumn?: React.ReactNode,
-  unsetMargin?: boolean,
-  // className?: string,
+  isCommentToC?: boolean,
 };
 
 const MultiToCLayout = ({segments, classes}: {
@@ -122,8 +126,8 @@ const MultiToCLayout = ({segments, classes}: {
   return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
     {segments.map((segment,i) => <React.Fragment key={i}>
       {segment.toc && tocVisible && <>
-        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.unsetMargin })} style={{ "gridArea": `toc${i}` }} >
-          <div className={classes.stickyBlockScroller}>
+        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC })} style={{ "gridArea": `toc${i}` }} >
+          <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })}>
             <div className={classes.stickyBlock}>
               {segment.toc}
             </div>
