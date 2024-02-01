@@ -67,7 +67,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-export const CuratedIcon = ({hasColor, classes}:{
+export const CuratedIcon = ({hasColor, classes}: {
   hasColor?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {

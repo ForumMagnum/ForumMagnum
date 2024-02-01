@@ -69,7 +69,7 @@ importComponent("TargetedJobAd", () => require('../components/ea-forum/TargetedJ
 importComponent("UrlHintText", () => require('../components/ea-forum/UrlHintText'))
 importComponent("EAButton", () => require('../components/ea-forum/EAButton'))
 importComponent(["EAGApplicationImportFormWrapper", "EAGApplicationImportForm"], () => require('../components/ea-forum/users/EAGApplicationImportForm'))
-importComponent("EAUsersProfile", () => require('../components/ea-forum/users/EAUsersProfile'))
+importComponent("FriendlyUsersProfile", () => require('../components/users/FriendlyUsersProfile'))
 importComponent("EAUsersProfileImage", () => require('../components/ea-forum/users/EAUsersProfileImage'))
 importComponent("EAUsersProfileLinks", () => require('../components/ea-forum/users/EAUsersProfileLinks'))
 importComponent("EAUsersMetaInfo", () => require('../components/ea-forum/users/EAUsersMetaInfo'))
@@ -452,6 +452,7 @@ importComponent("PostsCoauthor", () => require('../components/posts/PostsPage/Po
 importComponent("PostsVideoCard", () => require('../components/posts/PostsVideoCard'));
 importComponent("PostsAudioCard", () => require('../components/posts/PostsAudioCard'));
 importComponent("LocalgroupPageTitle", () => require('../components/titles/LocalgroupPageTitle'));
+importComponent("PostsAnnualReviewMarketTag", () => require('../components/posts/PostsAnnualReviewMarketTag'));
 
 importComponent("ShortformPage", () => require('../components/shortform/ShortformPage'));
 importComponent("ShortformThreadList", () => require('../components/shortform/ShortformThreadList'));

@@ -9,7 +9,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   refetch,
   commentTreeOptions = {},
   initialExpandAllThreads,
-} : {
+}: {
   post: PostsRecentDiscussion,
   comments?: T[],
   refetch: () => void,

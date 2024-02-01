@@ -418,7 +418,16 @@ const schema: SchemaType<"Tags"> = {
       );
       if (!readStatus.length) return false;
       return readStatus[0].isRead;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReadStatuses",
+      type: "left",
+      on: {
+        tagId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (readStatusField) => `COALESCE(${readStatusField("isRead")}, FALSE)`,
+    }),
   }),
 
   tableOfContents: resolverOnlyField({

@@ -7,6 +7,7 @@ import DialogueChecksRepo from "./DialogueChecksRepo";
 import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
 import ElectionVotesRepo from "./ElectionVotesRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
+import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import NotificationsRepo from "./NotificationsRepo";
 import PageCacheRepo from "./PageCacheRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
@@ -39,6 +40,7 @@ const getAllRepos = () => ({
   notifications: new NotificationsRepo(),
   postEmbeddings: new PostEmbeddingsRepo(),
   pageCaches: new PageCacheRepo(),
+  manifoldProbabilitiesCachesRepo: new ManifoldProbabilitiesCachesRepo(),
   postRecommendations: new PostRecommendationsRepo(),
   postRelations: new PostRelationsRepo(),
   posts: new PostsRepo(),
@@ -62,6 +64,7 @@ export {
   ElectionCandidatesRepo,
   ElectionVotesRepo,
   LocalgroupsRepo,
+  ManifoldProbabilitiesCachesRepo,
   NotificationsRepo,
   PageCacheRepo,
   PostEmbeddingsRepo,

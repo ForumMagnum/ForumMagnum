@@ -224,7 +224,7 @@ const topPosts = async ({count, currentUser, algorithm, scoreFn}: {
   count: number,
   currentUser: DbUser|null,
   algorithm: DefaultRecommendationsAlgorithm,
-  scoreFn: (post: DbPost)=>number,
+  scoreFn: (post: DbPost) => number,
 }) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
 
@@ -258,7 +258,7 @@ const samplePosts = async ({count, currentUser, algorithm, sampleWeightFn}: {
   count: number,
   currentUser: DbUser|null,
   algorithm: DefaultRecommendationsAlgorithm,
-  sampleWeightFn: (post: DbPost)=>number,
+  sampleWeightFn: (post: DbPost) => number,
 }) => {
   const recommendablePostsMetadata  = await allRecommendablePosts({currentUser, algorithm});
 

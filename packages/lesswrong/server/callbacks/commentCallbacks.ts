@@ -197,7 +197,7 @@ export async function moderateCommentsPostUpdate (comment: DbComment, currentUse
   if (comment.postId) {
     const comments = await Comments.find({postId:comment.postId, deleted: false, debateResponse: false}).fetch()
   
-    const lastComment:DbComment = _.max(comments, (c) => c.postedAt)
+    const lastComment: DbComment = _.max(comments, (c) => c.postedAt)
     const lastCommentedAt = (lastComment && lastComment.postedAt) || (await Posts.findOne({_id:comment.postId}))?.postedAt || new Date()
   
     void updateMutator({

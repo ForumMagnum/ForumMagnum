@@ -79,7 +79,7 @@ const passwordAuthStrategy = new GraphQLLocalStrategy(async function getUserPass
 passport.use(passwordAuthStrategy)
 
 
-function validatePassword(password:string): {validPassword: true} | {validPassword: false, reason: string} {
+function validatePassword(password: string): {validPassword: true} | {validPassword: false, reason: string} {
   if (password.length < 6) return { validPassword: false, reason: "Your password needs to be at least 6 characters long"}
   return { validPassword: true }
 }
@@ -202,7 +202,7 @@ const ResetPasswordToken = new EmailTokenType({
 const authenticationResolvers = {
   Mutation: {
     async login(root: void, { username, password }: {username: string, password: string}, { req, res }: ResolverContext) {
-      let token:string | null = null
+      let token: string | null = null
 
       await promisifiedAuthenticate(req, res, 'graphql-local', { username, password }, (err, user, info) => {
         return new Promise((resolve, reject) => {
@@ -247,7 +247,7 @@ const authenticationResolvers = {
       }
 
       const reCaptchaResponse = await getCaptchaRating(reCaptchaToken)
-      let recaptchaScore : number | undefined = undefined
+      let recaptchaScore: number | undefined = undefined
       if (reCaptchaResponse) {
         const reCaptchaData = JSON.parse(reCaptchaResponse)
         if (reCaptchaData.success && reCaptchaData.action === "login/signup") {

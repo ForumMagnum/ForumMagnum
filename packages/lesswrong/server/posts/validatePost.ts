@@ -7,7 +7,7 @@ import * as _ from 'underscore';
 registerCollectionValidator({
   collection: Posts,
   name: "Canonical sequence contains post",
-  validateBatch: async (documents: DbPost[], recordError: (field: string, message: string)=>void) => {
+  validateBatch: async (documents: DbPost[], recordError: (field: string, message: string) => void) => {
     const context = createAdminContext();
     for (let post of documents) {
       // If the post has a canonicalSequenceId, make sure that sequence contains the post

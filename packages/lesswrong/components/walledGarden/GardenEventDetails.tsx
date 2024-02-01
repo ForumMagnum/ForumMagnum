@@ -32,7 +32,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const GardenEventDetails = ({gardenCode, classes}: {gardenCode: GardenCodeFragment, classes:ClassesType}) => {
+export const GardenEventDetails = ({gardenCode, classes}: {gardenCode: GardenCodeFragment, classes: ClassesType}) => {
   
   const { timezone } = useTimezone();
   

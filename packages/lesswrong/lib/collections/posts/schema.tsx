@@ -26,6 +26,7 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 
+// TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
 
 const urlHintText = isEAForum
@@ -547,6 +548,10 @@ const schema: SchemaType<"Posts"> = {
           ? readTimeMinutesOverride
           : (contents?.wordCount ?? 0) / READ_WORDS_PER_MINUTE)
       ),
+    sqlResolver: ({field}) => `GREATEST(1, ROUND(COALESCE(
+      ${field("readTimeMinutesOverride")},
+      (${field("contents")}->'wordCount')::INTEGER
+    ) / ${READ_WORDS_PER_MINUTE}))`,
   }),
 
   // DEPRECATED field for GreaterWrong backwards compatibility
@@ -756,6 +761,31 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
   },
 
+  manifoldReviewMarketId: {
+    type: String,
+    nullable: true,
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: !isLWorAF
+  },
+
+  annualReviewMarketCommentId: {
+    ...foreignKeyField({
+      idFieldName: 'annualReviewMarketCommentId',
+      resolverName: 'comment',
+      collectionName: 'Comments',
+      type: 'Comment',
+      nullable: true
+    }),
+    optional: true,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    hidden: !isLWorAF
+  },
+
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)
   reviewVoteScoreAF: {
     type: Number, 
@@ -862,6 +892,32 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
   },
 
+
+  annualReviewMarketProbability: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+  annualReviewMarketIsResolved: {
+    type: Boolean,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+  annualReviewMarketYear: {
+    type: Number,
+    optional: true,
+    nullable: true,
+    canRead: ['guests'],
+    hidden: !isLWorAF
+    // Implementation in postResolvers.ts
+  },
+
   lastCommentPromotedAt: {
     type: Date,
     optional: true,
@@ -888,7 +944,16 @@ const schema: SchemaType<"Posts"> = {
       if (filteredTagRels?.length) {
         return filteredTagRels[0]
       }
-    }
+    },
+    sqlResolver: ({field, resolverArg, join}) => join({
+      table: "TagRels",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        tagId: resolverArg("tagId"),
+      },
+      resolver: (tagRelField) => tagRelField("*"),
+    }),
   }),
 
   tags: resolverOnlyField({
@@ -897,7 +962,7 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const { currentUser } = context;
-      const tagRelevanceRecord:Record<string, number> = post.tagRelevance || {}
+      const tagRelevanceRecord: Record<string, number> = post.tagRelevance || {}
       const tagIds = Object.entries(tagRelevanceRecord).filter(([id, score]) => score && score > 0).map(([id]) => id)
       const tags = await loadByIds(context, "Tags", tagIds);
       return await accessFilterMultiple(currentUser, context.Tags, tags, context)
@@ -1063,7 +1128,16 @@ const schema: SchemaType<"Posts"> = {
       if (!votes.length) return null;
       const vote = await accessFilterSingle(currentUser, ReviewVotes, votes[0], context);
       return vote;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReviewVotes",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (reviewVotesField) => reviewVotesField("*"),
+    }),
   }),
   
   votingSystem: {
@@ -1074,7 +1148,7 @@ const schema: SchemaType<"Posts"> = {
     group: formGroups.adminOptions,
     control: "select",
     form: {
-      options: ({currentUser}:{currentUser: UsersCurrent}) => {
+      options: ({currentUser}: {currentUser: UsersCurrent}) => {
         const votingSystems = getVotingSystems()
         const filteredVotingSystems = currentUser.isAdmin ? votingSystems : votingSystems.filter(votingSystem => votingSystem.userCanActivate)
         return filteredVotingSystems.map(votingSystem => ({label: votingSystem.description, value: votingSystem.name}));
@@ -1111,7 +1185,8 @@ const schema: SchemaType<"Posts"> = {
       resolverName: 'podcastEpisode',
       collectionName: 'PodcastEpisodes',
       type: 'PodcastEpisode',
-      nullable: true
+      nullable: true,
+      autoJoin: true,
     }),
     optional: true,
     canRead: ['guests'],
@@ -1210,16 +1285,34 @@ const schema: SchemaType<"Posts"> = {
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const lastReadStatus = await getLastReadStatus(post, context);
       return lastReadStatus?.lastUpdated;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReadStatuses",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (readStatusField) => `${readStatusField("lastUpdated")}`,
+    }),
   }),
-  
+
   isRead: resolverOnlyField({
     type: Boolean,
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
       const lastReadStatus = await getLastReadStatus(post, context);
       return lastReadStatus?.isRead;
-    }
+    },
+    sqlResolver: ({field, currentUserField, join}) => join({
+      table: "ReadStatuses",
+      type: "left",
+      on: {
+        postId: field("_id"),
+        userId: currentUserField("_id"),
+      },
+      resolver: (readStatusField) => `${readStatusField("isRead")} IS TRUE`,
+    }),
   }),
 
   // curatedDate: Date at which the post was promoted to curated (null or false
@@ -1277,6 +1370,11 @@ const schema: SchemaType<"Posts"> = {
           return null
         }
       },
+      sqlResolver: ({field}) => `(
+        SELECT ARRAY_AGG(u."displayName")
+        FROM UNNEST(${field("suggestForCuratedUserIds")}) AS "ids"
+        JOIN "Users" u ON u."_id" = "ids"
+      )`,
       addOriginalField: true,
     }
   },

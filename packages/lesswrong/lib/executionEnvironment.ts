@@ -30,7 +30,7 @@ export interface CommandLineArguments {
 let alreadyRunStartupFuntions = false
 
 type StartupFunction = {
-  fn: ()=>void|Promise<void>,
+  fn: () => void|Promise<void>,
   order: number
 }
 const onStartupFunctions: StartupFunction[] = [];
@@ -38,7 +38,7 @@ const onStartupFunctions: StartupFunction[] = [];
 // done). Startup functions have a numeric order attached, and are executed in
 // order from lowest to highest. If no order is given, the order is 0. Between
 // functions with the same order number, order of execution is undefined.
-export const onStartup = (fn: ()=>void|Promise<void>, order?: number) => {
+export const onStartup = (fn: () => void|Promise<void>, order?: number) => {
   if (alreadyRunStartupFuntions) {
     throw new Error("Startup functions have already been run, can no longer register more")
   }

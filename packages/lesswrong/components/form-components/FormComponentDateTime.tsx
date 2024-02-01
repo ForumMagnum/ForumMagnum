@@ -251,8 +251,8 @@ const DatePicker = ({label, name, value, below, onChange, onClose, classes}: {
   name?: string,
   value?: Date,
   below?: boolean,
-  onChange: (newValue: Date)=>void,
-  onClose?: (newValue: Date)=>void,
+  onChange: (newValue: Date) => void,
+  onClose?: (newValue: Date) => void,
   classes: ClassesType
 }) => {
   // since tz abbrev can depend on the date (i.e. EST vs EDT),

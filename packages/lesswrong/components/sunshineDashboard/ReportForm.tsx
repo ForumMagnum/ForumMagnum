@@ -8,8 +8,8 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
   postId?: string,
   commentId?: string,
   reportedUserId?: string,
-  onClose?: ()=>void,
-  onSubmit?: ()=>void,
+  onClose?: () => void,
+  onSubmit?: () => void,
   title?: string,
   link: string,
 }) => {

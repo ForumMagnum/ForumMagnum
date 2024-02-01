@@ -120,6 +120,12 @@ registerFragment(`
     reviewCount
     reviewVoteCount
     positiveReviewVoteCount
+    manifoldReviewMarketId
+    annualReviewMarketCommentId
+
+    annualReviewMarketProbability
+    annualReviewMarketIsResolved
+    annualReviewMarketYear
 
     group {
       _id
@@ -309,6 +315,7 @@ registerFragment(`
 
     # Podcast
     podcastEpisode {
+      _id
       title
       podcast {
         _id
