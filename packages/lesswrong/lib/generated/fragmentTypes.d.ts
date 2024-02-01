@@ -848,6 +848,7 @@ interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly curatedOrder: number,
   readonly reviewRanking: number,
   readonly isAI: boolean,
+  readonly splashArtImageId: string | null,
 }
 
 interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
@@ -1323,10 +1324,12 @@ interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
   readonly customHighlight: RevisionDisplay|null,
   readonly tableOfContentsRevision: any,
+  readonly reviewWinner: ReviewWinnersDefaultFragment|null,
 }
 
 interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fragment on Posts
   readonly tableOfContents: any,
+  readonly reviewWinner: ReviewWinnersDefaultFragment|null,
 }
 
 interface PostSequenceNavigation { // fragment on Posts

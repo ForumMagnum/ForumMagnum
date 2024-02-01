@@ -34,4 +34,12 @@ export const schema: SchemaType<"ReviewWinners"> = {
     canCreate: ['admins'],
     canUpdate: ['admins']
   },
+  splashArtImageId: {
+    type: String,
+    canRead: ['guests'],
+    canUpdate: ['admins'],
+    canCreate: ['admins'],
+    optional: true,
+    nullable: true,
+  },
 }

@@ -1139,6 +1139,25 @@ const schema: SchemaType<"Posts"> = {
       resolver: (reviewVotesField) => reviewVotesField("*"),
     }),
   }),
+
+  reviewWinner: resolverOnlyField({
+    type: "ReviewWinner",
+    graphQLtype: "ReviewWinner",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbReviewWinner|null> => {
+      const { ReviewWinners } = context;
+      const winner = await ReviewWinners.findOne({postId: post._id});
+      return winner;
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "ReviewWinners",
+      type: "left",
+      on: {
+        postId: field("_id"),
+      },
+      resolver: (reviewWinnersField) => reviewWinnersField("*"),
+    }),
+  }),
   
   votingSystem: {
     type: String,

@@ -454,6 +454,9 @@ registerFragment(`
     }
     
     tableOfContentsRevision(version: $version)
+    reviewWinner {
+      ...ReviewWinnersDefaultFragment
+    }
   }
 `)
 
@@ -463,6 +466,9 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContents
+    reviewWinner {
+      ...ReviewWinnersDefaultFragment
+    }
   }
 `)
 
