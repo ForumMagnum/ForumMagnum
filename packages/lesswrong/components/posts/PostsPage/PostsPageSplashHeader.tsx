@@ -294,7 +294,7 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
   hideTags?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
+  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
   const { imageURL } = useImageContext();
   const [visible, setVisible] = React.useState(true);
   const {setToCVisible} = useContext(SidebarsContext)!;
@@ -369,6 +369,9 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
                 <SplashHeaderImageOptions images={images} post={post}/>
               </div>
             </LWPopper>
+          </div>
+          <div className={classes.rightSectionBelowBottomRow}>
+            <ImageCropPreview />
           </div>
         </div>
       </div>

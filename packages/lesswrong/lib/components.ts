@@ -443,6 +443,7 @@ importComponent("SequencesPageTitle", () => require('../components/titles/Sequen
 importComponent("PostsPageHeaderTitle", () => require('../components/titles/PostsPageHeaderTitle'));
 importComponent("PostsCoauthor", () => require('../components/posts/PostsPage/PostsCoauthor'));
 importComponent("SplashHeaderImageOptions", () => require('../components/posts/PostsPage/SplashHeaderImageOptions'));
+importComponent("ImageCropPreview", () => require('../components/posts/PostsPage/ImageCropPreview'));
 importComponent("PostsVideoCard", () => require('../components/posts/PostsVideoCard'));
 importComponent("PostsAudioCard", () => require('../components/posts/PostsAudioCard'));
 importComponent("LocalgroupPageTitle", () => require('../components/titles/LocalgroupPageTitle'));

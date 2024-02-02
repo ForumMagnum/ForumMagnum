@@ -14,7 +14,13 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     justifyContent: 'space-around',
     marginBottom: '40px', 
-  }
+  },
+  imageContainer: {
+    width: '200px',
+    height: 'auto',
+    cursor: 'pointer',
+    // style={{ cursor: 'pointer', display: 'inline-block', maxWidth: '200px' }}
+  },
 });
 
 export const SplashHeaderImageOptions = ({ images, post, classes } : {
@@ -36,9 +42,9 @@ export const SplashHeaderImageOptions = ({ images, post, classes } : {
       <div className={classes.root}>
         <div className={classes.idk}>
         {images.slice(0, 8).map((image, index) => (
-          <div
+          <div 
+            className={classes.imageContainer}
             key={index}
-            style={{ cursor: 'pointer', display: 'inline-block', maxWidth: '100px' }}
             onClick={() => handleImageClick(image)}
           >
             <img
