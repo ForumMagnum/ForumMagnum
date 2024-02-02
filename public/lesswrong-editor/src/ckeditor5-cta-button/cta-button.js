@@ -9,6 +9,10 @@ import buttonIcon from "./button.svg";
 const CTA_CLASS = "ck-cta-button";
 const CENTERED_CLASS = "ck-cta-button-centered";
 
+/**
+ * Plugin for the CTA button element itself, the form for editing the text and link
+ * is defined in a separate plugin, CTAButtonForm
+ */
 export default class CTAButton extends Plugin {
   static get requires() {
     return [Widget, CTAButtonForm];
