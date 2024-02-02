@@ -10,6 +10,7 @@ import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useObserver } from '../../hooks/useObserver';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { requireCssVar } from '../../../themes/cssVars';
+import { hideScrollBars } from '../../../themes/styleUtils';
 
 const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
 
@@ -48,13 +49,18 @@ const styles = (theme: ThemeType) => ({
   },
   // These fade effects (for the title/author "fading out" vertically) also rely on the `transition` properties in the `title` and `author` classes
   fadeIn: {
-    '& .PostsPageSplashHeader-title, .PostsPageSplashHeader-Author': {
+    '& .PostsPageSplashHeader-title, .PostsPageSplashHeader-author, .PostsPageSplasheHeader-reviews': {
       transitionDelay: '0s',
       transitionTimingFunction: 'ease-out',
     },
   },
   fadeOut: {
     opacity: 0,
+    '& .PostsPageSplashHeader-reviews': {
+      opacity: 0,
+      transform: 'translateY(-130px)',
+      transitionTimingFunction: 'ease-in',
+    },
     '& .PostsPageSplashHeader-title': {
       opacity: 0,
       transform: 'translateY(-100px)',
@@ -215,6 +221,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'center',
     alignItems: 'flex-end',
     flexWrap: 'wrap-reverse',
+    transition: 'opacity .5s, transform .5s',
     ...theme.typography.commentStyle,
   },
   reviewContainer: {
@@ -245,11 +252,12 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
     position: 'relative',
     zIndex: 1,
-    color: 'white'
+    color: 'white',
   },
   reviewScore: {
   },
   reviewAuthor: {
+
   },
   reviewPreviewContainer: {
     padding: '16px',
@@ -258,7 +266,7 @@ const styles = (theme: ThemeType) => ({
   reviewPreview: {
     ...theme.typography.commentStyle,
     transition: 'opacity 0.2s ease-in-out',
-    backgroundColor: 'rgba(255,255,255,0.8)',
+    backgroundColor: theme.palette.panelBackground.translucent2,
     border: `1px solid ${theme.palette.panelBackground.reviewGold}`,
     padding: '8px',
     width: '650px',
@@ -268,7 +276,8 @@ const styles = (theme: ThemeType) => ({
     borderRadius: '8px',
     marginLeft: 'auto',
     marginRight: 'auto',
-    overflow: 'scroll',
+    overflowY: 'scroll',
+    ...hideScrollBars,
     maxHeight: '100%'
   },
   reviewPreviewAuthor: {
