@@ -16,6 +16,7 @@ import { useMulti } from '../../../lib/crud/withMulti';
 import { useHover } from '../../common/withHover';
 import { Link } from '../../../lib/reactRouterWrapper';
 import { HashLink } from '../../common/HashLink';
+import { useImageContext } from './ImageContext';
 
 const styles = (theme: ThemeType): JssStyles => ({
 // CSS version
@@ -156,7 +157,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     height: '100vh',
     marginTop: 'calc(-50px - 64px)',
     paddingTop: 64,
-    backgroundImage: `url("https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png")`,
     backgroundSize: 'cover',
     backgroundPosition: 'center top',
     position: 'relative',
@@ -348,6 +348,7 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
   classes: ClassesType,
 }) => {
   const { FooterTagList, UsersName, CommentBody } = Components;
+  const { imageURL } = useImageContext();
   const [visible, setVisible] = React.useState(true);
   const observerRef = useObserver<HTMLDivElement>({onEnter: () => setVisible(true), onExit: () => setVisible(false), threshold: 0.95});
   const { loading, results: reviews, loadMoreProps } = useMulti({
@@ -362,7 +363,10 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
   });
   const [selectedReview, setSelectedReview] = React.useState<CommentsList | null>(null);
 
-  return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef}>
+  const defaultImageURL = `url("https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png")`
+
+  return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef}
+  style={{ backgroundImage: imageURL ? `url(${imageURL})` : defaultImageURL }} >
     <div className={classes.top}>
       <div className={classes.leftSection}>
         <Link className={classes.reviewNavigation} to="/best-of-lesswrong">

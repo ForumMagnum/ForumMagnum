@@ -9,6 +9,8 @@ import { HashLink } from '../../common/HashLink';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useObserver } from '../../hooks/useObserver';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import { useImageContext } from './ImageContext';
+import { useHover } from '../../common/withHover';
 
 const styles = (theme: ThemeType) => ({
 // JSS styles
@@ -19,7 +21,6 @@ const styles = (theme: ThemeType) => ({
     height: '100vh',
     marginTop: 'calc(-50px - 64px)',
     paddingTop: 64,
-    backgroundImage: `url("https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png")`,
     backgroundSize: 'cover',
     backgroundPosition: 'center top',
     position: 'relative',
@@ -95,6 +96,23 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 8,
     paddingRight: 8,
     paddingBottom: 8,
+  },
+  rightSectionBelowBottomRow: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingBottom: 8,
+  },
+  changeImageBox: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '8px',
+    borderRadius: '4px',
+    backgroundColor: theme.palette.panelBackground.reviewGold,
+    color: 'white',
+    cursor: 'pointer',
   },
   audioPlayerContainer: {
     [theme.breakpoints.up('sm')]: {
@@ -276,7 +294,8 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
   hideTags?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, ForumIcon, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
+  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
+  const { imageURL } = useImageContext();
   const [visible, setVisible] = React.useState(true);
   const {setToCVisible} = useContext(SidebarsContext)!;
   const transitionHeader = (headerVisibile: boolean) => {
@@ -306,7 +325,20 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
-  return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef}>
+  const defaultImageURL = `url("https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png")`
+
+  const images = [
+    "https://cl.imagineapi.dev/assets/d620c742-8881-4621-8af5-99027c449e12/d620c742-8881-4621-8af5-99027c449e12.png",
+    "https://cl.imagineapi.dev/assets/50cdb5f8-d852-41ea-aa2e-ee670573fb3b/50cdb5f8-d852-41ea-aa2e-ee670573fb3b.png",
+    "https://cl.imagineapi.dev/assets/1c16673c-cdab-414b-9264-bce379ddc014/1c16673c-cdab-414b-9264-bce379ddc014.png",
+    "https://cl.imagineapi.dev/assets/7047b9cb-a9cb-44a3-863a-efc47b44c2a2/7047b9cb-a9cb-44a3-863a-efc47b44c2a2.png",
+    "https://cl.imagineapi.dev/assets/ae9ddacd-12f1-4dac-9512-9cb0830f8241/ae9ddacd-12f1-4dac-9512-9cb0830f8241.png"
+  ]
+
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef}
+  style={{ backgroundImage: imageURL ? `url(${imageURL})` : defaultImageURL }} >
     <div className={classes.top}>
       <div className={classes.leftSection}>
         {/* <div className={classes.narrowLeftElements}> */}
@@ -328,6 +360,16 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
         </AnalyticsContext>
         <div className={classes.rightSectionBottomRow}>
           <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
+        </div>
+        <div className={classes.rightSectionBelowBottomRow}>
+          <div {...eventHandlers}>
+            <div className={classes.changeImageBox}>Change image</div>
+            <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
+              <div>
+                <SplashHeaderImageOptions images={images} post={post}/>
+              </div>
+            </LWPopper>
+          </div>
         </div>
       </div>
     </div>
