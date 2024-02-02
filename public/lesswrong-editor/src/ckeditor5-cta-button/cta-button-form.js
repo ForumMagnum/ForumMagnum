@@ -223,19 +223,8 @@ export default class CTAButtonForm extends Plugin {
 
 	_createFormView() {
 		const editor = this.editor;
-		const mathCommand = editor.commands.get("math");
 
 		const formView = new MainFormView(editor.locale, editor);
-
-		// formView.mathInputView.bind("value").to(mathCommand, "value");
-
-		// // Form elements should be read-only when corresponding commands are disabled.
-		// formView.mathInputView.bind("isReadOnly").to(mathCommand, "isEnabled", (value) => !value);
-
-		// Listen to cancel button click
-		this.listenTo(formView, "cancel", () => {
-			this._closeFormView();
-		});
 
 		// Close plugin ui, if esc is pressed (while ui is focused)
 		formView.keystrokes.set("esc", (data, cancel) => {
@@ -243,13 +232,15 @@ export default class CTAButtonForm extends Plugin {
 			this._closeFormView();
 		});
 
+		// Cycle to the next input on enter, unless this is the last input in which case close
 		formView.keystrokes.set("Enter", (data, cancel) => {
-			this.formView.fire("submit");
-			this._closeFormView();
-		});
-
-		this.listenTo(formView, "updatedMath", () => {
-			this._balloon.updatePosition(this._getBalloonPositionData());
+			if (document.activeElement === formView.linkToView.element) {
+				this.formView.fire("submit");
+				this._closeFormView();
+			} else {
+				this.formView._focusCycler.focusNext();
+				cancel();
+			}
 		});
 
 		return formView;
@@ -280,7 +271,7 @@ export default class CTAButtonForm extends Plugin {
 		this.formView.linkTo = linkTo;
 	}
 
-	_hideUI() {
+	_closeFormView() {
 		if (!this._isFormInPanel) {
 			return;
 		}
@@ -292,20 +283,6 @@ export default class CTAButtonForm extends Plugin {
 
 		editor.editing.view.focus();
 
-		// Remove form first because it's on top of the stack.
-		this._removeFormView();
-	}
-
-	_closeFormView() {
-		const mathCommand = this.editor.commands.get("math");
-		if (mathCommand.value !== undefined) {
-			this._removeFormView();
-		} else {
-			this._hideUI();
-		}
-	}
-
-	_removeFormView() {
 		if (this._isFormInPanel) {
 			this._balloon.remove(this.formView);
 
@@ -320,7 +297,10 @@ export default class CTAButtonForm extends Plugin {
 		return { target };
 	}
 
-	_getSelectedLaTeXElement() {
+	/**
+	 * Check if the current selected element is a CTA button and return it if so
+	 */
+	_getSelectedCTAButton() {
 		const selection = this.editor.model.document.selection;
 		const selectedElement = selection.getSelectedElement();
 		if (selectedElement && selectedElement.is("element", "ctaButton")) {
@@ -329,37 +309,27 @@ export default class CTAButtonForm extends Plugin {
 		return null;
 	}
 
+	/**
+	 * Handle clicks to open and close the form view
+	 */
 	_enableUserBalloonInteractions() {
 		const viewDocument = this.editor.editing.view.document;
 
-		// Handle click on view document and show panel when selection is placed inside the latex element
+		// Show panel when a CTA button is selected
 		this.listenTo(viewDocument, "click", () => {
-			console.log("Received click");
-			const selectedElement = this._getSelectedLaTeXElement();
+			const selectedElement = this._getSelectedCTAButton();
 			if (selectedElement) {
-				console.log("Found element", selectedElement);
-				// Then show panel but keep focus inside editor editable.
 				this._showUI(selectedElement);
 			}
 		});
 
-		// Close on click outside of balloon panel element.
+		// Close on click outside of balloon panel element
 		clickOutsideHandler({
 			emitter: this.formView,
 			activator: () => true,
 			contextElements: [this._balloon.view.element],
-			callback: () => {
-				console.log("clicked outside");
-				this._closeFormView();
-				// this.formView.fire("submit")
-			},
+			callback: () => this._closeFormView(),
 		});
-	}
-
-	get _isUIVisible() {
-		const visibleView = this._balloon.visibleView;
-
-		return visibleView == this.formView;
 	}
 
 	get _isFormInPanel() {
