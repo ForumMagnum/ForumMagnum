@@ -1,13 +1,24 @@
-import { imagine_key, openai_key, openai_org, slack_api_token } from './keys.ts'
+/* eslint no-console: 0 */
+
+import { imagine_key, openai_key, openai_org, slack_api_token, slack_signing_secret } from './keys.ts'
 import OpenAI from 'openai'
 import axios from 'axios';
-import FormData from 'form-data';
 import { Globals } from '../../vulcan-lib/index.ts';
 import Posts from '../../../lib/collections/posts/collection.ts';
+import { App } from '@slack/bolt';
 
 
-const maxSimultaneousMidjourney = 3
+const DEPLOY = false
+
+const maxSimultaneousMidjourney = 6
 let currentMidjourney = 0
+
+let essayRights : {[essay: string]: boolean} = {}
+
+const app = new App({
+  token: slack_api_token,
+  signingSecret: slack_signing_secret,
+})
 
 const acquireMidjourneyRights = async (): Promise<boolean> => {
   if (currentMidjourney < maxSimultaneousMidjourney) {
@@ -24,11 +35,32 @@ const acquireMidjourneyRights = async (): Promise<boolean> => {
       }, 1000)
     })
   }
+}
 
+const acquireEssayThreadRights = async (title: string): Promise<void> => {
+  console.log(essayRights, title)
+  if (!essayRights[title]) {
+    essayRights[title] = true
+    return Promise.resolve()
+  }
+  return new Promise((resolve) => {
+    const interval = setInterval(() => {
+      if (!essayRights[title]) {
+        essayRights[title] = true
+        clearInterval(interval)
+        resolve()
+      }
+    }, 1000)
+  })
 }
 
 const releaseMidjourneyRights = () => {
   currentMidjourney--
+}
+
+const releaseEssayThreadRights = (title: string) => {
+  console.log(essayRights, title)
+  essayRights[title] = false
 }
 
 const openai = new OpenAI({
@@ -36,22 +68,41 @@ const openai = new OpenAI({
   organization: openai_org
 })
 
-const llm_prompt = (essay: string) => `Please generate 5 phrases, each 1 to 7 words long. They should describe simple concrete objects and  will go in this instruction for an image prompt: "Aquarelle book cover inspired by topographic river maps and mathematical diagrams and equations. [BLANK]. Fade to white"
+const llm_prompt = (title: string, essay: string) => `I am creating cover art for essays that will be featured on LessWrong. For each piece of art, I want a clear visual metaphor that captures the essence of the essay.
 
-Some examples for other essays would be:
-* "Coins and shaking hands"
-* "A magnifying glass"
-* "A tree with people gathered around"
+The visual metaphor should be concrete and specific, and should be something that can be depicted in a single image. The metaphor should be something that is both visually striking and that captures the essence of the essay in a way that is likely to be interesting. It should be 5 - 15 words long.
 
-They should not be things like:
-* A scientist understanding a new topic [too abstract]
-* The logo of an old internet forum [too generic]
+The image should not contain any text. It should not have any writing. It should not refer to the content of written materials. It should ask for symbols representing concepts, but instead ask for concrete images (it's fine if you intend them to represent something, but they should be concrete images).
 
-They should be phrases such that I can use this as a prompt to illustrate the following essay, by being concrete objects that are visual metaphors for the idea of the essay.
+If the essay contains any particular images or visual metaphors, feel free to use those in the answers.
 
-Please format your response as a JSON list.
+Here are some examples:
+
+1. a sea of thousands of people, one of them zoomed in using a magnifying glass
+2. a set of scales with a heap of gold on one side and a heart on the other
+3. a tree with tangled roots and a single leaf
+4. a person standing on a mountain peak looking out over a vast landscape
+5. images from different time periods with a wanderer walking through them
+
+Here are some bad examples:
+
+1. A quill writing the word 'honor'
+2. A pile of resources dwindling
+3. A collection of books about Zen Buddhism
+
+Please generate 3 visual metaphors for the essay that will appear on Lesswrong. The essay will appear after the "===".
+
+Please format your response as follows:
+
+SUMMARY: What is the main idea of the essay?
+IDEAS: A JSON list of 3 visual metaphors, like ["a sea of thousands of people, one of them zoomed in using a magnifying glass", "a set of scales with a heap of gold on one side and a heart on the other", "a tree with tangled roots and a single leaf"]
+CHECK: For each metaphor, write out the metaphor and answer (a) does the metaphor contain writing or refer to the content of written materials or say that words should appear in the image? (yes/no) (b) Does the metaphor ask for any symbols respresenting concepts? (yes/no) Is it 5 to 15 words long? (yes/no)
+CORRECTIONS: If any of the metaphors contain writing or refer to the content of written materials, please provide a corrected version of the metaphor.
+METAPHORS: A JSON list of your final 3 visual metaphors.
 
 ===
+
+${title}
 
 ${essay}`
 
@@ -69,46 +120,54 @@ const getEssays = async () : Promise<Essay[]> => {
 type Essay = {title: string, content: string, threadTs?: string}
 
 const getElements = async (essay: {title: string, content: string}): Promise<string[]> => {
+  const content = essay.content.length > 25_000 ? essay.content.slice(0, 12_500) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-12_500) : essay.content
   const completion = await openai.chat.completions.create({
-    messages: [{role: "user", content: llm_prompt(essay.content)}],
+    messages: [{role: "user", content: llm_prompt(essay.title, content)}],
     model: "gpt-4",
   });
 
   try {
-    return JSON.parse(completion.choices[0].message.content || '')
+    // console.log('Response:', completion.choices[0].message.content)
+    return JSON.parse((completion.choices[0].message.content || '').split('METAPHORS: ')[1])
   } catch (error) {
     console.error('Error parsing response:', error);
     throw error;
   }
 }
 
-const prompter = (el: string) => `https://s.mj.run/Bkrf46MPWyo  Aquarelle illustration inspired by topographic river maps and mathematical diagrams and equations. A clear image of ${el} --no text --ar 8:5 --iw 2.0 --s 150 --chaos 10 --v 6.0`
+const prompter = (el: string) => {
+  const lowerCased = el[0].toLowerCase() + el.slice(1)
+  return `https://s.mj.run/JAlgYmUiOdc topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, pastel colorful moebius, pastel --ar 8:5 --seed 12345 --v 6.0 --s 75`
+}
+
 
 const postPromptImages = async (prompt: string, {title, threadTs}: {title: string, threadTs?: string}, images: string[]) => {
+  console.log('yo', prompt, title, threadTs)
   if (!threadTs) return
-  await postReply(`*Prompt: ${prompt}*`, threadTs);
-  return await Promise.all(images.map(async (image) => {
-    const response = await axios.get(image, {responseType: 'arraybuffer'})
-    console.log(response)
-    const formData = new FormData()
-    formData.append('file', response.data)
-    formData.append('thread_ts', threadTs)
-    console.log(formData)
-    const postResponse = await axios.post('https://slack.com/api/files.upload', formData, {
-      headers: {
-        'Authorization': `Bearer ${slack_api_token}`,
-        'Content-Type': 'multipart/form-data',
-      }, maxContentLength: Infinity
-      })
-      // console.log(postResponse)
-      console.log(postResponse.data)
+  await acquireEssayThreadRights(title)
+  await postReply(`*Prompt: ${prompt}*`, threadTs)
+
+  await Promise.all(images.map(async (image) => {
+    console.log('upload image')
+    const response = await axios.get(image, {responseType: 'stream'})
+    await app.client.files.uploadV2(
+      {
+        thread_ts: threadTs,
+        channel_id: channelId,
+        initial_comment: `${prompt} for _${title}_`,
+        file: response.data,
+        filename: `${new Date().getTime()}.png`
+      }
+    )
   }))
+  console.log('all uploaded')
+  setTimeout(() => releaseEssayThreadRights(title), 10_000)
 }
 
 async function go(essays: Essay[], essayIx: number, el: string) {
   let promptResponseData : any;
-  // generate the image
   try {
+    console.log('yo', el)
     await acquireMidjourneyRights()
     const response = await fetch('https://cl.imagineapi.dev/items/images/', {
       method: 'POST',
@@ -120,46 +179,51 @@ async function go(essays: Essay[], essayIx: number, el: string) {
     });
 
     promptResponseData = await response.json();
-    // console.log(promptResponseData);
   } catch (error) {
     console.error('Error generating image:', error);
     throw error;
   }
 
-  // check if the image has finished generating
-  // let's repeat this code every 5000 milliseconds (5 seconds, set at the bottom)
-  const intervalId = setInterval(async function () {
-    try {
-      console.log('Checking image details');
-      const response = await fetch(`https://cl.imagineapi.dev/items/images/${promptResponseData.data.id}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${imagine_key}`,
-          'Content-Type': 'application/json'
+  const blockTilDone = new Promise((resolve) => {
+    async function checkOnJob () {
+      try {
+        const response = await fetch(`https://cl.imagineapi.dev/items/images/${promptResponseData.data.id}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${imagine_key}`,
+            'Content-Type': 'application/json'
+          }
+        })
+  
+        const responseData = await response.json()
+        if (responseData.data.status === 'completed' || responseData.data.status === 'failed') {
+          console.log(responseData.data.status, el, essayIx, essays[essayIx].title)
+          if (responseData.data.status === 'failed') {
+            console.error('Image generation failed:', responseData.data);
+            return
+          }
+          await postPromptImages(el, essays[essayIx], responseData.data.upscaled_urls)
+          releaseMidjourneyRights()
+          resolve(null)
+          // console.log('Completed image details', responseData.data);
+        } else {
+          setTimeout(checkOnJob, 5000);
+          // console.log("Image is not finished generation. Status: ", responseData.data.status)
         }
-      })
-
-      const responseData = await response.json()
-      // console.log(responseData)
-      if (responseData.data.status === 'completed') {
-        // stop repeating
-        clearInterval(intervalId);
-        await postPromptImages(el, essays[essayIx], responseData.data.upscaled_urls)
-        releaseMidjourneyRights()
-        // console.log('Completed image details', responseData.data);
-      } else {
-        // console.log("Image is not finished generation. Status: ", responseData.data.status)
+      } catch (error) {
+        console.error('Error getting updates', error);
+        throw error;
       }
-    } catch (error) {
-      console.error('Error getting updates', error);
-      throw error;
     }
-  }, 5000 /* every 5 seconds */);
-  // TODO: add a check to ensure this does not run indefinitely
+
+    void checkOnJob()
+  })
+
+  await blockTilDone
 }
 
 const slackToken = slack_api_token
-const channelId = 'C06G79HMK9C';
+const channelId = DEPLOY ? 'C06G6QVCE6S' : 'C06G79HMK9C';
 
 // Header configuration for the Slack API
 const headers = {
@@ -204,15 +268,25 @@ async function postReply(text: string, threadTs: string) {
 }
 
 async function main () {
-  // const limit = 1
-  // const essays = (await getEssays()).slice(0, limit)
-  // await Promise.all(essays.map(makeEssayThread))
-  // const elementss = await Promise.all(essays.slice(0, limit).map(getElements))
-  // await Promise.all(
-  //   elementss.slice(0,limit)
-  //   .map((els,i) => els.slice(1).map(el => go(essays, i, el)))
-  // )
-  await postPromptImages('test', {title: 'test', threadTs: 'p1706745567571679'}, ['https://cdn.discordapp.com/attachments/1202405316231299112/1202405771225079818/lwbot_Aquarelle_illustration_inspired_by_topographic_river_maps_a0467f69-0f26-4760-9544-9bf022abe9db.png?ex=65cd56a3&is=65bae1a3&hm=aa8518f72e38cdd3dcb740499723912e18541b50eceb36cd85cbb096e0218906&'])
+  const limit = 10
+  const essays = (await getEssays()).slice(0, limit)
+
+  const [promElementss] = await essays.slice(0, limit).reduce(async (pEC: Promise<[Promise<void[]>, number]>, essay, i): Promise<[Promise<void[]>, number]> => {
+    const [eltss, charsRequested] = await pEC
+    let newChars = charsRequested
+    if ((charsRequested + essay.content.length) >= 30_000) {
+      await Promise.all([new Promise((resolve) => setTimeout(resolve, 60_000)), eltss])
+      newChars = 0
+    }
+    newChars += Math.min(essay.content.length, 30_000)
+
+    const images = getElements(essay).then(els => Promise.all([makeEssayThread(essay), ...els.slice(0,3).map(el => go(essays, i, el))]))
+
+    return Promise.resolve([Promise.all([eltss, images]).then(([elts, el]) => [...elts, ...el]), newChars])
+  }, Promise.resolve([Promise.resolve([]), 0]) as Promise<[Promise<void[]>, number]>)
+
+  await promElementss
+
 }
 
 Globals.coverImages = () => main()
