@@ -32,6 +32,13 @@ class SelectFragmentQuery<
     private resolverArgs?: Record<string, unknown> | null,
     /** An optional mongo-style selector to build a WHERE clause */
     selector?: string | MongoSelector<ObjectsByCollectionName[N]>,
+    /**
+     * Synthetic fields to add to the projection (see docs for `addFields`
+     * in `SelectQuery`). This only exists for legacy reasons and you should
+     * strongly prefer adding SQL resolvers to the schema instead of adding
+     * synthetic fields here.
+     */
+    syntheticFields?: Partial<Record<keyof ObjectsByCollectionName[N], MongoSelector<ObjectsByCollectionName[N]>>>,
     /** Option to pass to the underlying `SelectQuery` */
     options?: MongoFindOptions<ObjectsByCollectionName[N]>,
     /**
@@ -52,9 +59,28 @@ class SelectFragmentQuery<
       deferInit: true,
       primaryPrefix: projection.getPrimaryPrefix(),
     });
-    const {sql, args} = projection.compileQuery();
-    this.atoms.push(sql);
+
+    const {addFields} = this.disambiguateSyntheticFields(syntheticFields, {});
+    const syntheticProjection = addFields
+      ? this.getSyntheticFields(addFields)
+      : [];
+
+    const {
+      projection: projectionSql,
+      table: tableSql,
+      prefix,
+      joins,
+      args,
+    } = projection.compileQueryParts();
+    this.atoms.push("SELECT");
+    this.atoms.push(projectionSql);
+    this.atoms = this.atoms.concat(syntheticProjection);
+    this.atoms.push("FROM");
+    this.atoms.push(tableSql);
+    this.atoms.push(`"${prefix}"`);
+    this.atoms.push(joins);
     this.projectionArgs = args;
+
     this.initSelector(selector, options);
     this.codeResolvers = projection.getCodeResolvers();
   }

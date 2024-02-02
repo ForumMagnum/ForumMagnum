@@ -290,15 +290,21 @@ class ProjectionContext<N extends CollectionNameString = CollectionNameString> {
     return `${type.toUpperCase()} JOIN "${table}" "${prefix}" ON ${selector}`;
   }
 
-  compileQuery(): {sql: string, args: unknown[]} {
-    const projection = this.projections.join(", ");
-    const joins = this.joins.map((join) => this.compileJoin(join)).join(" ");
-    const table = this.getTableName();
-    const prefix = this.primaryPrefix;
-    const sql = `SELECT ${projection} FROM ${table} "${prefix}" ${joins}`;
+  compileQueryParts() {
     return {
-      sql,
+      projection: this.projections.join(", "),
+      table: this.getTableName(),
+      prefix: this.primaryPrefix,
+      joins: this.joins.map((join) => this.compileJoin(join)).join(" "),
       args: this.args,
+    };
+  }
+
+  compileQuery(): {sql: string, args: unknown[]} {
+    const {projection, table, prefix, joins, args} = this.compileQueryParts();
+    return {
+      sql: `SELECT ${projection} FROM ${table} "${prefix}" ${joins}`,
+      args,
     };
   }
 }

@@ -147,6 +147,7 @@ interface MergedViewQueryAndOptions<T extends DbObject> {
     skip?: number
     hint?: string
   }
+  syntheticFields?: Partial<Record<keyof T, MongoSelector<T>>>
 }
 
 export type MongoSelector<T extends DbObject> = any; //TODO

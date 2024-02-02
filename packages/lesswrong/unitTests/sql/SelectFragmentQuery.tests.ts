@@ -10,7 +10,8 @@ describe("SelectFragmentQuery", () => {
         {_id: "test-user-id"} as DbUser,
         null,
         {_id: "test-document-id"},
-        {},
+        undefined,
+        undefined,
         () => "q",
       ),
       expectedSql: `
@@ -35,7 +36,8 @@ describe("SelectFragmentQuery", () => {
         {_id: "test-user-id"} as DbUser,
         {testCollection2Id: "some-test-id"},
         {_id: "test-document-id"},
-        {},
+        undefined,
+        undefined,
         () => "q",
       ),
       expectedSql: `

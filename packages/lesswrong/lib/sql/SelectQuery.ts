@@ -245,7 +245,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     }
   }
 
-  private getSyntheticFields(addFields: Record<string, any>, leadingComma = true): Atom<T>[] {
+  protected getSyntheticFields(addFields: Record<string, any>, leadingComma = true): Atom<T>[] {
     for (const field in addFields) {
       this.syntheticFields[field] = new UnknownType();
     }
@@ -254,7 +254,7 @@ class SelectQuery<T extends DbObject> extends Query<T> {
     ).slice(leadingComma ? 0 : 1);
   }
 
-  private disambiguateSyntheticFields(addFields?: any, projection?: MongoProjection<T>) {
+  protected disambiguateSyntheticFields(addFields?: any, projection?: MongoProjection<T>) {
     if (addFields) {
       const fields = Object.keys(addFields);
       for (const field of fields) {
