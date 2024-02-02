@@ -446,9 +446,10 @@ const schema: SchemaType<"Posts"> = {
   }),
 
   pageUrl: resolverOnlyField({
-    type: String,
+    type: 'String',
+    graphQLtype: 'String!',
     canRead: ['guests'],
-    resolver: (post: DbPost, args: void, context: ResolverContext) => postGetPageUrl(post, true),
+    resolver: (post: DbPost, args: void, context: ResolverContext): string => postGetPageUrl(post, true),
   }),
   
   pageUrlRelative: resolverOnlyField({
@@ -534,9 +535,10 @@ const schema: SchemaType<"Posts"> = {
     tooltip: 'By default, this is calculated from the word count. Enter a value to override.',
   },
   readTimeMinutes: resolverOnlyField({
+    graphQLtype: 'Int!',
     type: Number,
     canRead: ['guests'],
-    resolver: ({readTimeMinutesOverride, contents}: DbPost) =>
+    resolver: ({readTimeMinutesOverride, contents}: DbPost): number =>
       Math.max(
         1,
         Math.round(typeof readTimeMinutesOverride === "number"
@@ -1086,8 +1088,9 @@ const schema: SchemaType<"Posts"> = {
   },
   myEditorAccess: resolverOnlyField({
     type: String,
+    graphQLtype: 'String!',
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<string> => {
       // We need access to the linkSharingKey field here, which the user (of course) does not have access to. 
       // Since the post at this point is already filtered by fields that this user has access, we have to grab
       // an unfiltered version of the post from cache
@@ -1249,7 +1252,7 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['sunshineRegiment', 'admins', 'canSuggestCuration'],
     optional: true,
     label: "Suggested for Curated by",
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     group: formGroups.adminOptions,
     resolveAs: {
       fieldName: 'suggestForCuratedUsernames',
@@ -1873,7 +1876,7 @@ const schema: SchemaType<"Posts"> = {
     hidden: true,
     optional: true,
     // label: "Users banned from commenting on this post",
-    // control: "FormUsersListEditor",
+    // control: "FormUserMultiselect",
   },
   'bannedUserIds.$': {
     type: String,
@@ -1914,7 +1917,7 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: ['members', 'sunshineRegiment', 'admins'],
     optional: true,
     hidden: true,
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     group: formGroups.event,
   },
 
@@ -2399,7 +2402,7 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     hidden: ({document}) => !!document?.collabEditorDialogue,
     resolveAs: {
-      type: 'Boolean',
+      type: 'Boolean!',
       resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<boolean> => {
         const { LWEvents, currentUser } = context;
         if(currentUser){
@@ -2810,7 +2813,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     hidden: true,
     label: "Suggested for Alignment by",
-    control: "FormUsersListEditor",
+    control: "FormUserMultiselect",
     group: formGroups.adminOptions,
   },
   'suggestForAlignmentUserIds.$': {

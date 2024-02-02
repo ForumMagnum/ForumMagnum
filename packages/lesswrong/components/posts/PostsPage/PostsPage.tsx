@@ -314,7 +314,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
-  const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
+  const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   const { toc, setToCOffsets } = useContext(SidebarsContext)!;
 
   const { captureEvent } = useTracking();
@@ -721,7 +721,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             loadingMoreComments={loadingMore}
             post={post}
             newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
-            highlightDate={highlightDate}
+            highlightDate={highlightDate ?? undefined}
             setHighlightDate={setHighlightDate}
           />
           {isAF && <AFUnreviewedCommentCount post={post}/>}
@@ -739,7 +739,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       commentTree={commentTree}
       answersTree={answersTree}
       post={post}
-      highlightDate={highlightDate}
+      highlightDate={highlightDate ?? undefined}
     />
 
   const images = ["https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
