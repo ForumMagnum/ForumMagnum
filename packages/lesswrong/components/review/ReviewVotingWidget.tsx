@@ -20,7 +20,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes:ClassesType, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote:VoteIndex)=>void}) => {
+const ReviewVotingWidget = ({classes, post, setNewVote, showTitle=true}: {classes: ClassesType, post: PostsMinimumInfo, showTitle?: boolean, setNewVote?: (newVote: VoteIndex) => void}) => {
 
   const { ReviewVotingButtons, ErrorBoundary, LWTooltip } = Components
   

@@ -17,7 +17,7 @@ import { useNavigate } from '../../lib/reactRouterWrapper';
 
 const NominatePostMenuItem = ({ post, closeMenu }: {
   post: PostsBase,
-  closeMenu: ()=>void,
+  closeMenu: () => void,
 }) => {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();

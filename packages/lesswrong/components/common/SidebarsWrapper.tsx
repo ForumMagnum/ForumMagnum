@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import type { AnchorOffset, ToCData, ToCSection, ToCSectionWithOffset } from '../../lib/tableOfContents';
-import isEqual from 'lodash/isEqual';
+import type { ToCData, ToCSection, ToCSectionWithOffset } from '../../lib/tableOfContents';
 
 // Context used to share a reference used to share the table of contents
 // between the ToC itself, and the Header. The Header uses the ToC to change
@@ -14,25 +13,17 @@ import isEqual from 'lodash/isEqual';
 type ToCWithTitle = {title: string, sectionData: ToCData};
 type SidebarsContextType = {
   toc: ToCWithTitle|null,
-  tocTitleVisible: boolean,
-  setToC: (toc: ToCWithTitle|null)=>void,
-  setToCVisible: (visible: boolean)=>void,
-  setToCTitleVisible: (visible: boolean)=>void,
-  setToCOffsets: (offsets: AnchorOffset[])=>void,
+  setToC: (toc: ToCWithTitle|null) => void,
+  setToCVisible: (visible: boolean) => void,
   sideCommentsActive: boolean,
-  setSideCommentsActive: (active: boolean)=>void,
+  setSideCommentsActive: (active: boolean) => void,
 }
 export const SidebarsContext = React.createContext<SidebarsContextType|null>(null);
-
-export const sectionsHaveOffsets = (sections: ToCSection[]): sections is ToCSectionWithOffset[] => {
-  return sections.some(section => section.offset !== undefined) //TODO: Maybe should be every instead of some
-}
 
 const SidebarsWrapper = ({children}: {
   children: React.ReactNode
 }) => {
   const [tocVisible, setTocVisibleState] = useState(true);
-  const [tocTitleVisible, setTocTitleVisibleState] = useState(true);
   const [toc,setToCState] = useState<ToCWithTitle|null>(null);
   const [sideCommentsActive,setSideCommentsActive] = useState(false);
   
@@ -43,28 +34,6 @@ const SidebarsWrapper = ({children}: {
   const setToCVisible = useCallback((visible: boolean) => {
     setTocVisibleState(visible);
   }, []);
-
-  const setToCTitleVisible = useCallback((visible: boolean) => {
-    setTocTitleVisibleState(visible);
-  }, [])
-
-  const setToCOffsets = useCallback((offsets: AnchorOffset[]) => {
-    if (!toc || sectionsHaveOffsets(toc.sectionData.sections)) return;
-    
-    const newSections = toc.sectionData.sections.map((section) => {
-      const anchorOffset = offsets.find((offset) => offset.anchorHref === section.anchor);
-      return {
-        ...section,
-        offset: anchorOffset?.offset,
-      }
-    })
-
-    const newToCState = { ...toc, sectionData: { ...toc.sectionData, sections: newSections } }
-
-    if (!isEqual(newToCState, toc)) {
-      setToCState(newToCState);
-    }
-  }, [toc])
   
   const tocWithVisibility = useMemo(() => {
     if (tocVisible) {
@@ -75,14 +44,11 @@ const SidebarsWrapper = ({children}: {
 
   const sidebarsContext = useMemo((): SidebarsContextType => ({
     toc: tocWithVisibility,
-    tocTitleVisible,
     setToC,
     setToCVisible,
-    setToCTitleVisible,
-    setToCOffsets,
     sideCommentsActive,
     setSideCommentsActive,
-  }), [tocWithVisibility, tocTitleVisible, setToC, setToCVisible, setToCTitleVisible, setToCOffsets, sideCommentsActive, setSideCommentsActive]);
+  }), [tocWithVisibility, setToC, setToCVisible, sideCommentsActive, setSideCommentsActive]);
 
   return <SidebarsContext.Provider value={sidebarsContext}>
     {children}

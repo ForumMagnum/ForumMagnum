@@ -68,7 +68,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 })
 
 const SearchBarResults = ({closeSearch, currentQuery, classes}: {
-  closeSearch: ()=>void,
+  closeSearch: () => void,
   currentQuery: string,
   classes: ClassesType
 }) => {

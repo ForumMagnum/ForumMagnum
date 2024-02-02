@@ -176,7 +176,7 @@ export const ckEditorName = forumTypeSetting.get() === 'EAForum' ? 'EA Forum Doc
 
 export type EditorTypeString = "html"|"markdown"|"draftJS"|"ckEditorMarkup";
 
-export const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix?:string}> = {
+export const editorTypeToDisplay: Record<EditorTypeString,{name: string, postfix?: string}> = {
   html: {name: 'HTML', postfix: '[Admin Only]'},
   ckEditorMarkup: {name: ckEditorName},
   markdown: {name: 'Markdown'},
@@ -237,7 +237,7 @@ interface EditorProps {
   accessLevel?: CollaborativeEditingAccessLevel,
 
   value: EditorContents,
-  onChange: (change: EditorChangeEvent)=>void,
+  onChange: (change: EditorChangeEvent) => void,
   onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
   placeholder?: string,
   commentStyles?: boolean,

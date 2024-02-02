@@ -7,7 +7,7 @@ import FormattedMessage from '../../lib/vulcan-i18n/message';
 const FormError = ({ error, errorContext="", getLabel=(name)=>name }: {
   error: any,
   errorContext: any,
-  getLabel?: (name: string, local: string)=>string,
+  getLabel?: (name: string, local: string) => string,
 }) => {
   if (error.message) { // A normal string error
     return error.message;

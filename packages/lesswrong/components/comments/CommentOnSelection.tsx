@@ -145,7 +145,7 @@ const CommentOnSelectionPageWrapper = ({children}: {
  *   the page is scrolled to the top.
  */
 const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
-  onClickComment: (ev: React.MouseEvent)=>void,
+  onClickComment: (ev: React.MouseEvent) => void,
   x: number, y: number,
   classes: ClassesType,
 }) => {
@@ -171,7 +171,7 @@ const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
  * See CommentOnSelectionPageWrapper for notes on implementation details.
  */
 const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
-  onClickComment: (html: string)=>void,
+  onClickComment: (html: string) => void,
   children: React.ReactNode,
 }) => {
   const wrapperDivRef = useRef<HTMLDivElement|null>(null);
@@ -204,7 +204,7 @@ const CommentOnSelectionContentWrapper = ({onClickComment, children}: {
  *
  * Client-side only.
  */
-function nearestAncestorElementWith(start: Node|null, fn: (node: HTMLElement)=>boolean): HTMLElement|null {
+function nearestAncestorElementWith(start: Node|null, fn: (node: HTMLElement) => boolean): HTMLElement|null {
   if (!start)
     return null;
   

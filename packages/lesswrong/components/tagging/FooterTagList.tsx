@@ -32,6 +32,10 @@ const styles = (theme: ThemeType) => ({
     maxHeight: 104,
     overflow: "hidden",
   },
+  overrideMargins: {
+    marginTop: 0,
+    marginBottom: 0,
+  },
   postTypeLink: {
     "&:hover": isFriendlyUI ? {opacity: 1} : {},
   },
@@ -95,7 +99,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export function sortTags<T>(list: Array<T>, toTag: (item: T)=>TagBasicInfo|null|undefined): Array<T> {
+export function sortTags<T>(list: Array<T>, toTag: (item: T) => TagBasicInfo|null|undefined): Array<T> {
   return sortBy(
     list,
     isFriendlyUI ? (item) => !toTag(item)?.core : (item) => toTag(item)?.core,
@@ -114,6 +118,8 @@ const FooterTagList = ({
   link=true,
   highlightAutoApplied=false,
   allowTruncate=false,
+  overrideMargins=false,
+  appendElement,
   classes
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
@@ -126,6 +132,8 @@ const FooterTagList = ({
   link?: boolean
   highlightAutoApplied?: boolean,
   allowTruncate?: boolean,
+  overrideMargins?: boolean,
+  appendElement?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
@@ -329,9 +337,10 @@ const FooterTagList = ({
   return <>
     <span
       ref={rootRef}
-      className={classNames(classes.root, {[classes.allowTruncate]: !showAll})}
+      className={classNames(classes.root, {[classes.allowTruncate]: !showAll}, {[classes.overrideMargins] : overrideMargins})}
     >
       {innerContent}
+      {appendElement}
     </span>
     {displayShowAllButton && <div className={classes.showAll} onClick={onClickShowAll}>Show all {taggingNamePluralSetting.get()}</div>}
   </>

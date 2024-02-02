@@ -31,7 +31,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   initialResponse: string,
-  onClose?: ()=>void,
+  onClose?: () => void,
   classes: ClassesType,
 }) => {
   const [registerRSVP] = useMutation(gql`

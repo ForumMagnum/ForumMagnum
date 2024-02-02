@@ -347,6 +347,34 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
         getLocalStorageHandlers(currentEditorType).reset();
         // If we're autosaving (noReload: true), don't clear the editor!  Also no point in clearing it if we're getting redirected anyways
         if (editorRef.current && (!submitOptions?.redirectToEditor && !submitOptions?.noReload) && !isCollabEditor) {
+
+          // We have to adjust for a timing issue here that caused text to
+          // persist in the comment box if you submit the form too quickly.
+          // There's the visible state that the user can see, and there's the
+          // state tracked in the Editor component (which is tracked in this
+          // component as `contents` and updated with wrappedSetContents — see
+          // the getInitialEditorContents hook), and they're different. The
+          // Editor component state is updated to the visible state after a
+          // debounce period of not typing (i.e. the autosaveInterval, currently
+          // 3 seconds). In this cleanupSuccessForm function, we want to clear
+          // the text field, which you'd ordinarily do by calling
+          // wrappedSetContents with a blank contents. But the timing issue is:
+          // if they submit the form without ever having paused typing for 3
+          // seconds, the Editor component state (`contents`) will still be
+          // empty, so if we set it to empty here (by setting it to
+          // getBlankEditorContents), it won't trigger the onChange handler,
+          // which is where the debounced state change is triggered, so the
+          // visible-to-user state will remain and then get auto-saved. So if
+          // we've submitted the form and the contents seems to be empty, we set
+          // it to a dummy value and *then* set it to empty, to make sure that
+          // onChange handler gets triggered.
+
+          if (contents.value.length === 0) {
+            wrappedSetContents({
+              contents: {type: initialEditorType, value: 'dummy value to trigger onChange handler'},
+              autosave: false,
+            });
+          }
           wrappedSetContents({
             contents: getBlankEditorContents(initialEditorType),
             autosave: false,

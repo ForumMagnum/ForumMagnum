@@ -11,3 +11,6 @@ acf755ffe14fc57cc9f6c05ef0f04414de085dd7
 
 # commits that cause reindentation (and nothing else)
 23e23f5634392005aec26367427921e9a445e235
+
+# An auto-fix for a new typing syntax lint
+e16f106d75190914183a0e812cdff284f8064371

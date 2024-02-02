@@ -204,13 +204,17 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
     primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
-
+    reviewWinner: {
+      title: shades.greyAlpha(.75),
+      author: shades.greyAlpha(.65),
+    },
     eventMaybe: "#d59c00",
     
     reviewUpvote: "rgba(70,125,70, .87)",
     reviewDownvote: "rgba(125,70,70, .87)",
     reviewBallotIcon: 'rgb(47 108 152 / 50%)',
     
+
     aprilFools: {
       orange: "#e64a19",
       yellow: "#f57f17",
@@ -225,6 +229,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       [5]: '#a56eff',
       [6]: '#6C7BFF',
     },
+
   },
   link: {
     unmarked: shades.greyAlpha(.87),
@@ -271,6 +276,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     yellow: '#ffc500',
     recentDiscussionGreen: "#72B065",
     recentDiscussionGrey: "#757575",
+    headerKarma: "#ffad08",
     activeDotOrange: "#fdbd48",
 
     commentsBubble: {
@@ -478,6 +484,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     activeProgress: 'rgba(127, 175, 131, 0.5)',
     progressBar: 'rgba(127, 175, 131, 0.7)',
     adminButton: "rgba(200,150,100)",
+    winner: "rgba(179, 136, 79, 1)",
   },
   header: {
     text: shades.greyAlpha(.87),

@@ -10,7 +10,7 @@ import * as _ from 'underscore';
 //   html: The document to extract links from
 //   exclusions: An array of documents (as
 //     {collectionName,documentId}) to exclude. Used for excluding self-links.
-export const htmlToPingbacks = async (html: string, exclusions?: Array<{collectionName:string, documentId:string}>|null): Promise<Partial<Record<CollectionNameString, Array<string>>>> => {
+export const htmlToPingbacks = async (html: string, exclusions?: Array<{collectionName: string, documentId: string}>|null): Promise<Partial<Record<CollectionNameString, Array<string>>>> => {
   const URLClass = getUrlClass()
   const links = extractLinks(html);
   

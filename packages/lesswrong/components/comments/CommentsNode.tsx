@@ -42,7 +42,7 @@ export interface CommentsNodeProps {
   truncated?: boolean,
   shortform?: any,
   nestingLevel?: number,
-  expandAllThreads?:boolean,
+  expandAllThreads?: boolean,
   /**
    * Determines whether this specific comment is expanded, without passing that
    * expanded state to child comments
@@ -152,7 +152,7 @@ const CommentsNode = ({
     return (top >= 0) && (top <= window.innerHeight);
   }
 
-  const scrollIntoView = useCallback((behavior:"auto"|"smooth"="smooth") => {
+  const scrollIntoView = useCallback((behavior: "auto"|"smooth"="smooth") => {
     if (!isInViewport()) {
       const commentTop = getLandmarkY(commentIdToLandmark(comment._id));
       if (commentTop) {

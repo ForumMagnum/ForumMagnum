@@ -2,7 +2,7 @@ import React, {useState, useRef, useCallback } from 'react';
 import { useTracking } from "../../lib/analyticsEvents";
 import { isMobile } from '../../lib/utils/isMobile'
 
-function datesDifference(a:Date, b:Date): number {
+function datesDifference(a: Date, b: Date): number {
   return (a as any)-(b as any);
 }
 

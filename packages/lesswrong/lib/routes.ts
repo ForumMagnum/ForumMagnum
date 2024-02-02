@@ -590,6 +590,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
+      name:'notifications',
+      path:'/notifications',
+      componentName: 'NotificationsPage',
+      title: "Notifications",
+    },
+    {
       name: 'handbook',
       path: '/handbook',
       componentName: 'EAIntroCurriculum',
@@ -1184,10 +1190,10 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
-      name: 'bookmarks',
-      path: '/bookmarks',
+      name: 'savedAndRead',
+      path: '/saved',
       componentName: 'BookmarksPage',
-      title: 'Bookmarks',
+      title: 'Saved & read',
     },
   ],
 })
@@ -1530,6 +1536,14 @@ addRoute(
     componentName: 'AllPostsPage',
     enableResourcePrefetch: true,
     title: "All Posts",
+  },
+  {
+    name: 'reviewWinners',
+    path: '/reviewWinners',
+    componentName: 'TopPostsPage',
+    // enableResourcePrefetch: true,
+    title: 'Annual Review Winners',
+    background: "#f8f4ee"
   },
   {
     name: 'questions',

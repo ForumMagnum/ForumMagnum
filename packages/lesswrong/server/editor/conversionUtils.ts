@@ -44,7 +44,7 @@ mdi.use(markdownItFootnote)
 mdi.use(markdownItSub)
 mdi.use(markdownItSup)
 
-export function mjPagePromise(html: string, beforeSerializationCallback: (dom: any, css: string)=>any): Promise<string> {
+export function mjPagePromise(html: string, beforeSerializationCallback: (dom: any, css: string) => any): Promise<string> {
   // Takes in HTML and replaces LaTeX with CommonHTML snippets
   // https://github.com/pkra/mathjax-node-page
   return new Promise((resolve, reject) => {

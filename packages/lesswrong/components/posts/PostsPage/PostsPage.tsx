@@ -30,13 +30,14 @@ import qs from 'qs';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnNotificationsChanged } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
-import isEqual from 'lodash/isEqual';
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { AnchorOffset } from '../../../lib/tableOfContents';
 import { PostsAudioPlayerWrapper, postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
+import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
+import isEqual from 'lodash/isEqual';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -197,6 +198,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: theme.spacing.titleDividerSpacing,
     }
   },
+  titleWithMarket: {
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 35,
+    }
+  },
   centralColumn: {
     maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
@@ -306,7 +312,7 @@ export const postsCommentsThreadMultiOptions = {
 const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   eagerPostComments?: EagerPostComments,
-  refetch: ()=>void,
+  refetch: () => void,
   classes: ClassesType,
 }) => {
   const location = useSubscribedLocation();
@@ -315,10 +321,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
   const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
-  const { toc, setToCOffsets } = useContext(SidebarsContext)!;
+  // const { toc, setToCOffsets } = useContext(SidebarsContext)!;
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
+
+  // Must be a review winner that has splash art
+  const showSplashPageHeader = !!post.reviewWinner?.splashArtImageUrl; 
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -364,26 +373,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
     readingProgressBarRef.current.style.setProperty("--scrollAmount", `${scrollPercent}%`)
   }
-
-  useEffect(() => {
-    if (!postBodyRef.current) return;
-
-    //Get all elements with href corresponding to anchors from the table of contents
-    const postBodyBlocks = postBodyRef.current.querySelectorAll('[id]');
-    const sectionHeaders = Array.from(postBodyBlocks).filter(block => toc?.sectionData.sections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
-    
-    const parentContainer = sectionHeaders[0]?.parentElement;
-    if (parentContainer) {
-      const containerHeight = parentContainer.getBoundingClientRect().height;
-
-      const anchorOffsets = sectionHeaders.map(sectionHeader => ({
-        anchorHref: sectionHeader.getAttribute('id'), 
-        offset: (sectionHeader as HTMLElement).offsetTop / containerHeight
-      }));
-
-      setToCOffsets(anchorOffsets);
-    }
-  }, [toc, setToCOffsets]) //TODO: change on window height change
 
   const getSequenceId = () => {
     const { params } = location;
@@ -470,7 +459,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
     PostsPodcastPlayer, CloudinaryImage2, ContentStyles,
     PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
-    PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
+    PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row,
     AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
     CommentsListSection, CommentsTableOfContents, PostsPageSplashHeader, PostsAudioPlayerWrapper, SplashHeaderImageOptions
@@ -562,6 +551,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const noIndex = post.noIndex || post.rejected;
 
+  const marketInfo = getMarketInfo(post)
+
   const header = <>
     {!commentId && <>
       <HeadTags
@@ -579,8 +570,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       />
     </>}
     {/* Header/Title */}
-    {commentId && !isDebateResponseLink && <AnalyticsContext pageSectionContext="postHeader">
-      <div className={classes.title}>
+    <AnalyticsContext pageSectionContext="postHeader">
+      <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo)})}>
         <div className={classes.centralColumn}>
           {commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={post} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
@@ -591,15 +582,16 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          <PostsPagePostHeader
+          {!showSplashPageHeader && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-            dialogueResponses={debateResponses} />
+            dialogueResponses={debateResponses} 
+            annualReviewMarketInfo={marketInfo}/>}
         </div>
       </div>
-    </AnalyticsContext>}
+    </AnalyticsContext>
   </>;
 
   const maybeWelcomeBoxProps = forumSelect(welcomeBoxes);
@@ -749,13 +741,11 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {!commentId && !isDebateResponseLink && 
-          <PostsPageSplashHeader 
-          post={post} 
-          showEmbeddedPlayer={showEmbeddedPlayer} 
-          toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-          />
-    }
+    {showSplashPageHeader && !commentId && !isDebateResponseLink && <PostsPageSplashHeader 
+      post={post} 
+      showEmbeddedPlayer={showEmbeddedPlayer} 
+      toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+      />}
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[
@@ -769,7 +759,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             {
               toc: commentsToC,
               centralColumn: commentsSection,
-              unsetMargin: true
+              isCommentToC: true
             },
           ]}
         />

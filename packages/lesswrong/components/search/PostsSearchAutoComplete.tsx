@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib'
 import { getSearchIndexName } from '../../lib/search/searchUtil';
 
-const PostsSearchAutoComplete = ({clickAction, placeholder='Search for posts'}:{
+const PostsSearchAutoComplete = ({clickAction, placeholder='Search for posts'}: {
   clickAction: (id: string) => void,
   placeholder?: string
 }) => {

@@ -88,7 +88,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `, [limit]);
   }
 
-  async getPopularPollComments (limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
+  async getPopularPollComments (limit: number, pollCommentId: string): Promise<(ExtendedCommentWithReactions)[]> {
     return await this.getRawDb().manyOrNone(`
       -- CommentsRepo.getPopularPollComments
       SELECT c.*
@@ -99,7 +99,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `, [limit, pollCommentId]);
   }
 
-  async getPopularPollCommentsWithUserVotes (userId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
+  async getPopularPollCommentsWithUserVotes (userId: string, limit: number, pollCommentId: string): Promise<(ExtendedCommentWithReactions)[]> {
     return await this.getRawDb().manyOrNone(`
     -- CommentsRepo.getPopularPollCommentsWithUserVotes
     SELECT c.*, v."extendedVoteType"->'reacts'->0->>'react' AS "yourVote"
@@ -116,7 +116,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     `, [userId, limit, pollCommentId]);
   }
 
-  async getPopularPollCommentsWithTwoUserVotes (userId:string, targetUserId:string, limit: number, pollCommentId:string): Promise<(ExtendedCommentWithReactions)[]> {
+  async getPopularPollCommentsWithTwoUserVotes (userId: string, targetUserId: string, limit: number, pollCommentId: string): Promise<(ExtendedCommentWithReactions)[]> {
     return await this.getRawDb().manyOrNone(`
     -- CommentsRepo.getPopularPollCommentsWithTwoUserVotes
     SELECT c.*, 

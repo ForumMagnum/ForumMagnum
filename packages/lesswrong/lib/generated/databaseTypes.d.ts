@@ -497,6 +497,19 @@ interface DbLocalgroup extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ManifoldProbabilitiesCachesCollection = CollectionBase<"ManifoldProbabilitiesCaches">;
+
+interface DbManifoldProbabilitiesCache extends DbObject {
+  __collectionName?: "ManifoldProbabilitiesCaches"
+  marketId: string
+  probability: number
+  isResolved: boolean
+  year: number
+  lastUpdated: Date
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type MessagesCollection = CollectionBase<"Messages">;
 
 interface DbMessage extends DbObject {
@@ -736,6 +749,8 @@ interface DbPost extends DbObject {
   reviewCount: number
   reviewVoteCount: number
   positiveReviewVoteCount: number
+  manifoldReviewMarketId: string | null
+  annualReviewMarketCommentId: string | null
   reviewVoteScoreAF: number
   reviewVotesAF: Array<number>
   reviewVoteScoreHighKarma: number
@@ -949,6 +964,20 @@ interface DbReviewVote extends DbObject {
   year: string
   dummy: boolean
   reactions: Array<string> | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type ReviewWinnersCollection = CollectionBase<"ReviewWinners">;
+
+interface DbReviewWinner extends DbObject {
+  __collectionName?: "ReviewWinners"
+  postId: string
+  reviewYear: number
+  curatedOrder: number
+  reviewRanking: number
+  isAI: boolean
+  splashArtImageUrl: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1671,6 +1700,7 @@ interface CollectionsByName {
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
   Localgroups: LocalgroupsCollection
+  ManifoldProbabilitiesCaches: ManifoldProbabilitiesCachesCollection
   Messages: MessagesCollection
   Migrations: MigrationsCollection
   ModerationTemplates: ModerationTemplatesCollection
@@ -1690,6 +1720,7 @@ interface CollectionsByName {
   ReadStatuses: ReadStatusesCollection
   Reports: ReportsCollection
   ReviewVotes: ReviewVotesCollection
+  ReviewWinners: ReviewWinnersCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
@@ -1736,6 +1767,7 @@ interface ObjectsByCollectionName {
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
   Localgroups: DbLocalgroup
+  ManifoldProbabilitiesCaches: DbManifoldProbabilitiesCache
   Messages: DbMessage
   Migrations: DbMigration
   ModerationTemplates: DbModerationTemplate
@@ -1755,6 +1787,7 @@ interface ObjectsByCollectionName {
   ReadStatuses: DbReadStatus
   Reports: DbReport
   ReviewVotes: DbReviewVote
+  ReviewWinners: DbReviewWinner
   Revisions: DbRevision
   Sequences: DbSequence
   Sessions: DbSession
@@ -1801,6 +1834,7 @@ interface ObjectsByTypeName {
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData
   Localgroup: DbLocalgroup
+  ManifoldProbabilitiesCache: DbManifoldProbabilitiesCache
   Message: DbMessage
   Migration: DbMigration
   ModerationTemplate: DbModerationTemplate
@@ -1820,6 +1854,7 @@ interface ObjectsByTypeName {
   ReadStatus: DbReadStatus
   Report: DbReport
   ReviewVote: DbReviewVote
+  ReviewWinner: DbReviewWinner
   Revision: DbRevision
   Sequence: DbSequence
   Session: DbSession

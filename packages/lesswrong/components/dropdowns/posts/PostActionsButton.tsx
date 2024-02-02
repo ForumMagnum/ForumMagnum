@@ -66,7 +66,7 @@ const PostActionsButton = ({post, vertical, popperGap, autoPlace, flip, includeB
   const Icon = vertical ? MoreVertIcon : MoreHorizIcon
   const { PopperCard, PostActions, LWClickAwayListener } = Components
 
-  return <div className={classNames(classes.root,className)}>
+  return <div className={classNames(classes.root, className)}>
     <div ref={anchorEl}>
       <Icon className={classes.icon} onClick={() => handleSetOpen(!isOpen)}/>
     </div>

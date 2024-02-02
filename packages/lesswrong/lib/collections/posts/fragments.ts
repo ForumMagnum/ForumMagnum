@@ -25,6 +25,29 @@ registerFragment(`
   }
 `);
 
+// ...PostsAuthors
+
+registerFragment(`
+  fragment PostsTopItemInfo on Post {
+    ...PostsMinimumInfo
+    ...PostsAuthors
+    isRead
+    contents {
+      _id
+      htmlHighlight
+      wordCount
+      version
+    }
+    customHighlight {
+      _id
+      html
+    }
+    tags {
+      ...TagPreviewFragment
+    }
+  }
+`);
+
 registerFragment(`
   fragment PostsBase on Post {
     ...PostsMinimumInfo
@@ -120,6 +143,12 @@ registerFragment(`
     reviewCount
     reviewVoteCount
     positiveReviewVoteCount
+    manifoldReviewMarketId
+    annualReviewMarketCommentId
+
+    annualReviewMarketProbability
+    annualReviewMarketIsResolved
+    annualReviewMarketYear
 
     group {
       _id
@@ -309,6 +338,7 @@ registerFragment(`
 
     # Podcast
     podcastEpisode {
+      _id
       title
       podcast {
         _id
@@ -424,6 +454,9 @@ registerFragment(`
     }
     
     tableOfContentsRevision(version: $version)
+    reviewWinner {
+      ...ReviewWinnersDefaultFragment
+    }
   }
 `)
 
@@ -433,6 +466,9 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContents
+    reviewWinner {
+      ...ReviewWinnersDefaultFragment
+    }
   }
 `)
 

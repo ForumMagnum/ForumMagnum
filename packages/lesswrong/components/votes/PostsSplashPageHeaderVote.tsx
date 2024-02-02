@@ -7,7 +7,6 @@ import { isAF } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
 import { voteButtonsDisabledForUser } from '../../lib/collections/users/helpers';
 import { VotingSystem } from '../../lib/voting/votingSystems';
-import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
   voteBlockHorizontal: {
@@ -15,9 +14,11 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'row-reverse',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    background: theme.palette.grey[200],
+    background: theme.palette.panelBackground.default,
     opacity: .76,
-    borderRadius: 4
+    borderRadius: 4,
+    height: 26,
+    fontSize: '1.6rem'
   },
   upvoteHorizontal: {
     paddingRight: 6,
@@ -40,17 +41,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
-    fontSize: '80%',
-  },
-  voteScoreGoodHeart: {
-    ...theme.typography.commentStyle,
-    color: theme.palette.grey[700],
-    fontSize: '45%',
-    textAlign: "center",
-  },
-  secondaryVoteScore: {
-    fontSize: '35%',
-    marginBottom: 2,
+    fontSize: '1.1rem',
   },
   tooltip: {
     color: theme.palette.grey[500],
@@ -80,6 +71,11 @@ const PostsSplashPageHeaderVote = ({
   // TODO: should this always be bottom?  Can't do top, since in context this always has tags above it
   const tooltipPlacement = 'bottom' as const;
 
+  const tooltipText = <div>
+    <div>{`${voteProps.voteCount} ${voteProps.voteCount === 1 ? "vote" : "votes"}`}</div>
+    {post.af && !isAF && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
+  </div>
+
   return (
     <div className={classes.voteBlockHorizontal}>
       <Tooltip
@@ -99,7 +95,7 @@ const PostsSplashPageHeaderVote = ({
       </Tooltip>
       <div className={classes.voteScoresHorizontal}>
         <Tooltip
-          title={`${voteProps.voteCount} ${voteProps.voteCount === 1 ? "Vote" : "Votes"}`}
+          title={tooltipText}
           placement={tooltipPlacement}
           classes={{tooltip: classes.tooltip}}
         >
@@ -114,20 +110,6 @@ const PostsSplashPageHeaderVote = ({
             </Typography>
           </div>
         </Tooltip>
-
-        {!!post.af && !!post.afBaseScore && !isAF &&
-          <Tooltip
-            title="AI Alignment Forum karma"
-            placement={tooltipPlacement}
-            classes={{tooltip: classes.tooltip}}
-          >
-            <Typography
-              variant="headline"
-              className={classNames(classes.voteScore, classes.secondaryVoteScore)}>
-              Ω {post.afBaseScore}
-            </Typography>
-          </Tooltip>
-        }
       </div>
       <Tooltip
         title={whyYouCantVote ?? "Click-and-hold for strong vote (click twice on mobile)"}
