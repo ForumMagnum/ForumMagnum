@@ -252,7 +252,7 @@ const Header = ({
     if (!hash) {
       setUnFixed(true);
     }
-  }, [pathname, hash, setUnFixed]);
+  }, [pathname, hash]);
 
   const hasNotificationsPage = isFriendlyUI;
   const hasKarmaChangeNotifier = !isFriendlyUI && currentUser && !currentUser.usernameUnset;
@@ -433,7 +433,6 @@ const Header = ({
           onUnfix={() => setUnFixed(true)}
           onUnpin={() => setUnFixed(false)}
           disable={stayAtTop}
-          
         >
           <header className={classNames(classes.appBar, {[classes.appBarDarkBackground]: !!backgroundColor})} style={backgroundColor ? {backgroundColor} : {}}>
             <Toolbar disableGutters={isFriendlyUI}>

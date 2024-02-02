@@ -10,7 +10,6 @@ import isEqual from 'lodash/isEqual';
 import filter from 'lodash/filter';
 import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } from '../../hooks/useScrollHighlight';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
-import { sectionsHaveOffsets } from '../../common/SidebarsWrapper';
 import moment from 'moment';
 import { useTimezone } from '../../common/withTimezone';
 
@@ -37,6 +36,10 @@ export interface ToCDisplayOptions {
 }
 
 const topSection = "top";
+
+const sectionsHaveOffsets = (sections: ToCSection[]): sections is (ToCSection | ToCSectionWithOffset)[] => {
+  return sections.some(section => section.offset !== undefined);
+};
 
 const normalizeOffsets = (sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] => {
   const titleSection: ToCSectionWithOffset = { ...sections[0], offset: sections[0].offset ?? 0 };
@@ -197,12 +200,6 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
       }
     }
   }, [filteredSections, normalizedSections]);
-
-  if (sectionsHaveOffsets(filteredSections)) {
-    filteredSections = normalizeOffsets(filteredSections);
-  } else if (filteredSections.length === 1) {
-    filteredSections = [{ ...filteredSections[0], offset: 1 }];
-  }
 
   if (!tocSections)
     return <div/>

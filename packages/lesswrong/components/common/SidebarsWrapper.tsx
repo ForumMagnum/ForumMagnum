@@ -20,10 +20,6 @@ type SidebarsContextType = {
 }
 export const SidebarsContext = React.createContext<SidebarsContextType|null>(null);
 
-export const sectionsHaveOffsets = (sections: ToCSection[]): sections is ToCSectionWithOffset[] => {
-  return sections.some(section => section.offset !== undefined) //TODO: Maybe should be every instead of some
-}
-
 const SidebarsWrapper = ({children}: {
   children: React.ReactNode
 }) => {
