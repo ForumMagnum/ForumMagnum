@@ -13,7 +13,7 @@ const DEPLOY = false
 const maxSimultaneousMidjourney = 6
 let currentMidjourney = 0
 
-let essayRights : {[essay: string]: boolean} = {}
+let essayRights: {[essay: string]: boolean} = {}
 
 const app = new App({
   token: slack_api_token,
