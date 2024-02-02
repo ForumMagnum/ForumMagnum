@@ -231,6 +231,7 @@ const footnoteStyles = (theme: ThemeType): JssStyles => ({
 requireCssVar("palette", "fonts", "sansSerifStack")
 requireCssVar("palette", "panelBackground", "default")
 requireCssVar("palette", "grey", 200)
+requireCssVar("palette", "grey", 300)
 requireCssVar("palette", "grey", 600)
 requireCssVar("palette", "grey", 1000)
 

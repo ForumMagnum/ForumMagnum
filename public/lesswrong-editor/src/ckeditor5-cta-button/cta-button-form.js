@@ -273,8 +273,6 @@ export default class CTAButtonForm extends Plugin {
       return;
     }
 
-    const editor = this.editor;
-
     this._balloon.add({
       view: this.formView,
       position: this._getBalloonPositionData(),
@@ -337,10 +335,15 @@ export default class CTAButtonForm extends Plugin {
   _enableUserBalloonInteractions() {
     const viewDocument = this.editor.editing.view.document;
 
-    // Show panel when a CTA button is selected
-    this.listenTo(viewDocument, "click", () => {
+    // Show panel when a CTA button is clicked
+    this.listenTo(viewDocument, "click", (evt, data) => {
       const selectedElement = this._getSelectedCTAButton();
-      if (selectedElement) {
+      const domTarget = data.domTarget;
+      // isTargetCTAButton is here to make clicking away to exit work better, because clicks not quite
+      // on the button can select it
+      const isTargetCTAButton = domTarget && domTarget.classList && domTarget.classList.contains('ck-cta-button');
+
+      if (selectedElement && isTargetCTAButton) {
         this._showUI(selectedElement);
       }
     });
