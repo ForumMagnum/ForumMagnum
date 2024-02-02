@@ -1158,7 +1158,18 @@ const schema: SchemaType<"Posts"> = {
       resolver: (reviewWinnersField) => reviewWinnersField("*"),
     }),
   }),
-  
+
+  reviewWinnerArt: resolverOnlyField({
+    type: "[ReviewWinnerArt]",
+    graphQLtype: "[ReviewWinnerArt]",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbReviewWinnerArt[]|null> => {
+      const { ReviewWinnerArts } = context;
+      const art = await ReviewWinnerArts.find({postId:post._id}).fetch()
+      return art.length > 0 ? art : null;
+    }
+  }),
+
   votingSystem: {
     type: String,
     optional: true,

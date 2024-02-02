@@ -23,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const SplashHeaderImageOptions = ({ images, post, classes } : {
+export const SplashHeaderImageOptions = ({ images, post, classes }: {
   images: string[],
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
@@ -33,7 +33,7 @@ export const SplashHeaderImageOptions = ({ images, post, classes } : {
   const [selectedImage, setSelectedImage] = useState(images[0]);
   const { setImageURL, } = useImageContext();
 
-  const handleImageClick = (imageUrl : string) => {
+  const handleImageClick = (imageUrl: string) => {
     setSelectedImage(imageUrl);
     setImageURL(imageUrl); // Step 3
   };

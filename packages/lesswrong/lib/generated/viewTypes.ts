@@ -46,6 +46,7 @@ type RSSFeedsViewName = "usersFeed";
 type ReadStatusesViewName = never
 type ReportsViewName = "allReports"|"unclaimedReports"|"claimedReports"|"adminClaimedReports"|"sunshineSidebarReports"|"closedReports";
 type ReviewVotesViewName = "reviewVotesFromUser"|"reviewVotesForPost"|"reviewVotesForPostAndUser"|"reviewVotesAdminDashboard";
+type ReviewWinnerArtsViewName = never
 type ReviewWinnersViewName = never
 type RevisionsViewName = "revisionsByUser"|"revisionsOnDocument";
 type SequencesViewName = "userProfile"|"userProfilePrivate"|"userProfileAll"|"curatedSequences"|"communitySequences";
@@ -112,6 +113,7 @@ interface ViewTermsByCollectionName {
   ReadStatuses: ViewTermsBase
   Reports: ReportsViewTerms
   ReviewVotes: ReviewVotesViewTerms
+  ReviewWinnerArts: ViewTermsBase
   ReviewWinners: ViewTermsBase
   Revisions: RevisionsViewTerms
   Sequences: SequencesViewTerms

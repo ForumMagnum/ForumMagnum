@@ -106,7 +106,7 @@ ${title}
 
 ${essay}`
 
-const getEssays = async () : Promise<Essay[]> => {
+const getEssays = async (): Promise<Essay[]> => {
   const es = await Posts.find({
     "postedAt": {"$gte": new Date("2021-01-01"), "$lt": new Date("2022-01-01")},
     "draft": false,
@@ -165,7 +165,7 @@ const postPromptImages = async (prompt: string, {title, threadTs}: {title: strin
 }
 
 async function go(essays: Essay[], essayIx: number, el: string) {
-  let promptResponseData : any;
+  let promptResponseData: any;
   try {
     await acquireMidjourneyRights()
     const response = await fetch('https://cl.imagineapi.dev/items/images/', {

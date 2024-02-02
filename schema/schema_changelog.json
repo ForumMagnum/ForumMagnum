@@ -548,5 +548,15 @@
     "acceptsSchemaHash": "8d50c9ecf4f776b6592956ac590ed246",
     "acceptedByMigration": "20240201T232248.add_splashArtImageUrl.ts",
     "timestamp": "2024-02-01T23:22:48.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7a02a320ce76de404e1d8cd5a8ad821e",
+    "acceptedByMigration": "20240202T201734.add_ReviewWinnerArt.ts",
+    "timestamp": "2024-02-02T20:17:34.000Z"
+  },
+  {
+    "acceptsSchemaHash": "4f6d8b64174f9629c53ad65b5367b840",
+    "acceptedByMigration": "20240202T222431.add_ReviewWinnerArts.ts",
+    "timestamp": "2024-02-02T22:24:31.000Z"
   }
 ]

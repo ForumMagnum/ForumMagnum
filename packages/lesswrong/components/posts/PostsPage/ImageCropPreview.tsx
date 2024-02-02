@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
     }
   });
 
-export const ImageCropPreview = ({ classes } : {
+export const ImageCropPreview = ({ classes }: {
     classes: ClassesType<typeof styles>
   }) => {
   const [isBoxVisible, setIsBoxVisible] = useState(false);
@@ -50,7 +50,7 @@ export const ImageCropPreview = ({ classes } : {
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
 
   useEffect(() => {
-    const moveBox = (e : MouseEvent) => {
+    const moveBox = (e: MouseEvent) => {
       if (isBoxVisible && isDragging) {
         setBoxPosition({
           x: e.clientX - 50, // Adjust based on the box size for centering
