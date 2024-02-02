@@ -101,7 +101,7 @@ const tryToFixUrl = (oldUrl: string, newUrl: string) => {
 
 // NOTE: validateUrl and tryToFixUrl are duplicates of the code in public/lesswrong-editor/src/url-validator-plugin.js,
 // which can't be imported directly because it is part of the editor bundle
-const validateUrl = (url: string) => {
+export const validateUrl = (url: string) => {
   try {
     // This will validate the URL - importantly, it will fail if the
     // protocol is missing
@@ -317,7 +317,7 @@ const allowedTableStyles = {
 const allowedMathMLGlobalAttributes = ['mathvariant', 'dir', 'displaystyle', 'scriptlevel'];
 
 export const sanitize = function(s: string): string {
-  const htmlOut = sanitizeHtml(s, {
+  return sanitizeHtml(s, {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
@@ -331,9 +331,8 @@ export const sanitize = function(s: string): string {
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
       span: ['style', 'id', 'role'],
-      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-href'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug'],
       a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
-      button: ['class', 'href'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
 
@@ -433,5 +432,4 @@ export const sanitize = function(s: string): string {
       },
     }
   });
-  return htmlOut;
 };

@@ -122,6 +122,7 @@ const sharedPlugins = [
 	Mention,
 	UrlValidator,
 	RemoveRedirect,
+	CTAButton,
 ];
 
 const postEditorPlugins = [
@@ -129,7 +130,6 @@ const postEditorPlugins = [
 	BlockToolbar,
 	FontFamily,
 	FontSize,
-	CTAButton,
 	// FontColor,
 	// FontBackgroundColor,
 ];

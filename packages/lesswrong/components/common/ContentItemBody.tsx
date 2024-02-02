@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Components, getOutgoingUrl, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent, validateUrl } from '../../lib/vulcan-lib';
 import { captureException }from '@sentry/core';
 import { linkIsExcludedFromPreview } from '../linkPreview/HoverPreviewLink';
 import { toRange } from '../../lib/vendor/dom-anchor-text-quote';
@@ -361,7 +361,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       const button = ctaButtons[i] as HTMLAnchorElement;
       const dataHref = button.getAttribute('data-href');
       if (dataHref) {
-        button.setAttribute('href', getOutgoingUrl(dataHref));
+        button.setAttribute('href', validateUrl(dataHref));
       }
       button.addEventListener('click', () => {
         // Note: there is some concern about this 
