@@ -122,7 +122,6 @@ const sharedPlugins = [
 	Mention,
 	UrlValidator,
 	RemoveRedirect,
-	CTAButton,
 ];
 
 const postEditorPlugins = [
@@ -145,10 +144,24 @@ const collaborativeEditorPlugins = [
 	DialogueCommentBox
 ];
 
-PostEditor.builtinPlugins = [ ...postEditorPlugins ];
-PostEditor.defaultConfig = { ...postEditorConfig };
-PostEditorCollaboration.builtinPlugins = [...collaborativeEditorPlugins];
-PostEditorCollaboration.defaultConfig = {...postEditorConfig};
+const siteSpecificPlugins = {
+  EAForum: [CTAButton],
+};
+export function getPostEditor(forumType) {
+  class PostEditor extends BalloonBlockEditorBase {}
+  PostEditor.builtinPlugins = [ ...postEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  PostEditor.defaultConfig = { ...postEditorConfig };
+  return PostEditor;
+}
+
+// NOTE: Site-specific plugins might not match between client and server. If making a site-specific plugin that needs
+// to be included in the uploaded cloud bundle, then revisit this and get forumType plumbed into that.
+export function getPostEditorCollaboration(forumType) {
+  class PostEditorCollaboration extends BalloonBlockEditorBase {}
+  PostEditorCollaboration.builtinPlugins = [ ...collaborativeEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  PostEditorCollaboration.defaultConfig = { ...postEditorConfig };
+  return PostEditorCollaboration;
+}
 CommentEditor.builtinPlugins = [ ...sharedPlugins ];
 CommentEditor.defaultConfig = { ...commentEditorConfig };
 
