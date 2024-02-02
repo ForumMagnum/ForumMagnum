@@ -33,7 +33,9 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
-import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import { AnchorOffset } from '../../../lib/tableOfContents';
+import { PostsAudioPlayerWrapper, postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 
@@ -459,7 +461,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row,
     AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
-    CommentsListSection, CommentsTableOfContents, PostsPageSplashHeader, PostsAudioPlayerWrapper
+    CommentsListSection, CommentsTableOfContents, PostsPageSplashHeader, PostsAudioPlayerWrapper, SplashHeaderImageOptions
   } = Components
 
   useEffect(() => {
@@ -731,8 +733,11 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       highlightDate={highlightDate ?? undefined}
     />
 
+  const images = ["https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
+
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>
+    <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
     {showSplashPageHeader && !commentId && !isDebateResponseLink && <PostsPageSplashHeader 
@@ -767,7 +772,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
           {commentsSection}
         </ToCColumn>
     }
-  
+    
+    {/* <SplashHeaderImageOptions images={images} post={post}/> */}
+
     {hasPostRecommendations && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
@@ -775,6 +782,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       />
     </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>
+    </ImageProvider>
     </PostsPageContext.Provider>
   </AnalyticsContext>);
 }

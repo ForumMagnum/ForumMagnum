@@ -9,6 +9,8 @@ import { HashLink } from '../../common/HashLink';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useObserver } from '../../hooks/useObserver';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import { useImageContext } from './ImageContext';
+import { useHover } from '../../common/withHover';
 import { requireCssVar } from '../../../themes/cssVars';
 import { hideScrollBars } from '../../../themes/styleUtils';
 
@@ -120,6 +122,23 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 8,
     paddingRight: 8,
     paddingBottom: 8,
+  },
+  rightSectionBelowBottomRow: {
+    display: 'flex',
+    flexDirection: 'row-reverse',
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingBottom: 8,
+  },
+  changeImageBox: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: '8px',
+    borderRadius: '4px',
+    backgroundColor: theme.palette.panelBackground.reviewGold,
+    color: 'white',
+    cursor: 'pointer',
   },
   audioPlayerContainer: {
     [theme.breakpoints.up('sm')]: {
@@ -301,7 +320,8 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, ForumIcon, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
+  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
+  const { imageURL } = useImageContext();
   const [visible, setVisible] = React.useState(true);
   const { setToCVisible } = useContext(SidebarsContext)!;
   const transitionHeader = (headerVisibile: boolean) => {
@@ -333,10 +353,20 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
 
   const backgroundImageStyle = {
-    backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${post.reviewWinner?.splashArtImageUrl}")`,
+    backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageURL ? imageURL : post.reviewWinner?.splashArtImageUrl}")`,
   }
 
-  return <div style={backgroundImageStyle} className={classNames(classes.root, {[classes.fadeOut]: !visible, [classes.fadeIn]: visible})} ref={observerRef}>
+  const images = [
+    "https://cl.imagineapi.dev/assets/d620c742-8881-4621-8af5-99027c449e12/d620c742-8881-4621-8af5-99027c449e12.png",
+    "https://cl.imagineapi.dev/assets/50cdb5f8-d852-41ea-aa2e-ee670573fb3b/50cdb5f8-d852-41ea-aa2e-ee670573fb3b.png",
+    "https://cl.imagineapi.dev/assets/1c16673c-cdab-414b-9264-bce379ddc014/1c16673c-cdab-414b-9264-bce379ddc014.png",
+    "https://cl.imagineapi.dev/assets/7047b9cb-a9cb-44a3-863a-efc47b44c2a2/7047b9cb-a9cb-44a3-863a-efc47b44c2a2.png",
+    "https://cl.imagineapi.dev/assets/ae9ddacd-12f1-4dac-9512-9cb0830f8241/ae9ddacd-12f1-4dac-9512-9cb0830f8241.png"
+  ]
+
+  const { anchorEl, hover, eventHandlers } = useHover();
+
+  return <div style={backgroundImageStyle} className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef} >
     <div className={classes.top}>
       <div className={classes.leftSection}>
         <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
@@ -355,6 +385,16 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
         </AnalyticsContext>
         <div className={classes.rightSectionBottomRow}>
           <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
+        </div>
+        <div className={classes.rightSectionBelowBottomRow}>
+          <div {...eventHandlers}>
+            <div className={classes.changeImageBox}>Change image</div>
+            <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
+              <div>
+                <SplashHeaderImageOptions images={images} post={post}/>
+              </div>
+            </LWPopper>
+          </div>
         </div>
       </div>
     </div>
