@@ -129,7 +129,7 @@ export interface PostsMinimumForGetPageUrl {
 }
 
 // Get URL of a post page.
-export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId:string|null=null): string {
+export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId: string|null=null): string {
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
   // LESSWRONG – included event and group post urls
@@ -209,7 +209,7 @@ export const postGetLastCommentedAt = (post: PostsBase|DbPost): Date | null => {
   }
 }
 
-export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost):Date|null => {
+export const postGetLastCommentPromotedAt = (post: PostsBase|DbPost): Date|null => {
   if (isAF) return null
   // TODO: add an afLastCommentPromotedAt
   return post.lastCommentPromotedAt;

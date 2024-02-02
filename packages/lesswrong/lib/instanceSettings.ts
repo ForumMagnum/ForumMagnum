@@ -208,3 +208,5 @@ const disableElastic = new PublicInstanceSetting<boolean>(
 export const isElasticEnabled = !isAnyTest && !disableElastic.get();
 
 export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', !isEAForum, "optional")
+export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
+export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('reviewBotId', null, "optional")

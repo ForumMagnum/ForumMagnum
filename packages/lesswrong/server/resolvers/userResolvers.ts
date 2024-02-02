@@ -705,7 +705,7 @@ addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
 defineQuery({
   name: "GetUserDialogueUsefulData",
   resultType: "UserDialogueUsefulData",
-  fn: async (root:void, _:any, context: ResolverContext) => {
+  fn: async (root: void, _: any, context: ResolverContext) => {
     const { currentUser } = context
     if (!currentUser) {
       throw new Error('User must be logged in to get top upvoted users');

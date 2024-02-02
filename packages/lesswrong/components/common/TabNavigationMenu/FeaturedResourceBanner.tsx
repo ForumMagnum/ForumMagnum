@@ -79,7 +79,7 @@ const LinkButton = ({ resource, classes }: {
   </a>;
 };
 
-const FeaturedResourceBanner = ({terms, classes} : {
+const FeaturedResourceBanner = ({terms, classes}: {
   terms: FeaturedResourcesViewTerms,
   classes: ClassesType
 }) => {

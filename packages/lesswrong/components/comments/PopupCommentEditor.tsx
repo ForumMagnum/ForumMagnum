@@ -66,7 +66,7 @@ const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, class
   title: React.ReactNode,
   guidelines?: React.ReactNode,
   commentFormProps: Partial<CommentsNewFormProps>,
-  onClose: ()=>void,
+  onClose: () => void,
   classes: ClassesType
 }) => {
   const { CommentsNewForm } = Components;

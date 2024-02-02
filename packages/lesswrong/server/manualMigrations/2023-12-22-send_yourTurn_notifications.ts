@@ -7,7 +7,7 @@ interface DialogueCheckWithExtraData extends DbDialogueCheck {
   targetUserMatchPreferenceId: string;
 }
 
-const getMatchFormYourTurn = async ():Promise<DialogueCheckWithExtraData[]> => {
+const getMatchFormYourTurn = async (): Promise<DialogueCheckWithExtraData[]> => {
   const db = getSqlClientOrThrow();
   const sql =`
     SELECT 

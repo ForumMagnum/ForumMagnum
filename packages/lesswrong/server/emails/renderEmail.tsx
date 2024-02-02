@@ -135,7 +135,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   from?: string,
   subject: string,
   bodyComponent: React.ReactNode,
-  boilerplateGenerator?: (props: {css:string, title: string, body: string})=>string,
+  boilerplateGenerator?: (props: {css: string, title: string, body: string}) => string,
 }): Promise<RenderedEmail>
 {
   if (!subject) throw new Error("Missing required argument: subject");

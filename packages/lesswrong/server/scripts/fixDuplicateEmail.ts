@@ -33,16 +33,14 @@ export type ClassifiedUser = {
   classification: MergeType
 }
 
-export function classifyDuplicateUser(user: DuplicateUser)
-  : ClassifiedUser {
+export function classifyDuplicateUser(user: DuplicateUser): ClassifiedUser {
   if (user.comments.length === 0 && user.posts.length === 0) {
     return { user, classification: MergeType.RemoveAccount }
   }
   return { user, classification: MergeType.KeepAccount }
 }
 
-export function mergeSingleUser(userList: Array<DuplicateUser>)
-  : MergeAction {
+export function mergeSingleUser(userList: Array<DuplicateUser>): MergeAction {
   const classifications = userList.map(classifyDuplicateUser)
 
   // If we only want to keep one user, we are done

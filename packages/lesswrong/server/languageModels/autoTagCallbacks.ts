@@ -198,7 +198,7 @@ async function getTagBotAccount(context: ResolverContext): Promise<DbUser|null> 
   return account;
 }
 
-let tagBotUserIdCache: Promise<{id:string|null}>|null = null;
+let tagBotUserIdCache: Promise<{id: string|null}>|null = null;
 export async function getTagBotUserId(context: ResolverContext): Promise<string|null> {
   if (!tagBotUserIdCache) {
     tagBotUserIdCache = (async () => {

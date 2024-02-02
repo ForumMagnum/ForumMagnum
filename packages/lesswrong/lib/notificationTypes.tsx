@@ -112,7 +112,7 @@ export interface NotificationType {
   name: string
   userSettingField: keyof DbUser|null
   allowedChannels?: NotificationChannelOption[],
-  getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>})=>Promise<string>
+  getMessage: (args: {documentType: NotificationDocument|null, documentId: string|null, extraData?: Record<string,any>}) => Promise<string>
   getIcon: () => ReactNode,
   Display?: FC<{
     notification: NotificationDisplay,
@@ -123,8 +123,8 @@ export interface NotificationType {
     Tag: FC,
     Localgroup: FC,
   }>,
-  onsiteHoverView?: (props: {notification: NotificationsList})=>React.ReactNode
-  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: Record<string,any> })=>string
+  onsiteHoverView?: (props: {notification: NotificationsList}) => React.ReactNode
+  getLink?: (props: { documentType: string|null, documentId: string|null, extraData: Record<string,any> }) => string
   causesRedBadge?: boolean
 }
 

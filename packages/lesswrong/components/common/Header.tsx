@@ -225,7 +225,7 @@ const Header = ({
 }: {
   standaloneNavigationPresent: boolean,
   sidebarHidden: boolean,
-  toggleStandaloneNavigation: ()=>void,
+  toggleStandaloneNavigation: () => void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)

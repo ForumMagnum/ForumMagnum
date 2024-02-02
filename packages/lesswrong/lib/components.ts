@@ -452,6 +452,7 @@ importComponent("PostsCoauthor", () => require('../components/posts/PostsPage/Po
 importComponent("PostsVideoCard", () => require('../components/posts/PostsVideoCard'));
 importComponent("PostsAudioCard", () => require('../components/posts/PostsAudioCard'));
 importComponent("LocalgroupPageTitle", () => require('../components/titles/LocalgroupPageTitle'));
+importComponent("PostsAnnualReviewMarketTag", () => require('../components/posts/PostsAnnualReviewMarketTag'));
 
 importComponent("ShortformPage", () => require('../components/shortform/ShortformPage'));
 importComponent("ShortformThreadList", () => require('../components/shortform/ShortformThreadList'));

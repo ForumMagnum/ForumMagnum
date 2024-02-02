@@ -24,7 +24,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 }))
 
 const SetPersonalMapLocationDialog = ({ onClose, classes }: {
-  onClose: ()=>void,
+  onClose: () => void,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();

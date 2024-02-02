@@ -45,9 +45,9 @@ const styles = (theme: JssStyles) => ({
   },
 })
 
-const LocalEventWrapperPopUp = ({localEvent, handleClose}:{
+const LocalEventWrapperPopUp = ({localEvent, handleClose}: {
   localEvent: LocalEvent,
-  handleClose: (eventId: string)=>void
+  handleClose: (eventId: string) => void
 }) => {
   const { StyledMapPopup, GroupLinks } = Components
   const { document, loading } = useSingle({

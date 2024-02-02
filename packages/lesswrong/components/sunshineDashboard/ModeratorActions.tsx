@@ -119,7 +119,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
     }
   });
 
-  const signAndDate = (sunshineNotes:string) => {
+  const signAndDate = (sunshineNotes: string) => {
     if (!sunshineNotes.match(signature)) {
       const padding = !sunshineNotes ? ": " : ": \n\n"
       return signature + padding + sunshineNotes

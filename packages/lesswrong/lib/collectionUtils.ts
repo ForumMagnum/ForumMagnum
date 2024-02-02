@@ -8,7 +8,7 @@ declare module "simpl-schema" {
   interface SchemaDefinition {
     canAutofillDefault?: boolean
     denormalized?: boolean
-    foreignKey?: CollectionNameString | {collection:CollectionNameString,field:string}
+    foreignKey?: CollectionNameString | {collection: CollectionNameString,field: string}
     nullable?: boolean
   }
 }
