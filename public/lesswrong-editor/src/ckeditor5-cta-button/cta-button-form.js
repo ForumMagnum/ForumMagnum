@@ -25,7 +25,6 @@ class MainFormView extends View {
     // selectedElement will be set to the button that is clicked on (there can be multiple in the same editor)
     this.selectedElement = null;
 
-    // Equation input
     const { buttonTextView, linkToView } = this._createInputs();
     this.buttonTextView = buttonTextView;
     this.linkToView = linkToView;
@@ -279,7 +278,7 @@ export default class CTAButtonForm extends Plugin {
     this._balloon.add({
       view: this.formView,
       position: this._getBalloonPositionData(),
-      balloonClassName: "ck-math-balloon",
+      balloonClassName: "ck-cta-balloon",
     });
 
     this.formView.buttonTextView.select();

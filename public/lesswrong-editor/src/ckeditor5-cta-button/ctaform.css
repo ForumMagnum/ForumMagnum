@@ -36,3 +36,17 @@
 	color: var(--palette-grey-1000);
 	font-family: var(--palette-fonts-sansSerifStack);
 }
+
+.ck.ck.ck.ck.ck.ck-cta-balloon {
+	box-shadow: none;
+    background: none;
+    border: none;
+}
+
+.ck-cta-balloon:before {
+	display: none;
+}
+
+.ck-cta-balloon:after {
+	display: none;
+}
