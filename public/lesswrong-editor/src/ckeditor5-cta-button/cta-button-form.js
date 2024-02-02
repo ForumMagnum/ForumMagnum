@@ -4,82 +4,74 @@ import ClickObserver from "@ckeditor/ckeditor5-engine/src/view/observer/clickobs
 import ContextualBalloon from "@ckeditor/ckeditor5-ui/src/panel/balloon/contextualballoon";
 import clickOutsideHandler from "@ckeditor/ckeditor5-ui/src/bindings/clickoutsidehandler";
 
-import View from '@ckeditor/ckeditor5-ui/src/view';
-import ViewCollection from '@ckeditor/ckeditor5-ui/src/viewcollection';
-import InputTextView from '@ckeditor/ckeditor5-ui/src/inputtext/inputtextview';
+import View from "@ckeditor/ckeditor5-ui/src/view";
+import ViewCollection from "@ckeditor/ckeditor5-ui/src/viewcollection";
+import InputTextView from "@ckeditor/ckeditor5-ui/src/inputtext/inputtextview";
 
-import KeystrokeHandler from '@ckeditor/ckeditor5-utils/src/keystrokehandler';
-import FocusTracker from '@ckeditor/ckeditor5-utils/src/focustracker';
-import FocusCycler from '@ckeditor/ckeditor5-ui/src/focuscycler';
+import KeystrokeHandler from "@ckeditor/ckeditor5-utils/src/keystrokehandler";
+import FocusTracker from "@ckeditor/ckeditor5-utils/src/focustracker";
+import FocusCycler from "@ckeditor/ckeditor5-ui/src/focuscycler";
 
-import submitHandler from '@ckeditor/ckeditor5-ui/src/bindings/submithandler';
+import submitHandler from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";
 
 class MainFormView extends View {
-	constructor( locale ) {
-		super( locale );
-		// Create key event & focus trackers
+	constructor(locale, editor) {
+		super(locale);
+
+		this.editor = editor;
 		this._createKeyAndFocusTrackers();
 
+		// selectedElement will be set to the button that is clicked on (there can be multiple in the same editor)
 		this.selectedElement = null;
 
 		// Equation input
-		const { buttonText, linkTo } = this._createInputs();
-		this.buttonText = buttonText
-		this.linkTo = linkTo
+		const { buttonTextView, linkToView } = this._createInputs();
+		this.buttonTextView = buttonTextView;
+		this.linkToView = linkToView;
 
 		this.previewEnabled = true;
 
 		let children = [];
-		children = [
-			buttonText, linkTo
-		];
+		children = [buttonTextView, linkToView];
 
 		// Add UI elements to template
-		this.setTemplate( {
-			tag: 'form',
+		this.setTemplate({
+			tag: "form",
 			attributes: {
-				class: [
-					'ck',
-					'ck-math-form',
-				],
-				tabindex: '-1',
-				spellcheck: 'false'
+				class: ["ck", "ck-math-form"],
+				tabindex: "-1",
+				spellcheck: "false",
 			},
 			children: [
 				{
-					tag: 'div',
+					tag: "div",
 					attributes: {
-						class: [
-							'ck-math-view'
-						]
+						class: ["ck-math-view"],
 					},
-					children
+					children,
 				},
 			],
-		} );
+		});
 	}
 
 	render() {
 		super.render();
 
 		// Prevent default form submit event & trigger custom 'submit'
-		submitHandler( {
+		submitHandler({
 			view: this,
-		} );
+		});
 
 		// Register form elements to focusable elements
-		const childViews = [
-			this.buttonText,
-			this.linkTo
-		];
+		const childViews = [this.buttonTextView, this.linkToView];
 
-		childViews.forEach( v => {
-			this._focusables.add( v );
-			this.focusTracker.add( v.element );
-		} );
+		childViews.forEach((v) => {
+			this._focusables.add(v);
+			this.focusTracker.add(v.element);
+		});
 
 		// Listen to keypresses inside form element
-		this.keystrokes.listenTo( this.element );
+		this.keystrokes.listenTo(this.element);
 	}
 
 	focus() {
@@ -91,112 +83,108 @@ class MainFormView extends View {
 		this.keystrokes = new KeystrokeHandler();
 		this._focusables = new ViewCollection();
 
-		this._focusCycler = new FocusCycler( {
+		this._focusCycler = new FocusCycler({
 			focusables: this._focusables,
 			focusTracker: this.focusTracker,
 			keystrokeHandler: this.keystrokes,
 			actions: {
-				focusPrevious: 'shift + tab',
-				focusNext: 'tab'
-			}
-		} );
+				focusPrevious: "shift + tab",
+				focusNext: "tab",
+			},
+		});
+	}
+
+	get buttonText() {
+		return this.buttonTextView.element.value;
+	}
+
+	set buttonText(value) {
+		this.buttonTextView.element.value = value;
+	}
+
+	get linkTo() {
+		return this.linkToView.element.value;
+	}
+
+	set linkTo(value) {
+		this.linkToView.element.value = value;
 	}
 
 	_createInputs() {
 		// Create 'Button text' input
-		const buttonText = new InputTextView(this.locale);
-		const buttonTextBind = buttonText.bindTemplate;
-		buttonText.setTemplate({
-			tag: 'input',
+		const buttonTextView = new InputTextView(this.locale);
+		const buttonTextBind = buttonTextView.bindTemplate;
+		buttonTextView.setTemplate({
+			tag: "input",
 			attributes: {
-				type: 'text',
-				class: [
-					'ck',
-					'ck-input',
-					'ck-input-text',
-					buttonTextBind.if('hasError', 'ck-error')
-				],
-				id: buttonTextBind.to('id'),
-				placeholder: buttonTextBind.to('placeholder'),
+				type: "text",
+				class: ["ck", "ck-input", "ck-input-text", buttonTextBind.if("hasError", "ck-error")],
+				id: buttonTextBind.to("id"),
+				placeholder: buttonTextBind.to("placeholder"),
 				readonly: false,
-				'aria-invalid': buttonTextBind.if('hasError', true),
-				'aria-describedby': buttonTextBind.to('ariaDescribedById')
+				"aria-invalid": buttonTextBind.if("hasError", true),
+				"aria-describedby": buttonTextBind.to("ariaDescribedById"),
 			},
 			on: {
-				input: buttonTextBind.to('input')
-			}
+				input: buttonTextBind.to("input"),
+			},
 		});
-		buttonText.label = 'Button text';
-		buttonText.on('input', () => {
-			// TODO: Handle input for 'Button text'
+		buttonTextView.label = "Button text";
+		buttonTextView.on("input", () => {
+			const model = this.editor.model;
+			const selectedElement = this.selectedElement;
+
+			model.change((writer) => {
+				if (!selectedElement) return;
+
+				const inputValue = buttonTextView.element.value.trim();
+
+				// Remove the existing text nodes within the selected element
+				const range = writer.createRangeIn(selectedElement);
+				writer.remove(range);
+
+				// Insert the new text node with the input value
+				const newText = writer.createText(inputValue);
+				writer.insert(newText, writer.createPositionAt(selectedElement, 0));
+			});
 		});
 
 		// Create 'Link to' input
-		const linkTo = new InputTextView(this.locale);
-		const linkToBind = linkTo.bindTemplate;
-		linkTo.setTemplate({
-			tag: 'input',
+		const linkToView = new InputTextView(this.locale);
+		const linkToBind = linkToView.bindTemplate;
+		linkToView.setTemplate({
+			tag: "input",
 			attributes: {
-				type: 'text',
-				class: [
-					'ck',
-					'ck-input',
-					'ck-input-text',
-					linkToBind.if('hasError', 'ck-error')
-				],
-				id: linkToBind.to('id'),
-				placeholder: linkToBind.to('placeholder'),
+				type: "text",
+				class: ["ck", "ck-input", "ck-input-text", linkToBind.if("hasError", "ck-error")],
+				id: linkToBind.to("id"),
+				placeholder: linkToBind.to("placeholder"),
 				readonly: false,
-				'aria-invalid': linkToBind.if('hasError', true),
-				'aria-describedby': linkToBind.to('ariaDescribedById')
+				"aria-invalid": linkToBind.if("hasError", true),
+				"aria-describedby": linkToBind.to("ariaDescribedById"),
 			},
 			on: {
-				input: linkToBind.to('input')
-			}
+				input: linkToBind.to("input"),
+			},
 		});
-		linkTo.label = 'Link to';
-		linkTo.on('input', (e) => {
-			// TODO: Handle input for 'Link to'
-			console.log(e)
-			console.log(this.selectedElement)
+		linkToView.label = "Link to";
+		linkToView.on("input", () => {
+			const model = this.editor.model;
+			const selectedElement = this.selectedElement;
+
+			model.change((writer) => {
+				if (!selectedElement) return;
+
+				const inputValue = linkToView.element.value.trim();
+
+				// Set the 'href' attribute to the new inputValue
+				writer.setAttribute("href", inputValue, selectedElement);
+			});
 		});
-
-		// // Create 'Alignment' radio buttons
-		// const alignmentView = new View();
-		// const alignmentLeft = new RadioView(this.locale);
-		// const alignmentCenter = new RadioView(this.locale);
-		// const alignmentBind = alignmentView.bindTemplate;
-
-		// alignmentLeft.set({
-		// 	name: 'alignment',
-		// 	value: 'left',
-		// 	label: 'Left'
-		// });
-		// alignmentCenter.set({
-		// 	name: 'alignment',
-		// 	value: 'center',
-		// 	label: 'Center'
-		// });
-
-		// alignmentView.setTemplate({
-		// 	tag: 'div',
-		// 	children: [alignmentLeft, alignmentCenter],
-		// 	attributes: {
-		// 		class: ['ck', 'ck-input', 'ck-input-radio']
-		// 	}
-		// });
-
-		// alignmentLeft.on('change', () => {
-		// 	// TODO: Handle change for 'Left' alignment
-		// });
-		// alignmentCenter.on('change', () => {
-		// 	// TODO: Handle change for 'Center' alignment
-		// });
 
 		return {
-			buttonText,
-			linkTo,
-			// alignmentView
+			buttonTextView,
+			linkToView,
 		};
 	}
 }
@@ -237,7 +225,7 @@ export default class CTAButtonForm extends Plugin {
 		const editor = this.editor;
 		const mathCommand = editor.commands.get("math");
 
-		const formView = new MainFormView(editor.locale);
+		const formView = new MainFormView(editor.locale, editor);
 
 		// formView.mathInputView.bind("value").to(mathCommand, "value");
 
@@ -273,7 +261,6 @@ export default class CTAButtonForm extends Plugin {
 		}
 
 		const editor = this.editor;
-		const mathCommand = editor.commands.get("math");
 
 		this._balloon.add({
 			view: this.formView,
@@ -281,17 +268,16 @@ export default class CTAButtonForm extends Plugin {
 			balloonClassName: "ck-math-balloon",
 		});
 
-		if (this._balloon.visibleView === this.formView) {
-			this.formView.buttonText.select();
-			this.formView.selectedElement = selectedElement
-		}
+		this.formView.buttonTextView.select();
+		this.formView.selectedElement = selectedElement;
 
-		// this.formView.equation = mathCommand.value || "";
+		// Set buttonText to the text content of selectedElement
+		const buttonText = selectedElement.getChild(0).data;
+		this.formView.buttonText = buttonText;
 
-		// // After updating the equation, make sure to resize the input element
-		// if (this.formView.mathInputView.element) {
-		// 	resizeInputElement(this.formView.mathInputView.element);
-		// }
+		// Set linkTo to the 'data-href' attribute of the selectedElement
+		const linkTo = selectedElement.getAttribute("href");
+		this.formView.linkTo = linkTo;
 	}
 
 	_hideUI() {
@@ -348,10 +334,10 @@ export default class CTAButtonForm extends Plugin {
 
 		// Handle click on view document and show panel when selection is placed inside the latex element
 		this.listenTo(viewDocument, "click", () => {
-			console.log("Received click")
+			console.log("Received click");
 			const selectedElement = this._getSelectedLaTeXElement();
 			if (selectedElement) {
-				console.log("Found element", selectedElement)
+				console.log("Found element", selectedElement);
 				// Then show panel but keep focus inside editor editable.
 				this._showUI(selectedElement);
 			}
@@ -363,7 +349,7 @@ export default class CTAButtonForm extends Plugin {
 			activator: () => true,
 			contextElements: [this._balloon.view.element],
 			callback: () => {
-				console.log("clicked outside")
+				console.log("clicked outside");
 				this._closeFormView();
 				// this.formView.fire("submit")
 			},
