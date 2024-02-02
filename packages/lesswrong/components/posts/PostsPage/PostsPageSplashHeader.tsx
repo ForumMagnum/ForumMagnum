@@ -330,7 +330,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   </LWTooltip>
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
-  const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} autoPlace/>
+  const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
 
   const backgroundImageStyle = {
     backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${post.reviewWinner?.splashArtImageUrl}")`,
