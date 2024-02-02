@@ -9,6 +9,9 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 import keyBy from 'lodash/keyBy';
 import { usePostBySlug } from '../posts/usePost';
 import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
+import classNames from 'classnames';
+import Image from '@material-ui/icons/Image';
+import { left } from '@popperjs/core';
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -39,31 +42,34 @@ const styles = (theme: ThemeType) => ({
   widerColumn: {
     marginLeft: "auto",
     marginRight: "auto",
-    width: "min-content"
+    maxWidth: 1250,
   },
   description: {
     maxWidth: 700,
     paddingLeft: 17
   },
   gridContainer: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    [theme.breakpoints.down(1300)]: {
-      gridTemplateColumns: 'repeat(2, 1fr)',
-    },
-    [theme.breakpoints.down(900)]: {
-      gridTemplateColumns: 'repeat(1, 1fr)',
-    },
+    display: 'flex',
+    flexWrap: 'wrap',
   },
   postsImageGrid: {
     position: "relative",
-    maxWidth: 400,
     display: "flex",
     '&:hover $imageGridHeader': {
       background: 'rgb(241 209 150 / 40%)'
     },
     '&:hover $expandIcon': {
       opacity: 1
+    }
+  },
+  expandedImageGrid: {
+    '& $imageGrid': {
+      gridTemplateColumns: "repeat(3, 120px) repeat(6, 120px)",
+    }
+  },
+  collapsedImageGrid: {
+    '& $imageGrid': {
+      gridTemplateColumns: "repeat(3, 0px) repeat(6, 0px)",
     }
   },
   imageGridHeader: {
@@ -91,11 +97,12 @@ const styles = (theme: ThemeType) => ({
   },
   imageGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
+    gridTemplateColumns: "repeat(3, 120px) repeat(6, 0px)",
     gridTemplateRows: "repeat(4, 120px)",
     position: "relative",
     overflow: "hidden",
     gridAutoFlow: 'column',
+    transition: 'grid-template-columns 0.5s ease-in-out',
     '&:hover $imageGridPostBackground': {
       transitionDelay: '0.2s'
     }
@@ -254,19 +261,101 @@ function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOr
   }
 }
 
+const sectionsInfo = {
+  rationality: {
+    title: "Rationality",
+    img: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1706571097/ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_catlen.webp",
+    tag: "Rationality"
+  },
+  optimization: {
+    title: "Optimization",
+    img: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1706670707/ohabryka_Aquarelle_book_cover_depicting_planets_surrounded_by_d_e9f91f98-66bc-4512-99d9-a13c15151ce8_ybdpvk.png",
+    tag: "World Optimization"
+  },
+  modeling: {
+    title: "Modeling",
+    img: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1706680332/ohabryka_Aquarelle_book_cover_inspired_by_topographic_river_map_9015394d-6f09-4e8e-99cc-3e0a91d4816e_ibpfhk.png",
+    tag: "World Modeling"
+  },
+  "ai-alignment": {
+    title: "AI Alignment",
+    img: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1706571097/ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_catlen.webp",
+    tag: "AI"
+  },
+  practical: {
+    title: "Practical",
+    img: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1706670707/ohabryka_Aquarelle_book_cover_depicting_planets_surrounded_by_d_e9f91f98-66bc-4512-99d9-a13c15151ce8_ybdpvk.png",
+    tag: "Practical"
+  },
+  miscellany: {
+    title: "Miscellany",
+    img: "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1706680332/ohabryka_Aquarelle_book_cover_inspired_by_topographic_river_map_9015394d-6f09-4e8e-99cc-3e0a91d4816e_ibpfhk.png",
+    tag: null
+  }
+}
+
+type expansionState = {left: number, right: number} | 'collapsed' | 'default'
+
 const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
   const { query } = location;
   // TODO: make an admin-only edit icon somewhere
   const [editOrderEnabled, setEditOrderEnabled] = useState(false);
-  const [selectedSection, setSelectionSection] = useState<string|null>(null)
+
+  const [expansionState, setExpansionState] = useState({} as Record<string, expansionState>);
+  console.log({expansionState})
+  const handleToggleExpand = (id: string) => {
+    // Get all dom elements with any of the ids in sectionInfo
+    const elements = document.querySelectorAll(`[id^="PostsImageGrid-"]`);
+    const currentState = expansionState[id] || 'default';
+
+    // Figure out which elements we need to collapse
+    // To do that we check if an element has the same y-coordinate as the clicked element
+    // If it does, we collapse it
+    const clickedElement = document.getElementById(`PostsImageGrid-${id}`);
+    const clickedElementY = clickedElement?.getBoundingClientRect().top;
+    const clickedElementX = clickedElement?.getBoundingClientRect().left;
+
+    const leftElementsToToggle = Array.from(elements).filter((element) => {
+      const elementY = element.getBoundingClientRect().top;
+      const elementX = element.getBoundingClientRect().left;
+      // console.log({elementY, clickedElementY, elementX, clickedElementX})
+      return elementY === clickedElementY && clickedElementX && elementX < clickedElementX;
+    });
+    
+    const rightElementsToToggle = Array.from(elements).filter((element) => {
+      const elementY = element.getBoundingClientRect().top;
+      const elementX = element.getBoundingClientRect().left;
+      // console.log({elementY, clickedElementY, elementX, clickedElementX})
+      return elementY === clickedElementY && clickedElementX && elementX > clickedElementX;
+    });
+
+    const elementsToToggle = [...leftElementsToToggle, ...rightElementsToToggle];
+
+    const currentStateToNewState = (clickedElementState:expansionState) => {
+      return typeof clickedElementState !== 'string' && (clickedElementState.left > 0 || clickedElementState.right > 0) ? 'default' : 'collapsed'
+    }
+
+    const newClickedElementState : expansionState = typeof currentState !== 'string' ? 'default' : {left: leftElementsToToggle.length, right: rightElementsToToggle.length}
+
+    const newState : Record<string, expansionState> = {
+      ...expansionState,
+      ...Object.fromEntries(elementsToToggle.map(element => [element.id.replace('PostsImageGrid-', ''), currentStateToNewState(currentState)])),
+      [id]: newClickedElementState
+    }
+
+    console.log({elementsToToggle, newState})
+
+    setExpansionState(newState);
+  }
   
+
   const {
     currentSortOrder,
     aiPostsHidden
   } = getCurrentTopPostDisplaySettings(query);
 
-  const { SingleColumnSection, SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, ContentItemBody, TopPostItem, TopPostEditOrder } = Components;
+  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, ContentItemBody, TopPostItem, TopPostEditOrder } = Components;
 
   const { post: reviewDescriptionPost } = usePostBySlug({ slug: 'top-posts-review-description' });
 
@@ -388,9 +477,10 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
           </div>
           <TopPostsDisplaySettings />
           <div className={classes.gridContainer}>
-            <PostsImageGrid posts={visibleReviewWinners.map(({ post }) => post)} classes={classes} img="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1706571097/ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_catlen.webp" header="Rationality" />
-            <PostsImageGrid posts={visibleReviewWinners.map(({ post }) => post)} classes={classes} img="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1706670707/ohabryka_Aquarelle_book_cover_depicting_planets_surrounded_by_d_e9f91f98-66bc-4512-99d9-a13c15151ce8_ybdpvk.png" header="Optimization" />
-            <PostsImageGrid posts={visibleReviewWinners.map(({ post }) => post)} classes={classes} img="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1706680332/ohabryka_Aquarelle_book_cover_inspired_by_topographic_river_map_9015394d-6f09-4e8e-99cc-3e0a91d4816e_ibpfhk.png" header="Modeling" />
+            {Object.entries(sectionsInfo).map(([id, { title, img, tag }]) => {
+              const posts = visibleReviewWinners.map(({ post }) => post).filter(post => !tag || post.tags.map(tag => tag.name).includes(tag));
+              return <PostsImageGrid posts={posts} classes={classes} img={img} header={title} key={id} id={id} expansionState={expansionState[id]} handleToggleExpand={handleToggleExpand} />
+            })}
           </div>
           
           {/* {visibleReviewWinners.map(({ post, reviewWinner }) => {
@@ -410,27 +500,42 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const PostsImageGrid = ({ posts, classes, img, header }: { posts: PostsTopItemInfo[], classes: ClassesType<typeof styles>, img: string, header: string }) => {
-  return <div className={classes.postsImageGrid}>
-    <div className={classes.imageGridHeader}>
+const PostsImageGrid = ({ posts, classes, img, header, id, expansionState, handleToggleExpand }: { posts: PostsTopItemInfo[], classes: ClassesType<typeof styles>, img: string, header: string, id: string, expansionState: expansionState, handleToggleExpand: (id: string) => void }) => {
+  const leftBookOffset = typeof expansionState === 'object' ? expansionState.left : 0;
+  const rightBookOffset = typeof expansionState === 'object' ? expansionState.right : 0;
+
+  return <div 
+    className={classNames(classes.postsImageGrid, {
+      [classes.expandedImageGrid]: typeof expansionState !== 'string' && (expansionState?.left > 0 || expansionState?.right > 0), 
+      [classes.collapsedImageGrid]: expansionState === 'collapsed'
+    })} 
+    id={`PostsImageGrid-${id}`}
+  >
+    <div className={classes.imageGridHeader} onClick={() => handleToggleExpand(id)}>
       <span className={classes.expandIcon}>+</span>
       <h2 className={classes.imageGridHeaderTitle}>{header}</h2>
     </div>
-    <div className={classes.imageGrid}>
+    <div className={classNames(classes.imageGrid)}>
       <img src={img} className={classes.imageGridBackground}/>
-      {posts.slice(0,12).map((post, i) => <div className={classes.imageGridPost} key={post._id}>
-        <div className={classes.imageGridPostBody}>
-          <div className={classes.imageGridPostAuthor}>
-            {post?.user?.displayName}
-          </div>
-          <div className={classes.imageGridPostTitle}>
-            {post.title}
-          </div>
-        </div>
-        <img className={classes.imageGridPostBackground} src={candidateImages[i]} />
-      </div>)}
+      {leftBookOffset > 0 && posts.slice(12, 12 + 12 * leftBookOffset).map((post, i) => <ImageGridPost post={post} index={i} classes={classes} key={post._id} />)}
+      {posts.slice(0, 12).map((post, i) => <ImageGridPost post={post} index={i} classes={classes} key={post._id} />)}
+      {rightBookOffset > 0 && posts.slice(leftBookOffset * 12 + 12, leftBookOffset * 12 + 12 + rightBookOffset * 12).map((post, i) => <ImageGridPost post={post} index={i} classes={classes} key={post._id} />)}
     </div>
   </div>
+}
+
+const ImageGridPost = ({post, index, classes}: {post: PostsTopItemInfo, index: number, classes: ClassesType<typeof styles>}) => {
+  return <div className={classes.imageGridPost} key={post._id}>
+  <div className={classes.imageGridPostBody}>
+    <div className={classes.imageGridPostAuthor}>
+      {post?.user?.displayName}
+    </div>
+    <div className={classes.imageGridPostTitle}>
+      {post.title}
+    </div>
+  </div>
+  <img className={classes.imageGridPostBackground} src={candidateImages[index]} />
+</div>
 }
 
 const candidateImages = [
