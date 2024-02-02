@@ -167,7 +167,6 @@ const postPromptImages = async (prompt: string, {title, threadTs}: {title: strin
 async function go(essays: Essay[], essayIx: number, el: string) {
   let promptResponseData : any;
   try {
-    console.log('yo', el)
     await acquireMidjourneyRights()
     const response = await fetch('https://cl.imagineapi.dev/items/images/', {
       method: 'POST',
