@@ -48,11 +48,14 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 32,
     fontSize: 14,
     fontWeight: 500,
+    lineHeight: "140%",
     color: theme.palette.grey[600],
+    "& span:first-child": {
+      marginRight: 4,
+    },
     "& a": {
       color: theme.palette.primary.dark,
       fontWeight: 600,
-      marginLeft: 4,
     },
   },
   notifications: {
@@ -187,7 +190,7 @@ export const NotificationsPageFeed = ({
               />
             )}
             <div className={classes.karmaBatching}>
-              {batchingMessages[karmaChanges!.updateFrequency]}{" "}
+              <span>{batchingMessages[karmaChanges!.updateFrequency]}{" "}</span>
               <Link to="/account?highlightField=karmaChangeNotifierSettings">
                 Change settings
               </Link>
