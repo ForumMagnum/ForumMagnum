@@ -14,6 +14,8 @@ import FocusCycler from "@ckeditor/ckeditor5-ui/src/focuscycler";
 
 import submitHandler from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";
 
+import './ctaform.css';
+
 class MainFormView extends View {
 	constructor(locale, editor) {
 		super(locale);
@@ -38,18 +40,37 @@ class MainFormView extends View {
 		this.setTemplate({
 			tag: "form",
 			attributes: {
-				class: ["ck", "ck-math-form"],
+				class: ["ck", "ck-cta-form"],
 				tabindex: "-1",
 				spellcheck: "false",
 			},
 			children: [
 				{
 					tag: "div",
-					attributes: {
-						class: ["ck-math-view"],
-					},
-					children,
+					children: [
+						{
+							tag: "div",
+							attributes: {
+								class: ["ck-cta-form-label"],
+							},
+							children: ["Button text"],
+						},
+						buttonTextView
+					]
 				},
+				{
+					tag: "div",
+					children: [
+						{
+							tag: "div",
+							attributes: {
+								class: ["ck-cta-form-label"],
+							},
+							children: ["Link to"],
+						},
+						linkToView
+					]
+				}
 			],
 		});
 	}
@@ -118,7 +139,7 @@ class MainFormView extends View {
 			tag: "input",
 			attributes: {
 				type: "text",
-				class: ["ck", "ck-input", "ck-input-text", buttonTextBind.if("hasError", "ck-error")],
+				class: ["ck-cta-form-input", buttonTextBind.if("hasError", "ck-error")],
 				id: buttonTextBind.to("id"),
 				placeholder: buttonTextBind.to("placeholder"),
 				readonly: false,
@@ -156,9 +177,9 @@ class MainFormView extends View {
 			tag: "input",
 			attributes: {
 				type: "text",
-				class: ["ck", "ck-input", "ck-input-text", linkToBind.if("hasError", "ck-error")],
+				class: ["ck-cta-form-input", linkToBind.if("hasError", "ck-error")],
 				id: linkToBind.to("id"),
-				placeholder: linkToBind.to("placeholder"),
+				placeholder: 'https://example.com',
 				readonly: false,
 				"aria-invalid": linkToBind.if("hasError", true),
 				"aria-describedby": linkToBind.to("ariaDescribedById"),
@@ -267,7 +288,7 @@ export default class CTAButtonForm extends Plugin {
 		this.formView.buttonText = buttonText;
 
 		// Set linkTo to the 'data-href' attribute of the selectedElement
-		const linkTo = selectedElement.getAttribute("href");
+		const linkTo = selectedElement.getAttribute("href") || '';
 		this.formView.linkTo = linkTo;
 	}
 

@@ -1,3 +1,4 @@
+import { requireCssVar } from "./cssVars";
 import { isFriendlyUI } from "./forumTheme";
 
 const hideSpoilers = (theme: ThemeType): JssStyles => ({
@@ -224,6 +225,15 @@ const footnoteStyles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+// Calling requireCssVar results in the variable being defined in the stylesheet
+// (e.g. --palette-fonts-sansSerifStack). These are required for use in styles that
+// are within the ckeditor bundle (in public/lesswrong-editor/src/ckeditor5-cta-button/ctaform.css)
+requireCssVar("palette", "fonts", "sansSerifStack")
+requireCssVar("palette", "panelBackground", "default")
+requireCssVar("palette", "grey", 200)
+requireCssVar("palette", "grey", 600)
+requireCssVar("palette", "grey", 1000)
+
 const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
   '& .ck-cta-button': {
     display: 'block',
@@ -257,7 +267,7 @@ const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
   },
   '& .ck-cta-button-centered': {
     margin: 'auto'
-  },
+  }
 });
 
 const baseBodyStyles = (theme: ThemeType): JssStyles => ({

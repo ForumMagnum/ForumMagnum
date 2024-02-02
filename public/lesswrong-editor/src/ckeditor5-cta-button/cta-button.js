@@ -53,8 +53,6 @@ export default class CTAButton extends Plugin {
                     const buttonText = writer.createText('Apply now');
                     writer.append(buttonText, buttonElement);
 
-                    // Set the href attribute for the buttonElement
-                    writer.setAttribute('href', 'https://google.com', buttonElement);
                     // Set it to be centered by default
                     writer.setAttribute('class', CENTERED_CLASS, buttonElement);
 
