@@ -4,6 +4,8 @@ import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 import CTAButtonForm from './cta-button-form';
 
+import buttonIcon from './button.svg';
+
 const CTA_CLASS = "ck-cta-button";
 const CENTERED_CLASS = "ck-cta-button-centered";
 
@@ -22,16 +24,15 @@ export default class CTAButton extends Plugin {
 
         // Add the toolbar item for inserting a cta button
         editor.ui.componentFactory.add('ctaButtonToolbarItem', locale => {
-            const view = new ButtonView(locale);
+            const toolbarButton = new ButtonView(locale);
 
-            view.set({
-                label: 'Button',
-                withText: true,
-                tooltip: true
-            });
+            toolbarButton.isEnabled = true;
+			toolbarButton.label = editor.t( 'Insert button' );
+			toolbarButton.icon = buttonIcon;
+			toolbarButton.tooltip = true;
 
             // When creating the CTA button, you no longer need to append the text node directly
-            view.on('execute', () => {
+            toolbarButton.on('execute', () => {
                 const model = editor.model;
 
                 model.change(writer => {
@@ -61,7 +62,7 @@ export default class CTAButton extends Plugin {
                 });
             });
 
-            return view;
+            return toolbarButton;
         });
     }
 

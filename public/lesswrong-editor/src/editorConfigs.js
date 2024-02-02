@@ -133,8 +133,8 @@ export const postEditorConfig = {
 		'horizontalLine',
 		'mathDisplay',
 		'mediaEmbed',
+		'ctaButtonToolbarItem',
 		'footnote',
-		'ctaButtonToolbarItem'
 	],
 	toolbar: {
 		items: [
@@ -155,8 +155,8 @@ export const postEditorConfig = {
 			'|',
 			'trackChanges',
 			'math',
-			'footnote',
 			'ctaButtonToolbarItem',
+			'footnote',
 		],
 		shouldNotGroupWhenFull: true,
 	},
