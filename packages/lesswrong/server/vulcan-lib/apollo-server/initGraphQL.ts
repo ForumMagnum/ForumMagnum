@@ -153,7 +153,7 @@ const getGraphQLType = <N extends CollectionNameString>(
   }
 };
 
-export type SchemaGraphQLFieldArgument = {name:string, type: string|GraphQLScalarType|null}
+export type SchemaGraphQLFieldArgument = {name: string, type: string|GraphQLScalarType|null}
 export type SchemaGraphQLFieldDescription = {
   description?: string
   name: string
@@ -226,12 +226,28 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
         const resolver = {
           [typeName]: {
             [resolverName]: (document: ObjectsByCollectionName[N], args: any, context: ResolverContext, info: any) => {
-              const { currentUser } = context;
-              // check that current user has permission to access the original non-resolved field
-              const canReadField = userCanReadField(currentUser, field, document);
-              return canReadField
-                ? field.resolveAs!.resolver(document, args, context, info)
-                : null;
+              // Check that current user has permission to access the original
+              // non-resolved field.
+              if (!userCanReadField(context.currentUser, field, document)) {
+                return null;
+              }
+
+              // First, check if the value was already fetched by a SQL resolver.
+              // A field with a SQL resolver that returns no value (for instance,
+              // if it uses a LEFT JOIN and no matching object is found) can be
+              // distinguished from a field with no SQL resolver as the former
+              // will be `null` and the latter will be `undefined`.
+              if (field.resolveAs!.sqlResolver) {
+                const typedName = resolverName as keyof ObjectsByCollectionName[N];
+                const existingValue = document[typedName];
+                if (existingValue !== undefined) {
+                  return existingValue;
+                }
+              }
+
+              // If the value wasn't supplied by a SQL resolver then we need
+              // to run the code resolver instead.
+              return field.resolveAs!.resolver(document, args, context, info);
             },
           },
         };

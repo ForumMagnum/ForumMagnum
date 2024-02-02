@@ -12,10 +12,12 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
+import { highlightMarket } from '../../lib/annualReviewMarkets';
 
-export const KARMA_WIDTH = 32
+export const KARMA_WIDTH = 32;
+export const REVIEW_RANKING_WIDTH = 50;
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
@@ -88,6 +90,20 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginLeft: 2,
       marginRight: theme.spacing.unit
     }
+  },
+  karmaPredictedReviewWinner: {
+    color: theme.palette.review.winner
+  },
+  reviewRanking: {
+    width: REVIEW_RANKING_WIDTH,
+    justifyContent: "center",
+    [theme.breakpoints.down('xs')]:{
+      width: "unset",
+      justifyContent: "flex-start",
+      marginLeft: 2,
+      marginRight: theme.spacing.unit
+    },
+    marginRight: 6
   },
   title: {
     minHeight: 26,
@@ -334,7 +350,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 export type PostsList2Props = PostsItemConfig & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 };
 
 const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
@@ -358,6 +374,9 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showReviewCount,
     showIcons,
     showKarma,
+    annualReviewMarketInfo,
+    showReviewRanking,
+    showCommentCount,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,
@@ -425,11 +444,18 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             )}
           >
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
-            {showKarma && <PostsItem2MetaInfo className={classes.karma}>
+            {showKarma && !showReviewRanking && <PostsItem2MetaInfo className={classNames( 
+              classes.karma, 
+              { [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo) }
+            )}
+            >
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
-                : <KarmaDisplay document={post} />
+                : <KarmaDisplay document={post} annualReviewMarketInfo={annualReviewMarketInfo} annualReviewMarketCommentId={post.annualReviewMarketCommentId}/>
               }
+            </PostsItem2MetaInfo>}
+            {showReviewRanking && <PostsItem2MetaInfo className={classes.reviewRanking}>
+              #1, 2018
             </PostsItem2MetaInfo>}
 
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
@@ -495,7 +521,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               <PostsItemIcons post={post}/>
             </div>}
 
-            {!resumeReading && <div className={classes.commentsIcon}>
+            {showCommentCount && !resumeReading && <div className={classes.commentsIcon}>
               <PostsItemComments
                 small={false}
                 commentCount={commentCount}
@@ -559,7 +585,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               terms={commentTerms}
               post={post}
               treeOptions={{
-                highlightDate: post.lastVisitedAt,
+                highlightDate: post.lastVisitedAt ?? undefined,
                 condensed: condensedAndHiddenComments,
               }}
             />

@@ -590,6 +590,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
+      name:'notifications',
+      path:'/notifications',
+      componentName: 'NotificationsPage',
+      title: "Notifications",
+    },
+    {
       name: 'handbook',
       path: '/handbook',
       componentName: 'EAIntroCurriculum',
@@ -1031,7 +1037,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: '/petroyDayPoll',
       componentName: "PetrovDayPoll",
       title: "Petrov Day Poll",
-    }
+    },
   ],
   AlignmentForum: [
     {
@@ -1184,41 +1190,42 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       background: postBackground
     },
     {
-      name: 'bookmarks',
-      path: '/bookmarks',
+      name: 'savedAndRead',
+      path: '/saved',
       componentName: 'BookmarksPage',
-      title: 'Bookmarks',
+      title: 'Saved & read',
     },
   ],
 })
 
 addRoute(...eaLwAfForumSpecificRoutes)
 
-addRoute({
-  name: 'AllComments',
-  path: '/allComments',
-  componentName: 'AllComments',
-  enableResourcePrefetch: true,
-  title: "All Comments"
-});
-
-// Routes where just the EA Forum has an override
+// Inbox routes
 addRoute(...forumSelect<Route[]>({
-  EAForum: [
+  LWAF: [
     {
-      name: 'Shortform',
-      path: '/quicktakes',
-      componentName: 'ShortformPage',
-      title: "Quick takes",
-      description: "Quickly written or informal writing on Effective Altruism.",
+      name: 'inbox',
+      path: '/inbox',
+      componentName: 'InboxWrapper',
+      title: "Inbox",
     },
     {
-      name: 'ShortformRedirect',
-      path: '/shortform',
-      redirect: () => "/quicktakes",
+      name: 'conversation',
+      path: '/inbox/:_id',
+      componentName: 'ConversationWrapper',
+      title: "Private Conversation",
+      background: "white",
     },
-    // The inbox components here use the same components but some of the other
-    // parameters are different.
+    {
+      name: 'moderatorInbox',
+      path: '/moderatorInbox',
+      componentName: 'ModeratorInboxWrapper',
+      title: "Moderator Inbox",
+      fullscreen: true,
+    },
+  ],
+  
+  default: [
     {
       name: 'inbox',
       path: '/inbox',
@@ -1247,6 +1254,32 @@ addRoute(...forumSelect<Route[]>({
       title: "Moderator Inbox",
       fullscreen: true,
     },
+  ]
+}))
+
+addRoute({
+  name: 'AllComments',
+  path: '/allComments',
+  componentName: 'AllComments',
+  enableResourcePrefetch: true,
+  title: "All Comments"
+});
+
+// Routes where just the EA Forum has an override
+addRoute(...forumSelect<Route[]>({
+  EAForum: [
+    {
+      name: 'Shortform',
+      path: '/quicktakes',
+      componentName: 'ShortformPage',
+      title: "Quick takes",
+      description: "Quickly written or informal writing on Effective Altruism.",
+    },
+    {
+      name: 'ShortformRedirect',
+      path: '/shortform',
+      redirect: () => "/quicktakes",
+    },
   ],
   default: [
     {
@@ -1254,25 +1287,6 @@ addRoute(...forumSelect<Route[]>({
       path: '/shortform',
       componentName: 'ShortformPage',
       title: "Shortform"
-    },
-    {
-      name: 'inbox',
-      path: '/inbox',
-      componentName: 'InboxWrapper',
-      title: "Inbox"
-    },
-    {
-      name: 'conversation',
-      path: '/inbox/:_id',
-      componentName: 'ConversationWrapper',
-      title: "Private Conversation",
-      background: "white",
-    },
-    {
-      name: 'moderatorInbox',
-      path: '/moderatorInbox',
-      componentName: 'ModeratorInboxWrapper',
-      title: "Moderator Inbox"
     },
   ],
 }));
@@ -1433,6 +1447,12 @@ addRoute(
     title: "Moderation Dashboard"
   },
   {
+    name: 'tagMergeTool',
+    path: '/admin/tagMerge',
+    componentName: 'TagMergePage',
+    title: `${taggingNameCapitalSetting.get()} merging tool`
+  },
+  {
     name: 'recentlyActiveUsers',
     path: '/admin/recentlyActiveUsers',
     componentName: 'RecentlyActiveUsers',
@@ -1516,6 +1536,14 @@ addRoute(
     componentName: 'AllPostsPage',
     enableResourcePrefetch: true,
     title: "All Posts",
+  },
+  {
+    name: 'reviewWinners',
+    path: '/reviewWinners',
+    componentName: 'TopPostsPage',
+    // enableResourcePrefetch: true,
+    title: 'Annual Review Winners',
+    background: "#f8f4ee"
   },
   {
     name: 'questions',

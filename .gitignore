@@ -96,3 +96,7 @@ schema/schema_to_accept.sql
 .branchdbcache
 
 ml
+
+client_meta.json
+client_stats.html
+client_meta.json

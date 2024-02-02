@@ -8,8 +8,8 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
   postId?: string,
   commentId?: string,
   reportedUserId?: string,
-  onClose?: ()=>void,
-  onSubmit?: ()=>void,
+  onClose?: () => void,
+  onSubmit?: () => void,
   title?: string,
   link: string,
 }) => {
@@ -28,7 +28,7 @@ const ReportForm = ({ userId, postId, commentId, reportedUserId, onClose, onSubm
       <DialogContent>
         <Components.WrappedSmartForm
           collectionName="Reports"
-          mutationFragment={getFragment('unclaimedReportsList')}
+          mutationFragment={getFragment('UnclaimedReportsList')}
           prefilledProps={{
             userId: userId,
             postId: postId,

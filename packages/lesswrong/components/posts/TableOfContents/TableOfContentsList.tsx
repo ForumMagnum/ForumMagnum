@@ -42,7 +42,7 @@ const isRegularClick = (ev: React.MouseEvent) => {
 const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions}: {
   tocSections: ToCSection[],
   title: string|null,
-  onClickSection?: ()=>void,
+  onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
 }) => {
   const navigate = useNavigate();
@@ -90,7 +90,7 @@ const TableOfContentsList = ({tocSections, title, onClickSection, displayOptions
   if (!tocSections)
     return <div/>
 
-  const handleClick = async (ev: React.SyntheticEvent, jumpToSection: ()=>void): Promise<void> => {
+  const handleClick = async (ev: React.SyntheticEvent, jumpToSection: () => void): Promise<void> => {
     ev.preventDefault();
     if (onClickSection) {
       onClickSection();

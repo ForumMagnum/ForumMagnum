@@ -9,7 +9,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   refetch,
   commentTreeOptions = {},
   initialExpandAllThreads,
-} : {
+}: {
   post: PostsRecentDiscussion,
   comments?: T[],
   refetch: () => void,
@@ -60,7 +60,7 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
   const treeOptions: CommentTreeOptions = {
     scrollOnExpand: true,
     lastCommentId: lastCommentId,
-    highlightDate: lastVisitedAt,
+    highlightDate: lastVisitedAt ?? undefined,
     refetch: refetch,
     condensed: true,
     post,

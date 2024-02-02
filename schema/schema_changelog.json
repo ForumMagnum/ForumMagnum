@@ -523,5 +523,30 @@
     "acceptsSchemaHash": "7dbf024fc86645c003e6ca3f42cf3af5",
     "acceptedByMigration": "20240118T104751.add_PostView_PostViewTimes.ts",
     "timestamp": "2024-01-18T10:47:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8d498c2c299a4fdf9ab47fcb9f045078",
+    "acceptedByMigration": "20240126T225542.unlog_PageCache.ts",
+    "timestamp": "2024-01-26T22:55:42.000Z"
+  },
+  {
+    "acceptsSchemaHash": "bd3603a518355f1cbb6346c93702811d",
+    "acceptedByMigration": "20240129T102321.add_fm_vote_added_emoji_function.ts",
+    "timestamp": "2024-01-29T10:23:21.000Z"
+  },
+  {
+    "acceptsSchemaHash": "44cc1cc66be79573b597f5f1168df8ec",
+    "acceptedByMigration": "20240131T230552.add_ManifoldProbabilitiesCaches_table_and_annual_review_fields_to_Posts.ts",
+    "timestamp": "2024-01-31T23:05:52.000Z"
+  },
+  {
+    "acceptsSchemaHash": "f3add36e62e14d409e005ef7ed969bb2",
+    "acceptedByMigration": "20240201T210658.add_ReviewWinners.ts",
+    "timestamp": "2024-02-01T21:06:58.000Z"
+  },
+  {
+    "acceptsSchemaHash": "8d50c9ecf4f776b6592956ac590ed246",
+    "acceptedByMigration": "20240201T232248.add_splashArtImageUrl.ts",
+    "timestamp": "2024-02-01T23:22:48.000Z"
   }
 ]

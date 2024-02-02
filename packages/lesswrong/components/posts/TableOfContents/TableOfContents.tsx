@@ -12,13 +12,13 @@ const TableOfContents = ({sectionData, title, postedAt, onClickSection, displayO
   sectionData: ToCData,
   title: string,
   postedAt?: Date,
-  onClickSection?: ()=>void,
+  onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
   classes: ClassesType,
   fixedPositionToc?: boolean
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const {setToC, toc, tocTitleVisible} = useContext(SidebarsContext)!;
+  const {setToC, toc} = useContext(SidebarsContext)!;
 
   useEffect(() => {
     if (setToC) {
@@ -38,7 +38,7 @@ const TableOfContents = ({sectionData, title, postedAt, onClickSection, displayO
     return (
       <Components.FixedPositionToC
         tocSections={toc.sectionData.sections}
-        title={tocTitleVisible ? title : null}
+        title={title}
         postedAt={postedAt}
         onClickSection={onClickSection}
         displayOptions={displayOptions}

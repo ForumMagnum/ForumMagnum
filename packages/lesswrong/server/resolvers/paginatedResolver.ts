@@ -22,10 +22,12 @@ type MaybeCollectionType<GraphQLType extends string, Fallback> =
 export const createPaginatedResolver = <
   FallbackReturnType,
   GraphQLType extends string,
-  ReturnType extends MaybeCollectionType<GraphQLType, FallbackReturnType>
+  ReturnType extends MaybeCollectionType<GraphQLType, FallbackReturnType>,
+  Args extends Record<string, unknown>
 >({
   name,
   graphQLType,
+  args,
   callback,
   cacheMaxAgeMs = 0,
 }: {
@@ -40,12 +42,21 @@ export const createPaginatedResolver = <
    */
   graphQLType: GraphQLType,
   /**
+   * Custom arguments, as a map from the argument names to the graphql types.
+   */
+  args?: Record<keyof Args, string>,
+  /**
    * The callback to fetch results, which will generally call into a repo (all
    * repos are available in `context.repos`).
    */
-  callback: (context: ResolverContext, limit: number) => Promise<ReturnType[]>,
+  callback: (
+    context: ResolverContext,
+    limit: number,
+    args?: Args,
+  ) => Promise<ReturnType[]>,
   /**
-   * Optional cache TTL in milliseconds - if undefined or 0 no cache is used
+   * Optional cache TTL in milliseconds - if undefined or 0 no cache is used.
+   * Note that the cache is _global_ and not per-user.
    */
   cacheMaxAgeMs?: number,
 }) => {
@@ -65,13 +76,14 @@ export const createPaginatedResolver = <
     Query: {
       [name]: async (
         _: void,
-        {limit}: {limit: number},
+        args: Args & {limit: number},
         context: ResolverContext,
       ): Promise<{results: ReturnType[]}> => {
         const accessFilterFunction = collection
           ? (records: (ReturnType & DbObject)[]) => accessFilterMultiple(context.currentUser, collection!, records as AnyBecauseHard[], context)
           : undefined;
 
+        const limit = args.limit;
         if (
           cacheMaxAgeMs > 0 &&
           Date.now() - cachedAt < cacheMaxAgeMs &&
@@ -80,7 +92,7 @@ export const createPaginatedResolver = <
           const filteredResults = await accessFilterFunction?.(cached as (ReturnType & DbObject)[]) ?? cached;
           return {results: filteredResults.slice(0, limit) as ReturnType[]};
         }
-        const results = await callback(context, limit);
+        const results = await callback(context, limit, args);
         cachedAt = Date.now();
         cached = results;
         const filteredResults = await accessFilterFunction?.(results as (ReturnType & DbObject)[]) ?? results;
@@ -95,5 +107,10 @@ export const createPaginatedResolver = <
     }
   `);
 
-  addGraphQLQuery(`${name}(limit: Int): ${name}Result`);
+  const allArgs = {...args, limit: "Int"};
+  const argString = Object
+    .keys(allArgs)
+    .map((arg) => `${arg}: ${allArgs[arg as keyof typeof allArgs]}`)
+    .join(", ");
+  addGraphQLQuery(`${name}(${argString}): ${name}Result`);
 }

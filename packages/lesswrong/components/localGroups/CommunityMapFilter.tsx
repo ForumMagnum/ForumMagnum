@@ -22,6 +22,7 @@ import { without } from 'underscore';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { useNavigate } from '../../lib/reactRouterWrapper';
+import {isFriendlyUI} from '../../themes/forumTheme'
 
 const availableFilters = groupTypes.map(t => t.shortName);
 
@@ -274,7 +275,7 @@ const CommunityMapFilter = ({
 
   return (
     <Paper>
-      {!isEAForum && <div className={classes.filters}>
+      {!isFriendlyUI && <div className={classes.filters}>
         {availableFilters.map((value, i) => {
           const checked = filters.includes(value)
           return (

@@ -11,11 +11,12 @@ import { useObserver } from '../../hooks/useObserver';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useImageContext } from './ImageContext';
 import { useHover } from '../../common/withHover';
+import { requireCssVar } from '../../../themes/cssVars';
+import { hideScrollBars } from '../../../themes/styleUtils';
+
+const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
 
 const styles = (theme: ThemeType) => ({
-// JSS styles
-  // ...audioIconStyles(theme),
-  
   root: {
     zIndex: theme.zIndexes.postsPageSplashHeader,
     height: '100vh',
@@ -36,10 +37,10 @@ const styles = (theme: ThemeType) => ({
       left: 0,
       height: '100%',
       width: '100%',
-      background: 'linear-gradient(0deg, white 3%, transparent 48%)',
+      // background: 'linear-gradient(0deg, white 3%, transparent 48%)',
       pointerEvents: 'none'
     },
-    transition: 'opacity 0.2s ease-in-out',
+    transition: 'opacity 0.5s ease-in-out',
     opacity: 1,
     [theme.breakpoints.down('sm')]: {
       marginTop: '-64px',
@@ -48,8 +49,30 @@ const styles = (theme: ThemeType) => ({
       marginRight: -8
     },
   },
+  // These fade effects (for the title/author "fading out" vertically) also rely on the `transition` properties in the `title` and `author` classes
+  fadeIn: {
+    '& .PostsPageSplashHeader-title, .PostsPageSplashHeader-author, .PostsPageSplasheHeader-reviews': {
+      transitionDelay: '0s',
+      transitionTimingFunction: 'ease-out',
+    },
+  },
   fadeOut: {
     opacity: 0,
+    '& .PostsPageSplashHeader-reviews': {
+      opacity: 0,
+      transform: 'translateY(-130px)',
+      transitionTimingFunction: 'ease-in',
+    },
+    '& .PostsPageSplashHeader-title': {
+      opacity: 0,
+      transform: 'translateY(-100px)',
+      transitionTimingFunction: 'ease-in',
+    },
+    '& .PostsPageSplashHeader-author': {
+      opacity: 0,
+      transform: 'translateY(-70px)',
+      transitionTimingFunction: 'ease-in',
+    },
   },
   centralSection: {
     textAlign: 'center',
@@ -87,7 +110,10 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'flex-start',
     height: 'min-content',
-    padding: 8,
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingTop: 8,
+    paddingBottom: 4,
     opacity: 0.76
   },
   rightSectionBottomRow: {
@@ -148,7 +174,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[500],
   },
   title: {
-    color: 'rgba(0,0,0,0.75)',
+    color: theme.palette.text.reviewWinner.title,
     fontSize: '5.5rem',
     fontWeight: '600',
     margin: '0px',
@@ -158,7 +184,8 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       fontSize: '2.5rem',
       maxWidth: '90vw'
-    }
+    },
+    transition: 'opacity .5s, transform .5s'
   },
   titleSmaller: {
     fontSize: '3.8rem',
@@ -168,7 +195,6 @@ const styles = (theme: ThemeType) => ({
   },
   postActionsButton: {
     backgroundColor: theme.palette.tag.coreTagBackground,
-    marginLeft: 4,
     borderRadius: 3,
     cursor: "pointer",
     border: theme.palette.tag.border,
@@ -205,7 +231,8 @@ const styles = (theme: ThemeType) => ({
   author: {
     fontSize: '1.6rem',
     fontWeight: '700',
-    color: 'rgba(0,0,0,0.65)',
+    color: theme.palette.text.reviewWinner.author,
+    transition: 'opacity .5s, transform .5s',
   },
   reviews: {
     display: 'flex',
@@ -213,6 +240,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'center',
     alignItems: 'flex-end',
     flexWrap: 'wrap-reverse',
+    transition: 'opacity .5s, transform .5s',
     ...theme.typography.commentStyle,
   },
   reviewContainer: {
@@ -243,11 +271,12 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
     position: 'relative',
     zIndex: 1,
-    color: 'white'
+    color: 'white',
   },
   reviewScore: {
   },
   reviewAuthor: {
+
   },
   reviewPreviewContainer: {
     padding: '16px',
@@ -256,7 +285,7 @@ const styles = (theme: ThemeType) => ({
   reviewPreview: {
     ...theme.typography.commentStyle,
     transition: 'opacity 0.2s ease-in-out',
-    backgroundColor: 'rgba(255,255,255,0.8)',
+    backgroundColor: theme.palette.panelBackground.translucent2,
     border: `1px solid ${theme.palette.panelBackground.reviewGold}`,
     padding: '8px',
     width: '650px',
@@ -266,7 +295,8 @@ const styles = (theme: ThemeType) => ({
     borderRadius: '8px',
     marginLeft: 'auto',
     marginRight: 'auto',
-    overflow: 'scroll',
+    overflowY: 'scroll',
+    ...hideScrollBars,
     maxHeight: '100%'
   },
   reviewPreviewAuthor: {
@@ -284,26 +314,22 @@ const styles = (theme: ThemeType) => ({
 
 /// PostsPageSplashHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, classes}: {
+const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  answers?: CommentsList[],
-  dialogueResponses?: CommentsList[],
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
-  hideMenu?: boolean,
-  hideTags?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
   const { imageURL } = useImageContext();
   const [visible, setVisible] = React.useState(true);
-  const {setToCVisible} = useContext(SidebarsContext)!;
+  const { setToCVisible } = useContext(SidebarsContext)!;
   const transitionHeader = (headerVisibile: boolean) => {
     setToCVisible(!headerVisibile);
     setVisible(headerVisibile);
   }
   const observerRef = useObserver<HTMLDivElement>({onEnter: () => transitionHeader(true), onExit: () => transitionHeader(false), threshold: 0.95});
-  const { loading, results: reviews, loadMoreProps } = useMulti({
+  const { results: reviews } = useMulti({
     terms: {
       view: "reviews",
       postId: post._id,
@@ -324,8 +350,11 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
   </LWTooltip>
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
+  const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} autoPlace/>
 
-  const defaultImageURL = `url("https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png")`
+  const backgroundImageStyle = {
+    backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageURL ? imageURL : post.reviewWinner?.splashArtImageUrl}")`,
+  }
 
   const images = [
     "https://cl.imagineapi.dev/assets/d620c742-8881-4621-8af5-99027c449e12/d620c742-8881-4621-8af5-99027c449e12.png",
@@ -337,25 +366,21 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
 
   const { anchorEl, hover, eventHandlers } = useHover();
 
-  return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef}
-  style={{ backgroundImage: imageURL ? `url(${imageURL})` : defaultImageURL }} >
+  return <div style={backgroundImageStyle} className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef} >
     <div className={classes.top}>
       <div className={classes.leftSection}>
-        {/* <div className={classes.narrowLeftElements}> */}
-          <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
-            Ranked #2 of 3220 posts in the 2021 Review
-          </Link>
-          <Link className={classes.reviewNavigationMobile} to="/best-of-lesswrong">
-            #2 in 2021 Review
-          </Link>
-          {toggleEmbeddedPlayer && audioIcon}
-        {/* </div> */}
+        <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
+          Ranked #2 of 3220 posts in the 2021 Review
+        </Link>
+        <Link className={classes.reviewNavigationMobile} to="/best-of-lesswrong">
+          #2 in 2021 Review
+        </Link>
+        {toggleEmbeddedPlayer && audioIcon}
       </div>
       <div className={classes.rightSection}>
         <AnalyticsContext pageSectionContext="tagHeader">
           <div className={classes.rightSectionTopRow}>
-            <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} />
-            <PostActionsButton post={post} className={classes.postActionsButton} autoPlace/>
+            <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} appendElement={postActionsButton}/>
           </div>
         </AnalyticsContext>
         <div className={classes.rightSectionBottomRow}>
@@ -399,8 +424,7 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
     </div>
     
     <div className={classes.centralSection}>
-      
-      <h1 className={classNames(classes.title, {[classes.titleSmaller]: post.title.length > 80})}>
+      <h1 className={classNames(classes.title, { [classes.titleSmaller]: post.title.length > 80 })}>
         {post.title}
       </h1>
       <div className={classes.author}>
@@ -410,7 +434,7 @@ const PostsPageSplashHeader = ({post, answers = [], dialogueResponses = [], show
   </div>
 }
 
-const ReviewPill = ({review, classes, setReview}: {review: CommentsList, classes: ClassesType, setReview: (r:CommentsList | null) => void}) => {
+const ReviewPill = ({review, classes, setReview}: {review: CommentsList, classes: ClassesType<typeof styles>, setReview: (r: CommentsList | null) => void}) => {
   return <HashLink to={`#${review._id}`}>
     <div className={classes.review} onMouseOver={() => setReview(review)}>
       <div className={classes.reviewScore}>
@@ -421,7 +445,6 @@ const ReviewPill = ({review, classes, setReview}: {review: CommentsList, classes
       </div>
     </div>
   </HashLink>
-    
 }
 
 const PostsPageSplashHeaderComponent = registerComponent(

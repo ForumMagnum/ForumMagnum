@@ -99,7 +99,7 @@ const styles = createStyles((theme: ThemeType): JssStyles => ({
 
 const TabNavigationEventsList = ({ terms, onClick, classes }: {
   terms: PostsViewTerms,
-  onClick: ()=>void,
+  onClick: () => void,
   classes: ClassesType,
 }) => {
   const { results } = useMulti({
@@ -134,7 +134,7 @@ const TabNavigationEventsList = ({ terms, onClick, classes }: {
 
 const TabNavigationEventSingleLine = ({event, onClick, classes}: {
   event: PostsList,
-  onClick: ()=>void,
+  onClick: () => void,
   classes: ClassesType,
 }) => {
   const { timezone } = useTimezone();
@@ -169,7 +169,7 @@ const TabNavigationEventSingleLine = ({event, onClick, classes}: {
 
 const TabNavigationEventTwoLines = ({event, onClick, classes}: {
   event: PostsList,
-  onClick: ()=>void,
+  onClick: () => void,
   classes: ClassesType,
 }) => {
   const { timezone } = useTimezone();

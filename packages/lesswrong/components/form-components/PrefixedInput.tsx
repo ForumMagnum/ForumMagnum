@@ -41,7 +41,7 @@ export const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", 
 const PrefixedInput = ({ path, inputPrefix, updateCurrentValues, value, classes }: {
   path: string;
   inputPrefix?: string;
-  updateCurrentValues<T extends {}>(values: T) : void;
+  updateCurrentValues<T extends {}>(values: T): void;
   value: string;
   classes: ClassesType;
 }) => {
