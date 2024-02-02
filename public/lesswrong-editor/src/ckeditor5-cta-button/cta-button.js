@@ -2,13 +2,14 @@ import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import { toWidget } from '@ckeditor/ckeditor5-widget/src/utils';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
+import CTAButtonForm from './cta-button-form';
 
 const CTA_CLASS = "ck-cta-button";
 const CENTERED_CLASS = "ck-cta-button-centered";
 
 export default class CTAButton extends Plugin {
     static get requires() {
-        return [ Widget ];
+        return [ Widget, CTAButtonForm ];
     }
 
     init() {
