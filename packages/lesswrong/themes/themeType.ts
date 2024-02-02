@@ -154,6 +154,10 @@ declare global {
       primaryDarkOnDim: ColorString,
       contentHeader?: ColorString,
     
+      reviewWinner: {
+        title: ColorString,
+        author: ColorString,
+      }
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       reviewBallotIcon: ColorString,

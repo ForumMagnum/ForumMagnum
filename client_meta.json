@@ -13451,7 +13451,7 @@
       ]
     },
     "packages/lesswrong/themes/defaultPalette.ts": {
-      "bytes": 19857,
+      "bytes": 19956,
       "imports": []
     },
     "packages/lesswrong/themes/createThemeDefaults.ts": {
@@ -13473,7 +13473,7 @@
       ]
     },
     "packages/lesswrong/themes/userThemes/darkMode.ts": {
-      "bytes": 9498,
+      "bytes": 9592,
       "imports": [
         {
           "path": "packages/lesswrong/themes/colorUtil.ts",
@@ -24922,23 +24922,6 @@
         }
       ]
     },
-    "packages/lesswrong/components/common/SidebarsWrapper.tsx": {
-      "bytes": 3470,
-      "imports": [
-        {
-          "path": "node_modules/react/index.js",
-          "kind": "import-statement"
-        },
-        {
-          "path": "packages/lesswrong/lib/vulcan-lib/index.ts",
-          "kind": "import-statement"
-        },
-        {
-          "path": "node_modules/lodash/isEqual.js",
-          "kind": "import-statement"
-        }
-      ]
-    },
     "packages/lesswrong/components/posts/PostsPage/PostsAudioPlayerWrapper.tsx": {
       "bytes": 1606,
       "imports": [
@@ -24965,7 +24948,7 @@
       "imports": []
     },
     "packages/lesswrong/components/posts/PostsPage/PostsPage.tsx": {
-      "bytes": 30262,
+      "bytes": 30200,
       "imports": [
         {
           "path": "node_modules/react/index.js",
@@ -25101,10 +25084,6 @@
         },
         {
           "path": "packages/lesswrong/lib/reactRouterWrapper.tsx",
-          "kind": "import-statement"
-        },
-        {
-          "path": "packages/lesswrong/components/common/SidebarsWrapper.tsx",
           "kind": "import-statement"
         },
         {
@@ -25319,6 +25298,19 @@
         }
       ]
     },
+    "packages/lesswrong/components/common/SidebarsWrapper.tsx": {
+      "bytes": 2414,
+      "imports": [
+        {
+          "path": "node_modules/react/index.js",
+          "kind": "import-statement"
+        },
+        {
+          "path": "packages/lesswrong/lib/vulcan-lib/index.ts",
+          "kind": "import-statement"
+        }
+      ]
+    },
     "packages/lesswrong/components/hooks/useObserver.ts": {
       "bytes": 2152,
       "imports": [
@@ -25328,8 +25320,17 @@
         }
       ]
     },
+    "packages/lesswrong/themes/cssVars.ts": {
+      "bytes": 2238,
+      "imports": [
+        {
+          "path": "packages/lesswrong/lib/helpers.ts",
+          "kind": "import-statement"
+        }
+      ]
+    },
     "packages/lesswrong/components/posts/PostsPage/PostsPageSplashHeader.tsx": {
-      "bytes": 12078,
+      "bytes": 12205,
       "imports": [
         {
           "path": "node_modules/classnames/index.js",
@@ -25373,6 +25374,10 @@
         },
         {
           "path": "packages/lesswrong/lib/voting/votingSystems.tsx",
+          "kind": "import-statement"
+        },
+        {
+          "path": "packages/lesswrong/themes/cssVars.ts",
           "kind": "import-statement"
         }
       ]
@@ -29302,7 +29307,7 @@
       ]
     },
     "packages/lesswrong/components/posts/TableOfContents/TableOfContents.tsx": {
-      "bytes": 1850,
+      "bytes": 1808,
       "imports": [
         {
           "path": "node_modules/react/index.js",
@@ -29411,7 +29416,7 @@
       ]
     },
     "packages/lesswrong/components/posts/TableOfContents/FixedPositionToC.tsx": {
-      "bytes": 11527,
+      "bytes": 11528,
       "imports": [
         {
           "path": "node_modules/react/index.js",
@@ -29472,7 +29477,7 @@
       ]
     },
     "packages/lesswrong/components/posts/TableOfContents/TableOfContentsRow.tsx": {
-      "bytes": 5522,
+      "bytes": 5638,
       "imports": [
         {
           "path": "node_modules/react/index.js",
@@ -37871,15 +37876,6 @@
         },
         {
           "path": "node_modules/recharts/es6/util/Global.js",
-          "kind": "import-statement"
-        }
-      ]
-    },
-    "packages/lesswrong/themes/cssVars.ts": {
-      "bytes": 2238,
-      "imports": [
-        {
-          "path": "packages/lesswrong/lib/helpers.ts",
           "kind": "import-statement"
         }
       ]
@@ -69183,7 +69179,7 @@
       ]
     },
     "packages/lesswrong/components/tagging/FooterTagList.tsx": {
-      "bytes": 11239,
+      "bytes": 11307,
       "imports": [
         {
           "path": "node_modules/react/index.js",
@@ -70067,7 +70063,7 @@
       ]
     },
     "packages/lesswrong/components/posts/ForeignCrosspostEditForm.tsx": {
-      "bytes": 1796,
+      "bytes": 1820,
       "imports": [
         {
           "path": "node_modules/react/index.js",
@@ -72143,7 +72139,7 @@
       ]
     },
     "packages/lesswrong/components/votes/PostsSplashPageHeaderVote.tsx": {
-      "bytes": 4500,
+      "bytes": 4187,
       "imports": [
         {
           "path": "packages/lesswrong/lib/vulcan-lib/index.ts",
@@ -72155,10 +72151,6 @@
         },
         {
           "path": "node_modules/@material-ui/core/Tooltip/index.js",
-          "kind": "import-statement"
-        },
-        {
-          "path": "node_modules/classnames/index.js",
           "kind": "import-statement"
         },
         {
@@ -76668,7 +76660,7 @@
       ]
     },
     "packages/lesswrong/components/comments/CommentsTableOfContents.tsx": {
-      "bytes": 6180,
+      "bytes": 6467,
       "imports": [
         {
           "path": "node_modules/react/index.js",
@@ -95855,7 +95847,7 @@
       ]
     },
     "packages/lesswrong/lib/collections/reviewWinners/schema.ts": {
-      "bytes": 905,
+      "bytes": 906,
       "imports": []
     },
     "packages/lesswrong/lib/collections/reviewWinners/collection.ts": {
@@ -96916,7 +96908,7 @@
       "imports": [],
       "exports": [],
       "inputs": {},
-      "bytes": 36261179
+      "bytes": 36260275
     },
     "build/client/js/bundle.js": {
       "imports": [],
@@ -99702,7 +99694,7 @@
           "bytesInOutput": 1759
         },
         "packages/lesswrong/themes/defaultPalette.ts": {
-          "bytesInOutput": 17713
+          "bytesInOutput": 17838
         },
         "packages/lesswrong/themes/createThemeDefaults.ts": {
           "bytesInOutput": 12648
@@ -99711,7 +99703,7 @@
           "bytesInOutput": 3119
         },
         "packages/lesswrong/themes/userThemes/darkMode.ts": {
-          "bytesInOutput": 9009
+          "bytesInOutput": 9128
         },
         "packages/lesswrong/themes/userThemes/index.ts": {
           "bytesInOutput": 325
@@ -101843,9 +101835,6 @@
         "packages/lesswrong/lib/utils/unflatten.ts": {
           "bytesInOutput": 1888
         },
-        "packages/lesswrong/components/common/SidebarsWrapper.tsx": {
-          "bytesInOutput": 3000
-        },
         "packages/lesswrong/components/posts/PostsPage/PostsAudioPlayerWrapper.tsx": {
           "bytesInOutput": 1890
         },
@@ -101853,7 +101842,7 @@
           "bytesInOutput": 856
         },
         "packages/lesswrong/components/posts/PostsPage/PostsPage.tsx": {
-          "bytesInOutput": 31374
+          "bytesInOutput": 31259
         },
         "packages/lesswrong/components/common/withTimezone.tsx": {
           "bytesInOutput": 1849
@@ -101873,11 +101862,17 @@
         "packages/lesswrong/components/posts/PostsPage/PostsPagePostHeader.tsx": {
           "bytesInOutput": 17809
         },
+        "packages/lesswrong/components/common/SidebarsWrapper.tsx": {
+          "bytesInOutput": 1754
+        },
         "packages/lesswrong/components/hooks/useObserver.ts": {
           "bytesInOutput": 1370
         },
+        "packages/lesswrong/themes/cssVars.ts": {
+          "bytesInOutput": 593
+        },
         "packages/lesswrong/components/posts/PostsPage/PostsPageSplashHeader.tsx": {
-          "bytesInOutput": 14990
+          "bytesInOutput": 15211
         },
         "packages/lesswrong/components/icons/ApplePodcastIcon.tsx": {
           "bytesInOutput": 19196
@@ -102348,7 +102343,7 @@
           "bytesInOutput": 2999
         },
         "packages/lesswrong/components/posts/TableOfContents/TableOfContents.tsx": {
-          "bytesInOutput": 1778
+          "bytesInOutput": 1729
         },
         "node_modules/lodash/_baseFilter.js": {
           "bytesInOutput": 483
@@ -102366,7 +102361,7 @@
           "bytesInOutput": 11263
         },
         "packages/lesswrong/components/posts/TableOfContents/TableOfContentsRow.tsx": {
-          "bytesInOutput": 5716
+          "bytesInOutput": 5856
         },
         "packages/lesswrong/components/posts/TableOfContents/TableOfContentsDivider.tsx": {
           "bytesInOutput": 990
@@ -103617,7 +103612,7 @@
           "bytesInOutput": 143
         },
         "node_modules/recharts/es6/polar/Radar.js": {
-          "bytesInOutput": 17041
+          "bytesInOutput": 17038
         },
         "node_modules/recharts/es6/polar/RadialBar.js": {
           "bytesInOutput": 19768
@@ -103750,9 +103745,6 @@
         },
         "node_modules/recharts/es6/index.js": {
           "bytesInOutput": 1259
-        },
-        "packages/lesswrong/themes/cssVars.ts": {
-          "bytesInOutput": 593
         },
         "node_modules/json-stringify-deterministic/lib/defaults.js": {
           "bytesInOutput": 278
@@ -108213,7 +108205,7 @@
           "bytesInOutput": 5969
         },
         "packages/lesswrong/components/tagging/FooterTagList.tsx": {
-          "bytesInOutput": 11367
+          "bytesInOutput": 11405
         },
         "packages/lesswrong/components/posts/PostsPreviewTooltip/LWPostsPreviewTooltip.tsx": {
           "bytesInOutput": 11363
@@ -108312,7 +108304,7 @@
           "bytesInOutput": 4518
         },
         "packages/lesswrong/components/posts/ForeignCrosspostEditForm.tsx": {
-          "bytesInOutput": 2206
+          "bytesInOutput": 2236
         },
         "packages/lesswrong/components/posts/PostsEditPage.tsx": {
           "bytesInOutput": 690
@@ -108543,7 +108535,7 @@
           "bytesInOutput": 6068
         },
         "packages/lesswrong/components/votes/PostsSplashPageHeaderVote.tsx": {
-          "bytesInOutput": 4923
+          "bytesInOutput": 4648
         },
         "packages/lesswrong/components/votes/VotingPatternsWarningPopup.tsx": {
           "bytesInOutput": 1576
@@ -109017,7 +109009,7 @@
           "bytesInOutput": 2448
         },
         "packages/lesswrong/components/comments/CommentsTableOfContents.tsx": {
-          "bytesInOutput": 6447
+          "bytesInOutput": 6709
         },
         "packages/lesswrong/components/comments/CommentById.tsx": {
           "bytesInOutput": 954
@@ -110766,7 +110758,7 @@
           "bytesInOutput": 300
         },
         "packages/lesswrong/lib/collections/reviewWinners/schema.ts": {
-          "bytesInOutput": 1261
+          "bytesInOutput": 1262
         },
         "packages/lesswrong/lib/collections/reviewWinners/collection.ts": {
           "bytesInOutput": 1214
@@ -110829,7 +110821,7 @@
           "bytesInOutput": 295
         }
       },
-      "bytes": 20747071
+      "bytes": 20746319
     }
   }
 }

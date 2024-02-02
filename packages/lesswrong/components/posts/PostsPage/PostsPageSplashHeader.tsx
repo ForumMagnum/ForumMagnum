@@ -9,6 +9,9 @@ import { HashLink } from '../../common/HashLink';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useObserver } from '../../hooks/useObserver';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
+import { requireCssVar } from '../../../themes/cssVars';
+
+const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,7 +19,6 @@ const styles = (theme: ThemeType) => ({
     height: '100vh',
     marginTop: 'calc(-50px - 64px)',
     paddingTop: 64,
-    backgroundImage: `url("https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png")`,
     backgroundSize: 'cover',
     backgroundPosition: 'center top',
     position: 'relative',
@@ -32,7 +34,7 @@ const styles = (theme: ThemeType) => ({
       left: 0,
       height: '100%',
       width: '100%',
-      background: 'linear-gradient(0deg, white 3%, transparent 48%)',
+      // background: 'linear-gradient(0deg, white 3%, transparent 48%)',
       pointerEvents: 'none'
     },
     transition: 'opacity 0.5s ease-in-out',
@@ -100,7 +102,10 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'flex-start',
     height: 'min-content',
-    padding: 8,
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingTop: 8,
+    paddingBottom: 4,
     opacity: 0.76
   },
   rightSectionBottomRow: {
@@ -144,7 +149,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[500],
   },
   title: {
-    color: 'rgba(0,0,0,0.75)',
+    color: theme.palette.text.reviewWinner.title,
     fontSize: '5.5rem',
     fontWeight: '600',
     margin: '0px',
@@ -165,7 +170,6 @@ const styles = (theme: ThemeType) => ({
   },
   postActionsButton: {
     backgroundColor: theme.palette.tag.coreTagBackground,
-    marginLeft: 4,
     borderRadius: 3,
     cursor: "pointer",
     border: theme.palette.tag.border,
@@ -202,7 +206,7 @@ const styles = (theme: ThemeType) => ({
   author: {
     fontSize: '1.6rem',
     fontWeight: '700',
-    color: 'rgba(0,0,0,0.65)',
+    color: theme.palette.text.reviewWinner.author,
     transition: 'opacity .5s, transform .5s',
   },
   reviews: {
@@ -317,8 +321,13 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   </LWTooltip>
 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
+  const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} autoPlace/>
 
-  return <div className={classNames(classes.root, {[classes.fadeOut]: !visible, [classes.fadeIn]: visible})} ref={observerRef}>
+  const backgroundImageStyle = {
+    backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${post.reviewWinner?.splashArtImageUrl}")`,
+  }
+
+  return <div style={backgroundImageStyle} className={classNames(classes.root, {[classes.fadeOut]: !visible, [classes.fadeIn]: visible})} ref={observerRef}>
     <div className={classes.top}>
       <div className={classes.leftSection}>
         <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
@@ -332,8 +341,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
       <div className={classes.rightSection}>
         <AnalyticsContext pageSectionContext="tagHeader">
           <div className={classes.rightSectionTopRow}>
-            <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} />
-            <PostActionsButton post={post} className={classes.postActionsButton} autoPlace/>
+            <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} appendElement={postActionsButton}/>
           </div>
         </AnalyticsContext>
         <div className={classes.rightSectionBottomRow}>

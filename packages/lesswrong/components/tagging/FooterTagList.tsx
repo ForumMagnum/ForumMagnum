@@ -119,6 +119,7 @@ const FooterTagList = ({
   highlightAutoApplied=false,
   allowTruncate=false,
   overrideMargins=false,
+  appendElement,
   classes
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
@@ -132,6 +133,7 @@ const FooterTagList = ({
   highlightAutoApplied?: boolean,
   allowTruncate?: boolean,
   overrideMargins?: boolean,
+  appendElement?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
@@ -338,6 +340,7 @@ const FooterTagList = ({
       className={classNames(classes.root, {[classes.allowTruncate]: !showAll}, {[classes.overrideMargins] : overrideMargins})}
     >
       {innerContent}
+      {appendElement}
     </span>
     {displayShowAllButton && <div className={classes.showAll} onClick={onClickShowAll}>Show all {taggingNamePluralSetting.get()}</div>}
   </>

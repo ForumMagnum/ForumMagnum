@@ -204,7 +204,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sequenceIsDraft: "rgba(100, 169, 105, 0.9)",
     sequenceTitlePlaceholder: shades.inverseGreyAlpha(0.5),
     primaryDarkOnDim: '#085d6c', // text that is meant to be shown on the primaryDim background color
-
+    reviewWinner: {
+      title: shades.greyAlpha(.75),
+      author: shades.greyAlpha(.65),
+    },
     eventMaybe: "#d59c00",
     
     reviewUpvote: "rgba(70,125,70, .87)",
