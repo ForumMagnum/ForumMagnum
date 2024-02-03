@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Globals } from '../../vulcan-lib/index.ts';
 import Posts from '../../../lib/collections/posts/collection.ts';
 import { App } from '@slack/bolt';
+import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
 
 
 const DEPLOY = false
@@ -110,14 +111,14 @@ const getEssays = async (): Promise<Essay[]> => {
   const es = await Posts.find({
     "postedAt": {"$gte": new Date("2021-01-01"), "$lt": new Date("2022-01-01")},
     "draft": false,
-  }, {sort: {"reviewVoteScoreHighKarma": -1}, limit: 50, projection: {title: 1, contents: 1, reviewVoteScoreHighKarma: 1}})
+  }, {sort: {"reviewVoteScoreHighKarma": -1}, limit: 50, projection: {_id: 1, postedAt: 1, title: 1, contents: 1, reviewVoteScoreHighKarma: 1}})
   .fetch()
   return es.map(e => {
-    return {title: e.title, content: e.contents.html }
+    return {post: e, title: e.title, content: e.contents.html }
   })
 }
 
-type Essay = {title: string, content: string, threadTs?: string}
+type Essay = {post: DbPost, title: string, content: string, threadTs?: string}
 
 const getElements = async (essay: {title: string, content: string}): Promise<string[]> => {
   const content = essay.content.length > 25_000 ? essay.content.slice(0, 12_500) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-12_500) : essay.content
@@ -201,7 +202,25 @@ async function go(essays: Essay[], essayIx: number, el: string) {
             console.error('Image generation failed:', responseData.data);
             return
           }
+          const post = essays[essayIx].post
           await postPromptImages(el, essays[essayIx], responseData.data.upscaled_urls)
+          for (let i = 0; i < responseData.data.upscaled_urls.length; i++) {
+            console.log("el: ", el)
+            console.log("responseData.data.upscaled_urls[i]: ", responseData.data.upscaled_urls[i])
+            console.log("post: ", post.title)
+            console.log("post id: ", post._id)
+
+
+            const idMaybe = await ReviewWinnerArts.rawInsert({
+              postId: post._id, 
+              reviewYear: post.postedAt.getFullYear(),
+              reviewRanking: 613, // replace with ranking
+              postIsAI: true, // replace with AI status
+              splashArtImagePrompt: el,
+              splashArtImageUrl: responseData.data.upscaled_urls[i]
+            })
+            console.log("idMaybe: ", idMaybe)
+          }
           releaseMidjourneyRights()
           resolve(null)
           // console.log('Completed image details', responseData.data);
