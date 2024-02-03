@@ -125,7 +125,17 @@ const getElements = async (essay: {title: string, content: string}): Promise<str
   const completion = await openai.chat.completions.create({
     messages: [{role: "user", content: llm_prompt(essay.title, content)}],
     model: "gpt-4",
-  });
+  }).catch((error) => {
+    if (error instanceof OpenAI.APIError && error.status === 400 && error.code === 'context_length_exceeded') {
+      return openai.chat.completions.create({
+        messages: [{role: "user", content: llm_prompt(essay.title, content.slice(0, 8_000) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-8_000))}],
+        model: "gpt-4",
+      })
+    } else {
+      throw error
+    }
+  })
+
 
   try {
     // console.log('Response:', completion.choices[0].message.content)
@@ -138,7 +148,9 @@ const getElements = async (essay: {title: string, content: string}): Promise<str
 
 const prompter = (el: string) => {
   const lowerCased = el[0].toLowerCase() + el.slice(1)
-  return `https://s.mj.run/JAlgYmUiOdc topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, pastel colorful moebius, pastel --ar 8:5 --seed 12345 --v 6.0 --s 75`
+  // return `https://s.mj.run/JAlgYmUiOdc https://s.mj.run/XJyNfI1tx9o topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, in the style of meditative pastel muted colors, muted meditative --ar 8:5 --v 6.0`
+  return `https://s.mj.run/JAlgYmUiOdc topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, in the style of meditative pastel moebius, muted colors --ar 8:5 --v 6.0 `
+  // return `https://s.mj.run/JAlgYmUiOdc topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, pastel colorful moebius, pastel --ar 8:5 --seed 12345 --v 6.0 --s 75`
 }
 
 
@@ -200,6 +212,7 @@ async function go(essays: Essay[], essayIx: number, el: string) {
           console.log(responseData.data.status, el, essayIx, essays[essayIx].title)
           if (responseData.data.status === 'failed') {
             console.error('Image generation failed:', responseData.data);
+            resolve(null)
             return
           }
           const post = essays[essayIx].post
@@ -230,7 +243,7 @@ async function go(essays: Essay[], essayIx: number, el: string) {
         }
       } catch (error) {
         console.error('Error getting updates', error);
-        throw error;
+        await checkOnJob()
       }
     }
 
@@ -286,10 +299,10 @@ async function postReply(text: string, threadTs: string) {
 }
 
 async function main () {
-  const limit = 10
+  const limit = 50
   const essays = (await getEssays()).slice(0, limit)
 
-  const [promElementss] = await essays.slice(0, limit).reduce(async (pEC: Promise<[Promise<void[]>, number]>, essay, i): Promise<[Promise<void[]>, number]> => {
+  const [promElementss] = await essays.reduce(async (pEC: Promise<[Promise<void[]>, number]>, essay, i): Promise<[Promise<void[]>, number]> => {
     const [eltss, charsRequested] = await pEC
     let newChars = charsRequested
     if ((charsRequested + essay.content.length) >= 30_000) {
@@ -298,7 +311,7 @@ async function main () {
     }
     newChars += Math.min(essay.content.length, 30_000)
 
-    const images = getElements(essay).then(els => Promise.all([makeEssayThread(essay), ...els.slice(0,3).map(el => go(essays, i, el))]))
+    const images = getElements(essay).then(els => Promise.all([makeEssayThread(essay), ...els.slice(0,limit).map(el => go(essays, i, el))]))
 
     return Promise.resolve([Promise.all([eltss, images]).then(([elts, el]) => [...elts, ...el]), newChars])
   }, Promise.resolve([Promise.resolve([]), 0]) as Promise<[Promise<void[]>, number]>)
