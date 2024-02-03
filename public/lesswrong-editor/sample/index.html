@@ -47,6 +47,15 @@
 <script src="../build/ckeditor.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-inspector@1.5.0/build/inspector.js"></script>
 <script>
+	CKEditor.PostEditorCollaboration.create( document.querySelector( '#collab-editor' ) )
+		.then( editor => {
+			CKEditorInspector.attach(editor);
+			window.CKCollabEditor = editor
+			return editor 
+		})
+		.catch( err => {
+			console.error( err.stack );
+		} );
 	CKEditor.PostEditor.create( document.querySelector( '#editor' ) )
 		.then( editor => {
 			CKEditorInspector.attach(editor);

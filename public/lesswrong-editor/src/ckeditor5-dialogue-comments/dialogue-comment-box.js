@@ -140,6 +140,11 @@ class SimpleBoxEditing extends Plugin {
             isLimit: true
         });
 
+        schema.register( 'characterDisplay', {
+            allowIn: 'dialogueMessage',
+            isLimit: true
+        } );
+
         const forbiddenMessageChildren = [
             'dialogueMessage',
             'dialogueMessageInput',
@@ -278,6 +283,35 @@ class SimpleBoxEditing extends Plugin {
             model: 'dialogueMessageContent',
             view: messageContentDowncastViewGenerator
         } );
+
+        // <characterDisplay> converters
+        conversion.for( 'upcast' ).elementToElement( {
+            model: ( viewElement, { writer: modelWriter } ) => {
+                const viewCharacterId = viewElement.getAttribute( 'data-character-id' );
+                const attributes = viewCharacterId
+                    ? { 'character-id': parseInt(viewCharacterId) }
+                    : {};
+
+				return modelWriter.createElement( 'characterDisplay', attributes);
+			},
+            view: {
+                name: 'section',
+                classes: 'character-display'
+            }
+        } );
+        conversion.for( 'dataDowncast' ).elementToElement( {
+            model: 'characterDisplay',
+            view: ( modelElement, { writer: viewWriter } ) => {
+				return viewWriter.createEmptyElement( 'section', {
+					class: 'character-display',
+					'data-character-id': modelElement.getAttribute( 'character-id' )
+				} );
+			}
+        } );
+        conversion.for( 'editingDowncast' ).elementToElement( {
+            model: 'characterDisplay',
+            view: getCharacterDisplayDowncastViewGenerator(this.editor.config.get('glowfic').renderDisplay)
+        } );
     }
 }
 
@@ -354,6 +388,8 @@ class SubmitDialogueMessageCommand extends Command {
                         writer.append(userInput, contentDiv);
                     });
 
+                    const characterDisplay = writer.createElement('characterDisplay');
+                    writer.append(characterDisplay, dialogueMessage);
 
                     // After we are done moving, add a new paragraph to dialogueMessageInput, so it's not empty
                     writer.appendElement('paragraph', dialogueMessageInput);
@@ -487,7 +523,10 @@ function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter 
     };
     const headerElement = createHeaderElement(viewWriter, 'section', headerAttributes, userDisplayName);
 
+    const characterDisplayElement = viewWriter.createEmptyElement( 'section', { class: 'character-display' } );
+
     viewWriter.insert(viewWriter.createPositionAt(section, 0), headerElement);
+    viewWriter.insert(viewWriter.createPositionAt(section, 0), characterDisplayElement);
 
     return toWidget(section, viewWriter, { hasSelectionHandle: true });
 }
@@ -498,6 +537,31 @@ function messageEditingDowncastViewGenerator(modelElement, { writer: viewWriter 
 function messageContentDowncastViewGenerator(modelElement,  { writer: viewWriter }) {
     const contentElement = viewWriter.createEditableElement('div', { class: 'dialogue-message-content' });
     return toWidgetEditable(contentElement, viewWriter);
+}
+
+/**
+ * @param {Function} renderDisplay
+ * @returns {ContainerElementDefinitionGenerator}
+ */
+function getCharacterDisplayDowncastViewGenerator(renderDisplay) {
+    return function( modelElement, { writer: viewWriter } ) {
+        const id = modelElement.getAttribute( 'character-id' );
+
+        const section = viewWriter.createEditableElement( 'section', {
+            class: 'character-display',
+            'data-character-id': id
+        });
+
+        const reactWrapper = viewWriter.createRawElement( 'div', {
+            class: 'character-display__react-wrapper'
+        }, function( domElement ) {
+            renderDisplay( id, domElement );
+        } );
+
+        viewWriter.insert( viewWriter.createPositionAt( section, 0 ), reactWrapper );
+
+        return toWidgetEditable(section, viewWriter);
+    }
 }
 
 /**

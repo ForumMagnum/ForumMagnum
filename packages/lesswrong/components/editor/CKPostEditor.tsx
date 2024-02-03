@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useContext } from 'react'
+import React, { useRef, useState, useEffect, useContext, ReactNode } from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib/components';
 import CKEditor from '../editor/ReactCKEditor';
 import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
@@ -22,6 +22,8 @@ import type { Node, RootElement, Writer, Element as CKElement, Selection, Docume
 import { EditorContext } from '../posts/PostsEditForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useMulti } from '../../lib/crud/withMulti';
+import ReactDOM, { Container } from 'react-dom';
+import TextField, { TextFieldProps } from '@material-ui/core/TextField';
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -644,7 +646,10 @@ const CKPostEditor = ({
         initialData: initData,
         placeholder: placeholder ?? defaultEditorPlaceholder,
         mention: mentionPluginConfiguration,
-        dialogues: dialogueConfiguration
+        dialogues: dialogueConfiguration,
+        glowfic: { renderDisplay: (characterId: string, domElement: Container) => {
+          ReactDOM.render(<TextField select ></TextField>, domElement)
+        } }
       }}
     />}
     {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}
