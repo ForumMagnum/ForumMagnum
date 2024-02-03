@@ -17,8 +17,6 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.panelBackground.default,
     opacity: .76,
     borderRadius: 4,
-    height: 26,
-    fontSize: '1.6rem'
   },
   upvoteHorizontal: {
     paddingRight: 6,
@@ -41,7 +39,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
-    fontSize: '1.1rem',
+    fontSize: '0.9rem',
   },
   tooltip: {
     color: theme.palette.grey[500],

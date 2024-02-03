@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
@@ -14,6 +14,8 @@ import moment from 'moment';
 import { useTimezone } from '../../common/withTimezone';
 import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
+import { SidebarsContext } from '../../common/SidebarsWrapper';
+import classNames from 'classnames';
 
 export interface ToCDisplayOptions {
   /**
@@ -82,6 +84,16 @@ const styles = (theme: ThemeType) => ({
     '& .TableOfContentsRow-title': {
       borderBottom: "none",
     },
+    transition: 'opacity .5s, transform .5s',
+  },
+  fadeOut: {
+    opacity: 0,
+    transform: 'translateX(-50px)',
+    transitionTimingFunction: 'ease-in',
+  },
+  fadeIn: {
+    transitionDelay: '0s',
+    transitionTimingFunction: 'ease-out',
   },
   //Use our PostTitle styling with small caps
   tocTitle: {
@@ -153,6 +165,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   const location = useLocation();
   const { timezone } = useTimezone();
   const { query } = location;
+  const { tocVisible } = useContext(SidebarsContext)!;
 
   const [normalizedSections, setNormalizedSections] = useState<ToCSectionWithOffset[]>([]);
 
@@ -315,7 +328,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   if (!tocSections)
     return <div/>
 
-  return <div className={classes.root}>
+  return <div className={classNames(classes.root, { [classes.fadeIn]: tocVisible, [classes.fadeOut]: !tocVisible })}>
     {titleRow}
     <div className={classes.belowTitle}>
       <div className={classes.progressBarContainer} ref={readingProgressBarRef}>

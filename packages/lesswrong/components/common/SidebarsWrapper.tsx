@@ -13,6 +13,7 @@ import type { ToCData, ToCSection, ToCSectionWithOffset } from '../../lib/tableO
 type ToCWithTitle = {title: string, sectionData: ToCData};
 type SidebarsContextType = {
   toc: ToCWithTitle|null,
+  tocVisible: boolean,
   setToC: (toc: ToCWithTitle|null) => void,
   setToCVisible: (visible: boolean) => void,
   sideCommentsActive: boolean,
@@ -43,12 +44,13 @@ const SidebarsWrapper = ({children}: {
   }, [tocVisible, toc])
 
   const sidebarsContext = useMemo((): SidebarsContextType => ({
-    toc: tocWithVisibility,
+    toc, //: tocWithVisibility,
+    tocVisible,
     setToC,
     setToCVisible,
     sideCommentsActive,
     setSideCommentsActive,
-  }), [tocWithVisibility, setToC, setToCVisible, sideCommentsActive, setSideCommentsActive]);
+  }), [toc, tocVisible, setToC, setToCVisible, sideCommentsActive, setSideCommentsActive]);
 
   return <SidebarsContext.Provider value={sidebarsContext}>
     {children}
