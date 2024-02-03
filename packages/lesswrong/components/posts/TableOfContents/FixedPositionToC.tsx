@@ -12,6 +12,8 @@ import { getCurrentSectionMark, ScrollHighlightLandmark, useScrollHighlight } fr
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import moment from 'moment';
 import { useTimezone } from '../../common/withTimezone';
+import { usePostReadProgress } from '../usePostReadProgress';
+import { usePostsPageContext } from '../PostsPage/PostsPageContext';
 
 export interface ToCDisplayOptions {
   /**
@@ -92,6 +94,51 @@ const styles = (theme: ThemeType) => ({
   tocPostedAt: {
     color: theme.palette.link.tocLink
   },
+  belowTitle: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    flexGrow: 1,
+  },
+  progressBarContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    flexGrow: 1,
+    '--scrollAmount': '0%',
+    marginRight: -4,
+    paddingLeft: 4,
+  },
+  progressBar: {
+    width: 1,
+    flex: 'var(--scrollAmount)',
+    background: theme.palette.grey[400],
+    marginBottom: 8,
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: -8,
+      marginRight: -8
+    }
+  },
+  unfilledProgressBar: {
+    width: 1,
+    flex: 'calc(100% - var(--scrollAmount))',
+    [theme.breakpoints.down('sm')]: {
+      marginLeft: -8,
+      marginRight: -8
+    }
+  },
+  nonTitleRows: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
+    flexGrow: 1,
+    '& .TableOfContentsRow-link': {
+      background: theme.palette.panelBackground.default
+    },
+    '& .TableOfContentsDivider-divider': {
+      marginLeft: 4,
+    },
+  },
 })
 
 const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, displayOptions, classes}: {
@@ -138,12 +185,12 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     ...filteredSections.map((section): ScrollHighlightLandmark => ({
       landmarkName: section.anchor,
       elementId: section.anchor,
-      position: "centerOfElement"
+      position: "centerOfElement",
     })),
     {
       landmarkName: "comments",
       elementId: "postBody",
-      position: "bottomOfElement"
+      position: "bottomOfElement",
     },
   ]);
 
@@ -201,11 +248,18 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     }
   }, [filteredSections, normalizedSections]);
 
-  if (!tocSections)
-    return <div/>
+  const postContext = usePostsPageContext();
+  const disableProgressBar = (!postContext || isServer || postContext.isEvent || postContext.question || postContext.debate || postContext.shortform || postContext.readTimeMinutes < 3);
 
-  return <div className={classes.root}>
-    <TableOfContentsRow key="postTitle"
+  const { readingProgressBarRef } = usePostReadProgress({
+    updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
+    disabled: disableProgressBar,
+    delayStartOffset: window.innerHeight - getCurrentSectionMark()
+  });
+
+  const titleRow = (
+    <TableOfContentsRow
+      key="postTitle"
       href="#"
       offset={0}
       onClick={ev => {
@@ -227,33 +281,52 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
         {moment(new Date(postedAt)).tz(timezone).format("Do MMM YYYY")}
       </div>}
     </TableOfContentsRow>
-    
-    {normalizedSections.map((section, index) => {
-      return (
-        <TableOfContentsRow
-          key={section.anchor}
-          indentLevel={section.level}
-          divider={section.divider}
-          highlighted={section.anchor === currentSection}
-          href={"#"+section.anchor}
-          offset={section.offset}
-          onClick={(ev) => {
-            if (isRegularClick(ev)) {
-              void handleClick(ev, () => {
-                jumpToAnchor(section.anchor)
-              });
-            }
-          }}
-          answer={!!section.answer}
-          fullHeight
-        >
-          {section.answer
-            ? <AnswerTocRow answer={section.answer} />
-            : <span>{adjustHeadingText(section.title)}</span>
+  );
+
+  const rows = normalizedSections.map((section, index) => {
+    return (
+      <TableOfContentsRow
+        key={section.anchor}
+        indentLevel={section.level}
+        divider={section.divider}
+        highlighted={section.anchor === currentSection}
+        href={"#"+section.anchor}
+        offset={section.offset}
+        onClick={(ev) => {
+          if (isRegularClick(ev)) {
+            void handleClick(ev, () => {
+              jumpToAnchor(section.anchor)
+            });
           }
-        </TableOfContentsRow>
-      )
-    })}
+        }}
+        answer={!!section.answer}
+        fullHeight
+      >
+        {section.answer
+          ? <AnswerTocRow answer={section.answer} />
+          : <span>{adjustHeadingText(section.title)}</span>
+        }
+      </TableOfContentsRow>
+    )
+  });
+
+  const commentsRow = normalizedSections.at(-1)?.anchor === 'comments' ? rows.pop() : undefined;
+
+  if (!tocSections)
+    return <div/>
+
+  return <div className={classes.root}>
+    {titleRow}
+    <div className={classes.belowTitle}>
+      <div className={classes.progressBarContainer} ref={readingProgressBarRef}>
+        <div className={classes.progressBar} />
+        <div className={classes.unfilledProgressBar}/>
+      </div>
+      <div className={classes.nonTitleRows}>
+        {rows}
+      </div>
+    </div>
+    {commentsRow}
   </div>
 }
 

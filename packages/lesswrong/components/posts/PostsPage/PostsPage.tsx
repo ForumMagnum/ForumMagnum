@@ -38,6 +38,7 @@ import { PostsAudioPlayerWrapper, postHasAudioPlayer } from './PostsAudioPlayerW
 import { ImageProvider } from './ImageContext';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
+import { usePostReadProgress } from '../usePostReadProgress';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -347,31 +348,12 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
 
-  // On the EA Forum, show a reading progress bar to indicate how far in the post you are.
-  // Your progress is hard to tell via the scroll bar because it includes the comments section.
-  const postBodyRef = useRef<HTMLDivElement|null>(null)
-  const readingProgressBarRef = useRef<HTMLDivElement|null>(null)
-  useEffect(() => {
-    if (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3) return
+  const disableProgressBar = (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3);
 
-    updateReadingProgressBar()
-    window.addEventListener('scroll', updateReadingProgressBar)
-
-    return () => {
-      window.removeEventListener('scroll', updateReadingProgressBar)
-    };
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  const updateReadingProgressBar = () => {
-    if (!postBodyRef.current || !readingProgressBarRef.current) return
-
-    // position of post body bottom relative to the top of the viewport
-    const postBodyBottomPos = postBodyRef.current.getBoundingClientRect().bottom - window.innerHeight
-    // total distance from top of page to post body bottom
-    const totalHeight = window.scrollY + postBodyBottomPos
-    const scrollPercent = (1 - (postBodyBottomPos / totalHeight)) * 100
-
-    readingProgressBarRef.current.style.setProperty("--scrollAmount", `${scrollPercent}%`)
-  }
+  const { readingProgressBarRef } = usePostReadProgress({
+    updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
+    disabled: disableProgressBar
+  });
 
   const getSequenceId = () => {
     const { params } = location;
@@ -632,7 +614,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // the same time.
 
   const postBodySection =
-    <div id="postBody" ref={postBodyRef} className={classes.centralColumn}>
+    <div id="postBody" className={classes.centralColumn}>
       {/* Body */}
       <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={post}/>
       { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
