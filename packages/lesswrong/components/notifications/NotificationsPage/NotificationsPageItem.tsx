@@ -97,7 +97,7 @@ export const NotificationsPageItem = ({
     skip: !showPreviewComment,
     documentId: previewCommentId,
     collectionName: "Comments",
-    fragmentName: "CommentsList",
+    fragmentName: "CommentsListWithParentMetadata",
   });
 
   const {ForumIcon, LWTooltip, CommentsNode, Loading} = Components;
@@ -139,7 +139,8 @@ export const NotificationsPageItem = ({
                   treeOptions={{
                     scrollOnExpand: true,
                     condensed: true,
-                    post,
+                    post: previewComment.post ?? post,
+                    tag: previewComment.tag ?? undefined,
                   }}
                   startThreadTruncated
                   expandAllThreads
