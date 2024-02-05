@@ -349,6 +349,14 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
 
     addConnectHandler("/auth/auth0/embedded-login", json({limit: "1mb"}));
     addConnectHandler("/auth/auth0/embedded-login", async (req: Request, res: Response) => {
+      const errorHandler: NextFunction = (err) => {
+        if (err) {
+          res.status(400).send({
+            error: err.message,
+            policy: err.policy,
+          });
+        }
+      }
       try {
         const {email, password} = req.body;
         if (!email || typeof email !== "string") {
@@ -358,19 +366,22 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
           throw new Error("Password is required");
         }
         const {user} = await loginAuth0User(profileFromAccessToken, email, password);
-        const errorHandler: NextFunction = (err) => {
-          if (err) {
-            res.status(400).send({error: err.message});
-          }
-        }
         handleAuthenticate(req, res, errorHandler, null, user, null);
       } catch (e) {
-        res.status(400).send({error: e.message});
+        errorHandler(e);
       }
     });
 
     addConnectHandler("/auth/auth0/embedded-signup", json({limit: "1mb"}));
     addConnectHandler("/auth/auth0/embedded-signup", async (req: Request, res: Response) => {
+      const errorHandler: NextFunction = (err) => {
+        if (err) {
+          res.status(400).send({
+            error: err.message,
+            policy: err.policy,
+          });
+        }
+      }
       try {
         const {email, password} = req.body;
         if (!email || typeof email !== "string") {
@@ -380,14 +391,9 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
           throw new Error("Password is required");
         }
         const {user} = await signupAuth0User(profileFromAccessToken, email, password);
-        const errorHandler: NextFunction = (err) => {
-          if (err) {
-            res.status(400).send({error: err.message});
-          }
-        }
         handleAuthenticate(req, res, errorHandler, null, user, null);
       } catch (e) {
-        res.status(400).send({error: e.message});
+        errorHandler(e);
       }
     });
   }

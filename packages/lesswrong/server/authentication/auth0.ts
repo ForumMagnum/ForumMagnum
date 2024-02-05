@@ -69,8 +69,23 @@ export const updateAuth0Email = (user: DbUser, newEmail: string) => {
   return auth0Client.getManagementClient().updateUser({id}, {email: newEmail});
 }
 
-const getAuthError = (e: AnyBecauseIsInput, defaultMessage: string): string => {
+class Auth0Error extends Error {
+  constructor(message: string, public policy?: string) {
+    super(message);
+  }
+}
+
+const getAuthError = (e: AnyBecauseIsInput, defaultMessage: string): Auth0Error => {
   let message: string;
+  let policy: string | undefined;
+  try {
+    // If a user attempts to sign up with a weak password the error is returned
+    // is a special format which we have to handle separately
+    const parsedError = JSON.parse(e.originalError.response.text);
+    if (parsedError.name === "PasswordStrengthError") {
+      policy = parsedError.policy;
+    }
+  } catch (_) {}
   try {
     const data = JSON.parse(e.message);
     message = data.error_description
@@ -86,7 +101,7 @@ const getAuthError = (e: AnyBecauseIsInput, defaultMessage: string): string => {
   if (message[message.length - 1] === ".") {
     message = message.slice(0, -1);
   }
-  return message;
+  return new Auth0Error(message, policy);
 }
 
 type ProfileFromAccessToken = (token: string) => Promise<Auth0Profile|undefined>;
@@ -148,7 +163,7 @@ export const loginAuth0User = async (
       token: grant.access_token,
     };
   } catch (e) {
-    throw new Error(getAuthError(e, "Login failed"));
+    throw getAuthError(e, "Login failed");
   }
 }
 
@@ -174,6 +189,6 @@ export const signupAuth0User = async (
     });
     return loginAuth0User(profileFromAccessToken, email, password);
   } catch (e) {
-    throw new Error(getAuthError(e, "Signup failed"));
+    throw getAuthError(e, "Signup failed");
   }
 }

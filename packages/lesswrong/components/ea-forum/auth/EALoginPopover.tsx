@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
+import React, { ChangeEvent, FC, FormEvent, useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useAuth0Client } from "../../hooks/useAuth0Client";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -147,7 +147,59 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
+  passwordPolicy: {
+    textAlign: "left",
+  },
 });
+
+type Tree = {
+  root: string;
+  content: Tree[];
+}
+
+const treeify = (data: string): Tree[] => {
+  const result: Tree[] = [];
+  const levels = [result];
+  for (let line of data.split("\n")) {
+    let level = line.search(/\S/);
+    const trimmed = line.trim();
+    const root = trimmed.match(/(\*\s*)?(.*)/)?.[2] ?? trimmed;
+    if (root) {
+      const content: Tree[] = [];
+      levels[level].push({root, content});
+      levels[++level] = content;
+    }
+  }
+  return result;
+}
+
+const TreeDisplay: FC<{ tree: Tree[] }> = ({ tree }) => {
+  return (
+    <ul>
+      {tree.map(({root, content}) => (
+        <>
+          <li>{root}</li>
+          <TreeDisplay tree={content} />
+        </>
+      ))}
+    </ul>
+  );
+}
+
+const PasswordPolicy: FC<{
+  policy?: string,
+  classes: ClassesType<typeof styles>,
+}> = ({ policy, classes }) => {
+  if (!policy) {
+    return null;
+  }
+
+  return (
+    <div className={classes.passwordPolicy}>
+      <TreeDisplay tree={treeify(policy)} />
+    </div>
+  );
+}
 
 const links = {
   googleLogo: "/googleLogo.png",
@@ -170,6 +222,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
   const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [policy, setPolicy] = useState<string | null>(null);
 
   const onChangeEmail = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     setEmail(ev.target.value);
@@ -193,6 +246,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
 
     setMessage(null);
     setError(null);
+    setPolicy(null);
 
     try {
       setLoading(true);
@@ -206,6 +260,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
       // eslint-disable-next-line no-console
       console.error(e);
       setError(e.description || e.message || String(e) || "An error occurred");
+      setPolicy(e.policy ?? null);
       setLoading(false);
     }
   }, [client, email, password, isSignup]);
@@ -213,17 +268,20 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
   const onClickGoogle = useCallback(async () => {
     setMessage(null);
     setError(null);
+    setPolicy(null);
     client.socialLogin("google-oauth2");
   }, [client]);
 
   const onClickFacebook = useCallback(async () => {
     setMessage(null);
     setError(null);
+    setPolicy(null);
     client.socialLogin("facebook");
   }, [client]);
 
   const onForgotPassword = useCallback(async () => {
     setError(null);
+    setPolicy(null);
     setMessage(null);
     try {
       setResetPasswordLoading(true);
@@ -257,6 +315,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
       setLoading(false);
       setMessage(null);
       setError(null);
+      setPolicy(null);
     }
   }, [open]);
 
@@ -319,6 +378,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
             {error &&
               <div className={classes.error}>
                 {error}
+                {policy && <PasswordPolicy policy={policy} classes={classes} />}
               </div>
             }
             <EAButton
