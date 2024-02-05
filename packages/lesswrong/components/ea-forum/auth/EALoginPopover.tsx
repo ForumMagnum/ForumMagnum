@@ -44,23 +44,25 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     marginBottom: 12,
   },
-  input: {
+  inputContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
     width: "100%",
-    padding: "15px 17px",
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.loginInput,
+    padding: "0px 17px",
+  },
+  input: {
+    flexGrow: 1,
+    padding: "15px 0px",
     color: theme.palette.grey[1000],
+    background: "transparent",
     "&::placeholder": {
       color: theme.palette.grey[600],
     },
   },
-  showPasswordContainer: {
-    position: "relative",
-  },
   showPasswordButton: {
-    position: "absolute",
-    right: 16,
-    top: 11,
     width: 16,
     cursor: "pointer",
     color: theme.palette.grey[600],
@@ -277,15 +279,17 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
         <div className={classes.title}>{title}</div>
         <div className={classes.formContainer}>
           <form onSubmit={onSubmit} className={classes.form}>
-            <input
-              type="text"
-              placeholder="Email"
-              value={email}
-              onChange={onChangeEmail}
-              className={classes.input}
-              autoFocus
-            />
-            <div className={classes.showPasswordContainer}>
+            <div className={classes.inputContainer}>
+              <input
+                type="text"
+                placeholder="Email"
+                value={email}
+                onChange={onChangeEmail}
+                className={classes.input}
+                autoFocus
+              />
+            </div>
+            <div className={classes.inputContainer}>
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Password"
