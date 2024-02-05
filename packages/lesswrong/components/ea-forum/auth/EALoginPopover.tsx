@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useCallback, useEffect, useState } from "react";
+import React, { ChangeEvent, FC, FormEvent, useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useAuth0Client } from "../../hooks/useAuth0Client";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -44,23 +44,28 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     marginBottom: 12,
   },
-  input: {
+  inputContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
     width: "100%",
-    padding: "15px 17px",
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.loginInput,
+    padding: "0px 17px",
+  },
+  input: {
+    flexGrow: 1,
+    padding: "15px 0px",
     color: theme.palette.grey[1000],
+    background: "transparent",
     "&::placeholder": {
       color: theme.palette.grey[600],
     },
   },
-  showPasswordContainer: {
-    position: "relative",
+  inputBottomMargin: {
+    marginBottom: 10,
   },
   showPasswordButton: {
-    position: "absolute",
-    right: 16,
-    top: 11,
     width: 16,
     cursor: "pointer",
     color: theme.palette.grey[600],
@@ -100,10 +105,11 @@ const styles = (theme: ThemeType) => ({
     gap: "11px",
     width: "100%",
     margin: "24px 0",
+    fontWeight: 500,
     color: theme.palette.grey[600],
   },
   orHr: {
-    borderTop: `1px solid ${theme.palette.grey[600]}`,
+    borderTop: `1px solid ${theme.palette.border.eaButtonGreyOutline}`,
     flexGrow: 1,
   },
   socialContainer: {
@@ -145,7 +151,59 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
+  passwordPolicy: {
+    textAlign: "left",
+  },
 });
+
+type Tree = {
+  root: string;
+  content: Tree[];
+}
+
+const treeify = (data: string): Tree[] => {
+  const result: Tree[] = [];
+  const levels = [result];
+  for (let line of data.split("\n")) {
+    let level = line.search(/\S/);
+    const trimmed = line.trim();
+    const root = trimmed.match(/(\*\s*)?(.*)/)?.[2] ?? trimmed;
+    if (root) {
+      const content: Tree[] = [];
+      levels[level].push({root, content});
+      levels[++level] = content;
+    }
+  }
+  return result;
+}
+
+const TreeDisplay: FC<{ tree: Tree[] }> = ({ tree }) => {
+  return (
+    <ul>
+      {tree.map(({root, content}) => (
+        <>
+          <li>{root}</li>
+          <TreeDisplay tree={content} />
+        </>
+      ))}
+    </ul>
+  );
+}
+
+const PasswordPolicy: FC<{
+  policy?: string,
+  classes: ClassesType<typeof styles>,
+}> = ({ policy, classes }) => {
+  if (!policy) {
+    return null;
+  }
+
+  return (
+    <div className={classes.passwordPolicy}>
+      <TreeDisplay tree={treeify(policy)} />
+    </div>
+  );
+}
 
 const links = {
   googleLogo: "/googleLogo.png",
@@ -165,9 +223,10 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [policy, setPolicy] = useState<string | null>(null);
 
   const onChangeEmail = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
     setEmail(ev.target.value);
@@ -181,8 +240,28 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
     setShowPassword((showPassword) => !showPassword);
   }, []);
 
+  const onSendPasswordReset = useCallback(async () => {
+    setError(null);
+    setPolicy(null);
+    setMessage(null);
+    try {
+      setLoading(true);
+      await client.resetPassword(email);
+      setMessage("Password reset email sent");
+    } catch(e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+      setError(e.description || e.message || String(e) || "An error occurred");
+    }
+    setLoading(false);
+  }, [client, email]);
+
   const onSubmit = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
+
+    if (isResettingPassword) {
+      return onSendPasswordReset();
+    }
 
     if (!email || !password) {
       setError("Email and password are required");
@@ -191,6 +270,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
 
     setMessage(null);
     setError(null);
+    setPolicy(null);
 
     try {
       setLoading(true);
@@ -204,36 +284,28 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
       // eslint-disable-next-line no-console
       console.error(e);
       setError(e.description || e.message || String(e) || "An error occurred");
+      setPolicy(e.policy ?? null);
       setLoading(false);
     }
-  }, [client, email, password, isSignup]);
+  }, [client, email, password, isSignup, isResettingPassword, onSendPasswordReset]);
 
   const onClickGoogle = useCallback(async () => {
     setMessage(null);
     setError(null);
+    setPolicy(null);
     client.socialLogin("google-oauth2");
   }, [client]);
 
   const onClickFacebook = useCallback(async () => {
     setMessage(null);
     setError(null);
+    setPolicy(null);
     client.socialLogin("facebook");
   }, [client]);
 
-  const onForgotPassword = useCallback(async () => {
-    setError(null);
-    setMessage(null);
-    try {
-      setResetPasswordLoading(true);
-      await client.resetPassword(email);
-      setMessage("Password reset email sent");
-    } catch(e) {
-      // eslint-disable-next-line no-console
-      console.error(e);
-      setError(e.description || e.message || String(e) || "An error occurred");
-    }
-    setResetPasswordLoading(false);
-  }, [client, email]);
+  const onForgotPassword = useCallback(() => {
+    setIsResettingPassword(true);
+  }, []);
 
   const onLinkToLogin = useCallback(() => {
     setAction("login");
@@ -255,6 +327,8 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
       setLoading(false);
       setMessage(null);
       setError(null);
+      setPolicy(null);
+      setIsResettingPassword(false);
     }
   }, [open]);
 
@@ -262,7 +336,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
     ? "Sign up to get more from the EA Forum"
     : "Welcome back";
 
-  const canSubmit = !!email && !!password && !loading;
+  const canSubmit = !!email && (!!password || isResettingPassword) && !loading;
 
   const {BlurredBackgroundModal, ForumIcon, EAButton, Loading} = Components;
   return (
@@ -277,34 +351,37 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
         <div className={classes.title}>{title}</div>
         <div className={classes.formContainer}>
           <form onSubmit={onSubmit} className={classes.form}>
-            <input
-              type="text"
-              placeholder="Email"
-              value={email}
-              onChange={onChangeEmail}
-              className={classes.input}
-              autoFocus
-            />
-            <div className={classes.showPasswordContainer}>
+            <div className={classNames(classes.inputContainer, {
+              [classes.inputBottomMargin]: isResettingPassword,
+            })}>
               <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={password}
-                onChange={onChangePassword}
+                type="text"
+                placeholder="Email"
+                value={email}
+                onChange={onChangeEmail}
                 className={classes.input}
-              />
-              <ForumIcon
-                icon={showPassword ? "EyeSlash" : "Eye"}
-                onClick={toggleShowPassword}
-                className={classes.showPasswordButton}
+                autoFocus
               />
             </div>
-            {!isSignup &&
+            {!isResettingPassword &&
+              <div className={classes.inputContainer}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={onChangePassword}
+                  className={classes.input}
+                />
+                <ForumIcon
+                  icon={showPassword ? "EyeSlash" : "Eye"}
+                  onClick={toggleShowPassword}
+                  className={classes.showPasswordButton}
+                />
+              </div>
+            }
+            {!isSignup && !isResettingPassword &&
               <div className={classes.forgotPassword}>
-                {resetPasswordLoading
-                  ? <Loading />
-                  : <a onClick={onForgotPassword}>Forgot password?</a>
-                }
+                <a onClick={onForgotPassword}>Forgot password?</a>
               </div>
             }
             {message &&
@@ -315,6 +392,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
             {error &&
               <div className={classes.error}>
                 {error}
+                {policy && <PasswordPolicy policy={policy} classes={classes} />}
               </div>
             }
             <EAButton
@@ -325,9 +403,11 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
             >
               {loading
                 ? <Loading />
-                : isSignup
-                  ? "Sign up"
-                  : "Login"
+                : isResettingPassword
+                  ? "Request password reset"
+                  : isSignup
+                    ? "Sign up"
+                    : "Login"
               }
             </EAButton>
           </form>

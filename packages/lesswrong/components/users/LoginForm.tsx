@@ -87,7 +87,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type possibleActions = "login" | "signup" | "pwReset"
 
-const currentActionToButtonText : Record<possibleActions, string> = {
+const currentActionToButtonText: Record<possibleActions, string> = {
   login: "Log In",
   signup: "Sign Up",
   pwReset: "Request Password Reset"
@@ -234,7 +234,7 @@ const LoginFormEA = ({
 }: LoginFormProps) => {
   const { pathname, query } = useLocation()
   const [action, setAction] = useState<"login" | "signup" | null>(
-    startingState === "pwReset" ? "login" : startingState,
+    startingState === "pwReset" ? "login" : "signup",
   );
   const returnUrl = `${pathname}?${new URLSearchParams(query).toString()}`;
   const returnTo = encodeURIComponent(returnUrl);

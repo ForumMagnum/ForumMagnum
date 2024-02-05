@@ -76,6 +76,8 @@ psql forummagnum -f ./schema/accepted_schema.sql
 TODOs:
 
 * You won't have any database settings yet. TODO: add instructions.
+  * Start server and run it for ~30 sec which would create DB indexes 😅
+  * Then run `yarn ea-load-dev-db <settings file>` to load the database settings from the file. (TODO: example of the file)
 * You won't be able to run migrations yet. TODO: fix migrations so they can be
   run on a new db (NB: goal is still to have the db have the accepted_schema).
 

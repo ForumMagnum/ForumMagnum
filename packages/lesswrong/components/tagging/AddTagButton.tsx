@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const AddTagButton = ({onTagSelected, isVotingContext, classes, children}: {
-  onTagSelected: (props: {tagId: string, tagName: string})=>void,
+  onTagSelected: (props: {tagId: string, tagName: string}) => void,
   isVotingContext?: boolean,
   classes: ClassesType,
   children?: ReactNode,

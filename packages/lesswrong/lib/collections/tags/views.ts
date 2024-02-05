@@ -1,6 +1,7 @@
 import { Tags } from './collection';
 import { ensureIndex } from '../../collectionIndexUtils';
 import { viewFieldAllowAny } from '../../vulcan-lib';
+import { userIsAdminOrMod } from '../../vulcan-users';
 
 declare global {
   interface TagsViewTerms extends ViewTermsBase {
@@ -14,13 +15,14 @@ declare global {
   }
 }
 
-Tags.addDefaultView((terms: TagsViewTerms) => {
+Tags.addDefaultView((terms: TagsViewTerms, _, context?: ResolverContext) => {
+  const currentUser = context?.currentUser ?? null;
+
   return {
     selector: {
-      deleted: false,
-      adminOnly: false,
       wikiOnly: false,
       _id: Array.isArray(terms._id) ? {$in: terms._id} : terms._id,
+      ...(!userIsAdminOrMod(currentUser) ? { deleted: false, adminOnly: false } : {}),
     },
   };
 });

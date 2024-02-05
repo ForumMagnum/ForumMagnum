@@ -82,7 +82,7 @@ export class ABTest<T extends string = string> {
   }) {
     const totalWeight = _.reduce(
       Object.keys(groups),
-      (sum:number, key:T) => sum+groups[key].weight,
+      (sum: number, key: T) => sum+groups[key].weight,
       0
     );
     if (totalWeight === 0) {
@@ -166,7 +166,7 @@ function weightedRandomPick<T extends string>(options: Record<T,number>, seed: s
   const weights = _.values(options);
   if (weights.length === 0)
     throw new Error("Random pick from empty set");
-  const totalWeight: number = _.reduce(weights, (x:number, y:number) => x+y);
+  const totalWeight: number = _.reduce(weights, (x: number, y: number) => x+y);
   const randomRangeValue = totalWeight*rng(seed).double();
   
   let i=0;

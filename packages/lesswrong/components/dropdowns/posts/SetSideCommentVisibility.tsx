@@ -48,7 +48,7 @@ const sideCommentModes: {name: SideCommentMode, label: string, detailedLabel?: s
 ];
 export type SideCommentVisibilityContextType = {
   sideCommentMode: SideCommentMode,
-  setSideCommentMode: (mode: SideCommentMode)=>void,
+  setSideCommentMode: (mode: SideCommentMode) => void,
 }
 
 export const SideCommentVisibilityContext = createContext<SideCommentVisibilityContextType|null>(null);

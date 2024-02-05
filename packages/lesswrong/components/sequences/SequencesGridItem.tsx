@@ -127,7 +127,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   classes: ClassesType,
   bookItemStyle?: boolean
 }) => {
-  const { LinkCard, SequencesHoverOver } = Components;
+  const { LinkCard, SequencesSummary } = Components;
 
   // The hoverover is adjusted so that it's title lines up with where the SequencesGridItem title would have been, to avoid seeing the title twice
   let positionAdjustment = -35
@@ -135,7 +135,11 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   if (sequence.title.length > 26) positionAdjustment -= 17
 
   return <div className={classNames(classes.root, {[classes.bookItemContentStyle]:bookItemStyle})}>
-    <LinkCard to={getCollectionOrSequenceUrl(sequence)} tooltip={<div style={{marginTop:positionAdjustment}}><SequencesHoverOver sequence={sequence} showAuthor={showAuthor}/></div>}>
+    <LinkCard to={getCollectionOrSequenceUrl(sequence)} tooltip={
+      <div style={{marginTop:positionAdjustment}}>
+        <SequencesSummary sequence={sequence} showAuthor={showAuthor}/>
+      </div>
+    }>
       <div className={classes.image}>
         <NoSSR>
           <Components.CloudinaryImage

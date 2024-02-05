@@ -3,8 +3,8 @@ import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@material-ui/icons/LocationOn'
-import { isEAForum } from '../../lib/instanceSettings';
 import classNames from 'classnames';
+import {isFriendlyUI} from '../../themes/forumTheme.ts'
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -89,7 +89,7 @@ const ExpandedUsersConversationSearchHit = ({
   return (
     <div className={classNames(className, classes.root)}>
       <div onClick={() => onSelect(user)} className={classes.link}>
-        {isEAForum && (
+        {isFriendlyUI && (
           <div className={classes.profilePhotoCol}>
             <UsersProfileImage user={user} size={36} />
           </div>

@@ -6,15 +6,22 @@ import PostViewsRepo from "../repos/PostViewsRepo";
 import PostViewTimesRepo from "../repos/PostViewTimesRepo";
 import IncrementalViewRepo from "../repos/IncrementalViewRepo";
 import { isEAForum } from "../../lib/instanceSettings";
+import { loggerConstructor } from "../../lib/utils/logging";
+
+const logger = loggerConstructor("cron-updateAnalyticsCollections")
 
 async function updateDailyAnalyticsCollection<N extends CollectionNameString>({
   repo,
   earliestStartDate,
   latestEndDate,
+  force = false,
+  dryRun = false,
 }: {
   repo: IncrementalViewRepo<N>;
   earliestStartDate: Date;
   latestEndDate: Date;
+  force?: boolean;
+  dryRun?: boolean;
 }) {
   // The dates do we already have data for, and therefore for which we don't need to recalculate
   // (apart from the end date due to possible partial data)
@@ -33,6 +40,7 @@ async function updateDailyAnalyticsCollection<N extends CollectionNameString>({
   while (currentDate <= latestEndDate) {
     // Skip dates for which we already have the data
     if (
+      force ||
       earliestWindowStart === null ||
       inclusiveEndDate === null ||
       currentDate < earliestWindowStart ||
@@ -52,14 +60,21 @@ async function updateDailyAnalyticsCollection<N extends CollectionNameString>({
   for (const range of ranges) {
     // Allow individual days to fail
     try {
-      console.log(`Updating data for range: ${range.startDate.toISOString()} to ${range.endDate.toISOString()}`)
+      logger(`Updating data for range: ${range.startDate.toISOString()} to ${range.endDate.toISOString()}`)
 
       const data = await repo.calculateDataForDateRange(range);
 
-      console.log(`Calculated ${data.length} rows, upserting data`)
+      logger(`Calculated ${data.length} rows, upserting data`)
 
-      await repo.upsertData({ data })
-      console.log(`Finished updating data for range: ${range.startDate.toISOString()} to ${range.endDate.toISOString()}`)
+      if (force && !dryRun) {
+        logger("Deleting existing data in range (due to `force` parameter)")
+        await repo.deleteRange(range)
+      }
+
+      if (!dryRun) {
+        await repo.upsertData({ data })
+      }
+      logger(`Finished updating data for range: ${range.startDate.toISOString()} to ${range.endDate.toISOString()}`)
     } catch (e) {
       console.error(e)
       continue
@@ -67,43 +82,53 @@ async function updateDailyAnalyticsCollection<N extends CollectionNameString>({
   }
 }
 
-async function updatePostViews({earliestStartDate, latestEndDate}: {earliestStartDate: Date, latestEndDate: Date}) {
-  console.log("Updating PostViews collection")
-  await updateDailyAnalyticsCollection({repo: new PostViewsRepo(), earliestStartDate, latestEndDate})
-  console.log("Finished PostViews collection")
+async function updatePostViews({earliestStartDate, latestEndDate, force, dryRun}: {earliestStartDate: Date, latestEndDate: Date, force?: boolean, dryRun?: boolean}) {
+  logger("Updating PostViews collection")
+  await updateDailyAnalyticsCollection({repo: new PostViewsRepo(), earliestStartDate, latestEndDate, force, dryRun})
+  logger("Finished PostViews collection")
 }
 
-async function updatePostViewTimes({earliestStartDate, latestEndDate}: {earliestStartDate: Date, latestEndDate: Date}) {
-  console.log("Updating PostViewTimes collection")
-  await updateDailyAnalyticsCollection({repo: new PostViewTimesRepo(), earliestStartDate, latestEndDate})
-  console.log("Finished PostViewTimes collection")
+async function updatePostViewTimes({earliestStartDate, latestEndDate, force, dryRun}: {earliestStartDate: Date, latestEndDate: Date, force?: boolean, dryRun?: boolean}) {
+  logger("Updating PostViewTimes collection")
+  await updateDailyAnalyticsCollection({repo: new PostViewTimesRepo(), earliestStartDate, latestEndDate, force, dryRun})
+  logger("Finished PostViewTimes collection")
 }
 
-async function updateAnalyticsCollections(props: {startDate?: string}) {
-  const { startDate } = props ?? {}
+/**
+ * Updates the analytics collections for post views and post view times within a specified date range.
+ * If no date range is provided, it defaults to the past week up to the current day.
+ * 
+ * @param props - An object containing optional parameters:
+ *   startDate: A string representing the start date for the update (inclusive)
+ *   endDate: A string representing the end date for the update (inclusive)
+ *   force: Whether to force the full recalculation of data even if it already exists
+ *   dryRun: Whether to simulate the update without writing anything
+ */
+async function updateAnalyticsCollections(props: {startDate?: string, endDate?: string, force?: boolean, dryRun?: boolean}) {
+  const { startDate, endDate, force, dryRun } = props ?? {}
 
   // If no explicit start date is given, only go back 1 week to avoid this being slow
   const earliestStartDate = startDate ? moment(startDate).utc().startOf('day').toDate() : moment().utc().subtract(1, 'week').startOf('day').toDate();
-  // endDate is the end of the current day
-  const endDate = moment().utc().endOf('day').toDate();
+  // endDate is the end of the current day unless specified
+  const latestEndDate = endDate ? moment(endDate).utc().endOf('day').toDate() : moment().utc().endOf('day').toDate();
 
-  console.log(`Starting updateAnalyticsCollections. startDate (given): ${startDate}, earliestStartDate: ${earliestStartDate}, endDate: ${endDate}`)
+  logger(`Starting updateAnalyticsCollections. startDate (given): ${startDate}, earliestStartDate: ${earliestStartDate}, endDate: ${latestEndDate}`)
 
   try {
-    await updatePostViews({earliestStartDate, latestEndDate: endDate})
+    await updatePostViews({earliestStartDate, latestEndDate, force, dryRun})
   } catch (e) {
     console.error("Failed to update PostViews collection")
     console.error(e)
   }
 
   try {
-    await updatePostViewTimes({earliestStartDate, latestEndDate: endDate})
+    await updatePostViewTimes({earliestStartDate, latestEndDate, force, dryRun})
   } catch (e) {
     console.error("Failed to update PostViewTimes collection")
     console.error(e)
   }
 
-  console.log("Finished updateAnalyticsCollections")
+  logger("Finished updateAnalyticsCollections")
 }
 
 if (isEAForum) {

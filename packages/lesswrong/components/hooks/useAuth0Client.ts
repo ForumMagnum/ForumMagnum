@@ -2,7 +2,7 @@ import { auth0ClientSettings } from "../../lib/publicSettings";
 import { combineUrls } from "../../lib/vulcan-lib";
 
 class Auth0ClientError extends Error {
-  constructor(message?: string | null) {
+  constructor(message?: string | null, public policy?: string | null) {
     super(message || "Something went wrong");
   }
 }
@@ -26,7 +26,7 @@ class Auth0Client {
       if (message[message.length - 1] === ".") {
         message = message.slice(0, -1);
       }
-      throw new Auth0ClientError(message);
+      throw new Auth0ClientError(message, data.policy);
     }
   }
 

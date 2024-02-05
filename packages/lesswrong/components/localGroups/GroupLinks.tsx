@@ -5,6 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import { createStyles } from '@material-ui/core/styles';
 import { forumTypeSetting } from '../../lib/instanceSettings';
 import classNames from 'classnames';
+import {isFriendlyUI} from '../../themes/forumTheme'
 
 
 // just the "f", used for the FB Group link
@@ -147,9 +148,14 @@ const GroupLinks = ({ document, noMargin, classes }: {
   const isEvent = 'isEvent' in document;
   const {ForumIcon} = Components;
 
+  const groupLinkProps = {
+    className: classes.groupLink,
+    target: "_blank",
+    rel: "noreferrer",
+  } 
   return(
     <div className={classes.root}>
-      {!isEAForum && <div className={noMargin ? classNames(classes.groupTypes, classes.noMargin) : classes.groupTypes}>
+      {!isFriendlyUI && <div className={noMargin ? classNames(classes.groupTypes, classes.noMargin) : classes.groupTypes}>
         {document.types && document.types.map(type => {
           return (
             <Tooltip
@@ -170,7 +176,7 @@ const GroupLinks = ({ document, noMargin, classes }: {
             title={`Link to Facebook ${isEvent ? 'Event' : 'Group'}`}
             placement="top-end"
           >
-            <a href={document.facebookLink} className={classes.groupLink}>
+            <a href={document.facebookLink} {...groupLinkProps}>
               <FacebookIcon className={classes.facebookGroupIcon}/>
             </a>
           </Tooltip>}
@@ -179,25 +185,25 @@ const GroupLinks = ({ document, noMargin, classes }: {
           title={`Link to Facebook ${isEvent ? 'Event' : 'Page'}`}
           placement="top-end"
         >
-          <a href={document.facebookPageLink} className={classes.groupLink}>
+          <a href={document.facebookPageLink} {...groupLinkProps}>
             <RoundFacebookIcon className={classes.socialIcon}/>
           </a>
         </Tooltip>}
         {document.meetupLink
           && <Tooltip title={`Link to Meetup.com ${isEvent ? 'Event' : 'Group'}`} placement="top-end">
-            <a href={document.meetupLink} className={classes.groupLink}>
+            <a href={document.meetupLink} {...groupLinkProps}>
               <MeetupIcon className={classes.socialIcon}/>
             </a>
           </Tooltip>}
         {'slackLink' in document && document.slackLink
           && <Tooltip title={`Link to Slack Workspace`} placement="top-end">
-          <a href={document.slackLink} className={classes.groupLink}>
+          <a href={document.slackLink} {...groupLinkProps}>
             <SlackIcon className={classes.socialIcon}/>
           </a>
         </Tooltip>}
         {document.website
           && <Tooltip title={<span>Link to Group Website ({document.website})</span>} placement="top-end">
-            <a href={document.website} className={classes.websiteLink}>
+            <a href={document.website} {...groupLinkProps} className={classes.websiteLink}>
               <ForumIcon icon="Link" className={classes.linkIcon}/>
             </a>
           </Tooltip>}

@@ -17,6 +17,7 @@ import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
 import { dialoguesEnabled, hasPostRecommendations } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
 
@@ -117,8 +118,17 @@ const rateLimitInfoSchema = new SimpleSchema({
   },
 })
 
+const karmaChangeUpdateFrequencies = new TupleSet([
+  "disabled",
+  "daily",
+  "weekly",
+  "realtime",
+] as const);
+
+export type KarmaChangeUpdateFrequency = UnionOf<typeof karmaChangeUpdateFrequencies>;
+
 export interface KarmaChangeSettingsType {
-  updateFrequency: "disabled"|"daily"|"weekly"|"realtime"
+  updateFrequency: KarmaChangeUpdateFrequency
   timeOfDayGMT: number
   dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
   showNegativeKarma: boolean
@@ -127,7 +137,7 @@ const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
     type: String,
     optional: true,
-    allowedValues: ['disabled', 'daily', 'weekly', 'realtime']
+    allowedValues: Array.from(karmaChangeUpdateFrequencies),
   },
   timeOfDayGMT: {
     type: SimpleSchema.Integer,
@@ -1081,7 +1091,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (All)",
-    control: 'FormUsersListEditor'
+    control: 'FormUserMultiselect'
   },
   'bannedUserIds.$': {
     type: String,
@@ -1098,7 +1108,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (Personal)",
-    control: 'FormUsersListEditor',
+    control: 'FormUserMultiselect',
     tooltip: "Users who are banned from commenting on your personal blogposts (will not affect posts promoted to frontpage)"
   },
   "bannedPersonalUserIds.$": {

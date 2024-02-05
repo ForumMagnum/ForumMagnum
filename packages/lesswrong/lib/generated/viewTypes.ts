@@ -26,6 +26,7 @@ type ImagesViewName = never
 type LWEventsViewName = "adminView"|"postVisits"|"emailHistory"|"gatherTownUsers"|"postEverPublished";
 type LegacyDataViewName = never
 type LocalgroupsViewName = "userOrganizesGroups"|"userActiveGroups"|"userInactiveGroups"|"all"|"nearby"|"single"|"local"|"online";
+type ManifoldProbabilitiesCachesViewName = never
 type MessagesViewName = "messagesConversation"|"conversationPreview";
 type MigrationsViewName = never
 type ModerationTemplatesViewName = "moderationTemplatesPage"|"moderationTemplatesList";
@@ -90,6 +91,7 @@ interface ViewTermsByCollectionName {
   LWEvents: LWEventsViewTerms
   LegacyData: ViewTermsBase
   Localgroups: LocalgroupsViewTerms
+  ManifoldProbabilitiesCaches: ViewTermsBase
   Messages: MessagesViewTerms
   Migrations: ViewTermsBase
   ModerationTemplates: ModerationTemplatesViewTerms

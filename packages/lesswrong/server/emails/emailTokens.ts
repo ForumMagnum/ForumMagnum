@@ -11,14 +11,14 @@ let emailTokenTypesByName: Partial<Record<string,EmailTokenType>> = {};
 export class EmailTokenType
 {
   name: string
-  onUseAction: (user: DbUser, params: any, args: any)=>any
+  onUseAction: (user: DbUser, params: any, args: any) => any
   resultComponentName: string
   reusable: boolean
   path: string
   
   constructor({ name, onUseAction, resultComponentName, reusable=false, path = "emailToken" }: {
     name: string,
-    onUseAction: (user: DbUser, params: any, args: any)=>any,
+    onUseAction: (user: DbUser, params: any, args: any) => any,
     resultComponentName: keyof ComponentTypes,
     reusable?: boolean,
     path?: string,

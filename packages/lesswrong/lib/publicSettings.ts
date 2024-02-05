@@ -132,3 +132,5 @@ export const auth0ClientSettings = new DatabasePublicSetting<Auth0ClientSettings
 
 // Null means requests are disabled
 export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number | null>('post.requestFeedbackKarmaLevel', 100);
+
+export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true);

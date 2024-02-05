@@ -9,12 +9,24 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     maxWidth: "100%",
     padding: 32,
+    overflowY: "auto",
+    [theme.breakpoints.down("xs")]: {
+      borderRadius: 0,
+      width: "100vw !important",
+      height: "100vh !important",
+    },
   },
   modal: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     zIndex: 50000,
+    [theme.breakpoints.down("xs")]: {
+      "& .MuiPopover-paper": {
+        maxWidth: "unset !important",
+        maxHeight: "unset !important",
+      },
+    },
   },
   backdrop: {
     background: theme.palette.background.loginBackdrop,

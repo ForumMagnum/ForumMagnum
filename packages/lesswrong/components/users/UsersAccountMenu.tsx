@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import { useTracking } from '../../lib/analyticsEvents';
-import { isEAForum } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType) => ({
@@ -103,7 +102,7 @@ const LWUsersAccountMenu = ({classes}: {
 
 const UsersAccountMenuComponent = registerComponent(
   "UsersAccountMenu",
-  isEAForum ? EAUsersAccountMenu : LWUsersAccountMenu,
+  isFriendlyUI ? EAUsersAccountMenu : LWUsersAccountMenu,
   {styles},
 );
 
