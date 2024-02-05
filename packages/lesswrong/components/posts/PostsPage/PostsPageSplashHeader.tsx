@@ -13,7 +13,6 @@ import { useImageContext } from './ImageContext';
 import { useHover } from '../../common/withHover';
 import { requireCssVar } from '../../../themes/cssVars';
 import { hideScrollBars } from '../../../themes/styleUtils';
-import { generateCoverImages } from '../../../server/scripts/generativeModels/coverImage';
 
 const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
 
@@ -352,11 +351,11 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
   const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
 
-  const backgroundImageStyle = {
-    backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageURL ? imageURL : post.reviewWinner?.splashArtImageUrl}")`,
-  }
-
   const default_images = ["https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
+
+  const backgroundImageStyle = {
+    backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageURL || post.reviewWinner?.splashArtImageUrl || default_images[0]}")`,
+  }
 
   // const posts = [post]
   // if (!post.reviewWinnerArt) {

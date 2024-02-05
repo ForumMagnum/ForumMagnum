@@ -112,9 +112,10 @@ const getEssays = async ({posts}: {posts?: DbPost[]} = {}): Promise<Essay[]> => 
     })
   }
 
-  const postIds = await ReviewWinners.find({}, { limit: 10, projection: { postId: 1 } }).fetch();
+  const postIds = await ReviewWinners.find({reviewYear: 2021}, { limit: 50, projection: { postId: 1 } }).fetch();
   const es = await Posts.find({ _id: { $in: postIds.map(p => p.postId) } }).fetch();
 
+  // tslint:disable-next-line:no-console
   console.log(es.map(e => e.title))
 
   return es.map(e => {
