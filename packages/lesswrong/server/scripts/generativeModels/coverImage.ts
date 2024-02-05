@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Globals, createAdminContext, createMutator } from '../../vulcan-lib/index.ts';
 import Posts from '../../../lib/collections/posts/collection.ts';
 import { App } from '@slack/bolt';
+import ReviewWinners from '../../../lib/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import { imagineAPIKeySetting, reviewArtSlackAPIKeySetting, reviewArtSlackSigningSecretSetting } from '../../../lib/instanceSettings.ts';
@@ -103,12 +104,24 @@ ${title}
 
 ${essay}`
 
-const getEssays = async (): Promise<Essay[]> => {
-  const es = await Posts.find({
-    "postedAt": {"$gte": new Date("2021-01-01"), "$lt": new Date("2022-01-01")},
-    "draft": false,
-  }, {sort: {"reviewVoteScoreHighKarma": -1}, limit: 50, projection: {_id: 1, postedAt: 1, title: 1, contents: 1, reviewVoteScoreHighKarma: 1}})
-  .fetch()
+const getEssays = async ({posts}: {posts?: DbPost[]} = {}): Promise<Essay[]> => {
+  
+  if (posts) {
+    return posts.map(e => {
+      return {post: e, title: e.title, content: e.contents.html }
+    })
+  }
+
+  const postIds = await ReviewWinners.find({}, { limit: 10, projection: { postId: 1 } }).fetch();
+  const es = await Posts.find({ _id: { $in: postIds.map(p => p.postId) } }).fetch();
+
+  console.log(es.map(e => e.title))
+
+  // const es = await Posts.find({
+  //   "postedAt": {"$gte": new Date("2021-01-01"), "$lt": new Date("2022-01-01")},
+  //   "draft": false
+  // }, {sort: {"reviewVoteScoreHighKarma": -1}, limit: 50, projection: {_id: 1, postedAt: 1, title: 1, contents: 1, reviewVoteScoreHighKarma: 1}})
+  // .fetch()
   return es.map(e => {
     return {post: e, title: e.title, content: e.contents.html }
   })
