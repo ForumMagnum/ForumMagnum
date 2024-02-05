@@ -16,7 +16,7 @@ import { hideScrollBars } from '../../../themes/styleUtils';
 
 const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
 
-export type ReviewWinnerArtsDefault = {
+export type ReviewWinnerImageInfo = {
   postId: string,
   splashArtImageUrl: string,
   splashArtImagePrompt: string | null,
@@ -368,7 +368,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   //   await generateCoverImages({posts})
   // }
 
-  const defaultImages: ReviewWinnerArtsDefault[] = default_images.map(url => ({
+  const defaultImages: ReviewWinnerImageInfo[] = default_images.map(url => ({
     postId: post._id,
     splashArtImageUrl: url,
     splashArtImagePrompt: null

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { ImageProvider, useImageContext } from './ImageContext';
-import { ReviewWinnerArtsDefault } from './PostsPageSplashHeader';
+import { ReviewWinnerImageInfo } from './PostsPageSplashHeader';
 // import PostsPageSplashHeader from './PostsPageSplashHeader';
 
 
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 export const SplashHeaderImageOptions = ({ images, post, classes }: {
-  images: ReviewWinnerArtsDefault[], // TODO
+  images: ReviewWinnerImageInfo[], // TODO
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
 }) => {
