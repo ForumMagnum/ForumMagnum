@@ -305,7 +305,7 @@ async function postReply(text: string, threadTs: string) {
   await postMessage(text, threadTs);
 }
 
-async function getCoverImages({posts, limit = 2}: {
+async function generateCoverImages({posts, limit = 2}: {
     posts?: (PostsWithNavigation | PostsWithNavigationAndRevision)[], 
     limit?: number
   } = {}): Promise<string[]> {
@@ -315,7 +315,7 @@ async function getCoverImages({posts, limit = 2}: {
   }
   const essays = (await getEssays()).slice(0, limit)
 
-  const [promElementss] = await essays.reduce(async (pEC: Promise<[Promise<string[]>, number]>, essay, i): Promise<[Promise<string[]>, number]> => {
+  const [promElements] = await essays.reduce(async (pEC: Promise<[Promise<string[]>, number]>, essay, i): Promise<[Promise<string[]>, number]> => {
     const [eltss, charsRequested] = await pEC
     let newChars = charsRequested
     if ((charsRequested + essay.content.length) >= 30_000) {
@@ -329,18 +329,14 @@ async function getCoverImages({posts, limit = 2}: {
     return Promise.resolve([Promise.all([eltss, images]).then(([elts, [_, el]]) => [...elts, ...el]), newChars])
   }, Promise.resolve([Promise.resolve([]), 0]) as Promise<[Promise<string[]>, number]>)
 
-  return promElementss
-}
-
-export async function generateCoverImages(posts: (PostsWithNavigation | PostsWithNavigationAndRevision)[]) {
-  await getCoverImages({posts, limit: 2})
+  return promElements
 }
 
 async function main () {
 
-  const promElementss = await getCoverImages({limit: 2})
+  const promElements = await generateCoverImages({limit: 2})
 
-  const imUrls = await promElementss
+  const imUrls = await promElements
   await slackApp.client.chat.postMessage({
     channel: channelId,
     text: JSON.stringify(imUrls)
