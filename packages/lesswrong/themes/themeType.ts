@@ -260,6 +260,7 @@ declare global {
       dashed500: string,
       mentionsBaloon: string,
       wrappedSummary: string,
+      eaButtonGreyOutline: string,
     },
     panelBackground: {
       default: ColorString,

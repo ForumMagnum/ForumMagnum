@@ -239,6 +239,7 @@ export const darkModeTheme: UserThemeSpecification = {
       secondaryHighlight: '#3e503a',
       secondaryHighlight2: '#3e503a',
       mentionsBaloon: shadePalette.grey[100],
+      eaButtonGreyOutline: "#5F5F5F",
     },
     buttons: {
       mentions: {

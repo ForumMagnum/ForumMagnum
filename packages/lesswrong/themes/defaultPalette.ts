@@ -314,6 +314,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     dashed500: `dashed 1px ${shades.grey[500]}`,
     mentionsBaloon: "#c4c4c4",
     wrappedSummary: "2px solid rgba(255, 168, 50, 0.6)",
+    eaButtonGreyOutline: "#BCC1C9",
   },
   background: {
     default: shades.grey[60],

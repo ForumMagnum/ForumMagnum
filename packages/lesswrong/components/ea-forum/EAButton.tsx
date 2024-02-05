@@ -37,7 +37,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   greyOutlined: {
-    border: `1px solid ${theme.palette.grey[405]}`,
+    border: `1px solid ${theme.palette.border.eaButtonGreyOutline}`,
     color: theme.palette.grey[1000],
     "&:hover": {
       border: `1px solid ${theme.palette.grey[400]}`,

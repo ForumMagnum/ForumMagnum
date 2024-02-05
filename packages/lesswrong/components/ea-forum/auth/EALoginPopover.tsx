@@ -62,7 +62,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[600],
     },
   },
-  inputMargin: {
+  inputBottomMargin: {
     marginBottom: 10,
   },
   showPasswordButton: {
@@ -105,10 +105,11 @@ const styles = (theme: ThemeType) => ({
     gap: "11px",
     width: "100%",
     margin: "24px 0",
+    fontWeight: 500,
     color: theme.palette.grey[600],
   },
   orHr: {
-    borderTop: `1px solid ${theme.palette.grey[600]}`,
+    borderTop: `1px solid ${theme.palette.border.eaButtonGreyOutline}`,
     flexGrow: 1,
   },
   socialContainer: {
@@ -351,7 +352,7 @@ export const EALoginPopover = ({open, setAction, isSignup, classes}: {
         <div className={classes.formContainer}>
           <form onSubmit={onSubmit} className={classes.form}>
             <div className={classNames(classes.inputContainer, {
-              [classes.inputMargin]: isResettingPassword,
+              [classes.inputBottomMargin]: isResettingPassword,
             })}>
               <input
                 type="text"
