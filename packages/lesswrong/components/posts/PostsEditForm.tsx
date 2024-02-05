@@ -12,7 +12,7 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
-import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
+import { userIsAdmin, userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
@@ -44,7 +44,17 @@ const PostsEditForm = ({ documentId, classes }: {
     }
   }, [isDraft]);
 
-  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
+  const {
+    WrappedSmartForm,
+    PostSubmit,
+    SubmitToFrontpageCheckbox,
+    HeadTags,
+    ForeignCrosspostEditForm,
+    DialogueSubmit,
+    RateLimitWarning,
+    DynamicTableOfContents,
+    GoogleDocImport
+  } = Components;
 
   const [editorState, setEditorState] = useState<Editor | null>(editor)
   const saveDraftLabel: string = ((post) => {
@@ -121,6 +131,7 @@ const PostsEditForm = ({ documentId, classes }: {
         {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
         {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
         <NoSSR>
+          {userIsAdmin(currentUser) && <GoogleDocImport postId={documentId} />}
           <EditorContext.Provider value={[editorState, setEditorState]}>
             <WrappedSmartForm
               collectionName="Posts"
@@ -164,6 +175,7 @@ const PostsEditForm = ({ documentId, classes }: {
                 version: 'String'
               }}
               extraVariablesValues={{
+                // TODO add the ability to input the actual version number here
                 version: 'draft'
               }}
               noSubmitOnCmdEnter

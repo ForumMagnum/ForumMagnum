@@ -989,6 +989,7 @@ interface DbRevision extends DbObject {
   html: string | null
   wordCount: number | null
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
+  googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
@@ -1605,6 +1606,7 @@ interface DbUser extends DbObject {
   afSubmittedApplication: boolean | null
   hideSunshineSidebar: boolean
   wrapped2023Viewed: boolean
+  linkedGoogleRefreshToken: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   moderationGuidelines: EditableFieldContents

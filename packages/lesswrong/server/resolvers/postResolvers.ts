@@ -4,23 +4,40 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { SideCommentsCache, SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField, accessFilterMultiple } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
-import { isNotHostedHere } from '../../lib/collections/posts/helpers';
+import { canUserEditPostMetadata, extractGoogleDocId, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
-import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
-import { getLatestRev } from '../editor/make_editable_callbacks';
+import { buildRevision, getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
 import { getPostMarketInfo } from '../posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF } from '../../lib/instanceSettings';
+import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
+import { googleClientIdSetting, googleOAuthSecretSetting } from '../authenticationMiddlewares';
+import { DatabaseServerSetting } from '../databaseSettings';
+import { dataToCkEditor } from '../editor/conversionUtils';
+import Revisions from '../../lib/collections/revisions/collection';
+
+type GoogleDocMetadata = {
+  id: string;
+  name: string;
+  version: string;
+  createdTime: string;
+  modifiedTime: string;
+  size: string;
+}
+
+const gdocImportEmailTokenSetting = new DatabaseServerSetting<string | null>('gdocImportEmail.refreshToken', null)
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -358,11 +375,144 @@ addGraphQLResolvers({
 
       const posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId, limit)
       return await accessFilterMultiple(currentUser, Posts, posts, context)
-    }, 
+    },
   },
+  Mutation: {
+    async ImportGoogleDoc(root: void, { fileUrl, postId }: { fileUrl: string, postId?: string | null }, context: ResolverContext) {
+      // To do:
+      // - Copy packages/lesswrong/server/scripts/googleDocImportNotebook.ts to do the actual importing
+      // - Create a revision with the html as the body
+      // - Return this revision
+      // - ...
+      // - The frontend can then pull the html out of the revision and put it into the editor. Ideally,
+      //   we would also save it as a clear version, although not the current one
+      if (!fileUrl) {
+        throw new Error("fileUrl must be given")
+      }
+      const fileId = extractGoogleDocId(fileUrl)
+
+      if (!fileId) {
+        throw new Error(`Could not extract id from google doc url: ${fileUrl}`)
+      }
+
+      const { currentUser } = context;
+      if (!currentUser) {
+        throw new Error('Must be logged in to import google doc')
+      }
+
+      if (postId) {
+        const post = await Posts.findOne({_id: postId})
+
+        if (!post) {
+          throw new Error(`No post with id: ${postId}`)
+        }
+
+        if (!canUserEditPostMetadata(currentUser, post)) {
+          throw new Error(`User doesn't have permission to edit post with id: ${postId}`)
+        }
+      }
+
+      const googleClientId = googleClientIdSetting.get();
+      const googleOAuthSecret = googleOAuthSecretSetting.get();
+      const gdocImportEmailToken = gdocImportEmailTokenSetting.get()
+
+      if (!googleClientId || !googleOAuthSecret) {
+        throw new Error('Google OAuth client not configured')
+      }
+
+      const oauth2Client = new OAuth2Client(googleClientId, googleOAuthSecret);
+
+      const tokensToTry: string[] = [currentUser.linkedGoogleRefreshToken, gdocImportEmailToken].filter(v => v) as string[]
+
+      if (tokensToTry.length === 0) {
+        throw new Error('Either a user-linked google account, or a default account is required to import Google docs')
+      }
+
+      let html: string | null = null
+      let docMetadata: GoogleDocMetadata | null = null;
+
+      const errors = []
+
+      for (const token of tokensToTry) {
+        oauth2Client.setCredentials({ refresh_token: token });
+
+        try {
+          const drive = google.drive({
+            version: "v3",
+            auth: oauth2Client,
+          });
+
+          // Retrieve the file's metadata to get the name
+          const fileMetadata = await drive.files.get({
+            fileId,
+            fields: 'id, name, description, version, createdTime, modifiedTime, size'
+          });
+
+          docMetadata = fileMetadata.data as GoogleDocMetadata;
+
+          const fileContents = await drive.files.export(
+            {
+              fileId,
+              mimeType: "text/html",
+            },
+            { responseType: "text" }
+          );
+
+          html = fileContents.data as string; // The HTML content of the Google Doc
+
+          break // Break after success
+        } catch (e) {
+          errors.push(e)
+          continue
+        }
+      }
+
+      if (!html) {
+        return null
+      }
+
+      // Converting to ckeditor markup does some thing like removing styles to standardise
+      // the result, so we always want to do this first before converting to whatever format the user
+      // is using
+      const ckEditorMarkup = await dataToCkEditor(html, "html")
+
+      const previousRev = postId ? await getLatestRev(postId, "contents") : null
+      const revisionType = previousRev ? "major" : "initial"
+      const commitMessage = ""
+
+      const newRevision: Partial<DbRevision> = {
+        ...(await buildRevision({
+          originalContents: {type: "ckEditorMarkup", data: ckEditorMarkup},
+          currentUser,
+        })),
+        documentId: postId ?? null,
+        draft: true,
+        fieldName: "contents",
+        collectionName: "Posts",
+        version: getNextVersion(previousRev, revisionType, true),
+        updateType: revisionType,
+        commitMessage: commitMessage,
+        changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
+        googleDocMetadata: docMetadata
+      };
+
+      const { data: { _id: revisionId }} = await createMutator({
+        collection: Revisions,
+        document: newRevision,
+        validate: false,
+      });
+
+      // Refetch the revision, because the version returned from createMutator is
+      // just the data before actually inserting into the db
+      const revision = await Revisions.findOne({_id: revisionId})
+
+      return revision;
+    },
+  }
 })
 
 addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]");
+addGraphQLMutation("ImportGoogleDoc(fileUrl: String!, postId: String): Revision");
 
 addGraphQLSchema(`
   type UserReadHistoryResult {

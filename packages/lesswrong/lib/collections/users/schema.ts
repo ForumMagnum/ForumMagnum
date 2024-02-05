@@ -2958,6 +2958,19 @@ const schema: SchemaType<"Users"> = {
     hidden: true,
     ...schemaDefaultValue(false),
   },
+
+  /**
+   * refresh_token associated with the Google account a user has linked
+   */
+  linkedGoogleRefreshToken: {
+    type: String,
+    canRead: [],
+    canCreate: ['members', 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    hidden: true,
+    optional: true,
+    nullable: true,
+  },
 };
 
 export default schema;

@@ -20,6 +20,8 @@ import { Request, Response, NextFunction, json } from "express";
 import { AUTH0_SCOPE, loginAuth0User, signupAuth0User } from './authentication/auth0';
 import { IdFromProfile, UserDataFromProfile, getOrCreateForumUser } from './authentication/getOrCreateForumUser';
 import { promisify } from 'util';
+import { OAuth2Client } from 'google-auth-library';
+import { updateMutator } from './vulcan-lib';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -45,8 +47,8 @@ class Auth0StrategyFixed extends Auth0Strategy {
   userProfile!: (accessToken: string, done: (err: Error | null, profile?: Auth0Profile) => void) => void;
 }
 
-const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null)
-const googleOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.google.secret', null)
+export const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null)
+export const googleOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.google.secret', null)
 
 const auth0ClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.appId', null)
 const auth0OAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.secret', null)
@@ -161,6 +163,69 @@ async function deserializeUserPassport(id: AnyBecauseTodo, done: AnyBecauseTodo)
   if (!user) done()
   done(null, user)
 }
+
+
+/**
+ * Add routes for handling users linking their Google account in order to import from Google Drive
+ */
+const addGoogleDriveLinkMiddleware = (addConnectHandler: AddMiddlewareType) => {
+  const googleClientId = googleClientIdSetting.get();
+  const googleOAuthSecret = googleOAuthSecretSetting.get();
+
+  if (!googleClientId || !googleOAuthSecret) {
+    return;
+  }
+
+  const callbackUrl = "google_oauth2callback"
+  const oauth2Client = new OAuth2Client(googleClientId, googleOAuthSecret, `${getSiteUrl()}${callbackUrl}`);
+
+  addConnectHandler('/auth/linkgdrive', (req: Request, res: Response) => {
+    if (!req.user?._id) {
+      res.status(400).send("User is not authenticated");
+      return;
+    }
+
+    const url = oauth2Client.generateAuthUrl({
+      access_type: 'offline', // offline => get a refresh token that persists for 6 months
+      scope: [
+        'https://www.googleapis.com/auth/drive.readonly',
+        'https://www.googleapis.com/auth/userinfo.profile'
+      ],
+      redirect_uri: `${getSiteUrl()}google_oauth2callback`
+    });
+    res.redirect(url);
+  });
+
+  addConnectHandler(`/${callbackUrl}`, async (req: Request, res: Response) => {
+    const code = req.query.code as string;
+    const user = req.user
+
+    if (!user?._id) {
+      res.status(400).send("User is not authenticated");
+      return;
+    }
+
+    try {
+      const { tokens } = await oauth2Client.getToken(code);
+      oauth2Client.setCredentials(tokens);
+
+      await updateMutator({
+        collection: Users,
+        documentId: user._id,
+        set: {linkedGoogleRefreshToken: tokens.refresh_token} as any,
+        validate: false
+      })
+
+      // TODO change this route to a success message
+      res.redirect('/');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error retrieving access token', error);
+      res.redirect('/');
+    }
+  });
+};
+
 
 passport.serializeUser((user, done) => done(null, user._id))
 passport.deserializeUser(deserializeUserPassport)
@@ -398,7 +463,8 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
     });
   }
 
-  addConnectHandler('/auth/google/callback', (req: Request, res: Response, next: NextFunction) => {
+  // TODO comment on PR about how I couldn't get this to work
+  addConnectHandler('/auth/google/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('google', {}, (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)
@@ -453,4 +519,6 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
     saveReturnTo(req)
     passport.authenticate('github', { scope: ['user:email']})(req, res, next)
   })
+
+  addGoogleDriveLinkMiddleware(addConnectHandler)
 }

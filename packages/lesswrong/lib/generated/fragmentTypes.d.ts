@@ -406,6 +406,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly recentKarmaInfo: any,
   readonly hideSunshineSidebar: boolean,
   readonly wrapped2023Viewed: boolean,
+  readonly linkedGoogleRefreshToken: string | null,
 }
 
 interface CommentsDefaultFragment { // fragment on Comments
@@ -2606,6 +2607,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface UsersMinimumInfo { // fragment on Users
