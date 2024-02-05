@@ -17,7 +17,8 @@ const styles = (theme: ThemeType) => ({
   displaySettings: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'end'
+    justifyContent: 'end',
+    height: 40
   },
   sortGroup: {
 
@@ -152,12 +153,12 @@ export const TopPostsDisplaySettings = ({classes}: {
       {/* <MetaInfo>
         Sort by <InlineSelect options={sortOptions} selected={selectedOption} handleSelect={handleSortOptionClick}/>
       </MetaInfo> */}
-      <span className={classes.checkboxGroup}>
+      {/* <span className={classes.checkboxGroup}>
         <Checkbox onClick={handleHideAIOptionClick} checked={currentAIVisibility} />
         <MetaInfo className={classes.checkboxLabel}>
           {preferredHeadingCase("Hide AI Posts")}
         </MetaInfo>
-      </span>
+      </span> */}
     </span>
   );
 }

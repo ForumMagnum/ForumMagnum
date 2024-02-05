@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { useLocation } from '../../lib/routeUtil';
@@ -9,6 +9,27 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 import keyBy from 'lodash/keyBy';
 import { usePostBySlug } from '../posts/usePost';
 import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
+import classNames from 'classnames';
+import { postGetPageUrl } from '../../lib/collections/posts/helpers';
+import { Link } from '../../lib/reactRouterWrapper';
+import { range, repeat } from 'lodash';
+
+const MAX_GRID_SIZE = 6;
+
+const gridPositionToClassName = ( gridPosition: number ) => `gridPosition${gridPosition}`;
+
+const gridPositionToClassesEntry = ( theme: ThemeType, gridPosition: number) => {
+
+  return [gridPositionToClassName(gridPosition), {
+    left: `calc(-${(gridPosition % 3) * 3} * 120px)`,
+    [theme.breakpoints.down(1200)]: {
+      left: `calc(-${(gridPosition % 2) * 3} * 120px)`,
+    },
+    [theme.breakpoints.down(800)]: {
+      left: 0
+    }
+  }]
+}
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -39,31 +60,69 @@ const styles = (theme: ThemeType) => ({
   widerColumn: {
     marginLeft: "auto",
     marginRight: "auto",
-    width: "min-content"
+    width: 'min-content'
   },
   description: {
     maxWidth: 700,
-    paddingLeft: 17
+    paddingLeft: 17,
+    [theme.breakpoints.down(800)]: {
+      paddingLeft: 0
+    }
   },
   gridContainer: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)',
-    [theme.breakpoints.down(1300)]: {
-      gridTemplateColumns: 'repeat(2, 1fr)',
+    display: 'flex',
+    flexWrap: 'wrap',
+    rowGap: '20px',
+    width: 1200,
+    [theme.breakpoints.down(1200)]: {
+      width: 800
     },
-    [theme.breakpoints.down(900)]: {
-      gridTemplateColumns: 'repeat(1, 1fr)',
-    },
+    [theme.breakpoints.down(800)]: {
+      width: 'inherit',
+      rowGap: 0
+    }
   },
   postsImageGrid: {
     position: "relative",
-    maxWidth: 400,
     display: "flex",
     '&:hover $imageGridHeader': {
       background: 'rgb(241 209 150 / 40%)'
     },
-    '&:hover $expandIcon': {
+    '&:hover $toggleIcon': {
       opacity: 1
+    },
+    [theme.breakpoints.down(800)]: {
+      flexDirection: "column",
+    }
+  },
+  expandedImageGrid: {
+    '& $imageGridContainer': {
+      width: 'calc(9 * 120px - 2px)',
+      [theme.breakpoints.down(1200)]: {
+        width: 'calc(6 * 120px - 2px)',
+      },
+      [theme.breakpoints.down(800)]: {
+        width: 'calc(3 * 120px - 2px)',
+        height: 'calc(4 * 120px)',
+      },
+    },
+    '& $imageGrid': {
+      left: '0 !important'
+    },
+    '& $imageGridPostOffscreen': {
+      opacity: 1,
+      transitionDelay: '0s'
+    },
+    '& $toggleIcon': {
+      transform: 'rotate(45deg)'
+    }
+  },
+  collapsedImageGrid: {
+    '& $imageGridContainer': {
+      width: 0
+    },
+    '& $imageGridHeader': {
+      width: 38,
     }
   },
   imageGridHeader: {
@@ -72,34 +131,62 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: "0px 0px 4px 4px",
+    padding: "16px 0px 4px 3px",
     cursor: 'pointer',
-    transition: 'background 0.2s ease-in',
+    transition: 'background 0.2s ease-in, width 0.5s ease-in-out',
+    width: 40,
     '&&&:hover': {
       background: 'rgb(241 209 150 / 75%)'
+    },
+    [theme.breakpoints.down(800)]: {
+      padding: 0,
+      writingMode: "inherit",
+      transform: 'none',
+      width: 'inherit'
     }
   },
   imageGridHeaderTitle: {
     margin: 0,
     fontSize: 32
   },
-  expandIcon: {
-    marginBottom: 'auto',
-    paddingTop: 8,
+  toggleIcon: {
     fontSize: 24,
-    opacity: 0
+    opacity: 0,
+    transform: 'rotate(0deg)',
+    transition: 'transform 0.2s ease-in',
+    transitionDelay: '0.5s',
+    [theme.breakpoints.down(800)]: {
+      order: 2,
+      padding: 0,
+      margin: 0,
+      opacity: 1
+    }
+  },
+  imageGridContainer: {
+    position: "relative",
+    width: 'calc(3 * 120px - 2px)',
+    height: 'calc(4 * 120px)',
+    overflow: 'hidden',
+    transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out',
+    [theme.breakpoints.down(800)]: {
+      height: 'calc(1 * 120px)',
+    }
   },
   imageGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
     gridTemplateRows: "repeat(4, 120px)",
-    position: "relative",
+    position: "absolute",
+    top: 0,
     overflow: "hidden",
     gridAutoFlow: 'column',
+    transition: 'left 0.5s ease-in-out',
     '&:hover $imageGridPostBackground': {
       transitionDelay: '0.2s'
-    }
+    },
+    gridTemplateColumns: "repeat(9, 120px)",
   },
+  // If we want to display a grid with more than 6 items, increase this number
+  ...Object.fromEntries(Array.from({length: MAX_GRID_SIZE}, (_, i) => gridPositionToClassesEntry(theme, i))),
   imageGridBackground: {
     top: 0,
     right: 0,
@@ -119,34 +206,29 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     textWrap: "balance",
     cursor: "pointer",
+
+    '&:hover': {
+      opacity: 1 // Overwriting default <a> styles
+    },
     
     '&:hover .hoverBackground': {
       opacity: 1
     },
 
     '&&&:hover $imageGridPostBackground': {
+      display: "block",
       opacity: 1,
       transitionDelay: "0s",
       zIndex: 2
     },
-
-    //   .TopPostsPage-imageGridPost:nth-child(3n + 1) .TopPostsPage-imageGridPostBody {
-    //     border-right: none;
-    //     /* background: red; */
-    // }
-    
-    // .TopPostsPage-imageGridPost:nth-child(n + 11) .TopPostsPage-imageGridPostBody {
-    //     /* background: blue; */
-    //     border-bottom: none;
-    // }
-
-    '&&&:nth-child(4n + 1) $imageGridPostBody': {
+    '&&:nth-child(4n + 1) $imageGridPostBody': {
       borderBottom: "none"
-    },
-    '&&&:nth-child(n + 10) $imageGridPostBody': {
-      borderRight: "none"
     }
-    
+  },
+
+  imageGridPostOffscreen: {
+    opacity: 0,
+    transitionDelay: '0.5s'
   },
 
   imageGridPostBody: {
@@ -171,12 +253,14 @@ const styles = (theme: ThemeType) => ({
     },
   },
   imageGridPostBackground: {
-    opacity: 0,
+    display: 'block',
     position: "absolute",
     top: 0,
-    left: "-50%",
-    objectFit: "contain",
+    left: 0,
     height: "100%",
+    width: "100%",
+    opacity: 0,
+    objectFit: "cover",
     objectPosition: "right",
     zIndex: -1,
     transition: "opacity 0.2s ease-in",
@@ -188,7 +272,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     paddingRight: 2,
     transition: "opacity 0.2s ease-in",
-    paddingLeft: 20
+    paddingLeft: 12
   },
   imageGridPostTitle: {
   }
@@ -254,19 +338,105 @@ function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOr
   }
 }
 
+let candidateImages = [
+  "https://cl.imagineapi.dev/assets/51d4e735-f328-436b-af1f-72f8a393114e/51d4e735-f328-436b-af1f-72f8a393114e.png","https://cl.imagineapi.dev/assets/9a46ebf2-a5f4-4520-827f-5e723164a857/9a46ebf2-a5f4-4520-827f-5e723164a857.png","https://cl.imagineapi.dev/assets/41b79ce2-bd03-45a5-bd9e-a7761a539b0a/41b79ce2-bd03-45a5-bd9e-a7761a539b0a.png","https://cl.imagineapi.dev/assets/d257c3a8-df69-4da5-ae4c-0fc01bd800d0/d257c3a8-df69-4da5-ae4c-0fc01bd800d0.png","https://cl.imagineapi.dev/assets/53236167-d294-4870-b65b-c793a83be8e0/53236167-d294-4870-b65b-c793a83be8e0.png","https://cl.imagineapi.dev/assets/b8b7586b-3147-4df3-8b46-e2d48ff23620/b8b7586b-3147-4df3-8b46-e2d48ff23620.png","https://cl.imagineapi.dev/assets/2722db46-819c-47f8-ace5-7a2afb7c18e4/2722db46-819c-47f8-ace5-7a2afb7c18e4.png","https://cl.imagineapi.dev/assets/064715cd-3699-44c2-b199-a83dc2872c9d/064715cd-3699-44c2-b199-a83dc2872c9d.png","https://cl.imagineapi.dev/assets/f6d77121-b8af-49d4-8dfe-118320511b4e/f6d77121-b8af-49d4-8dfe-118320511b4e.png","https://cl.imagineapi.dev/assets/4317d007-ab92-4c8a-bed8-4cda860d2177/4317d007-ab92-4c8a-bed8-4cda860d2177.png","https://cl.imagineapi.dev/assets/2f576d43-214d-458b-9d8c-97c3271a52d2/2f576d43-214d-458b-9d8c-97c3271a52d2.png","https://cl.imagineapi.dev/assets/4c16890f-fd3b-4e2e-a432-cad6ee2fca75/4c16890f-fd3b-4e2e-a432-cad6ee2fca75.png","https://cl.imagineapi.dev/assets/7b33c33e-8d37-4334-aef2-413dfb23a36a/7b33c33e-8d37-4334-aef2-413dfb23a36a.png","https://cl.imagineapi.dev/assets/220e0b5e-d9ff-48aa-9bab-b3c7f8e391c3/220e0b5e-d9ff-48aa-9bab-b3c7f8e391c3.png","https://cl.imagineapi.dev/assets/50b35ff2-8cb3-4949-a986-558ab4d56f77/50b35ff2-8cb3-4949-a986-558ab4d56f77.png","https://cl.imagineapi.dev/assets/092e8232-c54b-485e-8985-2476f2f7dabf/092e8232-c54b-485e-8985-2476f2f7dabf.png","https://cl.imagineapi.dev/assets/6cf1f91a-e2e6-4f7f-8ead-cf9c99269eee/6cf1f91a-e2e6-4f7f-8ead-cf9c99269eee.png","https://cl.imagineapi.dev/assets/57295cf3-0519-49a5-8163-2121bf9e6620/57295cf3-0519-49a5-8163-2121bf9e6620.png","https://cl.imagineapi.dev/assets/4ecbedb7-e916-4da0-86ea-882fabf369d1/4ecbedb7-e916-4da0-86ea-882fabf369d1.png","https://cl.imagineapi.dev/assets/5c71f70d-6259-4548-8c85-3681e4a5ce7d/5c71f70d-6259-4548-8c85-3681e4a5ce7d.png","https://cl.imagineapi.dev/assets/e906f7d9-7c7f-49de-a9a6-818c929eacbd/e906f7d9-7c7f-49de-a9a6-818c929eacbd.png","https://cl.imagineapi.dev/assets/b40ad3bb-a92f-42ff-987e-4a6836ddded4/b40ad3bb-a92f-42ff-987e-4a6836ddded4.png","https://cl.imagineapi.dev/assets/a484a7bb-0a2a-45aa-8dba-7dead2bf1334/a484a7bb-0a2a-45aa-8dba-7dead2bf1334.png","https://cl.imagineapi.dev/assets/39596443-b9d9-4447-bb7a-3cb9f562cf2f/39596443-b9d9-4447-bb7a-3cb9f562cf2f.png","https://cl.imagineapi.dev/assets/a69baece-6fa8-4266-a1c5-a05eb1af43d8/a69baece-6fa8-4266-a1c5-a05eb1af43d8.png","https://cl.imagineapi.dev/assets/bbe1c1d5-1597-4c9e-8094-63879a77552e/bbe1c1d5-1597-4c9e-8094-63879a77552e.png","https://cl.imagineapi.dev/assets/f0f7e891-e588-466b-948f-afa899aac21e/f0f7e891-e588-466b-948f-afa899aac21e.png","https://cl.imagineapi.dev/assets/250d7a41-1dce-474b-89c4-2091b0c481de/250d7a41-1dce-474b-89c4-2091b0c481de.png","https://cl.imagineapi.dev/assets/97f33f98-6968-458d-aa71-f1b6018232eb/97f33f98-6968-458d-aa71-f1b6018232eb.png","https://cl.imagineapi.dev/assets/255e4d74-7ca1-44fa-aae0-bbf149c53f4b/255e4d74-7ca1-44fa-aae0-bbf149c53f4b.png","https://cl.imagineapi.dev/assets/c5ed7c40-b0bb-4164-86dd-c4f947abc6f7/c5ed7c40-b0bb-4164-86dd-c4f947abc6f7.png","https://cl.imagineapi.dev/assets/cecf2abe-3e0e-4a3c-800d-50b2d778c65c/cecf2abe-3e0e-4a3c-800d-50b2d778c65c.png","https://cl.imagineapi.dev/assets/7962c1a6-6a1f-451c-83de-b3f3129bba4d/7962c1a6-6a1f-451c-83de-b3f3129bba4d.png","https://cl.imagineapi.dev/assets/7a1ebe62-2c57-4ce3-be9a-c818a065da1f/7a1ebe62-2c57-4ce3-be9a-c818a065da1f.png","https://cl.imagineapi.dev/assets/2cb5a3cf-b03e-4c9b-a428-1311085f141f/2cb5a3cf-b03e-4c9b-a428-1311085f141f.png","https://cl.imagineapi.dev/assets/430e934d-157a-460c-9ea9-7cd7cc3591ab/430e934d-157a-460c-9ea9-7cd7cc3591ab.png","https://cl.imagineapi.dev/assets/8903a624-d266-49a4-93dd-96709147a110/8903a624-d266-49a4-93dd-96709147a110.png","https://cl.imagineapi.dev/assets/b868498d-6a53-49e9-8552-16d648efba15/b868498d-6a53-49e9-8552-16d648efba15.png","https://cl.imagineapi.dev/assets/9c2a7289-ad51-494d-83d5-8ed773478ca6/9c2a7289-ad51-494d-83d5-8ed773478ca6.png","https://cl.imagineapi.dev/assets/c60a34dd-0667-4244-b9ec-c8563e9e27be/c60a34dd-0667-4244-b9ec-c8563e9e27be.png","https://cl.imagineapi.dev/assets/005ef384-c2d6-455b-9661-348baa26ef89/005ef384-c2d6-455b-9661-348baa26ef89.png","https://cl.imagineapi.dev/assets/51375507-ce3e-4989-896e-a60ae8d54033/51375507-ce3e-4989-896e-a60ae8d54033.png","https://cl.imagineapi.dev/assets/67959943-e17b-48a1-bf12-77cb0d8f4391/67959943-e17b-48a1-bf12-77cb0d8f4391.png","https://cl.imagineapi.dev/assets/6ec2a451-8e28-46ee-b925-bb0f11630a31/6ec2a451-8e28-46ee-b925-bb0f11630a31.png","https://cl.imagineapi.dev/assets/5429c2a4-da2f-4c0c-9895-7a624980e66e/5429c2a4-da2f-4c0c-9895-7a624980e66e.png","https://cl.imagineapi.dev/assets/ec13c5e7-b3f2-43a6-b220-ff63709be674/ec13c5e7-b3f2-43a6-b220-ff63709be674.png","https://cl.imagineapi.dev/assets/728f6100-a7f4-4b5d-9787-9ff1ab7314f6/728f6100-a7f4-4b5d-9787-9ff1ab7314f6.png","https://cl.imagineapi.dev/assets/f0a50b14-2ac5-40da-976b-3586b01fbb24/f0a50b14-2ac5-40da-976b-3586b01fbb24.png","https://cl.imagineapi.dev/assets/10d973ec-5205-4d29-a5b2-cf0623ae031a/10d973ec-5205-4d29-a5b2-cf0623ae031a.png","https://cl.imagineapi.dev/assets/919e60d1-ec16-45f0-bfe6-6ba922051dfa/919e60d1-ec16-45f0-bfe6-6ba922051dfa.png","https://cl.imagineapi.dev/assets/556ff0c0-9b01-4bf4-9895-eb7f9863af47/556ff0c0-9b01-4bf4-9895-eb7f9863af47.png","https://cl.imagineapi.dev/assets/ffd37ad8-4b09-4919-a6b2-1af9b452a421/ffd37ad8-4b09-4919-a6b2-1af9b452a421.png","https://cl.imagineapi.dev/assets/a73ec4ca-3668-4016-ac75-64197107b98f/a73ec4ca-3668-4016-ac75-64197107b98f.png","https://cl.imagineapi.dev/assets/dcf0d5d6-452a-4022-bcd7-5cb912986938/dcf0d5d6-452a-4022-bcd7-5cb912986938.png","https://cl.imagineapi.dev/assets/112107d2-005a-4082-8b5c-8f74a0383e7a/112107d2-005a-4082-8b5c-8f74a0383e7a.png","https://cl.imagineapi.dev/assets/f71444cf-f455-4510-86b0-eb768648cfb5/f71444cf-f455-4510-86b0-eb768648cfb5.png","https://cl.imagineapi.dev/assets/5120c32a-8b93-41cd-b05a-feeb06b682b8/5120c32a-8b93-41cd-b05a-feeb06b682b8.png","https://cl.imagineapi.dev/assets/d32b6d54-a29e-4685-9a95-cfca8a195691/d32b6d54-a29e-4685-9a95-cfca8a195691.png","https://cl.imagineapi.dev/assets/73a8575d-c3f4-472b-92be-c66825898037/73a8575d-c3f4-472b-92be-c66825898037.png","https://cl.imagineapi.dev/assets/fb4ecac0-4839-4ecd-a1e6-9dbe1c124d81/fb4ecac0-4839-4ecd-a1e6-9dbe1c124d81.png","https://cl.imagineapi.dev/assets/ee21acde-145f-4a05-8efe-f7425d2fbea0/ee21acde-145f-4a05-8efe-f7425d2fbea0.png","https://cl.imagineapi.dev/assets/77383dd1-6d69-4ff5-bd19-18363135cb07/77383dd1-6d69-4ff5-bd19-18363135cb07.png","https://cl.imagineapi.dev/assets/c18329f0-48d1-4ba1-b6fc-c4d2305fba2b/c18329f0-48d1-4ba1-b6fc-c4d2305fba2b.png","https://cl.imagineapi.dev/assets/c8ea3a1f-9c86-41dc-846b-b81bd49003d7/c8ea3a1f-9c86-41dc-846b-b81bd49003d7.png","https://cl.imagineapi.dev/assets/ea393910-5d27-4f30-b6f3-7ba5e57d236b/ea393910-5d27-4f30-b6f3-7ba5e57d236b.png","https://cl.imagineapi.dev/assets/6be602a2-8b38-4ab4-ba1b-16e7b245afdf/6be602a2-8b38-4ab4-ba1b-16e7b245afdf.png","https://cl.imagineapi.dev/assets/5c35b00b-6094-4a19-bdb4-7288b520cc40/5c35b00b-6094-4a19-bdb4-7288b520cc40.png","https://cl.imagineapi.dev/assets/52385ef5-6e9c-41c3-b412-9af8fb8a75ac/52385ef5-6e9c-41c3-b412-9af8fb8a75ac.png","https://cl.imagineapi.dev/assets/cc038f9c-d810-4096-ac28-a3ee0eb812fc/cc038f9c-d810-4096-ac28-a3ee0eb812fc.png","https://cl.imagineapi.dev/assets/3f055dea-b75c-4344-8c24-0b1453a352f0/3f055dea-b75c-4344-8c24-0b1453a352f0.png","https://cl.imagineapi.dev/assets/f694eeaa-2df5-410a-8af8-fbf89cd38f95/f694eeaa-2df5-410a-8af8-fbf89cd38f95.png","https://cl.imagineapi.dev/assets/5bc1da5d-9241-494a-8f71-59fe45748381/5bc1da5d-9241-494a-8f71-59fe45748381.png","https://cl.imagineapi.dev/assets/344e290f-59c8-42b3-b5de-6ede68b56d41/344e290f-59c8-42b3-b5de-6ede68b56d41.png","https://cl.imagineapi.dev/assets/94458d1e-2cd9-4673-b8e3-a0ae3da5e5ec/94458d1e-2cd9-4673-b8e3-a0ae3da5e5ec.png","https://cl.imagineapi.dev/assets/a1d30f82-cfe4-467c-acc2-930b0b5bab0b/a1d30f82-cfe4-467c-acc2-930b0b5bab0b.png","https://cl.imagineapi.dev/assets/6b3f9b8e-3737-4cb8-aa0a-2db0d13209d8/6b3f9b8e-3737-4cb8-aa0a-2db0d13209d8.png","https://cl.imagineapi.dev/assets/2ea4dd7b-f6f5-4838-a04f-06b80867a2eb/2ea4dd7b-f6f5-4838-a04f-06b80867a2eb.png","https://cl.imagineapi.dev/assets/61a766f6-49ab-44a1-94f4-93aa788c3aa6/61a766f6-49ab-44a1-94f4-93aa788c3aa6.png","https://cl.imagineapi.dev/assets/bb9a8b02-a017-4699-8580-c7f9dacc63ae/bb9a8b02-a017-4699-8580-c7f9dacc63ae.png","https://cl.imagineapi.dev/assets/15b652b0-75c7-4a25-a8b6-bd8607008668/15b652b0-75c7-4a25-a8b6-bd8607008668.png","https://cl.imagineapi.dev/assets/44d01c15-84c6-475a-8a1d-6223440a5e30/44d01c15-84c6-475a-8a1d-6223440a5e30.png","https://cl.imagineapi.dev/assets/ef7a2eed-c32b-4d14-b634-82a3d824dd4f/ef7a2eed-c32b-4d14-b634-82a3d824dd4f.png","https://cl.imagineapi.dev/assets/9b93c317-8992-4a0a-9669-cf227f479dd7/9b93c317-8992-4a0a-9669-cf227f479dd7.png","https://cl.imagineapi.dev/assets/e8e140b0-356c-4016-8f78-476e49a827af/e8e140b0-356c-4016-8f78-476e49a827af.png"
+]
+
+const sectionsInfo = {
+  rationality: {
+    title: "Rationality",
+    img: candidateImages[0],
+    tag: "Rationality",
+  },
+  optimization: {
+    title: "Optimization",
+    img: candidateImages[1],
+    tag: "World Optimization"
+  },
+  modeling: {
+    title: "Modeling",
+    img: candidateImages[2],
+    tag: "World Modeling"
+  },
+  "ai-alignment": {
+    title: "AI Alignment",
+    img: candidateImages[3],
+    tag: "AI"
+  },
+  practical: {
+    title: "Practical",
+    img: candidateImages[4],
+    tag: "Practical"
+  },
+  miscellany: {
+    title: "Miscellany",
+    img: candidateImages[5],
+    tag: null
+  }
+}
+
+const getOffsets = (index: number, columnLength: number) => {
+  const leftOffset = index % columnLength;
+  const rightOffset = (columnLength - 1) - leftOffset;
+  return [leftOffset, rightOffset];
+}
+
+type expansionState = 'expanded' | 'collapsed' | 'default'
+
+function useWindowWidth(defaultValue: number = 2000):number {
+  const [windowWidth, setWindowWidth] = useState(defaultValue);
+
+  useEffect(() => {
+    function handleResize() {
+      setWindowWidth(global?.visualViewport?.width || 2000);
+    }
+
+    global?.addEventListener('resize', handleResize);
+    handleResize();
+    return () => global.removeEventListener('resize', handleResize);
+  }, []);
+
+  return windowWidth;
+}
+
+
 const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
   const { query } = location;
   // TODO: make an admin-only edit icon somewhere
   const [editOrderEnabled, setEditOrderEnabled] = useState(false);
-  const [selectedSection, setSelectionSection] = useState<string|null>(null)
+
+  const [expansionState, setExpansionState] = useState({} as Record<string, expansionState>);
+  const handleToggleExpand = (id: string) => {
+    const elements = document.querySelectorAll(`[id^="PostsImageGrid-"]`);
+    const currentState = expansionState[id] || 'default';
+
+    const clickedElement = document.getElementById(`PostsImageGrid-${id}`);
+    const clickedElementY = clickedElement?.getBoundingClientRect().top;
+
+    const elementsToToggle = Array.from(elements).filter((element) => {
+      const elementY = element.getBoundingClientRect().top;
+      return elementY === clickedElementY && clickedElement
+    });
+
+    const newClickedElementState = currentState === 'expanded' ? 'default' : 'expanded';
+
+    const newState : Record<string, expansionState> = {
+      ...expansionState,
+      ...Object.fromEntries(elementsToToggle.map(element => [element.id.replace('PostsImageGrid-', ''), currentState === 'expanded' ? 'default' : 'collapsed'])),
+      [id]: newClickedElementState
+    }
+
+    setExpansionState(newState);
+  }
   
+
   const {
     currentSortOrder,
     aiPostsHidden
   } = getCurrentTopPostDisplaySettings(query);
 
-  const { SingleColumnSection, SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, ContentItemBody, TopPostItem, TopPostEditOrder } = Components;
+  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, ContentItemBody, TopPostItem, TopPostEditOrder } = Components;
 
   const { post: reviewDescriptionPost } = usePostBySlug({ slug: 'top-posts-review-description' });
 
@@ -386,71 +556,65 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
               {reviewDescriptionPost && <ContentItemBody dangerouslySetInnerHTML={{__html: reviewDescriptionPost.contents?.html ?? ''}} description={`A description of the top posts page`}/>}
             </ContentStyles>
           </div>
-          <TopPostsDisplaySettings />
-          <div className={classes.gridContainer}>
-            <PostsImageGrid posts={visibleReviewWinners.map(({ post }) => post)} classes={classes} img="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1706571097/ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_catlen.webp" header="Rationality" />
-            <PostsImageGrid posts={visibleReviewWinners.map(({ post }) => post)} classes={classes} img="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1706670707/ohabryka_Aquarelle_book_cover_depicting_planets_surrounded_by_d_e9f91f98-66bc-4512-99d9-a13c15151ce8_ybdpvk.png" header="Optimization" />
-            <PostsImageGrid posts={visibleReviewWinners.map(({ post }) => post)} classes={classes} img="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1706680332/ohabryka_Aquarelle_book_cover_inspired_by_topographic_river_map_9015394d-6f09-4e8e-99cc-3e0a91d4816e_ibpfhk.png" header="Modeling" />
+          <div>
+            <TopPostsDisplaySettings />
+            <div className={classes.gridContainer}>
+              {Object.entries(sectionsInfo).map(([id, { title, img, tag }], index) => {
+                
+                const posts = visibleReviewWinners.map(({ post }) => post).filter(post => !tag || post.tags.map(tag => tag.name).includes(tag));
+                return <PostsImageGrid posts={posts} classes={classes} img={img} header={title} key={id} id={id} gridPosition={index} expansionState={expansionState[id]} handleToggleExpand={handleToggleExpand} />
+              })}
+            </div>
           </div>
-          
-          {/* {visibleReviewWinners.map(({ post, reviewWinner }) => {
-            return (<div key={reviewWinner._id} >
-              <TopPostItem post={post} />
-              {editOrderEnabled && (
-                <TopPostEditOrder
-                  reviewWinner={reviewWinner}
-                  updateCuratedOrder={(newOrder) => updateReviewWinnerOrderAndRefetch(reviewWinner._id, newOrder)}
-                />
-              )}
-            </div>);
-          })} */}
         </div>
       </AnalyticsContext>
     </>
   );
 }
 
-const PostsImageGrid = ({ posts, classes, img, header }: { posts: PostsTopItemInfo[], classes: ClassesType<typeof styles>, img: string, header: string }) => {
-  return <div className={classes.postsImageGrid}>
-    <div className={classes.imageGridHeader}>
-      <span className={classes.expandIcon}>+</span>
+const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansionState, handleToggleExpand }: { posts: PostsTopItemInfo[], classes: ClassesType<typeof styles>, img: string, header: string, id: string, gridPosition: number, expansionState: 'default' | 'expanded' | 'collapsed', handleToggleExpand: (id: string) => void }) => {
+  const screenWidth = useWindowWidth(2000)
+  const [leftOffset, rightOffset] = getOffsets(gridPosition, Math.min(Math.max(Math.floor((screenWidth) / 400), 1), 3));
+  const paddedPosts = [...posts, ...posts.slice(0, 24)];
+  console.log({id, leftOffset, rightOffset})
+
+  return <div 
+    className={classNames(classes.postsImageGrid, {
+      [classes.expandedImageGrid]: expansionState === 'expanded', 
+      [classes.collapsedImageGrid]: expansionState === 'collapsed'
+    })} 
+    id={`PostsImageGrid-${id}`}
+  >
+    <div className={classes.imageGridHeader} onClick={() => handleToggleExpand(id)}>
+      <span className={classes.toggleIcon}>
+        <span className={classes.expandIcon}>+</span>
+      </span>
       <h2 className={classes.imageGridHeaderTitle}>{header}</h2>
     </div>
-    <div className={classes.imageGrid}>
-      <img src={img} className={classes.imageGridBackground}/>
-      {posts.slice(0,12).map((post, i) => <div className={classes.imageGridPost} key={post._id}>
-        <div className={classes.imageGridPostBody}>
-          <div className={classes.imageGridPostAuthor}>
-            {post?.user?.displayName}
-          </div>
-          <div className={classes.imageGridPostTitle}>
-            {post.title}
-          </div>
-        </div>
-        <img className={classes.imageGridPostBackground} src={candidateImages[i]} />
-      </div>)}
+    <div className={classes.imageGridContainer}>
+      <div className={classNames(classes.imageGrid, classes[gridPositionToClassName(gridPosition)])} > 
+        <img src={img} className={classes.imageGridBackground}/>
+        {leftOffset > 0 && paddedPosts.slice(12, 12 + 12 * leftOffset).map((post, i) => <ImageGridPost post={post} index={i} classes={classes} key={post._id} offscreen />)}
+        {paddedPosts.slice(0, 12).map((post, i) => <ImageGridPost post={post} index={i} classes={classes} key={post._id} />)}
+        {rightOffset > 0 && paddedPosts.slice(leftOffset * 12 + 12, leftOffset * 12 + 12 + rightOffset * 12).map((post, i) => <ImageGridPost post={post} index={i} classes={classes} key={post._id} offscreen />)}
+      </div>
     </div>
   </div>
 }
 
-const candidateImages = [
-"https://cdn.discordapp.com/attachments/1202090633343549520/1202110401114808341/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_1c07f1d6-9cfa-46cb-9eca-9eee9c958681.png?ex=65cc438d&is=65b9ce8d&hm=dd34bb6de3bfc8c5d66147e24edae8fd069f47cdcaa76b761bfcb2f9ae872863&",
-"https://cdn.discordapp.com/attachments/1202090633343549520/1202110410761969736/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_073dc94a-a796-426e-b304-941c4eb243c1.png?ex=65cc4390&is=65b9ce90&hm=d310cd4d4136f84c0a558ef01ed366c0219c5ee222be02bfafc712dcddd41da0&",
-"https://cdn.discordapp.com/attachments/1202090633343549520/1202110427274682410/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_1cbb5f44-58e7-4cda-9051-ae0b0329c5be.png?ex=65cc4393&is=65b9ce93&hm=ad582ba91a27ca83270cd9b50195a0685201ed6f43aef7410ce99dea50db8031&",
-"https://cdn.discordapp.com/attachments/1202090633343549520/1202110440725811270/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_5e6cc8b6-3277-4761-ab74-65d2693c270c.png?ex=65cc4397&is=65b9ce97&hm=0d476e45cba96e700d2afb60f6fd0fdc614f27b571b0d28ed61e567edbbbcd76&",
-"https://cdn.discordapp.com/attachments/1202091050643247164/1202110900522192916/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_64734a60-0e42-40a1-aec8-bcccee9c453e.png?ex=65cc4404&is=65b9cf04&hm=3b89005b63752a26c996080e668867657e599a6a79fa030dc0e9d8bdb8d2985b&",
-"https://cdn.discordapp.com/attachments/1202091050643247164/1202110912396271626/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_68f1d939-2cb7-4854-b141-a01db337fc11.png?ex=65cc4407&is=65b9cf07&hm=4e92c2ac2391552558f935f14929294a148423c198472e6c6ce3b1524a99146a&",
-"https://cdn.discordapp.com/attachments/1202091050643247164/1202110927022067732/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_e9692e4e-eaff-4148-8ddd-4d84a6ae2a88.png?ex=65cc440b&is=65b9cf0b&hm=83e50b7845d96ca393159cffc71aa513687d43ae6c0d001d9575f3dc7aab647b&",
-"https://cdn.discordapp.com/attachments/1202091050643247164/1202110935620395058/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_2141e11c-bac8-453d-b4cc-c57bbf55c9cb.png?ex=65cc440d&is=65b9cf0d&hm=5709ec2cd69f1f1669401e09e1b380059020f11cc4b57cbb10824dca46662185&",
-"https://cdn.discordapp.com/attachments/1202090703497478194/1202111114700406784/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_f8ae3112-62c3-458b-86df-e27366251c0d.png?ex=65cc4437&is=65b9cf37&hm=37d7e4f0b8e6d6a8dfbfd909e776f0e46cd26a71c0f2050da5bebb7f958e1866&",
-"https://cdn.discordapp.com/attachments/1202090703497478194/1202111124938424340/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_8df1b426-cc97-4b84-a17e-93f9e4cf4628.png?ex=65cc443a&is=65b9cf3a&hm=369b3357771b53484d98d9217ac7dcf973201dd6d9448c11d8c39c94cec60409&",
-"https://cdn.discordapp.com/attachments/1202090703497478194/1202111132223934514/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_cfc04c3f-24c2-476f-bab4-e28abf04b93d.png?ex=65cc443c&is=65b9cf3c&hm=2d96631524df2a167bee2216a7996bdb92efb494379dbc3cee5643c5af1e85c5&",
-"https://cdn.discordapp.com/attachments/1202090703497478194/1202111137697759252/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_a19a1d43-ac99-4c90-86a8-a6bee31530a4.png?ex=65cc443d&is=65b9cf3d&hm=882dae84081c056ea13eb974a40c259d7320cf693c0595a962fdfee1b4920235&",
-"https://cdn.discordapp.com/attachments/1202090609658306567/1202111349514043423/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_9a441f6c-786c-42a5-a128-d04a4446205f.png?ex=65cc446f&is=65b9cf6f&hm=d25b74484ec386d4d162e82c2fdf0a1928f3ba94bff4493ebcc8d2d5ae163e89&",
-"https://cdn.discordapp.com/attachments/1202090609658306567/1202111361950429204/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_febbafed-0193-4646-8e52-4e03625e7828.png?ex=65cc4472&is=65b9cf72&hm=4b576def03308349f44d802145d668787e3ac6bdf4d11064a71057900e3c8b04&",
-"https://cdn.discordapp.com/attachments/1202090609658306567/1202111377192538162/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_10f4a9ff-9121-4c1c-9671-38e6e9bced8e.png?ex=65cc4476&is=65b9cf76&hm=48064dbb38717f9e9c3974e6363ab27464498a922b3778914068228873f888b9&",
-"https://cdn.discordapp.com/attachments/1202090609658306567/1202111387275366490/lwbot_Aquarelle_book_cover_inspired_by_topographic_river_maps_a_7fece95f-0f72-4efe-8ebb-285e7a37498e.png?ex=65cc4478&is=65b9cf78&hm=d50838b8859926d14987c44daeede05683a35492a74fdb5458b743142559668f&",
-]
+const ImageGridPost = ({post, index, classes, offscreen = false}: {post: PostsTopItemInfo, index: number, classes: ClassesType<typeof styles>, offscreen?: boolean}) => {
+  return <Link className={classes.imageGridPost} key={post._id} to={postGetPageUrl(post)}>
+  <div className={classes.imageGridPostBody}>
+    <div className={classes.imageGridPostAuthor}>
+      {post?.user?.displayName}
+    </div>
+    <div className={classNames(classes.imageGridPostTitle, {[classes.imageGridPostOffscreen]: offscreen})}>
+      {post.title}
+    </div>
+  </div>
+  <img className={classes.imageGridPostBackground} src={candidateImages[index]} loading="lazy" />
+</Link>
+}
 
 const TopPostsPageComponent = registerComponent(
   "TopPostsPage",
