@@ -1,6 +1,5 @@
 /* eslint no-console: 0 */
 
-import { imagine_key, openai_key, openai_org, slack_api_token, slack_signing_secret } from './keys.ts';
 import OpenAI from 'openai';
 import axios from 'axios';
 import { Globals, createAdminContext, createMutator } from '../../vulcan-lib/index.ts';
@@ -8,7 +7,8 @@ import Posts from '../../../lib/collections/posts/collection.ts';
 import { App } from '@slack/bolt';
 import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
-
+import { imagineAPIKeySetting, reviewArtSlackAPIKeySetting, reviewArtSlackSigningSecretSetting } from '../../../lib/instanceSettings.ts';
+import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
 
 const DEPLOY = false
 
@@ -18,8 +18,8 @@ let currentMidjourney = 0
 let essayRights: {[essay: string]: boolean} = {}
 
 const slackApp = new App({
-  token: slack_api_token,
-  signingSecret: slack_signing_secret,
+  token: reviewArtSlackAPIKeySetting.get() ?? undefined,
+  signingSecret: reviewArtSlackSigningSecretSetting.get() ?? undefined,
 })
 
 const acquireMidjourneyRights = async (): Promise<boolean> => {
@@ -64,11 +64,6 @@ const releaseEssayThreadRights = (title: string) => {
   console.log(essayRights, title)
   essayRights[title] = false
 }
-
-const openai = new OpenAI({
-  apiKey: openai_key,
-  organization: openai_org
-})
 
 const llm_prompt = (title: string, essay: string) => `I am creating cover art for essays that will be featured on LessWrong. For each piece of art, I want a clear visual metaphor that captures the essence of the essay.
 
@@ -121,14 +116,14 @@ const getEssays = async (): Promise<Essay[]> => {
 
 type Essay = {post: DbPost, title: string, content: string, threadTs?: string}
 
-const getElements = async (essay: {title: string, content: string}): Promise<string[]> => {
+const getElements = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
   const content = essay.content.length > 25_000 ? essay.content.slice(0, 12_500) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-12_500) : essay.content
-  const completion = await openai.chat.completions.create({
+  const completion = await openAiClient.chat.completions.create({
     messages: [{role: "user", content: llm_prompt(essay.title, content)}],
     model: "gpt-4",
   }).catch((error) => {
     if (error instanceof OpenAI.APIError && error.status === 400 && error.code === 'context_length_exceeded') {
-      return openai.chat.completions.create({
+      return openAiClient.chat.completions.create({
         messages: [{role: "user", content: llm_prompt(essay.title, content.slice(0, 8_000) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-8_000))}],
         model: "gpt-4",
       })
@@ -197,13 +192,17 @@ const saveImages = async (el: string, essay: Essay, urls: string[]) => {
 
 
 async function go(essays: Essay[], essayIx: number, el: string): Promise<string[]> {
+  const imagineKey = imagineAPIKeySetting.get();
+  if (!imagineKey) {
+    throw new Error('No imagine API key found!');
+  }
   let promptResponseData: any;
   try {
     await acquireMidjourneyRights()
     const response = await fetch('https://cl.imagineapi.dev/items/images/', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${imagine_key}`,
+        'Authorization': `Bearer ${imagineKey}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({prompt: prompter(el)})
@@ -221,7 +220,7 @@ async function go(essays: Essay[], essayIx: number, el: string): Promise<string[
         const response = await fetch(`https://cl.imagineapi.dev/items/images/${promptResponseData.data.id}`, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${imagine_key}`,
+            'Authorization': `Bearer ${imagineKey}`,
             'Content-Type': 'application/json'
           }
         })
@@ -253,7 +252,7 @@ async function go(essays: Essay[], essayIx: number, el: string): Promise<string[
   return await blockTilDone
 }
 
-const slackToken = slack_api_token
+const slackToken = reviewArtSlackAPIKeySetting.get();
 const channelId = DEPLOY ? 'C06G6QVCE6S' : 'C06G79HMK9C';
 
 // Header configuration for the Slack API
@@ -299,6 +298,10 @@ async function postReply(text: string, threadTs: string) {
 }
 
 async function main () {
+  const openAiClient = await getOpenAI();
+  if (!openAiClient) {
+    throw new Error('Could not initialize OpenAI client!');
+  }
   const limit = 2
   const essays = (await getEssays()).slice(0, limit)
 
@@ -311,7 +314,7 @@ async function main () {
     }
     newChars += Math.min(essay.content.length, 30_000)
 
-    const images = getElements(essay).then(els => Promise.all([makeEssayThread(essay), Promise.all(els.slice(0,limit).map(el => go(essays, i, el))).then(ims => ims.flat())]))
+    const images = getElements(openAiClient, essay).then(els => Promise.all([makeEssayThread(essay), Promise.all(els.slice(0,limit).map(el => go(essays, i, el))).then(ims => ims.flat())]))
 
     return Promise.resolve([Promise.all([eltss, images]).then(([elts, [_, el]]) => [...elts, ...el]), newChars])
   }, Promise.resolve([Promise.resolve([]), 0]) as Promise<[Promise<string[]>, number]>)
