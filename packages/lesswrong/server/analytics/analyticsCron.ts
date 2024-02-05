@@ -6,6 +6,9 @@ import PostViewsRepo from "../repos/PostViewsRepo";
 import PostViewTimesRepo from "../repos/PostViewTimesRepo";
 import IncrementalViewRepo from "../repos/IncrementalViewRepo";
 import { isEAForum } from "../../lib/instanceSettings";
+import { loggerConstructor } from "../../lib/utils/logging";
+
+const logger = loggerConstructor("cron-updateAnalyticsCollections")
 
 async function updateDailyAnalyticsCollection<N extends CollectionNameString>({
   repo,
@@ -57,21 +60,21 @@ async function updateDailyAnalyticsCollection<N extends CollectionNameString>({
   for (const range of ranges) {
     // Allow individual days to fail
     try {
-      console.log(`Updating data for range: ${range.startDate.toISOString()} to ${range.endDate.toISOString()}`)
+      logger(`Updating data for range: ${range.startDate.toISOString()} to ${range.endDate.toISOString()}`)
 
       const data = await repo.calculateDataForDateRange(range);
 
-      console.log(`Calculated ${data.length} rows, upserting data`)
+      logger(`Calculated ${data.length} rows, upserting data`)
 
       if (force && !dryRun) {
-        console.log("Deleting existing data in range (due to `force` parameter)")
+        logger("Deleting existing data in range (due to `force` parameter)")
         await repo.deleteRange(range)
       }
 
       if (!dryRun) {
         await repo.upsertData({ data })
       }
-      console.log(`Finished updating data for range: ${range.startDate.toISOString()} to ${range.endDate.toISOString()}`)
+      logger(`Finished updating data for range: ${range.startDate.toISOString()} to ${range.endDate.toISOString()}`)
     } catch (e) {
       console.error(e)
       continue
@@ -80,15 +83,15 @@ async function updateDailyAnalyticsCollection<N extends CollectionNameString>({
 }
 
 async function updatePostViews({earliestStartDate, latestEndDate, force, dryRun}: {earliestStartDate: Date, latestEndDate: Date, force?: boolean, dryRun?: boolean}) {
-  console.log("Updating PostViews collection")
+  logger("Updating PostViews collection")
   await updateDailyAnalyticsCollection({repo: new PostViewsRepo(), earliestStartDate, latestEndDate, force, dryRun})
-  console.log("Finished PostViews collection")
+  logger("Finished PostViews collection")
 }
 
 async function updatePostViewTimes({earliestStartDate, latestEndDate, force, dryRun}: {earliestStartDate: Date, latestEndDate: Date, force?: boolean, dryRun?: boolean}) {
-  console.log("Updating PostViewTimes collection")
+  logger("Updating PostViewTimes collection")
   await updateDailyAnalyticsCollection({repo: new PostViewTimesRepo(), earliestStartDate, latestEndDate, force, dryRun})
-  console.log("Finished PostViewTimes collection")
+  logger("Finished PostViewTimes collection")
 }
 
 /**
@@ -109,7 +112,7 @@ async function updateAnalyticsCollections(props: {startDate?: string, endDate?: 
   // endDate is the end of the current day unless specified
   const latestEndDate = endDate ? moment(endDate).utc().endOf('day').toDate() : moment().utc().endOf('day').toDate();
 
-  console.log(`Starting updateAnalyticsCollections. startDate (given): ${startDate}, earliestStartDate: ${earliestStartDate}, endDate: ${latestEndDate}`)
+  logger(`Starting updateAnalyticsCollections. startDate (given): ${startDate}, earliestStartDate: ${earliestStartDate}, endDate: ${latestEndDate}`)
 
   try {
     await updatePostViews({earliestStartDate, latestEndDate, force, dryRun})
@@ -125,7 +128,7 @@ async function updateAnalyticsCollections(props: {startDate?: string, endDate?: 
     console.error(e)
   }
 
-  console.log("Finished updateAnalyticsCollections")
+  logger("Finished updateAnalyticsCollections")
 }
 
 if (isEAForum) {
