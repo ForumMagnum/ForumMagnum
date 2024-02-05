@@ -1,12 +1,12 @@
 export const acceptsSchemaHash = "429a40ce07bbbf7a69080fd4269efae1";
 
 import ReviewWinnerArts from "../../lib/collections/reviewWinnerArts/collection"
-import { dropField } from "./meta/utils"
+import { dropRemovedField } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  void dropField(db, ReviewWinnerArts, "reviewYear")
-  void dropField(db, ReviewWinnerArts, "reviewRanking")
-  void dropField(db, ReviewWinnerArts, "postIsAI")
+  void dropRemovedField(db, ReviewWinnerArts, "reviewYear")
+  void dropRemovedField(db, ReviewWinnerArts, "reviewRanking")
+  void dropRemovedField(db, ReviewWinnerArts, "postIsAI")
 }
 
 export const down = async ({db}: MigrationContext) => {
