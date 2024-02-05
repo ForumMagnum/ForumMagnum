@@ -12,9 +12,23 @@ import { HIDE_JOB_AD_COOKIE } from '../../lib/cookies/cookies';
 import { JOB_AD_DATA } from './TargetedJobAd';
 import union from 'lodash/union';
 import intersection from 'lodash/intersection';
+import { gql, useQuery } from '@apollo/client';
 import { filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
 
+type UserCoreTagReads = {
+  tagId: string,
+  userReadCount: number,
+}
+
+const query = gql`
+  query getUserReadsPerCoreTag($userId: String!) {
+    UserReadsPerCoreTag(userId: $userId) {
+      tagId
+      userReadCount
+    }
+  }
+  `
 
 const TargetedJobAdSection = () => {
   const currentUser = useCurrentUser()
@@ -38,6 +52,18 @@ const TargetedJobAdSection = () => {
     fragmentName: 'UserJobAdsMinimumInfo',
     skip: !currentUser
   })
+  
+  // Use the amount that the user has read core tags to help target ads
+  const { data: coreTagReads, loading } = useQuery<UserCoreTagReads[]>(
+    query,
+    {
+      variables: {
+        userId: currentUser?._id,
+      },
+      ssr: true,
+      skip: !currentUser,
+    }
+  )
   
   // we only advertise one job per page view
   const [activeJob, setActiveJob] = useState<string>()
