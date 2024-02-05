@@ -4,6 +4,7 @@ import { forumSelect, ForumOptions } from "../../lib/forumTypeUtils";
 import classNames from "classnames";
 import SpeakerWaveIcon from "@heroicons/react/24/outline/SpeakerWaveIcon";
 import BookmarkIcon from "@heroicons/react/24/solid/BookmarkIcon";
+import SparklesIcon from "@heroicons/react/24/solid/SparklesIcon";
 import StarIcon from "@heroicons/react/24/solid/StarIcon";
 import StarOutlineIcon from "@heroicons/react/24/outline/StarIcon";
 import UserIcon from "@heroicons/react/24/solid/UserIcon";
@@ -43,6 +44,7 @@ import EyeSlashIcon from "@heroicons/react/24/solid/EyeSlashIcon";
 import PencilIcon from "@heroicons/react/24/solid/PencilIcon";
 import PencilSquareIcon from "@heroicons/react/24/outline/PencilSquareIcon";
 import SettingsIcon from "@heroicons/react/24/solid/Cog6ToothIcon";
+import EnvelopeIcon from "@heroicons/react/24/outline/EnvelopeIcon";
 import EmailIcon from "@heroicons/react/24/solid/EnvelopeIcon";
 import PhotoIcon from "@heroicons/react/24/outline/PhotoIcon";
 import DocumentTextIcon from "@heroicons/react/24/outline/DocumentTextIcon";
@@ -132,6 +134,7 @@ export type ForumIconName =
   "Bookmark" |
   "BookmarkBorder" |
   "Bookmarks" |
+  "Sparkles" |
   "Karma" |
   "KarmaOutline" |
   "Star" |
@@ -185,6 +188,7 @@ export type ForumIconName =
   "HeartOutline" |
   "Settings" |
   "Email" |
+  "Envelope" |
   "Puzzle" |
   "Image" |
   "Document" |
@@ -219,6 +223,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bookmark: MuiBookmarkIcon,
     BookmarkBorder: MuiBookmarkBorderIcon,
     Bookmarks: MuiBookmarksIcon,
+    Sparkles: SparklesIcon,
     Karma: MuiStarIcon,
     KarmaOutline: MuiStarBorderIcon,
     Star: MuiStarIcon,
@@ -268,6 +273,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     HeartOutline: HeartOutlineIcon,
     Settings: MuiSettingsIcon,
     Email: MuiEmailIcon,
+    Envelope: EnvelopeIcon,
     Image: PhotoIcon,
     Document: DocumentTextIcon,
     DocumentFilled: DocumentIcon,
@@ -304,6 +310,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Bookmark: BookmarkIcon,
     BookmarkBorder: BookmarkOutlineIcon,
     Bookmarks: BookmarkIcon,
+    Sparkles: SparklesIcon,
     Karma: StarIcon,
     KarmaOutline: StarOutlineIcon,
     Star: StarIcon,
@@ -353,6 +360,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     HeartOutline: HeartOutlineIcon,
     Settings: SettingsIcon,
     Email: EmailIcon,
+    Envelope: EnvelopeIcon,
     Image: PhotoIcon,
     Document: DocumentTextIcon,
     DocumentFilled: DocumentIcon,

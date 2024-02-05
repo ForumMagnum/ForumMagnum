@@ -87,7 +87,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type possibleActions = "login" | "signup" | "pwReset"
 
-const currentActionToButtonText : Record<possibleActions, string> = {
+const currentActionToButtonText: Record<possibleActions, string> = {
   login: "Log In",
   signup: "Sign Up",
   pwReset: "Request Password Reset"

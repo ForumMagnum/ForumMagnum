@@ -2,7 +2,7 @@ import { Vulcan, Collections, getCollection } from '../vulcan-lib';
 import { forEachDocumentBatchInCollection } from '../manualMigrations/migrationUtils';
 import { getSchema, getSimpleSchema } from '../../lib/utils/getSchema';
 
-type CollectionCustomValidatorFunction<T extends DbObject> = (documents: T[], recordError: (field: string, message: string)=>void) => Promise<void>;
+type CollectionCustomValidatorFunction<T extends DbObject> = (documents: T[], recordError: (field: string, message: string) => void) => Promise<void>;
 type CollectionCustomValidator<T extends DbObject> = {
   name: string,
   validateBatch: CollectionCustomValidatorFunction<T>

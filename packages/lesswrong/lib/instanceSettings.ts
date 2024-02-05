@@ -198,3 +198,15 @@ export const hasSideCommentsSetting = new PublicInstanceSetting<boolean>("commen
 export const hasCommentsTableOfContentSetting = new PublicInstanceSetting<boolean>("comments.tableOfContentsEnabled", isLWorAF, "optional");
 export const hasDialoguesSetting = new PublicInstanceSetting<boolean>("dialogues.enabled", true, "optional");
 export const hasPostInlineReactionsSetting = new PublicInstanceSetting<boolean>("posts.inlineReactionsEnabled", isLWorAF, "optional");
+
+const disableElastic = new PublicInstanceSetting<boolean>(
+  "disableElastic",
+  false,
+  "optional",
+);
+
+export const isElasticEnabled = !isAnyTest && !disableElastic.get();
+
+export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<boolean>('posts.requireReviewToFrontpage', !isEAForum, "optional")
+export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
+export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('reviewBotId', null, "optional")

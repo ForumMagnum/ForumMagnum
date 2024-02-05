@@ -80,7 +80,7 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
 const PostVersionHistory = ({post, postId, onClose, classes}: {
   post: PostsBase,
   postId: string,
-  onClose: ()=>void,
+  onClose: () => void,
   classes: ClassesType
 }) => {
   const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay } = Components;

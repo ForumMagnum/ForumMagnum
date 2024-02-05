@@ -48,7 +48,7 @@ interface CollectionBase<N extends CollectionNameString = CollectionNameString> 
 
   getTable: () => Table<ObjectsByCollectionName[N]>;
 
-  rawCollection: ()=>{bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
+  rawCollection: () => {bulkWrite: any, findOneAndUpdate: any, dropIndex: any, indexes: any, updateOne: any, updateMany: any}
   find: (
     selector?: MongoSelector<ObjectsByCollectionName[N]>,
     options?: MongoFindOptions<ObjectsByCollectionName[N]>,
@@ -110,11 +110,12 @@ type CollectionOptions<N extends CollectionNameString> = {
   interfaces?: string[],
   description?: string,
   logChanges?: boolean,
+  writeAheadLogged?: boolean
 };
 
 interface FindResult<T> {
-  fetch: ()=>Promise<Array<T>>
-  count: ()=>Promise<number>
+  fetch: () => Promise<Array<T>>
+  count: () => Promise<number>
 }
 
 type ViewFunction<N extends CollectionNameString = CollectionNameString> = (
@@ -146,6 +147,7 @@ interface MergedViewQueryAndOptions<T extends DbObject> {
     skip?: number
     hint?: string
   }
+  syntheticFields?: Partial<Record<keyof T, MongoSelector<T>>>
 }
 
 export type MongoSelector<T extends DbObject> = any; //TODO
@@ -216,6 +218,8 @@ interface ViewTermsBase {
 interface HasIdType {
   _id: string
 }
+
+type HasIdCollectionNames = Exclude<Extract<ObjectsByCollectionName[CollectionNameString], HasIdType>['__collectionName'], undefined>;
 
 // Common base type for everything with a userId field
 interface HasUserIdType {

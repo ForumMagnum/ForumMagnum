@@ -153,7 +153,7 @@ const styles = (theme: ThemeType) => ({
 
 export type voteTooltipType = 'Showing votes by 1000+ Karma LessWrong users'|'Showing all votes'|'Showing votes from Alignment Forum members'
 
-const hasUnreadComments = (visitedDate : Date|null, lastCommentedAt : Date | null) => {
+const hasUnreadComments = (visitedDate: Date|null, lastCommentedAt: Date | null) => {
   if (!lastCommentedAt) return false
   if (!visitedDate) return true
   return visitedDate < lastCommentedAt
@@ -164,7 +164,7 @@ const ReviewVoteTableRow = ({ post, dispatch, costTotal, classes, expandedPostId
   costTotal?: number,
   dispatch: React.Dispatch<SyntheticQualitativeVote>,
   showKarmaVotes: boolean,
-  classes:ClassesType,
+  classes: ClassesType,
   expandedPostId?: string|null,
   currentVote: SyntheticQualitativeVote|null,
   reviewPhase: ReviewPhase,

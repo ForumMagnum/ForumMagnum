@@ -159,7 +159,7 @@ const voteToIcon = (post: PostsListWithVotes): React.ReactNode => {
 }
 
 
-const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes} : {
+const EditDigestTableRow = ({post, postStatus, statusIconsDisabled, handleClickStatusIcon, visibleTagIds, setTagFilter, votesVisible, classes}: {
   post: PostWithRating,
   postStatus: DigestPost,
   statusIconsDisabled: boolean,

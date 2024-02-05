@@ -93,7 +93,7 @@ addGraphQLResolvers({
         throw new Error("Please only specify notificationIds or postId in the query")
       }
       
-      let emails:any[] = []
+      let emails: any[] = []
       if (notificationIds?.length) {
         const notifications = await Notifications.find(
           { _id: {$in: notificationIds} }

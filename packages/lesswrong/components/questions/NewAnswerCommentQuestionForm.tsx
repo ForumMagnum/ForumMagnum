@@ -71,7 +71,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const NewAnswerCommentQuestionForm = ({post, refetch, classes}: {
   post: PostsDetails,
-  refetch: ()=>void,
+  refetch: () => void,
   classes: ClassesType,
 }) => {
   const [selection, setSelection] = useState("answer");

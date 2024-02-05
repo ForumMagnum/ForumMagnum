@@ -83,7 +83,7 @@ const TagVersionHistoryButton = ({tagId, classes}: {
 
 const TagVersionHistory = ({tagId, onClose, classes}: {
   tagId: string,
-  onClose: ()=>void,
+  onClose: () => void,
   classes: ClassesType
 }) => {
   const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay } = Components;

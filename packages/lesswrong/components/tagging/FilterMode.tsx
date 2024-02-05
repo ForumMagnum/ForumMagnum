@@ -140,8 +140,8 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   label?: string,
   mode: FilterMode,
   canRemove?: boolean,
-  onChangeMode: (mode: FilterMode)=>void,
-  onRemove?: ()=>void,
+  onChangeMode: (mode: FilterMode) => void,
+  onRemove?: () => void,
   description?: React.ReactNode
   classes: ClassesType,
 }) => {

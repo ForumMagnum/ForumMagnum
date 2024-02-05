@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
 
 const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
   value: EditorContents,
-  setValue: (change: EditorChangeEvent)=>void,
+  setValue: (change: EditorChangeEvent) => void,
   isCollaborative?: boolean,
   classes: ClassesType,
 }) => {

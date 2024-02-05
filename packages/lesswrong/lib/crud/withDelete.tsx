@@ -39,7 +39,7 @@ export const useDelete = <CollectionName extends CollectionNameString>(options: 
   fragmentName?: FragmentName,
   fragment?: any,
 }): {
-  deleteDocument: (props: {selector: any})=>Promise<any>,
+  deleteDocument: (props: {selector: any}) => Promise<any>,
   loading: boolean,
   error: ApolloError|undefined,
   called: boolean,

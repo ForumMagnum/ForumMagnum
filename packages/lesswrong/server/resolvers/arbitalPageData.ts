@@ -33,8 +33,8 @@ function markdownEscapeLinkText(text: string) {
 
 const arbitalPageResolvers = {
   Query: {
-    async ArbitalPageData(root: void, { pageAlias }: { pageAlias:string }, context: ResolverContext) {
-      const rawRoomData:any = await getArbitalPageData(pageAlias)
+    async ArbitalPageData(root: void, { pageAlias }: { pageAlias: string }, context: ResolverContext) {
+      const rawRoomData: any = await getArbitalPageData(pageAlias)
       if (!rawRoomData) return null
       let processedData: AnyBecauseTodo;
       try {
@@ -43,7 +43,7 @@ const arbitalPageResolvers = {
         throw new Error(`Received invalid JSON for Arbital hover preview for page "${pageAlias}"`);
       }
       if (!processedData?.pages) return null;
-      const page:any = Object.values(processedData.pages).find((page:any) => page?.alias === pageAlias)
+      const page: any = Object.values(processedData.pages).find((page: any) => page?.alias === pageAlias)
       if (!page) return null
       const textField = page.summaries?.Summary || page.clickbait
       const fixedMarkdown = textField.replace(

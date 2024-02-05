@@ -242,6 +242,7 @@ module.exports = {
     // used, if the usage is as a type rather than as a value.)
     "no-unused-vars": 0,
     "@typescript-eslint/no-unused-vars": 0,
+    "@typescript-eslint/type-annotation-spacing": 1
   },
   "env": {
     "browser": true,

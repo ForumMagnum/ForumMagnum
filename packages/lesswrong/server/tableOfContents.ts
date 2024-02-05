@@ -363,7 +363,7 @@ defineQuery({
   name: "generateTableOfContents",
   resultType: "JSON",
   argTypes: "(html: String!)",
-  fn: (root: void, {html}:{html:string}, context: ResolverContext) => {
+  fn: (root: void, {html}: {html: string}, context: ResolverContext) => {
     if (html) {
       return extractTableOfContents(html)
     } else {

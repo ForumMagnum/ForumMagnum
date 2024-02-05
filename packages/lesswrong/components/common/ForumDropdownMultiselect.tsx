@@ -98,7 +98,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classes, className}:{
+const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classes, className}: {
   values: string[],
   options: Record<string, SettingsOption>,
   queryParam?: string,

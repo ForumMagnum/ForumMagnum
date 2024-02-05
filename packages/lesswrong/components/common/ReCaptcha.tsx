@@ -31,7 +31,7 @@ let readyCheck: NodeJS.Timeout
 interface ReCaptchaProps {
   elementID?: string,
   verifyCallbackName?: string,
-  verifyCallback: (token: string)=>void,
+  verifyCallback: (token: string) => void,
   sitekey?: string,
   action: string,
 }

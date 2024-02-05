@@ -3,7 +3,7 @@
 // variables get initialized from database settings before the settings have been
 // loaded from the database.
 
-export const registeredSettings:Record<string, "server" | "public" | "instance"> = {}
+export const registeredSettings: Record<string, "server" | "public" | "instance"> = {}
 
 let serverSettingsCache: Record<string,any> = {}
 let serverSettingsLoaded = false;

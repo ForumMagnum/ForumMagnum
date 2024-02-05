@@ -13,6 +13,7 @@ import { postgresExtensions } from "../../postgresExtensions";
 import { postgresFunctions } from "../../postgresFunctions";
 import type { ITask } from "pg-promise";
 import { Type } from "../../../lib/sql/Type";
+import LogTableQuery from "../../../lib/sql/LogTableQuery";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -130,6 +131,24 @@ export const createTable = async <N extends CollectionNameString>(
   for (const index of table.getIndexes()) {
     await createIndex(db, collection, index, ifNotExists);
   }
+}
+
+export const unlogTable = async <N extends CollectionNameString>(
+  db: SqlClientOrTx,
+  collection: CollectionBase<N>,
+): Promise<void> => {
+  const table = collection.getTable();
+  const {sql, args} = new LogTableQuery(table, "UNLOGGED").compile();
+  await db.none(sql, args);
+}
+
+export const logTable = async <N extends CollectionNameString>(
+  db: SqlClientOrTx,
+  collection: CollectionBase<N>,
+): Promise<void> => {
+  const table = collection.getTable();
+  const {sql, args} = new LogTableQuery(table, "LOGGED").compile();
+  await db.none(sql, args);
 }
 
 export const installExtensions = async (db: SqlClientOrTx) => {
