@@ -973,9 +973,6 @@ type ReviewWinnerArtsCollection = CollectionBase<"ReviewWinnerArts">;
 interface DbReviewWinnerArt extends DbObject {
   __collectionName?: "ReviewWinnerArts"
   postId: string
-  reviewYear: number
-  reviewRanking: number
-  postIsAI: boolean
   splashArtImagePrompt: string | null
   splashArtImageUrl: string | null
   createdAt: Date

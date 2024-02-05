@@ -853,9 +853,6 @@ interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
 
 interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
   readonly postId: string,
-  readonly reviewYear: number,
-  readonly reviewRanking: number,
-  readonly postIsAI: boolean,
   readonly splashArtImagePrompt: string | null,
   readonly splashArtImageUrl: string | null,
 }

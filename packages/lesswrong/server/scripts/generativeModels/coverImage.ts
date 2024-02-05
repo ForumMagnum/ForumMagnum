@@ -1,12 +1,13 @@
 /* eslint no-console: 0 */
 
-import { imagine_key, openai_key, openai_org, slack_api_token, slack_signing_secret } from './keys.ts'
-import OpenAI from 'openai'
+import { imagine_key, openai_key, openai_org, slack_api_token, slack_signing_secret } from './keys.ts';
+import OpenAI from 'openai';
 import axios from 'axios';
-import { Globals } from '../../vulcan-lib/index.ts';
+import { Globals, createAdminContext, createMutator } from '../../vulcan-lib/index.ts';
 import Posts from '../../../lib/collections/posts/collection.ts';
 import { App } from '@slack/bolt';
 import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
+import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 
 
 const DEPLOY = false
@@ -16,7 +17,7 @@ let currentMidjourney = 0
 
 let essayRights: {[essay: string]: boolean} = {}
 
-const app = new App({
+const slackApp = new App({
   token: slack_api_token,
   signingSecret: slack_signing_secret,
 })
@@ -162,13 +163,13 @@ const postPromptImages = async (prompt: string, {title, threadTs}: {title: strin
 
   await Promise.all(images.map(async (image) => {
     console.log('upload image')
-    const response = await axios.get(image, {responseType: 'stream'})
-    await app.client.files.uploadV2(
+    const response = await fetch(image)
+    await slackApp.client.files.uploadV2(
       {
         thread_ts: threadTs,
         channel_id: channelId,
         initial_comment: `${prompt} for _${title}_`,
-        file: response.data,
+        file: Buffer.from(await response.arrayBuffer()),
         filename: `${new Date().getTime()}.png`
       }
     )
@@ -177,7 +178,25 @@ const postPromptImages = async (prompt: string, {title, threadTs}: {title: strin
   setTimeout(() => releaseEssayThreadRights(title), 10_000)
 }
 
-async function go(essays: Essay[], essayIx: number, el: string) {
+const saveImages = async (el: string, essay: Essay, urls: string[]) => {
+  await postPromptImages(el, essay, urls)
+  for (let i = 0; i < urls.length; i++) {
+    await moveImageToCloudinary(urls[i], `splashArtImagePrompt${el}{i}`)
+    await createMutator({
+      collection: ReviewWinnerArts,
+      context: createAdminContext(),
+      document: {
+        postId: essay.post._id, 
+        splashArtImagePrompt: el,
+        splashArtImageUrl: urls[i]
+      }
+    })
+  }
+  return urls
+}
+
+
+async function go(essays: Essay[], essayIx: number, el: string): Promise<string[]> {
   let promptResponseData: any;
   try {
     await acquireMidjourneyRights()
@@ -196,8 +215,8 @@ async function go(essays: Essay[], essayIx: number, el: string) {
     throw error;
   }
 
-  const blockTilDone = new Promise((resolve) => {
-    async function checkOnJob () {
+  const blockTilDone: Promise<string[]> = new Promise((resolve) => {
+    async function checkOnJob (): Promise<string[]> {
       try {
         const response = await fetch(`https://cl.imagineapi.dev/items/images/${promptResponseData.data.id}`, {
           method: 'GET',
@@ -212,45 +231,26 @@ async function go(essays: Essay[], essayIx: number, el: string) {
           console.log(responseData.data.status, el, essayIx, essays[essayIx].title)
           if (responseData.data.status === 'failed') {
             console.error('Image generation failed:', responseData.data);
-            resolve(null)
-            return
-          }
-          const post = essays[essayIx].post
-          await postPromptImages(el, essays[essayIx], responseData.data.upscaled_urls)
-          for (let i = 0; i < responseData.data.upscaled_urls.length; i++) {
-            console.log("el: ", el)
-            console.log("responseData.data.upscaled_urls[i]: ", responseData.data.upscaled_urls[i])
-            console.log("post: ", post.title)
-            console.log("post id: ", post._id)
-
-
-            const idMaybe = await ReviewWinnerArts.rawInsert({
-              postId: post._id, 
-              reviewYear: post.postedAt.getFullYear(),
-              reviewRanking: 613, // replace with ranking
-              postIsAI: true, // replace with AI status
-              splashArtImagePrompt: el,
-              splashArtImageUrl: responseData.data.upscaled_urls[i]
-            })
-            console.log("idMaybe: ", idMaybe)
+            resolve([])
+            return []
           }
           releaseMidjourneyRights()
-          resolve(null)
-          // console.log('Completed image details', responseData.data);
+          return responseData.data.upscaled_urls
         } else {
-          setTimeout(checkOnJob, 5000);
+          await new Promise((resolve) => setTimeout(resolve, 5_000))
+          return await checkOnJob()
           // console.log("Image is not finished generation. Status: ", responseData.data.status)
         }
       } catch (error) {
         console.error('Error getting updates', error);
-        await checkOnJob()
+        return await checkOnJob()
       }
     }
 
-    void checkOnJob()
+    void checkOnJob().then(urls => saveImages(el, essays[essayIx], urls)).then(resolve)
   })
 
-  await blockTilDone
+  return await blockTilDone
 }
 
 const slackToken = slack_api_token
@@ -299,10 +299,10 @@ async function postReply(text: string, threadTs: string) {
 }
 
 async function main () {
-  const limit = 50
+  const limit = 2
   const essays = (await getEssays()).slice(0, limit)
 
-  const [promElementss] = await essays.reduce(async (pEC: Promise<[Promise<void[]>, number]>, essay, i): Promise<[Promise<void[]>, number]> => {
+  const [promElementss] = await essays.reduce(async (pEC: Promise<[Promise<string[]>, number]>, essay, i): Promise<[Promise<string[]>, number]> => {
     const [eltss, charsRequested] = await pEC
     let newChars = charsRequested
     if ((charsRequested + essay.content.length) >= 30_000) {
@@ -311,12 +311,16 @@ async function main () {
     }
     newChars += Math.min(essay.content.length, 30_000)
 
-    const images = getElements(essay).then(els => Promise.all([makeEssayThread(essay), ...els.slice(0,limit).map(el => go(essays, i, el))]))
+    const images = getElements(essay).then(els => Promise.all([makeEssayThread(essay), Promise.all(els.slice(0,limit).map(el => go(essays, i, el))).then(ims => ims.flat())]))
 
-    return Promise.resolve([Promise.all([eltss, images]).then(([elts, el]) => [...elts, ...el]), newChars])
-  }, Promise.resolve([Promise.resolve([]), 0]) as Promise<[Promise<void[]>, number]>)
+    return Promise.resolve([Promise.all([eltss, images]).then(([elts, [_, el]]) => [...elts, ...el]), newChars])
+  }, Promise.resolve([Promise.resolve([]), 0]) as Promise<[Promise<string[]>, number]>)
 
-  await promElementss
+  const imUrls = await promElementss
+  await slackApp.client.chat.postMessage({
+    channel: channelId,
+    text: JSON.stringify(imUrls)
+  })
 
 }
 

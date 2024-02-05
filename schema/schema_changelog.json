@@ -558,5 +558,10 @@
     "acceptsSchemaHash": "4f6d8b64174f9629c53ad65b5367b840",
     "acceptedByMigration": "20240202T222431.add_ReviewWinnerArts.ts",
     "timestamp": "2024-02-02T22:24:31.000Z"
+  },
+  {
+    "acceptsSchemaHash": "429a40ce07bbbf7a69080fd4269efae1",
+    "acceptedByMigration": "20240203T021554.reviewWinnerArts_dropDenormalisedFields.ts",
+    "timestamp": "2024-02-03T02:15:54.000Z"
   }
 ]

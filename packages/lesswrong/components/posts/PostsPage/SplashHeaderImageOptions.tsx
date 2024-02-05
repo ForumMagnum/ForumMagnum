@@ -14,6 +14,8 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     justifyContent: 'space-around',
     marginBottom: '40px', 
+    height: '90vh',
+    overflow: 'scroll'
   },
   imageContainer: {
     width: '200px',
@@ -41,7 +43,7 @@ export const SplashHeaderImageOptions = ({ images, post, classes }: {
   return (
       <div className={classes.root}>
         <div className={classes.idk}>
-        {images.slice(0, 8).map((image, index) => (
+        {images.map((image, index) => (
           <div 
             className={classes.imageContainer}
             key={index}

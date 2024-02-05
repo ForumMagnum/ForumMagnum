@@ -178,7 +178,6 @@ import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/databaseSettingsResolvers';
-import './server/resolvers/reviewWinnerResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
