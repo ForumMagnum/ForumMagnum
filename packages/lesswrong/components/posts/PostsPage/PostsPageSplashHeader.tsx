@@ -312,12 +312,6 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-async function someFunction(posts: (PostsWithNavigation | PostsWithNavigationAndRevision)[]) {
-  // ... other code
-  await generateCoverImages(posts);
-  // ... other code
-}
-
 /// PostsPageSplashHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes}: {
@@ -362,18 +356,12 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageURL ? imageURL : post.reviewWinner?.splashArtImageUrl}")`,
   }
 
-
-  // console.log("images: ", post.reviewWinnerArt)
-  // const images = post.reviewWinnerArt.filter(image => image.splashArtImageUrl !== null).map(image => image.splashArtImageUrl as string)
-
   const default_images = ["https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
 
   // const posts = [post]
-
   // if (!post.reviewWinnerArt) {
-  //   await someFunction(posts)
+  //   await generateCoverImages({posts})
   // }
-  // const images = generateCoverImages({posts})
 
   const images = post.reviewWinnerArt  ? post.reviewWinnerArt.filter(image => image.splashArtImageUrl !== null).map(image => image.splashArtImageUrl as string) : default_images
 
