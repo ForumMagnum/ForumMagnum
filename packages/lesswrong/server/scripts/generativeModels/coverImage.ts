@@ -104,7 +104,13 @@ ${title}
 
 ${essay}`
 
-const getEssays = async (): Promise<Essay[]> => {
+const getEssays = async ({posts}: {posts?: DbPost[]} = {}): Promise<Essay[]> => {
+  
+  if (posts) {
+    return posts.map(e => {
+      return {post: e, title: e.title, content: e.contents.html }
+    })
+  }
 
   const postIds = await ReviewWinners.find({}, { limit: 10, projection: { postId: 1 } }).fetch();
   const es = await Posts.find({ _id: { $in: postIds.map(p => p.postId) } }).fetch();
@@ -299,12 +305,14 @@ async function postReply(text: string, threadTs: string) {
   await postMessage(text, threadTs);
 }
 
-async function main () {
+async function getCoverImages({posts, limit = 2}: {
+    posts?: (PostsWithNavigation | PostsWithNavigationAndRevision)[], 
+    limit?: number
+  } = {}): Promise<string[]> {
   const openAiClient = await getOpenAI();
   if (!openAiClient) {
     throw new Error('Could not initialize OpenAI client!');
   }
-  const limit = 2
   const essays = (await getEssays()).slice(0, limit)
 
   const [promElementss] = await essays.reduce(async (pEC: Promise<[Promise<string[]>, number]>, essay, i): Promise<[Promise<string[]>, number]> => {
@@ -320,6 +328,17 @@ async function main () {
 
     return Promise.resolve([Promise.all([eltss, images]).then(([elts, [_, el]]) => [...elts, ...el]), newChars])
   }, Promise.resolve([Promise.resolve([]), 0]) as Promise<[Promise<string[]>, number]>)
+
+  return promElementss
+}
+
+export async function generateCoverImages(posts: (PostsWithNavigation | PostsWithNavigationAndRevision)[]) {
+  await getCoverImages({posts, limit: 2})
+}
+
+async function main () {
+
+  const promElementss = await getCoverImages({limit: 2})
 
   const imUrls = await promElementss
   await slackApp.client.chat.postMessage({

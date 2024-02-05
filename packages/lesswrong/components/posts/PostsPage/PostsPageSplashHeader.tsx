@@ -13,6 +13,7 @@ import { useImageContext } from './ImageContext';
 import { useHover } from '../../common/withHover';
 import { requireCssVar } from '../../../themes/cssVars';
 import { hideScrollBars } from '../../../themes/styleUtils';
+import { generateCoverImages } from '../../../server/scripts/generativeModels/coverImage';
 
 const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
 
@@ -311,6 +312,11 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+async function someFunction(posts: (PostsWithNavigation | PostsWithNavigationAndRevision)[]) {
+  // ... other code
+  await generateCoverImages(posts);
+  // ... other code
+}
 
 /// PostsPageSplashHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
@@ -362,9 +368,16 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
 
   const default_images = ["https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
 
-  const images = post.reviewWinnerArt ? post.reviewWinnerArt.filter(image => image.splashArtImageUrl !== null).map(image => image.splashArtImageUrl as string) : default_images
+  // const posts = [post]
 
-  console.log("images: ", post.reviewWinnerArt)
+  // if (!post.reviewWinnerArt) {
+  //   await someFunction(posts)
+  // }
+  // const images = generateCoverImages({posts})
+
+  const images = post.reviewWinnerArt  ? post.reviewWinnerArt.filter(image => image.splashArtImageUrl !== null).map(image => image.splashArtImageUrl as string) : default_images
+
+  console.log("images: ", images)
 
   const { anchorEl, hover, eventHandlers } = useHover();
 
