@@ -457,6 +457,9 @@ registerFragment(`
     reviewWinner {
       ...ReviewWinnersDefaultFragment
     }
+    reviewWinnerArt {
+      ...ReviewWinnerArtsDefaultFragment
+    }
   }
 `)
 
@@ -468,6 +471,9 @@ registerFragment(`
     tableOfContents
     reviewWinner {
       ...ReviewWinnersDefaultFragment
+    }
+    reviewWinnerArt {
+      ...ReviewWinnerArtsDefaultFragment
     }
   }
 `)

@@ -285,6 +285,10 @@ import './collections/ckEditorUserSessions/fragments';
 import './collections/reviewWinners/collection';
 import './collections/reviewWinners/fragments';
 
+// Review winners
+import './collections/reviewWinnerArts/collection';
+import './collections/reviewWinnerArts/fragments';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';

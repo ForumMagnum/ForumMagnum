@@ -99,4 +99,7 @@ ml
 
 client_meta.json
 client_stats.html
-client_meta.json
+
+
+# temp
+packages/lesswrong/server/scripts/generativeModels/keys.ts

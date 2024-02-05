@@ -14,10 +14,18 @@ const styles = (theme: ThemeType) => ({
     flexDirection: 'column',
     justifyContent: 'space-around',
     marginBottom: '40px', 
-  }
+    height: '90vh',
+    overflow: 'scroll'
+  },
+  imageContainer: {
+    width: '200px',
+    height: 'auto',
+    cursor: 'pointer',
+    // style={{ cursor: 'pointer', display: 'inline-block', maxWidth: '200px' }}
+  },
 });
 
-export const SplashHeaderImageOptions = ({ images, post, classes } : {
+export const SplashHeaderImageOptions = ({ images, post, classes }: {
   images: string[],
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
@@ -27,7 +35,7 @@ export const SplashHeaderImageOptions = ({ images, post, classes } : {
   const [selectedImage, setSelectedImage] = useState(images[0]);
   const { setImageURL, } = useImageContext();
 
-  const handleImageClick = (imageUrl : string) => {
+  const handleImageClick = (imageUrl: string) => {
     setSelectedImage(imageUrl);
     setImageURL(imageUrl); // Step 3
   };
@@ -35,10 +43,10 @@ export const SplashHeaderImageOptions = ({ images, post, classes } : {
   return (
       <div className={classes.root}>
         <div className={classes.idk}>
-        {images.slice(0, 8).map((image, index) => (
-          <div
+        {images.map((image, index) => (
+          <div 
+            className={classes.imageContainer}
             key={index}
-            style={{ cursor: 'pointer', display: 'inline-block', maxWidth: '100px' }}
             onClick={() => handleImageClick(image)}
           >
             <img

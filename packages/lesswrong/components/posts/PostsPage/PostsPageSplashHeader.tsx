@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from '../../../lib/crud/withMulti';
 import { isLWorAF } from '../../../lib/instanceSettings';
@@ -320,7 +320,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
+  const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
   const { imageURL } = useImageContext();
   const [visible, setVisible] = React.useState(true);
   const { setToCVisible } = useContext(SidebarsContext)!;
@@ -356,13 +356,9 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageURL ? imageURL : post.reviewWinner?.splashArtImageUrl}")`,
   }
 
-  const images = [
-    "https://cl.imagineapi.dev/assets/d620c742-8881-4621-8af5-99027c449e12/d620c742-8881-4621-8af5-99027c449e12.png",
-    "https://cl.imagineapi.dev/assets/50cdb5f8-d852-41ea-aa2e-ee670573fb3b/50cdb5f8-d852-41ea-aa2e-ee670573fb3b.png",
-    "https://cl.imagineapi.dev/assets/1c16673c-cdab-414b-9264-bce379ddc014/1c16673c-cdab-414b-9264-bce379ddc014.png",
-    "https://cl.imagineapi.dev/assets/7047b9cb-a9cb-44a3-863a-efc47b44c2a2/7047b9cb-a9cb-44a3-863a-efc47b44c2a2.png",
-    "https://cl.imagineapi.dev/assets/ae9ddacd-12f1-4dac-9512-9cb0830f8241/ae9ddacd-12f1-4dac-9512-9cb0830f8241.png"
-  ]
+
+  console.log("images: ", post.reviewWinnerArt)
+  const images = post.reviewWinnerArt.filter(image => image.splashArtImageUrl !== null).map(image => image.splashArtImageUrl as string)
 
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -394,6 +390,9 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
                 <SplashHeaderImageOptions images={images} post={post}/>
               </div>
             </LWPopper>
+          </div>
+          <div className={classes.rightSectionBelowBottomRow}>
+            <ImageCropPreview />
           </div>
         </div>
       </div>
