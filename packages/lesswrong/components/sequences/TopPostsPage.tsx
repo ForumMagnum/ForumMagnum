@@ -12,7 +12,6 @@ import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './Top
 import classNames from 'classnames';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { range, repeat } from 'lodash';
 
 const MAX_GRID_SIZE = 6;
 
@@ -383,7 +382,7 @@ const getOffsets = (index: number, columnLength: number) => {
 
 type expansionState = 'expanded' | 'collapsed' | 'default'
 
-function useWindowWidth(defaultValue: number = 2000):number {
+function useWindowWidth(defaultValue = 2000):number {
   const [windowWidth, setWindowWidth] = useState(defaultValue);
 
   useEffect(() => {
@@ -421,7 +420,7 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
 
     const newClickedElementState = currentState === 'expanded' ? 'default' : 'expanded';
 
-    const newState : Record<string, expansionState> = {
+    const newState: Record<string, expansionState> = {
       ...expansionState,
       ...Object.fromEntries(elementsToToggle.map(element => [element.id.replace('PostsImageGrid-', ''), currentState === 'expanded' ? 'default' : 'collapsed'])),
       [id]: newClickedElementState
@@ -576,7 +575,6 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   const screenWidth = useWindowWidth(2000)
   const [leftOffset, rightOffset] = getOffsets(gridPosition, Math.min(Math.max(Math.floor((screenWidth) / 400), 1), 3));
   const paddedPosts = [...posts, ...posts.slice(0, 24)];
-  console.log({id, leftOffset, rightOffset})
 
   return <div 
     className={classNames(classes.postsImageGrid, {
