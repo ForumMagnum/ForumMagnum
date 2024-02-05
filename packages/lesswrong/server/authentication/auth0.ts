@@ -85,6 +85,7 @@ const getAuthError = (e: AnyBecauseIsInput, defaultMessage: string): Auth0Error 
     if (parsedError.name === "PasswordStrengthError") {
       policy = parsedError.policy;
     }
+    // eslint-disable-next-line no-empty
   } catch (_) {}
   try {
     const data = JSON.parse(e.message);
