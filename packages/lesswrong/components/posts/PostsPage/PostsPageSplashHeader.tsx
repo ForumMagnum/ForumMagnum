@@ -16,6 +16,12 @@ import { hideScrollBars } from '../../../themes/styleUtils';
 
 const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
 
+export type ReviewWinnerArtsDefault = {
+  postId: string,
+  splashArtImageUrl: string,
+  splashArtImagePrompt: string | null,
+}
+
 const styles = (theme: ThemeType) => ({
   root: {
     zIndex: theme.zIndexes.postsPageSplashHeader,
@@ -362,7 +368,17 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   //   await generateCoverImages({posts})
   // }
 
-  const images = post.reviewWinnerArt  ? post.reviewWinnerArt.filter(image => image.splashArtImageUrl !== null).map(image => image.splashArtImageUrl as string) : default_images
+  const defaultImages: ReviewWinnerArtsDefault[] = default_images.map(url => ({
+    postId: post._id,
+    splashArtImageUrl: url,
+    splashArtImagePrompt: null
+  }))
+
+  const images = post.reviewWinnerArt  ? post.reviewWinnerArt.map(image => ({
+    postId: post._id,
+    splashArtImageUrl: image.splashArtImageUrl,
+    splashArtImagePrompt: image.splashArtImagePrompt
+    })) : defaultImages
 
   console.log("images: ", images)
 

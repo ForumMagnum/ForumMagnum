@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { ImageProvider, useImageContext } from './ImageContext';
+import { ReviewWinnerArtsDefault } from './PostsPageSplashHeader';
 // import PostsPageSplashHeader from './PostsPageSplashHeader';
 
 
@@ -26,13 +27,13 @@ const styles = (theme: ThemeType) => ({
 });
 
 export const SplashHeaderImageOptions = ({ images, post, classes }: {
-  images: string[],
+  images: ReviewWinnerArtsDefault[], // TODO
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
 }) => {
   // const { PostsPodcastPlayer, T3AudioPlayer } = Components;
 
-  const [selectedImage, setSelectedImage] = useState(images[0]);
+  const [selectedImage, setSelectedImage] = useState(images[0].splashArtImageUrl);
   const { setImageURL, } = useImageContext();
 
   const handleImageClick = (imageUrl: string) => {
@@ -47,12 +48,13 @@ export const SplashHeaderImageOptions = ({ images, post, classes }: {
           <div 
             className={classes.imageContainer}
             key={index}
-            onClick={() => handleImageClick(image)}
+            onClick={() => handleImageClick(image.splashArtImageUrl)}
           >
             <img
-              src={image}
+              src={image.splashArtImageUrl}
               alt={`Selectable ${index}`}
               style={{ maxWidth: '100%', height: 'auto' }} // Ensure the image scales within the div
+              title={`Prompt: ${image.splashArtImagePrompt || 'No prompt'}`}
             />
           </div>
           ))}

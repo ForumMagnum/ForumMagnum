@@ -327,8 +327,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
 
-  // Must be a review winner that has splash art
-  const showSplashPageHeader =  !!post.reviewWinner // !!post.reviewWinner?.splashArtImageUrl; 
+  // Must be a review winner
+  const showSplashPageHeader =  !!post.reviewWinner
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -716,8 +716,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       highlightDate={highlightDate ?? undefined}
     />
 
-  const images = ["https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
-
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>
     <ImageProvider>
@@ -756,8 +754,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </ToCColumn>
     }
     
-    {/* <SplashHeaderImageOptions images={images} post={post}/> */}
-
     {hasPostRecommendations && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
