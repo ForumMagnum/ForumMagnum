@@ -588,6 +588,7 @@ registerFragment(`
     displayName
     profileImageId
     karma
-    htmlBio
+    jobTitle
+    organization
   }
 `);

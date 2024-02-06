@@ -8,7 +8,9 @@ const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     width: "min-content",
-    maxHeight: "80%",
+    maxHeight: "min(80vh, 720px)",
+    display: "flex",
+    flexDirection: "column",
     "& a": {
       textDecoration: "underline",
       "&:hover": {
@@ -16,6 +18,9 @@ const styles = (theme: ThemeType) => ({
         opacity: 1,
       },
     },
+  },
+  scrollable: {
+    overflowY: "scroll",
   },
   header: {
     display: "flex",
@@ -92,12 +97,14 @@ export const EAOnboardingStage = ({
       pageElementSubContext={stageName}
     >
       <div className={classes.root}>
-        <div className={classes.header}>
-          <div className={classes.lightbulb}>{lightbulbIcon}</div>
-          {title}
-        </div>
-        <div className={classNames(classes.content, className)}>
-          {children}
+        <div className={classes.scrollable}>
+          <div className={classes.header}>
+            <div className={classes.lightbulb}>{lightbulbIcon}</div>
+            {title}
+          </div>
+          <div className={classNames(classes.content, className)}>
+            {children}
+          </div>
         </div>
         <div className={classes.footer}>
           <div className={classes.footerContent}>

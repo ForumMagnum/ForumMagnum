@@ -3184,7 +3184,8 @@ interface UserOnboarding { // fragment on Users
   readonly displayName: string,
   readonly profileImageId: string,
   readonly karma: number,
-  readonly htmlBio: string,
+  readonly jobTitle: string,
+  readonly organization: string,
 }
 
 interface PetrovDayLaunchsDefaultFragment { // fragment on PetrovDayLaunchs
