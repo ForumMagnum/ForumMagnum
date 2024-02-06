@@ -14,6 +14,7 @@ import { gql, useQuery } from '@apollo/client';
 import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
+import { getCountryCode } from '../../lib/geocoding';
 
 type UserCoreTagReads = {
   tagId: string,
@@ -94,12 +95,18 @@ const TargetedJobAdSection = () => {
       const userTagSubs = currentUser.frontpageFilterSettings?.tags?.filter(
         (setting: FilterTag) => filterModeIsSubscribed(setting.filterMode)
       )?.map((setting: FilterTag) => setting.tagId)
-      const userIsMatch = tagsReadIds && !difference(tagsReadIds, userTagSubs).length
+      let userIsMatch = tagsReadIds && !difference(tagsReadIds, userTagSubs).length
       // TODO: We probably want to enable this, but not in the initial release, so commenting out for now.
       // const userIsMatch = coreTagReads &&
       //   tagsReadIds?.every(
       //     tagId => coreTagReads.some(tag => tag.tagId === tagId && tag.userReadCount >= 12)
       //   )
+      
+      // check if the ad is limited to a certain country
+      const countryCode = JOB_AD_DATA[jobName].countryCode
+      if (userIsMatch && countryCode) {
+        userIsMatch = getCountryCode(currentUser.googleLocation) === countryCode
+      }
 
       // make sure the user hasn't already clicked "apply" or "remind me" for this ad
       const shouldShowAd = !jobAdState || ['seen', 'expanded'].includes(jobAdState)

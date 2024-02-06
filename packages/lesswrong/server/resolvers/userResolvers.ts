@@ -321,7 +321,7 @@ addGraphQLResolvers({
   },
 
   Query: {
-    async getUserReadsPerCoreTag(root: void, {userId}: {userId: string}, context: ResolverContext) {
+    async UserReadsPerCoreTag(root: void, {userId}: {userId: string}, context: ResolverContext) {
       const { currentUser } = context
       const user = await Users.findOne({_id: userId})
 
@@ -716,7 +716,7 @@ addGraphQLMutation(
 addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )
-addGraphQLQuery('getUserReadsPerCoreTag(userId: String!): [UserCoreTagReads]')
+addGraphQLQuery('UserReadsPerCoreTag(userId: String!): [UserCoreTagReads]')
 addGraphQLQuery('UserWrappedDataByYear(userId: String!, year: Int!): WrappedDataByYear')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
 

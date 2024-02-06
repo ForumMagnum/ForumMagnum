@@ -235,6 +235,7 @@ type JobAdData = {
   orgLink: string,                   // internal link on the org name
   salary?: string,
   location: string,
+  countryCode?: string,              // if provided, only show to users who we think are in this country
   roleType?: string,                 // i.e. part-time, contract
   deadline?: moment.Moment,          // also used to hide the ad after this date
   getDescription: (classes: ClassesType) => JSX.Element
@@ -329,6 +330,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     orgLink: '/topics/the-humane-league',
     salary: '$65k - $80k',
     location: 'Remote (USA)',
+    countryCode: 'US',
     deadline: moment('2024-02-08'),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
