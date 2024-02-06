@@ -13,6 +13,7 @@ import { useImageContext } from './ImageContext';
 import { useHover } from '../../common/withHover';
 import { requireCssVar } from '../../../themes/cssVars';
 import { hideScrollBars } from '../../../themes/styleUtils';
+import { useCurrentUser } from '../../common/withUser';
 
 const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
 
@@ -327,6 +328,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
 }) => {
   const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
   const { imageURL } = useImageContext();
+  const currentUser = useCurrentUser();
   const [visible, setVisible] = React.useState(true);
   const { setToCVisible } = useContext(SidebarsContext)!;
   const transitionHeader = (headerVisibile: boolean) => {
@@ -363,11 +365,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageURL || post.reviewWinner?.splashArtImageUrl || default_images[0]}")`,
   }
 
-  // const posts = [post]
-  // if (!post.reviewWinnerArt) {
-  //   await generateCoverImages({posts})
-  // }
-
   const defaultImages: ReviewWinnerImageInfo[] = default_images.map(url => ({
     postId: post._id,
     splashArtImageUrl: url,
@@ -402,7 +399,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
         <div className={classes.rightSectionBottomRow}>
           <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
         </div>
-        <div className={classes.rightSectionBelowBottomRow}>
+        {currentUser && currentUser.isAdmin && <div className={classes.rightSectionBelowBottomRow}>
           <div {...eventHandlers}>
             <div className={classes.changeImageBox}>Change image</div>
             <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
@@ -414,7 +411,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
           <div className={classes.rightSectionBelowBottomRow}>
             <ImageCropPreview />
           </div>
-        </div>
+        </div>}
       </div>
     </div>
 

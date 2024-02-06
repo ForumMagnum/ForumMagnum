@@ -10,6 +10,8 @@ import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collecti
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import { imagineAPIKeySetting, reviewArtSlackAPIKeySetting, reviewArtSlackSigningSecretSetting } from '../../../lib/instanceSettings.ts';
 import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
+import { sleep } from '../../../lib/utils/asyncUtils.ts';
+import shuffle from 'lodash/shuffle';
 
 const DEPLOY = false
 
@@ -22,6 +24,13 @@ const slackApp = new App({
   token: reviewArtSlackAPIKeySetting.get() ?? undefined,
   signingSecret: reviewArtSlackSigningSecretSetting.get() ?? undefined,
 })
+
+const promptUrls = [
+  "https://s.mj.run/W91s58GkTUs",
+  "https://s.mj.run/D5okH4Ak-mw",
+  "https://s.mj.run/1aM-y0W73aA",
+  "https://s.mj.run/JAlgYmUiOdc",
+]
 
 const acquireMidjourneyRights = async (): Promise<boolean> => {
   if (currentMidjourney < maxSimultaneousMidjourney) {
@@ -41,7 +50,6 @@ const acquireMidjourneyRights = async (): Promise<boolean> => {
 }
 
 const acquireEssayThreadRights = async (title: string): Promise<void> => {
-  console.log(essayRights, title)
   if (!essayRights[title]) {
     essayRights[title] = true
     return Promise.resolve()
@@ -62,7 +70,6 @@ const releaseMidjourneyRights = () => {
 }
 
 const releaseEssayThreadRights = (title: string) => {
-  console.log(essayRights, title)
   essayRights[title] = false
 }
 
@@ -104,26 +111,17 @@ ${title}
 
 ${essay}`
 
-const getEssays = async ({posts}: {posts?: DbPost[]} = {}): Promise<Essay[]> => {
-  
-  if (posts) {
-    return posts.map(e => {
-      return {post: e, title: e.title, content: e.contents.html }
-    })
-  }
-
+const getEssays = async (): Promise<Essay[]> => {
   const postIds = await ReviewWinners.find({reviewYear: 2021}, { limit: 50, projection: { postId: 1 } }).fetch();
   const es = await Posts.find({ _id: { $in: postIds.map(p => p.postId) } }).fetch();
-
-  // tslint:disable-next-line:no-console
-  console.log(es.map(e => e.title))
 
   return es.map(e => {
     return {post: e, title: e.title, content: e.contents.html }
   })
 }
 
-type Essay = {post: DbPost, title: string, content: string, threadTs?: string}
+type Essay = {post: DbPost, title: string, content: string}
+type PostedEssay = {post: DbPost, title: string, content: string, threadTs: string}
 
 const getElements = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
   const content = essay.content.length > 25_000 ? essay.content.slice(0, 12_500) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-12_500) : essay.content
@@ -143,7 +141,6 @@ const getElements = async (openAiClient: OpenAI, essay: {title: string, content:
 
 
   try {
-    // console.log('Response:', completion.choices[0].message.content)
     return JSON.parse((completion.choices[0].message.content || '').split('METAPHORS: ')[1])
   } catch (error) {
     console.error('Error parsing response:', error);
@@ -153,15 +150,11 @@ const getElements = async (openAiClient: OpenAI, essay: {title: string, content:
 
 const prompter = (el: string) => {
   const lowerCased = el[0].toLowerCase() + el.slice(1)
-  // return `https://s.mj.run/JAlgYmUiOdc https://s.mj.run/XJyNfI1tx9o topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, in the style of meditative pastel muted colors, muted meditative --ar 8:5 --v 6.0`
-  return `https://s.mj.run/JAlgYmUiOdc topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, in the style of meditative pastel moebius, muted colors --ar 8:5 --v 6.0 `
-  // return `https://s.mj.run/JAlgYmUiOdc topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, pastel colorful moebius, pastel --ar 8:5 --seed 12345 --v 6.0 --s 75`
+  return `${shuffle(promptUrls)[0]} topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, in the style of meditative pastel moebius, muted colors --ar 8:5 --v 6.0 `
 }
 
 
-const postPromptImages = async (prompt: string, {title, threadTs}: {title: string, threadTs?: string}, images: string[]) => {
-  console.log('yo', prompt, title, threadTs)
-  if (!threadTs) return
+const postPromptImages = async (prompt: string, {title, threadTs}: {title: string, threadTs: string}, images: string[]) => {
   await acquireEssayThreadRights(title)
   await postReply(`*Prompt: ${prompt}*`, threadTs)
 
@@ -178,12 +171,11 @@ const postPromptImages = async (prompt: string, {title, threadTs}: {title: strin
       }
     )
   }))
-  console.log('all uploaded')
   setTimeout(() => releaseEssayThreadRights(title), 10_000)
+  return images
 }
 
-const saveImages = async (el: string, essay: Essay, urls: string[]) => {
-  await postPromptImages(el, essay, urls)
+const saveImages = async (el: string, essay: PostedEssay, urls: string[]) => {
   for (let i = 0; i < urls.length; i++) {
     await moveImageToCloudinary(urls[i], `splashArtImagePrompt${el}{i}`)
     await createMutator({
@@ -199,8 +191,11 @@ const saveImages = async (el: string, essay: Essay, urls: string[]) => {
   return urls
 }
 
+const upscaleImage = async (url: string): Promise<string> => {
+  return url
+}
 
-async function go(essays: Essay[], essayIx: number, el: string): Promise<string[]> {
+async function getEssayPromptImages(promptElement: string): Promise<string[]> {
   const imagineKey = imagineAPIKeySetting.get();
   if (!imagineKey) {
     throw new Error('No imagine API key found!');
@@ -214,7 +209,7 @@ async function go(essays: Essay[], essayIx: number, el: string): Promise<string[
         'Authorization': `Bearer ${imagineKey}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({prompt: prompter(el)})
+      body: JSON.stringify({prompt: prompter(promptElement)})
     });
 
     promptResponseData = await response.json();
@@ -223,42 +218,35 @@ async function go(essays: Essay[], essayIx: number, el: string): Promise<string[
     throw error;
   }
 
-  const blockTilDone: Promise<string[]> = new Promise((resolve) => {
-    async function checkOnJob (): Promise<string[]> {
-      try {
-        const response = await fetch(`https://cl.imagineapi.dev/items/images/${promptResponseData.data.id}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${imagineKey}`,
-            'Content-Type': 'application/json'
-          }
-        })
-  
-        const responseData = await response.json()
-        if (responseData.data.status === 'completed' || responseData.data.status === 'failed') {
-          console.log(responseData.data.status, el, essayIx, essays[essayIx].title)
-          if (responseData.data.status === 'failed') {
-            console.error('Image generation failed:', responseData.data);
-            resolve([])
-            return []
-          }
-          releaseMidjourneyRights()
-          return responseData.data.upscaled_urls
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, 5_000))
-          return await checkOnJob()
-          // console.log("Image is not finished generation. Status: ", responseData.data.status)
+  async function checkOnJob(): Promise<string[]> {
+    try {
+      const response = await fetch(`https://cl.imagineapi.dev/items/images/${promptResponseData.data.id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${imagineKey}`,
+          'Content-Type': 'application/json'
         }
-      } catch (error) {
-        console.error('Error getting updates', error);
-        return await checkOnJob()
+      })
+
+      const responseData = await response.json()
+      if (responseData.data.status === 'completed' || responseData.data.status === 'failed') {
+        if (responseData.data.status === 'failed') {
+          console.error('Image generation failed:', responseData.data);
+          return []
+        }
+        releaseMidjourneyRights()
+        return responseData.data.upscaled_urls
+      } else {
+        await sleep(5_000)
+        return checkOnJob()
       }
+    } catch (error) {
+      console.error('Error getting updates', error);
+      return checkOnJob()
     }
+  }
 
-    void checkOnJob().then(urls => saveImages(el, essays[essayIx], urls)).then(resolve)
-  })
-
-  return await blockTilDone
+  return checkOnJob()
 }
 
 const slackToken = reviewArtSlackAPIKeySetting.get();
@@ -297,17 +285,15 @@ async function createThread(initialText: string) {
   }
 }
 
-async function makeEssayThread(essay: {title: string, content: string, threadTs?: string}) {
-  essay.threadTs = await createThread(`Post title: ${essay.title}`);
-}
+const makeEssayThread = async (essay: Essay): Promise<PostedEssay> =>
+  ({...essay, threadTs: await createThread(`Post title: ${essay.title}`)})
 
 // Post a reply to the thread
 async function postReply(text: string, threadTs: string) {
   await postMessage(text, threadTs);
 }
 
-async function generateCoverImages({posts, limit = 2}: {
-    posts?: (PostsWithNavigation | PostsWithNavigationAndRevision)[], 
+async function generateCoverImages({limit = 2}: {
     limit?: number
   } = {}): Promise<string[]> {
   const openAiClient = await getOpenAI();
@@ -316,28 +302,43 @@ async function generateCoverImages({posts, limit = 2}: {
   }
   const essays = (await getEssays()).slice(0, limit)
 
-  const [promElements] = await essays.reduce(async (pEC: Promise<[Promise<string[]>, number]>, essay, i): Promise<[Promise<string[]>, number]> => {
-    const [eltss, charsRequested] = await pEC
+  const [promElementses] = await essays.reduce(async (prev: Promise<[Promise<string[]>, number]>, essay): Promise<[Promise<string[]>, number]> => {
+
+    const [promptElementses, charsRequested] = await prev
     let newChars = charsRequested
+
     if ((charsRequested + essay.content.length) >= 30_000) {
-      await Promise.all([new Promise((resolve) => setTimeout(resolve, 60_000)), eltss])
+      await Promise.all([sleep(60_000), promptElementses])
       newChars = 0
     }
     newChars += Math.min(essay.content.length, 30_000)
 
-    const images = getElements(openAiClient, essay).then(els => Promise.all([makeEssayThread(essay), Promise.all(els.slice(0,limit).map(el => go(essays, i, el))).then(ims => ims.flat())]))
+    const images = getElements(openAiClient, essay)
+      .then(async els => [els, await makeEssayThread(essay)])
+      .then(([els, postedEssay]: [string[], PostedEssay]) =>
+        Promise.all(els
+          .slice(0,limit)
+          .map(el => getEssayPromptImages(el)
+            .then(urls => Promise.all(urls.map(upscaleImage)))
+            .then(urls => saveImages(el, postedEssay, urls))
+            .then(urls => postPromptImages(el, postedEssay, urls)))))
+      .then(ims => ims.flat())
 
-    return Promise.resolve([Promise.all([eltss, images]).then(([elts, [_, el]]) => [...elts, ...el]), newChars])
+    return [
+      Promise
+        .all([promptElementses, images])
+        .then(([elts, els]) => [...elts, ...els]),
+      newChars
+    ]
   }, Promise.resolve([Promise.resolve([]), 0]) as Promise<[Promise<string[]>, number]>)
 
-  return promElements
+  return promElementses
 }
 
 async function main () {
 
-  const promElements = await generateCoverImages({limit: 2})
+  const imUrls = await generateCoverImages({limit: 2})
 
-  const imUrls = await promElements
   await slackApp.client.chat.postMessage({
     channel: channelId,
     text: JSON.stringify(imUrls)
@@ -345,4 +346,4 @@ async function main () {
 
 }
 
-Globals.coverImages = () => main()
+Globals.coverImages = main
