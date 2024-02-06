@@ -11,6 +11,7 @@ import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import { imagineAPIKeySetting, reviewArtSlackAPIKeySetting, reviewArtSlackSigningSecretSetting } from '../../../lib/instanceSettings.ts';
 import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
 import { sleep } from '../../../lib/utils/asyncUtils.ts';
+import shuffle from 'lodash/shuffle';
 
 const DEPLOY = false
 
@@ -23,6 +24,13 @@ const slackApp = new App({
   token: reviewArtSlackAPIKeySetting.get() ?? undefined,
   signingSecret: reviewArtSlackSigningSecretSetting.get() ?? undefined,
 })
+
+const promptUrls = [
+  "https://s.mj.run/W91s58GkTUs",
+  "https://s.mj.run/D5okH4Ak-mw",
+  "https://s.mj.run/1aM-y0W73aA",
+  "https://s.mj.run/JAlgYmUiOdc",
+]
 
 const acquireMidjourneyRights = async (): Promise<boolean> => {
   if (currentMidjourney < maxSimultaneousMidjourney) {
@@ -133,7 +141,6 @@ const getElements = async (openAiClient: OpenAI, essay: {title: string, content:
 
 
   try {
-    // console.log('Response:', completion.choices[0].message.content)
     return JSON.parse((completion.choices[0].message.content || '').split('METAPHORS: ')[1])
   } catch (error) {
     console.error('Error parsing response:', error);
@@ -144,7 +151,8 @@ const getElements = async (openAiClient: OpenAI, essay: {title: string, content:
 const prompter = (el: string) => {
   const lowerCased = el[0].toLowerCase() + el.slice(1)
   // return `https://s.mj.run/JAlgYmUiOdc https://s.mj.run/XJyNfI1tx9o topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, in the style of meditative pastel muted colors, muted meditative --ar 8:5 --v 6.0`
-  return `https://s.mj.run/JAlgYmUiOdc topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, in the style of meditative pastel moebius, muted colors --ar 8:5 --v 6.0 `
+  return `${shuffle(promptUrls)[0]} topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, in the style of meditative pastel moebius, muted colors --ar 8:5 --v 6.0 `
+  // return `https://s.mj.run/JAlgYmUiOdc topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, in the style of meditative pastel moebius, muted colors --ar 8:5 --v 6.0 `
   // return `https://s.mj.run/JAlgYmUiOdc topographic watercolor artwork of ${lowerCased}, in the style of ethereal watercolor washes, ultrafine detail, juxtaposition of hard and soft lines, delicate ink lines, inspired by scientific illustrations, pastel colorful moebius, pastel --ar 8:5 --seed 12345 --v 6.0 --s 75`
 }
 
