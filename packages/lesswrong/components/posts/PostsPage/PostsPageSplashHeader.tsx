@@ -14,6 +14,8 @@ import { useHover } from '../../common/withHover';
 import { requireCssVar } from '../../../themes/cssVars';
 import { hideScrollBars } from '../../../themes/styleUtils';
 import { useCurrentUser } from '../../common/withUser';
+import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
+
 
 const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
 
@@ -399,7 +401,8 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
         <div className={classes.rightSectionBottomRow}>
           <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
         </div>
-        {currentUser && currentUser.isAdmin && <div className={classes.rightSectionBelowBottomRow}>
+        {currentUser && <div className={classes.rightSectionBelowBottomRow}> 
+        {/* && currentUser.isAdmin */}
           <div {...eventHandlers}>
             <div className={classes.changeImageBox}>Change image</div>
             <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>

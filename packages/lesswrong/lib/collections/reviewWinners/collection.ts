@@ -2,16 +2,16 @@ import { createCollection } from '../../vulcan-lib';
 import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { MutationOptions, getDefaultMutations } from '../../vulcan-core/default_mutations';
 import { schema } from './schema';
-import { userIsAdminOrMod } from '../../vulcan-users';
+import { userIsAdmin } from '../../vulcan-users';
 import { ensureIndex } from '../../collectionIndexUtils';
 
 export const reviewWinnerMutationOptions: MutationOptions<DbReviewWinner> = {
   newCheck: (user: DbUser|null) => {
-    return userIsAdminOrMod(user);
+    return userIsAdmin(user);
   },
 
   editCheck: (user: DbUser|null) => {
-    return userIsAdminOrMod(user);
+    return userIsAdmin(user);
   },
 
   removeCheck: () => {

@@ -1,5 +1,5 @@
 import moment from "moment";
-import { userIsAdminOrMod } from "../../lib/vulcan-users";
+import { userIsAdmin } from "../../lib/vulcan-users";
 import { defineMutation, defineQuery } from "../utils/serverGraphqlUtil";
 import { onStartup } from "../../lib/executionEnvironment";
 import { createAnonymousContext } from "../vulcan-lib";
@@ -37,7 +37,7 @@ defineQuery({
   fn: async (root, args, context) => {
     const { currentUser } = context;
 
-    if (!userIsAdminOrMod(currentUser)) {
+    if (!userIsAdmin(currentUser)) {
       throw new Error('Only admins may fetch all review winner art using this API!');
     }
 
@@ -57,7 +57,7 @@ defineMutation({
   fn: async (_, { reviewWinnerArtId, newCuratedOrder }: { reviewWinnerArtId: string, newCuratedOrder: number }, context) => {
     const { currentUser } = context;
 
-    if (!userIsAdminOrMod(currentUser)) {
+    if (!userIsAdmin(currentUser)) {
       throw new Error('Only admins may update review winner art ordering!');
     }
 
