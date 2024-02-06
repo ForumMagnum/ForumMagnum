@@ -10,7 +10,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-type OnboardingStage = "user" | "subscribe" | "work";
+type OnboardingStage = "user" | "subscribe" | "work" | "thankyou";
 
 const subscribeTagIds = [
   "sWcuTyTB5dP3nas2t", // Global health and development
@@ -41,7 +41,7 @@ const subscribeUserIds = [
 export const EAOnboardingFlow = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const [stage, setStage] = useState<OnboardingStage>("work");
+  const [stage, setStage] = useState<OnboardingStage>("thankyou");
 
   // We load the tags and users here immediately, so hopefully they'll have
   // loaded by the time the user has entered their display name and moved to
@@ -71,7 +71,7 @@ export const EAOnboardingFlow = ({classes}: {
 
   const {
     BlurredBackgroundModal, EAOnboardingUserStage, EAOnboardingSubscribeStage,
-    EAOnboardingWorkStage,
+    EAOnboardingWorkStage, EAOnboardingThankYouStage,
   } = Components;
   return (
     <BlurredBackgroundModal open className={classes.root}>
@@ -83,6 +83,9 @@ export const EAOnboardingFlow = ({classes}: {
       }
       {stage === "work" &&
         <EAOnboardingWorkStage />
+      }
+      {stage === "thankyou" &&
+        <EAOnboardingThankYouStage />
       }
     </BlurredBackgroundModal>
   );
