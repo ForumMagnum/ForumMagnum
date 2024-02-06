@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Globals, createAdminContext, createMutator } from '../../vulcan-lib/index.ts';
 import Posts from '../../../lib/collections/posts/collection.ts';
 import { App } from '@slack/bolt';
+import ReviewWinners from '../../../lib/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import { imagineAPIKeySetting, reviewArtSlackAPIKeySetting, reviewArtSlackSigningSecretSetting } from '../../../lib/instanceSettings.ts';
@@ -41,7 +42,6 @@ const acquireMidjourneyRights = async (): Promise<boolean> => {
 }
 
 const acquireEssayThreadRights = async (title: string): Promise<void> => {
-  console.log(essayRights, title)
   if (!essayRights[title]) {
     essayRights[title] = true
     return Promise.resolve()
@@ -104,11 +104,9 @@ ${title}
 ${essay}`
 
 const getEssays = async (): Promise<Essay[]> => {
-  const es = await Posts.find({
-    "postedAt": {"$gte": new Date("2021-01-01"), "$lt": new Date("2022-01-01")},
-    "draft": false,
-  }, {sort: {"reviewVoteScoreHighKarma": -1}, limit: 50, projection: {_id: 1, postedAt: 1, title: 1, contents: 1, reviewVoteScoreHighKarma: 1}})
-  .fetch()
+  const postIds = await ReviewWinners.find({reviewYear: 2021}, { limit: 50, projection: { postId: 1 } }).fetch();
+  const es = await Posts.find({ _id: { $in: postIds.map(p => p.postId) } }).fetch();
+
   return es.map(e => {
     return {post: e, title: e.title, content: e.contents.html }
   })
@@ -290,15 +288,16 @@ async function postReply(text: string, threadTs: string) {
   await postMessage(text, threadTs);
 }
 
-async function main () {
+async function generateCoverImages({limit = 2}: {
+    limit?: number
+  } = {}): Promise<string[]> {
   const openAiClient = await getOpenAI();
   if (!openAiClient) {
     throw new Error('Could not initialize OpenAI client!');
   }
-  const limit = 2
   const essays = (await getEssays()).slice(0, limit)
 
-  const [promElementss] = await essays.reduce(async (prev: Promise<[Promise<string[]>, number]>, essay): Promise<[Promise<string[]>, number]> => {
+  const [promElementses] = await essays.reduce(async (prev: Promise<[Promise<string[]>, number]>, essay): Promise<[Promise<string[]>, number]> => {
 
     const [promptElementses, charsRequested] = await prev
     let newChars = charsRequested
@@ -328,7 +327,13 @@ async function main () {
     ]
   }, Promise.resolve([Promise.resolve([]), 0]) as Promise<[Promise<string[]>, number]>)
 
-  const imUrls = await promElementss
+  return promElementses
+}
+
+async function main () {
+
+  const imUrls = await generateCoverImages({limit: 2})
+
   await slackApp.client.chat.postMessage({
     channel: channelId,
     text: JSON.stringify(imUrls)

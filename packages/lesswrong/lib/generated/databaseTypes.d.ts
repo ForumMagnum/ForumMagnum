@@ -973,8 +973,8 @@ type ReviewWinnerArtsCollection = CollectionBase<"ReviewWinnerArts">;
 interface DbReviewWinnerArt extends DbObject {
   __collectionName?: "ReviewWinnerArts"
   postId: string
-  splashArtImagePrompt: string | null
-  splashArtImageUrl: string | null
+  splashArtImagePrompt: string
+  splashArtImageUrl: string
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

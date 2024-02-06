@@ -16,6 +16,12 @@ import { hideScrollBars } from '../../../themes/styleUtils';
 
 const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
 
+export type ReviewWinnerImageInfo = {
+  postId: string,
+  splashArtImageUrl: string,
+  splashArtImagePrompt: string | null,
+}
+
 const styles = (theme: ThemeType) => ({
   root: {
     zIndex: theme.zIndexes.postsPageSplashHeader,
@@ -311,7 +317,6 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-
 /// PostsPageSplashHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes}: {
@@ -352,15 +357,28 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
   const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
 
+  const default_images = ["https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png", "https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
+
   const backgroundImageStyle = {
-    backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageURL ? imageURL : post.reviewWinner?.splashArtImageUrl}")`,
+    backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageURL || post.reviewWinner?.splashArtImageUrl || default_images[0]}")`,
   }
 
+  // const posts = [post]
+  // if (!post.reviewWinnerArt) {
+  //   await generateCoverImages({posts})
+  // }
 
-  // console.log("images: ", post.reviewWinnerArt)
-  // const images = post.reviewWinnerArt.filter(image => image.splashArtImageUrl !== null).map(image => image.splashArtImageUrl as string)
+  const defaultImages: ReviewWinnerImageInfo[] = default_images.map(url => ({
+    postId: post._id,
+    splashArtImageUrl: url,
+    splashArtImagePrompt: null
+  }))
 
-  const images = ["https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
+  const images = post.reviewWinnerArt  ? post.reviewWinnerArt.map(image => ({
+    postId: post._id,
+    splashArtImageUrl: image.splashArtImageUrl,
+    splashArtImagePrompt: image.splashArtImagePrompt
+    })) : defaultImages
 
   const { anchorEl, hover, eventHandlers } = useHover();
 

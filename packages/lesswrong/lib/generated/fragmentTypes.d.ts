@@ -853,8 +853,8 @@ interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
 
 interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
   readonly postId: string,
-  readonly splashArtImagePrompt: string | null,
-  readonly splashArtImageUrl: string | null,
+  readonly splashArtImagePrompt: string,
+  readonly splashArtImageUrl: string,
 }
 
 interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
@@ -3571,8 +3571,8 @@ interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
 interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly _id: string,
   readonly postId: string,
-  readonly splashArtImagePrompt: string | null,
-  readonly splashArtImageUrl: string | null,
+  readonly splashArtImagePrompt: string,
+  readonly splashArtImageUrl: string,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
