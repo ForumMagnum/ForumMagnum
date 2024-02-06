@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
@@ -41,17 +41,16 @@ const TargetedJobAdSection = () => {
     skip: !currentUser
   })
   
-  // we only advertise one job per page view
+  // we only advertise up to one job per page view
   const [activeJob, setActiveJob] = useState<string>()
   
   // select a job ad to show to the current user
-  useEffect(() => {
-    if (!currentUser || activeJob) return
+  useMemo(() => {
+    if (!currentUser || userJobAdsLoading || activeJob) return
     
     // user's relevant interests from EAG, such as "software engineering"
+    // TODO: add this back in once we have the data
     // const userEAGInterests = union(currentUser.experiencedIn, currentUser.interestedIn)
-    // the topics that the user has displayed on their profile
-    // const userTags = currentUser.profileTagIds ?? []
     const ads = userJobAds ?? []
     
     for (let jobName in JOB_AD_DATA) {
@@ -60,10 +59,7 @@ const TargetedJobAdSection = () => {
       if (deadline && moment().isAfter(deadline, 'day')) {
         continue
       }
-      
-      // const eagOccupations = JOB_AD_DATA[jobName].eagOccupations
-      // const interestedIn = JOB_AD_DATA[jobName].interestedIn
-      // const occupationTag = JOB_AD_DATA[jobName].tagId
+
       const tagsReadIds = JOB_AD_DATA[jobName].tagsReadIds
       const jobAdState = ads.find(ad => ad.jobName === jobName)?.adState
       // check if the ad fits the user's interests -
@@ -87,7 +83,7 @@ const TargetedJobAdSection = () => {
       }
     }
     
-  }, [currentUser, userJobAds, activeJob])
+  }, [currentUser, userJobAds, userJobAdsLoading, activeJob])
 
   // record when this user has seen the selected ad
   useEffect(() => {
@@ -153,7 +149,7 @@ const TargetedJobAdSection = () => {
         }
       })
     }
-    flash({messageString: "We will email you about this job before the application deadline", type: "success"})
+    flash({messageString: "We'll email you about this job before the application deadline", type: "success"})
   }
   
   const { TargetedJobAd } = Components
