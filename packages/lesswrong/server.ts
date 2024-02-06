@@ -145,7 +145,7 @@ import './server/callbacks/rateLimitCallbacks';
 import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
-import './server/callbacks/advisorRequestsCallbacks';
+import './server/callbacks/userJobAdCallbacks';
 import './server/callbacks/digestCallbacks';
 import './server/callbacks/dialogueMatchPreferenceCallbacks';
 
@@ -189,6 +189,7 @@ import './server/exportUserData';
 import './server/deleteUserContent';
 
 import './server/spotlightCron';
+import './server/userJobAdCron';
 
 import "./server/languageModels/autoTagCallbacks";
 import './server/languageModels/languageModelIntegration';

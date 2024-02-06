@@ -199,6 +199,7 @@ registerFragment(`
     notificationSubforumUnread
     subforumPreferredLayout
     
+    hideJobAdUntil
     experiencedIn
     interestedIn
     

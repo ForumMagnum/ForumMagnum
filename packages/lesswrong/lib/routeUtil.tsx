@@ -6,6 +6,7 @@ import type { RouterLocation } from './vulcan-lib/routes';
 import * as _ from 'underscore';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import type { LocationDescriptor } from 'history';
+import {siteUrlSetting} from './instanceSettings'
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -127,6 +128,7 @@ const LwAfDomainWhitelist: DomainList = {
   ],
 }
 
+const URLClass = getUrlClass()
 const forumDomainWhitelist: ForumOptions<DomainList> = {
   LessWrong: LwAfDomainWhitelist,
   AlignmentForum: LwAfDomainWhitelist,
@@ -140,6 +142,7 @@ const forumDomainWhitelist: ForumOptions<DomainList> = {
   },
   default: {
     onsiteDomains: [
+      new URLClass(siteUrlSetting.get()).host,
       `localhost:${getServerPort()}`,
     ],
     mirrorDomains: [],

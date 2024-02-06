@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
@@ -7,14 +7,13 @@ import { useCurrentUser } from '../common/withUser';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HIDE_JOB_AD_COOKIE } from '../../lib/cookies/cookies';
 import { JOB_AD_DATA } from './TargetedJobAd';
 import union from 'lodash/union';
 import intersection from 'lodash/intersection';
 import { gql, useQuery } from '@apollo/client';
-import { filterModeIsSubscribed } from '../../lib/filterSettings';
+import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
 type UserCoreTagReads = {
   tagId: string,
@@ -30,13 +29,17 @@ const query = gql`
   }
   `
 
+/**
+ * Section of a page that might display a job ad to the current user.
+ */
 const TargetedJobAdSection = () => {
   const currentUser = useCurrentUser()
+  const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
   // we track when the user has seen the ad
   const { setNode, entry } = useIsInView()
   const { flash } = useMessages()
-  const [cookies, setCookie] = useCookiesWithConsent([HIDE_JOB_AD_COOKIE]) // TODO: use a db field instead
+  const recordCreated = useRef<boolean>(false)
 
   const { create: createUserJobAd } = useCreate({
     collectionName: 'UserJobAds',
@@ -46,7 +49,7 @@ const TargetedJobAdSection = () => {
     collectionName: 'UserJobAds',
     fragmentName: 'UserJobAdsMinimumInfo',
   })
-  const { results: userJobAds } = useMulti({
+  const { results: userJobAds, loading: userJobAdsLoading } = useMulti({
     terms: {view: 'adsByUser', userId: currentUser?._id},
     collectionName: 'UserJobAds',
     fragmentName: 'UserJobAdsMinimumInfo',
@@ -65,17 +68,16 @@ const TargetedJobAdSection = () => {
     }
   )
   
-  // we only advertise one job per page view
+  // we only advertise up to one job per page view
   const [activeJob, setActiveJob] = useState<string>()
   
   // select a job ad to show to the current user
-  useEffect(() => {
-    if (!currentUser || activeJob) return
+  useMemo(() => {
+    if (!currentUser || userJobAdsLoading || activeJob) return
     
     // user's relevant interests from EAG, such as "software engineering"
+    // TODO: add this back in once we have the data
     // const userEAGInterests = union(currentUser.experiencedIn, currentUser.interestedIn)
-    // the topics that the user has displayed on their profile
-    // const userTags = currentUser.profileTagIds ?? []
     const ads = userJobAds ?? []
     
     for (let jobName in JOB_AD_DATA) {
@@ -84,17 +86,14 @@ const TargetedJobAdSection = () => {
       if (deadline && moment().isAfter(deadline, 'day')) {
         continue
       }
-      
-      // const eagOccupations = JOB_AD_DATA[jobName].eagOccupations
-      // const interestedIn = JOB_AD_DATA[jobName].interestedIn
-      // const occupationTag = JOB_AD_DATA[jobName].tagId
+
       const tagsReadIds = JOB_AD_DATA[jobName].tagsReadIds
       const jobAdState = ads.find(ad => ad.jobName === jobName)?.adState
       // check if the ad fits the user's interests -
       // currently based on whether they have subscribed to all the topics relevant to the job ad
       const userTagSubs = currentUser.frontpageFilterSettings?.tags?.filter(
-        setting => filterModeIsSubscribed(setting.filterMode)
-      )?.map(setting => setting.tagId)
+        (setting: FilterTag) => filterModeIsSubscribed(setting.filterMode)
+      )?.map((setting: FilterTag) => setting.tagId)
       const userIsMatch = tagsReadIds && !difference(tagsReadIds, userTagSubs).length
       // TODO: We probably want to enable this, but not in the initial release, so commenting out for now.
       // const userIsMatch = coreTagReads &&
@@ -111,11 +110,16 @@ const TargetedJobAdSection = () => {
       }
     }
     
-  }, [currentUser, userJobAds, activeJob])
+  }, [currentUser, userJobAds, userJobAdsLoading, activeJob])
 
   // record when this user has seen the selected ad
   useEffect(() => {
-    if (!currentUser || !userJobAds || !activeJob || !entry?.isIntersecting) return
+    // skip when no data to record
+    if (!currentUser || userJobAdsLoading || !activeJob || !entry?.isIntersecting) return
+    // skip if we have already recorded this data
+    if (recordCreated.current || userJobAds?.some(ad => ad.jobName === activeJob)) return
+    // make sure to only create up to one record per view
+    recordCreated.current = true
     void createUserJobAd({
       data: {
         userId: currentUser._id,
@@ -124,15 +128,11 @@ const TargetedJobAdSection = () => {
       }
     })
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, userJobAds, activeJob, entry])
+  }, [currentUser, userJobAds, userJobAdsLoading, activeJob, entry])
   
   const dismissJobAd = () => {
     captureEvent('hideJobAd')
-    setCookie(
-      HIDE_JOB_AD_COOKIE,
-      "true",
-      { expires: moment().add(30, 'days').toDate() }
-    )
+    void updateCurrentUser({hideJobAdUntil: moment().add(30, 'days').toDate()})
   }
   
   const handleExpand = () => {
@@ -161,12 +161,32 @@ const TargetedJobAdSection = () => {
         }
       })
     }
-    // showSuccessMsg && flash({messageString: "Thanks for registering interest!", type: "success"})
+  }
+  
+  const handleRemindMe = async () => {
+    if (!currentUser || !userJobAds?.length || !activeJob) return
+    // record when a user has clicked the "Remind me" button
+    const ad = userJobAds.find(ad => ad.jobName === activeJob)
+    if (ad) {
+      // email is sent via callback or cron depending on how soon the deadline is
+      void updateUserJobAd({
+        selector: {_id: ad._id},
+        data: {
+          adState: 'reminderSet'
+        }
+      })
+    }
+    flash({messageString: "We'll email you about this job before the application deadline", type: "success"})
   }
   
   const { TargetedJobAd } = Components
   
-  if (cookies[HIDE_JOB_AD_COOKIE] || !activeJob) {
+  // Only show this section if we have a matching job for this user
+  if (
+    !currentUser ||
+    (currentUser.hideJobAdUntil && moment(currentUser.hideJobAdUntil).isAfter(moment())) ||
+    !activeJob
+  ) {
     return null
   }
   
@@ -176,6 +196,7 @@ const TargetedJobAdSection = () => {
       onDismiss={dismissJobAd}
       onExpand={handleExpand}
       onApply={handleApply}
+      onRemindMe={handleRemindMe}
     />
   </div>
 }

@@ -18,6 +18,7 @@ import Menu from "@material-ui/core/Menu";
 import classNames from "classnames";
 import { Posts } from "../../lib/collections/posts";
 import { Comments } from "../../lib/collections/comments";
+import {alwaysShowAnonymousReactsSetting} from '../../lib/publicSettings'
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
@@ -113,7 +114,7 @@ const getCurrentReactions = (
 ) => {
   const result = [];
   for (const emojiOption of eaAnonymousEmojiPalette) {
-    result.push({
+    if(alwaysShowAnonymousReactsSetting.get() || extendedScore?.[emojiOption.name]) result.push({
       emojiOption,
       score: extendedScore?.[emojiOption.name] ?? 0,
       anonymous: true,
