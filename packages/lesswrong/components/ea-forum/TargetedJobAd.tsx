@@ -50,27 +50,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   jobRecLabel: {
     flexGrow: 1
   },
-  // label: {
-  //   // alignSelf: 'flex-end',
-  //   flexGrow: 1,
-  //   display: 'flex',
-  //   columnGap: 8,
-  //   color: theme.palette.grey[500],
-  // },
-  // labelText: {
-  //   whiteSpace: 'pre',
-  //   // letterSpacing: 0.5,
-  //   fontSize: 13,
-  //   fontWeight: 500,
-  // },
   infoIcon: {
     fontSize: 14,
     color: theme.palette.grey[400],
-  },
-  feedbackLink: {
-    [theme.breakpoints.down('xs')]: {
-      display: 'none'
-    }
   },
   closeButton: {
     padding: '.25em',
@@ -127,18 +109,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     flexWrap: 'wrap',
     columnGap: 8,
-    rowGap: '5px'
+    rowGap: '3px'
   },
   metadata: {
     display: 'flex',
     alignItems: 'center',
     columnGap: 4,
     fontSize: 13,
+    lineHeight: '17px',
     color: theme.palette.grey[600],
     fontWeight: 500,
   },
   metadataIcon: {
     fontSize: 12,
+  },
+  feedbackLink: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
   },
   collapsedBody: {
     position: 'relative',
@@ -259,10 +247,10 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
       'H43gvLzBCacxxamPe', // biosecurity
       'of9xBvR3wpbp6qsZC', //policy
     ],
-    logo: 'https://80000hours.org/wp-content/uploads/2021/08/centre-for-long-term-resilience-160x160.jpeg',
+    logo: 'https://res.cloudinary.com/cea/image/upload/q_auto,f_auto/v1707183771/Screen_Shot_2024-02-05_at_8.42.20_PM',
     occupation: 'biosecurity and policy',
     feedbackLinkPrefill: 'Biosecurity+Policy+Advisor+at+CLTR',
-    bitlyLink: "", // https://www.longtermresilience.org/post/we-are-hiring-for-a-biosecurity-policy-adviser-deadline-8-march-2024
+    bitlyLink: "https://www.google.com", // https://www.longtermresilience.org/post/we-are-hiring-for-a-biosecurity-policy-adviser-deadline-8-march-2024
     role: 'Biosecurity Policy Advisor',
     insertThe: true,
     org: 'Centre for Long-Term Resilience',
@@ -275,10 +263,11 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
         The <a href="https://www.longtermresilience.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
           Centre for Long-Term Resilience (CLTR)
         </a> is a UK-based non-profit and independent think tank with a mission to transform global resilience to extreme risks.
-        This role will contribute to developing, evaluating, and advocating for impactful{" "}
-        <Components.HoverPreviewLink href={makeAbsolute("/topics/biosecurity")}>
-          <span className={classes.link}>biosecurity</span>
-        </Components.HoverPreviewLink> policies aimed at reducing extreme biological risks.
+        This role will contribute to developing, evaluating, and advocating for impactful <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/biosecurity")}>
+            biosecurity
+          </Components.HoverPreviewLink>
+        </span> policies aimed at reducing extreme biological risks.
       </div>
       <div className={classes.description}>
         Ideal candidates have:
@@ -290,13 +279,81 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
       </div>
     </>
   },
+  'leep-program-manager': {
+    tagsReadIds: [
+      'sWcuTyTB5dP3nas2t', // global health & development
+      'of9xBvR3wpbp6qsZC', //policy
+    ],
+    logo: 'https://80000hours.org/wp-content/uploads/2022/06/LEEP-logo-160x160.png',
+    occupation: 'global health and policy',
+    feedbackLinkPrefill: 'Program+Manager+at+LEEP',
+    bitlyLink: "", // https://leadelimination.org/jobs/
+    role: 'Program Manager',
+    insertThe: true,
+    org: 'Lead Exposure Elimination Project',
+    orgLink: '/topics/lead-exposure-elimination-project',
+    location: 'Remote, multiple locations',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <a href="https://www.leadelimination.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          LEEP
+        </a> is an impact-driven non-profit that aims to eliminate childhood <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/lead-poisoning")}>
+            lead poisoning
+          </Components.HoverPreviewLink>
+        </span>, which affects an estimated one in three children worldwide.
+        LEEP is hiring program managers to lead their programs in multiple time zones and locations.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates have:
+        <ul>
+          <li>Strong interpersonal and stakeholder management skills</li>
+          <li>Willingness to travel for 8 to 12 weeks per year</li>
+          <li>Strong ability to prioritise and focus on impact</li>
+        </ul>
+      </div>
+    </>
+  },
+  'thl-apa-program-specialist': {
+    tagsReadIds: [
+      'QdH9f8TC6G8oGYdgt', // animal welfare
+      'of9xBvR3wpbp6qsZC', // policy
+    ],
+    logo: 'https://80000hours.org/wp-content/uploads/2019/12/he-humane-league-160x160.png',
+    occupation: 'animal welfare and policy',
+    feedbackLinkPrefill: 'APA+Program+Specialist+at+THL',
+    bitlyLink: "", // https://thehumaneleague.org/single-offer-career?gh_jid=5608962
+    role: 'Animal Policy Alliance, Program Specialist',
+    org: 'The Humane League',
+    orgLink: '/topics/the-humane-league',
+    salary: '$65k - $80k',
+    location: 'Remote (USA)',
+    deadline: moment('2024-02-08'),
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        Animal Policy Alliance (APA), launched by <a href="https://thehumaneleague.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          The Humane League
+        </a> in 2022, is a national network of state and local animal protection and food policy advocacy groups in the US that include animals
+        raised for food among their legislative priorities. The program specialist will play a key role in supporting the growth and operation of the APA.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates have:
+        <ul>
+          <li>A minimum 5 years experience in positions related to public policy and/or animal protection advocacy</li>
+          <li>Event planning experience</li>
+          <li>Outstanding relationship building and interpersonal skills</li>
+        </ul>
+      </div>
+    </>
+  },
 }
 
-const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, classes}: {
+const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: {
   ad: string,
   onDismiss: () => void,
   onExpand: () => void,
   onApply: () => void,
+  onRemindMe: () => void,
   classes: ClassesType,
 }) => {
   const adData = JOB_AD_DATA[ad]
@@ -308,16 +365,25 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, classes}: {
   // clicking either "apply" or "remind me" will close the ad
   const [closed, setClosed] = useState(false)
 
-  const handleExpand = () => {
-    captureEvent('expandJobAd')
-    setExpanded(true)
-    onExpand()
+  const handleToggleExpand = () => {
+    if (expanded) {
+      setExpanded(false)
+    } else {
+      captureEvent('expandJobAd')
+      setExpanded(true)
+      onExpand()
+    }
   }
-  const { onClick } = useClickableCell({onClick: handleExpand})
+  const { onClick } = useClickableCell({onClick: handleToggleExpand})
   
   const handleApply = () => {
     setClosed(true)
     onApply()
+  }
+  
+  const handleRemindMe = () => {
+    setClosed(true)
+    onRemindMe()
   }
   
   const { HoverPreviewLink, LWTooltip, ForumIcon, EAButton } = Components
@@ -339,7 +405,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, classes}: {
       <div className={classNames(classes.feedbackLink, classes.metadata)}>
         <InteractionWrapper>
           <a href={`
-              https://docs.google.com/forms/d/e/1FAIpQLSdPzZlC5AxzqhIRmSQUkDMtrtDJi9RSCazGrQXuvjl2VhHWWQ/viewform?usp=pp_url&entry.70861771=${adData.feedbackLinkPrefill}
+              https://docs.google.com/forms/d/e/1FAIpQLSd4uDGbXbJSwYX2w_9wXNTuLLBf7bhiWoWc-goJJXiWGA7qDg/viewform?usp=pp_url&entry.70861771=${adData.feedbackLinkPrefill}
             `}
             target="_blank"
             rel="noopener noreferrer"
@@ -395,29 +461,26 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, classes}: {
             </div>
           </>}
         </div>
-        {/* {!expanded ? <button onClick={handleExpand} className={classes.readMore}>
-          <ChevronRight className={classes.readMoreIcon} /> Expand
-        </button> : <button onClick={() => setExpanded(false)} className={classes.readMore}>
-          <ExpandMore className={classes.readMoreIcon} /> Collapse
-        </button>} */}
         
         <div className={classNames({[classes.collapsedBody]: !expanded})}>
           {adData.getDescription(classes)}
-          <div className={classes.btnRow}>
-            <EAButton
-              variant="contained"
-              href={adData.bitlyLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={classes.btn}
-              onClick={() => handleApply()}
-            >
-              Apply <OpenInNew className={classes.btnIcon} />
-            </EAButton>
-            <EAButton variant="contained" style="grey" onClick={() => handleApply()} className={classes.btn}>
-              Remind me before the deadline
-            </EAButton>
-          </div>
+          <InteractionWrapper>
+            <div className={classes.btnRow}>
+              <EAButton
+                variant="contained"
+                href={adData.bitlyLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={classes.btn}
+                onClick={() => handleApply()}
+              >
+                Apply <OpenInNew className={classes.btnIcon} />
+              </EAButton>
+              {adData.deadline && <EAButton variant="contained" style="grey" onClick={() => handleRemindMe()} className={classes.btn}>
+                Remind me before the deadline
+              </EAButton>}
+            </div>
+          </InteractionWrapper>
         </div>
       </div>
     </div>

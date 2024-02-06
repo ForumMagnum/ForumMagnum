@@ -135,7 +135,21 @@ const TargetedJobAdSection = () => {
         }
       })
     }
-    // showSuccessMsg && flash({messageString: "Thanks for registering interest!", type: "success"})
+  }
+  
+  const handleRemindMe = async () => {
+    if (!currentUser || !userJobAds?.length || !activeJob) return
+    // record when a user has clicked the "Remind me" button
+    const ad = userJobAds.find(ad => ad.jobName === activeJob)
+    if (ad) {
+      void updateUserJobAd({
+        selector: {_id: ad._id},
+        data: {
+          adState: 'reminderSet' // TODO: send email
+        }
+      })
+    }
+    flash({messageString: "We will email you about this job before the application deadline", type: "success"})
   }
   
   const { TargetedJobAd } = Components
@@ -150,6 +164,7 @@ const TargetedJobAdSection = () => {
       onDismiss={dismissJobAd}
       onExpand={handleExpand}
       onApply={handleApply}
+      onRemindMe={handleRemindMe}
     />
   </div>
 }
