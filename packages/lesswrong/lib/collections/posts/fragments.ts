@@ -458,7 +458,7 @@ registerFragment(`
       ...ReviewWinnersDefaultFragment
     }
     reviewWinnerArt {
-      ...ReviewWinnerArtsDefaultFragment
+      ...ReviewWinnerArtImages
     }
   }
 `)
@@ -473,7 +473,7 @@ registerFragment(`
       ...ReviewWinnersDefaultFragment
     }
     reviewWinnerArt {
-      ...ReviewWinnerArtsDefaultFragment
+      ...ReviewWinnerArtImages
     }
   }
 `)

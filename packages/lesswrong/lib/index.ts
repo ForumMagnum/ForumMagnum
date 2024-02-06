@@ -289,6 +289,10 @@ import './collections/reviewWinners/fragments';
 import './collections/reviewWinnerArts/collection';
 import './collections/reviewWinnerArts/fragments';
 
+// Splash art coordinates
+import './collections/splashArtCoordinates/collection';
+import './collections/splashArtCoordinates/fragments';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';
