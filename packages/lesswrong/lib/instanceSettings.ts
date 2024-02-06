@@ -206,4 +206,4 @@ export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('re
 export const reviewArtSlackAPIKeySetting = new PublicInstanceSetting<string | null>('slack.apiToken', null, "optional");
 export const reviewArtSlackSigningSecretSetting = new PublicInstanceSetting<string | null>('slack.signingSecret', null, "optional");
 
-export const imagineAPIKeySetting = new PublicInstanceSetting<string | null>('imagine.apiKey', null, "optional");
+export const myMidjourneyAPIKeySetting = new PublicInstanceSetting<string | null>('myMidjourney.apiKey', null, "optional");
