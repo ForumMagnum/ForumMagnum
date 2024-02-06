@@ -568,5 +568,10 @@
     "acceptsSchemaHash": "a646e49b34cd9c6338bc469c3c2430ce",
     "acceptedByMigration": "20240206T190913.add_SplashArtCoordinates.ts",
     "timestamp": "2024-02-06T19:09:13.000Z"
+  },
+  {
+    "acceptsSchemaHash": "df18ca59a89a51758424055ca12d77eb",
+    "acceptedByMigration": "20240206T193725.update_SplashArtCoordinates.ts",
+    "timestamp": "2024-02-06T19:37:25.000Z"
   }
 ]

@@ -1,11 +1,9 @@
 import { registerFragment } from '../../vulcan-lib';
 
 registerFragment(`
-  fragment PodcastSelect on splashArtCoordinates {
+  fragment SplashArtCoordinates on SplashArtCoordinate {
     _id
-    postId
-    imageId
-    splashArtImageUrl
+    reviewWinnerArtId
     logTime
     xCoordinate
     yCoordinate

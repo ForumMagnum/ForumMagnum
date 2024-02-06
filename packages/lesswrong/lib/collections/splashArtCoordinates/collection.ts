@@ -1,13 +1,13 @@
 import { createCollection } from '../../vulcan-lib';
-import { addUniversalFields } from '../../collectionUtils';
+import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils';
 import { ensureIndex } from '../../collectionIndexUtils';
 import { schema } from './schema';
 
-export const SplashArtCoordinates = createCollection({ // : SplashArtCoordinatesCollection
+export const SplashArtCoordinates: SplashArtCoordinatesCollection = createCollection({ // : SplashArtCoordinatesCollection
   collectionName: 'SplashArtCoordinates',
   typeName: 'SplashArtCoordinate',
   schema,
-  // resolvers: getDefaultResolvers('SplashArtCoordinates')
+  resolvers: getDefaultResolvers('SplashArtCoordinates')
 });
 
 addUniversalFields({ collection: SplashArtCoordinates });

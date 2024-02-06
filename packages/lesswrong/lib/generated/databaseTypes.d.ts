@@ -1058,6 +1058,20 @@ interface DbSession extends DbObject {
   lastModified: Date | null
 }
 
+type SplashArtCoordinatesCollection = CollectionBase<"SplashArtCoordinates">;
+
+interface DbSplashArtCoordinate extends DbObject {
+  __collectionName?: "SplashArtCoordinates"
+  reviewWinnerArtId: string
+  logTime: Date
+  xCoordinate: number
+  yCoordinate: number
+  width: number
+  height: number
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type SpotlightsCollection = CollectionBase<"Spotlights">;
 
 interface DbSpotlight extends DbObject {
@@ -1736,6 +1750,7 @@ interface CollectionsByName {
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
+  SplashArtCoordinates: SplashArtCoordinatesCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
@@ -1804,6 +1819,7 @@ interface ObjectsByCollectionName {
   Revisions: DbRevision
   Sequences: DbSequence
   Sessions: DbSession
+  SplashArtCoordinates: DbSplashArtCoordinate
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag
@@ -1872,6 +1888,7 @@ interface ObjectsByTypeName {
   Revision: DbRevision
   Sequence: DbSequence
   Session: DbSession
+  SplashArtCoordinate: DbSplashArtCoordinate
   Spotlight: DbSpotlight
   Subscription: DbSubscription
   TagFlag: DbTagFlag

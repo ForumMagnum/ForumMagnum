@@ -1,25 +1,18 @@
-export const schema = { // : SchemaType<"SplashArtCoordinates"> = { 
-  postId: {
-    type: String,
+import { foreignKeyField } from '../../utils/schemaUtils'
+
+export const schema: SchemaType<"SplashArtCoordinates"> = { 
+  reviewWinnerArtId: {
+    ...foreignKeyField({
+      idFieldName: "reviewWinnerArtId",
+      resolverName: "reviewWinnerArt",
+      collectionName: "ReviewWinnerArts",
+      type: "ReviewWinnerArt",
+      nullable: false,
+    }),
     nullable: false,
-    canRead: ['guests'],
     canCreate: ['admins'],
-    canUpdate: ['admins']
-  },
-  imageId: {
-    type: String,
-    nullable: false,
-    canRead: ['guests'],
-    canCreate: ['admins'],
-    canUpdate: ['admins']
-  },
-  splashArtImageUrl: {
-    type: String,
-    canRead: ['guests'],
+    canRead: ['admins'],
     canUpdate: ['admins'],
-    canCreate: ['admins'],
-    optional: true,
-    nullable: true,
   },
   logTime: {
     type: Date,
