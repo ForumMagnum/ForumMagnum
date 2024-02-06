@@ -42,7 +42,7 @@ import UsersRepo, { MongoNearLocation } from './repos/UsersRepo';
   collectionName: CollectionNameString,
   type: string,
   potentiallyDefaultSubscribedUserIds?: null|Array<string>,
-  userIsDefaultSubscribed?: null|((u:DbUser)=>boolean),
+  userIsDefaultSubscribed?: null|((u: DbUser) => boolean),
 }) {
   if (!documentId) {
     return [];
@@ -220,7 +220,7 @@ export const createNotification = async ({userId, notificationType, documentType
   }
 }
 
-export const createNotifications = async ({ userIds, notificationType, documentType, documentId, extraData, noEmail, context }:{
+export const createNotifications = async ({ userIds, notificationType, documentType, documentId, extraData, noEmail, context }: {
   userIds: Array<string>
   notificationType: string,
   documentType: NotificationDocument|null,

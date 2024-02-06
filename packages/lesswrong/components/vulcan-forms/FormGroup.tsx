@@ -26,7 +26,7 @@ const headerStyles = (theme: ThemeType): JssStyles => ({
 });
 
 const FormGroupHeader = ({ toggle, collapsed, label, classes }: {
-  toggle: ()=>void
+  toggle: () => void
   collapsed: boolean
   label?: string
   classes: ClassesType
@@ -91,7 +91,7 @@ const FormGroupLayout = ({ children, label, heading, footer, collapsed, hasError
   paddingStyling: any
   flexStyle: any
   flexAlignTopStyle: any
-  toggle: ()=>void
+  toggle: () => void
   classes: ClassesType
 }) => {
   return <div className={classNames(

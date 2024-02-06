@@ -33,6 +33,7 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import isEqual from 'lodash/isEqual';
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -193,6 +194,11 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginBottom: theme.spacing.titleDividerSpacing,
     }
   },
+  titleWithMarket: {
+    [theme.breakpoints.down('sm')]: {
+      marginBottom: 35,
+    }
+  },
   centralColumn: {
     maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: 'auto',
@@ -302,7 +308,7 @@ export const postsCommentsThreadMultiOptions = {
 const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   eagerPostComments?: EagerPostComments,
-  refetch: ()=>void,
+  refetch: () => void,
   classes: ClassesType,
 }) => {
   const location = useSubscribedLocation();
@@ -310,7 +316,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
-  const [highlightDate,setHighlightDate] = useState<Date|undefined>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
+  const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
@@ -538,6 +544,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const noIndex = post.noIndex || post.rejected;
 
+  const marketInfo = getMarketInfo(post)
+
   const header = <>
     {!commentId && <>
       <HeadTags
@@ -556,7 +564,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     </>}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">
-      <div className={classes.title}>
+      <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo)})}>
         <div className={classes.centralColumn}>
           {commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={post} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
@@ -572,7 +580,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-            dialogueResponses={debateResponses} />
+            dialogueResponses={debateResponses} 
+            annualReviewMarketInfo={marketInfo}/>
         </div>
       </div>
     </AnalyticsContext>
@@ -701,7 +710,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             loadingMoreComments={loadingMore}
             post={post}
             newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
-            highlightDate={highlightDate}
+            highlightDate={highlightDate ?? undefined}
             setHighlightDate={setHighlightDate}
           />
           {isAF && <AFUnreviewedCommentCount post={post}/>}
@@ -719,7 +728,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       commentTree={commentTree}
       answersTree={answersTree}
       post={post}
-      highlightDate={highlightDate}
+      highlightDate={highlightDate ?? undefined}
     />
 
   return (<AnalyticsContext pageContext="postsPage" postId={post._id}>

@@ -35,7 +35,7 @@ export const useNewEvents = () => {
     return eventId;
   }, [events, createLWEvent]);
   
-  const closeEvent = useCallback((eventId: string, properties:any={}): string => {
+  const closeEvent = useCallback((eventId: string, properties: any={}): string => {
     let event = events[eventId];
     let currentTime = new Date();
     

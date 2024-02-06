@@ -45,7 +45,7 @@ export const T3AudioPlayer = ({classes, showEmbeddedPlayer, postId}: {
       onMouseOut={() => setMouseOverDiv(false)}
     >
       <Helmet>
-        <script type="module" src="https://embed.type3.audio/player.js" crossOrigin="anonymous"></script>
+        <script defer type="module" src="https://embed.type3.audio/player.js" crossOrigin="anonymous"></script>
       </Helmet>
       <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })} >
          {/* @ts-ignore */}

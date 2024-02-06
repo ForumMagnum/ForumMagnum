@@ -24,6 +24,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 // The order in which the topics are displayed is slightly different from their default ordering
 const topicTabsOrder = [
+  'z8qFsGt5iXyZiLbjN', // Opportunities
   'sWcuTyTB5dP3nas2t', // Global health
   'QdH9f8TC6G8oGYdgt', // Animal welfare
   'oNiQsBHA3i837sySD', // AI safety
@@ -49,7 +50,7 @@ const frontpageTab = {_id: '0', name: FRONTPAGE_TAB_NAME}
  * which includes the topics bar and the topic-specific tabs.
  * The "Frontpage" tab content comes from EAHome.
  */
-const EAHomeMainContent = ({FrontpageNode, classes}:{
+const EAHomeMainContent = ({FrontpageNode, classes}: {
   FrontpageNode: ComponentType,
   classes: ClassesType
 }) => {

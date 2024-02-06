@@ -25,7 +25,7 @@ defineMutation({
   name: "upsertUserDialogueCheck",
   resultType: "DialogueCheck",
   argTypes: "(targetUserId: String!, checked: Boolean, hideInRecommendations: Boolean)",
-  fn: async (_, {targetUserId, checked, hideInRecommendations}:{targetUserId:string, checked:boolean|null, hideInRecommendations:boolean|null}, {currentUser, repos}) => {
+  fn: async (_, {targetUserId, checked, hideInRecommendations}: {targetUserId: string, checked: boolean|null, hideInRecommendations: boolean|null}, {currentUser, repos}) => {
     if (!currentUser) throw new Error("No check user was provided")
     if (!targetUserId) throw new Error("No target user was provided")    
     if ( typeof checked === typeof hideInRecommendations ) {   
@@ -47,7 +47,7 @@ defineMutation({
   } 
 })
 
-export const getMatchingDialogueCheck = async (dialogueCheck : DbDialogueCheck) => {
+export const getMatchingDialogueCheck = async (dialogueCheck: DbDialogueCheck) => {
   return await new DialogueChecksRepo().checkForMatch(dialogueCheck.userId, dialogueCheck.targetUserId) 
 }
 
@@ -55,7 +55,7 @@ augmentFieldsDict(DialogueChecks, {
   match: {
     resolveAs: {
       fieldName: 'match',
-      type: 'Boolean',
+      type: 'Boolean!',
       resolver: async (dialogueCheck: DbDialogueCheck, args: void, context: ResolverContext): Promise<boolean> => {
         const currentUser = context.currentUser
         if (!currentUser) throw Error("Can't get match without current User")

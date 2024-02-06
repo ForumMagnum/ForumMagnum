@@ -7,7 +7,7 @@ import { Posts } from '../lib/collections/posts';
 import { postStatuses } from '../lib/collections/posts/constants';
 import { getConfirmedCoauthorIds, postGetPageUrl, postIsApproved } from '../lib/collections/posts/helpers';
 import { Comments } from '../lib/collections/comments/collection'
-import { reasonUserCantReceiveEmails, wrapAndSendEmail } from './emails/renderEmail';
+import { wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailWrapper';
 import './emailComponents/NewPostEmail';
 import './emailComponents/PostNominatedEmail';
@@ -64,16 +64,11 @@ const sendPostByEmail = async ({users, postId, reason, subject}: {
   let post = await Posts.findOne(postId);
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
   for(let user of users) {
-    if(!reasonUserCantReceiveEmails(user)) {
-      await wrapAndSendEmail({
-        user,
-        subject: subject ?? post.title,
-        body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
-      });
-    } else {
-      //eslint-disable-next-line no-console
-      console.log(`Skipping user ${user.username} when emailing: ${reasonUserCantReceiveEmails(user)}`);
-    }
+    await wrapAndSendEmail({
+      user,
+      subject: subject ?? post.title,
+      body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
+    });
   }
 }
 
@@ -351,7 +346,7 @@ getCollectionHooks("Posts").editAsync.add(async function RemoveRedraftNotificati
     // delete post notifications
     const postNotifications = await Notifications.find({documentId: newPost._id}).fetch()
     postNotifications.forEach(notification => removeNotification(notification._id))
-    // delete tagRel notifications
+    // delete tagRel notifications (note this deletes them even if the TagRel itself has `deleted: true`)
     const tagRels = await TagRels.find({postId:newPost._id}).fetch()
     await asyncForeachSequential(tagRels, async (tagRel) => {
       const tagRelNotifications = await Notifications.find({documentId: tagRel._id}).fetch()

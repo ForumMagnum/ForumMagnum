@@ -37,7 +37,7 @@ addGraphQLSchema(`
   }
 `)
 
-const isSharable = (document: any) : document is SharableDocument => {
+const isSharable = (document: any): document is SharableDocument => {
   return "coauthorStatuses" in document || "shareWithUsers" in document || "sharingSettings" in document
 }
 

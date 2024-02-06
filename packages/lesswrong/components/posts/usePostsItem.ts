@@ -12,6 +12,7 @@ import {
 } from "../../lib/collections/posts/helpers";
 import qs from "qs";
 import type { PopperPlacementType } from "@material-ui/core/Popper"
+import { AnnualReviewMarketInfo, getMarketInfo } from "../../lib/annualReviewMarkets";
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
@@ -72,6 +73,7 @@ export type PostsItemConfig = {
   forceSticky?: boolean,
   showReadCheckbox?: boolean,
   showKarma?: boolean,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showMostValuableCheckbox?: boolean,
   /** Whether or not to show interactive voting arrows */
   isVoteable?: boolean,
@@ -79,6 +81,13 @@ export type PostsItemConfig = {
 }
 
 export type UsePostsItem = ReturnType<typeof usePostsItem>;
+
+const areNewComments = (lastCommentedAt: Date | null, lastVisitedAt: Date | null) => {
+  if (!lastCommentedAt) return false;
+  if (!lastVisitedAt) return true;
+  return lastVisitedAt < lastCommentedAt;
+}
+
 
 export const usePostsItem = ({
   post,
@@ -140,10 +149,10 @@ export const usePostsItem = ({
   );
 
   const compareVisitedAndCommentedAt = (
-    lastVisitedAt: Date,
+    lastVisitedAt: Date | null,
     lastCommentedAt: Date | null,
   ) => {
-    const newComments = lastCommentedAt ? lastVisitedAt < lastCommentedAt : false;
+    const newComments = areNewComments(lastCommentedAt, lastVisitedAt)
     return (isRead && newComments && !readComments);
   }
 
@@ -179,6 +188,8 @@ export const usePostsItem = ({
     isSticky: isSticky(post, terms),
   };
 
+  const annualReviewMarketInfo = getMarketInfo(post)
+
   return {
     post,
     postLink,
@@ -201,6 +212,7 @@ export const usePostsItem = ({
     showReviewCount,
     showIcons,
     showKarma,
+    annualReviewMarketInfo,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,

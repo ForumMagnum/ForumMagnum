@@ -47,7 +47,7 @@ export async function getWithLoader<N extends CollectionNameString>(
   return await context.extraLoaders[loaderName].load(id);
 }
 
-export async function getWithCustomLoader<T, ID>(context: ResolverContext, loaderName: string, id: ID, idsToResults: (ids: Array<ID>)=>Promise<T[]>): Promise<T> {
+export async function getWithCustomLoader<T, ID>(context: ResolverContext, loaderName: string, id: ID, idsToResults: (ids: Array<ID>) => Promise<T[]>): Promise<T> {
   if (!context.extraLoaders[loaderName]) {
     context.extraLoaders[loaderName] = new DataLoader(idsToResults, { cache: true });
   }

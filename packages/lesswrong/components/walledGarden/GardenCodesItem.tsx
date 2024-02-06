@@ -79,8 +79,8 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 export const makeLinkAbsolute = (link: string) => {return link.startsWith('http://') || link.startsWith('https://') ? link : `https://${link}`}
 
-export const GardenCodesItem = ({classes, gardenCode}:{
-  classes:ClassesType,
+export const GardenCodesItem = ({classes, gardenCode}: {
+  classes: ClassesType,
   gardenCode: GardenCodeFragment
 }) => {
   const { GardenCodesEditForm, LWTooltip, ContentItemBody } = Components

@@ -219,6 +219,7 @@ declare global {
       yellow: ColorString,
       recentDiscussionGreen: ColorString,
       recentDiscussionGrey: ColorString,
+      headerKarma: ColorString,
       activeDotOrange: ColorString,
 
       commentsBubble: {
@@ -402,6 +403,7 @@ declare global {
       activeProgress: ColorString,
       progressBar: ColorString,
       adminButton: ColorString,
+      winner: ColorString,
     },
     background: {
       default: ColorString
@@ -497,8 +499,8 @@ declare global {
     
     breakpoints: {
       /** Down is *inclusive* - down(sm) will go up to the md breakpoint */
-      down:  (breakpoint: BreakpointName|number)=>string,
-      up: (breakpoint: BreakpointName|number)=>string,
+      down:  (breakpoint: BreakpointName|number) => string,
+      up: (breakpoint: BreakpointName|number) => string,
       values: Record<BreakpointName,number>,
     },
     spacing: {

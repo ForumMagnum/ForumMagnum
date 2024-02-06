@@ -43,7 +43,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const GardenCodeWidget = ({classes, type}:{classes:ClassesType, type: string}) => {
+export const GardenCodeWidget = ({classes, type}: {classes: ClassesType, type: string}) => {
 
   const { captureEvent } = useTracking()
   const currentUser =  useCurrentUser()
