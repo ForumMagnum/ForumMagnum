@@ -126,6 +126,7 @@ import './server/callbacks/localgroupCallbacks';
 import './server/callbacks/gardenCodeCallbacks';
 import './server/resolvers/commentResolvers';
 import './server/resolvers/notificationResolvers';
+import './server/resolvers/conversationResolvers';
 import './server/resolvers/dialogueMessageResolvers';
 import './server/callbacks/postCallbacks';
 import './server/posts/validatePost';

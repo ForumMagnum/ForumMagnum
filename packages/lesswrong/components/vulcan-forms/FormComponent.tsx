@@ -210,7 +210,10 @@ class FormComponent<T extends DbObject> extends Component<FormComponentWrapperPr
       event.preventDefault();
       event.stopPropagation();
     }
-    void this.props.updateCurrentValues({ [this.props.path]: null });
+    // To avoid issues with non-nullable fields, we set the localgroup multiselect to [] rather than null when cleared
+    // @ts-ignore (anything can get passed in to props via the "form" schema value)
+    const newVal = (this.props.input === 'SelectLocalgroup' && this.props.multiselect) ? [] : null;
+    void this.props.updateCurrentValues({ [this.props.path]: newVal });
     if (this.showCharsRemaining()) {
       this.updateCharacterCount(null);
     }

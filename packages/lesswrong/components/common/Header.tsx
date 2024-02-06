@@ -1,6 +1,6 @@
 import React, { useContext, useState, useCallback, useEffect } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { Link } from '../../lib/reactRouterWrapper';
+import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import NoSSR from 'react-no-ssr';
 import Headroom from '../../lib/react-headroom'
 import Toolbar from '@material-ui/core/Toolbar';
@@ -225,7 +225,7 @@ const Header = ({
 }: {
   standaloneNavigationPresent: boolean,
   sidebarHidden: boolean,
-  toggleStandaloneNavigation: ()=>void,
+  toggleStandaloneNavigation: () => void,
   stayAtTop?: boolean,
   searchResultsArea: React.RefObject<HTMLDivElement>,
   // CSS var corresponding to the background color you want to apply (see also appBarDarkBackground above)
@@ -238,9 +238,10 @@ const Header = ({
   const [searchOpen, setSearchOpenState] = useState(false);
   const [unFixed, setUnFixed] = useState(true);
   const currentUser = useCurrentUser();
+  const navigate = useNavigate();
   const {toc} = useContext(SidebarsContext)!;
   const { captureEvent } = useTracking()
-  const { unreadNotifications, unreadPrivateMessages, notificationsOpened } = useUnreadNotifications();
+  const { notificationsOpened } = useUnreadNotifications();
   const { pathname, hash } = useLocation();
 
   useEffect(() => {
@@ -251,6 +252,10 @@ const Header = ({
       setUnFixed(true);
     }
   }, [pathname, hash]);
+
+  const hasNotificationsPage = isFriendlyUI;
+  const hasKarmaChangeNotifier = !isFriendlyUI && currentUser && !currentUser.usernameUnset;
+  const hasMessagesButton = isFriendlyUI && currentUser && !currentUser.usernameUnset;
 
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
@@ -272,8 +277,19 @@ const Header = ({
     if (!currentUser) return;
     const { lastNotificationsCheck } = currentUser
 
-    captureEvent("notificationsIconToggle", {open: !notificationOpen, previousCheck: lastNotificationsCheck})
-    void handleSetNotificationDrawerOpen(!notificationOpen);
+    if (hasNotificationsPage) {
+      captureEvent("notificationsIconToggle", {
+        navigate: true,
+        previousCheck: lastNotificationsCheck,
+      });
+      navigate("/notifications");
+    } else {
+      captureEvent("notificationsIconToggle", {
+        open: !notificationOpen,
+        previousCheck: lastNotificationsCheck,
+      });
+      void handleSetNotificationDrawerOpen(!notificationOpen);
+    }
   }
 
   // We do two things when the search is open:
@@ -350,9 +366,9 @@ const Header = ({
   const {
     SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
     NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    ActiveDialogues, SiteLogo,
+    ActiveDialogues, SiteLogo, MessagesMenuButton,
   } = Components;
-  
+
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
   const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
     <AnalyticsContext pageSectionContext="usersMenu">
@@ -367,16 +383,20 @@ const Header = ({
     </NoSSR>
     {!isFriendlyUI && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
-    {currentUser && !currentUser.usernameUnset && <KarmaChangeNotifier
+    {hasKarmaChangeNotifier && <KarmaChangeNotifier
       currentUser={currentUser}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
     {currentUser && !currentUser.usernameUnset && <NotificationsMenuButton
-      unreadNotifications={unreadNotifications}
       toggle={handleNotificationToggle}
       open={notificationOpen}
       className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
     />}
+    {hasMessagesButton &&
+      <MessagesMenuButton
+        className={(isFriendlyUI && searchOpen) ? classes.hideXsDown : undefined}
+      />
+    }
     {isFriendlyUI && usersMenuNode}
   </div>
 
@@ -389,12 +409,15 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const HeaderNotificationsMenu = () => currentUser && <NotificationsMenu
-    unreadPrivateMessages={unreadPrivateMessages}
-    open={notificationOpen}
-    hasOpened={notificationHasOpened}
-    setIsOpen={handleSetNotificationDrawerOpen}
-  />
+  const HeaderNotificationsMenu = () => currentUser && !hasNotificationsPage
+    ? (
+      <NotificationsMenu
+        open={notificationOpen}
+        hasOpened={notificationHasOpened}
+        setIsOpen={handleSetNotificationDrawerOpen}
+      />
+    )
+    : null;
 
   return (
     <AnalyticsContext pageSectionContext="header">

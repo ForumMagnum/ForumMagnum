@@ -13,9 +13,9 @@ import type { ToCData } from '../../lib/tableOfContents';
 type ToCWithTitle = {title: string, sectionData: ToCData};
 type SidebarsContextType = {
   toc: ToCWithTitle|null,
-  setToC: (toc: ToCWithTitle|null)=>void,
+  setToC: (toc: ToCWithTitle|null) => void,
   sideCommentsActive: boolean,
-  setSideCommentsActive: (active: boolean)=>void,
+  setSideCommentsActive: (active: boolean) => void,
 }
 export const SidebarsContext = React.createContext<SidebarsContextType|null>(null);
 

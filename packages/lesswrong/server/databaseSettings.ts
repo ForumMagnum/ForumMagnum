@@ -53,7 +53,7 @@ export class DatabaseServerSetting<SettingValueType> {
   }
 }
 
-function validateSettings(registeredSettings:Record<string, "server" | "public" | "instance">, publicSettings:Record<string, any>, serverSettings:Record<string, any>) {
+function validateSettings(registeredSettings: Record<string, "server" | "public" | "instance">, publicSettings: Record<string, any>, serverSettings: Record<string, any>) {
   Object.entries(registeredSettings).forEach(([key, value]) => {
     if (value === "server" && typeof get(serverSettings, key) === "undefined") {
       // eslint-disable-next-line no-console

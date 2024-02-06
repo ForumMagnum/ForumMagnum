@@ -118,8 +118,8 @@ var scheduleEntry = function(entry: any) {
 // });
 SyncedCron.add = async function(entry: {
   name: string,
-  schedule: (parser: any)=>any,
-  job: ()=>void,
+  schedule: (parser: any) => any,
+  job: () => void,
   persist?: boolean,
 }) {
 

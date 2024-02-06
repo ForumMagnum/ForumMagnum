@@ -709,7 +709,7 @@ const UserPostsYouveRead = ({ classes, targetUserId, hideAtSm, limit = 20}: { cl
     variables: { userId: currentUser?._id, targetUserId: targetUserId, limit : limit },
   });
 
-  const readPosts:DbPost[] = data?.UsersReadPostsOfTargetUser
+  const readPosts: DbPost[] = data?.UsersReadPostsOfTargetUser
 
   const readPostsContainerRef = useRef<HTMLDivElement | null>(null);
   const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(readPostsContainerRef);
@@ -758,7 +758,7 @@ const UserTopTags = ({ classes, targetUserId }: { classes: ClassesType<typeof st
     variables: { userId: targetUserId },
   });
 
-  const topTags:[TagWithCommentCount] = data?.UserTopTags;
+  const topTags: [TagWithCommentCount] = data?.UserTopTags;
 
   const tagContainerRef = useRef<HTMLDivElement | null>(null);
   const { isScrolledToTop, isScrolledToBottom } = useScrollGradient(tagContainerRef);
@@ -856,9 +856,9 @@ const { loading: commentsLoading, error: commentsError, data: commentsData } = u
   skip: !currentUser
 });
 
-const topTags:TagWithCommentCount[] | undefined = tagData?.UserTopTags;
-const readPosts:PostYouveRead[] | undefined = postsData?.UsersReadPostsOfTargetUser
-const recommendedComments:RecommendedComment[] | undefined = commentsData?.UsersRecommendedCommentsOfTargetUser
+const topTags: TagWithCommentCount[] | undefined = tagData?.UserTopTags;
+const readPosts: PostYouveRead[] | undefined = postsData?.UsersReadPostsOfTargetUser
+const recommendedComments: RecommendedComment[] | undefined = commentsData?.UsersRecommendedCommentsOfTargetUser
 
 if (!currentUser || !topTags || !readPosts || !recommendedComments) return <Loading />;
 const tagsSentence = topTags.slice(0, 4).map(tag => tag.tag.name).join(', ');
@@ -866,7 +866,7 @@ const numRecommendations = (readPosts?.length ?? 0) + (recommendedComments?.leng
 const numShown = isExpanded ? numRecommendations : 2
 const numHidden = Math.max(0, numRecommendations - numShown);
 
-const allRecommendations:{reactIconName:string, prefix:string, Content:JSX.Element}[] = [
+const allRecommendations: {reactIconName: string, prefix: string, Content: JSX.Element}[] = [
   ...(topTags.length > 0 ? [{reactIconName: "examples", prefix: "top tags: ", Content: <>{tagsSentence}</>}] : []),
   ...readPosts.map(post => ({reactIconName: "elaborate", prefix: "post: ", Content: 
     <PostsTooltip postId={post._id}>
@@ -996,7 +996,7 @@ const NextStepsDialog = ({ onClose, userId, targetUserId, targetUserDisplayName,
 
   const topicRecommendations: {comment: {_id: string, contents: {html: string, plaintextMainText: string}}, recommendationReason: string, yourVote: string, theirVote: string}[] | undefined = data?.GetTwoUserTopicRecommendations; // Note CommentsList is too permissive here, but making my own type seemed too hard
 
-  const getTopicDict = (prefs: DialogueMatchPreferencesDefaultFragment, own: boolean) : {[topic: string]: ExtendedDialogueMatchPreferenceTopic} => {
+  const getTopicDict = (prefs: DialogueMatchPreferencesDefaultFragment, own: boolean): {[topic: string]: ExtendedDialogueMatchPreferenceTopic} => {
     const prefsDictList = prefs.topicPreferences
       .filter(({preference}) => preference === "Yes")
       .map(topic => [topic.text, {...topic, preference: own ? "Yes" : undefined, matchedPersonPreference: own ? undefined : "Yes"}])
@@ -1177,8 +1177,8 @@ const NextStepsDialogComponent = registerComponent("NextStepsDialog", NextStepsD
 
 
 const DialogueCheckBox: React.FC<{
-  targetUserId : string;
-  targetUserDisplayName : string;
+  targetUserId: string;
+  targetUserDisplayName: string;
   checkId?: string;
   isChecked: boolean, 
   isMatched: boolean;

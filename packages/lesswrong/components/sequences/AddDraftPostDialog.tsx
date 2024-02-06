@@ -11,7 +11,7 @@ import { useDialog } from '../common/withDialog';
 const AddDraftPostDialog = ({documentId, postIds, onClose}: {
   documentId: string,
   postIds: string[],
-  onClose?: ()=>void,
+  onClose?: () => void,
 }) => {
   const { flash } = useMessages();
   const [dialogPostIds, setDialogPostIds] = useState(postIds)

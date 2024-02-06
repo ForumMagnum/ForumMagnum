@@ -96,7 +96,7 @@ function filterLoggedOutActiveAbTestGroups(abTestGroups: CompleteTestGroupAlloca
 // Serve a page from cache, or render it if necessary. Takes a set of A/B test
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
-export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, userAgent: string|undefined, renderFn: (req:Request)=>Promise<RenderResult>) => {
+export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, userAgent: string|undefined, renderFn: (req: Request) => Promise<RenderResult>) => {
   const path = getPathFromReq(req);
   const cacheKey = cacheKeyFromReq(req);
   const cacheAffectingAbTestGroups = filterLoggedOutActiveAbTestGroups(abTestGroups);
@@ -300,7 +300,7 @@ export function getCacheHitRate() {
   return cacheHits / cacheQueriesTotal;
 }
 
-function printCacheState(options:any={}) {
+function printCacheState(options: any={}) {
   const {pruneCache=false} = options;
   // eslint-disable-next-line no-console
   const log = console.log;

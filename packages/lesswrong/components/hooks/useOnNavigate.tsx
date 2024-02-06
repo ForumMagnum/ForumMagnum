@@ -8,7 +8,7 @@ import * as _ from 'underscore';
 
 let lastLocation: RouterLocation|null = null;
 type LocationChange = {oldLocation: RouterLocation|null, newLocation: RouterLocation};
-let onNavigateFunctions: Array<(locationChange: LocationChange)=>void> = [];
+let onNavigateFunctions: Array<(locationChange: LocationChange) => void> = [];
 
 const NavigationEventSender = () => {
   const location = useSubscribedLocation();
@@ -42,7 +42,7 @@ const NavigationEventSender = () => {
  * at the *start* of the navigation, ie, when the link is first clicked (but
  * before most of the stuff at the destination has loaded).
  */
-export function useOnNavigate(fn: (change: LocationChange)=>void) {
+export function useOnNavigate(fn: (change: LocationChange) => void) {
   useEffect(() => {
     onNavigateFunctions.push(fn);
     return () => {
