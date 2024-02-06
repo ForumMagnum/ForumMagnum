@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import classNames from 'classnames';
-import { ImageProvider, useImageContext } from './ImageContext';
-import { ReviewWinnerImageInfo } from './PostsPageSplashHeader';
+import { ImageProvider, ReviewWinnerImageInfo, useImageContext } from './ImageContext';
 // import PostsPageSplashHeader from './PostsPageSplashHeader';
 
 
@@ -34,11 +33,11 @@ export const SplashHeaderImageOptions = ({ images, post, classes }: {
   // const { PostsPodcastPlayer, T3AudioPlayer } = Components;
 
   const [selectedImage, setSelectedImage] = useState(images[0].splashArtImageUrl);
-  const { setImageURL, } = useImageContext();
+  const { imageInfo, setImageInfo } = useImageContext();
 
-  const handleImageClick = (imageUrl: string) => {
-    setSelectedImage(imageUrl);
-    setImageURL(imageUrl); // Step 3
+  const handleImageClick = (image: ReviewWinnerImageInfo) => {
+    setSelectedImage(image.splashArtImageUrl);
+    setImageInfo(image); // Step 3
   };
 
   return (
@@ -48,7 +47,7 @@ export const SplashHeaderImageOptions = ({ images, post, classes }: {
           <div 
             className={classes.imageContainer}
             key={index}
-            onClick={() => handleImageClick(image.splashArtImageUrl)}
+            onClick={() => handleImageClick(image)}
           >
             <img
               src={image.splashArtImageUrl}

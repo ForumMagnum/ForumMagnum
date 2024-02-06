@@ -82,6 +82,7 @@ export const ImageCropPreview = ({ classes }: {
 
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const {imageInfo} = useImageContext();
+  const [saveSuccess, setSaveSuccess] = useState<boolean | null>(null);
 
   const startDragging = (e: React.MouseEvent<HTMLDivElement>) => {
     // Prevent triggering drag when clicking the close button or the resize button
@@ -148,29 +149,38 @@ export const ImageCropPreview = ({ classes }: {
     setIsBoxVisible(false);
   };
 
-  const { create: createSplashCoordinates, data: SplashArtCoordinates } = useCreate({
+  const { create: createSplashArtCoordinateMutation, data: SplashArtCoordinates } = useCreate({
     collectionName: 'SplashArtCoordinates',
-    fragmentName: 'SplashArtCoordinates'
+    fragmentName: 'SplashArtCoordinatesDefaultFragment'
   });
 
   const saveCoordinates = useCallback(async () => {
 
-    if (!imageInfo?.imageId) {
-      console.error('No image id provided');
-      return;
+    try {
+      if (!imageInfo?.imageId) {
+        console.error('No image id provided');
+        setSaveSuccess(false); // Set failure state
+        return;
+      }
+  
+      const splashArtData: SplashArtCoordinatesDefaultFragment = {
+        reviewWinnerArtId: imageInfo?.imageId,
+        xCoordinate: boxPosition.x,
+        yCoordinate: boxPosition.y,
+        width: boxSize.width,
+        height: boxSize.height,
+        logTime: new Date(),
+      };
+  
+      await createSplashArtCoordinateMutation({ data: splashArtData });
+
+      setSaveSuccess(true); // Set success state
     }
-
-    const splashArtData: SplashArtCoordinatesDefaultFragment = {
-      reviewWinnerArtId: imageInfo?.imageId,
-      xCoordinate: boxPosition.x,
-      yCoordinate: boxPosition.y,
-      width: boxSize.width,
-      height: boxSize.height,
-      logTime: new Date(),
-    };
-
-    await createSplashCoordinates({ data: splashArtData });
-  }, [boxPosition, boxSize, imageInfo, createSplashCoordinates]);
+    catch (error) {
+      console.error('Error saving coordinates', error);
+      setSaveSuccess(false); // Set failure state
+    }
+  }, [boxPosition, boxSize, imageInfo, createSplashArtCoordinateMutation]);
 
   return (
     <>
@@ -200,6 +210,8 @@ export const ImageCropPreview = ({ classes }: {
             <div
                 className={classes.saveCoordinates} onClick={saveCoordinates}
             >Save coordinates</div>
+            {saveSuccess === true && <div>Coordinates saved successfully! ${SplashArtCoordinates} </div>}
+            {saveSuccess === false && <div>Error saving coordinates. Please try again.</div>}
         </div>
         </>
       )}

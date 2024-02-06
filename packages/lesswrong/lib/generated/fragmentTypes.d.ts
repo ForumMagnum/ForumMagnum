@@ -1331,13 +1331,13 @@ interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavi
   readonly customHighlight: RevisionDisplay|null,
   readonly tableOfContentsRevision: any,
   readonly reviewWinner: ReviewWinnersDefaultFragment|null,
-  readonly reviewWinnerArt: Array<ReviewWinnerArtsDefaultFragment>,
+  readonly reviewWinnerArt: Array<ReviewWinnerArtImages>,
 }
 
 interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fragment on Posts
   readonly tableOfContents: any,
   readonly reviewWinner: ReviewWinnersDefaultFragment|null,
-  readonly reviewWinnerArt: Array<ReviewWinnerArtsDefaultFragment>,
+  readonly reviewWinnerArt: Array<ReviewWinnerArtImages>,
 }
 
 interface PostSequenceNavigation { // fragment on Posts
