@@ -38,7 +38,7 @@ const styles = (theme: ThemeType) => ({
         padding: '2px 5px',
         userSelect: 'none', // Prevent text selection
         color: 'black',
-        backgroundColor: '#fff',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
         fontSize: '1rem',
     },
     resizer: {
@@ -145,9 +145,12 @@ export const ImageCropPreview = ({ classes }: {
     setIsBoxVisible(false);
   };
 
+  // this function will write to a schema once we have one
   const saveCoordinates = () => {
     console.log("boxPosition", boxPosition);
     console.log("boxSize", boxSize);
+    console.log("imageURL", imageURL);
+    console.log("time of save", new Date());
   };
 
   return (
@@ -155,24 +158,17 @@ export const ImageCropPreview = ({ classes }: {
       <button className={classes.button} onClick={() => setIsBoxVisible(!isBoxVisible)}>Show Box</button>
       {isBoxVisible && (
         <>
-        {/* <div className={classes.overlay} style={overlayStyle('top')}></div>
-        <div className={classes.overlay} style={overlayStyle('bottom')}></div>
-        <div className={classes.overlay} style={overlayStyle('left')}></div>
-        <div className={classes.overlay} style={overlayStyle('right')}></div> */}
         <div className={classes.overlay} style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}></div>
         <div className={classes.moveableBox}
             style={{
               left: `${boxPosition.x}px`,
               top: `${boxPosition.y}px`,
               zIndex: 2000,
-              backgroundImage: `url(${imageURL})`, // Set the background image of the moveableBox
-              // backgroundPosition: 'center', // Center the background image
+              backgroundImage: `url(${imageURL})`, 
               backgroundPosition: `-${boxPosition.x}px -${boxPosition.y}px`, // Set the background position based on boxPosition
               backgroundSize: `${windowSize.width}px auto`, // Ensure the background image covers the entire screen     
               width: boxSize.width,
-              height: boxSize.height, 
-              // aspectRatio: `${boxWidth}/${boxHeight}`, // Maintain the aspect ratio
-            
+              height: boxSize.height,             
             }}
             onMouseDown={handleMouseDown}>
             <div className={classes.closeButton} onClick={closeBox}>
