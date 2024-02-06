@@ -7,7 +7,7 @@ import classNames from "classnames";
 const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    width: "min-content",
+    maxWidth: "100vw",
     maxHeight: "min(80vh, 720px)",
     display: "flex",
     flexDirection: "column",
@@ -18,6 +18,12 @@ const styles = (theme: ThemeType) => ({
         opacity: 1,
       },
     },
+  },
+  rootThin: {
+    width: 540,
+  },
+  rootWide: {
+    width: 612,
   },
   scrollable: {
     overflowY: "scroll",
@@ -75,6 +81,7 @@ export const EAOnboardingStage = ({
   canContinue,
   onContinue,
   footer,
+  thin,
   children,
   className,
   classes,
@@ -86,6 +93,7 @@ export const EAOnboardingStage = ({
   canContinue?: boolean,
   onContinue?: () => void | Promise<void>,
   footer?: ReactNode,
+  thin?: boolean,
   children?: ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -96,7 +104,10 @@ export const EAOnboardingStage = ({
       pageElementContext="onboardingFlow"
       pageElementSubContext={stageName}
     >
-      <div className={classes.root}>
+      <div className={classNames(classes.root, {
+        [classes.rootThin]: thin,
+        [classes.rootWide]: !thin,
+      })}>
         <div className={classes.scrollable}>
           <div className={classes.header}>
             <div className={classes.lightbulb}>{lightbulbIcon}</div>

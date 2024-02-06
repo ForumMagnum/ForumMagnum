@@ -9,7 +9,6 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "12px",
     marginBottom: 60,
-    width: 540,
   },
   secondaryText: {
     color: theme.palette.grey[600],
@@ -82,6 +81,7 @@ export const EAOnboardingUserStage = ({classes}: {
       }
       canContinue={canContinue}
       className={classes.root}
+      thin
     >
       <div>Many Forum users use their real name.</div>
       <EAOnboardingInput

@@ -11,7 +11,6 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     gap: "20px",
-    width: 612,
   },
   section: {
     display: "flex",
