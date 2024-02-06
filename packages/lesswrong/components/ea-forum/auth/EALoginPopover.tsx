@@ -58,6 +58,9 @@ const styles = (theme: ThemeType) => ({
     padding: "15px 0px",
     color: theme.palette.grey[1000],
     background: "transparent",
+    fontSize: 14,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontWeight: 500,
     "&::placeholder": {
       color: theme.palette.grey[600],
     },
