@@ -159,7 +159,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   btnRow: {
     display: 'flex',
     flexWrap: 'wrap',
-    columnGap: 16,
+    columnGap: 8,
     rowGap: '12px',
     alignItems: 'baseline',
     marginTop: 18,
