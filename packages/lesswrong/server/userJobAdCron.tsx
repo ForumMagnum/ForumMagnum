@@ -6,7 +6,7 @@ import UserJobAds from '../lib/collections/userJobAds/collection';
 import { Users } from '../lib/collections/users/collection';
 import uniq from 'lodash/fp/uniq';
 import { wrapAndSendEmail } from './emails/renderEmail';
-import '../emailComponents/EmailJobAdReminder';
+import './emailComponents/EmailJobAdReminder';
 import { Components } from './vulcan-lib';
 
 

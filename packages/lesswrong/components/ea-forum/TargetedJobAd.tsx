@@ -348,6 +348,9 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
   },
 }
 
+/**
+ * This component only handles the job ad UI. See TargetedJobAdSection.tsx for functional logic.
+ */
 const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: {
   ad: string,
   onDismiss: () => void,
@@ -414,11 +417,13 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
           </a>
         </InteractionWrapper>
       </div>
-      <Tooltip title="Dismiss">
-        <Button className={classes.closeButton} onClick={onDismiss}>
-          <CloseIcon className={classes.closeIcon} />
-        </Button>
-      </Tooltip>
+      <InteractionWrapper>
+        <Tooltip title="Dismiss">
+          <Button className={classes.closeButton} onClick={onDismiss}>
+            <CloseIcon className={classes.closeIcon} />
+          </Button>
+        </Tooltip>
+      </InteractionWrapper>
     </div>
     <div className={classes.mainRow}>
       <img src={adData.logo} className={classes.logo} />

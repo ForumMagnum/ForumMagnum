@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
@@ -10,11 +10,13 @@ import { useUpdate } from '../../lib/crud/withUpdate';
 import { JOB_AD_DATA } from './TargetedJobAd';
 import union from 'lodash/union';
 import intersection from 'lodash/intersection';
-import { filterModeIsSubscribed } from '../../lib/filterSettings';
+import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
-
+/**
+ * Section of a page that might display a job ad to the current user.
+ */
 const TargetedJobAdSection = () => {
   const currentUser = useCurrentUser()
   const updateCurrentUser = useUpdateCurrentUser()
@@ -22,6 +24,7 @@ const TargetedJobAdSection = () => {
   // we track when the user has seen the ad
   const { setNode, entry } = useIsInView()
   const { flash } = useMessages()
+  const recordCreated = useRef<boolean>(false)
 
   const { create: createUserJobAd } = useCreate({
     collectionName: 'UserJobAds',
@@ -31,7 +34,7 @@ const TargetedJobAdSection = () => {
     collectionName: 'UserJobAds',
     fragmentName: 'UserJobAdsMinimumInfo',
   })
-  const { results: userJobAds } = useMulti({
+  const { results: userJobAds, loading: userJobAdsLoading } = useMulti({
     terms: {view: 'adsByUser', userId: currentUser?._id},
     collectionName: 'UserJobAds',
     fragmentName: 'UserJobAdsMinimumInfo',
@@ -66,8 +69,8 @@ const TargetedJobAdSection = () => {
       // check if the ad fits the user's interests -
       // currently based on whether they have subscribed to all the topics relevant to the job ad
       const userTagSubs = currentUser.frontpageFilterSettings?.tags?.filter(
-        setting => filterModeIsSubscribed(setting.filterMode)
-      )?.map(setting => setting.tagId)
+        (setting: FilterTag) => filterModeIsSubscribed(setting.filterMode)
+      )?.map((setting: FilterTag) => setting.tagId)
       const userIsMatch = tagsReadIds && !difference(tagsReadIds, userTagSubs).length
       // TODO: We probably want to enable this, but not in the initial release, so commenting out for now.
       // const userIsMatch = coreTagReads &&
@@ -88,7 +91,12 @@ const TargetedJobAdSection = () => {
 
   // record when this user has seen the selected ad
   useEffect(() => {
-    if (!currentUser || !userJobAds || !activeJob || !entry?.isIntersecting) return
+    // skip when no data to record
+    if (!currentUser || userJobAdsLoading || !activeJob || !entry?.isIntersecting) return
+    // skip if we have already recorded this data
+    if (recordCreated.current || userJobAds?.some(ad => ad.jobName === activeJob)) return
+    // make sure to only create up to one record per view
+    recordCreated.current = true
     void createUserJobAd({
       data: {
         userId: currentUser._id,
@@ -97,11 +105,11 @@ const TargetedJobAdSection = () => {
       }
     })
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, userJobAds, activeJob, entry])
+  }, [currentUser, userJobAds, userJobAdsLoading, activeJob, entry])
   
   const dismissJobAd = () => {
     captureEvent('hideJobAd')
-    updateCurrentUser({hideJobAdUntil: moment().add(30, 'days').toDate()})
+    void updateCurrentUser({hideJobAdUntil: moment().add(30, 'days').toDate()})
   }
   
   const handleExpand = () => {

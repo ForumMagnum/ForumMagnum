@@ -36,10 +36,12 @@ const schema: SchemaType<"UserJobAds"> = {
   },
   lastUpdated: {
     type: Date,
+    optional: true,
     nullable: false,
     canCreate: ['members'],
     canRead: [userOwns],
     canUpdate: [userOwns],
+    onCreate: () => new Date(),
     onUpdate: () => new Date(),
   },
 };
