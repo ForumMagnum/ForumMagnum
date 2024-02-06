@@ -337,7 +337,7 @@ async function wasVotingPatternWarningDeliveredRecently(user: DbUser, moderatorA
 type Consequence = "warningPopup" | "denyThisVote" | "flagForModeration"
 
 interface VotingRateLimit {
-  voteCount: number | ((postCommentCount: number|null)=>number)
+  voteCount: number | ((postCommentCount: number|null) => number)
   /** If provided, periodInMinutes must be ≤ than 24 hours. At least one of periodInMinutes or allOnSamePost must be provided. */
   periodInMinutes: number|null,
   allOnSamePost?: true,
@@ -404,7 +404,7 @@ const getVotingRateLimits = (user: DbUser): VotingRateLimit[] => {
         message: "too many strong-votes in one hour",
       });
       rateLimits.push({
-        voteCount: (postCommentCount: number|null) => 5 + Math.round(postCommentCount??0 * .05),
+        voteCount: (postCommentCount: number|null) => 5 + Math.round((postCommentCount??0) * .05),
         periodInMinutes: null,
         allOnSamePost: true,
         types: "onlyStrong",
