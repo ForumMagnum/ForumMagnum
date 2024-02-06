@@ -66,6 +66,7 @@ importComponent("BlurredBackgroundModal", () => require('../components/common/Bl
 
 importComponent("EAOnboardingFlow", () => require('../components/ea-forum/onboarding/EAOnboardingFlow'));
 importComponent("EAOnboardingInput", () => require('../components/ea-forum/onboarding/EAOnboardingInput'));
+importComponent("EAOnboardingSelect", () => require('../components/ea-forum/onboarding/EAOnboardingSelect'));
 importComponent("EAOnboardingStage", () => require('../components/ea-forum/onboarding/EAOnboardingStage'));
 importComponent("EAOnboardingUserStage", () => require('../components/ea-forum/onboarding/EAOnboardingUserStage'));
 importComponent("EAOnboardingSubscribeStage", () => require('../components/ea-forum/onboarding/EAOnboardingSubscribeStage'));

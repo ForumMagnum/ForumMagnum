@@ -1,13 +1,15 @@
 import React, { useCallback, ChangeEvent } from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
 
-const styles = (theme: ThemeType) => ({
+// These styles are also used by `EAOnboardingSelect`
+export const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
     padding: "15px 17px",
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.loginInput,
     color: theme.palette.grey[1000],
+    border: "none",
     "&::placeholder": {
       color: theme.palette.grey[600],
     },
@@ -26,7 +28,7 @@ export const EAOnboardingInput = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const onChange = useCallback((ev: ChangeEvent<HTMLInputElement>) => {
-    setValue(ev.target.value);
+    setValue(ev.target.value ?? "");
   }, [setValue]);
   return (
     <input

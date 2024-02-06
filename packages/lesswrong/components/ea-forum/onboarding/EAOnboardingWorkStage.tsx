@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { CAREER_STAGES } from "../../../lib/collections/users/schema";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -15,7 +16,9 @@ export const EAOnboardingWorkStage = ({classes}: {
   const [careerStage, setCareerStage] = useState("");
 
   const canContinue = false;
-  const {EAOnboardingStage, EAOnboardingInput, SectionTitle} = Components;
+  const {
+    EAOnboardingStage, EAOnboardingInput, EAOnboardingSelect, SectionTitle,
+  } = Components;
   return (
     <EAOnboardingStage
       stageName="work"
@@ -46,10 +49,10 @@ export const EAOnboardingWorkStage = ({classes}: {
       </div>
       <div>
         <SectionTitle title="Career stage" />
-        {/* TODO */}
-        <EAOnboardingInput
+        <EAOnboardingSelect
           value={careerStage}
           setValue={setCareerStage}
+          options={CAREER_STAGES}
           placeholder="Work (6-15 years)"
         />
       </div>
