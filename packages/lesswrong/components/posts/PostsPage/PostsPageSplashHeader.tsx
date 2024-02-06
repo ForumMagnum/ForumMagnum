@@ -9,7 +9,7 @@ import { HashLink } from '../../common/HashLink';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useObserver } from '../../hooks/useObserver';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
-import { useImageContext } from './ImageContext';
+import { useImageContext, ReviewWinnerImageInfo } from './ImageContext';
 import { useHover } from '../../common/withHover';
 import { requireCssVar } from '../../../themes/cssVars';
 import { hideScrollBars } from '../../../themes/styleUtils';
@@ -18,12 +18,6 @@ import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 
 
 const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
-
-export type ReviewWinnerImageInfo = {
-  postId: string,
-  splashArtImageUrl: string,
-  splashArtImagePrompt: string | null,
-}
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -329,7 +323,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   classes: ClassesType<typeof styles>,
 }) => {
   const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
-  const { imageURL } = useImageContext();
+  const { imageInfo } = useImageContext();
   const currentUser = useCurrentUser();
   const [visible, setVisible] = React.useState(true);
   const { setToCVisible } = useContext(SidebarsContext)!;
@@ -364,11 +358,12 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   const default_images = ["https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png", "https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
 
   const backgroundImageStyle = {
-    backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageURL || post.reviewWinner?.splashArtImageUrl || default_images[0]}")`,
+    backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageInfo?.splashArtImageUrl || post.reviewWinner?.splashArtImageUrl || default_images[0]}")`,
   }
 
   const defaultImages: ReviewWinnerImageInfo[] = default_images.map(url => ({
     postId: post._id,
+    imageId: null,
     splashArtImageUrl: url,
     splashArtImagePrompt: null
   }))

@@ -1,9 +1,16 @@
 // ImageContext.tsx
 import React, { createContext, useContext, useState } from 'react';
 
+export type ReviewWinnerImageInfo = {
+  postId: string,
+  imageId: string | null,
+  splashArtImageUrl: string,
+  splashArtImagePrompt: string | null,
+}
+
 const ImageContext = createContext<{
-  imageURL: string | undefined;
-  setImageURL: React.Dispatch<React.SetStateAction<string>>;
+  imageInfo: ReviewWinnerImageInfo | undefined;
+  setImageInfo: React.Dispatch<React.SetStateAction<ReviewWinnerImageInfo>>;
 } | undefined>(undefined);
 
 export const useImageContext = () => {
@@ -15,10 +22,10 @@ export const useImageContext = () => {
 };
 
 export const ImageProvider: React.FC = ({ children }) => {
-  const [imageURL, setImageURL] = useState<string | undefined>(undefined);
+  const [imageInfo, setImageInfo] = useState<ReviewWinnerImageInfo | undefined>(undefined);
   
   return (
-    <ImageContext.Provider value={{ imageURL, setImageURL }}>
+    <ImageContext.Provider value={{ imageInfo, setImageInfo }}>
       {children}
     </ImageContext.Provider>
   );

@@ -1,7 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { useImageContext } from './ImageContext';
 import { useEventListener } from '../../hooks/useEventListener';
+import SplashArtCoordinates from '../../../lib/collections/splashArtCoordinates/collection';
+import { useCreate } from '../../../lib/crud/withCreate';
+// import { createAdminContext, createMutator } from '../../../server/vulcan-lib';
+// import { createAdminContext } from '../../../server/vulcan-lib/query';
 
 const initialHeight = 480;
 const initialWidth = 360;
@@ -78,7 +82,7 @@ export const ImageCropPreview = ({ classes }: {
   const [initialResizePosition, setInitialResizePosition] = useState({ x: initialWidth, y: initialHeight });
 
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
-  const {imageURL} = useImageContext();
+  const {imageInfo} = useImageContext();
 
   const startDragging = (e: React.MouseEvent<HTMLDivElement>) => {
     // Prevent triggering drag when clicking the close button or the resize button
@@ -145,13 +149,29 @@ export const ImageCropPreview = ({ classes }: {
     setIsBoxVisible(false);
   };
 
-  // this function will write to a schema once we have one
-  const saveCoordinates = () => {
-    console.log("boxPosition", boxPosition);
-    console.log("boxSize", boxSize);
-    console.log("imageURL", imageURL);
-    console.log("time of save", new Date());
-  };
+  const { create: createSplashCoordinates, data: SplashArtCoordinates } = useCreate({
+    collectionName: 'SplashArtCoordinates',
+    fragmentName: 'SplashArtCoordinates'
+  });
+
+  const saveCoordinates = useCallback(async () => {
+
+    if (!imageInfo?.imageId) {
+      console.error('No image id provided');
+      return;
+    }
+
+    const splashArtData: SplashArtCoordinatesDefaultFragment = {
+      reviewWinnerArtId: imageInfo?.imageId,
+      xCoordinate: boxPosition.x,
+      yCoordinate: boxPosition.y,
+      width: boxSize.width,
+      height: boxSize.height,
+      logTime: new Date(),
+    };
+
+    await createSplashCoordinates({ data: splashArtData });
+  }, [boxPosition, boxSize, imageInfo, createSplashCoordinates]);
 
   return (
     <>
@@ -164,7 +184,7 @@ export const ImageCropPreview = ({ classes }: {
               left: `${boxPosition.x}px`,
               top: `${boxPosition.y}px`,
               zIndex: 2000,
-              backgroundImage: `url(${imageURL})`, 
+              backgroundImage: `url(${imageInfo?.splashArtImageUrl})`, 
               backgroundPosition: `-${boxPosition.x}px -${boxPosition.y}px`, // Set the background position based on boxPosition
               backgroundSize: `${windowSize.width}px auto`, // Ensure the background image covers the entire screen     
               width: boxSize.width,
