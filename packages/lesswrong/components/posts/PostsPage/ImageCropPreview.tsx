@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
+import { useImageContext } from './ImageContext';
+import { useEventListener } from '../../hooks/useEventListener';
 
-const boxHeight = 480;
-const boxWidth = 360;
+const initialHeight = 480;
+const initialWidth = 360;
+const aspectRatio = initialHeight / initialWidth;
 
 const styles = (theme: ThemeType) => ({
     button: {
@@ -15,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     },
     overlay: {
         position: 'fixed',
-        background: 'rgba(0, 0, 0, 0.7)'
+        // background: 'rgba(0, 0, 0, 0.7)'
     },
     moveableBox: { 
         display: 'flex', 
@@ -23,8 +26,6 @@ const styles = (theme: ThemeType) => ({
         justifyContent: 'space-around',
         marginBottom: '40px', 
         position: 'absolute',
-        width: boxWidth,
-        height: boxHeight,
         background: 'transparent',
         border: '2px solid white',
         cursor: 'move'
@@ -36,9 +37,30 @@ const styles = (theme: ThemeType) => ({
         cursor: 'pointer',
         padding: '2px 5px',
         userSelect: 'none', // Prevent text selection
-        color: 'white',
-        fontSize: '1.5rem',
-    }
+        color: 'black',
+        backgroundColor: '#fff',
+        fontSize: '1rem',
+    },
+    resizer: {
+      width: '10px',
+      height: '10px',
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      cursor: 'nwse-resize',
+      backgroundColor: '#fff',
+      border: '1px solid #000',
+    },
+    saveCoordinates: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      cursor: 'pointer',
+      padding: '2px 5px',
+      userSelect: 'none', // Prevent text selection
+      color: 'black',
+      fontSize: '1rem',
+    },
   });
 
 export const ImageCropPreview = ({ classes }: {
@@ -46,64 +68,86 @@ export const ImageCropPreview = ({ classes }: {
   }) => {
   const [isBoxVisible, setIsBoxVisible] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [boxPosition, setBoxPosition] = useState({ x: 50, y: 50 });
+  const [isResizing, setIsResizing] = useState(false);
+
+  const [boxPosition, setBoxPosition] = useState({ x: 100, y: 100 });
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 }); 
+
+  const [initialBoxSize, setInitialBoxSize] = useState({ width: initialWidth, height: initialHeight });
+  const [boxSize, setBoxSize] = useState({ width: initialWidth, height: initialHeight });
+  const [initialResizePosition, setInitialResizePosition] = useState({ x: initialWidth, y: initialHeight });
+
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
-
-  useEffect(() => {
-    const moveBox = (e: MouseEvent) => {
-      if (isBoxVisible && isDragging) {
-        setBoxPosition({
-          x: e.clientX - 50, // Adjust based on the box size for centering
-          y: e.clientY - 50,
-        });
-      }
-    };
-
-    const updateWindowSize = () => {
-        setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-      };
-
-    // if (isBoxVisible) {
-    //     window.addEventListener('mousemove', moveBox);
-    //   } else {
-    //     window.removeEventListener('mousemove', moveBox);
-    //   }
-
-    window.addEventListener('resize', updateWindowSize);
-    window.addEventListener('mousemove', moveBox);
-    window.addEventListener('mouseup', () => setIsDragging(false)); // End dragging
-
-    return () => {
-      window.removeEventListener('resize', updateWindowSize);
-      window.removeEventListener('mousemove', moveBox);
-      window.removeEventListener('mouseup', () => setIsDragging(false));
-    };
-  }, [isBoxVisible, isDragging]);
+  const {imageURL} = useImageContext();
 
   const startDragging = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Prevent triggering drag when clicking the close button
-    if ((e.target as HTMLElement).className !== 'classes.closeButton') {
-      setIsDragging(true); // Start dragging
+    // Prevent triggering drag when clicking the close button or the resize button
+    if ((e.target as HTMLElement).className.includes('resizer') || (e.target as HTMLElement).className.includes('closeButton')) {
+      return;
+    }
+    setIsDragging(true);
+    setDragOffset({
+        x: e.clientX - boxPosition.x,
+        y: e.clientY - boxPosition.y,
+      });
+  };
+
+  const startResizing = (e: React.MouseEvent<HTMLDivElement>) => {
+    setInitialBoxSize({ width: boxSize.width, height: boxSize.height });
+    setInitialResizePosition({ x: e.clientX, y: e.clientY });
+    setIsResizing(true);
+
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).className.includes('resizer')) {
+      startResizing(e);
+    } else {
+      startDragging(e);
     }
   };
+
+  const endMouseDown = () => {
+    setIsDragging(false);
+    setIsResizing(false);
+  }
+
+  const moveBox = (e: MouseEvent) => {
+    setBoxPosition({
+      x: e.clientX - dragOffset.x,
+      y: e.clientY - dragOffset.y,
+    });
+  };
+
+  const resizeBox = (e: MouseEvent) => {
+    const additionalWidth = e.clientX - initialResizePosition.x;
+    const newWidth = initialBoxSize.width + additionalWidth;
+    const newHeight = newWidth * aspectRatio;
+
+    setBoxSize({ width: newWidth, height: newHeight });
+  };
+
+  const handleBox = (e: MouseEvent) => {
+    if (isDragging && !isResizing) moveBox(e);
+    if (isResizing) resizeBox(e);
+  }
+
+  const updateWindowSize = () => {
+    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+  };
+
+  useEventListener('resize', updateWindowSize);
+  useEventListener('mousemove', handleBox);
+  useEventListener('mouseup', endMouseDown);
+
 
   const closeBox = () => {
     setIsBoxVisible(false);
   };
 
-  const overlayStyle = (position: 'top' | 'bottom' | 'left' | 'right') => {
-    switch (position) {
-      case 'top':
-        return { top: 0, height: `${boxPosition.y}px`, left: 0, right: 0 };
-      case 'bottom':
-        return { bottom: 0, height: `${windowSize.height - boxPosition.y - boxHeight + 0.75}px`, left: 0, right: 0 }; // I have no idea why we are adding the 0.75
-      case 'left':
-        return { top: `${boxPosition.y}px`, height: boxHeight, left: 0, width: `${boxPosition.x}px` };
-      case 'right':
-        return { top: `${boxPosition.y}px`, height: boxHeight, right: 0, width: `${windowSize.width - boxPosition.x - boxWidth}px` };
-      default:
-        return {};
-    }
+  const saveCoordinates = () => {
+    console.log("boxPosition", boxPosition);
+    console.log("boxSize", boxSize);
   };
 
   return (
@@ -111,19 +155,36 @@ export const ImageCropPreview = ({ classes }: {
       <button className={classes.button} onClick={() => setIsBoxVisible(!isBoxVisible)}>Show Box</button>
       {isBoxVisible && (
         <>
-        <div className={classes.overlay} style={overlayStyle('top')}></div>
+        {/* <div className={classes.overlay} style={overlayStyle('top')}></div>
         <div className={classes.overlay} style={overlayStyle('bottom')}></div>
         <div className={classes.overlay} style={overlayStyle('left')}></div>
-        <div className={classes.overlay} style={overlayStyle('right')}></div>
+        <div className={classes.overlay} style={overlayStyle('right')}></div> */}
+        <div className={classes.overlay} style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}></div>
         <div className={classes.moveableBox}
             style={{
               left: `${boxPosition.x}px`,
               top: `${boxPosition.y}px`,
+              zIndex: 2000,
+              backgroundImage: `url(${imageURL})`, // Set the background image of the moveableBox
+              // backgroundPosition: 'center', // Center the background image
+              backgroundPosition: `-${boxPosition.x}px -${boxPosition.y}px`, // Set the background position based on boxPosition
+              backgroundSize: `${windowSize.width}px auto`, // Ensure the background image covers the entire screen     
+              width: boxSize.width,
+              height: boxSize.height, 
+              // aspectRatio: `${boxWidth}/${boxHeight}`, // Maintain the aspect ratio
+            
             }}
-            onMouseDown={startDragging}>
+            onMouseDown={handleMouseDown}>
             <div className={classes.closeButton} onClick={closeBox}>
                 x
             </div>
+            <div
+                className={classes.resizer}
+                onMouseDown={handleMouseDown}
+            ></div>
+            <div
+                className={classes.saveCoordinates} onClick={saveCoordinates}
+            >Save coordinates</div>
         </div>
         </>
       )}

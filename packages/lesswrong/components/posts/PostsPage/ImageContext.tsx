@@ -16,8 +16,6 @@ export const useImageContext = () => {
 
 export const ImageProvider: React.FC = ({ children }) => {
   const [imageURL, setImageURL] = useState<string | undefined>(undefined);
-    // tslint:disable-next-line:no-console
-  console.log('imageURL set: ', imageURL)
   
   return (
     <ImageContext.Provider value={{ imageURL, setImageURL }}>
