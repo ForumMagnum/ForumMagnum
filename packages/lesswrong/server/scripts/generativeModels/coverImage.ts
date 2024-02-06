@@ -9,6 +9,7 @@ import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collecti
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
 import { imagineAPIKeySetting, reviewArtSlackAPIKeySetting, reviewArtSlackSigningSecretSetting } from '../../../lib/instanceSettings.ts';
 import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
+import { sleep } from '../../../lib/utils/asyncUtils.ts';
 
 const DEPLOY = false
 
@@ -61,7 +62,6 @@ const releaseMidjourneyRights = () => {
 }
 
 const releaseEssayThreadRights = (title: string) => {
-  console.log(essayRights, title)
   essayRights[title] = false
 }
 
@@ -114,7 +114,8 @@ const getEssays = async (): Promise<Essay[]> => {
   })
 }
 
-type Essay = {post: DbPost, title: string, content: string, threadTs?: string}
+type Essay = {post: DbPost, title: string, content: string}
+type PostedEssay = {post: DbPost, title: string, content: string, threadTs: string}
 
 const getElements = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
   const content = essay.content.length > 25_000 ? essay.content.slice(0, 12_500) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-12_500) : essay.content
@@ -150,9 +151,7 @@ const prompter = (el: string) => {
 }
 
 
-const postPromptImages = async (prompt: string, {title, threadTs}: {title: string, threadTs?: string}, images: string[]) => {
-  console.log('yo', prompt, title, threadTs)
-  if (!threadTs) return
+const postPromptImages = async (prompt: string, {title, threadTs}: {title: string, threadTs: string}, images: string[]) => {
   await acquireEssayThreadRights(title)
   await postReply(`*Prompt: ${prompt}*`, threadTs)
 
@@ -169,12 +168,11 @@ const postPromptImages = async (prompt: string, {title, threadTs}: {title: strin
       }
     )
   }))
-  console.log('all uploaded')
   setTimeout(() => releaseEssayThreadRights(title), 10_000)
+  return images
 }
 
-const saveImages = async (el: string, essay: Essay, urls: string[]) => {
-  await postPromptImages(el, essay, urls)
+const saveImages = async (el: string, essay: PostedEssay, urls: string[]) => {
   for (let i = 0; i < urls.length; i++) {
     await moveImageToCloudinary(urls[i], `splashArtImagePrompt${el}{i}`)
     await createMutator({
@@ -190,8 +188,11 @@ const saveImages = async (el: string, essay: Essay, urls: string[]) => {
   return urls
 }
 
+const upscaleImage = async (url: string): Promise<string> => {
+  return url
+}
 
-async function go(essays: Essay[], essayIx: number, el: string): Promise<string[]> {
+async function getEssayPromptImages(promptElement: string): Promise<string[]> {
   const imagineKey = imagineAPIKeySetting.get();
   if (!imagineKey) {
     throw new Error('No imagine API key found!');
@@ -205,7 +206,7 @@ async function go(essays: Essay[], essayIx: number, el: string): Promise<string[
         'Authorization': `Bearer ${imagineKey}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({prompt: prompter(el)})
+      body: JSON.stringify({prompt: prompter(promptElement)})
     });
 
     promptResponseData = await response.json();
@@ -214,42 +215,35 @@ async function go(essays: Essay[], essayIx: number, el: string): Promise<string[
     throw error;
   }
 
-  const blockTilDone: Promise<string[]> = new Promise((resolve) => {
-    async function checkOnJob (): Promise<string[]> {
-      try {
-        const response = await fetch(`https://cl.imagineapi.dev/items/images/${promptResponseData.data.id}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${imagineKey}`,
-            'Content-Type': 'application/json'
-          }
-        })
-  
-        const responseData = await response.json()
-        if (responseData.data.status === 'completed' || responseData.data.status === 'failed') {
-          console.log(responseData.data.status, el, essayIx, essays[essayIx].title)
-          if (responseData.data.status === 'failed') {
-            console.error('Image generation failed:', responseData.data);
-            resolve([])
-            return []
-          }
-          releaseMidjourneyRights()
-          return responseData.data.upscaled_urls
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, 5_000))
-          return await checkOnJob()
-          // console.log("Image is not finished generation. Status: ", responseData.data.status)
+  async function checkOnJob(): Promise<string[]> {
+    try {
+      const response = await fetch(`https://cl.imagineapi.dev/items/images/${promptResponseData.data.id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${imagineKey}`,
+          'Content-Type': 'application/json'
         }
-      } catch (error) {
-        console.error('Error getting updates', error);
-        return await checkOnJob()
+      })
+
+      const responseData = await response.json()
+      if (responseData.data.status === 'completed' || responseData.data.status === 'failed') {
+        if (responseData.data.status === 'failed') {
+          console.error('Image generation failed:', responseData.data);
+          return []
+        }
+        releaseMidjourneyRights()
+        return responseData.data.upscaled_urls
+      } else {
+        await sleep(5_000)
+        return checkOnJob()
       }
+    } catch (error) {
+      console.error('Error getting updates', error);
+      return checkOnJob()
     }
+  }
 
-    void checkOnJob().then(urls => saveImages(el, essays[essayIx], urls)).then(resolve)
-  })
-
-  return await blockTilDone
+  return checkOnJob()
 }
 
 const slackToken = reviewArtSlackAPIKeySetting.get();
@@ -288,9 +282,8 @@ async function createThread(initialText: string) {
   }
 }
 
-async function makeEssayThread(essay: {title: string, content: string, threadTs?: string}) {
-  essay.threadTs = await createThread(`Post title: ${essay.title}`);
-}
+const makeEssayThread = async (essay: Essay): Promise<PostedEssay> =>
+  ({...essay, threadTs: await createThread(`Post title: ${essay.title}`)})
 
 // Post a reply to the thread
 async function postReply(text: string, threadTs: string) {
@@ -305,18 +298,34 @@ async function main () {
   const limit = 2
   const essays = (await getEssays()).slice(0, limit)
 
-  const [promElementss] = await essays.reduce(async (pEC: Promise<[Promise<string[]>, number]>, essay, i): Promise<[Promise<string[]>, number]> => {
-    const [eltss, charsRequested] = await pEC
+  const [promElementss] = await essays.reduce(async (prev: Promise<[Promise<string[]>, number]>, essay): Promise<[Promise<string[]>, number]> => {
+
+    const [promptElementses, charsRequested] = await prev
     let newChars = charsRequested
+
     if ((charsRequested + essay.content.length) >= 30_000) {
-      await Promise.all([new Promise((resolve) => setTimeout(resolve, 60_000)), eltss])
+      await Promise.all([sleep(60_000), promptElementses])
       newChars = 0
     }
     newChars += Math.min(essay.content.length, 30_000)
 
-    const images = getElements(openAiClient, essay).then(els => Promise.all([makeEssayThread(essay), Promise.all(els.slice(0,limit).map(el => go(essays, i, el))).then(ims => ims.flat())]))
+    const images = getElements(openAiClient, essay)
+      .then(async els => [els, await makeEssayThread(essay)])
+      .then(([els, postedEssay]: [string[], PostedEssay]) =>
+        Promise.all(els
+          .slice(0,limit)
+          .map(el => getEssayPromptImages(el)
+            .then(urls => Promise.all(urls.map(upscaleImage)))
+            .then(urls => saveImages(el, postedEssay, urls))
+            .then(urls => postPromptImages(el, postedEssay, urls)))))
+      .then(ims => ims.flat())
 
-    return Promise.resolve([Promise.all([eltss, images]).then(([elts, [_, el]]) => [...elts, ...el]), newChars])
+    return [
+      Promise
+        .all([promptElementses, images])
+        .then(([elts, els]) => [...elts, ...els]),
+      newChars
+    ]
   }, Promise.resolve([Promise.resolve([]), 0]) as Promise<[Promise<string[]>, number]>)
 
   const imUrls = await promElementss
@@ -327,4 +336,4 @@ async function main () {
 
 }
 
-Globals.coverImages = () => main()
+Globals.coverImages = main
