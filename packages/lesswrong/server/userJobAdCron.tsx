@@ -8,25 +8,34 @@ import uniq from 'lodash/fp/uniq';
 import { wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailJobAdReminder';
 import { Components } from './vulcan-lib';
+import { loggerConstructor } from '../lib/utils/logging';
 
 
 addCronJob({
   name: 'sendJobAdReminderEmails',
   interval: `every 1 day`,
   async job() {
+    const logger = loggerConstructor(`cron-sendJobAdReminderEmails`)
+
     // Find all the job ads where the deadline is one week away
     const jobNames = Object.keys(JOB_AD_DATA).filter(jobName => {
       const deadline = JOB_AD_DATA[jobName].deadline
-      deadline && moment().add(1, 'week').isSameOrBefore(deadline) && moment().add(1, 'week').add(1, 'day').isAfter(deadline)
+      return deadline && moment().add(1, 'week').isSameOrBefore(deadline) && moment().add(1, 'week').add(1, 'day').isAfter(deadline)
     })
-    if (!jobNames.length) return;
+    if (!jobNames.length) {
+      logger('No eligible jobs found')
+      return
+    }
 
     // Find all the user reminders set for these jobs
     const userJobAds = await UserJobAds.find({
       jobName: {$in: jobNames},
       adState: 'reminderSet'
     }).fetch()
-    if (!userJobAds.length) return;
+    if (!userJobAds.length) {
+      logger(`No users to remind for jobs: ${jobNames.join(', ')}`)
+      return
+    }
     
     // Get all the email recipient data
     const users = await Users.find({
@@ -35,7 +44,10 @@ addCronJob({
       deleteContent: {$ne: true},
       deleted: {$ne: true}
     }).fetch()
-    if (!users.length) return;
+    if (!users.length) {
+      logger(`No user data found for reminders for jobs: ${jobNames.join(', ')}`)
+      return
+    }
     
     for (let userJobAd of userJobAds) {
       const recipient = users.find(u => u._id === userJobAd.userId)
@@ -43,13 +55,13 @@ addCronJob({
         const jobAdData = JOB_AD_DATA[userJobAd.jobName]
         void wrapAndSendEmail({
           user: recipient,
-          subject: `Reminder: ${jobAdData.role} role at ${jobAdData.org}`,
+          subject: `Reminder: ${jobAdData.role} role at${jobAdData.insertThe ? ' the ' : ' '}${jobAdData.org}`,
           body: <Components.EmailJobAdReminder jobName={userJobAd.jobName} />,
           force: true  // ignore the "unsubscribe to all" in this case, since the user initiated it
         })
       }
     }
     
-    return `Sent email reminders for ${jobNames.join(', ')} to ${users.length} users`
+    logger(`Sent email reminders for ${jobNames.join(', ')} to ${users.length} users`)
   }
 });

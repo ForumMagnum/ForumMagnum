@@ -32,7 +32,7 @@ const schema: SchemaType<"UserJobAds"> = {
     canCreate: ['members'],
     canRead: [userOwns, 'admins'],
     canUpdate: [userOwns, 'admins'],
-    allowedValues: ['seen', 'expanded', 'applied', 'reminderSet'] // TODO: split these?
+    allowedValues: ['seen', 'expanded', 'applied', 'reminderSet']
   },
   lastUpdated: {
     type: Date,

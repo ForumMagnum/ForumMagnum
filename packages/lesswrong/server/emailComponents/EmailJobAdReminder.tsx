@@ -42,6 +42,7 @@ const EmailJobAdReminder = ({
   const jobData = JOB_AD_DATA[jobName];
   const link = jobData.bitlyLink;
   const role = jobData.role;
+  const insertThe = jobData.insertThe;
   const org = jobData.org;
   const description = jobData.getDescription(classes);
 
@@ -52,7 +53,7 @@ const EmailJobAdReminder = ({
       </div>
       <hr className={classes.hr}/>
       <h2>
-        {role} at {org}
+        {role} at{insertThe ? ' the ' : ' '}{org}
       </h2>
       <div>{description}</div>
       <hr className={classes.hr}/>

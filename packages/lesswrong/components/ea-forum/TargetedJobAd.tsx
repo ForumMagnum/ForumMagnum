@@ -250,7 +250,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     logo: 'https://res.cloudinary.com/cea/image/upload/q_auto,f_auto/v1707183771/Screen_Shot_2024-02-05_at_8.42.20_PM',
     occupation: 'biosecurity and policy',
     feedbackLinkPrefill: 'Biosecurity+Policy+Advisor+at+CLTR',
-    bitlyLink: "https://www.google.com", // https://www.longtermresilience.org/post/we-are-hiring-for-a-biosecurity-policy-adviser-deadline-8-march-2024
+    bitlyLink: "https://efctv.org/4buFxw8", // https://www.longtermresilience.org/post/we-are-hiring-for-a-biosecurity-policy-adviser-deadline-8-march-2024
     role: 'Biosecurity Policy Advisor',
     insertThe: true,
     org: 'Centre for Long-Term Resilience',
@@ -287,7 +287,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     logo: 'https://80000hours.org/wp-content/uploads/2022/06/LEEP-logo-160x160.png',
     occupation: 'global health and policy',
     feedbackLinkPrefill: 'Program+Manager+at+LEEP',
-    bitlyLink: "", // https://leadelimination.org/jobs/
+    bitlyLink: "https://efctv.org/49HrguD", // https://leadelimination.org/jobs/
     role: 'Program Manager',
     insertThe: true,
     org: 'Lead Exposure Elimination Project',
@@ -322,7 +322,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     logo: 'https://80000hours.org/wp-content/uploads/2019/12/he-humane-league-160x160.png',
     occupation: 'animal welfare and policy',
     feedbackLinkPrefill: 'APA+Program+Specialist+at+THL',
-    bitlyLink: "", // https://thehumaneleague.org/single-offer-career?gh_jid=5608962
+    bitlyLink: "https://efctv.org/3UrH6ov", // https://thehumaneleague.org/single-offer-career?gh_jid=5608962
     role: 'Animal Policy Alliance, Program Specialist',
     org: 'The Humane League',
     orgLink: '/topics/the-humane-league',

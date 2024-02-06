@@ -22,7 +22,7 @@ getCollectionHooks("UserJobAds").updateAsync.add(async function setJobAdReminder
     if (moment().add(1, 'week').isAfter(jobAdData.deadline)) {
       await wrapAndSendEmail({
         user: currentUser,
-        subject: `Reminder: ${jobAdData.role} role at ${jobAdData.org}`,
+        subject: `Reminder: ${jobAdData.role} role at${jobAdData.insertThe ? ' the ' : ' '}${jobAdData.org}`,
         body: <Components.EmailJobAdReminder jobName={document.jobName} />,
         force: true  // ignore the "unsubscribe to all" in this case, since the user initiated it
       })
