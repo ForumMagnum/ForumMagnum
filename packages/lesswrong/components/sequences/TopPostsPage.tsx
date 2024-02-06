@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { ComponentProps, PropsWithoutRef, useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { useLocation } from '../../lib/routeUtil';
@@ -15,10 +15,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 
 const MAX_GRID_SIZE = 6;
 
-const gridPositionToClassName = ( gridPosition: number ) => `gridPosition${gridPosition}`;
+const gridPositionToClassName = (gridPosition: number) => `gridPosition${gridPosition}` as const;
 
-const gridPositionToClassesEntry = ( theme: ThemeType, gridPosition: number) => {
-
+const gridPositionToClassesEntry = (theme: ThemeType, gridPosition: number) => {
   return [gridPositionToClassName(gridPosition), {
     left: `calc(-${(gridPosition % 3) * 3} * 120px)`,
     [theme.breakpoints.down(1200)]: {
@@ -27,8 +26,8 @@ const gridPositionToClassesEntry = ( theme: ThemeType, gridPosition: number) => 
     [theme.breakpoints.down(800)]: {
       left: 0
     }
-  }]
-}
+  }] as const;
+};
 
 const styles = (theme: ThemeType) => ({
   title: {
@@ -124,6 +123,17 @@ const styles = (theme: ThemeType) => ({
       width: 38,
     }
   },
+  hiddenImageGrid: {
+    '& $imageGridContainer': {
+      width: 0
+    },
+    '& $imageGridHeader': {
+      width: 0,
+    },
+    '& $imageGridHeaderTitle': {
+      fontSize: 0,
+    },
+  },
   imageGridHeader: {
     writingMode: "vertical-rl",
     transform: "rotate(180deg)",
@@ -185,7 +195,7 @@ const styles = (theme: ThemeType) => ({
     gridTemplateColumns: "repeat(9, 120px)",
   },
   // If we want to display a grid with more than 6 items, increase this number
-  ...Object.fromEntries(Array.from({length: MAX_GRID_SIZE}, (_, i) => gridPositionToClassesEntry(theme, i))),
+  ...Object.fromEntries(Array.from({ length: MAX_GRID_SIZE }, (_, i) => gridPositionToClassesEntry(theme, i))),
   imageGridBackground: {
     top: 0,
     right: 0,
@@ -197,7 +207,29 @@ const styles = (theme: ThemeType) => ({
     objectPosition: "right",
     transition: "opacity 0.2s ease-in"
   },
-
+  imageGridShowAll: {
+    height: 120,
+    width: 120,
+    background: theme.palette.greyAlpha(.8),
+    color: theme.palette.text.invertedBackgroundText,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 3,
+    cursor: 'pointer',
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    opacity: .8,
+  },
+  imageGridShowAllTransition: {
+    opacity: 0,
+    width: 0,
+    transition: "opacity 0.2s ease-in, width 0.2s ease-in",
+  },  
+  imageGridShowAllVisible: {
+    transition: "opacity 0.2s ease-in, width 0.2s ease-in",
+  },
 
   imageGridPost: {
     ...theme.typography.commentStyle,
@@ -222,7 +254,12 @@ const styles = (theme: ThemeType) => ({
     },
     '&&:nth-child(4n + 1) $imageGridPostBody': {
       borderBottom: "none"
-    }
+    },
+  },
+
+  imageGridPostHidden: {
+    opacity: 0,
+    transitionDelay: '0.5s'
   },
 
   imageGridPostOffscreen: {
@@ -274,7 +311,8 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 12
   },
   imageGridPostTitle: {
-  }
+    transition: "opacity 0.2s ease-in",
+  },
 });
 
 // TODO: update the description to be appropriate for this page
@@ -372,7 +410,25 @@ const sectionsInfo = {
     img: candidateImages[5],
     tag: null
   }
-}
+};
+
+const yearGroupInfo = {
+  2022: {
+    img: candidateImages[0],
+  },
+  2021: {
+    img: candidateImages[1],
+  },
+  2020: {
+    img: candidateImages[2],
+  },
+  2019: {
+    img: candidateImages[3],
+  },
+  2018: {
+    img: candidateImages[4],
+  },
+};
 
 const getOffsets = (index: number, columnLength: number) => {
   const leftOffset = index % columnLength;
@@ -380,9 +436,9 @@ const getOffsets = (index: number, columnLength: number) => {
   return [leftOffset, rightOffset];
 }
 
-type expansionState = 'expanded' | 'collapsed' | 'default'
+type ExpansionState = 'full' | 'expanded' | 'collapsed' | 'hidden' | 'default';
 
-function useWindowWidth(defaultValue = 2000):number {
+function useWindowWidth(defaultValue = 2000): number {
   const [windowWidth, setWindowWidth] = useState(defaultValue);
 
   useEffect(() => {
@@ -398,69 +454,7 @@ function useWindowWidth(defaultValue = 2000):number {
   return windowWidth;
 }
 
-
-const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
-  const location = useLocation();
-  const { query } = location;
-  // TODO: make an admin-only edit icon somewhere
-  const [editOrderEnabled, setEditOrderEnabled] = useState(false);
-
-  const [expansionState, setExpansionState] = useState({} as Record<string, expansionState>);
-  const handleToggleExpand = (id: string) => {
-    const elements = document.querySelectorAll(`[id^="PostsImageGrid-"]`);
-    const currentState = expansionState[id] || 'default';
-
-    const clickedElement = document.getElementById(`PostsImageGrid-${id}`);
-    const clickedElementY = clickedElement?.getBoundingClientRect().top;
-
-    const elementsToToggle = Array.from(elements).filter((element) => {
-      const elementY = element.getBoundingClientRect().top;
-      return elementY === clickedElementY && clickedElement
-    });
-
-    const newClickedElementState = currentState === 'expanded' ? 'default' : 'expanded';
-
-    const newState: Record<string, expansionState> = {
-      ...expansionState,
-      ...Object.fromEntries(elementsToToggle.map(element => [element.id.replace('PostsImageGrid-', ''), currentState === 'expanded' ? 'default' : 'collapsed'])),
-      [id]: newClickedElementState
-    }
-
-    setExpansionState(newState);
-  }
-  
-
-  const {
-    currentSortOrder,
-    aiPostsHidden
-  } = getCurrentTopPostDisplaySettings(query);
-
-  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, ContentItemBody, TopPostItem, TopPostEditOrder } = Components;
-
-  const { post: reviewDescriptionPost } = usePostBySlug({ slug: 'top-posts-review-description' });
-
-  const { data, refetch } = useQuery(gql`
-    query GetAllReviewWinners {
-      GetAllReviewWinners {
-        reviewWinner {
-          ...ReviewWinnerEditDisplay
-        }
-        post {
-          ...PostsTopItemInfo
-        }
-      }
-    }
-    ${fragmentTextForQuery('ReviewWinnerEditDisplay')}
-    ${fragmentTextForQuery('PostsTopItemInfo')}
-  `);
-
-  const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
-  const reviewWinnerIdMap = keyBy(reviewWinnersWithPosts, ({ reviewWinner }) => reviewWinner._id);
-
-  const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
-  // If AI posts are hidden, only show those posts that are not marked as "AI" posts
-  const visibleReviewWinners = sortedReviewWinners.filter(({ reviewWinner: { isAI } }) => !aiPostsHidden || !isAI);
-
+async function useUpdateReviewWinnerOrder(reviewWinnersWithPosts: GetAllReviewWinnersQueryResult,updatedReviewWinnerIds: string[]) {
   const [updateReviewWinnerOrder] = useMutation(gql`
     mutation UpdateReviewWinnerOrder($reviewWinnerId: String!, $newCuratedOrder: Int!) {
       UpdateReviewWinnerOrder(reviewWinnerId: $reviewWinnerId, newCuratedOrder: $newCuratedOrder) {
@@ -476,71 +470,145 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
     ${fragmentTextForQuery('PostsTopItemInfo')}
   `);
 
-  const updateReviewWinnerOrderAndRefetch = async (displacedReviewWinnerId: string, newOrder: number) => {
-    await updateReviewWinnerOrder({
-      variables: {
-        reviewWinnerId: displacedReviewWinnerId,
-        newCuratedOrder: newOrder,
-      },
-    });
+  const reviewWinnerIdMap = keyBy(reviewWinnersWithPosts, ({ reviewWinner }) => reviewWinner._id);
+  if (!reviewWinnersWithPosts || !reviewWinnerIdMap) return;
 
-    await refetch();
+  const originalOrderMap = Object.fromEntries(reviewWinnersWithPosts.map(({ reviewWinner }, idx) => [reviewWinner._id, idx] as const));
+  const displacedReviewWinners = updatedReviewWinnerIds.map((updatedReviewWinnerId, newOrder) => {
+    const originalOrder = originalOrderMap[updatedReviewWinnerId];
+    const displacement = Math.abs(newOrder - originalOrder);
+    return [displacement, updatedReviewWinnerId] as const;
+  }).filter(([displacement]) => displacement !== 0);
+
+  const maybeDisplacedReviewWinner = validateDisplacedReviewWinners(displacedReviewWinners);
+
+  if (!maybeDisplacedReviewWinner.valid) {
+    // TODO
+    throw new Error();
   }
 
-  const setNewReviewWinnerOrder = async (updatedReviewWinnerIds: string[]) => {
-    if (!reviewWinnersWithPosts || !reviewWinnerIdMap) return;
+  const { displacedReviewWinner: [_, displacedReviewWinnerId] } = maybeDisplacedReviewWinner;
+  const newOrder = updatedReviewWinnerIds.indexOf(displacedReviewWinnerId);
 
-    const originalOrderMap = Object.fromEntries(reviewWinnersWithPosts.map(({ reviewWinner }, idx) => [reviewWinner._id, idx] as const));
-    const displacedReviewWinners = updatedReviewWinnerIds.map((updatedReviewWinnerId, newOrder) => {
-      const originalOrder = originalOrderMap[updatedReviewWinnerId];
-      const displacement = Math.abs(newOrder - originalOrder);
-      return [displacement, updatedReviewWinnerId] as const;
-    }).filter(([displacement]) => displacement !== 0);
+  await updateReviewWinnerOrder({
+    variables: {
+      reviewWinnerId: displacedReviewWinnerId,
+      newCuratedOrder: newOrder,
+    },
+    
+    update(cache, { data }) {
+      cache.modify({
+        fields: {
+          reviewWinners(existingReviewWinnersRef) {
+            const newRefs = data.UpdateReviewWinnerOrder.map((rw: AnyBecauseHard) => cache.writeFragment({
+              data: rw,
+              fragment: gql`${getFragmentText('ReviewWinnerEditDisplay')}`,
+              fragmentName: 'ReviewWinnerEditDisplay'
+            }));
 
-    const maybeDisplacedReviewWinner = validateDisplacedReviewWinners(displacedReviewWinners);
+            return {
+              ...existingReviewWinnersRef,
+              results: newRefs
+            };
+          }
+        }
+      })
+    },
 
-    if (!maybeDisplacedReviewWinner.valid) {
-      // TODO
-      throw new Error();
+    optimisticResponse: {
+      UpdateReviewWinnerOrder: updatedReviewWinnerIds.map((id, newOrder) => ({
+        __typename: 'ReviewWinner',
+        ...reviewWinnerIdMap[id],
+        curatedOrder: newOrder
+      }))
+    }
+  });
+};
+
+
+const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
+  const location = useLocation();
+  const { query } = location;
+  // TODO: make an admin-only edit icon somewhere
+  const [editOrderEnabled, setEditOrderEnabled] = useState(false);
+
+  const [expansionState, setExpansionState] = useState<Record<string, ExpansionState>>({});
+  const [fullyOpenGridId, setFullyOpenGridId] = useState<string>();
+  const handleToggleExpand = (id: string) => {
+    const elements = document.querySelectorAll(`[id^="PostsImageGrid-"]`);
+    const currentState = expansionState[id] || 'default';
+
+    const clickedElement = document.getElementById(`PostsImageGrid-${id}`);
+    const clickedElementY = clickedElement?.getBoundingClientRect().top;
+
+    const elementsToToggle = Array.from(elements).filter((element) => {
+      const elementY = element.getBoundingClientRect().top;
+      return elementY === clickedElementY && clickedElement
+    });
+
+    const newClickedElementState = currentState === 'expanded' ? 'default' : 'expanded';
+
+    const newState: Record<string, ExpansionState> = {
+      ...expansionState,
+      ...Object.fromEntries(elementsToToggle.map(element => [element.id.replace('PostsImageGrid-', ''), currentState === 'expanded' ? 'default' : 'collapsed'])),
+      [id]: newClickedElementState
     }
 
-    const { displacedReviewWinner: [_, displacedReviewWinnerId] } = maybeDisplacedReviewWinner;
-    const newOrder = updatedReviewWinnerIds.indexOf(displacedReviewWinnerId);
-
-    await updateReviewWinnerOrder({
-      variables: {
-        reviewWinnerId: displacedReviewWinnerId,
-        newCuratedOrder: newOrder,
-      },
-      
-      update(cache, { data }) {
-        cache.modify({
-          fields: {
-            reviewWinners(existingReviewWinnersRef) {
-              const newRefs = data.UpdateReviewWinnerOrder.map((rw: AnyBecauseHard) => cache.writeFragment({
-                data: rw,
-                fragment: gql`${getFragmentText('ReviewWinnerEditDisplay')}`,
-                fragmentName: 'ReviewWinnerEditDisplay'
-              }));
-
-              return {
-                ...existingReviewWinnersRef,
-                results: newRefs
-              };
-            }
-          }
-        })
-      },
-
-      optimisticResponse: {
-        UpdateReviewWinnerOrder: updatedReviewWinnerIds.map((id, newOrder) => ({
-          __typename: 'ReviewWinner',
-          ...reviewWinnerIdMap[id],
-          curatedOrder: newOrder
-        }))
-      }
-    });
+    setExpansionState(newState);
   }
+
+  const handleOpenFull = (id: string) => {
+    setFullyOpenGridId(id);
+    // const newState: Record<string, ExpansionState> = {
+    //   ...Object.fromEntries(Object.entries(expansionState).map(([key]) => [key, 'hidden'])),
+    //   [id]: 'full'
+    // }
+
+    // setExpansionState(newState);
+  };
+  
+
+  const {
+    currentSortOrder,
+    aiPostsHidden
+  } = getCurrentTopPostDisplaySettings(query);
+
+  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, ContentItemBody, TopPostItem, TopPostEditOrder } = Components;
+
+  const { post: reviewDescriptionPost } = usePostBySlug({ slug: 'top-posts-review-description' });
+
+  const { data } = useQuery(gql`
+    query GetAllReviewWinners {
+      GetAllReviewWinners {
+        reviewWinner {
+          ...ReviewWinnerEditDisplay
+        }
+        post {
+          ...PostsTopItemInfo
+        }
+      }
+    }
+    ${fragmentTextForQuery('ReviewWinnerEditDisplay')}
+    ${fragmentTextForQuery('PostsTopItemInfo')}
+  `);
+
+  const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
+
+  const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
+  // If AI posts are hidden, only show those posts that are not marked as "AI" posts
+  const visibleReviewWinners = sortedReviewWinners.filter(({ reviewWinner: { isAI } }) => !aiPostsHidden || !isAI);
+
+  const sectionGrid = Object.entries(sectionsInfo).map(([id, { title, img, tag }], index) => {
+    const posts = visibleReviewWinners.map(({ post }) => post).filter(post => !tag || post.tags.map(tag => tag.name).includes(tag));
+    const hidden = !!(fullyOpenGridId && id !== fullyOpenGridId);
+    return <PostsImageGrid posts={posts} classes={classes} img={img} header={title} key={id} id={id} gridPosition={index} expansionState={expansionState[id]} handleToggleExpand={handleToggleExpand} handleOpenFull={handleOpenFull} hidden={hidden} />
+  });
+
+  const yearGrid = Object.entries(yearGroupInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { img }], index) => {
+    const posts = visibleReviewWinners.filter(({ reviewWinner }) => reviewWinner.reviewYear.toString() === year).map(({ post }) => post);
+    const hidden = !!(fullyOpenGridId && year !== fullyOpenGridId);
+    return <PostsImageGrid posts={posts} classes={classes} img={img} header={year} key={year} id={year} gridPosition={index} expansionState={expansionState[year]} handleToggleExpand={handleToggleExpand} handleOpenFull={handleOpenFull} hidden={hidden} />
+  });
 
   return (
     <>
@@ -558,11 +626,7 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
           <div>
             <TopPostsDisplaySettings />
             <div className={classes.gridContainer}>
-              {Object.entries(sectionsInfo).map(([id, { title, img, tag }], index) => {
-                
-                const posts = visibleReviewWinners.map(({ post }) => post).filter(post => !tag || post.tags.map(tag => tag.name).includes(tag));
-                return <PostsImageGrid posts={posts} classes={classes} img={img} header={title} key={id} id={id} gridPosition={index} expansionState={expansionState[id]} handleToggleExpand={handleToggleExpand} />
-              })}
+              {currentSortOrder === 'curated' ? sectionGrid : yearGrid}
             </div>
           </div>
         </div>
@@ -571,15 +635,52 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansionState, handleToggleExpand }: { posts: PostsTopItemInfo[], classes: ClassesType<typeof styles>, img: string, header: string, id: string, gridPosition: number, expansionState: 'default' | 'expanded' | 'collapsed', handleToggleExpand: (id: string) => void }) => {
+const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansionState, handleToggleExpand, handleOpenFull, hidden = false }: {
+  posts: PostsTopItemInfo[],
+  classes: ClassesType<typeof styles>,
+  img: string,
+  header: string,
+  id: string,
+  gridPosition: number,
+  expansionState: ExpansionState,
+  handleToggleExpand: (id: string) => void,
+  handleOpenFull: (id: string) => void,
+  hidden?: boolean,
+}) => {
   const screenWidth = useWindowWidth(2000)
   const [leftOffset, rightOffset] = getOffsets(gridPosition, Math.min(Math.max(Math.floor((screenWidth) / 400), 1), 3));
   const paddedPosts = [...posts, ...posts.slice(0, 24)];
 
+  const isExpanded = expansionState === 'expanded';
+
+  const smallDisplay = screenWidth <= 800;
+
+  const displayedPostProps: ComponentProps<typeof ImageGridPost>[] = [];
+  if (leftOffset > 0) {
+    const leftOffsetPosts = paddedPosts.slice(12, 12 + (12 * leftOffset));
+    displayedPostProps.push(...leftOffsetPosts.map((post, i) => ({ post, index: i, classes, offscreen: true })));
+  }
+  
+  const noOffsetPosts = paddedPosts.slice(0, 12);
+  displayedPostProps.push(...noOffsetPosts.map((post, i) => ({ post, index: i, classes })));
+  
+  if (rightOffset > 0) {
+    const rightOffsetPosts = paddedPosts.slice((leftOffset * 12) + 12, (leftOffset * 12) + 12 + (rightOffset * 12));
+    displayedPostProps.push(...rightOffsetPosts.map((post, i) => ({ post, index: i, classes, offscreen: true })));
+  }
+
+  const lastDisplayedPostProps = displayedPostProps.at(-1);
+  if (lastDisplayedPostProps && isExpanded) {
+    lastDisplayedPostProps.hidden = true;
+  }
+
+  const displayedPosts = displayedPostProps.map((props) => <ImageGridPost key={props.post._id} {...props} />)
+
   return <div 
     className={classNames(classes.postsImageGrid, {
-      [classes.expandedImageGrid]: expansionState === 'expanded', 
-      [classes.collapsedImageGrid]: expansionState === 'collapsed'
+      [classes.expandedImageGrid]: isExpanded, 
+      [classes.collapsedImageGrid]: expansionState === 'collapsed',
+      [classes.hiddenImageGrid]: hidden
     })} 
     id={`PostsImageGrid-${id}`}
   >
@@ -590,23 +691,28 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
       <h2 className={classes.imageGridHeaderTitle}>{header}</h2>
     </div>
     <div className={classes.imageGridContainer}>
-      <div className={classNames(classes.imageGrid, classes[gridPositionToClassName(gridPosition)])} > 
+      <div className={classNames(classes.imageGrid, classes[gridPositionToClassName(gridPosition) as keyof ClassesType<typeof styles>])} > 
         <img src={img} className={classes.imageGridBackground}/>
-        {leftOffset > 0 && paddedPosts.slice(12, 12 + 12 * leftOffset).map((post, i) => <ImageGridPost post={post} index={i} classes={classes} key={post._id} offscreen />)}
-        {paddedPosts.slice(0, 12).map((post, i) => <ImageGridPost post={post} index={i} classes={classes} key={post._id} />)}
-        {rightOffset > 0 && paddedPosts.slice(leftOffset * 12 + 12, leftOffset * 12 + 12 + rightOffset * 12).map((post, i) => <ImageGridPost post={post} index={i} classes={classes} key={post._id} offscreen />)}
+        {displayedPosts}
+        <div className={classNames(classes.imageGridShowAll, { [classes.imageGridShowAllVisible]: isExpanded, [classes.imageGridShowAllTransition]: (rightOffset === 0) && !isExpanded })} onClick={() => handleOpenFull(id)}>Show All</div>
       </div>
     </div>
   </div>
 }
 
-const ImageGridPost = ({post, index, classes, offscreen = false}: {post: PostsTopItemInfo, index: number, classes: ClassesType<typeof styles>, offscreen?: boolean}) => {
-  return <Link className={classes.imageGridPost} key={post._id} to={postGetPageUrl(post)}>
+const ImageGridPost = ({ post, index, classes, offscreen = false, hidden = false }: {
+  post: PostsTopItemInfo,
+  index: number,
+  classes: ClassesType<typeof styles>,
+  offscreen?: boolean,
+  hidden?: boolean,
+}) => {
+  return <Link className={classNames(classes.imageGridPost)} key={post._id} to={postGetPageUrl(post)}>
   <div className={classes.imageGridPostBody}>
     <div className={classes.imageGridPostAuthor}>
       {post?.user?.displayName}
     </div>
-    <div className={classNames(classes.imageGridPostTitle, {[classes.imageGridPostOffscreen]: offscreen})}>
+    <div className={classNames(classes.imageGridPostTitle, { [classes.imageGridPostOffscreen]: offscreen && !hidden, [classes.imageGridPostHidden]: hidden })}>
       {post.title}
     </div>
   </div>
