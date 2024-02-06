@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import Popover from "@material-ui/core/Popover";
+import Fade from "@material-ui/core/Fade";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -54,6 +55,7 @@ export const BlurredBackgroundModal = ({
       anchorReference="none"
       ModalClasses={{root: classes.modal}}
       BackdropProps={{className: classes.backdrop}}
+      TransitionComponent={Fade}
     >
       {open &&
         <div className={classNames(classes.root, className)}>
