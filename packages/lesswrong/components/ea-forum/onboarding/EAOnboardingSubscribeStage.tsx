@@ -1,9 +1,6 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { filterNonnull } from "../../../lib/utils/typeGuardUtils";
 import { useCurrentUser } from "../../common/withUser";
-import { useMulti } from "../../../lib/crud/withMulti";
-import keyBy from "lodash/keyBy";
 
 const TAG_SIZE = 103;
 
@@ -31,53 +28,41 @@ const styles = (theme: ThemeType) => ({
     width: TAG_SIZE,
     height: TAG_SIZE,
     position: "relative",
-    fontSize: 13,
-    fontWeight: 700,
-    color: theme.palette.text.alwaysWhite,
     "& img": {
       zIndex: 1,
       position: "absolute",
       borderRadius: theme.borderRadius.default,
     },
     "& div": {
+      fontSize: 13,
+      fontWeight: 700,
+      lineHeight: "16px",
+      color: theme.palette.text.alwaysWhite,
       zIndex: 2,
       position: "absolute",
-      bottom: 0,
-      margin: 8,
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      display: "flex",
+      flexDirection: "column-reverse",
+      padding: 8,
+      backgroundColor: theme.palette.tag.onboardingBackground,
+      borderRadius: theme.borderRadius.default,
+      "&:hover": {
+        backgroundColor: theme.palette.tag.onboardingBackgroundHover,
+      },
     },
   },
 });
 
-const tagIds = [
-  "sWcuTyTB5dP3nas2t", // Global health and development
-  "QdH9f8TC6G8oGYdgt", // Animal welfare
-  "ee66CtAMYurQreWBH", // Existential risk
-  "H43gvLzBCacxxamPe", // Biosecurity and pandemics
-  "oNiQsBHA3i837sySD", // AI safety
-  "4eyeLKC64Yvznzt6Z", // Philosophy
-  "EHLmbEmJ2Qd5WfwTb", // Building effective altruism
-  "aJnrnnobcBNWRsfAw", // Forecasting and estimation
-  "psBzwdY8ipfCeExJ7", // Cause prioritisation
-  "4CH9vsvzyk4mSKwyZ", // Career choice
-];
-
-export const EAOnboardingSubscribeStage = ({classes}: {
+export const EAOnboardingSubscribeStage = ({tags, classes}: {
+  tags: TagOnboarding[],
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
 
   const canContinue = false;
-
-  const {results: rawTags} = useMulti({
-    collectionName: "Tags",
-    fragmentName: "TagOnboarding",
-    limit: tagIds.length,
-    terms: {
-      _id: tagIds,
-    },
-  });
-  const tagsById = keyBy(rawTags, "_id");
-  const tags = filterNonnull(tagIds.map((_id) => tagsById[_id]));
 
   const {EAOnboardingStage, CloudinaryImage2} = Components;
   return (

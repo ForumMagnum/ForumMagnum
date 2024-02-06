@@ -471,6 +471,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     hollowTagBorder: shades.greyBorder("1px", .15),
     boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     addTagButtonBackground: shades.grey[300],
+    onboardingBackground: "rgba(0, 0, 0, 0.4)",
+    onboardingBackgroundHover: "rgba(0, 0, 0, 0.2)",
   },
   geosuggest: {
     dropdownText: "#000",

@@ -393,6 +393,8 @@ declare global {
       hollowTagBorder: string,
       boxShadow: string,
       addTagButtonBackground: ColorString,
+      onboardingBackground: ColorString,
+      onboardingBackgroundHover: ColorString,
     },
     geosuggest: {
       dropdownBackground: ColorString,
