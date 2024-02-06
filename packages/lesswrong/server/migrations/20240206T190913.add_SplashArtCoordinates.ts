@@ -56,12 +56,12 @@
 export const acceptsSchemaHash = "a646e49b34cd9c6338bc469c3c2430ce";
 
 import { createTable, dropTable } from "./meta/utils"
-import splashArtCoordinates from "../../lib/collections/splashArtCoordinates/collection"
+import SplashArtCoordinates from "../../lib/collections/splashArtCoordinates/collection"
 
 export const up = async ({db}: MigrationContext) => {
-  await createTable(db, splashArtCoordinates);
+  await createTable(db, SplashArtCoordinates);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropTable(db, splashArtCoordinates);
+  await dropTable(db, SplashArtCoordinates);
 }
