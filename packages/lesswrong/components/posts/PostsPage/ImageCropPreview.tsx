@@ -2,7 +2,6 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { useImageContext } from './ImageContext';
 import { useEventListener } from '../../hooks/useEventListener';
-import SplashArtCoordinates from '../../../lib/collections/splashArtCoordinates/collection';
 import { useCreate } from '../../../lib/crud/withCreate';
 // import { createAdminContext, createMutator } from '../../../server/vulcan-lib';
 // import { createAdminContext } from '../../../server/vulcan-lib/query';
