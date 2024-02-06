@@ -223,8 +223,8 @@ type EAGOccupation =
 type JobAdData = {
   eagOccupations?: EAGOccupation[],  // used to match on EAG experience + interests
   interestedIn?: EAGOccupation[],    // used to match on EAG interests
-  tagId?: string,                    // used to match on a topic
-  tagsReadIds?: string[],            // used to match on a set of topics that the user has read frequently
+  subscribedTagIds?: string[],       // used to match on a set of topics that the user is subscribed to
+  readCoreTagIds?: string[],         // used to match on a set of core topics that the user has read frequently
   logo: string,                      // url for org logo
   occupation: string,                // text displayed in the tooltip
   feedbackLinkPrefill: string,       // url param used to prefill part of the feedback form
@@ -245,7 +245,7 @@ type JobAdData = {
 // (also used in the reminder email, so links in the description need to be absolute)
 export const JOB_AD_DATA: Record<string, JobAdData> = {
   'cltr-biosecurity-policy-advisor': {
-    tagsReadIds: [
+    subscribedTagIds: [
       'H43gvLzBCacxxamPe', // biosecurity
       'of9xBvR3wpbp6qsZC', //policy
     ],
@@ -282,7 +282,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     </>
   },
   'leep-program-manager': {
-    tagsReadIds: [
+    subscribedTagIds: [
       'sWcuTyTB5dP3nas2t', // global health & development
       'of9xBvR3wpbp6qsZC', //policy
     ],
@@ -317,7 +317,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     </>
   },
   'thl-apa-program-specialist': {
-    tagsReadIds: [
+    subscribedTagIds: [
       'QdH9f8TC6G8oGYdgt', // animal welfare
       'of9xBvR3wpbp6qsZC', // policy
     ],
@@ -330,7 +330,6 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     orgLink: '/topics/the-humane-league',
     salary: '$65k - $80k',
     location: 'Remote (USA)',
-    countryCode: 'US',
     deadline: moment('2024-02-08'),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
