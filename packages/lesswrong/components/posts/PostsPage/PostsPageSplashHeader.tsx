@@ -365,11 +365,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageURL || post.reviewWinner?.splashArtImageUrl || default_images[0]}")`,
   }
 
-  // const posts = [post]
-  // if (!post.reviewWinnerArt) {
-  //   await generateCoverImages({posts})
-  // }
-
   const defaultImages: ReviewWinnerImageInfo[] = default_images.map(url => ({
     postId: post._id,
     splashArtImageUrl: url,
