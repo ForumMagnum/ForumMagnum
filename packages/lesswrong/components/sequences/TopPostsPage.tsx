@@ -95,6 +95,7 @@ const styles = (theme: ThemeType) => ({
   },
   expandedImageGrid: {
     '& $imageGridContainer': {
+      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
       width: 'calc(9 * 120px - 2px)',
       [theme.breakpoints.down(1200)]: {
         width: 'calc(6 * 120px - 2px)',
@@ -117,6 +118,7 @@ const styles = (theme: ThemeType) => ({
   },
   collapsedImageGrid: {
     '& $imageGridContainer': {
+      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
       width: 0
     },
     '& $imageGridHeader': {
@@ -125,14 +127,32 @@ const styles = (theme: ThemeType) => ({
   },
   hiddenImageGrid: {
     '& $imageGridContainer': {
-      width: 0
+      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
+      width: 0,
+      height: 0,
     },
     '& $imageGridHeader': {
+      transition: 'background 0.2s ease-in, width 0.5s ease-in-out 0.5s, height 0.5s ease-in-out 0.5s',
       width: 0,
     },
     '& $imageGridHeaderTitle': {
-      fontSize: 0,
+      transition: 'opacity 0.5s ease-in',
+      opacity: 0,
     },
+  },
+  showAllImageGrid: {
+    '& $imageGrid': {
+      gridTemplateRows: "repeat(4, 120px)",
+    },
+    '& $imageGridContainer': {
+      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
+      // width: 0,
+      height: 'calc(7 * 120px)',
+    },
+    // '& $imageGridHeader': {
+    //   transition: 'background 0.2s ease-in, width 0.5s ease-in-out 0.5s, height 0.5s ease-in-out 0.5s',
+    //   width: 0,
+    // },
   },
   imageGridHeader: {
     writingMode: "vertical-rl",
@@ -142,7 +162,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     padding: "16px 0px 4px 3px",
     cursor: 'pointer',
-    transition: 'background 0.2s ease-in, width 0.5s ease-in-out',
+    transition: 'background 0.2s ease-in, width 0.5s ease-in-out, height 0.5s ease-in-out',
     width: 40,
     '&&&:hover': {
       background: 'rgb(241 209 150 / 75%)'
@@ -156,7 +176,8 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridHeaderTitle: {
     margin: 0,
-    fontSize: 32
+    fontSize: 32,
+    transition: 'opacity 0.5s ease-in 0.5s',
   },
   toggleIcon: {
     fontSize: 24,
@@ -176,7 +197,7 @@ const styles = (theme: ThemeType) => ({
     width: 'calc(3 * 120px - 2px)',
     height: 'calc(4 * 120px)',
     overflow: 'hidden',
-    transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out',
+    transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
     [theme.breakpoints.down(800)]: {
       height: 'calc(1 * 120px)',
     }
@@ -436,7 +457,8 @@ const getOffsets = (index: number, columnLength: number) => {
   return [leftOffset, rightOffset];
 }
 
-type ExpansionState = 'full' | 'expanded' | 'collapsed' | 'hidden' | 'default';
+type ExpansionState = 'expanded' | 'collapsed' | 'default';
+type HiddenState = 'full' | 'hidden';
 
 function useWindowWidth(defaultValue = 2000): number {
   const [windowWidth, setWindowWidth] = useState(defaultValue);
@@ -525,6 +547,14 @@ async function useUpdateReviewWinnerOrder(reviewWinnersWithPosts: GetAllReviewWi
   });
 };
 
+function getHiddenState(gridId: string, fullyOpenGridId?: string): HiddenState | undefined {
+  if (!fullyOpenGridId) {
+    return undefined;
+  }
+
+  return gridId === fullyOpenGridId ? 'full' : 'hidden';
+}
+
 
 const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
@@ -557,16 +587,13 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
     setExpansionState(newState);
   }
 
-  const handleOpenFull = (id: string) => {
-    setFullyOpenGridId(id);
-    // const newState: Record<string, ExpansionState> = {
-    //   ...Object.fromEntries(Object.entries(expansionState).map(([key]) => [key, 'hidden'])),
-    //   [id]: 'full'
-    // }
-
-    // setExpansionState(newState);
+  const toggleFullyOpenGridId = (id: string) => {
+    if (id === fullyOpenGridId) {
+      setFullyOpenGridId(undefined);
+    } else {
+      setFullyOpenGridId(id);
+    }
   };
-  
 
   const {
     currentSortOrder,
@@ -600,14 +627,14 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
 
   const sectionGrid = Object.entries(sectionsInfo).map(([id, { title, img, tag }], index) => {
     const posts = visibleReviewWinners.map(({ post }) => post).filter(post => !tag || post.tags.map(tag => tag.name).includes(tag));
-    const hidden = !!(fullyOpenGridId && id !== fullyOpenGridId);
-    return <PostsImageGrid posts={posts} classes={classes} img={img} header={title} key={id} id={id} gridPosition={index} expansionState={expansionState[id]} handleToggleExpand={handleToggleExpand} handleOpenFull={handleOpenFull} hidden={hidden} />
+    const hiddenState = getHiddenState(id, fullyOpenGridId);
+    return <PostsImageGrid posts={posts} classes={classes} img={img} header={title} key={id} id={id} gridPosition={index} expansionState={expansionState[id]} handleToggleExpand={handleToggleExpand} handleToggleFullyOpen={toggleFullyOpenGridId} hiddenState={hiddenState} />
   });
 
   const yearGrid = Object.entries(yearGroupInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { img }], index) => {
     const posts = visibleReviewWinners.filter(({ reviewWinner }) => reviewWinner.reviewYear.toString() === year).map(({ post }) => post);
-    const hidden = !!(fullyOpenGridId && year !== fullyOpenGridId);
-    return <PostsImageGrid posts={posts} classes={classes} img={img} header={year} key={year} id={year} gridPosition={index} expansionState={expansionState[year]} handleToggleExpand={handleToggleExpand} handleOpenFull={handleOpenFull} hidden={hidden} />
+    const hiddenState = getHiddenState(year, fullyOpenGridId);
+    return <PostsImageGrid posts={posts} classes={classes} img={img} header={year} key={year} id={year} gridPosition={index} expansionState={expansionState[year]} handleToggleExpand={handleToggleExpand} handleToggleFullyOpen={toggleFullyOpenGridId} hiddenState={hiddenState} />
   });
 
   return (
@@ -635,7 +662,7 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansionState, handleToggleExpand, handleOpenFull, hidden = false }: {
+const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansionState, handleToggleExpand, handleToggleFullyOpen, hiddenState }: {
   posts: PostsTopItemInfo[],
   classes: ClassesType<typeof styles>,
   img: string,
@@ -644,16 +671,18 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   gridPosition: number,
   expansionState: ExpansionState,
   handleToggleExpand: (id: string) => void,
-  handleOpenFull: (id: string) => void,
-  hidden?: boolean,
+  handleToggleFullyOpen: (id: string) => void,
+  hiddenState?: 'hidden' | 'full',
 }) => {
-  const screenWidth = useWindowWidth(2000)
-  const [leftOffset, rightOffset] = getOffsets(gridPosition, Math.min(Math.max(Math.floor((screenWidth) / 400), 1), 3));
-  const paddedPosts = [...posts, ...posts.slice(0, 24)];
+  const screenWidth = useWindowWidth(2000);
+  const gridColumns = Math.min(Math.max(Math.floor((screenWidth) / 400), 1), 3);
+  const [leftOffset, rightOffset] = getOffsets(gridPosition, gridColumns);
+  const paddedPosts = [...posts];
+  const isFirstGridRow = gridPosition < gridColumns;
 
   const isExpanded = expansionState === 'expanded';
-
-  const smallDisplay = screenWidth <= 800;
+  const isHidden = hiddenState === 'hidden';
+  const isShowingAll = hiddenState === 'full';
 
   const displayedPostProps: ComponentProps<typeof ImageGridPost>[] = [];
   if (leftOffset > 0) {
@@ -665,7 +694,8 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   displayedPostProps.push(...noOffsetPosts.map((post, i) => ({ post, index: i, classes })));
   
   if (rightOffset > 0) {
-    const rightOffsetPosts = paddedPosts.slice((leftOffset * 12) + 12, (leftOffset * 12) + 12 + (rightOffset * 12));
+    const cutoff = isShowingAll ? undefined : (leftOffset * 12) + 12 + (rightOffset * 12);
+    const rightOffsetPosts = paddedPosts.slice((leftOffset * 12) + 12, cutoff);
     displayedPostProps.push(...rightOffsetPosts.map((post, i) => ({ post, index: i, classes, offscreen: true })));
   }
 
@@ -680,7 +710,8 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
     className={classNames(classes.postsImageGrid, {
       [classes.expandedImageGrid]: isExpanded, 
       [classes.collapsedImageGrid]: expansionState === 'collapsed',
-      [classes.hiddenImageGrid]: hidden
+      [classes.hiddenImageGrid]: isHidden,
+      [classes.showAllImageGrid]: isShowingAll,
     })} 
     id={`PostsImageGrid-${id}`}
   >
@@ -694,7 +725,14 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
       <div className={classNames(classes.imageGrid, classes[gridPositionToClassName(gridPosition) as keyof ClassesType<typeof styles>])} > 
         <img src={img} className={classes.imageGridBackground}/>
         {displayedPosts}
-        <div className={classNames(classes.imageGridShowAll, { [classes.imageGridShowAllVisible]: isExpanded, [classes.imageGridShowAllTransition]: (rightOffset === 0) && !isExpanded })} onClick={() => handleOpenFull(id)}>Show All</div>
+        <div
+          className={classNames(classes.imageGridShowAll, {
+            [classes.imageGridShowAllVisible]: isExpanded,
+            [classes.imageGridShowAllTransition]: (rightOffset === 0) && !isExpanded
+            })}
+          onClick={() => handleToggleFullyOpen(id)}>
+            Show All
+        </div>
       </div>
     </div>
   </div>
