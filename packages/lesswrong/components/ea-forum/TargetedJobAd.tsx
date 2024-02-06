@@ -15,7 +15,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     maxHeight: 1200, // This is to make the close transition work
     background: theme.palette.grey[0],
     fontFamily: theme.typography.fontFamily,
-    padding: 12,
+    padding: '10px 12px 12px',
     border: `1px solid ${theme.palette.grey[100]}`,
     borderRadius: theme.borderRadius.default,
     cursor: 'pointer',
@@ -71,6 +71,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   logo: {
     flex: 'none',
     width: 36,
+    borderRadius: theme.borderRadius.small,
     marginTop: 5,
   },
   bodyCol: {
