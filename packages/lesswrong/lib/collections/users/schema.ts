@@ -2783,9 +2783,19 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],
   },
+  
+  // used by the EA Forum to track when a user has dismissed the frontpage job ad
+  hideJobAdUntil: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    canCreate: ['members'],
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    hidden: true,
+  },
 
   /* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
-
   experiencedIn: {
     type: Array,
     optional: true,

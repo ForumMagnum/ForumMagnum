@@ -7,22 +7,21 @@ import { useCurrentUser } from '../common/withUser';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HIDE_JOB_AD_COOKIE } from '../../lib/cookies/cookies';
 import { JOB_AD_DATA } from './TargetedJobAd';
 import union from 'lodash/union';
 import intersection from 'lodash/intersection';
 import { filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
+import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 
 
 const TargetedJobAdSection = () => {
   const currentUser = useCurrentUser()
+  const updateCurrentUser = useUpdateCurrentUser()
   const { captureEvent } = useTracking()
   // we track when the user has seen the ad
   const { setNode, entry } = useIsInView()
   const { flash } = useMessages()
-  const [cookies, setCookie] = useCookiesWithConsent([HIDE_JOB_AD_COOKIE]) // TODO: use a db field instead
 
   const { create: createUserJobAd } = useCreate({
     collectionName: 'UserJobAds',
@@ -102,11 +101,7 @@ const TargetedJobAdSection = () => {
   
   const dismissJobAd = () => {
     captureEvent('hideJobAd')
-    setCookie(
-      HIDE_JOB_AD_COOKIE,
-      "true",
-      { expires: moment().add(30, 'days').toDate() }
-    )
+    updateCurrentUser({hideJobAdUntil: moment().add(30, 'days').toDate()})
   }
   
   const handleExpand = () => {
@@ -154,7 +149,12 @@ const TargetedJobAdSection = () => {
   
   const { TargetedJobAd } = Components
   
-  if (cookies[HIDE_JOB_AD_COOKIE] || !activeJob) {
+  // Only show this section if we have a matching job for this user
+  if (
+    !currentUser ||
+    (currentUser.hideJobAdUntil && moment(currentUser.hideJobAdUntil).isAfter(moment())) ||
+    !activeJob
+  ) {
     return null
   }
   

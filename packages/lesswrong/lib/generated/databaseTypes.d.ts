@@ -1592,6 +1592,7 @@ interface DbUser extends DbObject {
   conversationsDisabled: boolean | null
   acknowledgedNewUserGuidelines: boolean | null
   subforumPreferredLayout: "card" | "list" | null
+  hideJobAdUntil: Date | null
   experiencedIn: Array<string> | null
   interestedIn: Array<string> | null
   allowDatadogSessionReplay: boolean
