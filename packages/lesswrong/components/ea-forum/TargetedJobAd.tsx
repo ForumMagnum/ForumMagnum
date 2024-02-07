@@ -52,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   infoIcon: {
     fontSize: 14,
-    color: theme.palette.grey[500],
+    color: theme.palette.grey[400],
     transform: 'translateY(2px)'
   },
   closeButton: {
