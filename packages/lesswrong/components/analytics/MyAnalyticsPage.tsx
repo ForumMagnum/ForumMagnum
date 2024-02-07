@@ -15,7 +15,7 @@ const MyAnalyticsPage = () => {
     );
   }
 
-  return <PermanentRedirect url={userGetAnalyticsUrl(currentUser)}/>
+  return <PermanentRedirect status={302} url={userGetAnalyticsUrl(currentUser)}/>
 }
 
 const MyAnalyticsPageComponent = registerComponent('MyAnalyticsPage', MyAnalyticsPage);
