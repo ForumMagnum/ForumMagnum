@@ -84,6 +84,7 @@ const styles = (theme: ThemeType) => ({
   postsImageGrid: {
     position: "relative",
     display: "flex",
+    transition: 'height 0.5s ease-in-out',
     '&:hover $imageGridHeader': {
       background: 'rgb(241 209 150 / 40%)'
     },
@@ -96,14 +97,13 @@ const styles = (theme: ThemeType) => ({
   },
   expandedImageGrid: {
     '& $imageGridContainer': {
-      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
+      transition: 'width 0.5s ease-in-out',
       width: 'calc(9 * 120px - 2px)',
       [theme.breakpoints.down(1200)]: {
         width: 'calc(6 * 120px - 2px)',
       },
       [theme.breakpoints.down(800)]: {
         width: 'calc(3 * 120px - 2px)',
-        height: 'calc(4 * 120px)',
       },
     },
     '& $imageGrid': {
@@ -119,40 +119,17 @@ const styles = (theme: ThemeType) => ({
   },
   collapsedImageGrid: {
     '& $imageGridContainer': {
-      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
+      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out',
       width: 0
     },
     '& $imageGridHeader': {
       width: 38,
     }
   },
-  hiddenImageGrid: {
-    '& $imageGridContainer': {
-      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
-      width: 0,
-      height: 0,
-    },
-    '& $imageGridHeader': {
-      transition: 'background 0.2s ease-in, width 0.5s ease-in-out 0.5s, height 0.5s ease-in-out 0.5s',
-      width: 0,
-    },
-    '& $imageGridHeaderTitle': {
-      transition: 'opacity 0.5s ease-in',
-      opacity: 0,
-    },
-  },
   showAllImageGrid: {
-    '& $imageGrid': {
-      gridTemplateRows: "repeat(4, 120px)",
-    },
     '& $imageGridContainer': {
-      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
-      height: 'calc(8 * 120px)',
+      transition: 'width 0.5s ease-in-out',
     },
-    // '& $imageGridHeader': {
-    //   transition: 'background 0.2s ease-in, width 0.5s ease-in-out 0.5s, height 0.5s ease-in-out 0.5s',
-    //   width: 0,
-    // },
   },
   imageGridHeader: {
     writingMode: "vertical-rl",
@@ -162,8 +139,9 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     padding: "16px 0px 4px 3px",
     cursor: 'pointer',
-    transition: 'background 0.2s ease-in, width 0.5s ease-in-out, height 0.5s ease-in-out',
+    transition: 'background 0.2s ease-in, width 0.5s ease-in-out',
     width: 40,
+    height: 'inherit',
     '&&&:hover': {
       background: 'rgb(241 209 150 / 75%)'
     },
@@ -195,11 +173,12 @@ const styles = (theme: ThemeType) => ({
   imageGridContainer: {
     position: "relative",
     width: 'calc(3 * 120px - 2px)',
-    height: 'calc(4 * 120px)',
+    // height: 'calc(4 * 120px)',
+    height: 'inherit',
     overflow: 'hidden',
-    transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
+    transition: 'width 0.5s ease-in-out',
     [theme.breakpoints.down(800)]: {
-      height: 'calc(1 * 120px)',
+      // height: 'calc(1 * 120px)',
     }
   },
   imageGrid: {
@@ -228,13 +207,29 @@ const styles = (theme: ThemeType) => ({
     objectPosition: "right",
     transition: "opacity 0.2s ease-in"
   },
+  showAllBackgroundWrapper: {
+    '&:hover $imageGridPostBackground': {
+      display: "block",
+      opacity: 1,
+      transitionDelay: "0s",
+      zIndex: 2
+    },
+  },
   showAllPostItemWrapper: {
     height: 120,
     width: 120,
+    position: 'relative',
   },
-  imageGridShowAll: {
+  collapseButtonWrapper: {
     height: 120,
     width: 120,
+    position: 'relative',
+  },
+  showAllButton: {
+    height: 120,
+    width: 120,
+    position: 'absolute',
+    top: 0,
     background: theme.palette.greyAlpha(.8),
     color: theme.palette.text.invertedBackgroundText,
     display: 'flex',
@@ -242,19 +237,31 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'center',
     zIndex: 3,
     cursor: 'pointer',
-    // position: 'absolute',
-    bottom: 0,
-    right: 0,
     opacity: .8,
+    transition: "left 0.2s ease-in 0.5s",
   },
-  imageGridShowAllTransition: {
-    opacity: 0,
-    width: 0,
-    transition: "opacity 0.2s ease-in, width 0.2s ease-in",
-  },  
-  imageGridShowAllVisible: {
-    transition: "opacity 0.2s ease-in, width 0.2s ease-in",
+  showAllButtonVisible: {
+    left: 0
   },
+  showAllButtonHidden: {
+    left: 120,
+    transition: 'left 0.2s ease-in 0s'
+  },
+  showAllPostItem: {
+    height: 120,
+    width: 120,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+  },
+  // imageGridShowAllTransition: {
+  //   opacity: 0,
+  //   width: 0,
+  //   transition: "opacity 0.2s ease-in, width 0.2s ease-in",
+  // },  
+  // imageGridShowAllVisible: {
+  //   transition: "opacity 0.2s ease-in, width 0.2s ease-in",
+  // },
 
   imageGridPost: {
     ...theme.typography.commentStyle,
@@ -281,6 +288,8 @@ const styles = (theme: ThemeType) => ({
     // '&&:nth-child(4n + 1) $imageGridPostBody': {
     //   borderBottom: "none"
     // },
+
+    height: 'inherit',
   },
 
   imageGridPostHidden: {
@@ -832,12 +841,12 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   // const displayedPosts = displayedPostProps.map((props) => <ImageGridPost key={props.post._id} {...props} />)
 
   const displayedPosts = postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => {
-    if (!post) {
-      // TODO: style with appropriate width/height for offsetting the collapse-all button
-      return <div key={`empty-${rowIdx}-${columnIdx}`} />
-    }
+    if ((rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1))) {
+      if (!post) {
+        // TODO: style with appropriate width/height for offsetting the collapse-all button
+        return <div key={`empty-${rowIdx}-${columnIdx}`} />
+      }
 
-    if (isExpanded && !isShowingAll && (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1))) {
       const imageGridPostElement = <ImageGridPost
         key={post._id}
         post={post}
@@ -845,26 +854,36 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
         index={(rowIdx * postGridRows) + columnIdx}
       />;
 
+      // TODO: make the background image show for the show all/post item button wrapper
+      // TODO: hide the post title when the show all button is visible
       return <ShowAllPostItem
         key="show-all"
         imageGridId={id}
         imageGridPost={imageGridPostElement}
         handleToggleFullyOpen={handleToggleFullyOpen}
-        showAllVisible={isExpanded}
+        showAllVisible={isExpanded && !isShowingAll}
+        backgroundImageIndex={(rowIdx * postGridRows) + columnIdx}
         classes={classes}
       />
     } else if (isShowingAll && (rowIdx === (postGridRows - 1)) && (columnIdx === (postGridColumns - 1))) {
+      console.log({ postGridRows, postGridColumns, id });
       return (
         <div
           key="collapse-all"
-          className={classNames(classes.imageGridShowAll, {
-            [classes.imageGridShowAllVisible]: isExpanded,
-            [classes.imageGridShowAllTransition]: (rightBookOffset === 0) && !isExpanded
-            })}
-          onClick={() => handleToggleFullyOpen(id)}>
-            Collapse
+          className={classes.collapseButtonWrapper}
+        >
+          <div
+            className={classNames(classes.showAllButton, classes.showAllButtonVisible)}
+            onClick={() => handleToggleFullyOpen(id)}>
+              Collapse
+          </div>
         </div>
       );
+    }
+
+    if (!post) {
+      // TODO: style with appropriate width/height for offsetting the collapse-all button
+      return <div key={`empty-${rowIdx}-${columnIdx}`} />
     }
 
     return (
@@ -881,10 +900,11 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
     className={classNames(classes.postsImageGrid, {
       [classes.expandedImageGrid]: isExpanded, 
       [classes.collapsedImageGrid]: expansionState === 'collapsed',
-      [classes.hiddenImageGrid]: isHidden,
+      // [classes.hiddenImageGrid]: isHidden,
       [classes.showAllImageGrid]: isShowingAll,
     })} 
     id={`PostsImageGrid-${id}`}
+    style={{ height: (isShowingAll ? postGridRows : viewportHeight) * 120 }}
   >
     <div className={classes.imageGridHeader} onClick={() => handleToggleExpand(id)}>
       <span className={classes.toggleIcon}>
@@ -896,37 +916,32 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
       <div className={classNames(classes.imageGrid, classes[gridPositionToClassName(gridPosition) as keyof ClassesType<typeof styles>])} > 
         <img src={img} className={classes.imageGridBackground}/>
         {displayedPosts}
-        <div
-          className={classNames(classes.imageGridShowAll, {
-            [classes.imageGridShowAllVisible]: isExpanded,
-            [classes.imageGridShowAllTransition]: (rightBookOffset === 0) && !isExpanded
-            })}
-          onClick={() => handleToggleFullyOpen(id)}>
-            Show All
-        </div>
       </div>
     </div>
   </div>
 }
 
-const ShowAllPostItem = ({ imageGridId, imageGridPost, showAllVisible, handleToggleFullyOpen, classes }: {
+const ShowAllPostItem = ({ imageGridId, imageGridPost, showAllVisible, handleToggleFullyOpen, backgroundImageIndex, classes }: {
   imageGridId: string,
   imageGridPost: JSX.Element,
   showAllVisible: boolean,
   handleToggleFullyOpen: (id: string) => void,
+  backgroundImageIndex: number,
   classes: ClassesType<typeof styles>
 }) => {
-  return <div className={classes.showAllPostItemWrapper}>
-    {imageGridPost}
-    <div
-      key="show-all"
-      className={classNames(classes.imageGridShowAll, {
-        [classes.imageGridShowAllVisible]: showAllVisible,
-        [classes.imageGridShowAllTransition]: !showAllVisible
-        })}
-      onClick={() => handleToggleFullyOpen(imageGridId)}>
-        Show All
+  return <div className={classes.showAllBackgroundWrapper}>
+    <div className={classes.showAllPostItemWrapper}>
+      <div className={classNames(classes.showAllPostItem, { [classes.showAllPostItemHidden]: showAllVisible })}>
+        {imageGridPost}
+      </div>
+      <div
+        key="show-all"
+        className={classNames(classes.showAllButton, { [classes.showAllButtonVisible]: showAllVisible, [classes.showAllButtonHidden]: !showAllVisible })}
+        onClick={() => handleToggleFullyOpen(imageGridId)}>
+          Show All
+      </div>
     </div>
+    <img className={classes.imageGridPostBackground} src={candidateImages[backgroundImageIndex]} loading="lazy" />
   </div>;
 };
 
