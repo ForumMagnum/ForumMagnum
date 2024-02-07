@@ -2731,7 +2731,8 @@ const schema: SchemaType<"Users"> = {
   
   altAccountsDetected: resolverOnlyField({
     type: 'Boolean',
-    graphQLtype: 'Boolean!',
+    graphQLtype: 'Boolean',
+    nullable: true,
     canRead: ['sunshineRegiment', 'admins'],
     resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<boolean> => {
       const clientIds = await context.ClientIds.find(
