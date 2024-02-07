@@ -5,7 +5,7 @@ import { getCkEditor, ckEditorBundleVersion } from '../../lib/wrapCkEditor';
 import { getCKEditorDocumentId, generateTokenRequest} from '../../lib/ckEditorUtils'
 import { CollaborativeEditingAccessLevel, accessLevelCan, SharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
 import { ckEditorUploadUrlSetting, ckEditorWebsocketUrlSetting } from '../../lib/publicSettings'
-import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting } from '../../lib/instanceSettings';
+import { ckEditorUploadUrlOverrideSetting, ckEditorWebsocketUrlOverrideSetting, forumTypeSetting } from '../../lib/instanceSettings';
 import { CollaborationMode } from './EditorTopBar';
 import { useSubscribedLocation } from '../../lib/routeUtil';
 import { defaultEditorPlaceholder } from '../../lib/editor/make_editable';
@@ -363,7 +363,7 @@ const CKPostEditor = ({
   const isBlockOwnershipMode = isCollaborative && post.collabEditorDialogue;
   
   const { EditorTopBar, DialogueEditorGuidelines, DialogueEditorFeedback } = Components;
-  const { PostEditor, PostEditorCollaboration } = getCkEditor();
+  const { PostEditor, PostEditorCollaboration } = getCkEditor(forumTypeSetting.get());
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
     if (accessLevelCan(accessLevel, "edit"))

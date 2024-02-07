@@ -58,8 +58,6 @@ export const HIDE_HANDBOOK_COOKIE = registerCookie({
   description: "Whether to hide the EA Handbook on the EA Forum home page",
 });
 
-export const HIDE_JOB_AD_COOKIE = registerCookie({name: 'hide_job_ad', type: "necessary", description: 'Controls whether job ads are hidden'});
-
 export const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
   name: "show_post_podcast_player",
   type: "necessary",

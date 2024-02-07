@@ -1,5 +1,5 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { reCaptchaSiteKeySetting } from '../../lib/publicSettings';
 import { gql, useMutation } from '@apollo/client';
 import { isAF, isEAForum } from '../../lib/instanceSettings';
@@ -96,6 +96,7 @@ const currentActionToButtonText: Record<possibleActions, string> = {
 type LoginFormProps = {
   startingState?: possibleActions,
   immediateRedirect?: boolean,
+  onClose?: () => void,
   classes: ClassesType
 }
 
@@ -231,11 +232,20 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
 const LoginFormEA = ({
   startingState = "login",
   immediateRedirect,
+  onClose,
 }: LoginFormProps) => {
   const { pathname, query } = useLocation()
   const [action, setAction] = useState<"login" | "signup" | null>(
     startingState === "pwReset" ? "login" : "signup",
   );
+
+  const wrappedSetAction = useCallback((action: "login" | "signup" | null) => {
+    setAction(action);
+    if (!action) {
+      onClose?.();
+    }
+  }, [onClose]);
+
   const returnUrl = `${pathname}?${new URLSearchParams(query).toString()}`;
   const returnTo = encodeURIComponent(returnUrl);
 
@@ -252,7 +262,7 @@ const LoginFormEA = ({
   return (
     <Components.EALoginPopover
       open={!!action}
-      setAction={setAction}
+      setAction={wrappedSetAction}
       isSignup={action === "signup"}
     />
   );

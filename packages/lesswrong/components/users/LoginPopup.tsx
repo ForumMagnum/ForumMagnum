@@ -25,7 +25,7 @@ const LoginPopup = ({onClose, classes}: {
 
   if (isEAForum) {
     return (
-      <LoginForm />
+      <LoginForm onClose={onClose} />
     );
   }
 
