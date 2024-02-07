@@ -357,23 +357,29 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
 
   const default_images = ["https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png", "https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
 
-  const backgroundImageStyle = {
-    backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${imageInfo?.splashArtImageUrl || post.reviewWinner?.splashArtImageUrl || default_images[0]}")`,
-  }
+  const images: ReviewWinnerImageInfo[] = post.reviewWinnerArt ? 
+    post.reviewWinnerArt.map(image => ({
+      postId: post._id,
+      imageId: image._id,
+      splashArtImageUrl: image.splashArtImageUrl,
+      splashArtImagePrompt: image.splashArtImagePrompt
+    })) : 
+    default_images.map(url => ({
+      postId: post._id,
+      imageId: null,
+      splashArtImageUrl: url,
+      splashArtImagePrompt: null
+    }))
 
-  const defaultImages: ReviewWinnerImageInfo[] = default_images.map(url => ({
-    postId: post._id,
-    imageId: null,
-    splashArtImageUrl: url,
-    splashArtImagePrompt: null
-  }))
+    const idk = post.reviewWinner?.splashArtCoordinate?.reviewWinnerArt.splashArtImageUrl
 
-  const images = post.reviewWinnerArt  ? post.reviewWinnerArt.map(image => ({
-    postId: post._id,
-    imageId: image._id,
-    splashArtImageUrl: image.splashArtImageUrl,
-    splashArtImagePrompt: image.splashArtImagePrompt
-    })) : defaultImages
+    const backgroundImage = imageInfo?.splashArtImageUrl || // If an image from the dropdown is selected, show it
+                            post.reviewWinner?.splashArtCoordinate?.reviewWinnerArt.splashArtImageUrl // Otherwise, show the image saved to the post reviewWinner
+                            images[0].splashArtImageUrl // If no image is saved to the post, show the first image in the dropdown
+                            
+    const backgroundImageStyle = {
+      backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${backgroundImage}")`,
+    }
 
   const { anchorEl, hover, eventHandlers } = useHover();
 

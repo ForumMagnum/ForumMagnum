@@ -10,3 +10,17 @@ registerFragment(`
     isAI
   }
 `);
+
+registerFragment(`
+  fragment ReviewWinnerAll on ReviewWinner {
+    _id
+    postId
+    splashArtCoordinate {
+      ...SplashArtCoordinates
+    }
+    reviewYear
+    curatedOrder
+    reviewRanking
+    isAI
+  }
+`);
