@@ -31,15 +31,15 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-// export const acceptsSchemaHash = "6e4e68a1c8e3329188c36a4fcc688f7e";
+export const acceptsSchemaHash = "6e4e68a1c8e3329188c36a4fcc688f7e";
 
-// import { ReviewWinners } from '../../lib/collections/reviewWinners/collection'
-// import { addField, dropField } from "./meta/utils"
+import { ReviewWinners } from '../../lib/collections/reviewWinners/collection'
+import { addField, dropField } from "./meta/utils"
 
-// export const up = async ({db}: MigrationContext) => {
-//   await addField(db, ReviewWinners, "splashArtCoordinateId")
-// }
+export const up = async ({db}: MigrationContext) => {
+  await addField(db, ReviewWinners, "splashArtCoordinateId")
+}
 
-// export const down = async ({db}: MigrationContext) => {
-//   await dropField(db, ReviewWinners, "splashArtCoordinateId")
-// }
+export const down = async ({db}: MigrationContext) => {
+  await dropField(db, ReviewWinners, "splashArtCoordinateId")
+}

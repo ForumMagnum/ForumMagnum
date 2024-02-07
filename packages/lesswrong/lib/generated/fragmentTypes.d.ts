@@ -844,6 +844,8 @@ interface PostsDefaultFragment { // fragment on Posts
 
 interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly postId: string,
+  readonly splashArtImageUrl: string | null,
+  readonly splashArtCoordinateId: string | null,
   readonly reviewYear: number,
   readonly curatedOrder: number,
   readonly reviewRanking: number,
@@ -3570,6 +3572,8 @@ interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
 interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly _id: string,
   readonly postId: string,
+  readonly splashArtImageUrl: string | null,
+  readonly splashArtCoordinateId: string | null,
   readonly splashArtCoordinate: SplashArtCoordinates|null,
   readonly reviewYear: number,
   readonly curatedOrder: number,

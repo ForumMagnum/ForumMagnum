@@ -9,7 +9,7 @@ export type ReviewWinnerImageInfo = {
 }
 
 const ImageContext = createContext<{
-  imageInfo: ReviewWinnerImageInfo | undefined;
+  selectedImageInfo: ReviewWinnerImageInfo | undefined;
   setImageInfo: React.Dispatch<React.SetStateAction<ReviewWinnerImageInfo>>;
 } | undefined>(undefined);
 
@@ -22,10 +22,10 @@ export const useImageContext = () => {
 };
 
 export const ImageProvider: React.FC = ({ children }) => {
-  const [imageInfo, setImageInfo] = useState<ReviewWinnerImageInfo | undefined>(undefined);
+  const [selectedImageInfo, setImageInfo] = useState<ReviewWinnerImageInfo | undefined>(undefined);
   
   return (
-    <ImageContext.Provider value={{ imageInfo, setImageInfo }}>
+    <ImageContext.Provider value={{ selectedImageInfo, setImageInfo }}>
       {children}
     </ImageContext.Provider>
   );
