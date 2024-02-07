@@ -1585,7 +1585,6 @@ const schema: SchemaType<"Users"> = {
     hidden: !isLW,
     canRead: ['members'],
   },
-  // Not reusing curated, because we might actually use that as well
   subscribedToDigest: {
     type: Boolean,
     optional: true,
@@ -1595,6 +1594,7 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: !isEAForum,
     canRead: ['members'],
+    onCreate: () => isEAForum,
     ...schemaDefaultValue(false)
   },
   unsubscribeFromAll: {

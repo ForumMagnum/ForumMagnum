@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { getPodcastDataByName } from "../../../lib/eaPodcasts";
+import { useEAOnboarding } from "./useEAOnboarding";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -50,11 +51,15 @@ const styles = (theme: ThemeType) => ({
 export const EAOnboardingThankYouStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const [subscribedToDigest, setSubscribedToDigest] = useState(true);
+  const {goToNextStage, currentUser, updateCurrentUser} = useEAOnboarding();
+  const [subscribed, setSubscribed] = useState(currentUser.subscribedToDigest);
 
-  const onClose = useCallback(() => {
-    // TODO
-  }, []);
+  const setSubscribedToDigest = useCallback((value: boolean) => {
+    setSubscribed(value);
+    void updateCurrentUser({
+      subscribedToDigest: value,
+    });
+  }, [updateCurrentUser]);
 
   const {
     EAOnboardingStage, EAOnboardingPodcast, SectionTitle, EAButton, ToggleSwitch,
@@ -80,7 +85,7 @@ export const EAOnboardingThankYouStage = ({classes}: {
             A weekly email curated by the Forum team
           </div>
         </div>
-        <ToggleSwitch value={subscribedToDigest} setValue={setSubscribedToDigest} />
+        <ToggleSwitch value={subscribed} setValue={setSubscribedToDigest} />
       </div>
       <div className={classes.section}>
         <div>
@@ -96,7 +101,7 @@ export const EAOnboardingThankYouStage = ({classes}: {
           <EAOnboardingPodcast podcast={getPodcastDataByName("Apple Podcasts")} />
         </div>
       </div>
-      <EAButton onClick={onClose} className={classes.button}>
+      <EAButton onClick={goToNextStage} className={classes.button}>
         Go to the forum -&gt;
       </EAButton>
     </EAOnboardingStage>
