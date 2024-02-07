@@ -104,6 +104,7 @@ const styles = (theme: ThemeType) => ({
       },
       [theme.breakpoints.down(800)]: {
         width: 'calc(3 * 120px - 2px)',
+        transition: 'height 0.5s ease-in-out',
       },
     },
     '& $imageGrid': {
@@ -140,16 +141,19 @@ const styles = (theme: ThemeType) => ({
     padding: "16px 0px 4px 3px",
     cursor: 'pointer',
     transition: 'background 0.2s ease-in, width 0.5s ease-in-out',
-    width: 40,
-    height: 'inherit',
     '&&&:hover': {
       background: 'rgb(241 209 150 / 75%)'
+    },
+    [theme.breakpoints.up(800)]: {
+      width: 40,
+      height: 'inherit',
     },
     [theme.breakpoints.down(800)]: {
       padding: 0,
       writingMode: "inherit",
       transform: 'none',
-      width: 'inherit'
+      width: 'inherit',
+      height: '40px',
     }
   },
   imageGridHeaderTitle: {
@@ -178,12 +182,13 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
     transition: 'width 0.5s ease-in-out',
     [theme.breakpoints.down(800)]: {
+      transition: 'height 0.5s ease-in-out',
       // height: 'calc(1 * 120px)',
     }
   },
   imageGrid: {
     display: "grid",
-    gridTemplateRows: "repeat(8, 120px)",
+    // gridTemplateRows: "repeat(8, 120px)",
     position: "absolute",
     top: 0,
     overflow: "hidden",
@@ -192,7 +197,7 @@ const styles = (theme: ThemeType) => ({
     '&:hover $imageGridPostBackground': {
       transitionDelay: '0.2s'
     },
-    gridTemplateColumns: "repeat(9, 120px)",
+    // gridTemplateColumns: "repeat(9, 120px)",
   },
   // If we want to display a grid with more than 6 items, increase this number
   ...Object.fromEntries(Array.from({ length: MAX_GRID_SIZE }, (_, i) => gridPositionToClassesEntry(theme, i))),
@@ -239,6 +244,8 @@ const styles = (theme: ThemeType) => ({
     cursor: 'pointer',
     opacity: .8,
     transition: "left 0.2s ease-in 0.5s",
+    borderRight: "1px solid white",
+    borderBottom: "1px solid white",
   },
   showAllButtonVisible: {
     left: 0
@@ -254,15 +261,6 @@ const styles = (theme: ThemeType) => ({
     top: 0,
     right: 0,
   },
-  // imageGridShowAllTransition: {
-  //   opacity: 0,
-  //   width: 0,
-  //   transition: "opacity 0.2s ease-in, width 0.2s ease-in",
-  // },  
-  // imageGridShowAllVisible: {
-  //   transition: "opacity 0.2s ease-in, width 0.2s ease-in",
-  // },
-
   imageGridPost: {
     ...theme.typography.commentStyle,
     color: "white",
@@ -652,6 +650,30 @@ function getHiddenState(gridId: string, fullyOpenGridId?: string): HiddenState |
   return gridId === fullyOpenGridId ? 'full' : 'hidden';
 }
 
+function getCurrentPostGridHeight(isShowingAll: boolean, isExpanded: boolean, postGridRows: number, viewportHeight: number, bookGridColumns: number) {
+  const isMobile = bookGridColumns === 1;
+  // On mobile, the header is no longer transformed, and as such has its height take up space in the post grid
+  const headerAdjustment = isMobile ? 40 : 0;
+
+  // If we're in the "Show All" state, we want enough height to show every row
+  if (isShowingAll) {
+    return (postGridRows * 120) + headerAdjustment;
+  }
+
+  // If we're not on mobile, return height based on the default viewport "height" assigned to each post grid
+  if (!isMobile) {
+    return viewportHeight * 120;
+  }
+
+  // If we're on mobile and in the expanded state, we use the default viewport height
+  if (isExpanded) {
+    return (viewportHeight * 120) + headerAdjustment;
+  }
+
+  // Otherwise, we're in the unexpanded mobile state, which only has one row visible
+  return 120 + headerAdjustment;
+}
+
 
 const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
@@ -682,6 +704,10 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
     }
 
     setExpansionState(newState);
+
+    if (fullyOpenGridId !== undefined) {
+      setFullyOpenGridId(undefined);
+    }
   }
 
   const toggleFullyOpenGridId = (id: string) => {
@@ -774,7 +800,7 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   const screenWidth = useWindowWidth(2000);
   const horizontalBookGridCount = Math.min(Math.max(Math.floor(screenWidth / 400), 1), 3);
   const postGridColumns = horizontalBookGridCount * 3;
-  const postGridRows = Math.ceil((posts.length + 1) / postGridColumns);
+  const postGridRows = Math.ceil(posts.length / postGridColumns);
   const [leftBookOffset, rightBookOffset] = getOffsets(gridPosition, horizontalBookGridCount);
   const paddedPosts = [...posts];
 
@@ -792,7 +818,6 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
 
   // Construct an empty 2D array of posts
   const postsInGrid: (PostsTopItemInfo | null)[][] = range(postGridRows).map(row => range(postGridColumns).map(col => null));
-  console.log({ postsInGrid });
   // Fill the viewport
   let placedPostIndex = 0;
   const viewportLeft = leftBookOffset*3;
@@ -811,6 +836,8 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
       }
     }
   }
+
+  console.log({ id, postsInGrid: postsInGrid.map(row => row.map(p => p?.title)), horizontalBookGridCount, postGridRows, postGridColumns });
 
   const isExpanded = expansionState === 'expanded';
   const isHidden = hiddenState === 'hidden';
@@ -846,6 +873,8 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
         // TODO: style with appropriate width/height for offsetting the collapse-all button
         return <div key={`empty-${rowIdx}-${columnIdx}`} />
       }
+
+      console.log({ post, rowIdx, columnIdx, viewportHeight, postGridColumns });
 
       const imageGridPostElement = <ImageGridPost
         key={post._id}
@@ -896,6 +925,15 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
     );
   }));
 
+  const gridTemplateDimensions = {
+    gridTemplateRows: `repeat(${postGridRows}, 120px)`,
+    gridTemplateColumns: `repeat(${postGridColumns}, 120px)`
+  };
+
+  const postGridHeight = getCurrentPostGridHeight(isShowingAll, isExpanded, postGridRows, viewportHeight, horizontalBookGridCount);
+
+  const gridContainerHeight = horizontalBookGridCount === 1 ? postGridHeight - 40 : postGridHeight;
+
   return <div 
     className={classNames(classes.postsImageGrid, {
       [classes.expandedImageGrid]: isExpanded, 
@@ -904,7 +942,7 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
       [classes.showAllImageGrid]: isShowingAll,
     })} 
     id={`PostsImageGrid-${id}`}
-    style={{ height: (isShowingAll ? postGridRows : viewportHeight) * 120 }}
+    style={{ height: postGridHeight }}
   >
     <div className={classes.imageGridHeader} onClick={() => handleToggleExpand(id)}>
       <span className={classes.toggleIcon}>
@@ -912,8 +950,8 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
       </span>
       <h2 className={classes.imageGridHeaderTitle}>{header}</h2>
     </div>
-    <div className={classes.imageGridContainer}>
-      <div className={classNames(classes.imageGrid, classes[gridPositionToClassName(gridPosition) as keyof ClassesType<typeof styles>])} > 
+    <div className={classes.imageGridContainer} style={{ height: gridContainerHeight }}>
+      <div className={classNames(classes.imageGrid, classes[gridPositionToClassName(gridPosition) as keyof ClassesType<typeof styles>])} style={gridTemplateDimensions}> 
         <img src={img} className={classes.imageGridBackground}/>
         {displayedPosts}
       </div>
@@ -931,7 +969,7 @@ const ShowAllPostItem = ({ imageGridId, imageGridPost, showAllVisible, handleTog
 }) => {
   return <div className={classes.showAllBackgroundWrapper}>
     <div className={classes.showAllPostItemWrapper}>
-      <div className={classNames(classes.showAllPostItem, { [classes.showAllPostItemHidden]: showAllVisible })}>
+      <div className={classNames(classes.showAllPostItem, { [classes.imageGridPostHidden]: showAllVisible })}>
         {imageGridPost}
       </div>
       <div
