@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { formatRole, formatStat } from "../../users/EAUserTooltipContent";
 import { useCurrentUser } from "../../common/withUser";
+import { useSuggestedSubscriptions } from "./useSuggestedSubscriptions";
 import classNames from "classnames";
 
 const TAG_SIZE = 103;
@@ -108,14 +109,14 @@ const toggleInArray = (array: string[], value: string): string[] => {
   return Array.from(values);
 }
 
-export const EAOnboardingSubscribeStage = ({tags, users, classes}: {
-  tags: TagOnboarding[],
-  users: UserOnboarding[],
+export const EAOnboardingSubscribeStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+
+  const {tags, users} = useSuggestedSubscriptions();
 
   const onToggleTag = useCallback((id: string) => {
     setSelectedTagIds((current) => toggleInArray(current, id));

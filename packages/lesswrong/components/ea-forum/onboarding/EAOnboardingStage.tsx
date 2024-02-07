@@ -1,7 +1,8 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { OnboardingStage, useEAOnboarding } from "./useEAOnboarding";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -77,7 +78,6 @@ export const EAOnboardingStage = ({
   stageName,
   title,
   skippable,
-  onSkip,
   canContinue,
   onContinue,
   footer,
@@ -88,10 +88,9 @@ export const EAOnboardingStage = ({
   className,
   classes,
 }: {
-  stageName: string,
+  stageName: OnboardingStage,
   title: string,
   skippable?: boolean,
-  onSkip?: () => void | Promise<void>,
   canContinue?: boolean,
   onContinue?: () => void | Promise<void>,
   footer?: ReactNode,
@@ -102,6 +101,17 @@ export const EAOnboardingStage = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {currentStage, goToNextStage} = useEAOnboarding();
+
+  const wrappedOnContinue = useCallback(async () => {
+    await onContinue?.();
+    goToNextStage();
+  }, [onContinue, goToNextStage]);
+
+  if (currentStage !== stageName) {
+    return null;
+  }
+
   const {EAButton} = Components;
   return (
     <AnalyticsContext
@@ -129,12 +139,12 @@ export const EAOnboardingStage = ({
               {footer}
             </div>
             {skippable &&
-              <a onClick={onSkip} className={classes.skip}>
+              <a onClick={goToNextStage} className={classes.skip}>
                 Skip for now
               </a>
             }
             <EAButton
-              onClick={onContinue}
+              onClick={wrappedOnContinue}
               disabled={!canContinue}
               className={classes.continue}
             >
