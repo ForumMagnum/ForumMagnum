@@ -848,7 +848,6 @@ interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly curatedOrder: number,
   readonly reviewRanking: number,
   readonly isAI: boolean,
-  readonly splashArtImageUrl: string | null,
 }
 
 interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
@@ -1330,13 +1329,13 @@ interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
   readonly customHighlight: RevisionDisplay|null,
   readonly tableOfContentsRevision: any,
-  readonly reviewWinner: ReviewWinnersDefaultFragment|null,
+  readonly reviewWinner: ReviewWinnerAll|null,
   readonly reviewWinnerArt: Array<ReviewWinnerArtImages>,
 }
 
 interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fragment on Posts
   readonly tableOfContents: any,
-  readonly reviewWinner: ReviewWinnersDefaultFragment|null,
+  readonly reviewWinner: ReviewWinnerAll|null,
   readonly reviewWinnerArt: Array<ReviewWinnerArtImages>,
 }
 
@@ -3568,6 +3567,16 @@ interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
   readonly isAI: boolean,
 }
 
+interface ReviewWinnerAll { // fragment on ReviewWinners
+  readonly _id: string,
+  readonly postId: string,
+  readonly splashArtCoordinate: SplashArtCoordinates|null,
+  readonly reviewYear: number,
+  readonly curatedOrder: number,
+  readonly reviewRanking: number,
+  readonly isAI: boolean,
+}
+
 interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly _id: string,
   readonly postId: string,
@@ -3587,6 +3596,7 @@ interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordina
 interface SplashArtCoordinates { // fragment on SplashArtCoordinates
   readonly _id: string,
   readonly reviewWinnerArtId: string,
+  readonly reviewWinnerArt: ReviewWinnerArtImages,
   readonly logTime: Date,
   readonly xCoordinate: number,
   readonly yCoordinate: number,
@@ -3832,6 +3842,7 @@ interface FragmentTypes {
   CkEditorUserSessionsDefaultFragment: CkEditorUserSessionsDefaultFragment
   CkEditorUserSessionInfo: CkEditorUserSessionInfo
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
+  ReviewWinnerAll: ReviewWinnerAll
   ReviewWinnerArtImages: ReviewWinnerArtImages
   SplashArtCoordinatesDefaultFragment: SplashArtCoordinatesDefaultFragment
   SplashArtCoordinates: SplashArtCoordinates
@@ -3858,7 +3869,7 @@ interface FragmentTypesByCollection {
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
-  ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"
+  ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerAll"
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
@@ -4123,6 +4134,7 @@ interface CollectionNamesByFragmentName {
   CkEditorUserSessionsDefaultFragment: "CkEditorUserSessions"
   CkEditorUserSessionInfo: "CkEditorUserSessions"
   ReviewWinnerEditDisplay: "ReviewWinners"
+  ReviewWinnerAll: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
   SplashArtCoordinatesDefaultFragment: "SplashArtCoordinates"
   SplashArtCoordinates: "SplashArtCoordinates"

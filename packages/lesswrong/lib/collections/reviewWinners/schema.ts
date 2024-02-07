@@ -1,3 +1,5 @@
+import { foreignKeyField, resolverOnlyField } from "../../utils/schemaUtils";
+
 export const schema: SchemaType<"ReviewWinners"> = {
   postId: {
     type: String,
@@ -6,6 +8,18 @@ export const schema: SchemaType<"ReviewWinners"> = {
     canCreate: ['admins'],
     canUpdate: ['admins']
   },
+  splashArtCoordinate: resolverOnlyField({ // probably do the sorting in javascript?
+    type: "SplashArtCoordinate",
+    graphQLtype: "SplashArtCoordinate",
+    canRead: ['guests'],
+    resolver: async (reviewWinner: DbReviewWinner, args: void, context: ResolverContext): Promise<DbSplashArtCoordinate|null> => {
+      const { SplashArtCoordinates, ReviewWinnerArts } = context;
+      const reviewWinnerArtIds = (await ReviewWinnerArts.find({postId: reviewWinner.postId}).fetch()).map(rw => rw._id) // sort to most recent! also fetch based on reviewWinner.postId
+      const art = await SplashArtCoordinates.find({ reviewWinnerArtId: { $in: reviewWinnerArtIds } }).fetch();
+      art.sort((a: DbSplashArtCoordinate, b: DbSplashArtCoordinate) => b.logTime.getTime() - a.logTime.getTime());
+      return art[0] || null;
+    }
+  }),
   reviewYear: {
     type: Number,
     nullable: false,
@@ -33,13 +47,5 @@ export const schema: SchemaType<"ReviewWinners"> = {
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins']
-  },
-  splashArtImageUrl: {
-    type: String,
-    canRead: ['guests'],
-    canUpdate: ['admins'],
-    canCreate: ['admins'],
-    optional: true,
-    nullable: true,
   },
 }

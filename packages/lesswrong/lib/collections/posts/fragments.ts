@@ -455,7 +455,7 @@ registerFragment(`
     
     tableOfContentsRevision(version: $version)
     reviewWinner {
-      ...ReviewWinnersDefaultFragment
+      ...ReviewWinnerAll
     }
     reviewWinnerArt {
       ...ReviewWinnerArtImages
@@ -470,7 +470,7 @@ registerFragment(`
     
     tableOfContents
     reviewWinner {
-      ...ReviewWinnersDefaultFragment
+      ...ReviewWinnerAll
     }
     reviewWinnerArt {
       ...ReviewWinnerArtImages

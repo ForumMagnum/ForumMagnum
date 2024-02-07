@@ -1,4 +1,4 @@
-import { foreignKeyField } from '../../utils/schemaUtils'
+import { foreignKeyField, resolverOnlyField } from '../../utils/schemaUtils'
 
 export const schema: SchemaType<"SplashArtCoordinates"> = { 
   reviewWinnerArtId: {
@@ -14,7 +14,7 @@ export const schema: SchemaType<"SplashArtCoordinates"> = {
     canRead: ['sunshineRegiment', 'admins'],
     canUpdate: ['sunshineRegiment', 'admins'],
   },
-  logTime: {
+  logTime: { // TODO get rid of this
     type: Date,
     canRead: ['guests'],
     canCreate: ['sunshineRegiment', 'admins'],

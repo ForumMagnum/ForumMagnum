@@ -82,7 +82,7 @@ export const ImageCropPreview = ({ classes }: {
 
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const {imageInfo} = useImageContext();
-  const [saveSuccess, setSaveSuccess] = useState<boolean | null>(null);
+  const [showSaveSuccess, setShowSaveSuccess] = useState<boolean | null>(null);
 
   const startDragging = (e: React.MouseEvent<HTMLDivElement>) => {
     // Prevent triggering drag when clicking the close button or the resize button
@@ -144,25 +144,22 @@ export const ImageCropPreview = ({ classes }: {
   useEventListener('mousemove', handleBox);
   useEventListener('mouseup', endMouseDown);
 
-
-  const closeBox = () => {
-    setIsBoxVisible(false);
-  };
-
-  const { create: createSplashArtCoordinateMutation, data: SplashArtCoordinates } = useCreate({
+  const { create: createSplashArtCoordinateMutation, data: SplashArtCoordinates, loading, error } = useCreate({
     collectionName: 'SplashArtCoordinates',
     fragmentName: 'SplashArtCoordinatesDefaultFragment'
   });
 
   const saveCoordinates = useCallback(async () => {
 
+    console.log('Attempting to save coordinates');
+
     try {
       if (!imageInfo?.imageId) {
         console.error('No image id provided');
-        setSaveSuccess(false); // Set failure state
+        setShowSaveSuccess(false); // Set failure state
         return;
       }
-  
+
       const splashArtData: SplashArtCoordinatesDefaultFragment = {
         reviewWinnerArtId: imageInfo?.imageId,
         xCoordinate: boxPosition.x,
@@ -171,14 +168,15 @@ export const ImageCropPreview = ({ classes }: {
         height: boxSize.height,
         logTime: new Date(),
       };
+      console.log('Splash Art Data: ', splashArtData);
   
       await createSplashArtCoordinateMutation({ data: splashArtData });
 
-      setSaveSuccess(true); // Set success state
+      setShowSaveSuccess(true); // Set failure state
     }
     catch (error) {
       console.error('Error saving coordinates', error);
-      setSaveSuccess(false); // Set failure state
+      setShowSaveSuccess(false); // Set failure state
     }
   }, [boxPosition, boxSize, imageInfo, createSplashArtCoordinateMutation]);
 
@@ -192,7 +190,7 @@ export const ImageCropPreview = ({ classes }: {
             style={{
               left: `${boxPosition.x}px`,
               top: `${boxPosition.y}px`,
-              zIndex: 2000,
+              zIndex: 20000,
               backgroundImage: `url(${imageInfo?.splashArtImageUrl})`, 
               backgroundPosition: `-${boxPosition.x}px -${boxPosition.y}px`, // Set the background position based on boxPosition
               backgroundSize: `${windowSize.width}px auto`, // Ensure the background image covers the entire screen     
@@ -200,18 +198,19 @@ export const ImageCropPreview = ({ classes }: {
               height: boxSize.height,             
             }}
             onMouseDown={handleMouseDown}>
-            <div className={classes.closeButton} onClick={closeBox}>
+            <div className={classes.closeButton} onClick={() => setIsBoxVisible(false)}>
                 x
             </div>
             <div
                 className={classes.resizer}
                 onMouseDown={handleMouseDown}
             ></div>
-            <div
-                className={classes.saveCoordinates} onClick={saveCoordinates}
-            >Save coordinates</div>
-            {saveSuccess === true && <div>Coordinates saved successfully! ${SplashArtCoordinates} </div>}
-            {saveSuccess === false && <div>Error saving coordinates. Please try again.</div>}
+            {loading ? 
+                <div className={classes.saveCoordinates}>Saving coordinates...</div> : 
+                <div className={classes.saveCoordinates} onClick={saveCoordinates}>Save coordinates</div>}
+            {error && <div>Error saving coordinates. Please try again.</div>}
+            {showSaveSuccess && <div>`Coordinates saved successfully!\n<div onClick={() => setShowSaveSuccess(false)}>(click here to close)</div></div>}
+
         </div>
         </>
       )}
