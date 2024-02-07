@@ -12,7 +12,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 20
   },
   description: {
-    maxWidth: 570,
+    maxWidth: 666,
     fontSize: 16,
     lineHeight: "22px",
     color: theme.palette.grey[700],
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
       margin: 0,
     },
     "& li": {
-      marginTop: 3,
+      marginTop: 1,
     },
   },
   link: {
@@ -32,31 +32,28 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 });
 
-const EmailJobInterestConfirmation = ({
-  newInterestedJob,
+const EmailJobAdReminder = ({
+  jobName,
   classes,
 }: {
-  newInterestedJob: string;
+  jobName: string;
   classes: ClassesType;
 }) => {
-  const jobData = JOB_AD_DATA[newInterestedJob];
+  const jobData = JOB_AD_DATA[jobName];
   const link = jobData.bitlyLink;
   const role = jobData.role;
+  const insertThe = jobData.insertThe;
   const org = jobData.org;
   const description = jobData.getDescription(classes);
 
   return (
     <div className={classes.root}>
       <div className={classes.row}>
-        Thank you for registering your interest in this role! We'll pass on your email address and EA Forum profile
-        to the hiring manager.
-      </div>
-      <div className={classes.row}>
-        We also encourage you to complete the full job application <a href={link}>here</a>.
+        The application deadline for this job is coming up soon! You can apply <a href={link}>here</a>.
       </div>
       <hr className={classes.hr}/>
       <h2>
-        {role} at {org}
+        {role} at{insertThe ? ' the ' : ' '}{org}
       </h2>
       <div>{description}</div>
       <hr className={classes.hr}/>
@@ -64,14 +61,14 @@ const EmailJobInterestConfirmation = ({
   );
 };
 
-const EmailJobInterestConfirmationComponent = registerComponent(
-  "EmailJobInterestConfirmation",
-  EmailJobInterestConfirmation,
+const EmailJobAdReminderComponent = registerComponent(
+  "EmailJobAdReminder",
+  EmailJobAdReminder,
   { styles }
 );
 
 declare global {
   interface ComponentTypes {
-    EmailJobInterestConfirmation: typeof EmailJobInterestConfirmationComponent;
+    EmailJobAdReminder: typeof EmailJobAdReminderComponent;
   }
 }

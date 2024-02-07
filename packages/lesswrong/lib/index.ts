@@ -138,6 +138,11 @@ import './collections/advisorRequests/fragments';
 import './collections/advisorRequests/permissions';
 import './collections/advisorRequests/views';
 
+import './collections/userJobAds/collection';
+import './collections/userJobAds/fragments';
+import './collections/userJobAds/permissions';
+import './collections/userJobAds/views';
+
 import './collections/userMostValuablePosts/collection';
 import './collections/userMostValuablePosts/fragments';
 import './collections/userMostValuablePosts/permissions';
