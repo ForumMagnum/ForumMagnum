@@ -316,16 +316,18 @@ const styles = (theme: ThemeType) => ({
 
 /// PostsPageSplashHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes}: {
+const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEmbeddedPlayer, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  reviewWinner: ReviewWinnerAll,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
-  const { imageInfo } = useImageContext();
+  const { selectedImageInfo } = useImageContext();
   const currentUser = useCurrentUser();
   const [visible, setVisible] = React.useState(true);
+  const [backgroundImage, setBackgroundImage] = React.useState('');
   const { setToCVisible } = useContext(SidebarsContext)!;
   const transitionHeader = (headerVisibile: boolean) => {
     setToCVisible(!headerVisibile);
@@ -357,6 +359,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
 
   const default_images = ["https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png", "https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
 
+  // TODO: get rid of default images!
   const images: ReviewWinnerImageInfo[] = post.reviewWinnerArt ? 
     post.reviewWinnerArt.map(image => ({
       postId: post._id,
@@ -371,11 +374,19 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
       splashArtImagePrompt: null
     }))
 
-    const idk = post.reviewWinner?.splashArtCoordinate?.reviewWinnerArt.splashArtImageUrl
+    // const postLastSavedImage = post.reviewWinner?.splashArtCoordinate?.reviewWinnerArt.splashArtImageUrl
 
-    const backgroundImage = imageInfo?.splashArtImageUrl || // If an image from the dropdown is selected, show it
-                            post.reviewWinner?.splashArtCoordinate?.reviewWinnerArt.splashArtImageUrl // Otherwise, show the image saved to the post reviewWinner
-                            images[0].splashArtImageUrl // If no image is saved to the post, show the first image in the dropdown
+    useEffect(() => {
+      const postLastSavedImage = post.reviewWinner?.splashArtCoordinate?.reviewWinnerArt.splashArtImageUrl;
+      const newBackgroundImage = selectedImageInfo?.splashArtImageUrl || 
+                                 postLastSavedImage || 
+                                 images[0].splashArtImageUrl;
+      setBackgroundImage(newBackgroundImage);
+    }, [post, selectedImageInfo, images]);
+
+    // const backgroundImage = selectedImageInfo?.splashArtImageUrl || // If an image from the dropdown is selected, show it
+    //                         postLastSavedImage ||// Otherwise, show the image saved to the post reviewWinner
+    //                         images[0].splashArtImageUrl // If no image is saved to the post, show the first image in the dropdown
                             
     const backgroundImageStyle = {
       backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${backgroundImage}")`,
@@ -383,6 +394,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
 
   const { anchorEl, hover, eventHandlers } = useHover();
 
+  // TODO: uncomment currentUser.isAdmin
   return <div style={backgroundImageStyle} className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef} >
     <div className={classes.top}>
       <div className={classes.leftSection}>
@@ -414,7 +426,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
             </LWPopper>
           </div>
           <div className={classes.rightSectionBelowBottomRow}>
-            <ImageCropPreview />
+            <ImageCropPreview reviewWinner={reviewWinner} />
           </div>
         </div>}
       </div>

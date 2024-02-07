@@ -78,6 +78,17 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
       return { reviewWinner, post };
     });
   }
+
+  // async updateSplashArtCoordinateId(reviewWinnerId: string, splashArtCoordinateId: string) {
+  //   console.log(`Updating via updateSplashArtCoordinateId. reviewWinnerId: ${reviewWinnerId}, splashArtCoordinateId: ${splashArtCoordinateId}`);
+  //   await this.getRawDb().tx(async (tx) => {
+  //     await tx.none(`
+  //       UPDATE "ReviewWinners"
+  //       SET "splashArtCoordinateId" = $(splashArtCoordinateId)
+  //       WHERE _id = $(reviewWinnerId);
+  //     `, { splashArtCoordinateId, reviewWinnerId });
+  //   });
+  // }
 }
 
 recordPerfMetrics(ReviewWinnersRepo);

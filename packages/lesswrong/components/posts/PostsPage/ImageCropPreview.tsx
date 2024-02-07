@@ -5,6 +5,7 @@ import { useEventListener } from '../../hooks/useEventListener';
 import { useCreate } from '../../../lib/crud/withCreate';
 // import { createAdminContext, createMutator } from '../../../server/vulcan-lib';
 // import { createAdminContext } from '../../../server/vulcan-lib/query';
+import { useUpdate } from '../../../lib/crud/withUpdate';
 
 const initialHeight = 480;
 const initialWidth = 360;
@@ -66,7 +67,8 @@ const styles = (theme: ThemeType) => ({
     },
   });
 
-export const ImageCropPreview = ({ classes }: {
+export const ImageCropPreview = ({ reviewWinner, classes }: {
+    reviewWinner: ReviewWinnerAll,
     classes: ClassesType<typeof styles>
   }) => {
   const [isBoxVisible, setIsBoxVisible] = useState(false);
@@ -81,7 +83,8 @@ export const ImageCropPreview = ({ classes }: {
   const [initialResizePosition, setInitialResizePosition] = useState({ x: initialWidth, y: initialHeight });
 
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
-  const {imageInfo} = useImageContext();
+  const {selectedImageInfo} = useImageContext();
+
   const [showSaveSuccess, setShowSaveSuccess] = useState<boolean | null>(null);
 
   const startDragging = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -144,9 +147,14 @@ export const ImageCropPreview = ({ classes }: {
   useEventListener('mousemove', handleBox);
   useEventListener('mouseup', endMouseDown);
 
-  const { create: createSplashArtCoordinateMutation, data: SplashArtCoordinates, loading, error } = useCreate({
+  const { create: createSplashArtCoordinateMutation, loading, error } = useCreate({
     collectionName: 'SplashArtCoordinates',
-    fragmentName: 'SplashArtCoordinatesDefaultFragment'
+    fragmentName: 'SplashArtCoordinates'
+  });
+
+  const {mutate: updateReviewWinner, error: updateRWError} = useUpdate({
+    collectionName: "ReviewWinners",
+    fragmentName: 'ReviewWinnerAll',
   });
 
   const saveCoordinates = useCallback(async () => {
@@ -154,14 +162,14 @@ export const ImageCropPreview = ({ classes }: {
     console.log('Attempting to save coordinates');
 
     try {
-      if (!imageInfo?.imageId) {
+      if (!selectedImageInfo?.imageId) {
         console.error('No image id provided');
         setShowSaveSuccess(false); // Set failure state
         return;
       }
 
-      const splashArtData: SplashArtCoordinatesDefaultFragment = {
-        reviewWinnerArtId: imageInfo?.imageId,
+      const splashArtData = {
+        reviewWinnerArtId: selectedImageInfo?.imageId,
         xCoordinate: boxPosition.x,
         yCoordinate: boxPosition.y,
         width: boxSize.width,
@@ -170,15 +178,34 @@ export const ImageCropPreview = ({ classes }: {
       };
       console.log('Splash Art Data: ', splashArtData);
   
-      await createSplashArtCoordinateMutation({ data: splashArtData });
+      const response = await createSplashArtCoordinateMutation({ data: splashArtData });
 
-      setShowSaveSuccess(true); // Set failure state
+      console.log('response: ', response);
+      console.log('response.data.createSplashArtCoordinate: ', response.data?.createSplashArtCoordinate);
+      console.log('response.data.createSplashArtCoordinate.data: ', response.data?.createSplashArtCoordinate.data);
+      console.log('response.data.createSplashArtCoordinate.data._id: ', response.data?.createSplashArtCoordinate.data._id);
+
+
+      await updateReviewWinner({
+        selector: {_id: reviewWinner?._id},
+        data: {
+          splashArtCoordinateId: response.data?.createSplashArtCoordinate.data._id 
+        }
+      })
+
+      if (updateRWError) {
+        console.error('Error updating review winner', updateRWError);
+        setShowSaveSuccess(false); // Set failure state
+        return;
+      }
+
+      setShowSaveSuccess(true); // might want to see if we actually succeeded somehow before setting this
     }
     catch (error) {
       console.error('Error saving coordinates', error);
       setShowSaveSuccess(false); // Set failure state
     }
-  }, [boxPosition, boxSize, imageInfo, createSplashArtCoordinateMutation]);
+  }, [updateReviewWinner, updateRWError, reviewWinner, boxPosition, boxSize, selectedImageInfo, createSplashArtCoordinateMutation]);
 
   return (
     <>
@@ -191,7 +218,7 @@ export const ImageCropPreview = ({ classes }: {
               left: `${boxPosition.x}px`,
               top: `${boxPosition.y}px`,
               zIndex: 20000,
-              backgroundImage: `url(${imageInfo?.splashArtImageUrl})`, 
+              backgroundImage: `url(${selectedImageInfo?.splashArtImageUrl})`, 
               backgroundPosition: `-${boxPosition.x}px -${boxPosition.y}px`, // Set the background position based on boxPosition
               backgroundSize: `${windowSize.width}px auto`, // Ensure the background image covers the entire screen     
               width: boxSize.width,
@@ -209,7 +236,7 @@ export const ImageCropPreview = ({ classes }: {
                 <div className={classes.saveCoordinates}>Saving coordinates...</div> : 
                 <div className={classes.saveCoordinates} onClick={saveCoordinates}>Save coordinates</div>}
             {error && <div>Error saving coordinates. Please try again.</div>}
-            {showSaveSuccess && <div>`Coordinates saved successfully!\n<div onClick={() => setShowSaveSuccess(false)}>(click here to close)</div></div>}
+            {showSaveSuccess && <div>`Coordinates saved successfully!<div onClick={() => setShowSaveSuccess(false)}>(click here to close)</div></div>}
 
         </div>
         </>

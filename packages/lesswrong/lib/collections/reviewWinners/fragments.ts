@@ -15,6 +15,8 @@ registerFragment(`
   fragment ReviewWinnerAll on ReviewWinner {
     _id
     postId
+    splashArtImageUrl
+    splashArtCoordinateId
     splashArtCoordinate {
       ...SplashArtCoordinates
     }
