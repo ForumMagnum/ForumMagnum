@@ -318,6 +318,8 @@ declare global {
       strawpoll: ColorString,
       userProfileImageHover: ColorString,
       userProfileImageLoading: string,
+      onboardingSection: ColorString,
+      onboardingPodcast: ColorString,
     },
     boxShadow: {
       default: string,

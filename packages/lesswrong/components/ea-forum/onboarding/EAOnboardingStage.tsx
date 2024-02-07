@@ -81,6 +81,8 @@ export const EAOnboardingStage = ({
   canContinue,
   onContinue,
   footer,
+  hideHeader,
+  hideFooter,
   thin,
   children,
   className,
@@ -93,6 +95,8 @@ export const EAOnboardingStage = ({
   canContinue?: boolean,
   onContinue?: () => void | Promise<void>,
   footer?: ReactNode,
+  hideHeader?: boolean,
+  hideFooter?: boolean,
   thin?: boolean,
   children?: ReactNode,
   className?: string,
@@ -109,31 +113,35 @@ export const EAOnboardingStage = ({
         [classes.rootWide]: !thin,
       })}>
         <div className={classes.scrollable}>
-          <div className={classes.header}>
-            <div className={classes.lightbulb}>{lightbulbIcon}</div>
-            {title}
-          </div>
+          {!hideHeader &&
+            <div className={classes.header}>
+              <div className={classes.lightbulb}>{lightbulbIcon}</div>
+              {title}
+            </div>
+          }
           <div className={classNames(classes.content, className)}>
             {children}
           </div>
         </div>
-        <div className={classes.footer}>
-          <div className={classes.footerContent}>
-            {footer}
+        {!hideFooter &&
+          <div className={classes.footer}>
+            <div className={classes.footerContent}>
+              {footer}
+            </div>
+            {skippable &&
+              <a onClick={onSkip} className={classes.skip}>
+                Skip for now
+              </a>
+            }
+            <EAButton
+              onClick={onContinue}
+              disabled={!canContinue}
+              className={classes.continue}
+            >
+              Continue -&gt;
+            </EAButton>
           </div>
-          {skippable &&
-            <a onClick={onSkip} className={classes.skip}>
-              Skip for now
-            </a>
-          }
-          <EAButton
-            onClick={onContinue}
-            disabled={!canContinue}
-            className={classes.continue}
-          >
-            Continue -&gt;
-          </EAButton>
-        </div>
+        }
       </div>
     </AnalyticsContext>
   );
@@ -142,7 +150,7 @@ export const EAOnboardingStage = ({
 const EAOnboardingStageComponent = registerComponent(
   "EAOnboardingStage",
   EAOnboardingStage,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {

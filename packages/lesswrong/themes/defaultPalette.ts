@@ -397,6 +397,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       rgba(255,255,255,0.25) 50%,
       rgba(0,0,0,0) 66%
     ) ${shades.grey[500]}`,
+    onboardingSection: "#f5f5f5",
+    onboardingPodcast: "#e7e7e7",
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
