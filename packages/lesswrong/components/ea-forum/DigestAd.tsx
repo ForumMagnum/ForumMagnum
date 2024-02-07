@@ -137,6 +137,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 13,
     lineHeight: '19px',
     color: theme.palette.grey[800],
+    textWrap: 'pretty',
   },
   successCheckIcon: {
     color: theme.palette.icon.greenCheckmark
@@ -146,9 +147,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
+const HEADLINE_TEXT = 'Sign up for the weekly EA Forum Digest'
+const BODY_TEXT = 'A curated reading list of Forum posts, every Wednesday'
+
 /**
  * This is the Forum Digest ad that appears at the top of the EA Forum home page right hand side.
- * It has some overlap with the Forum Digest ad that appears in "Recent discussion".
+ * It has some functionality overlap with the Forum Digest ad that appears in "Recent discussion".
  * In particular, both components use currentUser.hideSubscribePoke,
  * so for logged in users, hiding one ad hides the other.
  *
@@ -226,14 +230,14 @@ const DigestAd = ({largeVersion, className, classes}: {
   const buttonProps = loading ? {disabled: true} : {}
   const arrow = <ForumIcon icon="ArrowRight" className={classes.formBtnArrow} />
   // By default the button is just a right arrow.
-  // For the large version of the ad, it either says "Subscribe" or has an arrow depending on the screen width.
+  // For the large version of the ad, it either says "Sign up" or has an arrow depending on the screen width.
   const buttonContents = largeVersion ? <>
-    <span className={classes.formBtnWideScreen}>Subscribe</span>
+    <span className={classes.formBtnWideScreen}>Sign up</span>
     <span className={classes.formBtnNarrowScreen}>{arrow}</span>
   </> : arrow
   
   // Show the form to submit to Mailchimp directly,
-  // or display the logged in user's email address and the Subscribe button
+  // or display the logged in user's email address and the "Sign up" button
   let formNode = showForm ? (
     <form action={eaForumDigestSubscribeURL} method="post" className={classes.form}>
       <input ref={emailRef} name="EMAIL" placeholder="Email address" className={classes.formInput} required={true} />
@@ -255,7 +259,7 @@ const DigestAd = ({largeVersion, className, classes}: {
     formNode = <div className={classes.success}>
       <ForumIcon icon="CheckCircle" className={classes.successCheckIcon} />
       <div>
-        Thanks for subscribing! You can edit your subscription via
+        Thanks for signing up! You can edit your subscription via
         your <Link to={'/account?highlightField=subscribedToDigest'} className={classes.successLink}>
           account settings
         </Link>.
@@ -266,20 +270,20 @@ const DigestAd = ({largeVersion, className, classes}: {
   return <AnalyticsContext pageSubSectionContext="digestAd">
     <div className={classNames(classes.root, {[classes.rootLarge]: largeVersion}, className)}>
       <div className={classes.headingRow}>
-        <h2 className={classNames(classes.heading, {[classes.headingLarge]: largeVersion})}>Get the best posts in your email</h2>
+        <h2 className={classNames(classes.heading, {[classes.headingLarge]: largeVersion})}>{HEADLINE_TEXT}</h2>
         <ForumIcon icon="Close" className={classes.close} onClick={handleClose} />
       </div>
       <div className={classNames(classes.body, {[classes.bodyLarge]: largeVersion})}>
-        Sign up for the EA Forum Digest to get curated recommendations every week
+        {BODY_TEXT}
       </div>
       {formNode}
     </div>
     
     {largeVersion && <div className={classNames(classes.root, classes.rootHorizontal, {[classes.rootLarge]: largeVersion}, className)}>
       <div className={classes.textCol}>
-        <h2 className={classNames(classes.heading, {[classes.headingLarge]: largeVersion})}>Get the best posts in your email</h2>
+        <h2 className={classNames(classes.heading, {[classes.headingLarge]: largeVersion})}>{HEADLINE_TEXT}</h2>
         <div className={classNames(classes.body, classes.bodyHorizontal, {[classes.bodyLarge]: largeVersion})}>
-          Sign up for the EA Forum Digest to get curated recommendations every week
+          {BODY_TEXT}
         </div>
       </div>
       {formNode}

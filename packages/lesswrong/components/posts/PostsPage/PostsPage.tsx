@@ -14,7 +14,7 @@ import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
+import { postPageFixedDigestAd, welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -303,7 +303,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     transform: 'translateX(-50%)',
     width: 1100,
     maxWidth: '85%',
-    backgroundColor: theme.palette.grey[1000],
+    backgroundColor: theme.palette.panelBackground.digestAdBanner,
     color: theme.palette.grey[0],
     zIndex: theme.zIndexes.intercomButton,
     '@media (max-width: 812px)': {
@@ -313,11 +313,20 @@ export const styles = (theme: ThemeType): JssStyles => ({
     '& .DigestAd-body': {
       color: theme.palette.grey[400],
     },
+    '& .DigestAd-formInput': {
+      background: theme.palette.background.digestAdBannerInput,
+      '&::placeholder': {
+        color: theme.palette.grey[600],
+      }
+    },
     '& .DigestAd-close': {
       color: theme.palette.grey[0],
       '&:hover': {
         color: theme.palette.grey[200],
       }
+    },
+    '& .DigestAd-success': {
+      color: theme.palette.grey[400],
     },
   },
 })
@@ -403,8 +412,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   }
   
   // On the EA Forum, show a digest ad at the bottom of the screen after the user scrolled down.
+  const digestAdAbTestGroup = useABTest(postPageFixedDigestAd);
   useEffect(() => {
-    if (!isEAForum || isServer || post.isEvent || post.question || post.shortform) return
+    if (!isEAForum || isServer || post.isEvent || post.question || post.shortform || digestAdAbTestGroup !== 'show') return
 
     checkShowDigestAd()
     window.addEventListener('scroll', checkShowDigestAd)
@@ -414,6 +424,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     };
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const checkShowDigestAd = () => {
+    if (digestAdAbTestGroup !== 'show') return
     // Ad stays visible once shown
     setShowDigestAd((showAd) => showAd || window.scrollY > 1000)
   }
