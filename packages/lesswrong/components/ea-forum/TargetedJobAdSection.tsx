@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import moment from 'moment';
 import { useIsInView, useTracking } from '../../lib/analyticsEvents';
@@ -135,15 +135,14 @@ const TargetedJobAdSection = () => {
         adState: 'seen'
       }
     })
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentUser, userJobAds, userJobAdsLoading, activeJob, entry])
+  }, [currentUser, userJobAds, userJobAdsLoading, activeJob, entry, createUserJobAd])
   
-  const dismissJobAd = () => {
+  const dismissJobAd = useCallback(() => {
     captureEvent('hideJobAd')
     void updateCurrentUser({hideJobAdUntil: moment().add(30, 'days').toDate()})
-  }
+  }, [captureEvent, updateCurrentUser])
   
-  const handleExpand = () => {
+  const handleExpand = useCallback(() => {
     if (!currentUser || !userJobAds?.length || !activeJob) return
     // record when a user has expanded the selected ad
     const ad = userJobAds.find(ad => ad.jobName === activeJob)
@@ -155,9 +154,9 @@ const TargetedJobAdSection = () => {
         }
       })
     }
-  }
+  }, [currentUser, userJobAds, activeJob, updateUserJobAd])
   
-  const handleApply = async () => {
+  const handleApply = useCallback(() => {
     if (!currentUser || !userJobAds?.length || !activeJob) return
     // record when a user has clicked the "Apply" button
     const ad = userJobAds.find(ad => ad.jobName === activeJob)
@@ -169,9 +168,9 @@ const TargetedJobAdSection = () => {
         }
       })
     }
-  }
+  }, [currentUser, userJobAds, activeJob, updateUserJobAd])
   
-  const handleRemindMe = async () => {
+  const handleRemindMe = useCallback(() => {
     if (!currentUser || !userJobAds?.length || !activeJob) return
     // record when a user has clicked the "Remind me" button
     const ad = userJobAds.find(ad => ad.jobName === activeJob)
@@ -185,7 +184,7 @@ const TargetedJobAdSection = () => {
       })
     }
     flash({messageString: "We'll email you about this job before the application deadline", type: "success"})
-  }
+  }, [currentUser, userJobAds, activeJob, updateUserJobAd, flash])
   
   const { TargetedJobAd } = Components
   
