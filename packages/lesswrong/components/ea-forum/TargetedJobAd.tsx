@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Components, makeAbsolute, registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button'
 import CloseIcon from '@material-ui/icons/Close'
@@ -52,7 +52,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   infoIcon: {
     fontSize: 14,
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[500],
+    transform: 'translateY(2px)'
   },
   closeButton: {
     padding: '.25em',
@@ -61,7 +62,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   closeIcon: {
     fontSize: 14,
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[500],
   },
   mainRow: {
     display: 'flex',
@@ -369,7 +370,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
   // clicking either "apply" or "remind me" will close the ad
   const [closed, setClosed] = useState(false)
 
-  const handleToggleExpand = () => {
+  const handleToggleExpand = useCallback(() => {
     if (expanded) {
       setExpanded(false)
     } else {
@@ -377,18 +378,18 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
       setExpanded(true)
       onExpand()
     }
-  }
+  }, [expanded, setExpanded, captureEvent, onExpand])
   const { onClick } = useClickableCell({onClick: handleToggleExpand})
   
-  const handleApply = () => {
+  const handleApply = useCallback(() => {
     setClosed(true)
     onApply()
-  }
+  }, [setClosed, onApply])
   
-  const handleRemindMe = () => {
+  const handleRemindMe = useCallback(() => {
     setClosed(true)
     onRemindMe()
-  }
+  }, [setClosed, onRemindMe])
   
   const { HoverPreviewLink, LWTooltip, ForumIcon, EAButton } = Components
   
@@ -403,7 +404,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
         <LWTooltip title={
           `You're seeing this recommendation because of your interest in ${adData.occupation}.`
         }>
-          <ForumIcon icon="InfoCircle" className={classes.metadataIcon} />
+          <ForumIcon icon="InfoCircle" className={classes.infoIcon} />
         </LWTooltip>
       </div>
       <div className={classNames(classes.feedbackLink, classes.metadata)}>
