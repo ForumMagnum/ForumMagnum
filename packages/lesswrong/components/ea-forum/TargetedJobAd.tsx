@@ -482,7 +482,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
               >
                 Apply <OpenInNew className={classes.btnIcon} />
               </EAButton>
-              {adData.deadline && <EAButton variant="contained" style="grey" onClick={() => handleRemindMe()} className={classes.btn}>
+              {adData.deadline && <EAButton variant="contained" style="grey" onClick={handleRemindMe} className={classes.btn}>
                 Remind me before the deadline
               </EAButton>}
             </div>
