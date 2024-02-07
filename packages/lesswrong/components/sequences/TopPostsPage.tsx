@@ -231,6 +231,7 @@ const styles = (theme: ThemeType) => ({
     position: 'relative',
   },
   showAllButton: {
+    ...theme.typography.commentStyle,
     height: 120,
     width: 120,
     position: 'absolute',
@@ -802,19 +803,6 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   const postGridColumns = horizontalBookGridCount * 3;
   const postGridRows = Math.ceil(posts.length / postGridColumns);
   const [leftBookOffset, rightBookOffset] = getOffsets(gridPosition, horizontalBookGridCount);
-  const paddedPosts = [...posts];
-
-  // const postsInGrid: (PostsTopItemInfo | null)[][] = Array.from(Array(postGridRows).keys()).map((_, row) => {
-  //   const leftPostOffset = (3 * leftBookOffset) + 3;
-  //   const rightPostOffset = (3 * leftBookOffset) + (3 * rightBookOffset) + 3;
-
-  //   const leftOffsetPosts = posts.slice((row * postGridColumns) + leftPostOffset, postGridColumns);
-  //   const noOffsetPosts = posts.slice(row * postGridColumns, postGridColumns);
-  //   const rightOffsetPosts = posts.slice((row * postGridColumns) + rightPostOffset, postGridColumns);
-
-  //   return [...leftOffsetPosts, ...noOffsetPosts, ...rightOffsetPosts];
-  // });
-
 
   // Construct an empty 2D array of posts
   const postsInGrid: (PostsTopItemInfo | null)[][] = range(postGridRows).map(row => range(postGridColumns).map(col => null));
@@ -837,35 +825,8 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
     }
   }
 
-  console.log({ id, postsInGrid: postsInGrid.map(row => row.map(p => p?.title)), horizontalBookGridCount, postGridRows, postGridColumns });
-
   const isExpanded = expansionState === 'expanded';
-  const isHidden = hiddenState === 'hidden';
   const isShowingAll = hiddenState === 'full';
-
-  // const displayedPostProps: ComponentProps<typeof ImageGridPost>[] = [];
-  // if (leftBookOffset > 0) {
-  //   const leftOffsetPosts = paddedPosts.slice(12, 12 + (12 * leftBookOffset));
-  //   displayedPostProps.push(...leftOffsetPosts.map((post, i) => ({ post, index: i, classes, offscreen: true })));
-  // }
-  
-  // const noOffsetPosts = paddedPosts.slice(0, 12);
-  // displayedPostProps.push(...noOffsetPosts.map((post, i) => ({ post, index: i, classes })));
-  
-  // if (rightBookOffset > 0) {
-  //   // const cutoff = isShowingAll ? undefined : (leftOffset * 12) + 12 + (rightOffset * 12);
-  //   const rightOffsetPosts = paddedPosts.slice((leftBookOffset * 12) + 12 + (rightBookOffset * 12));
-  //   displayedPostProps.push(...rightOffsetPosts.map((post, i) => ({ post, index: i, classes, offscreen: true })));
-  // }
-
-  // const lastDisplayedPostIndex = Math.min(35, paddedPosts.length - 1);
-  // console.log({ lastDisplayedPostIndex, gridPosition });
-  // const lastDisplayedPostProps = displayedPostProps.at(-1);
-  // if (lastDisplayedPostProps && isExpanded) {
-  //   lastDisplayedPostProps.hidden = true;
-  // }
-
-  // const displayedPosts = displayedPostProps.map((props) => <ImageGridPost key={props.post._id} {...props} />)
 
   const displayedPosts = postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => {
     if ((rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1))) {
@@ -873,8 +834,6 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
         // TODO: style with appropriate width/height for offsetting the collapse-all button
         return <div key={`empty-${rowIdx}-${columnIdx}`} />
       }
-
-      console.log({ post, rowIdx, columnIdx, viewportHeight, postGridColumns });
 
       const imageGridPostElement = <ImageGridPost
         key={post._id}
@@ -895,7 +854,6 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
         classes={classes}
       />
     } else if (isShowingAll && (rowIdx === (postGridRows - 1)) && (columnIdx === (postGridColumns - 1))) {
-      console.log({ postGridRows, postGridColumns, id });
       return (
         <div
           key="collapse-all"
@@ -938,7 +896,6 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
     className={classNames(classes.postsImageGrid, {
       [classes.expandedImageGrid]: isExpanded, 
       [classes.collapsedImageGrid]: expansionState === 'collapsed',
-      // [classes.hiddenImageGrid]: isHidden,
       [classes.showAllImageGrid]: isShowingAll,
     })} 
     id={`PostsImageGrid-${id}`}
