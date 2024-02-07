@@ -101,7 +101,7 @@ const tryToFixUrl = (oldUrl: string, newUrl: string) => {
 
 // NOTE: validateUrl and tryToFixUrl are duplicates of the code in public/lesswrong-editor/src/url-validator-plugin.js,
 // which can't be imported directly because it is part of the editor bundle
-const validateUrl = (url: string) => {
+export const validateUrl = (url: string) => {
   try {
     // This will validate the URL - importantly, it will fail if the
     // protocol is missing
@@ -332,7 +332,7 @@ export const sanitize = function(s: string): string {
       ol: ['start', 'reversed', 'type', 'role'],
       span: ['style', 'id', 'role'],
       div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug'],
-      a: ['href', 'name', 'target', 'rel'],
+      a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
       iframe: ['src', 'allowfullscreen', 'allow'],
       li: ['id', 'role'],
 
@@ -382,7 +382,24 @@ export const sanitize = function(s: string): string {
     ],
     allowedClasses: {
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
-      div: [ 'spoilers', 'footnote-content', 'footnote-item', 'footnote-label', 'footnote-reference', 'metaculus-preview', 'manifold-preview', 'metaforecast-preview', 'owid-preview', 'elicit-binary-prediction', 'thoughtSaverFrameWrapper', 'strawpoll-embed', 'estimaker-preview', 'viewpoints-preview' ],
+      div: [
+        'spoilers',
+        'footnote-content',
+        'footnote-item',
+        'footnote-label',
+        'footnote-reference',
+        'metaculus-preview',
+        'manifold-preview',
+        'metaforecast-preview',
+        'owid-preview',
+        'elicit-binary-prediction',
+        'thoughtSaverFrameWrapper',
+        'strawpoll-embed',
+        'estimaker-preview',
+        'viewpoints-preview',
+        'ck-cta-button',
+        'ck-cta-button-centered'
+      ],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes' ],
       li: [ 'footnote-item' ],
