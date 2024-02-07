@@ -9,6 +9,4 @@ export const getCkEditor = (forumType: ForumTypeString) => {
   return { EditorWatchdog, CommentEditor, PostEditor, PostEditorCollaboration };
 }
 
-// TODO what to bump the version to and how to deploy
-export const ckEditorBundleVersion = "31.0.15";
-
+export const ckEditorBundleVersion = "32.0.0";
