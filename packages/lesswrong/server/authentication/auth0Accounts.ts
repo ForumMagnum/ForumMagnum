@@ -1,6 +1,10 @@
 import { Profile } from "passport-auth0";
 import { slugify, Utils } from "../../lib/vulcan-lib/utils";
 
+export const auth0ProfilePath = "services.auth0";
+
+export const idFromAuth0Profile = (profile: Profile) => profile.id;
+
 export async function userFromAuth0Profile(profile: Profile): Promise<Partial<DbUser>> {
   const email = profile.emails?.[0].value
   const displayNameMatchesEmail = email === profile.displayName
