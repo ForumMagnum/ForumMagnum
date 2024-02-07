@@ -12,6 +12,7 @@ import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './Top
 import classNames from 'classnames';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
+import range from 'lodash/range';
 
 const MAX_GRID_SIZE = 6;
 
@@ -146,8 +147,7 @@ const styles = (theme: ThemeType) => ({
     },
     '& $imageGridContainer': {
       transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
-      // width: 0,
-      height: 'calc(7 * 120px)',
+      height: 'calc(8 * 120px)',
     },
     // '& $imageGridHeader': {
     //   transition: 'background 0.2s ease-in, width 0.5s ease-in-out 0.5s, height 0.5s ease-in-out 0.5s',
@@ -204,11 +204,11 @@ const styles = (theme: ThemeType) => ({
   },
   imageGrid: {
     display: "grid",
-    gridTemplateRows: "repeat(4, 120px)",
+    gridTemplateRows: "repeat(8, 120px)",
     position: "absolute",
     top: 0,
     overflow: "hidden",
-    gridAutoFlow: 'column',
+    gridAutoFlow: 'row',
     transition: 'left 0.5s ease-in-out',
     '&:hover $imageGridPostBackground': {
       transitionDelay: '0.2s'
@@ -228,6 +228,10 @@ const styles = (theme: ThemeType) => ({
     objectPosition: "right",
     transition: "opacity 0.2s ease-in"
   },
+  showAllPostItemWrapper: {
+    height: 120,
+    width: 120,
+  },
   imageGridShowAll: {
     height: 120,
     width: 120,
@@ -238,7 +242,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'center',
     zIndex: 3,
     cursor: 'pointer',
-    position: 'absolute',
+    // position: 'absolute',
     bottom: 0,
     right: 0,
     opacity: .8,
@@ -273,9 +277,10 @@ const styles = (theme: ThemeType) => ({
       transitionDelay: "0s",
       zIndex: 2
     },
-    '&&:nth-child(4n + 1) $imageGridPostBody': {
-      borderBottom: "none"
-    },
+    // TODO: figure out how to also make this work correctly for the header
+    // '&&:nth-child(4n + 1) $imageGridPostBody': {
+    //   borderBottom: "none"
+    // },
   },
 
   imageGridPostHidden: {
@@ -675,36 +680,119 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   hiddenState?: 'hidden' | 'full',
 }) => {
   const screenWidth = useWindowWidth(2000);
-  const gridColumns = Math.min(Math.max(Math.floor((screenWidth) / 400), 1), 3);
-  const [leftOffset, rightOffset] = getOffsets(gridPosition, gridColumns);
+  const horizontalBookGridCount = Math.min(Math.max(Math.floor(screenWidth / 400), 1), 3);
+  const postGridColumns = horizontalBookGridCount * 3;
+  const postGridRows = Math.ceil((posts.length + 1) / postGridColumns);
+  const [leftBookOffset, rightBookOffset] = getOffsets(gridPosition, horizontalBookGridCount);
   const paddedPosts = [...posts];
-  const isFirstGridRow = gridPosition < gridColumns;
+
+  // const postsInGrid: (PostsTopItemInfo | null)[][] = Array.from(Array(postGridRows).keys()).map((_, row) => {
+  //   const leftPostOffset = (3 * leftBookOffset) + 3;
+  //   const rightPostOffset = (3 * leftBookOffset) + (3 * rightBookOffset) + 3;
+
+  //   const leftOffsetPosts = posts.slice((row * postGridColumns) + leftPostOffset, postGridColumns);
+  //   const noOffsetPosts = posts.slice(row * postGridColumns, postGridColumns);
+  //   const rightOffsetPosts = posts.slice((row * postGridColumns) + rightPostOffset, postGridColumns);
+
+  //   return [...leftOffsetPosts, ...noOffsetPosts, ...rightOffsetPosts];
+  // });
+
+
+  // Construct an empty 2D array of posts
+  const postsInGrid: (PostsTopItemInfo | null)[][] = range(postGridRows).map(row => range(postGridColumns).map(col => null));
+  console.log({ postsInGrid });
+  // Fill the viewport
+  let placedPostIndex = 0;
+  const viewportLeft = leftBookOffset*3;
+  const viewportWidth = 3;
+  const viewportHeight = 4;
+  for (let row=0; row < Math.min(viewportHeight, postGridRows); row++) {
+    for (let column=viewportLeft; column<viewportLeft+viewportWidth; column++) {
+      postsInGrid[row][column] = posts[placedPostIndex++];
+    }
+  }
+  // Fill remaining spots in the grid
+  for (let row=0; row < postGridRows; row++) {
+    for (let column=0; column<postGridColumns; column++) {
+      if (postsInGrid[row][column] === null) {
+        postsInGrid[row][column] = posts[placedPostIndex++] ?? null;
+      }
+    }
+  }
 
   const isExpanded = expansionState === 'expanded';
   const isHidden = hiddenState === 'hidden';
   const isShowingAll = hiddenState === 'full';
 
-  const displayedPostProps: ComponentProps<typeof ImageGridPost>[] = [];
-  if (leftOffset > 0) {
-    const leftOffsetPosts = paddedPosts.slice(12, 12 + (12 * leftOffset));
-    displayedPostProps.push(...leftOffsetPosts.map((post, i) => ({ post, index: i, classes, offscreen: true })));
-  }
+  // const displayedPostProps: ComponentProps<typeof ImageGridPost>[] = [];
+  // if (leftBookOffset > 0) {
+  //   const leftOffsetPosts = paddedPosts.slice(12, 12 + (12 * leftBookOffset));
+  //   displayedPostProps.push(...leftOffsetPosts.map((post, i) => ({ post, index: i, classes, offscreen: true })));
+  // }
   
-  const noOffsetPosts = paddedPosts.slice(0, 12);
-  displayedPostProps.push(...noOffsetPosts.map((post, i) => ({ post, index: i, classes })));
+  // const noOffsetPosts = paddedPosts.slice(0, 12);
+  // displayedPostProps.push(...noOffsetPosts.map((post, i) => ({ post, index: i, classes })));
   
-  if (rightOffset > 0) {
-    const cutoff = isShowingAll ? undefined : (leftOffset * 12) + 12 + (rightOffset * 12);
-    const rightOffsetPosts = paddedPosts.slice((leftOffset * 12) + 12, cutoff);
-    displayedPostProps.push(...rightOffsetPosts.map((post, i) => ({ post, index: i, classes, offscreen: true })));
-  }
+  // if (rightBookOffset > 0) {
+  //   // const cutoff = isShowingAll ? undefined : (leftOffset * 12) + 12 + (rightOffset * 12);
+  //   const rightOffsetPosts = paddedPosts.slice((leftBookOffset * 12) + 12 + (rightBookOffset * 12));
+  //   displayedPostProps.push(...rightOffsetPosts.map((post, i) => ({ post, index: i, classes, offscreen: true })));
+  // }
 
-  const lastDisplayedPostProps = displayedPostProps.at(-1);
-  if (lastDisplayedPostProps && isExpanded) {
-    lastDisplayedPostProps.hidden = true;
-  }
+  // const lastDisplayedPostIndex = Math.min(35, paddedPosts.length - 1);
+  // console.log({ lastDisplayedPostIndex, gridPosition });
+  // const lastDisplayedPostProps = displayedPostProps.at(-1);
+  // if (lastDisplayedPostProps && isExpanded) {
+  //   lastDisplayedPostProps.hidden = true;
+  // }
 
-  const displayedPosts = displayedPostProps.map((props) => <ImageGridPost key={props.post._id} {...props} />)
+  // const displayedPosts = displayedPostProps.map((props) => <ImageGridPost key={props.post._id} {...props} />)
+
+  const displayedPosts = postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => {
+    if (!post) {
+      // TODO: style with appropriate width/height for offsetting the collapse-all button
+      return <div key={`empty-${rowIdx}-${columnIdx}`} />
+    }
+
+    if (isExpanded && !isShowingAll && (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1))) {
+      const imageGridPostElement = <ImageGridPost
+        key={post._id}
+        post={post}
+        classes={classes}
+        index={(rowIdx * postGridRows) + columnIdx}
+      />;
+
+      return <ShowAllPostItem
+        key="show-all"
+        imageGridId={id}
+        imageGridPost={imageGridPostElement}
+        handleToggleFullyOpen={handleToggleFullyOpen}
+        showAllVisible={isExpanded}
+        classes={classes}
+      />
+    } else if (isShowingAll && (rowIdx === (postGridRows - 1)) && (columnIdx === (postGridColumns - 1))) {
+      return (
+        <div
+          key="collapse-all"
+          className={classNames(classes.imageGridShowAll, {
+            [classes.imageGridShowAllVisible]: isExpanded,
+            [classes.imageGridShowAllTransition]: (rightBookOffset === 0) && !isExpanded
+            })}
+          onClick={() => handleToggleFullyOpen(id)}>
+            Collapse
+        </div>
+      );
+    }
+
+    return (
+      <ImageGridPost
+        key={post._id}
+        post={post}
+        classes={classes}
+        index={(rowIdx * postGridRows) + columnIdx}
+      />
+    );
+  }));
 
   return <div 
     className={classNames(classes.postsImageGrid, {
@@ -728,7 +816,7 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
         <div
           className={classNames(classes.imageGridShowAll, {
             [classes.imageGridShowAllVisible]: isExpanded,
-            [classes.imageGridShowAllTransition]: (rightOffset === 0) && !isExpanded
+            [classes.imageGridShowAllTransition]: (rightBookOffset === 0) && !isExpanded
             })}
           onClick={() => handleToggleFullyOpen(id)}>
             Show All
@@ -737,6 +825,27 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
     </div>
   </div>
 }
+
+const ShowAllPostItem = ({ imageGridId, imageGridPost, showAllVisible, handleToggleFullyOpen, classes }: {
+  imageGridId: string,
+  imageGridPost: JSX.Element,
+  showAllVisible: boolean,
+  handleToggleFullyOpen: (id: string) => void,
+  classes: ClassesType<typeof styles>
+}) => {
+  return <div className={classes.showAllPostItemWrapper}>
+    {imageGridPost}
+    <div
+      key="show-all"
+      className={classNames(classes.imageGridShowAll, {
+        [classes.imageGridShowAllVisible]: showAllVisible,
+        [classes.imageGridShowAllTransition]: !showAllVisible
+        })}
+      onClick={() => handleToggleFullyOpen(imageGridId)}>
+        Show All
+    </div>
+  </div>;
+};
 
 const ImageGridPost = ({ post, index, classes, offscreen = false, hidden = false }: {
   post: PostsTopItemInfo,
