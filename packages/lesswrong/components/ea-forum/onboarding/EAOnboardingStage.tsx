@@ -101,7 +101,7 @@ export const EAOnboardingStage = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {currentStage, goToNextStage} = useEAOnboarding();
+  const {currentStage, goToNextStage, nextStageIsLoading} = useEAOnboarding();
 
   const wrappedOnContinue = useCallback(async () => {
     await onContinue?.();
@@ -112,7 +112,7 @@ export const EAOnboardingStage = ({
     return null;
   }
 
-  const {EAButton} = Components;
+  const {EAButton, Loading} = Components;
   return (
     <AnalyticsContext
       pageElementContext="onboardingFlow"
@@ -145,10 +145,13 @@ export const EAOnboardingStage = ({
             }
             <EAButton
               onClick={wrappedOnContinue}
-              disabled={!canContinue}
+              disabled={!canContinue || nextStageIsLoading}
               className={classes.continue}
             >
-              Continue -&gt;
+              {nextStageIsLoading
+                ? <Loading />
+                : <>Continue -&gt;</>
+              }
             </EAButton>
           </div>
         }

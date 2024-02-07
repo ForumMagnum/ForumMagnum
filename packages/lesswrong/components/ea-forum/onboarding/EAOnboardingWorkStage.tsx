@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { CAREER_STAGES } from "../../../lib/collections/users/schema";
+import { useEAOnboarding } from "./useEAOnboarding";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -11,11 +12,22 @@ const styles = (_theme: ThemeType) => ({
 export const EAOnboardingWorkStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {updateCurrentUser, goToNextStageAfter} = useEAOnboarding();
   const [role, setRole] = useState("");
   const [organization, setOrganization] = useState("");
   const [careerStage, setCareerStage] = useState("");
 
-  const canContinue = false;
+  const onContinue = useCallback(async () => {
+    goToNextStageAfter(
+      updateCurrentUser({
+        jobTitle: role,
+        organization,
+        careerStage: [careerStage],
+      }),
+    );
+  }, [role, organization, careerStage, goToNextStageAfter]);
+
+  const canContinue = !!(role || organization || careerStage);
   const {
     EAOnboardingStage, EAOnboardingInput, EAOnboardingSelect, SectionTitle,
   } = Components;
@@ -24,6 +36,7 @@ export const EAOnboardingWorkStage = ({classes}: {
       stageName="work"
       title="What do you do?"
       canContinue={canContinue}
+      onContinue={onContinue}
       skippable
       className={classes.root}
     >
