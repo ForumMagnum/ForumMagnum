@@ -8,7 +8,7 @@ import { useCreate } from '../../../lib/crud/withCreate';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 
 const initialHeight = 480;
-const initialWidth = 360;
+const initialWidth = 360 * 3;
 const aspectRatio = initialHeight / initialWidth;
 
 const styles = (theme: ThemeType) => ({
@@ -22,6 +22,12 @@ const styles = (theme: ThemeType) => ({
     },
     overlay: {
         position: 'fixed',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 10000,
         // background: 'rgba(0, 0, 0, 0.7)'
     },
     moveableBox: { 
@@ -32,7 +38,8 @@ const styles = (theme: ThemeType) => ({
         position: 'absolute',
         background: 'transparent',
         border: '2px solid white',
-        cursor: 'move'
+        cursor: 'move',
+        zIndex: 20000,
     },
     closeButton: {
         position: 'absolute',
@@ -207,24 +214,76 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
     }
   }, [updateReviewWinner, updateRWError, reviewWinner, boxPosition, boxSize, selectedImageInfo, createSplashArtCoordinateMutation]);
 
+  const moveableBoxStyle = {
+    left: boxPosition.x,
+    top: boxPosition.y,
+    backgroundImage: `url(${selectedImageInfo?.splashArtImageUrl})`, 
+    backgroundPosition: `-${boxPosition.x}px -${boxPosition.y}px`, // Set the background position based on boxPosition
+    backgroundSize: `${windowSize.width}px auto`, // Ensure the background image covers the entire screen     
+    width: boxSize.width,
+    height: boxSize.height,             
+  };
+  // log percentages  !!!
+  // render image as an image instead of css property
+
+  // Add a state to track the selected box
+  const [selectedBox, setSelectedBox] = useState<number | null>(null);
+
+  const boxChoice = selectedBox;
+
+  // Update the style of each boxSub based on the selected box
+  const handleBoxClick = (boxNumber: number) => {
+    setSelectedBox(boxNumber);
+  };
+
+  const boxSubContainers = {
+    display: 'flex',
+    justifyContent: 'space-around',
+  };
+
+  const boxSub = {
+    width: boxSize.width / 3,
+    height: boxSize.height,
+    // position: `absolute`,
+    // top:`0px`,
+    // left: `${boxChoice*(boxSize.width / 3)}px`,
+    background: 'rgba(0, 0, 0, 0.3)',
+    borderLeft: '1px solid white',
+    borderRight: '1px solid white',
+  };
+
+  const boxLeft = {
+    background: selectedBox === 0 ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.3)',
+  };
+  const boxMiddle = {
+    background: selectedBox === 1 ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.3)',
+  };
+  const boxRight = {
+    background: selectedBox === 2 ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.3)',
+  };
+
+  // probably we want each of the three divs to be its own react element, with a save button in the bottom left of each
+  // and an element that tracks whether each has been saved or not
   return (
     <>
       <button className={classes.button} onClick={() => setIsBoxVisible(!isBoxVisible)}>Show Box</button>
       {isBoxVisible && (
         <>
-        <div className={classes.overlay} style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)', position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}></div>
+        <div className={classes.overlay}></div>
         <div className={classes.moveableBox}
-            style={{
-              left: `${boxPosition.x}px`,
-              top: `${boxPosition.y}px`,
-              zIndex: 20000,
-              backgroundImage: `url(${selectedImageInfo?.splashArtImageUrl})`, 
-              backgroundPosition: `-${boxPosition.x}px -${boxPosition.y}px`, // Set the background position based on boxPosition
-              backgroundSize: `${windowSize.width}px auto`, // Ensure the background image covers the entire screen     
-              width: boxSize.width,
-              height: boxSize.height,             
-            }}
+            style={moveableBoxStyle}
             onMouseDown={handleMouseDown}>
+            <div style={boxSubContainers}>
+                <div style={{...boxSub, ...boxLeft}} onClick={() => handleBoxClick(0)}></div>
+                <div style={{...boxSub, ...boxMiddle}} onClick={() => handleBoxClick(1)}>
+                  {loading ? 
+                    <div className={classes.saveCoordinates}>Saving coordinates...</div> : 
+                    <div className={classes.saveCoordinates} onClick={saveCoordinates}>Save coordinates</div>}
+                  {error && <div>Error saving coordinates. Please try again.</div>}
+                  {showSaveSuccess && <div>`Coordinates saved successfully!<div onClick={() => setShowSaveSuccess(false)}>(click here to close)</div></div>}
+                </div>
+                <div style={{...boxSub, ...boxRight}} onClick={() => handleBoxClick(2)}></div>
+            </div>
             <div className={classes.closeButton} onClick={() => setIsBoxVisible(false)}>
                 x
             </div>
@@ -232,12 +291,6 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
                 className={classes.resizer}
                 onMouseDown={handleMouseDown}
             ></div>
-            {loading ? 
-                <div className={classes.saveCoordinates}>Saving coordinates...</div> : 
-                <div className={classes.saveCoordinates} onClick={saveCoordinates}>Save coordinates</div>}
-            {error && <div>Error saving coordinates. Please try again.</div>}
-            {showSaveSuccess && <div>`Coordinates saved successfully!<div onClick={() => setShowSaveSuccess(false)}>(click here to close)</div></div>}
-
         </div>
         </>
       )}
