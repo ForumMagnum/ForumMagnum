@@ -144,9 +144,12 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
       },
       panelBackground: {
         default: shadePalette.grey[20],
+        modalBackground: "#292929",
+        loginInput: "#3d3d3d",
       },
       background: {
-        primaryTranslucent: "rgba(12,134,155,0.4)"
+        primaryTranslucent: "rgba(12,134,155,0.4)",
+        loginBackdrop: "rgba(0,0,0,0.5)",
       }
     },
     LessWrong: {
@@ -236,6 +239,7 @@ export const darkModeTheme: UserThemeSpecification = {
       secondaryHighlight: '#3e503a',
       secondaryHighlight2: '#3e503a',
       mentionsBaloon: shadePalette.grey[100],
+      eaButtonGreyOutline: "#5F5F5F",
     },
     buttons: {
       mentions: {
