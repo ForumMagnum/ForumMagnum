@@ -1,4 +1,4 @@
-/* eslint no-console: 0 */
+/* eslint no-console: 0 import/no-deprecated:0 */
 
 import OpenAI from 'openai';
 import axios from 'axios';
@@ -8,17 +8,23 @@ import { App } from '@slack/bolt';
 import ReviewWinners from '../../../lib/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
-import { imagineAPIKeySetting, reviewArtSlackAPIKeySetting, reviewArtSlackSigningSecretSetting } from '../../../lib/instanceSettings.ts';
+import { myMidjourneyAPIKeySetting, reviewArtSlackAPIKeySetting, reviewArtSlackSigningSecretSetting } from '../../../lib/instanceSettings.ts';
 import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
 import { sleep } from '../../../lib/utils/asyncUtils.ts';
 import shuffle from 'lodash/shuffle';
+import { trace } from '../../../lib/helpers.ts';
 
 const DEPLOY = false
 
-const maxSimultaneousMidjourney = 6
+const maxSimultaneousMidjourney = 3
 let currentMidjourney = 0
 
 let essayRights: {[essay: string]: boolean} = {}
+
+const myMidjourneyKey = myMidjourneyAPIKeySetting.get()
+if (!myMidjourneyKey) {
+  throw new Error('No MyMidjourney API key found!');
+}
 
 const slackApp = new App({
   token: reviewArtSlackAPIKeySetting.get() ?? undefined,
@@ -122,6 +128,7 @@ const getEssays = async (): Promise<Essay[]> => {
 
 type Essay = {post: DbPost, title: string, content: string}
 type PostedEssay = {post: DbPost, title: string, content: string, threadTs: string}
+type MyMidjourneyResponse = {messageId: "string", uri?: string, progress: number, error?: string}
 
 const getElements = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
   const content = essay.content.length > 25_000 ? essay.content.slice(0, 12_500) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-12_500) : essay.content
@@ -191,62 +198,85 @@ const saveImages = async (el: string, essay: PostedEssay, urls: string[]) => {
   return urls
 }
 
-const upscaleImage = async (url: string): Promise<string> => {
-  return url
+const increasedImagesMessages = async (messageId: string): Promise<(MyMidjourneyResponse | undefined)[]> =>
+  Promise.all(["U1","U2","U3","U4"]
+    .map((button) =>
+      fetch(`https://api.mymidjourney.ai/api/v1/midjourney/button`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${myMidjourneyKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({messageId, button})
+      })
+      .then(r => r.json())
+      .then(j => j.messageId)
+      .then(checkOnJob)))
+
+const upscaleImage = async (messageId: string): Promise<string | undefined> => {
+  await acquireMidjourneyRights()
+  const res = await fetch('https://api.mymidjourney.ai/api/v1/midjourney/button', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${myMidjourneyKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({messageId, button: "Upscale (Subtle)"})
+  }).then(r => r.json()).then(trace).then(j => j.messageId).then(checkOnJob)
+  releaseMidjourneyRights()
+  return res?.uri
 }
 
-async function getEssayPromptImages(promptElement: string): Promise<string[]> {
-  const imagineKey = imagineAPIKeySetting.get();
-  if (!imagineKey) {
-    throw new Error('No imagine API key found!');
+async function checkOnJob(jobId: string): Promise<MyMidjourneyResponse | undefined> {
+  try {
+    const response = await fetch(`https://api.mymidjourney.ai/api/v1/midjourney/message/${jobId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${myMidjourneyKey}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    const responseData = await response.json()
+    if (responseData.progress === 100 || responseData.error) {
+      if (responseData.error) {
+        console.error('Image generation failed:', responseData);
+        return undefined
+      }
+      releaseMidjourneyRights()
+      return responseData
+    } else {
+      await sleep(5_000)
+      return checkOnJob(jobId)
+    }
+  } catch (error) {
+    console.error('Error getting updates', error);
+    return checkOnJob(jobId)
   }
+}
+
+async function getEssayPromptJointImageMessage(promptElement: string): Promise<MyMidjourneyResponse|undefined> {
   let promptResponseData: any;
+  let jobId: string;  
   try {
     await acquireMidjourneyRights()
-    const response = await fetch('https://cl.imagineapi.dev/items/images/', {
+    const response = await fetch('https://api.mymidjourney.ai/api/v1/midjourney/imagine', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${imagineKey}`,
+        'Authorization': `Bearer ${myMidjourneyKey}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({prompt: prompter(promptElement)})
     });
 
     promptResponseData = await response.json();
+    jobId = promptResponseData.messageId
   } catch (error) {
     console.error('Error generating image:', error);
     throw error;
   }
 
-  async function checkOnJob(): Promise<string[]> {
-    try {
-      const response = await fetch(`https://cl.imagineapi.dev/items/images/${promptResponseData.data.id}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${imagineKey}`,
-          'Content-Type': 'application/json'
-        }
-      })
-
-      const responseData = await response.json()
-      if (responseData.data.status === 'completed' || responseData.data.status === 'failed') {
-        if (responseData.data.status === 'failed') {
-          console.error('Image generation failed:', responseData.data);
-          return []
-        }
-        releaseMidjourneyRights()
-        return responseData.data.upscaled_urls
-      } else {
-        await sleep(5_000)
-        return checkOnJob()
-      }
-    } catch (error) {
-      console.error('Error getting updates', error);
-      return checkOnJob()
-    }
-  }
-
-  return checkOnJob()
+  return checkOnJob(jobId)
 }
 
 const slackToken = reviewArtSlackAPIKeySetting.get();
@@ -295,54 +325,54 @@ async function postReply(text: string, threadTs: string) {
 
 async function generateCoverImages({limit = 2}: {
     limit?: number
-  } = {}): Promise<string[]> {
-  const openAiClient = await getOpenAI();
+} = {}): Promise<string[]> {
+  const openAiClient = await getOpenAI()
   if (!openAiClient) {
     throw new Error('Could not initialize OpenAI client!');
   }
   const essays = (await getEssays()).slice(0, limit)
 
-  const [promElementses] = await essays.reduce(async (prev: Promise<[Promise<string[]>, number]>, essay): Promise<[Promise<string[]>, number]> => {
+  const [imUrls] = await essays.reduce(async (prev: Promise<[Promise<string[]>, number]>, essay): Promise<[Promise<string[]>, number]> => {
 
-    const [promptElementses, charsRequested] = await prev
+    const [imUrls, charsRequested] = await prev
     let newChars = charsRequested
 
     if ((charsRequested + essay.content.length) >= 30_000) {
-      await Promise.all([sleep(60_000), promptElementses])
+      await Promise.all([sleep(60_000), imUrls])
       newChars = 0
     }
     newChars += Math.min(essay.content.length, 30_000)
 
     const images = getElements(openAiClient, essay)
-      .then(async els => [els, await makeEssayThread(essay)])
+      .then(async els => [els, await makeEssayThread(essay)] as [string[], PostedEssay])
       .then(([els, postedEssay]: [string[], PostedEssay]) =>
         Promise.all(els
           .slice(0,limit)
-          .map(el => getEssayPromptImages(el)
-            .then(urls => Promise.all(urls.map(upscaleImage)))
-            .then(urls => saveImages(el, postedEssay, urls))
-            .then(urls => postPromptImages(el, postedEssay, urls)))))
+          .map(el => getEssayPromptJointImageMessage(el)
+            .then(trace)
+            .then(x => x === undefined ? Promise.resolve([]) : increasedImagesMessages(x.messageId))
+            .then(trace)
+            .then(responses => Promise.all(responses.map(r => r === undefined ? Promise.resolve(undefined) : upscaleImage(r.messageId)))
+            .then(trace)
+            .then(urls => saveImages(el, postedEssay, urls.filter(u => !!u) as string[]))
+            .then(trace)
+            .then(urls => postPromptImages(el, postedEssay, urls))))))
       .then(ims => ims.flat())
 
     return [
       Promise
-        .all([promptElementses, images])
+        .all([imUrls, images])
         .then(([elts, els]) => [...elts, ...els]),
       newChars
     ]
   }, Promise.resolve([Promise.resolve([]), 0]) as Promise<[Promise<string[]>, number]>)
 
-  return promElementses
+  return imUrls
 }
 
 async function main () {
 
-  const imUrls = await generateCoverImages({limit: 2})
-
-  await slackApp.client.chat.postMessage({
-    channel: channelId,
-    text: JSON.stringify(imUrls)
-  })
+  await generateCoverImages({limit: 1})
 
 }
 

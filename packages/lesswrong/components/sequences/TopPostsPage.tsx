@@ -95,6 +95,7 @@ const styles = (theme: ThemeType) => ({
   },
   expandedImageGrid: {
     '& $imageGridContainer': {
+      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
       width: 'calc(9 * 120px - 2px)',
       [theme.breakpoints.down(1200)]: {
         width: 'calc(6 * 120px - 2px)',
@@ -117,6 +118,7 @@ const styles = (theme: ThemeType) => ({
   },
   collapsedImageGrid: {
     '& $imageGridContainer': {
+      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
       width: 0
     },
     '& $imageGridHeader': {
@@ -125,14 +127,32 @@ const styles = (theme: ThemeType) => ({
   },
   hiddenImageGrid: {
     '& $imageGridContainer': {
-      width: 0
+      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
+      width: 0,
+      height: 0,
     },
     '& $imageGridHeader': {
+      transition: 'background 0.2s ease-in, width 0.5s ease-in-out 0.5s, height 0.5s ease-in-out 0.5s',
       width: 0,
     },
     '& $imageGridHeaderTitle': {
-      fontSize: 0,
+      transition: 'opacity 0.5s ease-in',
+      opacity: 0,
     },
+  },
+  showAllImageGrid: {
+    '& $imageGrid': {
+      gridTemplateRows: "repeat(4, 120px)",
+    },
+    '& $imageGridContainer': {
+      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
+      // width: 0,
+      height: 'calc(7 * 120px)',
+    },
+    // '& $imageGridHeader': {
+    //   transition: 'background 0.2s ease-in, width 0.5s ease-in-out 0.5s, height 0.5s ease-in-out 0.5s',
+    //   width: 0,
+    // },
   },
   imageGridHeader: {
     writingMode: "vertical-rl",
@@ -142,7 +162,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     padding: "16px 0px 4px 3px",
     cursor: 'pointer',
-    transition: 'background 0.2s ease-in, width 0.5s ease-in-out',
+    transition: 'background 0.2s ease-in, width 0.5s ease-in-out, height 0.5s ease-in-out',
     width: 40,
     '&&&:hover': {
       background: 'rgb(241 209 150 / 75%)'
@@ -156,7 +176,8 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridHeaderTitle: {
     margin: 0,
-    fontSize: 32
+    fontSize: 32,
+    transition: 'opacity 0.5s ease-in 0.5s',
   },
   toggleIcon: {
     fontSize: 24,
@@ -176,7 +197,7 @@ const styles = (theme: ThemeType) => ({
     width: 'calc(3 * 120px - 2px)',
     height: 'calc(4 * 120px)',
     overflow: 'hidden',
-    transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out',
+    transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out 0.5s',
     [theme.breakpoints.down(800)]: {
       height: 'calc(1 * 120px)',
     }
@@ -376,7 +397,90 @@ function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOr
 }
 
 let candidateImages = [
-  "https://cl.imagineapi.dev/assets/51d4e735-f328-436b-af1f-72f8a393114e/51d4e735-f328-436b-af1f-72f8a393114e.png","https://cl.imagineapi.dev/assets/9a46ebf2-a5f4-4520-827f-5e723164a857/9a46ebf2-a5f4-4520-827f-5e723164a857.png","https://cl.imagineapi.dev/assets/41b79ce2-bd03-45a5-bd9e-a7761a539b0a/41b79ce2-bd03-45a5-bd9e-a7761a539b0a.png","https://cl.imagineapi.dev/assets/d257c3a8-df69-4da5-ae4c-0fc01bd800d0/d257c3a8-df69-4da5-ae4c-0fc01bd800d0.png","https://cl.imagineapi.dev/assets/53236167-d294-4870-b65b-c793a83be8e0/53236167-d294-4870-b65b-c793a83be8e0.png","https://cl.imagineapi.dev/assets/b8b7586b-3147-4df3-8b46-e2d48ff23620/b8b7586b-3147-4df3-8b46-e2d48ff23620.png","https://cl.imagineapi.dev/assets/2722db46-819c-47f8-ace5-7a2afb7c18e4/2722db46-819c-47f8-ace5-7a2afb7c18e4.png","https://cl.imagineapi.dev/assets/064715cd-3699-44c2-b199-a83dc2872c9d/064715cd-3699-44c2-b199-a83dc2872c9d.png","https://cl.imagineapi.dev/assets/f6d77121-b8af-49d4-8dfe-118320511b4e/f6d77121-b8af-49d4-8dfe-118320511b4e.png","https://cl.imagineapi.dev/assets/4317d007-ab92-4c8a-bed8-4cda860d2177/4317d007-ab92-4c8a-bed8-4cda860d2177.png","https://cl.imagineapi.dev/assets/2f576d43-214d-458b-9d8c-97c3271a52d2/2f576d43-214d-458b-9d8c-97c3271a52d2.png","https://cl.imagineapi.dev/assets/4c16890f-fd3b-4e2e-a432-cad6ee2fca75/4c16890f-fd3b-4e2e-a432-cad6ee2fca75.png","https://cl.imagineapi.dev/assets/7b33c33e-8d37-4334-aef2-413dfb23a36a/7b33c33e-8d37-4334-aef2-413dfb23a36a.png","https://cl.imagineapi.dev/assets/220e0b5e-d9ff-48aa-9bab-b3c7f8e391c3/220e0b5e-d9ff-48aa-9bab-b3c7f8e391c3.png","https://cl.imagineapi.dev/assets/50b35ff2-8cb3-4949-a986-558ab4d56f77/50b35ff2-8cb3-4949-a986-558ab4d56f77.png","https://cl.imagineapi.dev/assets/092e8232-c54b-485e-8985-2476f2f7dabf/092e8232-c54b-485e-8985-2476f2f7dabf.png","https://cl.imagineapi.dev/assets/6cf1f91a-e2e6-4f7f-8ead-cf9c99269eee/6cf1f91a-e2e6-4f7f-8ead-cf9c99269eee.png","https://cl.imagineapi.dev/assets/57295cf3-0519-49a5-8163-2121bf9e6620/57295cf3-0519-49a5-8163-2121bf9e6620.png","https://cl.imagineapi.dev/assets/4ecbedb7-e916-4da0-86ea-882fabf369d1/4ecbedb7-e916-4da0-86ea-882fabf369d1.png","https://cl.imagineapi.dev/assets/5c71f70d-6259-4548-8c85-3681e4a5ce7d/5c71f70d-6259-4548-8c85-3681e4a5ce7d.png","https://cl.imagineapi.dev/assets/e906f7d9-7c7f-49de-a9a6-818c929eacbd/e906f7d9-7c7f-49de-a9a6-818c929eacbd.png","https://cl.imagineapi.dev/assets/b40ad3bb-a92f-42ff-987e-4a6836ddded4/b40ad3bb-a92f-42ff-987e-4a6836ddded4.png","https://cl.imagineapi.dev/assets/a484a7bb-0a2a-45aa-8dba-7dead2bf1334/a484a7bb-0a2a-45aa-8dba-7dead2bf1334.png","https://cl.imagineapi.dev/assets/39596443-b9d9-4447-bb7a-3cb9f562cf2f/39596443-b9d9-4447-bb7a-3cb9f562cf2f.png","https://cl.imagineapi.dev/assets/a69baece-6fa8-4266-a1c5-a05eb1af43d8/a69baece-6fa8-4266-a1c5-a05eb1af43d8.png","https://cl.imagineapi.dev/assets/bbe1c1d5-1597-4c9e-8094-63879a77552e/bbe1c1d5-1597-4c9e-8094-63879a77552e.png","https://cl.imagineapi.dev/assets/f0f7e891-e588-466b-948f-afa899aac21e/f0f7e891-e588-466b-948f-afa899aac21e.png","https://cl.imagineapi.dev/assets/250d7a41-1dce-474b-89c4-2091b0c481de/250d7a41-1dce-474b-89c4-2091b0c481de.png","https://cl.imagineapi.dev/assets/97f33f98-6968-458d-aa71-f1b6018232eb/97f33f98-6968-458d-aa71-f1b6018232eb.png","https://cl.imagineapi.dev/assets/255e4d74-7ca1-44fa-aae0-bbf149c53f4b/255e4d74-7ca1-44fa-aae0-bbf149c53f4b.png","https://cl.imagineapi.dev/assets/c5ed7c40-b0bb-4164-86dd-c4f947abc6f7/c5ed7c40-b0bb-4164-86dd-c4f947abc6f7.png","https://cl.imagineapi.dev/assets/cecf2abe-3e0e-4a3c-800d-50b2d778c65c/cecf2abe-3e0e-4a3c-800d-50b2d778c65c.png","https://cl.imagineapi.dev/assets/7962c1a6-6a1f-451c-83de-b3f3129bba4d/7962c1a6-6a1f-451c-83de-b3f3129bba4d.png","https://cl.imagineapi.dev/assets/7a1ebe62-2c57-4ce3-be9a-c818a065da1f/7a1ebe62-2c57-4ce3-be9a-c818a065da1f.png","https://cl.imagineapi.dev/assets/2cb5a3cf-b03e-4c9b-a428-1311085f141f/2cb5a3cf-b03e-4c9b-a428-1311085f141f.png","https://cl.imagineapi.dev/assets/430e934d-157a-460c-9ea9-7cd7cc3591ab/430e934d-157a-460c-9ea9-7cd7cc3591ab.png","https://cl.imagineapi.dev/assets/8903a624-d266-49a4-93dd-96709147a110/8903a624-d266-49a4-93dd-96709147a110.png","https://cl.imagineapi.dev/assets/b868498d-6a53-49e9-8552-16d648efba15/b868498d-6a53-49e9-8552-16d648efba15.png","https://cl.imagineapi.dev/assets/9c2a7289-ad51-494d-83d5-8ed773478ca6/9c2a7289-ad51-494d-83d5-8ed773478ca6.png","https://cl.imagineapi.dev/assets/c60a34dd-0667-4244-b9ec-c8563e9e27be/c60a34dd-0667-4244-b9ec-c8563e9e27be.png","https://cl.imagineapi.dev/assets/005ef384-c2d6-455b-9661-348baa26ef89/005ef384-c2d6-455b-9661-348baa26ef89.png","https://cl.imagineapi.dev/assets/51375507-ce3e-4989-896e-a60ae8d54033/51375507-ce3e-4989-896e-a60ae8d54033.png","https://cl.imagineapi.dev/assets/67959943-e17b-48a1-bf12-77cb0d8f4391/67959943-e17b-48a1-bf12-77cb0d8f4391.png","https://cl.imagineapi.dev/assets/6ec2a451-8e28-46ee-b925-bb0f11630a31/6ec2a451-8e28-46ee-b925-bb0f11630a31.png","https://cl.imagineapi.dev/assets/5429c2a4-da2f-4c0c-9895-7a624980e66e/5429c2a4-da2f-4c0c-9895-7a624980e66e.png","https://cl.imagineapi.dev/assets/ec13c5e7-b3f2-43a6-b220-ff63709be674/ec13c5e7-b3f2-43a6-b220-ff63709be674.png","https://cl.imagineapi.dev/assets/728f6100-a7f4-4b5d-9787-9ff1ab7314f6/728f6100-a7f4-4b5d-9787-9ff1ab7314f6.png","https://cl.imagineapi.dev/assets/f0a50b14-2ac5-40da-976b-3586b01fbb24/f0a50b14-2ac5-40da-976b-3586b01fbb24.png","https://cl.imagineapi.dev/assets/10d973ec-5205-4d29-a5b2-cf0623ae031a/10d973ec-5205-4d29-a5b2-cf0623ae031a.png","https://cl.imagineapi.dev/assets/919e60d1-ec16-45f0-bfe6-6ba922051dfa/919e60d1-ec16-45f0-bfe6-6ba922051dfa.png","https://cl.imagineapi.dev/assets/556ff0c0-9b01-4bf4-9895-eb7f9863af47/556ff0c0-9b01-4bf4-9895-eb7f9863af47.png","https://cl.imagineapi.dev/assets/ffd37ad8-4b09-4919-a6b2-1af9b452a421/ffd37ad8-4b09-4919-a6b2-1af9b452a421.png","https://cl.imagineapi.dev/assets/a73ec4ca-3668-4016-ac75-64197107b98f/a73ec4ca-3668-4016-ac75-64197107b98f.png","https://cl.imagineapi.dev/assets/dcf0d5d6-452a-4022-bcd7-5cb912986938/dcf0d5d6-452a-4022-bcd7-5cb912986938.png","https://cl.imagineapi.dev/assets/112107d2-005a-4082-8b5c-8f74a0383e7a/112107d2-005a-4082-8b5c-8f74a0383e7a.png","https://cl.imagineapi.dev/assets/f71444cf-f455-4510-86b0-eb768648cfb5/f71444cf-f455-4510-86b0-eb768648cfb5.png","https://cl.imagineapi.dev/assets/5120c32a-8b93-41cd-b05a-feeb06b682b8/5120c32a-8b93-41cd-b05a-feeb06b682b8.png","https://cl.imagineapi.dev/assets/d32b6d54-a29e-4685-9a95-cfca8a195691/d32b6d54-a29e-4685-9a95-cfca8a195691.png","https://cl.imagineapi.dev/assets/73a8575d-c3f4-472b-92be-c66825898037/73a8575d-c3f4-472b-92be-c66825898037.png","https://cl.imagineapi.dev/assets/fb4ecac0-4839-4ecd-a1e6-9dbe1c124d81/fb4ecac0-4839-4ecd-a1e6-9dbe1c124d81.png","https://cl.imagineapi.dev/assets/ee21acde-145f-4a05-8efe-f7425d2fbea0/ee21acde-145f-4a05-8efe-f7425d2fbea0.png","https://cl.imagineapi.dev/assets/77383dd1-6d69-4ff5-bd19-18363135cb07/77383dd1-6d69-4ff5-bd19-18363135cb07.png","https://cl.imagineapi.dev/assets/c18329f0-48d1-4ba1-b6fc-c4d2305fba2b/c18329f0-48d1-4ba1-b6fc-c4d2305fba2b.png","https://cl.imagineapi.dev/assets/c8ea3a1f-9c86-41dc-846b-b81bd49003d7/c8ea3a1f-9c86-41dc-846b-b81bd49003d7.png","https://cl.imagineapi.dev/assets/ea393910-5d27-4f30-b6f3-7ba5e57d236b/ea393910-5d27-4f30-b6f3-7ba5e57d236b.png","https://cl.imagineapi.dev/assets/6be602a2-8b38-4ab4-ba1b-16e7b245afdf/6be602a2-8b38-4ab4-ba1b-16e7b245afdf.png","https://cl.imagineapi.dev/assets/5c35b00b-6094-4a19-bdb4-7288b520cc40/5c35b00b-6094-4a19-bdb4-7288b520cc40.png","https://cl.imagineapi.dev/assets/52385ef5-6e9c-41c3-b412-9af8fb8a75ac/52385ef5-6e9c-41c3-b412-9af8fb8a75ac.png","https://cl.imagineapi.dev/assets/cc038f9c-d810-4096-ac28-a3ee0eb812fc/cc038f9c-d810-4096-ac28-a3ee0eb812fc.png","https://cl.imagineapi.dev/assets/3f055dea-b75c-4344-8c24-0b1453a352f0/3f055dea-b75c-4344-8c24-0b1453a352f0.png","https://cl.imagineapi.dev/assets/f694eeaa-2df5-410a-8af8-fbf89cd38f95/f694eeaa-2df5-410a-8af8-fbf89cd38f95.png","https://cl.imagineapi.dev/assets/5bc1da5d-9241-494a-8f71-59fe45748381/5bc1da5d-9241-494a-8f71-59fe45748381.png","https://cl.imagineapi.dev/assets/344e290f-59c8-42b3-b5de-6ede68b56d41/344e290f-59c8-42b3-b5de-6ede68b56d41.png","https://cl.imagineapi.dev/assets/94458d1e-2cd9-4673-b8e3-a0ae3da5e5ec/94458d1e-2cd9-4673-b8e3-a0ae3da5e5ec.png","https://cl.imagineapi.dev/assets/a1d30f82-cfe4-467c-acc2-930b0b5bab0b/a1d30f82-cfe4-467c-acc2-930b0b5bab0b.png","https://cl.imagineapi.dev/assets/6b3f9b8e-3737-4cb8-aa0a-2db0d13209d8/6b3f9b8e-3737-4cb8-aa0a-2db0d13209d8.png","https://cl.imagineapi.dev/assets/2ea4dd7b-f6f5-4838-a04f-06b80867a2eb/2ea4dd7b-f6f5-4838-a04f-06b80867a2eb.png","https://cl.imagineapi.dev/assets/61a766f6-49ab-44a1-94f4-93aa788c3aa6/61a766f6-49ab-44a1-94f4-93aa788c3aa6.png","https://cl.imagineapi.dev/assets/bb9a8b02-a017-4699-8580-c7f9dacc63ae/bb9a8b02-a017-4699-8580-c7f9dacc63ae.png","https://cl.imagineapi.dev/assets/15b652b0-75c7-4a25-a8b6-bd8607008668/15b652b0-75c7-4a25-a8b6-bd8607008668.png","https://cl.imagineapi.dev/assets/44d01c15-84c6-475a-8a1d-6223440a5e30/44d01c15-84c6-475a-8a1d-6223440a5e30.png","https://cl.imagineapi.dev/assets/ef7a2eed-c32b-4d14-b634-82a3d824dd4f/ef7a2eed-c32b-4d14-b634-82a3d824dd4f.png","https://cl.imagineapi.dev/assets/9b93c317-8992-4a0a-9669-cf227f479dd7/9b93c317-8992-4a0a-9669-cf227f479dd7.png","https://cl.imagineapi.dev/assets/e8e140b0-356c-4016-8f78-476e49a827af/e8e140b0-356c-4016-8f78-476e49a827af.png"
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/51d4e735-f328-436b-af1f-72f8a393114e.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/9a46ebf2-a5f4-4520-827f-5e723164a857.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/41b79ce2-bd03-45a5-bd9e-a7761a539b0a.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/d257c3a8-df69-4da5-ae4c-0fc01bd800d0.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/53236167-d294-4870-b65b-c793a83be8e0.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/b8b7586b-3147-4df3-8b46-e2d48ff23620.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/2722db46-819c-47f8-ace5-7a2afb7c18e4.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/064715cd-3699-44c2-b199-a83dc2872c9d.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/f6d77121-b8af-49d4-8dfe-118320511b4e.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/4317d007-ab92-4c8a-bed8-4cda860d2177.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/2f576d43-214d-458b-9d8c-97c3271a52d2.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/4c16890f-fd3b-4e2e-a432-cad6ee2fca75.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/7b33c33e-8d37-4334-aef2-413dfb23a36a.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/220e0b5e-d9ff-48aa-9bab-b3c7f8e391c3.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/50b35ff2-8cb3-4949-a986-558ab4d56f77.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/092e8232-c54b-485e-8985-2476f2f7dabf.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/6cf1f91a-e2e6-4f7f-8ead-cf9c99269eee.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/57295cf3-0519-49a5-8163-2121bf9e6620.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/4ecbedb7-e916-4da0-86ea-882fabf369d1.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/5c71f70d-6259-4548-8c85-3681e4a5ce7d.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/e906f7d9-7c7f-49de-a9a6-818c929eacbd.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/b40ad3bb-a92f-42ff-987e-4a6836ddded4.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/a484a7bb-0a2a-45aa-8dba-7dead2bf1334.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/39596443-b9d9-4447-bb7a-3cb9f562cf2f.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/a69baece-6fa8-4266-a1c5-a05eb1af43d8.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/bbe1c1d5-1597-4c9e-8094-63879a77552e.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/f0f7e891-e588-466b-948f-afa899aac21e.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/250d7a41-1dce-474b-89c4-2091b0c481de.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/97f33f98-6968-458d-aa71-f1b6018232eb.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/255e4d74-7ca1-44fa-aae0-bbf149c53f4b.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/c5ed7c40-b0bb-4164-86dd-c4f947abc6f7.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/cecf2abe-3e0e-4a3c-800d-50b2d778c65c.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/7962c1a6-6a1f-451c-83de-b3f3129bba4d.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/7a1ebe62-2c57-4ce3-be9a-c818a065da1f.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/2cb5a3cf-b03e-4c9b-a428-1311085f141f.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/430e934d-157a-460c-9ea9-7cd7cc3591ab.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/8903a624-d266-49a4-93dd-96709147a110.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/b868498d-6a53-49e9-8552-16d648efba15.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/9c2a7289-ad51-494d-83d5-8ed773478ca6.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/c60a34dd-0667-4244-b9ec-c8563e9e27be.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/005ef384-c2d6-455b-9661-348baa26ef89.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/51375507-ce3e-4989-896e-a60ae8d54033.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/67959943-e17b-48a1-bf12-77cb0d8f4391.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/6ec2a451-8e28-46ee-b925-bb0f11630a31.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/5429c2a4-da2f-4c0c-9895-7a624980e66e.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/ec13c5e7-b3f2-43a6-b220-ff63709be674.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/728f6100-a7f4-4b5d-9787-9ff1ab7314f6.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/f0a50b14-2ac5-40da-976b-3586b01fbb24.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/10d973ec-5205-4d29-a5b2-cf0623ae031a.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/919e60d1-ec16-45f0-bfe6-6ba922051dfa.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/556ff0c0-9b01-4bf4-9895-eb7f9863af47.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/ffd37ad8-4b09-4919-a6b2-1af9b452a421.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/a73ec4ca-3668-4016-ac75-64197107b98f.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/dcf0d5d6-452a-4022-bcd7-5cb912986938.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/112107d2-005a-4082-8b5c-8f74a0383e7a.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/f71444cf-f455-4510-86b0-eb768648cfb5.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/5120c32a-8b93-41cd-b05a-feeb06b682b8.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/d32b6d54-a29e-4685-9a95-cfca8a195691.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/73a8575d-c3f4-472b-92be-c66825898037.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/fb4ecac0-4839-4ecd-a1e6-9dbe1c124d81.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/ee21acde-145f-4a05-8efe-f7425d2fbea0.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/77383dd1-6d69-4ff5-bd19-18363135cb07.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/c18329f0-48d1-4ba1-b6fc-c4d2305fba2b.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/c8ea3a1f-9c86-41dc-846b-b81bd49003d7.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/ea393910-5d27-4f30-b6f3-7ba5e57d236b.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/6be602a2-8b38-4ab4-ba1b-16e7b245afdf.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/5c35b00b-6094-4a19-bdb4-7288b520cc40.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/52385ef5-6e9c-41c3-b412-9af8fb8a75ac.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/cc038f9c-d810-4096-ac28-a3ee0eb812fc.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/3f055dea-b75c-4344-8c24-0b1453a352f0.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/f694eeaa-2df5-410a-8af8-fbf89cd38f95.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/5bc1da5d-9241-494a-8f71-59fe45748381.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/344e290f-59c8-42b3-b5de-6ede68b56d41.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/94458d1e-2cd9-4673-b8e3-a0ae3da5e5ec.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/a1d30f82-cfe4-467c-acc2-930b0b5bab0b.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/6b3f9b8e-3737-4cb8-aa0a-2db0d13209d8.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/2ea4dd7b-f6f5-4838-a04f-06b80867a2eb.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/61a766f6-49ab-44a1-94f4-93aa788c3aa6.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/bb9a8b02-a017-4699-8580-c7f9dacc63ae.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/15b652b0-75c7-4a25-a8b6-bd8607008668.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/44d01c15-84c6-475a-8a1d-6223440a5e30.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/ef7a2eed-c32b-4d14-b634-82a3d824dd4f.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/9b93c317-8992-4a0a-9669-cf227f479dd7.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/v1707268870/TopPostsPageCandidateImages/e8e140b0-356c-4016-8f78-476e49a827af.png"
 ]
 
 const sectionsInfo = {
@@ -436,7 +540,8 @@ const getOffsets = (index: number, columnLength: number) => {
   return [leftOffset, rightOffset];
 }
 
-type ExpansionState = 'full' | 'expanded' | 'collapsed' | 'hidden' | 'default';
+type ExpansionState = 'expanded' | 'collapsed' | 'default';
+type HiddenState = 'full' | 'hidden';
 
 function useWindowWidth(defaultValue = 2000): number {
   const [windowWidth, setWindowWidth] = useState(defaultValue);
@@ -525,6 +630,14 @@ async function useUpdateReviewWinnerOrder(reviewWinnersWithPosts: GetAllReviewWi
   });
 };
 
+function getHiddenState(gridId: string, fullyOpenGridId?: string): HiddenState | undefined {
+  if (!fullyOpenGridId) {
+    return undefined;
+  }
+
+  return gridId === fullyOpenGridId ? 'full' : 'hidden';
+}
+
 
 const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
@@ -557,16 +670,13 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
     setExpansionState(newState);
   }
 
-  const handleOpenFull = (id: string) => {
-    setFullyOpenGridId(id);
-    // const newState: Record<string, ExpansionState> = {
-    //   ...Object.fromEntries(Object.entries(expansionState).map(([key]) => [key, 'hidden'])),
-    //   [id]: 'full'
-    // }
-
-    // setExpansionState(newState);
+  const toggleFullyOpenGridId = (id: string) => {
+    if (id === fullyOpenGridId) {
+      setFullyOpenGridId(undefined);
+    } else {
+      setFullyOpenGridId(id);
+    }
   };
-  
 
   const {
     currentSortOrder,
@@ -600,14 +710,14 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
 
   const sectionGrid = Object.entries(sectionsInfo).map(([id, { title, img, tag }], index) => {
     const posts = visibleReviewWinners.map(({ post }) => post).filter(post => !tag || post.tags.map(tag => tag.name).includes(tag));
-    const hidden = !!(fullyOpenGridId && id !== fullyOpenGridId);
-    return <PostsImageGrid posts={posts} classes={classes} img={img} header={title} key={id} id={id} gridPosition={index} expansionState={expansionState[id]} handleToggleExpand={handleToggleExpand} handleOpenFull={handleOpenFull} hidden={hidden} />
+    const hiddenState = getHiddenState(id, fullyOpenGridId);
+    return <PostsImageGrid posts={posts} classes={classes} img={img} header={title} key={id} id={id} gridPosition={index} expansionState={expansionState[id]} handleToggleExpand={handleToggleExpand} handleToggleFullyOpen={toggleFullyOpenGridId} hiddenState={hiddenState} />
   });
 
   const yearGrid = Object.entries(yearGroupInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { img }], index) => {
     const posts = visibleReviewWinners.filter(({ reviewWinner }) => reviewWinner.reviewYear.toString() === year).map(({ post }) => post);
-    const hidden = !!(fullyOpenGridId && year !== fullyOpenGridId);
-    return <PostsImageGrid posts={posts} classes={classes} img={img} header={year} key={year} id={year} gridPosition={index} expansionState={expansionState[year]} handleToggleExpand={handleToggleExpand} handleOpenFull={handleOpenFull} hidden={hidden} />
+    const hiddenState = getHiddenState(year, fullyOpenGridId);
+    return <PostsImageGrid posts={posts} classes={classes} img={img} header={year} key={year} id={year} gridPosition={index} expansionState={expansionState[year]} handleToggleExpand={handleToggleExpand} handleToggleFullyOpen={toggleFullyOpenGridId} hiddenState={hiddenState} />
   });
 
   return (
@@ -635,7 +745,7 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   );
 }
 
-const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansionState, handleToggleExpand, handleOpenFull, hidden = false }: {
+const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansionState, handleToggleExpand, handleToggleFullyOpen, hiddenState }: {
   posts: PostsTopItemInfo[],
   classes: ClassesType<typeof styles>,
   img: string,
@@ -644,16 +754,18 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   gridPosition: number,
   expansionState: ExpansionState,
   handleToggleExpand: (id: string) => void,
-  handleOpenFull: (id: string) => void,
-  hidden?: boolean,
+  handleToggleFullyOpen: (id: string) => void,
+  hiddenState?: 'hidden' | 'full',
 }) => {
-  const screenWidth = useWindowWidth(2000)
-  const [leftOffset, rightOffset] = getOffsets(gridPosition, Math.min(Math.max(Math.floor((screenWidth) / 400), 1), 3));
-  const paddedPosts = [...posts, ...posts.slice(0, 24)];
+  const screenWidth = useWindowWidth(2000);
+  const gridColumns = Math.min(Math.max(Math.floor((screenWidth) / 400), 1), 3);
+  const [leftOffset, rightOffset] = getOffsets(gridPosition, gridColumns);
+  const paddedPosts = [...posts];
+  const isFirstGridRow = gridPosition < gridColumns;
 
   const isExpanded = expansionState === 'expanded';
-
-  const smallDisplay = screenWidth <= 800;
+  const isHidden = hiddenState === 'hidden';
+  const isShowingAll = hiddenState === 'full';
 
   const displayedPostProps: ComponentProps<typeof ImageGridPost>[] = [];
   if (leftOffset > 0) {
@@ -665,7 +777,8 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   displayedPostProps.push(...noOffsetPosts.map((post, i) => ({ post, index: i, classes })));
   
   if (rightOffset > 0) {
-    const rightOffsetPosts = paddedPosts.slice((leftOffset * 12) + 12, (leftOffset * 12) + 12 + (rightOffset * 12));
+    const cutoff = isShowingAll ? undefined : (leftOffset * 12) + 12 + (rightOffset * 12);
+    const rightOffsetPosts = paddedPosts.slice((leftOffset * 12) + 12, cutoff);
     displayedPostProps.push(...rightOffsetPosts.map((post, i) => ({ post, index: i, classes, offscreen: true })));
   }
 
@@ -680,7 +793,8 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
     className={classNames(classes.postsImageGrid, {
       [classes.expandedImageGrid]: isExpanded, 
       [classes.collapsedImageGrid]: expansionState === 'collapsed',
-      [classes.hiddenImageGrid]: hidden
+      [classes.hiddenImageGrid]: isHidden,
+      [classes.showAllImageGrid]: isShowingAll,
     })} 
     id={`PostsImageGrid-${id}`}
   >
@@ -694,7 +808,14 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
       <div className={classNames(classes.imageGrid, classes[gridPositionToClassName(gridPosition) as keyof ClassesType<typeof styles>])} > 
         <img src={img} className={classes.imageGridBackground}/>
         {displayedPosts}
-        <div className={classNames(classes.imageGridShowAll, { [classes.imageGridShowAllVisible]: isExpanded, [classes.imageGridShowAllTransition]: (rightOffset === 0) && !isExpanded })} onClick={() => handleOpenFull(id)}>Show All</div>
+        <div
+          className={classNames(classes.imageGridShowAll, {
+            [classes.imageGridShowAllVisible]: isExpanded,
+            [classes.imageGridShowAllTransition]: (rightOffset === 0) && !isExpanded
+            })}
+          onClick={() => handleToggleFullyOpen(id)}>
+            Show All
+        </div>
       </div>
     </div>
   </div>
