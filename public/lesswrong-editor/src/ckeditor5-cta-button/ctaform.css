@@ -37,6 +37,10 @@
 	font-family: var(--palette-fonts-sansSerifStack);
 }
 
+.ck.ck-reset_all .ck.ck-cta-form .ck-cta-error {
+	outline: 1px solid var(--palette-error-main);
+}
+
 .ck.ck-reset_all .ck.ck-cta-form .ck-cta-form-input:hover,
 .ck.ck-reset_all .ck.ck-cta-form .ck-cta-form-input:focus {
 	background: var(--palette-grey-300);
@@ -44,8 +48,8 @@
 
 .ck.ck.ck.ck.ck.ck-cta-balloon {
 	box-shadow: none;
-    background: none;
-    border: none;
+  background: none;
+  border: none;
 }
 
 .ck-cta-balloon:before {

@@ -230,6 +230,7 @@ const footnoteStyles = (theme: ThemeType): JssStyles => ({
 // are within the ckeditor bundle (in public/lesswrong-editor/src/ckeditor5-cta-button/ctaform.css)
 requireCssVar("palette", "fonts", "sansSerifStack")
 requireCssVar("palette", "panelBackground", "default")
+requireCssVar("palette", "error", "main")
 requireCssVar("palette", "grey", 200)
 requireCssVar("palette", "grey", 300)
 requireCssVar("palette", "grey", 600)
@@ -258,6 +259,9 @@ const ctaButtonStyles = (theme: ThemeType): JssStyles => ({
       color: theme.palette.text.alwaysWhite, // Override default <a> style
     },
     '&:visited': {
+      color: theme.palette.text.alwaysWhite, // Override default <a> style
+    },
+    '&:visited:hover': {
       color: theme.palette.text.alwaysWhite, // Override default <a> style
     },
     '&:disabled': {

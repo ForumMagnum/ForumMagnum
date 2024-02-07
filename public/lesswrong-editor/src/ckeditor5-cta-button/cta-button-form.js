@@ -14,6 +14,7 @@ import FocusCycler from "@ckeditor/ckeditor5-ui/src/focuscycler";
 import submitHandler from "@ckeditor/ckeditor5-ui/src/bindings/submithandler";
 
 import './ctaform.css';
+import { validateUrl } from "../url-validator-utils";
 
 class MainFormView extends View {
   constructor(locale, editor) {
@@ -30,9 +31,6 @@ class MainFormView extends View {
     this.linkToView = linkToView;
 
     this.previewEnabled = true;
-
-    let children = [];
-    children = [buttonTextView, linkToView];
 
     // Add UI elements to template
     this.setTemplate({
@@ -71,6 +69,10 @@ class MainFormView extends View {
         }
       ],
     });
+  }
+
+  onClose() {
+    this.linkToView.element.classList.remove('ck-cta-error');
   }
 
   render() {
@@ -195,9 +197,18 @@ class MainFormView extends View {
         if (!selectedElement) return;
 
         const inputValue = linkToView.element.value.trim();
+        try {
+          // Validate in strict mode, so an error is thrown if it can't be coerced into a valid url
+          const cleanUrl = validateUrl(inputValue, true);
 
-        // Set the 'href' attribute to the new inputValue
-        writer.setAttribute("href", inputValue, selectedElement);
+          linkToView.element.classList.toggle('ck-cta-error', false);
+
+          writer.setAttribute("href", cleanUrl, selectedElement);
+        } catch (e) {
+          // Update the UI to reflect whether the URL is valid or not
+          linkToView.element.classList.toggle('ck-cta-error', true);
+          writer.setAttribute("href", '', selectedElement);
+        }
       });
     });
 
@@ -308,6 +319,8 @@ export default class CTAButtonForm extends Plugin {
 
       this.editor.editing.view.focus();
     }
+
+    this.formView.onClose()
   }
 
   _getBalloonPositionData() {
