@@ -16,8 +16,7 @@ import { trace } from '../../../lib/helpers.ts';
 
 const DEPLOY = false
 
-const maxSimultaneousMidjourney = 3
-let currentMidjourney = 0
+let lastMidjourneyRequest = 0
 
 let essayRights: {[essay: string]: boolean} = {}
 
@@ -39,14 +38,14 @@ const promptUrls = [
 ]
 
 const acquireMidjourneyRights = async (): Promise<boolean> => {
-  if (currentMidjourney < maxSimultaneousMidjourney) {
-    currentMidjourney++
+  if (Date.now() - lastMidjourneyRequest > 3_000) {
+    lastMidjourneyRequest = Date.now()
     return Promise.resolve(true)
   } else {
     return new Promise((resolve) => {
       const interval = setInterval(() => {
-        if (currentMidjourney < maxSimultaneousMidjourney) {
-          currentMidjourney++
+        if (Date.now() > lastMidjourneyRequest + 3_000) {
+          lastMidjourneyRequest = Date.now()
           clearInterval(interval)
           resolve(true)
         }
@@ -72,7 +71,7 @@ const acquireEssayThreadRights = async (title: string): Promise<void> => {
 }
 
 const releaseMidjourneyRights = () => {
-  currentMidjourney--
+  // currentMidjourney--
 }
 
 const releaseEssayThreadRights = (title: string) => {
@@ -183,19 +182,25 @@ const postPromptImages = async (prompt: string, {title, threadTs}: {title: strin
 }
 
 const saveImages = async (el: string, essay: PostedEssay, urls: string[]) => {
+  let newUrls: string[] = []
   for (let i = 0; i < urls.length; i++) {
-    await moveImageToCloudinary(urls[i], `splashArtImagePrompt${el}{i}`)
+    const newUrl = await moveImageToCloudinary(urls[i], `splashArtImagePrompt${el}{i}`)
+    if (!newUrl) {
+      console.error("Failed to upload image to cloudinary", el, essay, i)
+      continue
+    }
     await createMutator({
       collection: ReviewWinnerArts,
       context: createAdminContext(),
       document: {
         postId: essay.post._id, 
         splashArtImagePrompt: el,
-        splashArtImageUrl: urls[i]
+        splashArtImageUrl: newUrl
       }
     })
+    newUrls.push(newUrl)
   }
-  return urls
+  return newUrls
 }
 
 const increasedImagesMessages = async (messageId: string): Promise<(MyMidjourneyResponse | undefined)[]> =>
@@ -338,7 +343,7 @@ async function generateCoverImages({limit = 2}: {
     let newChars = charsRequested
 
     if ((charsRequested + essay.content.length) >= 30_000) {
-      await Promise.all([sleep(60_000), imUrls])
+      await sleep(60_000) // Promise.all([sleep(60_000), imUrls])
       newChars = 0
     }
     newChars += Math.min(essay.content.length, 30_000)
@@ -372,7 +377,7 @@ async function generateCoverImages({limit = 2}: {
 
 async function main () {
 
-  await generateCoverImages({limit: 1})
+  await generateCoverImages({limit: 100})
 
 }
 
