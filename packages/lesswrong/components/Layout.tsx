@@ -251,7 +251,7 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
-  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : (reviewIsActive() && isLW)
+  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
@@ -463,17 +463,9 @@ const Layout = ({currentUser, children, classes}: {
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
                 { isLW && <>
-                  {
-                    currentRoute?.name === 'home' ? 
-                      <div className={classes.imageColumn}>
-                        <ReviewVotingCanvas />
-                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote-Recovered_copy_txa21o" darkPublicId="LWVote-Recovered_copy_Dark2_qidtjp"/>
-                      </div> 
-                    : 
-                      (standaloneNavigation && <div className={classes.imageColumn}>
-                        <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
-                      </div>)
-                  }
+                  {(standaloneNavigation && <div className={classes.imageColumn}>
+                      <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
+                    </div>)}
                   </>
                 }
                 {!renderSunshineSidebar &&
