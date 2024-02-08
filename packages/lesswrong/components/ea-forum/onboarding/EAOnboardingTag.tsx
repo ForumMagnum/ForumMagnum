@@ -1,8 +1,8 @@
 import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useNotifyMe } from "../../hooks/useNotifyMe";
-import classNames from "classnames";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
+import classNames from "classnames";
 
 const TAG_SIZE = 103;
 

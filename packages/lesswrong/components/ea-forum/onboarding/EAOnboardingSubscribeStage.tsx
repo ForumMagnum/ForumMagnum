@@ -1,11 +1,9 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { formatRole, formatStat } from "../../users/EAUserTooltipContent";
 import { useCurrentUser } from "../../common/withUser";
 import { useSuggestedSubscriptions } from "./useSuggestedSubscriptions";
-import classNames from "classnames";
 
-const styles = (theme: ThemeType) => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -22,72 +20,19 @@ const styles = (theme: ThemeType) => ({
     gap: "8px",
     rowGap: "8px",
   },
-  user: {
-    cursor: "pointer",
-    userSelect: "none",
-    border: `1px solid ${theme.palette.grey["A100"]}`,
-    borderRadius: theme.borderRadius.default,
-    padding: 12,
-    display: "flex",
-    flexDirection: "column",
-    flexBasis: "34%",
-    flexGrow: 1,
-    "&:hover": {
-      backgroundColor: theme.palette.grey[250],
-    },
-  },
-  userSelected: {
-    border: `1px solid ${theme.palette.primary.dark}`,
-  },
-  userHeader: {
-    display: "flex",
-    gap: "14px",
-  },
-  userName: {
-    color: theme.palette.grey[1000],
-    fontSize: 14,
-    fontWeight: 700,
-  },
-  userKarma: {
-    color: theme.palette.grey[650],
-    fontSize: 13,
-    fontWeight: 500,
-  },
-  userRole: {
-    color: theme.palette.grey[1000],
-    fontSize: 13,
-    fontWeight: 500,
-    lineHeight: "130%",
-    paddingTop: 8,
-  },
 });
-
-const toggleInArray = (array: string[], value: string): string[] => {
-  const values = new Set(array);
-  if (values.has(value)) {
-    values.delete(value);
-  } else {
-    values.add(value);
-  }
-  return Array.from(values);
-}
 
 export const EAOnboardingSubscribeStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
   const {tags, users} = useSuggestedSubscriptions();
-
-  const onToggleUser = useCallback((id: string) => {
-    setSelectedUserIds((current) => toggleInArray(current, id));
-  }, []);
 
   const canContinue = false;
 
   const {
-    EAOnboardingStage, EAOnboardingTag, UsersProfileImage, Loading,
+    EAOnboardingStage, EAOnboardingTag, EAOnboardingUser, Loading,
   } = Components;
   return (
     <EAOnboardingStage
@@ -112,30 +57,7 @@ export const EAOnboardingSubscribeStage = ({classes}: {
         </div>
         <div className={classes.gridContainer}>
           {users.length < 1 && <Loading />}
-          {users.map((user) => (
-            <div
-              key={user._id}
-              onClick={() => onToggleUser(user._id)}
-              className={classNames(classes.user, {
-                [classes.userSelected]: selectedUserIds.includes(user._id),
-              })}
-            >
-              <div className={classes.userHeader}>
-                <UsersProfileImage user={user} size={40} />
-                <div>
-                  <div className={classes.userName}>
-                    {user.displayName}
-                  </div>
-                  <div className={classes.userKarma}>
-                    {formatStat(user.karma)} karma
-                  </div>
-                </div>
-              </div>
-              <div>
-                {formatRole(user.jobTitle, user.organization)}
-              </div>
-            </div>
-          ))}
+          {users.map((user) => <EAOnboardingUser key={user._id} user={user} />)}
         </div>
       </div>
     </EAOnboardingStage>

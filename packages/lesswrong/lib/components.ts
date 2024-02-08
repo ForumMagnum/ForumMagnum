@@ -70,6 +70,7 @@ importComponent("EAOnboardingInput", () => require('../components/ea-forum/onboa
 importComponent("EAOnboardingSelect", () => require('../components/ea-forum/onboarding/EAOnboardingSelect'));
 importComponent("EAOnboardingPodcast", () => require('../components/ea-forum/onboarding/EAOnboardingPodcast'));
 importComponent("EAOnboardingTag", () => require('../components/ea-forum/onboarding/EAOnboardingTag'));
+importComponent("EAOnboardingUser", () => require('../components/ea-forum/onboarding/EAOnboardingUser'));
 importComponent("EAOnboardingStage", () => require('../components/ea-forum/onboarding/EAOnboardingStage'));
 importComponent("EAOnboardingUserStage", () => require('../components/ea-forum/onboarding/EAOnboardingUserStage'));
 importComponent("EAOnboardingSubscribeStage", () => require('../components/ea-forum/onboarding/EAOnboardingSubscribeStage'));
