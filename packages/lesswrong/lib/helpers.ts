@@ -196,4 +196,4 @@ export const setAtPath = <T extends {}, V extends AnyBecauseHard>(
 * @deprecated Only use for debugging, or else litter the console with logs
 */
 // eslint-disable-next-line no-console
-export const trace = <A>(a: A): A => { console.log(a); return a }
+export const trace = <A>(msg: string) => (a: A): A => { console.log(msg, a); return a }
