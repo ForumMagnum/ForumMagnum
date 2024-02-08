@@ -1005,6 +1005,7 @@ interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment 
   readonly contents: PostsTopItemInfo_contents|null,
   readonly customHighlight: PostsTopItemInfo_customHighlight|null,
   readonly tags: Array<TagPreviewFragment>,
+  readonly reviewWinner: PostsTopItemInfo_reviewWinner|null,
 }
 
 interface PostsTopItemInfo_contents { // fragment on Revisions
@@ -1017,6 +1018,14 @@ interface PostsTopItemInfo_contents { // fragment on Revisions
 interface PostsTopItemInfo_customHighlight { // fragment on Revisions
   readonly _id: string,
   readonly html: string,
+}
+
+interface PostsTopItemInfo_reviewWinner { // fragment on ReviewWinners
+  readonly reviewWinnerArt: PostsTopItemInfo_reviewWinner_reviewWinnerArt|null,
+}
+
+interface PostsTopItemInfo_reviewWinner_reviewWinnerArt { // fragment on ReviewWinnerArts
+  readonly splashArtImageUrl: string,
 }
 
 interface PostsBase extends PostsMinimumInfo { // fragment on Posts

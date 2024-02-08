@@ -958,6 +958,8 @@ const ImageGridPost = ({ post, index, classes, offscreen = false, hidden = false
     [classes.imageGridPostHidden]: hidden
   });
 
+  const imgSrc = post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl ?? candidateImages[index];
+
   return <Link className={classes.imageGridPost} key={post._id} to={postGetPageUrl(post)}>
     <div className={classes.imageGridPostBody}>
       <div className={classes.imageGridPostAuthor}>
@@ -967,7 +969,7 @@ const ImageGridPost = ({ post, index, classes, offscreen = false, hidden = false
         {post.title}
       </div>
     </div>
-    <img className={classes.imageGridPostBackground} src={candidateImages[index]} />
+    <img className={classes.imageGridPostBackground} src={imgSrc} />
   </Link>;
 }
 

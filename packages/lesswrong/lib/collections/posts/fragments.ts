@@ -45,6 +45,11 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+    reviewWinner {
+      reviewWinnerArt {
+        splashArtImageUrl
+      }
+    }
   }
 `);
 
