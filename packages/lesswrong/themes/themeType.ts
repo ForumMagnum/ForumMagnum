@@ -376,6 +376,10 @@ declare global {
         selected: ColorString,
         selectedHover: ColorString,
       },
+      digestAdBannerNoThanks: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
     },
     tag: {
       text: ColorString,

@@ -245,6 +245,10 @@ export const darkModeTheme: UserThemeSpecification = {
         selected: "#0c70c7",
         selectedHover: "#0b62ae",
       },
+      digestAdBannerNoThanks: {
+        background: shadePalette.grey[600],
+        hoverBackground: shadePalette.grey[700],
+      },
     },
     intercom: {
       buttonBackground: `${shadePalette.grey[400]} !important`,

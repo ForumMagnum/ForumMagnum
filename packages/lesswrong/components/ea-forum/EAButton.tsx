@@ -78,7 +78,7 @@ const EAButton = ({style, variant="contained", eventProps, className, children, 
 }
 
 const EAButtonComponent = registerComponent(
-  'EAButton', EAButton, {styles, stylePriority: -1}
+  'EAButton', EAButton, {styles, stylePriority: -2}
 )
 
 declare global {

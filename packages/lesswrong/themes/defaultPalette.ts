@@ -457,6 +457,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       selected: "#198cf0",
       selectedHover: "#0e7fe1",
     },
+    digestAdBannerNoThanks: {
+      background: shades.grey[700],
+      hoverBackground: shades.grey[800],
+    },
   },
   tag: {
     text: shades.greyAlpha(.9),

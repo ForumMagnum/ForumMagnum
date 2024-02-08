@@ -295,40 +295,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
       opacity: 1,
     }
   },
-  digestAd: {
-    animation: 'digest-fade-in 1s ease',
-    position: 'fixed',
-    bottom: 28,
-    left: '50%',
-    transform: 'translateX(-50%)',
-    width: 1100,
-    maxWidth: '85%',
-    backgroundColor: theme.palette.panelBackground.digestAdBanner,
-    color: theme.palette.grey[0],
-    zIndex: theme.zIndexes.intercomButton,
-    '@media (max-width: 812px)': {
-      width: 500,
-      maxWidth: '90%',
-    },
-    '& .DigestAd-body': {
-      color: theme.palette.grey[400],
-    },
-    '& .DigestAd-formInput': {
-      background: theme.palette.background.digestAdBannerInput,
-      '&::placeholder': {
-        color: theme.palette.grey[600],
-      }
-    },
-    '& .DigestAd-close': {
-      color: theme.palette.grey[0],
-      '&:hover': {
-        color: theme.palette.grey[200],
-      }
-    },
-    '& .DigestAd-success': {
-      color: theme.palette.grey[400],
-    },
-  },
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -517,7 +483,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
     PostBottomRecommendations, NotifyMeDropdownItem, Row,
     AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
-    CommentsListSection, CommentsTableOfContents, DigestAd
+    CommentsListSection, CommentsTableOfContents, StickyDigestAd
   } = Components
 
   useEffect(() => {
@@ -825,7 +791,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </ToCColumn>
     }
   
-    {isEAForum && showDigestAd && <NoSSR><DigestAd className={classes.digestAd} largeVersion /></NoSSR>}
+    {isEAForum && showDigestAd && <NoSSR><StickyDigestAd className={classes.digestAd} /></NoSSR>}
     {hasPostRecommendations && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
