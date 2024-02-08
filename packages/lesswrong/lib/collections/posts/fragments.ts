@@ -45,6 +45,9 @@ registerFragment(`
     tags {
       ...TagPreviewFragment
     }
+    reviewWinner {
+      ...ReviewWinnerTopPostsPage
+    }
   }
 `);
 
