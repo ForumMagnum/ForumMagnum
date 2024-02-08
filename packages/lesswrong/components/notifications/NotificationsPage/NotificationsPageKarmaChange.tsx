@@ -22,14 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
   link: {
     color: theme.palette.grey[1000],
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
     cursor: "pointer",
-  },
-  reactions: {
-    display: "flex",
-    gap: "4px",
   },
   tooltip: {
     background: theme.palette.panelBackground.tooltipBackground2,
@@ -224,17 +217,16 @@ export const NotificationsPageKarmaChange = ({
           iconTooltip={emoji.label}
           iconVariant="clear"
         >
-          <div className={classes.reactions}>
-            <LWTooltip
-              title={tooltip}
-              className={classes.link}
-              popperClassName={classes.tooltip}
-              placement="bottom"
-            >
-              {users}
-            </LWTooltip>{" "}
-            reacted to {display}
-          </div>
+          <LWTooltip
+            title={tooltip}
+            className={classes.link}
+            popperClassName={classes.tooltip}
+            placement="bottom"
+            inlineBlock={false}
+          >
+            {users}
+          </LWTooltip>{" "}
+          reacted to {commentKarmaChange && "your"} {display}
         </NotificationsPageItem>
       ))}
     </>

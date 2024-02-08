@@ -390,6 +390,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly conversationsDisabled: boolean,
   readonly acknowledgedNewUserGuidelines: boolean | null,
   readonly subforumPreferredLayout: "card" | "list",
+  readonly hideJobAdUntil: Date | null,
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean,
@@ -844,6 +845,7 @@ interface PostsDefaultFragment { // fragment on Posts
 
 interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly postId: string,
+  readonly splashArtImageUrl: string | null,
   readonly reviewYear: number,
   readonly curatedOrder: number,
   readonly reviewRanking: number,
@@ -2516,6 +2518,22 @@ interface AdvisorRequestsMinimumInfo { // fragment on AdvisorRequests
   readonly jobAds: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
+interface UserJobAdsDefaultFragment { // fragment on UserJobAds
+  readonly userId: string,
+  readonly jobName: string,
+  readonly adState: "seen" | "expanded" | "applied" | "reminderSet",
+  readonly lastUpdated: Date,
+}
+
+interface UserJobAdsMinimumInfo { // fragment on UserJobAds
+  readonly _id: string,
+  readonly userId: string,
+  readonly createdAt: Date,
+  readonly lastUpdated: Date,
+  readonly jobName: string,
+  readonly adState: "seen" | "expanded" | "applied" | "reminderSet",
+}
+
 interface UserMostValuablePostsDefaultFragment { // fragment on UserMostValuablePosts
   readonly userId: string,
   readonly postId: string,
@@ -2848,6 +2866,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     dayOfWeekGMT: string,
   },
   readonly subforumPreferredLayout: "card" | "list",
+  readonly hideJobAdUntil: Date | null,
   readonly experiencedIn: Array<string> | null,
   readonly interestedIn: Array<string> | null,
   readonly allowDatadogSessionReplay: boolean,
@@ -2938,7 +2957,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly moderatorActions: Array<ModeratorActionDisplay>,
   readonly usersContactedBeforeReview: Array<string>,
   readonly associatedClientIds: Array<SunshineUsersList_associatedClientIds>,
-  readonly altAccountsDetected: boolean,
+  readonly altAccountsDetected: boolean|null,
   readonly voteReceivedCount: number,
   readonly smallUpvoteReceivedCount: number,
   readonly bigUpvoteReceivedCount: number,
@@ -3791,6 +3810,8 @@ interface FragmentTypes {
   SunshineTagFragment: SunshineTagFragment
   AdvisorRequestsDefaultFragment: AdvisorRequestsDefaultFragment
   AdvisorRequestsMinimumInfo: AdvisorRequestsMinimumInfo
+  UserJobAdsDefaultFragment: UserJobAdsDefaultFragment
+  UserJobAdsMinimumInfo: UserJobAdsMinimumInfo
   UserMostValuablePostsDefaultFragment: UserMostValuablePostsDefaultFragment
   UserMostValuablePostInfo: UserMostValuablePostInfo
   DigestPostsDefaultFragment: DigestPostsDefaultFragment
@@ -3902,6 +3923,7 @@ interface FragmentTypesByCollection {
   Chapters: "ChaptersDefaultFragment"|"ChaptersFragment"|"ChaptersEdit"
   ReviewVotes: "ReviewVotesDefaultFragment"|"reviewVoteFragment"|"reviewVoteWithUserAndPost"
   AdvisorRequests: "AdvisorRequestsDefaultFragment"|"AdvisorRequestsMinimumInfo"
+  UserJobAds: "UserJobAdsDefaultFragment"|"UserJobAdsMinimumInfo"
   UserMostValuablePosts: "UserMostValuablePostsDefaultFragment"|"UserMostValuablePostInfo"
   DigestPosts: "DigestPostsDefaultFragment"|"DigestPostsMinimumInfo"
   Digests: "DigestsDefaultFragment"|"DigestsMinimumInfo"
@@ -4083,6 +4105,8 @@ interface CollectionNamesByFragmentName {
   SunshineTagFragment: "Tags"
   AdvisorRequestsDefaultFragment: "AdvisorRequests"
   AdvisorRequestsMinimumInfo: "AdvisorRequests"
+  UserJobAdsDefaultFragment: "UserJobAds"
+  UserJobAdsMinimumInfo: "UserJobAds"
   UserMostValuablePostsDefaultFragment: "UserMostValuablePosts"
   UserMostValuablePostInfo: "UserMostValuablePosts"
   DigestPostsDefaultFragment: "DigestPosts"
@@ -4155,9 +4179,9 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"GardenCodes"|"Posts"|"TagFlags"|"Tags"|"Users"
 

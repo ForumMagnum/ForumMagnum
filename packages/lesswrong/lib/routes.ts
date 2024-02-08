@@ -713,6 +713,11 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: "AuthorAnalyticsPage",
     },
     {
+      name: "myAnalytics",
+      path:'/my-stats',
+      componentName: "MyAnalyticsPage",
+    },
+    {
       name: 'EAGApplicationData',
       path: '/api/eag-application-data'
     },

@@ -115,6 +115,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
             currentUser,
             terms,
             parameters.selector,
+            parameters.syntheticFields,
             parameters.options,
           );
           const compiledQuery = query.compile();
@@ -222,6 +223,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
             currentUser,
             terms,
             selector,
+            undefined,
             {limit: 1},
           );
           const compiledQuery = query.compile();

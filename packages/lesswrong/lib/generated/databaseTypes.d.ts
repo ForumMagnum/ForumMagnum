@@ -984,6 +984,7 @@ type ReviewWinnersCollection = CollectionBase<"ReviewWinners">;
 interface DbReviewWinner extends DbObject {
   __collectionName?: "ReviewWinners"
   postId: string
+  splashArtImageUrl: string | null
   reviewYear: number
   curatedOrder: number
   reviewRanking: number
@@ -1228,6 +1229,18 @@ interface DbUserActivity extends DbObject {
   startDate: Date
   endDate: Date
   activityArray: Array<number>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type UserJobAdsCollection = CollectionBase<"UserJobAds">;
+
+interface DbUserJobAd extends DbObject {
+  __collectionName?: "UserJobAds"
+  userId: string
+  jobName: string
+  adState: "seen" | "expanded" | "applied" | "reminderSet"
+  lastUpdated: Date
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1625,6 +1638,7 @@ interface DbUser extends DbObject {
   conversationsDisabled: boolean | null
   acknowledgedNewUserGuidelines: boolean | null
   subforumPreferredLayout: "card" | "list" | null
+  hideJobAdUntil: Date | null
   experiencedIn: Array<string> | null
   interestedIn: Array<string> | null
   allowDatadogSessionReplay: boolean
@@ -1764,6 +1778,7 @@ interface CollectionsByName {
   Tags: TagsCollection
   TypingIndicators: TypingIndicatorsCollection
   UserActivities: UserActivitiesCollection
+  UserJobAds: UserJobAdsCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
   UserTagRels: UserTagRelsCollection
@@ -1833,6 +1848,7 @@ interface ObjectsByCollectionName {
   Tags: DbTag
   TypingIndicators: DbTypingIndicator
   UserActivities: DbUserActivity
+  UserJobAds: DbUserJobAd
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit
   UserTagRels: DbUserTagRel
@@ -1902,6 +1918,7 @@ interface ObjectsByTypeName {
   Tag: DbTag
   TypingIndicator: DbTypingIndicator
   UserActivity: DbUserActivity
+  UserJobAd: DbUserJobAd
   UserMostValuablePost: DbUserMostValuablePost
   UserRateLimit: DbUserRateLimit
   UserTagRel: DbUserTagRel
