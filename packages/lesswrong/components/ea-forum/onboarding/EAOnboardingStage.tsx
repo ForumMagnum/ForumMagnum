@@ -10,6 +10,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     maxWidth: "100vw",
     maxHeight: "min(80vh, 720px)",
+    height: "100%",
     display: "flex",
     flexDirection: "column",
     "& a": {
@@ -19,15 +20,26 @@ const styles = (theme: ThemeType) => ({
         opacity: 1,
       },
     },
+    [theme.breakpoints.down("xs")]: {
+      maxHeight: "100vh",
+      paddingBottom: 20,
+    },
   },
   rootThin: {
     width: 540,
+    [theme.breakpoints.down("xs")]: {
+      width: "100%",
+    },
   },
   rootWide: {
     width: 612,
+    [theme.breakpoints.down("xs")]: {
+      width: "100%",
+    },
   },
   scrollable: {
     overflowY: "scroll",
+    flexGrow: 1,
   },
   header: {
     display: "flex",
@@ -38,6 +50,10 @@ const styles = (theme: ThemeType) => ({
     letterSpacing: "-0.6px",
     padding: 32,
     paddingBottom: 0,
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+      textAlign: "center",
+    },
   },
   lightbulb: {
     color: theme.palette.primary.dark,
@@ -49,6 +65,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
     lineHeight: "140%",
+    [theme.breakpoints.down("xs")]: {
+      textAlign: "center",
+    },
   },
   footer: {
     display: "flex",
@@ -56,6 +75,10 @@ const styles = (theme: ThemeType) => ({
     gap: "28px",
     padding: 24,
     borderTop: `1px solid ${theme.palette.grey[310]}`,
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+      borderTop: "none",
+    },
   },
   footerContent: {
     flexGrow: 1,
@@ -71,6 +94,9 @@ const styles = (theme: ThemeType) => ({
     minWidth: "128px",
     whiteSpace: "nowrap",
     padding: "12px 24px",
+    [theme.breakpoints.down("xs")]: {
+      width: "100%",
+    },
   },
 });
 

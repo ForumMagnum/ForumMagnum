@@ -74,7 +74,7 @@ export const EAOnboardingUserStage = ({classes}: {
   const onContinue = useCallback(() => {
     void goToNextStageAfter(
       updateCurrentUser({
-        displayName: name,
+        // displayName: name,
         acceptedTos,
       }),
     );

@@ -7,6 +7,7 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     position: "relative",
     width: 34,
+    minWidth: 34,
     height: 20,
     borderRadius: 10,
     background: theme.palette.grey[600],
@@ -37,16 +38,17 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ToggleSwitch = ({value, setValue, classes}: {
+export const ToggleSwitch = ({value, setValue, className, classes}: {
   value: boolean,
   setValue: (value: boolean) => void,
+  className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const onToggle = useCallback(() => {
     setValue(!value);
   }, [value, setValue]);
   return (
-    <div onClick={onToggle} className={classes.root}>
+    <div onClick={onToggle} className={classNames(classes.root, className)}>
       <div className={classNames(classes.switch, {
         [classes.switchOn]: value,
         [classes.switchOff]: !value,
@@ -60,7 +62,7 @@ export const ToggleSwitch = ({value, setValue, classes}: {
 const ToggleSwitchComponent = registerComponent(
   "ToggleSwitch",
   ToggleSwitch,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {

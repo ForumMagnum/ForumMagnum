@@ -19,6 +19,7 @@ const styles = (_theme: ThemeType) => ({
     flexWrap: "wrap",
     gap: "8px",
     rowGap: "8px",
+    textAlign: "left",
   },
 });
 

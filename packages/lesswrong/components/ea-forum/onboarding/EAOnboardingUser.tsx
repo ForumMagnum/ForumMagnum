@@ -19,6 +19,9 @@ const styles = (theme: ThemeType) => ({
     "&:hover": {
       backgroundColor: theme.palette.grey[250],
     },
+    [theme.breakpoints.down("xs")]: {
+      flexBasis: "51%",
+    },
   },
   selected: {
     border: `1px solid ${theme.palette.primary.dark}`,

@@ -3,10 +3,21 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { getPodcastDataByName } from "../../../lib/eaPodcasts";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { useEAOnboarding } from "./useEAOnboarding";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
     padding: 40,
+    display: "flex",
+    flexDirection: "column",
+    [theme.breakpoints.down("xs")]: {
+      height: "100%",
+    },
+  },
+  content: {
+    [theme.breakpoints.down("xs")]: {
+      flexGrow: 1,
+    },
   },
   title: {
     fontSize: 40,
@@ -22,6 +33,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 12,
     display: "flex",
     alignItems: "center",
+    textAlign: "left",
     "& > *:first-child": {
       flexGrow: 1,
     },
@@ -36,9 +48,20 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     fontWeight: 500,
   },
+  toggle: {
+    [theme.breakpoints.down("xs")]: {
+      marginLeft: 20,
+    },
+  },
   podcasts: {
     display: "flex",
     gap: "4px",
+    [theme.breakpoints.down("xs")]: {
+      width: "100%",
+      "& > *": {
+        flexBasis: "50%",
+      },
+    },
   },
   button: {
     width: "100%",
@@ -46,6 +69,13 @@ const styles = (theme: ThemeType) => ({
     marginTop: 28,
     fontSize: 14,
     fontWeight: 600,
+  },
+  mobileColumn: {
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+      alignItems: "flex-start",
+      gap: "12px",
+    },
   },
 });
 
@@ -80,33 +110,39 @@ export const EAOnboardingThankYouStage = ({classes}: {
       hideHeader
       hideFooter
     >
-      <div className={classes.title}>
-        Thanks for joining the discussion!
-      </div>
-      <SectionTitle title="Other ways to read posts" />
-      <div className={classes.section}>
-        <div>
-          <div className={classes.heading}>
-            Get the best posts in your email with the Forum Digest
-          </div>
-          <div className={classes.subheading}>
-            A weekly email curated by the Forum team
-          </div>
+      <div className={classes.content}>
+        <div className={classes.title}>
+          Thanks for joining the discussion!
         </div>
-        <ToggleSwitch value={subscribed} setValue={setSubscribedToDigest} />
-      </div>
-      <div className={classes.section}>
-        <div>
-          <div className={classes.heading}>
-            Listen to posts anywhere
+        <SectionTitle title="Other ways to read posts" />
+        <div className={classes.section}>
+          <div>
+            <div className={classes.heading}>
+              Get the best posts in your email with the Forum Digest
+            </div>
+            <div className={classes.subheading}>
+              A weekly email curated by the Forum team
+            </div>
           </div>
-          <div className={classes.subheading}>
-            Subscribe to the Forum podcast
-          </div>
+          <ToggleSwitch
+            value={subscribed}
+            setValue={setSubscribedToDigest}
+            className={classes.toggle}
+          />
         </div>
-        <div className={classes.podcasts}>
-          <EAOnboardingPodcast podcast={getPodcastDataByName("Spotify")} />
-          <EAOnboardingPodcast podcast={getPodcastDataByName("Apple Podcasts")} />
+        <div className={classNames(classes.section, classes.mobileColumn)}>
+          <div>
+            <div className={classes.heading}>
+              Listen to posts anywhere
+            </div>
+            <div className={classes.subheading}>
+              Subscribe to the Forum podcast
+            </div>
+          </div>
+          <div className={classes.podcasts}>
+            <EAOnboardingPodcast podcast={getPodcastDataByName("Spotify")} />
+            <EAOnboardingPodcast podcast={getPodcastDataByName("Apple Podcasts")} />
+          </div>
         </div>
       </div>
       <EAButton onClick={onComplete} className={classes.button}>
