@@ -2,8 +2,8 @@ import React, { ReactNode } from 'react';
 import { createStyles } from '@material-ui/core/styles';
 import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib';
-import { Popup } from 'react-map-gl';
 import { isEAForum } from '../../lib/instanceSettings';
+import { useReactMapGL } from '../../splits/useReactMapGl';
 
 // Shared with LocalEventMarker
 export const styles = createStyles((theme: ThemeType): JssStyles => ({
@@ -60,6 +60,10 @@ const StyledMapPopup = ({
   offsetLeft?: number,
   hideBottomLinks?: boolean
 }) => {
+  const { ready, reactMapGL } = useReactMapGL();
+  if (!ready) return null;
+  const { Popup } = reactMapGL;
+  
   return <Popup
     latitude={lat}
     longitude={lng}

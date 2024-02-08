@@ -1,9 +1,9 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { GroupIconSVG } from './Icons'
-import { Marker } from 'react-map-gl';
 import { createStyles } from '@material-ui/core/styles';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useReactMapGL } from '../../splits/useReactMapGl';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   icon: {
@@ -28,6 +28,10 @@ const LocalGroupMarker = ({ group, handleMarkerClick, handleInfoWindowClose, inf
   location: any,
   classes: ClassesType,
 }) => {
+  const { ready, reactMapGL } = useReactMapGL();
+  if (!ready) return null;
+  const { Marker } = reactMapGL;
+  
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
 

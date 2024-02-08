@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { createStyles } from '@material-ui/core/styles';
-import ReactMapGL, { Marker } from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 import { mapboxAPIKeySetting } from '../../../lib/publicSettings';
 import { connectHits } from 'react-instantsearch-dom';
@@ -9,6 +8,7 @@ import PersonIcon from '@material-ui/icons/PersonPin';
 import { Hit } from 'react-instantsearch-core';
 import classNames from 'classnames';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { useReactMapGL } from '../../../splits/useReactMapGl';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -66,6 +66,7 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
   className?: string,
   classes: ClassesType,
 }) => {
+  const { ready, reactMapGL } = useReactMapGL();
   const [activeResultId, setActiveResultId] = useState('')
   
   const [viewport, setViewport] = useState({
@@ -103,6 +104,9 @@ const SearchResultsMap = ({center = defaultCenter, zoom = 2, hits, className, cl
   
   
   const { StyledMapPopup } = Components
+  
+  if (!ready) return <Components.Loading/>;
+  const { ReactMapGL, Marker } = reactMapGL;
   
   return <div className={classNames(classes.root, className)}>
     <Helmet>

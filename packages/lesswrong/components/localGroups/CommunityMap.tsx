@@ -4,7 +4,6 @@ import { useMulti } from '../../lib/crud/withMulti';
 import { createStyles } from '@material-ui/core/styles';
 import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { useLocation } from '../../lib/routeUtil';
-import ReactMapGL, { Marker } from 'react-map-gl';
 import { Helmet } from 'react-helmet'
 import * as _ from 'underscore';
 import { mapboxAPIKeySetting } from '../../lib/publicSettings';
@@ -12,6 +11,7 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
 import {isFriendlyUI} from '../../themes/forumTheme'
+import { useReactMapGL } from '../../splits/useReactMapGl';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -87,6 +87,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
   hideLegend?: boolean,
   petrovButton?: boolean,
 }) => {
+  const { ready, reactMapGL } = useReactMapGL();
   const { query } = useLocation()
   const groupQueryTerms: LocalgroupsViewTerms = groupTerms || {view: "all", filters: query?.filters || [], includeInactive: query?.includeInactive === 'true'}
 
@@ -173,6 +174,9 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
 
   if (!showMap) return null
 
+  if (!ready) return null;
+  const { ReactMapGL } = reactMapGL;
+  
   return <div className={classNames(classes.root, {[className]: className})}>
       <Helmet> 
         <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
@@ -206,6 +210,10 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
   openWindows: any,
   classes: ClassesType,
 }) => {
+  const { ready, reactMapGL } = useReactMapGL();
+  if (!ready) return null;
+  const { Marker } = reactMapGL;
+  
   const { StyledMapPopup } = Components
   return <React.Fragment>
     {users.map(user => {

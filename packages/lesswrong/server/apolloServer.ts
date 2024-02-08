@@ -20,6 +20,7 @@ import * as Sentry from '@sentry/node';
 import express from 'express'
 import { app } from './expressServer';
 import path from 'path'
+import fs from 'fs';
 import { getPublicSettingsLoaded } from '../lib/settingsCache';
 import { embedAsGlobalVar } from './vulcan-lib/apollo-ssr/renderUtil';
 import { addStripeMiddleware } from './stripeMiddleware';
@@ -215,6 +216,14 @@ export function startWebserver() {
       res.end(bundleBuffer);
     }
   });
+  addStaticRoute("/js/react-map-gl.js", ({query}, req, res, context) => {
+    // TODO: Pass around a hash, cache a copy, do the same invalidation stuff
+    // we do with the main bundle
+    const buffer = fs.readFileSync("build/shared/js/react-map-gl.js");
+    res.writeHead(200);
+    res.end(buffer);
+  });
+
   // Setup CKEditor Token
   app.use("/ckeditor-token", ckEditorTokenHandler)
   

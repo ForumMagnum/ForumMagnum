@@ -1,11 +1,11 @@
 import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
-import { Marker } from 'react-map-gl';
 import { createStyles } from '@material-ui/core/styles';
 import { ArrowSVG } from './Icons';
 import RoomIcon from '@material-ui/icons/Room';
 import { forumTypeSetting } from '../../lib/instanceSettings';
+import { useReactMapGL } from '../../splits/useReactMapGl';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   icon: {
@@ -30,6 +30,10 @@ const LocalEventMarker = ({ event, handleMarkerClick, handleInfoWindowClose, inf
   location: any,
   classes: ClassesType,
 }) => {
+  const { ready, reactMapGL } = useReactMapGL();
+  if (!ready) return null;
+  const { Marker } = reactMapGL;
+  
   if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
   const { geometry: {location: {lat, lng}}} = location
   const { htmlHighlight = "" } = event.contents || {}
