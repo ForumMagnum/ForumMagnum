@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useCurrentUser } from "../../common/withUser";
 import { useSuggestedSubscriptions } from "./useSuggestedSubscriptions";
@@ -22,14 +22,34 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
+const editSet = (currentSet: string[], value: string, add: boolean) => {
+  const values = new Set(currentSet);
+  if (add) {
+    values.add(value);
+  } else {
+    values.delete(value);
+  }
+  return Array.from(values);
+}
+
 export const EAOnboardingSubscribeStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
+  const [subscribedTags, setSubscribedTags] = useState<string[]>([]);
+  const [subscribedUsers, setSubscribedUsers] = useState<string[]>([]);
+
+  const onSubscribedTag = useCallback((id: string, subscribed: boolean) => {
+    setSubscribedTags((current) => editSet(current, id, subscribed));
+  }, []);
+
+  const onSubscribedUser = useCallback((id: string, subscribed: boolean) => {
+    setSubscribedUsers((current) => editSet(current, id, subscribed));
+  }, []);
 
   const {tags, users} = useSuggestedSubscriptions();
 
-  const canContinue = false;
+  const canContinue = !!(subscribedTags.length || subscribedUsers.length);
 
   const {
     EAOnboardingStage, EAOnboardingTag, EAOnboardingUser, Loading,
@@ -48,7 +68,13 @@ export const EAOnboardingSubscribeStage = ({classes}: {
         </div>
         <div className={classes.gridContainer}>
           {tags.length < 1 && <Loading />}
-          {tags.map((tag) => <EAOnboardingTag key={tag._id} tag={tag} />)}
+          {tags.map((tag) =>
+            <EAOnboardingTag
+              key={tag._id}
+              tag={tag}
+              onSubscribed={onSubscribedTag}
+            />
+          )}
         </div>
       </div>
       <div className={classes.section}>
@@ -57,7 +83,13 @@ export const EAOnboardingSubscribeStage = ({classes}: {
         </div>
         <div className={classes.gridContainer}>
           {users.length < 1 && <Loading />}
-          {users.map((user) => <EAOnboardingUser key={user._id} user={user} />)}
+          {users.map((user) =>
+            <EAOnboardingUser
+              key={user._id}
+              user={user}
+              onSubscribed={onSubscribedUser}
+            />
+          )}
         </div>
       </div>
     </EAOnboardingStage>

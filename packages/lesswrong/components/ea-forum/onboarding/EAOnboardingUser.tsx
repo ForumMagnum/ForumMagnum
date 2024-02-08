@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { formatRole, formatStat } from "../../users/EAUserTooltipContent";
 import { useNotifyMe } from "../../hooks/useNotifyMe";
@@ -46,8 +46,9 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingUser = ({user, classes}: {
+export const EAOnboardingUser = ({user, onSubscribed, classes}: {
   user: UserOnboarding,
+  onSubscribed?: (id: string, subscribed: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const {isSubscribed, onSubscribe} = useNotifyMe({
@@ -60,7 +61,11 @@ export const EAOnboardingUser = ({user, classes}: {
     onSubscribe ?? (() => {}),
   );
 
-  const {displayName, karma, jobTitle, organization} = user;
+  const {_id, displayName, karma, jobTitle, organization} = user;
+
+  useEffect(() => {
+    onSubscribed?.(_id, subscribed);
+  }, [_id, subscribed, onSubscribed]);
 
   const {UsersProfileImage} = Components;
   return (

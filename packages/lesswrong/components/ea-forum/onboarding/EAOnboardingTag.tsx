@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useNotifyMe } from "../../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
@@ -45,8 +45,9 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingTag = ({tag, classes}: {
+export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
   tag: TagOnboarding,
+  onSubscribed?: (id: string, subscribed: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const {isSubscribed, onSubscribe} = useNotifyMe({
@@ -59,7 +60,11 @@ export const EAOnboardingTag = ({tag, classes}: {
     onSubscribe ?? (() => {}),
   );
 
-  const {name, squareImageId, bannerImageId} = tag;
+  const {_id, name, squareImageId, bannerImageId} = tag;
+
+  useEffect(() => {
+    onSubscribed?.(_id, subscribed);
+  }, [_id, subscribed, onSubscribed]);
 
   const {CloudinaryImage2} = Components;
   return (
