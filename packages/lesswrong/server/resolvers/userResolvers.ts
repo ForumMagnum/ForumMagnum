@@ -759,3 +759,21 @@ defineQuery({
     return accessFilterMultiple(currentUser, Users, shuffled.slice(0, sampleSize), context);
   }
 }); 
+
+defineQuery({
+  name: "IsDisplayNameTaken",
+  argTypes: "(displayName: String!)",
+  resultType: "Boolean!",
+  fn: async (
+    _root: void,
+    {displayName}: {displayName: string},
+    context: ResolverContext,
+  ) => {
+    const {currentUser} = context;
+    if (!currentUser) {
+      throw new Error("You must be logged in to do this");
+    }
+    const isTaken = await context.repos.users.isDisplayNameTaken(displayName);
+    return isTaken;
+  }
+});

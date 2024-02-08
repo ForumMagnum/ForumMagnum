@@ -1,8 +1,10 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { useEAOnboarding } from "./useEAOnboarding";
+import { useQuery } from "@apollo/client";
+import gql from "graphql-tag";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -15,6 +17,9 @@ const styles = (theme: ThemeType) => ({
   secondaryText: {
     color: theme.palette.grey[600],
     fontSize: 13,
+  },
+  nameTaken: {
+    color: theme.palette.text.error2,
   },
   footer: {
     cursor: "pointer",
@@ -42,11 +47,18 @@ const links = {
   license: "https://creativecommons.org/licenses/by/2.0/",
 } as const;
 
+const displayNameTakenQuery = gql`
+  query isDisplayNameTaken($displayName: String!) {
+    IsDisplayNameTaken(displayName: $displayName)
+  }
+`;
+
 export const EAOnboardingUserStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {updateCurrentUser, goToNextStageAfter} = useEAOnboarding();
   const [name, setName] = useState("");
+  const [nameTaken, setNameTaken] = useState(false);
   const [acceptedTos, setAcceptedTos] = useState(true);
   const {captureEvent} = useTracking();
 
@@ -68,7 +80,21 @@ export const EAOnboardingUserStage = ({classes}: {
     );
   }, [name, acceptedTos, updateCurrentUser, goToNextStageAfter]);
 
-  const canContinue = !!name && acceptedTos;
+  const {data, loading} = useQuery(displayNameTakenQuery, {
+    ssr: false,
+    skip: !name,
+    pollInterval: 0,
+    fetchPolicy: "network-only",
+    variables: {
+      displayName: name,
+    },
+  });
+
+  useEffect(() => {
+    setNameTaken(!loading && !!data?.IsDisplayNameTaken);
+  }, [data, loading]);
+
+  const canContinue = !!name && !nameTaken && acceptedTos;
 
   const {EAOnboardingStage, EAOnboardingInput, ForumIcon} = Components;
   return (
@@ -106,6 +132,9 @@ export const EAOnboardingUserStage = ({classes}: {
         setValue={setName}
         placeholder="Spaces and special characters allowed"
       />
+      {nameTaken &&
+        <div className={classes.nameTaken}>"{name}" is already taken</div>
+      }
       <div className={classes.secondaryText}>
         If you’d rather use a pseudonym, we recommend{" "}
         <Link to={links.username} target="_blank" rel="noopener noreferrer">
