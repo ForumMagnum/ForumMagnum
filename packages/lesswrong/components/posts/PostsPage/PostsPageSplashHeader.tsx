@@ -14,8 +14,6 @@ import { useHover } from '../../common/withHover';
 import { requireCssVar } from '../../../themes/cssVars';
 import { hideScrollBars } from '../../../themes/styleUtils';
 import { useCurrentUser } from '../../common/withUser';
-import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
-
 
 const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
 

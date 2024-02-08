@@ -20,6 +20,7 @@ type GetAllReviewWinnersQueryResult = Array<{
 
 type ExpansionState = 'expanded' | 'collapsed' | 'default';
 type HiddenState = 'full' | 'hidden';
+type CoordinatePosition = 'left' | 'middle' | 'right';
 
 interface PostGridDimensions {
   postGridColumns: number;
@@ -50,24 +51,21 @@ interface GetPostGridCellContentsArgs extends Omit<GetPostGridContentsArgs, 'pos
   columnIdx: number;
 }
 
-interface SplashArtCoordinates {
-  leftXPct: number;
-  leftYPct: number;
-  leftHeightPct: number;
-  leftWidthPct: number;
-
-  middleXPct: number;
-  middleYPct: number;
-  middleHeightPct: number;
-  middleWidthPct: number;
-
-  rightXPct: number;
-  rightYPct: number;
-  rightHeightPct: number;
-  rightWidthPct: number;
+interface GetSplashArtUrlArgs {
+  reviewWinnerArt?: ReviewWinnerTopPostsPage_reviewWinnerArt;
+  leftBookOffset: number;
+  fallbackUrl: string;
 }
 
 const MAX_GRID_SIZE = 6;
+
+// TODO: not actually sure we want to use default coordinates if coordinates are missing
+// And even if we do, these values are definitely wrong (i.e. need to figure out aspect ratio)
+const DEFAULT_SPLASH_ART_COORDINATES: Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> = {
+  leftHeightPct: .2, leftWidthPct: .2, leftXPct: .2, leftYPct: .2,
+  middleHeightPct: .2, middleWidthPct: .2, middleXPct: .2, middleYPct: .2,
+  rightHeightPct: .2, rightWidthPct: .2, rightXPct: .2, rightYPct: .2,
+};
 
 // TODO: update the description to be appropriate for this page
 const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
@@ -208,6 +206,12 @@ const yearGroupInfo = {
   2018: {
     img: candidateImages[4],
   },
+};
+
+const BOOK_OFFSETS_TO_COORDINATE_POSITIONS: Partial<Record<number, CoordinatePosition>> = {
+  0: 'left',
+  1: 'middle',
+  2: 'right'
 };
 
 function gridPositionToClassName(gridPosition: number) {
@@ -794,7 +798,7 @@ function getPostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element
       post={post}
       classes={classes}
       index={backgroundImageIndex}
-      bookLeftOffset={leftBookOffset}
+      leftBookOffset={leftBookOffset}
     />;
 
     // TODO: make the background image show for the show all/post item button wrapper
@@ -833,7 +837,7 @@ function getPostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element
       post={post}
       classes={classes}
       index={backgroundImageIndex}
-      bookLeftOffset={leftBookOffset}
+      leftBookOffset={leftBookOffset}
     />
   );
 }
@@ -845,8 +849,33 @@ function getPostGridTemplateDimensions({ postGridRows, postGridColumns }: PostGr
   };
 }
 
-function getSplashArtCutoutUrl(originalUrl: string, splashArtCoordinates: SplashArtCoordinates) {
+function getSplashArtUrl({ reviewWinnerArt, leftBookOffset, fallbackUrl }: GetSplashArtUrlArgs) {
+  if (!reviewWinnerArt) {
+    return fallbackUrl;
+  }
 
+  let coordinatePosition: CoordinatePosition | undefined = BOOK_OFFSETS_TO_COORDINATE_POSITIONS[leftBookOffset];
+  if (!coordinatePosition) {
+    console.error(`Invalid leftBookOffset ${leftBookOffset} used to derive coordinate position`);
+    coordinatePosition = 'left';
+  }
+
+  const {
+    splashArtImageUrl,
+    activeSplashArtCoordinates,
+  } = reviewWinnerArt;
+
+  const  {
+    [`${coordinatePosition}XPct` as const]: xPct,
+    [`${coordinatePosition}YPct` as const]: yPct,
+    [`${coordinatePosition}WidthPct` as const]: widthPct,
+    [`${coordinatePosition}HeightPct` as const]: heightPct,  
+  } = activeSplashArtCoordinates ?? DEFAULT_SPLASH_ART_COORDINATES;
+
+  const cropPathParam = `c_crop,h_${heightPct},w_${widthPct},x_${xPct},y_${yPct}`;
+  const croppedImageUrl = splashArtImageUrl.replace('upload/', `upload/${cropPathParam}/`);
+
+  return croppedImageUrl;
 }
 
 const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansionState, handleToggleExpand, handleToggleFullyOpen, hiddenState }: {
@@ -971,10 +1000,10 @@ const ShowAllPostItem = ({ imageGridId, imageGridPost, showAllVisible, handleTog
   </div>;
 };
 
-const ImageGridPost = ({ post, index, bookLeftOffset, classes, offscreen = false, hidden = false }: {
+const ImageGridPost = ({ post, index, leftBookOffset, classes, offscreen = false, hidden = false }: {
   post: PostsTopItemInfo,
   index: number,
-  bookLeftOffset: number,
+  leftBookOffset: number,
   classes: ClassesType<typeof styles>,
   offscreen?: boolean,
   hidden?: boolean,
@@ -984,9 +1013,8 @@ const ImageGridPost = ({ post, index, bookLeftOffset, classes, offscreen = false
     [classes.imageGridPostHidden]: hidden
   });
 
-  // const imageUrl = post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl ?? candidateImages[index];
-  // const coordinates = post.reviewWinner?.reviewWinnerArt
-  // const imgSrc = getSplashArtCutoutUrl(, );
+  const reviewWinnerArt = post.reviewWinner?.reviewWinnerArt ?? undefined;
+  const imgSrc = getSplashArtUrl({ reviewWinnerArt, leftBookOffset, fallbackUrl: candidateImages[index] });
 
   return <Link className={classes.imageGridPost} key={post._id} to={postGetPageUrl(post)}>
     <div className={classes.imageGridPostBody}>

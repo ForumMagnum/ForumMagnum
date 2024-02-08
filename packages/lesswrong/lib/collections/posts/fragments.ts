@@ -46,9 +46,7 @@ registerFragment(`
       ...TagPreviewFragment
     }
     reviewWinner {
-      reviewWinnerArt {
-        splashArtImageUrl
-      }
+      ...ReviewWinnerTopPostsPage
     }
   }
 `);
