@@ -6,5 +6,8 @@ registerFragment(`
     postId
     splashArtImagePrompt
     splashArtImageUrl
+    activeSplashArtCoordinates {
+      ...SplashArtCoordinates
+    }
   }
 `);

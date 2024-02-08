@@ -845,7 +845,6 @@ interface PostsDefaultFragment { // fragment on Posts
 interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly postId: string,
   readonly splashArtImageUrl: string | null,
-  readonly splashArtCoordinateId: string | null,
   readonly reviewYear: number,
   readonly curatedOrder: number,
   readonly reviewRanking: number,
@@ -3573,8 +3572,7 @@ interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly _id: string,
   readonly postId: string,
   readonly splashArtImageUrl: string | null,
-  readonly splashArtCoordinateId: string | null,
-  readonly splashArtCoordinate: SplashArtCoordinates|null,
+  readonly reviewWinnerArt: ReviewWinnerArtImages|null,
   readonly reviewYear: number,
   readonly curatedOrder: number,
   readonly reviewRanking: number,
@@ -3586,6 +3584,7 @@ interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly postId: string,
   readonly splashArtImagePrompt: string,
   readonly splashArtImageUrl: string,
+  readonly activeSplashArtCoordinates: SplashArtCoordinates|null,
 }
 
 interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordinates
@@ -3600,7 +3599,6 @@ interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordina
 interface SplashArtCoordinates { // fragment on SplashArtCoordinates
   readonly _id: string,
   readonly reviewWinnerArtId: string,
-  readonly reviewWinnerArt: ReviewWinnerArtImages,
   readonly logTime: Date,
   readonly xCoordinate: number,
   readonly yCoordinate: number,

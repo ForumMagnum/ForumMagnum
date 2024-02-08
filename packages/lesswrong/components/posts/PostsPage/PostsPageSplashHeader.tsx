@@ -377,7 +377,8 @@ const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEm
     // const postLastSavedImage = post.reviewWinner?.splashArtCoordinate?.reviewWinnerArt.splashArtImageUrl
 
     useEffect(() => {
-      const postLastSavedImage = post.reviewWinner?.splashArtCoordinate?.reviewWinnerArt.splashArtImageUrl;
+      const postLastSavedImage = post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl;
+      console.log({ postLastSavedImage, postReviewWinner: post.reviewWinner });
       const newBackgroundImage = selectedImageInfo?.splashArtImageUrl || 
                                  postLastSavedImage || 
                                  images[0].splashArtImageUrl;

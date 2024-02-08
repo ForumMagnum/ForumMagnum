@@ -89,7 +89,7 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
   const [boxSize, setBoxSize] = useState({ width: initialWidth, height: initialHeight });
   const [initialResizePosition, setInitialResizePosition] = useState({ x: initialWidth, y: initialHeight });
 
-  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+  // const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const {selectedImageInfo} = useImageContext();
 
   const [showSaveSuccess, setShowSaveSuccess] = useState<boolean | null>(null);
@@ -147,7 +147,7 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
   }
 
   const updateWindowSize = () => {
-    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    // setWindowSize({ width: window.innerWidth, height: window.innerHeight });
   };
 
   useEventListener('resize', updateWindowSize);
@@ -219,7 +219,7 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
     top: boxPosition.y,
     backgroundImage: `url(${selectedImageInfo?.splashArtImageUrl})`, 
     backgroundPosition: `-${boxPosition.x}px -${boxPosition.y}px`, // Set the background position based on boxPosition
-    backgroundSize: `${windowSize.width}px auto`, // Ensure the background image covers the entire screen     
+    // backgroundSize: `${windowSize.width}px auto`, // Ensure the background image covers the entire screen     
     width: boxSize.width,
     height: boxSize.height,             
   };
