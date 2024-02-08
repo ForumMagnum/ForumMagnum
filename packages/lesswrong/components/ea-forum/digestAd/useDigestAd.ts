@@ -83,7 +83,7 @@ export const useDigestAd = () => {
       showDigestAd: false,
     }
   }
-  // This should never happen, but just exit if it does.
+  // Make sure we only show it to logged out users if they have the ability to hide it
   if (!currentUser && !ls) {
     return {
       showDigestAd: false,

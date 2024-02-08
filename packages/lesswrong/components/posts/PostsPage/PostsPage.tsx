@@ -287,14 +287,6 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "center",
   },
-  '@keyframes digest-fade-in': {
-    '0%': {
-      opacity: 0,
-    },
-    '100%': {
-      opacity: 1,
-    }
-  },
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -791,7 +783,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </ToCColumn>
     }
   
-    {isEAForum && showDigestAd && <NoSSR><StickyDigestAd className={classes.digestAd} /></NoSSR>}
+    {isEAForum && showDigestAd && <NoSSR><StickyDigestAd /></NoSSR>}
     {hasPostRecommendations && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}

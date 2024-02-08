@@ -9,6 +9,14 @@ import { useDigestAd } from './useDigestAd';
 import { DIGEST_AD_BODY_TEXT, DIGEST_AD_HEADLINE_TEXT } from './SidebarDigestAd';
 
 const styles = (theme: ThemeType) => ({
+  '@keyframes digest-fade-in': {
+    '0%': {
+      opacity: 0,
+    },
+    '100%': {
+      opacity: 1,
+    }
+  },
   root: {
     animation: 'digest-fade-in 1s ease',
     position: 'fixed',
