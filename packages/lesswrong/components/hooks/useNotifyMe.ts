@@ -1,4 +1,4 @@
-import type { MouseEvent } from "react";
+import { MouseEvent } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCreate } from "../../lib/crud/withCreate";
 import { getCollectionName } from "../../lib/vulcan-lib";
@@ -56,11 +56,13 @@ export const useNotifyMe = ({
   overrideSubscriptionType,
   hideIfNotificationsDisabled,
   hideForLoggedOutUsers,
+  hideFlashes,
 }: {
   document: AnyBecauseTodo,
   overrideSubscriptionType?: SubscriptionType,
   hideIfNotificationsDisabled?: boolean,
   hideForLoggedOutUsers?: boolean,
+  hideFlashes?: boolean,
 }): NotifyMeConfig => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
@@ -126,11 +128,15 @@ export const useNotifyMe = ({
       invalidateCache();
 
       // Success message will be for example posts.subscribed
-      flash({messageString: `Successfully ${
-        isSubscribed ? "unsubscribed" : "subscribed"}`
-      });
+      if (!hideFlashes) {
+        flash({messageString: `Successfully ${
+          isSubscribed ? "unsubscribed" : "subscribed"}`
+        });
+      }
     } catch(error) {
-      flash({messageString: error.message});
+      if (!hideFlashes) {
+        flash({messageString: error.message});
+      }
     }
   }
   

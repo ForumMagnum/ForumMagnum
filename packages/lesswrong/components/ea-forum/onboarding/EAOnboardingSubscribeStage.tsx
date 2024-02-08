@@ -5,8 +5,6 @@ import { useCurrentUser } from "../../common/withUser";
 import { useSuggestedSubscriptions } from "./useSuggestedSubscriptions";
 import classNames from "classnames";
 
-const TAG_SIZE = 103;
-
 const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
@@ -23,41 +21,6 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap",
     gap: "8px",
     rowGap: "8px",
-  },
-  tag: {
-    cursor: "pointer",
-    userSelect: "none",
-    width: TAG_SIZE,
-    height: TAG_SIZE,
-    position: "relative",
-    "& img": {
-      zIndex: 1,
-      position: "absolute",
-      borderRadius: theme.borderRadius.default,
-    },
-    "& div": {
-      fontSize: 13,
-      fontWeight: 700,
-      lineHeight: "16px",
-      color: theme.palette.text.alwaysWhite,
-      zIndex: 2,
-      position: "absolute",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      display: "flex",
-      flexDirection: "column-reverse",
-      padding: 8,
-      backgroundColor: theme.palette.tag.onboardingBackground,
-      borderRadius: theme.borderRadius.default,
-      "&:hover": {
-        backgroundColor: theme.palette.tag.onboardingBackgroundHover,
-      },
-    },
-  },
-  tagSelected: {
-    border: `1px solid ${theme.palette.primary.dark}`,
   },
   user: {
     cursor: "pointer",
@@ -113,14 +76,9 @@ export const EAOnboardingSubscribeStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
   const {tags, users} = useSuggestedSubscriptions();
-
-  const onToggleTag = useCallback((id: string) => {
-    setSelectedTagIds((current) => toggleInArray(current, id));
-  }, []);
 
   const onToggleUser = useCallback((id: string) => {
     setSelectedUserIds((current) => toggleInArray(current, id));
@@ -129,7 +87,7 @@ export const EAOnboardingSubscribeStage = ({classes}: {
   const canContinue = false;
 
   const {
-    EAOnboardingStage, Loading, CloudinaryImage2, UsersProfileImage,
+    EAOnboardingStage, EAOnboardingTag, UsersProfileImage, Loading,
   } = Components;
   return (
     <EAOnboardingStage
@@ -145,27 +103,7 @@ export const EAOnboardingSubscribeStage = ({classes}: {
         </div>
         <div className={classes.gridContainer}>
           {tags.length < 1 && <Loading />}
-          {tags.map(({_id, name, squareImageId, bannerImageId}) => (
-            <div
-              key={_id}
-              onClick={() => onToggleTag(_id)}
-              className={classNames(classes.tag, {
-                [classes.tagSelected]: selectedTagIds.includes(_id),
-              })}
-            >
-              <CloudinaryImage2
-                publicId={squareImageId ?? bannerImageId}
-                width={TAG_SIZE}
-                height={TAG_SIZE}
-                imgProps={{
-                  dpr: String(window.devicePixelRatio ?? 1),
-                  g: "center",
-                }}
-                objectFit="cover"
-              />
-              <div>{name}</div>
-            </div>
-          ))}
+          {tags.map((tag) => <EAOnboardingTag key={tag._id} tag={tag} />)}
         </div>
       </div>
       <div className={classes.section}>
