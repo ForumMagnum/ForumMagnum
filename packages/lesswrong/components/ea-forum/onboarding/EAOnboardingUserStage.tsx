@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import classNames from "classnames";
+import { useEAOnboarding } from "./useEAOnboarding";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -43,6 +44,7 @@ const links = {
 export const EAOnboardingUserStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {updateCurrentUser, goToNextStageAfter} = useEAOnboarding();
   const [name, setName] = useState("");
   const [acceptedTos, setAcceptedTos] = useState(true);
 
@@ -51,6 +53,15 @@ export const EAOnboardingUserStage = ({classes}: {
       setAcceptedTos((value) => !value);
     }
   }, []);
+
+  const onContinue = useCallback(() => {
+    void goToNextStageAfter(
+      updateCurrentUser({
+        // TODO: Set the display name here
+        acceptedTos,
+      }),
+    );
+  }, [name, acceptedTos, updateCurrentUser, goToNextStageAfter]);
 
   const canContinue = !!name && acceptedTos;
 
@@ -79,6 +90,7 @@ export const EAOnboardingUserStage = ({classes}: {
           </div>
         </div>
       }
+      onContinue={onContinue}
       canContinue={canContinue}
       className={classes.root}
       thin

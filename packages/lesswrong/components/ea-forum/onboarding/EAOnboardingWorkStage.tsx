@@ -17,15 +17,15 @@ export const EAOnboardingWorkStage = ({classes}: {
   const [organization, setOrganization] = useState("");
   const [careerStage, setCareerStage] = useState("");
 
-  const onContinue = useCallback(async () => {
-    goToNextStageAfter(
+  const onContinue = useCallback(() => {
+    void goToNextStageAfter(
       updateCurrentUser({
         jobTitle: role,
         organization,
         careerStage: [careerStage],
       }),
     );
-  }, [role, organization, careerStage, goToNextStageAfter]);
+  }, [role, organization, careerStage, updateCurrentUser, goToNextStageAfter]);
 
   const canContinue = !!(role || organization || careerStage);
   const {
