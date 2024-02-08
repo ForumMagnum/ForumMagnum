@@ -284,16 +284,16 @@ export function recordDatadogCacheEvent(cacheEvent: {path: string, userAgent: st
 }
 
 export function recordCacheHit(cacheEvent: {path: string, userAgent: string}) {
-  recordDatadogCacheEvent({...cacheEvent, type: "hit"});
+  // recordDatadogCacheEvent({...cacheEvent, type: "hit"}); // Useful for debugging, but expensive to track all the time
   cacheHits++;
   cacheQueriesTotal++;
 }
 export function recordCacheMiss(cacheEvent: {path: string, userAgent: string}) {
-  recordDatadogCacheEvent({...cacheEvent, type: "miss"});
+  // recordDatadogCacheEvent({...cacheEvent, type: "miss"}); // Useful for debugging, but expensive to track all the time
   cacheQueriesTotal++;
 }
 export function recordCacheBypass(cacheEvent: {path: string, userAgent: string}) {
-  recordDatadogCacheEvent({...cacheEvent, type: "bypass"});
+  // recordDatadogCacheEvent({...cacheEvent, type: "bypass"}); // Useful for debugging, but expensive to track all the time
   cacheQueriesTotal++;
 }
 export function getCacheHitRate() {
