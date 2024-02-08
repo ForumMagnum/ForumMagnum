@@ -30,8 +30,7 @@ interface GetPostsInGridArgs extends PostGridDimensions {
   posts: PostsTopItemInfo[];
   viewportWidth: number;
   viewportHeight: number;
-  gridPosition: number;
-  horizontalBookGridCount: number;
+  leftBookOffset: number;
 }
 
 interface GetPostGridContentsArgs extends PostGridDimensions {
@@ -42,12 +41,30 @@ interface GetPostGridContentsArgs extends PostGridDimensions {
   handleToggleFullyOpen: (id: string) => void;
   isExpanded: boolean;
   isShowingAll: boolean;
+  leftBookOffset: number;
 }
 
 interface GetPostGridCellContentsArgs extends Omit<GetPostGridContentsArgs, 'postsInGrid'> {
   post: PostsTopItemInfo | null;
   rowIdx: number;
   columnIdx: number;
+}
+
+interface SplashArtCoordinates {
+  leftXPct: number;
+  leftYPct: number;
+  leftHeightPct: number;
+  leftWidthPct: number;
+
+  middleXPct: number;
+  middleYPct: number;
+  middleHeightPct: number;
+  middleWidthPct: number;
+
+  rightXPct: number;
+  rightYPct: number;
+  rightHeightPct: number;
+  rightWidthPct: number;
 }
 
 const MAX_GRID_SIZE = 6;
@@ -541,10 +558,10 @@ function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOr
   }
 }
 
-function getOffsets(index: number, columnLength: number) {
-  const leftOffset = index % columnLength;
-  const rightOffset = (columnLength - 1) - leftOffset;
-  return [leftOffset, rightOffset];
+function getLeftOffset(index: number, columnLength: number) {
+  return index % columnLength;
+  // const rightOffset = (columnLength - 1) - leftOffset;
+  // return [leftOffset, rightOffset];
 }
 
 function useWindowWidth(defaultValue = 2000): number {
@@ -727,8 +744,7 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
 }
 
 function getPostsInGrid(args: GetPostsInGridArgs) {
-  const { posts, viewportWidth, viewportHeight, postGridColumns, postGridRows, gridPosition, horizontalBookGridCount } = args;
-  const [leftBookOffset] = getOffsets(gridPosition, horizontalBookGridCount);
+  const { posts, viewportWidth, viewportHeight, postGridColumns, postGridRows, leftBookOffset } = args;
 
   // Construct an empty 2D array of posts
   const postsInGrid: (PostsTopItemInfo | null)[][] = range(postGridRows).map(row => range(postGridColumns).map(col => null));
@@ -758,7 +774,7 @@ function getPostGridContents(args: GetPostGridContentsArgs) {
 }
 
 function getPostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element {
-  const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll } = args;
+  const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset } = args;
   const isLastCellInDefaultView = (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1));
   const isLastCellInShowingAllView = (rowIdx === (postGridRows - 1)) && (columnIdx === (postGridColumns - 1));
 
@@ -778,6 +794,7 @@ function getPostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element
       post={post}
       classes={classes}
       index={backgroundImageIndex}
+      bookLeftOffset={leftBookOffset}
     />;
 
     // TODO: make the background image show for the show all/post item button wrapper
@@ -816,6 +833,7 @@ function getPostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element
       post={post}
       classes={classes}
       index={backgroundImageIndex}
+      bookLeftOffset={leftBookOffset}
     />
   );
 }
@@ -825,6 +843,10 @@ function getPostGridTemplateDimensions({ postGridRows, postGridColumns }: PostGr
     gridTemplateRows: `repeat(${postGridRows}, 120px)`,
     gridTemplateColumns: `repeat(${postGridColumns}, 120px)`
   };
+}
+
+function getSplashArtCutoutUrl(originalUrl: string, splashArtCoordinates: SplashArtCoordinates) {
+
 }
 
 const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansionState, handleToggleExpand, handleToggleFullyOpen, hiddenState }: {
@@ -848,6 +870,9 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
    * 1200px >= width:           3
    */
   const horizontalBookGridCount = Math.min(Math.max(Math.floor(screenWidth / 400), 1), 3);
+
+  /** The "index" of this book grid in its "row" */
+  const leftBookOffset = getLeftOffset(gridPosition, horizontalBookGridCount);
   /** The number of columns in the grid's expanded (and "show all") state */
   const postGridColumns = horizontalBookGridCount * 3;
   /** The number of rows in the grid's "show all" state */
@@ -862,8 +887,7 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
     viewportHeight,
     postGridColumns,
     postGridRows,
-    gridPosition,
-    horizontalBookGridCount
+    leftBookOffset
   });
 
   const isExpanded = expansionState === 'expanded';
@@ -879,7 +903,8 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
     id,
     handleToggleFullyOpen,
     isExpanded,
-    isShowingAll
+    isShowingAll,
+    leftBookOffset
   });
 
   // TODO: figure out if we get 5 rows sometimes when we should be getting 4?
@@ -946,9 +971,10 @@ const ShowAllPostItem = ({ imageGridId, imageGridPost, showAllVisible, handleTog
   </div>;
 };
 
-const ImageGridPost = ({ post, index, classes, offscreen = false, hidden = false }: {
+const ImageGridPost = ({ post, index, bookLeftOffset, classes, offscreen = false, hidden = false }: {
   post: PostsTopItemInfo,
   index: number,
+  bookLeftOffset: number,
   classes: ClassesType<typeof styles>,
   offscreen?: boolean,
   hidden?: boolean,
@@ -958,7 +984,9 @@ const ImageGridPost = ({ post, index, classes, offscreen = false, hidden = false
     [classes.imageGridPostHidden]: hidden
   });
 
-  const imgSrc = post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl ?? candidateImages[index];
+  // const imageUrl = post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl ?? candidateImages[index];
+  // const coordinates = post.reviewWinner?.reviewWinnerArt
+  // const imgSrc = getSplashArtCutoutUrl(, );
 
   return <Link className={classes.imageGridPost} key={post._id} to={postGetPageUrl(post)}>
     <div className={classes.imageGridPostBody}>
