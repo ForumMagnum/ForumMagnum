@@ -16,6 +16,12 @@ type Coordinates = {
   height: number,
 }
 
+type BoxSubContainers = {
+  left: Coordinates | null,
+  middle: Coordinates | null,
+  right: Coordinates | null,
+};
+
 const styles = (theme: ThemeType) => ({
     button: {
         padding: '10px 20px',
@@ -77,17 +83,29 @@ const styles = (theme: ThemeType) => ({
       color: 'black',
       fontSize: '1rem',
     },
+    saveAllCoordinates: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      cursor: 'pointer',
+      padding: '2px 5px',
+      userSelect: 'none', // Prevent text selection
+      color: 'black',
+      fontSize: '1rem',
+    }
   });
 
 export type SubBoxPosition = "left" | "middle" | "right";
 
-export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, classes }: {
+export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, cachedBoxCoordinates, setCachedBoxCoordinates, classes }: {
     reviewWinner: ReviewWinnerAll,
     boxCoordinates: Coordinates,
     selectedImageInfo: ReviewWinnerImageInfo | undefined,
     subBoxPosition: SubBoxPosition,
     selectedBox: SubBoxPosition | null,
     setSelectedBox: React.Dispatch<React.SetStateAction<SubBoxPosition | null>>,
+    cachedBoxCoordinates: BoxSubContainers,
+    setCachedBoxCoordinates: React.Dispatch<React.SetStateAction<BoxSubContainers>>,
     classes: ClassesType<typeof styles>
   }) => {
   
@@ -102,61 +120,9 @@ export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImage
       right: {x: boxCoordinates.width / 3 * 2, y: 0},
     }
 
-    const [showSaveSuccess, setShowSaveSuccess] = useState<boolean | null>(null);
-
-    const { create: createSplashArtCoordinateMutation, loading, error } = useCreate({
-      collectionName: 'SplashArtCoordinates',
-      fragmentName: 'SplashArtCoordinates'
-    });
-  
-    const {mutate: updateReviewWinner, error: updateRWError} = useUpdate({
-      collectionName: "ReviewWinners",
-      fragmentName: 'ReviewWinnerAll',
-    });
-  
-    const saveCoordinates = useCallback(async () => {
-  
-      console.log('Attempting to save coordinates');
-  
-      try {
-        if (!selectedImageInfo?.imageId) {
-          // add a better error message for client
-          console.error('No image id provided');
-          setShowSaveSuccess(false); // Set failure state
-          return;
-        }
-  
-        const splashArtData = {
-          reviewWinnerArtId: selectedImageInfo?.imageId,
-          xCoordinate: boxCoordinates.x,
-          yCoordinate: boxCoordinates.y,
-          width: boxCoordinates.width,
-          height: boxCoordinates.height,
-          logTime: new Date(),
-        };
-    
-        const response = await createSplashArtCoordinateMutation({ data: splashArtData });
-  
-        await updateReviewWinner({
-          selector: {_id: reviewWinner?._id},
-          data: {
-            splashArtCoordinateId: response.data?.createSplashArtCoordinate.data._id 
-          }
-        })
-  
-        if (updateRWError) {
-          console.error('Error updating review winner', updateRWError);
-          setShowSaveSuccess(false); // Set failure state
-          return;
-        }
-  
-        setShowSaveSuccess(true); // might want to see if we actually succeeded somehow before setting this
-      }
-      catch (error) {
-        console.error('Error saving coordinates', error);
-        setShowSaveSuccess(false); // Set failure state
-      }
-    }, [updateReviewWinner, updateRWError, reviewWinner, boxCoordinates, selectedImageInfo, createSplashArtCoordinateMutation]);
+    const cacheCoordinates = useCallback(async () => {
+      setCachedBoxCoordinates({...cachedBoxCoordinates, [subBoxPosition]: boxCoordinates});
+    }, [cachedBoxCoordinates, setCachedBoxCoordinates, subBoxPosition, boxCoordinates]);
 
     const subBox = {
       width: boxCoordinates.width / 3,
@@ -165,7 +131,6 @@ export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImage
       borderLeft: '1px solid white',
       borderRight: '1px solid white',
     };
-
 
     const saveCoordinatesStyle = {
       bottom: 0,
@@ -176,14 +141,19 @@ export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImage
       fontSize: '1rem',
     };
 
+    // this will become a hoverover tooltip that previews the relevant image snippet
+    const cachedBoxStyle = {
+      position: 'absolute',
+      width: '20px',
+      height: '20px',
+      backgroundColor: cachedBoxCoordinates[subBoxPosition] ? 'green' : 'red'
+    } as const;
+
     return (<>
-    <div style={subBox} onClick={() => handleBoxClick(subBoxPosition)}>
-    {loading ? 
-      <div style={saveCoordinatesStyle}>Saving placement...</div> : 
-      <div style={saveCoordinatesStyle} onClick={saveCoordinates}>{`Save ${subBoxPosition} placement`}</div>}
-    {error && <div>Error saving. Please try again.</div>}
-    {showSaveSuccess && <div>Coordinates saved successfully!<div onClick={() => setShowSaveSuccess(false)}>(click here to close)</div></div>}
-    </div>
+      <div style={subBox} onClick={() => handleBoxClick(subBoxPosition)}>
+      <div style={saveCoordinatesStyle} onClick={cacheCoordinates}>{`Save ${subBoxPosition} placement`}</div>
+      <div style={cachedBoxStyle}></div>
+      </div>
     </>)
   }
 
@@ -192,22 +162,23 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
     classes: ClassesType<typeof styles>
   }) => {
 
-
   const [isBoxVisible, setIsBoxVisible] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
 
-  const [boxCoordinates, setBoxCoordinates] = useState({x: 100, y: 100, width: initialWidth, height: initialHeight});
+  const initialBoxCoordinates: Coordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight}
+  const [boxCoordinates, setBoxCoordinates] = useState(initialBoxCoordinates);
 
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 }); 
 
-  const [initialBoxSize, setInitialBoxSize] = useState({ width: initialWidth, height: initialHeight });
-  const [initialResizePosition, setInitialResizePosition] = useState({ x: initialWidth, y: initialHeight });
+  const initialResizeInitialBoxCoordinates: Coordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight}
+  const [resizeInitialBoxCoordinates, setResizeInitialBoxCoordinates] = useState(initialResizeInitialBoxCoordinates);
 
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const {selectedImageInfo} = useImageContext();
 
-  const [cachedBoxCoordinates, setCachedBoxCoordinates] = useState({x: 0, y: 0, width: 0, height: 0});
+  const initialCachedCoordinates: BoxSubContainers = {left: null, middle: null, right: null} 
+  const [cachedBoxCoordinates, setCachedBoxCoordinates] = useState(initialCachedCoordinates);
 
   const startDragging = (e: React.MouseEvent<HTMLDivElement>) => {
     // Prevent triggering drag when clicking the close button or the resize button
@@ -222,8 +193,7 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
   };
 
   const startResizing = (e: React.MouseEvent<HTMLDivElement>) => {
-    setInitialBoxSize({ width: boxCoordinates.width, height: boxCoordinates.height });
-    setInitialResizePosition({ x: e.clientX, y: e.clientY });
+    setResizeInitialBoxCoordinates({ x: e.clientX, y: e.clientY, width: boxCoordinates.width, height: boxCoordinates.height });
     setIsResizing(true);
 
   };
@@ -251,8 +221,8 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
   };
 
   const resizeBox = (e: MouseEvent) => {
-    const additionalWidth = e.clientX - initialResizePosition.x;
-    const newWidth = initialBoxSize.width + additionalWidth;
+    const additionalWidth = e.clientX - resizeInitialBoxCoordinates.x;
+    const newWidth = resizeInitialBoxCoordinates.width + additionalWidth;
     const newHeight = newWidth * aspectRatio;
 
     setBoxCoordinates({ x: boxCoordinates.x, y: boxCoordinates.y, width: newWidth, height: newHeight });
@@ -270,6 +240,62 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
   useEventListener('resize', updateWindowSize);
   useEventListener('mousemove', handleBox);
   useEventListener('mouseup', endMouseDown);
+
+  const [showSaveSuccess, setShowSaveSuccess] = useState<boolean | null>(null);
+
+  const { create: createSplashArtCoordinateMutation, loading, error } = useCreate({
+    collectionName: 'SplashArtCoordinates',
+    fragmentName: 'SplashArtCoordinates'
+  });
+
+  const {mutate: updateReviewWinner, error: updateRWError} = useUpdate({
+    collectionName: "ReviewWinners",
+    fragmentName: 'ReviewWinnerAll',
+  });
+
+  const saveAllCoordinates = useCallback(async () => {
+  
+    console.log('Attempting to save coordinates');
+
+    try {
+      if (!selectedImageInfo?.imageId) {
+        // add a better error message for client
+        console.error('No image id provided');
+        setShowSaveSuccess(false); // Set failure state
+        return;
+      }
+
+      const splashArtData = {
+        reviewWinnerArtId: selectedImageInfo?.imageId,
+        xCoordinate: boxCoordinates.x,
+        yCoordinate: boxCoordinates.y,
+        width: boxCoordinates.width,
+        height: boxCoordinates.height,
+        logTime: new Date(),
+      };
+  
+      const response = await createSplashArtCoordinateMutation({ data: splashArtData });
+
+      await updateReviewWinner({
+        selector: {_id: reviewWinner?._id},
+        data: {
+          splashArtCoordinateId: response.data?.createSplashArtCoordinate.data._id 
+        }
+      })
+
+      if (updateRWError) {
+        console.error('Error updating review winner', updateRWError);
+        setShowSaveSuccess(false); // Set failure state
+        return;
+      }
+
+      setShowSaveSuccess(true); // might want to see if we actually succeeded somehow before setting this
+    }
+    catch (error) {
+      console.error('Error saving coordinates', error);
+      setShowSaveSuccess(false); // Set failure state
+    }
+  }, [updateReviewWinner, updateRWError, reviewWinner, boxCoordinates, selectedImageInfo, createSplashArtCoordinateMutation]);
 
 
   const moveableBoxStyle = {
@@ -304,9 +330,16 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
             style={moveableBoxStyle}
             onMouseDown={handleMouseDown}>
             <div style={boxSubContainers}>
-              <ImagePreviewSubset reviewWinner={reviewWinner} boxCoordinates={boxCoordinates} selectedImageInfo={selectedImageInfo} subBoxPosition={"left"} selectedBox={selectedBox} setSelectedBox={setSelectedBox} classes={classes} />
-              <ImagePreviewSubset reviewWinner={reviewWinner} boxCoordinates={boxCoordinates} selectedImageInfo={selectedImageInfo} subBoxPosition={"middle"} selectedBox={selectedBox} setSelectedBox={setSelectedBox} classes={classes} />
-              <ImagePreviewSubset reviewWinner={reviewWinner} boxCoordinates={boxCoordinates} selectedImageInfo={selectedImageInfo} subBoxPosition={"right"} selectedBox={selectedBox} setSelectedBox={setSelectedBox} classes={classes} />
+              <ImagePreviewSubset reviewWinner={reviewWinner} boxCoordinates={boxCoordinates} selectedImageInfo={selectedImageInfo} subBoxPosition={"left"} selectedBox={selectedBox} setSelectedBox={setSelectedBox} cachedBoxCoordinates={cachedBoxCoordinates} setCachedBoxCoordinates={setCachedBoxCoordinates} classes={classes} />
+              <ImagePreviewSubset reviewWinner={reviewWinner} boxCoordinates={boxCoordinates} selectedImageInfo={selectedImageInfo} subBoxPosition={"middle"} selectedBox={selectedBox} setSelectedBox={setSelectedBox} cachedBoxCoordinates={cachedBoxCoordinates} setCachedBoxCoordinates={setCachedBoxCoordinates} classes={classes} />
+              <ImagePreviewSubset reviewWinner={reviewWinner} boxCoordinates={boxCoordinates} selectedImageInfo={selectedImageInfo} subBoxPosition={"right"} selectedBox={selectedBox} setSelectedBox={setSelectedBox} cachedBoxCoordinates={cachedBoxCoordinates} setCachedBoxCoordinates={setCachedBoxCoordinates} classes={classes} />
+            </div>
+            <div className={classes.saveAllCoordinates}>
+              {loading ? 
+                <div >Saving all placements...</div> : 
+                <div onClick={saveAllCoordinates}>{`Save all placements`}</div>}
+              {error && <div>Error saving. Please try again.</div>}
+              {showSaveSuccess && <div>Coordinates saved successfully!<div onClick={() => setShowSaveSuccess(false)}>(click here to close)</div></div>}
             </div>
             <div className={classes.closeButton} onClick={() => setIsBoxVisible(false)}>
                 x
