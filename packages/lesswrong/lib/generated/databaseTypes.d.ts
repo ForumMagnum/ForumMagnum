@@ -984,7 +984,6 @@ type ReviewWinnersCollection = CollectionBase<"ReviewWinners">;
 interface DbReviewWinner extends DbObject {
   __collectionName?: "ReviewWinners"
   postId: string
-  splashArtImageUrl: string | null
   reviewYear: number
   curatedOrder: number
   reviewRanking: number

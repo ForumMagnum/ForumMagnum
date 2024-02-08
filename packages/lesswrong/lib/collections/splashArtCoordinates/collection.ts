@@ -30,7 +30,7 @@ export const SplashArtCoordinates: SplashArtCoordinatesCollection = createCollec
 
 addUniversalFields({ collection: SplashArtCoordinates });
 
-ensureIndex(SplashArtCoordinates, { logTime: 1 }, { unique: true });
+ensureIndex(SplashArtCoordinates, { reviewWinnerArtId: 1, createdAt: 1 });
 
 export default SplashArtCoordinates;
 

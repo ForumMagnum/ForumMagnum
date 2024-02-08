@@ -845,7 +845,6 @@ interface PostsDefaultFragment { // fragment on Posts
 
 interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly postId: string,
-  readonly splashArtImageUrl: string | null,
   readonly reviewYear: number,
   readonly curatedOrder: number,
   readonly reviewRanking: number,
