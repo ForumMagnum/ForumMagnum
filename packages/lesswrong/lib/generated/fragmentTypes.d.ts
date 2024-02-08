@@ -2927,7 +2927,7 @@ interface SunshineUsersList extends UsersMinimumInfo { // fragment on Users
   readonly moderatorActions: Array<ModeratorActionDisplay>,
   readonly usersContactedBeforeReview: Array<string>,
   readonly associatedClientIds: Array<SunshineUsersList_associatedClientIds>,
-  readonly altAccountsDetected: boolean,
+  readonly altAccountsDetected: boolean|null,
   readonly voteReceivedCount: number,
   readonly smallUpvoteReceivedCount: number,
   readonly bigUpvoteReceivedCount: number,
