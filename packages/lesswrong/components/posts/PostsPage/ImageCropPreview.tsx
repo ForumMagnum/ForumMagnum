@@ -85,14 +85,28 @@ const styles = (theme: ThemeType) => ({
     },
     saveAllCoordinates: {
       position: 'absolute',
+      display: 'block',
       bottom: 0,
-      right: 0,
+      left: 0,
+      width: '100%',
       cursor: 'pointer',
       padding: '2px 5px',
       userSelect: 'none', // Prevent text selection
       color: 'black',
       fontSize: '1rem',
-    }
+    },
+    successNotification: {
+      position: 'absolute',
+      display: 'block',
+      width: '100%',
+      cursor: 'pointer',
+      padding: '2px 5px',
+      userSelect: 'none', // Prevent text selection
+      color: 'black',
+      fontSize: '1rem',
+      backgroundColor: 'rgba(0, 255, 0, 0.7)',
+      textAlign: 'center',
+    },
   });
 
 export type SubBoxPosition = "left" | "middle" | "right";
@@ -100,12 +114,12 @@ export type SubBoxPosition = "left" | "middle" | "right";
 export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, cachedBoxCoordinates, setCachedBoxCoordinates, classes }: {
     reviewWinner: ReviewWinnerAll,
     boxCoordinates: Coordinates,
-    selectedImageInfo: ReviewWinnerImageInfo | undefined,
+    selectedImageInfo: ReviewWinnerImageInfo,
     subBoxPosition: SubBoxPosition,
     selectedBox: SubBoxPosition | null,
     setSelectedBox: React.Dispatch<React.SetStateAction<SubBoxPosition | null>>,
-    cachedBoxCoordinates: BoxSubContainers,
-    setCachedBoxCoordinates: React.Dispatch<React.SetStateAction<BoxSubContainers>>,
+    cachedBoxCoordinates: Record<string, BoxSubContainers>,
+    setCachedBoxCoordinates: React.Dispatch<React.SetStateAction<Record<string, BoxSubContainers>>>,
     classes: ClassesType<typeof styles>
   }) => {
   
@@ -114,17 +128,28 @@ export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImage
     setSelectedBox(subBox);
   };
 
-    const subBoxCoordinates = {
-      left: {x: 0, y: 0},
-      middle: {x: boxCoordinates.width / 3, y: 0},
-      right: {x: boxCoordinates.width / 3 * 2, y: 0},
-    }
+  const cacheCoordinates = useCallback(async () => {
 
-    const cacheCoordinates = useCallback(async () => {
-      setCachedBoxCoordinates({...cachedBoxCoordinates, [subBoxPosition]: boxCoordinates});
-    }, [cachedBoxCoordinates, setCachedBoxCoordinates, subBoxPosition, boxCoordinates]);
+    const subBoxX = boxCoordinates.x + ((boxCoordinates.width / 3) * (subBoxPosition === "left" ? 0 : subBoxPosition === "middle" ? 1 : 2));
+    const subBoxY = boxCoordinates.y;
 
-    const subBox = {
+    setCachedBoxCoordinates((prev) => {
+      return {
+        ...prev,
+        [selectedImageInfo.imageId]: {
+          ...prev[selectedImageInfo.imageId],
+          [subBoxPosition]: {
+            x: subBoxX,
+            y: subBoxY,
+            width: boxCoordinates.width / 3,
+            height: boxCoordinates.height,
+          }
+        }
+      }
+    })
+  }, [setCachedBoxCoordinates, subBoxPosition, boxCoordinates, selectedImageInfo]);
+
+    const subBoxStyle = {
       width: boxCoordinates.width / 3,
       height: boxCoordinates.height,
       background: selectedBox === subBoxPosition ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.3)',
@@ -134,7 +159,7 @@ export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImage
 
     const saveCoordinatesStyle = {
       bottom: 0,
-      left: `${subBoxCoordinates[subBoxPosition].x}px`,
+      left: `${(boxCoordinates.width / 3) * (subBoxPosition === "left" ? 0 : subBoxPosition === "middle" ? 1 : 2)}px`,
       cursor: 'pointer',
       padding: '2px 5px',
       color: 'black',
@@ -146,11 +171,11 @@ export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImage
       position: 'absolute',
       width: '20px',
       height: '20px',
-      backgroundColor: cachedBoxCoordinates[subBoxPosition] ? 'green' : 'red'
+      backgroundColor: (cachedBoxCoordinates[selectedImageInfo.imageId] && cachedBoxCoordinates[selectedImageInfo.imageId][subBoxPosition]) ? 'green' : 'red'
     } as const;
 
     return (<>
-      <div style={subBox} onClick={() => handleBoxClick(subBoxPosition)}>
+      <div style={subBoxStyle} onClick={() => handleBoxClick(subBoxPosition)}>
       <div style={saveCoordinatesStyle} onClick={cacheCoordinates}>{`Save ${subBoxPosition} placement`}</div>
       <div style={cachedBoxStyle}></div>
       </div>
@@ -177,7 +202,7 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
   const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const {selectedImageInfo} = useImageContext();
 
-  const initialCachedCoordinates: BoxSubContainers = {left: null, middle: null, right: null} 
+  const initialCachedCoordinates: Record<string, BoxSubContainers> = {} 
   const [cachedBoxCoordinates, setCachedBoxCoordinates] = useState(initialCachedCoordinates);
 
   const startDragging = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -318,12 +343,18 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
     justifyContent: 'space-around',
   };
 
-  // probably we want each of the three divs to be its own react element, with a save button in the bottom left of each
-  // and an element that tracks whether each has been saved or not
+  const showSaveAllButton = (selectedImageInfo && 
+    cachedBoxCoordinates[selectedImageInfo.imageId] && 
+    cachedBoxCoordinates[selectedImageInfo.imageId]["left"] && 
+    cachedBoxCoordinates[selectedImageInfo.imageId]["middle"] && 
+    cachedBoxCoordinates[selectedImageInfo.imageId]["right"]) 
+
+  console.log('showSaveAllButton', showSaveAllButton);
+
   return (
     <>
       <button className={classes.button} onClick={() => setIsBoxVisible(!isBoxVisible)}>Show Box</button>
-      {isBoxVisible && (
+      {isBoxVisible && selectedImageInfo && selectedImageInfo.imageId && (
         <>
         <div className={classes.overlay}></div>
         <div className={classes.moveableBox}
@@ -334,13 +365,14 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
               <ImagePreviewSubset reviewWinner={reviewWinner} boxCoordinates={boxCoordinates} selectedImageInfo={selectedImageInfo} subBoxPosition={"middle"} selectedBox={selectedBox} setSelectedBox={setSelectedBox} cachedBoxCoordinates={cachedBoxCoordinates} setCachedBoxCoordinates={setCachedBoxCoordinates} classes={classes} />
               <ImagePreviewSubset reviewWinner={reviewWinner} boxCoordinates={boxCoordinates} selectedImageInfo={selectedImageInfo} subBoxPosition={"right"} selectedBox={selectedBox} setSelectedBox={setSelectedBox} cachedBoxCoordinates={cachedBoxCoordinates} setCachedBoxCoordinates={setCachedBoxCoordinates} classes={classes} />
             </div>
-            <div className={classes.saveAllCoordinates}>
-              {loading ? 
-                <div >Saving all placements...</div> : 
-                <div onClick={saveAllCoordinates}>{`Save all placements`}</div>}
+            <div className={classes.saveAllCoordinates} onClick={saveAllCoordinates}
+                  style={{backgroundColor: showSaveAllButton ? 'rgba(0, 255, 0, 0.7)' : 'rgba(255, 0, 0, 0.3)'}}>
+              {!showSaveAllButton ? (<div> Must set all placements before you can save them </div>)
+                : loading ? <div>Saving all placements...</div> 
+                : <div onClick={saveAllCoordinates}>{`Save all placements`}</div>}
               {error && <div>Error saving. Please try again.</div>}
-              {showSaveSuccess && <div>Coordinates saved successfully!<div onClick={() => setShowSaveSuccess(false)}>(click here to close)</div></div>}
             </div>
+            {showSaveSuccess && <div className={classes.successNotification}>Coordinates saved successfully!<div onClick={() => setShowSaveSuccess(false)}>(click here to close)</div></div>}
             <div className={classes.closeButton} onClick={() => setIsBoxVisible(false)}>
                 x
             </div>
