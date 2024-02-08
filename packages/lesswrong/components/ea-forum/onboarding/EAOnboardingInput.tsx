@@ -13,6 +13,9 @@ export const styles = (theme: ThemeType) => ({
     "&::placeholder": {
       color: theme.palette.grey[600],
     },
+    "&:hover, &:focus": {
+      background: theme.palette.panelBackground.loginInputHovered,
+    },
   },
 });
 

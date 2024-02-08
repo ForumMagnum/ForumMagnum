@@ -301,6 +301,7 @@ declare global {
       tooltipBackground2: ColorString,
       modalBackground: ColorString,
       loginInput: ColorString,
+      loginInputHovered: ColorString,
       tenPercent: ColorString,
       sunshineReportedContent: ColorString,
       sunshineFlaggedUser: ColorString,
