@@ -1,5 +1,6 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib";
+import { Link } from "../../../lib/reactRouterWrapper";
 import type { PodcastData } from "../../../lib/eaPodcasts";
 
 const styles = (theme: ThemeType) => ({
@@ -45,8 +46,8 @@ export const EAOnboardingPodcast = ({podcast, classes}: {
     return null;
   }
   return (
-    <a
-      href={podcast.url}
+    <Link
+      to={podcast.url}
       target="_blank"
       rel="noopener noreferrer"
       className={classes.root}
@@ -58,7 +59,7 @@ export const EAOnboardingPodcast = ({podcast, classes}: {
           <div className={classes.name}>{podcast.name}</div>
         </div>
       </div>
-    </a>
+    </Link>
   );
 }
 

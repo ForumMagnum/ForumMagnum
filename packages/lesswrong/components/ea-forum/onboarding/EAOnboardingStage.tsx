@@ -1,8 +1,8 @@
 import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { AnalyticsContext } from "../../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import { OnboardingStage, useEAOnboarding } from "./useEAOnboarding";
+import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
@@ -102,11 +102,18 @@ export const EAOnboardingStage = ({
   classes: ClassesType<typeof styles>,
 }) => {
   const {currentStage, goToNextStage, nextStageIsLoading} = useEAOnboarding();
+  const {captureEvent} = useTracking();
 
   const wrappedOnContinue = useCallback(async () => {
     await onContinue?.();
+    captureEvent("onboardingContinue", {from: stageName});
     goToNextStage();
-  }, [onContinue, goToNextStage]);
+  }, [onContinue, goToNextStage, captureEvent, stageName]);
+
+  const onSkip = useCallback(() => {
+    captureEvent("onboardingSkip", {from: stageName});
+    goToNextStage();
+  }, [goToNextStage, captureEvent, stageName]);
 
   if (currentStage !== stageName) {
     return null;
@@ -139,7 +146,7 @@ export const EAOnboardingStage = ({
               {footer}
             </div>
             {skippable &&
-              <a onClick={goToNextStage} className={classes.skip}>
+              <a onClick={onSkip} className={classes.skip}>
                 Skip for now
               </a>
             }

@@ -1,8 +1,9 @@
 import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import classNames from "classnames";
+import { useTracking } from "../../../lib/analyticsEvents";
 import { useEAOnboarding } from "./useEAOnboarding";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -47,12 +48,16 @@ export const EAOnboardingUserStage = ({classes}: {
   const {updateCurrentUser, goToNextStageAfter} = useEAOnboarding();
   const [name, setName] = useState("");
   const [acceptedTos, setAcceptedTos] = useState(true);
+  const {captureEvent} = useTracking();
 
   const onToggleAcceptedTos = useCallback((ev) => {
     if (ev.target.tagName !== "A") {
-      setAcceptedTos((value) => !value);
+      setAcceptedTos((value) => {
+        captureEvent("toggledTos", {newValue: !value});
+        return !value;
+      });
     }
-  }, []);
+  }, [captureEvent]);
 
   const onContinue = useCallback(() => {
     void goToNextStageAfter(
@@ -84,9 +89,9 @@ export const EAOnboardingUserStage = ({classes}: {
             <Link to={links.termsOfUse} target="_blank" rel="noopener noreferrer">
               terms of use
             </Link>, including my content being available under a{" "}
-            <a href={links.license} target="_blank" rel="noopener noreferrer">
+            <Link to={links.license} target="_blank" rel="noopener noreferrer">
               CC -BY
-            </a> license.
+            </Link> license.
           </div>
         </div>
       }
@@ -103,9 +108,9 @@ export const EAOnboardingUserStage = ({classes}: {
       />
       <div className={classes.secondaryText}>
         If you’d rather use a pseudonym, we recommend{" "}
-        <a href={links.username} target="_blank" rel="noopener noreferrer">
+        <Link to={links.username} target="_blank" rel="noopener noreferrer">
           something memorable like "WobblyPanda"
-        </a>{" "}
+        </Link>{" "}
         instead of a generic name like “Anonymous 238”.
       </div>
     </EAOnboardingStage>
