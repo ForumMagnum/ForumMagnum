@@ -147,6 +147,7 @@ const collaborativeEditorPlugins = [
 const siteSpecificPlugins = {
   EAForum: [CTAButton],
 };
+
 export function getPostEditor(forumType) {
   class PostEditor extends BalloonBlockEditorBase {}
   PostEditor.builtinPlugins = [ ...postEditorPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
@@ -162,6 +163,10 @@ export function getPostEditorCollaboration(forumType) {
   PostEditorCollaboration.defaultConfig = { ...postEditorConfig };
   return PostEditorCollaboration;
 }
-CommentEditor.builtinPlugins = [ ...sharedPlugins ];
-CommentEditor.defaultConfig = { ...commentEditorConfig };
 
+export function getCommentEditor(forumType) {
+  class CommentEditor extends BalloonBlockEditorBase {}
+  CommentEditor.builtinPlugins = [ ...sharedPlugins, ...(forumType in siteSpecificPlugins ? siteSpecificPlugins[forumType] : [])];
+  CommentEditor.defaultConfig = { ...commentEditorConfig };
+  return CommentEditor;
+}
