@@ -844,7 +844,6 @@ interface PostsDefaultFragment { // fragment on Posts
 
 interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly postId: string,
-  readonly splashArtImageUrl: string | null,
   readonly reviewYear: number,
   readonly curatedOrder: number,
   readonly reviewRanking: number,
@@ -3580,7 +3579,6 @@ interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
 interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly _id: string,
   readonly postId: string,
-  readonly splashArtImageUrl: string | null,
   readonly reviewWinnerArt: ReviewWinnerArtImages|null,
   readonly reviewYear: number,
   readonly curatedOrder: number,
@@ -3598,21 +3596,35 @@ interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
 
 interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordinates
   readonly reviewWinnerArtId: string,
-  readonly logTime: Date,
-  readonly xCoordinate: number,
-  readonly yCoordinate: number,
-  readonly width: number,
-  readonly height: number,
+  readonly leftXPct: number,
+  readonly leftYPct: number,
+  readonly leftHeightPct: number,
+  readonly leftWidthPct: number,
+  readonly middleXPct: number,
+  readonly middleYPct: number,
+  readonly middleHeightPct: number,
+  readonly middleWidthPct: number,
+  readonly rightXPct: number,
+  readonly rightYPct: number,
+  readonly rightHeightPct: number,
+  readonly rightWidthPct: number,
 }
 
 interface SplashArtCoordinates { // fragment on SplashArtCoordinates
   readonly _id: string,
   readonly reviewWinnerArtId: string,
-  readonly logTime: Date,
-  readonly xCoordinate: number,
-  readonly yCoordinate: number,
-  readonly width: number,
-  readonly height: number,
+  readonly leftXPct: number,
+  readonly leftYPct: number,
+  readonly leftHeightPct: number,
+  readonly leftWidthPct: number,
+  readonly middleXPct: number,
+  readonly middleYPct: number,
+  readonly middleHeightPct: number,
+  readonly middleWidthPct: number,
+  readonly rightXPct: number,
+  readonly rightYPct: number,
+  readonly rightHeightPct: number,
+  readonly rightWidthPct: number,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments

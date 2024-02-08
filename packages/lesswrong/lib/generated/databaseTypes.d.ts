@@ -984,7 +984,6 @@ type ReviewWinnersCollection = CollectionBase<"ReviewWinners">;
 interface DbReviewWinner extends DbObject {
   __collectionName?: "ReviewWinners"
   postId: string
-  splashArtImageUrl: string | null
   reviewYear: number
   curatedOrder: number
   reviewRanking: number
@@ -1063,11 +1062,18 @@ type SplashArtCoordinatesCollection = CollectionBase<"SplashArtCoordinates">;
 interface DbSplashArtCoordinate extends DbObject {
   __collectionName?: "SplashArtCoordinates"
   reviewWinnerArtId: string
-  logTime: Date
-  xCoordinate: number
-  yCoordinate: number
-  width: number
-  height: number
+  leftXPct: number
+  leftYPct: number
+  leftHeightPct: number
+  leftWidthPct: number
+  middleXPct: number
+  middleYPct: number
+  middleHeightPct: number
+  middleWidthPct: number
+  rightXPct: number
+  rightYPct: number
+  rightHeightPct: number
+  rightWidthPct: number
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

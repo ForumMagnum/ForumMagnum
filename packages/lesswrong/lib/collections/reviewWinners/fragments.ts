@@ -15,7 +15,6 @@ registerFragment(`
   fragment ReviewWinnerAll on ReviewWinner {
     _id
     postId
-    splashArtImageUrl
     reviewWinnerArt {
       ...ReviewWinnerArtImages
     }

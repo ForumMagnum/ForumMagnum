@@ -369,7 +369,7 @@ const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEm
     })) : 
     default_images.map(url => ({
       postId: post._id,
-      imageId: null,
+      imageId: "fix this!",
       splashArtImageUrl: url,
       splashArtImagePrompt: null
     }))

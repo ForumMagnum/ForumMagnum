@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState } from 'react';
 
 export type ReviewWinnerImageInfo = {
   postId: string,
-  imageId: string | null,
+  imageId: string,
   splashArtImageUrl: string,
   splashArtImagePrompt: string | null,
 }

@@ -14,15 +14,7 @@ export const schema: SchemaType<"SplashArtCoordinates"> = {
     canRead: ['sunshineRegiment', 'admins'],
     canUpdate: ['sunshineRegiment', 'admins'],
   },
-  logTime: { // TODO get rid of this
-    type: Date,
-    canRead: ['guests'],
-    canCreate: ['sunshineRegiment', 'admins'],
-    canUpdate: ['sunshineRegiment', 'admins'],
-    optional: false,
-    nullable: false,
-  },
-  xCoordinate: {
+  leftXPct: {
     type: Number,
     canRead: ['guests'],
     canCreate: ['sunshineRegiment', 'admins'],
@@ -30,7 +22,7 @@ export const schema: SchemaType<"SplashArtCoordinates"> = {
     optional: false,
     nullable: false,
   },
-  yCoordinate: {
+  leftYPct: {
     type: Number,
     canRead: ['guests'],
     canCreate: ['sunshineRegiment', 'admins'],
@@ -38,7 +30,7 @@ export const schema: SchemaType<"SplashArtCoordinates"> = {
     optional: false,
     nullable: false,
   },
-  width: {
+  leftHeightPct: {
     type: Number,
     canRead: ['guests'],
     canCreate: ['sunshineRegiment', 'admins'],
@@ -46,7 +38,71 @@ export const schema: SchemaType<"SplashArtCoordinates"> = {
     optional: false,
     nullable: false,
   },
-  height: {
+  leftWidthPct: {
+    type: Number,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+  },
+  middleXPct: {
+    type: Number,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+  },
+  middleYPct: {
+    type: Number,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+  },
+  middleHeightPct: {
+    type: Number,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+  },
+  middleWidthPct: {
+    type: Number,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+  },
+  rightXPct: {
+    type: Number,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+  },
+  rightYPct: {
+    type: Number,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+  },
+  rightHeightPct: {
+    type: Number,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+  },
+  rightWidthPct: {
     type: Number,
     canRead: ['guests'],
     canCreate: ['sunshineRegiment', 'admins'],
