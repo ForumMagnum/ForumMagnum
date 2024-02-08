@@ -5,10 +5,7 @@ import { useNavigate } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import type { Option } from '../common/InlineSelect';
 
-import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
-import Checkbox from '@material-ui/core/Checkbox';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import classNames from 'classnames';
 
@@ -62,13 +59,12 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const SORT_ORDER_SET = new TupleSet(['curated', 'ranking', 'year'] as const);
+const SORT_ORDER_SET = new TupleSet(['curated', 'year'] as const);
 
 export type LWReviewWinnerSortOrder = UnionOf<typeof SORT_ORDER_SET>;
 
 const REVIEW_WINNER_SORT_ORDERS: Record<LWReviewWinnerSortOrder, string> = {
   curated: `moderator's pick across all years`,
-  ranking: 'review ranking descending',
   year: 'review year descending, followed by ranking within year'
 };
 
@@ -99,12 +95,9 @@ export const TopPostsDisplaySettings = ({classes}: {
   const location = useLocation();
   const { query } = location;
 
-  const { InlineSelect, MetaInfo, LWTooltip } = Components;
+  const { MetaInfo, LWTooltip } = Components;
 
-  const {
-    currentSortOrder,
-    aiPostsHidden: currentAIVisibility
-  } = getCurrentTopPostDisplaySettings(query);
+  const { currentSortOrder } = getCurrentTopPostDisplaySettings(query);
 
   const handleSortOptionClick = (opt: Option & { value: LWReviewWinnerSortOrder }) => {
     const newSortOrder = opt.value;
@@ -112,14 +105,7 @@ export const TopPostsDisplaySettings = ({classes}: {
     navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
   };
 
-  const handleHideAIOptionClick = () => {
-    const newVisibility = `${!currentAIVisibility}`;
-    const newQuery = { ...query, [HIDE_AI_QUERY_PARAM]: newVisibility };
-    navigate({ ...location.location, search: `?${qs.stringify(newQuery)}` });
-  }
-
   const sortOptions = Object.entries(REVIEW_WINNER_SORT_ORDERS).map(([key, value]: [LWReviewWinnerSortOrder, string]) => ({ label: value, value: key }));
-  const selectedOption = sortOptions.find((option) => option.value === currentSortOrder) ?? sortOptions[0];
 
   return (
     <span className={classes.displaySettings}>
@@ -134,31 +120,7 @@ export const TopPostsDisplaySettings = ({classes}: {
             </span>
           </LWTooltip>
         ))}
-        {/* <LWTooltip title={filterModeToTooltip("Hidden")}>
-          <span className={classNames(classes.filterButton, {[classes.selected]: mode==="Hidden"})} onClick={ev => setMode("Hidden")}>
-            Hidden
-          </span>
-        </LWTooltip>
-        <LWTooltip title={filterModeToTooltip(reducedVal)}>
-          <span
-            className={classNames(classes.filterButton, {[classes.selected]: [0.5, "Reduced"].includes(mode)})}
-            onClick={ev => setMode(reducedVal)}
-          >
-            {reducedName}
-          </span>
-        </LWTooltip> */}
       </div>
-
-      {/* <span className={classes.sortGroup}> */}
-      {/* <MetaInfo>
-        Sort by <InlineSelect options={sortOptions} selected={selectedOption} handleSelect={handleSortOptionClick}/>
-      </MetaInfo> */}
-      {/* <span className={classes.checkboxGroup}>
-        <Checkbox onClick={handleHideAIOptionClick} checked={currentAIVisibility} />
-        <MetaInfo className={classes.checkboxLabel}>
-          {preferredHeadingCase("Hide AI Posts")}
-        </MetaInfo>
-      </span> */}
     </span>
   );
 }

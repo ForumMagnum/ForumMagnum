@@ -656,8 +656,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     switch (sortOrder) {
       case "curated":
         return `ORDER BY ${tableAlias}."curatedOrder" ASC`;
-      case "ranking":
-        return `ORDER BY ${tableAlias}."reviewRanking" ASC, ${tableAlias}."reviewYear" DESC`;
       case "year":
         return `ORDER BY ${tableAlias}."reviewYear" DESC, ${tableAlias}."reviewRanking" ASC`;
     }

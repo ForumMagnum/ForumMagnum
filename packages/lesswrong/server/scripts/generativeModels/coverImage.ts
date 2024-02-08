@@ -116,7 +116,9 @@ ${title}
 ${essay}`
 
 const getEssays = async (): Promise<Essay[]> => {
-  const postIds = await ReviewWinners.find({reviewYear: 2021}, { limit: 50, projection: { postId: 1 } }).fetch();
+  const postIds = await ReviewWinners
+    .find({reviewYear: 2021}, { limit: 50, projection: { postId: 1 }, sort: { reviewRanking: 1 } })
+    .fetch();
   const es = await Posts.find({ _id: { $in: postIds.map(p => p.postId) } }).fetch();
 
   return es.map(e => {
@@ -216,7 +218,7 @@ const upscaledImages = async (el: string, essay: PostedEssay, messageId: string)
   Promise.all(["U1","U2","U3","U4"]
     .map(button => pressMidjourneyButton(messageId, button)
       .then(m => m && upscaleImage(m.messageId))
-      .then(trace)
+      .then(trace(`Upscaled ${el}`))
       .then(uri => uri && saveImage(el, essay, uri))))
 
 const upscaleImage = async (messageId: string): Promise<string | undefined> => {
@@ -345,9 +347,9 @@ async function generateCoverImages({limit = 2}: {
         Promise.all(els
           .slice(0,limit)
           .map(el => getEssayPromptJointImageMessage(el)
-            .then(trace)
+            .then(trace(`Got image for ${el}`))
             .then(x => x === undefined ? Promise.resolve([]) : upscaledImages(el, postedEssay, x.messageId))
-            .then(trace)
+            .then(trace(`Upscaled & saved ${el}`))
             .then(urls => postPromptImages(el, postedEssay, urls.filter(url => !!url) as string[])))))
       .then(ims => ims.flat())
 
