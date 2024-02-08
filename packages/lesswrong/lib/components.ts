@@ -32,6 +32,7 @@ importComponent("AlignmentForumHome", () => require('../components/alignment-for
 
 importComponent("AnalyticsGraph", () => require('../components/analytics/AnalyticsGraph'))
 importComponent("AuthorAnalyticsPage", () => require('../components/analytics/AuthorAnalyticsPage'))
+importComponent("MyAnalyticsPage", () => require('../components/analytics/MyAnalyticsPage'))
 importComponent("PostsAnalyticsPage", () => require('../components/analytics/PostsAnalyticsPage'));
 importComponent("AnalyticsDisclaimers", () => require('../components/analytics/AnalyticsDisclaimers'));
 importComponent("DateRangeModal", () => require('../components/analytics/DateRangeModal'));
@@ -41,6 +42,7 @@ importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
 importComponent("EAHomeMainContent", () => require('../components/ea-forum/EAHomeMainContent'));
 importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EAHomeCommunityPosts'));
 importComponent("EATermsOfUsePage", () => require('../components/ea-forum/EATermsOfUsePage'));
+importComponent("EALoginPopover", () => require('../components/ea-forum/auth/EALoginPopover'));
 importComponent("EASequencesHome", () => require('../components/ea-forum/EASequencesHome'));
 importComponent("EABestOfPage", () => require('../components/ea-forum/EABestOfPage'));
 importComponent("EASequenceOrCollectionCard", () => require('../components/ea-forum/EASequenceOrCollectionCard'));
@@ -61,6 +63,7 @@ importComponent("EventBanner", () => require('../components/ea-forum/EventBanner
 importComponent("MaintenanceBanner", () => require('../components/common/MaintenanceBanner'));
 importComponent("BotSiteBanner", () => require('../components/common/BotSiteBanner'));
 importComponent("HorizScrollBlock", () => require('../components/common/HorizScrollBlock'));
+importComponent("BlurredBackgroundModal", () => require('../components/common/BlurredBackgroundModal'));
 
 importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))

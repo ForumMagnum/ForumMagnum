@@ -123,5 +123,14 @@ export const dialogueMatchmakingEnabled = new DatabasePublicSetting<boolean>('di
 
 export const maxRenderQueueSize = new DatabasePublicSetting<number>('maxRenderQueueSize', 10);
 
+export type Auth0ClientSettings = {
+  domain: string,
+  clientId: string,
+  connection: string,
+}
+export const auth0ClientSettings = new DatabasePublicSetting<Auth0ClientSettings | null>("auth0", null);
+
 // Null means requests are disabled
 export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number | null>('post.requestFeedbackKarmaLevel', 100);
+
+export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true);

@@ -1,3 +1,4 @@
+import { isEAForum } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 
@@ -20,7 +21,14 @@ const LoginPopup = ({onClose, classes}: {
   onClose?: () => void,
   classes: ClassesType,
 }) => {
-  const { LWDialog } = Components;
+  const {LWDialog, LoginForm} = Components;
+
+  if (isEAForum) {
+    return (
+      <LoginForm onClose={onClose} />
+    );
+  }
+
   return (
     <LWDialog
       open={true}
@@ -30,7 +38,7 @@ const LoginPopup = ({onClose, classes}: {
         paper: classes.paper
       }}
     >
-      <Components.LoginForm />
+      <LoginForm />
     </LWDialog>
   );
 }

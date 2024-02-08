@@ -291,8 +291,13 @@ abstract class Query<T extends DbObject> {
       }
     }
 
-    if (this.getField(field) || this.syntheticFields[field]) {
+    if (this.getField(field)) {
       return this.prefixify(`"${field}"`);
+    }
+
+    if (this.syntheticFields[field]) {
+      // Don't prefixify synthetic fields
+      return `"${field}"`;
     }
 
     throw new Error(`Cannot resolve field name: ${field}`);
