@@ -448,15 +448,15 @@ createPaginatedResolver({
   cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
 })
 
-createPaginatedResolver({
-  name: "ReviewWinnersRankingOrder",
-  graphQLType: "Post",
-  callback: async (
-    context: ResolverContext,
-    limit: number,
-  ): Promise<DbPost[]> => context.repos.posts.getReviewWinners(limit, "ranking"),
-  cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
-})
+// createPaginatedResolver({
+//   name: "ReviewWinnersRankingOrder",
+//   graphQLType: "Post",
+//   callback: async (
+//     context: ResolverContext,
+//     limit: number,
+//   ): Promise<DbPost[]> => context.repos.posts.getReviewWinners(limit, "ranking"),
+//   cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
+// })
 
 
 createPaginatedResolver({

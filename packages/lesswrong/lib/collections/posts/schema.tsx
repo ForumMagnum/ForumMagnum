@@ -1156,7 +1156,7 @@ const schema: SchemaType<"Posts"> = {
         postId: field("_id"),
       },
       resolver: (reviewWinnersField) => reviewWinnersField("*"),
-    }),
+    })
   }),
 
   reviewWinnerArt: resolverOnlyField({

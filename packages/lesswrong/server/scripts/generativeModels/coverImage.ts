@@ -18,6 +18,7 @@ const DEPLOY = false
 
 let lastMidjourneyRequest = 0
 let midjourneyRequests: string[] = []
+let midjourneysActive = 0
 
 let essayRights: {[essay: string]: boolean} = {}
 
@@ -42,9 +43,10 @@ const acquireMidjourneyRights = async (promiseId: string): Promise<boolean> => {
   midjourneyRequests.push(promiseId)
   return new Promise(resolve => {
     const interval = setInterval(() => {
-      if (midjourneyRequests[0] === promiseId && new Date().getTime() - lastMidjourneyRequest > 3_000) {
+      if (midjourneyRequests[0] === promiseId && midjourneysActive < 4) {
         console.log("mj rights acquired", promiseId)
         midjourneyRequests.shift()
+        midjourneysActive++
         lastMidjourneyRequest = new Date().getTime()
         clearInterval(interval)
         resolve(true)
@@ -71,6 +73,7 @@ const acquireEssayThreadRights = async (title: string): Promise<void> => {
 
 const releaseMidjourneyRights = (promiseId: string) => {
   midjourneyRequests = midjourneyRequests.filter(p => p !== promiseId)
+  midjourneysActive--
 }
 
 const releaseEssayThreadRights = (title: string) => {

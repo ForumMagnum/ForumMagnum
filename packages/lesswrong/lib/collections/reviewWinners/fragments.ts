@@ -16,9 +16,8 @@ registerFragment(`
     _id
     postId
     splashArtImageUrl
-    splashArtCoordinateId
-    splashArtCoordinate {
-      ...SplashArtCoordinates
+    reviewWinnerArt {
+      ...ReviewWinnerArtImages
     }
     reviewYear
     curatedOrder

@@ -4,6 +4,7 @@ import { useImageContext, ReviewWinnerImageInfo } from './ImageContext';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { useUpdate } from '../../../lib/crud/withUpdate';
+import { useWindowSize } from '../../hooks/useScreenWidth';
 
 const initialHeight = 480;
 const initialWidth = 360 * 3;
@@ -199,7 +200,8 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
   const initialResizeInitialBoxCoordinates: Coordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight}
   const [resizeInitialBoxCoordinates, setResizeInitialBoxCoordinates] = useState(initialResizeInitialBoxCoordinates);
 
-  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+  // TODO: per docstring, this hook isn't safe in an SSR context; make sure we wrap this entire component in a NoSSR block
+  const windowSize = useWindowSize();
   const {selectedImageInfo} = useImageContext();
 
   const initialCachedCoordinates: Record<string, BoxSubContainers> = {} 
@@ -259,7 +261,7 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
   }
 
   const updateWindowSize = () => {
-    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    // setWindowSize({ width: window.innerWidth, height: window.innerHeight });
   };
 
   useEventListener('resize', updateWindowSize);
