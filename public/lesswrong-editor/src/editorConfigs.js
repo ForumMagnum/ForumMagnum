@@ -194,7 +194,7 @@ export const commentEditorConfig = {
 		'numberedList',
 		'|',
 		'math',
-    'ctaButtonToolbarItem',
+		'ctaButtonToolbarItem',
 		'footnote',
 	],
 	image: {
