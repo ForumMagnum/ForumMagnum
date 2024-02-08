@@ -13,7 +13,7 @@ import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { isAF, isLW, isLWorAF } from '../lib/instanceSettings';
+import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -329,6 +329,7 @@ const Layout = ({currentUser, children, classes}: {
       NavigationEventSender,
       PetrovDayWrapper,
       NewUserCompleteProfile,
+      EAOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
       IntercomWrapper,
@@ -456,10 +457,11 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {showNewUserCompleteProfile
+                    {showNewUserCompleteProfile && !isEAForum
                       ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
+                    {showNewUserCompleteProfile && isEAForum && <EAOnboardingFlow />}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>

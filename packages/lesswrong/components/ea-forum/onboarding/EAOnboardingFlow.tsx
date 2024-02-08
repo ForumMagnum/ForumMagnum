@@ -8,7 +8,7 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingFlow = ({classes}: {
+const EAOnboardingFlow = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
