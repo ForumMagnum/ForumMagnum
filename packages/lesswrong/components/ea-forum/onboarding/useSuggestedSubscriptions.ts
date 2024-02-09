@@ -1,8 +1,9 @@
 import { useMulti } from "../../../lib/crud/withMulti";
+import { isCypress } from "../../../lib/executionEnvironment";
 import { filterNonnull } from "../../../lib/utils/typeGuardUtils";
 import keyBy from "lodash/keyBy";
 
-const subscribeTagIds = [
+const subscribeTagIds: string[] = [
   "sWcuTyTB5dP3nas2t", // Global health and development
   "QdH9f8TC6G8oGYdgt", // Animal welfare
   "ee66CtAMYurQreWBH", // Existential risk
@@ -15,7 +16,7 @@ const subscribeTagIds = [
   "4CH9vsvzyk4mSKwyZ", // Career choice
 ];
 
-const subscribeUserIds = [
+const subscribeUserIds: string[] = [
   "9Fg4woeMPHoGa6kDA", // Holden Karnofsky
   "kBZnCSYFXGowSD8mD", // Katja Grace
   "b4mnJTtwXMkqkv3Yq", // Laura Duffy
@@ -36,9 +37,11 @@ export const useSuggestedSubscriptions = () => {
     terms: {
       _id: subscribeTagIds,
     },
+    skip: isCypress,
   });
   const tagsById = keyBy(rawTags, "_id");
   const tags = filterNonnull(subscribeTagIds.map((_id) => tagsById[_id]));
+  console.log("isCypress", isCypress);
 
   const {results: rawUsers} = useMulti({
     collectionName: "Users",
@@ -48,6 +51,7 @@ export const useSuggestedSubscriptions = () => {
       view: "usersByUserIds",
       userIds: subscribeUserIds,
     },
+    skip: isCypress,
   });
   const usersById = keyBy(rawUsers, "_id");
   const users = filterNonnull(subscribeUserIds.map((_id) => usersById[_id]));
