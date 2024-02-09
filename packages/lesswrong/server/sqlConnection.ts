@@ -1,13 +1,14 @@
 import pgp, { IDatabase, IEventContext } from "pg-promise";
 import type { IClient, IResult } from "pg-promise/typescript/pg-subset";
 import Query from "../lib/sql/Query";
-import { isAnyTest } from "../lib/executionEnvironment";
+import { isAnyTest, isProduction } from "../lib/executionEnvironment";
 import { PublicInstanceSetting } from "../lib/instanceSettings";
 import omit from "lodash/omit";
 import { logAllQueries } from "../lib/sql/sqlClient";
 import { recordSqlQueryPerfMetric } from "./perfMetrics";
 
-const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
+
+const SLOW_QUERY_REPORT_CUTOFF_MS = isProduction ? 2000 : 4000; // deal with latency issues causing console spam when running locally
 
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 
