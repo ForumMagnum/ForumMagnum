@@ -26,3 +26,8 @@ export const setPublicSettings = (newCacheContents: Record<string,any>) => {
 }
 export const getPublicSettings = () => publicSettings;
 export const getPublicSettingsLoaded = () => publicSettingsLoaded;
+
+export function initializeSetting(settingName: string, settingType: 'server' | 'public' | 'instance') {
+  if (registeredSettings[settingName]) throw Error(`Already initialized a setting with name ${settingName} before.`)
+  registeredSettings[settingName] = settingType
+}

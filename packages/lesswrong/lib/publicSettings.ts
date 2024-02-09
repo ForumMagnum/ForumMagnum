@@ -1,16 +1,11 @@
-import type { FilterTag } from './filterSettings';
-import { getPublicSettings, getPublicSettingsLoaded, registeredSettings } from './settingsCache';
+import type {FilterTag} from './filterSettings'
+import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
   while(arr.length && (obj = obj[arr.shift()]));
   return obj;
 };
-
-export function initializeSetting(settingName: string, settingType: "server" | "public" | "instance")  {
-  if (registeredSettings[settingName]) throw Error(`Already initialized a setting with name ${settingName} before.`)
-  registeredSettings[settingName] = settingType
-}
 
 /* 
   A setting which is stored in the database in the "databasemedata" collection, in a record with the `name` field set to "publicSettings" 
