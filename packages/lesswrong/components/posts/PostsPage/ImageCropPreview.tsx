@@ -40,7 +40,6 @@ const styles = (theme: ThemeType) => ({
         width: '100%',
         height: '100%',
         zIndex: 10000,
-        // background: 'rgba(0, 0, 0, 0.7)'
     },
     moveableBox: { 
         display: 'flex', 
@@ -275,54 +274,72 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
     fragmentName: 'SplashArtCoordinates'
   });
 
-  const {mutate: updateReviewWinner, error: updateRWError} = useUpdate({
-    collectionName: "ReviewWinners",
-    fragmentName: 'ReviewWinnerAll',
-  });
+  // const {mutate: updateReviewWinner, error: updateRWError} = useUpdate({
+  //   collectionName: "ReviewWinners",
+  //   fragmentName: 'ReviewWinnerAll',
+  // });
 
   const saveAllCoordinates = useCallback(async () => {
   
     console.log('Attempting to save coordinates');
 
     try {
-      if (!selectedImageInfo?.imageId) {
+
+      const saveAllCoordinatesValid = (selectedImageInfo && 
+        cachedBoxCoordinates[selectedImageInfo.imageId] && 
+        cachedBoxCoordinates[selectedImageInfo.imageId]["left"] && 
+        cachedBoxCoordinates[selectedImageInfo.imageId]["middle"] && 
+        cachedBoxCoordinates[selectedImageInfo.imageId]["right"]) 
+  
+      if (!saveAllCoordinatesValid) {
         // add a better error message for client
         console.error('No image id provided');
         setShowSaveSuccess(false); // Set failure state
         return;
       }
 
-      const splashArtData = {
-        reviewWinnerArtId: selectedImageInfo?.imageId,
-        xCoordinate: boxCoordinates.x,
-        yCoordinate: boxCoordinates.y,
-        width: boxCoordinates.width,
-        height: boxCoordinates.height,
-        logTime: new Date(),
-      };
-  
-      const response = await createSplashArtCoordinateMutation({ data: splashArtData });
+      const coordsLeft = cachedBoxCoordinates[selectedImageInfo.imageId]["left"];
+      const coordsMiddle = cachedBoxCoordinates[selectedImageInfo.imageId]["middle"];
+      const coordsRight = cachedBoxCoordinates[selectedImageInfo.imageId]["right"];
 
-      await updateReviewWinner({
-        selector: {_id: reviewWinner?._id},
-        data: {
-          splashArtCoordinateId: response.data?.createSplashArtCoordinate.data._id 
-        }
-      })
-
-      if (updateRWError) {
-        console.error('Error updating review winner', updateRWError);
+      if (!coordsLeft || !coordsMiddle || !coordsRight) {
+        // add a better error message for client
+        console.error('Not all sub-boxes have been set! Also how did you get into this state, this should not have happened');
         setShowSaveSuccess(false); // Set failure state
         return;
       }
 
-      setShowSaveSuccess(true); // might want to see if we actually succeeded somehow before setting this
+      // const imageElement = document.getElementById('yourImageId') as HTMLImageElement;
+      // const imageRect = imageElement.getBoundingClientRect();
+      // const imageWidth = imageRect.width;
+      // const imageHeight = imageRect.height;
+
+      const splashArtData = cachedBoxCoordinates[selectedImageInfo.imageId] && {
+        reviewWinnerArtId: selectedImageInfo.imageId,
+        leftXPct: coordsLeft.x / windowSize.width,
+        leftYPct: coordsLeft.y / windowSize.height,
+        leftWidthPct: coordsLeft.width / windowSize.width,
+        leftHeightPct: coordsLeft.height / windowSize.height,
+        middleXPct: coordsMiddle.x / windowSize.width,
+        middleYPct: coordsMiddle.y / windowSize.height,
+        middleWidthPct: coordsMiddle.width / windowSize.width,
+        middleHeightPct: coordsMiddle.height / windowSize.height,
+        rightXPct: coordsRight.x / windowSize.width,
+        rightYPct: coordsRight.y / windowSize.height,
+        rightWidthPct: coordsRight.width / windowSize.width,
+        rightHeightPct: coordsRight.height / windowSize.height,
+      };
+  
+      const response = await createSplashArtCoordinateMutation({ data: splashArtData });
+      
+      // might want to see if we actually succeeded somehow before setting this
+      setShowSaveSuccess(true); 
     }
     catch (error) {
       console.error('Error saving coordinates', error);
       setShowSaveSuccess(false); // Set failure state
     }
-  }, [updateReviewWinner, updateRWError, reviewWinner, boxCoordinates, selectedImageInfo, createSplashArtCoordinateMutation]);
+  }, [selectedImageInfo, createSplashArtCoordinateMutation, cachedBoxCoordinates, windowSize]);
 
 
   const moveableBoxStyle = {

@@ -15,6 +15,7 @@ import { requireCssVar } from '../../../themes/cssVars';
 import { hideScrollBars } from '../../../themes/styleUtils';
 import { useCurrentUser } from '../../common/withUser';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
+import { useSingle } from '../../../lib/crud/withSingle';
 
 
 const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
@@ -324,7 +325,7 @@ const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEm
   classes: ClassesType<typeof styles>,
 }) => {
   const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
-  const { selectedImageInfo } = useImageContext();
+  const { selectedImageInfo, setImageInfo } = useImageContext();
   const currentUser = useCurrentUser();
   const [visible, setVisible] = React.useState(true);
   const [backgroundImage, setBackgroundImage] = React.useState('');
@@ -377,26 +378,53 @@ const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEm
     // const postLastSavedImage = post.reviewWinner?.splashArtCoordinate?.reviewWinnerArt.splashArtImageUrl
 
     useEffect(() => {
+
       const postLastSavedImage = post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl;
+
+      // const postLastSavedImage = useSingle({
+      //   collectionName: "SplashArtCoordinates",
+      //   fragmentName: 'SplashArtCoordinates',
+      //   input: { selector: 
+      //     { reviewWinnerArtId: post.reviewWinner?.reviewWinnerArt?._id } }
+      // })
+
+      // const { results, loading } = useMulti({
+      //   terms: {
+      //     view: "SplashArtCoordinates", // how do I get the view from the fragment?
+      //     postId: postId,
+      //     userId: currentUser._id
+      //   },
+      //   collectionName: "LWEvents",
+      //   fragmentName: 'lastEventFragment',
+      //   enableTotal: false,
+      // });
+
+      // const { document: postLastSavedImage, loading } = useSingle({
+      //   documentId: tagRelId,
+      //   collectionName: "SplashArtCoordinates",
+      //   fragmentName: 'SplashArtCoordinates',
+      // });
+
       console.log({ postLastSavedImage, postReviewWinner: post.reviewWinner });
       const newBackgroundImage = selectedImageInfo?.splashArtImageUrl || 
                                  postLastSavedImage || 
                                  images[0].splashArtImageUrl;
       setBackgroundImage(newBackgroundImage);
-    }, [post, selectedImageInfo, images]);
+    }, [post, selectedImageInfo, images]); 
 
-    // const backgroundImage = selectedImageInfo?.splashArtImageUrl || // If an image from the dropdown is selected, show it
-    //                         postLastSavedImage ||// Otherwise, show the image saved to the post reviewWinner
-    //                         images[0].splashArtImageUrl // If no image is saved to the post, show the first image in the dropdown
-                            
-    const backgroundImageStyle = {
-      backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${backgroundImage}")`,
-    }
+    // const backgroundImageStyle = {
+    //   backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${backgroundImage}")`,
+    // }
 
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // TODO: uncomment currentUser.isAdmin
-  return <div style={backgroundImageStyle} className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef} >
+  return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef} >
+    <div className={classes.root} style={{ zIndex: -1, position: 'absolute', width: '100%', paddingTop: 0}}>
+      <div style={{ position: 'relative', width: '100%', height: '100%', backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%)` }}>
+        <img src={backgroundImage} alt="Background Image" style={{ width: '100%', height: '100%', position: 'relative', zIndex: -2}} />
+      </div>
+    </div>
     <div className={classes.top}>
       <div className={classes.leftSection}>
         <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
