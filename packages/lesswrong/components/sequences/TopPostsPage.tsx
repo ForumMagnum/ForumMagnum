@@ -547,6 +547,8 @@ const styles = (theme: ThemeType) => ({
   imageGridPostTitle: {
     transition: "opacity 0.2s ease-in",
   },
+  // TODO: anything here?
+  expandIcon: {}
 });
 
 function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOrder: LWReviewWinnerSortOrder) {
