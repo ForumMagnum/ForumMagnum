@@ -50,6 +50,38 @@ const styles = (theme: ThemeType) => ({
       marginRight: -8
     },
   },
+  backgroundImage: {
+    zIndex: -1, // theme.zIndexes.postsPageSplashHeader,
+    position: 'absolute',
+    height: '100vh',
+    width: '100%',
+    paddingTop: 0,
+    marginTop: 'calc(-64px)', // to cancel out the padding in the root class
+    backgroundSize: 'cover',
+    backgroundPosition: 'center top',
+    textAlign: 'center',
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexDirection: 'column',
+    ...theme.typography.postStyle,
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      height: '100%',
+      width: '100%',
+      background: 'linear-gradient(0deg, white 3%, transparent 48%)',
+      pointerEvents: 'none'
+    },
+    transition: 'opacity 0.5s ease-in-out',
+    opacity: 1,
+    // [theme.breakpoints.down('sm')]: {
+    //   marginLeft: -8,
+    //   marginRight: -8
+    // },
+  },
+
   // These fade effects (for the title/author "fading out" vertically) also rely on the `transition` properties in the `title` and `author` classes
   fadeIn: {
     '& .PostsPageSplashHeader-title, .PostsPageSplashHeader-author, .PostsPageSplasheHeader-reviews': {
@@ -393,10 +425,10 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
 
   // TODO: uncomment currentUser.isAdmin
   return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef} >
-    <div className={classes.root} style={{ zIndex: -1, position: 'absolute', width: '100%', paddingTop: 0}}>
-      <div style={{ position: 'relative', width: '100%', height: '100%', backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%)` }}>
-        <img src={backgroundImage} alt="Background Image" style={{ width: '100%', height: '100%', position: 'relative', zIndex: -2}} />
-      </div>
+    <div className={classes.backgroundImage}>
+        <img src={backgroundImage} alt="Background Image" style={
+          { width: '100%', height: '100%', position: 'relative', zIndex: -2}
+          } />
     </div>
     <div className={classes.top}>
       <div className={classes.leftSection}>
