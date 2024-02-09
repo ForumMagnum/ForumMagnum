@@ -49,7 +49,7 @@ const styles = (theme: ThemeType) => ({
       marginLeft: -8,
       marginRight: -8
     },
-  },
+  },  
   backgroundImage: {
     zIndex: -1, // theme.zIndexes.postsPageSplashHeader,
     position: 'absolute',
@@ -419,6 +419,37 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     // const backgroundImageStyle = {
     //   backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${backgroundImage}")`,
     // }
+
+  const backgroundImageStyle = {
+    zIndex: -1, // theme.zIndexes.postsPageSplashHeader,
+    position: 'absolute',
+    height: '100vh',
+    width: '100%',
+    paddingTop: 0,
+    marginTop: 'calc(-64px)', // to cancel out the padding in the root class
+    backgroundSize: 'cover',
+    backgroundPosition: 'center top',
+    textAlign: 'center',
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexDirection: 'column',
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      height: '100%',
+      width: '100%',
+      background: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%)`, // figure out how to handle this!
+      pointerEvents: 'none'
+    },
+    transition: 'opacity 0.5s ease-in-out',
+    opacity: 1,
+    // [theme.breakpoints.down('sm')]: {
+    //   marginLeft: -8,
+    //   marginRight: -8
+    // },
+  } as const
 
   const { anchorEl, hover, eventHandlers } = useHover();
 

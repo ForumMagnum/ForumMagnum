@@ -18,11 +18,7 @@ type Coordinates = {
   height: number,
 }
 
-type BoxSubContainers = {
-  left: Coordinates | null,
-  middle: Coordinates | null,
-  right: Coordinates | null,
-};
+type BoxSubContainers = Record<CoordinatePosition, Coordinates | null>
 
 type PositionedOffsets<T extends CoordinatePosition> = {
   [k in `${T}XPct` | `${T}YPct` | `${T}WidthPct` | `${T}HeightPct`]: number;
@@ -148,8 +144,6 @@ const styles = (theme: ThemeType) => ({
       textAlign: 'center',
     },
   });
-
-// export type SubBoxPosition = "left" | "middle" | "right";
 
 export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, cachedBoxCoordinates, setCachedBoxCoordinates, classes }: {
     reviewWinner: ReviewWinnerAll,
