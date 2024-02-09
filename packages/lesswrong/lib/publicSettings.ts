@@ -1,5 +1,6 @@
 import type {FilterTag} from './filterSettings'
 import {getPublicSettings, getPublicSettingsLoaded, initializeSetting} from './settingsCache'
+import {forumSelect} from './forumTypeUtils'
 
 const getNestedProperty = function (obj: AnyBecauseTodo, desc: AnyBecauseTodo) {
   var arr = desc.split('.');
@@ -168,6 +169,11 @@ export const auth0ClientSettings = new DatabasePublicSetting<Auth0ClientSettings
 export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number | null>('post.requestFeedbackKarmaLevel', 100);
 
 export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true);
+
+export const showSubscribeReminderInFeed = new DatabasePublicSetting<boolean>(
+  'feed.showSubscribeReminder', 
+  forumSelect({EAForum: true, LWAF: true, default: false})
+);
 
 export const hasGoogleDocImportSetting = new DatabasePublicSetting<boolean>('googleDocImport.enabled', false);
 
