@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from '../../../lib/crud/withMulti';
 import { isLWorAF } from '../../../lib/instanceSettings';
@@ -14,8 +14,7 @@ import { useHover } from '../../common/withHover';
 import { requireCssVar } from '../../../themes/cssVars';
 import { hideScrollBars } from '../../../themes/styleUtils';
 import { useCurrentUser } from '../../common/withUser';
-
-const backgroundThemeColor = requireCssVar('palette', 'panelBackground', 'default');
+import { Coordinates } from './ImageCropPreview';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -49,12 +48,10 @@ const styles = (theme: ThemeType) => ({
       marginLeft: -8,
       marginRight: -8
     },
-  },  
-  backgroundImage: {
+  },
+  backgroundImageWrapper: {
     zIndex: -1, // theme.zIndexes.postsPageSplashHeader,
     position: 'absolute',
-    height: '100vh',
-    width: '100%',
     paddingTop: 0,
     marginTop: 'calc(-64px)', // to cancel out the padding in the root class
     backgroundSize: 'cover',
@@ -71,15 +68,33 @@ const styles = (theme: ThemeType) => ({
       left: 0,
       height: '100%',
       width: '100%',
-      background: 'linear-gradient(0deg, white 3%, transparent 48%)',
+      background: `linear-gradient(0deg, ${theme.palette.panelBackground.default} 3%, transparent 48%)`,
       pointerEvents: 'none'
     },
     transition: 'opacity 0.5s ease-in-out',
     opacity: 1,
-    // [theme.breakpoints.down('sm')]: {
-    //   marginLeft: -8,
-    //   marginRight: -8
-    // },
+  },
+  backgroundImage: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    zIndex: -2,
+    objectFit: 'cover',
+    objectPosition: 'center top',
+  },
+  backgroundImageCropPreview: {
+    width: '100%',
+    height: '100%',
+    position: 'relative',
+    zIndex: -2,
+    objectFit: 'cover',
+    objectPosition: 'center top',
+  },
+  cropPreviewEnabledForeground: {
+    zIndex: -1,
+  },
+  cropPreviewEnabledBackground: {
+    zIndex: 2,
   },
 
   // These fade effects (for the title/author "fading out" vertically) also rely on the `transition` properties in the `title` and `author` classes
@@ -353,12 +368,39 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   classes: ClassesType<typeof styles>,
 }) => {
   const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
-  const { selectedImageInfo, setImageInfo } = useImageContext();
+  const { selectedImageInfo } = useImageContext();
   const currentUser = useCurrentUser();
-  const [visible, setVisible] = React.useState(true);
-  const [backgroundImage, setBackgroundImage] = React.useState('');
+  const [visible, setVisible] = useState(true);
+  const [backgroundImage, setBackgroundImage] = useState('');
   const { setToCVisible } = useContext(SidebarsContext)!;
+  
+  const [cropPreviewEnabled, setCropPreviewEnabled] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
+  const backgroundImgWrapperRef = useRef<HTMLDivElement>(null);
+  const backgroundImgCropPreviewRef = useRef<HTMLDivElement>(null);
+
+  const setCropPreview = (coordinates?: Coordinates) => {
+    if (imgRef.current && backgroundImgWrapperRef.current && backgroundImgCropPreviewRef.current) {
+      if (coordinates) {
+        const updatedMask = `
+          linear-gradient(#000 0 0) ${coordinates.x}px ${coordinates.y}px/${coordinates.width}px ${coordinates.height}px,
+          linear-gradient(rgba(0,0,0,0.4) 0 0)
+        `;
+        imgRef.current.style.mask = `${updatedMask} no-repeat`;
+        imgRef.current.style.webkitMask = updatedMask;
+        imgRef.current.style.webkitMaskRepeat = 'no-repeat';
+
+        setCropPreviewEnabled(true);
+      } else {
+        imgRef.current.style.mask = '';
+        imgRef.current.style.webkitMask = '';
+        imgRef.current.style.webkitMaskRepeat = '';
+
+        setCropPreviewEnabled(false);
+      }
+    }
+  };
+
   const transitionHeader = (headerVisibile: boolean) => {
     setToCVisible(!headerVisibile);
     setVisible(headerVisibile);
@@ -405,10 +447,8 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     }))
 
     useEffect(() => {
-
       const postLastSavedImage = post.reviewWinner.reviewWinnerArt?.splashArtImageUrl;
 
-      console.log({ postLastSavedImage, postReviewWinner: post.reviewWinner });
       const newBackgroundImage =
         selectedImageInfo?.splashArtImageUrl ||
         postLastSavedImage ||
@@ -416,57 +456,31 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
       setBackgroundImage(newBackgroundImage);
     }, [post, selectedImageInfo, images]); 
 
-    // const backgroundImageStyle = {
-    //   backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%), url("${backgroundImage}")`,
-    // }
-
-  const backgroundImageStyle = {
-    zIndex: -1, // theme.zIndexes.postsPageSplashHeader,
-    position: 'absolute',
-    height: '100vh',
-    width: '100%',
-    paddingTop: 0,
-    marginTop: 'calc(-64px)', // to cancel out the padding in the root class
-    backgroundSize: 'cover',
-    backgroundPosition: 'center top',
-    textAlign: 'center',
-    display: 'flex',
-    justifyContent: 'space-between',
-    flexDirection: 'column',
-    '&::before': {
-      content: '""',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      height: '100%',
-      width: '100%',
-      background: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%)`, // figure out how to handle this!
-      pointerEvents: 'none'
-    },
-    transition: 'opacity 0.5s ease-in-out',
-    opacity: 1,
-    // [theme.breakpoints.down('sm')]: {
-    //   marginLeft: -8,
-    //   marginRight: -8
-    // },
-  } as const
-
   const { anchorEl, hover, eventHandlers } = useHover();
 
   // TODO: uncomment currentUser.isAdmin
   return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef} >
-    <div className={classes.backgroundImage}>
-        <img ref={imgRef} src={backgroundImage} alt="Background Image" style={
-          { width: '100%', height: '100%', position: 'relative', zIndex: -2}
-          } />
+    {
+      /* 
+       * We have two copies of the image to implement crop preview functionality using masking and z-indexes
+       * The important bits are that when the crop element is enabled, it "dims" everything outside of the picker
+       * Also, when the picker is moved over the title/author/etc, they don't show up in the preview, just the underlying image
+       * This doesn't work with the Layout header, but we don't care that much /shrug
+       */
+    }
+    <div ref={backgroundImgWrapperRef} className={classNames(classes.backgroundImageWrapper, { [classes.cropPreviewEnabledForeground]: cropPreviewEnabled })}>
+      <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" />
+    </div>
+    <div ref={backgroundImgCropPreviewRef} className={classNames(classes.backgroundImageWrapper, { [classes.cropPreviewEnabledBackground]: cropPreviewEnabled })}>
+      <img ref={imgRef} src={backgroundImage} className={classes.backgroundImageCropPreview} alt="Background Image" />
     </div>
     <div className={classes.top}>
       <div className={classes.leftSection}>
         <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
-          Ranked #{post.reviewWinner.curatedOrder} of {post.reviewWinner.competitorCount} posts in the {post.reviewWinner.reviewYear} Review
+          Ranked #{post.reviewWinner.reviewRanking} of {post.reviewWinner.competitorCount} posts in the {post.reviewWinner.reviewYear} Review
         </Link>
         <Link className={classes.reviewNavigationMobile} to="/best-of-lesswrong">
-          #{post.reviewWinner?.curatedOrder} in 2021 Review
+          #{post.reviewWinner?.reviewRanking} in 2021 Review
         </Link>
         {toggleEmbeddedPlayer && audioIcon}
       </div>
@@ -490,7 +504,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
             </LWPopper>
           </div>
           <div className={classes.rightSectionBelowBottomRow}>
-            <ImageCropPreview reviewWinner={post.reviewWinner} imgRef={imgRef} />
+            <ImageCropPreview reviewWinner={post.reviewWinner} imgRef={imgRef} setCropPreview={setCropPreview} />
           </div>
         </div>}
       </div>
