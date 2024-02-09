@@ -284,7 +284,7 @@ async function generateCoverImages({limit = 2}: {
 }
 
 async function main () {
-  await generateCoverImages({limit: 2})
+  await generateCoverImages({limit: 100})
 }
 
 Globals.coverImages = main
