@@ -3594,6 +3594,7 @@ interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly curatedOrder: number,
   readonly reviewRanking: number,
   readonly isAI: boolean,
+  readonly competitorCount: number|null,
 }
 
 interface ReviewWinnerTopPostsPage { // fragment on ReviewWinners

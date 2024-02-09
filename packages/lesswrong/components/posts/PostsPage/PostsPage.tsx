@@ -722,8 +722,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
     {showSplashPageHeader && !commentId && !isDebateResponseLink && <PostsPageSplashHeader 
-      post={post} 
-      reviewWinner={post.reviewWinner}
+      post={{...post, reviewWinner: post.reviewWinner}} 
       showEmbeddedPlayer={showEmbeddedPlayer} 
       toggleEmbeddedPlayer={toggleEmbeddedPlayer}
       />}
