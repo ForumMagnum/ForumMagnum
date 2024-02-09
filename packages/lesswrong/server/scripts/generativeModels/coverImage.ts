@@ -4,7 +4,6 @@ import OpenAI from 'openai';
 import axios from 'axios';
 import { Globals, createAdminContext, createMutator } from '../../vulcan-lib/index.ts';
 import Posts from '../../../lib/collections/posts/collection.ts';
-import { App } from '@slack/bolt';
 import ReviewWinners from '../../../lib/collections/reviewWinners/collection.ts';
 import ReviewWinnerArts from '../../../lib/collections/reviewWinnerArts/collection.ts';
 import { moveImageToCloudinary } from '../convertImagesToCloudinary.ts';
@@ -16,21 +15,10 @@ import { trace } from '../../../lib/helpers.ts';
 
 const DEPLOY = false
 
-let lastMidjourneyRequest = 0
-let midjourneyRequests: string[] = []
-let midjourneysActive = 0
-
-let essayRights: {[essay: string]: boolean} = {}
-
 const myMidjourneyKey = myMidjourneyAPIKeySetting.get()
 if (!myMidjourneyKey) {
   throw new Error('No MyMidjourney API key found!');
 }
-
-const slackApp = new App({
-  token: reviewArtSlackAPIKeySetting.get() ?? undefined,
-  signingSecret: reviewArtSlackSigningSecretSetting.get() ?? undefined,
-})
 
 const promptUrls = [
   "https://s.mj.run/W91s58GkTUs",
@@ -39,52 +27,11 @@ const promptUrls = [
   "https://s.mj.run/JAlgYmUiOdc",
 ]
 
-const acquireMidjourneyRights = async (promiseId: string): Promise<boolean> => {
-  midjourneyRequests.push(promiseId)
-  return new Promise(resolve => {
-    const interval = setInterval(() => {
-      if (midjourneyRequests[0] === promiseId && midjourneysActive < 4) {
-        console.log("mj rights acquired", promiseId)
-        midjourneyRequests.shift()
-        midjourneysActive++
-        lastMidjourneyRequest = new Date().getTime()
-        clearInterval(interval)
-        resolve(true)
-      }
-    }, 1000)
-  })
-}
-
-const acquireEssayThreadRights = async (title: string): Promise<void> => {
-  if (!essayRights[title]) {
-    essayRights[title] = true
-    return Promise.resolve()
-  }
-  return new Promise((resolve) => {
-    const interval = setInterval(() => {
-      if (!essayRights[title]) {
-        essayRights[title] = true
-        clearInterval(interval)
-        resolve()
-      }
-    }, 1000)
-  })
-}
-
-const releaseMidjourneyRights = (promiseId: string) => {
-  midjourneyRequests = midjourneyRequests.filter(p => p !== promiseId)
-  midjourneysActive--
-}
-
-const releaseEssayThreadRights = (title: string) => {
-  essayRights[title] = false
-}
-
 const llm_prompt = (title: string, essay: string) => `I am creating cover art for essays that will be featured on LessWrong. For each piece of art, I want a clear visual metaphor that captures the essence of the essay.
 
 The visual metaphor should be concrete and specific, and should be something that can be depicted in a single image. The metaphor should be something that is both visually striking and that captures the essence of the essay in a way that is likely to be interesting. It should be 5 - 15 words long.
 
-The image should not contain any text. It should not have any writing. It should not refer to the content of written materials. It should ask for symbols representing concepts, but instead ask for concrete images (it's fine if you intend them to represent something, but they should be concrete images).
+The image should not contain any text. It should not have any writing. It should not refer to the content of written materials. It should not ask for symbols representing concepts, but instead ask for concrete images (it's fine if you intend them to represent something, but they should be concrete images).
 
 If the essay contains any particular images or visual metaphors, feel free to use those in the answers.
 
@@ -120,7 +67,7 @@ ${essay}`
 
 const getEssays = async (): Promise<Essay[]> => {
   const postIds = await ReviewWinners
-    .find({reviewYear: 2021}, { limit: 50, projection: { postId: 1 }, sort: { reviewRanking: 1 } })
+    .find({reviewYear: 2022}, { limit: 50, projection: { postId: 1 }, sort: { reviewRanking: 1 } })
     .fetch();
   const es = await Posts.find({ _id: { $in: postIds.map(p => p.postId) } }).fetch();
 
@@ -165,27 +112,11 @@ const prompter = (el: string) => {
 
 
 const postPromptImages = async (prompt: string, {title, threadTs}: {title: string, threadTs: string}, images: string[]) => {
-  await acquireEssayThreadRights(title)
   await postReply(`*Prompt: ${prompt}*`, threadTs)
-
-  await Promise.all(images.map(async (image) => {
-    const response = await fetch(image)
-    await slackApp.client.files.uploadV2(
-      {
-        thread_ts: threadTs,
-        channel_id: channelId,
-        initial_comment: `${prompt} for _${title}_`,
-        file: Buffer.from(await response.arrayBuffer()),
-        filename: `${new Date().getTime()}.png`
-      }
-    )
-  }))
-  setTimeout(() => releaseEssayThreadRights(title), 10_000)
   return images
 }
 
 const pressMidjourneyButton = async (messageId: string, button: string) => {
-  await acquireMidjourneyRights(`${messageId}-${button}`)
   return fetch(`https://api.mymidjourney.ai/api/v1/midjourney/button`, {
     method: 'POST',
     headers: {
@@ -196,7 +127,6 @@ const pressMidjourneyButton = async (messageId: string, button: string) => {
   }).then(r => r.json())
     .then(j => j.messageId)
     .then(checkOnJob)
-    .then(r => { releaseMidjourneyRights(`${messageId}-${button}`); return r })
 }
 
 const saveImage = async (el: string, essay: PostedEssay, url: string) => {
@@ -219,10 +149,12 @@ const saveImage = async (el: string, essay: PostedEssay, url: string) => {
 
 const upscaledImages = async (el: string, essay: PostedEssay, messageId: string): Promise<(string | undefined)[]> =>
   Promise.all(["U1","U2","U3","U4"]
-    .map(button => pressMidjourneyButton(messageId, button)
-      .then(m => m && upscaleImage(m.messageId))
-      .then(trace(`Upscaled ${el}`))
-      .then(uri => uri && saveImage(el, essay, uri))))
+    .map(async button => {
+      return pressMidjourneyButton(messageId, button)
+        .then(m => m && upscaleImage(m.messageId))
+        .then(trace(`Upscaled ${el}`))
+        .then(uri => uri && saveImage(el, essay, uri))
+    }))
 
 const upscaleImage = async (messageId: string): Promise<string | undefined> => {
   const res = await pressMidjourneyButton(messageId, "Upscale (Subtle)")
@@ -260,7 +192,6 @@ async function getEssayPromptJointImageMessage(promptElement: string): Promise<M
   let promptResponseData: any;
   let jobId: string;  
   try {
-    await acquireMidjourneyRights(promptElement)
     const response = await fetch('https://api.mymidjourney.ai/api/v1/midjourney/imagine', {
       method: 'POST',
       headers: {
@@ -277,7 +208,7 @@ async function getEssayPromptJointImageMessage(promptElement: string): Promise<M
     throw error;
   }
 
-  return checkOnJob(jobId).then(r => { releaseMidjourneyRights(promptElement); return r })
+  return checkOnJob(jobId)
 }
 
 const slackToken = reviewArtSlackAPIKeySetting.get();
@@ -333,38 +264,26 @@ async function generateCoverImages({limit = 2}: {
   }
   const essays = (await getEssays()).slice(0, limit)
 
-  const [imUrls] = await essays.reduce(async (prev: Promise<[Promise<string[]>, number]>, essay): Promise<[Promise<string[]>, number]> => {
+  return await essays.reduce(async (prev: Promise<string[]>, essay: Essay): Promise<string[]> => {
 
-    const [imUrls, charsRequested] = await prev
-    let newChars = charsRequested
-
-    if ((charsRequested + essay.content.length) >= 30_000) {
-      await sleep(60_000) // Promise.all([sleep(60_000), imUrls])
-      newChars = 0
-    }
-    newChars += Math.min(essay.content.length, 30_000)
-
-    const images = getElements(openAiClient, essay)
+    const prevUrls = await prev
+    const images = await getElements(openAiClient, essay)
       .then(async els => [els, await makeEssayThread(essay)] as [string[], PostedEssay])
       .then(([els, postedEssay]: [string[], PostedEssay]) =>
-        Promise.all(els
-          .slice(0,limit)
-          .map(el => getEssayPromptJointImageMessage(el)
-            .then(trace(`Got image for ${el}`))
-            .then(x => x === undefined ? Promise.resolve([]) : upscaledImages(el, postedEssay, x.messageId))
-            .then(trace(`Upscaled & saved ${el}`))
-            .then(urls => postPromptImages(el, postedEssay, urls.filter(url => !!url) as string[])))))
+        els.slice(0,limit)
+          .reduce(async (prev, el) => {
+            const ims = await prev
+            const im = await getEssayPromptJointImageMessage(el)
+              .then(trace(`Got image for ${el}`))
+              .then(x => x === undefined ? Promise.resolve([]) : upscaledImages(el, postedEssay, x.messageId))
+              .then(trace(`Upscaled & saved ${el}`))
+              .then(urls => postPromptImages(el, postedEssay, urls.filter(url => !!url) as string[]))
+            return [...ims, im]
+          }, Promise.resolve([]) as Promise<string[]>))
       .then(ims => ims.flat())
 
-    return [
-      Promise
-        .all([imUrls, images])
-        .then(([elts, els]) => [...elts, ...els]),
-      newChars
-    ]
-  }, Promise.resolve([Promise.resolve([]), 0]) as Promise<[Promise<string[]>, number]>)
-
-  return imUrls
+    return [...prevUrls, ...images]
+  }, Promise.resolve([]) as Promise<string[]>)
 }
 
 async function main () {

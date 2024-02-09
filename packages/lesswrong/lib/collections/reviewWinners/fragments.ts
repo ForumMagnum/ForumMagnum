@@ -24,3 +24,14 @@ registerFragment(`
     isAI
   }
 `);
+
+registerFragment(`
+  fragment ReviewWinnerTopPostsPage on ReviewWinner {
+    reviewWinnerArt {
+      splashArtImageUrl
+      activeSplashArtCoordinates {
+        ...SplashArtCoordinates
+      }
+    }
+  }
+`);

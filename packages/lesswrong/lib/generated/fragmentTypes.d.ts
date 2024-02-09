@@ -1005,6 +1005,7 @@ interface PostsTopItemInfo extends PostsMinimumInfo, PostsAuthors { // fragment 
   readonly contents: PostsTopItemInfo_contents|null,
   readonly customHighlight: PostsTopItemInfo_customHighlight|null,
   readonly tags: Array<TagPreviewFragment>,
+  readonly reviewWinner: ReviewWinnerTopPostsPage|null,
 }
 
 interface PostsTopItemInfo_contents { // fragment on Revisions
@@ -3595,6 +3596,15 @@ interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly isAI: boolean,
 }
 
+interface ReviewWinnerTopPostsPage { // fragment on ReviewWinners
+  readonly reviewWinnerArt: ReviewWinnerTopPostsPage_reviewWinnerArt|null,
+}
+
+interface ReviewWinnerTopPostsPage_reviewWinnerArt { // fragment on ReviewWinnerArts
+  readonly splashArtImageUrl: string,
+  readonly activeSplashArtCoordinates: SplashArtCoordinates|null,
+}
+
 interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly _id: string,
   readonly postId: string,
@@ -3877,6 +3887,7 @@ interface FragmentTypes {
   CkEditorUserSessionInfo: CkEditorUserSessionInfo
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
   ReviewWinnerAll: ReviewWinnerAll
+  ReviewWinnerTopPostsPage: ReviewWinnerTopPostsPage
   ReviewWinnerArtImages: ReviewWinnerArtImages
   SplashArtCoordinatesDefaultFragment: SplashArtCoordinatesDefaultFragment
   SplashArtCoordinates: SplashArtCoordinates
@@ -3903,7 +3914,7 @@ interface FragmentTypesByCollection {
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
-  ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerAll"
+  ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerAll"|"ReviewWinnerTopPostsPage"
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
@@ -4172,6 +4183,7 @@ interface CollectionNamesByFragmentName {
   CkEditorUserSessionInfo: "CkEditorUserSessions"
   ReviewWinnerEditDisplay: "ReviewWinners"
   ReviewWinnerAll: "ReviewWinners"
+  ReviewWinnerTopPostsPage: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
   SplashArtCoordinatesDefaultFragment: "SplashArtCoordinates"
   SplashArtCoordinates: "SplashArtCoordinates"

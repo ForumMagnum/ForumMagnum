@@ -28,8 +28,8 @@ export const schema: SchemaType<"ReviewWinnerArts"> = {
     type: "SplashArtCoordinate",
     graphQLtype: "SplashArtCoordinate",
     canRead: ['guests'],
-    resolver: async (reviewWinnerArt: DbReviewWinnerArt, args: void, context: ResolverContext): Promise<DbSplashArtCoordinate|null> => {
-      const { SplashArtCoordinates, repos } = context;
+    resolver: async (reviewWinnerArt: DbReviewWinnerArt, args: void, context: ResolverContext): Promise<DbSplashArtCoordinate | null> => {
+      const { SplashArtCoordinates } = context;
       return SplashArtCoordinates.findOne({ reviewWinnerArtId: reviewWinnerArt._id }, { sort: { createdAt: -1 } });
     },
   }),
