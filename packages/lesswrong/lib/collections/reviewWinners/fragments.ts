@@ -22,6 +22,7 @@ registerFragment(`
     curatedOrder
     reviewRanking
     isAI
+    competitorCount
   }
 `);
 

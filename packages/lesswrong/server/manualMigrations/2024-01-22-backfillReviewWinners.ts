@@ -239,6 +239,7 @@ Globals.findReviewWinners = async function (year: number) {
   }).fetch()
 
   // we weight the high karma user's votes 3x higher than baseline
+  // eslint-disable-next-line no-console
   console.log(JSON.stringify(posts.sort((post1, post2) => {
     const score1 = (post1.finalReviewVoteScoreHighKarma * 2) + post1.finalReviewVoteScoreAllKarma
     const score2 = (post2.finalReviewVoteScoreHighKarma * 2) + post2.finalReviewVoteScoreAllKarma
