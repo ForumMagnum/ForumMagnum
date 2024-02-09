@@ -22,13 +22,26 @@ export const schema: SchemaType<"ReviewWinners"> = {
     graphQLtype: 'Int',
     canRead: ['guests'],
     resolver: async (reviewWinner: DbReviewWinner, args: void, context: ResolverContext) => {
-      // TODO: correctly calculate competitors
+      /* Calculated via:
+      SELECT COUNT(DISTINCT "Posts"."_id")
+      FROM "Posts"
+      WHERE "postedAt" >= '{YEAR}-01-01'
+        AND "postedAt" < '{YEAR+1}-01-01'
+        AND "baseScore" > 0
+        AND "draft" is false
+      AND "Posts"."_id" IN (
+          SELECT "Votes"."documentId"
+          FROM "Votes"
+          GROUP BY "Votes"."documentId"
+          HAVING COUNT("Votes"."_id") > 1
+      );
+      */
       const yearCompetitors: {[year: number]: number} = {
-        2018: 20,
-        2019: 20,
-        2020: 20,
-        2021: 20,
-        2022: 20
+        2018: 1744,
+        2019: 2147,
+        2020: 3015,
+        2021: 3246,
+        2022: 4488
       };
       return yearCompetitors[reviewWinner.reviewYear];
     }
