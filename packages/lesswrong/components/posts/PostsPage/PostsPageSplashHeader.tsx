@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from '../../../lib/crud/withMulti';
 import { isLWorAF } from '../../../lib/instanceSettings';
@@ -327,6 +327,7 @@ const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEm
   const [visible, setVisible] = React.useState(true);
   const [backgroundImage, setBackgroundImage] = React.useState('');
   const { setToCVisible } = useContext(SidebarsContext)!;
+  const imgRef = useRef<HTMLImageElement>(null);
   const transitionHeader = (headerVisibile: boolean) => {
     setToCVisible(!headerVisibile);
     setVisible(headerVisibile);
@@ -395,7 +396,7 @@ const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEm
   return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef} >
     <div className={classes.root} style={{ zIndex: -1, position: 'absolute', width: '100%', paddingTop: 0}}>
       <div style={{ position: 'relative', width: '100%', height: '100%', backgroundImage: `linear-gradient(0deg, ${backgroundThemeColor} 3%, transparent 48%)` }}>
-        <img src={backgroundImage} alt="Background Image" style={{ width: '100%', height: '100%', position: 'relative', zIndex: -2}} />
+        <img ref={imgRef} src={backgroundImage} alt="Background Image" style={{ width: '100%', height: '100%', position: 'relative', zIndex: -2}} />
       </div>
     </div>
     <div className={classes.top}>
@@ -428,7 +429,7 @@ const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEm
             </LWPopper>
           </div>
           <div className={classes.rightSectionBelowBottomRow}>
-            <ImageCropPreview reviewWinner={reviewWinner} />
+            <ImageCropPreview reviewWinner={reviewWinner} imgRef={imgRef} />
           </div>
         </div>}
       </div>
