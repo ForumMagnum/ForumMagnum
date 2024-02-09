@@ -1,9 +1,6 @@
-import React, { useState } from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import classNames from 'classnames';
-import { ImageProvider, ReviewWinnerImageInfo, useImageContext } from './ImageContext';
-// import PostsPageSplashHeader from './PostsPageSplashHeader';
-
+import React from 'react';
+import { registerComponent } from '../../../lib/vulcan-lib';
+import { ReviewWinnerImageInfo, useImageContext } from './ImageContext';
 
 const styles = (theme: ThemeType) => ({
   root: { 

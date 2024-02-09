@@ -52,8 +52,6 @@ const styles = (theme: ThemeType) => ({
   backgroundImageWrapper: {
     zIndex: -1, // theme.zIndexes.postsPageSplashHeader,
     position: 'absolute',
-    // height: '100vh',
-    // width: '100%',
     paddingTop: 0,
     marginTop: 'calc(-64px)', // to cancel out the padding in the root class
     backgroundSize: 'cover',

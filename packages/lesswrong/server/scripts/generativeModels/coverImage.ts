@@ -67,9 +67,15 @@ ${essay}`
 
 const getEssays = async (): Promise<Essay[]> => {
   const postIds = await ReviewWinners
-    .find({reviewYear: 2022}, { limit: 50, projection: { postId: 1 }, sort: { reviewRanking: 1 } })
+    .find({}, { projection: { postId: 1 }, sort: { reviewRanking: 1 } })
     .fetch();
-  const es = await Posts.find({ _id: { $in: postIds.map(p => p.postId) } }).fetch();
+  const reviewArts = await ReviewWinnerArts
+    .find({})
+    .fetch();
+  const postIdsWithoutEnoughArt = postIds
+    .filter(p => (reviewArts.filter(a => a.postId === p.postId) ?? []).length < 12)
+
+  const es = await Posts.find({ _id: { $in: postIdsWithoutEnoughArt.map(p => p.postId) } }).fetch();
 
   return es.map(e => {
     return {post: e, title: e.title, content: e.contents.html }
@@ -80,7 +86,7 @@ type Essay = {post: DbPost, title: string, content: string}
 type PostedEssay = {post: DbPost, title: string, content: string, threadTs: string}
 type MyMidjourneyResponse = {messageId: "string", uri?: string, progress: number, error?: string}
 
-const getElements = async (openAiClient: OpenAI, essay: {title: string, content: string}): Promise<string[]> => {
+const getElements = async (openAiClient: OpenAI, essay: {title: string, content: string}, tryCount = 0): Promise<string[]> => {
   const content = essay.content.length > 25_000 ? essay.content.slice(0, 12_500) + "\n[EXCERPTED FOR LENGTH]\n" + essay.content.slice(-12_500) : essay.content
   const completion = await openAiClient.chat.completions.create({
     messages: [{role: "user", content: llm_prompt(essay.title, content)}],
@@ -92,16 +98,18 @@ const getElements = async (openAiClient: OpenAI, essay: {title: string, content:
         model: "gpt-4",
       })
     } else {
-      throw error
+      console.error(error)
+      return undefined
     }
   })
 
 
   try {
-    return JSON.parse((completion.choices[0].message.content || '').split('METAPHORS: ')[1])
+    return JSON.parse((completion?.choices[0].message.content || '').split('METAPHORS: ')[1])
   } catch (error) {
     console.error('Error parsing response:', error);
-    throw error;
+    if (tryCount < 2) return getElements(openAiClient, essay, tryCount + 1)
+    return []
   }
 }
 
@@ -111,7 +119,7 @@ const prompter = (el: string) => {
 }
 
 
-const postPromptImages = async (prompt: string, {title, threadTs}: {title: string, threadTs: string}, images: string[]) => {
+const postPromptImages = async (prompt: string, {threadTs}: {title: string, threadTs: string}, images: string[]) => {
   await postReply(`*Prompt: ${prompt}*`, threadTs)
   return images
 }
@@ -203,12 +211,11 @@ async function getEssayPromptJointImageMessage(promptElement: string): Promise<M
 
     promptResponseData = await response.json();
     jobId = promptResponseData.messageId
+    return checkOnJob(jobId)
   } catch (error) {
     console.error('Error generating image:', error);
-    throw error;
   }
 
-  return checkOnJob(jobId)
 }
 
 const slackToken = reviewArtSlackAPIKeySetting.get();
@@ -287,7 +294,10 @@ async function generateCoverImages({limit = 2}: {
 }
 
 async function main () {
-  await generateCoverImages({limit: 100})
+  const newImages = await generateCoverImages({limit: 100})
+  if (newImages.length === 0) return
+  await sleep(10_000)
+  await main()
 }
 
 Globals.coverImages = main
