@@ -381,30 +381,6 @@ const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEm
 
       const postLastSavedImage = post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl;
 
-      // const postLastSavedImage = useSingle({
-      //   collectionName: "SplashArtCoordinates",
-      //   fragmentName: 'SplashArtCoordinates',
-      //   input: { selector: 
-      //     { reviewWinnerArtId: post.reviewWinner?.reviewWinnerArt?._id } }
-      // })
-
-      // const { results, loading } = useMulti({
-      //   terms: {
-      //     view: "SplashArtCoordinates", // how do I get the view from the fragment?
-      //     postId: postId,
-      //     userId: currentUser._id
-      //   },
-      //   collectionName: "LWEvents",
-      //   fragmentName: 'lastEventFragment',
-      //   enableTotal: false,
-      // });
-
-      // const { document: postLastSavedImage, loading } = useSingle({
-      //   documentId: tagRelId,
-      //   collectionName: "SplashArtCoordinates",
-      //   fragmentName: 'SplashArtCoordinates',
-      // });
-
       console.log({ postLastSavedImage, postReviewWinner: post.reviewWinner });
       const newBackgroundImage = selectedImageInfo?.splashArtImageUrl || 
                                  postLastSavedImage || 
