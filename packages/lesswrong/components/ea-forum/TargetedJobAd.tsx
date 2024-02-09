@@ -250,6 +250,10 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
       'H43gvLzBCacxxamPe', // biosecurity
       'of9xBvR3wpbp6qsZC', //policy
     ],
+    readCoreTagIds: [
+      'H43gvLzBCacxxamPe', // biosecurity
+      'of9xBvR3wpbp6qsZC', //policy
+    ],
     logo: 'https://res.cloudinary.com/cea/image/upload/q_auto,f_auto/v1707183771/Screen_Shot_2024-02-05_at_8.42.20_PM',
     occupation: 'biosecurity and policy',
     feedbackLinkPrefill: 'Biosecurity+Policy+Advisor+at+CLTR',
@@ -260,6 +264,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     orgLink: '/topics/centre-for-long-term-resilience',
     salary: '£63k - £80k',
     location: 'UK (London-based)',
+    countryCode: 'GB',
     deadline: moment('2024-03-08'),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
