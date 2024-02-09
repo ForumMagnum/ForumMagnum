@@ -32,3 +32,22 @@ export function pickBestReverseGeocodingResult(results: any[]) {
   return results[0];
 }
 
+/**
+ * Given a Google Maps reverse geocoding result, find the country code for that location.
+ * See documentation for data structure:
+ * https://developers.google.com/maps/documentation/geocoding/requests-reverse-geocoding#reverse-example
+ *
+ * @param googleLocation
+ * @returns {string|null}
+ */
+export function getCountryCode(googleLocation: AnyBecauseHard): string|null {
+  const addressComponents = googleLocation?.address_components
+  if (!addressComponents) return null
+
+  for (let entry of addressComponents) {
+    if (entry.types.some((type: string) => type === 'country')) {
+      return entry.short_name
+    }
+  }
+  return null
+}
