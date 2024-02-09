@@ -1,10 +1,11 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, RefObject, useRef } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { useImageContext, ReviewWinnerImageInfo } from './ImageContext';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useWindowSize } from '../../hooks/useScreenWidth';
+import { COORDINATE_POSITIONS_TO_BOOK_OFFSETS, CoordinatePosition } from '../../sequences/TopPostsPage';
 
 const initialHeight = 480;
 const initialWidth = 360 * 3;
@@ -22,6 +23,45 @@ type BoxSubContainers = {
   middle: Coordinates | null,
   right: Coordinates | null,
 };
+
+type PositionedOffsets<T extends CoordinatePosition> = {
+  [k in `${T}XPct` | `${T}YPct` | `${T}WidthPct` | `${T}HeightPct`]: number;
+}
+
+function getOffsetPercentages<T extends CoordinatePosition>(imgCoordinates: Coordinates, boxCoordinates: Coordinates, prefix: T): PositionedOffsets<T> {
+  const {
+    x: imgX,
+    y: imgY,
+    width: imgWidth,
+    height: imgHeight,
+  } = imgCoordinates;
+
+  const {
+    x: boxX,
+    y: boxY,
+    width: boxWidth,
+    height: boxHeight,
+  } = boxCoordinates;
+
+  const relativeXOffset = boxX - imgX;
+  const relativeYOffset = boxY - imgY;
+
+  const xPct = (relativeXOffset / imgWidth) * 100;
+  const yPct = (relativeYOffset / imgHeight) * 100;
+
+  const widthPct = (boxWidth / imgWidth) * 100;
+  // This is the "correct" height percentage
+  // const heightPct = (boxHeight / imgHeight) * 100;
+  // This is the "all the way to the bottom of the image" percentage, which we prefer to use if it turns out it doen't mess up aspect ratios or whatever
+  const heightPct = ((boxHeight - relativeYOffset) / boxHeight) * 100;
+
+  return {
+    [`${prefix}XPct`]: xPct,
+    [`${prefix}YPct`]: yPct,
+    [`${prefix}WidthPct`]: widthPct,
+    [`${prefix}HeightPct`]: heightPct
+  } as PositionedOffsets<T>;
+}
 
 const styles = (theme: ThemeType) => ({
     button: {
@@ -109,28 +149,27 @@ const styles = (theme: ThemeType) => ({
     },
   });
 
-export type SubBoxPosition = "left" | "middle" | "right";
+// export type SubBoxPosition = "left" | "middle" | "right";
 
 export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, cachedBoxCoordinates, setCachedBoxCoordinates, classes }: {
     reviewWinner: ReviewWinnerAll,
     boxCoordinates: Coordinates,
     selectedImageInfo: ReviewWinnerImageInfo,
-    subBoxPosition: SubBoxPosition,
-    selectedBox: SubBoxPosition | null,
-    setSelectedBox: React.Dispatch<React.SetStateAction<SubBoxPosition | null>>,
+    subBoxPosition: CoordinatePosition,
+    selectedBox: CoordinatePosition | null,
+    setSelectedBox: React.Dispatch<React.SetStateAction<CoordinatePosition | null>>,
     cachedBoxCoordinates: Record<string, BoxSubContainers>,
     setCachedBoxCoordinates: React.Dispatch<React.SetStateAction<Record<string, BoxSubContainers>>>,
     classes: ClassesType<typeof styles>
   }) => {
   
       // Update the style of each boxSub based on the selected box
-  const handleBoxClick = (subBox: SubBoxPosition) => {
+  const handleBoxClick = (subBox: CoordinatePosition) => {
     setSelectedBox(subBox);
   };
 
   const cacheCoordinates = useCallback(async () => {
-
-    const subBoxX = boxCoordinates.x + ((boxCoordinates.width / 3) * (subBoxPosition === "left" ? 0 : subBoxPosition === "middle" ? 1 : 2));
+    const subBoxX = boxCoordinates.x + ((boxCoordinates.width / 3) * COORDINATE_POSITIONS_TO_BOOK_OFFSETS[subBoxPosition]);
     const subBoxY = boxCoordinates.y;
 
     setCachedBoxCoordinates((prev) => {
@@ -149,44 +188,44 @@ export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImage
     })
   }, [setCachedBoxCoordinates, subBoxPosition, boxCoordinates, selectedImageInfo]);
 
-    const subBoxStyle = {
-      width: boxCoordinates.width / 3,
-      height: boxCoordinates.height,
-      background: selectedBox === subBoxPosition ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.3)',
-      borderLeft: '1px solid white',
-      borderRight: '1px solid white',
-    };
+  const subBoxStyle = {
+    width: boxCoordinates.width / 3,
+    height: boxCoordinates.height,
+    background: selectedBox === subBoxPosition ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.3)',
+    borderLeft: '1px solid white',
+    borderRight: '1px solid white',
+  };
 
-    const saveCoordinatesStyle = {
-      bottom: 0,
-      left: `${(boxCoordinates.width / 3) * (subBoxPosition === "left" ? 0 : subBoxPosition === "middle" ? 1 : 2)}px`,
-      cursor: 'pointer',
-      padding: '2px 5px',
-      color: 'black',
-      fontSize: '1rem',
-    };
+  const saveCoordinatesStyle = {
+    bottom: 0,
+    left: `${(boxCoordinates.width / 3) * (subBoxPosition === "left" ? 0 : subBoxPosition === "middle" ? 1 : 2)}px`,
+    cursor: 'pointer',
+    padding: '2px 5px',
+    color: 'black',
+    fontSize: '1rem',
+  };
 
-    // this will become a hoverover tooltip that previews the relevant image snippet
-    const cachedBoxStyle = {
-      position: 'absolute',
-      width: '20px',
-      height: '20px',
-      backgroundColor: (cachedBoxCoordinates[selectedImageInfo.imageId] && cachedBoxCoordinates[selectedImageInfo.imageId][subBoxPosition]) ? 'green' : 'red'
-    } as const;
+  // this will become a hoverover tooltip that previews the relevant image snippet
+  const cachedBoxStyle = {
+    position: 'absolute',
+    width: '20px',
+    height: '20px',
+    backgroundColor: (cachedBoxCoordinates[selectedImageInfo.imageId] && cachedBoxCoordinates[selectedImageInfo.imageId][subBoxPosition]) ? 'green' : 'red'
+  } as const;
 
-    return (<>
-      <div style={subBoxStyle} onClick={() => handleBoxClick(subBoxPosition)}>
-      <div style={saveCoordinatesStyle} onClick={cacheCoordinates}>{`Save ${subBoxPosition} placement`}</div>
-      <div style={cachedBoxStyle}></div>
-      </div>
-    </>)
-  }
+  return (<>
+    <div style={subBoxStyle} onClick={() => handleBoxClick(subBoxPosition)}>
+    <div style={saveCoordinatesStyle} onClick={cacheCoordinates}>{`Save ${subBoxPosition} placement`}</div>
+    <div style={cachedBoxStyle}></div>
+    </div>
+  </>)
+}
 
-export const ImageCropPreview = ({ reviewWinner, classes }: {
-    reviewWinner: ReviewWinnerAll,
-    classes: ClassesType<typeof styles>
-  }) => {
-
+export const ImageCropPreview = ({ reviewWinner, imgRef, classes }: {
+  reviewWinner: ReviewWinnerAll,
+  imgRef: RefObject<HTMLImageElement>,
+  classes: ClassesType<typeof styles>
+}) => {
   const [isBoxVisible, setIsBoxVisible] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -213,15 +252,14 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
     }
     setIsDragging(true);
     setDragOffset({
-        x: e.clientX - boxCoordinates.x,
-        y: e.clientY - boxCoordinates.y,
-      });
+      x: e.clientX - boxCoordinates.x,
+      y: e.clientY - boxCoordinates.y,
+    });
   };
 
   const startResizing = (e: React.MouseEvent<HTMLDivElement>) => {
     setResizeInitialBoxCoordinates({ x: e.clientX, y: e.clientY, width: boxCoordinates.width, height: boxCoordinates.height });
     setIsResizing(true);
-
   };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -238,12 +276,14 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
   }
 
   const moveBox = (e: MouseEvent) => {
-    setBoxCoordinates({
+    const newCoordinates = {
       x: e.clientX - dragOffset.x,
       y: e.clientY - dragOffset.y,
       width: boxCoordinates.width,
       height: boxCoordinates.height,
-    });
+    };
+
+    setBoxCoordinates(newCoordinates);
   };
 
   const resizeBox = (e: MouseEvent) => {
@@ -280,9 +320,12 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
   // });
 
   const saveAllCoordinates = useCallback(async () => {
-  
     console.log('Attempting to save coordinates');
 
+    if (!imgRef.current) {
+      console.error('Missing image ref');
+      return;
+    }
     try {
 
       const saveAllCoordinatesValid = (selectedImageInfo && 
@@ -308,26 +351,17 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
         setShowSaveSuccess(false); // Set failure state
         return;
       }
+      const imgRect = imgRef.current.getBoundingClientRect();
 
-      // const imageElement = document.getElementById('yourImageId') as HTMLImageElement;
-      // const imageRect = imageElement.getBoundingClientRect();
-      // const imageWidth = imageRect.width;
-      // const imageHeight = imageRect.height;
+      const leftOffsets = getOffsetPercentages(imgRect, coordsLeft, 'left');
+      const middleOffsets = getOffsetPercentages(imgRect, coordsMiddle, 'middle');
+      const rightOffsets = getOffsetPercentages(imgRect, coordsRight, 'right');
 
       const splashArtData = cachedBoxCoordinates[selectedImageInfo.imageId] && {
         reviewWinnerArtId: selectedImageInfo.imageId,
-        leftXPct: coordsLeft.x / windowSize.width,
-        leftYPct: coordsLeft.y / windowSize.height,
-        leftWidthPct: coordsLeft.width / windowSize.width,
-        leftHeightPct: coordsLeft.height / windowSize.height,
-        middleXPct: coordsMiddle.x / windowSize.width,
-        middleYPct: coordsMiddle.y / windowSize.height,
-        middleWidthPct: coordsMiddle.width / windowSize.width,
-        middleHeightPct: coordsMiddle.height / windowSize.height,
-        rightXPct: coordsRight.x / windowSize.width,
-        rightYPct: coordsRight.y / windowSize.height,
-        rightWidthPct: coordsRight.width / windowSize.width,
-        rightHeightPct: coordsRight.height / windowSize.height,
+        ...leftOffsets,
+        ...middleOffsets,
+        ...rightOffsets,
       };
   
       const response = await createSplashArtCoordinateMutation({ data: splashArtData });
@@ -339,7 +373,7 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
       console.error('Error saving coordinates', error);
       setShowSaveSuccess(false); // Set failure state
     }
-  }, [selectedImageInfo, createSplashArtCoordinateMutation, cachedBoxCoordinates, windowSize]);
+  }, [selectedImageInfo, createSplashArtCoordinateMutation, cachedBoxCoordinates, imgRef]);
 
 
   const moveableBoxStyle = {
@@ -355,7 +389,7 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
   // render image as an image instead of css property
 
   // Add a state to track the selected box
-  const [selectedBox, setSelectedBox] = useState<SubBoxPosition | null>(null);
+  const [selectedBox, setSelectedBox] = useState<CoordinatePosition | null>(null);
 
   const boxSubContainers = {
     display: 'flex',
@@ -367,8 +401,6 @@ export const ImageCropPreview = ({ reviewWinner, classes }: {
     cachedBoxCoordinates[selectedImageInfo.imageId]["left"] && 
     cachedBoxCoordinates[selectedImageInfo.imageId]["middle"] && 
     cachedBoxCoordinates[selectedImageInfo.imageId]["right"]) 
-
-  console.log('showSaveAllButton', showSaveAllButton);
 
   return (
     <>

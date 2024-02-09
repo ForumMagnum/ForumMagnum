@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { useMulti } from '../../../lib/crud/withMulti';
 import { isLWorAF } from '../../../lib/instanceSettings';
@@ -49,6 +49,37 @@ const styles = (theme: ThemeType) => ({
       marginLeft: -8,
       marginRight: -8
     },
+  },  
+  backgroundImage: {
+    zIndex: -1, // theme.zIndexes.postsPageSplashHeader,
+    position: 'absolute',
+    height: '100vh',
+    width: '100%',
+    paddingTop: 0,
+    marginTop: 'calc(-64px)', // to cancel out the padding in the root class
+    backgroundSize: 'cover',
+    backgroundPosition: 'center top',
+    textAlign: 'center',
+    display: 'flex',
+    justifyContent: 'space-between',
+    flexDirection: 'column',
+    ...theme.typography.postStyle,
+    '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      height: '100%',
+      width: '100%',
+      background: 'linear-gradient(0deg, white 3%, transparent 48%)',
+      pointerEvents: 'none'
+    },
+    transition: 'opacity 0.5s ease-in-out',
+    opacity: 1,
+    // [theme.breakpoints.down('sm')]: {
+    //   marginLeft: -8,
+    //   marginRight: -8
+    // },
   },
 
   // These fade effects (for the title/author "fading out" vertically) also rely on the `transition` properties in the `title` and `author` classes
@@ -315,9 +346,8 @@ const styles = (theme: ThemeType) => ({
 
 /// PostsPageSplashHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEmbeddedPlayer, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  reviewWinner: ReviewWinnerAll,
+const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes}: {
+  post: (PostsWithNavigation|PostsWithNavigationAndRevision)&{reviewWinner: ReviewWinnerAll},
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
@@ -328,6 +358,7 @@ const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEm
   const [visible, setVisible] = React.useState(true);
   const [backgroundImage, setBackgroundImage] = React.useState('');
   const { setToCVisible } = useContext(SidebarsContext)!;
+  const imgRef = useRef<HTMLImageElement>(null);
   const transitionHeader = (headerVisibile: boolean) => {
     setToCVisible(!headerVisibile);
     setVisible(headerVisibile);
@@ -377,12 +408,13 @@ const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEm
 
     useEffect(() => {
 
-      const postLastSavedImage = post.reviewWinner?.reviewWinnerArt?.splashArtImageUrl;
+      const postLastSavedImage = post.reviewWinner.reviewWinnerArt?.splashArtImageUrl;
 
       console.log({ postLastSavedImage, postReviewWinner: post.reviewWinner });
-      const newBackgroundImage = selectedImageInfo?.splashArtImageUrl || 
-                                 postLastSavedImage || 
-                                 images[0].splashArtImageUrl;
+      const newBackgroundImage =
+        selectedImageInfo?.splashArtImageUrl ||
+        postLastSavedImage ||
+        images[0].splashArtImageUrl;
       setBackgroundImage(newBackgroundImage);
     }, [post, selectedImageInfo, images]); 
 
@@ -425,18 +457,18 @@ const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEm
 
   // TODO: uncomment currentUser.isAdmin
   return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef} >
-    <div style={backgroundImageStyle}>
-        <img src={backgroundImage} alt="Background Image" style={
+    <div className={classes.backgroundImage}>
+        <img ref={imgRef} src={backgroundImage} alt="Background Image" style={
           { width: '100%', height: '100%', position: 'relative', zIndex: -2}
           } />
     </div>
     <div className={classes.top}>
       <div className={classes.leftSection}>
         <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
-          Ranked #2 of 3220 posts in the 2021 Review
+          Ranked #{post.reviewWinner.curatedOrder} of {post.reviewWinner.competitorCount} posts in the {post.reviewWinner.reviewYear} Review
         </Link>
         <Link className={classes.reviewNavigationMobile} to="/best-of-lesswrong">
-          #2 in 2021 Review
+          #{post.reviewWinner?.curatedOrder} in 2021 Review
         </Link>
         {toggleEmbeddedPlayer && audioIcon}
       </div>
@@ -460,7 +492,7 @@ const PostsPageSplashHeader = ({post, reviewWinner, showEmbeddedPlayer, toggleEm
             </LWPopper>
           </div>
           <div className={classes.rightSectionBelowBottomRow}>
-            <ImageCropPreview reviewWinner={reviewWinner} />
+            <ImageCropPreview reviewWinner={post.reviewWinner} imgRef={imgRef} />
           </div>
         </div>}
       </div>

@@ -20,7 +20,7 @@ type GetAllReviewWinnersQueryResult = Array<{
 
 type ExpansionState = 'expanded' | 'collapsed' | 'default';
 type HiddenState = 'full' | 'hidden';
-type CoordinatePosition = 'left' | 'middle' | 'right';
+export type CoordinatePosition = 'left' | 'middle' | 'right';
 
 interface PostGridDimensions {
   postGridColumns: number;
@@ -213,6 +213,10 @@ const BOOK_OFFSETS_TO_COORDINATE_POSITIONS: Partial<Record<number, CoordinatePos
   1: 'middle',
   2: 'right'
 };
+
+export const COORDINATE_POSITIONS_TO_BOOK_OFFSETS: Record<CoordinatePosition, number> = Object.fromEntries(
+  Object.entries(BOOK_OFFSETS_TO_COORDINATE_POSITIONS).map(([offset, position]) => [position, offset])
+);
 
 function gridPositionToClassName(gridPosition: number) {
   return `gridPosition${gridPosition}` as const;
