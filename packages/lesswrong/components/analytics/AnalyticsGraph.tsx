@@ -46,8 +46,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   graphHeading: {
     fontSize: 32,
     fontWeight: "600",
-    fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
+    fontFamily: theme.palette.fonts.sansSerifStack,
     [theme.breakpoints.down('xs')]: {
       lineHeight: '1.2em',
     }
@@ -117,7 +117,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   checkboxIcon: {
     width: 17,
     height: 17,
-    border: `1.5px solid ${theme.palette.grey[900]}`,
+    border: `1px solid ${theme.palette.grey[900]}`,
     borderRadius: 3,
     display: "flex",
     alignItems: "center",
@@ -132,7 +132,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   dateDropdown: {
     alignSelf: "flex-start",
-    margin: '4px 0',
+    margin: '4px 20px 0 0',
   }
 });
 
