@@ -38,7 +38,8 @@ const PostsItemMeta = ({post, read, classes}: {
   classes: ClassesType,
 }) => {
   const baseScore = isAF ? post.afBaseScore : post.baseScore
-  const afBaseScore = !isAF && post.af ? post.afBaseScore : null
+  const showAfScore = (!isAF && post.af);
+  const afBaseScore = showAfScore ? post.afBaseScore : null
   const { FormatDate, FooterTagList, PostsUserAndCoauthors, LWTooltip, AddToCalendarButton } = Components;
   return <span className={classNames({[classes.read]:read})}>
 
@@ -76,7 +77,7 @@ const PostsItemMeta = ({post, read, classes}: {
         <PostsUserAndCoauthors post={post} showMarkers />
       </span>
 
-      { afBaseScore && <span className={classes.info}>
+      { showAfScore && <span className={classes.info}>
         <LWTooltip title={<div>
           { afBaseScore } karma on alignmentforum.org
         </div>}>
