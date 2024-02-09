@@ -1,6 +1,6 @@
-import { isEAForum } from '../../lib/instanceSettings';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
+import {isFriendlyUI} from '../../themes/forumTheme'
 
 const styles = (theme: ThemeType): JssStyles => ({
   dialog: {
@@ -23,7 +23,7 @@ const LoginPopup = ({onClose, classes}: {
 }) => {
   const {LWDialog, LoginForm} = Components;
 
-  if (isEAForum) {
+  if (isFriendlyUI) {
     return (
       <LoginForm onClose={onClose} />
     );

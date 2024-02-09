@@ -606,6 +606,11 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EATermsOfUsePage',
     },
     {
+      name: 'privacyPolicy',
+      path: '/privacyPolicy',
+      redirect: () => 'https://ev.org/ops/about/privacy-policy',
+    },
+    {
       name: 'intro',
       path: '/intro',
       componentName: 'PostsSingleRoute',
