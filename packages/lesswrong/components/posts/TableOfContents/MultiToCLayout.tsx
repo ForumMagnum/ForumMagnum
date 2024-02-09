@@ -4,7 +4,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
 import { fullHeightToCEnabled } from '../../../lib/betas';
 
-const DEFAULT_TOC_MARGIN = 100
+const DEFAULT_TOC_MARGIN = '1.5fr'
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
 export const MAX_CONTENT_WIDTH = 720;
@@ -19,9 +19,9 @@ const styles = (theme: ThemeType) => ({
     gridTemplateColumns: `
       ${LEFT_COLUMN_WIDTH}
       minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
-      minmax(0px, ${DEFAULT_TOC_MARGIN}px)
+      minmax(0px, ${DEFAULT_TOC_MARGIN})
       minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-      minmax(0px, ${DEFAULT_TOC_MARGIN}px)
+      minmax(0px, ${DEFAULT_TOC_MARGIN})
       min-content
       10px
       1.5fr
