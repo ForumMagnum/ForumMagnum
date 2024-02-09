@@ -148,15 +148,13 @@ const saveImage = async (el: string, essay: PostedEssay, url: string) => {
 }
 
 const upscaledImages = async (el: string, essay: PostedEssay, messageId: string): Promise<(string | undefined)[]> =>
-  (["U1","U2","U3","U4"])
-    .reduce(async (prev, button) => {
-      const urls = await prev
-      const url = await pressMidjourneyButton(messageId, button)
+  Promise.all(["U1","U2","U3","U4"]
+    .map(async button => {
+      return pressMidjourneyButton(messageId, button)
         .then(m => m && upscaleImage(m.messageId))
         .then(trace(`Upscaled ${el}`))
         .then(uri => uri && saveImage(el, essay, uri))
-      return [...urls, url]
-    }, Promise.resolve([]) as Promise<(string | undefined)[]>)
+    }))
 
 const upscaleImage = async (messageId: string): Promise<string | undefined> => {
   const res = await pressMidjourneyButton(messageId, "Upscale (Subtle)")
@@ -272,13 +270,16 @@ async function generateCoverImages({limit = 2}: {
     const images = await getElements(openAiClient, essay)
       .then(async els => [els, await makeEssayThread(essay)] as [string[], PostedEssay])
       .then(([els, postedEssay]: [string[], PostedEssay]) =>
-        Promise.all(els
-          .slice(0,limit)
-          .map(el => getEssayPromptJointImageMessage(el)
-            .then(trace(`Got image for ${el}`))
-            .then(x => x === undefined ? Promise.resolve([]) : upscaledImages(el, postedEssay, x.messageId))
-            .then(trace(`Upscaled & saved ${el}`))
-            .then(urls => postPromptImages(el, postedEssay, urls.filter(url => !!url) as string[])))))
+        els.slice(0,limit)
+          .reduce(async (prev, el) => {
+            const ims = await prev
+            const im = await getEssayPromptJointImageMessage(el)
+              .then(trace(`Got image for ${el}`))
+              .then(x => x === undefined ? Promise.resolve([]) : upscaledImages(el, postedEssay, x.messageId))
+              .then(trace(`Upscaled & saved ${el}`))
+              .then(urls => postPromptImages(el, postedEssay, urls.filter(url => !!url) as string[]))
+            return [...ims, im]
+          }, Promise.resolve([]) as Promise<string[]>))
       .then(ims => ims.flat())
 
     return [...prevUrls, ...images]
