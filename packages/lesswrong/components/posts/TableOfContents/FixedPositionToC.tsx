@@ -39,12 +39,6 @@ export interface ToCDisplayOptions {
   addedRows?: ToCSection[],
 }
 
-const topSection = "top";
-
-const sectionsHaveOffsets = (sections: ToCSection[]): sections is (ToCSection | ToCSectionWithOffset)[] => {
-  return sections.some(section => section.offset !== undefined);
-};
-
 const normalizeOffsets = (sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] => {
   const titleSection: ToCSectionWithOffset = { ...sections[0], offset: sections[0].offset ?? 0 };
 
@@ -237,7 +231,9 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     const postBodyBlocks = postBodyRef.querySelectorAll('[id]');
     const sectionHeaders = Array.from(postBodyBlocks).filter(block => filteredSections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
     
+    let sectionsWithOffsets;
     const parentContainer = sectionHeaders[0]?.parentElement;
+    // If we have any section headers, assign offsets to them
     if (parentContainer) {
       const containerHeight = parentContainer.getBoundingClientRect().height;
 
@@ -246,18 +242,21 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
         offset: (sectionHeader as HTMLElement).offsetTop / containerHeight
       }));
 
-      const sectionsWithOffsets = filteredSections.map((section) => {
+      sectionsWithOffsets = filteredSections.map((section) => {
         const anchorOffset = anchorOffsets.find((anchorOffset) => anchorOffset.anchorHref === section.anchor);
         return {
           ...section,
           offset: anchorOffset?.offset,
         };
       });
+    } else {
+      // Otherwise, we'll just default to assigning the entire offset to the comments "section" in the ToC in `normalizeOffsets`
+      sectionsWithOffsets = filteredSections;
+    }
 
-      const newNormalizedSections = normalizeOffsets(sectionsWithOffsets);
-      if (!isEqual(normalizedSections, newNormalizedSections)) {
-        setNormalizedSections(newNormalizedSections);
-      }
+    const newNormalizedSections = normalizeOffsets(sectionsWithOffsets);
+    if (!isEqual(normalizedSections, newNormalizedSections)) {
+      setNormalizedSections(newNormalizedSections);
     }
   }, [filteredSections, normalizedSections]);
 
