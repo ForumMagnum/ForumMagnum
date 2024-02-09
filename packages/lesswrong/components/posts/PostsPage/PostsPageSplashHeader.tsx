@@ -404,8 +404,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
       splashArtImagePrompt: null
     }))
 
-    // const postLastSavedImage = post.reviewWinner?.splashArtCoordinate?.reviewWinnerArt.splashArtImageUrl
-
     useEffect(() => {
 
       const postLastSavedImage = post.reviewWinner.reviewWinnerArt?.splashArtImageUrl;

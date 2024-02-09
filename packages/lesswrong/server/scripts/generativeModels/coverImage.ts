@@ -111,7 +111,7 @@ const prompter = (el: string) => {
 }
 
 
-const postPromptImages = async (prompt: string, {title, threadTs}: {title: string, threadTs: string}, images: string[]) => {
+const postPromptImages = async (prompt: string, {threadTs}: {title: string, threadTs: string}, images: string[]) => {
   await postReply(`*Prompt: ${prompt}*`, threadTs)
   return images
 }
