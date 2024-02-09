@@ -701,5 +701,6 @@ registerFragment(`
       text
       imageUrl
     }
+    firstVideoAttribsForPreview
   }
 `);

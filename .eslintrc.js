@@ -1,3 +1,24 @@
+
+const restrictedImportsPaths = [
+  { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" },
+  { name: "lodash/fp", message: "Don't import all of lodash/fp, import a specific lodash function, eg lodash/fp/capitalize" },
+  { name: "@material-ui", message: "Don't import all of material-ui/icons" },
+  { name: "@material-ui/core", message: "Don't import all of material-ui/core" },
+  { name: "@material-ui/core/colors", message: "Don't use material-ui/core/colors, use the theme palette" },
+  { name: "@material-ui/icons", message: "Don't import all of material-ui/icons" },
+  { name: "@material-ui/core/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
+  { name: "@material-ui/core/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
+  { name: "@material-ui/core/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
+  { name: "@material-ui/core/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
+  { name: "@material-ui/core/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
+  { name: "@material-ui/core/NoSsr", importNames: ["Popper"], message: "Don't use @material-ui/core/NoSsr/NoSsr; use react-no-ssr instead" },
+  { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
+  { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
+];
+const clientRestrictedImportPaths = [
+  { name: "cheerio", message: "Don't import cheerio on the client" },
+]
+
 module.exports = {
   "extends": [
     "eslint:recommended",
@@ -116,25 +137,13 @@ module.exports = {
         message: "server cannot be imported into themes - move the shared code into lib",
       },
     ]}],
-    "no-restricted-imports": ["error", {"paths": [
-      { name: "lodash", message: "Don't import all of lodash, import a specific lodash function, eg lodash/sumBy" },
-      { name: "lodash/fp", message: "Don't import all of lodash/fp, import a specific lodash function, eg lodash/fp/capitalize" },
-      { name: "@material-ui", message: "Don't import all of material-ui/icons" },
-      { name: "@material-ui/core", message: "Don't import all of material-ui/core" },
-      { name: "@material-ui/core/colors", message: "Don't use material-ui/core/colors, use the theme palette" },
-      { name: "@material-ui/icons", message: "Don't import all of material-ui/icons" },
-      { name: "@material-ui/core/Hidden", message: "Don't use material-UI's Hidden component, it's subtly broken; use breapoints and JSS styles instead" },
-      { name: "@material-ui/core/Typography", message: "Don't use material-UI's Typography component; use Components.LWTypography or JSS styles" },
-      { name: "@material-ui/core/Dialog", message: "Don't use material-UI's Dialog component directly, use LWDialog instead" },
-      { name: "@material-ui/core/Popper", importNames: ["Popper"], message: "Don't use material-UI's Popper component directly, use LWPopper instead" },
-      { name: "@material-ui/core/MenuItem", message: "Don't use material-UI's MenuItem component directly; use Components.MenuItem or JSS styles" },
-      { name: "@material-ui/core/NoSsr", importNames: ["Popper"], message: "Don't use @material-ui/core/NoSsr/NoSsr; use react-no-ssr instead" },
-      { name: "react-router", message: "Don't import react-router, use lib/reactRouterWrapper" },
-      { name: "react-router-dom", message: "Don't import react-router-dom, use lib/reactRouterWrapper" },
-    ],
-    patterns: [
-      "@material-ui/core/colors/*"
-    ]}],
+    "no-restricted-imports": ["error", {
+      "paths": restrictedImportsPaths,
+      patterns: [
+        "@material-ui/core/colors/*"
+      ]
+    }],
+    
 
     // Warn on missing await
     // The ignoreVoid option makes it so that
@@ -244,6 +253,26 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": 0,
     "@typescript-eslint/type-annotation-spacing": 1
   },
+  "overrides": [
+    {
+      "files": [
+        "packages/lesswrong/client/**/*.ts",
+        "packages/lesswrong/client/**/*.tsx",
+        "packages/lesswrong/components/**/*.ts",
+        "packages/lesswrong/components/**/*.tsx",
+        "packages/lesswrong/lib/**/*.ts",
+        "packages/lesswrong/lib/**/*.tsx",
+        "packages/lesswrong/themes/**/*.ts",
+        "packages/lesswrong/themes/**/*.tsx",
+      ],
+      "rules": {
+        "no-restricted-imports": ["error", {"paths": [
+          ...restrictedImportsPaths,
+          ...clientRestrictedImportPaths
+        ]}],
+      }
+    }
+  ],
   "env": {
     "browser": true,
     "commonjs": true,
