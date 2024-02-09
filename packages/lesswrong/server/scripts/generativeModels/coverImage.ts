@@ -148,13 +148,15 @@ const saveImage = async (el: string, essay: PostedEssay, url: string) => {
 }
 
 const upscaledImages = async (el: string, essay: PostedEssay, messageId: string): Promise<(string | undefined)[]> =>
-  Promise.all(["U1","U2","U3","U4"]
-    .map(async button => {
-      return pressMidjourneyButton(messageId, button)
+  (["U1","U2","U3","U4"])
+    .reduce(async (prev, button) => {
+      const urls = await prev
+      const url = await pressMidjourneyButton(messageId, button)
         .then(m => m && upscaleImage(m.messageId))
         .then(trace(`Upscaled ${el}`))
         .then(uri => uri && saveImage(el, essay, uri))
-    }))
+      return [...urls, url]
+    }, Promise.resolve([]) as Promise<(string | undefined)[]>)
 
 const upscaleImage = async (messageId: string): Promise<string | undefined> => {
   const res = await pressMidjourneyButton(messageId, "Upscale (Subtle)")
