@@ -36,7 +36,8 @@ addUniversalFields({
 });
 
 ensureIndex(ReviewWinners, { postId: 1 }, { unique: true });
-ensureIndex(ReviewWinners, { curatedOrder: 1 }, { unique: true });
+// TODO: New index based on curatedOrder and category
+// ensureIndex(ReviewWinners, { curatedOrder: 1 }, { unique: true });
 ensureIndex(ReviewWinners, { reviewYear: 1, reviewRanking: 1 }, { unique: true });
 
 export default ReviewWinners;

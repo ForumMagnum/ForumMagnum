@@ -1,6 +1,8 @@
+import moment from "moment";
+import { Posts } from "../../lib/collections/posts";
 import ReviewWinners from "../../lib/collections/reviewWinners/collection";
 import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
-import { createAdminContext, createMutator } from "../vulcan-lib";
+import { Globals, createAdminContext, createMutator } from "../vulcan-lib";
 import { registerMigration } from "./migrationUtils"
 import zip from 'lodash/zip'
 
@@ -171,6 +173,80 @@ const reviewWinners2021 = [
   'ThvvCE2HsLohJYd7b'
 ];
 
+const reviewWinners2022 = [
+  "uMQ3cqWDPHhjtiesc",
+  "j9Q8bRmwCgXRYAgcJ",
+  "CoZhXrhpQxpy9xw9y",
+  "uFNgRumrDTpBfQGrs",
+  "pdaGN6pQyQarFHXF4",
+  "keiYkaeoLHoKK4LYA",
+  "a5e9arCnbDac9Doig",
+  "vzfz4AS6wbooaTeQk",
+  "9kNxhKWvixtKW5anS",
+  "pRkFkzwKZ2zfa3R6H",
+  "k9dsbn8LZ6tTesDS3",
+  "fFY2HeC9i2Tx8FEnK",
+  "gHefoxiznGfsbiAu9",
+  "3pinFH3jerMzAvmza",
+  "vJFdjigzmcXMhNTsx",
+  "jbE85wCkRr9z7tqmD",
+  "o3RLHYviTE4zMb9T9",
+  "LDRQ5Zfqwi8GjzPYG",
+  "bhLxWTkRc8GXunFcB",
+  "xhD6SHAAE9ghKZ9HS",
+  "vJ7ggyjuP4u2yHNcP",
+  "nSjavaKcBrtNktzGa",
+  "kpPnReyBC54KESiSn",
+  "6Fpvch8RR29qLEWNH",
+  "ma7FSEtumkve8czGF",
+  "xFotXGEotcKouifky",
+  "rP66bz34crvDudzcJ",
+  "B9kP6x5rpmuCzpfWb",
+  "kipMvuaK3NALvFHc9",
+  "REA49tL5jsh69X3aM",
+  "N6WM6hs7RQMKDhYjB",
+  "CKgPFHoWFkviYz7CB",
+  "R6M4vmShiowDn56of",
+  "JvZhhzycHu2Yd57RN",
+  "htrZrxduciZ5QaCjw",
+  "J3wemDGtsy5gzD3xa",
+  "2MiDpjWraeL5bypRE",
+  "mmHctwkKjpvaQdC3c",
+  "TWorNr22hhYegE4RT",
+  "w4aeAFzSAguvqA5qu",
+  "Ke2ogqSEhL2KCJCNx",
+  "FWvzwCDRgcjb9sigb",
+  "GNhMPAWcfBCASy8e6",
+  "CjFZeDD6iCnNubDoS",
+  "ii4xtogen7AyYmN6B",
+  "Jk9yMXpBLMWNTFLzh",
+  "nTGEeRSZrfPiJwkEc",
+  "sbcmACvB6DqYXYidL",
+  "iCfdcxiyr2Kj8m8mT",
+  "L4anhrxjv8j2yRKKp",
+  "SA9hDewwsYgnuscae"
+]
+
+Globals.findReviewWinners = async function (year: number) {
+  const posts = await Posts.find({
+    postedAt: {
+      $gte: moment(`${year}-01-01`).toDate(),
+      $lt: moment(`${year + 1}-01-01`).toDate()
+    },
+        finalReviewVoteScoreAllKarma: { $gte: 1 },
+    reviewCount: { $gte: 1 },
+    positiveReviewVoteCount: { $gte: 1 }
+  }).fetch()
+
+  // we weight the high karma user's votes 3x higher than baseline
+  console.log(JSON.stringify(posts.sort((post1, post2) => {
+    const score1 = (post1.finalReviewVoteScoreHighKarma * 2) + post1.finalReviewVoteScoreAllKarma
+    const score2 = (post2.finalReviewVoteScoreHighKarma * 2) + post2.finalReviewVoteScoreAllKarma
+    return score2 - score1
+  }).map(post => post._id)))
+}
+
+
 registerMigration({
   name: "backfillReviewWinners",
   dateWritten: "2024-01-22",
@@ -178,7 +254,7 @@ registerMigration({
   action: async () => {
     const db = getSqlClientOrThrow();
 
-    const naiveTotalIdRanking = zip(reviewWinners2018, reviewWinners2019, reviewWinners2020, reviewWinners2021).flat().filter((id): id is string => !!id);
+    const naiveTotalIdRanking = zip(reviewWinners2018, reviewWinners2019, reviewWinners2020, reviewWinners2021, reviewWinners2022).flat().filter((id): id is string => !!id);
 
     // eslint-disable-next-line no-console
     console.log(`Starting to create ${naiveTotalIdRanking.length} ReviewWinners`);
@@ -199,7 +275,8 @@ registerMigration({
       [reviewWinners2018, 2018],
       [reviewWinners2019, 2019],
       [reviewWinners2020, 2020],
-      [reviewWinners2021, 2021]
+      [reviewWinners2021, 2021],
+      [reviewWinners2022, 2022]
     ] as const;
 
     const adminContext = createAdminContext();
