@@ -53,8 +53,6 @@ const styles = (theme: ThemeType) => ({
     position: 'absolute',
     paddingTop: 0,
     marginTop: 'calc(-64px)', // to cancel out the padding in the root class
-    backgroundSize: 'cover',
-    backgroundPosition: 'center top',
     textAlign: 'center',
     display: 'flex',
     justifyContent: 'space-between',
@@ -72,6 +70,10 @@ const styles = (theme: ThemeType) => ({
     },
     transition: 'opacity 0.5s ease-in-out',
     opacity: 1,
+    // The image naturally has a landscape aspect ratio, so when viewing it in a portrait orientation we set height to 100% to scale it appropriately
+    '@media (orientation:portrait)': {
+      height: '100%',
+    },
   },
   backgroundImage: {
     width: '100%',
@@ -228,7 +230,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: '1',
     maxWidth: '75vw',
     textWrap: 'balance',
-    [theme.breakpoints.down('xs')]: {
+    [`${theme.breakpoints.down('xs')} or (${theme.breakpoints.down('sm')} and (orientation:landscape))`]: {
       fontSize: '2.5rem',
       maxWidth: '90vw'
     },
@@ -236,7 +238,7 @@ const styles = (theme: ThemeType) => ({
   },
   titleSmaller: {
     fontSize: '3.8rem',
-    [theme.breakpoints.down('xs')]: {
+    [`${theme.breakpoints.down('xs')} or (${theme.breakpoints.down('sm')} and (orientation:landscape))`]: {
       fontSize: '2rem'
     }
   },
