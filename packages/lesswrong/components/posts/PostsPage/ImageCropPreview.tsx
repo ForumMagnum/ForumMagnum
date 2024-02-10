@@ -108,16 +108,6 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: '#fff',
     border: '1px solid #000',
   },
-  saveCoordinates: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    cursor: 'pointer',
-    padding: '2px 5px',
-    userSelect: 'none', // Prevent text selection
-    color: 'black',
-    fontSize: '1rem',
-  },
   saveAllCoordinates: {
     position: 'absolute',
     display: 'block',

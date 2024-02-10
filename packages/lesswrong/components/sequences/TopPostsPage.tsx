@@ -233,31 +233,6 @@ function gridPositionToClassesEntry(theme: ThemeType, gridPosition: number) {
 };
 
 const styles = (theme: ThemeType) => ({
-  title: {
-    cursor: "pointer",
-    "& .SectionTitle-title": isFriendlyUI
-      ? {
-        color: theme.palette.grey[1000],
-        textTransform: "none",
-        fontWeight: 600,
-        fontSize: 28,
-        letterSpacing: "0",
-        lineHeight: "34px",
-      }
-      : {},
-  },
-  divider: {
-    border: "none",
-    borderTop: `1px solid ${theme.palette.grey[300]}`,
-  },
-  form: {
-    borderTop: theme.palette.border.faint,
-    background: theme.palette.background.translucentBackground,
-    paddingLeft: 16,
-    paddingRight: 16,
-    paddingTop: 8,
-    paddingBottom: 8
-  },
   widerColumn: {
     marginLeft: "auto",
     marginRight: "auto",

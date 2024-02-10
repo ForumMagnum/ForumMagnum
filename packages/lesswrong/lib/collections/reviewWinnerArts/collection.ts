@@ -4,7 +4,6 @@ import { MutationOptions, getDefaultMutations } from '../../vulcan-core/default_
 import { schema } from './schema';
 import { userIsAdminOrMod } from '../../vulcan-users';
 import { ensureIndex } from '../../collectionIndexUtils';
-// import { ensureIndex } from '../../collectionIndexUtils';
 
 export const reviewWinnerArtMutationOptions: MutationOptions<DbReviewWinnerArt> = {
   newCheck: (user: DbUser|null) => {

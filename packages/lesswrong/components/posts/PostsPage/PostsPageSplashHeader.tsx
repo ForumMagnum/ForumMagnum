@@ -37,7 +37,6 @@ const styles = (theme: ThemeType) => ({
       left: 0,
       height: '100%',
       width: '100%',
-      // background: 'linear-gradient(0deg, white 3%, transparent 48%)',
       pointerEvents: 'none'
     },
     transition: 'opacity 0.5s ease-in-out',
@@ -103,13 +102,14 @@ const styles = (theme: ThemeType) => ({
     zIndex: 2,
   },
 
+  // TODO: figure out if we're deliberately not using this??
   // These fade effects (for the title/author "fading out" vertically) also rely on the `transition` properties in the `title` and `author` classes
-  fadeIn: {
-    '& .PostsPageSplashHeader-title, .PostsPageSplashHeader-author, .PostsPageSplasheHeader-reviews': {
-      transitionDelay: '0s',
-      transitionTimingFunction: 'ease-out',
-    },
-  },
+  // fadeIn: {
+  //   '& .PostsPageSplashHeader-title, .PostsPageSplashHeader-author, .PostsPageSplasheHeader-reviews': {
+  //     transitionDelay: '0s',
+  //     transitionTimingFunction: 'ease-out',
+  //   },
+  // },
   fadeOut: {
     opacity: 0,
     '& .PostsPageSplashHeader-reviews': {
