@@ -444,7 +444,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row,
     AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
-    CommentsListSection, CommentsTableOfContents, PostsPageSplashHeader, PostsAudioPlayerWrapper, SplashHeaderImageOptions
+    CommentsListSection, CommentsTableOfContents, PostsPageSplashHeader, PostsAudioPlayerWrapper
   } = Components
 
   useEffect(() => {

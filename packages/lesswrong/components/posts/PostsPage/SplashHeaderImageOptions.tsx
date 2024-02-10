@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
-import { ReviewWinnerImageInfo, useImageContext } from './ImageContext';
+import { useImageContext } from './ImageContext';
 
 const styles = (theme: ThemeType) => ({
   root: { 
@@ -17,7 +17,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 export const SplashHeaderImageOptions = ({ images, post, classes }: {
-  images: ReviewWinnerImageInfo[], // TODO
+  images: ReviewWinnerArtImages[], // TODO
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
 }) => {

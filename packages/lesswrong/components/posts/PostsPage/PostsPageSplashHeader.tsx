@@ -437,20 +437,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
 
   const default_images = ["https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png", "https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
 
-  // TODO: get rid of default images!
-  const images: ReviewWinnerImageInfo[] = post.reviewWinnerArt ? 
-    post.reviewWinnerArt.map(image => ({
-      postId: post._id,
-      imageId: image._id,
-      splashArtImageUrl: image.splashArtImageUrl,
-      splashArtImagePrompt: image.splashArtImagePrompt
-    })) : 
-    default_images.map(url => ({
-      postId: post._id,
-      imageId: "fix this!",
-      splashArtImageUrl: url,
-      splashArtImagePrompt: null
-    }))
 
     useEffect(() => {
       const postLastSavedImage = post.reviewWinner.reviewWinnerArt?.splashArtImageUrl;
@@ -458,9 +444,12 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
       const newBackgroundImage =
         selectedImageInfo?.splashArtImageUrl ||
         postLastSavedImage ||
-        images[0].splashArtImageUrl;
-      setBackgroundImage(newBackgroundImage);
-    }, [post, selectedImageInfo, images]); 
+        post.reviewWinnerArt[0].splashArtImageUrl;
+
+      if (newBackgroundImage) {
+        setBackgroundImage(newBackgroundImage);
+      }
+    }, [post, selectedImageInfo]); 
 
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -503,7 +492,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
             <div className={classes.changeImageBox}>Change image</div>
             <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
               <div>
-                <SplashHeaderImageOptions images={images} post={post}/>
+                <SplashHeaderImageOptions images={post.reviewWinnerArt} post={post}/>
               </div>
             </LWPopper>
           </div>

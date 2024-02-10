@@ -168,8 +168,8 @@ export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImage
     setCachedBoxCoordinates((prev) => {
       return {
         ...prev,
-        [selectedImageInfo.imageId]: {
-          ...prev[selectedImageInfo.imageId],
+        [selectedImageInfo._id]: {
+          ...prev[selectedImageInfo._id],
           [subBoxPosition]: {
             x: subBoxX,
             y: subBoxY,
@@ -203,7 +203,7 @@ export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImage
     position: 'absolute',
     width: '20px',
     height: '20px',
-    backgroundColor: (cachedBoxCoordinates[selectedImageInfo.imageId] && cachedBoxCoordinates[selectedImageInfo.imageId][subBoxPosition]) ? 'green' : 'red'
+    backgroundColor: (cachedBoxCoordinates[selectedImageInfo._id] && cachedBoxCoordinates[selectedImageInfo._id][subBoxPosition]) ? 'green' : 'red'
   } as const;
 
   return (<>
@@ -336,10 +336,10 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     try {
 
       const saveAllCoordinatesValid = (selectedImageInfo && 
-        cachedBoxCoordinates[selectedImageInfo.imageId] && 
-        cachedBoxCoordinates[selectedImageInfo.imageId]["left"] && 
-        cachedBoxCoordinates[selectedImageInfo.imageId]["middle"] && 
-        cachedBoxCoordinates[selectedImageInfo.imageId]["right"]) 
+        cachedBoxCoordinates[selectedImageInfo._id] && 
+        cachedBoxCoordinates[selectedImageInfo._id]["left"] && 
+        cachedBoxCoordinates[selectedImageInfo._id]["middle"] && 
+        cachedBoxCoordinates[selectedImageInfo._id]["right"]) 
   
       if (!saveAllCoordinatesValid) {
         // add a better error message for client
@@ -348,9 +348,9 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
         return;
       }
 
-      const coordsLeft = cachedBoxCoordinates[selectedImageInfo.imageId]["left"];
-      const coordsMiddle = cachedBoxCoordinates[selectedImageInfo.imageId]["middle"];
-      const coordsRight = cachedBoxCoordinates[selectedImageInfo.imageId]["right"];
+      const coordsLeft = cachedBoxCoordinates[selectedImageInfo._id]["left"];
+      const coordsMiddle = cachedBoxCoordinates[selectedImageInfo._id]["middle"];
+      const coordsRight = cachedBoxCoordinates[selectedImageInfo._id]["right"];
 
       if (!coordsLeft || !coordsMiddle || !coordsRight) {
         // add a better error message for client
@@ -364,8 +364,8 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
       const middleOffsets = getOffsetPercentages(imgRect, coordsMiddle, 'middle');
       const rightOffsets = getOffsetPercentages(imgRect, coordsRight, 'right');
 
-      const splashArtData = cachedBoxCoordinates[selectedImageInfo.imageId] && {
-        reviewWinnerArtId: selectedImageInfo.imageId,
+      const splashArtData = cachedBoxCoordinates[selectedImageInfo._id] && {
+        reviewWinnerArtId: selectedImageInfo._id,
         ...leftOffsets,
         ...middleOffsets,
         ...rightOffsets,
@@ -403,15 +403,15 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
   };
 
   const showSaveAllButton = (selectedImageInfo && 
-    cachedBoxCoordinates[selectedImageInfo.imageId] && 
-    cachedBoxCoordinates[selectedImageInfo.imageId]["left"] && 
-    cachedBoxCoordinates[selectedImageInfo.imageId]["middle"] && 
-    cachedBoxCoordinates[selectedImageInfo.imageId]["right"]) 
+    cachedBoxCoordinates[selectedImageInfo._id] && 
+    cachedBoxCoordinates[selectedImageInfo._id]["left"] && 
+    cachedBoxCoordinates[selectedImageInfo._id]["middle"] && 
+    cachedBoxCoordinates[selectedImageInfo._id]["right"]) 
 
   return (
     <>
       <button className={classes.button} onClick={toggleBoxVisibility}>Show Box</button>
-      {isBoxVisible && selectedImageInfo && selectedImageInfo.imageId && (
+      {isBoxVisible && selectedImageInfo && selectedImageInfo._id && (
         <>
         {/* <div className={classes.overlay}></div> */}
         <div className={classes.moveableBox}
