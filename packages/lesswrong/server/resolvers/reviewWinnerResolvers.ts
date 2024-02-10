@@ -1,9 +1,10 @@
 import moment from "moment";
-import { userIsAdmin } from "../../lib/vulcan-users";
+import { restrictViewableFieldsSingle } from "../../lib/vulcan-users";
 import { defineQuery } from "../utils/serverGraphqlUtil";
 import { onStartup } from "../../lib/executionEnvironment";
 import { createAnonymousContext } from "../vulcan-lib";
 import type { ReviewWinnerWithPost } from "../repos/ReviewWinnersRepo";
+import Posts from "../../lib/collections/posts/collection";
 
 interface ReviewWinnerCache {
   reviewWinners: ReviewWinnerWithPost[];
@@ -25,40 +26,22 @@ onStartup(async () => {
   await updateReviewWinnerCache(createAnonymousContext());
 });
 
-// TO DO: have the right permissions checks when we get the posts
+function restrictReviewWinnerPostFields(reviewWinners: ReviewWinnerWithPost[], context: ResolverContext) {
+  return reviewWinners.map(({ reviewWinner, ...post }) => ({
+    ...restrictViewableFieldsSingle(context.currentUser, Posts, post),
+    reviewWinner
+  }));
+}
+
 defineQuery({
   name: 'GetAllReviewWinners',
   resultType: '[Post!]!',
   fn: async (root, args, context) => {
-    const { currentUser } = context;
-
-    // if (!userIsAdmin(currentUser)) {
-    //   throw new Error('Only admins may fetch all review winners using this API!');
-    // }
-
     const cacheStale = moment(REVIEW_WINNER_CACHE.lastUpdatedAt).isBefore(moment(new Date()).subtract(1, 'hour'));
     if (cacheStale) {
       await updateReviewWinnerCache(context);
     }
 
-    return REVIEW_WINNER_CACHE.reviewWinners;
+    return restrictReviewWinnerPostFields(REVIEW_WINNER_CACHE.reviewWinners, context);
   }
-})
-
-// defineMutation({
-//   name: 'UpdateReviewWinnerOrder',
-//   resultType: '[ReviewWinnerWithPost!]!',
-//   argTypes: '(reviewWinnerId: String!, newCuratedOrder: Int!)',
-//   fn: async (_, { reviewWinnerId, newCuratedOrder }: { reviewWinnerId: string, newCuratedOrder: number }, context) => {
-//     const { currentUser } = context;
-
-//     if (!userIsAdmin(currentUser)) {
-//       throw new Error('Only admins may update review winner ordering!');
-//     }
-
-//     await context.repos.reviewWinners.updateCuratedOrder(reviewWinnerId, newCuratedOrder);
-//     await updateReviewWinnerCache(context);
-
-//     return REVIEW_WINNER_CACHE.reviewWinners;
-//   }
-// });
+});
