@@ -398,19 +398,23 @@ const styles = (theme: ThemeType) => ({
     '&:hover $imageGridPostBackground': {
       transitionDelay: '0.2s'
     },
+    '&:has($imageGridPost:hover) $imageGridBackground': {
+      opacity: 0
+    }
   },
   // If we want to display a grid with more than 6 items, increase this number
   ...Object.fromEntries(Array.from({ length: MAX_GRID_SIZE }, (_, i) => gridPositionToClassesEntry(theme, i))),
   imageGridBackground: {
     top: 0,
     right: 0,
-    height: "120%",
-    width: "100%",
+    // height: "120%",
+    // width: "100%",
     zIndex: -1,
     position: "absolute",
     objectFit: "cover",
     objectPosition: "right",
-    transition: "opacity 0.2s ease-in"
+    transition: "opacity 0.2s ease-in",
+    opacity: 1,
   },
   showAllBackgroundWrapper: {
     '&:hover $imageGridPostBackground': {
@@ -532,13 +536,14 @@ const styles = (theme: ThemeType) => ({
     position: "absolute",
     top: 0,
     left: 0,
-    height: "100%",
-    width: "100%",
+    // height: "100%",
+    // width: "100%",
     opacity: 0,
     objectFit: "cover",
     objectPosition: "right",
     zIndex: -1,
     transition: "opacity 0.2s ease-in",
+    // background: 'linear-gradient(0deg, white 3%, transparent 48%)',
   },
   imageGridPostAuthor: {
     opacity: 0,
@@ -799,14 +804,19 @@ function getPostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element
   // TODO: replace this functionality (incl. in any components that use it) with the actual image url from the post/review winner
   const backgroundImageIndex = (rowIdx * postGridRows) + columnIdx;
 
+  if (!post) {
+    return emptyCellElement;
+  }
+
+  const reviewWinnerArt = post.reviewWinner?.reviewWinnerArt ?? undefined;
+  const imgSrc = getSplashArtUrl({ reviewWinnerArt, leftBookOffset, fallbackUrl: candidateImages[backgroundImageIndex] });
+
   if (isLastCellInDefaultView) {
-    if (!post) {
-      return emptyCellElement;
-    }
 
     const imageGridPostElement = <ImageGridPost
       key={post._id}
       post={post}
+      imgSrc={imgSrc}
       classes={classes}
       index={backgroundImageIndex}
       leftBookOffset={leftBookOffset}
@@ -821,6 +831,7 @@ function getPostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element
       handleToggleFullyOpen={handleToggleFullyOpen}
       showAllVisible={isExpanded && !isShowingAll}
       backgroundImageIndex={backgroundImageIndex}
+      imgSrc={imgSrc}
       classes={classes}
     />;
   } else if (isShowingAll && isLastCellInShowingAllView) {
@@ -838,14 +849,13 @@ function getPostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element
     );
   }
 
-  if (!post) {
-    return emptyCellElement;
-  }
+
 
   return (
     <ImageGridPost
       key={post._id}
       post={post}
+      imgSrc={imgSrc}
       classes={classes}
       index={backgroundImageIndex}
       leftBookOffset={leftBookOffset}
@@ -883,7 +893,11 @@ function getSplashArtUrl({ reviewWinnerArt, leftBookOffset, fallbackUrl }: GetSp
     [`${coordinatePosition}HeightPct` as const]: heightPct,  
   } = activeSplashArtCoordinates ?? DEFAULT_SPLASH_ART_COORDINATES;
 
-  const cropPathParam = `c_crop,h_${heightPct},w_${widthPct},x_${xPct},y_${yPct}`;
+  const newXPct = xPct - (widthPct * leftBookOffset); 
+  const newWidthPct = widthPct*3; // this will break the url if it goes above 1, but it shouldn't
+  const newHeightPct = 1 - yPct; // I think we just want the full image to flow down below
+
+  const cropPathParam = `c_crop,h_${newHeightPct},w_${newWidthPct},x_${newXPct},y_${yPct}`;
   const croppedImageUrl = splashArtImageUrl.replace('upload/', `upload/${cropPathParam}/`);
 
   return croppedImageUrl;
@@ -978,12 +992,13 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   </div>;
 }
 
-const ShowAllPostItem = ({ imageGridId, imageGridPost, showAllVisible, handleToggleFullyOpen, backgroundImageIndex, classes }: {
+const ShowAllPostItem = ({ imageGridId, imageGridPost, showAllVisible, handleToggleFullyOpen, backgroundImageIndex, imgSrc, classes }: {
   imageGridId: string,
   imageGridPost: JSX.Element,
   showAllVisible: boolean,
   handleToggleFullyOpen: (id: string) => void,
   backgroundImageIndex: number,
+  imgSrc: string,
   classes: ClassesType<typeof styles>
 }) => {
   const postItemClassName = classNames(classes.showAllPostItem, {
@@ -1007,14 +1022,15 @@ const ShowAllPostItem = ({ imageGridId, imageGridPost, showAllVisible, handleTog
           Show All
       </div>
     </div>
-    <img className={classes.imageGridPostBackground} src={candidateImages[backgroundImageIndex]} />
+    <img className={classes.imageGridPostBackground} src={imgSrc}/>
   </div>;
 };
 
-const ImageGridPost = ({ post, index, leftBookOffset, classes, offscreen = false, hidden = false }: {
+const ImageGridPost = ({ post, index, leftBookOffset, imgSrc, classes, offscreen = false, hidden = false }: {
   post: PostsTopItemInfo,
   index: number,
   leftBookOffset: number,
+  imgSrc: string,
   classes: ClassesType<typeof styles>,
   offscreen?: boolean,
   hidden?: boolean,
@@ -1023,9 +1039,6 @@ const ImageGridPost = ({ post, index, leftBookOffset, classes, offscreen = false
     [classes.imageGridPostOffscreen]: offscreen && !hidden,
     [classes.imageGridPostHidden]: hidden
   });
-
-  const reviewWinnerArt = post.reviewWinner?.reviewWinnerArt ?? undefined;
-  const imgSrc = getSplashArtUrl({ reviewWinnerArt, leftBookOffset, fallbackUrl: candidateImages[index] });
 
   return <Link className={classes.imageGridPost} key={post._id} to={postGetPageUrl(post)}>
     <div className={classes.imageGridPostBody}>
@@ -1036,7 +1049,7 @@ const ImageGridPost = ({ post, index, leftBookOffset, classes, offscreen = false
         {post.title}
       </div>
     </div>
-    <img className={classes.imageGridPostBackground} src={imgSrc} />
+    <img className={classes.imageGridPostBackground} src={imgSrc}/>
   </Link>;
 }
 

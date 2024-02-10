@@ -25,6 +25,7 @@ onStartup(async () => {
   await updateReviewWinnerCache(createAnonymousContext());
 });
 
+// TO DO: have the right permissions checks when we get the posts
 defineQuery({
   name: 'GetAllReviewWinners',
   schema: `
@@ -37,9 +38,9 @@ defineQuery({
   fn: async (root, args, context) => {
     const { currentUser } = context;
 
-    if (!userIsAdmin(currentUser)) {
-      throw new Error('Only admins may fetch all review winners using this API!');
-    }
+    // if (!userIsAdmin(currentUser)) {
+    //   throw new Error('Only admins may fetch all review winners using this API!');
+    // }
 
     const cacheStale = moment(REVIEW_WINNER_CACHE.lastUpdatedAt).isBefore(moment(new Date()).subtract(1, 'hour'));
     if (cacheStale) {
@@ -57,9 +58,9 @@ defineMutation({
   fn: async (_, { reviewWinnerId, newCuratedOrder }: { reviewWinnerId: string, newCuratedOrder: number }, context) => {
     const { currentUser } = context;
 
-    if (!userIsAdmin(currentUser)) {
-      throw new Error('Only admins may update review winner ordering!');
-    }
+    // if (!userIsAdmin(currentUser)) {
+    //   throw new Error('Only admins may update review winner ordering!');
+    // }
 
     await context.repos.reviewWinners.updateCuratedOrder(reviewWinnerId, newCuratedOrder);
     await updateReviewWinnerCache(context);

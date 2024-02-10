@@ -42,14 +42,14 @@ function getOffsetPercentages<T extends CoordinatePosition>(imgCoordinates: Coor
   const relativeXOffset = boxX - imgX;
   const relativeYOffset = boxY - imgY;
 
-  const xPct = (relativeXOffset / imgWidth) * 100;
-  const yPct = (relativeYOffset / imgHeight) * 100;
+  const xPct = (relativeXOffset / imgWidth);
+  const yPct = (relativeYOffset / imgHeight);
 
-  const widthPct = (boxWidth / imgWidth) * 100;
+  const widthPct = (boxWidth / imgWidth);
   // This is the "correct" height percentage
-  // const heightPct = (boxHeight / imgHeight) * 100;
+  // const heightPct = (boxHeight / imgHeight);
   // This is the "all the way to the bottom of the image" percentage, which we prefer to use if it turns out it doen't mess up aspect ratios or whatever
-  const heightPct = ((boxHeight - relativeYOffset) / boxHeight) * 100;
+  const heightPct = ((boxHeight - relativeYOffset) / boxHeight);
 
   return {
     [`${prefix}XPct`]: xPct,
