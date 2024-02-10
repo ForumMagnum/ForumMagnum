@@ -1,10 +1,11 @@
+import { Posts } from "../../lib/collections/posts";
 import ReviewWinners from "../../lib/collections/reviewWinners/collection";
 import { updateMutator } from "../vulcan-lib";
 import { createAdminContext } from "../vulcan-lib/query";
 import { registerMigration } from "./migrationUtils";
 
 interface ReviewWinnerCategoryAndOrder {
-  _id: string;
+  title: string;
   category: DbReviewWinner['category'];
   curatedOrder: number;
 }
@@ -18,10 +19,12 @@ registerMigration({
   action: async () => {
     const adminContext = createAdminContext();
 
-    for (let { _id, category, curatedOrder } of reviewWinnerCategories) {
+    for (let { title, category, curatedOrder } of reviewWinnerCategories) {
+      const dbPost = await Posts.findOne({ title })
+      if (!dbPost) throw new Error(`Post with title ${title} not found`);
       await updateMutator({
         collection: ReviewWinners,
-        documentId: _id,
+        documentId: dbPost._id,
         set: {
           category,
           curatedOrder

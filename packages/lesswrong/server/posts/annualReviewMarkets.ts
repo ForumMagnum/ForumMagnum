@@ -1,7 +1,7 @@
 import { AnnualReviewMarketInfo } from "../../lib/annualReviewMarkets";
 import ManifoldProbabilitiesCaches from "../../lib/collections/manifoldProbabilitiesCaches/collection";
 import { manifoldAPIKeySetting } from "../../lib/instanceSettings";
-import { createAdminContext, createMutator } from "../vulcan-lib";
+import { createAdminContext } from "../vulcan-lib";
 
 const manifoldAPIKey = manifoldAPIKeySetting.get()
 
