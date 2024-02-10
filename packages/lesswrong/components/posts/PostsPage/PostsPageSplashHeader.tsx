@@ -76,7 +76,7 @@ const styles = (theme: ThemeType) => ({
     },
     // Also, the images have a width of 2752px, so if the screen is wider(!!!) than that, make sure it covers everything
     '@media (min-width: 2752px)': {
-      height: '100%',
+      width: '100%',
     },
   },
   backgroundImage: {
