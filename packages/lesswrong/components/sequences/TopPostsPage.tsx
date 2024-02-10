@@ -584,8 +584,6 @@ function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOr
 
 function getLeftOffset(index: number, columnLength: number) {
   return index % columnLength;
-  // const rightOffset = (columnLength - 1) - leftOffset;
-  // return [leftOffset, rightOffset];
 }
 
 function useWindowWidth(defaultValue = 2000): number {
@@ -724,6 +722,7 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
     return <PostsImageGrid {...props} />;
   }
 
+  // TODO: use `category` field on the review winner to determine which posts go in which grid after it's populated
   const sectionGrid = Object.entries(sectionsInfo).map(([id, { title, img, tag }], index) => {
     const posts = sortedReviewWinners.map((post) => post).filter(post => !tag || post.tags.map(tag => tag.name).includes(tag));
     return getPostsImageGrid(posts, img, title, id, index);

@@ -14,6 +14,7 @@ import { useHover } from '../../common/withHover';
 import { hideScrollBars } from '../../../themes/styleUtils';
 import { useCurrentUser } from '../../common/withUser';
 import { Coordinates } from './ImageCropPreview';
+import { userIsAdminOrMod } from '../../../lib/vulcan-users';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -463,7 +464,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
 
   const { anchorEl, hover, eventHandlers } = useHover();
 
-  // TODO: uncomment currentUser.isAdmin
   return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef} >
     {
       /* 
@@ -498,8 +498,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
         <div className={classes.rightSectionBottomRow}>
           <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
         </div>
-        {currentUser && <div className={classes.rightSectionBelowBottomRow}> 
-        {/* && currentUser.isAdmin */}
+        {userIsAdminOrMod(currentUser) && <div className={classes.rightSectionBelowBottomRow}> 
           <div {...eventHandlers}>
             <div className={classes.changeImageBox}>Change image</div>
             <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>

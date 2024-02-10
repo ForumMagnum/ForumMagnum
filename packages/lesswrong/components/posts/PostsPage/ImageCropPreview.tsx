@@ -3,7 +3,6 @@ import { registerComponent } from '../../../lib/vulcan-lib';
 import { useImageContext, ReviewWinnerImageInfo } from './ImageContext';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useCreate } from '../../../lib/crud/withCreate';
-import { useUpdate } from '../../../lib/crud/withUpdate';
 import { useWindowSize } from '../../hooks/useScreenWidth';
 import { COORDINATE_POSITIONS_TO_BOOK_OFFSETS, CoordinatePosition } from '../../sequences/TopPostsPage';
 
