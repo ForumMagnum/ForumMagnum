@@ -12,6 +12,7 @@ import { getOpenAI } from '../../languageModels/languageModelIntegration.ts';
 import { sleep } from '../../../lib/utils/asyncUtils.ts';
 import shuffle from 'lodash/shuffle';
 import { trace } from '../../../lib/helpers.ts';
+import { filterNonnull } from '../../../lib/utils/typeGuardUtils.ts';
 
 const DEPLOY = false
 
@@ -284,7 +285,7 @@ async function generateCoverImages({limit = 2}: {
               .then(trace(`Got image for ${el}`))
               .then(x => x === undefined ? Promise.resolve([]) : upscaledImages(el, postedEssay, x.messageId))
               .then(trace(`Upscaled & saved ${el}`))
-              .then(urls => postPromptImages(el, postedEssay, urls.filter(url => !!url) as string[]))
+              .then(urls => postPromptImages(el, postedEssay, filterNonnull(urls)))
             return [...ims, im]
           }, Promise.resolve([]) as Promise<string[]>))
       .then(ims => ims.flat())

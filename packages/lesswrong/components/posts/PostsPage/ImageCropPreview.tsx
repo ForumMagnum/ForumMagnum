@@ -11,7 +11,7 @@ const initialHeight = 480;
 const initialWidth = 360 * 3;
 const aspectRatio = initialHeight / initialWidth;
 
-type Coordinates = {
+export type Coordinates = {
   x: number,
   y: number,
   width: number,
@@ -215,9 +215,10 @@ export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImage
   </>)
 }
 
-export const ImageCropPreview = ({ reviewWinner, imgRef, classes }: {
+export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes }: {
   reviewWinner: ReviewWinnerAll,
   imgRef: RefObject<HTMLImageElement>,
+  setCropPreview: (coordinates?: Coordinates) => void,
   classes: ClassesType<typeof styles>
 }) => {
   const [isBoxVisible, setIsBoxVisible] = useState(false);
@@ -238,6 +239,13 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, classes }: {
 
   const initialCachedCoordinates: Record<string, BoxSubContainers> = {} 
   const [cachedBoxCoordinates, setCachedBoxCoordinates] = useState(initialCachedCoordinates);
+  
+  const toggleBoxVisibility = () => {
+    // If we're closing the box, pass that back to undo all the relevant styling
+    const newCropPreviewCoords = isBoxVisible ? undefined : boxCoordinates;
+    setCropPreview(newCropPreviewCoords);
+    setIsBoxVisible(!isBoxVisible);
+  }
 
   const startDragging = (e: React.MouseEvent<HTMLDivElement>) => {
     // Prevent triggering drag when clicking the close button or the resize button
@@ -278,6 +286,18 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, classes }: {
     };
 
     setBoxCoordinates(newCoordinates);
+
+    setCropPreview(newCoordinates);
+
+    // if (imgRef.current) {
+    //   const updatedMask = `
+    //     linear-gradient(#000 0 0) ${newCoordinates.x}px ${newCoordinates.y}px/${newCoordinates.width}px ${newCoordinates.height}px,
+    //     linear-gradient(rgba(0,0,0,0.4) 0 0)
+    //   `;
+    //   imgRef.current.style.mask = `${updatedMask} no-repeat`;
+    //   imgRef.current.style.webkitMask = updatedMask;
+    //   imgRef.current.style.webkitMaskRepeat = 'no-repeat';
+    // }
   };
 
   const resizeBox = (e: MouseEvent) => {
@@ -373,7 +393,7 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, classes }: {
   const moveableBoxStyle = {
     left: boxCoordinates.x,
     top: boxCoordinates.y,
-    backgroundImage: `url(${selectedImageInfo?.splashArtImageUrl})`, 
+    // backgroundImage: `url(${selectedImageInfo?.splashArtImageUrl})`, 
     backgroundPosition: `-${boxCoordinates.x}px -${boxCoordinates.y}px`, // Set the background position based on boxPosition
     backgroundSize: `${windowSize.width}px auto`, // Ensure the background image covers the entire screen     
     width: boxCoordinates.width,
@@ -398,10 +418,10 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, classes }: {
 
   return (
     <>
-      <button className={classes.button} onClick={() => setIsBoxVisible(!isBoxVisible)}>Show Box</button>
+      <button className={classes.button} onClick={toggleBoxVisibility}>Show Box</button>
       {isBoxVisible && selectedImageInfo && selectedImageInfo.imageId && (
         <>
-        <div className={classes.overlay}></div>
+        {/* <div className={classes.overlay}></div> */}
         <div className={classes.moveableBox}
             style={moveableBoxStyle}
             onMouseDown={handleMouseDown}>
@@ -418,12 +438,12 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, classes }: {
               {error && <div>Error saving. Please try again.</div>}
             </div>
             {showSaveSuccess && <div className={classes.successNotification}>Coordinates saved successfully!<div onClick={() => setShowSaveSuccess(false)}>(click here to close)</div></div>}
-            <div className={classes.closeButton} onClick={() => setIsBoxVisible(false)}>
+            <div className={classes.closeButton} onClick={toggleBoxVisibility}>
                 x
             </div>
             <div
-                className={classes.resizer}
-                onMouseDown={handleMouseDown}
+              className={classes.resizer}
+              onMouseDown={handleMouseDown}
             ></div>
         </div>
         </>

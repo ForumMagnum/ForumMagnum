@@ -526,6 +526,11 @@ const styles = (theme: ThemeType) => ({
       opacity: 1
     },
   },
+  emptyGridCell: {
+    borderRight: "1px solid white",
+    borderBottom: "1px solid white",
+    zIndex: 3,
+  },
   imageGridPostBackground: {
     display: 'block',
     position: "absolute",
@@ -552,6 +557,8 @@ const styles = (theme: ThemeType) => ({
   imageGridPostTitle: {
     transition: "opacity 0.2s ease-in",
   },
+  // TODO: anything here?
+  expandIcon: {}
 });
 
 function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOrder: LWReviewWinnerSortOrder) {
@@ -792,7 +799,7 @@ function getPostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element
   const isLastCellInShowingAllView = (rowIdx === (postGridRows - 1)) && (columnIdx === (postGridColumns - 1));
 
   // TODO: style with appropriate width/height for offsetting the collapse-all button
-  const emptyCellElement = <div key={`empty-${rowIdx}-${columnIdx}`} />;
+  const emptyCellElement = <div key={`empty-${rowIdx}-${columnIdx}`} className={classes.emptyGridCell} />;
 
   // TODO: replace this functionality (incl. in any components that use it) with the actual image url from the post/review winner
   const backgroundImageIndex = (rowIdx * postGridRows) + columnIdx;
@@ -923,7 +930,7 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   /** The number of columns in the grid's expanded (and "show all") state */
   const postGridColumns = horizontalBookGridCount * 3;
   /** The number of rows in the grid's "show all" state */
-  const postGridRows = Math.ceil(posts.length / postGridColumns);
+  const postGridRows = Math.max(Math.ceil(posts.length / postGridColumns), 4);
 
   const viewportWidth = 3;
   const viewportHeight = 4;

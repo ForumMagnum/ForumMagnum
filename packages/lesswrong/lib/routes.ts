@@ -855,9 +855,16 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'bestoflesswrong',
       path: '/bestoflesswrong',
-      componentName: 'BestOfLessWrong',
+      componentName: 'TopPostsPage',
       title: "Best of LessWrong",
+      background: "#f8f4ee",
       ...bestoflwSubtitle,
+    },
+    { 
+      name: 'books',
+      path: '/books',
+      componentName: 'Books',
+      title: "Books",
     },
     {
       name: 'HPMOR',
@@ -913,11 +920,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       ...codexSubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
-    },
-    {
-      name: 'bookLanding',
-      path: '/books',
-      redirect: () => `/books/2018`,
     },
     {
       name: 'book2018Landing',
@@ -1541,14 +1543,6 @@ addRoute(
     componentName: 'AllPostsPage',
     enableResourcePrefetch: true,
     title: "All Posts",
-  },
-  {
-    name: 'reviewWinners',
-    path: '/reviewWinners',
-    componentName: 'TopPostsPage',
-    // enableResourcePrefetch: true,
-    title: 'Annual Review Winners',
-    background: "#f8f4ee"
   },
   {
     name: 'questions',
