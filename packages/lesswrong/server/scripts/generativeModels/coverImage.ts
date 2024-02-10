@@ -73,10 +73,14 @@ const getEssays = async (): Promise<Essay[]> => {
   const reviewArts = await ReviewWinnerArts
     .find({})
     .fetch();
+  const postIdsWithoutLotsOfArt = postIds
+  .filter(p => (reviewArts.filter(a => a.postId === p.postId) ?? []).length < 10)
   const postIdsWithoutEnoughArt = postIds
-    .filter(p => (reviewArts.filter(a => a.postId === p.postId) ?? []).length < 12)
+  .filter(p => (reviewArts.filter(a => a.postId === p.postId) ?? []).length < 12)
 
-  const es = await Posts.find({ _id: { $in: postIdsWithoutEnoughArt.map(p => p.postId) } }).fetch();
+  const postsToFind = postIdsWithoutLotsOfArt.length > 0 ? postIdsWithoutLotsOfArt : postIdsWithoutEnoughArt
+
+  const es = await Posts.find({ _id: { $in: postsToFind.map(p => p.postId) } }).fetch();
 
   return es.map(e => {
     return {post: e, title: e.title, content: e.contents.html }
