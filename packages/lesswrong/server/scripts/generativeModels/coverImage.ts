@@ -295,7 +295,7 @@ async function generateCoverImages({limit = 2}: {
 }
 
 async function main () {
-  const newImages = await generateCoverImages({limit: 100})
+  const newImages = await generateCoverImages({limit: 9999})
   if (newImages.length === 0) return
   await sleep(10_000)
   await main()
