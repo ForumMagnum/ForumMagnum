@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const PostsAnnualReviewMarketTag = ({ post, annualReviewMarketInfo, classes }: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
+  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   annualReviewMarketInfo: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
