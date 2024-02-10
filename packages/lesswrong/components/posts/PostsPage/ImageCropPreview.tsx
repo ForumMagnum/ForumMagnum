@@ -157,7 +157,7 @@ export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImage
     classes: ClassesType<typeof styles>
   }) => {
   
-      // Update the style of each boxSub based on the selected box
+  // Update the style of each boxSub based on the selected box
   const handleBoxClick = (subBox: CoordinatePosition) => {
     setSelectedBox(subBox);
   };
@@ -328,13 +328,7 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     fragmentName: 'SplashArtCoordinates'
   });
 
-  // const {mutate: updateReviewWinner, error: updateRWError} = useUpdate({
-  //   collectionName: "ReviewWinners",
-  //   fragmentName: 'ReviewWinnerAll',
-  // });
-
   const saveAllCoordinates = useCallback(async () => {
-    console.log('Attempting to save coordinates');
 
     if (!imgRef.current) {
       console.error('Missing image ref');
