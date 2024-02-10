@@ -70,8 +70,12 @@ const styles = (theme: ThemeType) => ({
     },
     transition: 'opacity 0.5s ease-in-out',
     opacity: 1,
-    // The image naturally has a landscape aspect ratio, so when viewing it in a portrait orientation we set height to 100% to scale it appropriately
+    // The images naturally have a landscape aspect ratio, so when viewing it in a portrait orientation we set height to 100% to scale it appropriately
     '@media (orientation:portrait)': {
+      height: '100%',
+    },
+    // Also, the images have a width of 2752px, so if the screen is wider(!!!) than that, make sure it covers everything
+    '@media (min-width: 2752px)': {
       height: '100%',
     },
   },
