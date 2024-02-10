@@ -9,7 +9,7 @@ import { HashLink } from '../../common/HashLink';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import { useObserver } from '../../hooks/useObserver';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
-import { useImageContext, ReviewWinnerImageInfo } from './ImageContext';
+import { useImageContext } from './ImageContext';
 import { useHover } from '../../common/withHover';
 import { hideScrollBars } from '../../../themes/styleUtils';
 import { useCurrentUser } from '../../common/withUser';
@@ -435,21 +435,18 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
   const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
 
-  const default_images = ["https://res.cloudinary.com/lesswrong-2-0/image/upload/v1705983138/ohabryka_Beautiful_aquarelle_painting_of_the_Mississipi_river_c_b3c80db9-a731-4b16-af11-3ed6281ba167_xru9ka.png", "https://cl.imagineapi.dev/assets/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746/0ca0fb1c-ea90-4b60-bebe-eb38bf5b2746.png", "https://cl.imagineapi.dev/assets/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd/e3d92e0f-71c1-4f44-b0f9-cbaae23b24dd.png"]
+  useEffect(() => {
+    const postLastSavedImage = post.reviewWinner.reviewWinnerArt?.splashArtImageUrl;
 
+    const newBackgroundImage =
+      selectedImageInfo?.splashArtImageUrl ||
+      postLastSavedImage ||
+      post.reviewWinnerArt[0].splashArtImageUrl;
 
-    useEffect(() => {
-      const postLastSavedImage = post.reviewWinner.reviewWinnerArt?.splashArtImageUrl;
-
-      const newBackgroundImage =
-        selectedImageInfo?.splashArtImageUrl ||
-        postLastSavedImage ||
-        post.reviewWinnerArt[0].splashArtImageUrl;
-
-      if (newBackgroundImage) {
-        setBackgroundImage(newBackgroundImage);
-      }
-    }, [post, selectedImageInfo]); 
+    if (newBackgroundImage) {
+      setBackgroundImage(newBackgroundImage);
+    }
+  }, [post, selectedImageInfo]); 
 
   const { anchorEl, hover, eventHandlers } = useHover();
 

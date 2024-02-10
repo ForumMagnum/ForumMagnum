@@ -59,103 +59,100 @@ function getOffsetPercentages<T extends CoordinatePosition>(imgCoordinates: Coor
 }
 
 const styles = (theme: ThemeType) => ({
-    button: {
-        padding: '10px 20px',
-        cursor: 'pointer',
-        backgroundColor: theme.palette.panelBackground.reviewGold,
-        color: 'white',
-        borderRadius: '4px',
-        fontSize: '1rem',
-    },
-    overlay: {
-        position: 'fixed',
-        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 10000,
-    },
-    moveableBox: { 
-        display: 'flex', 
-        flexDirection: 'column',
-        justifyContent: 'space-around',
-        marginBottom: '40px', 
-        position: 'absolute',
-        background: 'transparent',
-        border: '2px solid white',
-        cursor: 'move',
-        zIndex: 20000,
-    },
-    closeButton: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        cursor: 'pointer',
-        padding: '2px 5px',
-        userSelect: 'none', // Prevent text selection
-        color: 'black',
-        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-        fontSize: '1rem',
-    },
-    resizer: {
-      width: '10px',
-      height: '10px',
-      position: 'absolute',
-      bottom: 0,
-      right: 0,
-      cursor: 'nwse-resize',
-      backgroundColor: '#fff',
-      border: '1px solid #000',
-    },
-    saveCoordinates: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      cursor: 'pointer',
-      padding: '2px 5px',
-      userSelect: 'none', // Prevent text selection
-      color: 'black',
-      fontSize: '1rem',
-    },
-    saveAllCoordinates: {
-      position: 'absolute',
-      display: 'block',
-      bottom: 0,
-      left: 0,
-      width: '100%',
-      cursor: 'pointer',
-      padding: '2px 5px',
-      userSelect: 'none', // Prevent text selection
-      color: 'black',
-      fontSize: '1rem',
-    },
-    successNotification: {
-      position: 'absolute',
-      display: 'block',
-      width: '100%',
-      cursor: 'pointer',
-      padding: '2px 5px',
-      userSelect: 'none', // Prevent text selection
-      color: 'black',
-      fontSize: '1rem',
-      backgroundColor: 'rgba(0, 255, 0, 0.7)',
-      textAlign: 'center',
-    },
-  });
+  button: {
+    padding: '10px 20px',
+    cursor: 'pointer',
+    backgroundColor: theme.palette.panelBackground.reviewGold,
+    color: 'white',
+    borderRadius: '4px',
+    fontSize: '1rem',
+  },
+  overlay: {
+    position: 'fixed',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: 10000,
+  },
+  moveableBox: { 
+    display: 'flex', 
+    flexDirection: 'column',
+    justifyContent: 'space-around',
+    marginBottom: '40px', 
+    position: 'absolute',
+    background: 'transparent',
+    border: '2px solid white',
+    cursor: 'move',
+    zIndex: 20000,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    cursor: 'pointer',
+    padding: '2px 5px',
+    userSelect: 'none', // Prevent text selection
+    color: 'black',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    fontSize: '1rem',
+  },
+  resizer: {
+    width: '10px',
+    height: '10px',
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    cursor: 'nwse-resize',
+    backgroundColor: '#fff',
+    border: '1px solid #000',
+  },
+  saveCoordinates: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    cursor: 'pointer',
+    padding: '2px 5px',
+    userSelect: 'none', // Prevent text selection
+    color: 'black',
+    fontSize: '1rem',
+  },
+  saveAllCoordinates: {
+    position: 'absolute',
+    display: 'block',
+    bottom: 0,
+    left: 0,
+    width: '100%',
+    cursor: 'pointer',
+    padding: '2px 5px',
+    userSelect: 'none', // Prevent text selection
+    color: 'black',
+    fontSize: '1rem',
+  },
+  successNotification: {
+    position: 'absolute',
+    display: 'block',
+    width: '100%',
+    cursor: 'pointer',
+    padding: '2px 5px',
+    userSelect: 'none', // Prevent text selection
+    color: 'black',
+    fontSize: '1rem',
+    backgroundColor: 'rgba(0, 255, 0, 0.7)',
+    textAlign: 'center',
+  },
+});
 
-export const ImagePreviewSubset = ({ reviewWinner, boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, cachedBoxCoordinates, setCachedBoxCoordinates, classes }: {
-    reviewWinner: ReviewWinnerAll,
-    boxCoordinates: Coordinates,
-    selectedImageInfo: ReviewWinnerImageInfo,
-    subBoxPosition: CoordinatePosition,
-    selectedBox: CoordinatePosition | null,
-    setSelectedBox: React.Dispatch<React.SetStateAction<CoordinatePosition | null>>,
-    cachedBoxCoordinates: Record<string, BoxSubContainers>,
-    setCachedBoxCoordinates: React.Dispatch<React.SetStateAction<Record<string, BoxSubContainers>>>,
-    classes: ClassesType<typeof styles>
-  }) => {
-  
+export const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, cachedBoxCoordinates, setCachedBoxCoordinates }: {
+  boxCoordinates: Coordinates,
+  selectedImageInfo: ReviewWinnerImageInfo,
+  subBoxPosition: CoordinatePosition,
+  selectedBox: CoordinatePosition | null,
+  setSelectedBox: React.Dispatch<React.SetStateAction<CoordinatePosition | null>>,
+  cachedBoxCoordinates: Record<string, BoxSubContainers>,
+  setCachedBoxCoordinates: React.Dispatch<React.SetStateAction<Record<string, BoxSubContainers>>>,
+}) => {
   // Update the style of each boxSub based on the selected box
   const handleBoxClick = (subBox: CoordinatePosition) => {
     setSelectedBox(subBox);
@@ -312,6 +309,7 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     if (isResizing) resizeBox(e);
   }
 
+  // TODO: does this need to do anything??
   const updateWindowSize = () => {
     // setWindowSize({ width: window.innerWidth, height: window.innerHeight });
   };
@@ -328,11 +326,11 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
   });
 
   const saveAllCoordinates = useCallback(async () => {
-
     if (!imgRef.current) {
       console.error('Missing image ref');
       return;
     }
+
     try {
 
       const saveAllCoordinatesValid = (selectedImageInfo && 
@@ -391,22 +389,34 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     width: boxCoordinates.width,
     height: boxCoordinates.height,             
   };
-  // log percentages  !!!
-  // render image as an image instead of css property
 
   // Add a state to track the selected box
   const [selectedBox, setSelectedBox] = useState<CoordinatePosition | null>(null);
+
+  if (!selectedImageInfo) {
+    return null;
+  }
 
   const boxSubContainers = {
     display: 'flex',
     justifyContent: 'space-around',
   };
 
-  const showSaveAllButton = (selectedImageInfo && 
+  const showSaveAllButton = ( 
     cachedBoxCoordinates[selectedImageInfo._id] && 
     cachedBoxCoordinates[selectedImageInfo._id]["left"] && 
     cachedBoxCoordinates[selectedImageInfo._id]["middle"] && 
-    cachedBoxCoordinates[selectedImageInfo._id]["right"]) 
+    cachedBoxCoordinates[selectedImageInfo._id]["right"]
+  );
+
+  const previewSubsetProps = {
+    boxCoordinates,
+    selectedImageInfo,
+    selectedBox,
+    setSelectedBox,
+    cachedBoxCoordinates,
+    setCachedBoxCoordinates,
+  };
 
   return (
     <>
@@ -418,9 +428,9 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
             style={moveableBoxStyle}
             onMouseDown={handleMouseDown}>
             <div style={boxSubContainers}>
-              <ImagePreviewSubset reviewWinner={reviewWinner} boxCoordinates={boxCoordinates} selectedImageInfo={selectedImageInfo} subBoxPosition={"left"} selectedBox={selectedBox} setSelectedBox={setSelectedBox} cachedBoxCoordinates={cachedBoxCoordinates} setCachedBoxCoordinates={setCachedBoxCoordinates} classes={classes} />
-              <ImagePreviewSubset reviewWinner={reviewWinner} boxCoordinates={boxCoordinates} selectedImageInfo={selectedImageInfo} subBoxPosition={"middle"} selectedBox={selectedBox} setSelectedBox={setSelectedBox} cachedBoxCoordinates={cachedBoxCoordinates} setCachedBoxCoordinates={setCachedBoxCoordinates} classes={classes} />
-              <ImagePreviewSubset reviewWinner={reviewWinner} boxCoordinates={boxCoordinates} selectedImageInfo={selectedImageInfo} subBoxPosition={"right"} selectedBox={selectedBox} setSelectedBox={setSelectedBox} cachedBoxCoordinates={cachedBoxCoordinates} setCachedBoxCoordinates={setCachedBoxCoordinates} classes={classes} />
+              <ImagePreviewSubset subBoxPosition='left' {...previewSubsetProps} />
+              <ImagePreviewSubset subBoxPosition='middle' {...previewSubsetProps} />
+              <ImagePreviewSubset subBoxPosition='right' {...previewSubsetProps} />
             </div>
             <div className={classes.saveAllCoordinates} onClick={saveAllCoordinates}
                   style={{backgroundColor: showSaveAllButton ? 'rgba(0, 255, 0, 0.7)' : 'rgba(255, 0, 0, 0.3)'}}>
@@ -429,7 +439,12 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
                 : <div onClick={saveAllCoordinates}>{`Save all placements`}</div>}
               {error && <div>Error saving. Please try again.</div>}
             </div>
-            {showSaveSuccess && <div className={classes.successNotification}>Coordinates saved successfully!<div onClick={() => setShowSaveSuccess(false)}>(click here to close)</div></div>}
+            {showSaveSuccess && <div className={classes.successNotification}>
+              Coordinates saved successfully!
+              <div onClick={() => setShowSaveSuccess(false)}>
+                (click here to close)
+              </div>
+            </div>}
             <div className={classes.closeButton} onClick={toggleBoxVisibility}>
                 x
             </div>

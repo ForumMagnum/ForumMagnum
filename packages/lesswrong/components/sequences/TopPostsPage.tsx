@@ -12,15 +12,9 @@ import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './Top
 import { gql, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
-import { useMulti } from '../../lib/crud/withMulti';
 
-// type GetAllReviewWinnersQueryResult = Array<{
-//   // reviewWinner: ReviewWinnerEditDisplay;
-//   post: PostsTopItemInfo;
-// }>;
-
+/** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
-
 
 type ExpansionState = 'expanded' | 'collapsed' | 'default';
 type HiddenState = 'full' | 'hidden';
@@ -659,8 +653,6 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
 const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
   const { query } = location;
-  // TODO: make an admin-only edit icon somewhere
-  const [editOrderEnabled, setEditOrderEnabled] = useState(false);
 
   const [expansionState, setExpansionState] = useState<Record<string, ExpansionState>>({});
   const [fullyOpenGridId, setFullyOpenGridId] = useState<string>();
@@ -683,10 +675,7 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
     }
   };
 
-  const {
-    currentSortOrder,
-    aiPostsHidden
-  } = getCurrentTopPostDisplaySettings(query);
+  const { currentSortOrder } = getCurrentTopPostDisplaySettings(query);
 
   const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, ContentItemBody } = Components;
 
@@ -702,7 +691,6 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   `);
 
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
-
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
 
   function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, header: string, id: string, gridPosition: number) {
