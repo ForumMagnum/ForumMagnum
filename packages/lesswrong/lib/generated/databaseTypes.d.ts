@@ -985,6 +985,7 @@ interface DbReviewWinner extends DbObject {
   __collectionName?: "ReviewWinners"
   postId: string
   reviewYear: number
+  category: "rationality" | "modeling" | "optimization" | "ai" | "practical" | "misc"
   curatedOrder: number
   reviewRanking: number
   isAI: boolean

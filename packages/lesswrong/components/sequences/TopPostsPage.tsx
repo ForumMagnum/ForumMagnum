@@ -12,11 +12,15 @@ import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './Top
 import { gql, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
+import { useMulti } from '../../lib/crud/withMulti';
 
-type GetAllReviewWinnersQueryResult = Array<{
-  reviewWinner: ReviewWinnerEditDisplay;
-  post: PostsTopItemInfo;
-}>;
+// type GetAllReviewWinnersQueryResult = Array<{
+//   // reviewWinner: ReviewWinnerEditDisplay;
+//   post: PostsTopItemInfo;
+// }>;
+
+type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
+
 
 type ExpansionState = 'expanded' | 'collapsed' | 'default';
 type HiddenState = 'full' | 'hidden';
@@ -683,23 +687,15 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const { data } = useQuery(gql`
     query GetAllReviewWinners {
       GetAllReviewWinners {
-        reviewWinner {
-          ...ReviewWinnerEditDisplay
-        }
-        post {
-          ...PostsTopItemInfo
-        }
+        ...PostsTopItemInfo
       }
     }
-    ${fragmentTextForQuery('ReviewWinnerEditDisplay')}
     ${fragmentTextForQuery('PostsTopItemInfo')}
   `);
 
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
 
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
-  // If AI posts are hidden, only show those posts that are not marked as "AI" posts
-  const visibleReviewWinners = sortedReviewWinners.filter(({ reviewWinner: { isAI } }) => !aiPostsHidden || !isAI);
 
   function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, header: string, id: string, gridPosition: number) {
     const props = {
@@ -719,12 +715,12 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   }
 
   const sectionGrid = Object.entries(sectionsInfo).map(([id, { title, img, tag }], index) => {
-    const posts = visibleReviewWinners.map(({ post }) => post).filter(post => !tag || post.tags.map(tag => tag.name).includes(tag));
+    const posts = sortedReviewWinners.map((post) => post).filter(post => !tag || post.tags.map(tag => tag.name).includes(tag));
     return getPostsImageGrid(posts, img, title, id, index);
   });
 
   const yearGrid = Object.entries(yearGroupInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { img }], index) => {
-    const posts = visibleReviewWinners.filter(({ reviewWinner }) => reviewWinner.reviewYear.toString() === year).map(({ post }) => post);
+    const posts = sortedReviewWinners.filter(({ reviewWinner }) => reviewWinner?.reviewYear.toString() === year);
     return getPostsImageGrid(posts, img, year, year, index);
   });
 

@@ -11,7 +11,6 @@ import { useObserver } from '../../hooks/useObserver';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import { useImageContext, ReviewWinnerImageInfo } from './ImageContext';
 import { useHover } from '../../common/withHover';
-import { requireCssVar } from '../../../themes/cssVars';
 import { hideScrollBars } from '../../../themes/styleUtils';
 import { useCurrentUser } from '../../common/withUser';
 import { Coordinates } from './ImageCropPreview';
@@ -477,10 +476,10 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     <div className={classes.top}>
       <div className={classes.leftSection}>
         <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
-          Ranked #{post.reviewWinner.reviewRanking} of {post.reviewWinner.competitorCount} posts in the {post.reviewWinner.reviewYear} Review
+          Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts in the {post.reviewWinner.reviewYear} Review
         </Link>
         <Link className={classes.reviewNavigationMobile} to="/best-of-lesswrong">
-          #{post.reviewWinner?.reviewRanking} in 2021 Review
+          #{post.reviewWinner.reviewRanking + 1} in 2021 Review
         </Link>
         {toggleEmbeddedPlayer && audioIcon}
       </div>

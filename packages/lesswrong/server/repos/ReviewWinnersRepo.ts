@@ -2,10 +2,7 @@ import ReviewWinners from "../../lib/collections/reviewWinners/collection";
 import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 
-export interface ReviewWinnerWithPost {
-  reviewWinner: DbReviewWinner;
-  post: DbPost;
-}
+export type ReviewWinnerWithPost = DbPost & { reviewWinner: DbReviewWinner & { reviewWinnerArt: DbReviewWinnerArt } };
 
 class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
   constructor() {
@@ -63,9 +60,21 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
   }
 
   async getAllReviewWinnersWithPosts(): Promise<ReviewWinnerWithPost[]> {
-    const postsWithMetadata = await this.getRawDb().any<DbPost & { reviewWinner: DbReviewWinner }>(`
+    // We're doing some jank here that's basically identical to `ReviewWinnerArtsRepo.getActiveReviewWinnerArt`
+    // This is to avoid an n+1 when fetching all the review winners on the best of lesswrong page,
+    // which would otherwise be caused by the gql resolver for the reviewWinnerArt field on reviewWinner
+    const postsWithMetadata = await this.getRawDb().any<DbPost & { reviewWinner: DbReviewWinner, reviewWinnerArt: DbReviewWinnerArt }>(`
       SELECT
         TO_JSONB(rw.*) AS "reviewWinner",
+        (
+          SELECT TO_JSONB(rwa.*)
+          FROM "ReviewWinnerArts" AS rwa
+          JOIN "SplashArtCoordinates" AS sac
+          ON sac."reviewWinnerArtId" = rwa._id
+          WHERE rwa."postId" = p._id
+          ORDER BY sac."createdAt" DESC
+          LIMIT 1    
+        ) AS "reviewWinnerArt",
         p.*
       FROM "ReviewWinners" rw
       JOIN "Posts" p
@@ -74,21 +83,10 @@ class ReviewWinnersRepo extends AbstractRepo<"ReviewWinners"> {
 
     // We need to do this annoying munging in code because `TO_JSONB` causes date fields to be returned without being serialized into JS Date objects
     return postsWithMetadata.map(postWithMetadata => {
-      const { reviewWinner, ...post } = postWithMetadata;
-      return { reviewWinner, post };
+      const { reviewWinner, reviewWinnerArt, ...post } = postWithMetadata;
+      return Object.assign(post, { reviewWinner: Object.assign(reviewWinner, { reviewWinnerArt }) });
     });
   }
-
-  // async updateSplashArtCoordinateId(reviewWinnerId: string, splashArtCoordinateId: string) {
-  //   console.log(`Updating via updateSplashArtCoordinateId. reviewWinnerId: ${reviewWinnerId}, splashArtCoordinateId: ${splashArtCoordinateId}`);
-  //   await this.getRawDb().tx(async (tx) => {
-  //     await tx.none(`
-  //       UPDATE "ReviewWinners"
-  //       SET "splashArtCoordinateId" = $(splashArtCoordinateId)
-  //       WHERE _id = $(reviewWinnerId);
-  //     `, { splashArtCoordinateId, reviewWinnerId });
-  //   });
-  // }
 }
 
 recordPerfMetrics(ReviewWinnersRepo);

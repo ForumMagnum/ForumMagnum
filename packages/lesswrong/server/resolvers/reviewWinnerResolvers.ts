@@ -1,6 +1,6 @@
 import moment from "moment";
 import { userIsAdmin } from "../../lib/vulcan-users";
-import { defineMutation, defineQuery } from "../utils/serverGraphqlUtil";
+import { defineQuery } from "../utils/serverGraphqlUtil";
 import { onStartup } from "../../lib/executionEnvironment";
 import { createAnonymousContext } from "../vulcan-lib";
 import type { ReviewWinnerWithPost } from "../repos/ReviewWinnersRepo";
@@ -27,13 +27,7 @@ onStartup(async () => {
 
 defineQuery({
   name: 'GetAllReviewWinners',
-  schema: `
-    type ReviewWinnerWithPost {
-      reviewWinner: ReviewWinner!
-      post: Post!
-    }
-  `,
-  resultType: '[ReviewWinnerWithPost!]!',
+  resultType: '[Post!]!',
   fn: async (root, args, context) => {
     const { currentUser } = context;
 
@@ -50,20 +44,20 @@ defineQuery({
   }
 })
 
-defineMutation({
-  name: 'UpdateReviewWinnerOrder',
-  resultType: '[ReviewWinnerWithPost!]!',
-  argTypes: '(reviewWinnerId: String!, newCuratedOrder: Int!)',
-  fn: async (_, { reviewWinnerId, newCuratedOrder }: { reviewWinnerId: string, newCuratedOrder: number }, context) => {
-    const { currentUser } = context;
+// defineMutation({
+//   name: 'UpdateReviewWinnerOrder',
+//   resultType: '[ReviewWinnerWithPost!]!',
+//   argTypes: '(reviewWinnerId: String!, newCuratedOrder: Int!)',
+//   fn: async (_, { reviewWinnerId, newCuratedOrder }: { reviewWinnerId: string, newCuratedOrder: number }, context) => {
+//     const { currentUser } = context;
 
-    if (!userIsAdmin(currentUser)) {
-      throw new Error('Only admins may update review winner ordering!');
-    }
+//     if (!userIsAdmin(currentUser)) {
+//       throw new Error('Only admins may update review winner ordering!');
+//     }
 
-    await context.repos.reviewWinners.updateCuratedOrder(reviewWinnerId, newCuratedOrder);
-    await updateReviewWinnerCache(context);
+//     await context.repos.reviewWinners.updateCuratedOrder(reviewWinnerId, newCuratedOrder);
+//     await updateReviewWinnerCache(context);
 
-    return REVIEW_WINNER_CACHE.reviewWinners;
-  }
-});
+//     return REVIEW_WINNER_CACHE.reviewWinners;
+//   }
+// });

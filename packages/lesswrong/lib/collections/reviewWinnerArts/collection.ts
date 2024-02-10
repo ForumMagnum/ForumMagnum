@@ -3,6 +3,7 @@ import { addUniversalFields, getDefaultResolvers } from '../../collectionUtils'
 import { MutationOptions, getDefaultMutations } from '../../vulcan-core/default_mutations';
 import { schema } from './schema';
 import { userIsAdminOrMod } from '../../vulcan-users';
+import { ensureIndex } from '../../collectionIndexUtils';
 // import { ensureIndex } from '../../collectionIndexUtils';
 
 export const reviewWinnerArtMutationOptions: MutationOptions<DbReviewWinnerArt> = {
@@ -35,6 +36,6 @@ addUniversalFields({
   collection: ReviewWinnerArts,
 });
 
-// ensureIndex(ReviewWinnerArts, { postId: 1 }, { unique: false });
+ensureIndex(ReviewWinnerArts, { postId: 1 });
 
 export default ReviewWinnerArts;

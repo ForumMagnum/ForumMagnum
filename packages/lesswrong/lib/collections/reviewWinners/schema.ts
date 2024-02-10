@@ -1,7 +1,15 @@
-import { foreignKeyField, resolverOnlyField } from "../../utils/schemaUtils";
+import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 
 export const schema: SchemaType<"ReviewWinners"> = {
   postId: {
+    ...foreignKeyField({
+      collectionName: 'Posts',
+      idFieldName: 'postId',
+      resolverName: 'post',
+      type: 'Post',
+      nullable: false,
+      autoJoin: true
+    }),
     type: String,
     nullable: false,
     canRead: ['guests'],
@@ -15,7 +23,21 @@ export const schema: SchemaType<"ReviewWinners"> = {
     resolver: async (reviewWinner: DbReviewWinner, args: void, context: ResolverContext) => {
       const { repos } = context;
       return repos.reviewWinnerArts.getActiveReviewWinnerArt(reviewWinner.postId);
-    }
+    },
+    sqlResolver: ({ join, field }) => join({
+      table: 'ReviewWinnerArts',
+      type: 'left',
+      on: {
+        postId: field('postId')
+      },
+      resolver: (reviewWinnerArtsField) => `(
+        SELECT sac.*
+        FROM "SplashArtCoordinates" AS sac
+        WHERE sac."reviewWinnerArtsId" = ${reviewWinnerArtsField('_id')}
+        ORDER BY sac."createdAt" DESC
+        LIMIT 1
+      )`
+    })
   }),
   competitorCount: resolverOnlyField({
     type: 'Int',
@@ -36,7 +58,7 @@ export const schema: SchemaType<"ReviewWinners"> = {
           HAVING COUNT("Votes"."_id") > 1
       );
       */
-      const yearCompetitors: {[year: number]: number} = {
+      const yearCompetitors: Record<number, number> = {
         2018: 1744,
         2019: 2147,
         2020: 3015,
@@ -52,6 +74,15 @@ export const schema: SchemaType<"ReviewWinners"> = {
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins']
+  },
+  category: {
+    type: String,
+    allowedValues: ['rationality', 'modeling', 'optimization', 'ai', 'practical', 'misc'],
+    nullable: false,
+    canRead: ['guests'],
+    canCreate: ['admins'],
+    canUpdate: ['admins'],
+    ...schemaDefaultValue('misc'),
   },
   curatedOrder: {
     type: Number,

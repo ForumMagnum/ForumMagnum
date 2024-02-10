@@ -228,6 +228,11 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
   const initialBoxCoordinates: Coordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight}
   const [boxCoordinates, setBoxCoordinates] = useState(initialBoxCoordinates);
 
+  const updateBoxCoordinates = (newCoordinates: Coordinates) => {
+    setBoxCoordinates(newCoordinates);
+    setCropPreview(newCoordinates);
+  }
+
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 }); 
 
   const initialResizeInitialBoxCoordinates: Coordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight}
@@ -285,19 +290,7 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
       height: boxCoordinates.height,
     };
 
-    setBoxCoordinates(newCoordinates);
-
-    setCropPreview(newCoordinates);
-
-    // if (imgRef.current) {
-    //   const updatedMask = `
-    //     linear-gradient(#000 0 0) ${newCoordinates.x}px ${newCoordinates.y}px/${newCoordinates.width}px ${newCoordinates.height}px,
-    //     linear-gradient(rgba(0,0,0,0.4) 0 0)
-    //   `;
-    //   imgRef.current.style.mask = `${updatedMask} no-repeat`;
-    //   imgRef.current.style.webkitMask = updatedMask;
-    //   imgRef.current.style.webkitMaskRepeat = 'no-repeat';
-    // }
+    updateBoxCoordinates(newCoordinates);
   };
 
   const resizeBox = (e: MouseEvent) => {
@@ -305,7 +298,14 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     const newWidth = resizeInitialBoxCoordinates.width + additionalWidth;
     const newHeight = newWidth * aspectRatio;
 
-    setBoxCoordinates({ x: boxCoordinates.x, y: boxCoordinates.y, width: newWidth, height: newHeight });
+    const newCoordinates = {
+      x: boxCoordinates.x,
+      y: boxCoordinates.y,
+      width: newWidth,
+      height: newHeight
+    };
+    
+    updateBoxCoordinates(newCoordinates);
   };
 
   const handleBox = (e: MouseEvent) => {
@@ -327,11 +327,6 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     collectionName: 'SplashArtCoordinates',
     fragmentName: 'SplashArtCoordinates'
   });
-
-  // const {mutate: updateReviewWinner, error: updateRWError} = useUpdate({
-  //   collectionName: "ReviewWinners",
-  //   fragmentName: 'ReviewWinnerAll',
-  // });
 
   const saveAllCoordinates = useCallback(async () => {
     console.log('Attempting to save coordinates');
@@ -378,7 +373,7 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
         ...rightOffsets,
       };
   
-      const response = await createSplashArtCoordinateMutation({ data: splashArtData });
+      await createSplashArtCoordinateMutation({ data: splashArtData });
       
       // might want to see if we actually succeeded somehow before setting this
       setShowSaveSuccess(true); 
@@ -393,7 +388,6 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
   const moveableBoxStyle = {
     left: boxCoordinates.x,
     top: boxCoordinates.y,
-    // backgroundImage: `url(${selectedImageInfo?.splashArtImageUrl})`, 
     backgroundPosition: `-${boxCoordinates.x}px -${boxCoordinates.y}px`, // Set the background position based on boxPosition
     backgroundSize: `${windowSize.width}px auto`, // Ensure the background image covers the entire screen     
     width: boxCoordinates.width,

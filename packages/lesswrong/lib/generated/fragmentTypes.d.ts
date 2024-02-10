@@ -846,6 +846,7 @@ interface PostsDefaultFragment { // fragment on Posts
 interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly postId: string,
   readonly reviewYear: number,
+  readonly category: "rationality" | "modeling" | "optimization" | "ai" | "practical" | "misc",
   readonly curatedOrder: number,
   readonly reviewRanking: number,
   readonly isAI: boolean,
@@ -3586,6 +3587,16 @@ interface ReviewWinnerEditDisplay { // fragment on ReviewWinners
   readonly isAI: boolean,
 }
 
+interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
+  readonly _id: string,
+  readonly postId: string,
+  readonly post: PostsTopItemInfo,
+  readonly reviewYear: number,
+  readonly curatedOrder: number,
+  readonly reviewRanking: number,
+  readonly isAI: boolean,
+}
+
 interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly _id: string,
   readonly postId: string,
@@ -3598,6 +3609,11 @@ interface ReviewWinnerAll { // fragment on ReviewWinners
 }
 
 interface ReviewWinnerTopPostsPage { // fragment on ReviewWinners
+  readonly _id: string,
+  readonly category: "rationality" | "modeling" | "optimization" | "ai" | "practical" | "misc",
+  readonly curatedOrder: number,
+  readonly reviewYear: number,
+  readonly reviewRanking: number,
   readonly reviewWinnerArt: ReviewWinnerTopPostsPage_reviewWinnerArt|null,
 }
 
@@ -3887,6 +3903,7 @@ interface FragmentTypes {
   CkEditorUserSessionsDefaultFragment: CkEditorUserSessionsDefaultFragment
   CkEditorUserSessionInfo: CkEditorUserSessionInfo
   ReviewWinnerEditDisplay: ReviewWinnerEditDisplay
+  ReviewWinnerTopPostsDisplay: ReviewWinnerTopPostsDisplay
   ReviewWinnerAll: ReviewWinnerAll
   ReviewWinnerTopPostsPage: ReviewWinnerTopPostsPage
   ReviewWinnerArtImages: ReviewWinnerArtImages
@@ -3915,7 +3932,7 @@ interface FragmentTypesByCollection {
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
-  ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerAll"|"ReviewWinnerTopPostsPage"
+  ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerAll"|"ReviewWinnerTopPostsPage"
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
@@ -4183,6 +4200,7 @@ interface CollectionNamesByFragmentName {
   CkEditorUserSessionsDefaultFragment: "CkEditorUserSessions"
   CkEditorUserSessionInfo: "CkEditorUserSessions"
   ReviewWinnerEditDisplay: "ReviewWinners"
+  ReviewWinnerTopPostsDisplay: "ReviewWinners"
   ReviewWinnerAll: "ReviewWinners"
   ReviewWinnerTopPostsPage: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
