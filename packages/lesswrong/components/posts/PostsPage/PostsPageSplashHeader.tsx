@@ -476,10 +476,10 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     </div>
     <div className={classes.top}>
       <div className={classes.leftSection}>
-        <Link className={classes.reviewNavigation} to="/best-of-lesswrong">
-          Ranked #{post.reviewWinner.reviewRanking} of {post.reviewWinner.competitorCount} posts in the {post.reviewWinner.reviewYear} Review
+        <Link className={classes.reviewNavigation} to="/bestoflesswrong?sort=year">
+          Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts in the {post.reviewWinner.reviewYear} Review
         </Link>
-        <Link className={classes.reviewNavigationMobile} to="/best-of-lesswrong">
+        <Link className={classes.reviewNavigationMobile} to="/bestoflesswrong?sort=year">
           #{post.reviewWinner?.reviewRanking} in 2021 Review
         </Link>
         {toggleEmbeddedPlayer && audioIcon}

@@ -168,8 +168,8 @@ const sectionsInfo = {
     img: candidateImages[1],
     tag: "World Optimization"
   },
-  modeling: {
-    title: "Modeling",
+  world: {
+    title: "World",
     img: candidateImages[2],
     tag: "World Modeling"
   },
