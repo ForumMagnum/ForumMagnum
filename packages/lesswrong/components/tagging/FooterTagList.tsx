@@ -16,6 +16,7 @@ import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -120,6 +121,7 @@ const FooterTagList = ({
   allowTruncate=false,
   overrideMargins=false,
   appendElement,
+  annualReviewMarketInfo,
   classes
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
@@ -134,6 +136,7 @@ const FooterTagList = ({
   allowTruncate?: boolean,
   overrideMargins?: boolean,
   appendElement?: ReactNode,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
@@ -292,7 +295,7 @@ const FooterTagList = ({
 
   const sortedTagRels = results ? sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag) : []
 
-  const {Loading, FooterTag, AddTagButton, CoreTagsChecklist} = Components;
+  const {Loading, FooterTag, AddTagButton, CoreTagsChecklist, PostsAnnualReviewMarketTag} = Components;
 
   const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
@@ -303,6 +306,7 @@ const FooterTagList = ({
           <FooterTag key={tag._id} tag={tag} hideScore smallText={smallText} />
         ))}
         {!hidePostTypeTag && postType}
+        {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
       </>
     ) : (
       <>
@@ -326,6 +330,7 @@ const FooterTagList = ({
             )
         )}
         {!hidePostTypeTag && postType}
+        {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
         {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
             {useAltAddTagButton && <span className={classes.altAddTagButton}>+</span>}
           </AddTagButton>

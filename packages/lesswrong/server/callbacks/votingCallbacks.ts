@@ -188,9 +188,7 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   // add the review tags to the post
   const [comment] = await Promise.all([
     makeMarketComment(post._id, year, liteMarket.url, botUser),
-    Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}}),
-    addTagToPost(post._id, reviewTagSlug, botUser, context),
-    addTagToPost(post._id, reviewYearTagSlug, botUser, context)
+    Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}})
   ])
 
   await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
@@ -219,6 +217,7 @@ const makeMarketComment = async (postId: string, year: number, marketUrl: string
     currentUser: botUser,
     context: createAdminContext()
   })
+
 
   return result.data
 }
