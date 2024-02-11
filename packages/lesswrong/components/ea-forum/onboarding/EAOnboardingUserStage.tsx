@@ -3,9 +3,10 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { useEAOnboarding } from "./useEAOnboarding";
-import { useQuery } from "@apollo/client";
-import gql from "graphql-tag";
+import { useMutation, useQuery } from "@apollo/client";
+import { newUserCompleteProfileMutation } from "../../users/NewUserCompleteProfile";
 import classNames from "classnames";
+import gql from "graphql-tag";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -56,11 +57,14 @@ const displayNameTakenQuery = gql`
 export const EAOnboardingUserStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {updateCurrentUser, goToNextStageAfter} = useEAOnboarding();
+  const {goToNextStageAfter} = useEAOnboarding();
   const [name, setName] = useState("");
   const [nameTaken, setNameTaken] = useState(false);
   const [acceptedTos, setAcceptedTos] = useState(true);
   const {captureEvent} = useTracking();
+  const [updateUser] = useMutation(newUserCompleteProfileMutation, {
+    refetchQueries: ["getCurrentUser"],
+  });
 
   const onToggleAcceptedTos = useCallback((ev) => {
     if (ev.target.tagName !== "A") {
@@ -73,12 +77,15 @@ export const EAOnboardingUserStage = ({classes}: {
 
   const onContinue = useCallback(() => {
     void goToNextStageAfter(
-      updateCurrentUser({
-        displayName: name,
-        acceptedTos,
+      updateUser({
+        variables: {
+          username: name,
+          acceptedTos,
+          subscribeToDigest: true, // This option is shown in a later stage
+        },
       }),
     );
-  }, [name, acceptedTos, updateCurrentUser, goToNextStageAfter]);
+  }, [name, acceptedTos, updateUser, goToNextStageAfter]);
 
   const {data, loading} = useQuery(displayNameTakenQuery, {
     ssr: false,
