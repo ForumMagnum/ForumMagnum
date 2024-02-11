@@ -74,7 +74,7 @@ const getEssays = async (): Promise<Essay[]> => {
     .find({})
     .fetch();
   const postIdsWithoutLotsOfArt = postIds
-  .filter(p => (reviewArts.filter(a => a.postId === p.postId) ?? []).length < 10)
+  .filter(p => (reviewArts.filter(a => a.postId === p.postId) ?? []).length < 8)
   const postIdsWithoutEnoughArt = postIds
   .filter(p => (reviewArts.filter(a => a.postId === p.postId) ?? []).length < 12)
 
