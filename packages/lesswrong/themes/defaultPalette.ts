@@ -295,6 +295,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     grey200: `1px solid ${shades.grey[200]}`,
     grey300: `1px solid ${shades.grey[300]}`,
     grey400: `1px solid ${shades.grey[400]}`,
+    grey800: `1px solid ${shades.grey[800]}`,
     maxIntensity: shades.greyBorder("1px", 1.0),
     tableHeadingDivider: shades.greyBorder("2px", 1.0),
     table: `1px double ${shades.grey[410]}`,

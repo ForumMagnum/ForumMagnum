@@ -23,13 +23,13 @@ const styles = (theme: ThemeType) => ({
     bottom: 28,
     left: '50%',
     transform: 'translateX(-50%)',
-    width: 1100,
+    width: 880,
     maxWidth: '85%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     columnGap: 20,
-    backgroundColor: theme.palette.panelBackground.digestAdBanner,
+    backgroundColor: theme.palette.grey[900],
     color: theme.palette.grey[0],
     fontSize: 13,
     fontWeight: 450,
@@ -39,7 +39,7 @@ const styles = (theme: ThemeType) => ({
     zIndex: theme.zIndexes.intercomButton,
     // Once the contents start to wrap, we instead force a smaller width,
     // so that the form doesn't get too wide
-    '@media (max-width: 880px)': {
+    '@media (max-width: 1000px)': {
       display: 'block',
       width: 500,
       maxWidth: '90%',
@@ -68,11 +68,8 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[400],
     textWrap: 'pretty',
     marginBottom: 0,
-    [theme.breakpoints.down('sm')]: {
+    '@media (max-width: 1000px)': {
       fontSize: 13,
-      lineHeight: '19px',
-    },
-    '@media (max-width: 880px)': {
       marginBottom: 12,
     },
   },
@@ -83,20 +80,23 @@ const styles = (theme: ThemeType) => ({
     rowGap: '12px'
   },
   formInput: {
-    minWidth: 0,
+    minWidth: 240,
     flex: '1 1 0',
-    background: theme.palette.background.digestAdBannerInput,
-    padding: 11,
+    fontSize: 14,
+    background: theme.palette.text.alwaysWhite,
+    color: theme.palette.text.alwaysBlack,
+    padding: 12,
     borderRadius: theme.borderRadius.default,
-    border: theme.palette.border.normal,
-    '&:hover': {
-      border: theme.palette.border.slightlyIntense2,
-    },
+    border: theme.palette.border.grey800,
     '&:focus': {
       border: `1px solid ${theme.palette.primary.main}`,
+      color: theme.palette.text.alwaysBlack,
     },
     '&::placeholder': {
       color: theme.palette.grey[600],
+    },
+    '@media (max-width: 1000px)': {
+      minWidth: 0,
     }
   },
   formBtn: {
