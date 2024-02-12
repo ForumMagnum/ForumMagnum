@@ -3,14 +3,24 @@ import { useNavigate } from "../../lib/reactRouterWrapper";
 import { useTracking } from "../../lib/analyticsEvents";
 
 export type ClickableCellProps = {
+  /**
+   * If true, the custom handler will not be triggered when the target of the
+   * event is either a link, or a child tag of a link.
+   */
+  ignoreLinks?: boolean,
+} & ({
   href: string,
   onClick?: never,
 } | {
   href?: never,
   onClick: (e: MouseEvent<HTMLDivElement>) => void,
-};
+});
 
-export const useClickableCell = ({href, onClick}: ClickableCellProps) => {
+export const useClickableCell = ({
+  ignoreLinks,
+  href,
+  onClick,
+}: ClickableCellProps) => {
   const navigate = useNavigate();
   // Note that we only trigger this event if an href is provided
   const { captureEvent } = useTracking({eventType: "linkClicked", eventProps: {to: href}})
@@ -18,6 +28,10 @@ export const useClickableCell = ({href, onClick}: ClickableCellProps) => {
   // We make the entire "cell" a link. In sub-items need to be separately
   // clickable then wrap them in an `InteractionWrapper`.
   const wrappedOnClick = useCallback((e: MouseEvent<HTMLDivElement>) => {
+    if (ignoreLinks && (e.target as HTMLElement).closest("a")) {
+      return true;
+    }
+
     e.preventDefault();
     e.stopPropagation();
 
@@ -30,7 +44,7 @@ export const useClickableCell = ({href, onClick}: ClickableCellProps) => {
       captureEvent();
       navigate(href);
     }
-  }, [navigate, href, onClick, captureEvent]);
+  }, [navigate, ignoreLinks, href, onClick, captureEvent]);
 
   return {
     onClick: wrappedOnClick,
