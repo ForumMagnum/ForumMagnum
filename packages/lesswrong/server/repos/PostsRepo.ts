@@ -563,7 +563,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       -- PostsRepo.getUserReadsPerCoreTag
       WITH core_tags AS (
         SELECT _id
-        FROM tags
+        FROM "Tags"
         WHERE core IS TRUE AND deleted is not true
       )
       
