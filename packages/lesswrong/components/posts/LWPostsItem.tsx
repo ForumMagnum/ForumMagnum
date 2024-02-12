@@ -397,12 +397,10 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
   const highlightMarketForLinking = !!annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && !!annualReviewMarketComment
 
   const marketLink = highlightMarketForLinking &&
-  <Link to={commentGetPageUrl(annualReviewMarketComment)}>
-    <span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span>
-  </Link>
-
-  console.log("highlightMarketForLinking", highlightMarketForLinking, "annualReviewMarketInfo", annualReviewMarketInfo, "annualReviewMarketComment", annualReviewMarketComment, "marketLink", marketLink)
-
+    <Link to={commentGetPageUrl(annualReviewMarketComment)}>
+      <span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span>
+    </Link>;
+  
   if (isRepeated) {
     return null;
   }

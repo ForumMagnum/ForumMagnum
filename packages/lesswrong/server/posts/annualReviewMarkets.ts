@@ -1,7 +1,8 @@
 import { AnnualReviewMarketInfo } from "../../lib/annualReviewMarkets";
 import ManifoldProbabilitiesCaches from "../../lib/collections/manifoldProbabilitiesCaches/collection";
+import Posts from "../../lib/collections/posts/collection";
 import { manifoldAPIKeySetting } from "../../lib/instanceSettings";
-import { createAdminContext, createMutator } from "../vulcan-lib";
+import { createAdminContext } from "../vulcan-lib";
 
 const manifoldAPIKey = manifoldAPIKeySetting.get()
 
@@ -85,3 +86,15 @@ export const getPostMarketInfo = async (post: DbPost): Promise<AnnualReviewMarke
 
   return { probability: cacheItem.probability, isResolved: cacheItem.isResolved, year: cacheItem.year };
 }
+
+export const marketInfoLoader = async (postIds: string[]) => {
+  const posts = await Posts.find({ _id: { $in: postIds } }).fetch();
+  const postMarketInfoPairs = await Promise.all(posts.map(async (post) => ([
+    post._id,
+    await getPostMarketInfo(post)
+  ] as const)));
+
+  // Custom loaders are sensitive to the order of ids > entries, and `.find` doesn't return things in any guaranteed order (since postgres doesn't)
+  const postMarketInfoMapping = Object.fromEntries(postMarketInfoPairs);
+  return postIds.map(postId => postMarketInfoMapping[postId]);
+};
