@@ -387,8 +387,8 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   },
   // CKEditor wraps tables in a figure element
   '& figure.table': {
-    width: 'fit-content !important',
-    height: 'fit-content !important',
+    minWidth: 'fit-content !important',
+    minHeight: 'fit-content !important',
   },
   // Many column tables should overflow instead of squishing
   //  - NB: As of Jan 2023, this does not work on firefox, so ff users will have
