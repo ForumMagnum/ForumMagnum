@@ -1,9 +1,9 @@
 import { foreignKeyField } from "../../utils/schemaUtils"
 
 const commonFields = () => ({
-  canRead: ["admins" as const],
-  canCreate: ["admins" as const],
-  canUpdate: ["admins" as const],
+  canRead: ["guests" as const],
+  canCreate: ["guests" as const],
+  canUpdate: ["guests" as const],
   hidden: true,
   optional: false,
   nullable: false,
@@ -20,10 +20,6 @@ const schema: SchemaType<"SideCommentCaches"> = {
       nullable: false,
     }),
   },
-  version: {
-    ...commonFields(),
-    type: Number,
-  },
   annotatedHtml: {
     ...commonFields(),
     type: String,
@@ -32,6 +28,10 @@ const schema: SchemaType<"SideCommentCaches"> = {
     ...commonFields(),
     type: Object,
     blackbox: true,
+  },
+  version: {
+    ...commonFields(),
+    type: Number,
   },
 };
 

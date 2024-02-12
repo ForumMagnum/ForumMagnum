@@ -543,5 +543,10 @@
     "acceptsSchemaHash": "1aeedd5dfed78362382d387f2f2bce84",
     "acceptedByMigration": "20240206T041651.add_UserJobAds_collection.ts",
     "timestamp": "2024-02-06T04:16:51.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7f47659e26cb4ca81a15fd63855111db",
+    "acceptedByMigration": "20240212T200221.create_SideCommentCaches_table.ts",
+    "timestamp": "2024-02-12T20:02:21.000Z"
   }
 ]

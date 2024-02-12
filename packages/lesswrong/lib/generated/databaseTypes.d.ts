@@ -1038,9 +1038,9 @@ type SideCommentCachesCollection = CollectionBase<"SideCommentCaches">;
 interface DbSideCommentCache extends DbObject {
   __collectionName?: "SideCommentCaches"
   postId: string
-  version: number
   annotatedHtml: string
   commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/
+  version: number
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

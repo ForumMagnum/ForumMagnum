@@ -139,7 +139,7 @@ const eaFrontpageDateDefault = (
 export const sideCommentCacheVersion = 1;
 export interface SideCommentsCache {
   version: number,
-  generatedAt: Date,
+  createdAt: Date,
   annotatedHtml: string
   commentsByBlock: Record<string,string[]>
 }

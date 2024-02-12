@@ -3389,9 +3389,9 @@ interface UserRateLimitDisplay { // fragment on UserRateLimits
 
 interface SideCommentCachesDefaultFragment { // fragment on SideCommentCaches
   readonly postId: string,
-  readonly version: number,
   readonly annotatedHtml: string,
   readonly commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly version: number,
 }
 
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
