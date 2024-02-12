@@ -8,11 +8,16 @@ import { useMessages } from "../common/withMessages";
 import { useNavigate } from "../../lib/reactRouterWrapper";
 
 // Next steps:
-// - [ ] Get backend working with existing UI
+// - [X] Get backend working with existing UI
 //   - [X] Import button works (NOT including ckeditor paste issues)
 //   - [X] Sign in button works (already true, but just make sure)
-//   - [ ] Unlink button works
-// - Update UI to match designs
+//   - [X] Unlink button works
+// - [ ] Change version restoration logic to allow restoring as draft
+// - [ ] Move refresh tokens to a separate table (to avoid logging + allow refreshing the magic token)
+// - [ ] Squash migrations
+// - [ ] Deploy to beta site
+// - [ ] UI
+// - [ ] Fix import vs paste issues
 
 const gdocImportEmailSetting = new DatabasePublicSetting<string | null>("gdocImportEmail.email", null);
 
