@@ -41,7 +41,6 @@ export const useSuggestedSubscriptions = () => {
   });
   const tagsById = keyBy(rawTags, "_id");
   const tags = filterNonnull(subscribeTagIds.map((_id) => tagsById[_id]));
-  console.log("isCypress", isCypress);
 
   const {results: rawUsers} = useMulti({
     collectionName: "Users",
