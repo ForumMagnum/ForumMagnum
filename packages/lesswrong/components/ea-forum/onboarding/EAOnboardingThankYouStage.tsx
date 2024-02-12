@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { getPodcastDataByName } from "../../../lib/eaPodcasts";
 import { useTracking } from "../../../lib/analyticsEvents";
@@ -84,7 +84,17 @@ export const EAOnboardingThankYouStage = ({classes}: {
 }) => {
   const {captureEvent} = useTracking();
   const {goToNextStage, currentUser, updateCurrentUser} = useEAOnboarding();
-  const [subscribed, setSubscribed] = useState(currentUser.subscribedToDigest);
+  const [subscribed, setSubscribed] = useState(true);
+
+  useEffect(() => {
+    // Default to subscribing to the digest
+    if (!currentUser.subscribedToDigest) {
+      void updateCurrentUser({
+        subscribedToDigest: true,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const setSubscribedToDigest = useCallback((value: boolean) => {
     setSubscribed(value);
