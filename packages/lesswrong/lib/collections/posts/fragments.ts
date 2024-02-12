@@ -121,7 +121,9 @@ registerFragment(`
     reviewVoteCount
     positiveReviewVoteCount
     manifoldReviewMarketId
-    annualReviewMarketCommentId
+    annualReviewMarketComment {
+      ...CommentsListWithParentMetadata
+    }
 
     annualReviewMarketProbability
     annualReviewMarketIsResolved
