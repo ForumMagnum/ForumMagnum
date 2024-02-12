@@ -138,11 +138,12 @@ augmentFieldsDict(Posts, {
         if (isNotHostedHere(post)) {
           return null;
         }
+        // const cache = 
         const cache = post.sideCommentsCache as SideCommentsCache|undefined;
         const cacheIsValid = cache
-          && (!post.lastCommentedAt || cache.generatedAt > post.lastCommentedAt)
-          && cache.generatedAt > post.contents?.editedAt
-          && cache.version === sideCommentCacheVersion;
+          && (!post.lastCommentedAt || cache.createdAt > post.lastCommentedAt)
+          && cache.createdAt > post.contents?.editedAt
+          && cache.schemaVersion === sideCommentCacheVersion;
         let unfilteredResult: {annotatedHtml: string, commentsByBlock: Record<string,string[]>}|null = null;
 
         const now = new Date();
@@ -161,12 +162,12 @@ augmentFieldsDict(Posts, {
             comments: comments.map(comment => ({_id: comment._id, html: comment.contents?.html ?? ""})),
           });
 
-          const newCacheEntry = {
-            version: sideCommentCacheVersion,
-            generatedAt: now,
+          const newCacheEntry: SideCommentsCache = {
+            schemaVersion: sideCommentCacheVersion,
+            createdAt: now,
             annotatedHtml: sideCommentMatches.html,
             commentsByBlock: sideCommentMatches.sideCommentsByBlock,
-          }
+          };
 
           await Posts.rawUpdateOne({_id: post._id}, {$set: {"sideCommentsCache": newCacheEntry}});
           unfilteredResult = {
