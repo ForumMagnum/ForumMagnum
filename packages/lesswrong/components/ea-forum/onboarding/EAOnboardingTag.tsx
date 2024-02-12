@@ -41,7 +41,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   selected: {
-    border: "2px theme.palette.primary.dark",
+    borderColor: theme.palette.primary.dark,
+    border: "2px",
   },
 });
 

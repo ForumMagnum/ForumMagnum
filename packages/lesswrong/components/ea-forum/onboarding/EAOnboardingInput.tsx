@@ -9,6 +9,7 @@ export const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.loginInput,
     color: theme.palette.grey[1000],
+    fontSize: 14,
     border: "none",
     "&::placeholder": {
       color: theme.palette.grey[600],
