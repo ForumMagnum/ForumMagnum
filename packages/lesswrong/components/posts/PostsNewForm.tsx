@@ -17,6 +17,7 @@ import type { PostSubmitProps } from './PostSubmit';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { Link, useNavigate } from '../../lib/reactRouterWrapper';
 import { QuestionIcon } from '../icons/questionIcon';
+import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
 // Also used by PostsEditForm
 export const styles = (theme: ThemeType): JssStyles => ({
@@ -222,7 +223,7 @@ const PostsNewForm = ({classes}: {
   const {
     PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
     RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
-    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents,
+    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents, GoogleDocImport
   } = Components;
 
   const userHasModerationGuidelines = !!currentUser?.moderationGuidelines?.html;
@@ -305,6 +306,7 @@ const PostsNewForm = ({classes}: {
           {postWillBeHidden && <NewPostModerationWarning />}
           {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
           <NoSSR>
+              {userIsAdmin(currentUser) && <GoogleDocImport />}
               <WrappedSmartForm
                 collectionName="Posts"
                 mutationFragment={getFragment('PostsPage')}

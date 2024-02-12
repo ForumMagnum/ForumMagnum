@@ -27,6 +27,7 @@ import { googleClientIdSetting, googleOAuthSecretSetting } from '../authenticati
 import { DatabaseServerSetting } from '../databaseSettings';
 import { dataToCkEditor } from '../editor/conversionUtils';
 import Revisions from '../../lib/collections/revisions/collection';
+import { randomId } from '../../lib/random';
 
 type GoogleDocMetadata = {
   id: string;
@@ -379,13 +380,6 @@ addGraphQLResolvers({
   },
   Mutation: {
     async ImportGoogleDoc(root: void, { fileUrl, postId }: { fileUrl: string, postId?: string | null }, context: ResolverContext) {
-      // To do:
-      // - Copy packages/lesswrong/server/scripts/googleDocImportNotebook.ts to do the actual importing
-      // - Create a revision with the html as the body
-      // - Return this revision
-      // - ...
-      // - The frontend can then pull the html out of the revision and put it into the editor. Ideally,
-      //   we would also save it as a clear version, although not the current one
       if (!fileUrl) {
         throw new Error("fileUrl must be given")
       }
@@ -460,14 +454,16 @@ addGraphQLResolvers({
 
           html = fileContents.data as string; // The HTML content of the Google Doc
 
-          break // Break after success
+          break;
         } catch (e) {
           errors.push(e)
-          continue
+          continue;
         }
       }
 
-      if (!html) {
+      // TODO check contents of errors to see if we don't have access vs some unexpected error
+
+      if (!html || !docMetadata) {
         return null
       }
 
@@ -475,44 +471,60 @@ addGraphQLResolvers({
       // the result, so we always want to do this first before converting to whatever format the user
       // is using
       const ckEditorMarkup = await dataToCkEditor(html, "html")
+      const commitMessage = `[Google Doc import] Last modified: ${docMetadata.modifiedTime}, Name: "${docMetadata.name}"`
+      const originalContents = {type: "ckEditorMarkup", data: ckEditorMarkup}
 
-      const previousRev = postId ? await getLatestRev(postId, "contents") : null
-      const revisionType = previousRev ? "major" : "initial"
-      const commitMessage = ""
+      if (postId) {
+        const previousRev = await getLatestRev(postId, "contents")
+        const revisionType = "major"
 
-      const newRevision: Partial<DbRevision> = {
-        ...(await buildRevision({
-          originalContents: {type: "ckEditorMarkup", data: ckEditorMarkup},
+        const newRevision: Partial<DbRevision> = {
+          ...(await buildRevision({
+            originalContents,
+            currentUser,
+          })),
+          documentId: postId,
+          draft: true,
+          fieldName: "contents",
+          collectionName: "Posts",
+          version: getNextVersion(previousRev, revisionType, true),
+          updateType: revisionType,
+          commitMessage: commitMessage,
+          changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
+          googleDocMetadata: docMetadata
+        };
+
+        await createMutator({
+          collection: Revisions,
+          document: newRevision,
+          validate: false,
+        });
+
+        return await Posts.findOne({_id: postId})
+      } else {
+        // Create a draft post if one doesn't exist. This runs `buildRevision` itself via a callback
+        const { data: post } = await createMutator({
+          collection: Posts,
+          document: {
+            userId: currentUser._id,
+            title: docMetadata.name,
+            contents: {
+              originalContents,
+            },
+            draft: true
+          },
           currentUser,
-        })),
-        documentId: postId ?? null,
-        draft: true,
-        fieldName: "contents",
-        collectionName: "Posts",
-        version: getNextVersion(previousRev, revisionType, true),
-        updateType: revisionType,
-        commitMessage: commitMessage,
-        changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
-        googleDocMetadata: docMetadata
-      };
+          validate: false,
+        })
 
-      const { data: { _id: revisionId }} = await createMutator({
-        collection: Revisions,
-        document: newRevision,
-        validate: false,
-      });
-
-      // Refetch the revision, because the version returned from createMutator is
-      // just the data before actually inserting into the db
-      const revision = await Revisions.findOne({_id: revisionId})
-
-      return revision;
+        return post;
+      }
     },
   }
 })
 
 addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]");
-addGraphQLMutation("ImportGoogleDoc(fileUrl: String!, postId: String): Revision");
+addGraphQLMutation("ImportGoogleDoc(fileUrl: String!, postId: String): Post");
 
 addGraphQLSchema(`
   type UserReadHistoryResult {

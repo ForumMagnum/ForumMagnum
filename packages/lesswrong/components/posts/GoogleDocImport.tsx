@@ -3,15 +3,18 @@ import { fragmentTextForQuery, registerComponent, Components, getSiteUrl, makeAb
 import TextField from "@material-ui/core/TextField";
 import { useMutation, gql } from "@apollo/client";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
+import { postGetEditUrl } from "../../lib/collections/posts/helpers";
+import { useMessages } from "../common/withMessages";
+import { useNavigate } from "../../lib/reactRouterWrapper";
 
 // Next steps:
 // - [ ] Get backend working with existing UI
-//   - [ ] Import button works (NOT including ckeditor paste issues)
-//   - [ ] Sign in button works (already true, but just make sure)
+//   - [X] Import button works (NOT including ckeditor paste issues)
+//   - [X] Sign in button works (already true, but just make sure)
 //   - [ ] Unlink button works
 // - Update UI to match designs
 
-const gdocImportEmailSetting = new DatabasePublicSetting<string | null>('gdocImportEmail.email', null)
+const gdocImportEmailSetting = new DatabasePublicSetting<string | null>("gdocImportEmail.email", null);
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -36,38 +39,50 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const useGoogleDocImport = () => {
-  const [importGoogleDocMutation] = useMutation(gql`
-    mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {
-      ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {
-        ...RevisionDisplay
-      }
-    }
-    ${fragmentTextForQuery('RevisionDisplay')}
-  `, {
-    onCompleted: (data) => {
-      console.log({data})
-    }
-  });
-
-  return importGoogleDocMutation;
-};
-
-export const GoogleDocImport = ({ postId, classes }: { postId?: string, classes: ClassesType<typeof styles> }) => {
-  console.log("Rendering (check infinite loop)")
+export const GoogleDocImport = ({ postId, classes }: { postId?: string; classes: ClassesType<typeof styles> }) => {
+  console.log("Rendering (check infinite loop)");
   const [googleDocLink, setGoogleDocLink] = useState(
     "https://docs.google.com/document/d/1ApMSWz4RPALKc27Mf33MgOlCQP8oMsodKh5DPnWEC78/edit"
   );
 
   const { EAButton } = Components;
 
-  const importGoogleDoc = useGoogleDocImport();
+  const { flash } = useMessages();
+  const navigate = useNavigate();
+
+  const [importGoogleDocMutation] = useMutation(
+    gql`
+      mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {
+        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {
+          ...PostsBase
+        }
+      }
+      ${fragmentTextForQuery("PostsBase")}
+    `,
+    {
+      onCompleted: (data: { ImportGoogleDoc: PostsBase }) => {
+        if (postId) {
+          window.location.reload()
+        } else {
+          const postId = data?.ImportGoogleDoc?._id;
+          const linkSharingKey = data?.ImportGoogleDoc?.linkSharingKey;
+          // If this is the edit post page, this will be the url we are already on. If it's the new post page, it will be the url of the new post
+          const editPostUrl = postGetEditUrl(postId, false, linkSharingKey ?? undefined)
+
+          void navigate(editPostUrl)
+        }
+      },
+      onError: () => {
+        // TODO handle case where we don't have access to the file
+      },
+    }
+  );
 
   const handleImportClick = useCallback(async () => {
-    void importGoogleDoc({
+    void importGoogleDocMutation({
       variables: { fileUrl: googleDocLink, postId },
     });
-  }, [googleDocLink, importGoogleDoc, postId]);
+  }, [googleDocLink, importGoogleDocMutation, postId]);
 
   const handleSignInClick = useCallback(async () => {
     window.open(makeAbsolute("/auth/linkgdrive"), "_blank");
