@@ -64,9 +64,7 @@ export const EAOnboardingUserStage = ({classes}: {
   const [nameTaken, setNameTaken] = useState(false);
   const [acceptedTos, setAcceptedTos] = useState(true);
   const {captureEvent} = useTracking();
-  const [updateUser] = useMutation(newUserCompleteProfileMutation, {
-    refetchQueries: ["getCurrentUser"],
-  });
+  const [updateUser] = useMutation(newUserCompleteProfileMutation);
 
   const onToggleAcceptedTos = useCallback((ev) => {
     if (ev.target.tagName !== "A") {
