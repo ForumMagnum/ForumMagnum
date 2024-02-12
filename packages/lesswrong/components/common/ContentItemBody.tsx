@@ -364,7 +364,6 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
         button.setAttribute('href', validateUrl(dataHref));
       }
       button.addEventListener('click', () => {
-        // Note: there is some concern about this 
         this.props.captureEvent("ctaButtonClicked", {href: dataHref})
       })
     }
@@ -451,9 +450,6 @@ const addNofollowToHTML = (html: string): string => {
 
 
 const ContentItemBodyComponent = registerComponent<ExternalProps>("ContentItemBody", ContentItemBody, {
-  // This component can't have HoCs because it's used with a ref, to call
-  // methods on it from afar, and many HoCs won't pass the ref through.
-  // TODO clarify in PR review
   hocs: [withTracking]
 });
 
