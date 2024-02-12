@@ -49,7 +49,7 @@ export const EAOnboardingWorkStage = ({classes}: {
         <EAOnboardingInput
           value={role}
           setValue={setRole}
-          placeholder="Software engineer"
+          placeholder="e.g. Software engineer"
         />
       </div>
       <div>
@@ -57,7 +57,7 @@ export const EAOnboardingWorkStage = ({classes}: {
         <EAOnboardingInput
           value={organization}
           setValue={setOrganization}
-          placeholder="Centre for Effective Altruism"
+          placeholder="e.g. Centre for Effective Altruism"
         />
       </div>
       <div>

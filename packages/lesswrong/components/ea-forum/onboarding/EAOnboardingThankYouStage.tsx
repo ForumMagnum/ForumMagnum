@@ -29,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   section: {
     background: theme.palette.panelBackground.onboardingSection,
     borderRadius: theme.borderRadius.default,
-    padding: 12,
+    padding: "12px 16px",
     marginBottom: 12,
     display: "flex",
     alignItems: "center",

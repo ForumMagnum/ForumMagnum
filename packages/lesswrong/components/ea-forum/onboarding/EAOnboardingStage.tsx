@@ -85,7 +85,7 @@ const styles = (theme: ThemeType) => ({
   },
   skip: {
     fontWeight: 600,
-    textDecoration: "none",
+    textDecoration: "none !important",
     "&:hover": {
       textDecoration: "underline",
     },
