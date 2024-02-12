@@ -176,7 +176,11 @@ export const EAOnboardingStage = ({
               {footer}
             </div>
             {skippable &&
-              <a onClick={onSkip} className={classes.skip}>
+              <a
+                onClick={onSkip}
+                className={classes.skip}
+                test-id={`ea-onboarding-skip-${stageName}`}
+              >
                 Skip for now
               </a>
             }
