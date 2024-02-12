@@ -92,11 +92,15 @@ const styles = (theme: ThemeType) => ({
   },
   continue: {
     minWidth: "128px",
+    height: 44,
     whiteSpace: "nowrap",
     padding: "12px 24px",
     [theme.breakpoints.down("xs")]: {
       width: "100%",
     },
+  },
+  spinner: {
+    height: "20px !important",
   },
 });
 
@@ -182,7 +186,7 @@ export const EAOnboardingStage = ({
               className={classes.continue}
             >
               {nextStageIsLoading
-                ? <Loading />
+                ? <Loading className={classes.spinner} />
                 : <>Continue -&gt;</>
               }
             </EAButton>
