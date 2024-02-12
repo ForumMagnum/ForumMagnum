@@ -35,7 +35,8 @@ export const useSuggestedSubscriptions = () => {
     fragmentName: "TagOnboarding",
     limit: subscribeTagIds.length,
     terms: {
-      _id: subscribeTagIds,
+      view: "tagsByTagIds",
+      tagIds: subscribeTagIds,
     },
     skip: isCypress,
   });

@@ -11,7 +11,7 @@ declare global {
     slug?: string
     tagFlagId?: string
     parentTagId?: string
-    _id?: string | string[]
+    tagIds?: string[]
   }
 }
 
@@ -21,12 +21,17 @@ Tags.addDefaultView((terms: TagsViewTerms, _, context?: ResolverContext) => {
   return {
     selector: {
       wikiOnly: false,
-      _id: Array.isArray(terms._id) ? {$in: terms._id} : terms._id,
       ...(!userIsAdminOrMod(currentUser) ? { deleted: false, adminOnly: false } : {}),
     },
   };
 });
 ensureIndex(Tags, {deleted:1, adminOnly:1});
+
+Tags.addView("tagsByTagIds", (terms: TagsViewTerms) => {
+  return {
+    selector: {_id: {$in: terms.tagIds}}
+  };
+});
 
 Tags.addView('allTagsAlphabetical', (terms: TagsViewTerms) => {
   return {
