@@ -157,7 +157,6 @@ augmentFieldsDict(Posts, {
           const toc = await getToCforPost({document: post, version: null, context});
           const html = toc?.html || post?.contents?.html
           const sideCommentMatches = matchSideComments({
-            postId: post._id,
             html: html,
             comments: comments.map(comment => ({_id: comment._id, html: comment.contents?.html ?? ""})),
           });
