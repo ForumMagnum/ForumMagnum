@@ -13,7 +13,6 @@ import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
-import { useSingle } from '../../lib/crud/withSingle';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 
 
@@ -369,6 +368,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showIcons,
     showKarma,
     annualReviewMarketInfo,
+    marketLink,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,
@@ -392,15 +392,6 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     className,
   } = usePostsItem(props);
 
-  const annualReviewMarketComment = post.annualReviewMarketComment
-
-  const highlightMarketForLinking = !!annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && !!annualReviewMarketComment
-
-  const marketLink = highlightMarketForLinking &&
-    <Link to={commentGetPageUrl(annualReviewMarketComment)}>
-      <span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span>
-    </Link>;
-  
   if (isRepeated) {
     return null;
   }
@@ -448,7 +439,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
             {showKarma && <PostsItem2MetaInfo className={classNames(
               classes.karma, {
-                [classes.karmaPredictedReviewWinner]: highlightMarketForLinking
+                [classes.karmaPredictedReviewWinner]: !!marketLink
               })}>
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
