@@ -21,7 +21,6 @@ const getNextStage = (
 
 type EAOnboardingContext = {
   currentStage: OnboardingStage,
-  onboardingComplete: boolean,
   goToNextStage: () => void,
   goToNextStageAfter: <T>(promise: Promise<T>) => Promise<void>,
   nextStageIsLoading: boolean,
@@ -31,7 +30,6 @@ type EAOnboardingContext = {
 
 const eaOnboardingContext = createContext<EAOnboardingContext>({
   currentStage: onboardingStages[0],
-  onboardingComplete: false,
   goToNextStage: () => {},
   goToNextStageAfter: async () => {},
   nextStageIsLoading: false,
@@ -40,10 +38,10 @@ const eaOnboardingContext = createContext<EAOnboardingContext>({
 });
 
 export const EAOnboardingContextProvider: FC<{
+  onOnboardingComplete?: () => void,
   children: ReactNode,
-}> = ({children}) => {
+}> = ({onOnboardingComplete, children}) => {
   const [stage, setStage] = useState<OnboardingStage>(onboardingStages[0]);
-  const [onboardingComplete, setOnboardingComplete] = useState(false);
   const [loading, setLoading] = useState(false);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -54,9 +52,9 @@ export const EAOnboardingContextProvider: FC<{
     if (nextStage) {
       setStage(nextStage);
     } else {
-      setOnboardingComplete(true);
+      onOnboardingComplete?.();
     }
-  }, [stage]);
+  }, [stage, onOnboardingComplete]);
 
   const goToNextStageAfter = useCallback(async function<T>(promise: Promise<T>) {
     setLoading(true);
@@ -75,7 +73,6 @@ export const EAOnboardingContextProvider: FC<{
   return (
     <eaOnboardingContext.Provider value={{
       currentStage: stage,
-      onboardingComplete,
       goToNextStage,
       goToNextStageAfter,
       nextStageIsLoading: loading,

@@ -8,7 +8,8 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const EAOnboardingFlow = ({classes}: {
+const EAOnboardingFlow = ({onOnboardingComplete, classes}: {
+  onOnboardingComplete?: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
   const {
@@ -17,7 +18,7 @@ const EAOnboardingFlow = ({classes}: {
   } = Components;
   return (
     <BlurredBackgroundModal open className={classes.root}>
-      <EAOnboardingContextProvider>
+      <EAOnboardingContextProvider onOnboardingComplete={onOnboardingComplete}>
         <EAOnboardingUserStage />
         <EAOnboardingSubscribeStage />
         <EAOnboardingWorkStage />
