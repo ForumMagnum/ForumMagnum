@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { useEAOnboarding } from "./useEAOnboarding";
+import { useRefetchCurrentUser } from "../../common/withUser";
 import { useMutation, useQuery } from "@apollo/client";
 import { newUserCompleteProfileMutation } from "../../users/NewUserCompleteProfile";
 import classNames from "classnames";
@@ -57,6 +58,7 @@ const displayNameTakenQuery = gql`
 export const EAOnboardingUserStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const refetchCurrentUser = useRefetchCurrentUser();
   const {goToNextStageAfter} = useEAOnboarding();
   const [name, setName] = useState("");
   const [nameTaken, setNameTaken] = useState(false);
@@ -75,17 +77,18 @@ export const EAOnboardingUserStage = ({classes}: {
     }
   }, [captureEvent]);
 
-  const onContinue = useCallback(() => {
-    void goToNextStageAfter(
-      updateUser({
+  const onContinue = useCallback(async () => {
+    await goToNextStageAfter((async () => {
+      await updateUser({
         variables: {
           username: name,
           acceptedTos,
           subscribeToDigest: true, // This option is shown in a later stage
         },
-      }),
-    );
-  }, [name, acceptedTos, updateUser, goToNextStageAfter]);
+      });
+      await refetchCurrentUser();
+    })());
+  }, [name, acceptedTos, updateUser, goToNextStageAfter, refetchCurrentUser]);
 
   const {data, loading} = useQuery(displayNameTakenQuery, {
     ssr: false,

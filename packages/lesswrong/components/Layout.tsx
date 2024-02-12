@@ -329,7 +329,7 @@ const Layout = ({currentUser, children, classes}: {
       NavigationEventSender,
       PetrovDayWrapper,
       NewUserCompleteProfile,
-      EAOnboarding,
+      EAOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
       IntercomWrapper,
@@ -461,7 +461,7 @@ const Layout = ({currentUser, children, classes}: {
                       ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
-                    {isEAForum && <EAOnboarding />}
+                    {isEAForum && <EAOnboardingFlow />}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>

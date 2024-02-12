@@ -17,8 +17,8 @@ export const EAOnboardingWorkStage = ({classes}: {
   const [organization, setOrganization] = useState("");
   const [careerStage, setCareerStage] = useState("");
 
-  const onContinue = useCallback(() => {
-    void goToNextStageAfter(
+  const onContinue = useCallback(async () => {
+    await goToNextStageAfter(
       updateCurrentUser({
         jobTitle: role,
         organization,

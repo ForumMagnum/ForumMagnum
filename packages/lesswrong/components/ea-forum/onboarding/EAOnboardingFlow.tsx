@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
+import { useCurrentUser } from "../../common/withUser";
 import { EAOnboardingContextProvider } from "./useEAOnboarding";
 
 const styles = (_theme: ThemeType) => ({
@@ -8,10 +9,20 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const EAOnboardingFlow = ({onOnboardingComplete, classes}: {
-  onOnboardingComplete?: () => void,
+const EAOnboardingFlow = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const currentUser = useCurrentUser();
+  const [isOnboarding, setIsOnboarding] = useState(currentUser?.usernameUnset);
+
+  const onOnboardingComplete = useCallback(() => {
+    setIsOnboarding(false);
+  }, []);
+
+  if (!isOnboarding) {
+    return null;
+  }
+
   const {
     BlurredBackgroundModal, EAOnboardingUserStage, EAOnboardingSubscribeStage,
     EAOnboardingWorkStage, EAOnboardingThankYouStage,
