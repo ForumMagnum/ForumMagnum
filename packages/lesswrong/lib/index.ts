@@ -233,6 +233,9 @@ import './collections/userRateLimits/index';
 // PostEmbeddings
 import './collections/postEmbeddings/collection';
 
+// SideCommentCaches
+import './collections/sideCommentCaches/collection';
+
 // Internationalization
 import './i18n-en-us/en_US';
 

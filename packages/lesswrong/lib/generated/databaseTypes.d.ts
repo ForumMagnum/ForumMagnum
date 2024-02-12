@@ -1033,6 +1033,18 @@ interface DbSession extends DbObject {
   lastModified: Date | null
 }
 
+type SideCommentCachesCollection = CollectionBase<"SideCommentCaches">;
+
+interface DbSideCommentCache extends DbObject {
+  __collectionName?: "SideCommentCaches"
+  postId: string
+  version: number
+  annotatedHtml: string
+  commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type SpotlightsCollection = CollectionBase<"Spotlights">;
 
 interface DbSpotlight extends DbObject {
@@ -1722,6 +1734,7 @@ interface CollectionsByName {
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
+  SideCommentCaches: SideCommentCachesCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
@@ -1789,6 +1802,7 @@ interface ObjectsByCollectionName {
   Revisions: DbRevision
   Sequences: DbSequence
   Sessions: DbSession
+  SideCommentCaches: DbSideCommentCache
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag
@@ -1856,6 +1870,7 @@ interface ObjectsByTypeName {
   Revision: DbRevision
   Sequence: DbSequence
   Session: DbSession
+  SideCommentCache: DbSideCommentCache
   Spotlight: DbSpotlight
   Subscription: DbSubscription
   TagFlag: DbTagFlag
