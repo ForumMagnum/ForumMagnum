@@ -1,6 +1,6 @@
 import React, { FC, ReactNode, createContext, useCallback, useContext, useState } from "react";
 import { Components } from "../../../lib/vulcan-lib";
-import { useCurrentUser } from "../../common/withUser";
+import { useCurrentUser, useRefetchCurrentUser } from "../../common/withUser";
 import { UpdateCurrentUserFunction, useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 
 const onboardingStages = [
@@ -21,7 +21,7 @@ const getNextStage = (
 
 type EAOnboardingContext = {
   currentStage: OnboardingStage,
-  goToNextStage: () => void,
+  goToNextStage: () => Promise<void>,
   goToNextStageAfter: <T>(promise: Promise<T>) => Promise<void>,
   nextStageIsLoading: boolean,
   currentUser: UsersCurrent,
@@ -30,7 +30,7 @@ type EAOnboardingContext = {
 
 const eaOnboardingContext = createContext<EAOnboardingContext>({
   currentStage: onboardingStages[0],
-  goToNextStage: () => {},
+  goToNextStage: async () => {},
   goToNextStageAfter: async () => {},
   nextStageIsLoading: false,
   currentUser: {} as UsersCurrent,
@@ -45,8 +45,11 @@ export const EAOnboardingContextProvider: FC<{
   const [loading, setLoading] = useState(false);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
+  const refetchCurrentUser = useRefetchCurrentUser();
 
-  const goToNextStage = useCallback(() => {
+  const goToNextStage = useCallback(async () => {
+    setLoading(true);
+    await refetchCurrentUser();
     setLoading(false);
     const nextStage = getNextStage(stage);
     if (nextStage) {
@@ -54,13 +57,12 @@ export const EAOnboardingContextProvider: FC<{
     } else {
       onOnboardingComplete?.();
     }
-  }, [stage, onOnboardingComplete]);
+  }, [stage, onOnboardingComplete, refetchCurrentUser]);
 
   const goToNextStageAfter = useCallback(async function<T>(promise: Promise<T>) {
     setLoading(true);
     await promise;
-    setLoading(false);
-    goToNextStage();
+    await goToNextStage();
   }, [goToNextStage]);
 
   if (!currentUser) {

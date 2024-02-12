@@ -105,7 +105,7 @@ export const EAOnboardingThankYouStage = ({classes}: {
   }, [updateCurrentUser, captureEvent]);
 
   const onComplete = useCallback(() => {
-    goToNextStage();
+    void goToNextStage();
     captureEvent("onboardingComplete");
   }, [goToNextStage, captureEvent]);
 

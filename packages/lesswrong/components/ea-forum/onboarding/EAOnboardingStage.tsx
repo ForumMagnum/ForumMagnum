@@ -137,12 +137,12 @@ export const EAOnboardingStage = ({
   const wrappedOnContinue = useCallback(async () => {
     await onContinue?.();
     captureEvent("onboardingContinue", {from: stageName});
-    goToNextStage();
+    await goToNextStage();
   }, [onContinue, goToNextStage, captureEvent, stageName]);
 
-  const onSkip = useCallback(() => {
+  const onSkip = useCallback(async () => {
     captureEvent("onboardingSkip", {from: stageName});
-    goToNextStage();
+    await goToNextStage();
   }, [goToNextStage, captureEvent, stageName]);
 
   if (currentStage !== stageName) {
