@@ -148,19 +148,50 @@ augmentFieldsDict(Posts, {
           && cache.createdAt > new Date(post.contents?.editedAt);
         let unfilteredResult: {annotatedHtml: string, commentsByBlock: Record<string,string[]>}|null = null;
 
-        const comments = await Comments.find({
-          ...getDefaultViewSelector("Comments"),
-          postId: post._id,
-        }).fetch();
+        // Here we fetch the comments for the post. For the sake of speed, we
+        // project as few fields as possible. If the cache is invalid then we
+        // need to fetch the contents, otherwise we don't.
+        type CommentForSideComments = Pick<DbComment, "_id" | "userId" | "baseScore">;
+        type CommentWithContentsForSideComments = CommentForSideComments & Pick<DbComment, "contents">;
+        let comments: CommentForSideComments[] = [];
 
         if (cacheIsValid) {
-          unfilteredResult = {annotatedHtml: cache.annotatedHtml, commentsByBlock: cache.commentsByBlock};
+          comments = await Comments.find({
+            ...getDefaultViewSelector("Comments"),
+            postId: post._id,
+            _id: {$in: Object.values(cache.commentsByBlock).flat()},
+          }, {
+            projection: {
+              userId: 1,
+              baseScore: 1,
+            },
+          }).fetch();
+
+          unfilteredResult = {
+            annotatedHtml: cache.annotatedHtml,
+            commentsByBlock: cache.commentsByBlock,
+          };
         } else {
+          const commentsWithContents: CommentWithContentsForSideComments[] = await Comments.find({
+            ...getDefaultViewSelector("Comments"),
+            postId: post._id,
+          }, {
+            projection: {
+              userId: 1,
+              baseScore: 1,
+              contents: 1,
+            },
+          }).fetch();
+          comments = commentsWithContents;
+
           const toc = await getToCforPost({document: post, version: null, context});
           const html = toc?.html || post?.contents?.html
           const sideCommentMatches = matchSideComments({
             html: html,
-            comments: comments.map(comment => ({_id: comment._id, html: comment.contents?.html ?? ""})),
+            comments: commentsWithContents.map(comment => ({
+              _id: comment._id,
+              html: comment.contents?.html ?? "",
+            })),
           });
 
           void context.repos.sideComments.saveSideCommentCache(
@@ -190,7 +221,7 @@ augmentFieldsDict(Posts, {
         for (let blockID of Object.keys(unfilteredResult.commentsByBlock)) {
           const commentIdsHere = unfilteredResult.commentsByBlock[blockID];
           const highKarmaCommentIdsHere = commentIdsHere.filter(commentId => {
-            const comment: DbComment = commentsById[commentId];
+            const comment = commentsById[commentId];
             if (!comment)
               return false;
             else if (comment.baseScore >= sideCommentFilterMinKarma)
@@ -205,7 +236,7 @@ augmentFieldsDict(Posts, {
           }
 
           const nonnegativeKarmaCommentIdsHere = commentIdsHere.filter(commentId => {
-            const comment: DbComment = commentsById[commentId];
+            const comment = commentsById[commentId];
             if (!comment)
               return false;
             else if (alwaysShownIds.has(comment.userId))
