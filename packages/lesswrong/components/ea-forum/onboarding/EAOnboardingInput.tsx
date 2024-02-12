@@ -5,7 +5,7 @@ import { registerComponent } from "../../../lib/vulcan-lib";
 export const styles = (theme: ThemeType) => ({
   root: {
     width: "100%",
-    padding: "15px 17px",
+    padding: "16px",
     borderRadius: theme.borderRadius.default,
     background: theme.palette.panelBackground.loginInput,
     color: theme.palette.grey[1000],

@@ -7,6 +7,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { newUserCompleteProfileMutation } from "../../users/NewUserCompleteProfile";
 import classNames from "classnames";
 import gql from "graphql-tag";
+import { none } from "fp-ts/lib/Option";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,6 +15,8 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "12px",
     marginBottom: 60,
+    color: theme.palette.grey[900],
+    lineHeight: "140%",
   },
   secondaryText: {
     color: theme.palette.grey[600],
@@ -25,20 +28,23 @@ const styles = (theme: ThemeType) => ({
   footer: {
     cursor: "pointer",
     display: "flex",
-    gap: "9px",
+    gap: "8px",
+    color: theme.palette.grey[600],
+    fontWeight: 500,
   },
   checkbox: {
+    marginTop: 2,
     borderRadius: theme.borderRadius.small,
     width: 14,
     height: 14,
   },
   checkboxChecked: {
     background: theme.palette.primary.dark,
-    color: theme.palette.grey[1000],
+    color: theme.palette.text.alwaysWhite,
   },
   checkboxUnchecked: {
-    background: theme.palette.grey[310],
-    color: theme.palette.panelBackground.modalBackground,
+    border: theme.palette.border.grey400,
+    color: none,
   },
 });
 

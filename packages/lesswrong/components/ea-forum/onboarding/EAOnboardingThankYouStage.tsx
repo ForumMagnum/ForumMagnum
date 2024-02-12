@@ -156,7 +156,7 @@ export const EAOnboardingThankYouStage = ({classes}: {
         </div>
       </div>
       <EAButton onClick={onComplete} className={classes.button}>
-        Go to the forum -&gt;
+        Go to the Forum -&gt;
       </EAButton>
     </EAOnboardingStage>
   );
