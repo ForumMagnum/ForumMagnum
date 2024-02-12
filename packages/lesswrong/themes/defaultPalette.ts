@@ -387,7 +387,6 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     sequenceImageGradient: 'linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.2) 42%, rgba(255, 255, 255, 0) 100%)',
     sequencesBanner: shades.greyAlpha(.5),
     cookieBanner: shades.grey[800],
-    digestAdBanner: shades.grey[1000],
     strawpoll: "rgba(251, 191, 36, 1)", // Color used by StrawPoll
     userProfileImageHover: "rgba(0, 0, 0, 0.5)",
     userProfileImageLoading: `linear-gradient(

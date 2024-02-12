@@ -313,7 +313,6 @@ declare global {
       sequenceImageGradient: string,
       sequencesBanner: ColorString,
       cookieBanner: ColorString,
-      digestAdBanner: ColorString,
       strawpoll: ColorString,
       userProfileImageHover: ColorString,
       userProfileImageLoading: string,
