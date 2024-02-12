@@ -1,7 +1,7 @@
 import { Posts } from '../../lib/collections/posts/collection';
 import { sideCommentFilterMinKarma, sideCommentAlwaysExcludeKarma } from '../../lib/collections/posts/constants';
 import { Comments } from '../../lib/collections/comments/collection';
-import { SideCommentsCache, SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
+import { SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField, accessFilterMultiple } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
 import { isNotHostedHere } from '../../lib/collections/posts/helpers';
@@ -11,7 +11,7 @@ import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
-import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
+import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
@@ -21,6 +21,7 @@ import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPag
 import { getPostMarketInfo } from '../posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF } from '../../lib/instanceSettings';
+import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -134,19 +135,19 @@ augmentFieldsDict(Posts, {
   sideComments: {
     resolveAs: {
       type: GraphQLJSON,
-      resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<SideCommentsResolverResult|null> => {
+      resolver: async (post: DbPost, _args: void, context: ResolverContext): Promise<SideCommentsResolverResult|null> => {
         if (isNotHostedHere(post)) {
           return null;
         }
-        // const cache = 
-        const cache = post.sideCommentsCache as SideCommentsCache|undefined;
+        const cache = await SideCommentCaches.findOne({
+          postId: post._id,
+          version: sideCommentCacheVersion,
+        });
         const cacheIsValid = cache
           && (!post.lastCommentedAt || cache.createdAt > post.lastCommentedAt)
-          && cache.createdAt > post.contents?.editedAt
-          && cache.schemaVersion === sideCommentCacheVersion;
+          && cache.createdAt > new Date(post.contents?.editedAt);
         let unfilteredResult: {annotatedHtml: string, commentsByBlock: Record<string,string[]>}|null = null;
 
-        const now = new Date();
         const comments = await Comments.find({
           ...getDefaultViewSelector("Comments"),
           postId: post._id,
@@ -162,14 +163,12 @@ augmentFieldsDict(Posts, {
             comments: comments.map(comment => ({_id: comment._id, html: comment.contents?.html ?? ""})),
           });
 
-          const newCacheEntry: SideCommentsCache = {
-            schemaVersion: sideCommentCacheVersion,
-            createdAt: now,
-            annotatedHtml: sideCommentMatches.html,
-            commentsByBlock: sideCommentMatches.sideCommentsByBlock,
-          };
+          void context.repos.sideComments.saveSideCommentCache(
+            post._id,
+            sideCommentMatches.html,
+            sideCommentMatches.sideCommentsByBlock,
+          );
 
-          await Posts.rawUpdateOne({_id: post._id}, {$set: {"sideCommentsCache": newCacheEntry}});
           unfilteredResult = {
             annotatedHtml: sideCommentMatches.html,
             commentsByBlock: sideCommentMatches.sideCommentsByBlock

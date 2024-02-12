@@ -18,6 +18,7 @@ import PostViewsRepo from "./PostViewsRepo";
 import PostsRepo from "./PostsRepo";
 import ReadStatusesRepo from "./ReadStatusesRepo";
 import SequencesRepo from "./SequencesRepo";
+import SideCommentCachesRepo from "./SideCommentCachesRepo";
 import TagsRepo from "./TagsRepo";
 import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
 import UsersRepo from "./UsersRepo";
@@ -48,6 +49,7 @@ const getAllRepos = () => ({
   postViewTimes: new PostViewTimesRepo(),
   readStatuses: new ReadStatusesRepo(),
   sequences: new SequencesRepo(),
+  sideComments: new SideCommentCachesRepo(),
   tags: new TagsRepo(),
   typingIndicators: new TypingIndicatorsRepo(),
   users: new UsersRepo(),
@@ -73,6 +75,7 @@ export {
   PostsRepo,
   ReadStatusesRepo,
   SequencesRepo,
+  SideCommentCachesRepo,
   TagsRepo,
   TypingIndicatorsRepo,
   UsersRepo,
