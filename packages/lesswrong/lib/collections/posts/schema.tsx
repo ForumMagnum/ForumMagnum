@@ -775,7 +775,8 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
-    hidden: !isLWorAF
+    hidden: !isLWorAF,
+    group: formGroups.adminOptions,
   },
 
   annualReviewMarketCommentId: {
@@ -790,7 +791,8 @@ const schema: SchemaType<"Posts"> = {
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
-    hidden: !isLWorAF
+    hidden: !isLWorAF,
+    group: formGroups.adminOptions,
   },
 
   // The various reviewVoteScore and reviewVotes fields are for caching the results of the updateQuadraticVotes migration (which calculates the score of posts during the LessWrong Review)

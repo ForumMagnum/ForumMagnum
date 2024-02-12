@@ -146,6 +146,12 @@ type NewUserUpdates = {
 }
 
 addGraphQLSchema(`
+  type UserCoreTagReads {
+    tagId: String,
+    userReadCount: Int
+  }
+`)
+addGraphQLSchema(`
   type MostReadTopic {
     slug: String,
     name: String,
@@ -300,6 +306,17 @@ addGraphQLResolvers({
   },
 
   Query: {
+    async UserReadsPerCoreTag(root: void, {userId}: {userId: string}, context: ResolverContext) {
+      const { currentUser } = context
+      const user = await Users.findOne({_id: userId})
+
+      // Must be logged in and have permission to view this user's data
+      if (!userId || !currentUser || !user || !userCanEditUser(currentUser, user)) {
+        throw new Error('Not authorized')
+      }
+      
+      return context.repos.posts.getUserReadsPerCoreTag(userId)
+    },
     // UserWrappedDataByYear includes:
     // - You’re a top X% reader of the EA Forum
     // - You read X posts this year
@@ -680,6 +697,7 @@ addGraphQLMutation(
 addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )
+addGraphQLQuery('UserReadsPerCoreTag(userId: String!): [UserCoreTagReads]')
 addGraphQLQuery('UserWrappedDataByYear(userId: String!, year: Int!): WrappedDataByYear')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
 
