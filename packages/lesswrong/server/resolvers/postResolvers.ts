@@ -464,7 +464,7 @@ addGraphQLResolvers({
       // TODO check contents of errors to see if we don't have access vs some unexpected error
 
       if (!html || !docMetadata) {
-        return null
+        throw new Error("Unable to import google doc")
       }
 
       // Converting to ckeditor markup does some thing like removing styles to standardise

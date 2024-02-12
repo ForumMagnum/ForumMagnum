@@ -29,6 +29,8 @@ import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingP
 import { eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { getConfirmedCoauthorIds, userIsPostCoauthor } from '../../lib/collections/posts/helpers';
+import { googleClientIdSetting, googleOAuthSecretSetting } from '../authenticationMiddlewares';
+import { OAuth2Client } from 'google-auth-library';
 
 addGraphQLSchema(`
   type CommentCountTag {
@@ -317,6 +319,41 @@ addGraphQLResolvers({
       })
       
       return updatedUser
+    },
+    async UserUnlinkGoogleAccount(_root: void, _args: {}, { currentUser }: ResolverContext) {
+      if (!currentUser) {
+        throw new Error('Must be logged in')
+      }
+
+      const googleClientId = googleClientIdSetting.get();
+      const googleOAuthSecret = googleOAuthSecretSetting.get();
+
+      if (!googleClientId || !googleOAuthSecret) {
+        throw new Error("Google OAuth client not configured")
+      }
+
+      const refreshToken = currentUser.linkedGoogleRefreshToken
+
+      if (!refreshToken) {
+        return true;
+      }
+
+      const oauth2Client = new OAuth2Client(googleClientId, googleOAuthSecret);
+
+      try {
+        await oauth2Client.revokeToken(refreshToken);
+
+        await updateMutator({
+          collection: Users,
+          documentId: currentUser._id,
+          set: { linkedGoogleRefreshToken: null },
+          validate: false
+        });
+
+        return true;
+      } catch (error) {
+        throw new Error(`Error during token revocation`);
+      }
     },
   },
 
@@ -717,6 +754,7 @@ addGraphQLMutation(
   'UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User'
 )
 addGraphQLQuery('UserReadsPerCoreTag(userId: String!): [UserCoreTagReads]')
+addGraphQLMutation('UserUnlinkGoogleAccount: Boolean')
 addGraphQLQuery('UserWrappedDataByYear(userId: String!, year: Int!): WrappedDataByYear')
 addGraphQLQuery('GetRandomUser(userIsAuthor: String!): User')
 

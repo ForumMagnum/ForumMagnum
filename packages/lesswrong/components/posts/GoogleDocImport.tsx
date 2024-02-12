@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 export const GoogleDocImport = ({ postId, classes }: { postId?: string; classes: ClassesType<typeof styles> }) => {
-  console.log("Rendering (check infinite loop)");
+  console.log("Rendering GoogleDocImport")
   const [googleDocLink, setGoogleDocLink] = useState(
     "https://docs.google.com/document/d/1ApMSWz4RPALKc27Mf33MgOlCQP8oMsodKh5DPnWEC78/edit"
   );
@@ -78,6 +78,19 @@ export const GoogleDocImport = ({ postId, classes }: { postId?: string; classes:
     }
   );
 
+  const [unlinkAccountMutation] = useMutation(
+    gql`
+      mutation UserUnlinkGoogleAccount {
+        UserUnlinkGoogleAccount
+      }
+    `,
+    {
+      onError: () => {
+        flash("Error while unlinking account")
+      },
+    }
+  );
+
   const handleImportClick = useCallback(async () => {
     void importGoogleDocMutation({
       variables: { fileUrl: googleDocLink, postId },
@@ -85,10 +98,12 @@ export const GoogleDocImport = ({ postId, classes }: { postId?: string; classes:
   }, [googleDocLink, importGoogleDocMutation, postId]);
 
   const handleSignInClick = useCallback(async () => {
-    window.open(makeAbsolute("/auth/linkgdrive"), "_blank");
+    window.open(makeAbsolute("/auth/linkgdrive"), "_blank", "noopener,noreferrer");
   }, []);
 
-  const handleUnlinkClick = useCallback(async () => {}, []);
+  const handleUnlinkClick = useCallback(async () => {
+    void unlinkAccountMutation()
+  }, [unlinkAccountMutation]);
 
   return (
     <div className={classes.root}>
