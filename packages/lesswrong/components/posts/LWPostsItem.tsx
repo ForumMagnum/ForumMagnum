@@ -70,6 +70,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       top: -5,
     }
   },
+  hasSequenceImage: {
+    paddingRight: 0,
+  },
   bottomBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
   },
@@ -425,7 +428,8 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               classes.postsItem,
               classes.withGrayHover, {
                 [classes.dense]: dense,
-                [classes.withRelevanceVoting]: !!tagRel
+                [classes.withRelevanceVoting]: !!tagRel,
+                [classes.hasSequenceImage]: !!resumeReading,
               }
             )}
           >
