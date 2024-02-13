@@ -74,20 +74,22 @@ const getEssays = async (): Promise<Essay[]> => {
     .find({})
     .fetch();
   const postIdsWithoutLotsOfArt = postIds
-  .filter(p => (reviewArts.filter(a => a.postId === p.postId) ?? []).length < 8)
+  .filter(p => reviewArts.filter(a => a.postId === p.postId).length < 9)
   const postIdsWithoutEnoughArt = postIds
-  .filter(p => (reviewArts.filter(a => a.postId === p.postId) ?? []).length < 12)
+  .filter(p => reviewArts.filter(a => a.postId === p.postId).length < 10)
 
   const postsToFind = postIdsWithoutLotsOfArt.length > 0 ? postIdsWithoutLotsOfArt : postIdsWithoutEnoughArt
 
   const es = await Posts.find({ _id: { $in: postsToFind.map(p => p.postId) } }).fetch();
 
+  const toGenerate = (p: DbPost) => Math.ceil((12 - reviewArts.filter(art => art.postId === p._id).length)/4)
+
   return es.map(e => {
-    return {post: e, title: e.title, content: e.contents.html }
+    return {post: e, title: e.title, content: e.contents.html, toGenerate: toGenerate(e) }
   })
 }
 
-type Essay = {post: DbPost, title: string, content: string}
+type Essay = {post: DbPost, title: string, content: string, toGenerate: number}
 type PostedEssay = {post: DbPost, title: string, content: string, threadTs: string}
 type MyMidjourneyResponse = {messageId: "string", uri?: string, progress: number, error?: string}
 
@@ -282,7 +284,7 @@ async function generateCoverImages({limit = 2}: {
     const images = await getElements(openAiClient, essay)
       .then(async els => [els, await makeEssayThread(essay)] as [string[], PostedEssay])
       .then(([els, postedEssay]: [string[], PostedEssay]) =>
-        els.slice(0,limit)
+        els.slice(0,Math.min(limit, essay.toGenerate))
           .reduce(async (prev, el) => {
             const ims = await prev
             const im = await getEssayPromptJointImageMessage(el)
@@ -290,9 +292,8 @@ async function generateCoverImages({limit = 2}: {
               .then(x => x === undefined ? Promise.resolve([]) : upscaledImages(el, postedEssay, x.messageId))
               .then(trace(`Upscaled & saved ${el}`))
               .then(urls => postPromptImages(el, postedEssay, filterNonnull(urls)))
-            return [...ims, im]
+            return [...ims, ...im]
           }, Promise.resolve([]) as Promise<string[]>))
-      .then(ims => ims.flat())
 
     return [...prevUrls, ...images]
   }, Promise.resolve([]) as Promise<string[]>)
