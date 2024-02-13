@@ -1,9 +1,10 @@
 import { foreignKeyField } from "../../utils/schemaUtils"
 
+// Deny all permissions on these objects - they're only used internally
 const commonFields = () => ({
-  canRead: ["guests" as const],
-  canCreate: ["guests" as const],
-  canUpdate: ["guests" as const],
+  canRead: () => false,
+  canCreate: () => false,
+  canUpdate: () => false,
   hidden: true,
   optional: false,
   nullable: false,

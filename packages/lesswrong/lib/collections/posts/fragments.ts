@@ -493,6 +493,7 @@ registerFragment(`
 registerFragment(`
   fragment PostsEdit on Post {
     ...PostsDetails
+    ...PostSideComments
     myEditorAccess
     linkSharingKey
     version
@@ -509,7 +510,6 @@ registerFragment(`
     }
     tableOfContents
     subforumTagId
-    sideComments
     socialPreviewImageId
     socialPreview
     socialPreviewData {
@@ -660,9 +660,17 @@ registerFragment(`
   }
 `);
 
+// Note that the side comments cache isn't actually used by the client (in fact,
+// its permissions only allow it to be visible to admins). We include it in this
+// fragment though as it means that it will be fetched with a join by the SQL
+// resolver which allows us to avoid a database round-trip in the code resolver
+// for `sideComments`.
 registerFragment(`
   fragment PostSideComments on Post {
     _id
+    sideCommentsCache2 {
+      ...SideCommentCacheMinimumInfo
+    }
     sideComments
   }
 `);

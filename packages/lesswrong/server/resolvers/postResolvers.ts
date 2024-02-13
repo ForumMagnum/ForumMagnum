@@ -139,56 +139,59 @@ augmentFieldsDict(Posts, {
         if (isNotHostedHere(post)) {
           return null;
         }
-        const cache = await SideCommentCaches.findOne({
-          postId: post._id,
-          version: sideCommentCacheVersion,
-        });
+
+        // If the post was fetched with a SQL resolver then we will already
+        // have the side comments cache available (even though the type system
+        // doesn't know about it), otherwise we have to fetch it from the DB.
+        const sqlFetchedPost = post as unknown as PostSideComments;
+        const cache = sqlFetchedPost.sideCommentsCache2 ??
+          await SideCommentCaches.findOne({
+            postId: post._id,
+            version: sideCommentCacheVersion,
+          });
+
         const cacheIsValid = cache
           && (!post.lastCommentedAt || cache.createdAt > post.lastCommentedAt)
           && cache.createdAt > new Date(post.contents?.editedAt);
-        let unfilteredResult: {annotatedHtml: string, commentsByBlock: Record<string,string[]>}|null = null;
 
         // Here we fetch the comments for the post. For the sake of speed, we
         // project as few fields as possible. If the cache is invalid then we
-        // need to fetch the contents, otherwise we don't.
-        type CommentForSideComments = Pick<DbComment, "_id" | "userId" | "baseScore">;
-        type CommentWithContentsForSideComments = CommentForSideComments & Pick<DbComment, "contents">;
-        let comments: CommentForSideComments[] = [];
+        // need to _all_ of the comments on the post complete with contents.
+        // If the cache is valid then we only need the comments referenced in
+        // the cache, and we don't need the contents.
+        type CommentForSideComments =
+          Pick<DbComment, "_id" | "userId" | "baseScore"> &
+          Partial<Pick<DbComment, "contents">>;
+        const comments: CommentForSideComments[] = await Comments.find({
+          ...getDefaultViewSelector("Comments"),
+          postId: post._id,
+          ...(cache && {
+            _id: {$in: Object.values(cache.commentsByBlock).flat()},
+          }),
+        }, {
+          projection: {
+            userId: 1,
+            baseScore: 1,
+            contents: cacheIsValid ? 0 : 1,
+          },
+        }).fetch();
+
+        let unfilteredResult: {
+          annotatedHtml: string,
+          commentsByBlock: Record<string,string[]>
+        }|null = null;
 
         if (cacheIsValid) {
-          comments = await Comments.find({
-            ...getDefaultViewSelector("Comments"),
-            postId: post._id,
-            _id: {$in: Object.values(cache.commentsByBlock).flat()},
-          }, {
-            projection: {
-              userId: 1,
-              baseScore: 1,
-            },
-          }).fetch();
-
           unfilteredResult = {
             annotatedHtml: cache.annotatedHtml,
             commentsByBlock: cache.commentsByBlock,
           };
         } else {
-          const commentsWithContents: CommentWithContentsForSideComments[] = await Comments.find({
-            ...getDefaultViewSelector("Comments"),
-            postId: post._id,
-          }, {
-            projection: {
-              userId: 1,
-              baseScore: 1,
-              contents: 1,
-            },
-          }).fetch();
-          comments = commentsWithContents;
-
           const toc = await getToCforPost({document: post, version: null, context});
           const html = toc?.html || post?.contents?.html
           const sideCommentMatches = matchSideComments({
             html: html,
-            comments: commentsWithContents.map(comment => ({
+            comments: comments.map(comment => ({
               _id: comment._id,
               html: comment.contents?.html ?? "",
             })),

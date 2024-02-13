@@ -641,6 +641,13 @@ interface SequencesDefaultFragment { // fragment on Sequences
   readonly af: boolean,
 }
 
+interface SideCommentCachesDefaultFragment { // fragment on SideCommentCaches
+  readonly postId: string,
+  readonly annotatedHtml: string,
+  readonly commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly version: number,
+}
+
 interface PostEmbeddingsDefaultFragment { // fragment on PostEmbeddings
   readonly postId: string,
   readonly postHash: string,
@@ -1345,7 +1352,7 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly linkSharingKey: string | null,
 }
 
-interface PostsEdit extends PostsDetails { // fragment on Posts
+interface PostsEdit extends PostsDetails, PostSideComments { // fragment on Posts
   readonly myEditorAccess: string,
   readonly linkSharingKey: string | null,
   readonly version: string|null,
@@ -1366,7 +1373,6 @@ interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly customHighlight: RevisionEdit|null,
   readonly tableOfContents: any,
   readonly subforumTagId: string,
-  readonly sideComments: any,
   readonly socialPreviewImageId: string,
   readonly socialPreview: {
     imageId: string | null,
@@ -1475,6 +1481,7 @@ interface PostWithDialogueMessage { // fragment on Posts
 
 interface PostSideComments { // fragment on Posts
   readonly _id: string,
+  readonly sideCommentsCache2: SideCommentCacheMinimumInfo|null,
   readonly sideComments: any,
 }
 
@@ -3387,11 +3394,13 @@ interface UserRateLimitDisplay { // fragment on UserRateLimits
   readonly endedAt: Date | null,
 }
 
-interface SideCommentCachesDefaultFragment { // fragment on SideCommentCaches
+interface SideCommentCacheMinimumInfo { // fragment on SideCommentCaches
+  readonly _id: string,
   readonly postId: string,
   readonly annotatedHtml: string,
   readonly commentsByBlock: any /*{"definitions":[{"blackbox":true}]}*/,
   readonly version: number,
+  readonly createdAt: Date,
 }
 
 interface ElectionCandidateBasicInfo { // fragment on ElectionCandidates
@@ -3574,6 +3583,7 @@ interface FragmentTypes {
   TagRelsDefaultFragment: TagRelsDefaultFragment
   BooksDefaultFragment: BooksDefaultFragment
   SequencesDefaultFragment: SequencesDefaultFragment
+  SideCommentCachesDefaultFragment: SideCommentCachesDefaultFragment
   PostEmbeddingsDefaultFragment: PostEmbeddingsDefaultFragment
   PostRecommendationsDefaultFragment: PostRecommendationsDefaultFragment
   PostsDefaultFragment: PostsDefaultFragment
@@ -3769,7 +3779,7 @@ interface FragmentTypes {
   ModerationTemplateFragment: ModerationTemplateFragment
   UserRateLimitsDefaultFragment: UserRateLimitsDefaultFragment
   UserRateLimitDisplay: UserRateLimitDisplay
-  SideCommentCachesDefaultFragment: SideCommentCachesDefaultFragment
+  SideCommentCacheMinimumInfo: SideCommentCacheMinimumInfo
   ElectionCandidateBasicInfo: ElectionCandidateBasicInfo
   ElectionCandidateSimple: ElectionCandidateSimple
   WithVoteElectionCandidate: WithVoteElectionCandidate
@@ -3803,6 +3813,7 @@ interface FragmentTypesByCollection {
   TagRels: "TagRelsDefaultFragment"|"TagRelBasicInfo"|"TagRelFragment"|"TagRelHistoryFragment"|"TagRelCreationFragment"|"TagRelMinimumFragment"|"WithVoteTagRel"
   Books: "BooksDefaultFragment"|"BookPageFragment"|"BookEdit"
   Sequences: "SequencesDefaultFragment"|"SequencesPageTitleFragment"|"SequencesPageFragment"|"SequenceContinueReadingFragment"|"SequencesPageWithChaptersFragment"|"SequencesEdit"
+  SideCommentCaches: "SideCommentCachesDefaultFragment"|"SideCommentCacheMinimumInfo"
   PostEmbeddings: "PostEmbeddingsDefaultFragment"
   PostRecommendations: "PostRecommendationsDefaultFragment"
   Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
@@ -3836,7 +3847,6 @@ interface FragmentTypesByCollection {
   CommentModeratorActions: "CommentModeratorActionsDefaultFragment"|"CommentModeratorActionDisplay"
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  SideCommentCaches: "SideCommentCachesDefaultFragment"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
@@ -3860,6 +3870,7 @@ interface CollectionNamesByFragmentName {
   TagRelsDefaultFragment: "TagRels"
   BooksDefaultFragment: "Books"
   SequencesDefaultFragment: "Sequences"
+  SideCommentCachesDefaultFragment: "SideCommentCaches"
   PostEmbeddingsDefaultFragment: "PostEmbeddings"
   PostRecommendationsDefaultFragment: "PostRecommendations"
   PostsDefaultFragment: "Posts"
@@ -4055,7 +4066,7 @@ interface CollectionNamesByFragmentName {
   ModerationTemplateFragment: "ModerationTemplates"
   UserRateLimitsDefaultFragment: "UserRateLimits"
   UserRateLimitDisplay: "UserRateLimits"
-  SideCommentCachesDefaultFragment: "SideCommentCaches"
+  SideCommentCacheMinimumInfo: "SideCommentCaches"
   ElectionCandidateBasicInfo: "ElectionCandidates"
   ElectionCandidateSimple: "ElectionCandidates"
   WithVoteElectionCandidate: "ElectionCandidates"
