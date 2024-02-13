@@ -133,6 +133,14 @@ const ViewSubscriptionsPage = ({classes}: {
       renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
       noSubscriptionsMessage="You are not subscribed to any users' posts."
     />
+    <SubscriptionsList
+      title="Subscribed to All Comments By Users"
+      collectionName="Users"
+      subscriptionType="newUserComments"
+      fragmentName="UsersMinimumInfo"
+      renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
+      noSubscriptionsMessage="You are not subscribed to any users' posts."
+    />
     
     <SubscriptionsList
       title="Subscribed to Comments on Posts"

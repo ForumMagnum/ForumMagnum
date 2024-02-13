@@ -80,6 +80,13 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
         subscribeMessage={`Subscribe to posts by ${userGetDisplayName(postAuthor)}`}
         unsubscribeMessage={`Unsubscribe from posts by ${userGetDisplayName(postAuthor)}`}
       />
+      <NotifyMeDropdownItem
+        document={postAuthor}
+        enabled={!!postAuthor && postAuthor._id !== currentUser?._id}
+        subscribeMessage={`Subscribe to all comments by ${userGetDisplayName(postAuthor)}`}
+        unsubscribeMessage={`Unsubscribe from all comments by ${userGetDisplayName(postAuthor)}`}
+        subscriptionType={subscriptionTypes.newUserComments}
+      />
       {showSubscribeToDialogueButton && <NotifyMeDropdownItem
         document={post}
         enabled={!!post.collabEditorDialogue}
@@ -90,8 +97,8 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       />}
       <NotifyMeDropdownItem
         document={post}
-        subscribeMessage="Subscribe to comments"
-        unsubscribeMessage="Unsubscribe from comments"
+        subscribeMessage="Subscribe to comments on this post"
+        unsubscribeMessage="Unsubscribe from comments on this post"
       />
       {includeBookmark && <BookmarkDropdownItem post={post} />}
       <SetSideCommentVisibility />

@@ -1339,6 +1339,10 @@ const schema: SchemaType<"Users"> = {
     label: "Posts by users I'm subscribed to",
     ...notificationTypeSettingsField(),
   },
+  notificationSubscribedUserComment: {
+    label: "Comments by users I'm subscribed to",
+    ...notificationTypeSettingsField(),
+  },
   notificationPostsInGroups: {
     label: "Posts/events in groups I'm subscribed to",
     hidden: !hasEventsSetting.get(),

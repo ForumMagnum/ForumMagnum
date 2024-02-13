@@ -17,6 +17,8 @@ export function userIsDefaultSubscribed({user, subscriptionType, collectionName,
       return user.auto_subscribe_to_my_posts && document.userId===user._id;
     case subscriptionTypes.newPosts:
       return false;
+    case subscriptionTypes.newUserComments:
+      return user.auto_subscribe_to_my_comments && document.userId===user._id; // TODO check if this is correct
     case subscriptionTypes.newRelatedQuestions:
       // TODO
       return false;
