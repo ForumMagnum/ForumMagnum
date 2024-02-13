@@ -6,13 +6,14 @@ import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { postGetEditUrl } from "../../lib/collections/posts/helpers";
 import { useMessages } from "../common/withMessages";
 import { useNavigate } from "../../lib/reactRouterWrapper";
+import { useLocation } from "../../lib/routeUtil";
 
 // Next steps:
 // - [X] Get backend working with existing UI
 //   - [X] Import button works (NOT including ckeditor paste issues)
 //   - [X] Sign in button works (already true, but just make sure)
 //   - [X] Unlink button works
-// - [ ] Change version restoration logic to allow restoring as draft
+// - [X] Change version restoration logic to allow restoring as draft
 // - [ ] Squash migrations
 // - [ ] Fix import vs paste issues
 // - [ ] Deploy to beta site
@@ -53,6 +54,7 @@ export const GoogleDocImport = ({ postId, classes }: { postId?: string; classes:
   const { EAButton } = Components;
 
   const { flash } = useMessages();
+  const location = useLocation();
   const navigate = useNavigate();
 
   const [importGoogleDocMutation] = useMutation(
@@ -66,15 +68,14 @@ export const GoogleDocImport = ({ postId, classes }: { postId?: string; classes:
     `,
     {
       onCompleted: (data: { ImportGoogleDoc: PostsBase }) => {
-        if (postId) {
-          window.location.reload()
-        } else {
-          const postId = data?.ImportGoogleDoc?._id;
-          const linkSharingKey = data?.ImportGoogleDoc?.linkSharingKey;
-          // If this is the edit post page, this will be the url we are already on. If it's the new post page, it will be the url of the new post
-          const editPostUrl = postGetEditUrl(postId, false, linkSharingKey ?? undefined)
+        const postId = data?.ImportGoogleDoc?._id;
+        const linkSharingKey = data?.ImportGoogleDoc?.linkSharingKey;
+        const editPostUrl = postGetEditUrl(postId, false, linkSharingKey ?? undefined);
 
-          void navigate(editPostUrl)
+        if (location.url === editPostUrl) {
+          window.location.reload();
+        } else {
+          void navigate(editPostUrl);
         }
       },
       onError: () => {
