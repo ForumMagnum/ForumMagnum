@@ -3,13 +3,13 @@ import React from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { isFriendlyUI } from '../../themes/forumTheme';
 
-export const separatorBulletStyles = (theme: ThemeType) => ({
+export const separatorBulletStyles = (theme: ThemeType, spacingMultiplier = 2) => ({
   '& > *': {
     marginBottom: theme.spacing.unit,
     '&:after': {
       content: '"•"',
-      marginLeft: theme.spacing.unit*2,
-      marginRight: theme.spacing.unit*2,
+      marginLeft: theme.spacing.unit*spacingMultiplier, 
+      marginRight: theme.spacing.unit*spacingMultiplier,
     },
     // Each child of the sectionFooter has a bullet divider, except for the last one.
     '&:last-child': {

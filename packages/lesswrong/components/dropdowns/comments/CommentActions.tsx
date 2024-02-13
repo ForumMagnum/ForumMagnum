@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { userGetDisplayName, userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 
 const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   currentUser: UsersCurrent, // Must be logged in
@@ -71,6 +72,13 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
         enabled={enableSubscribeToCommentUser}
         subscribeMessage={"Subscribe to posts by " + userGetDisplayName(comment.user)}
         unsubscribeMessage={"Unsubscribe from posts by " + userGetDisplayName(comment.user)}
+      />
+      <NotifyMeDropdownItem
+        document={comment.user}
+        enabled={enableSubscribeToCommentUser}
+        subscribeMessage={"Subscribe to all comments by " + userGetDisplayName(comment.user)}
+        unsubscribeMessage={"Unsubscribe from all comments by " + userGetDisplayName(comment.user)}
+        subscriptionType={subscriptionTypes.newUserComments}
       />
       <ReportCommentDropdownItem comment={comment} post={post} />
       <MoveToAlignmentCommentDropdownItem comment={comment} post={postDetails} />

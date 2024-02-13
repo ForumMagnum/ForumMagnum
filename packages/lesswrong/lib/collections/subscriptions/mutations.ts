@@ -5,7 +5,6 @@ import Users from '../users/collection';
 
 export const defaultSubscriptionTypeTable = {
   "Comments": subscriptionTypes.newReplies,
-  "UserComments": subscriptionTypes.newUserComments,
   "Posts": subscriptionTypes.newComments,
   "Users": subscriptionTypes.newPosts,
   "Localgroups": subscriptionTypes.newEvents,

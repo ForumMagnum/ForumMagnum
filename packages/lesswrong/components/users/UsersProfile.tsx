@@ -24,6 +24,7 @@ import { useMessages } from '../common/withMessages';
 import CopyIcon from '@material-ui/icons/FileCopy'
 import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
+import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -55,7 +56,12 @@ const styles = (theme: ThemeType): JssStyles => ({
     flexWrap: "wrap",
     color: theme.palette.lwTertiary.main,
     marginTop: 8,
-    ...separatorBulletStyles(theme)
+    [theme.breakpoints.up('sm')]: {
+      ...separatorBulletStyles(theme, 2),
+    },
+    [theme.breakpoints.down('sm')]: {
+      ...separatorBulletStyles(theme, 0.75),
+    },
   },
   meta: {
     ...sectionFooterLeftStyles,
@@ -288,6 +294,12 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 document={user}
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
+              /> }
+              { <NotifyMeButton
+                document={user}
+                subscribeMessage="Subscribe to comments"
+                unsubscribeMessage="Unsubscribe from comments"
+                subscriptionType={subscriptionTypes.newUserComments}
               /> }
               {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
                 {preferredHeadingCase("Account Settings")}
