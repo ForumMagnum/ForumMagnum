@@ -49,7 +49,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   dropdownIcon: {
     verticalAlign: "middle",
     position: "relative",
-    ...(isFriendlyUI && { width: 16, height: 16, marginLeft: 4, padding: 1}),
+    ...(isFriendlyUI && { width: 10, fontSize: "18px!important", height: 12, marginLeft: 4, padding: 1}),
   },
   padding: {
     width: 10,
@@ -98,7 +98,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classes, className}:{
+const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classes, className}: {
   values: string[],
   options: Record<string, SettingsOption>,
   queryParam?: string,

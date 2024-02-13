@@ -18,6 +18,9 @@ import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessag
 import { getLatestRev } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
+import { marketInfoLoader } from '../posts/annualReviewMarkets';
+import { getWithCustomLoader } from '../../lib/loaders';
+import { isLWorAF } from '../../lib/instanceSettings';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -81,7 +84,7 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: GraphQLJSON,
       arguments: 'version: String',
-      resolver: async (document: DbPost, args: {version:string}, context: ResolverContext) => {
+      resolver: async (document: DbPost, args: {version: string}, context: ResolverContext) => {
         const { version=null } = args;
         try {
           return await getToCforPost({document, version, context});
@@ -94,7 +97,7 @@ augmentFieldsDict(Posts, {
   },
   totalDialogueResponseCount: {
     resolveAs: {
-      type: 'Int', 
+      type: 'Int!', 
       resolver: (post, _, context) => {
         if (!post.debate) return 0;
         return getDialogueResponseIds(post).length
@@ -103,8 +106,8 @@ augmentFieldsDict(Posts, {
   },
   unreadDebateResponseCount: {
     resolveAs: {
-      type: 'Int',
-      resolver: async (post, _, context) => {
+      type: 'Int!',
+      resolver: async (post, _, context): Promise<number> => {
         if (!post.collabEditorDialogue) return 0;
 
         const lastReadStatus = await getLastReadStatus(post, context);
@@ -119,7 +122,7 @@ augmentFieldsDict(Posts, {
   },
   mostRecentPublishedDialogueResponseDate: {
     ...denormalizedField({
-      getValue: (post:DbPost) => {
+      getValue: (post: DbPost) => {
         if ((!post.debate && !post.collabEditorDialogue) || post.draft) return null;
         const messageTimestamps = getDialogueMessageTimestamps(post)
         if (messageTimestamps.length === 0) { return null } 
@@ -242,7 +245,43 @@ augmentFieldsDict(Posts, {
         return getDialogueMessageContents(post, dialogueMessageId)
       }
     }
-  }
+  },
+  annualReviewMarketProbability: {
+    resolveAs: {
+      type: 'Float',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        if (!isLWorAF) {
+          return 0;
+        }
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader);
+        return market?.probability
+      }
+    }
+  },
+  annualReviewMarketIsResolved: {
+    resolveAs: {
+      type: 'Boolean',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        if (!isLWorAF) {
+          return false;
+        }
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader)
+        return market?.isResolved
+      }
+    }
+  },
+  annualReviewMarketYear: {
+    resolveAs: {
+      type: 'Int',
+      resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+        if (!isLWorAF) {
+          return 0;
+        }
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader)
+        return market?.year
+      }
+    }
+  },
 })
 
 

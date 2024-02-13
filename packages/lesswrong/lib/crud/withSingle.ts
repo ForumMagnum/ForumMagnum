@@ -97,6 +97,7 @@ export type UseSingleProps<FragmentTypeName extends keyof FragmentTypes> = (
     extraVariables?: Record<string,any>,
     extraVariablesValues?: any,
     fetchPolicy?: WatchQueryFetchPolicy,
+    nextFetchPolicy?: WatchQueryFetchPolicy,
     notifyOnNetworkStatusChange?: boolean,
     allowNull?: boolean,
     skip?: boolean,
@@ -126,6 +127,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
   extraVariables,
   extraVariablesValues,
   fetchPolicy,
+  nextFetchPolicy,
   notifyOnNetworkStatusChange,
   allowNull,
   skip=false,
@@ -144,6 +146,7 @@ export function useSingle<FragmentTypeName extends keyof FragmentTypes>({
       ...extraVariablesValues
     },
     fetchPolicy,
+    nextFetchPolicy,
     notifyOnNetworkStatusChange,
     ssr: true,
     skip: skip || (!documentId && !slug),

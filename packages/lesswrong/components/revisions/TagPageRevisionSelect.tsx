@@ -34,7 +34,7 @@ const TagPageRevisionSelect = ({ classes }: {
     itemsPerPage: 30,
   });
   
-  const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after:RevisionMetadata}) => {
+  const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {
     if (!tag) return;
     navigate(`/compare/${tagUrlBase}/${tag.slug}?before=${before.version}&after=${after.version}`);
   }, [navigate, tag]);

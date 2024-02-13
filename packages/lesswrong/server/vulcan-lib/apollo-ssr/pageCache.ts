@@ -96,7 +96,7 @@ function filterLoggedOutActiveAbTestGroups(abTestGroups: CompleteTestGroupAlloca
 // Serve a page from cache, or render it if necessary. Takes a set of A/B test
 // groups for this request, which covers *all* A/B tests (including ones that
 // may not be relevant to the request).
-export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, userAgent: string|undefined, renderFn: (req:Request)=>Promise<RenderResult>) => {
+export const cachedPageRender = async (req: Request, abTestGroups: CompleteTestGroupAllocation, userAgent: string|undefined, renderFn: (req: Request) => Promise<RenderResult>) => {
   const path = getPathFromReq(req);
   const cacheKey = cacheKeyFromReq(req);
   const cacheAffectingAbTestGroups = filterLoggedOutActiveAbTestGroups(abTestGroups);
@@ -284,23 +284,23 @@ export function recordDatadogCacheEvent(cacheEvent: {path: string, userAgent: st
 }
 
 export function recordCacheHit(cacheEvent: {path: string, userAgent: string}) {
-  recordDatadogCacheEvent({...cacheEvent, type: "hit"});
+  // recordDatadogCacheEvent({...cacheEvent, type: "hit"}); // Useful for debugging, but expensive to track all the time
   cacheHits++;
   cacheQueriesTotal++;
 }
 export function recordCacheMiss(cacheEvent: {path: string, userAgent: string}) {
-  recordDatadogCacheEvent({...cacheEvent, type: "miss"});
+  // recordDatadogCacheEvent({...cacheEvent, type: "miss"}); // Useful for debugging, but expensive to track all the time
   cacheQueriesTotal++;
 }
 export function recordCacheBypass(cacheEvent: {path: string, userAgent: string}) {
-  recordDatadogCacheEvent({...cacheEvent, type: "bypass"});
+  // recordDatadogCacheEvent({...cacheEvent, type: "bypass"}); // Useful for debugging, but expensive to track all the time
   cacheQueriesTotal++;
 }
 export function getCacheHitRate() {
   return cacheHits / cacheQueriesTotal;
 }
 
-function printCacheState(options:any={}) {
+function printCacheState(options: any={}) {
   const {pruneCache=false} = options;
   // eslint-disable-next-line no-console
   const log = console.log;

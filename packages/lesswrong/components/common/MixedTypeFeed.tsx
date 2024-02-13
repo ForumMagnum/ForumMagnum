@@ -104,7 +104,7 @@ const MixedTypeFeed = (args: {
   // Ref that will be populated with a function that makes this feed refetch
   // (refetching everything, shrinking it to one page, and potentially scrolling
   // up by a bunch.)
-  refetchRef?: {current: null|(()=>void)},
+  refetchRef?: {current: null|(() => void)},
 }) => {
   const { resolverName, resolverArgs=null, resolverArgsValues=null, fragmentArgs=null, fragmentArgsValues=null, sortKeyType, renderers, firstPageSize=20, pageSize=20, refetchRef } = args;
   

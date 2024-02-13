@@ -345,7 +345,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `)
   }
 
-  async getUsersTopUpvotedUsers(user:DbUser, limit = 20, recencyLimitDays = 10): Promise<UpvotedUser[]> {
+  async getUsersTopUpvotedUsers(user: DbUser, limit = 20, recencyLimitDays = 10): Promise<UpvotedUser[]> {
     const karma = user?.karma ?? 0
     const smallVotePower = calculateVotePower(karma, "smallUpvote");
     const bigVotePower = calculateVotePower(karma, "bigUpvote");
@@ -468,7 +468,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [userId]);
   }
 
-  async getDialogueRecommendedUsers(userId: string, upvotedUsers:UpvotedUser[], limit = 100): Promise<DbUser[]> {
+  async getDialogueRecommendedUsers(userId: string, upvotedUsers: UpvotedUser[], limit = 100): Promise<DbUser[]> {
     const upvotedUserIds = upvotedUsers.map(user => user._id);
 
     return this.any(`

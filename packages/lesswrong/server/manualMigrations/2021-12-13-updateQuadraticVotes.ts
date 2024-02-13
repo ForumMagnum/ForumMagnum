@@ -87,20 +87,20 @@ registerMigration({
 
     for (let postId in postsAllUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        reviewVotesAllKarma: postsAllUsers[postId].sort((a:number,b:number) => b - a), 
-        reviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x:number, y:number) => x + y, 0) 
+        reviewVotesAllKarma: postsAllUsers[postId].sort((a: number,b: number) => b - a), 
+        reviewVoteScoreAllKarma: postsAllUsers[postId].reduce((x: number, y: number) => x + y, 0) 
       }})
     }
     for (let postId in postsHighKarmaUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        reviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a:number,b:number) => b - a),
-        reviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x:number, y:number) => x + y, 0),
+        reviewVotesHighKarma: postsHighKarmaUsers[postId].sort((a: number,b: number) => b - a),
+        reviewVoteScoreHighKarma: postsHighKarmaUsers[postId].reduce((x: number, y: number) => x + y, 0),
       }})
     }
     for (let postId in postsAFUsers) {
       await Posts.rawUpdateOne({_id:postId}, {$set: { 
-        reviewVotesAF: postsAFUsers[postId].sort((a:number,b:number) => b - a),
-        reviewVoteScoreAF: postsAFUsers[postId].reduce((x:number, y:number) => x + y, 0),
+        reviewVotesAF: postsAFUsers[postId].sort((a: number,b: number) => b - a),
+        reviewVoteScoreAF: postsAFUsers[postId].reduce((x: number, y: number) => x + y, 0),
        }})
     }
   },

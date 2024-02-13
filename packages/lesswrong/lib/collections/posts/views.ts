@@ -1379,7 +1379,7 @@ Posts.addView("reviews2018", (terms: PostsViewTerms) => {
   }
 })
 
-const reviews2019Sortings : Record<ReviewSortings, MongoSort<DbPost>> = {
+const reviews2019Sortings: Record<ReviewSortings, MongoSort<DbPost>> = {
   "fewestReviews" : {reviewCount2019: 1},
   "mostReviews" : {reviewCount2019: -1},
   "lastCommentedAt" :  {lastCommentedAt: -1}

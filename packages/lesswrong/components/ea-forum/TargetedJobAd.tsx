@@ -1,28 +1,31 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Components, makeAbsolute, registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button'
-import LocationIcon from '@material-ui/icons/LocationOn'
-import WorkIcon from '@material-ui/icons/BusinessCenter'
 import CloseIcon from '@material-ui/icons/Close'
-import InfoIcon from '@material-ui/icons/Info'
-import ChevronRight from '@material-ui/icons/ChevronRight';
-import ExpandMore from '@material-ui/icons/ExpandMore';
 import { useTracking } from '../../lib/analyticsEvents';
 import Tooltip from '@material-ui/core/Tooltip';
-import TextField from '@material-ui/core/TextField';
 import classNames from 'classnames';
 import OpenInNew from '@material-ui/icons/OpenInNew';
 import moment from 'moment';
+import { InteractionWrapper, useClickableCell } from '../common/useClickableCell';
+import { useCurrentUser } from '../common/withUser';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     maxHeight: 1200, // This is to make the close transition work
-    display: 'flex',
-    alignItems: 'flex-start',
-    columnGap: 20,
-    background: theme.palette.panelBackground.default,
+    background: theme.palette.grey[0],
     fontFamily: theme.typography.fontFamily,
-    padding: '6px 15px 10px 20px',
+    padding: '10px 12px 12px',
+    border: `1px solid ${theme.palette.grey[100]}`,
+    borderRadius: theme.borderRadius.default,
+    cursor: 'pointer',
+    "&:hover": {
+      background: theme.palette.grey[50],
+      border: `1px solid ${theme.palette.grey[250]}`,
+      '& .TargetedJobAd-collapsedBody::after': {
+        background: `linear-gradient(to top, ${theme.palette.grey[50]}, transparent)`,
+      },
+    },
     [theme.breakpoints.down('xs')]: {
       columnGap: 12,
       padding: '6px 10px',
@@ -37,50 +40,20 @@ const styles = (theme: ThemeType): JssStyles => ({
     transitionProperty: 'opacity, visibility, padding-top, padding-bottom, max-height',
     transitionDuration: '0.5s',
   },
-  logo: {
-    flex: 'none',
-    width: 54,
-    marginTop: 20,
-    [theme.breakpoints.down('xs')]: {
-      width: 40,
-    }
-  },
-  bodyCol: {
-    flexGrow: 1,
-    marginBottom: 6,
-    [theme.breakpoints.down('xs')]: {
-      marginBottom: 4
-    }
-  },
   topRow: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     columnGap: 10,
+    marginBottom: 8,
   },
-  label: {
-    // alignSelf: 'flex-end',
-    flexGrow: 1,
-    display: 'flex',
-    columnGap: 8,
-    color: theme.palette.grey[500],
-  },
-  labelText: {
-    whiteSpace: 'pre',
-    letterSpacing: 0.5,
-    fontSize: 11,
-    fontStyle: 'italic'
+  jobRecLabel: {
+    flexGrow: 1
   },
   infoIcon: {
     fontSize: 14,
     color: theme.palette.grey[400],
-  },
-  feedbackLink: {
-    fontSize: 12,
-    color: theme.palette.link.primaryDim,
-    [theme.breakpoints.down('xs')]: {
-      display: 'none'
-    }
+    transform: 'translateY(2px)'
   },
   closeButton: {
     padding: '.25em',
@@ -89,14 +62,47 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   closeIcon: {
     fontSize: 14,
-    color: theme.palette.grey[400],
+    color: theme.palette.grey[500],
+  },
+  mainRow: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    columnGap: 8,
+  },
+  logo: {
+    flex: 'none',
+    width: 36,
+    borderRadius: theme.borderRadius.small,
+    marginTop: 5,
+  },
+  bodyCol: {
+    flexGrow: 1,
+    marginBottom: 6,
+    [theme.breakpoints.down('xs')]: {
+      marginBottom: 4
+    }
+  },
+  headerRow: {
+    marginBottom: 4
+  },
+  pinIcon: {
+    verticalAlign: 'sub',
+    width: 16,
+    height: 16,
+    color: theme.palette.primary.main,
+    padding: 1.5,
+    marginRight: 8,
   },
   header: {
-    fontFamily: theme.typography.postStyle.fontFamily,
-    fontSize: 18,
-    lineHeight: '24px',
-    color: theme.palette.grey[700],
-    margin: '3px 0 5px'
+    display: 'inline',
+    fontSize: 16,
+    lineHeight: '22px',
+    fontWeight: 600,
+    color: theme.palette.grey[1000],
+    margin: '0 0 4px'
+  },
+  inline: {
+    display: 'inline'
   },
   link: {
     color: theme.palette.primary.main
@@ -104,72 +110,61 @@ const styles = (theme: ThemeType): JssStyles => ({
   metadataRow: {
     display: 'flex',
     flexWrap: 'wrap',
-    columnGap: 30,
-    rowGap: '5px'
+    columnGap: 8,
+    rowGap: '3px'
   },
   metadata: {
     display: 'flex',
     alignItems: 'center',
     columnGap: 4,
     fontSize: 13,
+    lineHeight: '17px',
     color: theme.palette.grey[600],
+    fontWeight: 500,
   },
   metadataIcon: {
     fontSize: 12,
   },
-  deadline: {
-    fontWeight: 600,
-    color: theme.palette.primary.dark
+  feedbackLink: {
+    [theme.breakpoints.down('xs')]: {
+      display: 'none'
+    }
   },
-  readMore: {
-    display: 'flex',
-    alignItems: 'center',
-    fontFamily: theme.typography.fontFamily,
-    background: 'none',
-    color: theme.palette.primary.main,
-    padding: 0,
-    marginTop: 10,
-    '&:hover': {
-      opacity: 0.5
-    },
-  },
-  readMoreIcon: {
-    fontSize: 18
+  collapsedBody: {
+    position: 'relative',
+    height: 50,
+    overflow: 'hidden',
+    '&::after': {
+      position: 'absolute',
+      bottom: 0,
+      width: '100%',
+      height: 20,
+      content: "''",
+      background: `linear-gradient(to top, ${theme.palette.grey[0]}, transparent)`,
+    }
   },
   description: {
-    maxWidth: 570,
+    maxWidth: 666,
     fontSize: 13,
     lineHeight: '20px',
-    color: theme.palette.grey[700],
+    fontWeight: 500,
+    color: theme.palette.grey[1000],
     margin: '10px 0',
     '& ul': {
       margin: 0
     },
     '& li': {
-      marginTop: 4
+      marginTop: 1
     }
-  },
-  prompt: {
-    maxWidth: 570,
-    fontSize: 13,
-    lineHeight: '20px',
-    color: theme.palette.grey[900],
-    fontWeight: '500',
-    marginTop: 14,
-    marginBottom: 10
   },
   btnRow: {
     display: 'flex',
     flexWrap: 'wrap',
-    columnGap: 16,
+    columnGap: 8,
     rowGap: '12px',
     alignItems: 'baseline',
     marginTop: 18,
     marginBottom: 8
-  },
-  input: {
-    width: '100%',
-    maxWidth: 400
   },
   btn: {
     textTransform: 'none',
@@ -227,10 +222,10 @@ type EAGOccupation =
   'S-risk'
 
 type JobAdData = {
-  standardApplyBtn?: boolean,        // set to show the "Apply now" button instead of "Yes, I'm interested"
   eagOccupations?: EAGOccupation[],  // used to match on EAG experience + interests
   interestedIn?: EAGOccupation[],    // used to match on EAG interests
-  tagId?: string,                    // used to match on a topic
+  subscribedTagIds?: string[],       // used to match on a set of topics that the user is subscribed to
+  readCoreTagIds?: string[],         // used to match on a set of core topics that the user has read frequently
   logo: string,                      // url for org logo
   occupation: string,                // text displayed in the tooltip
   feedbackLinkPrefill: string,       // url param used to prefill part of the feedback form
@@ -241,216 +236,268 @@ type JobAdData = {
   orgLink: string,                   // internal link on the org name
   salary?: string,
   location: string,
+  countryCode?: string,              // if provided, only show to users who we think are in this country
   roleType?: string,                 // i.e. part-time, contract
-  deadline?: moment.Moment,          // not displayed, only used to hide the ad after this date
+  deadline?: moment.Moment,          // also used to hide the ad after this date
   getDescription: (classes: ClassesType) => JSX.Element
 }
 
 // job-specific data for the ad
-// (also used in the confirmation email, so links in the description need to be absolute)
+// (also used in the reminder email, so links in the description need to be absolute)
 export const JOB_AD_DATA: Record<string, JobAdData> = {
-  'malaria-researcher-givewell': {
-    standardApplyBtn: true,
-    logo: 'https://cdn.80000hours.org/wp-content/uploads/2017/03/GiveWell_square-160x160.jpg',
-    occupation: 'research',
-    feedbackLinkPrefill: 'Senior+Malaria+Researcher+at+GiveWell',
-    bitlyLink: "https://efctv.org/3J7bY6v", // https://www.givewell.org/about/jobs/research-application
-    role: 'Senior Malaria Researcher',
-    org: 'GiveWell',
-    orgLink: '/topics/givewell',
-    salary: '$193k - $209k',
-    location: 'Remote',
+  'cltr-biosecurity-policy-advisor': {
+    subscribedTagIds: [
+      'H43gvLzBCacxxamPe', // biosecurity
+      'of9xBvR3wpbp6qsZC', //policy
+    ],
+    readCoreTagIds: [
+      'H43gvLzBCacxxamPe', // biosecurity
+      'of9xBvR3wpbp6qsZC', //policy
+    ],
+    logo: 'https://res.cloudinary.com/cea/image/upload/q_auto,f_auto/v1707183771/Screen_Shot_2024-02-05_at_8.42.20_PM',
+    occupation: 'biosecurity and policy',
+    feedbackLinkPrefill: 'Biosecurity+Policy+Advisor+at+CLTR',
+    bitlyLink: "https://efctv.org/4buFxw8", // https://www.longtermresilience.org/post/we-are-hiring-for-a-biosecurity-policy-adviser-deadline-8-march-2024
+    role: 'Biosecurity Policy Advisor',
+    insertThe: true,
+    org: 'Centre for Long-Term Resilience',
+    orgLink: '/topics/centre-for-long-term-resilience',
+    salary: '£63k - £80k',
+    location: 'UK (London-based)',
+    countryCode: 'GB',
+    deadline: moment('2024-03-08'),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        <a href="https://www.givewell.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          GiveWell
-        </a>'s first Senior Malaria Researcher will be responsible for strengthening the quality of the research
-        and cost-effectiveness modeling guiding GiveWell's investments in <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/malaria")}>
-            {"malaria"}
+        The <a href="https://www.longtermresilience.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Centre for Long-Term Resilience (CLTR)
+        </a> is a UK-based non-profit and independent think tank with a mission to transform global resilience to extreme risks.
+        This role will contribute to developing, evaluating, and advocating for impactful <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/biosecurity")}>
+            biosecurity
           </Components.HoverPreviewLink>
-        </span> interventions.
+        </span> policies aimed at reducing extreme biological risks.
       </div>
       <div className={classes.description}>
-        Ideal candidates:
+        Ideal candidates have:
         <ul>
-          <li>Have a quantitatively-oriented advanced degree and substantial malaria expertise</li>
-          <li>Have a proven ability to plan and execute research that holds up over time</li>
-          <li>Are highly skilled at analyzing empirical research to solve real-world problems</li>
+          <li>Experience in research, policy, or advocacy in biosecurity or a related field</li>
+          <li>A good understanding of the biosecurity landscape</li>
+          <li>A track record of executing tasks independently and effectively</li>
+        </ul>
+      </div>
+    </>
+  },
+  'leep-program-manager': {
+    subscribedTagIds: [
+      'sWcuTyTB5dP3nas2t', // global health & development
+      'of9xBvR3wpbp6qsZC', //policy
+    ],
+    logo: 'https://80000hours.org/wp-content/uploads/2022/06/LEEP-logo-160x160.png',
+    occupation: 'global health and policy',
+    feedbackLinkPrefill: 'Program+Manager+at+LEEP',
+    bitlyLink: "https://efctv.org/49HrguD", // https://leadelimination.org/jobs/
+    role: 'Program Manager',
+    insertThe: true,
+    org: 'Lead Exposure Elimination Project',
+    orgLink: '/topics/lead-exposure-elimination-project',
+    location: 'Remote, multiple locations',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <a href="https://www.leadelimination.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          LEEP
+        </a> is an impact-driven non-profit that aims to eliminate childhood <span className={classes.link}>
+          <Components.HoverPreviewLink href={makeAbsolute("/topics/lead-poisoning")}>
+            lead poisoning
+          </Components.HoverPreviewLink>
+        </span>, which affects an estimated one in three children worldwide.
+        LEEP is hiring program managers to lead their programs in multiple time zones and locations.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates have:
+        <ul>
+          <li>Strong interpersonal and stakeholder management skills</li>
+          <li>Willingness to travel for 8 to 12 weeks per year</li>
+          <li>Strong ability to prioritise and focus on impact</li>
+        </ul>
+      </div>
+    </>
+  },
+  'thl-apa-program-specialist': {
+    subscribedTagIds: [
+      'QdH9f8TC6G8oGYdgt', // animal welfare
+      'of9xBvR3wpbp6qsZC', // policy
+    ],
+    logo: 'https://80000hours.org/wp-content/uploads/2019/12/he-humane-league-160x160.png',
+    occupation: 'animal welfare and policy',
+    feedbackLinkPrefill: 'APA+Program+Specialist+at+THL',
+    bitlyLink: "https://efctv.org/3UrH6ov", // https://thehumaneleague.org/single-offer-career?gh_jid=5608962
+    role: 'Animal Policy Alliance, Program Specialist',
+    org: 'The Humane League',
+    orgLink: '/topics/the-humane-league',
+    salary: '$65k - $80k',
+    location: 'Remote (USA)',
+    deadline: moment('2024-02-08'),
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        Animal Policy Alliance (APA), launched by <a href="https://thehumaneleague.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          The Humane League
+        </a> in 2022, is a national network of state and local animal protection and food policy advocacy groups in the US that include animals
+        raised for food among their legislative priorities. The program specialist will play a key role in supporting the growth and operation of the APA.
+      </div>
+      <div className={classes.description}>
+        Ideal candidates have:
+        <ul>
+          <li>A minimum 5 years experience in positions related to public policy and/or animal protection advocacy</li>
+          <li>Event planning experience</li>
+          <li>Outstanding relationship building and interpersonal skills</li>
         </ul>
       </div>
     </>
   },
 }
 
-const TargetedJobAd = ({ad, onDismiss, onExpand, onInterested, onUninterested, classes}: {
+/**
+ * This component only handles the job ad UI. See TargetedJobAdSection.tsx for functional logic.
+ */
+const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: {
   ad: string,
   onDismiss: () => void,
   onExpand: () => void,
-  onInterested: (showSuccessMsg?: boolean) => void,
-  onUninterested: (reason?: string) => void,
+  onApply: () => void,
+  onRemindMe: () => void,
   classes: ClassesType,
 }) => {
+  const adData = JOB_AD_DATA[ad]
+  
+  const currentUser = useCurrentUser()
   const { captureEvent } = useTracking()
   // expand/collapse the ad contents
   const [expanded, setExpanded] = useState(false)
-  // if the user says this doesn't match their interests, replace the main CTA to ask them why
-  const [showUninterestedForm, setShowUninterestedForm] = useState(false)
-  // clicking either "interested" or "uninterested" will close the ad
+  // clicking either "apply" or "remind me" will close the ad
   const [closed, setClosed] = useState(false)
+
+  const handleToggleExpand = useCallback(() => {
+    if (expanded) {
+      setExpanded(false)
+    } else {
+      captureEvent('expandJobAd')
+      setExpanded(true)
+      onExpand()
+    }
+  }, [expanded, setExpanded, captureEvent, onExpand])
+  const { onClick } = useClickableCell({onClick: handleToggleExpand})
   
-  const handleExpand = () => {
-    captureEvent('expandJobAd')
-    setExpanded(true)
-    onExpand()
-  }
-  
-  const handleInterested = (showSuccessMsg?: boolean) => {
-    // setClosed(true)
-    onInterested(showSuccessMsg)
-  }
-  
-  const handleUninterested = (reason?: string) => {
-    setShowUninterestedForm(true)
-    onUninterested(reason)
-  }
-  
-  const handleSubmitUninterestedReason = (e: AnyBecauseTodo) => {
-    e.preventDefault()
+  const handleApply = useCallback(() => {
     setClosed(true)
-    onUninterested(e.target.uninterestedReason.value)
-  }
+    onApply()
+  }, [setClosed, onApply])
   
-  const { HoverPreviewLink, LWTooltip } = Components
+  const handleRemindMe = useCallback(() => {
+    setClosed(true)
+    onRemindMe()
+  }, [setClosed, onRemindMe])
   
-  const adData = JOB_AD_DATA[ad]
-  if (!adData) {
+  const { HoverPreviewLink, LWTooltip, ForumIcon, EAButton } = Components
+  
+  if (!adData || !currentUser) {
     return null
   }
-  
-  // standard CTA, asking if the user is interested in this role
-  let ctaSection = <>
-    <div className={classes.prompt}>
-      If you're interested in this role, would you like us to pass along your email address and EA Forum profile to the hiring manager?
-    </div>
-    <div className={classes.btnRow}>
-      <Button variant="contained" color="primary" onClick={() => handleInterested()} className={classes.btn}>
-        Yes, I'm interested
-      </Button>
-      <Button variant="outlined" color="primary" onClick={() => handleUninterested()} className={classes.btn}>
-        No, this doesn't match my interests
-      </Button>
-    </div>
-  </>
-  // if the user said they were uninterested in the role, instead prompt them to tell us why
-  if (showUninterestedForm) {
-    ctaSection = <form onSubmit={handleSubmitUninterestedReason}>
-      <div className={classes.prompt}>
-        Why doesn't this role match your interests?
-      </div>
-      <div className={classes.btnRow}>
-        <TextField name="uninterestedReason" className={classes.input} />
-        <Button type="submit" variant="contained" color="primary" className={classes.btn}>
-          Submit
-        </Button>
-      </div>
-    </form>
-  }
-  // if the org didn't want us to send them expressions of interest, just link to their standard application form
-  else if (adData.standardApplyBtn) {
-    ctaSection = <>
-      <div className={classes.btnRow}>
-        <Button
-          variant="contained"
-          color="primary"
-          href={adData.bitlyLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={classes.btn}
-          onClick={() => handleInterested(false)}
-        >
-          Apply now <OpenInNew className={classes.btnIcon} />
-        </Button>
-        {/* <Button variant="outlined" color="primary" onClick={() => handleUninterested()} className={classes.btn}>
-          This doesn't match my interests
-        </Button> */}
-      </div>
-    </>
-  }
 
-  return <div className={classNames(classes.root, {[classes.rootClosed]: closed})}>
+  return <div className={classNames(classes.root, {[classes.rootClosed]: closed})} onClick={onClick}>
+    <div className={classes.topRow}>
+      <div className={classNames(classes.jobRecLabel, classes.metadata)}>
+        Job recommendation for {currentUser.displayName}
+        <LWTooltip title={
+          `You're seeing this recommendation because of your interest in ${adData.occupation}.`
+        }>
+          <ForumIcon icon="InfoCircle" className={classes.infoIcon} />
+        </LWTooltip>
+      </div>
+      <div className={classNames(classes.feedbackLink, classes.metadata)}>
+        <InteractionWrapper>
+          <a href={`
+              https://docs.google.com/forms/d/e/1FAIpQLSd4uDGbXbJSwYX2w_9wXNTuLLBf7bhiWoWc-goJJXiWGA7qDg/viewform?usp=pp_url&entry.70861771=${adData.feedbackLinkPrefill}
+            `}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Give us feedback
+          </a>
+        </InteractionWrapper>
+      </div>
+      <InteractionWrapper>
+        <Tooltip title="Dismiss">
+          <Button className={classes.closeButton} onClick={onDismiss}>
+            <CloseIcon className={classes.closeIcon} />
+          </Button>
+        </Tooltip>
+      </InteractionWrapper>
+    </div>
+    <div className={classes.mainRow}>
       <img src={adData.logo} className={classes.logo} />
       <div className={classes.bodyCol}>
-        <div className={classes.topRow}>
-          <div className={classes.label}>
-            <div className={classes.labelText}>
-              Job  recommendation
-            </div>
-            {/* <LWTooltip title={
-              `You're seeing this recommendation because of your interest in ${adData.occupation}.
-              We encourage you to consider jobs like this which might increase your impact significantly.`
-            }>
-              <InfoIcon className={classes.infoIcon} />
-            </LWTooltip> */}
-          </div>
-          <div className={classes.feedbackLink}>
-            <a href={`
-                https://docs.google.com/forms/d/e/1FAIpQLSdPzZlC5AxzqhIRmSQUkDMtrtDJi9RSCazGrQXuvjl2VhHWWQ/viewform?usp=pp_url&entry.70861771=${adData.feedbackLinkPrefill}
-              `}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Give us feedback on this experiment
-            </a>
-          </div>
-          <Tooltip title="Dismiss">
-            <Button className={classes.closeButton} onClick={onDismiss}>
-              <CloseIcon className={classes.closeIcon} />
-            </Button>
-          </Tooltip>
+        <div className={classes.headerRow}>
+          <ForumIcon icon="Pin" className={classes.pinIcon} />
+          <h2 className={classes.header}>
+            <InteractionWrapper className={classes.inline}>
+              <a href={adData.bitlyLink} target="_blank" rel="noopener noreferrer">
+                {adData.role}
+              </a>
+            </InteractionWrapper> at{adData.insertThe ? ' the ' : ' '}
+            <InteractionWrapper className={classes.inline}>
+              <HoverPreviewLink href={adData.orgLink}>
+                {adData.org}
+              </HoverPreviewLink>
+            </InteractionWrapper>
+          </h2>
         </div>
-        <h2 className={classes.header}>
-          <a href={adData.bitlyLink} target="_blank" rel="noopener noreferrer" className={classes.link}>
-            {adData.role}
-          </a> at{adData.insertThe ? ' the' : ''} <span className={classes.link}>
-            <HoverPreviewLink href={adData.orgLink}>
-              {adData.org}
-            </HoverPreviewLink>
-          </span>
-        </h2>
         <div className={classes.metadataRow}>
-          {adData.salary && <div className={classes.metadata}>
-            {adData.salary}
-          </div>}
+          {adData.salary && <>
+            <div className={classes.metadata}>
+              {adData.salary}
+            </div>
+            <div>·</div>
+          </>}
           <div className={classes.metadata}>
-            <LocationIcon className={classes.metadataIcon} />
             {adData.location}
           </div>
-          {adData.roleType && <div className={classes.metadata}>
-            <WorkIcon className={classes.metadataIcon} />
-            {adData.roleType}
-          </div>}
-          {
-            // display the deadline when it's within 2 days away
-            adData.deadline &&
-            moment().add(2, 'days').isSameOrAfter(adData.deadline, 'day') &&
-            <div className={classNames(classes.metadata, classes.deadline)}>
-              Apply by {adData.deadline.format('MMM Do')}
+          {adData.roleType && <>
+            <div>·</div>
+            <div className={classes.metadata}>
+              {adData.roleType}
             </div>
-          }
+          </>}
+          {adData.deadline && <>
+            <div>·</div>
+            <div className={classes.metadata}>
+              Deadline: {adData.deadline.format('MMM Do')}
+            </div>
+          </>}
         </div>
-        {!expanded ? <button onClick={handleExpand} className={classes.readMore}>
-          <ChevronRight className={classes.readMoreIcon} /> Expand
-        </button> : <button onClick={() => setExpanded(false)} className={classes.readMore}>
-          <ExpandMore className={classes.readMoreIcon} /> Collapse
-        </button>}
         
-        {expanded && <>
+        <div className={classNames({[classes.collapsedBody]: !expanded})}>
           {adData.getDescription(classes)}
-          {ctaSection}
-        </>}
+          <InteractionWrapper>
+            <div className={classes.btnRow}>
+              <EAButton
+                variant="contained"
+                href={adData.bitlyLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={classes.btn}
+                onClick={() => handleApply()}
+              >
+                Apply <OpenInNew className={classes.btnIcon} />
+              </EAButton>
+              {adData.deadline && <EAButton variant="contained" style="grey" onClick={handleRemindMe} className={classes.btn}>
+                Remind me before the deadline
+              </EAButton>}
+            </div>
+          </InteractionWrapper>
+        </div>
       </div>
     </div>
+  </div>
 }
 
 const TargetedJobAdComponent = registerComponent("TargetedJobAd", TargetedJobAd, {styles});

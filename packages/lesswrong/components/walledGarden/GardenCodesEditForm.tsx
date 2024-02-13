@@ -9,8 +9,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   }
 })
 
-export const GardenCodesEditForm = ({classes, gardenCodeId, cancelCallback, successCallback}:{
-  classes:ClassesType,
+export const GardenCodesEditForm = ({classes, gardenCodeId, cancelCallback, successCallback}: {
+  classes: ClassesType,
   gardenCodeId: string,
   successCallback?: any,
   cancelCallback?: any,

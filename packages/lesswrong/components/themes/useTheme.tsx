@@ -11,7 +11,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 type ThemeContextObj = {
   theme: ThemeType,
   themeOptions: AbstractThemeOptions,
-  setThemeOptions: (options: AbstractThemeOptions)=>void
+  setThemeOptions: (options: AbstractThemeOptions) => void
 }
 export const ThemeContext = React.createContext<ThemeContextObj|null>(null);
 

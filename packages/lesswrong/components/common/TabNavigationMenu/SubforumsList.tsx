@@ -36,7 +36,7 @@ const styles = ((theme: ThemeType): JssStyles => ({
 const INITIAL_LIMIT = 3
 
 const SubforumsList = ({ onClick, classes }: {
-  onClick: ()=>void
+  onClick: () => void
   classes: ClassesType
 }) => {
   const { results } = useMulti({

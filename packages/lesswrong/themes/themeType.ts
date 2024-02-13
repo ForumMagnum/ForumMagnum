@@ -219,6 +219,7 @@ declare global {
       yellow: ColorString,
       recentDiscussionGreen: ColorString,
       recentDiscussionGrey: ColorString,
+      headerKarma: ColorString,
       activeDotOrange: ColorString,
 
       commentsBubble: {
@@ -259,6 +260,7 @@ declare global {
       dashed500: string,
       mentionsBaloon: string,
       wrappedSummary: string,
+      eaButtonGreyOutline: string,
     },
     panelBackground: {
       default: ColorString,
@@ -297,6 +299,8 @@ declare global {
       recentDiscussionThread: ColorString,
       tooltipBackground: ColorString,
       tooltipBackground2: ColorString,
+      modalBackground: ColorString,
+      loginInput: ColorString,
       tenPercent: ColorString,
       sunshineReportedContent: ColorString,
       sunshineFlaggedUser: ColorString,
@@ -402,6 +406,7 @@ declare global {
       activeProgress: ColorString,
       progressBar: ColorString,
       adminButton: ColorString,
+      winner: ColorString,
     },
     background: {
       default: ColorString
@@ -409,6 +414,7 @@ declare global {
       contrastInDarkMode: ColorString,
       pageActiveAreaBackground: ColorString,
       translucentBackground: ColorString,
+      loginBackdrop: ColorString,
       diffInserted: ColorString,
       diffDeleted: ColorString,
       usersListItem: ColorString,
@@ -497,8 +503,8 @@ declare global {
     
     breakpoints: {
       /** Down is *inclusive* - down(sm) will go up to the md breakpoint */
-      down:  (breakpoint: BreakpointName|number)=>string,
-      up: (breakpoint: BreakpointName|number)=>string,
+      down:  (breakpoint: BreakpointName|number) => string,
+      up: (breakpoint: BreakpointName|number) => string,
       values: Record<BreakpointName,number>,
     },
     spacing: {

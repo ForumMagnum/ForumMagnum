@@ -269,6 +269,15 @@ const ckEditorApi = {
   },
 
   /**
+   * Per docs, this attempts to restore a corrupted collaborative session.
+   * Since this requires deleting the invalid operation(s), it might involve a bit of data loss.
+   * https://docs.cke-cs.com/api/v5/docs#tag/Collaboration/paths/~1collaborations~1%7Bdocument_id%7D~1restore/put
+   */
+  async restoreCkEditorCollaboration(ckEditorId: string) {
+    return await fetchCkEditorRestAPI("PUT", `/collaborations/${ckEditorId}/restore`);
+  },
+
+  /**
    * This deletes only the document *contents* from storage, not any associated collaborative session, comments, suggestions, users, etc.
    */
   async deleteCkEditorCloudStorageDocument(ckEditorId: string) {

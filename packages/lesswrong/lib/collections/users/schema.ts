@@ -17,6 +17,7 @@ import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
 import { dialoguesEnabled, hasPostRecommendations } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
+import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
 
@@ -117,8 +118,17 @@ const rateLimitInfoSchema = new SimpleSchema({
   },
 })
 
+const karmaChangeUpdateFrequencies = new TupleSet([
+  "disabled",
+  "daily",
+  "weekly",
+  "realtime",
+] as const);
+
+export type KarmaChangeUpdateFrequency = UnionOf<typeof karmaChangeUpdateFrequencies>;
+
 export interface KarmaChangeSettingsType {
-  updateFrequency: "disabled"|"daily"|"weekly"|"realtime"
+  updateFrequency: KarmaChangeUpdateFrequency
   timeOfDayGMT: number
   dayOfWeekGMT: "Monday"|"Tuesday"|"Wednesday"|"Thursday"|"Friday"|"Saturday"|"Sunday"
   showNegativeKarma: boolean
@@ -127,7 +137,7 @@ const karmaChangeSettingsType = new SimpleSchema({
   updateFrequency: {
     type: String,
     optional: true,
-    allowedValues: ['disabled', 'daily', 'weekly', 'realtime']
+    allowedValues: Array.from(karmaChangeUpdateFrequencies),
   },
   timeOfDayGMT: {
     type: SimpleSchema.Integer,
@@ -1081,7 +1091,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (All)",
-    control: 'FormUsersListEditor'
+    control: 'FormUserMultiselect'
   },
   'bannedUserIds.$': {
     type: String,
@@ -1098,7 +1108,7 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['sunshineRegiment', 'admins'],
     optional: true,
     label: "Banned Users (Personal)",
-    control: 'FormUsersListEditor',
+    control: 'FormUserMultiselect',
     tooltip: "Users who are banned from commenting on your personal blogposts (will not affect posts promoted to frontpage)"
   },
   "bannedPersonalUserIds.$": {
@@ -1248,10 +1258,10 @@ const schema: SchemaType<"Users"> = {
   // IPs: All Ips that this user has ever logged in with
   IPs: resolverOnlyField({
     type: Array,
-    graphQLtype: '[String]',
+    graphQLtype: '[String!]',
     group: formGroups.banUser,
     canRead: ['sunshineRegiment', 'admins'],
-    resolver: async (user: DbUser, args: void, context: ResolverContext) => {
+    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<string[]> => {
       const { currentUser, LWEvents } = context;
       const events: Array<DbLWEvent> = await LWEvents.find(
         {userId: user._id, name: 'login'},
@@ -1965,7 +1975,7 @@ const schema: SchemaType<"Users"> = {
   //   1.0: Reviewed user with 20+ karma
   spamRiskScore: resolverOnlyField({
     type: Number,
-    graphQLtype: "Float",
+    graphQLtype: "Float!",
     canRead: ['guests'],
     resolver: (user: DbUser, args: void, context: ResolverContext) => {
       const isReviewed = !!user.reviewedByUserId;
@@ -2165,9 +2175,10 @@ const schema: SchemaType<"Users"> = {
     hidden: true
   },
   reviewVoteCount:resolverOnlyField({
+    graphQLtype: 'Int!',
     type: Number,
     canRead: ['admins', 'sunshineRegiment'],
-    resolver: async (document, args, context: ResolverContext) => {
+    resolver: async (document, args, context: ResolverContext): Promise<number> => {
       const { ReviewVotes } = context;
       const voteCount = await ReviewVotes.find({
         userId: document._id,
@@ -2719,7 +2730,9 @@ const schema: SchemaType<"Users"> = {
   },
   
   altAccountsDetected: resolverOnlyField({
-    type: Boolean,
+    type: 'Boolean',
+    graphQLtype: 'Boolean',
+    nullable: true,
     canRead: ['sunshineRegiment', 'admins'],
     resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<boolean> => {
       const clientIds = await context.ClientIds.find(
@@ -2771,9 +2784,19 @@ const schema: SchemaType<"Users"> = {
     canCreate: ['members', 'admins'],
     canUpdate: [userOwns, 'admins'],
   },
+  
+  // used by the EA Forum to track when a user has dismissed the frontpage job ad
+  hideJobAdUntil: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    canCreate: ['members'],
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+    hidden: true,
+  },
 
   /* fields for targeting job ads - values currently only changed via /scripts/importEAGUserInterests */
-
   experiencedIn: {
     type: Array,
     optional: true,

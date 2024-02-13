@@ -21,7 +21,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="layout"}:{
+const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="layout"}: {
   classes: ClassesType,
   value?: PostsLayout
   queryParam?: string,

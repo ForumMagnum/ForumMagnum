@@ -25,7 +25,7 @@ addCronJob({
   }
 });
 
-async function checkActiveUserSession(userId:string, documentId:string) {
+async function checkActiveUserSession(userId: string, documentId: string) {
   const ckEditorDocumentId = getCKEditorDocumentId(documentId, userId, "edit");
 
   const response = await ckEditorApi.getAllConnectedUserIds(ckEditorDocumentId)

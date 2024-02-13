@@ -30,7 +30,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 }); 
 
 const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
-  onTagSelected?: (tag: {tagId: string, tagName: string}, existingTagIds: Array<string>)=>void,
+  onTagSelected?: (tag: {tagId: string, tagName: string}, existingTagIds: Array<string>) => void,
   classes: ClassesType,
   existingTagIds?: Array<string|undefined>
 }) => {

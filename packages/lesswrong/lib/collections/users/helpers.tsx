@@ -1,6 +1,6 @@
 import bowser from 'bowser';
 import { isClient, isServer } from '../../executionEnvironment';
-import { forumTypeSetting, isEAForum, isLW, lowKarmaUserVotingCutoffDateSetting, lowKarmaUserVotingCutoffKarmaSetting } from "../../instanceSettings";
+import { forumTypeSetting, isEAForum } from "../../instanceSettings";
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf } from '../../vulcan-users/permissions';
 import React, { useEffect, useState } from 'react';
@@ -10,7 +10,6 @@ import { Components } from '../../vulcan-lib';
 import type { PermissionResult } from '../../make_voteable';
 import { DatabasePublicSetting } from '../../publicSettings';
 import moment from 'moment';
-import { MODERATOR_ACTION_TYPES } from '../moderatorActions/schema';
 
 const newUserIconKarmaThresholdSetting = new DatabasePublicSetting<number|null>('newUserIconKarmaThreshold', null)
 
@@ -335,6 +334,16 @@ export const userGetProfileUrlFromSlug = (userSlug: string, isAbsolute=false): s
   
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
   return `${prefix}/users/${userSlug}`;
+}
+
+export const userGetAnalyticsUrl = (user: {slug: string}, isAbsolute=false): string => {
+  if (!user) return "";
+
+  if (user.slug) {
+    return `${userGetProfileUrlFromSlug(user.slug, isAbsolute)}/stats`;
+  } else {
+    return "";
+  }
 }
 
 

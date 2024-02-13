@@ -2,7 +2,7 @@ import React, { MouseEvent, useContext } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanComment, userCanCreateField, userCanDo, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
-import { userGetDisplayName } from '../../lib/collections/users/helpers';
+import { userGetAnalyticsUrl, userGetDisplayName } from '../../lib/collections/users/helpers';
 import { dialoguesEnabled, userHasThemePicker } from '../../lib/betas';
 
 import Paper from '@material-ui/core/Paper';
@@ -297,7 +297,7 @@ const UsersMenu = ({classes}: {
               }
               {isEAForum && <DropdownItem
                 title={"Post stats"}
-                to={`/users/${currentUser.slug}/stats`}
+                to={userGetAnalyticsUrl(currentUser)}
                 icon="BarChart"
                 iconClassName={classes.icon}
               />}
@@ -320,7 +320,6 @@ const UsersMenu = ({classes}: {
                   iconClassName={classes.icon}
                 />
               }
-              {isFriendlyUI && messagesNode}
               {isFriendlyUI && accountSettingsNode}
   
               {/*

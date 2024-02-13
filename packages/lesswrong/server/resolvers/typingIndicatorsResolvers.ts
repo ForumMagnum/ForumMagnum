@@ -6,7 +6,7 @@ defineMutation({
   name: "upsertUserTypingIndicator",
   resultType: "TypingIndicator",
   argTypes: "(documentId: String!)",
-  fn: async (_, {documentId}:{documentId:string}, {currentUser, loaders}) => {
+  fn: async (_, {documentId}: {documentId: string}, {currentUser, loaders}) => {
     if (!currentUser) throw new Error("No user was provided")
     const post = await loaders.Posts.load(documentId)
     if (!post) throw new Error("No post was provided")

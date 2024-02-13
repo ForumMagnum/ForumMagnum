@@ -116,7 +116,8 @@ const schema: SchemaType<"ModeratorActions"> = {
     control: 'datetime',
   },
   active: resolverOnlyField({
-    type: Boolean,
+    type: 'Boolean',
+    graphQLtype: 'Boolean!',
     canRead: ['guests'],
     resolver: (doc) => isActionActive(doc)
   })

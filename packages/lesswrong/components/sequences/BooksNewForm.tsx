@@ -3,8 +3,8 @@ import React from 'react';
 import Books from '../../lib/collections/books/collection';
 
 const BooksNewForm = ({successCallback, cancelCallback, prefilledProps}: {
-  successCallback?: ()=>void,
-  cancelCallback?: ()=>void,
+  successCallback?: () => void,
+  cancelCallback?: () => void,
   prefilledProps?: Record<string,any>,
 }) => {
   return (

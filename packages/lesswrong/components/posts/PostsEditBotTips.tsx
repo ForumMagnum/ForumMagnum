@@ -92,7 +92,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const PostsEditBotTips = ({handleDismiss, postId, className, classes}: {
-  handleDismiss: ()=>void,
+  handleDismiss: () => void,
   postId?: string,
   className?: string,
   classes: ClassesType,

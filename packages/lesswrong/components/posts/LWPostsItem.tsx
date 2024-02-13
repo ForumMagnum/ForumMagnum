@@ -12,6 +12,9 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
+import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
+
 
 export const KARMA_WIDTH = 32
 
@@ -69,6 +72,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       top: -5,
     }
   },
+  hasSequenceImage: {
+    paddingRight: 0,
+  },
   bottomBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
   },
@@ -88,6 +94,9 @@ export const styles = (theme: ThemeType): JssStyles => ({
       marginLeft: 2,
       marginRight: theme.spacing.unit
     }
+  },
+  karmaPredictedReviewWinner: {
+    color: theme.palette.review.winner
   },
   title: {
     minHeight: 26,
@@ -358,6 +367,8 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showReviewCount,
     showIcons,
     showKarma,
+    annualReviewMarketInfo,
+    marketLink,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,
@@ -420,15 +431,19 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               classes.postsItem,
               classes.withGrayHover, {
                 [classes.dense]: dense,
-                [classes.withRelevanceVoting]: !!tagRel
+                [classes.withRelevanceVoting]: !!tagRel,
+                [classes.hasSequenceImage]: !!resumeReading,
               }
             )}
           >
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
-            {showKarma && <PostsItem2MetaInfo className={classes.karma}>
+            {showKarma && <PostsItem2MetaInfo className={classNames(
+              classes.karma, {
+                [classes.karmaPredictedReviewWinner]: !!marketLink
+              })}>
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
-                : <KarmaDisplay document={post} />
+                : <KarmaDisplay document={post} linkItem={marketLink}/>
               }
             </PostsItem2MetaInfo>}
 
@@ -488,7 +503,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             <div className={classes.mobileSecondRowSpacer}/>
 
             {<div className={classes.mobileActions}>
-              {!resumeReading && <PostActionsButton post={post} />}
+              {!resumeReading && <PostActionsButton post={post} autoPlace />}
             </div>}
 
             {showIcons && <div className={classes.nonMobileIcons}>
@@ -559,7 +574,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               terms={commentTerms}
               post={post}
               treeOptions={{
-                highlightDate: post.lastVisitedAt,
+                highlightDate: post.lastVisitedAt ?? undefined,
                 condensed: condensedAndHiddenComments,
               }}
             />
