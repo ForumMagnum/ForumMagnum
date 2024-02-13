@@ -63,17 +63,22 @@ const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReview
     },
   })
   
-  if (!result.ok) throw new Error(`HTTP error! status: ${result.status}`);
+  //eslint-disable-next-line no-console
+  if (!result.ok) {console.error(`HTTP error! status: ${result.status}`); return null}
 
   const fullMarket = await result.json()
-  if (fullMarket.probability === null) throw new Error("Manifold market probability is null");
-  if (fullMarket.isResolved === null) throw new Error("Manifold market isResolved is null");
+  //eslint-disable-next-line no-console
+  if (fullMarket.probability === null) {console.error("Manifold market probability is null"); return null}
+  //eslint-disable-next-line no-console
+  if (fullMarket.isResolved === null) {console.error("Manifold market isResolved is null"); return null}
 
   return { probability: fullMarket.probability, isResolved: fullMarket.isResolved, year: post.postedAt.getFullYear() }
 }
 
 export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number): Promise<LiteMarket | undefined> => {
-  if (!manifoldAPIKey) throw new Error("Manifold API key not found");
+  
+  //eslint-disable-next-line no-console
+  if (!manifoldAPIKey) console.error("Manifold API key not found");
 
   const manifoldLessWrongAnnualReviewTag = "0a0b0d16-7a4b-4de5-aadf-ddd85fbefe5c"
   try {
