@@ -14,6 +14,7 @@ import { canUserEditPostMetadata, postGetEditUrl } from '../../lib/collections/p
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
+import { isCollaborative } from './EditorFormComponent';
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -137,6 +138,8 @@ const FriendlyPostVersionHistory = ({post, postId, onClose, classes}: {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const isCollabEditor = isCollaborative(post, "contents")
+
   const { query } = location;
   const loadedVersion = query.version;
 
@@ -188,7 +191,7 @@ const FriendlyPostVersionHistory = ({post, postId, onClose, classes}: {
   const loadVersion = useCallback(async (version: string) => {
     captureEvent("loadVersionClicked", {postId, revisionId: selectedRevisionId})
 
-    if (location.pathname.startsWith('/editPost') || location.pathname.startsWith('/collaborateOnPost')) {
+    if (location.pathname.startsWith('/editPost')) {
       const queryParams = new URLSearchParams(query);
       queryParams.set('version', version);
       const newSearchString = queryParams.toString();
@@ -254,7 +257,7 @@ const FriendlyPostVersionHistory = ({post, postId, onClose, classes}: {
                       v{revision.version}
                       {isLive(revision) ? " (Live version)" : ""}
                     </div>
-                    <LWTooltip title={LOAD_VERSION_TOOLTIP} placement="top"  popperClassName={classes.tooltip}>
+                    {!isCollabEditor && <LWTooltip title={LOAD_VERSION_TOOLTIP} placement="top"  popperClassName={classes.tooltip}>
                       <EAButton
                         variant="outlined"
                         className={classes.button}
@@ -262,7 +265,7 @@ const FriendlyPostVersionHistory = ({post, postId, onClose, classes}: {
                       >
                         Load into editor
                       </EAButton>
-                    </LWTooltip>
+                    </LWTooltip>}
                     <LWTooltip title={RESTORE_VERSION_TOOLTIP} placement="top" popperClassName={classes.tooltip}>
                       <EAButton variant="contained" className={classes.button} onClick={restoreVersion}>
                         Restore {revertInProgress && <Loading />}
