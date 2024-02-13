@@ -33,6 +33,7 @@ import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
 import SideCommentCaches from '../sideCommentCaches/collection';
+import { hasSideComments } from '../../betas';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -2484,19 +2485,24 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: "SideCommentCache",
     canRead: ["guests"], // this is only read internally by the sideComments resolver
     resolver: ({_id}: DbPost) => {
+      if (!hasSideComments) {
+        return null;
+      }
       return SideCommentCaches.findOne({
         postId: _id,
         version: sideCommentCacheVersion,
       });
     },
-    sqlResolver: ({field, join}) => join({
-      table: "SideCommentCaches",
-      type: "left",
-      on: {
-        postId: field("_id"),
-        version: `${sideCommentCacheVersion}`,
-      },
-      resolver: (sideCommentsField) => sideCommentsField("*"),
+    ...(hasSideComments && {
+      sqlResolver: ({field, join}) => join({
+        table: "SideCommentCaches",
+        type: "left",
+        on: {
+          postId: field("_id"),
+          version: `${sideCommentCacheVersion}`,
+        },
+        resolver: (sideCommentsField) => sideCommentsField("*"),
+      }),
     }),
   }),
   

@@ -21,6 +21,7 @@ import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPag
 import { getPostMarketInfo } from '../posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF } from '../../lib/instanceSettings';
+import { hasSideComments } from '../../lib/betas';
 import SideCommentCaches from '../../lib/collections/sideCommentCaches/collection';
 
 /**
@@ -136,7 +137,7 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: GraphQLJSON,
       resolver: async (post: DbPost, _args: void, context: ResolverContext): Promise<SideCommentsResolverResult|null> => {
-        if (isNotHostedHere(post)) {
+        if (!hasSideComments || isNotHostedHere(post)) {
           return null;
         }
 
