@@ -2482,7 +2482,7 @@ const schema: SchemaType<"Posts"> = {
   sideCommentsCache2: resolverOnlyField({
     type: "SideCommentCache",
     graphQLtype: "SideCommentCache",
-    canRead: [], // this is only read internally by the sideComments resolver
+    canRead: ["guests"], // this is only read internally by the sideComments resolver
     resolver: ({_id}: DbPost) => {
       return SideCommentCaches.findOne({
         postId: _id,

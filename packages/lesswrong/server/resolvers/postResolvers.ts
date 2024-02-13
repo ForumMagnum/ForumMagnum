@@ -150,9 +150,12 @@ augmentFieldsDict(Posts, {
             version: sideCommentCacheVersion,
           });
 
+        const cachedAt = new Date(cache?.createdAt ?? 0);
+        const editedAt = new Date(post.contents?.editedAt);
+
         const cacheIsValid = cache
-          && (!post.lastCommentedAt || cache.createdAt > post.lastCommentedAt)
-          && cache.createdAt > new Date(post.contents?.editedAt);
+          && (!post.lastCommentedAt || cachedAt > post.lastCommentedAt)
+          && cachedAt > editedAt;
 
         // Here we fetch the comments for the post. For the sake of speed, we
         // project as few fields as possible. If the cache is invalid then we
