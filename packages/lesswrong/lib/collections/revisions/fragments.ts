@@ -8,6 +8,8 @@ registerFragment(`
     editedAt
     userId
     html
+    commitMessage
+    draft
     wordCount
     htmlHighlight
     plaintextDescription

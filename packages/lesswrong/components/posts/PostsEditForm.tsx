@@ -21,8 +21,9 @@ import { useNavigate } from '../../lib/reactRouterWrapper';
 const editor: Editor | null = null
 export const EditorContext = React.createContext<[Editor | null, (e: Editor) => void]>([editor, _ => {}]);
 
-const PostsEditForm = ({ documentId, classes }: {
+const PostsEditForm = ({ documentId, version, classes }: {
   documentId: string,
+  version?: string | null,
   classes: ClassesType,
 }) => {
   const { query, params } = useLocation();
@@ -175,8 +176,7 @@ const PostsEditForm = ({ documentId, classes }: {
                 version: 'String'
               }}
               extraVariablesValues={{
-                // TODO add the ability to input the actual version number here
-                version: 'draft'
+                version: version ?? 'draft'
               }}
               noSubmitOnCmdEnter
               repeatErrors

@@ -13,11 +13,11 @@ import { useNavigate } from "../../lib/reactRouterWrapper";
 //   - [X] Sign in button works (already true, but just make sure)
 //   - [X] Unlink button works
 // - [ ] Change version restoration logic to allow restoring as draft
-// - [ ] Move refresh tokens to a separate table (to avoid logging + allow refreshing the magic token)
 // - [ ] Squash migrations
+// - [ ] Fix import vs paste issues
 // - [ ] Deploy to beta site
 // - [ ] UI
-// - [ ] Fix import vs paste issues
+// - [ ] (maybe) Move refresh tokens to a separate table (to avoid logging + allow refreshing the magic token)
 
 const gdocImportEmailSetting = new DatabasePublicSetting<string | null>("gdocImportEmail.email", null);
 

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useDialog } from '../common/withDialog';
@@ -13,10 +13,11 @@ import { useMutation, gql } from '@apollo/client';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { canUserEditPostMetadata } from '../../lib/collections/posts/helpers';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const LEFT_COLUMN_WIDTH = 160
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     width: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64, //should import post
     display: "flex",
@@ -45,11 +46,13 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: CENTRAL_COLUMN_WIDTH,
     ...postBodyStyles(theme)
   },
-  restoreButton: {
-    textAlign: "center",
-    marginBottom: 32,
-    marginTop: 16,
-    paddingRight: 100
+  titleRow: {
+    display: "flex",
+    justifyContent: "flex-end",
+    gap: "16px"
+  },
+  button: {
+    margin: '16px 0'
   },
   loadMore: {
     paddingLeft: 12
@@ -81,12 +84,17 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
   post: PostsBase,
   postId: string,
   onClose: () => void,
-  classes: ClassesType
+  classes: ClassesType<typeof styles>
 }) => {
-  const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay } = Components;
+  const { LWDialog, Loading, ContentItemBody, FormatDate, LoadMore, ChangeMetricsDisplay, EAButton } = Components;
+  const ButtonComponent = isFriendlyUI ? EAButton : Button;
+
   const currentUser = useCurrentUser();
+  const { captureEvent } = useTracking()
+
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
+
   const [revertMutation] = useMutation(gql`
     mutation revertToRevision($postId: String!, $revisionId: String!) {
       revertPostToRevision(postId: $postId, revisionId: $revisionId) {
@@ -95,11 +103,8 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     }
     ${fragmentTextForQuery("PostsEdit")}
   `);
-  const [revertLoading, setRevertLoading] = useState(false);
   const canRevert = canUserEditPostMetadata(currentUser, post);
-  
-  const {flash} = useMessages();
-  
+
   const { results: revisions, loading: loadingRevisions, loadMoreProps } = useMulti({
     terms: {
       view: "revisionsOnDocument",
@@ -110,12 +115,25 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     collectionName: "Revisions",
     fragmentName: "RevisionMetadataWithChangeMetrics",
   });
-  
+
   useEffect(() => {
     revisions && revisions.length > 0 && setSelectedRevisionId(revisions[0]._id)
   }, [revisions])
-  
-  const { document: revision, loading: loadingRevision } = useSingle({
+
+  const restoreVersion = useCallback(async () => {
+    captureEvent("restoreVersionClicked", {postId, revisionId: selectedRevisionId})
+    setRevertInProgress(true);
+    await revertMutation({
+      variables: {
+        postId: postId,
+        revisionId: selectedRevisionId,
+      },
+    });
+    // Hard-refresh the page to get things back in sync
+    location.reload();
+  }, [captureEvent, postId, revertMutation, selectedRevisionId])
+
+  const { document: revision } = useSingle({
     skip: !selectedRevisionId,
     documentId: selectedRevisionId||"",
     collectionName: "Revisions",
@@ -123,57 +141,59 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     fragmentName: "RevisionDisplay",
   });
 
-  const { captureEvent } = useTracking()
-  
-  return <LWDialog open={true} maxWidth={false} onClose={onClose}>
-    <div className={classes.root}>
-      <div className={classes.leftColumn}>
-        {loadingRevisions && <Loading/>}
-        {revisions && revisions.map(rev =>
-          <div key={rev._id}
-            className={classNames(classes.revisionRow, {
-              [classes.selectedRevision]: rev._id===selectedRevisionId,
-            })}
-            onClick={() => setSelectedRevisionId(rev._id)}
-          >
-            <span className={classes.versionNumber}>{rev.version}</span>
-            <ChangeMetricsDisplay changeMetrics={rev.changeMetrics}/>
-            <span className={classes.editedAt}><FormatDate date={rev.editedAt}/></span>
+  const liveRevisionId = 
+
+  return (
+    <LWDialog open={true} maxWidth={false} onClose={onClose}>
+      <div className={classes.root}>
+        <div className={classes.leftColumn}>
+          {loadingRevisions && <Loading />}
+          {revisions &&
+            revisions.map((rev) => (
+              <div
+                key={rev._id}
+                className={classNames(classes.revisionRow, {
+                  [classes.selectedRevision]: rev._id === selectedRevisionId,
+                })}
+                onClick={() => setSelectedRevisionId(rev._id)}
+              >
+                <span className={classes.versionNumber}>{rev.version}</span>
+                <ChangeMetricsDisplay changeMetrics={rev.changeMetrics} />
+                <span className={classes.editedAt}>
+                  <FormatDate date={rev.editedAt} />
+                </span>
+              </div>
+            ))}
+          <div className={classes.loadMore}>
+            <LoadMore {...loadMoreProps} />
           </div>
-        )}
-        <div className={classes.loadMore}>
-          <LoadMore {...loadMoreProps}/>
+        </div>
+        <div className={classes.selectedRevisionDisplay}>
+          {revision && (
+            <>
+              {canRevert && (
+                <div className={classes.titleRow}>
+                  v{revision.version}
+                  <ButtonComponent variant="outlined" className={classes.button} onClick={restoreVersion}>
+                    Load {revision.version} into editor
+                  </ButtonComponent>
+                  <ButtonComponent variant="contained" className={classes.button} onClick={restoreVersion}>
+                    Restore {revision.version} {revertInProgress && <Loading />}
+                  </ButtonComponent>
+                </div>
+              )}
+              {revision.commitMessage}
+              {revision.draft ? "[DRAFT]" : "[NOT DRAFT]"}
+              <ContentItemBody
+                dangerouslySetInnerHTML={{ __html: revision.html }}
+                description="PostVersionHistory revision"
+              />
+            </>
+          )}
         </div>
       </div>
-      <div className={classes.selectedRevisionDisplay}>
-        {revision && canRevert && <div className={classes.restoreButton}>
-          {revertLoading
-            ? <Loading/>
-            : <Button variant="contained" color="primary" onClick={async () => {
-                captureEvent("restoreVersionClicked", {postId, revisionId: selectedRevisionId})
-                setRevertInProgress(true);
-                await revertMutation({
-                  variables: {
-                    postId: postId,
-                    revisionId: selectedRevisionId,
-                  },
-                });
-                // Hard-refresh the page to get things back in sync
-                location.reload();
-              }}
-            >
-              RESTORE THIS VERSION{" "}
-              {revertInProgress && <Loading/>}
-            </Button>
-          }
-        </div>}
-        {revision && <ContentItemBody
-          dangerouslySetInnerHTML={{__html: revision.html}}
-          description="PostVersionHistory revision"
-        />}
-      </div>
-    </div>
-  </LWDialog>
+    </LWDialog>
+  );
 }
 
 const PostVersionHistoryButtonComponent = registerComponent("PostVersionHistoryButton", PostVersionHistoryButton, {styles});
