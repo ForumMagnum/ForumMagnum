@@ -162,8 +162,11 @@ async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, co
       validate: false,
       currentUser: botUser,
     });
-    //eslint-disable-next-line no-console
-    if (!newTag) {console.log(`Failed to create tag with slug "${tagSlug}"`); return;}
+    if (!newTag) {
+      //eslint-disable-next-line no-console
+      console.log(`Failed to create tag with slug "${tagSlug}"`); 
+      return;
+    }
     await addOrUpvoteTag({tagId: newTag._id, postId: postId, currentUser: botUser, context});    
   }
   else {
@@ -177,8 +180,11 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
   // Forum gate
   if (!isLWorAF) return;
+  if (!reviewUserBot) {
     //eslint-disable-next-line no-console
-  if (!reviewUserBot) {console.error("Review bot user not configured"); return;}
+    console.error("Review bot user not configured"); 
+    return;
+  }
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
@@ -189,9 +195,12 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   if (post.manifoldReviewMarketId) return;
   
   const botUser = await context.Users.findOne({_id: reviewUserBot})
-      //eslint-disable-next-line no-console
-  if (!botUser) {console.error("Bot user not found"); return}
-  const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
+  if (!botUser) {
+    //eslint-disable-next-line no-console
+    console.error("Bot user not found"); 
+    return
+  }
+      const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
   const postLink = postGetPageUrl(post, true)
 
   const year = post.postedAt.getFullYear()
