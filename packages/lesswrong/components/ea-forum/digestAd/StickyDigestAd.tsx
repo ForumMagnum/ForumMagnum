@@ -51,7 +51,8 @@ const styles = (theme: ThemeType) => ({
     }
   },
   textCol: {
-    flexGrow: 1
+    flexGrow: 1,
+    minWidth: 'max-content',
   },
   heading: {
     fontWeight: 600,
