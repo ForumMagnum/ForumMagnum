@@ -57,10 +57,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.lwTertiary.main,
     marginTop: 8,
     [theme.breakpoints.up('sm')]: {
-      ...separatorBulletStyles(theme, 2),
+      ...separatorBulletStyles(theme),
     },
     [theme.breakpoints.down('sm')]: {
-      ...separatorBulletStyles(theme, 0.75),
+      ...separatorBulletStyles(theme, 0.375),
     },
   },
   meta: {
