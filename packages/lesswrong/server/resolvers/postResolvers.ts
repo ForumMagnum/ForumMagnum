@@ -145,12 +145,12 @@ augmentFieldsDict(Posts, {
         // have the side comments cache available (even though the type system
         // doesn't know about it), otherwise we have to fetch it from the DB.
         const sqlFetchedPost = post as unknown as PostSideComments;
-        const cache = sqlFetchedPost.sideCommentsCache2 === undefined
+        const cache = sqlFetchedPost.sideCommentsCache === undefined
             ? await SideCommentCaches.findOne({
               postId: post._id,
               version: sideCommentCacheVersion,
             })
-            : sqlFetchedPost.sideCommentsCache2;
+            : sqlFetchedPost.sideCommentsCache;
 
         const cachedAt = new Date(cache?.createdAt ?? 0);
         const editedAt = new Date(post.contents?.editedAt);

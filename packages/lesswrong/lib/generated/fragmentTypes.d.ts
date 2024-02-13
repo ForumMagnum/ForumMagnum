@@ -821,7 +821,6 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly tableOfContents: any,
   readonly tableOfContentsRevision: any,
   readonly sideComments: any,
-  readonly sideCommentsCache: any /*{"definitions":[{}]}*/,
   readonly sideCommentVisibility: string,
   readonly moderationStyle: string,
   readonly ignoreRateLimits: boolean | null,
@@ -1481,8 +1480,8 @@ interface PostWithDialogueMessage { // fragment on Posts
 
 interface PostSideComments { // fragment on Posts
   readonly _id: string,
-  readonly sideCommentsCache2: SideCommentCacheMinimumInfo|null,
   readonly sideComments: any,
+  readonly sideCommentsCache: SideCommentCacheMinimumInfo|null,
 }
 
 interface PostWithGeneratedSummary { // fragment on Posts

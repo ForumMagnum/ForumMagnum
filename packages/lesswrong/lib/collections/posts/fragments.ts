@@ -678,7 +678,7 @@ registerFragment(`
   fragment PostSideComments on Post {
     _id
     sideComments
-    sideCommentsCache2 {
+    sideCommentsCache {
       ...SideCommentCacheMinimumInfo
     }
   }
