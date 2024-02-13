@@ -21,7 +21,7 @@ const LEFT_COLUMN_WIDTH = 160
 
 const styles = (theme: ThemeType) => ({
   root: {
-    maxWidth: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64, //should import post
+    maxWidth: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64,
     display: "flex",
     padding: 24,
     justifyContent: 'space-between',
