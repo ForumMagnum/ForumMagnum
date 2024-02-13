@@ -201,6 +201,9 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
   const liteMarket = await createManifoldMarket(question, descriptionMarkdown, closeTime, visibility, initialProb)
 
+  // Return if market creation fails
+  if (!liteMarket) return;
+
   // add the review tags to the post
   const [comment] = await Promise.all([
     makeMarketComment(post._id, year, liteMarket.url, botUser),
