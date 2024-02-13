@@ -154,11 +154,7 @@ async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, co
     const tagData = {
       name: name,
       slug: tagSlug,
-      userId: botUser._id,
-      deleted: false,
-      adminOnly: false,
-      postCount: 0,
-      createdAt: new Date(Date.now()),
+      userId: botUser._id
     };   
 
     const {data: newTag} = await createMutator({
