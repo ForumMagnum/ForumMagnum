@@ -188,7 +188,7 @@ const FriendlyPostVersionHistory = ({post, postId, onClose, classes}: {
   const loadVersion = useCallback(async (version: string) => {
     captureEvent("loadVersionClicked", {postId, revisionId: selectedRevisionId})
 
-    if (location.pathname.startsWith('/editPost')) {
+    if (location.pathname.startsWith('/editPost') || location.pathname.startsWith('/collaborateOnPost')) {
       const queryParams = new URLSearchParams(query);
       queryParams.set('version', version);
       const newSearchString = queryParams.toString();
