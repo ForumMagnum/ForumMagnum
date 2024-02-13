@@ -46,6 +46,7 @@ registerFragment(`
     sharingSettings
     linkSharingKey
 
+    contents_latest
     commentCount
     voteCount
     baseScore
