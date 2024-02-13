@@ -25,6 +25,7 @@ import CopyIcon from '@material-ui/icons/FileCopy'
 import { getUserStructuredData } from './UsersSingle';
 import { preferredHeadingCase } from '../../themes/forumTheme';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/schema';
+import { allowSubscribeToUserComments } from '../../lib/betas';
 
 export const sectionFooterLeftStyles = {
   flexGrow: 1,
@@ -295,7 +296,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 subscribeMessage="Subscribe to posts"
                 unsubscribeMessage="Unsubscribe from posts"
               /> }
-              { <NotifyMeButton
+              { allowSubscribeToUserComments && <NotifyMeButton
                 document={user}
                 subscribeMessage="Subscribe to comments"
                 unsubscribeMessage="Unsubscribe from comments"
