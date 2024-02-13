@@ -63,15 +63,14 @@ const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReview
     },
   })
   
-  //eslint-disable-next-line no-console
-  if (!result.ok) {console.error(`HTTP error! status: ${result.status}`); return null}
+  if (!result.ok) {
+    //eslint-disable-next-line no-console
+    console.error(`HTTP error! status: ${result.status}`); 
+    return null
+  }
 
   const fullMarket = await result.json()
-  //eslint-disable-next-line no-console
-  if (fullMarket.probability === null) {console.error("Manifold market probability is null"); return null}
-  //eslint-disable-next-line no-console
-  if (fullMarket.isResolved === null) {console.error("Manifold market isResolved is null"); return null}
-
+  
   return { probability: fullMarket.probability, isResolved: fullMarket.isResolved, year: post.postedAt.getFullYear() }
 }
 
