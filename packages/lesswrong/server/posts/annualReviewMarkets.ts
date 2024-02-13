@@ -28,6 +28,7 @@ const postGetMarketInfoFromManifold = async (post: DbPost): Promise<AnnualReview
 export const createManifoldMarket = async (question: string, descriptionMarkdown: string, closeTime: Date, visibility: string, initialProb: number) => {
   if (!manifoldAPIKey) throw new Error("Manifold API key not found");
 
+  const manifoldLessWrongAnnualReviewTag = "0a0b0d16-7a4b-4de5-aadf-ddd85fbefe5c"
   try {
     const result = await fetch("https://api.manifold.markets/v0/market", {
       method: "POST",
@@ -41,7 +42,8 @@ export const createManifoldMarket = async (question: string, descriptionMarkdown
         descriptionMarkdown,
         closeTime: Number(closeTime),
         visibility,
-        initialProb
+        initialProb,
+        groupIds: [manifoldLessWrongAnnualReviewTag]
       })
     })
 

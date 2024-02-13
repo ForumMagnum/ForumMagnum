@@ -148,8 +148,31 @@ const reviewUserBot = reviewUserBotSetting.get()
 
 async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
   const tag = await Tags.findOne({slug: tagSlug})
-  if (!tag) throw new Error(`Tag with slug "${tagSlug}" not found`)
-  await addOrUpvoteTag({tagId: tag._id, postId: postId, currentUser: botUser, context});
+  if (!tag) {
+      // throw new Error(`Tag with slug "${tagSlug}" not found`)
+    const name = tagSlug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+    const tagData = {
+      name: name,
+      slug: tagSlug,
+      userId: botUser._id,
+      deleted: false,
+      adminOnly: false,
+      postCount: 0,
+      createdAt: new Date(Date.now()),
+    };   
+
+    const {data: newTag} = await createMutator({
+      collection: Tags,
+      document: tagData,
+      validate: false,
+      currentUser: botUser,
+    });
+    if (!newTag) throw new Error(`Failed to create tag with slug "${tagSlug}"`)
+    await addOrUpvoteTag({tagId: newTag._id, postId: postId, currentUser: botUser, context});    
+  }
+  else {
+    await addOrUpvoteTag({tagId: tag._id, postId: postId, currentUser: botUser, context});
+  }
 }
 
 // AFAIU the flow, this has a race condition. If a post is voted on twice in quick succession, it will create two markets.
@@ -190,6 +213,12 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
   await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
 
+  const reviewTagSlug = 'annual-review-market';
+  const reviewYearTagSlug = `annual-review-${year}-market`;
+
+  // add the review tags to the post
+  await addTagToPost(post._id, reviewTagSlug, botUser, context);
+  await addTagToPost(post._id, reviewYearTagSlug, botUser, context);
 })
 
 const makeMarketComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser) => {
