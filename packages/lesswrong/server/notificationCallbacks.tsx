@@ -659,7 +659,7 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
     collectionName: "Users",
     type: subscriptionTypes.newUserComments
   })
-  const commentAuthorSubscriberIds = _.map(commentAuthorSubscribers, u=>u._id);
+  const commentAuthorSubscriberIds = commentAuthorSubscribers.map(({ _id }) => _id)
   const commentAuthorSubscriberIdsToNotify = _.difference(commentAuthorSubscriberIds, notifiedUsers)
   await createNotifications({
     userIds: commentAuthorSubscriberIdsToNotify, 

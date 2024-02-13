@@ -193,7 +193,7 @@ export const NewUserCommentNotification = serverRegisterNotificationType({
       if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = await Users.findOne(comment.userId);
       if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
-      return `${author.displayName} commented on your post`;
+      return `${author.displayName} left a new comment.`;
     }
   },
   emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
