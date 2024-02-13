@@ -160,13 +160,12 @@ export const getPostCollaborateUrl = function (postId: string, isAbsolute=false,
   }
 }
 
-export const postGetEditUrl = function(postId: string, isAbsolute=false, linkSharingKey?: string): string {
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-  if (linkSharingKey) {
-    return `${prefix}/editPost?postId=${postId}&key=${linkSharingKey}`;
-  } else {
-    return `${prefix}/editPost?postId=${postId}`;
-  }
+export const postGetEditUrl = (postId: string, isAbsolute = false, linkSharingKey?: string, version?: string): string => {
+  const prefix = isAbsolute ? getSiteUrl().slice(0, -1) : '';
+  let url = `${prefix}/editPost?postId=${postId}`;
+  if (linkSharingKey) url += `&key=${linkSharingKey}`;
+  if (version) url += `&version=${version}`;
+  return url;
 }
 
 export const postGetCommentCount = (post: PostsBase|DbPost|PostSequenceNavigation_nextPost|PostSequenceNavigation_prevPost): number => {

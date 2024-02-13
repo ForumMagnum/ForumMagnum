@@ -18,6 +18,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { PostCategory } from '../../lib/collections/posts/helpers';
 import { DynamicTableOfContentsContext } from '../posts/TableOfContents/DynamicTableOfContents';
 import isEqual from 'lodash/isEqual';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -409,6 +410,8 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   // document isn't necessarily defined. TODO: clean up rest of file
   // to not rely on document
   if (!document) return null;
+
+  const VersionHistoryButton = isFriendlyUI ? Components.FriendlyPostVersionHistoryButton : Components.PostVersionHistoryButton
     
   return <div className={classes.root}>
     {showEditorWarning &&
@@ -451,7 +454,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     />
     {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
-      <Components.PostVersionHistoryButton
+      <VersionHistoryButton
         post={document}
         postId={document._id}
       />
