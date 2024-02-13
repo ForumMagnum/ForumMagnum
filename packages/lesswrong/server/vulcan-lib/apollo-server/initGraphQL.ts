@@ -241,7 +241,10 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
                 const typedName = resolverName as keyof ObjectsByCollectionName[N];
                 const existingValue = document[typedName];
                 if (existingValue !== undefined) {
-                  return existingValue;
+                  const {sqlPostProcess} = field.resolveAs!;
+                  return sqlPostProcess
+                    ? sqlPostProcess(existingValue, document, context)
+                    : existingValue;
                 }
               }
 

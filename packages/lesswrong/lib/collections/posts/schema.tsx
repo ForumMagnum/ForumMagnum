@@ -2475,15 +2475,19 @@ const schema: SchemaType<"Posts"> = {
   // time is older than when the post was last modified (modifiedAt) or
   // commented on (lastCommentedAt).
   // SideCommentsCache
+  /**
+   * @deprecated: TODO Remove this field
+   */
   sideCommentsCache: {
     type: Object,
     canRead: ['admins'], //doesn't need to be publicly readable because it's internal to the sideComments resolver
     optional: true, nullable: true, hidden: true,
   },
+
   sideCommentsCache2: resolverOnlyField({
     type: "SideCommentCache",
     graphQLtype: "SideCommentCache",
-    canRead: ["guests"], // this is only read internally by the sideComments resolver
+    canRead: ["guests"],
     resolver: ({_id}: DbPost) => {
       if (!hasSideComments) {
         return null;
@@ -2503,6 +2507,7 @@ const schema: SchemaType<"Posts"> = {
         },
         resolver: (sideCommentsField) => sideCommentsField("*"),
       }),
+      sqlPostProcess: () => null,
     }),
   }),
   

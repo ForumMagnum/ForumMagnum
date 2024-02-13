@@ -51,6 +51,12 @@ type SqlResolverArgs<N extends CollectionNameString> = {
 
 type SqlResolver<N extends CollectionNameString> = (args: SqlResolverArgs<N>) => string;
 
+type SqlPostProcess<N extends CollectionNameString> = (
+  value: AnyBecauseHard,
+  root: ObjectsByCollectionName[N],
+  context: ResolverContext,
+) => AnyBecauseHard;
+
 interface CollectionFieldSpecification<N extends CollectionNameString> extends CollectionFieldPermissions {
   type?: any,
   description?: string,
@@ -68,6 +74,7 @@ interface CollectionFieldSpecification<N extends CollectionNameString> extends C
     arguments?: string|null,
     resolver: (root: ObjectsByCollectionName[N], args: any, context: ResolverContext, info?: any) => any,
     sqlResolver?: SqlResolver<N>,
+    sqlPostProcess?: SqlPostProcess<N>,
   },
   blackbox?: boolean,
   denormalized?: boolean,
