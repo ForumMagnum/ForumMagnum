@@ -200,7 +200,8 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
     console.error("Bot user not found"); 
     return
   }
-      const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
+
+  const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
   const postLink = postGetPageUrl(post, true)
 
   const year = post.postedAt.getFullYear()
@@ -215,20 +216,18 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   // Return if market creation fails
   if (!liteMarket) return;
 
-  // add the review tags to the post
-  const [comment] = await Promise.all([
-    makeMarketComment(post._id, year, liteMarket.url, botUser),
-    Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}}),
-  ])
-
-  await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
-
   const reviewTagSlug = 'annual-review-market';
   const reviewYearTagSlug = `annual-review-${year}-market`;
 
   // add the review tags to the post
-  await addTagToPost(post._id, reviewTagSlug, botUser, context);
-  await addTagToPost(post._id, reviewYearTagSlug, botUser, context);
+  const [comment] = await Promise.all([
+    makeMarketComment(post._id, year, liteMarket.url, botUser),
+    Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}}),
+    addTagToPost(post._id, reviewTagSlug, botUser, context),
+    addTagToPost(post._id, reviewYearTagSlug, botUser, context)
+  ])
+
+  await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
 })
 
 const makeMarketComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser) => {
