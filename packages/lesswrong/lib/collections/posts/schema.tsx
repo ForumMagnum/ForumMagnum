@@ -782,12 +782,13 @@ const schema: SchemaType<"Posts"> = {
   annualReviewMarketCommentId: {
     ...foreignKeyField({
       idFieldName: 'annualReviewMarketCommentId',
-      resolverName: 'comment',
+      resolverName: 'annualReviewMarketComment',
       collectionName: 'Comments',
       type: 'Comment',
       nullable: true
     }),
     optional: true,
+    nullable: true,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],

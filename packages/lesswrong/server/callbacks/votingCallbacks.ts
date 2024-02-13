@@ -148,8 +148,30 @@ const reviewUserBot = reviewUserBotSetting.get()
 
 async function addTagToPost(postId: string, tagSlug: string, botUser: DbUser, context: ResolverContext) {
   const tag = await Tags.findOne({slug: tagSlug})
-  if (!tag) throw new Error(`Tag with slug "${tagSlug}" not found`)
-  await addOrUpvoteTag({tagId: tag._id, postId: postId, currentUser: botUser, context});
+  if (!tag) {
+    const name = tagSlug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+    const tagData = {
+      name: name,
+      slug: tagSlug,
+      userId: botUser._id
+    };   
+
+    const {data: newTag} = await createMutator({
+      collection: Tags,
+      document: tagData,
+      validate: false,
+      currentUser: botUser,
+    });
+    if (!newTag) {
+      //eslint-disable-next-line no-console
+      console.log(`Failed to create tag with slug "${tagSlug}"`); 
+      return;
+    }
+    await addOrUpvoteTag({tagId: newTag._id, postId: postId, currentUser: botUser, context});    
+  }
+  else {
+    await addOrUpvoteTag({tagId: tag._id, postId: postId, currentUser: botUser, context});
+  }
 }
 
 // AFAIU the flow, this has a race condition. If a post is voted on twice in quick succession, it will create two markets.
@@ -158,7 +180,11 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
   // Forum gate
   if (!isLWorAF) return;
-  if (!reviewUserBot) throw new Error("Review bot user not configured");
+  if (!reviewUserBot) {
+    //eslint-disable-next-line no-console
+    console.error("Review bot user not configured"); 
+    return;
+  }
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
@@ -169,7 +195,12 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   if (post.manifoldReviewMarketId) return;
   
   const botUser = await context.Users.findOne({_id: reviewUserBot})
-  if (!botUser) throw new Error("Bot user not found")
+  if (!botUser) {
+    //eslint-disable-next-line no-console
+    console.error("Bot user not found"); 
+    return
+  }
+
   const annualReviewLink = 'https://www.lesswrong.com/tag/lesswrong-review'
   const postLink = postGetPageUrl(post, true)
 
@@ -181,6 +212,9 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   const visibility = isProduction ? "public" : "unlisted"
 
   const liteMarket = await createManifoldMarket(question, descriptionMarkdown, closeTime, visibility, initialProb)
+
+  // Return if market creation fails
+  if (!liteMarket) return;
 
   const reviewTagSlug = 'annual-review-market';
   const reviewYearTagSlug = `annual-review-${year}-market`;
@@ -194,7 +228,6 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   ])
 
   await Posts.rawUpdateOne(post._id, {$set: {annualReviewMarketCommentId: comment._id}})
-
 })
 
 const makeMarketComment = async (postId: string, year: number, marketUrl: string, botUser: DbUser) => {
