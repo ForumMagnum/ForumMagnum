@@ -3,9 +3,7 @@
   "codespaces": {
     "repositories": {
       "LessWrong2/LessWrong-Credentials": {
-        "permissions": {
-          "contents": "write"
-        }
+        "permissions": "write-all"
       }
     }
   }
