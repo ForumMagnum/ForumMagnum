@@ -11,6 +11,8 @@ import { InteractionWrapper, useClickableCell } from "../common/useClickableCell
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import moment from "moment";
+import { isFriendlyUI } from "../../themes/forumTheme";
+import { commentBodyStyles } from "../../themes/stylePiping";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -38,16 +40,21 @@ const styles = (theme: ThemeType) => ({
     marginRight: 8,
   },
   post: {
-    color: theme.palette.grey[1000],
-    fontWeight: 600,
+    ...(isFriendlyUI ? {
+      fontWeight: 600,
+      color: theme.palette.grey[1000],
+    } : {
+      fontSize: '1.15rem',
+      color: theme.palette.text.normal,
+    }),
     whiteSpace: "nowrap",
   },
   postRead: {
-    color: theme.palette.grey[600],
+    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.text.dim55,
   },
   link: {
     color: theme.palette.primary.main,
-    fontWeight: 600,
+    fontWeight: isFriendlyUI ? 600 : undefined,
     whiteSpace: "nowrap",
     "&:hover": {
       opacity: 1,
@@ -55,9 +62,11 @@ const styles = (theme: ThemeType) => ({
     },
   },
   username: {
-    fontWeight: 600,
+    ...(isFriendlyUI ? {
+      fontWeight: 600,
+      color: theme.palette.grey[1000],
+    } : {}),
     whiteSpace: "nowrap",
-    color: theme.palette.grey[1000],
     marginRight: 10,
   },
   date: {
@@ -65,9 +74,10 @@ const styles = (theme: ThemeType) => ({
     marginRight: 6,
   },
   body: {
-    lineHeight: "160%",
-    letterSpacing: "-0.14px",
-    color: theme.palette.grey[1000],
+    // lineHeight: "160%",
+    // letterSpacing: "-0.14px",
+    // color: theme.palette.grey[1000],
+    ...(isFriendlyUI ? undefined : commentBodyStyles(theme))
   },
   bodyCollapsed: {
     position: "relative",
@@ -133,7 +143,7 @@ const PopularComment = ({comment, classes}: {
 
   const {onClick} = useClickableCell({onClick: onClickCallback});
 
-  const {UsersName, LWTooltip, SmallSideVote, CommentBody} = Components;
+  const {UsersName, LWTooltip, SmallSideVote, CommentBody, ContentStyles} = Components;
   return (
     <AnalyticsContext
       pageElementContext="popularComment"
@@ -170,11 +180,13 @@ const PopularComment = ({comment, classes}: {
           ? (
             <CommentBody comment={comment} className={classes.body} />
           )
-          : (
-            <div className={classNames(classes.body, classes.bodyCollapsed)}>
-              {htmlToTextDefault(comment.contents?.html)}
-            </div>
-          )
+          : isFriendlyUI ? (
+            // <ContentStyles contentType={'comment'} className={classes.root}>
+              <div className={classNames(classes.body, classes.bodyCollapsed)}>
+                {htmlToTextDefault(comment.contents?.html)}
+              </div>
+            // </ContentStyles>
+          ) : <CommentBody comment={comment} className={classes.body} truncated />
         }
       </div>
     </AnalyticsContext>
