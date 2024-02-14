@@ -22,7 +22,6 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     border: `1px solid ${theme.palette.grey[200]}`,
     padding: "10px 14px",
-    // cursor: "pointer",
   },
   row: {
     display: "flex",
@@ -34,16 +33,15 @@ const styles = (theme: ThemeType) => ({
   },
   postTitle: {
     flexGrow: 1,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "end",
+    display: "inline-block",
+    textAlign: "right",
     '& a, & a:hover, & a:active': {
       color: theme.palette.primary.main,
       '& u': {
         textDecoration: "none"
       }
     },
-    fontSize: '15px',
+    fontSize: "15px",
     overflow: "hidden",
     textOverflow: "ellipsis",
     marginRight: 8,
@@ -75,7 +73,8 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginRight: 6,
   },
-  bodyWrapper: {
+  bodyWrapper: {},
+  bodyCursor: {
     cursor: "pointer",
   },
   body: {
@@ -87,31 +86,21 @@ const styles = (theme: ThemeType) => ({
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
-    // Maybe we revisit this in the future - Figma designs had a "Read more"
-    // but this is spectacularly difficult
-    // "&::before": {
-      // content: '"(Show more)"',
-      // float: "right",
-      // marginTop: "1.5em",
-      // color: theme.palette.primary.main,
-      // fontWeight: 600,
-      // "&:hover": {
-        // color: theme.palette.primary.light,
-      // },
-    // },
   },
-  collapse: {
+  toggleWrapper: {
     marginRight: 5,
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",
-    paddingBottom: 4,
-    display: "inline-block",
+    display: "flex",
     verticalAlign: "middle",
     "& span": {
       fontFamily: "monospace",
     },
   },
+  toggleCharacter: {
+    transform: 'translateY(0.75px)',
+  }
 });
 
 const PopularCommentPostLink: FC<{
@@ -149,11 +138,18 @@ const LWPopularComment = ({comment, classes}: {
     captureEvent("popularCommentToggleExpanded", { expanded: !expanded });
   }, [expanded, captureEvent]);
 
-  const { onClick } = useClickableCell({ onClick: onClickCallback });
+  // We have a separate wrapper because we don't want clicking on the expanded comment body to close it again
+  const onClickCommentBody = useCallback((e: React.MouseEvent) => {
+    if (!expanded) {
+      onClickCallback();
+    }
+  }, [expanded, onClickCallback]);
 
-  const collapseToggle = <a className={classes.collapse} onClick={onClickCallback}>
-    {<>[<span>{!expanded ? "+" : "-"}</span>]</>}
-  </a>;
+  const collapseToggle = (
+    <a className={classes.toggleWrapper} onClick={onClickCallback}>
+      {<>[<span className={classes.toggleCharacter}>{!expanded ? "+" : "-"}</span>]</>}
+    </a>
+  );
 
   const username = <UsersName user={comment.user} className={classes.username} />;
 
@@ -184,14 +180,12 @@ const LWPopularComment = ({comment, classes}: {
   );
   
   const commentBody = (
-    <div className={classes.bodyWrapper}>
-      {/* <InteractionWrapper> */}
-        {expanded
-          ? <CommentBody comment={comment} className={classes.body} />
-          : <div className={classNames(classes.body, classes.bodyCollapsed)}>
-              {htmlToTextDefault(comment.contents?.html)}
-            </div>}
-      {/* </InteractionWrapper> */}
+    <div onClick={onClickCommentBody} className={classNames(classes.bodyWrapper, { [classes.bodyCursor] : !expanded })}>
+      {expanded
+        ? <CommentBody comment={comment} className={classes.body} />
+        : <div className={classNames(classes.body, classes.bodyCollapsed)}>
+            {htmlToTextDefault(comment.contents?.html)}
+          </div>}
     </div>
   );
 
@@ -201,14 +195,14 @@ const LWPopularComment = ({comment, classes}: {
       commentId={comment._id}
       postId={comment.post?._id}
     >
-      <div onClick={onClick} className={classes.root}>
-        <InteractionWrapper className={classNames(classes.row, classes.wrap)}>
+      <div className={classes.root}>
+        <div className={classNames(classes.row, classes.wrap)}>
           {collapseToggle}
           {username}
           {commentDate}
           {votingElement}
           {postLink}
-        </InteractionWrapper>
+        </div>
         {commentBody}
       </div>
     </AnalyticsContext>
