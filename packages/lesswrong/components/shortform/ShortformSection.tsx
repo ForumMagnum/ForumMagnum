@@ -127,7 +127,7 @@ const ShortformSection = ({classes}: {
             showCommunity={showCommunity}
             className={classes.list}
           /> */}
-          <ShortformThreadListHomepage />
+          <ShortformThreadListHomepage className={classes.list}/>
         </>
       )}
     />
