@@ -131,7 +131,7 @@ export function getReasonForReview(user: DbUser|SunshineUsersList): GetReasonFor
     mapLocation: () => !!user.mapLocation,
     firstPost: () => !!user.postCount,
     firstComment: () => !!user.commentCount,
-    contactedTooManyUsers: () => (user.usersContactedBeforeReview?.length ?? 0) > MAX_ALLOWED_CONTACTS_BEFORE_FLAG,
+    contactedTooManyUsers: () => (user.attemptedToContactBeforeReview?.length ?? 0) > MAX_ALLOWED_CONTACTS_BEFORE_FLAG,
     // Depends on whether this is DbUser or SunshineUsersList
     bio: () => !!('htmlBio' in user ? user.htmlBio : user.biography?.html),
     profileImage: () => !!user.profileImageId,

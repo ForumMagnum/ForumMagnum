@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import EmailIcon from '@material-ui/icons/Email';
+import { MAX_ALLOWED_CONTACTS_BEFORE_BLOCK } from '../../../lib/collections/moderatorActions/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,11 +21,11 @@ export const NewUserDMSummary = ({classes, user}: {
 }) => {
   const { LWTooltip } = Components;
   
-  if (!user.usersContactedBeforeReview?.length) return null
+  if (!user.attemptedToContactBeforeReview?.length) return null
   
   return <div className={classes.root}>
-    <LWTooltip title={'Number of users DMed'}>
-      {user.usersContactedBeforeReview.length} <EmailIcon className={classes.icon}/>
+    <LWTooltip title={`Distinct users they have attempted to DM (after ${MAX_ALLOWED_CONTACTS_BEFORE_BLOCK} these are blocked)`}>
+      {user.attemptedToContactBeforeReview.length} <EmailIcon className={classes.icon}/>
     </LWTooltip>
   </div>
 }

@@ -352,7 +352,7 @@ registerFragment(`
     moderatorActions {
       ...ModeratorActionDisplay
     }
-    usersContactedBeforeReview
+    attemptedToContactBeforeReview
     associatedClientIds {
       clientId
       firstSeenReferrer

@@ -1542,6 +1542,7 @@ interface DbUser extends DbObject {
   bigUpvoteReceivedCount: number | null
   bigDownvoteReceivedCount: number | null
   usersContactedBeforeReview: Array<string> | null
+  attemptedToContactBeforeReview: Array<string> | null
   fullName: string | null
   shortformFeedId: string | null
   viewUnreviewedComments: boolean | null

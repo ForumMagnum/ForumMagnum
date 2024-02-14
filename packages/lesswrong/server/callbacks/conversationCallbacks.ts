@@ -43,13 +43,13 @@ async function flagOrBlockUserOnManyDMs({
   }
 
   // Old conversation *should* be completely redundant with
-  // currentUser.usersContactedBeforeReview, but we will try to be robust to
+  // currentUser.attemptedToContactBeforeReview, but we will try to be robust to
   // the case where it's not
-  logger('previous usersContactedBeforeReview', currentUser.usersContactedBeforeReview)
+  logger('previous attemptedToContactBeforeReview', currentUser.attemptedToContactBeforeReview)
   const allUsersEverContacted = [...(new Set([
     ...currentConversation.participantIds,
     ...(oldConversation?.participantIds ?? []),
-    ...(currentUser.usersContactedBeforeReview ?? [])
+    ...(currentUser.attemptedToContactBeforeReview ?? [])
   ]))].filter(id => id !== currentUser._id)
   logger(
     'new allUsersEverContacted', allUsersEverContacted,
@@ -74,7 +74,7 @@ async function flagOrBlockUserOnManyDMs({
     collection: Users,
     documentId: currentUser._id,
     set: {
-      usersContactedBeforeReview: allUsersEverContacted,
+      attemptedToContactBeforeReview: allUsersEverContacted,
     },
     validate: false,
   });

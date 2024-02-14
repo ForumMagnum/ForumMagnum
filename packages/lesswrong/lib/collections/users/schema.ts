@@ -2097,12 +2097,22 @@ const schema: SchemaType<"Users"> = {
     canRead: [userOwns, 'admins', 'sunshineRegiment'],
   },
 
+  /* @deprecated Use `attemptedToContactBeforeReview` instead **/
   usersContactedBeforeReview: {
     type: Array,
     optional: true,
     canRead: ['admins', 'sunshineRegiment'],
   },
   "usersContactedBeforeReview.$": {
+    type: String,
+  },
+
+  attemptedToContactBeforeReview: {
+    type: Array,
+    optional: true,
+    canRead: ['admins', 'sunshineRegiment'],
+  },
+  "attemptedToContactBeforeReview.$": {
     type: String,
   },
 
