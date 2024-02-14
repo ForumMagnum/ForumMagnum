@@ -460,6 +460,7 @@ importComponent("PostsAnnualReviewMarketTag", () => require('../components/posts
 
 importComponent("ShortformPage", () => require('../components/shortform/ShortformPage'));
 importComponent("ShortformThreadList", () => require('../components/shortform/ShortformThreadList'));
+importComponent("ShortformThreadListHomepage", () => require('../components/shortform/ShortformThreadListHomepage'));
 importComponent("RepliesToCommentList", () => require('../components/shortform/RepliesToCommentList'));
 importComponent("NewShortformDialog", () => require('../components/shortform/NewShortformDialog'));
 importComponent("ShortformSubmitForm", () => require('../components/shortform/ShortformSubmitForm'));

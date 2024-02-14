@@ -81,7 +81,7 @@ const ShortformSection = ({classes}: {
   const title = "Shortform"
 
   const {
-    ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList, SectionTitle, SectionButton, ShortformSubmitForm
+    ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList, SectionTitle, SectionButton, ShortformSubmitForm, ShortformThreadListHomepage,
   } = Components;
 
   const shortformButton = true
@@ -123,10 +123,11 @@ const ShortformSection = ({classes}: {
           {userCanComment(currentUser) &&
             <ShortformSubmitForm successCallback={refetch}/>
           }
-          <QuickTakesList
+          {/* <QuickTakesList
             showCommunity={showCommunity}
             className={classes.list}
-          />
+          /> */}
+          <ShortformThreadListHomepage />
         </>
       )}
     />
