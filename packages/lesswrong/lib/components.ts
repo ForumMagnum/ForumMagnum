@@ -467,6 +467,9 @@ importComponent("ShortformTimeBlock", () => require('../components/shortform/Sho
 importComponent("ShortformListItem", () => require('../components/shortform/ShortformListItem'));
 importComponent("ProfileShortform", () => require('../components/shortform/ProfileShortform'));
 
+// Shortform section
+importComponent("ShortformSection", () => require('../components/shortform/ShortformSection'));
+
 importComponent("VoteArrowIcon", () => require('../components/votes/VoteArrowIcon'));
 importComponent("VoteAgreementIcon", () => require('../components/votes/VoteAgreementIcon'));
 importComponent("VoteButton", () => require('../components/votes/VoteButton'));
