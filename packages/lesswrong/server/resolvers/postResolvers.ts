@@ -25,7 +25,7 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import { googleClientIdSetting, googleOAuthSecretSetting } from '../authenticationMiddlewares';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { dataToCkEditor } from '../editor/conversionUtils';
+import { convertImportedGoogleDoc, dataToCkEditor } from '../editor/conversionUtils';
 import Revisions from '../../lib/collections/revisions/collection';
 import { randomId } from '../../lib/random';
 
@@ -470,7 +470,7 @@ addGraphQLResolvers({
       // Converting to ckeditor markup does some thing like removing styles to standardise
       // the result, so we always want to do this first before converting to whatever format the user
       // is using
-      const ckEditorMarkup = await dataToCkEditor(html, "html")
+      const ckEditorMarkup = await convertImportedGoogleDoc(html)
       const commitMessage = `[Google Doc import] Last modified: ${docMetadata.modifiedTime}, Name: "${docMetadata.name}"`
       const originalContents = {type: "ckEditorMarkup", data: ckEditorMarkup}
 

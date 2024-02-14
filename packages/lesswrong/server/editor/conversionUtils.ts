@@ -412,3 +412,99 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string) {
 
   return bestWordCount
 }
+
+function normalizeFootnotes(htmlString: string): string {
+  const $ = cheerio.load(htmlString);
+
+  // Define the patterns to match footnote references and backlinks
+  const backLinkPattern = /^ftnt(\d+)$/;
+  const referencePattern = /^ftnt_ref(\d+)$/;
+
+  // Find all backlinks in the document
+  const backLinks: Record<string, { item: cheerio.Cheerio; id: string }> = {};
+  $('a[id]').each((_, element) => {
+    if ('attribs' in element) {
+      const match = element.attribs.id.match(backLinkPattern);
+      if (match) {
+        const index = match[1];
+        backLinks[index] = {
+          item: $(element),
+          id: Math.random().toString(36).slice(2),
+        };
+      }
+    }
+  });
+
+  // Find all references and match them with backlinks
+  const references: Record<string, { item: cheerio.Cheerio; id: string }> = {};
+  $('a[id]').each((_, element) => {
+    if ('attribs' in element) {
+      const match = element.attribs.id.match(referencePattern);
+      if (match) {
+        const index = match[1];
+        if (backLinks.hasOwnProperty(index)) {
+          references[index] = {
+            item: $(element),
+            id: backLinks[index].id,
+          };
+        }
+      }
+    }
+  });
+
+  // Normalize the references by adding attributes
+  Object.entries(references).forEach(([index, { item, id }]) => {
+    item.attr('data-footnote-reference', '');
+    item.attr('data-footnote-index', index);
+    item.attr('data-footnote-id', id);
+    item.attr('role', 'doc-noteref');
+    item.wrap(`<span class="footnote-reference" id="fnref${id}"></span>`);
+    item.parent().prepend(`<sup></sup>`);
+    item.text(`[${index}]`);
+  });
+
+  // Create the footnotes section if it doesn't exist
+  if ($('.footnote-section').length === 0) {
+    $('body').append('<ol class="footnote-section footnotes" data-footnote-section="" role="doc-endnotes"></ol>');
+  }
+
+  // Normalize the backlinks and wrap them in new elements
+  Object.entries(backLinks).forEach(([index, { item, id }]) => {
+    const footnoteContent = item.closest('.footnote-content');
+    if (footnoteContent.length === 0) return;
+
+    const newFootnoteBackLink = $('<span class="footnote-back-link" data-footnote-back-link="" data-footnote-id="' + id + '"><sup><strong><a href="#fnref' + id + '">^</a></strong></sup></span>');
+
+    const newFootnoteContent = $('<div class="footnote-content" data-footnote-content="" data-footnote-id="' + id + '" data-footnote-index="' + index + '"></div>');
+    // Clone the contents of the footnote, excluding the backlink
+    footnoteContent.children().each((_, child) => {
+      if ('attribs' in child && child !== item.get(0)) {
+        newFootnoteContent.append($(child).clone());
+      }
+    });
+
+    const newFootnoteItem = $('<li class="footnote-item" data-footnote-item="" data-footnote-id="' + id + '" data-footnote-index="' + index + '" role="doc-endnote" id="fn' + id + '"></li>');
+    newFootnoteItem.append(newFootnoteBackLink);
+    newFootnoteItem.append(newFootnoteContent);
+
+    // Add the new footnote item to the footnotes section
+    $('.footnote-section').append(newFootnoteItem);
+
+    // Remove the old footnote content
+    footnoteContent.remove();
+  });
+
+  // Serialize the Cheerio object back to an HTML string
+  return $.html();
+}
+
+/**
+ * TODO footnotes
+ * TODO remove redirect
+ */
+export async function convertImportedGoogleDoc(html: string) {
+  const withNormalisedFootnotes = normalizeFootnotes(html)
+  const ckEditorMarkup = await dataToCkEditor(withNormalisedFootnotes, "html")
+
+  return ckEditorMarkup
+}

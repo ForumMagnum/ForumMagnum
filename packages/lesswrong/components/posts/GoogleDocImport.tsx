@@ -14,8 +14,8 @@ import { useLocation } from "../../lib/routeUtil";
 //   - [X] Sign in button works (already true, but just make sure)
 //   - [X] Unlink button works
 // - [X] Change version restoration logic to allow restoring as draft
-// - [ ] Squash migrations
 // - [ ] Fix import vs paste issues
+// - [ ] Squash migrations
 // - [ ] Deploy to beta site
 // - [ ] UI
 // - [ ] (maybe) Move refresh tokens to a separate table (to avoid logging + allow refreshing the magic token)
