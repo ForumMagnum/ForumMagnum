@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, MouseEvent } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useNotifyMe } from "../../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
   },
   selected: {
     borderColor: theme.palette.primary.dark,
-    border: "2px",
+    border: 2,
   },
 });
 
@@ -56,17 +56,21 @@ export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
     overrideSubscriptionType: "newTagPosts",
     hideFlashes: true,
   });
+
+  const subscribedCallback = useCallback((
+    e: MouseEvent<HTMLDivElement>,
+    newValue: boolean,
+  ) => {
+    void onSubscribe?.(e);
+    onSubscribed?.(tag._id, newValue);
+  }, [onSubscribe, onSubscribed, tag._id]);
+
   const [subscribed, toggleSubscribed] = useOptimisticToggle(
     isSubscribed ?? false,
-    onSubscribe ?? (() => {}),
+    subscribedCallback,
   );
 
-  const {_id, name, squareImageId, bannerImageId} = tag;
-
-  useEffect(() => {
-    onSubscribed?.(_id, subscribed);
-  }, [_id, subscribed, onSubscribed]);
-
+  const {name, squareImageId, bannerImageId} = tag;
   const {CloudinaryImage2} = Components;
   return (
     <div onClick={toggleSubscribed} className={classes.root}>

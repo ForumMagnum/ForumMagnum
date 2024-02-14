@@ -8,13 +8,16 @@ import { useCallback, MouseEvent, useState, useEffect } from "react";
  */
 export const useOptimisticToggle = (
   actualValue: boolean,
-  toggle: (e: MouseEvent<HTMLDivElement>) => void,
+  toggle: (e: MouseEvent<HTMLDivElement>, newOptimisticValue: boolean) => void,
 ): [boolean, (e: MouseEvent<HTMLDivElement>) => void] => {
   const [optimisticValue, setOptimisticValue] = useState(actualValue);
 
   const toggleValue = useCallback((e: MouseEvent<HTMLDivElement>) => {
-    setOptimisticValue((value) => !value);
-    toggle(e);
+    setOptimisticValue((value) => {
+      const newOptimisticValue = !value;
+      toggle(e, newOptimisticValue);
+      return newOptimisticValue;
+    });
   }, [toggle]);
 
   useEffect(() => {
