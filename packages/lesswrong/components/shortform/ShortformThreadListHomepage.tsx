@@ -12,9 +12,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   shortformItem: {
     //marginTop: theme.spacing.unit * (isFriendlyUI ? 2 : 4),
   },
-  bottomBorder: {
-    // borderBottom: theme.palette.border.itemSeparatorBottom, // this should maybe go somewhere, but not here
-  },
 
 })
 
@@ -53,7 +50,9 @@ const ShortformThreadListHomepage = ({ classes, maxAgeDays=30, className }: {
       {results?.map((comment) =>
         <ShortformListItem comment={comment} key={comment._id} />
       )}
-      <LoadMore {...loadMoreProps} />
+      <SectionFooter>
+        <LoadMore {...loadMoreProps} sectionFooterStyles/>
+      </SectionFooter>    
     </div>
   </>
   );
