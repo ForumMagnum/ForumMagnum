@@ -37,7 +37,8 @@ defineQuery({
   name: 'GetAllReviewWinners',
   resultType: '[Post!]!',
   fn: async (root, args, context) => {
-    const cacheStale = moment(REVIEW_WINNER_CACHE.lastUpdatedAt).isBefore(moment(new Date()).subtract(1, 'hour'));
+    // TODO: reinstate the cache
+    const cacheStale = true // moment(REVIEW_WINNER_CACHE.lastUpdatedAt).isBefore(moment(new Date()).subtract(1, 'hour'));
     if (cacheStale) {
       await updateReviewWinnerCache(context);
     }

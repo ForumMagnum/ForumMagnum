@@ -29,7 +29,7 @@ const reviewWinners2018 = [
   'CPP2uLcaywEokFKQG',
   'yeADMcScw8EW9yxpH',
   'Djs38EWYZG8o7JMWY',
-  '5bd75cc58225bf0670375533',
+  'CvKnhXTu9BPcdKE4W',
   'NLBbCQeNLFvBJJkrt',
   'AanbbjYr5zckMKde7',
   'xdwbX9pFEr7Pomaxv',
@@ -122,7 +122,8 @@ const reviewWinners2020 = [
   '4s2gbwMHSdh2SByyZ',
   'JPan54R525D68NoEt',
   'nNqXfnjiezYukiMJi',
-  'ax695frGJEzGxFBK4'
+  'ax695frGJEzGxFBK4',
+  'Z9cbwuevS9cqaR96h'
 ];
 
 const reviewWinners2021 = [
@@ -255,8 +256,13 @@ registerMigration({
   action: async () => {
     const db = getSqlClientOrThrow();
 
+    const existingWinners = await ReviewWinners.find({}, { projection: { postId: 1 } }).fetch();
     const naiveTotalIdRanking = zip(reviewWinners2018, reviewWinners2019, reviewWinners2020, reviewWinners2021, reviewWinners2022).flat().filter((id): id is string => !!id);
 
+    existingWinners.filter(({ postId }) => !naiveTotalIdRanking.includes(postId)).forEach(({ postId }) => {
+      // eslint-disable-next-line no-console
+      console.log('Existing winner not in intended list:', postId);
+    })
     // eslint-disable-next-line no-console
     console.log(`Starting to create ${naiveTotalIdRanking.length} ReviewWinners`);
 
@@ -289,6 +295,7 @@ registerMigration({
       await Promise.all(reviewWinnerIds.map((reviewWinnerPostId, idx) => {
         const naiveCuratedOrder = naiveTotalIdRanking.indexOf(reviewWinnerPostId);
         const naiveIsAI = naiveAiPostIdSet.has(reviewWinnerPostId);
+        if (existingWinners.some(({ postId }) => postId === reviewWinnerPostId)) return Promise.resolve();
 
         return createMutator({
           collection: ReviewWinners,
@@ -300,8 +307,9 @@ registerMigration({
             isAI: naiveIsAI
           },
           context: adminContext,
-          currentUser: adminContext.currentUser
-        });
+          currentUser: adminContext.currentUser,
+          validate: false
+        }).catch(e => {console.dir(e); throw new Error(`Failed to create ReviewWinner for postId ${reviewWinnerPostId}`)});
       }));
     }
   }
