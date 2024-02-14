@@ -25,7 +25,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "16px",
     color: theme.palette.text.alwaysWhite,
     zIndex: 2,
-    position: "absolute",
+    position: "relative",
     top: 0,
     left: 0,
     width: "100%",
@@ -35,14 +35,29 @@ const styles = (theme: ThemeType) => ({
     padding: 8,
     backgroundColor: theme.palette.tag.onboardingBackground,
     borderRadius: theme.borderRadius.default,
-    border: "1px solid transparent",
+    border: "4px solid transparent",
     "&:hover": {
       backgroundColor: theme.palette.tag.onboardingBackgroundHover,
     },
   },
-  selected: {
-    borderColor: theme.palette.primary.dark,
-    border: 2,
+  imageSelected: {
+    border: `3px solid ${theme.palette.primary.dark}`,
+  },
+  nameSelected: {
+    borderColor: theme.palette.panelBackground.modalBackground,
+    padding: 6,
+    margin: 2,
+    width: TAG_SIZE - 4,
+    height: TAG_SIZE - 4,
+  },
+  check: {
+    position: "absolute",
+    top: 6,
+    right: 6,
+    backgroundColor: theme.palette.primary.dark,
+    borderRadius: theme.borderRadius.small,
+    width: 18,
+    height: 18,
   },
 });
 
@@ -71,7 +86,7 @@ export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
   );
 
   const {name, squareImageId, bannerImageId} = tag;
-  const {CloudinaryImage2} = Components;
+  const {CloudinaryImage2, ForumIcon} = Components;
   return (
     <div onClick={toggleSubscribed} className={classes.root}>
       <CloudinaryImage2
@@ -83,12 +98,15 @@ export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
           g: "center",
         }}
         objectFit="cover"
-        className={classes.image}
+        className={classNames(classes.image, {
+          [classes.imageSelected]: subscribed,
+        })}
       />
       <div className={classNames(classes.name, {
-        [classes.selected]: subscribed,
+        [classes.nameSelected]: subscribed,
       })}>
         {name}
+        {subscribed && <ForumIcon icon="Check" className={classes.check} />}
       </div>
     </div>
   );
