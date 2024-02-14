@@ -6,7 +6,6 @@ import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Comments } from "../../lib/collections/comments";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import { useRecordPostView } from "../hooks/useRecordPostView";
-import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import moment from "moment";
