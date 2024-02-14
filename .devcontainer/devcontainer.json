@@ -1,0 +1,12 @@
+{"image":"mcr.microsoft.com/devcontainers/universal:2",
+"customizations": {
+  "codespaces": {
+    "repositories": {
+      "LessWrong2/LessWrong-Credentials": {
+        "permissions": {
+          "contents": "write"
+        }
+      }
+    }
+  }
+}}
