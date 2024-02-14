@@ -12,7 +12,9 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
-import { highlightMarket } from '../../lib/annualReviewMarkets';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
+import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
+
 
 export const KARMA_WIDTH = 32
 
@@ -366,6 +368,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showIcons,
     showKarma,
     annualReviewMarketInfo,
+    marketLink,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,
@@ -436,12 +439,11 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
             {showKarma && <PostsItem2MetaInfo className={classNames(
               classes.karma, {
-                [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo)
-
+                [classes.karmaPredictedReviewWinner]: !!marketLink
               })}>
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
-                : <KarmaDisplay document={post} annualReviewMarketInfo={annualReviewMarketInfo} annualReviewMarketCommentId={post.annualReviewMarketCommentId}/>
+                : <KarmaDisplay document={post} linkItem={marketLink}/>
               }
             </PostsItem2MetaInfo>}
 
