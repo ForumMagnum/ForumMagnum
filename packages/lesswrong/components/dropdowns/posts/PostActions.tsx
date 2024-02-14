@@ -6,7 +6,6 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
 import { isDialogueParticipant } from '../../posts/PostsPage/PostsPage';
-import { allowSubscribeToUserComments } from '../../../lib/betas';
 
 // We use a context here vs. passing in a boolean prop because we'd need to pass
 // through ~4 layers of hierarchy
@@ -81,13 +80,6 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
         subscribeMessage={`Subscribe to posts by ${userGetDisplayName(postAuthor)}`}
         unsubscribeMessage={`Unsubscribe from posts by ${userGetDisplayName(postAuthor)}`}
       />
-      {allowSubscribeToUserComments && <NotifyMeDropdownItem
-        document={postAuthor}
-        enabled={!!postAuthor && postAuthor._id !== currentUser?._id}
-        subscribeMessage={`Subscribe to all comments by ${userGetDisplayName(postAuthor)}`}
-        unsubscribeMessage={`Unsubscribe from all comments by ${userGetDisplayName(postAuthor)}`}
-        subscriptionType={subscriptionTypes.newUserComments}
-      />}
       {showSubscribeToDialogueButton && <NotifyMeDropdownItem
         document={post}
         enabled={!!post.collabEditorDialogue}
