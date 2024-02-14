@@ -6,7 +6,7 @@ import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
 import { isLWorAF } from '../../lib/instanceSettings';
 
 const LWHome = () => {
-  const { ShortformSection, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget } = Components
+  const { ShortformSection, DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, LWPopularCommentsSection } = Components
   
   return (
       <AnalyticsContext pageContext="homePage">
@@ -29,7 +29,9 @@ const LWHome = () => {
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
 
-          {isLWorAF && <ShortformSection />}
+          <ShortformSection />
+
+          <LWPopularCommentsSection />
 
           <RecentDiscussionFeed
             af={false}

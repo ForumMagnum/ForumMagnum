@@ -7,6 +7,7 @@ import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+import { forumSelect } from "../../lib/forumTypeUtils";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -157,6 +158,15 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     // over selecting brand new comments - defaults to 2 hours
     recencyBias?: number,
   }): Promise<DbComment[]> {
+    const popularCommentsExcludedTagId = forumSelect({
+      EAForum: EA_FORUM_COMMUNITY_TOPIC_ID,
+      default: null
+    });
+
+    const excludeTagId = !!popularCommentsExcludedTagId;
+    const excludedTagIdParam = excludeTagId ? [popularCommentsExcludedTagId] : [];
+    const excludedTagIdCondition = excludeTagId ? 'AND COALESCE((p."tagRelevance"->$6)::INTEGER, 0) < 1' : '';
+    
     return this.any(`
       -- CommentsRepo.getPopularComments
       SELECT c.*
@@ -176,8 +186,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       JOIN "Comments" c ON c."_id" = q."_id"
       JOIN "Posts" p ON c."postId" = p."_id"
       WHERE
-        p."hideFromPopularComments" IS NOT TRUE AND
-        COALESCE((p."tagRelevance"->$6)::INTEGER, 0) < 1
+        p."hideFromPopularComments" IS NOT TRUE
+        ${excludedTagIdCondition}
       ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $5) / -$4) DESC
       OFFSET $2
       LIMIT $3
@@ -187,7 +197,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       limit,
       recencyFactor,
       recencyBias,
-      EA_FORUM_COMMUNITY_TOPIC_ID,
+      ...excludedTagIdParam,
     ]);
   }
 
