@@ -20,6 +20,8 @@ import Users from '../../lib/vulcan-users';
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { Posts } from '../../lib/collections/posts';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
+import { Globals } from '../../lib/vulcan-lib/config'
+import { convertImagesInHTML } from '../scripts/convertImagesToCloudinary';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -419,15 +421,18 @@ function googleDocConvertFootnotes(html: string): string {
   const footnotePattern = /^ftnt(\d+)$/; // The actual footnotes at the bottom of the doc
   const referencePattern = /^ftnt_ref(\d+)$/; // The links to the footnotes in the main text
 
-  const footnotes: Record<string, { item: cheerio.Cheerio; id: string }> = {};
+  const footnotes: Record<string, { item: cheerio.Cheerio; anchor: cheerio.Cheerio, id: string }> = {};
   $('a[id]').each((_, element) => {
     if (!('attribs' in element)) return
 
     const match = element.attribs.id.match(footnotePattern);
     if (match) {
       const index = match[1];
+      // Find the closest parent div of the footnote anchor
+      const footnoteDiv = $(element).closest('div');
       footnotes[index] = {
-        item: $(element),
+        item: footnoteDiv,
+        anchor: $(element),
         id: Math.random().toString(36).slice(2),
       };
     }
@@ -468,22 +473,24 @@ function googleDocConvertFootnotes(html: string): string {
   $('body').append('<ol class="footnote-section footnotes" data-footnote-section="" role="doc-endnotes"></ol>');
 
   // Normalize the footnotes and put them in the newly created section
-  Object.entries(footnotes).forEach(([index, { item, id }]) => {
-    let footnoteContent = item.closest('.footnote-content');
-    if (footnoteContent.length === 0) {
-      footnoteContent = $('<div class="footnote-content"></div>').append(item.next('span').clone());
-      item.next('span').remove();
+  Object.entries(footnotes).forEach(([index, { item, anchor, id }]) => {
+    // Remove e.g. "[1]&nbsp;" from the footnote
+    const anchorHtml = anchor.html();
+    if (anchorHtml && anchorHtml.startsWith('&nbsp;')) {
+      anchor.html(anchorHtml.replace(/^&nbsp;/, ''));
+    } else {
+      anchor.remove();
     }
 
-    // Replace bullets in footnotes with regular <p> elements
+    const footnoteContent = item.clone().addClass('footnote-content');
+
+    // Replace bullets in footnotes with regular <p> elements and move them up a level
     const listParent = footnoteContent.find('li').parent('ul, ol');
     listParent.children('li').each((_, liElement) => {
       const liContent = $(liElement).html();
-      $(liElement).replaceWith(`<p>${liContent}</p>`);
+      $(`<p>${liContent}</p>`).insertBefore(listParent);
     });
     listParent.remove();
-
-    item.remove();
 
     const newFootnoteBackLink = $('<span class="footnote-back-link" data-footnote-back-link="" data-footnote-id="' + id + '"><sup><strong><a href="#fnref' + id + '">^</a></strong></sup></span>');
 
@@ -494,8 +501,8 @@ function googleDocConvertFootnotes(html: string): string {
     newFootnoteItem.append(newFootnoteBackLink);
     newFootnoteItem.append(newFootnoteContent);
 
-    // Append the new footnote item to the footnotes section
     $('.footnote-section').append(newFootnoteItem);
+    item.remove()
   });
 
   // The changes so far leave over a stub like so:
@@ -509,15 +516,7 @@ function googleDocConvertFootnotes(html: string): string {
   // Remove everything from the <hr /> to the footnotes section
   const footnotesSection = $('.footnote-section');
   const hrBeforeFootnotes = footnotesSection.prevAll('hr').last();
-  if (hrBeforeFootnotes.length) {
-    hrBeforeFootnotes.nextUntil('.footnote-section').each((_, element) => {
-      const div = $(element);
-      if (div.is('div') && div.text().trim() === '') {
-        div.remove();
-      }
-    });
-    hrBeforeFootnotes.remove();
-  }
+  hrBeforeFootnotes.remove();
 
   return $.html();
 }
@@ -537,37 +536,35 @@ function googleDocRemoveRedirects(html: string): string {
   //                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ <- if there are no more params (no &), match up to the end of the string
   const hrefPattern = /^https:\/\/www\.google\.com\/url\?q=(\S+?)(\&|$)/;
 
-  // Select all anchor elements with an href attribute
   $('a[href]').each((_, element) => {
     const href = $(element).attr('href');
     if (!href) return
 
-    // Test if the href matches the Google redirect pattern
     const match = hrefPattern.exec(href);
     if (match && match[1]) {
-      // Replace the href attribute with the captured URL
       $(element).attr('href', decodeURIComponent(match[1]));
     }
   });
 
-  // Return the transformed HTML
   return $.html();
 }
 
 /**
- * - [ ] Footnotes
+ * - [X] Footnotes
  *   - [X] Basically working
- *   - [ ] Use entire div as footnote rather than just <a>
- *   - [ ] Make bullets in footnotes fail sensibly (or at least match how the copy paste version works)
+ *   - [X] Use entire div as footnote rather than just <a>
+ *   - [X] Make bullets in footnotes fail sensibly (or at least match how the copy paste version works)
  * - [X] Remove redirects
- * - [ ] Remove colors from
- *   - [ ] Spans
- *   - [ ] Tables
+ * - [X] Rehost images
  */
-export async function convertImportedGoogleDoc(html: string) {
-  const withConvertedFootnotes = googleDocConvertFootnotes(html)
+export async function convertImportedGoogleDoc(html: string, postId: string) {
+  const { html: withRehostedImages } = await convertImagesInHTML(html, postId, url => url.includes("googleusercontent"))
+  const withConvertedFootnotes = googleDocConvertFootnotes(withRehostedImages)
   const withNormalisedRedirects = googleDocRemoveRedirects(withConvertedFootnotes)
   const ckEditorMarkup = await dataToCkEditor(withNormalisedRedirects, "html")
+
+  // Note: there are also some `color` attributes that are carried through, on <span>s and tables. These don't
+  // appear in the actual editor or the live post, so I am ignoring them
 
   return ckEditorMarkup
 }

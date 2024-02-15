@@ -99,7 +99,7 @@ function urlNeedsMirroring(url: string, filterFn: (url: string) => boolean) {
   }
 }
 
-async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {
+export async function convertImagesInHTML(html: string, originDocumentId: string, urlFilterFn: (url: string) => boolean = () => true): Promise<{count: number, html: string}> {
   const parsedHtml = cheerioParse(html);
   const imgTags = parsedHtml("img").toArray();
   const imgUrls: string[] = [];

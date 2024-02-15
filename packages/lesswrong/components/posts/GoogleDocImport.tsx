@@ -14,10 +14,10 @@ import { useLocation } from "../../lib/routeUtil";
 //   - [X] Sign in button works (already true, but just make sure)
 //   - [X] Unlink button works
 // - [X] Change version restoration logic to allow restoring as draft
-// - [ ] Fix import vs paste issues
+// - [X] Fix import vs paste issues
 // - [ ] Squash migrations
-// - [ ] Deploy to beta site
 // - [ ] UI
+// - [ ] Deploy to beta site, get people to test
 // - [ ] (maybe) Move refresh tokens to a separate table (to avoid logging + allow refreshing the magic token)
 
 const gdocImportEmailSetting = new DatabasePublicSetting<string | null>("gdocImportEmail.email", null);
