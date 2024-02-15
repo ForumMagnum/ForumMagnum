@@ -11,8 +11,6 @@ import { InteractionWrapper, useClickableCell } from "../common/useClickableCell
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import moment from "moment";
-import { isFriendlyUI } from "../../themes/forumTheme";
-import { commentBodyStyles } from "../../themes/stylePiping";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -40,21 +38,16 @@ const styles = (theme: ThemeType) => ({
     marginRight: 8,
   },
   post: {
-    ...(isFriendlyUI ? {
-      fontWeight: 600,
-      color: theme.palette.grey[1000],
-    } : {
-      fontSize: '1.15rem',
-      color: theme.palette.text.normal,
-    }),
+    color: theme.palette.grey[1000],
+    fontWeight: 600,
     whiteSpace: "nowrap",
   },
   postRead: {
-    color: isFriendlyUI ? theme.palette.grey[600] : theme.palette.text.dim55,
+    color: theme.palette.grey[600],
   },
   link: {
     color: theme.palette.primary.main,
-    fontWeight: isFriendlyUI ? 600 : undefined,
+    fontWeight: 600,
     whiteSpace: "nowrap",
     "&:hover": {
       opacity: 1,
@@ -62,11 +55,9 @@ const styles = (theme: ThemeType) => ({
     },
   },
   username: {
-    ...(isFriendlyUI ? {
-      fontWeight: 600,
-      color: theme.palette.grey[1000],
-    } : {}),
+    fontWeight: 600,
     whiteSpace: "nowrap",
+    color: theme.palette.grey[1000],
     marginRight: 10,
   },
   date: {
@@ -74,10 +65,9 @@ const styles = (theme: ThemeType) => ({
     marginRight: 6,
   },
   body: {
-    // lineHeight: "160%",
-    // letterSpacing: "-0.14px",
-    // color: theme.palette.grey[1000],
-    ...(isFriendlyUI ? undefined : commentBodyStyles(theme))
+    lineHeight: "160%",
+    letterSpacing: "-0.14px",
+    color: theme.palette.grey[1000],
   },
   bodyCollapsed: {
     position: "relative",
@@ -129,7 +119,7 @@ const PopularCommentTitle: FC<{
   );
 }
 
-const PopularComment = ({comment, classes}: {
+const FriendlyPopularComment = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType,
 }) => {
@@ -141,9 +131,12 @@ const PopularComment = ({comment, classes}: {
     captureEvent("popularCommentToggleExpanded", {expanded: !expanded});
   }, [expanded, captureEvent]);
 
-  const {onClick} = useClickableCell({onClick: onClickCallback});
+  const {onClick} = useClickableCell({
+    onClick: onClickCallback,
+    ignoreLinks: true,
+  });
 
-  const {UsersName, LWTooltip, SmallSideVote, CommentBody, ContentStyles} = Components;
+  const {UsersName, LWTooltip, SmallSideVote, CommentBody} = Components;
   return (
     <AnalyticsContext
       pageElementContext="popularComment"
@@ -180,27 +173,25 @@ const PopularComment = ({comment, classes}: {
           ? (
             <CommentBody comment={comment} className={classes.body} />
           )
-          : isFriendlyUI ? (
-            // <ContentStyles contentType={'comment'} className={classes.root}>
-              <div className={classNames(classes.body, classes.bodyCollapsed)}>
-                {htmlToTextDefault(comment.contents?.html)}
-              </div>
-            // </ContentStyles>
-          ) : <CommentBody comment={comment} className={classes.body} truncated />
+          : (
+            <div className={classNames(classes.body, classes.bodyCollapsed)}>
+              {htmlToTextDefault(comment.contents?.html)}
+            </div>
+          )
         }
       </div>
     </AnalyticsContext>
   );
 }
 
-const PopularCommentComponent = registerComponent(
-  "PopularComment",
-  PopularComment,
+const FriendlyPopularCommentComponent = registerComponent(
+  "FriendlyPopularComment",
+  FriendlyPopularComment,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PopularComment: typeof PopularCommentComponent
+    FriendlyPopularComment: typeof FriendlyPopularCommentComponent
   }
 }

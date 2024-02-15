@@ -18,7 +18,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.grey[0],
     borderRadius: theme.borderRadius.default,
     border: `1px solid ${theme.palette.grey[200]}`,
-    padding: "10px 14px",
+    padding: ".6em 12px",
   },
   info: {
     display: "flex",
@@ -67,6 +67,9 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     marginRight: 6,
   },
+  bodyWrapper: {
+    cursor: "pointer",
+  },
   body: {
     ...commentBodyStyles(theme),
     position: "relative",
@@ -74,7 +77,6 @@ const styles = (theme: ThemeType) => ({
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
-    cursor: "pointer",
   },
   toggleWrapper: {
     marginRight: 5,
@@ -100,14 +102,18 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { ForumIcon, UsersName, CommentsMenu, LWPopper, CommentsNode, CommentsItemDate, SmallSideVote } = Components;
+  const { CommentShortformIcon, ForumIcon, UsersName, CommentsMenu, LWPopper, CommentsNode, CommentsItemDate, SmallSideVote } = Components;
 
   const {eventHandlers, hover, anchorEl} = useHover({
     pageElementContext: "shortformItemTooltip",
     commentId: quickTake._id,
   });
 
-  const {onClick} = useClickableCell({onClick: () => setExpanded(true)});
+  // const {onClick} = useClickableCell({onClick: () => setExpanded(true)});
+
+  const expand = useCallback((e: React.MouseEvent) => {
+    setExpanded(true);
+  }, [setExpanded]);
 
   const commentCount = quickTake.descendentCount ?? 0;
   const commentsAreClickable = commentCount > 0;
@@ -140,10 +146,11 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
     }
   }, [commentsAreClickable, quickTake]);
 
+  const shortformIcon = quickTake.post && <CommentShortformIcon comment={quickTake} post={quickTake.post} />;
 
   const collapseToggle = (
-    <a className={classes.toggleWrapper} onClick={onClick}>
-      {<>[<span className={classes.toggleCharacter}>{"-"}</span>]</>}
+    <a className={classes.toggleWrapper} onClick={expand}>
+      {<>[<span className={classes.toggleCharacter}>{"+"}</span>]</>}
     </a>
   );
 
@@ -214,17 +221,20 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   );
 
   const body = (
-    <div {...eventHandlers} className={classes.body}>
-      {htmlToTextDefault(quickTake.contents?.html)}
+    <div className={classes.bodyWrapper} onClick={expand}>
+      <div {...eventHandlers}  className={classes.body}>
+        {htmlToTextDefault(quickTake.contents?.html)}
+      </div>
     </div>
   );
 
   return (
     <div
-      onClick={onClick}
+      // onClick={onClick}
       className={classes.root}
     >
       <div className={classes.info}>
+        {shortformIcon}
         {collapseToggle}
         {username}
         {commentDate}

@@ -253,7 +253,6 @@ importComponent("ForumDropdown", () => require('../components/common/ForumDropdo
 importComponent("ForumDropdownMultiselect", () => require('../components/common/ForumDropdownMultiselect'));
 importComponent("WrappedStrawPoll", () => require('../components/common/WrappedStrawPoll'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
-importComponent("LWPopularCommentsSection", () => require('../components/common/LWPopularCommentsSection'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
 importComponent("RevisionSelect", () => require('../components/revisions/RevisionSelect'));
@@ -646,7 +645,7 @@ importComponent("SingleLineComment", () => require('../components/comments/Singl
 importComponent("ShowParentComment", () => require('../components/comments/ShowParentComment'));
 importComponent("NewUserGuidelinesDialog", () => require('../components/comments/NewUserGuidelinesDialog'));
 importComponent("PopularCommentsList", () => require('../components/comments/PopularCommentsList'));
-importComponent("PopularComment", () => require('../components/comments/PopularComment'));
+importComponent("FriendlyPopularComment", () => require('../components/comments/FriendlyPopularComment'));
 importComponent("LWPopularComment", () => require('../components/comments/LWPopularComment'));
 
 importComponent("PostsListEditorSearchHit", () => require('../components/search/PostsListEditorSearchHit'));

@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "4px",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 14,
+    fontSize: isFriendlyUI ? 14 : '1.16rem',
     fontWeight: 500,
     color: theme.palette.grey[1000],
   },
@@ -24,9 +24,9 @@ const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
     itemsPerPage: 5,
   });
 
-  const {LoadMore, PopularComment, LWPopularComment} = Components;
+  const {LoadMore, FriendlyPopularComment, LWPopularComment} = Components;
 
-  const CommentComponent = isFriendlyUI ? PopularComment : LWPopularComment;
+  const CommentComponent = isFriendlyUI ? FriendlyPopularComment : LWPopularComment;
   return (
     <AnalyticsContext pageSectionContext="popularCommentsList">
       <div className={classes.root}>
