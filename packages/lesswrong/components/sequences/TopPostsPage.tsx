@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { useLocation } from '../../lib/routeUtil';
@@ -70,12 +70,12 @@ const DEFAULT_SPLASH_ART_COORDINATES: Omit<SplashArtCoordinates, '_id' | 'review
 const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
 
 let candidateImages = [
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/51d4e735-f328-436b-af1f-72f8a393114e.png?forcerefresh",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/9a46ebf2-a5f4-4520-827f-5e723164a857.png?forcerefresh",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/41b79ce2-bd03-45a5-bd9e-a7761a539b0a.png?forcerefresh",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/d257c3a8-df69-4da5-ae4c-0fc01bd800d0.png?forcerefresh",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/53236167-d294-4870-b65b-c793a83be8e0.png?forcerefresh",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/b8b7586b-3147-4df3-8b46-e2d48ff23620.png?forcerefresh",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/51d4e735-f328-436b-af1f-72f8a393114e.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/9a46ebf2-a5f4-4520-827f-5e723164a857.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/41b79ce2-bd03-45a5-bd9e-a7761a539b0a.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/d257c3a8-df69-4da5-ae4c-0fc01bd800d0.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/53236167-d294-4870-b65b-c793a83be8e0.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/b8b7586b-3147-4df3-8b46-e2d48ff23620.png",
 ]
 
 const sectionsInfo = {
@@ -784,7 +784,8 @@ function getSplashArtUrl({ reviewWinnerArt, leftBookOffset, fallbackUrl }: GetSp
     [`${coordinatePosition}XPct` as const]: xPct,
     [`${coordinatePosition}YPct` as const]: yPct,
     [`${coordinatePosition}WidthPct` as const]: widthPct,
-    [`${coordinatePosition}HeightPct` as const]: heightPct,  
+    [`${coordinatePosition}HeightPct` as const]: heightPct,
+    [`${coordinatePosition}Flipped` as const]: flipped,
   } = activeSplashArtCoordinates ?? DEFAULT_SPLASH_ART_COORDINATES;
 
   const newXPct = xPct - (widthPct * leftBookOffset); 
@@ -792,7 +793,7 @@ function getSplashArtUrl({ reviewWinnerArt, leftBookOffset, fallbackUrl }: GetSp
   const newHeightPct = 1 - yPct; // I think we just want the full image to flow down below
 
   const cropPathParam = `c_crop,h_${newHeightPct},w_${newWidthPct},x_${newXPct},y_${yPct}`;
-  const croppedImageUrl = splashArtImageUrl.replace('upload/', `upload/${cropPathParam}/`);
+  const croppedImageUrl = splashArtImageUrl.replace('upload/', `upload/${cropPathParam}/`).replace('upload/', `upload/${flipped ? 'a_hflip/' : ''}`);
 
   return croppedImageUrl;
 }

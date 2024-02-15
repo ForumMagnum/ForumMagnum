@@ -17,13 +17,15 @@ export type Coordinates = {
   height: number,
 }
 
-type BoxSubContainers = Record<CoordinatePosition, Coordinates | null>
+export type BoxCoordinates = Coordinates & { flipped: boolean }
+
+type BoxSubContainers = Record<CoordinatePosition, BoxCoordinates | null>
 
 type PositionedOffsets<T extends CoordinatePosition> = {
   [k in `${T}XPct` | `${T}YPct` | `${T}WidthPct` | `${T}HeightPct`]: number;
 }
 
-function getOffsetPercentages<T extends CoordinatePosition>(imgCoordinates: Coordinates, boxCoordinates: Coordinates, prefix: T): PositionedOffsets<T> {
+function getOffsetPercentages<T extends CoordinatePosition>(imgCoordinates: Coordinates, boxCoordinates: BoxCoordinates, prefix: T): PositionedOffsets<T> {
   const {
     x: imgX,
     y: imgY,
@@ -134,7 +136,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, cachedBoxCoordinates, setCachedBoxCoordinates }: {
+export const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, cachedBoxCoordinates, setCachedBoxCoordinates, flipped }: {
   boxCoordinates: Coordinates,
   selectedImageInfo: ReviewWinnerImageInfo,
   subBoxPosition: CoordinatePosition,
@@ -142,6 +144,7 @@ export const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPo
   setSelectedBox: React.Dispatch<React.SetStateAction<CoordinatePosition | null>>,
   cachedBoxCoordinates: Record<string, BoxSubContainers>,
   setCachedBoxCoordinates: React.Dispatch<React.SetStateAction<Record<string, BoxSubContainers>>>,
+  flipped: boolean,
 }) => {
   // Update the style of each boxSub based on the selected box
   const handleBoxClick = (subBox: CoordinatePosition) => {
@@ -162,11 +165,12 @@ export const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPo
             y: subBoxY,
             width: boxCoordinates.width / 3,
             height: boxCoordinates.height,
+            flipped
           }
         }
       }
     })
-  }, [setCachedBoxCoordinates, subBoxPosition, boxCoordinates, selectedImageInfo]);
+  }, [setCachedBoxCoordinates, subBoxPosition, boxCoordinates, selectedImageInfo, flipped]);
 
   const subBoxStyle = {
     width: boxCoordinates.width / 3,
@@ -201,27 +205,28 @@ export const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPo
   </>)
 }
 
-export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes }: {
+export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes, flipped }: {
   reviewWinner: ReviewWinnerAll,
   imgRef: RefObject<HTMLImageElement>,
   setCropPreview: (coordinates?: Coordinates) => void,
-  classes: ClassesType<typeof styles>
+  classes: ClassesType<typeof styles>,
+  flipped: boolean
 }) => {
   const [isBoxVisible, setIsBoxVisible] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
 
-  const initialBoxCoordinates: Coordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight}
+  const initialBoxCoordinates: BoxCoordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight, flipped }
   const [boxCoordinates, setBoxCoordinates] = useState(initialBoxCoordinates);
 
-  const updateBoxCoordinates = (newCoordinates: Coordinates) => {
+  const updateBoxCoordinates = (newCoordinates: BoxCoordinates) => {
     setBoxCoordinates(newCoordinates);
     setCropPreview(newCoordinates);
   }
 
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 }); 
 
-  const initialResizeInitialBoxCoordinates: Coordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight}
+  const initialResizeInitialBoxCoordinates: BoxCoordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight, flipped }
   const [resizeInitialBoxCoordinates, setResizeInitialBoxCoordinates] = useState(initialResizeInitialBoxCoordinates);
 
   // TODO: per docstring, this hook isn't safe in an SSR context; make sure we wrap this entire component in a NoSSR block
@@ -251,7 +256,7 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
   };
 
   const startResizing = (e: React.MouseEvent<HTMLDivElement>) => {
-    setResizeInitialBoxCoordinates({ x: e.clientX, y: e.clientY, width: boxCoordinates.width, height: boxCoordinates.height });
+    setResizeInitialBoxCoordinates({ x: e.clientX, y: e.clientY, width: boxCoordinates.width, height: boxCoordinates.height, flipped });
     setIsResizing(true);
   };
 
@@ -274,6 +279,7 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
       y: e.clientY - dragOffset.y,
       width: boxCoordinates.width,
       height: boxCoordinates.height,
+      flipped,
     };
 
     updateBoxCoordinates(newCoordinates);
@@ -288,7 +294,8 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
       x: boxCoordinates.x,
       y: boxCoordinates.y,
       width: newWidth,
-      height: newHeight
+      height: newHeight,
+      flipped
     };
     
     updateBoxCoordinates(newCoordinates);
@@ -355,8 +362,11 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
       const splashArtData = cachedBoxCoordinates[selectedImageInfo._id] && {
         reviewWinnerArtId: selectedImageInfo._id,
         ...leftOffsets,
+        leftFlipped: coordsLeft.flipped,
         ...middleOffsets,
+        middleFlipped: coordsMiddle.flipped,
         ...rightOffsets,
+        rightFlipped: coordsRight.flipped
       };
   
       await createSplashArtCoordinateMutation({ data: splashArtData });
@@ -406,6 +416,7 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     setSelectedBox,
     cachedBoxCoordinates,
     setCachedBoxCoordinates,
+    flipped
   };
 
   return (

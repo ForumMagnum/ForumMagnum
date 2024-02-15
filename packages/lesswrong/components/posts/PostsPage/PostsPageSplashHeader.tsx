@@ -183,6 +183,7 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 8,
     paddingRight: 8,
     paddingBottom: 8,
+    zIndex: 2,
   },
   changeImageBox: {
     display: 'flex',
@@ -381,6 +382,8 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   const { setToCVisible } = useContext(SidebarsContext)!;
   
   const [cropPreviewEnabled, setCropPreviewEnabled] = useState(false);
+  const [imageFlipped, setImageFlipped] = useState(false);
+  const toggleImageFlip = () => setImageFlipped(!imageFlipped);
   const imgRef = useRef<HTMLImageElement>(null);
   const backgroundImgWrapperRef = useRef<HTMLDivElement>(null);
   const backgroundImgCropPreviewRef = useRef<HTMLDivElement>(null);
@@ -444,9 +447,9 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
       post.reviewWinnerArt[0].splashArtImageUrl;
 
     if (newBackgroundImage) {
-      setBackgroundImage(newBackgroundImage);
+      setBackgroundImage(newBackgroundImage.replace('upload/', imageFlipped ? 'upload/a_hflip/' : 'upload/'));
     }
-  }, [post, selectedImageInfo]); 
+  }, [post, selectedImageInfo, imageFlipped]); 
 
   const { anchorEl, hover, eventHandlers } = useHover();
 
@@ -487,6 +490,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
         {userIsAdminOrMod(currentUser) && <div className={classes.rightSectionBelowBottomRow}> 
           <div {...eventHandlers}>
             <div className={classes.changeImageBox}>Change image</div>
+            <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
             <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
               <div>
                 <SplashHeaderImageOptions images={post.reviewWinnerArt} post={post}/>
@@ -494,7 +498,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
             </LWPopper>
           </div>
           <div className={classes.rightSectionBelowBottomRow}>
-            <ImageCropPreview reviewWinner={post.reviewWinner} imgRef={imgRef} setCropPreview={setCropPreview} />
+            <ImageCropPreview reviewWinner={post.reviewWinner} imgRef={imgRef} setCropPreview={setCropPreview} flipped={imageFlipped} />
           </div>
         </div>}
       </div>

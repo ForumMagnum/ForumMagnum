@@ -46,6 +46,15 @@ export const schema: SchemaType<"SplashArtCoordinates"> = {
     optional: false,
     nullable: false,
   },
+  leftFlipped: {
+    type: Boolean,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    defaultValue: false,
+  },
   middleXPct: {
     type: Number,
     canRead: ['guests'],
@@ -77,6 +86,15 @@ export const schema: SchemaType<"SplashArtCoordinates"> = {
     canUpdate: ['sunshineRegiment', 'admins'],
     optional: false,
     nullable: false,
+  },
+  middleFlipped: {
+    type: Boolean,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    optional: true,
+    nullable: false,
+    defaultValue: false,
   },
   rightXPct: {
     type: Number,
@@ -110,6 +128,15 @@ export const schema: SchemaType<"SplashArtCoordinates"> = {
     optional: false,
     nullable: false,
   },
+  rightFlipped: {
+    type: Boolean,
+    canRead: ['guests'],
+    canCreate: ['sunshineRegiment', 'admins'],
+    canUpdate: ['sunshineRegiment', 'admins'],
+    optional: false,
+    nullable: false,
+    defaultValue: false,
+  }
 }
 
 export default schema;

@@ -1067,14 +1067,17 @@ interface DbSplashArtCoordinate extends DbObject {
   leftYPct: number
   leftHeightPct: number
   leftWidthPct: number
+  leftFlipped: boolean
   middleXPct: number
   middleYPct: number
   middleHeightPct: number
   middleWidthPct: number
+  middleFlipped: boolean
   rightXPct: number
   rightYPct: number
   rightHeightPct: number
   rightWidthPct: number
+  rightFlipped: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

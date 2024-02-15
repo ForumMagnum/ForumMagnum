@@ -3636,14 +3636,17 @@ interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordina
   readonly leftYPct: number,
   readonly leftHeightPct: number,
   readonly leftWidthPct: number,
+  readonly leftFlipped: boolean,
   readonly middleXPct: number,
   readonly middleYPct: number,
   readonly middleHeightPct: number,
   readonly middleWidthPct: number,
+  readonly middleFlipped: boolean,
   readonly rightXPct: number,
   readonly rightYPct: number,
   readonly rightHeightPct: number,
   readonly rightWidthPct: number,
+  readonly rightFlipped: boolean,
 }
 
 interface SplashArtCoordinates { // fragment on SplashArtCoordinates
@@ -3653,14 +3656,17 @@ interface SplashArtCoordinates { // fragment on SplashArtCoordinates
   readonly leftYPct: number,
   readonly leftHeightPct: number,
   readonly leftWidthPct: number,
+  readonly leftFlipped: boolean,
   readonly middleXPct: number,
   readonly middleYPct: number,
   readonly middleHeightPct: number,
   readonly middleWidthPct: number,
+  readonly middleFlipped: boolean,
   readonly rightXPct: number,
   readonly rightYPct: number,
   readonly rightHeightPct: number,
   readonly rightWidthPct: number,
+  readonly rightFlipped: boolean,
 }
 
 interface SuggestAlignmentComment extends CommentsList { // fragment on Comments
