@@ -19,12 +19,15 @@ const styles = (theme: ThemeType) => ({
       flexGrow: 1,
     },
   },
-  title: {
+  thanks: {
     fontSize: 40,
     fontWeight: 600,
     letterSpacing: "-0.8px",
     marginBottom: 32,
     lineHeight: "initial",
+  },
+  title: {
+    fontSize: 12,
   },
   section: {
     background: theme.palette.panelBackground.onboardingSection,
@@ -121,10 +124,10 @@ export const EAOnboardingThankYouStage = ({classes}: {
       hideFooter
     >
       <div className={classes.content}>
-        <div className={classes.title}>
+        <div className={classes.thanks}>
           Thanks for joining the discussion!
         </div>
-        <SectionTitle title="Other ways to read posts" />
+        <SectionTitle title="Other ways to read posts" className={classes.title} />
         <div className={classes.section}>
           <div>
             <div className={classes.heading}>
