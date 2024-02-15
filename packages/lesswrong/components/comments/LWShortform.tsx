@@ -107,27 +107,6 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-const PopularCommentPostLink: FC<{
-  post: NonNullable<Pick<CommentsListWithParentMetadata, "post">["post"]>,
-  classes: ClassesType<typeof styles>,
-}> = ({post, classes}) => {
-  const {isRead} = useRecordPostView(post);
-  const {PostsTooltip} = Components;
-  return (
-    <div className={classes.postTitle}>
-      <PostsTooltip postId={post._id}>
-        <Link
-          to={postGetPageUrl(post)}
-          className={classNames(classes.post, {[classes.postRead]: isRead})}
-          eventProps={{intent: 'expandPost'}}
-        >
-          {post.title}
-        </Link>
-      </PostsTooltip>
-    </div>
-  );
-}
-
 const LWShortform = ({comment, classes}: {
   comment: CommentsListWithParentMetadata | ShortformComments,
   classes: ClassesType<typeof styles>,
@@ -181,17 +160,8 @@ const LWShortform = ({comment, classes}: {
       hideKarma={comment.post?.hideCommentKarma}
     />
   );
-
-  // const postLink = comment.post && (
-  //   <PopularCommentPostLink
-  //     post={comment.post}
-  //     classes={classes}
-  //   />
-  // );
   
-  if (expanded) {
-    console.log("expanded: ", expanded);
-    return (
+  return (
       <div className={classNames(classes.expandedRoot)}>
         <CommentsNode
           treeOptions={treeOptions}
@@ -200,8 +170,6 @@ const LWShortform = ({comment, classes}: {
         />
       </div>
     );
-  }
-
   
   const commentBody = (
     <div onClick={onClickCommentBody} className={classNames(classes.bodyWrapper, { [classes.bodyCursor] : !expanded })}>
