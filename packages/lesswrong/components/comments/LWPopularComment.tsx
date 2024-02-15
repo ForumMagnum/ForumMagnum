@@ -27,13 +27,18 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
   },
   wrap: {
-    flexWrap: "wrap",
+    [theme.breakpoints.down('xs')]: {
+      flexWrap: "wrap",
+    },
     rowGap: "6px",
   },
   postTitle: {
     flexGrow: 1,
     display: "inline-block",
-    textAlign: "right",
+    [theme.breakpoints.up('sm')]: {
+      textAlign: "right",
+      marginLeft: 8,
+    },
     '& a, & a:hover, & a:active': {
       color: theme.palette.primary.main,
       '& u': {
