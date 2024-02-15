@@ -87,7 +87,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     textDecoration: "none !important",
     "&:hover": {
-      textDecoration: "underline",
+      textDecoration: "underline !important",
     },
   },
   continue: {
