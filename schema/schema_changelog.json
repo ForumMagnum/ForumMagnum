@@ -548,5 +548,10 @@
     "acceptsSchemaHash": "92b57599e36ee19757a1e763216509c5",
     "acceptedByMigration": "20240213T222700.add_notificationSubscribedUserComment_to_Users.ts",
     "timestamp": "2024-02-13T22:27:00.000Z"
+  },
+  {
+    "acceptsSchemaHash": "1cca53989f92d593c9cb80c2e9e8b5a3",
+    "acceptedByMigration": "20240215T231300.addArbitalLinkPreviewCache.ts",
+    "timestamp": "2024-02-15T23:13:00.000Z"
   }
 ]
