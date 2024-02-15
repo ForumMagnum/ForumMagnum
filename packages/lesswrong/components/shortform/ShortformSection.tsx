@@ -11,6 +11,11 @@ import {
 } from "../../lib/cookies/cookies";
 import { isLWorAF } from "../../lib/instanceSettings";
 
+// TODO RICKI:
+// Make the date a link
+// Add the shortform icon
+// Add comments
+
 const styles = (theme: ThemeType) => ({
   communityToggle: {
     userSelect: "none",
@@ -81,7 +86,7 @@ const ShortformSection = ({classes}: {
   const title = "Shortform"
 
   const {
-    ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList, SectionTitle, SectionButton, ShortformSubmitForm, ShortformThreadListHomepage,
+    ShortformList, ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList, SectionTitle, SectionButton, ShortformSubmitForm, ShortformThreadListHomepage,
   } = Components;
 
   const shortformButton = true
@@ -128,6 +133,7 @@ const ShortformSection = ({classes}: {
             className={classes.list}
           /> */}
           <ShortformThreadListHomepage className={classes.list}/>
+          <ShortformList />
         </>
       )}
     />

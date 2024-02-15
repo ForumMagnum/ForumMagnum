@@ -174,7 +174,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         SELECT DISTINCT ON ("postId") "_id"
         FROM "Comments"
         WHERE
-          CURRENT_TIMESTAMP - "postedAt" < '1 week'::INTERVAL AND
+          CURRENT_TIMESTAMP - "postedAt" < '1 year'::INTERVAL AND
           "shortform" IS NOT TRUE AND
           "baseScore" >= $1 AND
           "retracted" IS NOT TRUE AND
