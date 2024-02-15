@@ -44,8 +44,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginBottom: 24,
   },
   pageHeaderText: {
-    fontSize: 28,
-    fontWeight: "600",
+    fontSize: 32,
+    fontWeight: "700",
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
   },
@@ -181,7 +181,7 @@ const AnalyticsPostItem = ({ post, classes }: { post: PostAnalytics2Result; clas
           {timeFromNow}
           {ago}
           {" · "}
-          <Link to={postAnalyticsLink}>view detailed stats</Link>
+          <Link to={postAnalyticsLink}>View detailed stats</Link>
         </div>
       </div>
       <div className={classes.valueCell}>{post.views.toLocaleString()}</div>
