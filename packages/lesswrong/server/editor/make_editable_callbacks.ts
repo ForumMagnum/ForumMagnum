@@ -88,7 +88,7 @@ export async function buildRevision({ originalContents, currentUser, dataWithDis
 
   const { data, type } = originalContents;
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
-  const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
+  const html = await dataToHTML(readerVisibleData, type, { sanitize: !currentUser.isAdmin })
   const wordCount = await dataToWordCount(readerVisibleData, type)
 
   return {
@@ -136,7 +136,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents
       const commitMessage = doc[fieldName].commitMessage;
-      const html = await dataToHTML(data, type, !currentUser.isAdmin)
+      const html = await dataToHTML(data, type, { sanitize: !currentUser.isAdmin })
       const wordCount = await dataToWordCount(data, type)
       const version = getInitialVersion(doc)
       const userId = currentUser._id
@@ -213,7 +213,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       delete docData[fieldName].dataWithDiscardedSuggestions
 
       const readerVisibleData = dataWithDiscardedSuggestions ?? data
-      const html = await dataToHTML(readerVisibleData, type, !currentUser.isAdmin)
+      const html = await dataToHTML(readerVisibleData, type, { sanitize: !currentUser.isAdmin })
       const wordCount = await dataToWordCount(readerVisibleData, type)
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
       // When a document is undrafted for the first time, we ensure that this constitutes a major update

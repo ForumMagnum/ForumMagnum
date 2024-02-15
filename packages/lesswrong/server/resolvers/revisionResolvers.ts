@@ -223,7 +223,7 @@ defineMutation({
 
     const [previousRev, html] = await Promise.all([
       getLatestRev(postId, postContentsFieldName),
-      dataToHTML(contents.value, contents.type, !currentUser.isAdmin)
+      dataToHTML(contents.value, contents.type, { sanitize: !currentUser.isAdmin })
     ]);
 
     const nextVersion = getNextVersion(previousRev, updateSemverType, post.draft);
