@@ -252,6 +252,7 @@ importComponent("ForumDropdown", () => require('../components/common/ForumDropdo
 importComponent("ForumDropdownMultiselect", () => require('../components/common/ForumDropdownMultiselect'));
 importComponent("WrappedStrawPoll", () => require('../components/common/WrappedStrawPoll'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
+importComponent("LWPopularCommentsSection", () => require('../components/common/LWPopularCommentsSection'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
 importComponent("RevisionSelect", () => require('../components/revisions/RevisionSelect'));
@@ -459,6 +460,8 @@ importComponent("LocalgroupPageTitle", () => require('../components/titles/Local
 importComponent("PostsAnnualReviewMarketTag", () => require('../components/posts/PostsAnnualReviewMarketTag'));
 
 importComponent("ShortformPage", () => require('../components/shortform/ShortformPage'));
+importComponent("ShortformList", () => require('../components/shortform/ShortformList'));
+importComponent("LWShortform", () => require('../components/comments/LWShortform'));
 importComponent("ShortformThreadList", () => require('../components/shortform/ShortformThreadList'));
 importComponent("ShortformThreadListHomepage", () => require('../components/shortform/ShortformThreadListHomepage'));
 importComponent("RepliesToCommentList", () => require('../components/shortform/RepliesToCommentList'));
@@ -643,6 +646,7 @@ importComponent("ShowParentComment", () => require('../components/comments/ShowP
 importComponent("NewUserGuidelinesDialog", () => require('../components/comments/NewUserGuidelinesDialog'));
 importComponent("PopularCommentsList", () => require('../components/comments/PopularCommentsList'));
 importComponent("PopularComment", () => require('../components/comments/PopularComment'));
+importComponent("LWPopularComment", () => require('../components/comments/LWPopularComment'));
 
 importComponent("PostsListEditorSearchHit", () => require('../components/search/PostsListEditorSearchHit'));
 importComponent("PostsSearchHit", () => require('../components/search/PostsSearchHit'));

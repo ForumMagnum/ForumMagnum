@@ -14,12 +14,14 @@ import Button from "@material-ui/core/Button";
 import classNames from "classnames";
 import { isFriendlyUI } from "../../themes/forumTheme";
 
+const getBorderRadius = (theme: ThemeType) => isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small;
+
 const styles = (theme: ThemeType) => ({
   ...editorStyles(theme),
   ...buttonStyles(theme),
   root: {
     background: theme.palette.panelBackground.default,
-    borderRadius: theme.borderRadius.default,
+    borderRadius: getBorderRadius(theme),
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: 12,
     border: `1px solid ${theme.palette.grey[200]}`,
@@ -27,8 +29,8 @@ const styles = (theme: ThemeType) => ({
   commentEditor: {
     padding: "1px 10px",
     background: theme.palette.grey[100],
-    borderTopLeftRadius: theme.borderRadius.default,
-    borderTopRightRadius: theme.borderRadius.default,
+    borderTopLeftRadius: getBorderRadius(theme),
+    borderTopRightRadius: getBorderRadius(theme),
     "& .ck-placeholder::before": {
       color: theme.palette.grey[600],
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -42,8 +44,8 @@ const styles = (theme: ThemeType) => ({
   collapsed: {
     height: 40,
     overflow: "hidden",
-    borderBottomLeftRadius: theme.borderRadius.default,
-    borderBottomRightRadius: theme.borderRadius.default,
+    borderBottomLeftRadius: getBorderRadius(theme),
+    borderBottomRightRadius: getBorderRadius(theme),
   },
   editorButtonContainer: {
     background: theme.palette.grey[100],

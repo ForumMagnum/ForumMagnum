@@ -3,6 +3,8 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePaginatedResolver } from "../hooks/usePaginatedResolver";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { useCurrentUser } from "../common/withUser";
+import { useMulti } from "../../lib/crud/withMulti";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -16,22 +18,40 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
-  const {loadMoreProps, results} = usePaginatedResolver({
-    fragmentName: "CommentsListWithParentMetadata",
-    resolverName: "PopularComments",
-    limit: 3,
+const ShortformList = ({classes}: {classes: ClassesType}) => {
+  // const {loadMoreProps, results} = usePaginatedResolver({
+  //   fragmentName: "CommentsListWithParentMetadata",
+  //   resolverName: "PopularComments",
+  //   limit: 3,
+  //   itemsPerPage: 5,
+  // });
+
+  const maxAgeDays = 30; // pass this in instead
+  const currentUser = useCurrentUser();
+  const {
+    results,
+    loading,
+    showLoadMore,
+    loadMoreProps, 
+    refetch
+  } = useMulti({
+    terms: {
+      view: "shortformFrontpage",
+      limit: 3,
+      maxAgeDays,
+    },
+    collectionName: "Comments",
+    fragmentName: "ShortformComments",
     itemsPerPage: 5,
   });
 
-  const {LoadMore, PopularComment, LWPopularComment} = Components;
+  const {LoadMore, LWShortform} = Components;
 
-  const CommentComponent = isFriendlyUI ? PopularComment : LWPopularComment;
   return (
     <AnalyticsContext pageSectionContext="popularCommentsList">
       <div className={classes.root}>
         {results?.map((comment) =>
-          <CommentComponent
+          <LWShortform
             key={comment._id}
             comment={comment}
           />
@@ -42,14 +62,14 @@ const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
   );
 }
 
-const PopularCommentsListComponent = registerComponent(
-  "PopularCommentsList",
-  PopularCommentsList,
+const ShortformListComponent = registerComponent(
+  "ShortformList",
+  ShortformList,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    PopularCommentsList: typeof PopularCommentsListComponent
+    ShortformList: typeof ShortformListComponent
   }
 }

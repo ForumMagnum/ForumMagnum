@@ -99,23 +99,29 @@ const ShortformSubmitForm = ({
     );
   }
 
-  return (
-    <div className={classNames(className, {[classes.root]: !noDefaultStyles})}>
-      <CommentsNewForm
-        prefilledProps={{
-          ...prefilledProps,
-          shortform: true,
-        }}
-        successCallback={successCallback}
-        cancelCallback={cancelCallback}
-        // Put in "reply" to make the cancel button appear
-        type={cancelCallback ? "reply" : "comment"}
-        formProps={{
-          editorHintText: forumSelect(forumHintText)
-        }}
-      />
-    </div>
-  );
+  return <QuickTakesEntry
+    currentUser={currentUser}
+    successCallback={successCallback}
+    cancelCallback={cancelCallback}
+  />;
+
+  // return (
+  //   <div className={classNames(className, {[classes.root]: !noDefaultStyles})}>
+  //     <CommentsNewForm
+  //       prefilledProps={{
+  //         ...prefilledProps,
+  //         shortform: true,
+  //       }}
+  //       successCallback={successCallback}
+  //       cancelCallback={cancelCallback}
+  //       // Put in "reply" to make the cancel button appear
+  //       type={cancelCallback ? "reply" : "comment"}
+  //       formProps={{
+  //         editorHintText: forumSelect(forumHintText)
+  //       }}
+  //     />
+  //   </div>
+  // );
 }
 
 const ShortformSubmitFormComponent = registerComponent('ShortformSubmitForm', ShortformSubmitForm, {styles});
