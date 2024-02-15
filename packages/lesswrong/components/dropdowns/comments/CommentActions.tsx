@@ -2,6 +2,8 @@ import React from 'react';
 import { registerComponent, Components } from '../../../lib/vulcan-lib';
 import { userGetDisplayName, userCanModeratePost } from '../../../lib/collections/users/helpers';
 import { useSingle } from '../../../lib/crud/withSingle';
+import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
+import { allowSubscribeToUserComments } from '../../../lib/betas';
 
 const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
   currentUser: UsersCurrent, // Must be logged in
@@ -63,8 +65,8 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
       />
       <NotifyMeDropdownItem
         document={comment}
-        subscribeMessage="Subscribe to comment replies"
-        unsubscribeMessage="Unsubscribe from comment replies"
+        subscribeMessage={`Subscribe to ${allowSubscribeToUserComments ? "this comment's" : "comment"} replies`}
+        unsubscribeMessage={`Unsubscribe from ${allowSubscribeToUserComments ? "this comment's" : "comment"} replies`}
       />
       <NotifyMeDropdownItem
         document={comment.user}
@@ -72,6 +74,13 @@ const CommentActions = ({currentUser, comment, post, tag, showEdit}: {
         subscribeMessage={"Subscribe to posts by " + userGetDisplayName(comment.user)}
         unsubscribeMessage={"Unsubscribe from posts by " + userGetDisplayName(comment.user)}
       />
+      {allowSubscribeToUserComments && <NotifyMeDropdownItem
+        document={comment.user}
+        enabled={enableSubscribeToCommentUser}
+        subscribeMessage={"Subscribe to all comments by " + userGetDisplayName(comment.user)}
+        unsubscribeMessage={"Unsubscribe from all comments by " + userGetDisplayName(comment.user)}
+        subscriptionType={subscriptionTypes.newUserComments}
+      />}
       <ReportCommentDropdownItem comment={comment} post={post} />
       <MoveToAlignmentCommentDropdownItem comment={comment} post={postDetails} />
       <SuggestAlignmentCommentDropdownItem comment={comment} post={postDetails} />

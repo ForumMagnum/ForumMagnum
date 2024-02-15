@@ -7,14 +7,14 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, isAF} from '../../../lib/instanceSettings';
+import {forumTitleSetting, isAF, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
+import { postPageFixedDigestAd, welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -33,6 +33,7 @@ import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema
 import isEqual from 'lodash/isEqual';
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
+import NoSSR from 'react-no-ssr';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 
 export const MAX_COLUMN_WIDTH = 720
@@ -285,7 +286,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 5,
     display: "flex",
     justifyContent: "center",
-  }
+  },
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -316,6 +317,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
+  const [showDigestAd, setShowDigestAd] = useState(false)
   const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
 
   const { captureEvent } = useTracking();
@@ -341,7 +343,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
 
-  // On the EA Forum, show a reading progress bar to indicate how far in the post you are.
+  // For friendly sites, show a reading progress bar to indicate how far in the post you are.
   // Your progress is hard to tell via the scroll bar because it includes the comments section.
   const postBodyRef = useRef<HTMLDivElement|null>(null)
   const readingProgressBarRef = useRef<HTMLDivElement|null>(null)
@@ -365,6 +367,24 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     const scrollPercent = (1 - (postBodyBottomPos / totalHeight)) * 100
 
     readingProgressBarRef.current.style.setProperty("--scrollAmount", `${scrollPercent}%`)
+  }
+  
+  // On the EA Forum, show a digest ad at the bottom of the screen after the user scrolled down.
+  const digestAdAbTestGroup = useABTest(postPageFixedDigestAd);
+  useEffect(() => {
+    if (!isEAForum || isServer || post.isEvent || post.question || post.shortform || digestAdAbTestGroup !== 'show') return
+
+    checkShowDigestAd()
+    window.addEventListener('scroll', checkShowDigestAd)
+
+    return () => {
+      window.removeEventListener('scroll', checkShowDigestAd)
+    };
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const checkShowDigestAd = () => {
+    if (digestAdAbTestGroup !== 'show') return
+    // Ad stays visible once shown
+    setShowDigestAd((showAd) => showAd || window.scrollY > 1000)
   }
 
   const getSequenceId = () => {
@@ -455,7 +475,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
     PostBottomRecommendations, NotifyMeDropdownItem, Row,
     AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
-    CommentsListSection, CommentsTableOfContents
+    CommentsListSection, CommentsTableOfContents, StickyDigestAd
   } = Components
 
   useEffect(() => {
@@ -731,7 +751,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       highlightDate={highlightDate ?? undefined}
     />
 
-  return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
+  return (
+  <AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
@@ -762,6 +783,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </ToCColumn>
     }
   
+    {isEAForum && showDigestAd && <NoSSR><StickyDigestAd /></NoSSR>}
     {hasPostRecommendations && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
@@ -770,7 +792,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>
     </PostsPageContext.Provider>
-  </AnalyticsContext>);
+  </AnalyticsContext>
+  );
 }
 
 export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>
