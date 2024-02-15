@@ -11,7 +11,6 @@ import classNames from "classnames";
 import moment from "moment";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { commentBodyStyles } from "../../themes/stylePiping";
-import { isLWorAF } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType) => ({
   root: {

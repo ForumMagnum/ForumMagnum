@@ -12,9 +12,9 @@ import {
 import { isLWorAF } from "../../lib/instanceSettings";
 
 // TODO RICKI:
-// Make the date a link
-// Add the shortform icon
-// Add comments
+// Make the date a link (in unexpanded version)
+// Add the shortform icon (to unexpanded version)
+// Clear up all the code we're not using
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
