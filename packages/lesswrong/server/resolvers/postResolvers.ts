@@ -170,7 +170,7 @@ augmentFieldsDict(Posts, {
         const comments: CommentForSideComments[] = await Comments.find({
           ...getDefaultViewSelector("Comments"),
           postId: post._id,
-          ...(cache && {
+          ...(cacheIsValid && {
             _id: {$in: Object.values(cache.commentsByBlock).flat()},
           }),
         }, {
