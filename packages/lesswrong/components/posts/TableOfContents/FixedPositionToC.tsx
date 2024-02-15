@@ -110,7 +110,6 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
-    flexGrow: 1,
     '--scrollAmount': '0%',
     marginRight: -4,
     paddingLeft: 4,
