@@ -279,6 +279,19 @@ export const NewPostNotification = registerNotificationType({
   Display: ({User, Post}) => <><User /> created a new post <Post /></>,
 });
 
+export const NewUserCommentNotification = registerNotificationType({
+  name: "newUserComment",
+  userSettingField: "notificationSubscribedUserComment",
+  async getMessage({documentType, documentId}: GetMessageProps) {
+    let document: DbComment = await getDocument(documentType, documentId) as DbComment;
+    return await commentGetAuthorName(document) + ' left a new comment on the post ' + await getCommentParentTitle(document);
+  },
+  getIcon() {
+    return <CommentsIcon style={iconStyles}/>
+  },
+  Display: ({User, Comment}) => <><User /> left a new <Comment /></>,
+});
+
 // Vulcan notification that we don't really use
 export const PostApprovedNotification = registerNotificationType({
   name: "postApproved",

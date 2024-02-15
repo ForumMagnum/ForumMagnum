@@ -3,6 +3,7 @@ import { foreignKeyField, schemaDefaultValue } from '../../utils/schemaUtils'
 
 export const subscriptionTypes = {
   newComments: 'newComments',
+  newUserComments: 'newUserComments',
   newShortform: 'newShortform',
   newPosts: 'newPosts',
   newRelatedQuestions: 'newRelatedQuestions',
