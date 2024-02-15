@@ -423,43 +423,39 @@ function normalizeFootnotes(htmlString: string): string {
   // Find all backlinks in the document
   const backLinks: Record<string, { item: cheerio.Cheerio; id: string }> = {};
   $('a[id]').each((_, element) => {
-    if ('attribs' in element) {
-      const match = element.attribs.id.match(backLinkPattern);
-      if (match) {
-        const index = match[1];
-        backLinks[index] = {
-          item: $(element),
-          id: Math.random().toString(36).slice(2),
-        };
-      }
+    const match = element.attribs.id.match(backLinkPattern);
+    if (match) {
+      const index = match[1];
+      backLinks[index] = {
+        item: $(element),
+        id: Math.random().toString(36).slice(2),
+      };
     }
   });
 
   // Find all references and match them with backlinks
   const references: Record<string, { item: cheerio.Cheerio; id: string }> = {};
   $('a[id]').each((_, element) => {
-    if ('attribs' in element) {
-      const match = element.attribs.id.match(referencePattern);
-      if (match) {
-        const index = match[1];
-        if (backLinks.hasOwnProperty(index)) {
-          references[index] = {
-            item: $(element),
-            id: backLinks[index].id,
-          };
-        }
+    const match = element.attribs.id.match(referencePattern);
+    if (match) {
+      const index = match[1];
+      if (backLinks.hasOwnProperty(index)) {
+        references[index] = {
+          item: $(element),
+          id: backLinks[index].id,
+        };
       }
     }
   });
 
-  // Normalize the references by adding attributes
+  // Normalize the references by adding attributes and replacing the original <sup> tag
   Object.entries(references).forEach(([index, { item, id }]) => {
     item.attr('data-footnote-reference', '');
     item.attr('data-footnote-index', index);
     item.attr('data-footnote-id', id);
     item.attr('role', 'doc-noteref');
+    item.parents('sup').replaceWith(item); // Replace the original <sup> tag with `item`
     item.wrap(`<span class="footnote-reference" id="fnref${id}"></span>`);
-    item.parent().prepend(`<sup></sup>`);
     item.text(`[${index}]`);
   });
 
@@ -470,36 +466,62 @@ function normalizeFootnotes(htmlString: string): string {
 
   // Normalize the backlinks and wrap them in new elements
   Object.entries(backLinks).forEach(([index, { item, id }]) => {
-    const footnoteContent = item.closest('.footnote-content');
-    if (footnoteContent.length === 0) return;
+    let footnoteContent = item.closest('.footnote-content');
+    if (footnoteContent.length === 0) {
+      footnoteContent = $('<div class="footnote-content"></div>').append(item.next('span').clone());
+      item.next('span').remove();
+    }
+
+    // Remove the original backlink
+    item.remove();
 
     const newFootnoteBackLink = $('<span class="footnote-back-link" data-footnote-back-link="" data-footnote-id="' + id + '"><sup><strong><a href="#fnref' + id + '">^</a></strong></sup></span>');
 
     const newFootnoteContent = $('<div class="footnote-content" data-footnote-content="" data-footnote-id="' + id + '" data-footnote-index="' + index + '"></div>');
-    // Clone the contents of the footnote, excluding the backlink
-    footnoteContent.children().each((_, child) => {
-      if ('attribs' in child && child !== item.get(0)) {
-        newFootnoteContent.append($(child).clone());
-      }
-    });
+    newFootnoteContent.append(footnoteContent.contents());
 
     const newFootnoteItem = $('<li class="footnote-item" data-footnote-item="" data-footnote-id="' + id + '" data-footnote-index="' + index + '" role="doc-endnote" id="fn' + id + '"></li>');
     newFootnoteItem.append(newFootnoteBackLink);
     newFootnoteItem.append(newFootnoteContent);
 
-    // Add the new footnote item to the footnotes section
+    // Append the new footnote item to the footnotes section
     $('.footnote-section').append(newFootnoteItem);
-
-    // Remove the old footnote content
-    footnoteContent.remove();
   });
+
+  // The changes so far leave over a stub like so:
+  // <hr />
+  //   <div>
+  //     <p></p>
+  //   </div>
+  //   <div>
+  //     <p></p>
+  //   </div>
+  // <ol class=\"footnotes\" role=\"doc-endnotes\">
+  // Remove everything from the <hr /> to the footnotes section
+  const footnotesSection = $('.footnote-section');
+  const hrBeforeFootnotes = footnotesSection.prevAll('hr').last();
+  if (hrBeforeFootnotes.length) {
+    hrBeforeFootnotes.nextUntil('.footnote-section').each((_, element) => {
+      const div = $(element);
+      if (div.is('div') && div.text().trim() === '') {
+        div.remove();
+      }
+    });
+    hrBeforeFootnotes.remove();
+  }
 
   // Serialize the Cheerio object back to an HTML string
   return $.html();
 }
 
 /**
- * TODO footnotes
+ * - [ ] Footnotes
+ *   - [X] Basically working
+ *   - [ ] Make bullets in footnotes fail sensibly
+ * - [ ] Remove colors from
+ *   - [ ] Spans
+ *   - [ ] Tables
+ * - [ ] Make indented bullet lists work
  * TODO remove redirect
  */
 export async function convertImportedGoogleDoc(html: string) {

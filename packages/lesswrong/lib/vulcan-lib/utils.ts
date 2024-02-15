@@ -321,6 +321,17 @@ export const sanitize = function(s: string): string {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
+      // TODO make the footnote stuff here more readable
+      '*': [
+        'data-footnote-content',
+        'data-footnote-id',
+        'data-footnote-index',
+        'data-footnote-item',
+        'data-footnote-reference',
+        'data-footnote-section',
+        'data-footnote-back-link',
+        'data-footnote-back-link-href',
+      ],
       audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],
@@ -381,6 +392,15 @@ export const sanitize = function(s: string): string {
       'calendly.com'
     ],
     allowedClasses: {
+      '*': [
+        "footnote-content",
+        "footnote-item",
+        "footnote-reference",
+        "footnote-section",
+        "footnote-back-link",
+        "footnotes",
+        "hidden",
+      ],
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
       div: [
         'spoilers',
@@ -401,7 +421,7 @@ export const sanitize = function(s: string): string {
         'ck-cta-button-centered'
       ],
       iframe: [ 'thoughtSaverFrame' ],
-      ol: [ 'footnotes' ],
+      ol: [ 'footnotes', 'footnote-section' ],
       li: [ 'footnote-item' ],
     },
     allowedStyles: {
