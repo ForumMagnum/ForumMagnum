@@ -195,6 +195,7 @@ importComponent("TagRelNotificationItem", () => require('../components/notificat
 importComponent("NotificationsItem", () => require('../components/notifications/NotificationsItem'));
 importComponent("NotificationsMenuButton", () => require('../components/notifications/NotificationsMenuButton'));
 importComponent("NotifyMeButton", () => require('../components/notifications/NotifyMeButton'));
+importComponent("UserNotifyDropdown", () => require('../components/notifications/UserNotifyDropdown'));
 importComponent("NotificationTypeSettings", () => require('../components/notifications/NotificationTypeSettings'));
 importComponent("NotificationEmailPreviewPage", () => require('../components/notifications/NotificationEmailPreviewPage'));
 importComponent("EmailPreview", () => require('../components/notifications/EmailPreview'));
@@ -251,6 +252,7 @@ importComponent("SingleLineFeedEvent", () => require('../components/common/Singl
 importComponent("ForumDropdown", () => require('../components/common/ForumDropdown'));
 importComponent("ForumDropdownMultiselect", () => require('../components/common/ForumDropdownMultiselect'));
 importComponent("WrappedStrawPoll", () => require('../components/common/WrappedStrawPoll'));
+importComponent("ToggleSwitch", () => require('../components/common/ToggleSwitch'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));

@@ -247,7 +247,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
-    ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks, ForumIcon
+    ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks, UserNotifyDropdown
   } = Components
 
   if (loading) {
@@ -482,6 +482,9 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
               subscribeMessage="Subscribe to posts"
               unsubscribeMessage="Unsubscribe"
               asButton
+            />
+            <UserNotifyDropdown
+              user={user}
             />
           </div>}
           <EAUsersProfileLinks user={user} />

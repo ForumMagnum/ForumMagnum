@@ -98,21 +98,24 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classes, className}: {
+const ForumDropdownMultiselect = ({label, values, options, queryParam, onSelect, selectedIcon="check", classes, className}: {
+  /** If given, this will be the label used, otherwise it will be a list of the selected items */
+  label?: string | React.ReactNode
   values: string[],
   options: Record<string, SettingsOption>,
   queryParam?: string,
   onSelect?: (value: string) => void,
+  selectedIcon?: "check" | "toggle",
   classes: ClassesType,
   className?: string,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const label = values.reduce((prev, next) => {
+  const displayLabel = label ?? values.reduce((prev, next) => {
     const nextLabel = options[next].shortLabel || options[next].label
     if (!prev) return nextLabel
     return `${prev}, ${nextLabel}`
   }, '')
-  const { MenuItem, ForumIcon } = Components;
+  const { MenuItem, ForumIcon, ToggleSwitch } = Components;
 
   const dropdownIcon = isFriendlyUI ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
   return (
@@ -124,7 +127,7 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classe
         }}
         className={classNames(classes.button, { [classes.openButton]: Boolean(anchorEl) })}
       >
-        {label} {dropdownIcon}
+        {displayLabel} {dropdownIcon}
       </Button>
       <Menu open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} className={classNames(classes.menu, {[classes.menuNoQueryParam]: !queryParam})}>
         {Object.keys(options).map((option) => {
@@ -141,7 +144,9 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classe
             {values.includes(option) && isFriendlyUI && (
               <>
                 <div className={classes.padding}></div>
-                <ForumIcon icon="Check" className={classes.selectedIcon} />
+                {selectedIcon === "check" ?
+                  <ForumIcon icon="Check" className={classes.selectedIcon} /> 
+                  : <ToggleSwitch value={true} setValue={() => {}} className={classes.selectedIcon} />}
               </>
             )}
           </MenuItem>
