@@ -1,5 +1,4 @@
-import { createTable, dropRemovedField, dropTable } from "./meta/utils";
-import { addRemovedField } from "./meta/utils";
+import { createTable, addRemovedField, dropRemovedField, dropTable } from "./meta/utils";
 import { JsonType } from "../../lib/sql/Type";
 import SideCommentCaches from "../../lib/collections/sideCommentCaches/collection";
 import Posts from "../../lib/collections/posts/collection";
