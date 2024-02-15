@@ -413,36 +413,41 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string) {
   return bestWordCount
 }
 
-function normalizeFootnotes(htmlString: string): string {
-  const $ = cheerio.load(htmlString);
+function googleDocConvertFootnotes(html: string): string {
+  const $ = cheerio.load(html);
 
-  // Define the patterns to match footnote references and backlinks
-  const backLinkPattern = /^ftnt(\d+)$/;
-  const referencePattern = /^ftnt_ref(\d+)$/;
+  const footnotePattern = /^ftnt(\d+)$/; // The actual footnotes at the bottom of the doc
+  const referencePattern = /^ftnt_ref(\d+)$/; // The links to the footnotes in the main text
 
-  // Find all backlinks in the document
-  const backLinks: Record<string, { item: cheerio.Cheerio; id: string }> = {};
+  const footnotes: Record<string, { item: cheerio.Cheerio; id: string }> = {};
   $('a[id]').each((_, element) => {
-    const match = element.attribs.id.match(backLinkPattern);
+    if (!('attribs' in element)) return
+
+    const match = element.attribs.id.match(footnotePattern);
     if (match) {
       const index = match[1];
-      backLinks[index] = {
+      footnotes[index] = {
         item: $(element),
         id: Math.random().toString(36).slice(2),
       };
     }
   });
 
-  // Find all references and match them with backlinks
+  if (Object.keys(footnotes).length === 0) {
+    return $.html();
+  }
+
   const references: Record<string, { item: cheerio.Cheerio; id: string }> = {};
   $('a[id]').each((_, element) => {
+    if (!('attribs' in element)) return
+
     const match = element.attribs.id.match(referencePattern);
     if (match) {
       const index = match[1];
-      if (backLinks.hasOwnProperty(index)) {
+      if (footnotes.hasOwnProperty(index)) {
         references[index] = {
           item: $(element),
-          id: backLinks[index].id,
+          id: footnotes[index].id,
         };
       }
     }
@@ -459,20 +464,25 @@ function normalizeFootnotes(htmlString: string): string {
     item.text(`[${index}]`);
   });
 
-  // Create the footnotes section if it doesn't exist
-  if ($('.footnote-section').length === 0) {
-    $('body').append('<ol class="footnote-section footnotes" data-footnote-section="" role="doc-endnotes"></ol>');
-  }
+  // Create the footnotes section
+  $('body').append('<ol class="footnote-section footnotes" data-footnote-section="" role="doc-endnotes"></ol>');
 
-  // Normalize the backlinks and wrap them in new elements
-  Object.entries(backLinks).forEach(([index, { item, id }]) => {
+  // Normalize the footnotes and put them in the newly created section
+  Object.entries(footnotes).forEach(([index, { item, id }]) => {
     let footnoteContent = item.closest('.footnote-content');
     if (footnoteContent.length === 0) {
       footnoteContent = $('<div class="footnote-content"></div>').append(item.next('span').clone());
       item.next('span').remove();
     }
 
-    // Remove the original backlink
+    // Replace bullets in footnotes with regular <p> elements
+    const listParent = footnoteContent.find('li').parent('ul, ol');
+    listParent.children('li').each((_, liElement) => {
+      const liContent = $(liElement).html();
+      $(liElement).replaceWith(`<p>${liContent}</p>`);
+    });
+    listParent.remove();
+
     item.remove();
 
     const newFootnoteBackLink = $('<span class="footnote-back-link" data-footnote-back-link="" data-footnote-id="' + id + '"><sup><strong><a href="#fnref' + id + '">^</a></strong></sup></span>');
@@ -493,10 +503,9 @@ function normalizeFootnotes(htmlString: string): string {
   //   <div>
   //     <p></p>
   //   </div>
-  //   <div>
-  //     <p></p>
-  //   </div>
+  //   ...
   // <ol class=\"footnotes\" role=\"doc-endnotes\">
+  //
   // Remove everything from the <hr /> to the footnotes section
   const footnotesSection = $('.footnote-section');
   const hrBeforeFootnotes = footnotesSection.prevAll('hr').last();
@@ -510,23 +519,55 @@ function normalizeFootnotes(htmlString: string): string {
     hrBeforeFootnotes.remove();
   }
 
-  // Serialize the Cheerio object back to an HTML string
+  return $.html();
+}
+
+/**
+ * Remote the google redirect from links that come from google docs
+ *
+ * https://www.google.com/url?q=https://en.wikipedia.org/wiki/Main_Page becomes https://en.wikipedia.org/wiki/Main_Page
+ */
+function googleDocRemoveRedirects(html: string): string {
+  const $ = cheerio.load(html);
+
+  // Regex match examples:
+  // https://www.google.com/url?q=https://en.wikipedia.org/wiki/Main_Page&sa=D&source=editors&ust=1667922372715536&usg=AOvVaw2NyT5CZhfsrRY_zzMs2UUJ
+  //                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ <- first match group matches this, stopping at the first &
+  // https://www.google.com/url?q=https://en.wikipedia.org/wiki/Main_Page
+  //                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ <- if there are no more params (no &), match up to the end of the string
+  const hrefPattern = /^https:\/\/www\.google\.com\/url\?q=(\S+?)(\&|$)/;
+
+  // Select all anchor elements with an href attribute
+  $('a[href]').each((_, element) => {
+    const href = $(element).attr('href');
+    if (!href) return
+
+    // Test if the href matches the Google redirect pattern
+    const match = hrefPattern.exec(href);
+    if (match && match[1]) {
+      // Replace the href attribute with the captured URL
+      $(element).attr('href', decodeURIComponent(match[1]));
+    }
+  });
+
+  // Return the transformed HTML
   return $.html();
 }
 
 /**
  * - [ ] Footnotes
  *   - [X] Basically working
- *   - [ ] Make bullets in footnotes fail sensibly
+ *   - [ ] Use entire div as footnote rather than just <a>
+ *   - [ ] Make bullets in footnotes fail sensibly (or at least match how the copy paste version works)
+ * - [X] Remove redirects
  * - [ ] Remove colors from
  *   - [ ] Spans
  *   - [ ] Tables
- * - [ ] Make indented bullet lists work
- * TODO remove redirect
  */
 export async function convertImportedGoogleDoc(html: string) {
-  const withNormalisedFootnotes = normalizeFootnotes(html)
-  const ckEditorMarkup = await dataToCkEditor(withNormalisedFootnotes, "html")
+  const withConvertedFootnotes = googleDocConvertFootnotes(html)
+  const withNormalisedRedirects = googleDocRemoveRedirects(withConvertedFootnotes)
+  const ckEditorMarkup = await dataToCkEditor(withNormalisedRedirects, "html")
 
   return ckEditorMarkup
 }
