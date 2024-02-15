@@ -44,11 +44,15 @@ const styles = (theme: ThemeType) => ({
     border: `3px solid ${theme.palette.primary.dark}`,
   },
   nameSelected: {
+    backgroundColor: theme.palette.tag.onboardingBackgroundSelected,
     borderColor: theme.palette.panelBackground.modalBackground,
     padding: 6,
     margin: 2,
     width: TAG_SIZE - 4,
     height: TAG_SIZE - 4,
+    "&:hover": {
+      backgroundColor: theme.palette.tag.onboardingBackground,
+    },
   },
   check: {
     position: "absolute",

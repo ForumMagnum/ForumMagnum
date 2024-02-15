@@ -398,6 +398,7 @@ declare global {
       addTagButtonBackground: ColorString,
       onboardingBackground: ColorString,
       onboardingBackgroundHover: ColorString,
+      onboardingBackgroundSelected: ColorString,
     },
     geosuggest: {
       dropdownBackground: ColorString,
