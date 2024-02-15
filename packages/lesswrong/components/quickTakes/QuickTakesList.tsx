@@ -41,21 +41,21 @@ const QuickTakesList = ({showCommunity, tagId, maxAgeDays, className, classes}: 
   });
   const {LWShortform, QuickTakesListItem, Loading, SectionFooter, LoadMore} = Components;
 
-  if (isLWorAF) {
-    return (
-      <AnalyticsContext pageSectionContext="shortformList">
-        <div className={classes.root}>
-          {results?.map((comment) =>
-            <LWShortform
-              key={comment._id}
-              comment={comment}
-            />
-          )}
-          <LoadMore {...loadMoreProps} />
-        </div>
-      </AnalyticsContext>
-    ); 
-  }
+  // if (isLWorAF) {
+  //   return (
+  //     <AnalyticsContext pageSectionContext="shortformList">
+  //       <div className={classes.root}>
+  //         {results?.map((comment) =>
+  //           <LWShortform
+  //             key={comment._id}
+  //             comment={comment}
+  //           />
+  //         )}
+  //         <LoadMore {...loadMoreProps} />
+  //       </div>
+  //     </AnalyticsContext>
+  //   ); 
+  // }
 
   return (
     <div className={className}>

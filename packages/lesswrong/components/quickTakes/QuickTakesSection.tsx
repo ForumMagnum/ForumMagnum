@@ -10,6 +10,7 @@ import {
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
 } from "../../lib/cookies/cookies";
 import { isLWorAF } from "../../lib/instanceSettings";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
@@ -30,6 +31,10 @@ const styles = (theme: ThemeType) => ({
   },
   list: {
     marginTop: 4,
+    ...(isFriendlyUI ? {} : {
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      fontSize: '1.16rem',
+    })
   },
 });
 
@@ -93,7 +98,7 @@ const QuickTakesSection = ({classes}: {
           
           <QuickTakesList
             showCommunity={isLWorAF ? undefined : showCommunity}
-            className={isLWorAF ? undefined : classes.list}
+            className={classes.list}
             maxAgeDays={isLWorAF ? 30 : undefined}
           />
         </>

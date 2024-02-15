@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useTracking } from "../../lib/analyticsEvents";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
@@ -21,7 +22,9 @@ const QuickTakesListItem = ({quickTake, classes}: {
     captureEvent(value ? "shortformItemExpanded" : "shortformItemCollapsed");
   }, [captureEvent, setExpanded]);
 
-  const {CommentsNode, QuickTakesCollapsedListItem} = Components;
+  const {CommentsNode, QuickTakesCollapsedListItem, LWQuickTakesCollapsedListItem} = Components;
+
+  const CollapsedListItem = isFriendlyUI ? QuickTakesCollapsedListItem : LWQuickTakesCollapsedListItem;
   return expanded
     ? (
       <div className={classes.expandedRoot}>
@@ -39,7 +42,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
       </div>
     )
     : (
-      <QuickTakesCollapsedListItem
+      <CollapsedListItem
         quickTake={quickTake}
         setExpanded={wrappedSetExpanded}
       />
