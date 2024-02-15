@@ -87,7 +87,7 @@ const QuickTakesSection = ({classes}: {
       )}
       Content={() => (
         <>
-          {!isLWorAF && userCanComment(currentUser) &&
+          {userCanComment(currentUser) &&
             <QuickTakesEntry currentUser={currentUser} />
           }
           
