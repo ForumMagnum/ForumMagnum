@@ -344,8 +344,8 @@ export const shouldSubmitContents = (editorRef: Editor) => {
 }
 
 export class Editor extends Component<EditorProps,EditorComponentState> {
-  throttledSetCkEditor: any
-  debouncedCheckMarkdownImgErrs: any
+  throttledSetCkEditor;
+  debouncedCheckMarkdownImgErrs;
   debouncedValidateEditor: typeof this.validateCkEditor
 
   constructor(props: EditorProps) {
@@ -377,8 +377,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   clear(currentUser: UsersCurrent | null) {
     const editorType = getUserDefaultEditor(currentUser)
     const contents = getBlankEditorContents(editorType);
+
     this.props.onChange({
-      contents,
+      contents: { ...contents, value: ' ' },
       autosave: true,
     });
   }

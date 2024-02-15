@@ -122,12 +122,12 @@ const ShortformSection = ({classes}: {
       // )}
       Content={() => (
         <>
-          {userCanComment(currentUser) &&
+          {/* {userCanComment(currentUser) &&
             <QuickTakesEntry currentUser={currentUser} />
-          }
-          {userCanComment(currentUser) &&
+          } */}
+          {/* {userCanComment(currentUser) &&
             <ShortformSubmitForm successCallback={refetch}/>
-          }
+          } */}
           {/* <QuickTakesList
             showCommunity={showCommunity}
             className={classes.list}
