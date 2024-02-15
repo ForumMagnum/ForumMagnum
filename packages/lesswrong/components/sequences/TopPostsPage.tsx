@@ -450,6 +450,7 @@ const styles = (theme: ThemeType) => ({
   imageGridPostBackgroundBackground: {
     bottom: 0,
     left: 0,
+    width: 1080,
     filter: 'blur(50px)',
     position: 'absolute',
     opacity: 0,
