@@ -64,6 +64,8 @@ const ShortformSubmitForm = ({
   prefilledProps,
   noDefaultStyles,
   className,
+  defaultExpanded,
+  submitButtonAtBottom,
   classes,
 }: {
   successCallback?: CommentSuccessCallback,
@@ -71,12 +73,14 @@ const ShortformSubmitForm = ({
   prefilledProps?: any,
   noDefaultStyles?: boolean,
   className?: string,
+  defaultExpanded?: boolean,
+  submitButtonAtBottom?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
   const {CommentsNewForm, QuickTakesEntry, ForumIcon} = Components;
 
-  if (isFriendlyUI) {
+  // if (isFriendlyUI) {
     return (
       <div className={className}>
         <div className={classes.close} onClick={cancelCallback}>
@@ -91,19 +95,21 @@ const ShortformSubmitForm = ({
           buttonClassName={classes.quickTakesButton}
           successCallback={successCallback}
           cancelCallback={cancelCallback}
-          defaultExpanded
+          defaultExpanded={isFriendlyUI || defaultExpanded}
           defaultFocus
-          submitButtonAtBottom
+          submitButtonAtBottom={isFriendlyUI || submitButtonAtBottom}
         />
       </div>
     );
-  }
+  // }
 
-  return <QuickTakesEntry
-    currentUser={currentUser}
-    successCallback={successCallback}
-    cancelCallback={cancelCallback}
-  />;
+  // return <QuickTakesEntry
+  //   currentUser={currentUser}
+  //   successCallback={successCallback}
+  //   cancelCallback={cancelCallback}
+  //   defaultExpanded={defaultExpanded}
+  //   submitButtonAtBottom={submitButtonAtBottom}
+  // />;
 
   // return (
   //   <div className={classNames(className, {[classes.root]: !noDefaultStyles})}>

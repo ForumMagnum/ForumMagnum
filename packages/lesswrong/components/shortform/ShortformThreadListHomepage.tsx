@@ -43,7 +43,7 @@ const ShortformThreadListHomepage = ({ classes, maxAgeDays=30, className }: {
 
   const {Loading, SectionFooter, LoadMore, ShortformSubmitForm, ShortformListItem} = Components;
   return (<>
-    {userCanComment(currentUser) && <ShortformSubmitForm successCallback={refetch} />}
+    {userCanComment(currentUser) && <ShortformSubmitForm successCallback={refetch} defaultExpanded={false} />}
     <div className={className}>
       {results?.map((comment) =>
         <ShortformListItem comment={comment} key={comment._id} />
