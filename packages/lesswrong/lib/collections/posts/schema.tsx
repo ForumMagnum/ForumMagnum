@@ -32,6 +32,8 @@ import {crosspostKarmaThreshold} from '../../publicSettings'
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
+import { hasGoogleDocImport } from '../../betas';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -2368,9 +2370,9 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: [userOwns, 'admins'],
     canCreate: ['members'],
     optional: true,
-    control: "PostSharingSettings",
+    control: isFriendlyUI ? "PostShareAndImport" : "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.title,
+    group: isFriendlyUI ? formGroups.category : formGroups.title,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },

@@ -15,8 +15,13 @@ import { useLocation } from "../../lib/routeUtil";
 //   - [X] Unlink button works
 // - [X] Change version restoration logic to allow restoring as draft
 // - [X] Fix import vs paste issues
-// - [ ] Squash migrations
 // - [ ] UI
+//   - [ ] Duplicate PostSharingSettings
+//   - [ ] Add it to the right form group
+//   - [ ] Pull out the shared logic into a hook
+//   - [ ] Add the actual Google doc import UI
+// - [ ] UI
+// - [ ] Squash migrations
 // - [ ] Deploy to beta site, get people to test
 // - [ ] (maybe) Move refresh tokens to a separate table (to avoid logging + allow refreshing the magic token)
 

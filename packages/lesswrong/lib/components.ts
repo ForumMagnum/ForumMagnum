@@ -115,6 +115,7 @@ importComponent("EditUrl", () => require('../components/editor/EditUrl'));
 importComponent("EditLinkpostUrl", () => require('../components/editor/EditLinkpostUrl'));
 importComponent("EditableUsersList", () => require('../components/editor/EditableUsersList'));
 importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
+importComponent("PostShareAndImport", () => require('../components/editor/PostShareAndImport'));
 importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
 importComponent("PresenceList", () => require('../components/editor/PresenceList'));
 

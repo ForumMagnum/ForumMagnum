@@ -65,6 +65,7 @@ export const hasDigests = isEAForum;
 export const hasSideComments = hasSideCommentsSetting.get();
 export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get();
+export const hasGoogleDocImport = isEAForum;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;
