@@ -131,7 +131,10 @@ const PopularComment = ({comment, classes}: {
     captureEvent("popularCommentToggleExpanded", {expanded: !expanded});
   }, [expanded, captureEvent]);
 
-  const {onClick} = useClickableCell({onClick: onClickCallback});
+  const {onClick} = useClickableCell({
+    onClick: onClickCallback,
+    ignoreLinks: true,
+  });
 
   const {UsersName, LWTooltip, SmallSideVote, CommentBody} = Components;
   return (
