@@ -550,18 +550,13 @@
     "timestamp": "2024-02-06T04:16:51.000Z"
   },
   {
-    "acceptsSchemaHash": "697d99679120595b0bfbb1e787f11eb9",
-    "acceptedByMigration": "20240208T220032.add_ReviewWinnerArts_and_SplashArtCoordinates.ts",
-    "timestamp": "2024-02-08T22:00:32.000Z"
+    "acceptsSchemaHash": "92b57599e36ee19757a1e763216509c5",
+    "acceptedByMigration": "20240213T222700.add_notificationSubscribedUserComment_to_Users.ts",
+    "timestamp": "2024-02-13T22:27:00.000Z"
   },
   {
-    "acceptsSchemaHash": "b3eabdc2257c2f53b54927ed9bdc654a",
-    "acceptedByMigration": "20240209T224951.add_ReviewWinners_category.ts",
-    "timestamp": "2024-02-09T22:49:51.000Z"
-  },
-  {
-    "acceptsSchemaHash": "3ec56bc03693de9abb7f4a4c506dff4e",
-    "acceptedByMigration": "20240215T020342.addFlippedFields_SplashArtCoordinates.ts",
-    "timestamp": "2024-02-15T02:03:42.000Z"
+    "acceptsSchemaHash": "c474d685fecb4d58a3d23e9d419f859a",
+    "acceptedByMigration": "20240215T203245.add_ReviewWinnerArts_SplashArtCoordinates.ts",
+    "timestamp": "2024-02-15T20:32:45.000Z"
   }
 ]

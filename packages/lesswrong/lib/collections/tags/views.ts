@@ -153,7 +153,8 @@ ensureIndex(Tags, {deleted: 1, createdAt: 1});
 Tags.addView('unreviewedTags', (terms: TagsViewTerms) => {
   return {
     selector: {
-      needsReview: true
+      needsReview: true,
+      deleted: false
     },
     options: {
       sort: {

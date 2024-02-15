@@ -553,6 +553,38 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       percentile: result?.percentile ?? 0,
     };
   }
+  
+  /**
+   * Checks the posts that the user had read in the past 6 months,
+   * and returns the number of posts per core tag that they have read.
+   */
+  async getUserReadsPerCoreTag(userId: string): Promise<{tagId: string; userReadCount: number;}[]> {
+    return await this.getRawDb().any(
+      `
+      -- PostsRepo.getUserReadsPerCoreTag
+      WITH core_tags AS (
+        SELECT _id
+        FROM tags
+        WHERE core IS TRUE AND deleted is not true
+      )
+      
+      SELECT
+        tr."tagId",
+        count(*) AS "userReadCount"
+      FROM
+        "ReadStatuses" rs
+      INNER JOIN "TagRels" tr ON rs."postId" = tr."postId"
+      WHERE
+        rs."lastUpdated" >= NOW() - interval '6 months'
+        AND rs."userId" = $1
+        AND rs."isRead" IS TRUE
+        AND tr."tagId" IN (SELECT _id FROM core_tags)
+        AND tr."deleted" IS FALSE
+      GROUP BY tr."tagId"
+      `,
+      [userId]
+    )
+  }
 
   /**
    * Get stats on how much the given user reads each core topic, relative to the average user. This is currently used
@@ -574,7 +606,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       WITH core_tags AS (
           SELECT _id
           FROM tags
-          WHERE core IS TRUE
+          WHERE core IS TRUE AND deleted is not true
       ),
       read_posts AS (
           SELECT

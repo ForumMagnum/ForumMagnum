@@ -245,6 +245,7 @@ declare global {
       grey200: string,
       grey300: string,
       grey400: string,
+      grey800: string,
       maxIntensity: string,
       tableHeadingDivider: string,
       table: string,
@@ -383,6 +384,10 @@ declare global {
         selected: ColorString,
         selectedHover: ColorString,
       },
+      digestAdBannerNoThanks: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
     },
     tag: {
       text: ColorString,
@@ -430,6 +435,7 @@ declare global {
       warningTranslucent: ColorString,
       transparent: ColorString,
       imageOverlay: ColorString,
+      digestAdBannerInput: ColorString,
     },
     header: {
       text: ColorString,

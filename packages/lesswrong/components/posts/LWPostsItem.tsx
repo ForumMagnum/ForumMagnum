@@ -12,7 +12,9 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
-import { highlightMarket } from '../../lib/annualReviewMarkets';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
+import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
+
 
 export const KARMA_WIDTH = 32;
 export const REVIEW_RANKING_WIDTH = 50;
@@ -70,6 +72,9 @@ export const styles = (theme: ThemeType) => ({
     '&&': {
       top: -5,
     }
+  },
+  hasSequenceImage: {
+    paddingRight: 0,
   },
   bottomBorder: {
     borderBottom: theme.palette.border.itemSeparatorBottom,
@@ -375,8 +380,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     showIcons,
     showKarma,
     annualReviewMarketInfo,
-    showReviewRanking,
-    showCommentCount,
+    marketLink,
     showReadCheckbox,
     showDraftTag,
     showPersonalIcon,
@@ -439,23 +443,20 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               classes.postsItem,
               classes.withGrayHover, {
                 [classes.dense]: dense,
-                [classes.withRelevanceVoting]: !!tagRel
+                [classes.withRelevanceVoting]: !!tagRel,
+                [classes.hasSequenceImage]: !!resumeReading,
               }
             )}
           >
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
-            {showKarma && !showReviewRanking && <PostsItem2MetaInfo className={classNames( 
-              classes.karma, 
-              { [classes.karmaPredictedReviewWinner]: highlightMarket(annualReviewMarketInfo) }
-            )}
-            >
+            {showKarma && <PostsItem2MetaInfo className={classNames(
+              classes.karma, {
+                [classes.karmaPredictedReviewWinner]: !!marketLink
+              })}>
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
-                : <KarmaDisplay document={post} annualReviewMarketInfo={annualReviewMarketInfo} annualReviewMarketCommentId={post.annualReviewMarketCommentId}/>
+                : <KarmaDisplay document={post} linkItem={marketLink}/>
               }
-            </PostsItem2MetaInfo>}
-            {showReviewRanking && <PostsItem2MetaInfo className={classes.reviewRanking}>
-              #1, 2018
             </PostsItem2MetaInfo>}
 
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
@@ -521,7 +522,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
               <PostsItemIcons post={post}/>
             </div>}
 
-            {showCommentCount && !resumeReading && <div className={classes.commentsIcon}>
+            {!resumeReading && <div className={classes.commentsIcon}>
               <PostsItemComments
                 small={false}
                 commentCount={commentCount}

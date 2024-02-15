@@ -7,14 +7,14 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, isAF} from '../../../lib/instanceSettings';
+import {forumTitleSetting, isAF, isEAForum} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { welcomeBoxABTest } from '../../../lib/abTests';
+import { postPageFixedDigestAd, welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -34,6 +34,7 @@ import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import { ImageProvider } from './ImageContext';
+import NoSSR from 'react-no-ssr';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 import { usePostReadProgress } from '../usePostReadProgress';
@@ -288,7 +289,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     borderRadius: 5,
     display: "flex",
     justifyContent: "center",
-  }
+  },
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -319,6 +320,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
+  const [showDigestAd, setShowDigestAd] = useState(false)
   const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
   // const { toc, setToCOffsets } = useContext(SidebarsContext)!;
 
@@ -353,6 +355,24 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
     disabled: disableProgressBar
   });
+
+  // On the EA Forum, show a digest ad at the bottom of the screen after the user scrolled down.
+  const digestAdAbTestGroup = useABTest(postPageFixedDigestAd);
+  useEffect(() => {
+    if (!isEAForum || isServer || post.isEvent || post.question || post.shortform || digestAdAbTestGroup !== 'show') return
+
+    checkShowDigestAd()
+    window.addEventListener('scroll', checkShowDigestAd)
+
+    return () => {
+      window.removeEventListener('scroll', checkShowDigestAd)
+    };
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const checkShowDigestAd = () => {
+    if (digestAdAbTestGroup !== 'show') return
+    // Ad stays visible once shown
+    setShowDigestAd((showAd) => showAd || window.scrollY > 1000)
+  }
 
   const getSequenceId = () => {
     const { params } = location;
@@ -442,7 +462,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     PostsPageRecommendationsList, PostSideRecommendations,
     PostBottomRecommendations, NotifyMeDropdownItem, Row,
     AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
-    CommentsListSection, CommentsTableOfContents, PostsPageSplashHeader, PostsAudioPlayerWrapper
+    CommentsListSection, CommentsTableOfContents, StickyDigestAd,
+    PostsPageSplashHeader, PostsAudioPlayerWrapper
   } = Components
 
   useEffect(() => {
@@ -714,7 +735,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       highlightDate={highlightDate ?? undefined}
     />
 
-  return (<AnalyticsContext pageContext="postsPage" postId={post._id}>
+  return (
+  <AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>
     <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
@@ -751,7 +773,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
           {commentsSection}
         </ToCColumn>
     }
-    
+  
+    {isEAForum && showDigestAd && <NoSSR><StickyDigestAd /></NoSSR>}
     {hasPostRecommendations && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
@@ -761,7 +784,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     </SideCommentVisibilityContext.Provider>
     </ImageProvider>
     </PostsPageContext.Provider>
-  </AnalyticsContext>);
+  </AnalyticsContext>
+  );
 }
 
 export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>

@@ -298,6 +298,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     grey200: `1px solid ${shades.grey[200]}`,
     grey300: `1px solid ${shades.grey[300]}`,
     grey400: `1px solid ${shades.grey[400]}`,
+    grey800: `1px solid ${shades.grey[800]}`,
     maxIntensity: shades.greyBorder("1px", 1.0),
     tableHeadingDivider: shades.greyBorder("2px", 1.0),
     table: `1px double ${shades.grey[410]}`,
@@ -338,6 +339,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
+    digestAdBannerInput: shades.grey[0],
   },
   panelBackground: {
     default: shades.grey[0],
@@ -462,6 +464,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       hover: "#e6e6e6",
       selected: "#198cf0",
       selectedHover: "#0e7fe1",
+    },
+    digestAdBannerNoThanks: {
+      background: shades.grey[700],
+      hoverBackground: shades.grey[800],
     },
   },
   tag: {

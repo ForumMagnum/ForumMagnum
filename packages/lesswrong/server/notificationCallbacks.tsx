@@ -652,6 +652,21 @@ const sendNewCommentNotifications = async (comment: DbComment) => {
       documentId: comment._id,
     });
   }
+
+  // 5. Notify users who are subscribed to comments by the comment author
+  const commentAuthorSubscribers = await getSubscribedUsers({
+    documentId: comment.userId,
+    collectionName: "Users",
+    type: subscriptionTypes.newUserComments
+  })
+  const commentAuthorSubscriberIds = commentAuthorSubscribers.map(({ _id }) => _id)
+  const commentAuthorSubscriberIdsToNotify = _.difference(commentAuthorSubscriberIds, notifiedUsers)
+  await createNotifications({
+    userIds: commentAuthorSubscriberIdsToNotify, 
+    notificationType: 'newUserComment', 
+    documentType: 'comment', 
+    documentId: comment._id
+  });
 }
 
 // add new comment notification callback on comment submit

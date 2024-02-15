@@ -90,8 +90,8 @@ const PostActions = ({post, closeMenu, includeBookmark=true, classes}: {
       />}
       <NotifyMeDropdownItem
         document={post}
-        subscribeMessage="Subscribe to comments"
-        unsubscribeMessage="Unsubscribe from comments"
+        subscribeMessage="Subscribe to comments on this post"
+        unsubscribeMessage="Unsubscribe from comments on this post"
       />
       {includeBookmark && <BookmarkDropdownItem post={post} />}
       <SetSideCommentVisibility />

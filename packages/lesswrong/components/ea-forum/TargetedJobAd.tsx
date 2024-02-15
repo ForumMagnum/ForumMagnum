@@ -2,13 +2,14 @@ import React, { useCallback, useState } from 'react';
 import { Components, makeAbsolute, registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button'
 import CloseIcon from '@material-ui/icons/Close'
-import { useTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import OpenInNew from '@material-ui/icons/OpenInNew';
 import moment from 'moment';
 import { InteractionWrapper, useClickableCell } from '../common/useClickableCell';
 import { useCurrentUser } from '../common/withUser';
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -224,8 +225,8 @@ type EAGOccupation =
 type JobAdData = {
   eagOccupations?: EAGOccupation[],  // used to match on EAG experience + interests
   interestedIn?: EAGOccupation[],    // used to match on EAG interests
-  tagId?: string,                    // used to match on a topic
-  tagsReadIds?: string[],            // used to match on a set of topics that the user has read frequently
+  subscribedTagIds?: string[],       // used to match on a set of topics that the user is subscribed to
+  readCoreTagIds?: string[],         // used to match on a set of core topics that the user has read frequently
   logo: string,                      // url for org logo
   occupation: string,                // text displayed in the tooltip
   feedbackLinkPrefill: string,       // url param used to prefill part of the feedback form
@@ -236,6 +237,7 @@ type JobAdData = {
   orgLink: string,                   // internal link on the org name
   salary?: string,
   location: string,
+  countryCode?: string,              // if provided, only show to users who we think are in this country
   roleType?: string,                 // i.e. part-time, contract
   deadline?: moment.Moment,          // also used to hide the ad after this date
   getDescription: (classes: ClassesType) => JSX.Element
@@ -245,7 +247,11 @@ type JobAdData = {
 // (also used in the reminder email, so links in the description need to be absolute)
 export const JOB_AD_DATA: Record<string, JobAdData> = {
   'cltr-biosecurity-policy-advisor': {
-    tagsReadIds: [
+    subscribedTagIds: [
+      'H43gvLzBCacxxamPe', // biosecurity
+      'of9xBvR3wpbp6qsZC', //policy
+    ],
+    readCoreTagIds: [
       'H43gvLzBCacxxamPe', // biosecurity
       'of9xBvR3wpbp6qsZC', //policy
     ],
@@ -259,12 +265,15 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     orgLink: '/topics/centre-for-long-term-resilience',
     salary: '£63k - £80k',
     location: 'UK (London-based)',
+    countryCode: 'GB',
     deadline: moment('2024-03-08'),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        The <a href="https://www.longtermresilience.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Centre for Long-Term Resilience (CLTR)
-        </a> is a UK-based non-profit and independent think tank with a mission to transform global resilience to extreme risks.
+        The <InteractionWrapper className={classes.inline}>
+          <Link to="https://www.longtermresilience.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+            Centre for Long-Term Resilience (CLTR)
+          </Link>
+        </InteractionWrapper> is a UK-based non-profit and independent think tank with a mission to transform global resilience to extreme risks.
         This role will contribute to developing, evaluating, and advocating for impactful <span className={classes.link}>
           <Components.HoverPreviewLink href={makeAbsolute("/topics/biosecurity")}>
             biosecurity
@@ -282,7 +291,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     </>
   },
   'leep-program-manager': {
-    tagsReadIds: [
+    subscribedTagIds: [
       'sWcuTyTB5dP3nas2t', // global health & development
       'of9xBvR3wpbp6qsZC', //policy
     ],
@@ -297,9 +306,11 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     location: 'Remote, multiple locations',
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        <a href="https://www.leadelimination.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          LEEP
-        </a> is an impact-driven non-profit that aims to eliminate childhood <span className={classes.link}>
+        <InteractionWrapper className={classes.inline}>
+          <Link to="https://www.leadelimination.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+            LEEP
+          </Link>
+        </InteractionWrapper> is an impact-driven non-profit that aims to eliminate childhood <span className={classes.link}>
           <Components.HoverPreviewLink href={makeAbsolute("/topics/lead-poisoning")}>
             lead poisoning
           </Components.HoverPreviewLink>
@@ -317,7 +328,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     </>
   },
   'thl-apa-program-specialist': {
-    tagsReadIds: [
+    subscribedTagIds: [
       'QdH9f8TC6G8oGYdgt', // animal welfare
       'of9xBvR3wpbp6qsZC', // policy
     ],
@@ -333,9 +344,11 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     deadline: moment('2024-02-08'),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        Animal Policy Alliance (APA), launched by <a href="https://thehumaneleague.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          The Humane League
-        </a> in 2022, is a national network of state and local animal protection and food policy advocacy groups in the US that include animals
+        Animal Policy Alliance (APA), launched by <InteractionWrapper className={classes.inline}>
+          <Link to="https://thehumaneleague.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+            The Humane League
+          </Link>
+        </InteractionWrapper> in 2022, is a national network of state and local animal protection and food policy advocacy groups in the US that include animals
         raised for food among their legislative priorities. The program specialist will play a key role in supporting the growth and operation of the APA.
       </div>
       <div className={classes.description}>
@@ -397,101 +410,103 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
     return null
   }
 
-  return <div className={classNames(classes.root, {[classes.rootClosed]: closed})} onClick={onClick}>
-    <div className={classes.topRow}>
-      <div className={classNames(classes.jobRecLabel, classes.metadata)}>
-        Job recommendation for {currentUser.displayName}
-        <LWTooltip title={
-          `You're seeing this recommendation because of your interest in ${adData.occupation}.`
-        }>
-          <ForumIcon icon="InfoCircle" className={classes.infoIcon} />
-        </LWTooltip>
-      </div>
-      <div className={classNames(classes.feedbackLink, classes.metadata)}>
-        <InteractionWrapper>
-          <a href={`
-              https://docs.google.com/forms/d/e/1FAIpQLSd4uDGbXbJSwYX2w_9wXNTuLLBf7bhiWoWc-goJJXiWGA7qDg/viewform?usp=pp_url&entry.70861771=${adData.feedbackLinkPrefill}
-            `}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Give us feedback
-          </a>
-        </InteractionWrapper>
-      </div>
-      <InteractionWrapper>
-        <Tooltip title="Dismiss">
-          <Button className={classes.closeButton} onClick={onDismiss}>
-            <CloseIcon className={classes.closeIcon} />
-          </Button>
-        </Tooltip>
-      </InteractionWrapper>
-    </div>
-    <div className={classes.mainRow}>
-      <img src={adData.logo} className={classes.logo} />
-      <div className={classes.bodyCol}>
-        <div className={classes.headerRow}>
-          <ForumIcon icon="Pin" className={classes.pinIcon} />
-          <h2 className={classes.header}>
-            <InteractionWrapper className={classes.inline}>
-              <a href={adData.bitlyLink} target="_blank" rel="noopener noreferrer">
-                {adData.role}
-              </a>
-            </InteractionWrapper> at{adData.insertThe ? ' the ' : ' '}
-            <InteractionWrapper className={classes.inline}>
-              <HoverPreviewLink href={adData.orgLink}>
-                {adData.org}
-              </HoverPreviewLink>
-            </InteractionWrapper>
-          </h2>
+  return <AnalyticsContext pageSubSectionContext="targetedJobAd">
+    <div className={classNames(classes.root, {[classes.rootClosed]: closed})} onClick={onClick}>
+      <div className={classes.topRow}>
+        <div className={classNames(classes.jobRecLabel, classes.metadata)}>
+          Job recommendation for {currentUser.displayName}
+          <LWTooltip title={
+            `You're seeing this recommendation because of your interest in ${adData.occupation}.`
+          }>
+            <ForumIcon icon="InfoCircle" className={classes.infoIcon} />
+          </LWTooltip>
         </div>
-        <div className={classes.metadataRow}>
-          {adData.salary && <>
-            <div className={classes.metadata}>
-              {adData.salary}
-            </div>
-            <div>·</div>
-          </>}
-          <div className={classes.metadata}>
-            {adData.location}
-          </div>
-          {adData.roleType && <>
-            <div>·</div>
-            <div className={classes.metadata}>
-              {adData.roleType}
-            </div>
-          </>}
-          {adData.deadline && <>
-            <div>·</div>
-            <div className={classes.metadata}>
-              Deadline: {adData.deadline.format('MMM Do')}
-            </div>
-          </>}
-        </div>
-        
-        <div className={classNames({[classes.collapsedBody]: !expanded})}>
-          {adData.getDescription(classes)}
+        <div className={classNames(classes.feedbackLink, classes.metadata)}>
           <InteractionWrapper>
-            <div className={classes.btnRow}>
-              <EAButton
-                variant="contained"
-                href={adData.bitlyLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={classes.btn}
-                onClick={() => handleApply()}
-              >
-                Apply <OpenInNew className={classes.btnIcon} />
-              </EAButton>
-              {adData.deadline && <EAButton variant="contained" style="grey" onClick={handleRemindMe} className={classes.btn}>
-                Remind me before the deadline
-              </EAButton>}
-            </div>
+            <a href={`
+                https://docs.google.com/forms/d/e/1FAIpQLSd4uDGbXbJSwYX2w_9wXNTuLLBf7bhiWoWc-goJJXiWGA7qDg/viewform?usp=pp_url&entry.70861771=${adData.feedbackLinkPrefill}
+              `}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Give us feedback
+            </a>
           </InteractionWrapper>
         </div>
+        <InteractionWrapper>
+          <Tooltip title="Dismiss">
+            <Button className={classes.closeButton} onClick={onDismiss}>
+              <CloseIcon className={classes.closeIcon} />
+            </Button>
+          </Tooltip>
+        </InteractionWrapper>
+      </div>
+      <div className={classes.mainRow}>
+        <img src={adData.logo} className={classes.logo} />
+        <div className={classes.bodyCol}>
+          <div className={classes.headerRow}>
+            <ForumIcon icon="Pin" className={classes.pinIcon} />
+            <h2 className={classes.header}>
+              <InteractionWrapper className={classes.inline}>
+                <Link to={adData.bitlyLink} target="_blank" rel="noopener noreferrer">
+                  {adData.role}
+                </Link>
+              </InteractionWrapper> at{adData.insertThe ? ' the ' : ' '}
+              <InteractionWrapper className={classes.inline}>
+                <HoverPreviewLink href={adData.orgLink}>
+                  {adData.org}
+                </HoverPreviewLink>
+              </InteractionWrapper>
+            </h2>
+          </div>
+          <div className={classes.metadataRow}>
+            {adData.salary && <>
+              <div className={classes.metadata}>
+                {adData.salary}
+              </div>
+              <div>·</div>
+            </>}
+            <div className={classes.metadata}>
+              {adData.location}
+            </div>
+            {adData.roleType && <>
+              <div>·</div>
+              <div className={classes.metadata}>
+                {adData.roleType}
+              </div>
+            </>}
+            {adData.deadline && <>
+              <div>·</div>
+              <div className={classes.metadata}>
+                Deadline: {adData.deadline.format('MMM Do')}
+              </div>
+            </>}
+          </div>
+          
+          <div className={classNames({[classes.collapsedBody]: !expanded})}>
+            {adData.getDescription(classes)}
+            <InteractionWrapper>
+              <div className={classes.btnRow}>
+                <EAButton
+                  variant="contained"
+                  href={adData.bitlyLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={classes.btn}
+                  onClick={() => handleApply()}
+                >
+                  Apply <OpenInNew className={classes.btnIcon} />
+                </EAButton>
+                {adData.deadline && <EAButton variant="contained" style="grey" onClick={handleRemindMe} className={classes.btn}>
+                  Remind me before the deadline
+                </EAButton>}
+              </div>
+            </InteractionWrapper>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+  </AnalyticsContext>
 }
 
 const TargetedJobAdComponent = registerComponent("TargetedJobAd", TargetedJobAd, {styles});
