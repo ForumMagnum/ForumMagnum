@@ -1,6 +1,6 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { styles as editorStyles, getInitialEditorContents } from "../editor/Editor";
+import { EditorChangeEvent, styles as editorStyles, getInitialEditorContents } from "../editor/Editor";
 import { styles as buttonStyles } from "../form-components/FormSubmit";
 import { styles as submitButtonStyles } from "../posts/PostSubmit";
 import { useQuickTakesTags } from "./useQuickTakesTags";
@@ -12,6 +12,7 @@ import type {
 } from "../comments/CommentsNewForm";
 import Button from "@material-ui/core/Button";
 import classNames from "classnames";
+import { isFriendlyUI } from "../../themes/forumTheme";
 
 const styles = (theme: ThemeType) => ({
   ...editorStyles(theme),
@@ -95,7 +96,7 @@ const QuickTakesEntry = ({
   buttonClassName?: string,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const editorType = "ckEditorMarkup";
   const editorRef = useRef<EditorType>(null);
@@ -122,7 +123,7 @@ const QuickTakesEntry = ({
     fragmentName: "ShortformComments",
   });
 
-  const onChange = useCallback(({contents}: AnyBecauseTodo) => {
+  const onChange = useCallback(({contents}: EditorChangeEvent) => {
     setContents(contents);
   }, []);
 
@@ -170,6 +171,14 @@ const QuickTakesEntry = ({
     currentUser,
   ]);
 
+  const onCancel = useCallback(async (ev?: MouseEvent) => {
+    ev?.preventDefault();
+    editorRef.current?.clear(currentUser);
+    setExpanded(false);
+    void cancelCallback?.();
+  }, [currentUser, cancelCallback]);
+
+
   const onFocus = useCallback(() => setExpanded(true), []);
 
   useEffect(() => {
@@ -206,26 +215,65 @@ const QuickTakesEntry = ({
   }
 
   const {Editor, Loading, TagsChecklist} = Components;
+
+  const cancelButton = (
+    <Button
+      className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+      onClick={onCancel}
+    >
+      Cancel
+    </Button>
+  );
+
   const submitButton = (
+    <Button
+      type="submit"
+      disabled={loadingSubmit}
+      className={classNames(classes.formButton, classes.submitButton)}
+      variant={isFriendlyUI ? "contained" : undefined}
+      color="primary"
+      onClick={onSubmit}
+    >
+      {loadingSubmit
+        ? <Loading />
+        : "Publish"
+      }
+    </Button>
+  );
+
+  const submitWrapper = (
     <div className={classNames(buttonClassName, {
       [classes.editorButtonContainer]: !submitButtonAtBottom,
       [classes.bottomButtonContainer]: submitButtonAtBottom,
     })}>
-      <Button
-        type="submit"
-        disabled={loadingSubmit}
-        className={classNames(classes.formButton, classes.submitButton)}
-        variant="contained"
-        color="primary"
-        onClick={onSubmit}
-      >
-        {loadingSubmit
-          ? <Loading />
-          : "Publish"
-        }
-      </Button>
+      {!isFriendlyUI && cancelButton}
+      {submitButton}
     </div>
   );
+
+  const tagList = (
+    loadingTags
+      ? <Loading />
+      : (
+        <div className={classNames(classes.tagContainer, tagsClassName)}>
+          <span className={classes.tagLabel}>Set topic</span>
+          <TagsChecklist
+            tags={tags}
+            displaySelected="highlight"
+            selectedTagIds={[
+              ...(frontpage ? [frontpageTagId] : []),
+              ...selectedTagIds,
+            ]}
+            onTagSelected={onTagSelected}
+            onTagRemoved={onTagRemoved}
+            tooltips={false}
+            truncate
+            smallText
+          />
+        </div>
+      )
+  );
+
   return (
     <form
       ref={formRef}
@@ -254,29 +302,9 @@ const QuickTakesEntry = ({
       </div>
       {expanded &&
         <>
-          {!submitButtonAtBottom && submitButton}
-          {loadingTags
-            ? <Loading />
-            : (
-              <div className={classNames(classes.tagContainer, tagsClassName)}>
-                <span className={classes.tagLabel}>Set topic</span>
-                <TagsChecklist
-                  tags={tags}
-                  displaySelected="highlight"
-                  selectedTagIds={[
-                    ...(frontpage ? [frontpageTagId] : []),
-                    ...selectedTagIds,
-                  ]}
-                  onTagSelected={onTagSelected}
-                  onTagRemoved={onTagRemoved}
-                  tooltips={false}
-                  truncate
-                  smallText
-                />
-              </div>
-            )
-          }
-          {submitButtonAtBottom && submitButton}
+          {!submitButtonAtBottom && submitWrapper}
+          {isFriendlyUI && tagList}
+          {submitButtonAtBottom && submitWrapper}
         </>
       }
     </form>

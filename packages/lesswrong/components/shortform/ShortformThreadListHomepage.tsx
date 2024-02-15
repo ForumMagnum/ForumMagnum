@@ -44,10 +44,10 @@ const ShortformThreadListHomepage = ({ classes }: {
 
   return (
     <div>
-      {isFriendlyUI && userCanComment(currentUser) &&
+      {userCanComment(currentUser) &&
         <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />
       }
-      {!isFriendlyUI && <ShortformSubmitForm successCallback={refetch} />}
+      {/* {!isFriendlyUI && <ShortformSubmitForm successCallback={refetch} />} */}
 
       {results && results.map((comment) => {
         if (!comment.post) {
