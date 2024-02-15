@@ -5,9 +5,11 @@ import { useCurrentUser } from "../common/withUser";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
 import { userCanComment } from "../../lib/vulcan-users";
 import {
+  SHOW_SHORTFORM_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
 } from "../../lib/cookies/cookies";
+import { isLWorAF } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
@@ -41,7 +43,7 @@ const QuickTakesSection = ({classes}: {
     defaultExpanded: "all",
     onExpandEvent: "quickTakesSectionExpanded",
     onCollapseEvent: "quickTakesSectionCollapsed",
-    cookieName: SHOW_QUICK_TAKES_SECTION_COOKIE,
+    cookieName: isLWorAF ? SHOW_SHORTFORM_SECTION_COOKIE : SHOW_QUICK_TAKES_SECTION_COOKIE,
   });
 
   const {
@@ -60,16 +62,18 @@ const QuickTakesSection = ({classes}: {
   });
 
   const {
-    ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList,
+    ShortformList, ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList,
   } = Components;
   return (
     <ExpandableSection
       pageSectionContext="quickTakesSection"
       expanded={expanded}
       toggleExpanded={toggleExpanded}
-      title="Quick takes"
-      afterTitleTo="/quicktakes"
-      AfterTitleComponent={() => (
+      title={isLWorAF ? "Shortform" : "Quick takes"}
+      afterTitleTo={isLWorAF ? "/shortform" : "/quicktakes"}
+      AfterTitleComponent={isLWorAF 
+        ? undefined 
+        : () => (
         <LWTooltip
           title='Show quick takes tagged "Community"'
           placement="left"
@@ -83,12 +87,14 @@ const QuickTakesSection = ({classes}: {
       )}
       Content={() => (
         <>
-          {userCanComment(currentUser) &&
+          {!isLWorAF && userCanComment(currentUser) &&
             <QuickTakesEntry currentUser={currentUser} />
           }
+          
           <QuickTakesList
-            showCommunity={showCommunity}
-            className={classes.list}
+            showCommunity={isLWorAF ? undefined : showCommunity}
+            className={isLWorAF ? undefined : classes.list}
+            maxAgeDays={isLWorAF ? 30 : undefined}
           />
         </>
       )}

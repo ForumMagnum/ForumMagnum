@@ -1,12 +1,27 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useMulti } from "../../lib/crud/withMulti";
+import { isLWorAF } from "../../lib/instanceSettings";
+import { AnalyticsContext } from "../../lib/analyticsEvents";
 
-const QuickTakesList = ({showCommunity, tagId, maxAgeDays, className}: {
+const styles = (theme: ThemeType) => ({
+  root: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.grey[1000],
+  },
+});
+
+const QuickTakesList = ({showCommunity, tagId, maxAgeDays, className, classes}: {
   showCommunity?: boolean,
   tagId?: string,
   maxAgeDays?: number,
   className?: string,
+  classes: ClassesType,
 }) => {
   const {
     results,
@@ -24,7 +39,24 @@ const QuickTakesList = ({showCommunity, tagId, maxAgeDays, className}: {
     collectionName: "Comments",
     fragmentName: "ShortformComments",
   });
-  const {QuickTakesListItem, Loading, SectionFooter, LoadMore} = Components;
+  const {LWShortform, QuickTakesListItem, Loading, SectionFooter, LoadMore} = Components;
+
+  if (isLWorAF) {
+    return (
+      <AnalyticsContext pageSectionContext="shortformList">
+        <div className={classes.root}>
+          {results?.map((comment) =>
+            <LWShortform
+              key={comment._id}
+              comment={comment}
+            />
+          )}
+          <LoadMore {...loadMoreProps} />
+        </div>
+      </AnalyticsContext>
+    ); 
+  }
+
   return (
     <div className={className}>
       {results?.map((result) =>
@@ -46,6 +78,7 @@ const QuickTakesList = ({showCommunity, tagId, maxAgeDays, className}: {
 const QuickTakesListComponent = registerComponent(
   "QuickTakesList",
   QuickTakesList,
+  {styles}
 );
 
 declare global {
