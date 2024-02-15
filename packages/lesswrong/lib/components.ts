@@ -252,7 +252,6 @@ importComponent("ForumDropdown", () => require('../components/common/ForumDropdo
 importComponent("ForumDropdownMultiselect", () => require('../components/common/ForumDropdownMultiselect'));
 importComponent("WrappedStrawPoll", () => require('../components/common/WrappedStrawPoll'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
-importComponent("LWPopularCommentsSection", () => require('../components/common/LWPopularCommentsSection'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
 importComponent("RevisionSelect", () => require('../components/revisions/RevisionSelect'));

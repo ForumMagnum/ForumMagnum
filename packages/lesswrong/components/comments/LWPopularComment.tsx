@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { ExpandedDate } from "../common/FormatDate";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Comments } from "../../lib/collections/comments";
@@ -8,7 +7,6 @@ import { htmlToTextDefault } from "../../lib/htmlToText";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
-import moment from "moment";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { commentBodyStyles } from "../../themes/stylePiping";
 
@@ -132,7 +130,7 @@ const LWPopularComment = ({comment, classes}: {
   comment: CommentsListWithParentMetadata,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UsersName, LWTooltip, SmallSideVote, CommentBody } = Components;
+  const { UsersName, CommentsItemDate, SmallSideVote, CommentBody } = Components;
   
   const { captureEvent } = useTracking();
   const [expanded, setExpanded] = useState(false);
@@ -158,14 +156,7 @@ const LWPopularComment = ({comment, classes}: {
   const username = <UsersName user={comment.user} className={classes.username} />;
 
   const commentDate = (
-    <div className={classes.date}>
-      <LWTooltip
-        placement="right"
-        title={<ExpandedDate date={comment.postedAt} />}
-      >
-        {moment(new Date(comment.postedAt)).fromNow()}
-      </LWTooltip>
-    </div>
+    <CommentsItemDate comment={comment} post={comment.post} />
   );
 
   const votingElement = !comment.debateResponse && !comment.rejected && (
