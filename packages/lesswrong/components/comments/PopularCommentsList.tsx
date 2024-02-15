@@ -24,9 +24,9 @@ const PopularCommentsList = ({classes}: {classes: ClassesType}) => {
     itemsPerPage: 5,
   });
 
-  const {LoadMore, PopularComment, LWPopularComment} = Components;
+  const {LoadMore, FriendlyPopularComment, LWPopularComment} = Components;
 
-  const CommentComponent = isFriendlyUI ? PopularComment : LWPopularComment;
+  const CommentComponent = isFriendlyUI ? FriendlyPopularComment : LWPopularComment;
   return (
     <AnalyticsContext pageSectionContext="popularCommentsList">
       <div className={classes.root}>
