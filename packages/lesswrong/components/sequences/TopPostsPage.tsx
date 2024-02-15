@@ -61,9 +61,9 @@ const MAX_GRID_SIZE = 6;
 // TODO: not actually sure we want to use default coordinates if coordinates are missing
 // And even if we do, these values are definitely wrong (i.e. need to figure out aspect ratio)
 const DEFAULT_SPLASH_ART_COORDINATES: Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> = {
-  leftHeightPct: .2, leftWidthPct: .2, leftXPct: .2, leftYPct: .2,
-  middleHeightPct: .2, middleWidthPct: .2, middleXPct: .2, middleYPct: .2,
-  rightHeightPct: .2, rightWidthPct: .2, rightXPct: .2, rightYPct: .2,
+  leftHeightPct: .2, leftWidthPct: .2, leftXPct: .2, leftYPct: .2, leftFlipped: false,
+  middleHeightPct: .2, middleWidthPct: .2, middleXPct: .2, middleYPct: .2, middleFlipped: false,
+  rightHeightPct: .2, rightWidthPct: .2, rightXPct: .2, rightYPct: .2, rightFlipped: false,
 };
 
 // TODO: update the description to be appropriate for this page
