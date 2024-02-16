@@ -502,12 +502,12 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
 
             <div className={classes.mobileSecondRowSpacer}/>
 
-            {<div className={classes.mobileActions}>
-              {!resumeReading && <PostActionsButton post={post} autoPlace />}
-            </div>}
-
             {showIcons && <div className={classes.nonMobileIcons}>
               <PostsItemIcons post={post}/>
+            </div>}
+
+            {<div className={classes.mobileActions}>
+              {!resumeReading && <PostActionsButton post={post} autoPlace />}
             </div>}
 
             {!resumeReading && <div className={classes.commentsIcon}>
