@@ -12,7 +12,7 @@ export const useOptimisticToggle = (
 ): [boolean, (e: MouseEvent<HTMLDivElement>) => void] => {
   const [optimisticValue, setOptimisticValue] = useState(actualValue);
 
-  const toggleValue = useCallback((e: MouseEvent<HTMLDivElement>) => {
+  const onToggle = useCallback((e: MouseEvent<HTMLDivElement>) => {
     setOptimisticValue((value) => {
       const newOptimisticValue = !value;
       toggle(e, newOptimisticValue);
@@ -26,6 +26,6 @@ export const useOptimisticToggle = (
 
   return [
     optimisticValue,
-    toggleValue,
+    onToggle,
   ];
 }
