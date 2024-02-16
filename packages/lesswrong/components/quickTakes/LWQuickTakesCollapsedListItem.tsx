@@ -1,27 +1,23 @@
 import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { InteractionWrapper } from "../common/useClickableCell";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { htmlToTextDefault } from "../../lib/htmlToText";
 import classNames from "classnames";
-import { Comments } from "../../lib/collections/comments";
 import { commentBodyStyles } from "../../themes/stylePiping";
-import type { CommentTreeOptions } from '../comments/commentTree';
 
 const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.greyAlpha(0.5),
     background: theme.palette.grey[0],
-    borderRadius: '3px', // theme.borderRadius.default,
+    borderRadius: theme.borderRadius.small,
     border: `1px solid ${theme.palette.grey[200]}`,
-    paddingLeft: '12px',
-    paddingRight: '12px',
-    paddingBottom: '10px',
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingBottom: 10,
     "&:hover .CommentsItemMeta-menu": {
-      opacity:1
+      opacity: 1
     },
   },
   grow: {
@@ -31,40 +27,16 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     display: "flex",
     alignItems: "center",
-    cursor: "pointer",
     "& svg": {
       height: 14,
     },
+    paddingBottom: 4,
   },
   commentCountClickable: {
-    "&:hover": {
-      color: theme.palette.grey[1000],
-    },
-  },
-  menu: {
-    color: theme.palette.grey[600],
     cursor: "pointer",
-    "& svg": {
-      height: 18,
-      transform: "translateY(2px)",
-    },
     "&:hover": {
       color: theme.palette.grey[1000],
     },
-  },
-  link: {
-    color: theme.palette.primary.main,
-    whiteSpace: "nowrap",
-    "&:hover": {
-      opacity: 1,
-      color: theme.palette.primary.light,
-    },
-  },
-  username: {
-    fontWeight: 600,
-    color: theme.palette.text.primary,
-    whiteSpace: "nowrap",
-    marginRight: 6,
   },
   bodyWrapper: {
     cursor: "pointer",
@@ -77,40 +49,24 @@ const styles = (theme: ThemeType) => ({
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
   },
-  toggleWrapper: {
-    marginRight: 5,
-    opacity: 0.8,
-    fontSize: "0.8rem",
-    lineHeight: "1rem",
-    display: "flex",
-    verticalAlign: "middle",
-    "& span": {
-      fontFamily: "monospace",
-    },
-  },
-  toggleCharacter: {
-    transform: 'translateY(0.75px)',
-  },
   hoverOver: {
     width: 400,
   },
-})
+});
 
-const LWQuickTakesCollapsedListItem = ({treeOptions, quickTake, expanded, setExpanded, classes}: {
-  treeOptions: CommentTreeOptions,
+const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   quickTake: ShortformComments,
-  expanded: boolean,
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CommentShortformIcon, ForumIcon, UsersName, CommentsMenu, LWPopper, CommentsNode, CommentsItemDate, SmallSideVote, CommentsItemMeta } = Components;
+  const { ForumIcon, LWPopper, CommentsNode, CommentsItemMeta } = Components;
 
   const {eventHandlers, hover, anchorEl} = useHover({
     pageElementContext: "shortformItemTooltip",
     commentId: quickTake._id,
   });
 
-  const expand = useCallback((e: React.MouseEvent) => {
+  const expand = useCallback(() => {
     setExpanded(true);
   }, [setExpanded]);
 
@@ -122,7 +78,6 @@ const LWQuickTakesCollapsedListItem = ({treeOptions, quickTake, expanded, setExp
 
   const commentCount = quickTake.descendentCount ?? 0;
   const commentsAreClickable = commentCount > 0;
-  const primaryTag = quickTake.relevantTags?.[0];
   const displayHoverOver = hover && (quickTake.baseScore > -5) && !isMobile();
 
   const commentsUrl = quickTake.post
@@ -137,6 +92,7 @@ const LWQuickTakesCollapsedListItem = ({treeOptions, quickTake, expanded, setExp
 
   const onClickComments = useCallback(() => {
     if (commentsAreClickable) {
+      expand();
       // Clicking also expands the item - setTimeout allows us to make sure
       // this runs _after_ the expansion is already complete
       setTimeout(() => {
@@ -149,29 +105,7 @@ const LWQuickTakesCollapsedListItem = ({treeOptions, quickTake, expanded, setExp
         });
       }, 0);
     }
-  }, [commentsAreClickable, quickTake]);
-
-  const shortformIcon = quickTake.post && <CommentShortformIcon comment={quickTake} post={quickTake.post} />;
-
-  const collapseToggle = (
-    <a className={classes.toggleWrapper} onClick={expand}>
-      {<>[<span className={classes.toggleCharacter}>{"+"}</span>]</>}
-    </a>
-  );
-
-  const username = <UsersName user={quickTake.user} className={classes.username} />;
-
-  const commentDate = (
-    <CommentsItemDate comment={quickTake} post={quickTake.post} />
-  );
-
-  const votingElement = !quickTake.rejected && (
-    <SmallSideVote
-      document={quickTake}
-      collection={Comments}
-      hideKarma={quickTake.post?.hideCommentKarma}
-    />
-  );
+  }, [expand, commentsAreClickable, quickTake]);
 
   const commentCountIcon = (
     <div
@@ -182,22 +116,6 @@ const LWQuickTakesCollapsedListItem = ({treeOptions, quickTake, expanded, setExp
     >
       <ForumIcon icon="Comment" />
       {commentCount}
-    </div>
-  );
-
-  const commentMenu = (
-    <div>
-      <InteractionWrapper>
-        <AnalyticsContext pageElementContext="tripleDotMenu">
-          <CommentsMenu
-            className={classes.menu}
-            comment={quickTake}
-            post={quickTake.post ?? undefined}
-            tag={primaryTag}
-            icon={<ForumIcon icon="EllipsisVertical" />}
-            showEdit={setShowEdit} />
-        </AnalyticsContext>
-      </InteractionWrapper>
     </div>
   );
 
@@ -233,33 +151,26 @@ const LWQuickTakesCollapsedListItem = ({treeOptions, quickTake, expanded, setExp
     </div>
   );
 
-  const showCommentTitle = false // !!(commentAllowTitle(quickTake) && quickTake.title && !quickTake.deleted) // && !showEditState)
-
-
   return (
     <div
       className={classes.root}
     >
-      {/* <div className={classes.info}>
-        {shortformIcon}
-        {collapseToggle}
-        {username}
-        {commentDate}
-        {votingElement}
-        <div className={classes.grow} />
-        {commentCountIcon}
-        {commentMenu}
-      </div> */}
       <CommentsItemMeta
         {...{
-          treeOptions,
-          comment:quickTake,
-          showCommentTitle,
+          treeOptions: {
+            post: quickTake.post ?? undefined,
+            hideParentCommentToggle: true,
+            showCollapseButtons: true,
+            onToggleCollapsed: () => setExpanded(true),
+          },
+          comment: quickTake,
+          showCommentTitle: false,
           showParentState,
           toggleShowParent,
-          collapsed:true,
-          toggleCollapse:() => setExpanded(true),
+          collapsed: true,
+          toggleCollapse: () => setExpanded(true),
           setShowEdit,
+          rightSectionElements: commentCountIcon
         }}
       />
       {body}

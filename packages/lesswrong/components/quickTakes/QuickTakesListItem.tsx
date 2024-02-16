@@ -6,7 +6,7 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
     "& .comments-node-root": {
-      marginBottom: 4, // this isn't the correct final thing to be doing here
+      marginBottom: 8, // this isn't the correct final thing to be doing here
     },
   },
 });
@@ -24,20 +24,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
 
   const {CommentsNode, QuickTakesCollapsedListItem, LWQuickTakesCollapsedListItem} = Components;
 
-  const CollapsedListItem = isFriendlyUI ? 
-  <QuickTakesCollapsedListItem  
-    quickTake={quickTake} 
-    setExpanded={wrappedSetExpanded}/> : 
-  <LWQuickTakesCollapsedListItem
-    quickTake={quickTake}
-    expanded={expanded}
-    setExpanded={wrappedSetExpanded}
-    treeOptions={{
-      post: quickTake.post ?? undefined,
-      showCollapseButtons: true,
-      onToggleCollapsed: () => wrappedSetExpanded(!expanded),
-    }}
-  />
+  const CollapsedListItem = isFriendlyUI ? QuickTakesCollapsedListItem : LWQuickTakesCollapsedListItem;
 
   return expanded
     ? (
@@ -55,7 +42,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
         />
       </div>
     )
-    : CollapsedListItem;
+    : <CollapsedListItem quickTake={quickTake} setExpanded={wrappedSetExpanded} />;
 }
 
 const QuickTakesListItemComponent = registerComponent(

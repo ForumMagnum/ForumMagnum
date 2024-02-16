@@ -144,6 +144,7 @@ export const CommentsItemMeta = ({
   collapsed,
   toggleCollapse,
   setShowEdit,
+  rightSectionElements,
   classes,
 }: {
   treeOptions: CommentTreeOptions,
@@ -159,6 +160,7 @@ export const CommentsItemMeta = ({
   collapsed?: boolean,
   toggleCollapse?: () => void,
   setShowEdit: () => void,
+  rightSectionElements?: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -324,6 +326,7 @@ export const CommentsItemMeta = ({
       </span>}
 
       <span className={classes.rightSection}>
+        {rightSectionElements}
         {isFriendlyUI &&
           <CommentLinkWrapper>
             <ForumIcon icon="Link" className={classes.linkIcon} />
