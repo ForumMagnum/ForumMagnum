@@ -463,16 +463,12 @@ importComponent("ShortformPage", () => require('../components/shortform/Shortfor
 importComponent("ShortformList", () => require('../components/shortform/ShortformList'));
 importComponent("LWShortform", () => require('../components/comments/LWShortform'));
 importComponent("ShortformThreadList", () => require('../components/shortform/ShortformThreadList'));
-importComponent("ShortformThreadListHomepage", () => require('../components/shortform/ShortformThreadListHomepage'));
 importComponent("RepliesToCommentList", () => require('../components/shortform/RepliesToCommentList'));
 importComponent("NewShortformDialog", () => require('../components/shortform/NewShortformDialog'));
 importComponent("ShortformSubmitForm", () => require('../components/shortform/ShortformSubmitForm'));
 importComponent("ShortformTimeBlock", () => require('../components/shortform/ShortformTimeBlock'));
 importComponent("ShortformListItem", () => require('../components/shortform/ShortformListItem'));
 importComponent("ProfileShortform", () => require('../components/shortform/ProfileShortform'));
-
-// Shortform section
-importComponent("ShortformSection", () => require('../components/shortform/ShortformSection'));
 
 importComponent("VoteArrowIcon", () => require('../components/votes/VoteArrowIcon'));
 importComponent("VoteAgreementIcon", () => require('../components/votes/VoteAgreementIcon'));

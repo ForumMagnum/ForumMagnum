@@ -73,6 +73,7 @@ const styles = (theme: ThemeType) => ({
   ...submitButtonStyles(theme),
 });
 
+// TODO: decide on copy for LW
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";
 
 const QuickTakesEntry = ({

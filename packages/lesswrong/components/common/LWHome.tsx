@@ -3,7 +3,6 @@ import React from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
 import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
-import { isLWorAF } from '../../lib/instanceSettings';
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, QuickTakesSection } = Components

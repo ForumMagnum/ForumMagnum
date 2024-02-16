@@ -1,7 +1,6 @@
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
-import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
-import classNames from 'classnames';
+import { ForumOptions } from '../../lib/forumTypeUtils';
 import { useCurrentUser } from '../common/withUser';
 import type {
   CommentCancelCallback,
@@ -27,7 +26,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   newQuickTake: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontWeight: 700,
+    fontWeight: isFriendlyUI ? 700 : 500,
     fontSize: 20,
     color: theme.palette.grey[1000],
     margin: 20,
@@ -78,56 +77,29 @@ const ShortformSubmitForm = ({
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const {CommentsNewForm, QuickTakesEntry, ForumIcon} = Components;
+  const {QuickTakesEntry, ForumIcon} = Components;
 
-  // if (isFriendlyUI) {
-    return (
-      <div className={className}>
-        <div className={classes.close} onClick={cancelCallback}>
-          <ForumIcon icon="Close" />
-        </div>
-        <div className={classes.newQuickTake}>New quick take</div>
-        <QuickTakesEntry
-          currentUser={currentUser}
-          className={classes.quickTakesRoot}
-          editorClassName={classes.quickTakesEditor}
-          tagsClassName={classes.quickTakesTags}
-          buttonClassName={classes.quickTakesButton}
-          successCallback={successCallback}
-          cancelCallback={cancelCallback}
-          defaultExpanded={isFriendlyUI || defaultExpanded}
-          defaultFocus
-          submitButtonAtBottom={isFriendlyUI || submitButtonAtBottom}
-        />
+  return (
+    <div className={className}>
+      <div className={classes.close} onClick={cancelCallback}>
+        <ForumIcon icon="Close" />
       </div>
-    );
-  // }
-
-  // return <QuickTakesEntry
-  //   currentUser={currentUser}
-  //   successCallback={successCallback}
-  //   cancelCallback={cancelCallback}
-  //   defaultExpanded={defaultExpanded}
-  //   submitButtonAtBottom={submitButtonAtBottom}
-  // />;
-
-  // return (
-  //   <div className={classNames(className, {[classes.root]: !noDefaultStyles})}>
-  //     <CommentsNewForm
-  //       prefilledProps={{
-  //         ...prefilledProps,
-  //         shortform: true,
-  //       }}
-  //       successCallback={successCallback}
-  //       cancelCallback={cancelCallback}
-  //       // Put in "reply" to make the cancel button appear
-  //       type={cancelCallback ? "reply" : "comment"}
-  //       formProps={{
-  //         editorHintText: forumSelect(forumHintText)
-  //       }}
-  //     />
-  //   </div>
-  // );
+      {/* TODO: decide on "shortform" vs. "quick take" for LW */}
+      <div className={classes.newQuickTake}>New quick take</div>
+      <QuickTakesEntry
+        currentUser={currentUser}
+        className={classes.quickTakesRoot}
+        editorClassName={classes.quickTakesEditor}
+        tagsClassName={classes.quickTakesTags}
+        buttonClassName={classes.quickTakesButton}
+        successCallback={successCallback}
+        cancelCallback={cancelCallback}
+        defaultExpanded={isFriendlyUI || defaultExpanded}
+        defaultFocus
+        submitButtonAtBottom={isFriendlyUI || submitButtonAtBottom}
+      />
+    </div>
+  );
 }
 
 const ShortformSubmitFormComponent = registerComponent('ShortformSubmitForm', ShortformSubmitForm, {styles});

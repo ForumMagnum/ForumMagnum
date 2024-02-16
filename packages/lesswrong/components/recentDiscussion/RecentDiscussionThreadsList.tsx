@@ -73,6 +73,7 @@ const RecentDiscussionThreadsList = ({
           </SectionButton>
         </div>}
       </SectionTitle>
+      {/* TODO: use QuickTakesEntry instead? */}
       {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
       <div>
         {results && <div>

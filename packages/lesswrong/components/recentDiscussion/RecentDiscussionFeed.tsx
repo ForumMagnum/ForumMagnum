@@ -92,6 +92,7 @@ const RecentDiscussionFeed = ({
               </SectionButton>
             </div>}
           </SectionTitle>
+          {/* TODO: with the new quick takes section, delete this? */}
           {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
           <MixedTypeFeed
             firstPageSize={10}
