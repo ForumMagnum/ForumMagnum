@@ -25,7 +25,9 @@ const QuickTakesListItem = ({quickTake, classes}: {
   const {CommentsNode, QuickTakesCollapsedListItem, LWQuickTakesCollapsedListItem} = Components;
 
   const CollapsedListItem = isFriendlyUI ? 
-  <QuickTakesCollapsedListItem  quickTake={quickTake} setExpanded={wrappedSetExpanded}/> : 
+  <QuickTakesCollapsedListItem  
+    quickTake={quickTake} 
+    setExpanded={wrappedSetExpanded}/> : 
   <LWQuickTakesCollapsedListItem
     quickTake={quickTake}
     expanded={expanded}

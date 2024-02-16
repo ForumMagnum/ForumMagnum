@@ -19,7 +19,10 @@ const styles = (theme: ThemeType) => ({
     border: `1px solid ${theme.palette.grey[200]}`,
     paddingLeft: '12px',
     paddingRight: '12px',
-    paddingBottom: '10px'
+    paddingBottom: '10px',
+    "&:hover .CommentsItemMeta-menu": {
+      opacity:1
+    },
   },
   grow: {
     flexGrow: 1,
