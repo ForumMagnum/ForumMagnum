@@ -103,9 +103,7 @@ const ConversationContents = ({
     }
   }, [stateSignatureRef, results?.length, scrollRef, conversation._id]);
 
-  // TODO: re-enable this once we have a dedicated event type indicating a newly-received message.
-  // As-is, this was causing users to get rate limited since it polled our API once per second.
-  // useOnNotificationsChanged(currentUser, () => refetch());
+  useOnNotificationsChanged('notificationCheck', currentUser, () => refetch());
 
   // try to attribute this sent message to where the user came from
   const profileViewedFrom = useRef("");

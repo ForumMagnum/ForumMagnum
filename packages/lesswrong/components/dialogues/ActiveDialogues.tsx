@@ -104,8 +104,8 @@ export const ActiveDialogues = ({classes}: {
 
   const location = useLocation();
 
-  useOnNotificationsChanged(currentUser, (message) => {
-    if (message.eventType === 'activeDialoguePartners' && currentUser?._id && message.data) {  
+  useOnNotificationsChanged('activeDialoguePartners', currentUser, (message) => {
+    if (currentUser?._id && message.data) {  
       const otherActiveDialogues = message.data.filter((dialogue) => !location.pathname.includes(dialogue.postId) && !(location.query.postId === dialogue.postId)) // don't show a dialogue as active on its own page
       setActiveDialogues(otherActiveDialogues);
     }

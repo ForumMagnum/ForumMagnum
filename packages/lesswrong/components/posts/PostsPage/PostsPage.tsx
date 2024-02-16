@@ -443,11 +443,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     limit: 1000
   });
   
-  useOnNotificationsChanged(currentUser, (message) => {
-    if (message.eventType === 'notificationCheck') {
-      if (currentUser && isDialogueParticipant(currentUser._id, post)) {
-        refetchDebateResponses();
-      }
+  useOnNotificationsChanged('notificationCheck', currentUser, (message) => {
+    if (currentUser && isDialogueParticipant(currentUser._id, post)) {
+      refetchDebateResponses();
     }
   });
 

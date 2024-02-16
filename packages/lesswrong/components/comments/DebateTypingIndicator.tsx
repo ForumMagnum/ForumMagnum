@@ -45,14 +45,12 @@ export const DebateTypingIndicator = ({classes, post}: {
     }
   }, INCIDATOR_UPDATE_PERIOD));
 
-  useOnNotificationsChanged(currentUser, (message) => {
-    if (message.eventType === 'typingIndicator') {
-      const typingIndicators = message.typingIndicators
-      const filteredIndicators = typingIndicators.filter((typingIndicator) => {
-        return typingIndicator.documentId === post._id
-      })
-      setTypingIndicators(filteredIndicators)
-    }
+  useOnNotificationsChanged('typingIndicator', currentUser, (message) => {
+    const typingIndicators = message.typingIndicators
+    const filteredIndicators = typingIndicators.filter((typingIndicator) => {
+      return typingIndicator.documentId === post._id
+    })
+    setTypingIndicators(filteredIndicators)
   });
 
   if (!currentUser) return null;
