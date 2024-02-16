@@ -6,7 +6,7 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
     "& .comments-node-root": {
-      marginBottom: 8, // this isn't the correct final thing to be doing here
+      marginBottom: 8,
     },
   },
 });
