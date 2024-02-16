@@ -363,8 +363,8 @@ const Layout = ({currentUser, children, classes}: {
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
-    const showNewUserCompleteProfile = currentUser?.usernameUnset &&
-      !allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+    const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+    const showNewUserCompleteProfile = currentUser?.usernameUnset && !isIncompletePath;
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -461,7 +461,7 @@ const Layout = ({currentUser, children, classes}: {
                       ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
-                    {isEAForum && <EAOnboardingFlow />}
+                    {!isIncompletePath && isEAForum && <EAOnboardingFlow />}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
