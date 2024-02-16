@@ -52,7 +52,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",
-    paddingBottom: isFriendlyUI ? 4 : undefined,
+    paddingBottom: isFriendlyUI ? 4 : 2,
     display: isFriendlyUI ? "inline-block" : "flex",
     verticalAlign: "middle",
     transform: isFriendlyUI ? "translateY(3px)" : undefined,

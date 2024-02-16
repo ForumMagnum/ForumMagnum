@@ -91,6 +91,7 @@ const styles = (theme: ThemeType) => ({
   },
   toggleWrapper: {
     marginRight: 5,
+    paddingBottom: 2,
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",

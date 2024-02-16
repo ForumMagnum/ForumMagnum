@@ -32,6 +32,9 @@ const styles = (theme: ThemeType) => ({
   list: {
     marginTop: 4,
     ...(isFriendlyUI ? {} : {
+      display: "flex",
+      flexDirection: "column",
+      gap: "4px",  
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: '1.16rem',
     })

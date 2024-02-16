@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { useClickableCell, InteractionWrapper } from "../common/useClickableCell";
+import { InteractionWrapper } from "../common/useClickableCell";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -10,7 +10,6 @@ import classNames from "classnames";
 import { Comments } from "../../lib/collections/comments";
 import { commentBodyStyles } from "../../themes/stylePiping";
 import type { CommentTreeOptions } from '../comments/commentTree';
-// import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,11 +19,7 @@ const styles = (theme: ThemeType) => ({
     border: `1px solid ${theme.palette.grey[200]}`,
     paddingLeft: '12px',
     paddingRight: '12px',
-  },
-  info: {
-    // display: "flex",
-    // alignItems: "center",
-    // marginBottom: 8,
+    paddingBottom: '10px'
   },
   grow: {
     flexGrow: 1,
@@ -111,8 +106,6 @@ const LWQuickTakesCollapsedListItem = ({treeOptions, quickTake, expanded, setExp
     pageElementContext: "shortformItemTooltip",
     commentId: quickTake._id,
   });
-
-  // const {onClick} = useClickableCell({onClick: () => setExpanded(true)});
 
   const expand = useCallback((e: React.MouseEvent) => {
     setExpanded(true);
@@ -242,7 +235,6 @@ const LWQuickTakesCollapsedListItem = ({treeOptions, quickTake, expanded, setExp
 
   return (
     <div
-      // onClick={onClick}
       className={classes.root}
     >
       {/* <div className={classes.info}>
@@ -256,19 +248,19 @@ const LWQuickTakesCollapsedListItem = ({treeOptions, quickTake, expanded, setExp
         {commentMenu}
       </div> */}
       <CommentsItemMeta
-            {...{
-              treeOptions,
-              comment:quickTake,
-              showCommentTitle,
-              showParentState,
-              toggleShowParent,
-              collapsed:true,
-              toggleCollapse:() => setExpanded(true),
-              setShowEdit,
-            }}
-          />
-        {body}
-        {tooltip}
+        {...{
+          treeOptions,
+          comment:quickTake,
+          showCommentTitle,
+          showParentState,
+          toggleShowParent,
+          collapsed:true,
+          toggleCollapse:() => setExpanded(true),
+          setShowEdit,
+        }}
+      />
+      {body}
+      {tooltip}
     </div>
   );
 }
