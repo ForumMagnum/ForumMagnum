@@ -10,7 +10,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     display: "inline-block",
     padding: "5px 8px",
-    height: 37,
+    minHeight: 37,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 600,
     lineHeight: "13px",
@@ -23,6 +23,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     gap: "8px",
+    height: "100%",
   },
   icon: {
     color: theme.palette.primary.main,

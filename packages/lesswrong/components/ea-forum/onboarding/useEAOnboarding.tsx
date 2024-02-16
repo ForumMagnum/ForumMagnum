@@ -3,6 +3,13 @@ import { Components } from "../../../lib/vulcan-lib";
 import { useCurrentUser, useRefetchCurrentUser } from "../../common/withUser";
 import { UpdateCurrentUserFunction, useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
 
+/**
+ * Ordered list of all onboarding stages.
+ * After saving a display name in the "user" the onboarding flow will not be
+ * shown again after a refresh, so the easiest way to debug specific stages is
+ * to create a new account and _not_ set the display name, then comment out all
+ * of the preceding stages in this list.
+ */
 const onboardingStages = [
   "user",
   "subscribe",
@@ -65,6 +72,7 @@ export const EAOnboardingContextProvider: FC<{
     await goToNextStage();
   }, [goToNextStage]);
 
+  // This should never happen
   if (!currentUser) {
     const {LoginForm} = Components;
     return (

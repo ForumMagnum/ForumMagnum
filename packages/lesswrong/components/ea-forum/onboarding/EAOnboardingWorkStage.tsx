@@ -69,7 +69,6 @@ export const EAOnboardingWorkStage = ({classes}: {
           value={careerStage}
           setValue={setCareerStage}
           options={CAREER_STAGES}
-          placeholder="Work (6-15 years)"
         />
       </div>
     </EAOnboardingStage>

@@ -16,6 +16,7 @@ const styles = (_theme: ThemeType) => ({
   },
   gridContainer: {
     display: "flex",
+    justifyContent: "center",
     flexWrap: "wrap",
     gap: "8px",
     rowGap: "8px",
