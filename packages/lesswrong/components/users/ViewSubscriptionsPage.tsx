@@ -6,6 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { allowSubscribeToUserComments } from '../../lib/betas';
 
 const styles = (theme: ThemeType): JssStyles => ({
   subscribedItem: {
@@ -133,6 +134,14 @@ const ViewSubscriptionsPage = ({classes}: {
       renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
       noSubscriptionsMessage="You are not subscribed to any users' posts."
     />
+    {allowSubscribeToUserComments && <SubscriptionsList
+      title="Subscribed to All Comments By Users"
+      collectionName="Users"
+      subscriptionType="newUserComments"
+      fragmentName="UsersMinimumInfo"
+      renderDocument={(user: UsersMinimumInfo) => <UsersNameDisplay user={user}/>}
+      noSubscriptionsMessage="You are not subscribed to any users' comments."
+    />}
     
     <SubscriptionsList
       title="Subscribed to Comments on Posts"

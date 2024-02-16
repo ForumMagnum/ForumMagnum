@@ -2,16 +2,11 @@ import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import type { PopperPlacementType } from "@material-ui/core/Popper";
 import { forumTypeSetting } from "../../lib/instanceSettings";
-import { AnnualReviewMarketInfo, highlightMarket } from "../../lib/annualReviewMarkets";
-import { Link } from "../../lib/reactRouterWrapper";
-import { commentGetPageUrl } from "../../lib/collections/comments/helpers";
-import { useSingle } from "../../lib/crud/withSingle";
 
-const KarmaDisplay = ({document, placement="left", annualReviewMarketInfo, annualReviewMarketCommentId}: {
+const KarmaDisplay = ({document, placement="left", linkItem}: {
   document: VoteableType,
   placement?: PopperPlacementType,
-  annualReviewMarketInfo?: AnnualReviewMarketInfo,
-  annualReviewMarketCommentId?: string,
+  linkItem?: React.ReactNode,
 }) => {
   const baseScore = forumTypeSetting.get() === "AlignmentForum"
     ? document.afBaseScore
@@ -21,26 +16,15 @@ const KarmaDisplay = ({document, placement="left", annualReviewMarketInfo, annua
     : null;
   const {LWTooltip} = Components;
 
-  // TODO: See if we can refactor after #8314 gets merged in
-  const {document: comment} = useSingle({
-    documentId: annualReviewMarketCommentId,
-    collectionName: "Comments",
-    fragmentName: "CommentsListWithParentMetadata",
-    skip: !annualReviewMarketCommentId,
-  })
-
   return (
     <LWTooltip
       placement={placement}
-      clickable={highlightMarket(annualReviewMarketInfo)}
+      clickable={!!linkItem}
       title={
         <div>
           <div>{baseScore ?? 0} karma</div>
           <div>({document.voteCount} votes)</div>
-          {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) &&
-            !!comment && 
-              <Link to={commentGetPageUrl(comment)}><span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span></Link>
-          }
+          {linkItem}
           {afBaseScore &&
             <div><em>({afBaseScore} karma on AlignmentForum.org)</em></div>
           }

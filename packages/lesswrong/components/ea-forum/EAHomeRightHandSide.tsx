@@ -265,7 +265,7 @@ export const EAHomeRightHandSide = ({classes}: {
   if (!userHasEAHomeRHS(currentUser)) return null
   
   const {
-    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon, DigestAd
+    SectionTitle, PostsItemTooltipWrapper, PostsItemDate, LWTooltip, ForumIcon, SidebarDigestAd
   } = Components
   
   const sidebarToggleNode = <div className={classes.sidebarToggle} onClick={handleToggleSidebar}>
@@ -277,7 +277,7 @@ export const EAHomeRightHandSide = ({classes}: {
   if (isHidden) return sidebarToggleNode
   
   // NoSSR sections that could affect the logged out user cache
-  let digestAdNode = <DigestAd className={classes.digestAd} />
+  let digestAdNode = <SidebarDigestAd className={classes.digestAd} />
   let upcomingEventsNode = <UpcomingEventsSection classes={classes} />
   if (!currentUser) {
     digestAdNode = <NoSSR>{digestAdNode}</NoSSR>

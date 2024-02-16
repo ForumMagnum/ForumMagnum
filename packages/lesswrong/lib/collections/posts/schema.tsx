@@ -19,6 +19,7 @@ import {
   isEAForum,
   isLWorAF,
   requireReviewToFrontpagePostsSetting,
+  reviewUserBotSetting,
 } from '../../instanceSettings'
 import { forumSelect } from '../../forumTypeUtils';
 import * as _ from 'underscore';
@@ -782,12 +783,13 @@ const schema: SchemaType<"Posts"> = {
   annualReviewMarketCommentId: {
     ...foreignKeyField({
       idFieldName: 'annualReviewMarketCommentId',
-      resolverName: 'comment',
+      resolverName: 'annualReviewMarketComment',
       collectionName: 'Comments',
       type: 'Comment',
       nullable: true
     }),
     optional: true,
+    nullable: true,
     canRead: ['guests'],
     canCreate: ['admins'],
     canUpdate: ['admins'],
@@ -2632,6 +2634,7 @@ const schema: SchemaType<"Posts"> = {
         deletedPublic: false,
         postedAt: {$gt: timeCutoff},
         ...(af ? {af:true} : {}),
+        ...(isLWorAF ? {userId: {$ne: reviewUserBotSetting.get()}} : {}),
       };
       const comments = await getWithCustomLoader<DbComment[],string>(context, loaderName, post._id, (postIds): Promise<DbComment[][]> => {
         return context.repos.comments.getRecentCommentsOnPosts(postIds, commentsLimit ?? 5, filter);

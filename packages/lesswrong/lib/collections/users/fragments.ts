@@ -488,6 +488,7 @@ registerFragment(`
     notificationRepliesToMyComments
     notificationRepliesToSubscribedComments
     notificationSubscribedUserPost
+    notificationSubscribedUserComment
     notificationSubscribedTagPost
     notificationPostsInGroups
     notificationPrivateMessage

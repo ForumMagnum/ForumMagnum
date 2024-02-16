@@ -37,7 +37,8 @@ importComponent("PostsAnalyticsPage", () => require('../components/analytics/Pos
 importComponent("AnalyticsDisclaimers", () => require('../components/analytics/AnalyticsDisclaimers'));
 importComponent("DateRangeModal", () => require('../components/analytics/DateRangeModal'));
 
-importComponent("DigestAd", () => require('../components/ea-forum/DigestAd'));
+importComponent("SidebarDigestAd", () => require('../components/ea-forum/digestAd/SidebarDigestAd'));
+importComponent("StickyDigestAd", () => require('../components/ea-forum/digestAd/StickyDigestAd'));
 importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
 importComponent("EAHomeMainContent", () => require('../components/ea-forum/EAHomeMainContent'));
 importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EAHomeCommunityPosts'));
