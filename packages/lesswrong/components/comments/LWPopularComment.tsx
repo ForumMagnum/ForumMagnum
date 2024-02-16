@@ -7,7 +7,6 @@ import { htmlToTextDefault } from "../../lib/htmlToText";
 import { useRecordPostView } from "../hooks/useRecordPostView";
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import { commentBodyStyles } from "../../themes/stylePiping";
 
 const styles = (theme: ThemeType) => ({
@@ -56,24 +55,11 @@ const styles = (theme: ThemeType) => ({
   postRead: {
     color: theme.palette.text.dim55,
   },
-  link: {
-    color: theme.palette.primary.main,
-    fontWeight: isFriendlyUI ? 600 : undefined,
-    whiteSpace: "nowrap",
-    "&:hover": {
-      opacity: 1,
-      color: theme.palette.primary.light,
-    },
-  },
   username: {
     fontWeight: 600,
     color: theme.palette.text.primary,
     whiteSpace: "nowrap",
     marginRight: 10,
-  },
-  date: {
-    color: theme.palette.grey[600],
-    marginRight: 6,
   },
   bodyWrapper: {},
   bodyCursor: {
