@@ -61,7 +61,7 @@ export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndi
 
 type EventType = ServerSentEventsMessage['eventType'];
 type MessageOfType<T extends EventType> = Extract<ServerSentEventsMessage, { eventType: T }>;
-type NotificationEventListener<T extends EventType> = (message: Extract<ServerSentEventsMessage, { eventType: T }>) => void;
+type NotificationEventListener<T extends EventType> = (message: MessageOfType<T>) => void;
 
 const notificationsCheckedAtLocalStorageKey = "notificationsCheckedAt";
 
