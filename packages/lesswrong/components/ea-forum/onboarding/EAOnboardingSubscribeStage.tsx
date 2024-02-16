@@ -54,7 +54,7 @@ export const EAOnboardingSubscribeStage = ({classes}: {
   const canContinue = !!(subscribedTags.length || subscribedUsers.length);
 
   const {
-    EAOnboardingStage, EAOnboardingTag, EAOnboardingUser, Loading,
+    EAOnboardingStage, EAOnboardingTag, EAOnboardingAuthor, Loading,
   } = Components;
   return (
     <EAOnboardingStage
@@ -86,7 +86,7 @@ export const EAOnboardingSubscribeStage = ({classes}: {
         <div className={classes.gridContainer}>
           {users.length < 1 && <Loading />}
           {users.map((user) =>
-            <EAOnboardingUser
+            <EAOnboardingAuthor
               key={user._id}
               user={user}
               onSubscribed={onSubscribedUser}

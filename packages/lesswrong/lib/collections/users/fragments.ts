@@ -585,7 +585,7 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment UserOnboarding on User {
+  fragment UserOnboardingAuthor on User {
     _id
     displayName
     profileImageId

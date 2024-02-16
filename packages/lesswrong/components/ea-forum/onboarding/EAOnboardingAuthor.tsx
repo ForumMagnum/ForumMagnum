@@ -49,8 +49,8 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const EAOnboardingUser = ({user, onSubscribed, classes}: {
-  user: UserOnboarding,
+export const EAOnboardingAuthor = ({user, onSubscribed, classes}: {
+  user: UserOnboardingAuthor,
   onSubscribed?: (id: string, subscribed: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
@@ -96,14 +96,14 @@ export const EAOnboardingUser = ({user, onSubscribed, classes}: {
   );
 }
 
-const EAOnboardingUserComponent = registerComponent(
-  "EAOnboardingUser",
-  EAOnboardingUser,
+const EAOnboardingAuthorComponent = registerComponent(
+  "EAOnboardingAuthor",
+  EAOnboardingAuthor,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    EAOnboardingUser: typeof EAOnboardingUserComponent
+    EAOnboardingAuthor: typeof EAOnboardingAuthorComponent
   }
 }

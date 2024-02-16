@@ -66,7 +66,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
-  tag: TagOnboarding,
+  tag: UserOnboardingTag,
   onSubscribed?: (id: string, subscribed: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {

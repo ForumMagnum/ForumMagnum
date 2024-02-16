@@ -32,7 +32,7 @@ const subscribeUserIds: string[] = [
 export const useSuggestedSubscriptions = () => {
   const {results: rawTags} = useMulti({
     collectionName: "Tags",
-    fragmentName: "TagOnboarding",
+    fragmentName: "UserOnboardingTag",
     limit: subscribeTagIds.length,
     terms: {
       view: "tagsByTagIds",
@@ -45,7 +45,7 @@ export const useSuggestedSubscriptions = () => {
 
   const {results: rawUsers} = useMulti({
     collectionName: "Users",
-    fragmentName: "UserOnboarding",
+    fragmentName: "UserOnboardingAuthor",
     limit: subscribeUserIds.length,
     terms: {
       view: "usersByUserIds",

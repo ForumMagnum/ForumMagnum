@@ -332,7 +332,7 @@ registerFragment(`
 `);
 
 registerFragment(`
-  fragment TagOnboarding on Tag {
+  fragment UserOnboardingTag on Tag {
     _id
     name
     slug
