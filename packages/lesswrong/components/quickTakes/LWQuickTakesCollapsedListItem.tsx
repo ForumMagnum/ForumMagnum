@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useClickableCell, InteractionWrapper } from "../common/useClickableCell";
 import { useHover } from "../common/withHover";
@@ -9,21 +9,22 @@ import { htmlToTextDefault } from "../../lib/htmlToText";
 import classNames from "classnames";
 import { Comments } from "../../lib/collections/comments";
 import { commentBodyStyles } from "../../themes/stylePiping";
+import type { CommentTreeOptions } from '../comments/commentTree';
+// import { commentAllowTitle as commentAllowTitle, commentGetPageUrlFromIds } from '../../../lib/collections/comments/helpers';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    display: "flex",
-    flexDirection: "column",
     color: theme.palette.greyAlpha(0.5),
     background: theme.palette.grey[0],
-    borderRadius: theme.borderRadius.default,
+    borderRadius: '3px', // theme.borderRadius.default,
     border: `1px solid ${theme.palette.grey[200]}`,
-    padding: ".6em 12px",
+    paddingLeft: '12px',
+    paddingRight: '12px',
   },
   info: {
-    display: "flex",
-    alignItems: "center",
-    marginBottom: 8,
+    // display: "flex",
+    // alignItems: "center",
+    // marginBottom: 8,
   },
   grow: {
     flexGrow: 1,
@@ -97,12 +98,14 @@ const styles = (theme: ThemeType) => ({
   },
 })
 
-const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
+const LWQuickTakesCollapsedListItem = ({treeOptions, quickTake, expanded, setExpanded, classes}: {
+  treeOptions: CommentTreeOptions,
   quickTake: ShortformComments,
+  expanded: boolean,
   setExpanded: (expanded: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { CommentShortformIcon, ForumIcon, UsersName, CommentsMenu, LWPopper, CommentsNode, CommentsItemDate, SmallSideVote } = Components;
+  const { CommentShortformIcon, ForumIcon, UsersName, CommentsMenu, LWPopper, CommentsNode, CommentsItemDate, SmallSideVote, CommentsItemMeta } = Components;
 
   const {eventHandlers, hover, anchorEl} = useHover({
     pageElementContext: "shortformItemTooltip",
@@ -114,6 +117,12 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   const expand = useCallback((e: React.MouseEvent) => {
     setExpanded(true);
   }, [setExpanded]);
+
+  const [showParentState, setShowParentState] = useState(false);
+
+  const toggleShowParent = () => {
+    setShowParentState(!showParentState);
+  }
 
   const commentCount = quickTake.descendentCount ?? 0;
   const commentsAreClickable = commentCount > 0;
@@ -221,19 +230,22 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   );
 
   const body = (
-    <div className={classes.bodyWrapper} onClick={expand}>
-      <div {...eventHandlers}  className={classes.body}>
+    <div className={classes.bodyWrapper} onClick={expand} {...eventHandlers}>
+      <div  className={classes.body}>
         {htmlToTextDefault(quickTake.contents?.html)}
       </div>
     </div>
   );
+
+  const showCommentTitle = false // !!(commentAllowTitle(quickTake) && quickTake.title && !quickTake.deleted) // && !showEditState)
+
 
   return (
     <div
       // onClick={onClick}
       className={classes.root}
     >
-      <div className={classes.info}>
+      {/* <div className={classes.info}>
         {shortformIcon}
         {collapseToggle}
         {username}
@@ -242,9 +254,21 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
         <div className={classes.grow} />
         {commentCountIcon}
         {commentMenu}
-      </div>
-      {body}
-      {tooltip}
+      </div> */}
+      <CommentsItemMeta
+            {...{
+              treeOptions,
+              comment:quickTake,
+              showCommentTitle,
+              showParentState,
+              toggleShowParent,
+              collapsed:true,
+              toggleCollapse:() => setExpanded(true),
+              setShowEdit,
+            }}
+          />
+        {body}
+        {tooltip}
     </div>
   );
 }
