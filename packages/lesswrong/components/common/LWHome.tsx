@@ -28,7 +28,6 @@ const LWHome = () => {
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
 
-          {/* <LWPopularCommentsSection /> */}
           <EAPopularCommentsSection />
 
           <RecentDiscussionFeed
