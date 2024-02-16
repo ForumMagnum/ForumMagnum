@@ -188,7 +188,7 @@ export const UnreadNotificationsContextProvider: FC<{
     }
   }, [checkedAt, refetchBoth]);
   
-  useOnNotificationsChanged('notificationCheck', currentUser, refetchIfNewNotifications);
+  useOnServerSentEvent('notificationCheck', currentUser, refetchIfNewNotifications);
   
   const notificationsOpened = useCallback(async () => {
     const now = new Date();
@@ -215,7 +215,7 @@ export const UnreadNotificationsContextProvider: FC<{
 
 export const useUnreadNotifications = () => useContext(unreadNotificationsContext);
 
-export const useOnNotificationsChanged = <T extends EventType>(eventType: T, currentUser: UsersCurrent|null, cb: NotificationEventListener<T>) => {
+export const useOnServerSentEvent = <T extends EventType>(eventType: T, currentUser: UsersCurrent|null, cb: NotificationEventListener<T>) => {
   useEffect(() => {
     if (!currentUser)
       return;

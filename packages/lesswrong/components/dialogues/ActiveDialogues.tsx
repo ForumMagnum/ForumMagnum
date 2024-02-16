@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { useTracking } from "../../lib/analyticsEvents";
-import { ActiveDialogue, useOnNotificationsChanged } from '../hooks/useUnreadNotifications';
+import { ActiveDialogue, useOnServerSentEvent } from '../hooks/useUnreadNotifications';
 import { useCurrentUser } from '../common/withUser';
 import { postGetEditUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -104,7 +104,7 @@ export const ActiveDialogues = ({classes}: {
 
   const location = useLocation();
 
-  useOnNotificationsChanged('activeDialoguePartners', currentUser, (message) => {
+  useOnServerSentEvent('activeDialoguePartners', currentUser, (message) => {
     if (currentUser?._id && message.data) {  
       const otherActiveDialogues = message.data.filter((dialogue) => !location.pathname.includes(dialogue.postId) && !(location.query.postId === dialogue.postId)) // don't show a dialogue as active on its own page
       setActiveDialogues(otherActiveDialogues);
