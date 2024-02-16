@@ -189,6 +189,7 @@ importComponent("NotificationsPageEmpty", () => require('../components/notificat
 importComponent("NotificationsPageItem", () => require('../components/notifications/NotificationsPage/NotificationsPageItem'));
 importComponent("NotificationsPageNotification", () => require('../components/notifications/NotificationsPage/NotificationsPageNotification'));
 importComponent("NotificationsPageKarmaChange", () => require('../components/notifications/NotificationsPage/NotificationsPageKarmaChange'));
+importComponent("NotificationsTooltip", () => require('../components/notifications/NotificationsPage/NotificationsTooltip'));
 importComponent("NotificationsMenu", () => require('../components/notifications/NotificationsMenu'));
 importComponent("NotificationsList", () => require('../components/notifications/NotificationsList'));
 importComponent("TagRelNotificationItem", () => require('../components/notifications/TagRelNotificationItem'));
