@@ -1,8 +1,6 @@
 import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useMulti } from "../../lib/crud/withMulti";
-import { isLWorAF } from "../../lib/instanceSettings";
-import { AnalyticsContext } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -39,23 +37,7 @@ const QuickTakesList = ({showCommunity, tagId, maxAgeDays, className, classes}: 
     collectionName: "Comments",
     fragmentName: "ShortformComments",
   });
-  const {LWShortform, QuickTakesListItem, Loading, SectionFooter, LoadMore} = Components;
-
-  // if (isLWorAF) {
-  //   return (
-  //     <AnalyticsContext pageSectionContext="shortformList">
-  //       <div className={classes.root}>
-  //         {results?.map((comment) =>
-  //           <LWShortform
-  //             key={comment._id}
-  //             comment={comment}
-  //           />
-  //         )}
-  //         <LoadMore {...loadMoreProps} />
-  //       </div>
-  //     </AnalyticsContext>
-  //   ); 
-  // }
+  const {QuickTakesListItem, Loading, SectionFooter, LoadMore} = Components;
 
   return (
     <div className={className}>

@@ -70,7 +70,7 @@ const QuickTakesSection = ({classes}: {
   });
 
   const {
-    ShortformList, ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList,
+    ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList,
   } = Components;
   return (
     <ExpandableSection

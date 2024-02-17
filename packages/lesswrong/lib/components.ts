@@ -460,8 +460,6 @@ importComponent("LocalgroupPageTitle", () => require('../components/titles/Local
 importComponent("PostsAnnualReviewMarketTag", () => require('../components/posts/PostsAnnualReviewMarketTag'));
 
 importComponent("ShortformPage", () => require('../components/shortform/ShortformPage'));
-importComponent("ShortformList", () => require('../components/shortform/ShortformList'));
-importComponent("LWShortform", () => require('../components/comments/LWShortform'));
 importComponent("ShortformThreadList", () => require('../components/shortform/ShortformThreadList'));
 importComponent("RepliesToCommentList", () => require('../components/shortform/RepliesToCommentList'));
 importComponent("NewShortformDialog", () => require('../components/shortform/NewShortformDialog'));
