@@ -15,7 +15,7 @@ import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSch
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
-import { buildRevision, getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
+import { buildRevision } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
 import { getPostMarketInfo } from '../posts/annualReviewMarkets';
@@ -25,9 +25,10 @@ import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import { googleClientIdSetting, googleOAuthSecretSetting } from '../authenticationMiddlewares';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { convertImportedGoogleDoc, dataToCkEditor } from '../editor/conversionUtils';
+import { convertImportedGoogleDoc } from '../editor/conversionUtils';
 import Revisions from '../../lib/collections/revisions/collection';
 import { randomId } from '../../lib/random';
+import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 
 type GoogleDocMetadata = {
   id: string;

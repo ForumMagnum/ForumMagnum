@@ -20,7 +20,6 @@ import Users from '../../lib/vulcan-users';
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { Posts } from '../../lib/collections/posts';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
-import { Globals } from '../../lib/vulcan-lib/config'
 import { convertImagesInHTML } from '../scripts/convertImagesToCloudinary';
 
 const turndownService = new TurndownService()
@@ -534,7 +533,7 @@ function googleDocRemoveRedirects(html: string): string {
   //                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ <- first match group matches this, stopping at the first &
   // https://www.google.com/url?q=https://en.wikipedia.org/wiki/Main_Page
   //                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ <- if there are no more params (no &), match up to the end of the string
-  const hrefPattern = /^https:\/\/www\.google\.com\/url\?q=(\S+?)(\&|$)/;
+  const hrefPattern = /^https:\/\/www\.google\.com\/url\?q=(\S+?)(&|$)/;
 
   $('a[href]').each((_, element) => {
     const href = $(element).attr('href');
@@ -550,12 +549,7 @@ function googleDocRemoveRedirects(html: string): string {
 }
 
 /**
- * - [X] Footnotes
- *   - [X] Basically working
- *   - [X] Use entire div as footnote rather than just <a>
- *   - [X] Make bullets in footnotes fail sensibly (or at least match how the copy paste version works)
- * - [X] Remove redirects
- * - [X] Rehost images
+ * TODO doc string
  */
 export async function convertImportedGoogleDoc(html: string, postId: string) {
   const { html: withRehostedImages } = await convertImagesInHTML(html, postId, url => url.includes("googleusercontent"))
