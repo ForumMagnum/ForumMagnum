@@ -1,24 +1,30 @@
 import { isFriendlyUI, preferredHeadingCase } from "../../../themes/forumTheme";
 import { isEAForum, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from "../../instanceSettings";
 
-export const formGroups: Partial<Record<string, FormGroupType<"Posts">>> = {
+export const formGroups: Record<string, FormGroupType<"Posts">> = {
   default: {
     name: "default",
     order: 0,
-    paddingStyle: true,
+    layoutComponentProps: {
+      paddingStyling: true,
+    }
   },
   category: {
     name: "category",
     order: -20,
-    paddingStyle: true,
-    defaultStyle: true,
+    layoutComponentProps: {
+      groupStyling: false,
+      paddingStyling: true,
+    }
   },
   title: {
     name: "title",
     order: -10,
-    paddingStyle: true,
-    defaultStyle: true,
-    flexAlignTopStyle: true,
+    layoutComponentProps: {
+      groupStyling: false,
+      paddingStyling: true,
+      flexAlignTopStyling: true
+    }
   },
   coauthors: {
     order: 21,
@@ -60,15 +66,19 @@ export const formGroups: Partial<Record<string, FormGroupType<"Posts">>> = {
   options: {
     order:10,
     name: "options",
-    defaultStyle: true,
-    paddingStyle: true,
-    flexStyle: true
+    layoutComponentProps: {
+      groupStyling: false,
+      paddingStyling: true,
+      flexStyling: true,
+    }
   },
   content: { //TODO – should this be 'contents'? is it needed?
     order:20,
     name: "Content",
-    defaultStyle: true,
-    paddingStyle: true,
+    layoutComponentProps: {
+      groupStyling: false,
+      paddingStyling: true,
+    }
   },
   canonicalSequence: {
     order:30,

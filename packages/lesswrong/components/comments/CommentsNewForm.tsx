@@ -367,7 +367,7 @@ const CommentsNewForm = ({
               layout="elementOnly"
               formComponents={{
                 FormSubmit: SubmitComponent,
-                FormGroupLayout: Components.DefaultStyleFormGroup
+                FormGroupLayout: Components.FormGroupNoStyling
               }}
               alignmentForumPost={post?.af}
               addFields={currentUser ? [] : ["title", "contents"]}
