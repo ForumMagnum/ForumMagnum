@@ -48,8 +48,8 @@ class Auth0StrategyFixed extends Auth0Strategy {
   userProfile!: (accessToken: string, done: (err: Error | null, profile?: Auth0Profile) => void) => void;
 }
 
-export const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null)
-export const googleOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.google.secret', null)
+const googleClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.google.clientId', null)
+const googleOAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.google.secret', null)
 
 const auth0ClientIdSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.appId', null)
 const auth0OAuthSecretSetting = new DatabaseServerSetting<string | null>('oAuth.auth0.secret', null)
@@ -167,7 +167,7 @@ async function deserializeUserPassport(id: AnyBecauseTodo, done: AnyBecauseTodo)
 
 
 /**
- * Add routes for handling users linking their Google account in order to import from Google Drive
+ * Add routes for handling linking the service account required to import google docs
  */
 const addGoogleDriveLinkMiddleware = (addConnectHandler: AddMiddlewareType) => {
   const googleClientId = googleClientIdSetting.get();
@@ -478,7 +478,6 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
     });
   }
 
-  // TODO comment on PR about how I couldn't get this to work
   addConnectHandler('/auth/google/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
     passport.authenticate('google', {}, (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info);

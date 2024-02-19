@@ -29,8 +29,6 @@ import { UserDialogueUsefulData } from "../../components/users/DialogueMatchingP
 import { eaEmojiPalette } from '../../lib/voting/eaEmojiPalette';
 import { postStatuses } from '../../lib/collections/posts/constants';
 import { getConfirmedCoauthorIds, userIsPostCoauthor } from '../../lib/collections/posts/helpers';
-import { googleClientIdSetting, googleOAuthSecretSetting } from '../authenticationMiddlewares';
-import { OAuth2Client } from 'google-auth-library';
 
 addGraphQLSchema(`
   type CommentCountTag {
