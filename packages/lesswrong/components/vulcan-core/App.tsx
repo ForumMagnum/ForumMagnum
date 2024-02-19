@@ -18,6 +18,7 @@ import {
 import type { RouterLocation } from '../../lib/vulcan-lib/routes';
 import { MessageContextProvider } from '../common/FlashMessages';
 import type { History } from 'history'
+import { RefetchCurrentUserContext } from '../common/withUser';
 
 export const siteImageSetting = new DatabasePublicSetting<string>('siteImage', 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1654295382/new_mississippi_river_fjdmww.jpg') // An image used to represent the site on social media
 
@@ -30,7 +31,7 @@ interface ExternalProps {
 const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
   history: History
 }) => {
-  const {currentUser, currentUserLoading} = useQueryCurrentUser();
+  const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
   const reactDomLocation = useLocation();
   const locationContext = useRef<RouterLocation | null>(null);
   const subscribeLocationContext = useRef<RouterLocation | null>(null);
@@ -106,6 +107,7 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
     <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
     <ServerRequestStatusContext.Provider value={serverRequestStatus||null}>
     <TimeContext.Provider value={timeOverride}>
+    <RefetchCurrentUserContext.Provider value={refetchCurrentUser}>
       <MessageContextProvider>
         <Components.HeadTags image={siteImageSetting.get()} />
         <Components.ScrollToTop />
@@ -113,6 +115,7 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
           <location.RouteComponent />
         </Components.Layout>
       </MessageContextProvider>
+    </RefetchCurrentUserContext.Provider>
     </TimeContext.Provider>
     </ServerRequestStatusContext.Provider>
     </SubscribeLocationContext.Provider>

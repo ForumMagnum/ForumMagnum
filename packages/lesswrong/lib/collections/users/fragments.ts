@@ -583,3 +583,14 @@ registerFragment(`
     displayName
   }
 `);
+
+registerFragment(`
+  fragment UserOnboardingAuthor on User {
+    _id
+    displayName
+    profileImageId
+    karma
+    jobTitle
+    organization
+  }
+`);
