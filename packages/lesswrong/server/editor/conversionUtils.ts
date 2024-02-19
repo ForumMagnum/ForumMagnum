@@ -414,6 +414,10 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string) {
   return bestWordCount
 }
 
+/**
+ * Convert the footnotes we get in google doc html to a format ckeditor can understand. This is mirroring the logic
+ * in the footnotes plugin (see e.g. public/lesswrong-editor/src/ckeditor5-footnote/src/footnoteEditing/googleDocsFootnotesNormalizer.js)
+ */
 function googleDocConvertFootnotes(html: string): string {
   const $ = cheerio.load(html);
 
@@ -549,7 +553,11 @@ function googleDocRemoveRedirects(html: string): string {
 }
 
 /**
- * TODO doc string
+ * We need to convert a few things in the raw html exported from google to make it work with ckeditor, this is
+ * largely mirroring conversions we do on paste in the ckeditor code:
+ * - Convert footnotes to our format
+ * - Remove google redirects from all urls
+ * - Reupload images to cloudinary (we actually don't do this on paste, but it's easier to do so here and prevents images breaking due to rate limits)
  */
 export async function convertImportedGoogleDoc(html: string, postId: string) {
   const { html: withRehostedImages } = await convertImagesInHTML(html, postId, url => url.includes("googleusercontent"))
