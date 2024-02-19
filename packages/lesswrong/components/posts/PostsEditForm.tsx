@@ -132,7 +132,8 @@ const PostsEditForm = ({ documentId, version, classes }: {
         {currentUser && <Components.PostsAcceptTos currentUser={currentUser} />}
         {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
         <NoSSR>
-          {userIsAdmin(currentUser) && <GoogleDocImport postId={documentId} />}
+          {/* TODO remove */}
+          {/* {userIsAdmin(currentUser) && <GoogleDocImport postId={documentId} />} */}
           <EditorContext.Provider value={[editorState, setEditorState]}>
             <WrappedSmartForm
               collectionName="Posts"

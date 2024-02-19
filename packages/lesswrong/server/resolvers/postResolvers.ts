@@ -22,13 +22,11 @@ import { marketInfoLoader } from '../posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { google } from 'googleapis';
-import { OAuth2Client } from 'google-auth-library';
-import { googleClientIdSetting, googleOAuthSecretSetting } from '../authenticationMiddlewares';
-import { DatabaseServerSetting } from '../databaseSettings';
 import { convertImportedGoogleDoc } from '../editor/conversionUtils';
 import Revisions from '../../lib/collections/revisions/collection';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
 
 type GoogleDocMetadata = {
   id: string;
@@ -38,8 +36,6 @@ type GoogleDocMetadata = {
   modifiedTime: string;
   size: string;
 }
-
-const gdocImportEmailTokenSetting = new DatabaseServerSetting<string | null>('gdocImportEmail.refreshToken', null)
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -372,6 +368,14 @@ addGraphQLResolvers({
       const posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId, limit)
       return await accessFilterMultiple(currentUser, Posts, posts, context)
     },
+    async CanAccessGoogleDoc(root: void, { fileUrl }: { fileUrl: string }, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser) {
+        return null;
+      }
+
+      return await canAccessGoogleDoc(fileUrl)
+    },
   },
   Mutation: {
     async ImportGoogleDoc(root: void, { fileUrl, postId }: { fileUrl: string, postId?: string | null }, context: ResolverContext) {
@@ -401,62 +405,30 @@ addGraphQLResolvers({
         }
       }
 
-      const googleClientId = googleClientIdSetting.get();
-      const googleOAuthSecret = googleOAuthSecretSetting.get();
-      const gdocImportEmailToken = gdocImportEmailTokenSetting.get()
+      const oauth2Client = getGoogleDocImportOAuthClient();
 
-      if (!googleClientId || !googleOAuthSecret) {
-        throw new Error('Google OAuth client not configured')
-      }
+      const drive = google.drive({
+        version: "v3",
+        auth: oauth2Client,
+      });
 
-      const oauth2Client = new OAuth2Client(googleClientId, googleOAuthSecret);
+      // Retrieve the file's metadata to get the name
+      const fileMetadata = await drive.files.get({
+        fileId,
+        fields: 'id, name, description, version, createdTime, modifiedTime, size'
+      });
 
-      const tokensToTry: string[] = [currentUser.linkedGoogleRefreshToken, gdocImportEmailToken].filter(v => v) as string[]
+      const docMetadata = fileMetadata.data as GoogleDocMetadata;
 
-      if (tokensToTry.length === 0) {
-        throw new Error('Either a user-linked google account, or a default account is required to import Google docs')
-      }
+      const fileContents = await drive.files.export(
+        {
+          fileId,
+          mimeType: "text/html",
+        },
+        { responseType: "text" }
+      );
 
-      let html: string | null = null
-      let docMetadata: GoogleDocMetadata | null = null;
-
-      const errors = []
-
-      for (const token of tokensToTry) {
-        oauth2Client.setCredentials({ refresh_token: token });
-
-        try {
-          const drive = google.drive({
-            version: "v3",
-            auth: oauth2Client,
-          });
-
-          // Retrieve the file's metadata to get the name
-          const fileMetadata = await drive.files.get({
-            fileId,
-            fields: 'id, name, description, version, createdTime, modifiedTime, size'
-          });
-
-          docMetadata = fileMetadata.data as GoogleDocMetadata;
-
-          const fileContents = await drive.files.export(
-            {
-              fileId,
-              mimeType: "text/html",
-            },
-            { responseType: "text" }
-          );
-
-          html = fileContents.data as string; // The HTML content of the Google Doc
-
-          break;
-        } catch (e) {
-          errors.push(e)
-          continue;
-        }
-      }
-
-      // TODO check contents of errors to see if we don't have access vs some unexpected error
+      const html = fileContents.data as string;
 
       if (!html || !docMetadata) {
         throw new Error("Unable to import google doc")
@@ -521,7 +493,6 @@ addGraphQLResolvers({
 })
 
 addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]");
-addGraphQLMutation("ImportGoogleDoc(fileUrl: String!, postId: String): Post");
 
 addGraphQLSchema(`
   type UserReadHistoryResult {
@@ -539,6 +510,9 @@ addGraphQLSchema(`
   }
 `)
 addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
+
+addGraphQLQuery("CanAccessGoogleDoc(fileUrl: String!): Boolean");
+addGraphQLMutation("ImportGoogleDoc(fileUrl: String!, postId: String): Post");
 
 createPaginatedResolver({
   name: "DigestHighlights",

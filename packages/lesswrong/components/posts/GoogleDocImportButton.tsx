@@ -1,9 +1,9 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { fragmentTextForQuery, registerComponent, Components, getSiteUrl, makeAbsolute } from "../../lib/vulcan-lib";
 import TextField from "@material-ui/core/TextField";
-import { useMutation, gql } from "@apollo/client";
+import { useMutation, gql, useQuery } from "@apollo/client";
 import { DatabasePublicSetting } from "../../lib/publicSettings";
-import { postGetEditUrl } from "../../lib/collections/posts/helpers";
+import { extractGoogleDocId, postGetEditUrl } from "../../lib/collections/posts/helpers";
 import { useMessages } from "../common/withMessages";
 import { useNavigate } from "../../lib/reactRouterWrapper";
 import { useLocation } from "../../lib/routeUtil";
@@ -58,12 +58,24 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     lineHeight: "18px"
   },
+  error: {
+    fontSize: 13,
+    fontWeight: 500,
+    lineHeight: "18px",
+    textAlign: "center",
+    color: theme.palette.error.main
+  },
   underline: {
     textDecoration: 'underline',
     textUnderlineOffset: '4px',
   },
   formButton: {
     fontWeight: 600,
+    display: "flex",
+    alignItems: "center"
+  },
+  loadingDots: {
+    marginTop: -8
   },
   input: {
     fontSize: 13,
@@ -79,19 +91,58 @@ const styles = (theme: ThemeType) => ({
 
 
 const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: ClassesType<typeof styles> }) => {
-  const [googleDocLink, setGoogleDocLink] = useState(
-    "https://docs.google.com/document/d/1ApMSWz4RPALKc27Mf33MgOlCQP8oMsodKh5DPnWEC78/edit"
-  );
+  const [googleDocUrl, setGoogleDocUrl] = useState("");
   const [open, setOpen] = useState(false)
   const anchorEl = useRef<HTMLDivElement | null>(null)
+  const [canImport, setCanImport] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  const { EAButton, ForumIcon, PopperCard, LWClickAwayListener } = Components;
+  const { EAButton, ForumIcon, PopperCard, LWClickAwayListener, Loading } = Components;
 
   const { flash } = useMessages();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [importGoogleDocMutation] = useMutation(
+  const fileId = extractGoogleDocId(googleDocUrl)
+  const { data: canAccessQuery, loading } = useQuery(
+    gql`
+      query CanAccessGoogleDoc($fileUrl: String!) {
+        CanAccessGoogleDoc(fileUrl: $fileUrl)
+      }
+    `,
+    {
+      variables: {
+        fileUrl: googleDocUrl,
+      },
+      fetchPolicy: "network-only",
+      ssr: false,
+      skip: !fileId,
+    }
+  );
+
+  useEffect(() => {
+    const _canAccess = canAccessQuery?.CanAccessGoogleDoc
+
+    if (_canAccess === true) {
+      setCanImport(true)
+      setErrorMessage(null)
+      return
+    }
+    if (_canAccess === false) {
+      setCanImport(false)
+      if (fileId) {
+        setErrorMessage("We don't have access to that doc")
+      }
+      return
+    }
+
+    if (!fileId) {
+      setErrorMessage(null)
+    }
+  }, [canAccessQuery?.CanAccessGoogleDoc, fileId])
+
+  // TODO pull out into hook
+  const [importGoogleDocMutation, {loading: mutationLoading}] = useMutation(
     gql`
       mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {
         ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {
@@ -112,17 +163,18 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
           void navigate(editPostUrl);
         }
       },
-      onError: () => {
-        // TODO handle case where we don't have access to the file
-      },
+      onError: (error) => {
+        // This should only rarely happen, as the access check covers most cases
+        flash(error.message)
+      }
     }
   );
 
   const handleImportClick = useCallback(async () => {
     void importGoogleDocMutation({
-      variables: { fileUrl: googleDocLink, postId },
+      variables: { fileUrl: googleDocUrl, postId },
     });
-  }, [googleDocLink, importGoogleDocMutation, postId]);
+  }, [googleDocUrl, importGoogleDocMutation, postId]);
 
   return (
     <>
@@ -148,11 +200,12 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
               className={classes.input}
               type="url"
               placeholder="https://docs.google.com/example"
-              value={googleDocLink}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setGoogleDocLink(event.target.value)}
+              value={googleDocUrl}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setGoogleDocUrl(event.target.value)}
             />
-            <EAButton className={classes.formButton} onClick={handleImportClick}>
-              Import Google doc
+            {errorMessage && <div className={classes.error}>{errorMessage}</div>}
+            <EAButton className={classes.formButton} disabled={!canImport} onClick={handleImportClick}>
+              {mutationLoading ? <Loading className={classes.loadingDots} /> : <>Import Google doc</>}
             </EAButton>
             <div className={classes.info}>
               <i>This will overwrite the existing post, but you can still find it in “Version History”</i>
