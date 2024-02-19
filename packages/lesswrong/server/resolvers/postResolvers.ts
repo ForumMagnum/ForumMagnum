@@ -405,7 +405,7 @@ addGraphQLResolvers({
         }
       }
 
-      const oauth2Client = getGoogleDocImportOAuthClient();
+      const oauth2Client = await getGoogleDocImportOAuthClient();
 
       const drive = google.drive({
         version: "v3",

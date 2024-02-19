@@ -306,8 +306,6 @@ const PostsNewForm = ({classes}: {
           {postWillBeHidden && <NewPostModerationWarning />}
           {rateLimitNextAbleToPost && <RateLimitWarning lastRateLimitExpiry={rateLimitNextAbleToPost.nextEligible} rateLimitMessage={rateLimitNextAbleToPost.rateLimitMessage}  />}
           <NoSSR>
-              {/* TODO remove */}
-              {/* {userIsAdmin(currentUser) && <GoogleDocImport />} */}
               <WrappedSmartForm
                 collectionName="Posts"
                 mutationFragment={getFragment('PostsPage')}

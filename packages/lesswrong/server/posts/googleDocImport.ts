@@ -1,10 +1,12 @@
 import { OAuth2Client } from 'google-auth-library';
-import { googleClientIdSetting, googleOAuthSecretSetting } from '../authenticationMiddlewares';
 import { DatabaseServerSetting } from '../databaseSettings';
 import { google } from 'googleapis';
 import { extractGoogleDocId } from '../../lib/collections/posts/helpers';
+import GoogleServiceAccountSessions from '../../lib/collections/googleServiceAccountSessions/collection';
+import { createMutator, updateMutator } from '../vulcan-lib';
 
-export const gdocImportEmailTokenSetting = new DatabaseServerSetting<string | null>('gdocImportEmail.refreshToken', null)
+const clientIdSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.clientId', null)
+const clientSecretSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.secret', null)
 
 let _oAuthClient: OAuth2Client | null = null;
 let _cacheTimestamp: number | null = null;
@@ -12,23 +14,22 @@ let _cacheTimestamp: number | null = null;
 /**
  * Get an OAuth2Client with the credentials set to the service account used for importing google docs
  */
-export function getGoogleDocImportOAuthClient() {
+export async function getGoogleDocImportOAuthClient() {
   const ttl = 600000; // 10 minutes in milliseconds
   const currentTime = Date.now();
 
-  // Check if we have a cached client and if it's still valid
   if (_oAuthClient && _cacheTimestamp && currentTime - _cacheTimestamp < ttl) {
     return _oAuthClient;
   }
 
-  // If we don't have a valid cached client, create a new one
-  const googleClientId = googleClientIdSetting.get();
-  const googleOAuthSecret = googleOAuthSecretSetting.get();
-  const gdocImportEmailToken = gdocImportEmailTokenSetting.get();
+  const googleClientId = clientIdSetting.get();
+  const googleOAuthSecret = clientSecretSetting.get();
 
-  if (!googleClientId || !googleOAuthSecret || !gdocImportEmailToken) {
-    throw new Error('Google OAuth client or import email token not configured');
+  if (!googleClientId || !googleOAuthSecret) {
+    throw new Error('Google OAuth client not configured');
   }
+
+  const gdocImportEmailToken = await getActiveRefreshToken();
 
   const oauth2Client = new OAuth2Client(googleClientId, googleOAuthSecret);
   oauth2Client.setCredentials({ refresh_token: gdocImportEmailToken });
@@ -51,7 +52,7 @@ export async function canAccessGoogleDoc(fileUrl: string): Promise<boolean> {
   }
 
   try {
-    const oauth2Client = getGoogleDocImportOAuthClient();
+    const oauth2Client = await getGoogleDocImportOAuthClient();
     const drive = google.drive({
       version: "v3",
       auth: oauth2Client,
@@ -69,4 +70,69 @@ export async function canAccessGoogleDoc(fileUrl: string): Promise<boolean> {
     // If an error occurs, access is not available
     return false;
   }
+}
+
+async function getActiveRefreshToken() {
+  const sessions = await GoogleServiceAccountSessions.find({active: true}).fetch()
+
+  if (sessions.length !== 1) {
+    throw new Error("There should only be one active GoogleServiceAccountSession")
+  }
+
+  return sessions[0].refreshToken
+}
+
+/**
+ * Explicitly revoke all access tokens (where this hasn't been done already). This isn't necessary when updating
+ * the active token, as previous tokens are automatically revoked, but we may want to do it for security reasons
+ */
+export async function revokeAllAccessTokens() {
+  const googleClientId = clientIdSetting.get();
+  const googleOAuthSecret = clientSecretSetting.get();
+
+  if (!googleClientId || !googleOAuthSecret) {
+    throw new Error('Google OAuth client not configured');
+  }
+
+  const oauth2Client = new OAuth2Client(googleClientId, googleOAuthSecret);
+
+  const sessions = await GoogleServiceAccountSessions.find({revoked: false}).fetch()
+
+  for (const session of sessions) {
+    try {
+      await oauth2Client.revokeToken(session.refreshToken);
+
+      await updateMutator({
+        collection: GoogleServiceAccountSessions,
+        documentId: session._id,
+        set: { active: false, revoked: true },
+        validate: false
+      });
+
+      return true;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error)
+    }
+  }
+}
+
+export async function updateActiveServiceAccount({email, refreshToken}: {email: string, refreshToken: string}) {
+  await GoogleServiceAccountSessions.rawUpdateMany({active: true}, {$set: {active: false}})
+
+  await createMutator({
+    collection: GoogleServiceAccountSessions,
+    document: {
+      email,
+      refreshToken,
+      // Now + 5 months (the earliest a token can expire is around 6 months)
+      estimatedExpiry: new Date(Date.now() + (5 * 30 * 24 * 60 * 60 * 1000)),
+      active: true,
+      revoked: false
+    },
+    validate: false,
+  })
+
+  _oAuthClient = null;
+  _cacheTimestamp = null;
 }

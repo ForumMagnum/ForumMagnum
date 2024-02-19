@@ -21,7 +21,8 @@ import { AUTH0_SCOPE, loginAuth0User, signupAuth0User } from './authentication/a
 import { IdFromProfile, UserDataFromProfile, getOrCreateForumUser } from './authentication/getOrCreateForumUser';
 import { promisify } from 'util';
 import { OAuth2Client } from 'google-auth-library';
-import { updateMutator } from './vulcan-lib';
+import { google } from 'googleapis';
+import { updateActiveServiceAccount } from './posts/googleDocImport';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -189,7 +190,8 @@ const addGoogleDriveLinkMiddleware = (addConnectHandler: AddMiddlewareType) => {
       access_type: 'offline', // offline => get a refresh token that persists for 6 months
       scope: [
         'https://www.googleapis.com/auth/drive.readonly',
-        'https://www.googleapis.com/auth/userinfo.profile'
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email'
       ],
       redirect_uri: `${getSiteUrl()}google_oauth2callback`
     });
@@ -207,21 +209,34 @@ const addGoogleDriveLinkMiddleware = (addConnectHandler: AddMiddlewareType) => {
 
     try {
       const { tokens } = await oauth2Client.getToken(code);
+
+      if (!tokens.refresh_token) {
+        throw new Error("Failed to create refresh_token")
+      }
+
       oauth2Client.setCredentials(tokens);
 
-      await updateMutator({
-        collection: Users,
-        documentId: user._id,
-        set: {linkedGoogleRefreshToken: tokens.refresh_token} as any,
-        validate: false
+      const userInfo = await google.oauth2({
+        auth: oauth2Client,
+        version: 'v2'
+      }).userinfo.get();
+
+      const email = userInfo?.data?.email
+
+      if (!email) {
+        throw new Error("Failed to get email")
+      }
+
+      await updateActiveServiceAccount({
+        email,
+        refreshToken: tokens.refresh_token
       })
 
-      // TODO change this route to a success message
-      res.redirect('/');
+      res.redirect('/admin/googleServiceAccount');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error retrieving access token', error);
-      res.redirect('/');
+      res.redirect('/admin/googleServiceAccount');
     }
   });
 };

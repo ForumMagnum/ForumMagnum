@@ -433,6 +433,19 @@ interface DbGardenCode extends DbObject {
   pingbacks: any /*{"definitions":[{}]}*/
 }
 
+type GoogleServiceAccountSessionsCollection = CollectionBase<"GoogleServiceAccountSessions">;
+
+interface DbGoogleServiceAccountSession extends DbObject {
+  __collectionName?: "GoogleServiceAccountSessions"
+  email: string
+  refreshToken: string
+  estimatedExpiry: Date
+  active: boolean
+  revoked: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type ImagesCollection = CollectionBase<"Images">;
 
 interface DbImages extends DbObject {
@@ -1703,6 +1716,7 @@ interface CollectionsByName {
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
+  GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
   Images: ImagesCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
@@ -1770,6 +1784,7 @@ interface ObjectsByCollectionName {
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
+  GoogleServiceAccountSessions: DbGoogleServiceAccountSession
   Images: DbImages
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
@@ -1837,6 +1852,7 @@ interface ObjectsByTypeName {
   EmailTokens: DbEmailTokens
   FeaturedResource: DbFeaturedResource
   GardenCode: DbGardenCode
+  GoogleServiceAccountSession: DbGoogleServiceAccountSession
   Images: DbImages
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData

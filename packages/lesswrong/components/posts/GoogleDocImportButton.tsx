@@ -7,6 +7,7 @@ import { extractGoogleDocId, postGetEditUrl } from "../../lib/collections/posts/
 import { useMessages } from "../common/withMessages";
 import { useNavigate } from "../../lib/reactRouterWrapper";
 import { useLocation } from "../../lib/routeUtil";
+import { useMulti } from "../../lib/crud/withMulti";
 
 // Next steps:
 // - [X] Get backend working with existing UI
@@ -15,13 +16,10 @@ import { useLocation } from "../../lib/routeUtil";
 //   - [X] Unlink button works
 // - [X] Change version restoration logic to allow restoring as draft
 // - [X] Fix import vs paste issues
-// - [ ] UI
-// - [ ] UI
+// - [X] UI
 // - [ ] Squash migrations
 // - [ ] Deploy to beta site, get people to test
 // - [ ] (maybe) Move refresh tokens to a separate table (to avoid logging + allow refreshing the magic token)
-
-// const gdocImportEmailSetting = new DatabasePublicSetting<string | null>("gdocImportEmail.email", null);
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -141,7 +139,17 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
     }
   }, [canAccessQuery?.CanAccessGoogleDoc, fileId])
 
-  // TODO pull out into hook
+  const { results: serviceAccounts, loading: serviceAccountsLoading } = useMulti({
+    terms: {},
+    collectionName: "GoogleServiceAccountSessions",
+    fragmentName: 'GoogleServiceAccountSessionInfo',
+    enableTotal: false,
+    extraVariablesValues: {
+      batchKey: "serviceAccounts"
+    }
+  })
+  const email = serviceAccounts?.[0].email
+
   const [importGoogleDocMutation, {loading: mutationLoading}] = useMutation(
     gql`
       mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {
@@ -192,25 +200,32 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
       <PopperCard open={open} anchorEl={anchorEl.current} placement="bottom-start" className={classes.popper}>
         <LWClickAwayListener onClickAway={() => setOpen(false)}>
           <div className={classes.card}>
-            <div className={classes.info}>
-              Paste a link that is public or shared with{" "}
-              <span className={classes.underline}>eaforum.posts@gmail.com</span>
-            </div>
-            <input
-              className={classes.input}
-              type="url"
-              placeholder="https://docs.google.com/example"
-              value={googleDocUrl}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => setGoogleDocUrl(event.target.value)}
-            />
-            {errorMessage && <div className={classes.error}>{errorMessage}</div>}
-            <EAButton className={classes.formButton} disabled={!canImport} onClick={handleImportClick}>
-              {mutationLoading ? <Loading className={classes.loadingDots} /> : <>Import Google doc</>}
-            </EAButton>
-            <div className={classes.info}>
-              {/* TODO make this wording depend on the state of the post */}
-              <i>This will overwrite the existing post, but you can still find it in “Version History”</i>
-            </div>
+            {email || serviceAccountsLoading ? (
+              <>
+                <div className={classes.info}>
+                  Paste a link that is public or shared with <span className={classes.underline}>{email}</span>
+                </div>
+                <input
+                  className={classes.input}
+                  type="url"
+                  placeholder="https://docs.google.com/example"
+                  value={googleDocUrl}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setGoogleDocUrl(event.target.value)}
+                />
+                {errorMessage && <div className={classes.error}>{errorMessage}</div>}
+                <EAButton className={classes.formButton} disabled={!canImport} onClick={handleImportClick}>
+                  {mutationLoading ? <Loading className={classes.loadingDots} /> : <>Import Google doc</>}
+                </EAButton>
+                <div className={classes.info}>
+                  <i>
+                    This will overwrite any unsaved changes
+                    {postId ? ", but you can still restore saved versions from “Version History”" : ""}.
+                  </i>
+                </div>
+              </>
+            ) : (
+              <div className={classes.info}>Error in configuration, contact support if this persists</div>
+            )}
           </div>
         </LWClickAwayListener>
       </PopperCard>

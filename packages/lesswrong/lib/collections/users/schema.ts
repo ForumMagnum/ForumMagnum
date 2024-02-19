@@ -2967,6 +2967,7 @@ const schema: SchemaType<"Users"> = {
   /**
    * refresh_token associated with the Google account a user has linked
    */
+  // TODO remove
   linkedGoogleRefreshToken: {
     type: String,
     canRead: [],
