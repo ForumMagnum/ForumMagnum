@@ -4,6 +4,11 @@ import { FormGroupLayoutProps } from './FormGroupLayout';
 import { hasGoogleDocImport } from '../../lib/betas';
 import { useLocation } from '../../lib/routeUtil';
 
+// We want the buttons to go _above_ the tabs when the space gets too tight,
+// which requires some special breakpoint logic (due to the how the central column
+// both expands and contracts as you reduce the screen size):
+// - Use the row layout above 1050px, and between 600px and the "md" breakpoint (around 950px)
+// - Otherwise use the column layout, with the buttons above
 const styles = (theme: ThemeType) => ({
   root: {
     display: 'flex',
@@ -15,14 +20,21 @@ const styles = (theme: ThemeType) => ({
     '& .form-input': {
       margin: 0,
     },
-    [theme.breakpoints.up('md')]: {
+    [`@media (min-width: 1050px)`]: {
+      flexDirection: "row",
+    },
+    [`@media (min-width: 600px) and (max-width: ${theme.breakpoints.values.md}px)`]: {
       flexDirection: "row",
     },
   },
   tabs: {
     order: 2,
     marginRight: 'auto',
-    [theme.breakpoints.up('md')]: {
+    [`@media (min-width: 1050px)`]: {
+      order: 1,
+      flexBasis: 'auto',
+    },
+    [`@media (min-width: 600px) and (max-width: ${theme.breakpoints.values.md}px)`]: {
       order: 1,
       flexBasis: 'auto',
     },
@@ -32,7 +44,11 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 'auto',
     display: "flex",
     gap: "4px",
-    [theme.breakpoints.up('md')]: {
+    [`@media (min-width: 1050px)`]: {
+      order: 2,
+      flexBasis: 'auto',
+    },
+    [`@media (min-width: 600px) and (max-width: ${theme.breakpoints.values.md}px)`]: {
       order: 2,
       flexBasis: 'auto',
     },
