@@ -46,7 +46,7 @@ const styles = (theme: ThemeType) => ({
   friendlyButton: {
     color: theme.palette.primary.main,
     backgroundColor: "transparent",
-    padding: "4px 8px",
+    padding: "2px 8px",
     '&:hover': {
       backgroundColor: theme.palette.background.primaryDim,
     },
@@ -57,8 +57,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   buttonInternalIcon: {
-    width: "17px",
-    marginRight: 3
+    width: "20px",
+    marginRight: 6
   },
   disabledIcon: {
     opacity: .35,

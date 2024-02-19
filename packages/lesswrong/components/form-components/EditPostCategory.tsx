@@ -38,6 +38,8 @@ const EditPostCategory = ({
   const { postCategory, url } = document;
   const lastUrlRef = useRef(url);
 
+  console.log({ postCategory })
+
   const handleChangeTab = useCallback(
     (_, value) => {
       if (!isPostCategory(value)) return; // Overkill but just to be safe

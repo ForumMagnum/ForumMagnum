@@ -1,6 +1,8 @@
 import React from 'react'
-import { registerComponent } from '../../lib/vulcan-lib';
+import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { FormGroupLayoutProps } from './FormGroupLayout';
+import { hasGoogleDocImport } from '../../lib/betas';
+import { useLocation } from '../../lib/routeUtil';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -28,6 +30,8 @@ const styles = (theme: ThemeType) => ({
   otherChildren: {
     order: 1,
     marginLeft: 'auto',
+    display: "flex",
+    gap: "4px",
     [theme.breakpoints.up('md')]: {
       order: 2,
       flexBasis: 'auto',
@@ -35,14 +39,22 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FormGroupPostTopBar = ({ children, classes }: FormGroupLayoutProps & { classes: ClassesType<typeof styles> }) => {
+const FormGroupPostTopBar = ({ children, formControlProps, classes }: FormGroupLayoutProps & { classes: ClassesType<typeof styles> }) => {
   const childrenArray = React.Children.toArray(children);
   const [tabs, ...otherChildren] = childrenArray;
+
+  const { query } = useLocation();
+  const postId = query.postId;
+
+  const { GoogleDocImportButton } = Components;
 
   return (
     <div className={classes.root}>
       <div className={classes.tabs}>{tabs}</div>
-      <div className={classes.otherChildren}>{otherChildren}</div>
+      <div className={classes.otherChildren}>
+        {hasGoogleDocImport && <GoogleDocImportButton postId={postId} />}
+        {otherChildren}
+      </div>
     </div>
   );
 };
