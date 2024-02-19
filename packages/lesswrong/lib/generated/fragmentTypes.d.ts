@@ -1689,7 +1689,6 @@ interface RevisionDisplay { // fragment on Revisions
   readonly userId: string,
   readonly html: string,
   readonly commitMessage: string,
-  readonly draft: boolean,
   readonly wordCount: number | null,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,

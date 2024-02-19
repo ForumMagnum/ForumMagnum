@@ -9,7 +9,6 @@ registerFragment(`
     userId
     html
     commitMessage
-    draft
     wordCount
     htmlHighlight
     plaintextDescription

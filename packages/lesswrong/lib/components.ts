@@ -444,6 +444,7 @@ importComponent("PostsEditPage", () => require('../components/posts/PostsEditPag
 importComponent("PostCollaborationEditor", () => require('../components/editor/PostCollaborationEditor'));
 importComponent("CollabEditorPermissionsNotices", () => require('../components/editor/CollabEditorPermissionsNotices'));
 importComponent(["PostVersionHistory","PostVersionHistoryButton"], () => require('../components/editor/PostVersionHistory'));
+importComponent(["FriendlyPostVersionHistory","FriendlyPostVersionHistoryButton"], () => require('../components/editor/FriendlyPostVersionHistory'));
 importComponent(["TagVersionHistory","TagVersionHistoryButton"], () => require('../components/editor/TagVersionHistory'));
 importComponent("EditorTopBar", () => require('../components/editor/EditorTopBar'));
 
