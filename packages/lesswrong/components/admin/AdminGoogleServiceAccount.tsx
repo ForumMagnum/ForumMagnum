@@ -32,8 +32,8 @@ const AdminGoogleServiceAccount = ({classes}: {
     fragmentName: 'GoogleServiceAccountSessionAdminInfo',
     enableTotal: false,
   })
-  const email = serviceAccounts?.[0].email
-  const estimatedExpiry = serviceAccounts?.[0].estimatedExpiry
+  const email = serviceAccounts?.[0]?.email
+  const estimatedExpiry = serviceAccounts?.[0]?.estimatedExpiry
 
   const { flash } = useMessages()
 

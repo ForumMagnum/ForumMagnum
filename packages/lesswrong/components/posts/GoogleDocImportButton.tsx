@@ -148,7 +148,7 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
       batchKey: "serviceAccounts"
     }
   })
-  const email = serviceAccounts?.[0].email
+  const email = serviceAccounts?.[0]?.email
 
   const [importGoogleDocMutation, {loading: mutationLoading}] = useMutation(
     gql`

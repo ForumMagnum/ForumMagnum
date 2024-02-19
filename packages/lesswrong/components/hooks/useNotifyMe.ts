@@ -1,4 +1,4 @@
-import type { MouseEvent } from "react";
+import { MouseEvent, useCallback } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCreate } from "../../lib/crud/withCreate";
 import { getCollectionName } from "../../lib/vulcan-lib";
@@ -56,11 +56,13 @@ export const useNotifyMe = ({
   overrideSubscriptionType,
   hideIfNotificationsDisabled,
   hideForLoggedOutUsers,
+  hideFlashes,
 }: {
   document: AnyBecauseTodo,
   overrideSubscriptionType?: SubscriptionType,
   hideIfNotificationsDisabled?: boolean,
   hideForLoggedOutUsers?: boolean,
+  hideFlashes?: boolean,
 }): NotifyMeConfig => {
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
@@ -98,8 +100,18 @@ export const useNotifyMe = ({
     enableTotal: false,
     skip: !currentUser
   });
-  
-  const onSubscribe = async (e: MouseEvent) => {
+
+  const isSubscribed = currentUser ?
+    currentUserIsSubscribed(
+      currentUser,
+      results,
+      subscriptionType,
+      collectionName,
+      document,
+    )
+    : false;
+
+  const onSubscribe = useCallback(async (e: MouseEvent) => {
     if (!currentUser) {
       openDialog({componentName: "LoginPopup"});
       return;
@@ -126,14 +138,22 @@ export const useNotifyMe = ({
       invalidateCache();
 
       // Success message will be for example posts.subscribed
-      flash({messageString: `Successfully ${
-        isSubscribed ? "unsubscribed" : "subscribed"}`
-      });
+      if (!hideFlashes) {
+        flash({messageString: `Successfully ${
+          isSubscribed ? "unsubscribed" : "subscribed"}`
+        });
+      }
     } catch(error) {
-      flash({messageString: error.message});
+      if (!hideFlashes) {
+        flash({messageString: error.message});
+      }
     }
-  }
-  
+  }, [
+    currentUser, openDialog, isSubscribed, captureEvent, document._id,
+    collectionName, subscriptionType, createSubscription, invalidateCache,
+    flash, hideFlashes,
+  ]);
+
   // If we are hiding the notify element, don't return an onSubscribe.
   if (!currentUser && hideForLoggedOutUsers) {
     return {
@@ -156,14 +176,6 @@ export const useNotifyMe = ({
       loading: true,
     };
   };
-
-  const isSubscribed = currentUserIsSubscribed(
-    currentUser,
-    results,
-    subscriptionType,
-    collectionName,
-    document,
-  );
 
   // Can't subscribe to yourself
   if (collectionName === 'Users' && document._id === currentUser?._id) {

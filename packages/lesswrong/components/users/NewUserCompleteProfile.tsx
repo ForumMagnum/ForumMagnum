@@ -97,20 +97,34 @@ function prefillUsername(maybeUsername: string | undefined | null): string {
   return maybeUsername
 }
 
+export const newUserCompleteProfileMutation = gql`
+  mutation NewUserCompleteProfile(
+    $username: String!,
+    $subscribeToDigest: Boolean!,
+    $email: String,
+    $acceptedTos: Boolean
+  ) {
+    NewUserCompleteProfile(
+      username: $username,
+      subscribeToDigest: $subscribeToDigest,
+      email: $email,
+      acceptedTos: $acceptedTos
+    ) {
+      username
+      slug
+      displayName
+    }
+  }
+`;
+
 const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ currentUser, classes }) => {
   const [username, setUsername] = useState(prefillUsername(currentUser.displayName))
   const emailInput = useRef<HTMLInputElement>(null)
   const [subscribeToDigest, setSubscribeToDigest] = useState(true)
   const [validationError, setValidationError] = useState('')
-  const [updateUser] = useMutation(gql`
-    mutation NewUserCompleteProfile($username: String!, $subscribeToDigest: Boolean!, $email: String, $acceptedTos: Boolean) {
-      NewUserCompleteProfile(username: $username, subscribeToDigest: $subscribeToDigest, email: $email, acceptedTos: $acceptedTos) {
-        username
-        slug
-        displayName
-      }
-    }
-  `, {refetchQueries: ['getCurrentUser']})
+  const [updateUser] = useMutation(newUserCompleteProfileMutation, {
+    refetchQueries: ['getCurrentUser'],
+  })
   const {flash} = useMessages();
   const {SingleColumnSection, Typography, EAButton} = Components
 
@@ -154,7 +168,7 @@ const NewUserCompleteProfile: React.FC<NewUserCompleteProfileProps> = ({ current
       flash(`${err}`)
     }
   }
-  
+
   return <AnalyticsContext pageContext="newUserRegistration">
     <SingleColumnSection>
       <div className={classes.root}>

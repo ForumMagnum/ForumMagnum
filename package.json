@@ -49,7 +49,7 @@
     "ea-start-xpost-dev": "PORT=4000 ./build.js -run -watch --lint --settings ../ForumCredentials/settings-xpost.json --postgresUrlFile ../ForumCredentials/xpost-pg-conn.txt",
     "ea-start-staging-db": "./build.js -run --watch --lint --settings ../ForumCredentials/settings-local-dev-staging-db.json --postgresUrlFile ../ForumCredentials/staging-pg-conn.txt",
     "ea-start-prod-db": "./build.js -run --watch --lint --settings ../ForumCredentials/settings-local-dev-prod-db.json --postgresUrlFile ../ForumCredentials/prod-pg-conn.txt",
-    "ea-start-testing-db": "./build.js -run --watch --settings ./settings-test.json --postgresUrl ${PG_URL:=$(cat ../ForumCredentials/testing-pg-conn.txt)}",
+    "ea-start-testing-db": "./build.js -run --watch --cypress --settings ./settings-test.json --postgresUrl ${PG_URL:=$(cat ../ForumCredentials/testing-pg-conn.txt)}",
     "init-cypress-db": "yarn ea-command-testing 'Globals.dropAndCreatePg({templateId: \"cypress_template\", seed: true, dropExisting: true})'",
     "init-cypress-db-ci": "yarn exec-accepted-schema && ./scripts/timeout.sh 120 yarn ea-command-ci 'Globals.dropAndCreatePg({templateId: \"cypress_template\", seed: true, dropExisting: true})'",
     "cypress-run-ci": "yarn wait-on tcp:3000 && yarn ea-cypress-run",

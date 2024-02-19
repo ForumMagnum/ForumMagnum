@@ -1590,7 +1590,6 @@ const schema: SchemaType<"Users"> = {
     hidden: !isLW,
     canRead: ['members'],
   },
-  // Not reusing curated, because we might actually use that as well
   subscribedToDigest: {
     type: Boolean,
     optional: true,
