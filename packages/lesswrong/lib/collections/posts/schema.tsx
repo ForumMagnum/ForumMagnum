@@ -2372,7 +2372,7 @@ const schema: SchemaType<"Posts"> = {
     canUpdate: [userOwns, 'admins'],
     canCreate: ['members'],
     optional: true,
-    control: isFriendlyUI ? "PostShareAndImport" : "PostSharingSettings",
+    control: "PostSharingSettings",
     label: "Sharing Settings",
     group: isFriendlyUI ? formGroups.category : formGroups.title,
     blackbox: true,

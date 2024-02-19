@@ -116,7 +116,6 @@ importComponent("EditUrl", () => require('../components/editor/EditUrl'));
 importComponent("EditLinkpostUrl", () => require('../components/editor/EditLinkpostUrl'));
 importComponent("EditableUsersList", () => require('../components/editor/EditableUsersList'));
 importComponent(["PostSharingSettings", "PostSharingSettingsDialog"], () => require('../components/editor/PostSharingSettings'));
-importComponent("PostShareAndImport", () => require('../components/editor/PostShareAndImport'));
 importComponent("DraftJSEditor", () => require('../components/editor/DraftJSEditor'));
 importComponent("PresenceList", () => require('../components/editor/PresenceList'));
 
@@ -929,6 +928,7 @@ importComponent("ThemeSelect", () => require('../components/form-components/Them
 // Form group components
 importComponent("FormGroupLayout", () => require('../components/form-components/FormGroupLayout'))
 importComponent("FormGroupNoStyling", () => require('../components/form-components/FormGroupNoStyling'))
+importComponent("FormGroupPostTopBar", () => require('../components/form-components/FormGroupPostTopBar'))
 
 importComponent("PostSummaryDialog", () => require('../components/languageModels/PostSummaryDialog'));
 
