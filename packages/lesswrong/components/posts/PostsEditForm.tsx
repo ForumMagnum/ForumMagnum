@@ -12,7 +12,7 @@ import { useUpdate } from "../../lib/crud/withUpdate";
 import { afNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
 import type { SubmitToFrontpageCheckboxProps } from './SubmitToFrontpageCheckbox';
 import type { PostSubmitProps } from './PostSubmit';
-import { userIsAdmin, userIsPodcaster } from '../../lib/vulcan-users/permissions';
+import { userIsPodcaster } from '../../lib/vulcan-users/permissions';
 import { SHARE_POPUP_QUERY_PARAM } from './PostsPage/PostsPage';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { Editor } from '@ckeditor/ckeditor5-core';
@@ -45,16 +45,7 @@ const PostsEditForm = ({ documentId, version, classes }: {
     }
   }, [isDraft]);
 
-  const {
-    WrappedSmartForm,
-    PostSubmit,
-    SubmitToFrontpageCheckbox,
-    HeadTags,
-    ForeignCrosspostEditForm,
-    DialogueSubmit,
-    RateLimitWarning,
-    DynamicTableOfContents,
-  } = Components;
+  const { WrappedSmartForm, PostSubmit, SubmitToFrontpageCheckbox, HeadTags, ForeignCrosspostEditForm, DialogueSubmit, RateLimitWarning, DynamicTableOfContents } = Components
 
   const [editorState, setEditorState] = useState<Editor | null>(editor)
   const saveDraftLabel: string = ((post) => {

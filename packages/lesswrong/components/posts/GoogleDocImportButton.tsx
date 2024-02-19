@@ -1,25 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { fragmentTextForQuery, registerComponent, Components, getSiteUrl, makeAbsolute } from "../../lib/vulcan-lib";
-import TextField from "@material-ui/core/TextField";
+import { fragmentTextForQuery, registerComponent, Components } from "../../lib/vulcan-lib";
 import { useMutation, gql, useQuery } from "@apollo/client";
-import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { extractGoogleDocId, postGetEditUrl } from "../../lib/collections/posts/helpers";
 import { useMessages } from "../common/withMessages";
 import { useNavigate } from "../../lib/reactRouterWrapper";
 import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
 
-// Next steps:
-// - [X] Get backend working with existing UI
-//   - [X] Import button works (NOT including ckeditor paste issues)
-//   - [X] Sign in button works (already true, but just make sure)
-//   - [X] Unlink button works
-// - [X] Change version restoration logic to allow restoring as draft
-// - [X] Fix import vs paste issues
-// - [X] UI
-// - [ ] Squash migrations
-// - [ ] Deploy to beta site, get people to test
-// - [ ] (maybe) Move refresh tokens to a separate table (to avoid logging + allow refreshing the magic token)
 
 const styles = (theme: ThemeType) => ({
   button: {
