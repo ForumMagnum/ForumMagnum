@@ -55,7 +55,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const FormGroupPostTopBar = ({ children, formControlProps, classes }: FormGroupLayoutProps & { classes: ClassesType<typeof styles> }) => {
+const FormGroupPostTopBar = ({ children, classes }: FormGroupLayoutProps & { classes: ClassesType<typeof styles> }) => {
   const childrenArray = React.Children.toArray(children);
   const [tabs, ...otherChildren] = childrenArray;
 

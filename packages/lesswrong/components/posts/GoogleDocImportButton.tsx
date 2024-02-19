@@ -104,7 +104,7 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
   const navigate = useNavigate();
 
   const fileId = extractGoogleDocId(googleDocUrl)
-  const { data: canAccessQuery, loading } = useQuery(
+  const { data: canAccessQuery } = useQuery(
     gql`
       query CanAccessGoogleDoc($fileUrl: String!) {
         CanAccessGoogleDoc(fileUrl: $fileUrl)
@@ -208,6 +208,7 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
               {mutationLoading ? <Loading className={classes.loadingDots} /> : <>Import Google doc</>}
             </EAButton>
             <div className={classes.info}>
+              {/* TODO make this wording depend on the state of the post */}
               <i>This will overwrite the existing post, but you can still find it in “Version History”</i>
             </div>
           </div>
