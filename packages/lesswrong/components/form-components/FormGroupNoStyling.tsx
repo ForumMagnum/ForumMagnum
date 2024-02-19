@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react'
 import { registerComponent } from '../../lib/vulcan-lib';
 
-const DefaultStyleFormGroup = ({children}: {
+const FormGroupNoStyling = ({children}: {
   children: ReactNode
 }) => {
   return <React.Fragment>
@@ -9,10 +9,10 @@ const DefaultStyleFormGroup = ({children}: {
   </React.Fragment>
 }
   
-const DefaultStyleFormGroupComponent = registerComponent('DefaultStyleFormGroup', DefaultStyleFormGroup)
+const FormGroupNoStylingComponent = registerComponent('FormGroupNoStyling', FormGroupNoStyling)
 
 declare global {
   interface ComponentTypes {
-    DefaultStyleFormGroup: typeof DefaultStyleFormGroupComponent
+    FormGroupNoStyling: typeof FormGroupNoStylingComponent
   }
 }

@@ -37,7 +37,8 @@ importComponent("PostsAnalyticsPage", () => require('../components/analytics/Pos
 importComponent("AnalyticsDisclaimers", () => require('../components/analytics/AnalyticsDisclaimers'));
 importComponent("DateRangeModal", () => require('../components/analytics/DateRangeModal'));
 
-importComponent("DigestAd", () => require('../components/ea-forum/DigestAd'));
+importComponent("SidebarDigestAd", () => require('../components/ea-forum/digestAd/SidebarDigestAd'));
+importComponent("StickyDigestAd", () => require('../components/ea-forum/digestAd/StickyDigestAd'));
 importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
 importComponent("EAHomeMainContent", () => require('../components/ea-forum/EAHomeMainContent'));
 importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EAHomeCommunityPosts'));
@@ -271,7 +272,6 @@ importComponent("PopperCard", () => require('../components/common/PopperCard'));
 importComponent("Footer", () => require('../components/common/Footer'));
 importComponent("LoadMore", () => require('../components/common/LoadMore'));
 importComponent("ReCaptcha", () => require('../components/common/ReCaptcha'));
-importComponent("DefaultStyleFormGroup", () => require('../components/common/DefaultStyleFormGroup'))
 importComponent("LinkCard", () => require('../components/common/LinkCard'));
 importComponent("LWClickAwayListener", () => require('../components/common/LWClickAwayListener'));
 importComponent("LWDialog", () => require('../components/common/LWDialog'));
@@ -925,6 +925,10 @@ importComponent("SelectLocalgroup", () => require('../components/form-components
 importComponent("PrefixedInput", () => require('../components/form-components/PrefixedInput'));
 importComponent("PodcastEpisodeInput", () => require('../components/form-components/PodcastEpisodeInput'));
 importComponent("ThemeSelect", () => require('../components/form-components/ThemeSelect'));
+
+// Form group components
+importComponent("FormGroupLayout", () => require('../components/form-components/FormGroupLayout'))
+importComponent("FormGroupNoStyling", () => require('../components/form-components/FormGroupNoStyling'))
 
 importComponent("PostSummaryDialog", () => require('../components/languageModels/PostSummaryDialog'));
 

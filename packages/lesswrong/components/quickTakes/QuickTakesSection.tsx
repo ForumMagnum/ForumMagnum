@@ -75,9 +75,9 @@ const QuickTakesSection = ({classes}: {
           placement="left"
           hideOnTouchScreens
         >
-          <div className={classes.communityToggle}>
-            <Checkbox checked={showCommunity} onChange={toggleShowCommunity} />
-            <span onClick={toggleShowCommunity}>Show community</span>
+          <div className={classes.communityToggle} onClick={toggleShowCommunity}>
+            <Checkbox checked={showCommunity} />
+            <span>Show community</span>
           </div>
         </LWTooltip>
       )}

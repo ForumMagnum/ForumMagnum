@@ -18,7 +18,7 @@ import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessag
 import { buildRevision } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
-import { getPostMarketInfo } from '../posts/annualReviewMarkets';
+import { marketInfoLoader } from '../posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { google } from 'googleapis';
@@ -272,9 +272,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return 0;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
-          Posts.find({_id: {$in : ids}}).fetch().then(posts => posts.map(getPostMarketInfo))
-        )
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader);
         return market?.probability
       }
     }
@@ -286,9 +284,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return false;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
-          Posts.find({_id: {$in : ids}}).fetch().then(posts => posts.map(getPostMarketInfo))
-        )
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader)
         return market?.isResolved
       }
     }
@@ -300,9 +296,7 @@ augmentFieldsDict(Posts, {
         if (!isLWorAF) {
           return 0;
         }
-        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, async ids =>
-          Posts.find({_id: {$in : ids}}).fetch().then(posts => posts.map(getPostMarketInfo))
-        )
+        const market = await getWithCustomLoader(context, 'manifoldMarket', post._id, marketInfoLoader)
         return market?.year
       }
     }

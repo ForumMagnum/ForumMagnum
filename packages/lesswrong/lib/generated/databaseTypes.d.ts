@@ -1068,7 +1068,7 @@ interface DbSubscription extends DbObject {
   documentId: string | null
   collectionName: CollectionNameString
   deleted: boolean
-  type: "newComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
+  type: "newComments" | "newUserComments" | "newShortform" | "newPosts" | "newRelatedQuestions" | "newEvents" | "newReplies" | "newTagPosts" | "newDebateComments" | "newDialogueMessages" | "newPublishedDialogueMessages"
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1345,6 +1345,12 @@ interface DbUser extends DbObject {
     dayOfWeekGMT: string,
   }
   notificationSubscribedUserPost: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
+  notificationSubscribedUserComment: {
     channel: "none" | "onsite" | "email" | "both",
     batchingFrequency: "realtime" | "daily" | "weekly",
     timeOfDayGMT: number,
