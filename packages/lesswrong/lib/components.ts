@@ -37,7 +37,8 @@ importComponent("PostsAnalyticsPage", () => require('../components/analytics/Pos
 importComponent("AnalyticsDisclaimers", () => require('../components/analytics/AnalyticsDisclaimers'));
 importComponent("DateRangeModal", () => require('../components/analytics/DateRangeModal'));
 
-importComponent("DigestAd", () => require('../components/ea-forum/DigestAd'));
+importComponent("SidebarDigestAd", () => require('../components/ea-forum/digestAd/SidebarDigestAd'));
+importComponent("StickyDigestAd", () => require('../components/ea-forum/digestAd/StickyDigestAd'));
 importComponent("EAHome", () => require('../components/ea-forum/EAHome'));
 importComponent("EAHomeMainContent", () => require('../components/ea-forum/EAHomeMainContent'));
 importComponent("EAHomeCommunityPosts", () => require('../components/ea-forum/EAHomeCommunityPosts'));
@@ -64,6 +65,18 @@ importComponent("MaintenanceBanner", () => require('../components/common/Mainten
 importComponent("BotSiteBanner", () => require('../components/common/BotSiteBanner'));
 importComponent("HorizScrollBlock", () => require('../components/common/HorizScrollBlock'));
 importComponent("BlurredBackgroundModal", () => require('../components/common/BlurredBackgroundModal'));
+
+importComponent("EAOnboardingFlow", () => require('../components/ea-forum/onboarding/EAOnboardingFlow'));
+importComponent("EAOnboardingInput", () => require('../components/ea-forum/onboarding/EAOnboardingInput'));
+importComponent("EAOnboardingSelect", () => require('../components/ea-forum/onboarding/EAOnboardingSelect'));
+importComponent("EAOnboardingPodcast", () => require('../components/ea-forum/onboarding/EAOnboardingPodcast'));
+importComponent("EAOnboardingTag", () => require('../components/ea-forum/onboarding/EAOnboardingTag'));
+importComponent("EAOnboardingAuthor", () => require('../components/ea-forum/onboarding/EAOnboardingAuthor'));
+importComponent("EAOnboardingStage", () => require('../components/ea-forum/onboarding/EAOnboardingStage'));
+importComponent("EAOnboardingUserStage", () => require('../components/ea-forum/onboarding/EAOnboardingUserStage'));
+importComponent("EAOnboardingSubscribeStage", () => require('../components/ea-forum/onboarding/EAOnboardingSubscribeStage'));
+importComponent("EAOnboardingWorkStage", () => require('../components/ea-forum/onboarding/EAOnboardingWorkStage'));
+importComponent("EAOnboardingThankYouStage", () => require('../components/ea-forum/onboarding/EAOnboardingThankYouStage'));
 
 importComponent("SiteLogo", () => require('../components/ea-forum/SiteLogo'));
 importComponent("StickiedPosts", () => require('../components/ea-forum/StickiedPosts'))
@@ -204,6 +217,7 @@ importComponent("Layout", () => require('../components/Layout.tsx'));
 importComponent("AnalyticsClient", () => require('../components/common/AnalyticsClient'));
 importComponent("ForumIcon", () => require('../components/common/ForumIcon'));
 importComponent("Row", () => require('../components/common/Row'));
+importComponent("ToggleSwitch", () => require('../components/common/ToggleSwitch'));
 importComponent("CalendarDate", () => require('../components/common/CalendarDate'));
 importComponent("ContentStyles", () => require('../components/common/ContentStyles'));
 importComponent("FormatDate", () => require('../components/common/FormatDate'));

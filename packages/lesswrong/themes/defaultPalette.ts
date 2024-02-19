@@ -295,6 +295,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     grey200: `1px solid ${shades.grey[200]}`,
     grey300: `1px solid ${shades.grey[300]}`,
     grey400: `1px solid ${shades.grey[400]}`,
+    grey800: `1px solid ${shades.grey[800]}`,
     maxIntensity: shades.greyBorder("1px", 1.0),
     tableHeadingDivider: shades.greyBorder("2px", 1.0),
     table: `1px double ${shades.grey[410]}`,
@@ -335,6 +336,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
     transparent: shades.inverseGreyAlpha(0),
     imageOverlay: 'rgba(0,0,0,0.4)',
+    digestAdBannerInput: shades.grey[0],
   },
   panelBackground: {
     default: shades.grey[0],
@@ -374,7 +376,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     tooltipBackground: "rgba(75,75,75,.94)",
     tooltipBackground2: "#373737",
     modalBackground: "#fff",
-    loginInput: "#f2f2f2",
+    loginInput: "#efefef",
+    loginInputHovered: "#e4e4e4",
     tenPercent: shades.greyAlpha(.1),
     sunshineReportedContent: "rgba(60,0,0,.08)",
     sunshineFlaggedUser: "rgba(150,0,0,.05)",
@@ -397,6 +400,8 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       rgba(255,255,255,0.25) 50%,
       rgba(0,0,0,0) 66%
     ) ${shades.grey[500]}`,
+    onboardingSection: "#f5f5f5",
+    onboardingPodcast: "#e7e7e7",
   },
   boxShadow: {
     default: `0 1px 5px ${shades.boxShadowColor(.025)}`,
@@ -459,6 +464,10 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
       selected: "#198cf0",
       selectedHover: "#0e7fe1",
     },
+    digestAdBannerNoThanks: {
+      background: shades.grey[700],
+      hoverBackground: shades.grey[800],
+    },
   },
   tag: {
     text: shades.greyAlpha(.9),
@@ -471,6 +480,9 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     hollowTagBorder: shades.greyBorder("1px", .15),
     boxShadow: `1px 2px 5px ${shades.boxShadowColor(.2)}`,
     addTagButtonBackground: shades.grey[300],
+    onboardingBackground: "rgba(0, 0, 0, 0.4)",
+    onboardingBackgroundHover: "rgba(0, 0, 0, 0.2)",
+    onboardingBackgroundSelected: "rgba(0, 0, 0, 0.5)",
   },
   geosuggest: {
     dropdownText: "#000",

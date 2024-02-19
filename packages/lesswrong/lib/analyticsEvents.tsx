@@ -394,7 +394,7 @@ Globals.captureEvent = captureEvent;
 
 let pendingAnalyticsEvents: Array<any> = [];
 
-function flushClientEvents() {
+export function flushClientEvents() {
   if (!AnalyticsUtil.clientWriteEvents)
     return;
   if (!pendingAnalyticsEvents.length)

@@ -146,6 +146,9 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         default: shadePalette.grey[20],
         modalBackground: "#292929",
         loginInput: "#3d3d3d",
+        loginInputHovered: "#3f3f3f",
+        onboardingSection: "#424242",
+        onboardingPodcast: "#525252",
       },
       background: {
         primaryTranslucent: "rgba(12,134,155,0.4)",
@@ -229,6 +232,7 @@ export const darkModeTheme: UserThemeSpecification = {
       primaryTranslucentHeavy: "rgba(99,141,103,0.6)",
       warningTranslucent: "rgba(255,173,8,0.3)",
       transparent: 'transparent',
+      digestAdBannerInput: shadePalette.grey[300],
     },
     border: {
       itemSeparatorBottom: shadePalette.greyBorder("1px", .2),
@@ -246,6 +250,10 @@ export const darkModeTheme: UserThemeSpecification = {
         hover: shadePalette.grey[100],
         selected: "#0c70c7",
         selectedHover: "#0b62ae",
+      },
+      digestAdBannerNoThanks: {
+        background: shadePalette.grey[600],
+        hoverBackground: shadePalette.grey[700],
       },
     },
     intercom: {

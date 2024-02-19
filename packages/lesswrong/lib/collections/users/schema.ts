@@ -15,7 +15,7 @@ import { userThemeSettings, defaultThemeOptions } from "../../../themes/themeNam
 import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
-import { dialoguesEnabled, hasPostRecommendations } from '../../betas';
+import { allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations } from '../../betas';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
@@ -1339,6 +1339,11 @@ const schema: SchemaType<"Users"> = {
     label: "Posts by users I'm subscribed to",
     ...notificationTypeSettingsField(),
   },
+  notificationSubscribedUserComment: {
+    label: "Comments by users I'm subscribed to",
+    ...notificationTypeSettingsField(),
+    hidden: !allowSubscribeToUserComments
+  },
   notificationPostsInGroups: {
     label: "Posts/events in groups I'm subscribed to",
     hidden: !hasEventsSetting.get(),
@@ -1585,7 +1590,6 @@ const schema: SchemaType<"Users"> = {
     hidden: !isLW,
     canRead: ['members'],
   },
-  // Not reusing curated, because we might actually use that as well
   subscribedToDigest: {
     type: Boolean,
     optional: true,

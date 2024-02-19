@@ -241,6 +241,7 @@ declare global {
       grey200: string,
       grey300: string,
       grey400: string,
+      grey800: string,
       maxIntensity: string,
       tableHeadingDivider: string,
       table: string,
@@ -301,6 +302,7 @@ declare global {
       tooltipBackground2: ColorString,
       modalBackground: ColorString,
       loginInput: ColorString,
+      loginInputHovered: ColorString,
       tenPercent: ColorString,
       sunshineReportedContent: ColorString,
       sunshineFlaggedUser: ColorString,
@@ -318,6 +320,8 @@ declare global {
       strawpoll: ColorString,
       userProfileImageHover: ColorString,
       userProfileImageLoading: string,
+      onboardingSection: ColorString,
+      onboardingPodcast: ColorString,
     },
     boxShadow: {
       default: string,
@@ -378,6 +382,10 @@ declare global {
         selected: ColorString,
         selectedHover: ColorString,
       },
+      digestAdBannerNoThanks: {
+        background: ColorString,
+        hoverBackground: ColorString,
+      },
     },
     tag: {
       text: ColorString,
@@ -393,6 +401,9 @@ declare global {
       hollowTagBorder: string,
       boxShadow: string,
       addTagButtonBackground: ColorString,
+      onboardingBackground: ColorString,
+      onboardingBackgroundHover: ColorString,
+      onboardingBackgroundSelected: ColorString,
     },
     geosuggest: {
       dropdownBackground: ColorString,
@@ -425,6 +436,7 @@ declare global {
       warningTranslucent: ColorString,
       transparent: ColorString,
       imageOverlay: ColorString,
+      digestAdBannerInput: ColorString,
     },
     header: {
       text: ColorString,
