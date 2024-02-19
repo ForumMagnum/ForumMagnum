@@ -8,7 +8,6 @@ import { gql, useMutation } from '@apollo/client';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    marginTop: -theme.spacing.mainLayoutPaddingTop,
     padding: "24px 36px 60px",
     backgroundColor: theme.palette.background.paper,
     fontFamily: theme.palette.fonts.sansSerifStack
