@@ -1599,7 +1599,6 @@ const schema: SchemaType<"Users"> = {
     canUpdate: [userOwns, 'sunshineRegiment', 'admins'],
     hidden: !isEAForum,
     canRead: ['members'],
-    onCreate: () => isEAForum,
     ...schemaDefaultValue(false)
   },
   unsubscribeFromAll: {

@@ -87,7 +87,6 @@ export const EAOnboardingUserStage = ({classes}: {
         variables: {
           username: name,
           acceptedTos,
-          subscribeToDigest: true, // This option is shown in a later stage
         },
       }),
     );
