@@ -54,7 +54,6 @@ const PostsEditForm = ({ documentId, version, classes }: {
     DialogueSubmit,
     RateLimitWarning,
     DynamicTableOfContents,
-    GoogleDocImport
   } = Components;
 
   const [editorState, setEditorState] = useState<Editor | null>(editor)

@@ -341,7 +341,6 @@ importComponent("CrosspostLoginPage", () => require('../components/users/Crosspo
 importComponent("LoginPopupButton", () => require('../components/users/LoginPopupButton'));
 importComponent("LoginPopup", () => require('../components/users/LoginPopup'));
 importComponent("SharePostPopup", () => require('../components/posts/SharePostPopup'));
-importComponent("GoogleDocImport", () => require('../components/posts/GoogleDocImport'));
 importComponent("GoogleDocImportButton", () => require('../components/posts/GoogleDocImportButton'));
 importComponent("KarmaChangeNotifier", () => require('../components/users/KarmaChangeNotifier'));
 importComponent("KarmaChangeNotifierSettings", () => require('../components/users/KarmaChangeNotifierSettings'));

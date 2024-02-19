@@ -223,7 +223,7 @@ const PostsNewForm = ({classes}: {
   const {
     PostSubmit, WrappedSmartForm, LoginForm, SubmitToFrontpageCheckbox,
     RecaptchaWarning, SingleColumnSection, Typography, Loading, PostsAcceptTos,
-    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents, GoogleDocImport
+    NewPostModerationWarning, RateLimitWarning, DynamicTableOfContents
   } = Components;
 
   const userHasModerationGuidelines = !!currentUser?.moderationGuidelines?.html;
