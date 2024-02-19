@@ -572,6 +572,16 @@ class UsersRepo extends AbstractRepo<"Users"> {
   
     return result;
   }
+
+  async isDisplayNameTaken(displayName: string): Promise<boolean> {
+    const result = await this.getRawDb().one(`
+      -- UsersRepo.isDisplayNameTaken
+      SELECT COUNT(*) > 0 AS "isDisplayNameTaken"
+      FROM "Users"
+      WHERE "displayName" = $1
+    `, [displayName]);
+    return result.isDisplayNameTaken;
+  }
 }
 
 recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });
