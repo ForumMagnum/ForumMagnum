@@ -548,5 +548,10 @@
     "acceptsSchemaHash": "92b57599e36ee19757a1e763216509c5",
     "acceptedByMigration": "20240213T222700.add_notificationSubscribedUserComment_to_Users.ts",
     "timestamp": "2024-02-13T22:27:00.000Z"
+  },
+  {
+    "acceptsSchemaHash": "3d91e3a1107d44cf3c7bcaf6ee992c82",
+    "acceptedByMigration": "20240219T161736.add_GoogleServiceAccountSessions.ts",
+    "timestamp": "2024-02-19T16:17:36.000Z"
   }
 ]
