@@ -1,17 +1,20 @@
-import { isEAForum } from "../lib/instanceSettings";
+import { forumSelect } from "../lib/forumTypeUtils";
 import { getAnalyticsConnection } from "./analytics/postgresConnection";
 import { addCronJob } from "./cronUtil";
 
-const maintenanceQueries = [
-  "REFRESH MATERIALIZED VIEW CONCURRENTLY view_and_hours_logged_in_by_day",
-  "REFRESH MATERIALIZED VIEW CONCURRENTLY views_and_hours_by_post_by_day"
-]
+const maintenanceQueries = forumSelect({
+  EAForum: [
+    "REFRESH MATERIALIZED VIEW CONCURRENTLY view_and_hours_logged_in_by_day",
+    "REFRESH MATERIALIZED VIEW CONCURRENTLY views_and_hours_by_post_by_day",
+  ],
+  default: [],
+});
 
 addCronJob({
   name: "maintainAnalyticsViews",
-  interval: "every 24 hours",
+  interval: "every 30 seconds",
   job: async () => {
-    if (!isEAForum) return;
+    if (!maintenanceQueries.length) return;
 
     const db = getAnalyticsConnection()
 
