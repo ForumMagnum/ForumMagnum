@@ -85,7 +85,7 @@ function logAndThrow(message: string) {
   throw new Error(message);
 }
 
-async function fetchCkEditorRestAPI<const T extends boolean = false>(method: string, uri: string, body?: any, returnRawResponse?: T): Promise<T extends true ? Response : string> {
+async function fetchCkEditorRestAPI<T extends boolean = false>(method: string, uri: string, body?: any, returnRawResponse?: T): Promise<T extends true ? Response : string> {
   const apiPrefix = getCkEditorApiPrefix()!;
   // See: https://ckeditor.com/docs/cs/latest/guides/security/request-signature.html
   const timestamp = new Date().getTime();
