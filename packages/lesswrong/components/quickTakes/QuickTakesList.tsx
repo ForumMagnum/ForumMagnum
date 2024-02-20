@@ -25,7 +25,6 @@ const QuickTakesList = ({showCommunity, tagId, maxAgeDays, className}: {
     fragmentName: "ShortformComments",
   });
   const {QuickTakesListItem, Loading, SectionFooter, LoadMore} = Components;
-
   return (
     <div className={className}>
       {results?.map((result) =>
