@@ -8,6 +8,7 @@ import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { forumSelect } from "../../lib/forumTypeUtils";
+import { isAF } from "../../lib/instanceSettings";
 
 type ExtendedCommentWithReactions = DbComment & {
   yourVote?: string,
@@ -158,14 +159,17 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     // over selecting brand new comments - defaults to 2 hours
     recencyBias?: number,
   }): Promise<DbComment[]> {
-    const popularCommentsExcludedTagId = forumSelect({
+    const excludedTagId = forumSelect({
       EAForum: EA_FORUM_COMMUNITY_TOPIC_ID,
       default: null
     });
 
-    const excludeTagId = !!popularCommentsExcludedTagId;
-    const excludedTagIdParam = excludeTagId ? [popularCommentsExcludedTagId] : [];
-    const excludedTagIdCondition = excludeTagId ? 'AND COALESCE((p."tagRelevance"->$6)::INTEGER, 0) < 1' : '';
+    const excludeTagId = !!excludedTagId;
+    const excludedTagIdParam = excludeTagId ? { excludedTagId } : {};
+    const excludedTagIdCondition = excludeTagId ? 'AND COALESCE((p."tagRelevance"->$(excludedTagId))::INTEGER, 0) < 1' : '';
+
+    const lookbackPeriod = isAF ? '1 month' : '1 week';
+    const afCommentsFilter = isAF ? 'AND "af" IS TRUE' : '';
     
     return this.any(`
       -- CommentsRepo.getPopularComments
@@ -174,13 +178,14 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         SELECT DISTINCT ON ("postId") "_id"
         FROM "Comments"
         WHERE
-          CURRENT_TIMESTAMP - "postedAt" < '1 week'::INTERVAL AND
+          CURRENT_TIMESTAMP - "postedAt" < $(lookbackPeriod)::INTERVAL AND
           "shortform" IS NOT TRUE AND
-          "baseScore" >= $1 AND
+          "baseScore" >= $(minScore) AND
           "retracted" IS NOT TRUE AND
           "deleted" IS NOT TRUE AND
           "deletedPublic" IS NOT TRUE AND
           "needsReview" IS NOT TRUE
+          ${afCommentsFilter}
         ORDER BY "postId", "baseScore" DESC
       ) q
       JOIN "Comments" c ON c."_id" = q."_id"
@@ -188,17 +193,18 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       WHERE
         p."hideFromPopularComments" IS NOT TRUE
         ${excludedTagIdCondition}
-      ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $5) / -$4) DESC
-      OFFSET $2
-      LIMIT $3
-    `, [
+      ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $(recencyBias)) / -$(recencyFactor)) DESC
+      OFFSET $(offset)
+      LIMIT $(limit)
+    `, {
       minScore,
       offset,
       limit,
       recencyFactor,
       recencyBias,
+      lookbackPeriod,
       ...excludedTagIdParam,
-    ]);
+    });
   }
 
   private getSearchDocumentQuery(): string {

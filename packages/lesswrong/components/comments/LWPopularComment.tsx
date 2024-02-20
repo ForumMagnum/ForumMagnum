@@ -22,6 +22,7 @@ const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
+    ...theme.typography.commentStyle,
   },
   wrap: {
     [theme.breakpoints.down('xs')]: {
@@ -75,20 +76,6 @@ const styles = (theme: ThemeType) => ({
     "-webkit-box-orient": "vertical",
     "-webkit-line-clamp": 2,
   },
-  toggleWrapper: {
-    marginRight: 5,
-    opacity: 0.8,
-    fontSize: "0.8rem",
-    lineHeight: "1rem",
-    display: "flex",
-    verticalAlign: "middle",
-    "& span": {
-      fontFamily: "monospace",
-    },
-  },
-  toggleCharacter: {
-    transform: 'translateY(0.75px)',
-  }
 });
 
 const PopularCommentPostLink: FC<{
@@ -133,16 +120,10 @@ const LWPopularComment = ({comment, classes}: {
     }
   }, [expanded, onClickCallback]);
 
-  const collapseToggle = (
-    <a className={classes.toggleWrapper} onClick={onClickCallback}>
-      {<>[<span className={classes.toggleCharacter}>{!expanded ? "+" : "-"}</span>]</>}
-    </a>
-  );
-
   const username = <UsersName user={comment.user} className={classes.username} />;
 
   const commentDate = (
-    <CommentsItemDate comment={comment} post={comment.post} />
+    <CommentsItemDate comment={comment} post={comment.post} preventDateFormatting />
   );
 
   const votingElement = !comment.debateResponse && !comment.rejected && (
@@ -178,7 +159,6 @@ const LWPopularComment = ({comment, classes}: {
     >
       <div className={classes.root}>
         <div className={classNames(classes.row, classes.wrap)}>
-          {collapseToggle}
           {username}
           {commentDate}
           {votingElement}

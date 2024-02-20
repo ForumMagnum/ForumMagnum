@@ -44,6 +44,8 @@ const NewShortformDialog = ({onClose, classes}: {
             setOpen(false);
             onClose?.();
           }}
+          defaultExpanded={!isFriendlyUI}
+          submitButtonAtBottom={!isFriendlyUI}
         />
       </DialogContent>
     </LWDialog>
