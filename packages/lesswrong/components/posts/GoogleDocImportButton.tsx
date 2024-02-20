@@ -97,7 +97,7 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
   const navigate = useNavigate();
 
   const fileId = extractGoogleDocId(googleDocUrl)
-  const { data: canAccessQuery } = useQuery(
+  const { data: canAccessQuery, refetch } = useQuery(
     gql`
       query CanAccessGoogleDoc($fileUrl: String!) {
         CanAccessGoogleDoc(fileUrl: $fileUrl)
@@ -112,6 +112,23 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
       skip: !fileId,
     }
   );
+
+  // Re-check the access every 5s, so if the user updates access they won't have to refresh
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+
+    if (fileId && open) {
+      intervalId = setInterval(() => {
+        void refetch();
+      }, 5000);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [fileId, open, refetch]);
 
   useEffect(() => {
     const _canAccess = canAccessQuery?.CanAccessGoogleDoc
