@@ -216,3 +216,4 @@ export const reviewArtSlackAPIKeySetting = new PublicInstanceSetting<string | nu
 export const reviewArtSlackSigningSecretSetting = new PublicInstanceSetting<string | null>('slack.signingSecret', null, "optional");
 
 export const myMidjourneyAPIKeySetting = new PublicInstanceSetting<string | null>('myMidjourney.apiKey', null, "optional");
+export const maxAllowedApiSkip = new PublicInstanceSetting<number | null>("maxAllowedApiSkip", 2000, "optional")

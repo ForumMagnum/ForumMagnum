@@ -9,6 +9,7 @@ import './server/cronUtil';
 import './server/startupSanityChecks';
 
 import './server/postgresView';
+import './server/analyticsViews';
 
 import './server/database-import/database_import_new';
 import './server/rss-integration/cron';

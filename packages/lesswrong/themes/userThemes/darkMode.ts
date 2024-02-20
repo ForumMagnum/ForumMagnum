@@ -146,6 +146,9 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         default: shadePalette.grey[20],
         modalBackground: "#292929",
         loginInput: "#3d3d3d",
+        loginInputHovered: "#3f3f3f",
+        onboardingSection: "#424242",
+        onboardingPodcast: "#525252",
       },
       background: {
         primaryTranslucent: "rgba(12,134,155,0.4)",

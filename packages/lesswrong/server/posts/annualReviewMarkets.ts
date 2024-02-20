@@ -123,6 +123,10 @@ async function refreshMarketInfoInCache(post: DbPost) {
 }
 
 export const getPostMarketInfo = async (post: DbPost): Promise<AnnualReviewMarketInfo | undefined>  => {
+  if (!post.manifoldReviewMarketId) {
+    return undefined;
+  }
+  
   const cacheItem = await ManifoldProbabilitiesCaches.findOne({
     marketId: post.manifoldReviewMarketId
   });

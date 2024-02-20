@@ -306,6 +306,7 @@ declare global {
       tooltipBackground2: ColorString,
       modalBackground: ColorString,
       loginInput: ColorString,
+      loginInputHovered: ColorString,
       tenPercent: ColorString,
       sunshineReportedContent: ColorString,
       sunshineFlaggedUser: ColorString,
@@ -324,6 +325,8 @@ declare global {
       userProfileImageHover: ColorString,
       userProfileImageLoading: string,
       reviewGold: ColorString
+      onboardingSection: ColorString,
+      onboardingPodcast: ColorString,
     },
     boxShadow: {
       default: string,
@@ -403,6 +406,9 @@ declare global {
       hollowTagBorder: string,
       boxShadow: string,
       addTagButtonBackground: ColorString,
+      onboardingBackground: ColorString,
+      onboardingBackgroundHover: ColorString,
+      onboardingBackgroundSelected: ColorString,
     },
     geosuggest: {
       dropdownBackground: ColorString,

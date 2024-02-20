@@ -11,6 +11,7 @@ declare global {
     slug?: string
     tagFlagId?: string
     parentTagId?: string
+    tagIds?: string[]
   }
 }
 
@@ -25,6 +26,12 @@ Tags.addDefaultView((terms: TagsViewTerms, _, context?: ResolverContext) => {
   };
 });
 ensureIndex(Tags, {deleted:1, adminOnly:1});
+
+Tags.addView("tagsByTagIds", (terms: TagsViewTerms) => {
+  return {
+    selector: {_id: {$in: terms.tagIds}}
+  };
+});
 
 Tags.addView('allTagsAlphabetical', (terms: TagsViewTerms) => {
   return {
