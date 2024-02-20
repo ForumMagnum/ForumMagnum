@@ -139,7 +139,7 @@ const StickyDigestAd = ({className, classes}: {
   
   if (!showDigestAd) return null
   
-  const { ForumIcon, EAButton } = Components
+  const { AnalyticsInViewTracker, ForumIcon, EAButton } = Components
   
   const buttonProps = loading ? {disabled: true} : {}
   const noThanksBtn = (
@@ -186,15 +186,17 @@ const StickyDigestAd = ({className, classes}: {
   }
   
   return <AnalyticsContext pageSubSectionContext="digestAd">
-    <div className={classNames(classes.root, className)}>
-      <div className={classes.textCol}>
-        <h2 className={classes.heading}>{DIGEST_AD_HEADLINE_TEXT}</h2>
-        <div className={classNames(classes.body)}>
-          {DIGEST_AD_BODY_TEXT}
+    <AnalyticsInViewTracker eventProps={{inViewType: "stickyDigestAd"}}>
+      <div className={classNames(classes.root, className)}>
+        <div className={classes.textCol}>
+          <h2 className={classes.heading}>{DIGEST_AD_HEADLINE_TEXT}</h2>
+          <div className={classNames(classes.body)}>
+            {DIGEST_AD_BODY_TEXT}
+          </div>
         </div>
+        {formNode}
       </div>
-      {formNode}
-    </div>
+    </AnalyticsInViewTracker>
   </AnalyticsContext>
 }
 
