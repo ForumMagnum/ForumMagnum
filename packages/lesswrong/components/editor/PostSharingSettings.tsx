@@ -44,17 +44,17 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer"
   },
   friendlyButton: {
-    color: theme.palette.primary.main,
-    backgroundColor: "transparent",
-    padding: "2px 8px",
-    '&:hover': {
-      backgroundColor: theme.palette.background.primaryDim,
-    },
-    '&:disabled': {
-      color: theme.palette.primary.main,
+      color: theme.palette.grey[900],
       backgroundColor: "transparent",
-      opacity: 0.5
-    },
+      padding: "2px 12px",
+      '&:hover': {
+        backgroundColor: theme.palette.grey[200],
+      },
+      '&:disabled': {
+        color: theme.palette.grey[900],
+        backgroundColor: "transparent",
+        opacity: 0.5
+      },
   },
   buttonInternalIcon: {
     width: "20px",

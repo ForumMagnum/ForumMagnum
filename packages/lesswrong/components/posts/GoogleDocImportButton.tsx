@@ -10,14 +10,14 @@ import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   button: {
-    color: theme.palette.primary.main,
+    color: theme.palette.grey[900],
     backgroundColor: "transparent",
-    padding: "2px 8px",
+    padding: "2px 12px",
     '&:hover': {
-      backgroundColor: theme.palette.background.primaryDim,
+      backgroundColor: theme.palette.grey[200],
     },
     '&:disabled': {
-      color: theme.palette.primary.main,
+      color: theme.palette.grey[900],
       backgroundColor: "transparent",
       opacity: 0.5
     },
@@ -40,8 +40,15 @@ const styles = (theme: ThemeType) => ({
   info: {
     fontSize: 13,
     fontWeight: 500,
-    color: theme.palette.grey[600],
+    color: theme.palette.grey[900],
     lineHeight: "18px"
+  },
+  footer: {
+    fontSize: 13,
+    fontWeight: 500,
+    color: theme.palette.grey[600],
+    lineHeight: "18px",
+    fontStyle: 'italic',
   },
   error: {
     fontSize: 13,
@@ -212,7 +219,7 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
             {email || serviceAccountsLoading ? (
               <>
                 <div className={classes.info}>
-                  Paste a link that is public or shared with <span className={classes.underline}>{email}</span>.
+                  Paste a link that is public or shared with <span className={classes.underline}>{email}</span>
                 </div>
                 <input
                   className={classes.input}
@@ -225,11 +232,9 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
                 <EAButton className={classes.formButton} disabled={!canImport} onClick={handleImportClick}>
                   {mutationLoading ? <Loading className={classes.loadingDots} /> : <>Import Google doc</>}
                 </EAButton>
-                <div className={classes.info}>
-                  <i>
+                <div className={classes.footer}>
                     This will overwrite any unsaved changes
-                    {postId ? ", but you can still restore saved versions from “Version history”" : ""}.
-                  </i>
+                    {postId ? ", but you can still restore saved versions from “Version history”" : ""}
                 </div>
               </>
             ) : (
