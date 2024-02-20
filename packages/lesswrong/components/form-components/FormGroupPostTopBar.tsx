@@ -7,7 +7,7 @@ import { useLocation } from '../../lib/routeUtil';
 // We want the buttons to go _above_ the tabs when the space gets too tight,
 // which requires some special breakpoint logic (due to the how the central column
 // both expands and contracts as you reduce the screen size):
-// - Use the row layout above 1050px, and between 600px and the "md" breakpoint (around 950px)
+// - Use the row layout above 1090px, and between 620px and the "md" breakpoint (around 950px)
 // - Otherwise use the column layout, with the buttons above
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,21 +20,21 @@ const styles = (theme: ThemeType) => ({
     '& .form-input': {
       margin: 0,
     },
-    [`@media (min-width: 1050px)`]: {
+    [`@media (min-width: 1090px)`]: {
       flexDirection: "row",
     },
-    [`@media (min-width: 600px) and (max-width: ${theme.breakpoints.values.md}px)`]: {
+    [`@media (min-width: 620px) and (max-width: ${theme.breakpoints.values.md}px)`]: {
       flexDirection: "row",
     },
   },
   tabs: {
     order: 2,
     marginRight: 'auto',
-    [`@media (min-width: 1050px)`]: {
+    [`@media (min-width: 1090px)`]: {
       order: 1,
       flexBasis: 'auto',
     },
-    [`@media (min-width: 600px) and (max-width: ${theme.breakpoints.values.md}px)`]: {
+    [`@media (min-width: 620px) and (max-width: ${theme.breakpoints.values.md}px)`]: {
       order: 1,
       flexBasis: 'auto',
     },
@@ -44,11 +44,11 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 'auto',
     display: "flex",
     gap: "2px",
-    [`@media (min-width: 1050px)`]: {
+    [`@media (min-width: 1090px)`]: {
       order: 2,
       flexBasis: 'auto',
     },
-    [`@media (min-width: 600px) and (max-width: ${theme.breakpoints.values.md}px)`]: {
+    [`@media (min-width: 620px) and (max-width: ${theme.breakpoints.values.md}px)`]: {
       order: 2,
       flexBasis: 'auto',
     },

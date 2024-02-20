@@ -182,7 +182,7 @@ const PostSharingSettings = ({document, formType, value, classes}: {
         disabled={!canUseSharing}
       >
         <PostSharingIcon className={classes.buttonInternalIcon} />
-        Share {document.draft ? " draft" : ""}
+        Share {document.draft ? " this draft" : ""}
       </EAButton>
     </LWTooltip>
   ) : (
