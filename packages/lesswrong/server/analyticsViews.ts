@@ -12,7 +12,7 @@ const maintenanceQueries = forumSelect({
 
 addCronJob({
   name: "maintainAnalyticsViews",
-  interval: "every 30 seconds",
+  interval: "every 24 hours",
   job: async () => {
     if (!maintenanceQueries.length) return;
 
