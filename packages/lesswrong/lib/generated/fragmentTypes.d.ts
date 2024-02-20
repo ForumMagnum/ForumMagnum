@@ -859,7 +859,7 @@ interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
 }
 
 interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
-  readonly postId: string,
+  readonly postId: string | null,
   readonly splashArtImagePrompt: string,
   readonly splashArtImageUrl: string,
 }
@@ -3637,7 +3637,7 @@ interface ReviewWinnerTopPostsPage_reviewWinnerArt { // fragment on ReviewWinner
 
 interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly _id: string,
-  readonly postId: string,
+  readonly postId: string | null,
   readonly splashArtImagePrompt: string,
   readonly splashArtImageUrl: string,
   readonly activeSplashArtCoordinates: SplashArtCoordinates|null,

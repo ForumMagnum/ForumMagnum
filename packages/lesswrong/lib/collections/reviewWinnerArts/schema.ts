@@ -3,7 +3,7 @@ import { resolverOnlyField } from "../../utils/schemaUtils";
 export const schema: SchemaType<"ReviewWinnerArts"> = {
   postId: {
     type: String,
-    nullable: false,
+    nullable: true,
     canRead: ['guests'],
     canCreate: ['sunshineRegiment', 'admins'],
     canUpdate: ['sunshineRegiment', 'admins'],
