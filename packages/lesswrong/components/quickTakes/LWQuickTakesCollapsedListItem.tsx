@@ -31,6 +31,9 @@ const styles = (theme: ThemeType) => ({
       height: 14,
     },
     paddingBottom: 4,
+    [theme.breakpoints.down('xs')]: {
+      display: 'none',
+    },
   },
   commentCountClickable: {
     cursor: "pointer",

@@ -179,7 +179,7 @@ const LWPopularComment = ({comment, classes}: {
     >
       <div className={classes.root}>
         <div className={classNames(classes.row, classes.wrap)}>
-          {collapseToggle}
+          {/* {collapseToggle} */}
           {username}
           {commentDate}
           {votingElement}
