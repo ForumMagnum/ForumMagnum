@@ -43,7 +43,7 @@ const styles = (theme: ThemeType) => ({
     order: 1,
     marginLeft: 'auto',
     display: "flex",
-    gap: "4px",
+    gap: "2px",
     [`@media (min-width: 1050px)`]: {
       order: 2,
       flexBasis: 'auto',
