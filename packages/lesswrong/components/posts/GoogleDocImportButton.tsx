@@ -6,7 +6,7 @@ import { useMessages } from "../common/withMessages";
 import { useNavigate } from "../../lib/reactRouterWrapper";
 import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
-
+import { useTracking } from "../../lib/analyticsEvents";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -84,6 +84,7 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
 
   const { EAButton, ForumIcon, PopperCard, LWClickAwayListener, Loading } = Components;
 
+  const { captureEvent } = useTracking()
   const { flash } = useMessages();
   const location = useLocation();
   const navigate = useNavigate();
@@ -152,6 +153,13 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
         const linkSharingKey = data?.ImportGoogleDoc?.linkSharingKey;
         const editPostUrl = postGetEditUrl(postId, false, linkSharingKey ?? undefined);
 
+        captureEvent("googleDocImportSubmitted", {
+          success: true,
+          fileUrl: googleDocUrl,
+          postId,
+          isNew: !postId,
+        });
+
         if (location.url === editPostUrl) {
           window.location.reload();
         } else {
@@ -159,11 +167,25 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
         }
       },
       onError: (error) => {
+        captureEvent("googleDocImportSubmitted", {
+          success: false,
+          fileUrl: googleDocUrl,
+          postId,
+          isNew: !postId,
+        });
+
         // This should only rarely happen, as the access check covers most cases
         flash(error.message)
       }
     }
   );
+
+  const handleToggle = useCallback((newState: boolean) => {
+    captureEvent("googleDocImportToggled", {
+      open: newState
+    })
+    setOpen(newState)
+  }, [captureEvent])
 
   const handleImportClick = useCallback(async () => {
     void importGoogleDocMutation({
@@ -176,7 +198,7 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
       <div ref={anchorEl}>
         <EAButton
           onClick={() => {
-            setOpen(!open);
+            handleToggle(!open);
           }}
           className={classes.button}
         >
@@ -185,7 +207,7 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
         </EAButton>
       </div>
       <PopperCard open={open} anchorEl={anchorEl.current} placement="bottom-start" className={classes.popper}>
-        <LWClickAwayListener onClickAway={() => setOpen(false)}>
+        <LWClickAwayListener onClickAway={() => handleToggle(false)}>
           <div className={classes.card}>
             {email || serviceAccountsLoading ? (
               <>
