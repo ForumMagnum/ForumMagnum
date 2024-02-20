@@ -231,7 +231,7 @@ const styles = (theme: ThemeType) => ({
   },
   showAllImageGrid: {
     '& $imageGridContainer': {
-      transition: 'width 0.5s ease-in-out',
+      transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out',
     },
   },
   imageGridHeader: {
@@ -281,7 +281,7 @@ const styles = (theme: ThemeType) => ({
     width: 'calc(3 * 120px - 2px)',
     height: 'inherit',
     overflow: 'hidden',
-    transition: 'width 0.5s ease-in-out',
+    transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out',
     [theme.breakpoints.down(800)]: {
       transition: 'height 0.5s ease-in-out',
     }
