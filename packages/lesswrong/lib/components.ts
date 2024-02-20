@@ -733,6 +733,7 @@ importComponent("SunshineReportedItem", () => require('../components/sunshineDas
 importComponent("ModeratorMessageCount", () => require('../components/sunshineDashboard/ModeratorMessageCount'));
 importComponent("SunshineCuratedSuggestionsItem", () => require('../components/sunshineDashboard/SunshineCuratedSuggestionsItem'));
 importComponent("SunshineCuratedSuggestionsList", () => require('../components/sunshineDashboard/SunshineCuratedSuggestionsList'));
+importComponent("SunshineGoogleServiceAccount", () => require('../components/sunshineDashboard/SunshineGoogleServiceAccount'));
 importComponent("SunshineNewTagsList", () => require('../components/sunshineDashboard/SunshineNewTagsList'));
 importComponent("SunshineNewTagsItem", () => require('../components/sunshineDashboard/SunshineNewTagsItem'));
 importComponent("SunshineSidebar", () => require('../components/sunshineDashboard/SunshineSidebar'));
