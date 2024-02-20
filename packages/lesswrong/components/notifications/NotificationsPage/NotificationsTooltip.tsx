@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: "100vw",
     padding: PADDING,
   },
-  remaining: {
+  showMore: {
     background: theme.palette.grey[0],
     width: "100%",
     boxShadow: `0px -18px 22px 0px ${theme.palette.grey[0]}`,
@@ -72,13 +72,11 @@ export const NotificationsTooltip = ({
               hideCommentPreviews
             />
           )}
-          {remaining > 0 &&
-            <div className={classes.remaining}>
-              <Link to="/notifications">
-                {remaining} more
-              </Link>
-            </div>
-          }
+          <div className={classes.showMore}>
+            <Link to="/notifications">
+              {remaining > 0 ? `${remaining} more` : "View all"}
+            </Link>
+          </div>
         </div>
       }
       placement="bottom"
