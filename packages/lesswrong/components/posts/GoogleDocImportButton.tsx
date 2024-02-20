@@ -190,7 +190,7 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
             {email || serviceAccountsLoading ? (
               <>
                 <div className={classes.info}>
-                  Paste a link that is public or shared with <span className={classes.underline}>{email}</span>
+                  Paste a link that is public or shared with <span className={classes.underline}>{email}</span>.
                 </div>
                 <input
                   className={classes.input}
@@ -206,7 +206,7 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
                 <div className={classes.info}>
                   <i>
                     This will overwrite any unsaved changes
-                    {postId ? ", but you can still restore saved versions from “Version History”" : ""}.
+                    {postId ? ", but you can still restore saved versions from “Version history”" : ""}.
                   </i>
                 </div>
               </>
