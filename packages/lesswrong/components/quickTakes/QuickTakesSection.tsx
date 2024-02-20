@@ -8,8 +8,9 @@ import {
   SHOW_QUICK_TAKES_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
 } from "../../lib/cookies/cookies";
-import { isLWorAF } from "../../lib/instanceSettings";
+import { isEAForum, isLWorAF } from "../../lib/instanceSettings";
 import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
+import { Link } from '../../lib/reactRouterWrapper';
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
@@ -43,6 +44,10 @@ const styles = (theme: ThemeType) => ({
 const QuickTakesSection = ({classes}: {
   classes: ClassesType,
 }) => {
+  const {
+    ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList,
+  } = Components;
+
   const currentUser = useCurrentUser();
 
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
@@ -68,30 +73,41 @@ const QuickTakesSection = ({classes}: {
     forceSetCookieIfUndefined: true,
   });
 
-  const {
-    ExpandableSection, LWTooltip, QuickTakesEntry, QuickTakesList,
-  } = Components;
+  const titleText = preferredHeadingCase("Quick Takes");
+  const titleTooltip = (
+    <div>
+      A feed of quick takes by other users, sorted by recency.
+    </div>
+  );
+  const title = isFriendlyUI
+    ? titleText
+    : (<>
+        <LWTooltip title={titleTooltip} placement="left">
+          <Link to={"/quicktakes"}>{titleText}</Link>
+        </LWTooltip>
+      </>);
+
   return (
     <ExpandableSection
       pageSectionContext="quickTakesSection"
       expanded={expanded}
       toggleExpanded={toggleExpanded}
-      title={preferredHeadingCase("Quick Takes")}
-      afterTitleTo="/quicktakes"
-      AfterTitleComponent={isLWorAF 
-        ? undefined 
-        : () => (
-        <LWTooltip
-          title='Show quick takes tagged "Community"'
-          placement="left"
-          hideOnTouchScreens
-        >
-          <div className={classes.communityToggle} onClick={toggleShowCommunity}>
-            <Checkbox checked={showCommunity} />
-            <span>Show community</span>
-          </div>
-        </LWTooltip>
-      )}
+      title={title}
+      afterTitleTo={isFriendlyUI ? "/quicktakes" : undefined}
+      AfterTitleComponent={isEAForum 
+        ? () => (
+          <LWTooltip
+            title='Show quick takes tagged "Community"'
+            placement="left"
+            hideOnTouchScreens
+          >
+            <div className={classes.communityToggle} onClick={toggleShowCommunity}>
+              <Checkbox checked={showCommunity} />
+              <span>Show community</span>
+            </div>
+          </LWTooltip>
+        )
+      : undefined}
       Content={() => (
         <>
           {userCanComment(currentUser) &&
@@ -99,7 +115,7 @@ const QuickTakesSection = ({classes}: {
           }
           
           <QuickTakesList
-            showCommunity={isLWorAF ? undefined : showCommunity}
+            showCommunity={isEAForum ? showCommunity : undefined}
             className={classes.list}
           />
         </>
