@@ -10,6 +10,7 @@ import moment from 'moment';
 import { InteractionWrapper, useClickableCell } from '../common/useClickableCell';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
+import { jobAdDescription, useABTest } from '../../lib/abTests';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -223,29 +224,79 @@ type EAGOccupation =
   'S-risk'
 
 type JobAdData = {
-  eagOccupations?: EAGOccupation[],  // used to match on EAG experience + interests
-  interestedIn?: EAGOccupation[],    // used to match on EAG interests
-  subscribedTagIds?: string[],       // used to match on a set of topics that the user is subscribed to
-  readCoreTagIds?: string[],         // used to match on a set of core topics that the user has read frequently
-  logo: string,                      // url for org logo
-  occupation: string,                // text displayed in the tooltip
-  feedbackLinkPrefill: string,       // url param used to prefill part of the feedback form
-  bitlyLink: string,                 // bitly link to the job ad page
+  eagOccupations?: EAGOccupation[],                           // used to match on EAG experience + interests
+  interestedIn?: EAGOccupation[],                             // used to match on EAG interests
+  subscribedTagIds?: string[],                                // used to match on a set of topics that the user is subscribed to
+  readCoreTagIds?: string[],                                  // used to match on a set of core topics that the user has read frequently
+  logo: string,                                               // url for org logo
+  occupation: string,                                         // text displayed in the tooltip
+  feedbackLinkPrefill: string,                                // url param used to prefill part of the feedback form
+  bitlyLink: string,                                          // bitly link to the job ad page
   role: string,
-  insertThe?: boolean,               // set if you want to insert a "the" before the org name
+  insertThe?: boolean,                                        // set if you want to insert a "the" before the org name
   org: string,
-  orgLink: string,                   // internal link on the org name
+  orgLink: string,                                            // internal link on the org name
   salary?: string,
   location: string,
-  countryCode?: string,              // if provided, only show to users who we think are in this country
-  roleType?: string,                 // i.e. part-time, contract
-  deadline?: moment.Moment,          // also used to hide the ad after this date
-  getDescription: (classes: ClassesType) => JSX.Element
+  countryCode?: string,                                       // if provided, only show to users who we think are in this country
+  roleType?: string,                                          // i.e. part-time, contract
+  deadline?: moment.Moment,                                   // also used to hide the ad after this date
+  getDescription: (classes: ClassesType) => JSX.Element,
+  get80kDescription?: (classes: ClassesType) => JSX.Element   // just used on some ads for an A/B test
 }
 
 // job-specific data for the ad
 // (also used in the reminder email, so links in the description need to be absolute)
 export const JOB_AD_DATA: Record<string, JobAdData> = {
+  'gwwc-researcher': {
+    subscribedTagIds: [
+      'psBzwdY8ipfCeExJ7', // cause prioritization
+      'L6NqHZkLc4xZ7YtDr', // effective giving
+    ],
+    readCoreTagIds: [
+      'psBzwdY8ipfCeExJ7', // cause prioritization
+      'L6NqHZkLc4xZ7YtDr', // effective giving
+    ],
+    logo: 'https://80000hours.org/wp-content/uploads/2023/01/Giving-What-We-Can-160x160.png',
+    occupation: 'cause prioritization and effective giving',
+    feedbackLinkPrefill: 'Researcher+at+GWWC',
+    bitlyLink: "", // https://www.givingwhatwecan.org/get-involved/careers/gwwc-researcher
+    role: 'Researcher',
+    org: 'Giving What We Can',
+    orgLink: '/topics/giving-what-we-can',
+    location: 'Remote',
+    deadline: moment('2024-03-02'),
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <InteractionWrapper className={classes.inline}>
+          <Link to="https://www.givingwhatwecan.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+            Giving What We Can (GWWC)
+          </Link>
+        </InteractionWrapper> is a nonprofit providing support, community and information for donors to do the most good with their charitable giving.
+        In this role, a researcher will help identify the most effective donation opportunities for a variety of worldviews, and recommend these to donors.
+      </div>
+      <div className={classes.description}>
+        An ideal candidate:
+        <ul>
+          <li>Has experience in impact-focused charity evaluation or grantmaking</li>
+          <li>Has great written communication skills</li>
+          <li>Is a skilled generalist, open to adapting to different types of work</li>
+        </ul>
+      </div>
+    </>,
+    get80kDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+      <InteractionWrapper className={classes.inline}>
+          <Link to="https://www.givingwhatwecan.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+            Giving What We Can
+          </Link>
+        </InteractionWrapper> is a nonprofit providing support, community and information for donors to do the most good with their charitable giving.
+      </div>
+      <div className={classes.description}>
+        Giving What We Can (GWWC) is looking for a Researcher to help us identify the most effective donation opportunities for a variety of worldviews, and recommend these to our donors. This role provides an opportunity to help influence millions of dollars of charitable giving to be more effective. We estimate GWWC as a whole caused ~$83M in donations to high-impact charities through our fundraising and recommendations in 2020-2022. In 2022 alone, GWWC pledgers and other donors gave ~$27M through our donation platform, and reported giving another [...]
+      </div>
+    </>
+  },
   'cltr-biosecurity-policy-advisor': {
     subscribedTagIds: [
       'H43gvLzBCacxxamPe', // biosecurity
@@ -327,40 +378,6 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
       </div>
     </>
   },
-  'thl-apa-program-specialist': {
-    subscribedTagIds: [
-      'QdH9f8TC6G8oGYdgt', // animal welfare
-      'of9xBvR3wpbp6qsZC', // policy
-    ],
-    logo: 'https://80000hours.org/wp-content/uploads/2019/12/he-humane-league-160x160.png',
-    occupation: 'animal welfare and policy',
-    feedbackLinkPrefill: 'APA+Program+Specialist+at+THL',
-    bitlyLink: "https://efctv.org/3UrH6ov", // https://thehumaneleague.org/single-offer-career?gh_jid=5608962
-    role: 'Animal Policy Alliance, Program Specialist',
-    org: 'The Humane League',
-    orgLink: '/topics/the-humane-league',
-    salary: '$65k - $80k',
-    location: 'Remote (USA)',
-    deadline: moment('2024-02-08'),
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        Animal Policy Alliance (APA), launched by <InteractionWrapper className={classes.inline}>
-          <Link to="https://thehumaneleague.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-            The Humane League
-          </Link>
-        </InteractionWrapper> in 2022, is a national network of state and local animal protection and food policy advocacy groups in the US that include animals
-        raised for food among their legislative priorities. The program specialist will play a key role in supporting the growth and operation of the APA.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates have:
-        <ul>
-          <li>A minimum 5 years experience in positions related to public policy and/or animal protection advocacy</li>
-          <li>Event planning experience</li>
-          <li>Outstanding relationship building and interpersonal skills</li>
-        </ul>
-      </div>
-    </>
-  },
 }
 
 /**
@@ -375,6 +392,8 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
   classes: ClassesType,
 }) => {
   const adData = JOB_AD_DATA[ad]
+  // Temp A/B test for the job ad description
+  const descriptionAbTestGroup = useABTest(jobAdDescription)
   
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking()
@@ -409,6 +428,8 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
   if (!adData || !currentUser) {
     return null
   }
+  
+  const description = descriptionAbTestGroup === '80k' && adData.get80kDescription ? adData.get80kDescription(classes) : adData.getDescription(classes)
 
   return <AnalyticsContext pageSubSectionContext="targetedJobAd">
     <div className={classNames(classes.root, {[classes.rootClosed]: closed})} onClick={onClick}>
@@ -484,7 +505,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
           </div>
           
           <div className={classNames({[classes.collapsedBody]: !expanded})}>
-            {adData.getDescription(classes)}
+            {description}
             <InteractionWrapper>
               <div className={classes.btnRow}>
                 <EAButton

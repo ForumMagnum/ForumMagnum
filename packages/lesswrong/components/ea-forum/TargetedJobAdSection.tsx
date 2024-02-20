@@ -95,11 +95,11 @@ const TargetedJobAdSection = () => {
         (setting: FilterTag) => filterModeIsSubscribed(setting.filterMode)
       )?.map((setting: FilterTag) => setting.tagId)
       let userIsMatch = subscribedTagIds && !difference(subscribedTagIds, userTagSubs).length
-      // or if they have read at least 18 posts in all the relevant topics in the past 6 months
+      // or if they have read at least 60 posts in all the relevant topics in the past 6 months
       userIsMatch = userIsMatch || (
         !!coreTagReads?.length &&
         JOB_AD_DATA[jobName].readCoreTagIds?.every(
-          tagId => coreTagReads.some(tag => tag.tagId === tagId && tag.userReadCount >= 18)
+          tagId => coreTagReads.some(tag => tag.tagId === tagId && tag.userReadCount >= 60)
         )
       )
       
