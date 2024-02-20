@@ -22,6 +22,7 @@ const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
+    ...theme.typography.commentStyle,
   },
   wrap: {
     [theme.breakpoints.down('xs')]: {

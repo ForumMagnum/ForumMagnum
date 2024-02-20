@@ -19,6 +19,7 @@ const styles = (theme: ThemeType) => ({
     "&:hover .CommentsItemMeta-menu": {
       opacity: 1
     },
+    ...theme.typography.commentStyle,
   },
   grow: {
     flexGrow: 1,

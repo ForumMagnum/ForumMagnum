@@ -2,11 +2,13 @@ import React, { useCallback, useState } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
+import { isLWorAF } from "../../lib/instanceSettings";
 
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
     "& .comments-node-root": {
       marginBottom: 8,
+      ...(isLWorAF ? { paddingTop: 0 } : {})
     },
   },
 });
