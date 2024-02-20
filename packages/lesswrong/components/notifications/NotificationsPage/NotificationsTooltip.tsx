@@ -1,10 +1,10 @@
 import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
-import { useUnreadNotifications } from "../../hooks/useUnreadNotifications";
 import { useNotificationDisplays } from "./useNotificationDisplays";
 import { HEADER_HEIGHT } from "../../common/Header";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
+import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
 
 const PADDING = 20;
 
@@ -41,22 +41,30 @@ const styles = (theme: ThemeType) => ({
 const MIN_TO_SHOW = 4;
 const MAX_TO_SHOW = 8;
 
-export const NotificationsTooltip = ({children, classes}: {
+export const NotificationsTooltip = ({
+  unreadNotifications,
+  karmaChanges,
+  children,
+  classes,
+}: {
+  unreadNotifications: number,
+  karmaChanges?: KarmaChanges,
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {unreadNotifications} = useUnreadNotifications();
   const limit = Math.max(Math.min(unreadNotifications, MAX_TO_SHOW), MIN_TO_SHOW);
   const {data} = useNotificationDisplays(limit);
   const notifs: NotificationDisplay[] = data?.NotificationDisplays?.results ?? [];
-
   const remaining = unreadNotifications - limit;
 
-  const {HoverOver, NotificationsPageNotification} = Components;
+  const {
+    HoverOver, NotificationsPageNotification, NotificationsPageKarmaChangeList,
+  } = Components;
   return (
     <HoverOver
       title={
         <div className={classes.root}>
+          <NotificationsPageKarmaChangeList karmaChanges={karmaChanges} />
           {notifs.map((notification) =>
             <NotificationsPageNotification
               key={notification._id}

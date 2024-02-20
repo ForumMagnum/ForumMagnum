@@ -171,7 +171,10 @@ const FriendlyNotificationsMenuButton = ({
 
   const {NotificationsTooltip, ForumIcon} = Components;
   return (
-    <NotificationsTooltip>
+    <NotificationsTooltip
+      unreadNotifications={unreadNotifications}
+      karmaChanges={karmaChanges?.karmaChanges}
+    >
       <Badge
         classes={{
           root: classNames(classes.badgeContainer, className),

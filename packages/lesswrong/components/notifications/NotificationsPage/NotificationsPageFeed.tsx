@@ -123,7 +123,7 @@ export const NotificationsPageFeed = ({karmaChanges, classes}: {
   }, [setTab]);
 
   const {
-    NotificationsPageNotification, NotificationsPageKarmaChange,
+    NotificationsPageNotification, NotificationsPageKarmaChangeList,
     NotificationsPageEmpty, LoadMore, Loading, SectionTitle,
   } = Components;
   return (
@@ -145,24 +145,7 @@ export const NotificationsPageFeed = ({karmaChanges, classes}: {
         <>
           <SectionTitle title="Karma and reactions" />
           <div className={classes.karmaChanges}>
-            {karmaChanges?.posts?.map((karmaChange) =>
-              <NotificationsPageKarmaChange
-                key={karmaChange._id}
-                postKarmaChange={karmaChange}
-              />
-            )}
-            {karmaChanges?.comments?.map((karmaChange) =>
-              <NotificationsPageKarmaChange
-                key={karmaChange._id}
-                commentKarmaChange={karmaChange}
-              />
-            )}
-            {karmaChanges?.tagRevisions?.map((karmaChange) =>
-              <NotificationsPageKarmaChange
-                key={karmaChange._id}
-                tagRevisionKarmaChange={karmaChange}
-              />
-            )}
+            <NotificationsPageKarmaChangeList karmaChanges={karmaChanges} />
             <div className={classes.karmaBatching}>
               <span>{batchingMessages[karmaChanges!.updateFrequency]}{" "}</span>
               <Link to="/account?highlightField=karmaChangeNotifierSettings">
