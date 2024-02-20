@@ -312,7 +312,7 @@ const UsersMenu = ({classes}: {
               {currentUser.shortformFeedId &&
                 <DropdownItem
                   // TODO: get Habryka's take on what the title here should be
-                  title={isFriendlyUI ? "Your quick takes" : "Shortform Page"}
+                  title={preferredHeadingCase("Your Quick Takes")}
                   to={postGetPageUrl({
                     _id: currentUser.shortformFeedId,
                     slug: "shortform",
