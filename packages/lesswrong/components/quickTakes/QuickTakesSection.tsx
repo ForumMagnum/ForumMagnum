@@ -8,7 +8,7 @@ import {
   SHOW_QUICK_TAKES_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
 } from "../../lib/cookies/cookies";
-import { isEAForum, isLWorAF } from "../../lib/instanceSettings";
+import { isEAForum } from "../../lib/instanceSettings";
 import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
 import { Link } from '../../lib/reactRouterWrapper';
 
@@ -87,27 +87,31 @@ const QuickTakesSection = ({classes}: {
         </LWTooltip>
       </>);
 
+  const afterTitleTo = isFriendlyUI ? "/quicktakes" : undefined;
+
+  const AfterTitleComponent = isEAForum 
+    ? () => (
+      <LWTooltip
+        title='Show quick takes tagged "Community"'
+        placement="left"
+        hideOnTouchScreens
+      >
+        <div className={classes.communityToggle} onClick={toggleShowCommunity}>
+          <Checkbox checked={showCommunity} />
+          <span>Show community</span>
+        </div>
+      </LWTooltip>
+    )
+  : undefined;
+
   return (
     <ExpandableSection
       pageSectionContext="quickTakesSection"
       expanded={expanded}
       toggleExpanded={toggleExpanded}
       title={title}
-      afterTitleTo={isFriendlyUI ? "/quicktakes" : undefined}
-      AfterTitleComponent={isEAForum 
-        ? () => (
-          <LWTooltip
-            title='Show quick takes tagged "Community"'
-            placement="left"
-            hideOnTouchScreens
-          >
-            <div className={classes.communityToggle} onClick={toggleShowCommunity}>
-              <Checkbox checked={showCommunity} />
-              <span>Show community</span>
-            </div>
-          </LWTooltip>
-        )
-      : undefined}
+      afterTitleTo={afterTitleTo}
+      AfterTitleComponent={AfterTitleComponent}
       Content={() => (
         <>
           {userCanComment(currentUser) &&
@@ -115,7 +119,7 @@ const QuickTakesSection = ({classes}: {
           }
           
           <QuickTakesList
-            showCommunity={isEAForum ? showCommunity : undefined}
+            showCommunity={showCommunity}
             className={classes.list}
           />
         </>
