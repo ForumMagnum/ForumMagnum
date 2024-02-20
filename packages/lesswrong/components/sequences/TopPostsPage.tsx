@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { useLocation } from '../../lib/routeUtil';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { preferredHeadingCase } from '../../themes/forumTheme';
 import { usePostBySlug } from '../posts/usePost';
 import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
 
@@ -38,6 +38,9 @@ interface GetPostGridContentsArgs extends PostGridDimensions {
   classes: ClassesType<typeof styles>;
   id: string;
   handleToggleFullyOpen: (id: string) => void;
+  allDefaultsLoading: boolean;
+  handleDefaultStartedLoading: () => void;
+  gridContainerHeight: number;
   isExpanded: boolean;
   isShowingAll: boolean;
   leftBookOffset: number;
@@ -51,9 +54,8 @@ interface GetPostGridCellContentsArgs extends Omit<GetPostGridContentsArgs, 'pos
 }
 
 interface GetSplashArtUrlArgs {
-  reviewWinnerArt?: ReviewWinnerTopPostsPage_reviewWinnerArt;
+  reviewWinnerArt: ReviewWinnerTopPostsPage_reviewWinnerArt;
   leftBookOffset: number;
-  fallbackUrl: string;
 }
 
 const MAX_GRID_SIZE = 6;
@@ -70,12 +72,12 @@ const DEFAULT_SPLASH_ART_COORDINATES: Omit<SplashArtCoordinates, '_id' | 'review
 const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
 
 let candidateImages = [
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/51d4e735-f328-436b-af1f-72f8a393114e.png",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/9a46ebf2-a5f4-4520-827f-5e723164a857.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/c_crop,w_1,y_0.2,x_0.1/v1708118353/lwbot_watercolor_artwork_of_a_great_map_with_the_forest_it_depi_2e5b1975-6b60-4ad5-8455-74a84dc5abe6_hs6nly.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/c_crop,w_1,y_0.2,x_0.1/v1708125294/lwbot_topographic_watercolor_artwork_of_a_bustling_marketplace__8c2657f1-f129-4a43-a9e6-ca9b04dc417b_dsymvb.png",
+  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/c_crop,w_0.85,y_0.04,x_0/v1708126629/lwbot_topographic_watercolor_artwork_of_a_vibrant_earth_globe_s_bf5c2883-d296-4cd9-b691-a7675e8a62c6_pq69sm.png",
   "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/41b79ce2-bd03-45a5-bd9e-a7761a539b0a.png",
   "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/d257c3a8-df69-4da5-ae4c-0fc01bd800d0.png",
   "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/53236167-d294-4870-b65b-c793a83be8e0.png",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/b8b7586b-3147-4df3-8b46-e2d48ff23620.png",
 ]
 
 const sectionsInfo = {
@@ -295,7 +297,7 @@ const styles = (theme: ThemeType) => ({
       transitionDelay: '0.2s'
     },
     '&:has($imageGridPost:hover) $imageGridBackground': {
-      opacity: 0
+      // opacity: 0
     }
   },
   // If we want to display a grid with more than 6 items, increase this number
@@ -304,7 +306,7 @@ const styles = (theme: ThemeType) => ({
     top: 0,
     right: 0,
     // height: "120%",
-    // width: "100%",
+    width: 1080,
     zIndex: -1,
     position: "absolute",
     objectFit: "cover",
@@ -313,15 +315,10 @@ const styles = (theme: ThemeType) => ({
     opacity: 1,
   },
   showAllBackgroundWrapper: {
-    '&:hover $imageGridPostBackground': {
-      display: "block",
+    '&:hover $imageGridPostBackgroundContainer': {
       opacity: 1,
       transitionDelay: "0s",
-      zIndex: 2
-    },
-    '&:hover $imageGridPostBackgroundBackground': {
-      zIndex: 1,
-      opacity: 1
+      zIndex: 2,
     }
   },
   showAllPostItemWrapper: {
@@ -381,6 +378,12 @@ const styles = (theme: ThemeType) => ({
       opacity: 1
     },
 
+    '&&&:hover $imageGridPostBackgroundContainer': {
+      display: "block",
+      opacity: 1,
+      transitionDelay: "0s",
+      zIndex: 2
+    },
     '&&&:hover $imageGridPostBackground': {
       display: "block",
       opacity: 1,
@@ -414,7 +417,7 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 0,
     borderRight: "1px solid white",
     borderBottom: "1px solid white",
-    background: "linear-gradient(0deg, #00000038,  transparent 50%)",
+    background: "linear-gradient(0deg, #00000038,  transparent 60%)",
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -435,26 +438,31 @@ const styles = (theme: ThemeType) => ({
     borderBottom: "1px solid white",
     zIndex: 3,
   },
-  imageGridPostBackground: {
+  imageGridPostBackgroundContainer: {
     position: "absolute",
     top: 0,
     left: 0,
     // We could do 100% here, but it would cause us to clip the bottom of the image in some 2 column cases
     width: 1080,
     opacity: 0,
-    objectPosition: "right",
     zIndex: -1,
     transition: "opacity 0.2s ease-in",
+    objectPosition: "right",
+  },
+  imageGridPostBackgroundContainerHidden: {
+    display: "none",
+  },
+  imageGridPostBackground: {
+    position: "relative",
     maskImage: "linear-gradient(rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)",
+    width: '100%',
+    backdropFilter: "blur(50px)",
   },
   imageGridPostBackgroundBackground: {
-    bottom: 0,
-    left: 0,
-    width: 1080,
     filter: 'blur(50px)',
-    position: 'absolute',
-    opacity: 0,
-    zIndex: -2,
+    transform: 'scaleY(-1)',
+    position: "relative",
+    width: '100%',
   },
   imageGridPostAuthor: {
     opacity: 0,
@@ -467,7 +475,7 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridPostTitle: {
     transition: "opacity 0.2s ease-in",
-    filter: "drop-shadow(0px 0px 0.5px black)",
+    filter: "drop-shadow(0px 0px 3px black)",
   },
   // TODO: anything here?
   expandIcon: {}
@@ -638,12 +646,14 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
       <HeadTags description={description} />
       {/** TODO: change pageContext when/if we rename component */}
       <AnalyticsContext pageContext="topPostsPage">
-        
         <div className={classes.widerColumn}>
           <div className={classes.description}>
             <SectionTitle title={preferredHeadingCase("Best of LessWrong")} />
             <ContentStyles contentType="post">
-              {reviewDescriptionPost && <ContentItemBody dangerouslySetInnerHTML={{__html: reviewDescriptionPost.contents?.html ?? ''}} description={`A description of the top posts page`}/>}
+            Here you can find the best posts of LessWrong. When a post on LessWrong is more than a year old, we review and vote on how well it has stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of reviewing and ranking posts started).
+            <br /><br />
+            For the years 2018, 2019 and 2020 we also published physical books with the results of our annual vote, which you can buy and learn more about {<Link to='/books'>here</Link>}.
+              {/*reviewDescriptionPost && <ContentItemBody dangerouslySetInnerHTML={{__html: reviewDescriptionPost.contents?.html ?? ''}} description={`A description of the top posts page`}/>*/}
             </ContentStyles>
           </div>
           <div>
@@ -683,15 +693,16 @@ function getPostsInGrid(args: GetPostsInGridArgs) {
   return postsInGrid;
 }
 
-function getPostGridContents(args: GetPostGridContentsArgs) {
-  const { postsInGrid, ...cellArgs } = args;
-  return postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => getPostGridCellContents({ post, rowIdx, columnIdx, ...cellArgs })));
+function PostGridContents(args: GetPostGridContentsArgs) {
+  const { postsInGrid , ...cellArgs } = args;
+  return <>{postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => <PostGridCellContents post={post} rowIdx={rowIdx} columnIdx={columnIdx} key={post?._id} {...cellArgs} /> ))}</>;
 }
 
-function getPostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element {
-  const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset, coversLoading } = args;
+function PostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element {
+  const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, allDefaultsLoading, handleDefaultStartedLoading, isExpanded, isShowingAll, leftBookOffset, coversLoading } = args;
   const isLastCellInDefaultView = (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1));
   const isLastCellInShowingAllView = (rowIdx === (postGridRows - 1)) && (columnIdx === (postGridColumns - 1));
+  const isDefault = rowIdx < viewportHeight && (columnIdx - (leftBookOffset * 3)) < 3 && (columnIdx - leftBookOffset) >= 0;
 
   // TODO: style with appropriate width/height for offsetting the collapse-all button
   const emptyCellElement = <div key={`empty-${rowIdx}-${columnIdx}`} className={classes.emptyGridCell} />;
@@ -699,52 +710,16 @@ function getPostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element
   // TODO: replace this functionality (incl. in any components that use it) with the actual image url from the post/review winner
   const backgroundImageIndex = (rowIdx * postGridRows) + columnIdx;
 
+  const reviewWinnerArt = post?.reviewWinner?.reviewWinnerArt ?? undefined;
+  const imgSrc = coversLoading && reviewWinnerArt ? getSplashArtUrl({ reviewWinnerArt, leftBookOffset }) : '';
+
+  const imageClass = classNames({
+    [classes.imageGridPostBackgroundContainerHidden]: !(isDefault || isExpanded || isShowingAll),
+  })
+
   if (!post) {
     return emptyCellElement;
   }
-
-  const reviewWinnerArt = post.reviewWinner?.reviewWinnerArt ?? undefined;
-  const imgSrc = coversLoading ? getSplashArtUrl({ reviewWinnerArt, leftBookOffset, fallbackUrl: '' }) : '';
-
-  if (isLastCellInDefaultView) {
-
-    const imageGridPostElement = <ImageGridPost
-      key={post._id}
-      post={post}
-      imgSrc={imgSrc}
-      classes={classes}
-      index={backgroundImageIndex}
-      leftBookOffset={leftBookOffset}
-    />;
-
-    // TODO: make the background image show for the show all/post item button wrapper
-    // TODO: hide the post title when the show all button is visible
-    return <ShowAllPostItem
-      key="show-all"
-      imageGridId={id}
-      imageGridPost={imageGridPostElement}
-      handleToggleFullyOpen={handleToggleFullyOpen}
-      showAllVisible={isExpanded && !isShowingAll}
-      backgroundImageIndex={backgroundImageIndex}
-      imgSrc={imgSrc}
-      classes={classes}
-    />;
-  } else if (isShowingAll && isLastCellInShowingAllView) {
-    return (
-      <div
-        key="collapse-all"
-        className={classes.collapseButtonWrapper}
-      >
-        <div
-          className={classNames(classes.showAllButton, classes.showAllButtonVisible)}
-          onClick={() => handleToggleFullyOpen(id)}>
-          Collapse
-        </div>
-      </div>
-    );
-  }
-
-
 
   return (
     <ImageGridPost
@@ -754,6 +729,12 @@ function getPostGridCellContents(args: GetPostGridCellContentsArgs): JSX.Element
       classes={classes}
       index={backgroundImageIndex}
       leftBookOffset={leftBookOffset}
+      imageGridId={id}
+      imageClass={imageClass}
+      isShowAll={isLastCellInDefaultView}
+      showAllVisible={isExpanded && !isShowingAll}
+      handleToggleFullyOpen={handleToggleFullyOpen}
+      handleDefaultStartedLoading={handleDefaultStartedLoading}
     />
   );
 }
@@ -765,11 +746,7 @@ function getPostGridTemplateDimensions({ postGridRows, postGridColumns }: PostGr
   };
 }
 
-function getSplashArtUrl({ reviewWinnerArt, leftBookOffset, fallbackUrl }: GetSplashArtUrlArgs) {
-  if (!reviewWinnerArt) {
-    return fallbackUrl;
-  }
-
+function getSplashArtUrl({ reviewWinnerArt, leftBookOffset }: GetSplashArtUrlArgs) {
   let coordinatePosition: CoordinatePosition | undefined = BOOK_OFFSETS_TO_COORDINATE_POSITIONS[leftBookOffset];
   if (!coordinatePosition) {
     console.error(`Invalid leftBookOffset ${leftBookOffset} used to derive coordinate position`);
@@ -791,10 +768,9 @@ function getSplashArtUrl({ reviewWinnerArt, leftBookOffset, fallbackUrl }: GetSp
 
   const newXPct = xPct - (widthPct * leftBookOffset); 
   const newWidthPct = widthPct*3; // this will break the url if it goes above 1, but it shouldn't
-  const newHeightPct = 1 - yPct; // I think we just want the full image to flow down below
 
-  const cropPathParam = `c_crop,h_${newHeightPct},w_${newWidthPct},x_${newXPct},y_${yPct}`;
-  const croppedImageUrl = splashArtImageUrl.replace('upload/', `upload/${cropPathParam}/`).replace('upload/', `upload/${flipped ? 'a_hflip/' : ''}`);
+  const cropPathParam = `c_crop,w_${newWidthPct},x_${newXPct},y_${yPct}`;
+  const croppedImageUrl = splashArtImageUrl.replace('upload/', `upload/${cropPathParam}/`).replace('upload/', `upload/${flipped ? 'a_hflip/' : ''}`).replace('f_auto,q_auto', 'f_auto,fl_progressive:steep,q_auto');
 
   return croppedImageUrl;
 }
@@ -845,20 +821,7 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   const isShowingAll = hiddenState === 'full';
 
   const [coversLoading, setCoversLoading] = useState(false);
-
-  const postGridContents = getPostGridContents({
-    postsInGrid,
-    viewportHeight,
-    postGridColumns,
-    postGridRows,
-    classes,
-    id,
-    handleToggleFullyOpen,
-    isExpanded,
-    isShowingAll,
-    leftBookOffset,
-    coversLoading
-  });
+  const [defaultsLoading, setDefaultsLoading] = useState(0);
 
   // TODO: figure out if we get 5 rows sometimes when we should be getting 4?
   const gridTemplateDimensions = getPostGridTemplateDimensions({ postGridRows, postGridColumns });
@@ -866,6 +829,23 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   const postGridHeight = getCurrentPostGridHeight(isShowingAll, isExpanded, postGridRows, viewportHeight, horizontalBookGridCount);
   const gridContainerHeight = horizontalBookGridCount === 1 ? postGridHeight - 40 : postGridHeight;
   const gridPositionClass = gridPositionToClassName(gridPosition) as keyof ClassesType<typeof styles>;
+
+  const postGridContents = <PostGridContents
+    postsInGrid={postsInGrid}
+    viewportHeight={viewportHeight}
+    postGridColumns={postGridColumns}
+    postGridRows={postGridRows}
+    classes={classes}
+    id={id}
+    allDefaultsLoading={defaultsLoading === viewportHeight * viewportWidth * 6}
+    handleDefaultStartedLoading={() => setDefaultsLoading(defaultsLoading + 1)}
+    gridContainerHeight={gridContainerHeight}
+    handleToggleFullyOpen={handleToggleFullyOpen}
+    isExpanded={isExpanded}
+    isShowingAll={isShowingAll}
+    leftBookOffset={leftBookOffset}
+    coversLoading={coversLoading}
+  />
 
   const gridWrapperClassName = classNames(classes.postsImageGrid, {
     [classes.expandedImageGrid]: isExpanded, 
@@ -895,46 +875,18 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
   </div>;
 }
 
-const ShowAllPostItem = ({ imageGridId, imageGridPost, showAllVisible, handleToggleFullyOpen, backgroundImageIndex, imgSrc, classes }: {
-  imageGridId: string,
-  imageGridPost: JSX.Element,
-  showAllVisible: boolean,
-  handleToggleFullyOpen: (id: string) => void,
-  backgroundImageIndex: number,
-  imgSrc: string,
-  classes: ClassesType<typeof styles>
-}) => {
-  const postItemClassName = classNames(classes.showAllPostItem, {
-    [classes.imageGridPostHidden]: showAllVisible
-  });
-
-  const showAllElementClassName = classNames(classes.showAllButton, {
-    [classes.showAllButtonVisible]: showAllVisible,
-    [classes.showAllButtonHidden]: !showAllVisible
-  });
-
-  return <div className={classes.showAllBackgroundWrapper}>
-    <div className={classes.showAllPostItemWrapper}>
-      <div className={postItemClassName}>
-        {imageGridPost}
-      </div>
-      <div
-        key="show-all"
-        className={showAllElementClassName}
-        onClick={() => handleToggleFullyOpen(imageGridId)}>
-          Show All
-      </div>
-    </div>
-    <img className={classes.imageGridPostBackground} src={imgSrc}/>
-  </div>;
-};
-
-const ImageGridPost = ({ post, index, leftBookOffset, imgSrc, classes, offscreen = false, hidden = false }: {
+const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, handleDefaultStartedLoading, imageClass, classes, offscreen = false, hidden = false, isShowAll = false, showAllVisible = false }: {
   post: PostsTopItemInfo,
   index: number,
   leftBookOffset: number,
   imgSrc: string,
+  imageGridId: string,
+  imageClass: string,
+  handleToggleFullyOpen: (id: string) => void,
+  handleDefaultStartedLoading: () => void,
   classes: ClassesType<typeof styles>,
+  isShowAll?: boolean,
+  showAllVisible?: boolean,
   offscreen?: boolean,
   hidden?: boolean,
 }) => {
@@ -942,8 +894,19 @@ const ImageGridPost = ({ post, index, leftBookOffset, imgSrc, classes, offscreen
     [classes.imageGridPostOffscreen]: offscreen && !hidden,
     [classes.imageGridPostHidden]: hidden
   });
+  const showAllElementClassName = classNames(classes.showAllButton, {
+    [classes.showAllButtonVisible]: showAllVisible,
+    [classes.showAllButtonHidden]: !showAllVisible
+  });
 
-  return <Link className={classes.imageGridPost} key={post._id} to={postGetPageUrl(post)}>
+  const imgRef = useRef<HTMLImageElement>(null);
+  useCallback(() => {
+    if (imgRef.current?.complete) {
+      handleDefaultStartedLoading();
+    }
+  }, [handleDefaultStartedLoading]);
+
+  return <Link className={classes.imageGridPost} key={post._id} to={isShowAll ? null : postGetPageUrl(post)}>
     <div className={classes.imageGridPostBody}>
       <div className={classes.imageGridPostAuthor}>
         {post?.user?.displayName}
@@ -951,9 +914,17 @@ const ImageGridPost = ({ post, index, leftBookOffset, imgSrc, classes, offscreen
       <div className={titleClassName}>
         {post.title}
       </div>
+      {isShowAll && <div
+        key="show-all"
+        className={showAllElementClassName}
+        onClick={() => handleToggleFullyOpen(imageGridId)}>
+          Show All
+      </div>}
     </div>
-    <img className={classes.imageGridPostBackground} src={imgSrc}/>
-    <img className={classes.imageGridPostBackgroundBackground} src={imgSrc}/>
+    <div className={classes.imageGridPostBackgroundContainer}>
+      <img loading={'lazy'} ref={imgRef} className={classNames([classes.imageGridPostBackground, imageClass])} onLoad={handleDefaultStartedLoading} src={imgSrc}/>
+      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundBackground, imageClass])} src={imgSrc}/>
+    </div>
   </Link>;
 }
 
