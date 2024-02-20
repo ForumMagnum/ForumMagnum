@@ -972,7 +972,7 @@ type ReviewWinnerArtsCollection = CollectionBase<"ReviewWinnerArts">;
 
 interface DbReviewWinnerArt extends DbObject {
   __collectionName?: "ReviewWinnerArts"
-  postId: string
+  postId: string | null
   splashArtImagePrompt: string
   splashArtImageUrl: string
   createdAt: Date

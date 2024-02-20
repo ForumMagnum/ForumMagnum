@@ -558,5 +558,10 @@
     "acceptsSchemaHash": "c474d685fecb4d58a3d23e9d419f859a",
     "acceptedByMigration": "20240215T203245.add_ReviewWinnerArts_SplashArtCoordinates.ts",
     "timestamp": "2024-02-15T20:32:45.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5943dd3f9d3cd8c97a6ec7bc3c11384f",
+    "acceptedByMigration": "20240220T211300.remove_notnull_ReviewWinnerArts.ts",
+    "timestamp": "2024-02-20T21:13:00.000Z"
   }
 ]
