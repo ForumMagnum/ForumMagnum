@@ -130,6 +130,7 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
     }
 
     if (!fileId) {
+      setCanImport(false)
       setErrorMessage(null)
     }
   }, [canAccessQuery?.CanAccessGoogleDoc, fileId])
