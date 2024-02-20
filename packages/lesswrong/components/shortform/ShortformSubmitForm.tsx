@@ -50,6 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
+// TODO: move this to the appropriate place
 const forumHintText: ForumOptions<string> = {
   LessWrong: "Write your thoughts here! What have you been thinking about?\nExploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.",
   AlignmentForum: "Write your thoughts here! What have you been thinking about?\nExploratory, draft-stage, rough, and rambly thoughts are all welcome on Shortform.",
@@ -84,7 +85,6 @@ const ShortformSubmitForm = ({
       <div className={classes.close} onClick={cancelCallback}>
         <ForumIcon icon="Close" />
       </div>
-      {/* TODO: decide on "shortform" vs. "quick take" for LW */}
       <div className={classes.newQuickTake}>New quick take</div>
       <QuickTakesEntry
         currentUser={currentUser}

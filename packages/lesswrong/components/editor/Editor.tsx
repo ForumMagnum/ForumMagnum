@@ -379,6 +379,11 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const contents = getBlankEditorContents(editorType);
 
     this.props.onChange({
+      // @RobertM - We assign a space here because empirically it seems to be the only way to reliably clear the contents of a form
+      // The use-case where this was discovered was adding a "cancel" button to the expanded quick takes entry form when adopting quick takes on LW
+      // The previous implementation failed for reasons that seem similar to those gestured at by the comment in `EditorFormComponent` -> `cleanupSuccessForm`
+      // However, trying something similar to the workaround there _didn't_ work.
+      // I still don't understand why this works (and results in an empty form, rather than one with a space character).
       contents: { ...contents, value: ' ' },
       autosave: true,
     });

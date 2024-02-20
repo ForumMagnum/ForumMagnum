@@ -46,19 +46,6 @@ export const SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE = registerCookie({
   description: "Whether to include quick takes tagged with community in the home page quick takes section",
 })
 
-export const SHOW_SHORTFORM_SECTION_COOKIE = registerCookie({
-  name: 'show_shortform_section',
-  type: "necessary",
-  description: "Whether to show the shortform section on the LW home page",
-})
-
-// TODO: Figure out whether we want this flag for something (e.g. personal), doesn't need to be community
-export const SHOW_SHORTFORM_SECTION_COMMUNITY_COOKIE = registerCookie({
-  name: 'show_shortform_community',
-  type: "necessary",
-  description: "Whether to include shortform tagged with community in the LW home page shortform section",
-})
-
 export const SHOW_POPULAR_COMMENTS_SECTION_COOKIE = registerCookie({
   name: 'show_popular_comments_section',
   type: "necessary",

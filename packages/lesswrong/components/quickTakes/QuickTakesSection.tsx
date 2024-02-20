@@ -5,12 +5,11 @@ import { useCurrentUser } from "../common/withUser";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
 import { userCanComment } from "../../lib/vulcan-users";
 import {
-  SHOW_SHORTFORM_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COOKIE,
   SHOW_QUICK_TAKES_SECTION_COMMUNITY_COOKIE,
 } from "../../lib/cookies/cookies";
 import { isLWorAF } from "../../lib/instanceSettings";
-import { isFriendlyUI } from "../../themes/forumTheme";
+import { isFriendlyUI, preferredHeadingCase } from "../../themes/forumTheme";
 
 const styles = (theme: ThemeType) => ({
   communityToggle: {
@@ -51,7 +50,7 @@ const QuickTakesSection = ({classes}: {
     defaultExpanded: "all",
     onExpandEvent: "quickTakesSectionExpanded",
     onCollapseEvent: "quickTakesSectionCollapsed",
-    cookieName: isLWorAF ? SHOW_SHORTFORM_SECTION_COOKIE : SHOW_QUICK_TAKES_SECTION_COOKIE,
+    cookieName: SHOW_QUICK_TAKES_SECTION_COOKIE,
   });
 
   const {
@@ -77,8 +76,8 @@ const QuickTakesSection = ({classes}: {
       pageSectionContext="quickTakesSection"
       expanded={expanded}
       toggleExpanded={toggleExpanded}
-      title={isLWorAF ? "Shortform" : "Quick takes"}
-      afterTitleTo={isLWorAF ? "/shortform" : "/quicktakes"}
+      title={preferredHeadingCase("Quick Takes")}
+      afterTitleTo="/quicktakes"
       AfterTitleComponent={isLWorAF 
         ? undefined 
         : () => (
@@ -102,7 +101,6 @@ const QuickTakesSection = ({classes}: {
           <QuickTakesList
             showCommunity={isLWorAF ? undefined : showCommunity}
             className={classes.list}
-            maxAgeDays={isLWorAF ? 30 : undefined}
           />
         </>
       )}

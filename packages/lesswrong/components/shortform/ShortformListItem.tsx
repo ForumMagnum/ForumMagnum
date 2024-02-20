@@ -8,8 +8,6 @@ import { isMobile } from "../../lib/utils/isMobile";
 import withErrorBoundary from "../common/withErrorBoundary";
 import moment from "moment";
 import { useTracking } from "../../lib/analyticsEvents";
-import { isLWorAF } from "../../lib/instanceSettings";
-import classNames from "classnames";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -79,9 +77,6 @@ const styles = (theme: ThemeType): JssStyles => ({
   hoverOver: {
     width: 400,
   },
-  bottomBorder: {
-    borderBottom: theme.palette.border.itemSeparatorBottom, // this should maybe go somewhere, but not here
-  },
 });
 
 const ShortformListItem = ({comment, hideTag, classes}: {
@@ -114,7 +109,7 @@ const ShortformListItem = ({comment, hideTag, classes}: {
 
   if (expanded) {
     return (
-      <div className={classNames(classes.expandedRoot, {[classes.bottomBorder]: isLWorAF})}>
+      <div className={classes.expandedRoot}>
         <CommentsNode
           treeOptions={treeOptions}
           comment={comment}

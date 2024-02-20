@@ -2,24 +2,11 @@ import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useMulti } from "../../lib/crud/withMulti";
 
-const styles = (theme: ThemeType) => ({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "4px",
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: 14,
-    fontWeight: 500,
-    color: theme.palette.grey[1000],
-  },
-});
-
-const QuickTakesList = ({showCommunity, tagId, maxAgeDays, className, classes}: {
+const QuickTakesList = ({showCommunity, tagId, maxAgeDays, className}: {
   showCommunity?: boolean,
   tagId?: string,
   maxAgeDays?: number,
   className?: string,
-  classes: ClassesType,
 }) => {
   const {
     results,
@@ -60,7 +47,6 @@ const QuickTakesList = ({showCommunity, tagId, maxAgeDays, className, classes}: 
 const QuickTakesListComponent = registerComponent(
   "QuickTakesList",
   QuickTakesList,
-  {styles}
 );
 
 declare global {
