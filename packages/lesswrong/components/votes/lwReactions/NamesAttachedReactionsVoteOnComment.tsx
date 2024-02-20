@@ -23,6 +23,7 @@ import { getConfirmedCoauthorIds } from '../../../lib/collections/posts/helpers'
 import type { ContentItemBody } from '../../common/ContentItemBody';
 import { SetHoveredReactionContext } from './HoveredReactionContextProvider';
 import { filterNonnull } from '../../../lib/utils/typeGuardUtils';
+import { isMobile } from '../../../lib/utils/isMobile';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -367,7 +368,10 @@ const HoverableReactionIcon = ({reactionRowRef, react, numberShown, voteProps, q
   const quotesWithUndefinedRemoved = filter(quotes, q => q !== undefined) as string[]
 
   function reactionClicked(reaction: EmojiReactName) {
-    if (currentUserReaction?.quotes?.length) return
+    // The only way to "hover" over reactions to see who left them on mobile is to click on them
+    // So let's not actually have clicking on a reaction cause the user to apply it, when on mobile
+    // They can still apply it from the displayed summary card, if they want
+    if (isMobile() || currentUserReaction?.quotes?.length) return
     toggleReaction(reaction, quote);
   }
 
