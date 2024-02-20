@@ -69,7 +69,7 @@ const RecentDiscussionThreadsList = ({
         {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
           <SectionButton>
             <AddBoxIcon />
-            {isFriendlyUI ? "New quick take" : "New Shortform Post"}
+            {"New quick take"}
           </SectionButton>
         </div>}
       </SectionTitle>

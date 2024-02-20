@@ -160,14 +160,14 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
           treeOptions: {
             post: quickTake.post ?? undefined,
             hideParentCommentToggle: true,
-            showCollapseButtons: true,
+            showCollapseButtons: false,
             onToggleCollapsed: () => setExpanded(true),
           },
           comment: quickTake,
           showCommentTitle: false,
           showParentState,
           toggleShowParent,
-          collapsed: true,
+          collapsed: false,
           toggleCollapse: () => setExpanded(true),
           setShowEdit,
           rightSectionElements: commentCountIcon

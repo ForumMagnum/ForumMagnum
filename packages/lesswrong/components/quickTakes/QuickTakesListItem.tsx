@@ -32,7 +32,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
         <CommentsNode
           treeOptions={{
             post: quickTake.post ?? undefined,
-            showCollapseButtons: true,
+            showCollapseButtons: isFriendlyUI,
             onToggleCollapsed: () => wrappedSetExpanded(!expanded),
           }}
           comment={quickTake}

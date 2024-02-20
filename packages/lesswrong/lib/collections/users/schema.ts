@@ -2125,7 +2125,7 @@ const schema: SchemaType<"Users"> = {
       type: "Post",
       nullable: true,
     }),
-    label: isFriendlyUI ? "Quick takes feed ID" : "Shortform feed ID",
+    label: "Quick takes feed ID",
     optional: true,
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],

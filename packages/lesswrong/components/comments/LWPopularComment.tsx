@@ -143,7 +143,7 @@ const LWPopularComment = ({comment, classes}: {
   const username = <UsersName user={comment.user} className={classes.username} />;
 
   const commentDate = (
-    <CommentsItemDate comment={comment} post={comment.post} />
+    <CommentsItemDate comment={comment} post={comment.post} preventDateFormatting />
   );
 
   const votingElement = !comment.debateResponse && !comment.rejected && (
