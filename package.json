@@ -11,6 +11,7 @@
     "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages",
     "build": "./build.js",
     "migrate": "node migrate",
+    "deploy-ckeditor-bundle": "node deployCkEditorBundle",
     "branchdb": "ts-node scripts/branchDb.ts",
     "start": "yarn start-local-db",
     "start-local-db": "./build.js -run --watch --lint --settings settings-dev.json",
