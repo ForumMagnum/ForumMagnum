@@ -228,6 +228,7 @@ type JobAdData = {
   interestedIn?: EAGOccupation[],                             // used to match on EAG interests
   subscribedTagIds?: string[],                                // used to match on a set of topics that the user is subscribed to
   readCoreTagIds?: string[],                                  // used to match on a set of core topics that the user has read frequently
+  coreTagReadsThreshold?: number,                             // used to adjust the threshold for how many post reads per topic to qualify for seeing the ad
   logo: string,                                               // url for org logo
   occupation: string,                                         // text displayed in the tooltip
   feedbackLinkPrefill: string,                                // url param used to prefill part of the feedback form
@@ -257,10 +258,11 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
       'psBzwdY8ipfCeExJ7', // cause prioritization
       'L6NqHZkLc4xZ7YtDr', // effective giving
     ],
+    coreTagReadsThreshold: 60,
     logo: 'https://80000hours.org/wp-content/uploads/2023/01/Giving-What-We-Can-160x160.png',
     occupation: 'cause prioritization and effective giving',
     feedbackLinkPrefill: 'Researcher+at+GWWC',
-    bitlyLink: "", // https://www.givingwhatwecan.org/get-involved/careers/gwwc-researcher
+    bitlyLink: "https://efctv.org/3uHTPZU", // https://www.givingwhatwecan.org/get-involved/careers/gwwc-researcher
     role: 'Researcher',
     org: 'Giving What We Can',
     orgLink: '/topics/giving-what-we-can',
@@ -273,12 +275,12 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
             Giving What We Can (GWWC)
           </Link>
         </InteractionWrapper> is a nonprofit providing support, community and information for donors to do the most good with their charitable giving.
-        In this role, a researcher will help identify the most effective donation opportunities for a variety of worldviews, and recommend these to donors.
+        This researcher will help identify the most effective donation opportunities for a variety of worldviews, and recommend these to donors.
       </div>
       <div className={classes.description}>
         An ideal candidate:
         <ul>
-          <li>Has experience in impact-focused charity evaluation or grantmaking</li>
+          <li>Has excellent analytical skills, and is comfortable working with quantitative and qualitative frameworks</li>
           <li>Has great written communication skills</li>
           <li>Is a skilled generalist, open to adapting to different types of work</li>
         </ul>
@@ -293,7 +295,63 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
         </InteractionWrapper> is a nonprofit providing support, community and information for donors to do the most good with their charitable giving.
       </div>
       <div className={classes.description}>
-        Giving What We Can (GWWC) is looking for a Researcher to help us identify the most effective donation opportunities for a variety of worldviews, and recommend these to our donors. This role provides an opportunity to help influence millions of dollars of charitable giving to be more effective. We estimate GWWC as a whole caused ~$83M in donations to high-impact charities through our fundraising and recommendations in 2020-2022. In 2022 alone, GWWC pledgers and other donors gave ~$27M through our donation platform, and reported giving another [...]
+        Giving What We Can (GWWC) is looking for a Researcher to help us identify the most effective donation opportunities for a variety of worldviews,
+        and recommend these to our donors. This role provides an opportunity to help influence millions of dollars of charitable giving to be more effective.
+        We estimate GWWC as a whole caused ~$83M in donations to high-impact charities through our fundraising and recommendations in 2020-2022.
+        In 2022 alone, GWWC pledgers and other donors gave ~$27M through our donation platform, and reported giving another [...]
+      </div>
+    </>
+  },
+  'safer-ai-technical-governance-researcher': {
+    subscribedTagIds: [
+      'u3Xg8MjDe2e6BvKtv', // AI governance
+    ],
+    readCoreTagIds: [
+      'u3Xg8MjDe2e6BvKtv', // AI governance
+    ],
+    logo: 'https://80000hours.org/wp-content/uploads/2024/02/saferai_logo-160x160.jpeg',
+    occupation: 'AI governance',
+    feedbackLinkPrefill: 'Technical+Governance+Researcher+at+SaferAI',
+    bitlyLink: "https://efctv.org/3UOH0aW", // https://docs.google.com/document/d/1-WV4LPcleEMQO5slSz90wfBuXH5mlXXA37JoQJGOq9s/edit
+    role: 'Technical Governance Researcher',
+    org: 'SaferAI',
+    orgLink: '/topics/saferai',
+    salary: '$50k - $75k',
+    location: 'Remote',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <InteractionWrapper className={classes.inline}>
+          <Link to="https://www.safer-ai.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+            SaferAI
+          </Link>
+        </InteractionWrapper> is a French organization dedicated to assessing and managing AI risks. They worked in standardization at JTC21,
+        the body in charge of writing the technical specifications of the EU AI Act, and part of the newly constituted US AI Safety Institute Consortium.
+      </div>
+      <div className={classes.description}>
+        This researcher will be a key enabler in ensuring the technical standardization contributions of SaferAI be as high quality as possible.
+      </div>
+      <div className={classes.description}>
+        An ideal candidate:
+        <ul>
+          <li>Has strong knowledge of AI safety & AI governance</li>
+          <li>Has strong writing skills</li>
+          <li>Is detail-oriented and conscientious</li>
+        </ul>
+      </div>
+    </>,
+    get80kDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+      <InteractionWrapper className={classes.inline}>
+        <Link to="https://www.safer-ai.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+            SaferAI
+          </Link>
+        </InteractionWrapper> is an organisation dedicated to assessing and managing AI risks.
+      </div>
+      <div className={classes.description}>
+        We are looking for a Technical Governance Researcher with a strong ability to write technical governance pieces for AI safety that SaferAI
+        will contribute to EU and US standardization efforts. The Technical Governance Researcher will be working closely with the standardization
+        team and the leadership to produce excellent work that gets distributed in such institutions. You will be a key enabler in ensuring the
+        technical standardization contributions of SaferAI be as high quality as possible. Responsibilities: Objective: Be the SaferAI technical governance [...]
       </div>
     </>
   },
