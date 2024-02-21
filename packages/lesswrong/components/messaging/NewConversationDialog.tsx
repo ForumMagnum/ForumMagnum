@@ -130,12 +130,15 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
   },
   chip: {
-    margin: 4,
-    height: 30,
+    margin: 2,
+    height: 28,
     borderRadius: theme.borderRadius.default,
     backgroundColor: theme.palette.background.primarySlightlyDim,
+    fontWeight: 500,
+    color: theme.palette.grey[900],
+    fontSize: 13,
     '& svg': {
-      fontSize: '22px'
+      fontSize: '18px'
     }
   },
   submitRow: {
