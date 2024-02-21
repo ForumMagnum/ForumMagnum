@@ -302,7 +302,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
       </div>
     </>
   },
-  'safer-ai-technical-governance-researcher': {
+  'saferai-technical-governance-researcher': {
     subscribedTagIds: [
       'u3Xg8MjDe2e6BvKtv', // AI governance
     ],
