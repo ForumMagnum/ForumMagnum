@@ -101,30 +101,10 @@ const styles = (theme: ThemeType) => ({
   cropPreviewEnabledBackground: {
     zIndex: 2,
   },
-
-  // TODO: figure out if we're deliberately not using this??
-  // These fade effects (for the title/author "fading out" vertically) also rely on the `transition` properties in the `title` and `author` classes
-  // fadeIn: {
-  //   '& .PostsPageSplashHeader-title, .PostsPageSplashHeader-author, .PostsPageSplasheHeader-reviews': {
-  //     transitionDelay: '0s',
-  //     transitionTimingFunction: 'ease-out',
-  //   },
-  // },
   fadeOut: {
-    opacity: 0,
-    '& .PostsPageSplashHeader-reviews': {
+    '& .PostsPageSplashHeader-backgroundImageWrapper': {
       opacity: 0,
-      transform: 'translateY(-130px)',
-      transitionTimingFunction: 'ease-in',
-    },
-    '& .PostsPageSplashHeader-title': {
-      opacity: 0,
-      transform: 'translateY(-100px)',
-      transitionTimingFunction: 'ease-in',
-    },
-    '& .PostsPageSplashHeader-author': {
-      opacity: 0,
-      transform: 'translateY(-70px)',
+      transition: 'opacity 0.5s',
       transitionTimingFunction: 'ease-in',
     },
   },
