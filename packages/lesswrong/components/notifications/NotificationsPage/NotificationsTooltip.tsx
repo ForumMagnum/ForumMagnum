@@ -13,8 +13,10 @@ const PADDING = 20;
 const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
+  },
+  notificationsContainer: {
     maxHeight: `calc(100vh - ${HEADER_HEIGHT + (2 * PADDING)}px)`,
-    overflow: "hidden",
+    overflow: "auto",
     display: "flex",
     flexDirection: "column",
     gap: "4px",
@@ -84,14 +86,16 @@ export const NotificationsTooltip = ({
     <HoverOver
       title={
         <div className={classes.root}>
-          <NotificationsPageKarmaChangeList karmaChanges={karmaChanges} />
-          {notifs.map((notification) =>
-            <NotificationsPageNotification
-              key={notification._id}
-              notification={notification}
-              hideCommentPreviews
-            />
-          )}
+          <div className={classes.notificationsContainer}>
+            <NotificationsPageKarmaChangeList karmaChanges={karmaChanges} />
+            {notifs.map((notification) =>
+              <NotificationsPageNotification
+                key={notification._id}
+                notification={notification}
+                hideCommentPreviews
+              />
+            )}
+          </div>
           <div className={classes.showMore}>
             <Link to="/notifications">
               {remaining > 0 ? `${remaining} more` : "View all"}
