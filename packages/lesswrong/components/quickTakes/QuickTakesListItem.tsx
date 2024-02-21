@@ -3,13 +3,23 @@ import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { isLWorAF } from "../../lib/instanceSettings";
+import classNames from "classnames";
+import NoSSR from "react-no-ssr";
 
 const styles = (_theme: ThemeType) => ({
   expandedRoot: {
     "& .comments-node-root": {
       marginBottom: 8,
-      ...(isLWorAF ? { paddingTop: 0 } : {})
+      ...(isLWorAF ? {
+        paddingTop: 0,
+        // This is to cause the "scroll to parent" sidebar to be positioned with respect to the top-level comment node, rather than the entire section
+        position: 'relative',
+      } : {}),
+
     },
+  },
+  hidden: {
+    display: 'none',
   },
 });
 
@@ -28,9 +38,12 @@ const QuickTakesListItem = ({quickTake, classes}: {
 
   const CollapsedListItem = isFriendlyUI ? QuickTakesCollapsedListItem : LWQuickTakesCollapsedListItem;
 
-  return expanded
-    ? (
-      <div className={classes.expandedRoot}>
+  // We're doing both a NoSSR + conditional `display: 'none'` to toggle between the collapsed & expanded quick take
+  // This is to eliminate a loading spinner (for the child comments) when someone expands a quick take,
+  // while avoiding the impact to the home page SSR speed for the large % of users who won't interact with quick takes at all
+  const expandedComment = (
+    <NoSSR>
+      <div className={classNames(classes.expandedRoot, { [classes.hidden]: !expanded })}>
         <CommentsNode
           treeOptions={{
             post: quickTake.post ?? undefined,
@@ -43,8 +56,19 @@ const QuickTakesListItem = ({quickTake, classes}: {
           forceUnCollapsed
         />
       </div>
-    )
-    : <CollapsedListItem quickTake={quickTake} setExpanded={wrappedSetExpanded} />;
+    </NoSSR>
+  );
+
+  const collapsedComment = (
+    <div className={classNames({ [classes.hidden]: expanded })}>
+      <CollapsedListItem quickTake={quickTake} setExpanded={wrappedSetExpanded} />
+    </div>
+  );
+
+  return <>
+    {expandedComment}
+    {collapsedComment}
+  </>;
 }
 
 const QuickTakesListItemComponent = registerComponent(
