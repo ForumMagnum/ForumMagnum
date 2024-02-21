@@ -8,9 +8,8 @@ import { useInitiateConversation } from "../hooks/useInitiateConversation";
 import { useNavigate } from "../../lib/reactRouterWrapper";
 import { Hit } from "react-instantsearch-core";
 import Chip from "@material-ui/core/Chip";
-import Button from "@material-ui/core/Button";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   paper: {
     width: 600,
     margin: '48px 24px'
@@ -132,21 +131,19 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   chip: {
     margin: 4,
+    height: 30,
+    borderRadius: theme.borderRadius.default,
     backgroundColor: theme.palette.background.primarySlightlyDim,
-  },
-  submitButton: {
-    padding: 8,
-    fontSize: "16px",
-    minWidth: 28,
-    minHeight: 28,
-    marginLeft: "auto",
-    backgroundColor: "transparent",
-    color: theme.palette.primary.main,
-    background: "transparent",
-    fontWeight: 500,
-    '&:hover': {
-      backgroundColor: theme.palette.background.primaryDim,
+    '& svg': {
+      fontSize: '22px'
     }
+  },
+  submitRow: {
+    padding: "16px 20px",
+    borderTop: theme.palette.border.grey300,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end"
   },
 });
 
@@ -165,6 +162,7 @@ const NewConversationDialog = ({
     ExpandedUsersConversationSearchHit,
     ForumIcon,
     Typography,
+    EAButton
   } = Components;
   const currentUser = useCurrentUser();
   const [query, setQuery] = useState<string>("");
@@ -236,15 +234,6 @@ const NewConversationDialog = ({
                       autoFocus={true}
                       translations={{ placeholder: "Search for user..." }}
                     />
-                    <Button
-                      type="submit"
-                      id="new-conversation-submit"
-                      className={classes.submitButton}
-                      disabled={selectedUsers.length === 0}
-                      onClick={() => initiateConversation(selectedUsers.map(u => u._id))}
-                    >
-                      <ForumIcon icon="ArrowRightOutline" />
-                    </Button>
                   </div>
                 </div>
               </div>
@@ -264,8 +253,8 @@ const NewConversationDialog = ({
                         currentUser={currentUser}
                         onClose={onClose}
                         onSelect={(u) => {
-                          toggleUserSelected(u)
-                          setQuery("")
+                          toggleUserSelected(u);
+                          setQuery("");
                         }}
                         isModInbox={isModInbox}
                         className={classes.hit}
@@ -276,6 +265,11 @@ const NewConversationDialog = ({
               </ErrorBoundary>
             </div>
           </InstantSearch>
+          <div className={classes.submitRow}>
+            <EAButton onClick={() => initiateConversation(selectedUsers.map((u) => u._id))}>
+              Create conversation
+            </EAButton>
+          </div>
         </div>
       </LWDialog>
     </AnalyticsContext>
