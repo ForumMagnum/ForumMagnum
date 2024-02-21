@@ -18,6 +18,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     gap: "4px",
+    paddingBottom: 28,
   },
   tooltip: {
     width: 284,
