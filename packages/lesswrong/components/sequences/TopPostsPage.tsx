@@ -294,9 +294,13 @@ const styles = (theme: ThemeType) => ({
     '&:hover $imageGridPostBackground': {
       transitionDelay: '0.2s'
     },
-    '&:has($imageGridPost:hover) $imageGridBackground': {
-      opacity: 0
-    }
+    // '&:has($imageGridPost:hover) $imageGridBackground': {
+    //   opacity: 0
+    // },
+    // TODO: idk, man
+    // '&:has($imageGridPostBackground[complete="true"]:hover) $imageGridBackground': {
+    //   opacity: 0,
+    // },
   },
   // If we want to display a grid with more than 6 items, increase this number
   ...Object.fromEntries(Array.from({ length: MAX_GRID_SIZE }, (_, i) => gridPositionToClassesEntry(theme, i))),
@@ -710,7 +714,7 @@ const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => 
 
   const imageClass = classNames({
     [classes.imageGridPostBackgroundContainerHidden]: !(isDefault || isExpanded || isShowingAll) || !coverLoaded,
-  })
+  });
 
   if (!post) {
     return emptyCellElement;
