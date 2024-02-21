@@ -5,7 +5,6 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
-import ReactMapGL from 'react-map-gl';
 import { Helmet } from 'react-helmet';
 import { DatabasePublicSetting, mapboxAPIKeySetting } from '../../lib/publicSettings';
 import { useMutation, gql } from '@apollo/client';
@@ -15,6 +14,7 @@ import {
   userCanLaunchPetrovMissile,
   usersAboveKarmaThresholdHardcoded20220922
 } from "../../lib/petrovHelpers";
+import { useReactMapGL } from '../../splits/useReactMapGl';
 
 export const petrovPostIdSetting = new DatabasePublicSetting<string>('petrov.petrovPostId', '')
 const petrovGamePostIdSetting = new DatabasePublicSetting<string>('petrov.petrovGamePostId', '')
@@ -144,6 +144,7 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   refetch?: any,
   alreadyLaunched?: boolean,
 }) => {
+  const { ready, reactMapGL } = useReactMapGL();
   const currentUser = useCurrentUser()
   const { petrovPressedButtonDate } = (currentUser || {}) as any;
   const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)
@@ -199,6 +200,8 @@ const PetrovDayButton = ({classes, refetch, alreadyLaunched }: {
   const beforePressMessage = <p>press button to initiate missile launch procedure</p>
   const afterPressMessage = disableLaunchButton ? <p>You are not authorized to initiate a missile strike at this time. Try again later.</p> : <p>enter launch code to initiate missile strike</p>
   
+  if (!ready) return <Components.Loading/>;
+  const { ReactMapGL } = reactMapGL;
 
   return (
     <div className={classes.root}>

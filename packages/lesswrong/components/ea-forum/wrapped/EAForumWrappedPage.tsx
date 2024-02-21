@@ -6,7 +6,6 @@ import { WrappedDataByYear, WrappedMostReadAuthor, WrappedMostReadTopic, Wrapped
 import classNames from "classnames";
 import range from "lodash/range";
 import moment from "moment";
-import { BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line } from "recharts";
 import { requireCssVar } from "../../../themes/cssVars";
 import { drawnArrow } from "../../icons/drawnArrow";
 import { Link } from "../../../lib/reactRouterWrapper";
@@ -32,6 +31,7 @@ import { TagCommentType } from "../../../lib/collections/comments/types";
 import NoSSR from "react-no-ssr";
 import { useLocation } from "../../../lib/routeUtil";
 import { TupleSet, UnionOf } from "../../../lib/utils/typeGuardUtils";
+import { useReCharts } from "../../../splits/useRecharts";
 
 const socialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -904,6 +904,9 @@ const EngagementPercentileSection = ({data, year, classes}: {
   year: WrappedYear,
   classes: ClassesType
 }) => {
+  const { ready, recharts: {BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line} } = useReCharts();
+  if (!ready) return null;
+
   // This is the x-axis position for the "you" arrow mark on the engagement chart.
   // The highest value on the x-axis is ~530 hours.
   // We multiply by 97.5 instead of 100 to account for the chart being less than the total width.
@@ -1016,6 +1019,9 @@ const MostReadTopicsSection = ({mostReadTopics, classes}: {
   mostReadTopics: WrappedMostReadTopic[],
   classes: ClassesType
 }) => {
+  const { ready, recharts: {BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line} } = useReCharts();
+  if (!ready) return null;
+
   if (!mostReadTopics.length) return null;
   
   // The top bar is highlighted yellow, the rest are white
@@ -1059,6 +1065,9 @@ const RelativeMostReadTopicsSection = ({relativeMostReadCoreTopics, classes}: {
   relativeMostReadCoreTopics: WrappedRelativeMostReadCoreTopic[],
   classes: ClassesType
 }) => {
+  const { ready, recharts: {BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line} } = useReCharts();
+  if (!ready) return <Components.Loading/>;
+
   const relativeMostReadTopics = relativeMostReadCoreTopics.map(topic => {
     return {
       ...topic,
@@ -1318,6 +1327,9 @@ const KarmaChangeSection = ({data, classes}: {
   data: WrappedDataByYear,
   classes: ClassesType
 }) => {
+  const { ready, recharts: {BarChart, Bar, ResponsiveContainer, YAxis, XAxis, AreaChart, Area, LineChart, Line} } = useReCharts();
+  if (!ready) return <Components.Loading/>;
+
   // If the user hasn't written anything and their karma change is 0, hide the karma change section
   const hasWrittenContent = !!data.topPosts?.length || data.topComment || data.topShortform
   if (data.karmaChange === undefined || (!hasWrittenContent && data.karmaChange === 0)) return null;

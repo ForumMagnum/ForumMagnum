@@ -151,6 +151,26 @@ build({
   },
 });
 
+for (let splitComponent of [
+  "react-map-gl", "recharts"
+]) {
+  build({
+    entryPoints: [`./packages/lesswrong/splits/${splitComponent}.ts`],
+    bundle: true,
+    target: "es6",
+    sourcemap: true,
+    metafile: true,
+    sourcesContent: true,
+    outfile: `${getOutputDir()}/shared/js/${splitComponent}.js`,
+    minify: isProduction,
+    banner: {
+      js: clientBundleBanner,
+    },
+    treeShaking: "ignore-annotations",
+    run: false,
+  });
+}
+
 let serverCli = ["node", "-r", "source-map-support/register", "--", `${getOutputDir()}/server/js/serverBundle.js`, "--settings", settingsFile]
 if (opts.shell)
   serverCli.push("--shell");

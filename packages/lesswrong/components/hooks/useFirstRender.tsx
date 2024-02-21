@@ -14,3 +14,8 @@ export const useForceRerender = () => {
   }, []);
   return isFirstRender;
 }
+
+export const useRerender = () => {
+  const [renderCount,setRenderCount] = useState(0);
+  return () => setRenderCount(renderCount+1);
+}
