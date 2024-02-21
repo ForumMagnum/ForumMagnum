@@ -66,7 +66,7 @@ export const NotificationsTooltip = ({
   const notifs: NotificationDisplay[] = data?.NotificationDisplays?.results ?? [];
   const remaining = unreadNotifications - limit;
 
-  const onShow = useCallback(async () => {
+  const onShow = useCallback(() => {
     void onNotificationsOpened();
     if (karmaChanges) {
       void (async () => {
