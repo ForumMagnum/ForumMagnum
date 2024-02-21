@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNotificationDisplays } from "./useNotificationDisplays";
@@ -57,6 +57,10 @@ export const NotificationsTooltip = ({
   const notifs: NotificationDisplay[] = data?.NotificationDisplays?.results ?? [];
   const remaining = unreadNotifications - limit;
 
+  const onShow = useCallback(() => {
+    console.log("shown");
+  }, []);
+
   const {
     HoverOver, NotificationsPageNotification, NotificationsPageKarmaChangeList,
   } = Components;
@@ -81,6 +85,7 @@ export const NotificationsTooltip = ({
       }
       placement="bottom"
       clickable
+      onShow={onShow}
       popperClassName={classes.tooltip}
     >
       {children}
