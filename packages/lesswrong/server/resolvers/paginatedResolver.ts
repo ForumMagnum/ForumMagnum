@@ -15,6 +15,35 @@ type MaybeCollectionType<GraphQLType extends string, Fallback> =
     ? ObjectsByTypeName[GraphQLType]
     : Fallback;
 
+type PrimitiveGraphQLType = 'Int' | 'Float' | 'String' | 'Boolean' | 'Date';
+interface PrimitiveGraphQLTypeMap {
+  Int: number;
+  Float: number;
+  String: string;
+  Boolean: boolean;
+  Date: Date;
+}
+
+type NullableArraybleGraphQLType<T extends string = string> = T extends `[${infer U}]${infer Nullability}`
+  ? Nullability extends '!' | ''
+    ? Nullability extends '!'
+      ? Array<NullableBaseGraphQLType<U>>
+      : Array<NullableBaseGraphQLType<U>> | null
+    : never
+  : NullableBaseGraphQLType<T>;
+
+type NullableBaseGraphQLType<T extends string> = T extends `${infer U}!`
+  ? BaseGraphQLType<U>
+  : BaseGraphQLType<T> | null;
+
+type BaseGraphQLType<T extends string> = T extends PrimitiveGraphQLType
+  ? PrimitiveGraphQLTypeMap[T]
+  : MaybeCollectionType<T, unknown>;
+
+type MappedGraphQLTypes<T extends Record<string, string>> = {
+  [k in keyof T]: NullableArraybleGraphQLType<T[k]>;
+};
+
 /**
  * Create a paginated resolver for use on the frontend with `usePaginatedResolver`.
  * This enables having custom SQL queries with a `useMulti`-like interface.
@@ -23,7 +52,9 @@ export const createPaginatedResolver = <
   FallbackReturnType,
   GraphQLType extends string,
   ReturnType extends MaybeCollectionType<GraphQLType, FallbackReturnType>,
-  Args extends Record<string, unknown>
+  // TODO: if we ever update estrella/esbuild to something that supports TS 5.0+ features like const type modifiers,
+  // stick a `const` in front of Args and that'll remove the need to add `as const` after the args when calling `createPaginatedResolver`
+  Args extends Record<string, string>
 >({
   name,
   graphQLType,
@@ -44,7 +75,7 @@ export const createPaginatedResolver = <
   /**
    * Custom arguments, as a map from the argument names to the graphql types.
    */
-  args?: Record<keyof Args, string>,
+  args?: Args,
   /**
    * The callback to fetch results, which will generally call into a repo (all
    * repos are available in `context.repos`).
@@ -52,7 +83,7 @@ export const createPaginatedResolver = <
   callback: (
     context: ResolverContext,
     limit: number,
-    args?: Args,
+    args?: MappedGraphQLTypes<Args>,
   ) => Promise<ReturnType[]>,
   /**
    * Optional cache TTL in milliseconds - if undefined or 0 no cache is used.
@@ -76,7 +107,7 @@ export const createPaginatedResolver = <
     Query: {
       [name]: async (
         _: void,
-        args: Args & {limit: number},
+        args: MappedGraphQLTypes<Args> & {limit: number},
         context: ResolverContext,
       ): Promise<{results: ReturnType[]}> => {
         const accessFilterFunction = collection
