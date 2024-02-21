@@ -21,9 +21,6 @@ const styles = (theme: ThemeType) => ({
     },
     ...theme.typography.commentStyle,
   },
-  grow: {
-    flexGrow: 1,
-  },
   commentCount: {
     color: theme.palette.grey[600],
     display: "flex",
