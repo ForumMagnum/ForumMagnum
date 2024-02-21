@@ -12,6 +12,7 @@ import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './Top
 import { gql, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
+import { ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo } from '../../lib/publicSettings';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -70,66 +71,6 @@ const DEFAULT_SPLASH_ART_COORDINATES: Omit<SplashArtCoordinates, '_id' | 'review
 
 // TODO: update the description to be appropriate for this page
 const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
-
-let candidateImages = [
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/c_crop,w_1,y_0.2,x_0.1/v1708118353/lwbot_watercolor_artwork_of_a_great_map_with_the_forest_it_depi_2e5b1975-6b60-4ad5-8455-74a84dc5abe6_hs6nly.png",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/c_crop,w_1,y_0.2,x_0.1/v1708125294/lwbot_topographic_watercolor_artwork_of_a_bustling_marketplace__8c2657f1-f129-4a43-a9e6-ca9b04dc417b_dsymvb.png",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/c_crop,w_0.85,y_0.04,x_0/v1708126629/lwbot_topographic_watercolor_artwork_of_a_vibrant_earth_globe_s_bf5c2883-d296-4cd9-b691-a7675e8a62c6_pq69sm.png",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/41b79ce2-bd03-45a5-bd9e-a7761a539b0a.png",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/d257c3a8-df69-4da5-ae4c-0fc01bd800d0.png",
-  "https://res.cloudinary.com/lesswrong-2-0/image/upload/f_auto,fl_progressive,q_auto/v1707268870/TopPostsPageCandidateImages/53236167-d294-4870-b65b-c793a83be8e0.png",
-]
-
-const sectionsInfo = {
-  rationality: {
-    title: "Rationality",
-    img: candidateImages[0],
-    tag: "Rationality",
-  },
-  optimization: {
-    title: "Optimization",
-    img: candidateImages[1],
-    tag: "World Optimization"
-  },
-  modeling: {
-    title: "World",
-    img: candidateImages[2],
-    tag: "World Modeling"
-  },
-  ai: {
-    title: "AI Alignment",
-    img: candidateImages[3],
-    tag: "AI"
-  },
-  practical: {
-    title: "Practical",
-    img: candidateImages[4],
-    tag: "Practical"
-  },
-  misc: {
-    title: "Miscellany",
-    img: candidateImages[5],
-    tag: null
-  }
-};
-
-const yearGroupInfo = {
-  2022: {
-    img: candidateImages[0],
-  },
-  2021: {
-    img: candidateImages[1],
-  },
-  2020: {
-    img: candidateImages[2],
-  },
-  2019: {
-    img: candidateImages[3],
-  },
-  2018: {
-    img: candidateImages[4],
-  },
-};
 
 const BOOK_OFFSETS_TO_COORDINATE_POSITIONS: Partial<Record<number, CoordinatePosition>> = {
   0: 'left',
@@ -631,14 +572,29 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
     return <PostsImageGrid {...props} />;
   }
 
-  const sectionGrid = Object.entries(sectionsInfo).map(([id, { title, img }], index) => {
+  const sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo>|null = reviewWinnerSectionsInfo.get();
+  const yearGroupsInfo: Record<ReviewWinnerYear, ReviewSectionInfo>|null = reviewWinnerYearGroupsInfo.get();
+
+  if (!sectionsInfo) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to load reviewWinnerSectionsInfo (image data) from public settings');
+    return null;
+  }
+  
+  if (!yearGroupsInfo) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to load reviewWinnerYearGroupsInfo (image data) from public settings');
+    return null;
+  }
+
+  const sectionGrid = Object.entries(sectionsInfo).sort(([, a], [, b]) => a.order! - b.order!).map(([id, { title, imgUrl }], index) => {
     const posts = sortedReviewWinners.map((post) => post).filter(post => post.reviewWinner?.category === id);
-    return getPostsImageGrid(posts, img, title, id, index);
+    return getPostsImageGrid(posts, imgUrl, title ?? id, id, index);
   });
 
-  const yearGrid = Object.entries(yearGroupInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { img }], index) => {
+  const yearGrid = Object.entries(yearGroupsInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { imgUrl }], index) => {
     const posts = sortedReviewWinners.filter(({ reviewWinner }) => reviewWinner?.reviewYear.toString() === year);
-    return getPostsImageGrid(posts, img, year, year, index);
+    return getPostsImageGrid(posts, imgUrl, year, year, index);
   });
 
   return (
@@ -749,6 +705,7 @@ function getPostGridTemplateDimensions({ postGridRows, postGridColumns }: PostGr
 function getSplashArtUrl({ reviewWinnerArt, leftBookOffset }: GetSplashArtUrlArgs) {
   let coordinatePosition: CoordinatePosition | undefined = BOOK_OFFSETS_TO_COORDINATE_POSITIONS[leftBookOffset];
   if (!coordinatePosition) {
+    // eslint-disable-next-line no-console
     console.error(`Invalid leftBookOffset ${leftBookOffset} used to derive coordinate position`);
     coordinatePosition = 'left';
   }

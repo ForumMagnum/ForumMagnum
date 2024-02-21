@@ -101,6 +101,20 @@ export const annualReviewAnnouncementPostPathSetting = new DatabasePublicSetting
 
 export const annualReviewVotingResultsPostPath = new DatabasePublicSetting<string>('annualReview.votingResultsPostPath', "")
 
+export const reviewWinnersCoverArtIds = new DatabasePublicSetting<Record<string, string>>('annualReview.reviewWinnersCoverArtIds', {})
+
+export type ReviewWinnerSectionName = 'rationality' | 'optimization' | 'modeling' | 'ai' | 'practical' | 'misc'
+export type ReviewWinnerYear = 2018 | 2019 | 2020 | 2021 | 2022
+export interface ReviewSectionInfo {
+  title?: string;
+  imgUrl: string;
+  tag: string | null;
+  order?: number;
+}
+export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerSectionName, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)
+export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewWinnerYear, ReviewSectionInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
+
+
 export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")
 type AccountInfo = {
   username: string,
