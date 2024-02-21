@@ -65,8 +65,8 @@ const LWTooltip = ({
       title: typeof title === "string" ? title : undefined,
       ...(analyticsProps as unknown as JsonRecord),
     },
-    onShow,
-    onHide,
+    onEnter: onShow,
+    onLeave: onHide,
   });
 
   if (!title) return <>{children}</>

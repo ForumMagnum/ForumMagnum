@@ -8,11 +8,11 @@ function datesDifference(a: Date, b: Date): number {
 
 type UseHoverProps = {
   eventProps?: EventProps,
-  onShow?: () => void,
-  onHide?: () => void,
+  onEnter?: () => void,
+  onLeave?: () => void,
 }
 
-export const useHover = ({eventProps, onShow, onHide}: UseHoverProps = {}) => {
+export const useHover = ({eventProps, onEnter, onLeave}: UseHoverProps = {}) => {
   const [hover, setHover] = useState(false)
   const [everHovered, setEverHovered] = useState(false)
   const [anchorEl, setAnchorEl] = useState<any>(null)
@@ -34,10 +34,10 @@ export const useHover = ({eventProps, onShow, onHide}: UseHoverProps = {}) => {
     setHover((currentValue) => {
       // Sometimes the event is retriggered by moving the mouse inside the
       // hovered element, if the hovered element contains children which can
-      // take the mouse focus. We only want to trigger `onShow` the first time
+      // take the mouse focus. We only want to trigger `onEnter` the first time
       // the mouse enters.
       if (!currentValue) {
-        onShow?.();
+        onEnter?.();
       }
       return true;
     });
@@ -46,12 +46,12 @@ export const useHover = ({eventProps, onShow, onHide}: UseHoverProps = {}) => {
     mouseOverStart.current = new Date()
     clearTimeout(delayTimer.current)
     delayTimer.current = setTimeout(captureHoverEvent,500)
-  }, [captureHoverEvent, onShow])
+  }, [captureHoverEvent, onEnter])
 
   const handleMouseLeave = useCallback(() => {
     setHover((currentValue) => {
       if (currentValue) {
-        onHide?.();
+        onLeave?.();
       }
       return false;
     });
@@ -65,7 +65,7 @@ export const useHover = ({eventProps, onShow, onHide}: UseHoverProps = {}) => {
       }
       mouseOverStart.current = null
     }
-  },[captureEvent, onHide])
+  },[captureEvent, onLeave])
 
   /**
    * Simulate un-hovering, making this effectively not-hovered until the mouse
@@ -74,13 +74,13 @@ export const useHover = ({eventProps, onShow, onHide}: UseHoverProps = {}) => {
   const forceUnHover = useCallback(() => {
     setHover((currentValue) => {
       if (currentValue) {
-        onHide?.();
+        onLeave?.();
       }
       return false;
     });
     setAnchorEl(null)
     clearTimeout(delayTimer.current)
-  }, [onHide]);
+  }, [onLeave]);
 
   return {
     eventHandlers: {
