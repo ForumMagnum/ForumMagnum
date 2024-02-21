@@ -78,7 +78,6 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     color: theme.palette.grey[500],
     cursor: "pointer",
-    marginTop: -6,
     width: 'fit-content',
   }
 });
