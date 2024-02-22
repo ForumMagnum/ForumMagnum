@@ -1,4 +1,5 @@
-import { resolverOnlyField } from "../../utils/schemaUtils";
+import { accessFilterSingle, resolverOnlyField } from "../../utils/schemaUtils";
+import { getReviewWinnerArtCoordinates } from "../splashArtCoordinates/cache";
 
 export const schema: SchemaType<"ReviewWinnerArts"> = {
   postId: {
@@ -28,10 +29,12 @@ export const schema: SchemaType<"ReviewWinnerArts"> = {
     type: "SplashArtCoordinate",
     graphQLtype: "SplashArtCoordinate",
     canRead: ['guests'],
-    resolver: async (reviewWinnerArt: DbReviewWinnerArt, args: void, context: ResolverContext): Promise<DbSplashArtCoordinate | null> => {
-      const { SplashArtCoordinates } = context;
-      return SplashArtCoordinates.findOne({ reviewWinnerArtId: reviewWinnerArt._id }, { sort: { createdAt: -1 } });
+    resolver: async (reviewWinnerArt: DbReviewWinnerArt, args: void, context: ResolverContext) => {
+      const { currentUser, SplashArtCoordinates } = context;
+
+      const coordinates = await getReviewWinnerArtCoordinates(reviewWinnerArt._id, context);
+
+      return accessFilterSingle(currentUser, SplashArtCoordinates, coordinates, context);
     },
   }),
-
 }

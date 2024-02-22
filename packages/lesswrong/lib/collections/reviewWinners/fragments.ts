@@ -28,13 +28,14 @@ registerFragment(`
 registerFragment(`
   fragment ReviewWinnerAll on ReviewWinner {
     _id
+    category
+    curatedOrder
     postId
+    reviewYear
+    reviewRanking
     reviewWinnerArt {
       ...ReviewWinnerArtImages
     }
-    reviewYear
-    curatedOrder
-    reviewRanking
     isAI
     competitorCount
   }

@@ -349,7 +349,7 @@ const styles = (theme: ThemeType) => ({
 /// PostsPageSplashHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes}: {
-  post: (PostsWithNavigation|PostsWithNavigationAndRevision)&{reviewWinner: ReviewWinnerAll},
+  post: (PostsWithNavigation|PostsWithNavigationAndRevision) & { reviewWinner: ReviewWinnerAll },
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
   classes: ClassesType<typeof styles>,
@@ -423,8 +423,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
 
     const newBackgroundImage =
       selectedImageInfo?.splashArtImageUrl ||
-      postLastSavedImage ||
-      post.reviewWinnerArt[0].splashArtImageUrl;
+      postLastSavedImage;
 
     if (newBackgroundImage) {
       setBackgroundImage(newBackgroundImage.replace('upload/', imageFlipped ? 'upload/a_hflip/' : 'upload/'));
@@ -473,7 +472,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
             <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
             <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
               <div>
-                <SplashHeaderImageOptions images={post.reviewWinnerArt} post={post}/>
+                <SplashHeaderImageOptions post={post}/>
               </div>
             </LWPopper>
           </div>

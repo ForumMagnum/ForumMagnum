@@ -293,6 +293,7 @@ import './collections/reviewWinners/fragments';
 // Review winners
 import './collections/reviewWinnerArts/collection';
 import './collections/reviewWinnerArts/fragments';
+import './collections/reviewWinnerArts/views';
 
 // Splash art coordinates
 import './collections/splashArtCoordinates/collection';

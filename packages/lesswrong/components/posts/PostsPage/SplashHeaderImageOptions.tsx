@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib';
 import { useImageContext } from './ImageContext';
+import { useMulti } from '../../../lib/crud/withMulti';
 
 const styles = (theme: ThemeType) => ({
   root: { 
@@ -16,17 +17,25 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const SplashHeaderImageOptions = ({ images, post, classes }: {
-  images: ReviewWinnerArtImages[], // TODO
+export const SplashHeaderImageOptions = ({ post, classes }: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
   classes: ClassesType<typeof styles>
 }) => {
 
   const { setImageInfo } = useImageContext();
 
+  const { results: images } = useMulti({
+    collectionName: 'ReviewWinnerArts',
+    fragmentName: 'ReviewWinnerArtImages',
+    terms: {
+      view: 'postArt',
+      postId: post._id,
+    }
+  });
+
   return (
     <div className={classes.root}>
-    {images.map((image, index) => (
+    {images?.map((image, index) => (
       <div
         className={classes.imageContainer}
         key={index}
