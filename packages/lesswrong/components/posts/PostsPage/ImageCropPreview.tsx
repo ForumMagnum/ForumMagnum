@@ -212,30 +212,31 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
   classes: ClassesType<typeof styles>,
   flipped: boolean
 }) => {
+  // TODO: per docstring, this hook isn't safe in an SSR context; make sure we wrap this entire component in a NoSSR block
+  const windowSize = useWindowSize();
+  const { selectedImageInfo } = useImageContext();
+  
   const [isBoxVisible, setIsBoxVisible] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 }); 
+  const [showSaveSuccess, setShowSaveSuccess] = useState<boolean | null>(null);
+  const [selectedBox, setSelectedBox] = useState<CoordinatePosition | null>(null);
 
   const initialBoxCoordinates: BoxCoordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight, flipped }
   const [boxCoordinates, setBoxCoordinates] = useState(initialBoxCoordinates);
+
+  const initialResizeInitialBoxCoordinates: BoxCoordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight, flipped }
+  const [resizeInitialBoxCoordinates, setResizeInitialBoxCoordinates] = useState(initialResizeInitialBoxCoordinates);
+
+  const initialCachedCoordinates: Record<string, BoxSubContainers> = {} 
+  const [cachedBoxCoordinates, setCachedBoxCoordinates] = useState(initialCachedCoordinates);
 
   const updateBoxCoordinates = (newCoordinates: BoxCoordinates) => {
     setBoxCoordinates(newCoordinates);
     setCropPreview(newCoordinates);
   }
 
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 }); 
-
-  const initialResizeInitialBoxCoordinates: BoxCoordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight, flipped }
-  const [resizeInitialBoxCoordinates, setResizeInitialBoxCoordinates] = useState(initialResizeInitialBoxCoordinates);
-
-  // TODO: per docstring, this hook isn't safe in an SSR context; make sure we wrap this entire component in a NoSSR block
-  const windowSize = useWindowSize();
-  const {selectedImageInfo} = useImageContext();
-
-  const initialCachedCoordinates: Record<string, BoxSubContainers> = {} 
-  const [cachedBoxCoordinates, setCachedBoxCoordinates] = useState(initialCachedCoordinates);
-  
   const toggleBoxVisibility = () => {
     // If we're closing the box, pass that back to undo all the relevant styling
     const newCropPreviewCoords = isBoxVisible ? undefined : boxCoordinates;
@@ -309,8 +310,6 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
   useEventListener('mousemove', handleBox);
   useEventListener('mouseup', endMouseDown);
 
-  const [showSaveSuccess, setShowSaveSuccess] = useState<boolean | null>(null);
-
   const { create: createSplashArtCoordinateMutation, loading, error } = useCreate({
     collectionName: 'SplashArtCoordinates',
     fragmentName: 'SplashArtCoordinates'
@@ -377,6 +376,9 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     }
   }, [selectedImageInfo, createSplashArtCoordinateMutation, cachedBoxCoordinates, imgRef]);
 
+  if (!selectedImageInfo) {
+    return null;
+  }
 
   const moveableBoxStyle = {
     left: boxCoordinates.x,
@@ -386,13 +388,6 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     width: boxCoordinates.width,
     height: boxCoordinates.height,             
   };
-
-  // Add a state to track the selected box
-  const [selectedBox, setSelectedBox] = useState<CoordinatePosition | null>(null);
-
-  if (!selectedImageInfo) {
-    return null;
-  }
 
   const boxSubContainers = {
     display: 'flex',
