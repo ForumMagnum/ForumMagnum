@@ -412,7 +412,7 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridPostTitle: {
     transition: "opacity 0.2s ease-in",
-    filter: "drop-shadow(0px 0px 3px black)",
+    textShadow: "0px 0px 3px black",
   },
   // TODO: anything here?
   expandIcon: {}
