@@ -5,6 +5,7 @@ import { onStartup } from "../../lib/executionEnvironment";
 import { createAnonymousContext } from "../vulcan-lib";
 import type { ReviewWinnerWithPost } from "../repos/ReviewWinnersRepo";
 import Posts from "../../lib/collections/posts/collection";
+import { updateSplashArtCoordinateCache } from "../../lib/collections/splashArtCoordinates/cache";
 
 interface ReviewWinnerCache {
   reviewWinners: ReviewWinnerWithPost[];
@@ -23,7 +24,11 @@ async function updateReviewWinnerCache(context: ResolverContext) {
 }
 
 onStartup(async () => {
-  await updateReviewWinnerCache(createAnonymousContext());
+  const context = createAnonymousContext();
+  await Promise.all([
+    updateReviewWinnerCache(context),
+    updateSplashArtCoordinateCache(context),
+  ]);
 });
 
 function restrictReviewWinnerPostFields(reviewWinners: ReviewWinnerWithPost[], context: ResolverContext) {

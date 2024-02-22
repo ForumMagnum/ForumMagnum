@@ -463,9 +463,6 @@ registerFragment(`
     reviewWinner {
       ...ReviewWinnerAll
     }
-    reviewWinnerArt {
-      ...ReviewWinnerArtImages
-    }
   }
 `)
 
@@ -477,9 +474,6 @@ registerFragment(`
     tableOfContents
     reviewWinner {
       ...ReviewWinnerAll
-    }
-    reviewWinnerArt {
-      ...ReviewWinnerArtImages
     }
   }
 `)

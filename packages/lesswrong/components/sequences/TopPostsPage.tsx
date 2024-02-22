@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { siteNameWithArticleSetting } from '../../lib/instanceSettings';
 import { useLocation } from '../../lib/routeUtil';
@@ -6,7 +6,7 @@ import { Components, fragmentTextForQuery, registerComponent } from '../../lib/v
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { usePostBySlug } from '../posts/usePost';
+import { useDisplayedPost, usePostBySlug } from '../posts/usePost';
 import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
 
 import { gql, useQuery } from '@apollo/client';
@@ -514,6 +514,21 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
   return newState;
 }
 
+/**
+ * Fetches the post when onMouseOver is triggered, in order to warm up the apollo cache and make for a much faster navigation experience for users.
+ */
+function usePreloadPost(postId: string) {
+  const [hovered, setHovered] = useState(false);
+
+  const onMouseOver = () => {
+    setHovered(true);
+  };
+
+  useDisplayedPost(postId, null, undefined, { skip: !hovered });
+
+  return { onMouseOver };
+};
+
 const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
   const { query } = location;
@@ -845,8 +860,10 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
     [classes.showAllButtonHidden]: !showAllVisible
   });
 
+  const { onMouseOver } = usePreloadPost(post._id);
+
   return <Link className={classes.imageGridPost} key={post._id} to={isShowAll ? '#' : postGetPageUrl(post)}>
-    <div className={classes.imageGridPostBody}>
+    <div className={classes.imageGridPostBody} onMouseOver={onMouseOver}>
       <div className={classes.imageGridPostAuthor}>
         {post?.user?.displayName}
       </div>

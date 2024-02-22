@@ -1340,13 +1340,11 @@ interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavi
   readonly customHighlight: RevisionDisplay|null,
   readonly tableOfContentsRevision: any,
   readonly reviewWinner: ReviewWinnerAll|null,
-  readonly reviewWinnerArt: Array<ReviewWinnerArtImages>,
 }
 
 interface PostsWithNavigation extends PostsPage, PostSequenceNavigation { // fragment on Posts
   readonly tableOfContents: any,
   readonly reviewWinner: ReviewWinnerAll|null,
-  readonly reviewWinnerArt: Array<ReviewWinnerArtImages>,
 }
 
 interface PostSequenceNavigation { // fragment on Posts
@@ -3629,11 +3627,12 @@ interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
 
 interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly _id: string,
-  readonly postId: string,
-  readonly reviewWinnerArt: ReviewWinnerArtImages|null,
-  readonly reviewYear: number,
+  readonly category: "rationality" | "modeling" | "optimization" | "ai" | "practical" | "misc",
   readonly curatedOrder: number,
+  readonly postId: string,
+  readonly reviewYear: number,
   readonly reviewRanking: number,
+  readonly reviewWinnerArt: ReviewWinnerArtImages|null,
   readonly isAI: boolean,
   readonly competitorCount: number|null,
 }

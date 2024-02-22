@@ -27,7 +27,6 @@ const ForeignCrosspostEditForm = ({post, classes}: {
     prevPost: null,
     nextPost: null,
     reviewWinner: null,
-    reviewWinnerArt: [],
   };
 
   return (
