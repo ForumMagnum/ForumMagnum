@@ -136,8 +136,10 @@ importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownM
 importComponent("DropdownItem", () => require('../components/dropdowns/DropdownItem'));
 importComponent("DropdownDivider", () => require('../components/dropdowns/DropdownDivider'));
 importComponent("NotifyMeDropdownItem", () => require('../components/dropdowns/NotifyMeDropdownItem'));
+importComponent("NotifyMeToggleDropdownItem", () => require('../components/dropdowns/NotifyMeToggleDropdownItem'));
 importComponent("SharePostSubmenu", () => require('../components/dropdowns/posts/SharePostSubmenu'));
 importComponent("SharePostActions", () => require('../components/dropdowns/posts/SharePostActions'));
+importComponent("PostSubscriptionsDropdownItem", () => require('../components/dropdowns/posts/PostSubscriptionsDropdownItem'));
 
 // Post dropdown items
 importComponent("PostActions", () => require('../components/dropdowns/posts/PostActions'));

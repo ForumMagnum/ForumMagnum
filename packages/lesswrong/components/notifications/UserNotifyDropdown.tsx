@@ -1,9 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from '../../lib/analyticsEvents';
-import { useNotifyMe } from '../hooks/useNotifyMe';
-import { SubscriptionType } from '../../lib/collections/subscriptions/schema';
-import { useOptimisticToggle } from '../hooks/useOptimisticToggle';
 import classNames from 'classnames';
 
 const styles = (_theme: ThemeType) => ({
@@ -25,36 +22,6 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const UserNotifyMenuItem = ({title, user, subscriptionType}: {
-  title: string,
-  user: UsersProfile,
-  subscriptionType: SubscriptionType,
-}) => {
-  const {isSubscribed, onSubscribe} = useNotifyMe({
-    document: user,
-    overrideSubscriptionType: subscriptionType,
-    hideFlashes: true,
-  });
-  const [subscribed, toggleSubscribed] = useOptimisticToggle(
-    isSubscribed ?? false,
-    onSubscribe ?? (() => {}),
-  );
-
-  const afterIcon = useCallback(
-    () => <ToggleSwitch value={subscribed} />,
-    [subscribed],
-  );
-
-  const {DropdownItem, ToggleSwitch} = Components;
-  return (
-    <DropdownItem
-      title={title}
-      onClick={toggleSubscribed}
-      afterIcon={afterIcon}
-    />
-  );
-}
-
 const UserNotifyDropdown = ({
   user,
   classes,
@@ -71,7 +38,10 @@ const UserNotifyDropdown = ({
     setIsOpen(open);
   }, [user._id, captureEvent]);
 
-  const {EAButton, ForumIcon, PopperCard, LWClickAwayListener, DropdownMenu} = Components;
+  const {
+    EAButton, ForumIcon, PopperCard, LWClickAwayListener, DropdownMenu,
+    NotifyMeToggleDropdownItem,
+  } = Components;
   return (
     <div>
       <div ref={anchorEl}>
@@ -96,13 +66,13 @@ const UserNotifyDropdown = ({
       >
         <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
           <DropdownMenu className={classes.dropdown}>
-            <UserNotifyMenuItem
-              user={user}
+            <NotifyMeToggleDropdownItem
+              document={user}
               title="New posts"
               subscriptionType="newPosts"
             />
-            <UserNotifyMenuItem
-              user={user}
+            <NotifyMeToggleDropdownItem
+              document={user}
               title="New comments"
               subscriptionType="newUserComments"
             />

@@ -14,12 +14,23 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
 import { userIsDefaultSubscribed } from "../../lib/subscriptionUtil";
 
+export type NotifyMeDocument =
+  UsersProfile |
+  UsersMinimumInfo |
+  UserOnboardingAuthor |
+  UserOnboardingTag |
+  CommentsList |
+  PostsBase |
+  PostsMinimumInfo |
+  PostsBase_group |
+  PostsAuthors_user;
+
 const currentUserIsSubscribed = (
   currentUser: UsersCurrent|null,
   results: SubscriptionState[]|undefined,
   subscriptionType: SubscriptionType,
   collectionName: CollectionNameString,
-  document: AnyBecauseTodo,
+  document: NotifyMeDocument,
 ) => {
   // Get the last element of the results array, which will be the most
   // recent subscription
@@ -52,18 +63,21 @@ export type NotifyMeConfig = {
 }
 
 export const useNotifyMe = ({
-  document,
+  document: rawDocument,
   overrideSubscriptionType,
   hideIfNotificationsDisabled,
   hideForLoggedOutUsers,
   hideFlashes,
 }: {
-  document: AnyBecauseTodo,
+  document: NotifyMeDocument,
   overrideSubscriptionType?: SubscriptionType,
   hideIfNotificationsDisabled?: boolean,
   hideForLoggedOutUsers?: boolean,
   hideFlashes?: boolean,
 }): NotifyMeConfig => {
+  // __typename is added by apollo but it doesn't exist in the typesystem
+  const document = rawDocument as NotifyMeDocument & {__typename: string};
+
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const {flash} = useMessages();
