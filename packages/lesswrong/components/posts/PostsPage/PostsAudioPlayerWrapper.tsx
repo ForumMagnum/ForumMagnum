@@ -4,9 +4,6 @@ import classNames from 'classnames';
 import { isPostAllowedType3Audio } from '../../../lib/collections/posts/helpers';
 
 const styles = (theme: ThemeType) => ({
-  root: {
-
-  },
   embeddedPlayer: {
     marginBottom: "30px"
   },
