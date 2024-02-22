@@ -69,7 +69,7 @@ export type DropdownItemProps = DropdownItemAction & {
   sideMessage?: string,
   icon?: ForumIconName | (() => ReactElement),
   iconClassName?: string,
-  afterIcon?: ForumIconName,
+  afterIcon?: ForumIconName | (() => ReactElement),
   tooltip?: string,
   disabled?: boolean,
   loading?: boolean,
@@ -127,8 +127,9 @@ const DropdownItem = ({
             </ListItemIcon>
           }
           <span className={classes.title}>{title}</span>
-          {afterIcon &&
-            <ForumIcon icon={afterIcon} className={classes.afterIcon} />
+          {typeof afterIcon === "string"
+            ? <ForumIcon icon={afterIcon} className={classes.afterIcon} />
+            : afterIcon?.()
           }
           {sideMessage &&
             <div className={classes.sideMessage}>

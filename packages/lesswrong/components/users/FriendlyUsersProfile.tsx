@@ -148,15 +148,6 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 4,
     padding: '8px 16px',
   },
-  subscribeBtn: {
-    backgroundColor: theme.palette.grey[0],
-    color: theme.palette.primary.main,
-    fontFamily: theme.typography.fontFamily,
-    border: theme.palette.border.normal,
-    borderColor: theme.palette.primary.main,
-    borderRadius: 4,
-    padding: '8px 16px',
-  },
   privateSectionIcon: {
     fontSize: 20,
     color: theme.palette.grey[500],
@@ -243,11 +234,12 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
   })
 
   const { SunshineNewUsersProfileInfo, SingleColumnSection, LWTooltip,
-    SortButton, NewConversationButton, TagEditsByUser, NotifyMeButton, LoadMore,
+    SortButton, NewConversationButton, TagEditsByUser, LoadMore,
     PostsList2, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
     Typography, ContentStyles, EAUsersProfileTabbedSection, PostsListSettings,
     RecentComments, SectionButton, SequencesGridWrapper, ReportUserButton, DraftsList,
-    ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks, UserNotifyDropdown
+    ProfileShortform, EAUsersProfileImage, EAUsersMetaInfo, EAUsersProfileLinks,
+    UserNotifyDropdown
   } = Components
 
   if (loading) {
@@ -476,13 +468,6 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
                 Message
               </a>
             </NewConversationButton>
-            <NotifyMeButton
-              document={user}
-              className={classes.subscribeBtn}
-              subscribeMessage="Subscribe to posts"
-              unsubscribeMessage="Unsubscribe"
-              asButton
-            />
             <UserNotifyDropdown
               user={user}
             />

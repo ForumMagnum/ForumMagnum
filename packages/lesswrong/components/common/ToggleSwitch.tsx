@@ -15,8 +15,6 @@ const styles = (theme: ThemeType) => ({
   },
   switch: {
     position: "absolute",
-    width: "100%",
-    height: "100%",
     borderRadius: 10,
     transition: "all 0.2s ease-in-out",
     padding: 2,
@@ -40,12 +38,12 @@ const styles = (theme: ThemeType) => ({
 
 export const ToggleSwitch = ({value, setValue, className, classes}: {
   value: boolean,
-  setValue: (value: boolean) => void,
+  setValue?: (value: boolean) => void,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const onToggle = useCallback(() => {
-    setValue(!value);
+    setValue?.(!value);
   }, [value, setValue]);
   return (
     <div onClick={onToggle} className={classNames(classes.root, className)}>
