@@ -235,20 +235,17 @@ const styles = (theme: ThemeType) => ({
     '&:hover $imageGridPostBackground': {
       transitionDelay: '0.2s'
     },
-    // '&:has($imageGridPost:hover) $imageGridBackground': {
-    //   opacity: 0
-    // },
-    // TODO: idk, man
-    // '&:has($imageGridPostBackground[complete="true"]:hover) $imageGridBackground': {
-    //   opacity: 0,
-    // },
+    // This is so that when the user moves their mouse between different post items in the grid (which have loaded their images successfully),
+    // the "cover" image doesn't pop in between "post" image transitions
+    '&:has($imageGridPostBackgroundCompleteHovered) $imageGridBackground': {
+      opacity: 0,
+    },
   },
   // If we want to display a grid with more than 6 items, increase this number
   ...Object.fromEntries(Array.from({ length: MAX_GRID_SIZE }, (_, i) => gridPositionToClassesEntry(theme, i))),
   imageGridBackground: {
     top: 0,
     right: 0,
-    // height: "120%",
     width: 1080,
     zIndex: -1,
     position: "absolute",
@@ -256,13 +253,6 @@ const styles = (theme: ThemeType) => ({
     objectPosition: "right",
     transition: "opacity 0.2s ease-in",
     opacity: 1,
-  },
-  showAllBackgroundWrapper: {
-    '&:hover $imageGridPostBackgroundContainer': {
-      opacity: 1,
-      transitionDelay: "0s",
-      zIndex: 2,
-    }
   },
   showAllPostItemWrapper: {
     height: 120,
@@ -407,6 +397,10 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     width: '100%',
   },
+  // This class exists purely so that we can track it from `imageGrid` to apply `opacity: 0` to `imageGridBackground`
+  // Unfortunately there doesn't seem to be a way to track when someone is hovering over a "complete" (loaded) image purely in CSS
+  // So we need to apply this class in code with mouseover event tracking while checking the imgRef's `complete` property
+  imageGridPostBackgroundCompleteHovered: {},
   imageGridPostAuthor: {
     opacity: 0,
     textAlign: "right",
@@ -862,8 +856,18 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
 
   const { onMouseOver } = usePreloadPost(post._id);
 
+  const [hover, setHover] = useState(false)
+  const imgRef = useRef<HTMLImageElement>(null);
+  
+  const handleMouseOver = () => {
+    onMouseOver();
+    setHover(!!imgRef.current?.complete);
+  };
+  
+  const handleMouseLeave = () => setHover(false);
+
   return <Link className={classes.imageGridPost} key={post._id} to={isShowAll ? '#' : postGetPageUrl(post)}>
-    <div className={classes.imageGridPostBody} onMouseOver={onMouseOver}>
+    <div className={classes.imageGridPostBody} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
       <div className={classes.imageGridPostAuthor}>
         {post?.user?.displayName}
       </div>
@@ -878,7 +882,12 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
       </div>}
     </div>
     <div className={classes.imageGridPostBackgroundContainer}>
-      <img loading={'lazy'} className={classNames([classes.imageGridPostBackground, imageClass])} src={imgSrc}/>
+      <img
+        ref={imgRef}
+        loading={'lazy'}
+        className={classNames([classes.imageGridPostBackground, imageClass, { [classes.imageGridPostBackgroundCompleteHovered]: hover }])}
+        src={imgSrc}
+      />
       <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundBackground, imageClass])} src={imgSrc}/>
     </div>
   </Link>;
