@@ -145,6 +145,8 @@ augmentFieldsDict(Posts, {
         // have the side comments cache available (even though the type system
         // doesn't know about it), otherwise we have to fetch it from the DB.
         const sqlFetchedPost = post as unknown as PostSideComments;
+        // `undefined` means we didn't run a SQL resolver. `null` means we ran
+        // a SQL resolver, but no relevant cache record was found.
         const cache = sqlFetchedPost.sideCommentsCache === undefined
             ? await SideCommentCaches.findOne({
               postId: post._id,
@@ -161,7 +163,7 @@ augmentFieldsDict(Posts, {
 
         // Here we fetch the comments for the post. For the sake of speed, we
         // project as few fields as possible. If the cache is invalid then we
-        // need to _all_ of the comments on the post complete with contents.
+        // need to fetch _all_ of the comments on the post complete with contents.
         // If the cache is valid then we only need the comments referenced in
         // the cache, and we don't need the contents.
         type CommentForSideComments =
