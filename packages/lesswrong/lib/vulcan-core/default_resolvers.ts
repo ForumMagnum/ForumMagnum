@@ -7,14 +7,13 @@ import type { FieldNode, GraphQLResolveInfo } from 'graphql';
 import { FragmentSpreadNode } from 'graphql';
 import SelectFragmentQuery from '../sql/SelectFragmentQuery';
 import { getSqlClientOrThrow } from '../sql/sqlClient';
+import { maxAllowedApiSkip } from '../instanceSettings';
 
 interface DefaultResolverOptions {
   cacheMaxAge: number
 }
 
 const logMissingFragmentNames = false;
-
-const maxAllowedSkip = 2000;
 
 const defaultOptions: DefaultResolverOptions = {
   cacheMaxAge: 300,
@@ -83,9 +82,14 @@ export function getDefaultResolvers<N extends CollectionNameString>(
         logger('multi resolver()')
         logger('multi terms', terms)
 
-        // Don't allow API requests with an offset provided >2000. This prevents some
-        // extremely-slow queries.
-        if (terms.offset && (terms.offset > maxAllowedSkip)) {
+        // Don't allow API requests with an arbitrarily large offset. This
+        // prevents some extremely-slow queries.
+        const maxAllowedSkip = maxAllowedApiSkip.get();
+        if (
+          terms.offset &&
+          maxAllowedSkip !== null &&
+          terms.offset > maxAllowedSkip
+        ) {
           throw new Error("Exceeded maximum value for skip");
         }
 

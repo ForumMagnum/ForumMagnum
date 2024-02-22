@@ -239,11 +239,11 @@ export const postPageFixedDigestAd = new ABTest({
   groups: {
     noShow: {
       description: "Don't show digest ad",
-      weight: 8,
+      weight: 1,
     },
     show: {
       description: "Show digest ad",
-      weight: 2,
+      weight: 1,
     },
   },
 });
