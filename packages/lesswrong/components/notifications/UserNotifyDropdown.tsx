@@ -16,6 +16,9 @@ const styles = (_theme: ThemeType) => ({
   chevron: {
     marginLeft: 4,
   },
+  dropdownWrapper: {
+    marginTop: 6,
+  },
   dropdown: {
     width: 200,
     maxWidth: "100vw",
@@ -63,6 +66,7 @@ const UserNotifyDropdown = ({
         open={isOpen}
         anchorEl={anchorEl.current}
         placement="bottom-start"
+        className={classes.dropdownWrapper}
       >
         <LWClickAwayListener onClickAway={() => handleSetOpen(false)}>
           <DropdownMenu className={classes.dropdown}>

@@ -5,6 +5,7 @@ import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { isDialogueParticipant } from "../../posts/PostsPage/PostsPage";
 import { isFriendlyUI } from "../../../themes/forumTheme";
+import Card from "@material-ui/core/Card";
 
 const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton}: {
   post: PostsList|SunshinePostsList,
@@ -82,11 +83,13 @@ export const PostSubscriptionsDropdownItem = ({post, classes}: {
       <LWTooltip
         title={
           <div className={classes.dropdownWrapper}>
-            <DropdownMenu>
-              {notifyMeItems.map((props) =>
-                <NotifyMeToggleDropdownItem {...props} key={props.subscribeMessage} />
-              )}
-            </DropdownMenu>
+            <Card>
+              <DropdownMenu>
+                {notifyMeItems.map((props) =>
+                  <NotifyMeToggleDropdownItem {...props} key={props.subscribeMessage} />
+                )}
+              </DropdownMenu>
+            </Card>
           </div>
         }
         clickable
