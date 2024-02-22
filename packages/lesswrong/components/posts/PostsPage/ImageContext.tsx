@@ -1,4 +1,3 @@
-// ImageContext.tsx
 import React, { createContext, useContext, useState } from 'react';
 
 export type ReviewWinnerImageInfo = {

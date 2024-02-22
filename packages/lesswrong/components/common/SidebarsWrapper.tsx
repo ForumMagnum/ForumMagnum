@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
-import type { ToCData, ToCSection, ToCSectionWithOffset } from '../../lib/tableOfContents';
+import type { ToCData } from '../../lib/tableOfContents';
 
 // Context used to share a reference used to share the table of contents
 // between the ToC itself, and the Header. The Header uses the ToC to change
@@ -35,16 +35,9 @@ const SidebarsWrapper = ({children}: {
   const setToCVisible = useCallback((visible: boolean) => {
     setTocVisibleState(visible);
   }, []);
-  
-  const tocWithVisibility = useMemo(() => {
-    if (tocVisible) {
-      return toc
-    }
-    return null
-  }, [tocVisible, toc])
 
   const sidebarsContext = useMemo((): SidebarsContextType => ({
-    toc, //: tocWithVisibility,
+    toc,
     tocVisible,
     setToC,
     setToCVisible,
