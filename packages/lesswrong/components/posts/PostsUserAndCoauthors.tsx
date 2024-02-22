@@ -48,7 +48,7 @@ const PostsUserAndCoauthors = ({
   newPromotedComments,
   showMarkers,
 }: {
-  post: PostsList | SunshinePostsList | PostsTopItemInfo,
+  post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
   classes: ClassesType,
   simple?: boolean,
