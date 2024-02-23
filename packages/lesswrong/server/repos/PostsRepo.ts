@@ -5,7 +5,6 @@ import LRU from "lru-cache";
 import { getViewablePostsSelector } from "./helpers";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/collection";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { LWReviewWinnerSortOrder } from "../../components/sequences/TopPostsDisplaySettings";
 
 type MeanPostKarma = {
   _id: number,
@@ -682,26 +681,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       userReadCount: read_count,
       readLikelihoodRatio: ratio
     }));
-  }
-
-  private getReviewWinnerOrderByClause(sortOrder: LWReviewWinnerSortOrder, tableAlias: string): string {
-    switch (sortOrder) {
-      case "curated":
-        return `ORDER BY ${tableAlias}."curatedOrder" ASC`;
-      case "year":
-        return `ORDER BY ${tableAlias}."reviewYear" DESC, ${tableAlias}."reviewRanking" ASC`;
-    }
-  }
-
-  async getReviewWinners(limit: Number, sortOrder: LWReviewWinnerSortOrder): Promise<DbPost[]> {
-    const orderByClause = this.getReviewWinnerOrderByClause(sortOrder, 'rw');
-    return this.any(`
-      -- PostsRepo.getReviewWinners
-      SELECT p.*
-      FROM "Posts" p
-      JOIN "ReviewWinners" rw ON p."_id" = rw."postId"
-      ${orderByClause}
-    `);
   }
 }
 

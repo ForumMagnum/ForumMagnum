@@ -1,7 +1,6 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import React from 'react';
 import Tooltip from '@material-ui/core/Tooltip';
-import classNames from 'classnames';
 import { useVote } from './withVote';
 import { isAF } from '../../lib/instanceSettings';
 import { useCurrentUser } from '../common/withUser';
@@ -66,7 +65,7 @@ const PostsSplashPageHeaderVote = ({
   const {fail, reason: whyYouCantVote} = voteButtonsDisabledForUser(currentUser);
   const canVote = !fail;
 
-  // TODO: should this always be bottom?  Can't do top, since in context this always has tags above it
+  // Can't do top, since in context this always has tags above it
   const tooltipPlacement = 'bottom' as const;
 
   const tooltipText = <div>

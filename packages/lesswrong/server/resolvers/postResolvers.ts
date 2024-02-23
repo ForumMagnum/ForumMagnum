@@ -431,34 +431,3 @@ createPaginatedResolver({
   // Caching is not user specific, do not use caching here else you will share users' drafts
   cacheMaxAgeMs: 0, 
 });
-
-createPaginatedResolver({
-  name: "ReviewWinnersCuratedOrder",
-  graphQLType: "Post",
-  callback: async (
-    context: ResolverContext,
-    limit: number,
-  ): Promise<DbPost[]> => context.repos.posts.getReviewWinners(limit, "curated"),
-  cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
-})
-
-// createPaginatedResolver({
-//   name: "ReviewWinnersRankingOrder",
-//   graphQLType: "Post",
-//   callback: async (
-//     context: ResolverContext,
-//     limit: number,
-//   ): Promise<DbPost[]> => context.repos.posts.getReviewWinners(limit, "ranking"),
-//   cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
-// })
-
-
-createPaginatedResolver({
-  name: "ReviewWinnersYearOrder",
-  graphQLType: "Post",
-  callback: async (
-    context: ResolverContext,
-    limit: number,
-  ): Promise<DbPost[]> => context.repos.posts.getReviewWinners(limit, "year"),
-  cacheMaxAgeMs: 1000 * 60 * 60, // 1 hour
-})

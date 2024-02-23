@@ -1,4 +1,3 @@
-// TODO: Import component in components.ts
 import React from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useNavigate } from '../../lib/reactRouterWrapper';
@@ -10,27 +9,11 @@ import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
 import classNames from 'classnames';
 
 const styles = (theme: ThemeType) => ({
-  root: {},
   displaySettings: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'end',
     height: 40
-  },
-  sortGroup: {
-
-  },
-  checkboxGroup: {
-    display: "flex",
-    alignItems: "center",
-    [theme.breakpoints.down('xs')]: {
-      marginBottom: theme.spacing.unit*2,
-      flex: `1 0 100%`,
-      order: 0
-    }
-  },
-  checkboxLabel: {
-    cursor: 'pointer'
   },
   filterRow: {
     display: "flex",
@@ -63,29 +46,23 @@ const SORT_ORDER_SET = new TupleSet(['curated', 'year'] as const);
 
 export type LWReviewWinnerSortOrder = UnionOf<typeof SORT_ORDER_SET>;
 
+interface DisplaySettings {
+  currentSortOrder: LWReviewWinnerSortOrder;
+}
+
 const REVIEW_WINNER_SORT_ORDERS: Record<LWReviewWinnerSortOrder, string> = {
   curated: `moderator's pick across all years`,
   year: 'review year descending, followed by ranking within year'
 };
 
 const SORT_QUERY_PARAM = 'sort';
-const HIDE_AI_QUERY_PARAM = 'hideAI';
 const DEFAULT_SORT_ORDER: LWReviewWinnerSortOrder = 'curated';
-
-interface DisplaySettings {
-  currentSortOrder: LWReviewWinnerSortOrder;
-  aiPostsHidden: boolean;
-}
 
 export function getCurrentTopPostDisplaySettings(query: Record<string, string>): DisplaySettings {
   const querySortOrder = query?.[SORT_QUERY_PARAM];
   const currentSortOrder = SORT_ORDER_SET.has(querySortOrder) ? querySortOrder : DEFAULT_SORT_ORDER;
-  const aiPostsHidden = query?.[HIDE_AI_QUERY_PARAM] === 'true';
 
-  return {
-    currentSortOrder,
-    aiPostsHidden
-  };
+  return { currentSortOrder };
 }
 
 export const TopPostsDisplaySettings = ({classes}: {
