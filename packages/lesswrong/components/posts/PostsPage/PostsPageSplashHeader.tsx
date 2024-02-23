@@ -113,7 +113,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     position: 'relative',
-    color: 'white',
+    color: theme.palette.text.alwaysWhite,
     justifyContent: 'center',
     alignItems: 'center',
     paddingBottom: '7vh',
@@ -172,7 +172,7 @@ const styles = (theme: ThemeType) => ({
     padding: '8px',
     borderRadius: '4px',
     backgroundColor: theme.palette.panelBackground.reviewGold,
-    color: 'white',
+    color: theme.palette.text.alwaysWhite,
     cursor: 'pointer',
   },
   audioPlayerContainer: {
@@ -247,7 +247,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.reviewGold,
     padding: 6,
     borderRadius: 4,
-    color: 'white',
+    color: theme.palette.text.alwaysWhite,
     cursor: 'pointer',
     [theme.breakpoints.down('xs')]: {
       display: 'none'
@@ -257,7 +257,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.reviewGold,
     padding: 6, 
     borderRadius: 4,
-    color: 'white',
+    color: theme.palette.text.alwaysWhite,
     display: 'none',
     [theme.breakpoints.down('xs')]: {
       display: 'block',
@@ -306,7 +306,7 @@ const styles = (theme: ThemeType) => ({
     overflow: 'hidden',
     position: 'relative',
     zIndex: 1,
-    color: 'white',
+    color: theme.palette.text.alwaysWhite,
   },
   reviewScore: {
   },
@@ -446,7 +446,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
         Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts in the {post.reviewWinner.reviewYear} Review
       </Link>
       <Link className={classes.reviewNavigationMobile} to="/bestoflesswrong?sort=year">
-        #{post.reviewWinner.reviewRanking + 1} in 2021 Review
+        #{post.reviewWinner.reviewRanking + 1} in {post.reviewWinner.reviewYear} Review
       </Link>
       {toggleEmbeddedPlayer && audioIcon}
     </div>
