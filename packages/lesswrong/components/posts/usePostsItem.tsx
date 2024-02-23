@@ -200,7 +200,7 @@ export const usePostsItem = ({
     <Link to={commentGetPageUrl(annualReviewMarketComment)}>
       <span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span>
     </Link>
-
+  
 
   return {
     post,
