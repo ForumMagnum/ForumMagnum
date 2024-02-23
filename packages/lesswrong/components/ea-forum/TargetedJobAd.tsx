@@ -266,6 +266,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     role: 'Researcher',
     org: 'Giving What We Can',
     orgLink: '/topics/giving-what-we-can',
+    salary: '£37k - £64k',
     location: 'Remote',
     deadline: moment('2024-03-02'),
     getDescription: (classes: ClassesType) => <>
