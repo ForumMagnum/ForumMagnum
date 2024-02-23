@@ -194,6 +194,7 @@ importComponent("QuickTakesCollapsedListItem", () => require('../components/quic
 importComponent("ResyncRssDropdownItem", () => require('../components/dropdowns/posts/ResyncRssDropdownItem'));
 importComponent("NewFeedButton", () => require('../components/rss/NewFeedButton'));
 //importComponent("EditFeedButton", () => require('../components/rss/EditFeedButton'));
+importComponent("ReviewRssCrosspostsPage", () => require('../components/rss/ReviewRssCrosspostsPage'));
 
 importComponent("NotificationsPage", () => require('../components/notifications/NotificationsPage/NotificationsPage'));
 importComponent("NotificationsPageFeed", () => require('../components/notifications/NotificationsPage/NotificationsPageFeed'));
@@ -252,7 +253,6 @@ importComponent("SettingsColumn", () => require('../components/common/SettingsCo
 importComponent("MetaInfo", () => require('../components/common/MetaInfo'));
 importComponent("NoContent", () => require('../components/common/NoContent'));
 importComponent("SearchBar", () => require('../components/common/SearchBar'));
-importComponent("DialogGroup", () => require('../components/common/DialogGroup'));
 importComponent("Divider", () => require('../components/common/Divider'));
 importComponent("ErrorBoundary", () => require('../components/common/ErrorBoundary'));
 importComponent("ErrorMessage", () => require('../components/common/ErrorMessage'));
