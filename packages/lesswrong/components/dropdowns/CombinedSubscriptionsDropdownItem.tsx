@@ -8,7 +8,7 @@ import { NotifyMeToggleDropdownItemPropsExternal } from "./NotifyMeToggleDropdow
 const styles = (_theme: ThemeType) => ({
   dropdownWrapper: {
     padding: "0 14px 0 10px",
-    transform: "translateX(2px)",
+    transform: "translateX(2px) translateY(-6px)",
   },
 });
 

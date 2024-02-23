@@ -1,7 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useTracking } from '../../lib/analyticsEvents';
-import classNames from 'classnames';
 
 const styles = (_theme: ThemeType) => ({
   buttonContent: {
@@ -60,7 +59,7 @@ const UserNotifyDropdown = ({
             Get notified
             <ForumIcon
               icon="ThickChevronDown"
-              className={classNames(classes.buttonIcon, classes.chevron)}
+              className={classes.buttonIcon}
             />
           </span>
         </EAButton>
