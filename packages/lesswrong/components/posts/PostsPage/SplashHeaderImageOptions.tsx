@@ -30,6 +30,7 @@ export const SplashHeaderImageOptions = ({ post, classes }: {
     terms: {
       view: 'postArt',
       postId: post._id,
+      limit: 100,
     }
   });
 
