@@ -71,7 +71,7 @@ export const CommentSubscriptionsDropdownItem = ({comment, post}: {
 
   const notifyMeItems = useMemo(() => {
     return getNotifyMeItems({comment, post, currentUser, enableSubscribeToCommentUser});
-  }, [post, currentUser, enableSubscribeToCommentUser]);
+  }, [comment, post, currentUser, enableSubscribeToCommentUser]);
 
   const {
     CombinedSubscriptionsDropdownItem
