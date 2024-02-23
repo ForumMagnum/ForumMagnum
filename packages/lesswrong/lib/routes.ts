@@ -41,7 +41,7 @@ const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Hi
 
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
-const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "LeastWrong" };
+const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "The LeastWrong" };
 
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 
