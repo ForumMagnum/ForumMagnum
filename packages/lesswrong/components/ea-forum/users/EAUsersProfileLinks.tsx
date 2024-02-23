@@ -43,7 +43,7 @@ const EAUsersProfileLinks = ({user, classes}: {
 }) => {
   const currentUser = useCurrentUser();
   const {flash} = useMessages();
-  const {Typography, LWTooltip, DialogGroup} = Components;
+  const {Typography, LWTooltip} = Components;
 
   const hasLinks = currentUser?.isAdmin || userCanEditUser(currentUser, user);
   if (!hasLinks) {
@@ -68,16 +68,9 @@ const EAUsersProfileLinks = ({user, classes}: {
           </LWTooltip>
         </div>
       }
-      {currentUser?.isAdmin &&
-        <div className={classes.registerRssLink}>
-          <DialogGroup
-            actions={[]}
-            trigger={<a>Register RSS</a>}
-          >
-            <div><Components.NewFeedButton user={user} /></div>
-          </DialogGroup>
-        </div>
-      }
+      { currentUser?.isAdmin && <div className={classes.registerRssLink}>
+        <Components.NewFeedButton user={user} />
+      </div>}
       {currentUser && currentUser._id === user._id &&
         <Link to="/manageSubscriptions">
           Manage subscriptions

@@ -191,7 +191,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
 
   const render = () => {
     const { SunshineNewUsersProfileInfo, SingleColumnSection, SectionTitle, SequencesNewButton, LocalGroupsList,
-      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton, DialogGroup,
+      PostsListSettings, PostsList2, NewConversationButton, TagEditsByUser, NotifyMeButton,
       SettingsButton, ContentItemBody, Loading, Error404, PermanentRedirect, HeadTags,
       Typography, ContentStyles, ReportUserButton, LWTooltip } = Components
 
@@ -275,16 +275,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                   </LWTooltip>
                 </div>
               }
-              { currentUser?.isAdmin &&
-                <div>
-                  <DialogGroup
-                    actions={[]}
-                    trigger={<a>Register RSS</a>}
-                  >
-                    <div><Components.NewFeedButton user={user} /></div>
-                  </DialogGroup>
-                </div>
-              }
+              { currentUser?.isAdmin && <Components.NewFeedButton user={user} />}
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
                 {preferredHeadingCase("Manage Subscriptions")}
               </Link>}

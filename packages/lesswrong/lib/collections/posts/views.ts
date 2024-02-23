@@ -1543,6 +1543,17 @@ Posts.addView("myBookmarkedPosts", (terms: PostsViewTerms, _, context?: Resolver
   };
 });
 
+Posts.addView("myPendingRssCrossposts", (terms: PostsViewTerms, _, context?: ResolverContext) => {
+  return {
+    selector: {
+      userId: terms.userId,
+      draft: true,
+      deletedDraft: false,
+      feedId: {$exists: true},
+    }
+  }
+});
+
 
 /**
  * For preventing both `PostsRepo.getRecentlyActiveDialogues` and `PostsRepo.getMyActiveDialogues` from being seq scans on Posts.

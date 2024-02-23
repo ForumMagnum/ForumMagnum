@@ -1481,6 +1481,12 @@ interface DbUser extends DbObject {
     timeOfDayGMT: number,
     dayOfWeekGMT: string,
   }
+  notificationRssCrosspostCreated: {
+    channel: "none" | "onsite" | "email" | "both",
+    batchingFrequency: "realtime" | "daily" | "weekly",
+    timeOfDayGMT: number,
+    dayOfWeekGMT: string,
+  }
   hideDialogueFacilitation: boolean
   revealChecksToAdmins: boolean
   optedInToDialogueFacilitation: boolean
