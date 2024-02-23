@@ -135,17 +135,19 @@ const styles = (theme: ThemeType) => ({
   },
   btns: {
     display: 'flex',
-    columnGap: 20,
+    columnGap: 8,
     marginTop: 20,
   },
   messageBtn: {
     display: 'block',
-    backgroundColor: theme.palette.primary.main,
-    color: theme.palette.grey[0],
+    backgroundColor: theme.palette.buttons.alwaysPrimary,
+    color: theme.palette.text.alwaysWhite,
     fontFamily: theme.typography.fontFamily,
     border: theme.palette.border.normal,
-    borderColor: theme.palette.primary.main,
+    borderColor: theme.palette.buttons.alwaysPrimary,
     borderRadius: 4,
+    fontSize: 14,
+    fontWeight: 500,
     padding: '8px 16px',
   },
   privateSectionIcon: {

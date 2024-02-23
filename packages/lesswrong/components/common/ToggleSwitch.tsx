@@ -6,11 +6,11 @@ const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     position: "relative",
-    width: 34,
-    minWidth: 34,
-    height: 20,
+    width: 28,
+    minWidth: 28,
+    height: 16,
     borderRadius: 10,
-    background: theme.palette.grey[600],
+    background: theme.palette.grey[400],
     overflow: "hidden",
   },
   switch: {
@@ -24,15 +24,15 @@ const styles = (theme: ThemeType) => ({
     left: 0,
   },
   switchOff: {
-    background: theme.palette.grey[500],
-    left: -14,
+    background: theme.palette.grey[400],
+    left: -12,
   },
   handle: {
     background: theme.palette.text.alwaysWhite,
     borderRadius: "50%",
-    width: 16,
-    height: 16,
-    marginLeft: 14,
+    width: 12,
+    height: 12,
+    marginLeft: 12,
   },
 });
 

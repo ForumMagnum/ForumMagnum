@@ -10,11 +10,8 @@ const styles = (_theme: ThemeType) => ({
     alignItems: "center",
   },
   buttonIcon: {
-    width: 17,
-    height: 17,
-  },
-  chevron: {
-    marginLeft: 4,
+    width: 16,
+    height: 16,
   },
   dropdownWrapper: {
     marginTop: 6,

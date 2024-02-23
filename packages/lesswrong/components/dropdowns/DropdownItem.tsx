@@ -39,8 +39,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
   },
   afterIcon: {
-    fontSize: 20,
-    marginLeft: 4,
+    fontSize: '16px !important',
+    marginLeft: 8,
+    color: theme.palette.grey[600],
   },
   sideMessage: {
     position: "absolute",

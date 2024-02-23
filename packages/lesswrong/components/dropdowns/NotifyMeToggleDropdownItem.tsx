@@ -21,7 +21,7 @@ export type NotifyMeToggleDropdownItemPropsExternal = Omit<NotifyMeToggleDropdow
 
 const styles = (_theme: ThemeType) => ({
   toggle: {
-    marginLeft: 8,
+    marginLeft: 12,
   },
 });
 
