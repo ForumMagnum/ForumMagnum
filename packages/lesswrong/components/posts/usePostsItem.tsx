@@ -13,8 +13,8 @@ import {
 import qs from "qs";
 import type { PopperPlacementType } from "@material-ui/core/Popper"
 import { AnnualReviewMarketInfo, getMarketInfo, highlightMarket } from "../../lib/annualReviewMarkets";
-import { Link } from '../../lib/reactRouterWrapper'
-import { commentGetPageUrl } from "../../lib/collections/comments/helpers";
+import { Link } from '../../lib/reactRouterWrapper';
+import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 
 const isSticky = (post: PostsList, terms: PostsViewTerms) =>
   (post && terms && terms.forum)
@@ -200,6 +200,7 @@ export const usePostsItem = ({
     <Link to={commentGetPageUrl(annualReviewMarketComment)}>
       <span>{annualReviewMarketInfo.year} Top Fifty: {parseFloat((annualReviewMarketInfo.probability*100).toFixed(0))}%</span>
     </Link>
+
 
   return {
     post,
