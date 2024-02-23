@@ -852,7 +852,7 @@ interface PostsDefaultFragment { // fragment on Posts
 interface ReviewWinnersDefaultFragment { // fragment on ReviewWinners
   readonly postId: string,
   readonly reviewYear: number,
-  readonly category: "rationality" | "modeling" | "optimization" | "ai" | "practical" | "misc",
+  readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
   readonly curatedOrder: number,
   readonly reviewRanking: number,
   readonly isAI: boolean,
@@ -862,6 +862,25 @@ interface ReviewWinnerArtsDefaultFragment { // fragment on ReviewWinnerArts
   readonly postId: string,
   readonly splashArtImagePrompt: string,
   readonly splashArtImageUrl: string,
+}
+
+interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordinates
+  readonly reviewWinnerArtId: string,
+  readonly leftXPct: number,
+  readonly leftYPct: number,
+  readonly leftHeightPct: number,
+  readonly leftWidthPct: number,
+  readonly leftFlipped: boolean,
+  readonly middleXPct: number,
+  readonly middleYPct: number,
+  readonly middleHeightPct: number,
+  readonly middleWidthPct: number,
+  readonly middleFlipped: boolean,
+  readonly rightXPct: number,
+  readonly rightYPct: number,
+  readonly rightHeightPct: number,
+  readonly rightWidthPct: number,
+  readonly rightFlipped: boolean,
 }
 
 interface TypingIndicatorsDefaultFragment { // fragment on TypingIndicators
@@ -3627,7 +3646,7 @@ interface ReviewWinnerTopPostsDisplay { // fragment on ReviewWinners
 
 interface ReviewWinnerAll { // fragment on ReviewWinners
   readonly _id: string,
-  readonly category: "rationality" | "modeling" | "optimization" | "ai" | "practical" | "misc",
+  readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
   readonly curatedOrder: number,
   readonly postId: string,
   readonly reviewYear: number,
@@ -3639,7 +3658,7 @@ interface ReviewWinnerAll { // fragment on ReviewWinners
 
 interface ReviewWinnerTopPostsPage { // fragment on ReviewWinners
   readonly _id: string,
-  readonly category: "rationality" | "modeling" | "optimization" | "ai" | "practical" | "misc",
+  readonly category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical",
   readonly curatedOrder: number,
   readonly reviewYear: number,
   readonly reviewRanking: number,
@@ -3657,25 +3676,6 @@ interface ReviewWinnerArtImages { // fragment on ReviewWinnerArts
   readonly splashArtImagePrompt: string,
   readonly splashArtImageUrl: string,
   readonly activeSplashArtCoordinates: SplashArtCoordinates|null,
-}
-
-interface SplashArtCoordinatesDefaultFragment { // fragment on SplashArtCoordinates
-  readonly reviewWinnerArtId: string,
-  readonly leftXPct: number,
-  readonly leftYPct: number,
-  readonly leftHeightPct: number,
-  readonly leftWidthPct: number,
-  readonly leftFlipped: boolean,
-  readonly middleXPct: number,
-  readonly middleYPct: number,
-  readonly middleHeightPct: number,
-  readonly middleWidthPct: number,
-  readonly middleFlipped: boolean,
-  readonly rightXPct: number,
-  readonly rightYPct: number,
-  readonly rightHeightPct: number,
-  readonly rightWidthPct: number,
-  readonly rightFlipped: boolean,
 }
 
 interface SplashArtCoordinates { // fragment on SplashArtCoordinates
@@ -3731,6 +3731,7 @@ interface FragmentTypes {
   PostsDefaultFragment: PostsDefaultFragment
   ReviewWinnersDefaultFragment: ReviewWinnersDefaultFragment
   ReviewWinnerArtsDefaultFragment: ReviewWinnerArtsDefaultFragment
+  SplashArtCoordinatesDefaultFragment: SplashArtCoordinatesDefaultFragment
   TypingIndicatorsDefaultFragment: TypingIndicatorsDefaultFragment
   VotesDefaultFragment: VotesDefaultFragment
   LWEventsDefaultFragment: LWEventsDefaultFragment
@@ -3944,7 +3945,6 @@ interface FragmentTypes {
   ReviewWinnerAll: ReviewWinnerAll
   ReviewWinnerTopPostsPage: ReviewWinnerTopPostsPage
   ReviewWinnerArtImages: ReviewWinnerArtImages
-  SplashArtCoordinatesDefaultFragment: SplashArtCoordinatesDefaultFragment
   SplashArtCoordinates: SplashArtCoordinates
   SuggestAlignmentComment: SuggestAlignmentComment
 }
@@ -3971,6 +3971,7 @@ interface FragmentTypesByCollection {
   Posts: "PostsDefaultFragment"|"PostsMinimumInfo"|"PostsTopItemInfo"|"PostsBase"|"PostsWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsReviewVotingList"|"PostsAuthors"|"PostsListBase"|"PostsList"|"PostsListTag"|"PostsListTagWithVotes"|"PostsDetails"|"PostsExpandedHighlight"|"PostsPlaintextDescription"|"PostsRevision"|"PostsRevisionEdit"|"PostsWithNavigationAndRevision"|"PostsWithNavigation"|"PostSequenceNavigation"|"PostsPage"|"PostsEdit"|"PostsEditQueryFragment"|"PostsEditMutationFragment"|"PostsRevisionsList"|"PostsRecentDiscussion"|"ShortformRecentDiscussion"|"UsersBannedFromPostsModerationLog"|"SunshinePostsList"|"WithVotePost"|"HighlightWithHash"|"PostWithDialogueMessage"|"PostSideComments"|"PostWithGeneratedSummary"|"PostsEditCriticismTips"|"PostsBestOfList"|"SuggestAlignmentPost"
   ReviewWinners: "ReviewWinnersDefaultFragment"|"ReviewWinnerEditDisplay"|"ReviewWinnerTopPostsDisplay"|"ReviewWinnerAll"|"ReviewWinnerTopPostsPage"
   ReviewWinnerArts: "ReviewWinnerArtsDefaultFragment"|"ReviewWinnerArtImages"
+  SplashArtCoordinates: "SplashArtCoordinatesDefaultFragment"|"SplashArtCoordinates"
   TypingIndicators: "TypingIndicatorsDefaultFragment"|"TypingIndicatorInfo"
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
@@ -4005,7 +4006,6 @@ interface FragmentTypesByCollection {
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
   CkEditorUserSessions: "CkEditorUserSessionsDefaultFragment"|"CkEditorUserSessionInfo"
-  SplashArtCoordinates: "SplashArtCoordinatesDefaultFragment"|"SplashArtCoordinates"
 }
 
 interface CollectionNamesByFragmentName {
@@ -4030,6 +4030,7 @@ interface CollectionNamesByFragmentName {
   PostsDefaultFragment: "Posts"
   ReviewWinnersDefaultFragment: "ReviewWinners"
   ReviewWinnerArtsDefaultFragment: "ReviewWinnerArts"
+  SplashArtCoordinatesDefaultFragment: "SplashArtCoordinates"
   TypingIndicatorsDefaultFragment: "TypingIndicators"
   VotesDefaultFragment: "Votes"
   LWEventsDefaultFragment: "LWEvents"
@@ -4243,7 +4244,6 @@ interface CollectionNamesByFragmentName {
   ReviewWinnerAll: "ReviewWinners"
   ReviewWinnerTopPostsPage: "ReviewWinners"
   ReviewWinnerArtImages: "ReviewWinnerArts"
-  SplashArtCoordinatesDefaultFragment: "SplashArtCoordinates"
   SplashArtCoordinates: "SplashArtCoordinates"
   SuggestAlignmentComment: "Comments"
 }

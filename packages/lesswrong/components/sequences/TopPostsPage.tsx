@@ -542,13 +542,14 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
 
-  function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, header: string, id: string, gridPosition: number) {
+  function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: AnyBecauseTodo, header: string, id: string, gridPosition: number) {
     const props = {
       key: id,
       id,
       posts,
       classes,
       img,
+      coords,
       header,
       gridPosition,
       expansionState: expansionState[id],
@@ -574,14 +575,14 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
     return null;
   }
 
-  const sectionGrid = Object.entries(sectionsInfo).sort(([, a], [, b]) => a.order - b.order).map(([id, { title, imgUrl }], index) => {
-    const posts = sortedReviewWinners.filter(({ reviewWinner }) => reviewWinner?.category === id);
-    return getPostsImageGrid(posts, imgUrl, title ?? id, id, index);
+  const sectionGrid = Object.entries(sectionsInfo).sort(([, a], [, b]) => a.order - b.order).map(([id, { title, imgUrl, coords }], index) => {
+    const posts = sortedReviewWinners.filter(post => post.reviewWinner?.category === id);
+    return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, title ?? id, id, index);
   });
 
-  const yearGrid = Object.entries(yearGroupsInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { imgUrl }], index) => {
+  const yearGrid = Object.entries(yearGroupsInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { imgUrl, coords }], index) => {
     const posts = sortedReviewWinners.filter(({ reviewWinner }) => reviewWinner?.reviewYear.toString() === year);
-    return getPostsImageGrid(posts, imgUrl, year, year, index);
+    return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index);
   });
 
   return (
@@ -666,7 +667,7 @@ const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => 
       classes={classes}
       imageGridId={id}
       imageClass={imageClass}
-      isShowAll={isLastCellInDefaultView}
+      isShowAll={isLastCellInDefaultView && !isShowingAll}
       showAllVisible={isExpanded && !isShowingAll}
       handleToggleFullyOpen={handleToggleFullyOpen}
     />
@@ -680,43 +681,45 @@ function getPostGridTemplateDimensions({ postGridRows, postGridColumns }: PostGr
   };
 }
 
-function getSplashArtUrl({ reviewWinnerArt, leftBookOffset }: GetSplashArtUrlArgs) {
+const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates, "_id" | "reviewWinnerArtId">, leftBookOffset: number) => {
   let coordinatePosition: CoordinatePosition | undefined = BOOK_OFFSETS_TO_COORDINATE_POSITIONS[leftBookOffset];
   if (!coordinatePosition) {
     // eslint-disable-next-line no-console
     console.error(`Invalid leftBookOffset ${leftBookOffset} used to derive coordinate position`);
     coordinatePosition = 'left';
   }
-
   const {
-    splashArtImageUrl,
-    activeSplashArtCoordinates,
-  } = reviewWinnerArt;
-
-  const  {
     [`${coordinatePosition}XPct` as const]: xPct,
     [`${coordinatePosition}YPct` as const]: yPct,
     [`${coordinatePosition}WidthPct` as const]: widthPct,
     // We're explicitly not bothering with heightPct right now, since we just want to get "to the bottom" of the image
     [`${coordinatePosition}Flipped` as const]: flipped,
-  } = activeSplashArtCoordinates ?? DEFAULT_SPLASH_ART_COORDINATES;
+  } = splashCoordinates;
 
   const newXPct = xPct - (widthPct * leftBookOffset); 
   const newWidthPct = Math.min(1, Math.max(0, widthPct*3)); // this will break the url if it goes above 1, but it shouldn't
 
   const cropPathParam = `c_crop,w_${newWidthPct},x_${newXPct},y_${yPct}`;
-  const croppedImageUrl = splashArtImageUrl
+  return url
     .replace('upload/', `upload/${cropPathParam}/`)
     .replace('upload/', `upload/${flipped ? 'a_hflip/' : ''}`)
-    .replace('f_auto,q_auto', 'f_auto,q_auto:eco');
-
-  return croppedImageUrl;
 }
 
-const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansionState, handleToggleExpand, handleToggleFullyOpen, hiddenState }: {
+function getSplashArtUrl({ reviewWinnerArt, leftBookOffset }: GetSplashArtUrlArgs) {
+  const {
+    splashArtImageUrl,
+    activeSplashArtCoordinates,
+  } = reviewWinnerArt;
+
+  return getCroppedUrl(splashArtImageUrl, activeSplashArtCoordinates ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)
+    .replace('f_auto,q_auto', 'f_auto,q_auto:eco');
+}
+
+const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition, expansionState, handleToggleExpand, handleToggleFullyOpen, hiddenState }: {
   posts: PostsTopItemInfo[],
   classes: ClassesType<typeof styles>,
   img: string,
+  coords: AnyBecauseTodo,
   header: string,
   id: string,
   gridPosition: number,
@@ -799,7 +802,7 @@ const PostsImageGrid = ({ posts, classes, img, header, id, gridPosition, expansi
     </div>
     <div className={classes.imageGridContainer} style={{ height: gridContainerHeight }}>
       <div className={gridClassName} style={gridTemplateDimensions}> 
-        <img src={img} ref={coverImgRef} className={classes.imageGridBackground} />
+        <img src={getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)} ref={coverImgRef} className={classes.imageGridBackground} />
         {postGridContents}
       </div>
     </div>

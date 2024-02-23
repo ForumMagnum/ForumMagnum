@@ -109,11 +109,40 @@ export interface ReviewSectionInfo {
   title?: string;
   imgUrl: string;
   order: number;
+  coords: {
+    leftXPct: number;
+    leftYPct: number;
+    leftWidthPct: number;
+    leftFlipped: boolean;
+    middleXPct: number;
+    middleYPct: number;
+    middleWidthPct: number;
+    middleFlipped: boolean;
+    rightXPct: number;
+    rightYPct: number;
+    rightWidthPct: number;
+    rightFlipped: boolean;
+  };
+  tag: string | null;
 }
 
 export interface ReviewYearGroupInfo {
   title?: string;
   imgUrl: string;
+  coords: {
+    leftXPct: number;
+    leftYPct: number;
+    leftWidthPct: number;
+    leftFlipped: boolean;
+    middleXPct: number;
+    middleYPct: number;
+    middleWidthPct: number;
+    middleFlipped: boolean;
+    rightXPct: number;
+    rightYPct: number;
+    rightWidthPct: number;
+    rightFlipped: boolean;
+  };
 }
 
 export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerSectionName, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)

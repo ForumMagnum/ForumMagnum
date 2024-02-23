@@ -63,7 +63,7 @@ export const schema: SchemaType<"ReviewWinners"> = {
   },
   category: {
     type: String,
-    allowedValues: ['rationality', 'modeling', 'optimization', 'ai', 'practical', 'misc'],
+    allowedValues: ['rationality', 'modeling', 'optimization', 'ai strategy', 'ai safety', 'practical'],
     nullable: false,
     canRead: ['guests'],
     canCreate: ['admins'],
