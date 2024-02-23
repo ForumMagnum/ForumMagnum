@@ -100,6 +100,10 @@ const styles = (theme: ThemeType) => ({
     marginRight: "auto",
     width: 'min-content'
   },
+  title: {
+    fontSize: "4.0rem",
+    fontWeight: 500,
+  },
   description: {
     maxWidth: 700,
     paddingLeft: 17,
@@ -592,9 +596,9 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
       <AnalyticsContext pageContext="topPostsPage">
         <div className={classes.widerColumn}>
           <div className={classes.description}>
-            <SectionTitle title={preferredHeadingCase("Best of LessWrong")} />
+            <SectionTitle title={preferredHeadingCase("The LeastWrong")} className={classes.title} />
             <ContentStyles contentType="post">
-            Here you can find the best posts of LessWrong. When a post on LessWrong is more than a year old, we review and vote on how well it has stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of reviewing and ranking posts started).
+            Here you can find the best posts of LessWrong. When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
             <br /><br />
             For the years 2018, 2019 and 2020 we also published physical books with the results of our annual vote, which you can buy and learn more about {<Link to='/books'>here</Link>}.
             </ContentStyles>

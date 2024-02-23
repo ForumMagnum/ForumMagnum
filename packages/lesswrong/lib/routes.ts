@@ -41,7 +41,7 @@ const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Hi
 
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
-const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
+const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "LeastWrong" };
 
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 
@@ -855,10 +855,15 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'bestoflesswrong',
       path: '/bestoflesswrong',
+      redirect: () => `/leastwrong`,
+    },
+    {
+      name: 'leastwrong',
+      path: '/leastwrong',
       componentName: 'TopPostsPage',
-      title: "Best of LessWrong",
+      title: "The LeastWrong",
       background: "#f8f4ee",
-      ...bestoflwSubtitle,
+      ...leastWrongSubtitle,
     },
     { 
       name: 'books',
