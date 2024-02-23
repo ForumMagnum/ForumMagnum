@@ -3,25 +3,10 @@ import { restrictViewableFieldsSingle } from "../../lib/vulcan-users";
 import { defineQuery } from "../utils/serverGraphqlUtil";
 import { onStartup } from "../../lib/executionEnvironment";
 import { createAnonymousContext } from "../vulcan-lib";
-import type { ReviewWinnerWithPost } from "../repos/ReviewWinnersRepo";
 import Posts from "../../lib/collections/posts/collection";
 import { updateSplashArtCoordinateCache } from "../../lib/collections/splashArtCoordinates/cache";
+import { REVIEW_WINNER_CACHE, ReviewWinnerWithPost, updateReviewWinnerCache } from "../../lib/collections/reviewWinners/cache";
 
-interface ReviewWinnerCache {
-  reviewWinners: ReviewWinnerWithPost[];
-  lastUpdatedAt: Date;
-}
-
-const REVIEW_WINNER_CACHE: ReviewWinnerCache = {
-  reviewWinners: [],
-  lastUpdatedAt: new Date()
-};
-
-async function updateReviewWinnerCache(context: ResolverContext) {
-  const updatedReviewWinners = await context.repos.reviewWinners.getAllReviewWinnersWithPosts();
-  REVIEW_WINNER_CACHE.reviewWinners = updatedReviewWinners;
-  REVIEW_WINNER_CACHE.lastUpdatedAt = new Date();
-}
 
 onStartup(async () => {
   const context = createAnonymousContext();

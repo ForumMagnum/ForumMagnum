@@ -108,11 +108,16 @@ export type ReviewWinnerYear = 2018 | 2019 | 2020 | 2021 | 2022
 export interface ReviewSectionInfo {
   title?: string;
   imgUrl: string;
-  tag: string | null;
-  order?: number;
+  order: number;
 }
+
+export interface ReviewYearGroupInfo {
+  title?: string;
+  imgUrl: string;
+}
+
 export const reviewWinnerSectionsInfo = new DatabasePublicSetting<Record<ReviewWinnerSectionName, ReviewSectionInfo>|null>('annualReview.reviewWinnerSectionsInfo', null)
-export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewWinnerYear, ReviewSectionInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
+export const reviewWinnerYearGroupsInfo = new DatabasePublicSetting<Record<ReviewWinnerYear, ReviewYearGroupInfo>|null>('annualReview.reviewWinnerYearGroupsInfo', null)
 
 
 export const moderationEmail = new DatabasePublicSetting<string>('moderationEmail', "ERROR: NO MODERATION EMAIL SET")

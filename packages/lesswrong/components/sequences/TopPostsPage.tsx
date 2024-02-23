@@ -6,13 +6,13 @@ import { Components, fragmentTextForQuery, registerComponent } from '../../lib/v
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { useDisplayedPost, usePostBySlug } from '../posts/usePost';
+import { useDisplayedPost } from '../posts/usePost';
 import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
 
 import { gql, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
-import { ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo } from '../../lib/publicSettings';
+import { ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo } from '../../lib/publicSettings';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -59,8 +59,6 @@ interface GetSplashArtUrlArgs {
 
 const MAX_GRID_SIZE = 6;
 
-// TODO: not actually sure we want to use default coordinates if coordinates are missing
-// And even if we do, these values are definitely wrong (i.e. need to figure out aspect ratio)
 const DEFAULT_SPLASH_ART_COORDINATES: Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> = {
   leftHeightPct: .2, leftWidthPct: .2, leftXPct: .2, leftYPct: .2, leftFlipped: false,
   middleHeightPct: .2, middleWidthPct: .2, middleXPct: .2, middleYPct: .2, middleFlipped: false,
@@ -254,16 +252,6 @@ const styles = (theme: ThemeType) => ({
     transition: "opacity 0.2s ease-in",
     opacity: 1,
   },
-  showAllPostItemWrapper: {
-    height: 120,
-    width: 120,
-    position: 'relative',
-  },
-  collapseButtonWrapper: {
-    height: 120,
-    width: 120,
-    position: 'relative',
-  },
   showAllButton: {
     ...theme.typography.commentStyle,
     height: 120,
@@ -288,13 +276,6 @@ const styles = (theme: ThemeType) => ({
   showAllButtonHidden: {
     left: 120,
     transition: 'left 0.2s ease-in 0s'
-  },
-  showAllPostItem: {
-    height: 120,
-    width: 120,
-    position: 'absolute',
-    top: 0,
-    right: 0,
   },
   imageGridPost: {
     ...theme.typography.commentStyle,
@@ -327,10 +308,6 @@ const styles = (theme: ThemeType) => ({
       zIndex: 1,
       opacity: 1
     },
-    // TODO: figure out how to also make this work correctly for the header
-    // '&&:nth-child(4n + 1) $imageGridPostBody': {
-    //   borderBottom: "none"
-    // },
 
     height: 'inherit',
   },
@@ -412,9 +389,8 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridPostTitle: {
     transition: "opacity 0.2s ease-in",
-    filter: "drop-shadow(0px 0px 3px black)",
+    textShadow: "0px 0px 3px black",
   },
-  // TODO: anything here?
   expandIcon: {}
 });
 
@@ -524,11 +500,14 @@ function usePreloadPost(postId: string) {
 };
 
 const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
+  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles } = Components;
+  
   const location = useLocation();
   const { query } = location;
 
   const [expansionState, setExpansionState] = useState<Record<string, ExpansionState>>({});
   const [fullyOpenGridId, setFullyOpenGridId] = useState<string>();
+  
   const handleToggleExpand = (id: string) => {
     const newState = getNewExpansionState(expansionState, id);
 
@@ -550,9 +529,6 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
 
   const { currentSortOrder } = getCurrentTopPostDisplaySettings(query);
 
-  const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles, ContentItemBody } = Components;
-
-  const { post: reviewDescriptionPost } = usePostBySlug({ slug: 'top-posts-review-description' });
 
   const { data } = useQuery(gql`
     query GetAllReviewWinners {
@@ -584,7 +560,7 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
   }
 
   const sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo>|null = reviewWinnerSectionsInfo.get();
-  const yearGroupsInfo: Record<ReviewWinnerYear, ReviewSectionInfo>|null = reviewWinnerYearGroupsInfo.get();
+  const yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo>|null = reviewWinnerYearGroupsInfo.get();
 
   if (!sectionsInfo) {
     // eslint-disable-next-line no-console
@@ -598,8 +574,8 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
     return null;
   }
 
-  const sectionGrid = Object.entries(sectionsInfo).sort(([, a], [, b]) => a.order! - b.order!).map(([id, { title, imgUrl }], index) => {
-    const posts = sortedReviewWinners.map((post) => post).filter(post => post.reviewWinner?.category === id);
+  const sectionGrid = Object.entries(sectionsInfo).sort(([, a], [, b]) => a.order - b.order).map(([id, { title, imgUrl }], index) => {
+    const posts = sortedReviewWinners.filter(({ reviewWinner }) => reviewWinner?.category === id);
     return getPostsImageGrid(posts, imgUrl, title ?? id, id, index);
   });
 
@@ -620,7 +596,6 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
             Here you can find the best posts of LessWrong. When a post on LessWrong is more than a year old, we review and vote on how well it has stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of reviewing and ranking posts started).
             <br /><br />
             For the years 2018, 2019 and 2020 we also published physical books with the results of our annual vote, which you can buy and learn more about {<Link to='/books'>here</Link>}.
-              {/*reviewDescriptionPost && <ContentItemBody dangerouslySetInnerHTML={{__html: reviewDescriptionPost.contents?.html ?? ''}} description={`A description of the top posts page`}/>*/}
             </ContentStyles>
           </div>
           <div>
@@ -668,10 +643,8 @@ const PostGridContents = (props: PostGridContentsProps) => {
 const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => {
   const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset, coverLoaded } = props;
   const isLastCellInDefaultView = (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1));
-  const isLastCellInShowingAllView = (rowIdx === (postGridRows - 1)) && (columnIdx === (postGridColumns - 1));
   const isDefault = rowIdx < viewportHeight && (columnIdx - (leftBookOffset * 3)) < 3 && (columnIdx - leftBookOffset) >= 0;
 
-  // TODO: style with appropriate width/height for offsetting the collapse-all button
   const emptyCellElement = <div key={`empty-${rowIdx}-${columnIdx}`} className={classes.emptyGridCell} />;
 
   const reviewWinnerArt = post?.reviewWinner?.reviewWinnerArt ?? undefined;
@@ -724,7 +697,7 @@ function getSplashArtUrl({ reviewWinnerArt, leftBookOffset }: GetSplashArtUrlArg
     [`${coordinatePosition}XPct` as const]: xPct,
     [`${coordinatePosition}YPct` as const]: yPct,
     [`${coordinatePosition}WidthPct` as const]: widthPct,
-    [`${coordinatePosition}HeightPct` as const]: heightPct,
+    // We're explicitly not bothering with heightPct right now, since we just want to get "to the bottom" of the image
     [`${coordinatePosition}Flipped` as const]: flipped,
   } = activeSplashArtCoordinates ?? DEFAULT_SPLASH_ART_COORDINATES;
 

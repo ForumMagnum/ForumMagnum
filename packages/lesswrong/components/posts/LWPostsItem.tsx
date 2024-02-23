@@ -12,12 +12,9 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
-import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
-import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 
 
 export const KARMA_WIDTH = 32;
-export const REVIEW_RANKING_WIDTH = 50;
 
 export const styles = (theme: ThemeType) => ({
   row: {
@@ -98,17 +95,6 @@ export const styles = (theme: ThemeType) => ({
   },
   karmaPredictedReviewWinner: {
     color: theme.palette.review.winner
-  },
-  reviewRanking: {
-    width: REVIEW_RANKING_WIDTH,
-    justifyContent: "center",
-    [theme.breakpoints.down('xs')]:{
-      width: "unset",
-      justifyContent: "flex-start",
-      marginLeft: 2,
-      marginRight: theme.spacing.unit
-    },
-    marginRight: 6
   },
   title: {
     minHeight: 26,

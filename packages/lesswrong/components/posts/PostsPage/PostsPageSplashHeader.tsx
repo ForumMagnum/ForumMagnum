@@ -355,18 +355,35 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   classes: ClassesType<typeof styles>,
 }) => {
   const { FooterTagList, UsersName, CommentBody, PostActionsButton, LWTooltip, LWPopper, ImageCropPreview, ForumIcon, SplashHeaderImageOptions, PostsAudioPlayerWrapper, PostsSplashPageHeaderVote } = Components;
+  
   const { selectedImageInfo } = useImageContext();
+  const { setToCVisible } = useContext(SidebarsContext)!;
   const currentUser = useCurrentUser();
+  
+  const { anchorEl, hover, eventHandlers } = useHover();
+  
   const [visible, setVisible] = useState(true);
   const [backgroundImage, setBackgroundImage] = useState('');
-  const { setToCVisible } = useContext(SidebarsContext)!;
-  
   const [cropPreviewEnabled, setCropPreviewEnabled] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<CommentsList | null>(null);
   const [imageFlipped, setImageFlipped] = useState(false);
+  
   const toggleImageFlip = () => setImageFlipped(!imageFlipped);
+  
   const imgRef = useRef<HTMLImageElement>(null);
   const backgroundImgWrapperRef = useRef<HTMLDivElement>(null);
   const backgroundImgCropPreviewRef = useRef<HTMLDivElement>(null);
+
+  const transitionHeader = (headerVisibile: boolean) => {
+    setToCVisible(!headerVisibile);
+    setVisible(headerVisibile);
+  };
+
+  const observerRef = useObserver<HTMLDivElement>({
+    onEnter: () => transitionHeader(true),
+    onExit: () => transitionHeader(false),
+    threshold: 0.95
+  });
 
   const setCropPreview = (coordinates?: Coordinates) => {
     if (imgRef.current && backgroundImgWrapperRef.current && backgroundImgCropPreviewRef.current) {
@@ -389,12 +406,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
       }
     }
   };
-
-  const transitionHeader = (headerVisibile: boolean) => {
-    setToCVisible(!headerVisibile);
-    setVisible(headerVisibile);
-  }
-  const observerRef = useObserver<HTMLDivElement>({onEnter: () => transitionHeader(true), onExit: () => transitionHeader(false), threshold: 0.95});
+  
   const { results: reviews } = useMulti({
     terms: {
       view: "reviews",
@@ -405,32 +417,110 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     fetchPolicy: 'cache-and-network',
     limit: 5
   });
-  const [selectedReview, setSelectedReview] = React.useState<CommentsList | null>(null);
-
-  const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF
-
-  const audioIcon = <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio, [classes.audioIconOn]: showEmbeddedPlayer})}>
-    <a href="#" onClick={toggleEmbeddedPlayer}>
-      <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {})} />
-    </a>
-  </LWTooltip>
-
-  const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
-  const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
 
   useEffect(() => {
     const postLastSavedImage = post.reviewWinner.reviewWinnerArt?.splashArtImageUrl;
-
-    const newBackgroundImage =
-      selectedImageInfo?.splashArtImageUrl ||
-      postLastSavedImage;
+    const newBackgroundImage = selectedImageInfo?.splashArtImageUrl || postLastSavedImage;
 
     if (newBackgroundImage) {
       setBackgroundImage(newBackgroundImage.replace('upload/', imageFlipped ? 'upload/a_hflip/' : 'upload/'));
     }
-  }, [post, selectedImageInfo, imageFlipped]); 
+  }, [post, selectedImageInfo, imageFlipped]);
 
-  const { anchorEl, hover, eventHandlers } = useHover();
+  const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF;
+
+  const audioIcon = (
+    <LWTooltip title={'Listen to this post'} className={classNames(classes.togglePodcastContainer, {[classes.nonhumanAudio]: nonhumanAudio, [classes.audioIconOn]: showEmbeddedPlayer})}>
+      <a href="#" onClick={toggleEmbeddedPlayer}>
+        <ForumIcon icon="VolumeUp" className={classNames(classes.audioIcon, {})} />
+      </a>
+    </LWTooltip>
+  );
+
+  const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
+  const postActionsButton = <PostActionsButton post={post} className={classes.postActionsButton} flip />;
+
+  const topLeftSection = (
+    <div className={classes.leftSection}>
+      <Link className={classes.reviewNavigation} to="/bestoflesswrong?sort=year">
+        Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts in the {post.reviewWinner.reviewYear} Review
+      </Link>
+      <Link className={classes.reviewNavigationMobile} to="/bestoflesswrong?sort=year">
+        #{post.reviewWinner.reviewRanking + 1} in 2021 Review
+      </Link>
+      {toggleEmbeddedPlayer && audioIcon}
+    </div>
+  );
+
+  const imagePreviewAndCrop = (userIsAdminOrMod(currentUser) &&
+    <div className={classes.rightSectionBelowBottomRow}>
+      <div {...eventHandlers}>
+        <div className={classes.changeImageBox}>Change image</div>
+        <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
+        <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
+          <div>
+            <SplashHeaderImageOptions post={post} />
+          </div>
+        </LWPopper>
+      </div>
+      <div className={classes.rightSectionBelowBottomRow}>
+        <ImageCropPreview reviewWinner={post.reviewWinner} imgRef={imgRef} setCropPreview={setCropPreview} flipped={imageFlipped} />
+      </div>
+    </div>
+  );
+
+  const topRightSection = (
+    <div className={classes.rightSection}>
+      <AnalyticsContext pageSectionContext="tagHeader">
+        <div className={classes.rightSectionTopRow}>
+          <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} appendElement={postActionsButton} />
+        </div>
+      </AnalyticsContext>
+      <div className={classes.rightSectionBottomRow}>
+        <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
+      </div>
+      {imagePreviewAndCrop}
+    </div>
+  );
+
+  const audioPlayer = (
+    <div className={classes.audioPlayerContainer}>
+      <div className={classes.audioPlayer}>
+        <PostsAudioPlayerWrapper post={post} showEmbeddedPlayer={!!showEmbeddedPlayer} />
+      </div>
+    </div>
+  );
+
+  const reviewContainer = (
+    <div className={classes.reviewContainer} onMouseLeave={() => {
+      setSelectedReview(null);
+    }}>
+      {selectedReview && <div className={classes.reviewPreviewContainer}>
+        <div className={classes.reviewPreview}>
+          <div className={classes.reviewPreviewAuthor}>
+            <UsersName user={selectedReview.user} />
+          </div>
+          <div className={classes.reviewPreviewBody}>
+            <CommentBody comment={selectedReview} />
+          </div>
+        </div>
+      </div>}
+      <div className={classes.reviews}>
+        {reviews && reviews.length > 0 && reviews.map(review => <ReviewPill key={review._id} review={review} classes={classes} setReview={setSelectedReview} />)}
+      </div>
+    </div>
+  );
+
+  const centralSection = (
+    <div className={classes.centralSection}>
+      <h1 className={classNames(classes.title, { [classes.titleSmaller]: post.title.length > 80 })}>
+        {post.title}
+      </h1>
+      <div className={classes.author}>
+        <UsersName user={post.user} />
+      </div>
+    </div>
+  );
 
   return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef} >
     {
@@ -448,73 +538,13 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
       <img ref={imgRef} src={backgroundImage} className={classes.backgroundImageCropPreview} alt="Background Image" />
     </div>
     <div className={classes.top}>
-      <div className={classes.leftSection}>
-        <Link className={classes.reviewNavigation} to="/bestoflesswrong?sort=year">
-          Ranked #{post.reviewWinner.reviewRanking + 1} of {post.reviewWinner.competitorCount} posts in the {post.reviewWinner.reviewYear} Review
-        </Link>
-        <Link className={classes.reviewNavigationMobile} to="/bestoflesswrong?sort=year">
-          #{post.reviewWinner.reviewRanking + 1} in 2021 Review
-        </Link>
-        {toggleEmbeddedPlayer && audioIcon}
-      </div>
-      <div className={classes.rightSection}>
-        <AnalyticsContext pageSectionContext="tagHeader">
-          <div className={classes.rightSectionTopRow}>
-            <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} appendElement={postActionsButton}/>
-          </div>
-        </AnalyticsContext>
-        <div className={classes.rightSectionBottomRow}>
-          <PostsSplashPageHeaderVote post={post} votingSystem={votingSystem} />
-        </div>
-        {userIsAdminOrMod(currentUser) && <div className={classes.rightSectionBelowBottomRow}> 
-          <div {...eventHandlers}>
-            <div className={classes.changeImageBox}>Change image</div>
-            <div className={classes.changeImageBox} onClick={toggleImageFlip}>Flip image</div>
-            <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start" clickable={true}>
-              <div>
-                <SplashHeaderImageOptions post={post}/>
-              </div>
-            </LWPopper>
-          </div>
-          <div className={classes.rightSectionBelowBottomRow}>
-            <ImageCropPreview reviewWinner={post.reviewWinner} imgRef={imgRef} setCropPreview={setCropPreview} flipped={imageFlipped} />
-          </div>
-        </div>}
-      </div>
+      {topLeftSection}
+      {topRightSection}
     </div>
 
-    <div className={classes.audioPlayerContainer}>
-      <div className={classes.audioPlayer}>
-        <PostsAudioPlayerWrapper post={post} showEmbeddedPlayer={!!showEmbeddedPlayer} />
-      </div>
-    </div>
-
-    <div className={classes.reviewContainer} onMouseLeave={(e) => {
-      setSelectedReview(null)
-    }}>
-      {selectedReview && <div className={classes.reviewPreviewContainer}> 
-        <div className={classes.reviewPreview}>
-          <div className={classes.reviewPreviewAuthor}>
-            <UsersName user={selectedReview.user} />
-          </div>
-          <div className={classes.reviewPreviewBody}>
-            <CommentBody comment={selectedReview} />
-          </div>
-        </div>
-      </div>}
-      <div className={classes.reviews} >
-        {reviews && reviews.length > 0 && reviews.map(review => <ReviewPill key={review._id} review={review} classes={classes} setReview={setSelectedReview}/>)}
-      </div>
-    </div>
-    
-    <div className={classes.centralSection}>
-      <h1 className={classNames(classes.title, { [classes.titleSmaller]: post.title.length > 80 })}>
-        {post.title}
-      </h1>
-      <div className={classes.author}>
-        <UsersName user={post.user} />
-      </div>
-    </div>
+    {audioPlayer}
+    {reviewContainer}
+    {centralSection}
   </div>
 }
 

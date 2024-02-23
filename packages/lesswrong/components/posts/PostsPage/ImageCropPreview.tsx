@@ -71,7 +71,7 @@ const styles = (theme: ThemeType) => ({
   },
   overlay: {
     position: 'fixed',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: theme.palette.greyAlpha(.7),
     top: 0,
     left: 0,
     width: '100%',
@@ -97,7 +97,7 @@ const styles = (theme: ThemeType) => ({
     padding: '2px 5px',
     userSelect: 'none', // Prevent text selection
     color: 'black',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: theme.palette.inverseGreyAlpha(.7),
     fontSize: '1rem',
   },
   resizer: {
@@ -212,30 +212,31 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
   classes: ClassesType<typeof styles>,
   flipped: boolean
 }) => {
+  // TODO: per docstring, this hook isn't safe in an SSR context; make sure we wrap this entire component in a NoSSR block
+  const windowSize = useWindowSize();
+  const { selectedImageInfo } = useImageContext();
+  
   const [isBoxVisible, setIsBoxVisible] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 }); 
+  const [showSaveSuccess, setShowSaveSuccess] = useState<boolean | null>(null);
+  const [selectedBox, setSelectedBox] = useState<CoordinatePosition | null>(null);
 
   const initialBoxCoordinates: BoxCoordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight, flipped }
   const [boxCoordinates, setBoxCoordinates] = useState(initialBoxCoordinates);
+
+  const initialResizeInitialBoxCoordinates: BoxCoordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight, flipped }
+  const [resizeInitialBoxCoordinates, setResizeInitialBoxCoordinates] = useState(initialResizeInitialBoxCoordinates);
+
+  const initialCachedCoordinates: Record<string, BoxSubContainers> = {} 
+  const [cachedBoxCoordinates, setCachedBoxCoordinates] = useState(initialCachedCoordinates);
 
   const updateBoxCoordinates = (newCoordinates: BoxCoordinates) => {
     setBoxCoordinates(newCoordinates);
     setCropPreview(newCoordinates);
   }
 
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 }); 
-
-  const initialResizeInitialBoxCoordinates: BoxCoordinates = {x: 100, y: 100, width: initialWidth, height: initialHeight, flipped }
-  const [resizeInitialBoxCoordinates, setResizeInitialBoxCoordinates] = useState(initialResizeInitialBoxCoordinates);
-
-  // TODO: per docstring, this hook isn't safe in an SSR context; make sure we wrap this entire component in a NoSSR block
-  const windowSize = useWindowSize();
-  const {selectedImageInfo} = useImageContext();
-
-  const initialCachedCoordinates: Record<string, BoxSubContainers> = {} 
-  const [cachedBoxCoordinates, setCachedBoxCoordinates] = useState(initialCachedCoordinates);
-  
   const toggleBoxVisibility = () => {
     // If we're closing the box, pass that back to undo all the relevant styling
     const newCropPreviewCoords = isBoxVisible ? undefined : boxCoordinates;
@@ -306,16 +307,8 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     if (isResizing) resizeBox(e);
   }
 
-  // TODO: does this need to do anything??
-  const updateWindowSize = () => {
-    // setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-  };
-
-  useEventListener('resize', updateWindowSize);
   useEventListener('mousemove', handleBox);
   useEventListener('mouseup', endMouseDown);
-
-  const [showSaveSuccess, setShowSaveSuccess] = useState<boolean | null>(null);
 
   const { create: createSplashArtCoordinateMutation, loading, error } = useCreate({
     collectionName: 'SplashArtCoordinates',
@@ -324,21 +317,17 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
 
   const saveAllCoordinates = useCallback(async () => {
     if (!imgRef.current) {
+      // eslint-disable-next-line no-console
       console.error('Missing image ref');
       return;
     }
 
     try {
-
-      const saveAllCoordinatesValid = (selectedImageInfo && 
-        cachedBoxCoordinates[selectedImageInfo._id] && 
-        cachedBoxCoordinates[selectedImageInfo._id]["left"] && 
-        cachedBoxCoordinates[selectedImageInfo._id]["middle"] && 
-        cachedBoxCoordinates[selectedImageInfo._id]["right"]) 
+      const hasCachedCoordinates = (selectedImageInfo && cachedBoxCoordinates[selectedImageInfo._id]) 
   
-      if (!saveAllCoordinatesValid) {
-        // add a better error message for client
-        console.error('No image id provided');
+      if (!hasCachedCoordinates) {
+        // eslint-disable-next-line no-console
+        console.error('Missing coordinates for this image entirely');
         setShowSaveSuccess(false); // Set failure state
         return;
       }
@@ -348,11 +337,12 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
       const coordsRight = cachedBoxCoordinates[selectedImageInfo._id]["right"];
 
       if (!coordsLeft || !coordsMiddle || !coordsRight) {
-        // add a better error message for client
-        console.error('Not all sub-boxes have been set! Also how did you get into this state, this should not have happened');
+        // eslint-disable-next-line no-console
+        console.error('Not all sub-boxes have been set!');
         setShowSaveSuccess(false); // Set failure state
         return;
       }
+
       const imgRect = imgRef.current.getBoundingClientRect();
 
       const leftOffsets = getOffsetPercentages(imgRect, coordsLeft, 'left');
@@ -369,17 +359,26 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
         rightFlipped: coordsRight.flipped
       };
   
-      await createSplashArtCoordinateMutation({ data: splashArtData });
+      const { errors } = await createSplashArtCoordinateMutation({ data: splashArtData });
       
-      // might want to see if we actually succeeded somehow before setting this
-      setShowSaveSuccess(true); 
+      if (errors) {
+        // eslint-disable-next-line no-console
+        console.error('Error(s) when saving coordinates', { errors: JSON.stringify(errors, null, 2) });
+        setShowSaveSuccess(false);
+      } else {
+        setShowSaveSuccess(true);
+      }
     }
     catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error saving coordinates', error);
       setShowSaveSuccess(false); // Set failure state
     }
   }, [selectedImageInfo, createSplashArtCoordinateMutation, cachedBoxCoordinates, imgRef]);
 
+  if (!selectedImageInfo) {
+    return null;
+  }
 
   const moveableBoxStyle = {
     left: boxCoordinates.x,
@@ -389,13 +388,6 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     width: boxCoordinates.width,
     height: boxCoordinates.height,             
   };
-
-  // Add a state to track the selected box
-  const [selectedBox, setSelectedBox] = useState<CoordinatePosition | null>(null);
-
-  if (!selectedImageInfo) {
-    return null;
-  }
 
   const boxSubContainers = {
     display: 'flex',
@@ -423,38 +415,34 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     <>
       <button className={classes.button} onClick={toggleBoxVisibility}>Show Box</button>
       {isBoxVisible && selectedImageInfo && selectedImageInfo._id && (
-        <>
-        {/* <div className={classes.overlay}></div> */}
         <div className={classes.moveableBox}
-            style={moveableBoxStyle}
-            onMouseDown={handleMouseDown}>
-            <div style={boxSubContainers}>
-              <ImagePreviewSubset subBoxPosition='left' {...previewSubsetProps} />
-              <ImagePreviewSubset subBoxPosition='middle' {...previewSubsetProps} />
-              <ImagePreviewSubset subBoxPosition='right' {...previewSubsetProps} />
+          style={moveableBoxStyle}
+          onMouseDown={handleMouseDown}>
+          <div style={boxSubContainers}>
+            <ImagePreviewSubset subBoxPosition='left' {...previewSubsetProps} />
+            <ImagePreviewSubset subBoxPosition='middle' {...previewSubsetProps} />
+            <ImagePreviewSubset subBoxPosition='right' {...previewSubsetProps} />
+          </div>
+          <div className={classes.saveAllCoordinates} onClick={saveAllCoordinates} style={{backgroundColor: showSaveAllButton ? 'rgba(0, 255, 0, 0.7)' : 'rgba(255, 0, 0, 0.3)'}}>
+            {!showSaveAllButton
+              ? (<div> Must set all placements before you can save them </div>)
+              : loading
+                ? <div>Saving all placements...</div> 
+                : <div onClick={saveAllCoordinates}>{`Save all placements`}</div>
+            }
+            {error && <div>Error saving. Please try again.</div>}
+          </div>
+          {showSaveSuccess && <div className={classes.successNotification}>
+            Coordinates saved successfully!
+            <div onClick={() => setShowSaveSuccess(false)}>
+              (click here to close)
             </div>
-            <div className={classes.saveAllCoordinates} onClick={saveAllCoordinates}
-                  style={{backgroundColor: showSaveAllButton ? 'rgba(0, 255, 0, 0.7)' : 'rgba(255, 0, 0, 0.3)'}}>
-              {!showSaveAllButton ? (<div> Must set all placements before you can save them </div>)
-                : loading ? <div>Saving all placements...</div> 
-                : <div onClick={saveAllCoordinates}>{`Save all placements`}</div>}
-              {error && <div>Error saving. Please try again.</div>}
-            </div>
-            {showSaveSuccess && <div className={classes.successNotification}>
-              Coordinates saved successfully!
-              <div onClick={() => setShowSaveSuccess(false)}>
-                (click here to close)
-              </div>
-            </div>}
-            <div className={classes.closeButton} onClick={toggleBoxVisibility}>
-                x
-            </div>
-            <div
-              className={classes.resizer}
-              onMouseDown={handleMouseDown}
-            ></div>
+          </div>}
+          <div className={classes.closeButton} onClick={toggleBoxVisibility}>
+              x
+          </div>
+          <div className={classes.resizer} onMouseDown={handleMouseDown} />
         </div>
-        </>
       )}
     </>
   );

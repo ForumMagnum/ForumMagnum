@@ -33,6 +33,7 @@ import {crosspostKarmaThreshold} from '../../publicSettings'
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
+import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -1155,10 +1156,10 @@ const schema: SchemaType<"Posts"> = {
     type: "ReviewWinner",
     graphQLtype: "ReviewWinner",
     canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbReviewWinner|null> => {
-      const { ReviewWinners } = context;
-      const winner = await ReviewWinners.findOne({postId: post._id});
-      return winner;
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { currentUser, ReviewWinners } = context;
+      const winner = await getPostReviewWinnerInfo(post._id, context);
+      return accessFilterSingle(currentUser, ReviewWinners, winner, context);
     },
     sqlResolver: ({field, join}) => join({
       table: "ReviewWinners",
@@ -1168,17 +1169,6 @@ const schema: SchemaType<"Posts"> = {
       },
       resolver: (reviewWinnersField) => reviewWinnersField("*"),
     })
-  }),
-
-  reviewWinnerArt: resolverOnlyField({
-    type: "[ReviewWinnerArt]",
-    graphQLtype: "[ReviewWinnerArt]",
-    canRead: ['guests'],
-    resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<DbReviewWinnerArt[]|null> => {
-      const { ReviewWinnerArts } = context;
-      const art = await ReviewWinnerArts.find({postId:post._id}).fetch()
-      return art.length > 0 ? art : null;
-    }
   }),
 
   votingSystem: {

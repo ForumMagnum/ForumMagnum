@@ -60,7 +60,6 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
-    // TODO: change to height and forumGate
     ...(fullHeightToCEnabled ? { height: "100vh" } : { maxHeight: "100vh" }),
     overflowY: "auto",
     
@@ -106,7 +105,7 @@ const styles = (theme: ThemeType) => ({
   hideTocButtonHidden: {
     display: "none",
   },
-})
+});
 
 export type ToCLayoutSegment = {
   toc?: React.ReactNode,

@@ -24,20 +24,6 @@ export const schema: SchemaType<"ReviewWinners"> = {
       const { repos } = context;
       return repos.reviewWinnerArts.getActiveReviewWinnerArt(reviewWinner.postId);
     },
-    sqlResolver: ({ join, field }) => join({
-      table: 'ReviewWinnerArts',
-      type: 'left',
-      on: {
-        postId: field('postId')
-      },
-      resolver: (reviewWinnerArtsField) => `(
-        SELECT sac.*
-        FROM "SplashArtCoordinates" AS sac
-        WHERE sac."reviewWinnerArtsId" = ${reviewWinnerArtsField('_id')}
-        ORDER BY sac."createdAt" DESC
-        LIMIT 1
-      )`
-    })
   }),
   competitorCount: resolverOnlyField({
     type: 'Int',

@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, isAF, isEAForum} from '../../../lib/instanceSettings';
+import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled } from '../../../lib/betas';
@@ -322,13 +322,11 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const { recordPostView } = useRecordPostView(post);
   const [showDigestAd, setShowDigestAd] = useState(false)
   const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt && new Date(post.lastVisitedAt));
-  // const { toc, setToCOffsets } = useContext(SidebarsContext)!;
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
 
-  // Must be a review winner
-  const showSplashPageHeader =  !!post.reviewWinner
+  const showSplashPageHeader = !!post.reviewWinner;
 
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
@@ -457,13 +455,11 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
-    PostsPodcastPlayer, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
-    PostsPageRecommendationsList, PostSideRecommendations,
-    PostBottomRecommendations, NotifyMeDropdownItem, Row,
-    AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
-    CommentsListSection, CommentsTableOfContents, StickyDigestAd,
-    PostsPageSplashHeader, PostsAudioPlayerWrapper
+    CloudinaryImage2, ContentStyles, PostBody, CommentOnSelectionContentWrapper,
+    PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
+    PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
+    PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
+    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper
   } = Components
 
   useEffect(() => {
@@ -547,7 +543,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? <TableOfContents sectionData={sectionData} title={post.title} postedAt={post.postedAt} fixedPositionToc />
+    ? <TableOfContents sectionData={sectionData} title={post.title} postedAt={post.postedAt} fixedPositionToc={isLWorAF} />
     : null;
 
   const noIndex = post.noIndex || post.rejected;
@@ -741,11 +737,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {showSplashPageHeader && !commentId && !isDebateResponseLink && <PostsPageSplashHeader 
-      post={{...post, reviewWinner: post.reviewWinner}} 
+    {showSplashPageHeader && !commentId && !isDebateResponseLink && <PostsPageSplashHeader
+      // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
+      // and Typescript is only smart enough to narrow the type for you if you access the field directly like this
+      post={{...post, reviewWinner: post.reviewWinner}}
       showEmbeddedPlayer={showEmbeddedPlayer} 
       toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-      />}
+    />}
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[

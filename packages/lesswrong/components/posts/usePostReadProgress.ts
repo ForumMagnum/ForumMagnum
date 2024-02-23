@@ -1,11 +1,6 @@
 import { useEffect, useRef } from "react";
-import { isServer } from "../../lib/executionEnvironment";
 
 interface UsePostReadProgressProps {
-  /**
-   * The post we're tracking. Needed to decide whether we're rendering a progress bar at all (i.e. not for events, shortform, etc).
-   */
-  // post: PostsWithNavigation | PostsWithNavigationAndRevision;
   /**
    * Accepts a ref for a progress bar and a "progress" percentage.
    * Should update the ref's styling (or whatever) to correspond to the progress %.
@@ -27,7 +22,20 @@ interface UsePostReadProgressProps {
 }
 
 export const usePostReadProgress = ({ updateProgressBar, disabled = false, delayStartOffset = 0 }: UsePostReadProgressProps) => {
-  const readingProgressBarRef = useRef<HTMLDivElement|null>(null)
+  const readingProgressBarRef = useRef<HTMLDivElement|null>(null);
+
+  const updateReadingProgressBar = (postBodyElement: HTMLElement | null) => {
+    if (!postBodyElement || !readingProgressBarRef.current) return;
+
+    // position of post body bottom relative to the bottom of the viewport
+    const postBodyBottomPos = postBodyElement.getBoundingClientRect().bottom - window.innerHeight;
+    // total distance from top of page to post body bottom
+    const totalHeight = window.scrollY + postBodyBottomPos;
+    const scrollPercent = (1 - ((postBodyBottomPos + delayStartOffset) / totalHeight)) * 100;
+
+    updateProgressBar(readingProgressBarRef.current, scrollPercent);
+  };
+
   useEffect(() => {
     const postBodyRef = document.getElementById('postBody');
     if (disabled) return;
@@ -40,18 +48,6 @@ export const usePostReadProgress = ({ updateProgressBar, disabled = false, delay
       window.removeEventListener('scroll', updateFunc);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const updateReadingProgressBar = (postBodyElement: HTMLElement | null) => {
-    if (!postBodyElement || !readingProgressBarRef.current) return;
-
-    // position of post body bottom relative to the bottom of the viewport
-    const postBodyBottomPos = postBodyElement.getBoundingClientRect().bottom - window.innerHeight;
-    // total distance from top of page to post body bottom
-    const totalHeight = window.scrollY + postBodyBottomPos;
-    const scrollPercent = (1 - ((postBodyBottomPos + delayStartOffset) / totalHeight)) * 100;
-
-    updateProgressBar(readingProgressBarRef.current, scrollPercent);
-  }
-
+  
   return { readingProgressBarRef };
 };

@@ -16,30 +16,9 @@ import { usePostReadProgress } from '../usePostReadProgress';
 import { usePostsPageContext } from '../PostsPage/PostsPageContext';
 import { SidebarsContext } from '../../common/SidebarsWrapper';
 import classNames from 'classnames';
+import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY, sectionsWithAnswersSorted } from './TableOfContentsList';
 
-export interface ToCDisplayOptions {
-  /**
-   * Convert section titles from all-caps to title-case. Used for the Concepts page
-   * where the LW version has all-caps section headings as a form of bolding.
-   */
-  downcaseAllCapsHeadings?: boolean
-  
-  /**
-   * Don't show sections nested below a certain depth. Used on the LW version of the
-   * Concepts page, where there would otherwise be section headings for subcategories
-   * of the core tags, resulting in a ToC that's overwhelmingly big.
-   */
-  maxHeadingDepth?: number
-  
-  /**
-   * Extra rows to add to the bottom of the ToC. You'll want to use this instead of
-   * adding extra React components after the ToC if those rows have corresponding
-   * anchors and should be highlighted based on scroll position.
-   */
-  addedRows?: ToCSection[],
-}
-
-const normalizeOffsets = (sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] => {
+function normalizeOffsets(sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] {
   const titleSection: ToCSectionWithOffset = { ...sections[0], offset: sections[0].offset ?? 0 };
 
   const remainingSections = sections.slice(1);
@@ -52,19 +31,31 @@ const normalizeOffsets = (sections: (ToCSection | ToCSectionWithOffset)[]): ToCS
   return [titleSection, ...normalizedSections];
 };
 
-const isRegularClick = (ev: React.MouseEvent) => {
-  if (!ev) return false;
-  return ev.button===0 && !ev.ctrlKey && !ev.shiftKey && !ev.altKey && !ev.metaKey;
-};
+function getSectionsWithOffsets(sectionHeaders: Element[], filteredSections: ToCSection[]) {
+  let sectionsWithOffsets;
+  const parentContainer = sectionHeaders[0]?.parentElement;
+  // If we have any section headers, assign offsets to them
+  if (parentContainer) {
+    const containerHeight = parentContainer.getBoundingClientRect().height;
 
-const adjustHeadingText = (text: string|undefined, displayOptions?: ToCDisplayOptions) => {
-  if (!text) return "";
-  if (displayOptions?.downcaseAllCapsHeadings) {
-    return downcaseIfAllCaps(text.trim());
+    const anchorOffsets = sectionHeaders.map(sectionHeader => ({
+      anchorHref: sectionHeader.getAttribute('id'),
+      offset: (sectionHeader as HTMLElement).offsetTop / containerHeight
+    }));
+
+    sectionsWithOffsets = filteredSections.map((section) => {
+      const anchorOffset = anchorOffsets.find((anchorOffset) => anchorOffset.anchorHref === section.anchor);
+      return {
+        ...section,
+        offset: anchorOffset?.offset,
+      };
+    });
   } else {
-    return text.trim();
+    // Otherwise, we'll just default to assigning the entire offset to the comments "section" in the ToC in `normalizeOffsets`
+    sectionsWithOffsets = filteredSections;
   }
-};
+  return sectionsWithOffsets;
+}
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -144,7 +135,7 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 4,
     },
   },
-})
+});
 
 const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, displayOptions, classes}: {
   tocSections: ToCSection[],
@@ -229,31 +220,9 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     //Get all elements with href corresponding to anchors from the table of contents
     const postBodyBlocks = postBodyRef.querySelectorAll('[id]');
     const sectionHeaders = Array.from(postBodyBlocks).filter(block => filteredSections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
-    
-    let sectionsWithOffsets;
-    const parentContainer = sectionHeaders[0]?.parentElement;
-    // If we have any section headers, assign offsets to them
-    if (parentContainer) {
-      const containerHeight = parentContainer.getBoundingClientRect().height;
-
-      const anchorOffsets = sectionHeaders.map(sectionHeader => ({
-        anchorHref: sectionHeader.getAttribute('id'), 
-        offset: (sectionHeader as HTMLElement).offsetTop / containerHeight
-      }));
-
-      sectionsWithOffsets = filteredSections.map((section) => {
-        const anchorOffset = anchorOffsets.find((anchorOffset) => anchorOffset.anchorHref === section.anchor);
-        return {
-          ...section,
-          offset: anchorOffset?.offset,
-        };
-      });
-    } else {
-      // Otherwise, we'll just default to assigning the entire offset to the comments "section" in the ToC in `normalizeOffsets`
-      sectionsWithOffsets = filteredSections;
-    }
-
+    const sectionsWithOffsets = getSectionsWithOffsets(sectionHeaders, filteredSections);
     const newNormalizedSections = normalizeOffsets(sectionsWithOffsets);
+
     if (!isEqual(normalizedSections, newNormalizedSections)) {
       setNormalizedSections(newNormalizedSections);
     }
@@ -341,91 +310,12 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   </div>
 }
 
-
-/**
- * Return the screen-space Y coordinate of an anchor. (Screen-space meaning
- * if you've scrolled, the scroll is subtracted from the effective Y
- * position.)
- */
-export const getAnchorY = (anchorName: string): number|null => {
-  let anchor = window.document.getElementById(anchorName);
-  if (anchor) {
-    let anchorBounds = anchor.getBoundingClientRect();
-    return anchorBounds.top + (anchorBounds.height/2);
-  } else {
-    return null
-  }
-}
-
-export const jumpToY = (y: number) => {
-  if (isServer) return;
-
-  try {
-    window.scrollTo({
-      top: y - getCurrentSectionMark() + 1,
-      behavior: "smooth"
-    });
-  } catch(e) {
-    // eslint-disable-next-line no-console
-    console.warn("scrollTo not supported, using link fallback", e)
-  }
-}
-
-
 const FixedPositionTocComponent = registerComponent(
   "FixedPositionToC", FixedPositionToc, {
     hocs: [withErrorBoundary],
     styles
   }
 );
-
-
-/**
- * Returns a shallow copy of the ToC sections with question answers sorted by date,
- * without changing the position of other sections.
- */
-const sectionsWithAnswersSorted = (
-  sections: ToCSection[],
-  sorting: "newest" | "oldest"
-) => {
-  const answersSectionsIndexes = sections
-    .map((section, index) => [section, index] as const)
-    .filter(([section, _]) => !!section.answer);
-  const originalIndexes = answersSectionsIndexes.map(([_, originalIndex]) => originalIndex);
-  const answersSections = answersSectionsIndexes.map(([section, _]) => section);
-
-  const sign = sorting === "newest" ? 1 : -1;
-  answersSections.sort((section1, section2) => {
-    const value1 = section1.answer?.postedAt || "";
-    const value2 = section2.answer?.postedAt || "";
-    if (value1 < value2) { return sign; }
-    if (value1 > value2) { return -sign; }
-    return 0;
-  });
-
-  const sortedSections = [...sections];
-  for (let [i, section] of answersSections.entries()) {
-    sortedSections[originalIndexes[i]] = section;
-  }
-  return sortedSections;
-};
-
-function downcaseIfAllCaps(text: string) {
-  // If already mixed-case, don't do anything
-  if (text !== text.toUpperCase())
-    return text;
-  
-  // Split on spaces, downcase everything except the first character of each token
-  const tokens = text.split(' ');
-  const downcaseToken = (tok: string) => {
-    if (tok.length > 1) {
-      return tok.substr(0,1) + tok.substr(1).toLowerCase();
-    } else {
-      return tok;
-    }
-  }
-  return tokens.map(tok => downcaseToken(tok)).join(' ');
-}
 
 declare global {
   interface ComponentTypes {
