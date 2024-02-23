@@ -98,24 +98,21 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const ForumDropdownMultiselect = ({label, values, options, queryParam, onSelect, selectedIcon="check", classes, className}: {
-  /** If given, this will be the label used, otherwise it will be a list of the selected items */
-  label?: string | React.ReactNode
+const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classes, className}: {
   values: string[],
   options: Record<string, SettingsOption>,
   queryParam?: string,
   onSelect?: (value: string) => void,
-  selectedIcon?: "check" | "toggle",
   classes: ClassesType,
   className?: string,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const displayLabel = label ?? values.reduce((prev, next) => {
+  const displayLabel = values.reduce((prev, next) => {
     const nextLabel = options[next].shortLabel || options[next].label
     if (!prev) return nextLabel
     return `${prev}, ${nextLabel}`
   }, '')
-  const { MenuItem, ForumIcon, ToggleSwitch } = Components;
+  const { MenuItem, ForumIcon } = Components;
 
   const dropdownIcon = isFriendlyUI ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
   return (
@@ -144,9 +141,7 @@ const ForumDropdownMultiselect = ({label, values, options, queryParam, onSelect,
             {values.includes(option) && isFriendlyUI && (
               <>
                 <div className={classes.padding}></div>
-                {selectedIcon === "check" ?
-                  <ForumIcon icon="Check" className={classes.selectedIcon} /> 
-                  : <ToggleSwitch value={true} setValue={() => {}} className={classes.selectedIcon} />}
+                <ForumIcon icon="Check" className={classes.selectedIcon} />
               </>
             )}
           </MenuItem>

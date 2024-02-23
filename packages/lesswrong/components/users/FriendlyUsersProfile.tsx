@@ -468,9 +468,7 @@ const FriendlyUsersProfile = ({terms, slug, classes}: {
                 Message
               </a>
             </NewConversationButton>
-            <UserNotifyDropdown
-              user={user}
-            />
+            <UserNotifyDropdown user={user} />
           </div>}
           <EAUsersProfileLinks user={user} />
         </div>

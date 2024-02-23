@@ -7,6 +7,10 @@ import { isDialogueParticipant } from "../../posts/PostsPage/PostsPage";
 import { isFriendlyUI } from "../../../themes/forumTheme";
 import Card from "@material-ui/core/Card";
 
+/**
+ * A list of props that go into each subscription menu item,
+ * pulled out so that friendly sites can display them differently.
+ */
 const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton}: {
   post: PostsList|SunshinePostsList,
   currentUser: UsersCurrent | null,
@@ -17,7 +21,7 @@ const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton}: {
     enabled: !!post.group,
     subscribeMessage: `Subscribe to ${post.group?.name}`,
     unsubscribeMessage: `Unsubscribe from ${post.group?.name}`,
-    title: `New posts from ${post.group?.name}`,
+    title: `New ${post.group?.name} events`,
     subscriptionType: subscriptionTypes.newEvents,
   },
   {
@@ -41,7 +45,7 @@ const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton}: {
     enabled: !!post.collabEditorDialogue && showSubscribeToDialogueButton,
     subscribeMessage: "Subscribe to dialogue",
     unsubscribeMessage: "Unsubscribe from dialogue",
-    title: "New responses in dialogue",
+    title: "New responses in this dialogue",
     subscriptionType: subscriptionTypes.newPublishedDialogueMessages,
     tooltip: "Notifies you when there is new activity in the dialogue",
   },
@@ -61,6 +65,10 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
+/**
+ * On friendly sites, this is a single menu item that opens a submenu with subscription options.
+ * On other sites, the subscription options are individual menu items.
+ */
 export const PostSubscriptionsDropdownItem = ({post, classes}: {
   post: PostsList|SunshinePostsList,
   classes: ClassesType<typeof styles>,
@@ -78,6 +86,7 @@ export const PostSubscriptionsDropdownItem = ({post, classes}: {
     LWTooltip, DropdownMenu, DropdownItem, NotifyMeDropdownItem,
     NotifyMeToggleDropdownItem,
   } = Components;
+
   return isFriendlyUI
     ? (
       <LWTooltip

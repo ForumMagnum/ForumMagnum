@@ -25,6 +25,11 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
+/**
+ * Displays a "Get notified" button that lets the user subscribe to be notified
+ * when the given user has published a new post or a new comment.
+ * Currently only used in the FriendlyUsersProfile.
+ */
 const UserNotifyDropdown = ({
   user,
   classes,
@@ -45,6 +50,7 @@ const UserNotifyDropdown = ({
     EAButton, ForumIcon, PopperCard, LWClickAwayListener, DropdownMenu,
     NotifyMeToggleDropdownItem,
   } = Components;
+
   return (
     <div>
       <div ref={anchorEl}>
