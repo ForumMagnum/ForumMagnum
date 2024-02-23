@@ -16,6 +16,9 @@ type NotifyMeToggleDropdownItemProps = {
   document?: NotifyMeDocument | null,
 } & Omit<NotifyMeToggleDropdownItemInternalProps, "document">;
 
+export type NotifyMeToggleDropdownItemPropsExternal = Omit<NotifyMeToggleDropdownItemProps, "classes">;
+
+
 const styles = (_theme: ThemeType) => ({
   toggle: {
     marginLeft: 8,

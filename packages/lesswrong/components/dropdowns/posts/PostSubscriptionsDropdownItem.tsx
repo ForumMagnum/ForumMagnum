@@ -4,8 +4,6 @@ import { subscriptionTypes } from "../../../lib/collections/subscriptions/schema
 import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { isDialogueParticipant } from "../../posts/PostsPage/PostsPage";
-import { isFriendlyUI } from "../../../themes/forumTheme";
-import Card from "@material-ui/core/Card";
 
 /**
  * A list of props that go into each subscription menu item,
@@ -58,20 +56,12 @@ const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton}: {
   },
 ];
 
-const styles = (_theme: ThemeType) => ({
-  dropdownWrapper: {
-    padding: "0 14px 0 10px",
-    transform: "translateX(2px)",
-  },
-});
-
 /**
  * On friendly sites, this is a single menu item that opens a submenu with subscription options.
  * On other sites, the subscription options are individual menu items.
  */
-export const PostSubscriptionsDropdownItem = ({post, classes}: {
+export const PostSubscriptionsDropdownItem = ({post}: {
   post: PostsList|SunshinePostsList,
-  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
 
@@ -83,49 +73,15 @@ export const PostSubscriptionsDropdownItem = ({post, classes}: {
   }, [post, currentUser, showSubscribeToDialogueButton]);
 
   const {
-    LWTooltip, DropdownMenu, DropdownItem, NotifyMeDropdownItem,
-    NotifyMeToggleDropdownItem,
+    CombinedSubscriptionsDropdownItem
   } = Components;
 
-  return isFriendlyUI
-    ? (
-      <LWTooltip
-        title={
-          <div className={classes.dropdownWrapper}>
-            <Card>
-              <DropdownMenu>
-                {notifyMeItems.map((props) =>
-                  <NotifyMeToggleDropdownItem {...props} key={props.subscribeMessage} />
-                )}
-              </DropdownMenu>
-            </Card>
-          </div>
-        }
-        clickable
-        tooltip={false}
-        inlineBlock={false}
-        placement="right-start"
-      >
-        <DropdownItem
-          title="Get notified"
-          icon="BellBorder"
-          afterIcon="ThickChevronRight"
-        />
-      </LWTooltip>
-    )
-    : (
-      <>
-        {notifyMeItems.map((props) =>
-          <NotifyMeDropdownItem {...props} key={props.subscribeMessage} />
-        )}
-      </>
-    );
+  return <CombinedSubscriptionsDropdownItem notifyMeItems={notifyMeItems} />
 }
 
 const PostSubscriptionsDropdownItemComponent = registerComponent(
   "PostSubscriptionsDropdownItem",
   PostSubscriptionsDropdownItem,
-  {styles},
 );
 
 declare global {

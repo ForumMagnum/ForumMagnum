@@ -12,7 +12,7 @@ type NotifyMeDropdownItemInternalProps = {
   tooltip?: string,
 }
 
-type NotifyMeDropdownItemProps = {
+export type NotifyMeDropdownItemProps = {
   document?: NotifyMeDocument | null,
 } & Omit<NotifyMeDropdownItemInternalProps, "document">;
 

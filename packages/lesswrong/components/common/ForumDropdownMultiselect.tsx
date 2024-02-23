@@ -107,7 +107,7 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classe
   className?: string,
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-  const displayLabel = values.reduce((prev, next) => {
+  const label = values.reduce((prev, next) => {
     const nextLabel = options[next].shortLabel || options[next].label
     if (!prev) return nextLabel
     return `${prev}, ${nextLabel}`
@@ -124,7 +124,7 @@ const ForumDropdownMultiselect = ({values, options, queryParam, onSelect, classe
         }}
         className={classNames(classes.button, { [classes.openButton]: Boolean(anchorEl) })}
       >
-        {displayLabel} {dropdownIcon}
+        {label} {dropdownIcon}
       </Button>
       <Menu open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={() => setAnchorEl(null)} className={classNames(classes.menu, {[classes.menuNoQueryParam]: !queryParam})}>
         {Object.keys(options).map((option) => {
