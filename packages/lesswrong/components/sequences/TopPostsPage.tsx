@@ -64,8 +64,7 @@ const DEFAULT_SPLASH_ART_COORDINATES: Omit<SplashArtCoordinates, '_id' | 'review
   rightHeightPct: .2, rightWidthPct: .2, rightXPct: .2, rightYPct: .2, rightFlipped: false,
 };
 
-// TODO: update the description to be appropriate for this page
-const description = `All of ${siteNameWithArticleSetting.get()}'s posts, filtered and sorted however you want`;
+const description = `${siteNameWithArticleSetting.get()}'s best posts`;
 
 const BOOK_OFFSETS_TO_COORDINATE_POSITIONS: Partial<Record<number, CoordinatePosition>> = {
   0: 'left',

@@ -14,20 +14,25 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
 import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
-import { isFriendlyUI } from '../../themes/forumTheme';
+import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
 
 const styles = (theme: ThemeType) => ({
-  root: {
-    display: 'flex',
-    gap: '4px',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
+  root: isBookUI ?
+    {
+      display: 'flex',
+      gap: '4px',
+      flexWrap: 'wrap',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+    } :
+    {
+      marginTop: 8,
+      marginBottom: 8,
+    },
   allowTruncate: {
-    display: "inline-flex",
+    display: isBookUI ? "inline-flex" : "block",
     // Truncate to 3 rows (webkit-line-clamp would be ideal here but it adds an ellipsis
     // which can't be removed)
     maxHeight: 104,
@@ -55,8 +60,8 @@ const styles = (theme: ThemeType) => ({
         },
       }
       : {
-        paddingTop: 4.5,
-        paddingBottom: 4.5,
+        paddingTop: isBookUI ? 4.5 : 4,
+        paddingBottom: isBookUI ? 4.5 : 4,
       }),
     border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,

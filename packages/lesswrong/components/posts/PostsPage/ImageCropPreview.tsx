@@ -217,8 +217,7 @@ export const SaveAllBar = ({showSaveAllButton, loading, saveAllCoordinates}: {sh
   return <div onClick={saveAllCoordinates}>{`Save all placements`}</div>
 }
 
-export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes, flipped }: {
-  reviewWinner: ReviewWinnerAll,
+export const ImageCropPreview = ({ imgRef, setCropPreview, classes, flipped }: {
   imgRef: RefObject<HTMLImageElement>,
   setCropPreview: (coordinates?: Coordinates) => void,
   classes: ClassesType<typeof styles>,

@@ -11,7 +11,7 @@ const manuallyAddReviewWinnerArt = async () => {
     for (let { prompt, url, id } of reviewWinnerArtManualAdditions) {
       const cloudinaryUrl = await moveImageToCloudinary(url, prompt);
       if (cloudinaryUrl === null) {
-        // eslint-ignore no-console
+        // eslint-disable-next-line no-console
         console.error(`Failed to upload image to cloudinary for prompt: ${prompt}`);
         continue;
       }
@@ -25,7 +25,7 @@ const manuallyAddReviewWinnerArt = async () => {
           splashArtImageUrl: cloudinaryUrl
         }
       }).catch((error) => {
-        // eslint-ignore no-console
+        // eslint-disable-next-line no-console
         console.dir(error, { depth: null })
         throw error
       });

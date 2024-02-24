@@ -464,7 +464,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
         </LWPopper>
       </div>
       <div className={classes.rightSectionBelowBottomRow}>
-        <ImageCropPreview reviewWinner={post.reviewWinner} imgRef={imgRef} setCropPreview={setCropPreview} flipped={imageFlipped} />
+        <ImageCropPreview imgRef={imgRef} setCropPreview={setCropPreview} flipped={imageFlipped} />
       </div>
     </div>
   );

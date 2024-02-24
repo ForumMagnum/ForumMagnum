@@ -1,7 +1,5 @@
-import { writeFileSync } from "fs";
-import { Posts } from "../../lib/collections/posts";
 import ReviewWinners from "../../lib/collections/reviewWinners/collection";
-import { Globals, updateMutator } from "../vulcan-lib";
+import { updateMutator } from "../vulcan-lib";
 import { createAdminContext } from "../vulcan-lib/query";
 import { registerMigration } from "./migrationUtils";
 
