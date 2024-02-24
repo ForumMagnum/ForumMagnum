@@ -6,7 +6,6 @@ import { Components, fragmentTextForQuery, registerComponent } from '../../lib/v
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { preferredHeadingCase } from '../../themes/forumTheme';
-import { useDisplayedPost } from '../posts/usePost';
 import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './TopPostsDisplaySettings';
 
 import { gql, useQuery } from '@apollo/client';
@@ -245,16 +244,52 @@ const styles = (theme: ThemeType) => ({
   },
   // If we want to display a grid with more than 6 items, increase this number
   ...Object.fromEntries(Array.from({ length: MAX_GRID_SIZE }, (_, i) => gridPositionToClassesEntry(theme, i))),
-  imageGridBackground: {
+  // imageGridPostBackgroundContainer: {
+  //   position: "absolute",
+  //   top: 0,
+  //   left: 0,
+  //   // We could do 100% here, but it would cause us to clip the bottom of the image in some 2 column cases
+  //   width: 1080,
+  //   opacity: 0,
+  //   zIndex: -1,
+  //   transition: "opacity 0.2s ease-in",
+  //   objectPosition: "right",
+  // },
+  // imageGridPostBackgroundContainerHidden: {
+  //   display: "none",
+  // },
+  // imageGridPostBackground: {
+  //   position: "relative",
+  //   maskImage: "linear-gradient(rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)",
+  //   width: '100%',
+  //   backdropFilter: "blur(50px)",
+  // },
+  // imageGridPostBackgroundReflected: {
+  //   filter: 'blur(50px)',
+  //   transform: 'scaleY(-1)',
+  //   position: "relative",
+  //   width: '100%',
+  // },
+  imageGridBackgroundContainer: {
+    position: "absolute",
     top: 0,
-    right: 0,
+    left: 0,
     width: 1080,
     zIndex: -1,
-    position: "absolute",
-    objectFit: "cover",
-    objectPosition: "right",
     transition: "opacity 0.2s ease-in",
-    opacity: 1,
+    objectPosition: "right",
+  },
+  imageGridBackground: {
+    position: "relative",
+    maskImage: "linear-gradient(rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)",
+    width: '100%',
+  },
+  imageGridBackgroundReflected: {
+    position: "relative",
+    maskImage: "linear-gradient(rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)",
+    width: '100%',
+    transform: 'scaleY(-1)',
+    filter: 'blur(50px)',
   },
   showAllButton: {
     ...theme.typography.commentStyle,
@@ -291,7 +326,7 @@ const styles = (theme: ThemeType) => ({
     '&:hover': {
       opacity: 1 // Overwriting default <a> styles
     },
-    
+
     '&:hover .hoverBackground': {
       opacity: 1
     },
@@ -308,7 +343,7 @@ const styles = (theme: ThemeType) => ({
       transitionDelay: "0s",
       zIndex: 2
     },
-    '&&&:hover $imageGridPostBackgroundBackground': {
+    '&&&:hover $imageGridPostBackgroundReflected': {
       zIndex: 1,
       opacity: 1
     },
@@ -372,7 +407,7 @@ const styles = (theme: ThemeType) => ({
     width: '100%',
     backdropFilter: "blur(50px)",
   },
-  imageGridPostBackgroundBackground: {
+  imageGridPostBackgroundReflected: {
     filter: 'blur(50px)',
     transform: 'scaleY(-1)',
     position: "relative",
@@ -488,30 +523,15 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
   return newState;
 }
 
-/**
- * Fetches the post when onMouseOver is triggered, in order to warm up the apollo cache and make for a much faster navigation experience for users.
- */
-function usePreloadPost(postId: string) {
-  const [hovered, setHovered] = useState(false);
-
-  const onMouseOver = () => {
-    setHovered(true);
-  };
-
-  useDisplayedPost(postId, null, undefined, { skip: !hovered });
-
-  return { onMouseOver };
-};
-
-const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
+const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles } = Components;
-  
+
   const location = useLocation();
   const { query } = location;
 
   const [expansionState, setExpansionState] = useState<Record<string, ExpansionState>>({});
   const [fullyOpenGridId, setFullyOpenGridId] = useState<string>();
-  
+
   const handleToggleExpand = (id: string) => {
     const newState = getNewExpansionState(expansionState, id);
 
@@ -564,15 +584,15 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
     return <PostsImageGrid {...props} />;
   }
 
-  const sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo>|null = reviewWinnerSectionsInfo.get();
-  const yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo>|null = reviewWinnerYearGroupsInfo.get();
+  const sectionsInfo: Record<ReviewWinnerSectionName, ReviewSectionInfo> | null = reviewWinnerSectionsInfo.get();
+  const yearGroupsInfo: Record<ReviewWinnerYear, ReviewYearGroupInfo> | null = reviewWinnerYearGroupsInfo.get();
 
   if (!sectionsInfo) {
     // eslint-disable-next-line no-console
     console.error('Failed to load reviewWinnerSectionsInfo (image data) from public settings');
     return null;
   }
-  
+
   if (!yearGroupsInfo) {
     // eslint-disable-next-line no-console
     console.error('Failed to load reviewWinnerYearGroupsInfo (image data) from public settings');
@@ -598,9 +618,9 @@ const TopPostsPage = ({ classes }: {classes: ClassesType<typeof styles>}) => {
           <div className={classes.description}>
             <SectionTitle title={preferredHeadingCase("The LeastWrong")} className={classes.title} />
             <ContentStyles contentType="post">
-            Here you can find the best posts of LessWrong. When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
-            <br /><br />
-            For the years 2018, 2019 and 2020 we also published physical books with the results of our annual vote, which you can buy and learn more about {<Link to='/books'>here</Link>}.
+              Here you can find the best posts of LessWrong. When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
+              <br /><br />
+              For the years 2018, 2019 and 2020 we also published physical books with the results of our annual vote, which you can buy and learn more about {<Link to='/books'>here</Link>}.
             </ContentStyles>
           </div>
           <div>
@@ -641,8 +661,8 @@ function getPostsInGrid(args: GetPostsInGridArgs) {
 }
 
 const PostGridContents = (props: PostGridContentsProps) => {
-  const { postsInGrid , ...cellArgs } = props;
-  return <>{postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => <PostGridCellContents post={post} rowIdx={rowIdx} columnIdx={columnIdx} key={post?._id} {...cellArgs} /> ))}</>;
+  const { postsInGrid, ...cellArgs } = props;
+  return <>{postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => <PostGridCellContents post={post} rowIdx={rowIdx} columnIdx={columnIdx} key={post?._id} {...cellArgs} />))}</>;
 }
 
 const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => {
@@ -700,8 +720,8 @@ const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates
     [`${coordinatePosition}Flipped` as const]: flipped,
   } = splashCoordinates;
 
-  const newXPct = xPct - (widthPct * leftBookOffset); 
-  const newWidthPct = Math.min(1, Math.max(0, widthPct*3)); // this will break the url if it goes above 1, but it shouldn't
+  const newXPct = xPct - (widthPct * leftBookOffset);
+  const newWidthPct = Math.min(1, Math.max(0, widthPct * 3)); // this will break the url if it goes above 1, but it shouldn't
 
   const cropPathParam = `c_crop,w_${newWidthPct},x_${newXPct},y_${yPct}`;
   return url
@@ -790,7 +810,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
   />
 
   const gridWrapperClassName = classNames(classes.postsImageGrid, {
-    [classes.expandedImageGrid]: isExpanded, 
+    [classes.expandedImageGrid]: isExpanded,
     [classes.collapsedImageGrid]: isCollapsed,
     [classes.showAllImageGrid]: isShowingAll,
   });
@@ -805,8 +825,11 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
       <h2 className={classes.imageGridHeaderTitle}>{header}</h2>
     </div>
     <div className={classes.imageGridContainer} style={{ height: gridContainerHeight }}>
-      <div className={gridClassName} style={gridTemplateDimensions}> 
-        <img src={getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)} ref={coverImgRef} className={classes.imageGridBackground} />
+      <div className={gridClassName} style={gridTemplateDimensions}>
+        <div className={classes.imageGridBackgroundContainer}>
+          <img src={getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)} ref={coverImgRef} className={classes.imageGridBackground} />
+          <img src={getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)} ref={coverImgRef} className={classes.imageGridBackgroundReflected} />
+        </div>
         {postGridContents}
       </div>
     </div>
@@ -834,16 +857,14 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
     [classes.showAllButtonHidden]: !showAllVisible
   });
 
-  const { onMouseOver } = usePreloadPost(post._id);
 
   const [hover, setHover] = useState(false)
   const imgRef = useRef<HTMLImageElement>(null);
-  
+
   const handleMouseOver = () => {
-    onMouseOver();
     setHover(!!imgRef.current?.complete);
   };
-  
+
   const handleMouseLeave = () => setHover(false);
 
   return <Link className={classes.imageGridPost} key={post._id} to={isShowAll ? '#' : postGetPageUrl(post)}>
@@ -858,7 +879,7 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
         key="show-all"
         className={showAllElementClassName}
         onClick={() => handleToggleFullyOpen(imageGridId)}>
-          Show All
+        Show All
       </div>}
     </div>
     <div className={classes.imageGridPostBackgroundContainer}>
@@ -868,7 +889,7 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
         className={classNames([classes.imageGridPostBackground, imageClass, { [classes.imageGridPostBackgroundCompleteHovered]: hover }])}
         src={imgSrc}
       />
-      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundBackground, imageClass])} src={imgSrc}/>
+      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundReflected, imageClass])} src={imgSrc} />
     </div>
   </Link>;
 }
@@ -876,7 +897,7 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
 const TopPostsPageComponent = registerComponent(
   "TopPostsPage",
   TopPostsPage,
-  {styles},
+  { styles },
 );
 
 declare global {
