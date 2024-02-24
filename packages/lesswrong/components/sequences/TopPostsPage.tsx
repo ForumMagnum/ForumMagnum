@@ -664,8 +664,8 @@ const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => 
       classes={classes}
       imageGridId={id}
       imageClass={imageClass}
-      isShowAll={isLastCellInDefaultView && !isShowingAll}
-      showAllVisible={isExpanded && !isShowingAll}
+      isShowAll={isLastCellInDefaultView && isExpanded}
+      showAllVisible={isExpanded && !isShowingAll && postGridRows > 4}
       handleToggleFullyOpen={handleToggleFullyOpen}
     />
   );
