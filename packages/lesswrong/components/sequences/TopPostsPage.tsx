@@ -244,32 +244,6 @@ const styles = (theme: ThemeType) => ({
   },
   // If we want to display a grid with more than 6 items, increase this number
   ...Object.fromEntries(Array.from({ length: MAX_GRID_SIZE }, (_, i) => gridPositionToClassesEntry(theme, i))),
-  // imageGridPostBackgroundContainer: {
-  //   position: "absolute",
-  //   top: 0,
-  //   left: 0,
-  //   // We could do 100% here, but it would cause us to clip the bottom of the image in some 2 column cases
-  //   width: 1080,
-  //   opacity: 0,
-  //   zIndex: -1,
-  //   transition: "opacity 0.2s ease-in",
-  //   objectPosition: "right",
-  // },
-  // imageGridPostBackgroundContainerHidden: {
-  //   display: "none",
-  // },
-  // imageGridPostBackground: {
-  //   position: "relative",
-  //   maskImage: "linear-gradient(rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)",
-  //   width: '100%',
-  //   backdropFilter: "blur(50px)",
-  // },
-  // imageGridPostBackgroundReflected: {
-  //   filter: 'blur(50px)',
-  //   transform: 'scaleY(-1)',
-  //   position: "relative",
-  //   width: '100%',
-  // },
   imageGridBackgroundContainer: {
     position: "absolute",
     top: 0,
@@ -282,11 +256,11 @@ const styles = (theme: ThemeType) => ({
   imageGridBackground: {
     position: "relative",
     maskImage: "linear-gradient(rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)",
+    backdropFilter: "blur(50px)",
     width: '100%',
   },
   imageGridBackgroundReflected: {
     position: "relative",
-    maskImage: "linear-gradient(rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)",
     width: '100%',
     transform: 'scaleY(-1)',
     filter: 'blur(50px)',
