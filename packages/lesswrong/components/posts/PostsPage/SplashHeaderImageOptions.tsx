@@ -15,6 +15,10 @@ const styles = (theme: ThemeType) => ({
     height: 'auto',
     cursor: 'pointer',
   },
+  image: { 
+    maxWidth: '100%',
+    height: 'auto'
+  }
 });
 
 export const SplashHeaderImageOptions = ({ post, classes }: {
@@ -45,7 +49,7 @@ export const SplashHeaderImageOptions = ({ post, classes }: {
         <img
           src={image.splashArtImageUrl}
           alt={`Selectable ${index}`}
-          style={{ maxWidth: '100%', height: 'auto' }}
+          className={classes.image}
           title={`Prompt: ${image.splashArtImagePrompt || 'No prompt'}`}
         />
       </div>
