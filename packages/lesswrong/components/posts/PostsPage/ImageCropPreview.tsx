@@ -5,6 +5,7 @@ import { useEventListener } from '../../hooks/useEventListener';
 import { useCreate } from '../../../lib/crud/withCreate';
 import { useWindowSize } from '../../hooks/useScreenWidth';
 import { COORDINATE_POSITIONS_TO_BOOK_OFFSETS, CoordinatePosition } from '../../sequences/TopPostsPage';
+import classNames from 'classnames';
 
 const initialHeight = 480;
 const initialWidth = 360 * 3;
@@ -121,6 +122,10 @@ const styles = (theme: ThemeType) => ({
     userSelect: 'none', // Prevent text selection
     color: 'black',
     fontSize: '1rem',
+    backgroundColor: 'rgba(255, 0, 0, 0.3)',
+  },
+  showSaveAllButton: {
+    backgroundColor: 'rgba(0, 255, 0, 0.7)'
   },
   successNotification: {
     position: 'absolute',
@@ -203,6 +208,12 @@ export const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPo
     <div style={cachedBoxStyle}></div>
     </div>
   </>)
+}
+
+export const SaveAllBar = ({showSaveAllButton, loading, saveAllCoordinates}: {showSaveAllButton: boolean, loading: boolean, saveAllCoordinates: () => void}) => {
+  if (!showSaveAllButton) return <div> Must set all placements before you can save them </div>
+  if (loading) return <div>Saving all placements...</div> 
+  return <div onClick={saveAllCoordinates}>{`Save all placements`}</div>
 }
 
 export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes, flipped }: {
@@ -394,7 +405,7 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     justifyContent: 'space-around',
   };
 
-  const showSaveAllButton = ( 
+  const showSaveAllButton = !!( 
     cachedBoxCoordinates[selectedImageInfo._id] && 
     cachedBoxCoordinates[selectedImageInfo._id]["left"] && 
     cachedBoxCoordinates[selectedImageInfo._id]["middle"] && 
@@ -411,6 +422,8 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
     flipped
   };
 
+  const saveAllClass = classNames([classes.saveAllCoordinates, {[classes.showSaveAllButton]: showSaveAllButton}]);
+
   return (
     <>
       <button className={classes.button} onClick={toggleBoxVisibility}>Show Box</button>
@@ -423,13 +436,8 @@ export const ImageCropPreview = ({ reviewWinner, imgRef, setCropPreview, classes
             <ImagePreviewSubset subBoxPosition='middle' {...previewSubsetProps} />
             <ImagePreviewSubset subBoxPosition='right' {...previewSubsetProps} />
           </div>
-          <div className={classes.saveAllCoordinates} onClick={saveAllCoordinates} style={{backgroundColor: showSaveAllButton ? 'rgba(0, 255, 0, 0.7)' : 'rgba(255, 0, 0, 0.3)'}}>
-            {!showSaveAllButton
-              ? (<div> Must set all placements before you can save them </div>)
-              : loading
-                ? <div>Saving all placements...</div> 
-                : <div onClick={saveAllCoordinates}>{`Save all placements`}</div>
-            }
+          <div className={saveAllClass} onClick={saveAllCoordinates}>
+            <SaveAllBar showSaveAllButton={showSaveAllButton} loading={loading} saveAllCoordinates={saveAllCoordinates} />
             {error && <div>Error saving. Please try again.</div>}
           </div>
           {showSaveSuccess && <div className={classes.successNotification}>
