@@ -168,7 +168,7 @@ declare global {
         yellow: ColorString,
         green: ColorString,
       },
-
+      
       debateComment: {
         [1]: ColorString,
         [2]: ColorString,
@@ -225,7 +225,7 @@ declare global {
       recentDiscussionGrey: ColorString,
       headerKarma: ColorString,
       activeDotOrange: ColorString,
-
+      
       commentsBubble: {
         commentCount: ColorString,
         noUnread: ColorString,
@@ -424,6 +424,12 @@ declare global {
       adminButton: ColorString,
       winner: ColorString,
     },
+    bestOf: {
+      fadeOut: ColorString,
+      imageGridHeaderHighlighted: ColorString,
+      imageGridHeader: ColorString,
+      highlightedPost: ColorString,
+    }
     background: {
       default: ColorString
       paper: ColorString,

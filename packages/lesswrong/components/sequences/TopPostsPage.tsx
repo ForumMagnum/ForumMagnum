@@ -127,7 +127,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     transition: 'height 0.5s ease-in-out',
     '&:hover $imageGridHeader': {
-      background: 'rgb(241 209 150 / 40%)'
+      background: theme.palette.bestOf.imageGridHeader
     },
     '&:hover $toggleIcon': {
       opacity: 1
@@ -183,7 +183,7 @@ const styles = (theme: ThemeType) => ({
     cursor: 'pointer',
     transition: 'background 0.2s ease-in, width 0.5s ease-in-out',
     '&&&:hover': {
-      background: 'rgb(241 209 150 / 75%)'
+      background: theme.palette.bestOf.imageGridHeaderHighlighted
     },
     [theme.breakpoints.up(800)]: {
       width: 40,
@@ -254,7 +254,7 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridBackground: {
     position: "relative",
-    maskImage: "linear-gradient(rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)",
+    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
     backdropFilter: "blur(50px)",
     width: '100%',
   },
@@ -279,8 +279,8 @@ const styles = (theme: ThemeType) => ({
     cursor: 'pointer',
     opacity: .8,
     transition: "left 0.2s ease-in 0.5s",
-    borderRight: "1px solid white",
-    borderBottom: "1px solid white",
+    borderRight: `1px solid ${theme.palette.text.alwaysWhite}`,
+    borderBottom: `1px solid ${theme.palette.text.alwaysWhite}`,
   },
   showAllButtonVisible: {
     left: 0
@@ -291,7 +291,7 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridPost: {
     ...theme.typography.commentStyle,
-    color: "white",
+    color: theme.palette.text.alwaysWhite,
     display: "flex",
     textWrap: "balance",
     cursor: "pointer",
@@ -337,9 +337,9 @@ const styles = (theme: ThemeType) => ({
   imageGridPostBody: {
     padding: 4,
     paddingTop: 0,
-    borderRight: "1px solid white",
-    borderBottom: "1px solid white",
-    background: "linear-gradient(0deg, #00000038,  transparent 60%)",
+    borderRight: `1px solid ${theme.palette.text.alwaysWhite}`,
+    borderBottom: `1px solid ${theme.palette.text.alwaysWhite}`,
+    background: `linear-gradient(0deg, ${theme.palette.bestOf.fadeOut},  transparent 60%)`,
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -347,17 +347,16 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     zIndex: 4,
     '&&&:hover': {
-      background: "rgb(0 0 0 / 27%)",
+      background: theme.palette.bestOf.highlightedPost,
       backdropFilter: "none",
-      color: "white"
     },
     '&:hover $imageGridPostAuthor': {
       opacity: 1
     },
   },
   emptyGridCell: {
-    borderRight: "1px solid white",
-    borderBottom: "1px solid white",
+    borderRight: `1px solid ${theme.palette.text.alwaysWhite}`,
+    borderBottom: `1px solid ${theme.palette.text.alwaysWhite}`,
     zIndex: 3,
   },
   imageGridPostBackgroundContainer: {
@@ -376,7 +375,7 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridPostBackground: {
     position: "relative",
-    maskImage: "linear-gradient(rgba(0,0,0,1) 95%, rgba(0,0,0,0) 100%)",
+    maskImage: `linear-gradient(${theme.palette.text.alwaysWhite} 95%, ${theme.palette.text.alwaysBlack} 100%)`,
     width: '100%',
     backdropFilter: "blur(50px)",
   },
@@ -401,7 +400,7 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridPostTitle: {
     transition: "opacity 0.2s ease-in",
-    textShadow: "0px 0px 3px black",
+    textShadow: `0px 0px 3px ${theme.palette.text.alwaysBlack}`,
   },
   expandIcon: {}
 });

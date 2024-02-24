@@ -66,7 +66,7 @@ const styles = (theme: ThemeType) => ({
     padding: '10px 20px',
     cursor: 'pointer',
     backgroundColor: theme.palette.panelBackground.reviewGold,
-    color: 'white',
+    color: theme.palette.inverseGreyAlpha(1),
     borderRadius: '4px',
     fontSize: '1rem',
   },
@@ -86,7 +86,8 @@ const styles = (theme: ThemeType) => ({
     marginBottom: '40px', 
     position: 'absolute',
     background: 'transparent',
-    border: '2px solid white',
+    border: '2px solid',
+    borderColor: theme.palette.inverseGreyAlpha(1),
     cursor: 'move',
     zIndex: 20000,
   },
@@ -97,7 +98,7 @@ const styles = (theme: ThemeType) => ({
     cursor: 'pointer',
     padding: '2px 5px',
     userSelect: 'none', // Prevent text selection
-    color: 'black',
+    color: theme.palette.greyAlpha(1),
     backgroundColor: theme.palette.inverseGreyAlpha(.7),
     fontSize: '1rem',
   },
@@ -121,7 +122,7 @@ const styles = (theme: ThemeType) => ({
     cursor: 'pointer',
     padding: '2px 5px',
     userSelect: 'none', // Prevent text selection
-    color: 'black',
+    color: theme.palette.greyAlpha(1),
     fontSize: '1rem',
     backgroundColor: theme.palette.error,
   },
@@ -135,7 +136,6 @@ const styles = (theme: ThemeType) => ({
     cursor: 'pointer',
     padding: '2px 5px',
     userSelect: 'none', // Prevent text selection
-    color: 'black',
     fontSize: '1rem',
     backgroundColor: theme.palette.primary,
     textAlign: 'center',
@@ -182,8 +182,8 @@ export const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPo
     width: boxCoordinates.width / 3,
     height: boxCoordinates.height,
     background: selectedBox === subBoxPosition ? 'rgba(0, 0, 0, 0)' : 'rgba(0, 0, 0, 0.3)',
-    borderLeft: '1px solid white',
-    borderRight: '1px solid white',
+    borderLeft: '1px solid',
+    borderRight: '1px solid',
   };
 
   const saveCoordinatesStyle = {
