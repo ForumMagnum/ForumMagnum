@@ -211,9 +211,5 @@ export const requireReviewToFrontpagePostsSetting = new PublicInstanceSetting<bo
 export const manifoldAPIKeySetting = new PublicInstanceSetting<string | null>('manifold.reviewBotKey', null, "optional")
 export const reviewUserBotSetting = new PublicInstanceSetting<string | null>('reviewBotId', null, "optional")
 
-// TODO: remove the slack settings after we finish prototyping
-export const reviewArtSlackAPIKeySetting = new PublicInstanceSetting<string | null>('slack.apiToken', null, "optional");
-export const reviewArtSlackSigningSecretSetting = new PublicInstanceSetting<string | null>('slack.signingSecret', null, "optional");
-
 export const myMidjourneyAPIKeySetting = new PublicInstanceSetting<string | null>('myMidjourney.apiKey', null, "optional");
 export const maxAllowedApiSkip = new PublicInstanceSetting<number | null>("maxAllowedApiSkip", 2000, "optional")
