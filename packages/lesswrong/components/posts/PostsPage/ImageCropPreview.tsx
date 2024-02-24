@@ -108,8 +108,9 @@ const styles = (theme: ThemeType) => ({
     bottom: 0,
     right: 0,
     cursor: 'nwse-resize',
-    backgroundColor: '#fff',
-    border: '1px solid #000',
+    backgroundColor: theme.palette.inverseGreyAlpha(1),
+    border: '1px solid',
+    borderColor: theme.palette.greyAlpha(1),
   },
   saveAllCoordinates: {
     position: 'absolute',
@@ -122,10 +123,10 @@ const styles = (theme: ThemeType) => ({
     userSelect: 'none', // Prevent text selection
     color: 'black',
     fontSize: '1rem',
-    backgroundColor: 'rgba(255, 0, 0, 0.3)',
+    backgroundColor: theme.palette.error,
   },
   showSaveAllButton: {
-    backgroundColor: 'rgba(0, 255, 0, 0.7)'
+    backgroundColor: theme.palette.primary
   },
   successNotification: {
     position: 'absolute',
@@ -136,7 +137,7 @@ const styles = (theme: ThemeType) => ({
     userSelect: 'none', // Prevent text selection
     color: 'black',
     fontSize: '1rem',
-    backgroundColor: 'rgba(0, 255, 0, 0.7)',
+    backgroundColor: theme.palette.primary,
     textAlign: 'center',
   },
 });
