@@ -424,11 +424,12 @@ declare global {
       adminButton: ColorString,
       winner: ColorString,
     },
-    bestOf: {
+    leastwrong: {
       fadeOut: ColorString,
       imageGridHeaderHighlighted: ColorString,
       imageGridHeader: ColorString,
       highlightedPost: ColorString,
+      imageGridBackground: ColorString,
     }
     background: {
       default: ColorString

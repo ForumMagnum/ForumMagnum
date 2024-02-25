@@ -127,7 +127,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     transition: 'height 0.5s ease-in-out',
     '&:hover $imageGridHeader': {
-      background: theme.palette.bestOf.imageGridHeader
+      background: theme.palette.leastwrong.imageGridHeader
     },
     '&:hover $toggleIcon': {
       opacity: 1
@@ -183,7 +183,7 @@ const styles = (theme: ThemeType) => ({
     cursor: 'pointer',
     transition: 'background 0.2s ease-in, width 0.5s ease-in-out',
     '&&&:hover': {
-      background: theme.palette.bestOf.imageGridHeaderHighlighted
+      background: theme.palette.leastwrong.imageGridHeaderHighlighted
     },
     [theme.breakpoints.up(800)]: {
       width: 40,
@@ -251,6 +251,7 @@ const styles = (theme: ThemeType) => ({
     zIndex: -1,
     transition: "opacity 0.2s ease-in",
     objectPosition: "right",
+    background: theme.palette.leastwrong.imageGridBackground,
   },
   imageGridBackground: {
     position: "relative",
@@ -339,7 +340,7 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 0,
     borderRight: `1px solid ${theme.palette.text.alwaysWhite}`,
     borderBottom: `1px solid ${theme.palette.text.alwaysWhite}`,
-    background: `linear-gradient(0deg, ${theme.palette.bestOf.fadeOut},  transparent 60%)`,
+    background: `linear-gradient(0deg, ${theme.palette.leastwrong.fadeOut},  transparent 60%)`,
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -347,7 +348,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     zIndex: 4,
     '&&&:hover': {
-      background: theme.palette.bestOf.highlightedPost,
+      background: theme.palette.leastwrong.highlightedPost,
       backdropFilter: "none",
     },
     '&:hover $imageGridPostAuthor': {
@@ -369,13 +370,14 @@ const styles = (theme: ThemeType) => ({
     zIndex: -1,
     transition: "opacity 0.2s ease-in",
     objectPosition: "right",
+    background: theme.palette.leastwrong.imageGridBackground,
   },
   imageGridPostBackgroundContainerHidden: {
     display: "none",
   },
   imageGridPostBackground: {
     position: "relative",
-    maskImage: `linear-gradient(${theme.palette.text.alwaysWhite} 95%, ${theme.palette.text.alwaysBlack} 100%)`,
+    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
     width: '100%',
     backdropFilter: "blur(50px)",
   },

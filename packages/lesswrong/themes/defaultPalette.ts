@@ -502,11 +502,12 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     adminButton: "rgba(200,150,100)",
     winner: "rgba(179, 136, 79, 1)",
   },
-  bestOf: {
+  leastwrong: {
     fadeOut: 'rgba(0,0,0,0.38)',
     imageGridHeaderHighlighted: 'rgba(241, 209, 150, .75)',
     imageGridHeader: 'rgba(241, 209, 150, .4)',
     highlightedPost: 'rgba(0,0,0,0.27)',
+    imageGridBackground: '#f8f4ee',
   },
   header: {
     text: shades.greyAlpha(.87),
