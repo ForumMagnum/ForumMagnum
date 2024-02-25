@@ -695,7 +695,7 @@ const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates
   const newXPct = xPct - (widthPct * leftBookOffset);
   const newWidthPct = Math.min(1, Math.max(0, widthPct * 3)); // this will break the url if it goes above 1, but it shouldn't
 
-  const cropPathParam = `c_crop,w_${newWidthPct},x_${newXPct},y_${yPct}`;
+  const cropPathParam = `c_crop,w_${newWidthPct},x_${newXPct},y_${yPct},h_1`;
   return url
     .replace('upload/', `upload/${cropPathParam}/`)
     .replace('upload/', `upload/${flipped ? 'a_hflip/' : ''}`)
@@ -839,7 +839,7 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
 
   const handleMouseLeave = () => setHover(false);
 
-  return <Link className={classes.imageGridPost} key={post._id} to={isShowAll ? '#' : postGetPageUrl(post)}>
+  return <Link className={classes.imageGridPost} key={post._id} to={isShowAll && showAllVisible ? '#' : postGetPageUrl(post)}>
     <div className={classes.imageGridPostBody} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
       <div className={classes.imageGridPostAuthor}>
         {post?.user?.displayName}
