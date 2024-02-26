@@ -44,7 +44,7 @@ export const NotifyMeToggleDropdownItemInternal = ({
   const {DropdownItem, ToggleSwitch} = Components;
 
   const afterIcon = useCallback(
-    () => <ToggleSwitch value={subscribed} className={classes.toggle} />,
+    () => <ToggleSwitch value={subscribed} className={classes.toggle} smallVersion />,
     [subscribed, ToggleSwitch, classes.toggle],
   );
 
