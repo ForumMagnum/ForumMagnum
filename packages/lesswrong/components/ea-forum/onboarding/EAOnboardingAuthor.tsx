@@ -4,6 +4,7 @@ import { formatRole, formatStat } from "../../users/EAUserTooltipContent";
 import { useNotifyMe } from "../../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
+import { useEAOnboarding } from "./useEAOnboarding";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -54,14 +55,18 @@ export const EAOnboardingAuthor = ({user, onSubscribed, classes}: {
   onSubscribed?: (id: string, subscribed: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {viewAsAdmin} = useEAOnboarding();
+
   const {isSubscribed, onSubscribe} = useNotifyMe({
     document: user,
     overrideSubscriptionType: "newPosts",
     hideFlashes: true,
   });
+  // If viewAsAdmin is true, then this is an admin testing
+  // and we don't want any real updates to happen
   const [subscribed, toggleSubscribed] = useOptimisticToggle(
-    isSubscribed ?? false,
-    onSubscribe ?? (() => {}),
+    viewAsAdmin ? false : (isSubscribed ?? false),
+    viewAsAdmin ? () => {} : (onSubscribe ?? (() => {})),
   );
 
   const {_id, displayName, karma, jobTitle, organization} = user;
