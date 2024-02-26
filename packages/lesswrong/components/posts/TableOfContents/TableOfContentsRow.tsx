@@ -72,7 +72,7 @@ const styles = (theme: ThemeType) => ({
     },
     // Don't show location dot for level0
     '& $link:after': {
-      content: `""`
+      display: "none",
     },
     ...sectionOffsetStyling,
   },
