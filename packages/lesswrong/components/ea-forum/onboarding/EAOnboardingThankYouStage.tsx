@@ -104,7 +104,7 @@ export const EAOnboardingThankYouStage = ({classes}: {
       subscribedToDigest: value,
     });
     captureOnboardingEvent("toggleDigest", {subscribed: value});
-  }, [updateCurrentUser, captureOnboardingEvent]);
+  }, [updateCurrentUser, captureOnboardingEvent, viewAsAdmin]);
 
   const onComplete = useCallback(() => {
     void goToNextStage();
