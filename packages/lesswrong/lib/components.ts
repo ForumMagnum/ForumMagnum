@@ -193,6 +193,7 @@ importComponent("QuickTakesEntry", () => require('../components/quickTakes/Quick
 importComponent("QuickTakesList", () => require('../components/quickTakes/QuickTakesList'));
 importComponent("QuickTakesListItem", () => require('../components/quickTakes/QuickTakesListItem'));
 importComponent("QuickTakesCollapsedListItem", () => require('../components/quickTakes/QuickTakesCollapsedListItem'));
+importComponent("LWQuickTakesCollapsedListItem", () => require('../components/quickTakes/LWQuickTakesCollapsedListItem'));
 
 // RSS Feed Integration
 importComponent("ResyncRssDropdownItem", () => require('../components/dropdowns/posts/ResyncRssDropdownItem'));
@@ -657,7 +658,8 @@ importComponent("SingleLineComment", () => require('../components/comments/Singl
 importComponent("ShowParentComment", () => require('../components/comments/ShowParentComment'));
 importComponent("NewUserGuidelinesDialog", () => require('../components/comments/NewUserGuidelinesDialog'));
 importComponent("PopularCommentsList", () => require('../components/comments/PopularCommentsList'));
-importComponent("PopularComment", () => require('../components/comments/PopularComment'));
+importComponent("FriendlyPopularComment", () => require('../components/comments/FriendlyPopularComment'));
+importComponent("LWPopularComment", () => require('../components/comments/LWPopularComment'));
 
 importComponent("PostsListEditorSearchHit", () => require('../components/search/PostsListEditorSearchHit'));
 importComponent("PostsSearchHit", () => require('../components/search/PostsSearchHit'));

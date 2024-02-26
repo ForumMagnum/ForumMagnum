@@ -96,6 +96,8 @@ import MuiSearchIcon from '@material-ui/icons/Search';
 import MuiMenuIcon from "@material-ui/icons/Menu";
 import MuiForumIcon from '@material-ui/icons/Forum';
 import MuiVoteIcon from '@material-ui/icons/HowToVote'
+import MuiCommentIcon from '@material-ui/icons/ModeComment';
+
 
 
 /**
@@ -247,7 +249,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     MapPin: MuiLocationIcon,
     Pencil: PencilIcon,
     PencilSquare: PencilSquareIcon,
-    Comment: CommentIcon,
+    Comment: MuiCommentIcon,
     CommentFilled: CommentFilledIcon,
     ChatBubbleLeftRight: ChatBubbleLeftRightIcon,
     ChatBubbleLeftRightFilled: MuiForumIcon,
