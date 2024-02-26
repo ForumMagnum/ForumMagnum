@@ -255,14 +255,15 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridBackground: {
     position: "relative",
-    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
-    backdropFilter: "blur(50px)",
     width: '100%',
   },
+  imageGridBackgroundOriginal: {
+    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
+  },
   imageGridBackgroundReflected: {
-    position: "relative",
-    width: '100%',
     transform: 'scaleY(-1)',
+  },
+  imageGridBackgroundBlurred: {
     filter: 'blur(50px)',
   },
   showAllButton: {
@@ -310,11 +311,11 @@ const styles = (theme: ThemeType) => ({
       transitionDelay: "0s",
       zIndex: 2
     },
-    '&&&:hover $imageGridPostBackground': {
+    '&&&:hover $imageGridPostBackgroundOriginal': {
       display: "block",
       opacity: 1,
       transitionDelay: "0s",
-      zIndex: 2
+      zIndex: 2,
     },
     '&&&:hover $imageGridPostBackgroundReflected': {
       zIndex: 1,
@@ -376,15 +377,17 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridPostBackground: {
     position: "relative",
-    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
     width: '100%',
     backdropFilter: "blur(50px)",
   },
+  imageGridPostBackgroundOriginal: {
+    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
+  },
   imageGridPostBackgroundReflected: {
-    filter: 'blur(50px)',
     transform: 'scaleY(-1)',
-    position: "relative",
-    width: '100%',
+  },
+  imageGridPostBackgroundBlurred: {
+    filter: 'blur(50px)',
   },
   // This class exists purely so that we can track it from `imageGrid` to apply `opacity: 0` to `imageGridBackground`
   // Unfortunately there doesn't seem to be a way to track when someone is hovering over a "complete" (loaded) image purely in CSS
@@ -655,7 +658,7 @@ const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => 
   const reviewWinnerArt = post?.reviewWinner?.reviewWinnerArt ?? undefined;
   const imgSrc = reviewWinnerArt ? getSplashArtUrl({ reviewWinnerArt, leftBookOffset }) : '';
 
-  const applyHideImageClass = !(isDefault || isExpanded || isShowingAll) || !coverLoaded;
+  const applyHideImageClass = !(isDefault || isUnderTitle || isExpanded || isShowingAll) || !coverLoaded;
 
   const imageClass = classNames({
     [classes.imageGridPostBackgroundContainerHidden]: applyHideImageClass,
@@ -799,6 +802,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
   });
 
   const gridClassName = classNames(classes.imageGrid, classes[gridPositionClass]);
+  const croppedUrl = getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset);
 
   // We have this useEffect checking the `complete` property, along with an `onLoad` on the `img` itself
   // We need both because `onLoad` isn't reliable, e.g. in the case where the cover images are cached.
@@ -819,8 +823,10 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
     <div className={classes.imageGridContainer} style={{ height: gridContainerHeight }}>
       <div className={gridClassName} style={gridTemplateDimensions}>
         <div className={classes.imageGridBackgroundContainer}>
-          <img src={getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)} ref={coverImgRef} className={classes.imageGridBackground} onLoad={() => setCoverImgLoaded(true)} />
-          <img src={getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)} className={classes.imageGridBackgroundReflected} />
+          <img src={croppedUrl} ref={coverImgRef} onLoad={() => setCoverImgLoaded(true)} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundOriginal])} />
+          <img src={croppedUrl} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundReflected, classes.imageGridBackgroundBlurred])} />
+          <img src={croppedUrl} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundBlurred])} />
+          <img src={croppedUrl} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundReflected, classes.imageGridBackgroundBlurred])} />
         </div>
         {postGridContents}
       </div>
@@ -878,10 +884,12 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
       <img
         ref={imgRef}
         loading={'lazy'}
-        className={classNames([classes.imageGridPostBackground, imageClass, { [classes.imageGridPostBackgroundCompleteHovered]: hover }])}
+        className={classNames([classes.imageGridPostBackground, classes.imageGridPostBackgroundOriginal, imageClass, { [classes.imageGridPostBackgroundCompleteHovered]: hover }])}
         src={imgSrc}
       />
-      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundReflected, imageClass])} src={imgSrc} />
+      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundReflected, classes.imageGridPostBackgroundBlurred, classes.imageGridPostBackground, imageClass])} src={imgSrc} />
+      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundBlurred, classes.imageGridPostBackground, imageClass])} src={imgSrc} />
+      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundReflected, classes.imageGridPostBackgroundBlurred, classes.imageGridPostBackground, imageClass])} src={imgSrc} />
     </div>
   </Link>;
 }
