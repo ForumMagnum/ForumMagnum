@@ -640,21 +640,25 @@ function getPostsInGrid(args: GetPostsInGridArgs) {
 
 const PostGridContents = (props: PostGridContentsProps) => {
   const { postsInGrid, ...cellArgs } = props;
-  return <>{postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => <PostGridCellContents post={post} rowIdx={rowIdx} columnIdx={columnIdx} key={post?._id} {...cellArgs} />))}</>;
+  return <>{postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => <PostGridCellContents post={post} rowIdx={rowIdx} columnIdx={columnIdx} key={post?._id ?? `empty-${rowIdx}-${columnIdx}`} {...cellArgs} />))}</>;
 }
 
 const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => {
   const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset, coverLoaded } = props;
   const isLastCellInDefaultView = (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1));
-  const isDefault = rowIdx < viewportHeight && (columnIdx - (leftBookOffset * 3)) < 3 && (columnIdx - leftBookOffset) >= 0;
+  const offsetColumnIdx = columnIdx - (leftBookOffset * 3);
+  const isDefault = rowIdx < viewportHeight && (offsetColumnIdx < 3) && (offsetColumnIdx >= 0);
+  const isUnderTitle = offsetColumnIdx === -1;
 
   const emptyCellElement = <div key={`empty-${rowIdx}-${columnIdx}`} className={classes.emptyGridCell} />;
 
   const reviewWinnerArt = post?.reviewWinner?.reviewWinnerArt ?? undefined;
   const imgSrc = reviewWinnerArt ? getSplashArtUrl({ reviewWinnerArt, leftBookOffset }) : '';
 
+  const applyHideImageClass = !(isDefault || isExpanded || isShowingAll) || !coverLoaded;
+
   const imageClass = classNames({
-    [classes.imageGridPostBackgroundContainerHidden]: !(isDefault || isExpanded || isShowingAll) || !coverLoaded,
+    [classes.imageGridPostBackgroundContainerHidden]: applyHideImageClass,
   });
 
   if (!post) {
@@ -731,6 +735,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
   hiddenState?: 'hidden' | 'full',
 }) => {
   const coverImgRef = useRef<HTMLImageElement>(null);
+  const [coverImgLoaded, setCoverImgLoaded] = useState(false);
 
   const screenWidth = useWindowWidth(2000);
   /** 
@@ -784,7 +789,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
     isExpanded={isExpanded}
     isShowingAll={isShowingAll}
     leftBookOffset={leftBookOffset}
-    coverLoaded={coverImgRef.current?.complete ?? false}
+    coverLoaded={coverImgLoaded}
   />
 
   const gridWrapperClassName = classNames(classes.postsImageGrid, {
@@ -794,6 +799,15 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
   });
 
   const gridClassName = classNames(classes.imageGrid, classes[gridPositionClass]);
+
+  // We have this useEffect checking the `complete` property, along with an `onLoad` on the `img` itself
+  // We need both because `onLoad` isn't reliable, e.g. in the case where the cover images are cached.
+  // This optimization is to delay loading any book's individual post images until that book's cover image is loaded
+  useEffect(() => {
+    if (coverImgRef.current?.complete) {
+      setCoverImgLoaded(true);
+    }
+  }, []);
 
   return <div className={gridWrapperClassName} id={`PostsImageGrid-${id}`} style={{ height: postGridHeight }}>
     <div className={classes.imageGridHeader} onClick={() => handleToggleExpand(id)}>
@@ -805,8 +819,8 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
     <div className={classes.imageGridContainer} style={{ height: gridContainerHeight }}>
       <div className={gridClassName} style={gridTemplateDimensions}>
         <div className={classes.imageGridBackgroundContainer}>
-          <img src={getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)} ref={coverImgRef} className={classes.imageGridBackground} />
-          <img src={getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)} ref={coverImgRef} className={classes.imageGridBackgroundReflected} />
+          <img src={getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)} ref={coverImgRef} className={classes.imageGridBackground} onLoad={() => setCoverImgLoaded(true)} />
+          <img src={getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)} className={classes.imageGridBackgroundReflected} />
         </div>
         {postGridContents}
       </div>
