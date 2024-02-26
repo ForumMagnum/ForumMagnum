@@ -651,6 +651,9 @@ const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => 
   const isLastCellInDefaultView = (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1));
   const offsetColumnIdx = columnIdx - (leftBookOffset * 3);
   const isDefault = rowIdx < viewportHeight && (offsetColumnIdx < 3) && (offsetColumnIdx >= 0);
+  // If a user clicks on a book title to expand it, and the book has leftOffset > 0 (i.e. isn't in the first book-grid "column"),
+  // users may experience a weird transition when their cursor ends up hovering on a post that was previously hidden and thus hadn't had its image loaded.
+  // So we additionally preload images for those posts as well as those which are shown on the initial load (`isDefault`)
   const isUnderTitle = offsetColumnIdx === -1;
 
   const emptyCellElement = <div key={`empty-${rowIdx}-${columnIdx}`} className={classes.emptyGridCell} />;
