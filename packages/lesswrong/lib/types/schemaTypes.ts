@@ -52,7 +52,9 @@ type SqlResolverArgs<N extends CollectionNameString> = {
 type SqlResolver<N extends CollectionNameString> = (args: SqlResolverArgs<N>) => string;
 
 type SqlPostProcess<N extends CollectionNameString> = (
+  /** The value returned by the sql resolver */
   value: AnyBecauseHard,
+  /** The entire database object (complete with sql resolver fields) */
   root: ObjectsByCollectionName[N],
   context: ResolverContext,
 ) => AnyBecauseHard;
