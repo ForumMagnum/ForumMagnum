@@ -269,21 +269,6 @@ addGraphQLResolvers({
       // Don't want to return the whole object without more permission checking
       return pick(updatedUser, 'username', 'slug', 'displayName', 'subscribedToCurated', 'usernameUnset')
     },
-    // TODO: Deprecated
-    async UserAcceptTos(_root: void, _args: {}, {currentUser}: ResolverContext) {
-      if (!currentUser) {
-        throw new Error('Cannot accept terms of use while not logged in');
-      }
-      const updatedUser = (await updateMutator({
-        collection: Users,
-        documentId: currentUser._id,
-        set: {
-          acceptedTos: true,
-        },
-        validate: false,
-      })).data;
-      return updatedUser.acceptedTos;
-    },
     async UserExpandFrontpageSection(
       _root: void,
       {section, expanded}: {section: string, expanded: boolean},
@@ -706,10 +691,6 @@ async function getEngagement(userId: string, year: number): Promise<{
 addGraphQLMutation(
   'NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile'
 )
-// TODO: Derecated
-addGraphQLMutation(
-  'UserAcceptTos: Boolean'
-)
 addGraphQLMutation(
   'UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean'
 )
@@ -777,3 +758,21 @@ defineQuery({
     return accessFilterMultiple(currentUser, Users, shuffled.slice(0, sampleSize), context);
   }
 }); 
+
+defineQuery({
+  name: "IsDisplayNameTaken",
+  argTypes: "(displayName: String!)",
+  resultType: "Boolean!",
+  fn: async (
+    _root: void,
+    {displayName}: {displayName: string},
+    context: ResolverContext,
+  ) => {
+    const {currentUser} = context;
+    if (!currentUser) {
+      throw new Error("You must be logged in to do this");
+    }
+    const isTaken = await context.repos.users.isDisplayNameTaken(displayName);
+    return isTaken;
+  }
+});

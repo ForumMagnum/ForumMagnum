@@ -68,6 +68,7 @@ export default {
   globals: {
     bundleIsServer: true,
     bundleIsTest: true,
+    bundleIsCypress: false,
     bundleIsProduction: false,
     bundleIsMigrations: false,
     defaultSiteAbsoluteUrl: "",

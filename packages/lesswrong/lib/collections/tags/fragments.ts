@@ -330,3 +330,13 @@ registerFragment(`
     }
   }
 `);
+
+registerFragment(`
+  fragment UserOnboardingTag on Tag {
+    _id
+    name
+    slug
+    bannerImageId
+    squareImageId
+  }
+`);

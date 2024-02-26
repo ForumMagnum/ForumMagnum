@@ -1590,7 +1590,6 @@ const schema: SchemaType<"Users"> = {
     hidden: !isLW,
     canRead: ['members'],
   },
-  // Not reusing curated, because we might actually use that as well
   subscribedToDigest: {
     type: Boolean,
     optional: true,
@@ -2125,7 +2124,7 @@ const schema: SchemaType<"Users"> = {
       type: "Post",
       nullable: true,
     }),
-    label: isFriendlyUI ? "Quick takes feed ID" : "Shortform feed ID",
+    label: "Quick takes feed ID",
     optional: true,
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],

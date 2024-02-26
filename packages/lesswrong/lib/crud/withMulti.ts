@@ -1,6 +1,6 @@
 import { WatchQueryFetchPolicy, ApolloError, useQuery, NetworkStatus, gql, useApolloClient } from '@apollo/client';
 import qs from 'qs';
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import * as _ from 'underscore';
 import { extractFragmentInfo, getFragment, getCollection, pluralize, camelCaseify } from '../vulcan-lib';
 import { useLocation } from '../routeUtil';
@@ -159,14 +159,17 @@ export function useMulti<
   const query = getGraphQLQueryFromOptions({ collectionName, collection, fragmentName, fragment, extraVariables });
   const resolverName = collection.options.multiResolverName;
 
-  const graphQLVariables = {
+  const graphQLVariables = useMemo(() => ({
     input: {
       terms: { ...terms, limit: defaultLimit },
       enableCache, enableTotal, createIfMissing
     },
     ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
-  }
-  
+  }), [
+    terms, defaultLimit, enableCache, enableTotal, createIfMissing,
+    extraVariables, extraVariablesValues,
+  ]);
+
   let effectiveLimit = limit;
   if (!_.isEqual(terms, lastTerms)) {
     setLastTerms(terms);
@@ -191,11 +194,11 @@ export function useMulti<
   const {data, error, loading, refetch, fetchMore, networkStatus} = useQuery(query, useQueryArgument);
 
   const client = useApolloClient();
-  const invalidateCache = () => invalidateQuery({
+  const invalidateCache = useCallback(() => invalidateQuery({
     client,
     query,
     variables: graphQLVariables,
-  });
+  }), [client, query, graphQLVariables]);
 
   if (error) {
     // This error was already caught by the apollo middleware, but the

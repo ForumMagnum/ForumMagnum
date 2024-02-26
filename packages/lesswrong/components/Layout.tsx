@@ -13,7 +13,7 @@ import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { isAF, isLW, isLWorAF } from '../lib/instanceSettings';
+import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -330,6 +330,7 @@ const Layout = ({currentUser, children, classes}: {
       NavigationEventSender,
       PetrovDayWrapper,
       NewUserCompleteProfile,
+      EAOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
       IntercomWrapper,
@@ -363,8 +364,8 @@ const Layout = ({currentUser, children, classes}: {
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
-    const showNewUserCompleteProfile = currentUser?.usernameUnset &&
-      !allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+    const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+    const showNewUserCompleteProfile = currentUser?.usernameUnset && !isIncompletePath;
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -457,10 +458,11 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {showNewUserCompleteProfile
+                    {showNewUserCompleteProfile && !isEAForum
                       ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
+                    {!isIncompletePath && isEAForum && <EAOnboardingFlow />}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>

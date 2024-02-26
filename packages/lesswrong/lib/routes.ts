@@ -1286,6 +1286,19 @@ addRoute(...forumSelect<Route[]>({
       redirect: () => "/quicktakes",
     },
   ],
+  LWAF: [
+    {
+      name: 'Shortform',
+      path: '/quicktakes',
+      componentName: 'ShortformPage',
+      title: "Quick Takes",
+    },
+    {
+      name: 'ShortformRedirect',
+      path: '/shortform',
+      redirect: () => "/quicktakes",
+    },
+  ],
   default: [
     {
       name: 'Shortform',
