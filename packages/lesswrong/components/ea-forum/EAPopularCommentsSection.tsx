@@ -2,6 +2,7 @@ import React from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
 import { SHOW_POPULAR_COMMENTS_SECTION_COOKIE } from "../../lib/cookies/cookies";
+import { preferredHeadingCase } from "../../themes/forumTheme";
 
 const EAPopularCommentsSection = () => {
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
@@ -17,7 +18,7 @@ const EAPopularCommentsSection = () => {
       pageSectionContext="popularCommentsSection"
       expanded={expanded}
       toggleExpanded={toggleExpanded}
-      title="Popular comments"
+      title={preferredHeadingCase("Popular Comments")}
       Content={PopularCommentsList}
     />
   );
