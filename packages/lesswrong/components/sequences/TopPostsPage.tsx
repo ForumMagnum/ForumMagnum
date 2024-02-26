@@ -402,6 +402,11 @@ const styles = (theme: ThemeType) => ({
   imageGridPostTitle: {
     transition: "opacity 0.2s ease-in",
     textShadow: `0px 0px 3px ${theme.palette.text.alwaysBlack}`,
+    textOverflow: "ellipsis",
+    display: "-webkit-box",
+    WebkitLineClamp: 6,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
   },
   expandIcon: {}
 });
