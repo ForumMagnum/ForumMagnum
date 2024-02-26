@@ -212,6 +212,7 @@ export const simplSchemaToGraphQLtype = (type: any): string|null => {
 interface ResolverOnlyFieldArgs<N extends CollectionNameString> extends CollectionFieldSpecification<N> {
   resolver: (doc: ObjectsByCollectionName[N], args: any, context: ResolverContext) => any,
   sqlResolver?: SqlResolver<N>,
+  sqlPostProcess?: SqlPostProcess<N>,
   graphQLtype?: string|GraphQLScalarType|null,
   graphqlArguments?: string|null,
 }
@@ -225,6 +226,7 @@ export const resolverOnlyField = <N extends CollectionNameString>({
   graphQLtype=null,
   resolver,
   sqlResolver,
+  sqlPostProcess,
   graphqlArguments=null,
   ...rest
 }: ResolverOnlyFieldArgs<N>): CollectionFieldSpecification<N> => {
@@ -239,6 +241,7 @@ export const resolverOnlyField = <N extends CollectionNameString>({
       arguments: graphqlArguments,
       resolver,
       sqlResolver,
+      sqlPostProcess,
     },
     ...rest
   }

@@ -32,7 +32,7 @@ import { userCanReadField } from '../../../lib/vulcan-users/permissions';
 import { getSchema } from '../../../lib/utils/getSchema';
 import deepmerge from 'deepmerge';
 import GraphQLJSON from 'graphql-type-json';
-import GraphQLDate from 'graphql-date';
+import GraphQLDate from './graphql-date';
 import * as _ from 'underscore';
 
 const queriesToGraphQL = (queries: QueryAndDescription[]): string =>
@@ -241,7 +241,10 @@ const getFields = <N extends CollectionNameString>(schema: SchemaType<N>, typeNa
                 const typedName = resolverName as keyof ObjectsByCollectionName[N];
                 const existingValue = document[typedName];
                 if (existingValue !== undefined) {
-                  return existingValue;
+                  const {sqlPostProcess} = field.resolveAs!;
+                  return sqlPostProcess
+                    ? sqlPostProcess(existingValue, document, context)
+                    : existingValue;
                 }
               }
 

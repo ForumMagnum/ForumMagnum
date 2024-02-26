@@ -212,16 +212,18 @@ export function getDefaultResolvers<N extends CollectionNameString>(
         const { currentUser }: {currentUser: DbUser|null} = context;
         const collection = getCollection(collectionName);
 
-        // use Dataloader if doc is selected by documentId/_id
-        const documentId = selector.documentId || selector._id;
+        // useSingle allows passing in `_id` as `documentId`
+        if (selector.documentId) {
+          selector._id = selector.documentId;
+          delete selector.documentId;
+        }
+        const documentId = selector._id;
 
         // get fragment from GraphQL AST
-        const fragmentName = getFragmentNameFromInfo(info, "results");
+        const fragmentName = getFragmentNameFromInfo(info, "result");
 
         let doc: ObjectsByCollectionName[N] | null;
-        if (documentId) {
-          doc = await context.loaders[collectionName].load(documentId);
-        } else if (fragmentName) {
+        if (fragmentName) {
           const query = new SelectFragmentQuery(
             fragmentName as FragmentName,
             currentUser,

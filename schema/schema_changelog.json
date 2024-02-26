@@ -548,5 +548,10 @@
     "acceptsSchemaHash": "92b57599e36ee19757a1e763216509c5",
     "acceptedByMigration": "20240213T222700.add_notificationSubscribedUserComment_to_Users.ts",
     "timestamp": "2024-02-13T22:27:00.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5cb229f5d6b5603881b0eb0873896dd8",
+    "acceptedByMigration": "20240215T140827.create_SideCommentCaches_table.ts",
+    "timestamp": "2024-02-15T14:08:27.000Z"
   }
 ]

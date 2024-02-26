@@ -7,7 +7,7 @@ import type { SideCommentMode } from '../../dropdowns/posts/SetSideCommentVisibi
 import { useVote } from '../../votes/withVote';
 import { getVotingSystemByName } from '../../../lib/voting/votingSystems';
 import type { ContentItemBody, ContentReplacedSubstringComponent } from '../../common/ContentItemBody';
-import { inlineReactsHoverEnabled } from '../../../lib/betas';
+import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 
 const enableInlineReactsOnPosts = inlineReactsHoverEnabled;
 
@@ -16,7 +16,10 @@ const PostBody = ({post, html, sideCommentMode}: {
   html: string,
   sideCommentMode?: SideCommentMode
 }) => {
-  const includeSideComments = sideCommentMode && sideCommentMode!=="hidden";
+  const includeSideComments =
+    hasSideComments &&
+    sideCommentMode &&
+    sideCommentMode !== "hidden";
 
   const { document } = useSingle({
     documentId: post._id,
