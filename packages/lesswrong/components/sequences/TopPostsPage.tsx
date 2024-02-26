@@ -255,14 +255,15 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridBackground: {
     position: "relative",
-    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
-    backdropFilter: "blur(50px)",
     width: '100%',
   },
+  imageGridBackgroundOriginal: {
+    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
+  },
   imageGridBackgroundReflected: {
-    position: "relative",
-    width: '100%',
     transform: 'scaleY(-1)',
+  },
+  imageGridBackgroundBlurred: {
     filter: 'blur(50px)',
   },
   showAllButton: {
@@ -808,8 +809,10 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
     <div className={classes.imageGridContainer} style={{ height: gridContainerHeight }}>
       <div className={gridClassName} style={gridTemplateDimensions}>
         <div className={classes.imageGridBackgroundContainer}>
-          <img src={croppedUrl} ref={coverImgRef} className={classes.imageGridBackground} />
-          <img src={croppedUrl} ref={coverImgRef} className={classes.imageGridBackgroundReflected} />
+          <img src={croppedUrl} ref={coverImgRef} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundOriginal])} />
+          <img src={croppedUrl} ref={coverImgRef} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundReflected, classes.imageGridBackgroundBlurred])} />
+          <img src={croppedUrl} ref={coverImgRef} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundBlurred])} />
+          <img src={croppedUrl} ref={coverImgRef} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundReflected,classes.imageGridBackgroundBlurred])} />
         </div>
         {postGridContents}
       </div>
