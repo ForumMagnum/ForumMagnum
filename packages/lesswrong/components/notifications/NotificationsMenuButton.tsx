@@ -153,7 +153,7 @@ const FriendlyNotificationsMenuButton = ({
 }: NotificationsMenuButtonProps) => {
   const currentUser = useCurrentUser();
   const {pathname} = useLocation();
-  const {unreadNotifications, notificationsOpened} = useUnreadNotifications();
+  const {unreadNotifications} = useUnreadNotifications();
   const {document: karmaChanges, refetch} = useSingle({
     documentId: currentUser?._id,
     collectionName: "Users",
@@ -173,7 +173,6 @@ const FriendlyNotificationsMenuButton = ({
   return (
     <NotificationsTooltip
       unreadNotifications={unreadNotifications}
-      onNotificationsOpened={notificationsOpened}
       karmaChanges={karmaChanges?.karmaChanges}
     >
       <Badge

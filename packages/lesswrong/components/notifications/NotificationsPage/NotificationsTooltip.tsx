@@ -1,9 +1,7 @@
-import React, { ReactNode, useCallback } from "react";
+import React, { ReactNode } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { Link } from "../../../lib/reactRouterWrapper";
-import { useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
-import { useRefetchCurrentUser } from "../../common/withUser";
 import { useNotificationDisplays } from "./useNotificationDisplays";
+import { Link } from "../../../lib/reactRouterWrapper";
 import { HEADER_HEIGHT } from "../../common/Header";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
 import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
@@ -48,36 +46,19 @@ const MAX_TO_SHOW = 8;
 
 export const NotificationsTooltip = ({
   unreadNotifications,
-  onNotificationsOpened,
   karmaChanges,
   children,
   classes,
 }: {
   unreadNotifications: number,
-  onNotificationsOpened: () => Promise<void>,
   karmaChanges?: KarmaChanges,
   children?: ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
-  const updateCurrentUser = useUpdateCurrentUser();
-  const refetchCurrentUser = useRefetchCurrentUser();
   const limit = Math.max(Math.min(unreadNotifications, MAX_TO_SHOW), MIN_TO_SHOW);
   const {data} = useNotificationDisplays(limit);
   const notifs: NotificationDisplay[] = data?.NotificationDisplays?.results ?? [];
   const remaining = unreadNotifications - limit;
-
-  const onShow = useCallback(() => {
-    void onNotificationsOpened();
-    if (karmaChanges) {
-      void (async () => {
-        await updateCurrentUser({
-          karmaChangeLastOpened: karmaChanges.endDate,
-          karmaChangeBatchStart: karmaChanges.startDate,
-        });
-        await refetchCurrentUser();
-      })();
-    }
-  }, [karmaChanges, updateCurrentUser, refetchCurrentUser, onNotificationsOpened]);
 
   const {
     HoverOver, NotificationsPageNotification, NotificationsPageKarmaChangeList,
@@ -105,7 +86,6 @@ export const NotificationsTooltip = ({
       }
       placement="bottom"
       clickable
-      onShow={onShow}
       popperClassName={classes.tooltip}
     >
       {children}
