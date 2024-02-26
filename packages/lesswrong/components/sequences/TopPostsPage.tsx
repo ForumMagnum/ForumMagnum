@@ -271,14 +271,13 @@ const styles = (theme: ThemeType) => ({
     width: 120,
     position: 'absolute',
     top: 0,
-    background: theme.palette.greyAlpha(.8),
+    background: theme.palette.greyAlpha(1),
     color: theme.palette.text.invertedBackgroundText,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 3,
     cursor: 'pointer',
-    opacity: .8,
     transition: "left 0.2s ease-in 0.5s",
     borderRight: `1px solid ${theme.palette.text.alwaysWhite}`,
     borderBottom: `1px solid ${theme.palette.text.alwaysWhite}`,
@@ -458,21 +457,21 @@ function getCurrentPostGridHeight(isShowingAll: boolean, isExpanded: boolean, po
 
   // If we're in the "Show All" state, we want enough height to show every row
   if (isShowingAll) {
-    return (postGridRows * 120) + headerAdjustment;
+    return (postGridRows * 120) + headerAdjustment - 1;
   }
 
   // If we're not on mobile, return height based on the default viewport "height" assigned to each post grid
   if (!isMobile) {
-    return viewportHeight * 120;
+    return (viewportHeight * 120) - 1;
   }
 
   // If we're on mobile and in the expanded state, we use the default viewport height
   if (isExpanded) {
-    return (viewportHeight * 120) + headerAdjustment;
+    return (viewportHeight * 120) + headerAdjustment - 1;
   }
 
   // Otherwise, we're in the unexpanded mobile state, which only has one row visible
-  return 120 + headerAdjustment;
+  return 120 + headerAdjustment - 1;
 }
 
 function getNewExpansionState(expansionState: Record<string, ExpansionState>, toggledElementId: string): Record<string, ExpansionState> {
