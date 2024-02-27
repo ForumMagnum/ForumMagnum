@@ -87,6 +87,9 @@ export const NotificationsTooltip = ({
       placement="bottom"
       clickable
       popperClassName={classes.tooltip}
+      analyticsProps={{
+        pageElementContext: "notificationsTooltip",
+      }}
     >
       {children}
     </HoverOver>
