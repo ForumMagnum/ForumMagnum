@@ -255,14 +255,15 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridBackground: {
     position: "relative",
-    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
-    backdropFilter: "blur(50px)",
     width: '100%',
   },
+  imageGridBackgroundOriginal: {
+    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
+  },
   imageGridBackgroundReflected: {
-    position: "relative",
-    width: '100%',
     transform: 'scaleY(-1)',
+  },
+  imageGridBackgroundBlurred: {
     filter: 'blur(50px)',
   },
   showAllButton: {
@@ -271,14 +272,13 @@ const styles = (theme: ThemeType) => ({
     width: 120,
     position: 'absolute',
     top: 0,
-    background: theme.palette.greyAlpha(.8),
+    background: theme.palette.greyAlpha(.5),
     color: theme.palette.text.invertedBackgroundText,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 3,
     cursor: 'pointer',
-    opacity: .8,
     transition: "left 0.2s ease-in 0.5s",
     borderRight: `1px solid ${theme.palette.text.alwaysWhite}`,
     borderBottom: `1px solid ${theme.palette.text.alwaysWhite}`,
@@ -311,11 +311,11 @@ const styles = (theme: ThemeType) => ({
       transitionDelay: "0s",
       zIndex: 2
     },
-    '&&&:hover $imageGridPostBackground': {
+    '&&&:hover $imageGridPostBackgroundOriginal': {
       display: "block",
       opacity: 1,
       transitionDelay: "0s",
-      zIndex: 2
+      zIndex: 2,
     },
     '&&&:hover $imageGridPostBackgroundReflected': {
       zIndex: 1,
@@ -351,7 +351,8 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.leastwrong.highlightedPost,
       backdropFilter: "none",
     },
-    '&:hover $imageGridPostAuthor': {
+    // The `:not(:has()) is to avoid forcing the author name to display when the cell is in the "Show All" state
+    '&:hover:not(:has($imageGridPostHidden)) $imageGridPostAuthor': {
       opacity: 1
     },
   },
@@ -377,15 +378,17 @@ const styles = (theme: ThemeType) => ({
   },
   imageGridPostBackground: {
     position: "relative",
-    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
     width: '100%',
     backdropFilter: "blur(50px)",
   },
+  imageGridPostBackgroundOriginal: {
+    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
+  },
   imageGridPostBackgroundReflected: {
-    filter: 'blur(50px)',
     transform: 'scaleY(-1)',
-    position: "relative",
-    width: '100%',
+  },
+  imageGridPostBackgroundBlurred: {
+    filter: 'blur(50px)',
   },
   // This class exists purely so that we can track it from `imageGrid` to apply `opacity: 0` to `imageGridBackground`
   // Unfortunately there doesn't seem to be a way to track when someone is hovering over a "complete" (loaded) image purely in CSS
@@ -403,6 +406,11 @@ const styles = (theme: ThemeType) => ({
   imageGridPostTitle: {
     transition: "opacity 0.2s ease-in",
     textShadow: `0px 0px 3px ${theme.palette.text.alwaysBlack}`,
+    textOverflow: "ellipsis",
+    display: "-webkit-box",
+    WebkitLineClamp: 6,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
   },
   expandIcon: {}
 });
@@ -458,21 +466,21 @@ function getCurrentPostGridHeight(isShowingAll: boolean, isExpanded: boolean, po
 
   // If we're in the "Show All" state, we want enough height to show every row
   if (isShowingAll) {
-    return (postGridRows * 120) + headerAdjustment;
+    return (postGridRows * 120) + headerAdjustment - 1;
   }
 
   // If we're not on mobile, return height based on the default viewport "height" assigned to each post grid
   if (!isMobile) {
-    return viewportHeight * 120;
+    return (viewportHeight * 120) - 1;
   }
 
   // If we're on mobile and in the expanded state, we use the default viewport height
   if (isExpanded) {
-    return (viewportHeight * 120) + headerAdjustment;
+    return (viewportHeight * 120) + headerAdjustment - 1;
   }
 
   // Otherwise, we're in the unexpanded mobile state, which only has one row visible
-  return 120 + headerAdjustment;
+  return 120 + headerAdjustment - 1;
 }
 
 function getNewExpansionState(expansionState: Record<string, ExpansionState>, toggledElementId: string): Record<string, ExpansionState> {
@@ -636,21 +644,28 @@ function getPostsInGrid(args: GetPostsInGridArgs) {
 
 const PostGridContents = (props: PostGridContentsProps) => {
   const { postsInGrid, ...cellArgs } = props;
-  return <>{postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => <PostGridCellContents post={post} rowIdx={rowIdx} columnIdx={columnIdx} key={post?._id} {...cellArgs} />))}</>;
+  return <>{postsInGrid.map((row, rowIdx) => row.map((post, columnIdx) => <PostGridCellContents post={post} rowIdx={rowIdx} columnIdx={columnIdx} key={post?._id ?? `empty-${rowIdx}-${columnIdx}`} {...cellArgs} />))}</>;
 }
 
 const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => {
   const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset, coverLoaded } = props;
   const isLastCellInDefaultView = (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1));
-  const isDefault = rowIdx < viewportHeight && (columnIdx - (leftBookOffset * 3)) < 3 && (columnIdx - leftBookOffset) >= 0;
+  const offsetColumnIdx = columnIdx - (leftBookOffset * 3);
+  const isDefault = rowIdx < viewportHeight && (offsetColumnIdx < 3) && (offsetColumnIdx >= 0);
+  // If a user clicks on a book title to expand it, and the book has leftOffset > 0 (i.e. isn't in the first book-grid "column"),
+  // users may experience a weird transition when their cursor ends up hovering on a post that was previously hidden and thus hadn't had its image loaded.
+  // So we additionally preload images for those posts as well as those which are shown on the initial load (`isDefault`)
+  const isUnderTitle = offsetColumnIdx === -1;
 
   const emptyCellElement = <div key={`empty-${rowIdx}-${columnIdx}`} className={classes.emptyGridCell} />;
 
   const reviewWinnerArt = post?.reviewWinner?.reviewWinnerArt ?? undefined;
   const imgSrc = reviewWinnerArt ? getSplashArtUrl({ reviewWinnerArt, leftBookOffset }) : '';
 
+  const applyHideImageClass = !(isDefault || isUnderTitle || isExpanded || isShowingAll) || !coverLoaded;
+
   const imageClass = classNames({
-    [classes.imageGridPostBackgroundContainerHidden]: !(isDefault || isExpanded || isShowingAll) || !coverLoaded,
+    [classes.imageGridPostBackgroundContainerHidden]: applyHideImageClass,
   });
 
   if (!post) {
@@ -727,6 +742,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
   hiddenState?: 'hidden' | 'full',
 }) => {
   const coverImgRef = useRef<HTMLImageElement>(null);
+  const [coverImgLoaded, setCoverImgLoaded] = useState(false);
 
   const screenWidth = useWindowWidth(2000);
   /** 
@@ -780,7 +796,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
     isExpanded={isExpanded}
     isShowingAll={isShowingAll}
     leftBookOffset={leftBookOffset}
-    coverLoaded={coverImgRef.current?.complete ?? false}
+    coverLoaded={coverImgLoaded}
   />
 
   const gridWrapperClassName = classNames(classes.postsImageGrid, {
@@ -790,6 +806,16 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
   });
 
   const gridClassName = classNames(classes.imageGrid, classes[gridPositionClass]);
+  const croppedUrl = getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset);
+
+  // We have this useEffect checking the `complete` property, along with an `onLoad` on the `img` itself
+  // We need both because `onLoad` isn't reliable, e.g. in the case where the cover images are cached.
+  // This optimization is to delay loading any book's individual post images until that book's cover image is loaded
+  useEffect(() => {
+    if (coverImgRef.current?.complete) {
+      setCoverImgLoaded(true);
+    }
+  }, []);
 
   return <div className={gridWrapperClassName} id={`PostsImageGrid-${id}`} style={{ height: postGridHeight }}>
     <div className={classes.imageGridHeader} onClick={() => handleToggleExpand(id)}>
@@ -801,8 +827,10 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
     <div className={classes.imageGridContainer} style={{ height: gridContainerHeight }}>
       <div className={gridClassName} style={gridTemplateDimensions}>
         <div className={classes.imageGridBackgroundContainer}>
-          <img src={getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)} ref={coverImgRef} className={classes.imageGridBackground} />
-          <img src={getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)} ref={coverImgRef} className={classes.imageGridBackgroundReflected} />
+          <img src={croppedUrl} ref={coverImgRef} onLoad={() => setCoverImgLoaded(true)} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundOriginal])} />
+          <img src={croppedUrl} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundReflected, classes.imageGridBackgroundBlurred])} />
+          <img src={croppedUrl} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundBlurred])} />
+          <img src={croppedUrl} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundReflected, classes.imageGridBackgroundBlurred])} />
         </div>
         {postGridContents}
       </div>
@@ -810,7 +838,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
   </div>;
 }
 
-const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, imageClass, classes, offscreen = false, hidden = false, isShowAll = false, showAllVisible = false }: {
+const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, imageClass, classes, isShowAll = false, showAllVisible = false }: {
   post: PostsTopItemInfo,
   imgSrc: string,
   imageGridId: string,
@@ -819,13 +847,15 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
   classes: ClassesType<typeof styles>,
   isShowAll?: boolean,
   showAllVisible?: boolean,
-  offscreen?: boolean,
-  hidden?: boolean,
 }) => {
   const titleClassName = classNames(classes.imageGridPostTitle, {
-    [classes.imageGridPostOffscreen]: offscreen && !hidden,
-    [classes.imageGridPostHidden]: hidden
+    [classes.imageGridPostHidden]: isShowAll && showAllVisible
   });
+
+  const authorClassName = classNames(classes.imageGridPostAuthor, {
+    [classes.imageGridPostHidden]: isShowAll && showAllVisible
+  });
+
   const showAllElementClassName = classNames(classes.showAllButton, {
     [classes.showAllButtonVisible]: showAllVisible,
     [classes.showAllButtonHidden]: !showAllVisible
@@ -844,7 +874,7 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
 
   return <Link className={classes.imageGridPost} key={post._id} to={isShowAll && showAllVisible ? (location.pathname + location.search)  : postGetPageUrl(post)}>
     <div className={classes.imageGridPostBody} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
-      <div className={classes.imageGridPostAuthor}>
+      <div className={authorClassName}>
         {post?.user?.displayName}
       </div>
       <div className={titleClassName}>
@@ -861,10 +891,12 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
       <img
         ref={imgRef}
         loading={'lazy'}
-        className={classNames([classes.imageGridPostBackground, imageClass, { [classes.imageGridPostBackgroundCompleteHovered]: hover }])}
+        className={classNames([classes.imageGridPostBackground, classes.imageGridPostBackgroundOriginal, imageClass, { [classes.imageGridPostBackgroundCompleteHovered]: hover }])}
         src={imgSrc}
       />
-      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundReflected, imageClass])} src={imgSrc} />
+      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundReflected, classes.imageGridPostBackgroundBlurred, classes.imageGridPostBackground, imageClass])} src={imgSrc} />
+      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundBlurred, classes.imageGridPostBackground, imageClass])} src={imgSrc} />
+      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundReflected, classes.imageGridPostBackgroundBlurred, classes.imageGridPostBackground, imageClass])} src={imgSrc} />
     </div>
   </Link>;
 }
