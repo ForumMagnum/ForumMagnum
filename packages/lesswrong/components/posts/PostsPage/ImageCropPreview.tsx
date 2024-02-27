@@ -142,7 +142,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, cachedBoxCoordinates, setCachedBoxCoordinates, flipped }: {
+const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, cachedBoxCoordinates, setCachedBoxCoordinates, flipped }: {
   boxCoordinates: Coordinates,
   selectedImageInfo: ReviewWinnerImageInfo,
   subBoxPosition: CoordinatePosition,
@@ -211,13 +211,13 @@ export const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPo
   </>)
 }
 
-export const SaveAllBar = ({showSaveAllButton, loading, saveAllCoordinates}: {showSaveAllButton: boolean, loading: boolean, saveAllCoordinates: () => void}) => {
+const SaveAllBar = ({showSaveAllButton, loading, saveAllCoordinates}: {showSaveAllButton: boolean, loading: boolean, saveAllCoordinates: () => void}) => {
   if (!showSaveAllButton) return <div> Must set all placements before you can save them </div>
   if (loading) return <div>Saving all placements...</div> 
   return <div onClick={saveAllCoordinates}>{`Save all placements`}</div>
 }
 
-export const ImageCropPreview = ({ imgRef, setCropPreview, classes, flipped }: {
+const ImageCropPreview = ({ imgRef, setCropPreview, classes, flipped }: {
   imgRef: RefObject<HTMLImageElement>,
   setCropPreview: (coordinates?: Coordinates) => void,
   classes: ClassesType<typeof styles>,

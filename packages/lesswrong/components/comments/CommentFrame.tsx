@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
-import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
+import { isFriendlyUI } from '../../themes/forumTheme';
 
 export const HIGHLIGHT_DURATION = 3
 
@@ -34,9 +34,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   new: {
     '&&': {
-      borderLeft: `solid 5px ${theme.palette.secondary.light}${isBookUI ? '' : '8c'}`,
+      borderLeft: `solid 5px ${theme.palette.secondary.light}${isFriendlyUI ? '' : '8c'}`,
       '&:hover': {
-        borderLeft: `solid 5px ${theme.palette.secondary.main}${isBookUI ? '' : '8c'}`
+        borderLeft: `solid 5px ${theme.palette.secondary.main}${isFriendlyUI ? '' : '8c'}`
       },
     }
   },
