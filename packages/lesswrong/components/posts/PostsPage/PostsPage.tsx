@@ -290,6 +290,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "center",
   },
+  secondSplashPageHeader: {
+    ...theme.typography.postStyle,
+    fontSize: '46px',
+    lineHeight: 1,
+    textWrap: 'balance',
+    fontWeight: '600'
+  }
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -629,6 +636,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const postBodySection =
     <div id="postBody" className={classes.centralColumn}>
+      {showSplashPageHeader && !commentId && !isDebateResponseLink && <h1 className={classes.secondSplashPageHeader}>
+        {post.title}
+      </h1>}
       {/* Body */}
       <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={post}/>
       { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }

@@ -43,6 +43,7 @@ interface PostGridContentsProps extends PostGridDimensions {
   isShowingAll: boolean;
   leftBookOffset: number;
   coverLoaded: boolean;
+  expandedNotYetMoved: boolean;
 }
 
 interface PostGridCellContentsProps extends Omit<PostGridContentsProps, 'postsInGrid'> {
@@ -237,7 +238,7 @@ const styles = (theme: ThemeType) => ({
     },
     // This is so that when the user moves their mouse between different post items in the grid (which have loaded their images successfully),
     // the "cover" image doesn't pop in between "post" image transitions
-    '&:has($imageGridPostBackgroundCompleteHovered) $imageGridBackground': {
+    '&:has($imageGridPostBackgroundCompleteHovered:not($imageGridPostBackgroundContainerHidden)) $imageGridBackground': {
       opacity: 0,
     },
   },
@@ -289,6 +290,9 @@ const styles = (theme: ThemeType) => ({
   showAllButtonHidden: {
     left: 120,
     transition: 'left 0.2s ease-in 0s'
+  },
+  imageGridPostJustExpanded: {
+    pointerEvents: 'none'
   },
   imageGridPost: {
     ...theme.typography.commentStyle,
@@ -374,7 +378,9 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.leastwrong.imageGridBackground,
   },
   imageGridPostBackgroundContainerHidden: {
-    display: "none",
+    '&&&&&&': {
+      display: "none",
+    }
   },
   imageGridPostBackground: {
     position: "relative",
@@ -523,6 +529,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   const [expansionState, setExpansionState] = useState<Record<string, ExpansionState>>({});
   const [fullyOpenGridIds, setFullyOpenGridIds] = useState<string[]>([]);
+  const [expandedNotYetMoved, setExpandedNotYetMoved] = useState(false)
 
   const handleToggleExpand = (id: string) => {
     const newState = getNewExpansionState(expansionState, id);
@@ -539,6 +546,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     }
 
     setExpansionState(newState);
+    setExpandedNotYetMoved(true)
   }
 
   const toggleFullyOpenGridId = (id: string) => {
@@ -563,7 +571,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
 
-  function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: CoordinateInfo, header: string, id: string, gridPosition: number) {
+  function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: CoordinateInfo, header: string, id: string, gridPosition: number, expandedNotYetMoved: boolean) {
     const props = {
       key: id,
       id,
@@ -577,7 +585,8 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       expansionState: expansionState[id],
       handleToggleExpand,
       handleToggleFullyOpen: toggleFullyOpenGridId,
-      hiddenState: getHiddenState(id, fullyOpenGridIds)
+      hiddenState: getHiddenState(id, fullyOpenGridIds),
+      expandedNotYetMoved
     };
     return <PostsImageGrid {...props} />;
   }
@@ -599,12 +608,12 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   const sectionGrid = Object.entries(sectionsInfo).sort(([, a], [, b]) => a.order - b.order).map(([id, { title, imgUrl, coords }], index) => {
     const posts = sortedReviewWinners.filter(post => post.reviewWinner?.category === id);
-    return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, title ?? id, id, index);
+    return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, title ?? id, id, index, expandedNotYetMoved);
   });
 
   const yearGrid = Object.entries(yearGroupsInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { imgUrl, coords }], index) => {
     const posts = sortedReviewWinners.filter(({ reviewWinner }) => reviewWinner?.reviewYear.toString() === year);
-    return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index);
+    return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index, expandedNotYetMoved);
   });
 
   return (
@@ -623,7 +632,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
           </div>
           <div>
             <TopPostsDisplaySettings />
-            <div className={classes.gridContainer}>
+            <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
               {currentSortOrder === 'curated' ? sectionGrid : yearGrid}
             </div>
           </div>
@@ -664,7 +673,7 @@ const PostGridContents = (props: PostGridContentsProps) => {
 }
 
 const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => {
-  const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset, coverLoaded } = props;
+  const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset, coverLoaded, expandedNotYetMoved } = props;
   const isLastCellInDefaultView = (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1));
   const offsetColumnIdx = columnIdx - (leftBookOffset * 3);
   const isDefault = rowIdx < viewportHeight && (offsetColumnIdx < 3) && (offsetColumnIdx >= 0);
@@ -678,10 +687,11 @@ const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => 
   const reviewWinnerArt = post?.reviewWinner?.reviewWinnerArt ?? undefined;
   const imgSrc = reviewWinnerArt ? getSplashArtUrl({ reviewWinnerArt, leftBookOffset }) : '';
 
-  const applyHideImageClass = !(isDefault || isUnderTitle || isExpanded || isShowingAll) || !coverLoaded;
+  console.log({ expandedNotYetMoved })
 
+  const applyHideImageClass = !(isDefault || isUnderTitle || isExpanded || isShowingAll) || !coverLoaded || expandedNotYetMoved;
   const imageClass = classNames({
-    [classes.imageGridPostBackgroundContainerHidden]: applyHideImageClass,
+    [classes.imageGridPostBackgroundContainerHidden]: applyHideImageClass
   });
 
   if (!post) {
@@ -744,7 +754,7 @@ function getSplashArtUrl({ reviewWinnerArt, leftBookOffset }: GetSplashArtUrlArg
     .replace('f_auto,q_auto', 'f_auto,q_auto:eco');
 }
 
-const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBookGridCount, gridPosition, expansionState, handleToggleExpand, handleToggleFullyOpen, hiddenState }: {
+const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBookGridCount, gridPosition, expansionState, handleToggleExpand, handleToggleFullyOpen, hiddenState, expandedNotYetMoved }: {
   posts: PostsTopItemInfo[],
   classes: ClassesType<typeof styles>,
   img: string,
@@ -757,6 +767,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
   handleToggleExpand: (id: string) => void,
   handleToggleFullyOpen: (id: string) => void,
   hiddenState?: 'hidden' | 'full',
+  expandedNotYetMoved: boolean 
 }) => {
   const coverImgRef = useRef<HTMLImageElement>(null);
   const [coverImgLoaded, setCoverImgLoaded] = useState(false);
@@ -803,7 +814,8 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
     isExpanded={isExpanded}
     isShowingAll={isShowingAll}
     leftBookOffset={leftBookOffset}
-    coverLoaded={coverImgLoaded}
+    coverLoaded={coverImgRef.current?.complete ?? false}
+    expandedNotYetMoved={expandedNotYetMoved}
   />
 
   const gridWrapperClassName = classNames(classes.postsImageGrid, {

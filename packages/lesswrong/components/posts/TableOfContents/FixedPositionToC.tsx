@@ -77,7 +77,7 @@ const styles = (theme: ThemeType) => ({
     transitionTimingFunction: 'ease-in',
   },
   fadeIn: {
-    transitionDelay: '0s',
+    transitionDelay: '0.5s',
     transitionTimingFunction: 'ease-out',
   },
   //Use our PostTitle styling with small caps

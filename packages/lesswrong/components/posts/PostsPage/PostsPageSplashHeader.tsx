@@ -58,6 +58,8 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-between',
     flexDirection: 'column',
     ...theme.typography.postStyle,
+    width: '100%',
+    height: '100%',
     '&::before': {
       content: '""',
       position: 'absolute',
@@ -101,12 +103,20 @@ const styles = (theme: ThemeType) => ({
   cropPreviewEnabledBackground: {
     zIndex: 2,
   },
+  fadeIn: {
+
+  },
   fadeOut: {
-    '& .PostsPageSplashHeader-backgroundImageWrapper': {
+    opacity: 0, 
+    
+    '& $backgroundImageWrapper': {
       opacity: 0,
       transition: 'opacity 0.5s',
       transitionTimingFunction: 'ease-in',
     },
+    '& $centralSection, & $reviewContainer': {
+      transform: 'translateY(-15vh)'
+    }
   },
   centralSection: {
     textAlign: 'center',
@@ -117,6 +127,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'center',
     alignItems: 'center',
     paddingBottom: '7vh',
+    transition: 'transform .75s ease-in-out',
     [theme.breakpoints.down('xs')]: {
       paddingBottom: '1vh'
     }
@@ -166,6 +177,7 @@ const styles = (theme: ThemeType) => ({
     zIndex: 2,
   },
   changeImageBox: {
+    ...theme.typography.commentStyle,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
@@ -174,6 +186,11 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.reviewGold,
     color: theme.palette.text.alwaysWhite,
     cursor: 'pointer',
+    marginBottom: 8,
+    opacity: 0.3,
+    '&:hover': {
+      opacity: 1
+    }
   },
   audioPlayerContainer: {
     [theme.breakpoints.up('sm')]: {
@@ -220,7 +237,6 @@ const styles = (theme: ThemeType) => ({
       fontSize: '2.5rem',
       maxWidth: '90vw'
     },
-    transition: 'opacity .5s, transform .5s'
   },
   titleSmaller: {
     fontSize: '3.8rem',
@@ -288,6 +304,7 @@ const styles = (theme: ThemeType) => ({
     minHeight: 0,
     marginBottom: 16,
     padding: '0px 16px',
+    transition: 'transform .75s ease-in-out',
     '&::before': {
       content: '""',
       position: 'absolute',
@@ -341,7 +358,11 @@ const styles = (theme: ThemeType) => ({
   },
   '@global': {
     '.intercom-lightweight-app': {
-      display: 'none',
+      transition: 'opacity 1s ease-in 1s'
+    },
+    'body:has( .PostsPageSplashHeader-fadeIn ) .intercom-lightweight-app': {
+      opacity: 0,
+      transition: 'opacity 1s ease-in 0s'
     },
   },
 });
@@ -363,7 +384,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   const { anchorEl, hover, eventHandlers } = useHover();
   
   const [visible, setVisible] = useState(true);
-  const [backgroundImage, setBackgroundImage] = useState('');
+  const [backgroundImage, setBackgroundImage] = useState(post.reviewWinner.reviewWinnerArt?.splashArtImageUrl);
   const [cropPreviewEnabled, setCropPreviewEnabled] = useState(false);
   const [selectedReview, setSelectedReview] = useState<CommentsList | null>(null);
   const [imageFlipped, setImageFlipped] = useState(false);
@@ -522,7 +543,9 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     </div>
   );
 
-  return <div className={classNames(classes.root, {[classes.fadeOut]: !visible})} ref={observerRef} >
+  console.log( {cropPreviewEnabled} )
+
+  return <div className={classNames(classes.root, {[classes.fadeOut]: !visible, [classes.fadeIn]: visible})} ref={observerRef} >
     {
       /* 
        * We have two copies of the image to implement crop preview functionality using masking and z-indexes
@@ -532,11 +555,11 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
        */
     }
     <div ref={backgroundImgWrapperRef} className={classNames(classes.backgroundImageWrapper, { [classes.cropPreviewEnabledForeground]: cropPreviewEnabled })}>
-      <img ref={imgRef} src={backgroundImage} className={classes.backgroundImage} alt="Background Image" />
+      <img src={backgroundImage} className={classes.backgroundImage} alt="Background Image" />
     </div>
-    <div ref={backgroundImgCropPreviewRef} className={classNames(classes.backgroundImageWrapper, { [classes.cropPreviewEnabledBackground]: cropPreviewEnabled })}>
+    {currentUser?.isAdmin && <div ref={backgroundImgCropPreviewRef} className={classNames(classes.backgroundImageWrapper, { [classes.cropPreviewEnabledBackground]: cropPreviewEnabled })}>
       <img ref={imgRef} src={backgroundImage} className={classes.backgroundImageCropPreview} alt="Background Image" />
-    </div>
+    </div>}
     <div className={classes.top}>
       {topLeftSection}
       {topRightSection}
