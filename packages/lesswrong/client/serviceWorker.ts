@@ -1,11 +1,11 @@
 
 function serviceWorkerMain() {
-  console.log("In serviceWorkerMain");
   self.addEventListener('activate', (event) => {
     void loadScaffoldPage();
   });
   self.addEventListener('install', (event) => {
-    event.waitUntil(loadScaffoldPage());
+    const installEvent = (event as any);
+    installEvent.waitUntil(loadScaffoldPage());
   });
   self.addEventListener('fetch', (event) => {
     const fetchEvent = (event as any);
@@ -19,7 +19,6 @@ function serviceWorkerMain() {
     if (parsedUrl.hostname !== parsedOrigin.hostname)
       return;
     
-    console.log(`Service worker fetch: ${parsedUrl.pathname}`);
     
     if (parsedUrl.pathname === '/') {
       fetchEvent.respondWith(getScaffoldPageResponse());
@@ -30,21 +29,16 @@ function serviceWorkerMain() {
 async function getScaffoldPageResponse() {
   const scaffoldResponse = await getScaffoldHtml();
   if (scaffoldResponse) {
-    console.log("Responding with scaffold page");
     return scaffoldResponse;
   } else {
-    console.log("Scaffold page not loaded");
     await loadScaffoldPage();
     return await getScaffoldHtml();
-    // TODO: pass along the request
   }
 }
 
-let scaffoldHtml: string|null = null;
-
 async function loadScaffoldPage() {
   const cache = await caches.open('v1');
-  cache.add('/preload-scaffold');
+  await cache.add('/preload-scaffold');
 }
 
 async function getScaffoldHtml() {

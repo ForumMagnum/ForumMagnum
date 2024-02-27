@@ -88,5 +88,10 @@ export const addGlobalForShell = (name: string, value: any) => {
 export const getServerPort = () => serverPort;
 export const getWebsocketPort = () => serverPort + 1;
 
+export function isServiceWorker(): boolean {
+  //@ts-ignore
+  return typeof ServiceWorkerGlobalScope !== 'undefined' && self instanceof ServiceWorkerGlobalScope;
+}
+
 // Polyfill
 import 'setimmediate';

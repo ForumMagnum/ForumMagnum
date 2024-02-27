@@ -30,11 +30,6 @@ const loadClientBundle = () => {
   return loadBundle("../../client/js/bundle.js");
 }
 
-const loadServiceWorkerBundle = () => {
-  return loadBundle("../../client/js/serviceWorker.js");
-}
-
-
 let clientBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer, bundleBrotliBuffer: Buffer|null}|null = null;
 export const getClientBundle = () => {
   if (!clientBundle) {
@@ -53,26 +48,6 @@ export const getClientBundle = () => {
   
   return clientBundle;
 }
-
-let serviceWorkerBundle: {bundlePath: string, bundleHash: string, lastModified: number, bundleBuffer: Buffer, bundleBrotliBuffer: Buffer|null}|null = null;
-export const getServiceWorkerBundle = () => {
-  if (!serviceWorkerBundle) {
-    serviceWorkerBundle = loadServiceWorkerBundle();
-    return serviceWorkerBundle;
-  }
-  
-  // Reload if bundle.js has changed or there is a valid brotli version when there wasn't before
-  const lastModified = fs.statSync(serviceWorkerBundle.bundlePath).mtimeMs;
-  const bundleBrotliPath = `${serviceWorkerBundle.bundlePath}.br`
-  const brotliFileIsValid = fs.existsSync(bundleBrotliPath) && fs.statSync(bundleBrotliPath).mtimeMs >= lastModified
-  if (serviceWorkerBundle.lastModified !== lastModified || (serviceWorkerBundle.bundleBrotliBuffer === null && brotliFileIsValid)) {
-    serviceWorkerBundle = loadServiceWorkerBundle();
-    return serviceWorkerBundle;
-  }
-  
-  return serviceWorkerBundle;
-}
-
 
 let serverBundleHash: string|null = null;
 export const getServerBundleHash = (): string => {

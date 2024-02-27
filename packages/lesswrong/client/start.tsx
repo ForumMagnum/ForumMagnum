@@ -1,16 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import AppGenerator from './AppGenerator';
-import { onStartup } from '../lib/executionEnvironment';
 import type { TimeOverride } from '../lib/utils/timeUtil';
 
 import { createApolloClient } from './apolloClient';
 import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
 import { populateComponentsAppDebug } from '../lib/vulcan-lib';
 import { initServerSentEvents } from "./serverSentEventsClient";
+import { initReCaptcha } from './reCaptcha';
+import { initAutoRefresh } from './autoRefresh';
+import { rememberScrollPositionOnPageReload } from './scrollRestoration';
+import { addClickHandlerToCheckboxLabels } from './clickableCheckboxLabels';
+import { googleTagManagerInit } from './ga';
 
-function browserMain() {
+export function browserMain() {
   console.log("Running browserMain");
+  googleTagManagerInit();
+  void initReCaptcha();
+  initAutoRefresh();
+  rememberScrollPositionOnPageReload();
+  addClickHandlerToCheckboxLabels();
+
   populateComponentsAppDebug();
   initServerSentEvents();
   const apolloClient = createApolloClient();
@@ -38,9 +48,7 @@ function browserMain() {
     />
   );
 
-  let usedScaffoldPage = false;
   if (document.getElementById("preload-scaffold-page")) {
-    usedScaffoldPage = true;
     const scaffoldReactRoot = document.getElementById('react-app');
     scaffoldReactRoot?.setAttribute("id", "scaffold-react-app");
     const newReactRoot = document.createElement("div");
@@ -73,8 +81,9 @@ function browserMain() {
 }
 
 async function registerServiceWorker() {
-  console.log("Registering service worker");
   if ('serviceWorker' in navigator) {
+    const serviceWorkerUrl = getServiceWorkerUrl();
+    console.log(`Registering service worker ${serviceWorkerUrl}`);
     try {
       const registration = await navigator.serviceWorker.register(
         getServiceWorkerUrl(),
@@ -96,10 +105,12 @@ async function registerServiceWorker() {
 }
 
 function getServiceWorkerUrl(): string {
-  return "/js/serviceWorker.js"; // TODO: plumbing for a hash
+  const scriptTags = document.getElementsByTagName("script");
+  for (let i=0; i<scriptTags.length; i++) {
+    const src = scriptTags[i].getAttribute("src");
+    if (src && src.startsWith("/js/bundle.js")) {
+      return src;
+    }
+  }
+  return "/js/bundle.js";
 }
-
-// Order 100 to make this execute last
-onStartup(() => {
-  browserMain();
-}, 100);

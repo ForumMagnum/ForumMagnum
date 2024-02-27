@@ -46,7 +46,7 @@ import { Sessions } from '../lib/collections/sessions';
 import { addServerSentEventsEndpoint } from "./serverSentEvents";
 import { botRedirectMiddleware } from './botRedirect';
 import { hstsMiddleware } from './hsts';
-import { getClientBundle, getServiceWorkerBundle } from './utils/bundleUtils';
+import { getClientBundle } from './utils/bundleUtils';
 import { isElasticEnabled } from './search/elastic/elasticSettings';
 import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
@@ -190,6 +190,7 @@ export function startWebserver() {
     const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
     let headers: Record<string,string> = {
       "Content-Type": "text/javascript; charset=utf-8",
+      "Service-Worker-Allowed": "/",
     }
     const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
 
@@ -204,28 +205,6 @@ export function startWebserver() {
       // that either means we are running locally (in which case chache control isn't important), or that
       // the brotli bundle is currently being built (in which case set a short cache TTL to prevent the CDN
       // from serving the uncompressed bundle for too long).
-      headers["Cache-Control"] = "public, max-age=60";
-    } else {
-      headers["Cache-Control"] = "public, max-age=604800, immutable";
-    }
-
-    if (bundleBrotliBuffer !== null && acceptBrotli) {
-      headers["Content-Encoding"] = "br";
-      res.writeHead(200, headers);
-      res.end(bundleBrotliBuffer);
-    } else {
-      res.writeHead(200, headers);
-      res.end(bundleBuffer);
-    }
-  });
-  addStaticRoute("/js/serviceWorker.js", ({query}, req, res, context) => {
-    const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getServiceWorkerBundle();
-    let headers: Record<string,string> = {
-      "Content-Type": "text/javascript; charset=utf-8",
-      "Service-Worker-Allowed": "/",
-    }
-    const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
-    if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
       headers["Cache-Control"] = "public, max-age=60";
     } else {
       headers["Cache-Control"] = "public, max-age=604800, immutable";
