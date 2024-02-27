@@ -46,20 +46,27 @@ function browserMain() {
     const newReactRoot = document.createElement("div");
     newReactRoot.setAttribute("id", "react-app");
     document.body.appendChild(newReactRoot);
-  }
-
-  ReactDOM.hydrate(
-    <Main />,
-    document.getElementById('react-app'),
-    () => {
-      apolloClient.disableNetworkFetches = false;
-      foreignApolloClient.disableNetworkFetches = false;
-      timeOverride.currentTime = null;
-    }
-  );
-  
-  if (usedScaffoldPage) {
+    
+    ReactDOM.render(
+      <Main />,
+      document.getElementById('react-app'),
+      () => {
+        apolloClient.disableNetworkFetches = false;
+        foreignApolloClient.disableNetworkFetches = false;
+        timeOverride.currentTime = null;
+      }
+    );
     document.getElementById('scaffold-react-app')?.remove();
+  } else {
+    ReactDOM.hydrate(
+      <Main />,
+      document.getElementById('react-app'),
+      () => {
+        apolloClient.disableNetworkFetches = false;
+        foreignApolloClient.disableNetworkFetches = false;
+        timeOverride.currentTime = null;
+      }
+    );
   }
   
   void registerServiceWorker();
