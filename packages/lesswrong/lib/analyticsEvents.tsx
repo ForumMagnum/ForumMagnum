@@ -56,7 +56,7 @@ function getShowAnalyticsDebug() {
     return false;
 }
 
-export type EventProps = Record<string, Json | undefined>;
+export type EventProps = AnalyticsProps | Record<string, Json | undefined>;
 
 export function captureEvent(eventType: string, eventProps?: EventProps, suppressConsoleLog = false) {
   try {

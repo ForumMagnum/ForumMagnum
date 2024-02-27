@@ -63,7 +63,7 @@ const LWTooltip = ({
     eventProps: {
       pageElementContext: "tooltipHovered", // Can be overwritten by analyticsProps
       title: typeof title === "string" ? title : undefined,
-      ...(analyticsProps as unknown as JsonRecord),
+      ...analyticsProps,
     },
     onEnter: onShow,
     onLeave: onHide,

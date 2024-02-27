@@ -111,7 +111,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const { captureEvent } = useOnMountTracking({
     eventType:"frontpageFilterSettings",
     eventProps: {
-      filterSettings: filterSettings as unknown as JsonRecord,
+      filterSettings,
       filterSettingsVisible: filterSettingsVisibleDesktop,
       pageSectionContext: "latestPosts"
     },
