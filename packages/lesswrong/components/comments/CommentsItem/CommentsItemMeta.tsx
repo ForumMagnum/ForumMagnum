@@ -52,8 +52,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",
-    paddingBottom: 4,
-    display: "inline-block",
+    paddingBottom: isFriendlyUI ? 4 : 2,
+    display: isFriendlyUI ? "inline-block" : "flex",
     verticalAlign: "middle",
     transform: isFriendlyUI ? "translateY(3px)" : undefined,
 
@@ -67,6 +67,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   collapseChevronOpen: {
     transform: "rotate(90deg)",
+  },
+  collapseCharacter: {
+    transform: 'translateY(0.75px)',
   },
   username: {
     marginRight: isFriendlyUI ? 0 : 6,
@@ -141,6 +144,7 @@ export const CommentsItemMeta = ({
   collapsed,
   toggleCollapse,
   setShowEdit,
+  rightSectionElements,
   classes,
 }: {
   treeOptions: CommentTreeOptions,
@@ -156,7 +160,8 @@ export const CommentsItemMeta = ({
   collapsed?: boolean,
   toggleCollapse?: () => void,
   setShowEdit: () => void,
-  classes: ClassesType,
+  rightSectionElements?: React.ReactNode,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
 
@@ -253,7 +258,7 @@ export const CommentsItemMeta = ({
                 classes.collapseChevron,
                 {[classes.collapseChevronOpen]: !collapsed},
               )} />
-            : <>[<span>{collapsed ? "+" : "-"}</span>]</>
+            : <>[<span className={classes.collapseCharacter}>{collapsed ? "+" : "-"}</span>]</>
           }
         </a>
       }
@@ -321,6 +326,7 @@ export const CommentsItemMeta = ({
       </span>}
 
       <span className={classes.rightSection}>
+        {rightSectionElements}
         {isFriendlyUI &&
           <CommentLinkWrapper>
             <ForumIcon icon="Link" className={classes.linkIcon} />

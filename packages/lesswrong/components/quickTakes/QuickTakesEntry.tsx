@@ -1,6 +1,6 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
 import { registerComponent, Components } from "../../lib/vulcan-lib";
-import { styles as editorStyles, getInitialEditorContents } from "../editor/Editor";
+import { EditorChangeEvent, styles as editorStyles, getInitialEditorContents } from "../editor/Editor";
 import { styles as buttonStyles } from "../form-components/FormSubmit";
 import { styles as submitButtonStyles } from "../posts/PostSubmit";
 import { useQuickTakesTags } from "./useQuickTakesTags";
@@ -12,13 +12,16 @@ import type {
 } from "../comments/CommentsNewForm";
 import Button from "@material-ui/core/Button";
 import classNames from "classnames";
+import { isFriendlyUI } from "../../themes/forumTheme";
+
+const getBorderRadius = (theme: ThemeType) => isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small;
 
 const styles = (theme: ThemeType) => ({
   ...editorStyles(theme),
   ...buttonStyles(theme),
   root: {
     background: theme.palette.panelBackground.default,
-    borderRadius: theme.borderRadius.default,
+    borderRadius: getBorderRadius(theme),
     fontFamily: theme.palette.fonts.sansSerifStack,
     padding: 12,
     border: `1px solid ${theme.palette.grey[200]}`,
@@ -26,8 +29,8 @@ const styles = (theme: ThemeType) => ({
   commentEditor: {
     padding: "1px 10px",
     background: theme.palette.grey[100],
-    borderTopLeftRadius: theme.borderRadius.default,
-    borderTopRightRadius: theme.borderRadius.default,
+    borderTopLeftRadius: getBorderRadius(theme),
+    borderTopRightRadius: getBorderRadius(theme),
     "& .ck-placeholder::before": {
       color: theme.palette.grey[600],
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -41,8 +44,8 @@ const styles = (theme: ThemeType) => ({
   collapsed: {
     height: 40,
     overflow: "hidden",
-    borderBottomLeftRadius: theme.borderRadius.default,
-    borderBottomRightRadius: theme.borderRadius.default,
+    borderBottomLeftRadius: getBorderRadius(theme),
+    borderBottomRightRadius: getBorderRadius(theme),
   },
   editorButtonContainer: {
     background: theme.palette.grey[100],
@@ -70,6 +73,7 @@ const styles = (theme: ThemeType) => ({
   ...submitButtonStyles(theme),
 });
 
+// TODO: decide on copy for LW
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";
 
 const QuickTakesEntry = ({
@@ -95,7 +99,7 @@ const QuickTakesEntry = ({
   buttonClassName?: string,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const editorType = "ckEditorMarkup";
   const editorRef = useRef<EditorType>(null);
@@ -122,7 +126,7 @@ const QuickTakesEntry = ({
     fragmentName: "ShortformComments",
   });
 
-  const onChange = useCallback(({contents}: AnyBecauseTodo) => {
+  const onChange = useCallback(({contents}: EditorChangeEvent) => {
     setContents(contents);
   }, []);
 
@@ -170,6 +174,14 @@ const QuickTakesEntry = ({
     currentUser,
   ]);
 
+  const onCancel = useCallback(async (ev?: MouseEvent) => {
+    ev?.preventDefault();
+    editorRef.current?.clear(currentUser);
+    setExpanded(false);
+    void cancelCallback?.();
+  }, [currentUser, cancelCallback]);
+
+
   const onFocus = useCallback(() => setExpanded(true), []);
 
   useEffect(() => {
@@ -206,26 +218,65 @@ const QuickTakesEntry = ({
   }
 
   const {Editor, Loading, TagsChecklist} = Components;
+
+  const cancelButton = (
+    <Button
+      className={classNames("form-cancel", classes.formButton, classes.secondaryButton)}
+      onClick={onCancel}
+    >
+      Cancel
+    </Button>
+  );
+
   const submitButton = (
+    <Button
+      type="submit"
+      disabled={loadingSubmit}
+      className={classNames(classes.formButton, classes.submitButton)}
+      variant={isFriendlyUI ? "contained" : undefined}
+      color="primary"
+      onClick={onSubmit}
+    >
+      {loadingSubmit
+        ? <Loading />
+        : "Publish"
+      }
+    </Button>
+  );
+
+  const submitWrapper = (
     <div className={classNames(buttonClassName, {
       [classes.editorButtonContainer]: !submitButtonAtBottom,
       [classes.bottomButtonContainer]: submitButtonAtBottom,
     })}>
-      <Button
-        type="submit"
-        disabled={loadingSubmit}
-        className={classNames(classes.formButton, classes.submitButton)}
-        variant="contained"
-        color="primary"
-        onClick={onSubmit}
-      >
-        {loadingSubmit
-          ? <Loading />
-          : "Publish"
-        }
-      </Button>
+      {!isFriendlyUI && cancelButton}
+      {submitButton}
     </div>
   );
+
+  const tagList = (
+    loadingTags
+      ? <Loading />
+      : (
+        <div className={classNames(classes.tagContainer, tagsClassName)}>
+          <span className={classes.tagLabel}>Set topic</span>
+          <TagsChecklist
+            tags={tags}
+            displaySelected="highlight"
+            selectedTagIds={[
+              ...(frontpage ? [frontpageTagId] : []),
+              ...selectedTagIds,
+            ]}
+            onTagSelected={onTagSelected}
+            onTagRemoved={onTagRemoved}
+            tooltips={false}
+            truncate
+            smallText
+          />
+        </div>
+      )
+  );
+
   return (
     <form
       ref={formRef}
@@ -254,29 +305,9 @@ const QuickTakesEntry = ({
       </div>
       {expanded &&
         <>
-          {!submitButtonAtBottom && submitButton}
-          {loadingTags
-            ? <Loading />
-            : (
-              <div className={classNames(classes.tagContainer, tagsClassName)}>
-                <span className={classes.tagLabel}>Set topic</span>
-                <TagsChecklist
-                  tags={tags}
-                  displaySelected="highlight"
-                  selectedTagIds={[
-                    ...(frontpage ? [frontpageTagId] : []),
-                    ...selectedTagIds,
-                  ]}
-                  onTagSelected={onTagSelected}
-                  onTagRemoved={onTagRemoved}
-                  tooltips={false}
-                  truncate
-                  smallText
-                />
-              </div>
-            )
-          }
-          {submitButtonAtBottom && submitButton}
+          {!submitButtonAtBottom && submitWrapper}
+          {isFriendlyUI && tagList}
+          {submitButtonAtBottom && submitWrapper}
         </>
       }
     </form>
