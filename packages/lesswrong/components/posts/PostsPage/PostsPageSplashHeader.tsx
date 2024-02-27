@@ -543,8 +543,6 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     </div>
   );
 
-  console.log( {cropPreviewEnabled} )
-
   return <div className={classNames(classes.root, {[classes.fadeOut]: !visible, [classes.fadeIn]: visible})} ref={observerRef} >
     {
       /* 

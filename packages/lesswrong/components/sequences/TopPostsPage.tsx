@@ -687,8 +687,6 @@ const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => 
   const reviewWinnerArt = post?.reviewWinner?.reviewWinnerArt ?? undefined;
   const imgSrc = reviewWinnerArt ? getSplashArtUrl({ reviewWinnerArt, leftBookOffset }) : '';
 
-  console.log({ expandedNotYetMoved })
-
   const applyHideImageClass = !(isDefault || isUnderTitle || isExpanded || isShowingAll) || !coverLoaded || expandedNotYetMoved;
   const imageClass = classNames({
     [classes.imageGridPostBackgroundContainerHidden]: applyHideImageClass
