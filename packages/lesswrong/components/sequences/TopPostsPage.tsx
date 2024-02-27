@@ -306,7 +306,7 @@ const styles = (theme: ThemeType) => ({
     },
 
     '&&&:hover $imageGridPostBackgroundContainer': {
-      display: "flex",
+      display: "block",
       opacity: 1,
       transitionDelay: "0s",
       zIndex: 2
@@ -888,11 +888,11 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
         Show All
       </div>}
     </div>
-    <div className={classes.imageGridPostBackgroundContainer}>
+    <div className={classNames([classes.imageGridPostBackgroundContainer, {[classes.imageGridPostBackgroundContainerHidden]: (isShowAll && showAllVisible)}])}>
       <img
         ref={imgRef}
         loading={'lazy'}
-        className={classNames([classes.imageGridPostBackground, imageClass, { [classes.imageGridPostBackgroundCompleteHovered]: hover }])}
+        className={classNames([classes.imageGridPostBackground, imageClass, { [classes.imageGridPostBackgroundCompleteHovered]: hover && !(isShowAll && showAllVisible) }])}
         src={imgSrc}
       />
       <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundReflected, classes.imageGridPostBackground, imageClass])} src={imgSrc} />
