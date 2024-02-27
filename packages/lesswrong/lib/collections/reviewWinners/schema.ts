@@ -1,3 +1,4 @@
+import { getWithCustomLoader } from "../../loaders";
 import { foreignKeyField, resolverOnlyField, schemaDefaultValue } from "../../utils/schemaUtils";
 
 export const schema: SchemaType<"ReviewWinners"> = {
@@ -21,8 +22,12 @@ export const schema: SchemaType<"ReviewWinners"> = {
     graphQLtype: 'ReviewWinnerArt',
     canRead: ['guests'],
     resolver: async (reviewWinner: DbReviewWinner, args: void, context: ResolverContext) => {
-      const { repos } = context;
-      return repos.reviewWinnerArts.getActiveReviewWinnerArt(reviewWinner.postId);
+      return getWithCustomLoader(
+        context,
+        'activeReviewWinnerArt',
+        reviewWinner.postId,
+        (postIds) => context.repos.reviewWinnerArts.getAllActiveReviewWinnerArt(postIds)
+      );
     },
   }),
   competitorCount: resolverOnlyField({
