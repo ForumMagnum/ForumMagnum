@@ -333,8 +333,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
 
-  const showSplashPageHeader = !!post.reviewWinner;
-
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
@@ -385,6 +383,11 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   }
 
   const { query, params } = location;
+
+  // We don't want to show the splash header if the user is on a `/s/:sequenceId/p/:postId` route
+  // We explicitly don't use `getSequenceId` because that also gets the post's canonical sequence ID,
+  // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
+  const showSplashPageHeader = !!post.reviewWinner && !params.sequenceId;
 
   useEffect(() => {
     if (!query[SHARE_POPUP_QUERY_PARAM]) return;
