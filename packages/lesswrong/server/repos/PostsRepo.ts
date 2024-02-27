@@ -577,7 +577,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         rs."lastUpdated" >= NOW() - interval '6 months'
         AND rs."userId" = $1
         AND rs."isRead" IS TRUE
-        AND tr."tagId" IN (SELECT _id FROM core_tags)
+        AND (
+          tr."tagId" = 'u3Xg8MjDe2e6BvKtv' -- special case to include "AI governance"
+          OR tr."tagId" IN (SELECT _id FROM core_tags)
+        )
         AND tr."deleted" IS FALSE
       GROUP BY tr."tagId"
       `,

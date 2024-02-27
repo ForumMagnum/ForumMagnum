@@ -49,16 +49,19 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 type CommentsItemDateProps = UseCommentLinkProps & {
   comment: CommentsList,
+  preventDateFormatting?: boolean,
   classes: ClassesType
 };
 
-const CommentsItemDate = ({comment, classes, ...rest}: CommentsItemDateProps) => {
+const CommentsItemDate = ({comment, preventDateFormatting, classes, ...rest}: CommentsItemDateProps) => {
   const { FormatDate, ForumIcon } = Components
   
   const LinkWrapper = useCommentLink({comment, ...rest});
   
   let dateFormat: string | undefined;
-  if (comment.answer) {
+  if (preventDateFormatting) {
+    dateFormat = undefined;
+  } else if (comment.answer) {
     dateFormat = "MMM DD, YYYY";
   } else if (comment.debateResponse) {
     dateFormat = "h:mm a";

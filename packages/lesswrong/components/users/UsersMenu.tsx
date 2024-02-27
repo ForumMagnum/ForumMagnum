@@ -177,15 +177,15 @@ const UsersMenu = ({classes}: {
       )
     : null,
     /*
-      * This is currently disabled for unreviewed users on the EA forum
+      * This is currently disabled for unreviewed users
       * as there's issues with the new quick takes entry for such users.
       * Long-term, we should fix these issues and reenable this option.
       */
     newShortform: () =>
-      showNewButtons && (!isFriendlyUI || userCanComment(currentUser))
+      showNewButtons && userCanComment(currentUser)
         ? (
           <DropdownItem
-            title={isFriendlyUI ? "New quick take" : "New Shortform"}
+            title={preferredHeadingCase("New Quick Take")}
             onClick={() => openDialog({componentName:"NewShortformDialog"})}
           />
         )
@@ -311,7 +311,8 @@ const UsersMenu = ({classes}: {
               />
               {currentUser.shortformFeedId &&
                 <DropdownItem
-                  title={isFriendlyUI ? "Your quick takes" : "Shortform Page"}
+                  // TODO: get Habryka's take on what the title here should be
+                  title={preferredHeadingCase("Your Quick Takes")}
                   to={postGetPageUrl({
                     _id: currentUser.shortformFeedId,
                     slug: "shortform",

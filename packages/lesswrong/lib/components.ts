@@ -136,8 +136,12 @@ importComponent("DropdownMenu", () => require('../components/dropdowns/DropdownM
 importComponent("DropdownItem", () => require('../components/dropdowns/DropdownItem'));
 importComponent("DropdownDivider", () => require('../components/dropdowns/DropdownDivider'));
 importComponent("NotifyMeDropdownItem", () => require('../components/dropdowns/NotifyMeDropdownItem'));
+importComponent("CombinedSubscriptionsDropdownItem", () => require('../components/dropdowns/CombinedSubscriptionsDropdownItem'));
+importComponent("NotifyMeToggleDropdownItem", () => require('../components/dropdowns/NotifyMeToggleDropdownItem'));
 importComponent("SharePostSubmenu", () => require('../components/dropdowns/posts/SharePostSubmenu'));
 importComponent("SharePostActions", () => require('../components/dropdowns/posts/SharePostActions'));
+importComponent("PostSubscriptionsDropdownItem", () => require('../components/dropdowns/posts/PostSubscriptionsDropdownItem'));
+importComponent("CommentSubscriptionsDropdownItem", () => require('../components/dropdowns/comments/CommentSubscriptionsDropdownItem'));
 
 // Post dropdown items
 importComponent("PostActions", () => require('../components/dropdowns/posts/PostActions'));
@@ -189,6 +193,7 @@ importComponent("QuickTakesEntry", () => require('../components/quickTakes/Quick
 importComponent("QuickTakesList", () => require('../components/quickTakes/QuickTakesList'));
 importComponent("QuickTakesListItem", () => require('../components/quickTakes/QuickTakesListItem'));
 importComponent("QuickTakesCollapsedListItem", () => require('../components/quickTakes/QuickTakesCollapsedListItem'));
+importComponent("LWQuickTakesCollapsedListItem", () => require('../components/quickTakes/LWQuickTakesCollapsedListItem'));
 
 // RSS Feed Integration
 importComponent("ResyncRssDropdownItem", () => require('../components/dropdowns/posts/ResyncRssDropdownItem'));
@@ -209,6 +214,7 @@ importComponent("TagRelNotificationItem", () => require('../components/notificat
 importComponent("NotificationsItem", () => require('../components/notifications/NotificationsItem'));
 importComponent("NotificationsMenuButton", () => require('../components/notifications/NotificationsMenuButton'));
 importComponent("NotifyMeButton", () => require('../components/notifications/NotifyMeButton'));
+importComponent("UserNotifyDropdown", () => require('../components/notifications/UserNotifyDropdown'));
 importComponent("NotificationTypeSettings", () => require('../components/notifications/NotificationTypeSettings'));
 importComponent("NotificationEmailPreviewPage", () => require('../components/notifications/NotificationEmailPreviewPage'));
 importComponent("EmailPreview", () => require('../components/notifications/EmailPreview'));
@@ -266,6 +272,7 @@ importComponent("SingleLineFeedEvent", () => require('../components/common/Singl
 importComponent("ForumDropdown", () => require('../components/common/ForumDropdown'));
 importComponent("ForumDropdownMultiselect", () => require('../components/common/ForumDropdownMultiselect'));
 importComponent("WrappedStrawPoll", () => require('../components/common/WrappedStrawPoll'));
+importComponent("ToggleSwitch", () => require('../components/common/ToggleSwitch'));
 importComponent("FrontpageBestOfLWWidget", () => require('../components/review/FrontpageBestOfLWWidget'));
 
 importComponent("CompareRevisions", () => require('../components/revisions/CompareRevisions'));
@@ -653,7 +660,8 @@ importComponent("SingleLineComment", () => require('../components/comments/Singl
 importComponent("ShowParentComment", () => require('../components/comments/ShowParentComment'));
 importComponent("NewUserGuidelinesDialog", () => require('../components/comments/NewUserGuidelinesDialog'));
 importComponent("PopularCommentsList", () => require('../components/comments/PopularCommentsList'));
-importComponent("PopularComment", () => require('../components/comments/PopularComment'));
+importComponent("FriendlyPopularComment", () => require('../components/comments/FriendlyPopularComment'));
+importComponent("LWPopularComment", () => require('../components/comments/LWPopularComment'));
 
 importComponent("PostsListEditorSearchHit", () => require('../components/search/PostsListEditorSearchHit'));
 importComponent("PostsSearchHit", () => require('../components/search/PostsSearchHit'));
