@@ -272,7 +272,7 @@ const styles = (theme: ThemeType) => ({
     width: 120,
     position: 'absolute',
     top: 0,
-    background: theme.palette.greyAlpha(1),
+    background: theme.palette.greyAlpha(.5),
     color: theme.palette.text.invertedBackgroundText,
     display: 'flex',
     alignItems: 'center',
@@ -351,7 +351,8 @@ const styles = (theme: ThemeType) => ({
       background: theme.palette.leastwrong.highlightedPost,
       backdropFilter: "none",
     },
-    '&:hover $imageGridPostAuthor': {
+    // The `:not(:has()) is to avoid forcing the author name to display when the cell is in the "Show All" state
+    '&:hover:not(:has($imageGridPostHidden)) $imageGridPostAuthor': {
       opacity: 1
     },
   },
@@ -837,7 +838,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
   </div>;
 }
 
-const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, imageClass, classes, offscreen = false, hidden = false, isShowAll = false, showAllVisible = false }: {
+const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, imageClass, classes, isShowAll = false, showAllVisible = false }: {
   post: PostsTopItemInfo,
   imgSrc: string,
   imageGridId: string,
@@ -846,13 +847,15 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
   classes: ClassesType<typeof styles>,
   isShowAll?: boolean,
   showAllVisible?: boolean,
-  offscreen?: boolean,
-  hidden?: boolean,
 }) => {
   const titleClassName = classNames(classes.imageGridPostTitle, {
-    [classes.imageGridPostOffscreen]: offscreen && !hidden,
-    [classes.imageGridPostHidden]: hidden
+    [classes.imageGridPostHidden]: isShowAll && showAllVisible
   });
+
+  const authorClassName = classNames(classes.imageGridPostAuthor, {
+    [classes.imageGridPostHidden]: isShowAll && showAllVisible
+  });
+
   const showAllElementClassName = classNames(classes.showAllButton, {
     [classes.showAllButtonVisible]: showAllVisible,
     [classes.showAllButtonHidden]: !showAllVisible
@@ -870,7 +873,7 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
 
   return <Link className={classes.imageGridPost} key={post._id} to={isShowAll && showAllVisible ? '#' : postGetPageUrl(post)}>
     <div className={classes.imageGridPostBody} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
-      <div className={classes.imageGridPostAuthor}>
+      <div className={authorClassName}>
         {post?.user?.displayName}
       </div>
       <div className={titleClassName}>
