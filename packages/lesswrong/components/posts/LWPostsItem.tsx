@@ -51,6 +51,7 @@ export const styles = (theme: ThemeType) => ({
     display: "flex",
     position: "relative",
     padding: 10,
+    paddingLeft: 6,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {
@@ -85,7 +86,7 @@ export const styles = (theme: ThemeType) => ({
   },
   karma: {
     width: KARMA_WIDTH,
-    justifyContent: "center",
+    marginRight: 4,
     [theme.breakpoints.down('xs')]:{
       width: "unset",
       justifyContent: "flex-start",
