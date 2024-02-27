@@ -253,19 +253,15 @@ const styles = (theme: ThemeType) => ({
     transition: "opacity 0.2s ease-in",
     objectPosition: "right",
     background: theme.palette.leastwrong.imageGridBackground,
+    display: 'flex',
+    flexDirection: 'column',
   },
   imageGridBackground: {
     position: "relative",
     width: '100%',
   },
-  imageGridBackgroundOriginal: {
-    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
-  },
   imageGridBackgroundReflected: {
     transform: 'scaleY(-1)',
-  },
-  imageGridBackgroundBlurred: {
-    filter: 'blur(50px)',
   },
   showAllButton: {
     ...theme.typography.commentStyle,
@@ -310,16 +306,10 @@ const styles = (theme: ThemeType) => ({
     },
 
     '&&&:hover $imageGridPostBackgroundContainer': {
-      display: "block",
+      display: "flex",
       opacity: 1,
       transitionDelay: "0s",
       zIndex: 2
-    },
-    '&&&:hover $imageGridPostBackgroundOriginal': {
-      display: "block",
-      opacity: 1,
-      transitionDelay: "0s",
-      zIndex: 2,
     },
     '&&&:hover $imageGridPostBackgroundReflected': {
       zIndex: 1,
@@ -344,7 +334,6 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 0,
     borderRight: `1px solid ${theme.palette.text.alwaysWhite}`,
     borderBottom: `1px solid ${theme.palette.text.alwaysWhite}`,
-    background: `linear-gradient(0deg, ${theme.palette.leastwrong.fadeOut},  transparent 60%)`,
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -376,6 +365,8 @@ const styles = (theme: ThemeType) => ({
     transition: "opacity 0.2s ease-in",
     objectPosition: "right",
     background: theme.palette.leastwrong.imageGridBackground,
+    display: 'flex',
+    flexDirection: 'column',
   },
   imageGridPostBackgroundContainerHidden: {
     '&&&&&&': {
@@ -385,16 +376,9 @@ const styles = (theme: ThemeType) => ({
   imageGridPostBackground: {
     position: "relative",
     width: '100%',
-    backdropFilter: "blur(50px)",
-  },
-  imageGridPostBackgroundOriginal: {
-    maskImage: `linear-gradient(${theme.palette.text.alwaysBlack} 95%, ${theme.palette.greyAlpha(0)} 100%)`,
   },
   imageGridPostBackgroundReflected: {
     transform: 'scaleY(-1)',
-  },
-  imageGridPostBackgroundBlurred: {
-    filter: 'blur(50px)',
   },
   // This class exists purely so that we can track it from `imageGrid` to apply `opacity: 0` to `imageGridBackground`
   // Unfortunately there doesn't seem to be a way to track when someone is hovering over a "complete" (loaded) image purely in CSS
@@ -844,10 +828,10 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
     <div className={classes.imageGridContainer} style={{ height: gridContainerHeight }}>
       <div className={gridClassName} style={gridTemplateDimensions}>
         <div className={classes.imageGridBackgroundContainer}>
-          <img src={croppedUrl} ref={coverImgRef} onLoad={() => setCoverImgLoaded(true)} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundOriginal])} />
-          <img src={croppedUrl} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundReflected, classes.imageGridBackgroundBlurred])} />
-          <img src={croppedUrl} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundBlurred])} />
-          <img src={croppedUrl} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundReflected, classes.imageGridBackgroundBlurred])} />
+          <img src={croppedUrl} ref={coverImgRef} onLoad={() => setCoverImgLoaded(true)} className={classes.imageGridBackground} />
+          <img src={croppedUrl} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundReflected])} />
+          <img src={croppedUrl} className={classes.imageGridBackground} />
+          <img src={croppedUrl} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundReflected])} />
         </div>
         {postGridContents}
       </div>
@@ -908,12 +892,12 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
       <img
         ref={imgRef}
         loading={'lazy'}
-        className={classNames([classes.imageGridPostBackground, classes.imageGridPostBackgroundOriginal, imageClass, { [classes.imageGridPostBackgroundCompleteHovered]: hover }])}
+        className={classNames([classes.imageGridPostBackground, imageClass, { [classes.imageGridPostBackgroundCompleteHovered]: hover }])}
         src={imgSrc}
       />
-      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundReflected, classes.imageGridPostBackgroundBlurred, classes.imageGridPostBackground, imageClass])} src={imgSrc} />
-      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundBlurred, classes.imageGridPostBackground, imageClass])} src={imgSrc} />
-      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundReflected, classes.imageGridPostBackgroundBlurred, classes.imageGridPostBackground, imageClass])} src={imgSrc} />
+      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundReflected, classes.imageGridPostBackground, imageClass])} src={imgSrc} />
+      <img loading={'lazy'} className={classNames([ classes.imageGridPostBackground, imageClass])} src={imgSrc} />
+      <img loading={'lazy'} className={classNames([classes.imageGridPostBackgroundReflected, classes.imageGridPostBackground, imageClass])} src={imgSrc} />
     </div>
   </Link>;
 }
