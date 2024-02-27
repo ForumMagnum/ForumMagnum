@@ -451,12 +451,12 @@ function useWindowWidth(defaultValue = 2000): number {
   return windowWidth;
 }
 
-function getHiddenState(gridId: string, fullyOpenGridId?: string): HiddenState | undefined {
-  if (!fullyOpenGridId) {
+function getHiddenState(gridId: string, fullyOpenGridIds: string[]): HiddenState | undefined {
+  if (fullyOpenGridIds.length === 0) {
     return undefined;
   }
 
-  return gridId === fullyOpenGridId ? 'full' : 'hidden';
+  return fullyOpenGridIds.includes(gridId) ? 'full' : 'hidden';
 }
 
 function getCurrentPostGridHeight(isShowingAll: boolean, isExpanded: boolean, postGridRows: number, viewportHeight: number, bookGridColumns: number) {
@@ -511,30 +511,45 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const location = useLocation();
   const { query } = location;
 
+  const screenWidth = useWindowWidth(2000);
+  /** 
+   * The number of grids we'll show horizontally before wrapping over to the next "row" of grids on the screen.
+   * 
+   * width < 800px:             1,
+   * 800px >= width < 1200px:   2,
+   * 1200px >= width:           3
+   */
+  const horizontalBookGridCount = Math.min(Math.max(Math.floor(screenWidth / 400), 1), 3);
+
   const [expansionState, setExpansionState] = useState<Record<string, ExpansionState>>({});
-  const [fullyOpenGridId, setFullyOpenGridId] = useState<string>();
+  const [fullyOpenGridIds, setFullyOpenGridIds] = useState<string[]>([]);
 
   const handleToggleExpand = (id: string) => {
     const newState = getNewExpansionState(expansionState, id);
 
-    // If any grid is in the "show all" state, collapse that before changing the expansion state of any grid
-    if (fullyOpenGridId !== undefined) {
-      setFullyOpenGridId(undefined);
+    if (fullyOpenGridIds.length !== 0) {
+      const collapsedGridIds = Object.keys(newState).filter(gridId => newState[gridId] === 'collapsed');
+      // We only remove the "fully open" state from those grids which end up collapsed when we toggle the "expanded" state of another grid
+      // This prevents the issue where you can fully open grids on two rows, expand a different grid on the top row,
+      // and then have a bunch of empty space in between the two rows because the grid in the top row which was "fully open" still is,
+      // and is taking up (unseen) vertical space via its height.
+      // We also remove it from the grid that's been un-expanded, if it was fully-open at the time.
+      setFullyOpenGridIds([...fullyOpenGridIds].filter(openGridId => !collapsedGridIds.includes(openGridId) && id !== openGridId));
+
     }
 
     setExpansionState(newState);
   }
 
   const toggleFullyOpenGridId = (id: string) => {
-    if (id === fullyOpenGridId) {
-      setFullyOpenGridId(undefined);
+    if (fullyOpenGridIds.includes(id)) {
+      setFullyOpenGridIds([...fullyOpenGridIds].filter(openGridId => openGridId !== id));
     } else {
-      setFullyOpenGridId(id);
+      setFullyOpenGridIds([...fullyOpenGridIds, id]);
     }
   };
 
   const { currentSortOrder } = getCurrentTopPostDisplaySettings(query);
-
 
   const { data } = useQuery(gql`
     query GetAllReviewWinners {
@@ -557,11 +572,12 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       img,
       coords,
       header,
+      horizontalBookGridCount,
       gridPosition,
       expansionState: expansionState[id],
       handleToggleExpand,
       handleToggleFullyOpen: toggleFullyOpenGridId,
-      hiddenState: getHiddenState(id, fullyOpenGridId)
+      hiddenState: getHiddenState(id, fullyOpenGridIds)
     };
     return <PostsImageGrid {...props} />;
   }
@@ -728,13 +744,14 @@ function getSplashArtUrl({ reviewWinnerArt, leftBookOffset }: GetSplashArtUrlArg
     .replace('f_auto,q_auto', 'f_auto,q_auto:eco');
 }
 
-const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition, expansionState, handleToggleExpand, handleToggleFullyOpen, hiddenState }: {
+const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBookGridCount, gridPosition, expansionState, handleToggleExpand, handleToggleFullyOpen, hiddenState }: {
   posts: PostsTopItemInfo[],
   classes: ClassesType<typeof styles>,
   img: string,
   coords: AnyBecauseTodo,
   header: string,
   id: string,
+  horizontalBookGridCount: number,
   gridPosition: number,
   expansionState: ExpansionState,
   handleToggleExpand: (id: string) => void,
@@ -743,16 +760,6 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, gridPosition,
 }) => {
   const coverImgRef = useRef<HTMLImageElement>(null);
   const [coverImgLoaded, setCoverImgLoaded] = useState(false);
-
-  const screenWidth = useWindowWidth(2000);
-  /** 
-   * The number of grids we'll show horizontally before wrapping over to the next "row" of grids on the screen.
-   * 
-   * width < 800px:             1,
-   * 800px >= width < 1200px:   2,
-   * 1200px >= width:           3
-   */
-  const horizontalBookGridCount = Math.min(Math.max(Math.floor(screenWidth / 400), 1), 3);
 
   /** The "index" of this book grid in its "row" */
   const leftBookOffset = getLeftOffset(gridPosition, horizontalBookGridCount);
