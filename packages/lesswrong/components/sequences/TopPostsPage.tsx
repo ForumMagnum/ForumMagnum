@@ -11,7 +11,7 @@ import { LWReviewWinnerSortOrder, getCurrentTopPostDisplaySettings } from './Top
 import { gql, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
-import { ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo } from '../../lib/publicSettings';
+import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo } from '../../lib/publicSettings';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -58,7 +58,7 @@ interface GetSplashArtUrlArgs {
 
 const MAX_GRID_SIZE = 6;
 
-const DEFAULT_SPLASH_ART_COORDINATES: Omit<SplashArtCoordinates, '_id' | 'reviewWinnerArtId'> = {
+const DEFAULT_SPLASH_ART_COORDINATES: CoordinateInfo = {
   leftHeightPct: .2, leftWidthPct: .2, leftXPct: .2, leftYPct: .2, leftFlipped: false,
   middleHeightPct: .2, middleWidthPct: .2, middleXPct: .2, middleYPct: .2, middleFlipped: false,
   rightHeightPct: .2, rightWidthPct: .2, rightXPct: .2, rightYPct: .2, rightFlipped: false,
@@ -563,7 +563,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const reviewWinnersWithPosts: GetAllReviewWinnersQueryResult = [...data?.GetAllReviewWinners ?? []];
   const sortedReviewWinners = sortReviewWinners(reviewWinnersWithPosts, currentSortOrder);
 
-  function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: AnyBecauseTodo, header: string, id: string, gridPosition: number) {
+  function getPostsImageGrid(posts: PostsTopItemInfo[], img: string, coords: CoordinateInfo, header: string, id: string, gridPosition: number) {
     const props = {
       key: id,
       id,
@@ -748,7 +748,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
   posts: PostsTopItemInfo[],
   classes: ClassesType<typeof styles>,
   img: string,
-  coords: AnyBecauseTodo,
+  coords: CoordinateInfo,
   header: string,
   id: string,
   horizontalBookGridCount: number,
