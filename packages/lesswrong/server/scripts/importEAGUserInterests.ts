@@ -95,7 +95,8 @@ Vulcan.importEAGUserDetails = wrapVulcanAsyncScript(
       })
     }
     
-    // upsert EAG data for all the users in the CSV
+    // Upsert EAG data for all the users in the CSV
+    // WARNING: Upserts will be deprecated at some point
     void UserEAGDetails.rawCollection().bulkWrite(records.map((record) => ({
       updateOne: {
         filter: {userId: record.userId},
