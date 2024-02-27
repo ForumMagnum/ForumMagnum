@@ -315,7 +315,7 @@ const styles = (theme: ThemeType) => ({
     },
 
     '&&&:hover $imageGridPostBackgroundContainer': {
-      display: "block",
+      display: "flex",
       opacity: 1,
       transitionDelay: "0s",
       zIndex: 2
