@@ -63,7 +63,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "Gg9a4y8reWKtLe3Tn",
     "title": "The Rocket Alignment Problem",
     "category": "ai safety",
-    "curatedOrder": 2
+    "curatedOrder": 4
   },
   {
     "id": "RQpNHSiWaXTvDxt6R",
@@ -237,13 +237,13 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "AanbbjYr5zckMKde7",
     "title": "Specification gaming examples in AI",
     "category": "ai safety",
-    "curatedOrder": 3
+    "curatedOrder": 1
   },
   {
     "id": "fRsjBseRuvRhMPPE5",
     "title": "An overview of 11 proposals for building safe advanced AI",
     "category": "ai safety",
-    "curatedOrder": 1
+    "curatedOrder": 3
   },
   {
     "id": "znfkdCoHMANwqc2WE",
@@ -255,7 +255,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "AHhCrJ2KpTjsCSwbt",
     "title": "Inner Alignment: Explain like I'm 12 Edition",
     "category": "ai safety",
-    "curatedOrder": 5
+    "curatedOrder": 2
   },
   {
     "id": "hvGoYXi2kgnS3vxqb",
@@ -291,7 +291,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "uMQ3cqWDPHhjtiesc",
     "title": "AGI Ruin: A List of Lethalities",
     "category": "ai safety",
-    "curatedOrder": 4
+    "curatedOrder": 5
   },
   {
     "id": "CoZhXrhpQxpy9xw9y",
@@ -387,13 +387,13 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "rzqACeBGycZtqCfaX",
     "title": "Fun with +12 OOMs of Compute",
     "category": "ai strategy",
-    "curatedOrder": 3
+    "curatedOrder": 4
   },
   {
     "id": "6Xgy6CAf2jqHhynHL",
     "title": "What 2026 looks like",
     "category": "ai strategy",
-    "curatedOrder": 1
+    "curatedOrder": 2
   },
   {
     "id": "pv7Qpu8WSge8NRbpB",
@@ -411,7 +411,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "a5e9arCnbDac9Doig",
     "title": "It Looks Like You're Trying To Take Over The World",
     "category": "ai strategy",
-    "curatedOrder": 2
+    "curatedOrder": 3
   },
   {
     "id": "pRkFkzwKZ2zfa3R6H",
@@ -483,7 +483,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "HBxe6wdjxK239zajf",
     "title": "What failure looks like",
     "category": "ai strategy",
-    "curatedOrder": 4
+    "curatedOrder": 1
   },
   {
     "id": "x3fNwSe5aWZb5yXEG",
@@ -531,7 +531,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "NQgWL7tvAPgN2LTLn",
     "title": "Spaghetti Towers",
     "category": "modeling",
-    "curatedOrder": 2
+    "curatedOrder": 5
   },
   {
     "id": "PrCmeuBPC4XLDQz8C",
@@ -555,7 +555,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "X5RyaEDHNq5qutSHK",
     "title": "Anti-social Punishment",
     "category": "modeling",
-    "curatedOrder": 9
+    "curatedOrder": 3
   },
   {
     "id": "BhXA6pvAbsFz3gvn4",
@@ -573,7 +573,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "v7c47vjta3mavY3QC",
     "title": "Is Science Slowing Down?",
     "category": "modeling",
-    "curatedOrder": 6
+    "curatedOrder": 2
   },
   {
     "id": "Zm7WAJMTaFvuh2Wc7",
@@ -591,7 +591,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "YABJKJ3v97k9sbxwg",
     "title": "What Money Cannot Buy",
     "category": "modeling",
-    "curatedOrder": 5
+    "curatedOrder": 7
   },
   {
     "id": "diruo47z32eprenTg",
@@ -633,7 +633,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "4XRjPocTprL4L8tmB",
     "title": "Science in a High-Dimensional World",
     "category": "modeling",
-    "curatedOrder": 8
+    "curatedOrder": 9
   },
   {
     "id": "fRwdkop6tyhi3d22L",
@@ -699,7 +699,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "JBFHzfPkXHB2XfDGj",
     "title": "Evolution of Modularity",
     "category": "modeling",
-    "curatedOrder": 7
+    "curatedOrder": 8
   },
   {
     "id": "8SEvTvYFX2KDRZjti",
@@ -717,7 +717,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "tj8QP2EFdP8p54z6i",
     "title": "Historical mathematicians exhibit a birth order effect too",
     "category": "modeling",
-    "curatedOrder": 4
+    "curatedOrder": 6
   },
   {
     "id": "QTLTic5nZ2DaBtoCv",
@@ -813,13 +813,13 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "sT6NxFxso6Z9xjS7o",
     "title": "Nuclear war is unlikely to cause human extinction",
     "category": "optimization",
-    "curatedOrder": 5
+    "curatedOrder": 6
   },
   {
     "id": "5FZxhdi6hZp8QwK7k",
     "title": "This Can't Go On",
     "category": "optimization",
-    "curatedOrder": 7
+    "curatedOrder": 8
   },
   {
     "id": "DQKgYhEYP86PLW7tZ",
@@ -885,7 +885,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "asmZvCPHcB4SkSCMW",
     "title": "The Tails Coming Apart As Metaphor For Life",
     "category": "optimization",
-    "curatedOrder": 1
+    "curatedOrder": 4
   },
   {
     "id": "Qz6w4GYZpgeDp6ATB",
@@ -897,13 +897,13 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "a4jRN9nbD79PAhWTB",
     "title": "Prediction Markets: When Do They Work?",
     "category": "optimization",
-    "curatedOrder": 9
+    "curatedOrder": 1
   },
   {
     "id": "YRgMCXMbkKBZgMz4M",
     "title": "Asymmetric Justice",
     "category": "optimization",
-    "curatedOrder": 4
+    "curatedOrder": 5
   },
   {
     "id": "ham9i5wf4JCexXnkN",
@@ -921,7 +921,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "wEebEiPpEwjYvnyqq",
     "title": "When Money Is Abundant, Knowledge Is The Real Wealth",
     "category": "optimization",
-    "curatedOrder": 6
+    "curatedOrder": 7
   },
   {
     "id": "XtRAkvvaQSaQEyASj",
@@ -951,7 +951,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "GZSzMqr8hAB2dR8pk",
     "title": "Studies On Slack",
     "category": "optimization",
-    "curatedOrder": 8
+    "curatedOrder": 9
   },
   {
     "id": "D6trAzh6DApKPhbv4",
@@ -1011,7 +1011,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "ximou2kyQorm6MPjX",
     "title": "Rest Days vs Recovery Days",
     "category": "practical",
-    "curatedOrder": 6
+    "curatedOrder": 3
   },
   {
     "id": "KwdcMts8P8hacqwrX",
@@ -1035,13 +1035,13 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "4K5pJnKBGkqqTbyxx",
     "title": "To listen well, get curious",
     "category": "practical",
-    "curatedOrder": 5
+    "curatedOrder": 6
   },
   {
     "id": "MzKKi7niyEqkBPnyu",
     "title": "Your Cheerful Price",
     "category": "practical",
-    "curatedOrder": 4
+    "curatedOrder": 5
   },
   {
     "id": "2cYebKxNp47PapHTL",
@@ -1059,7 +1059,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "vzfz4AS6wbooaTeQk",
     "title": "Staring into the abyss as a core life skill",
     "category": "practical",
-    "curatedOrder": 3
+    "curatedOrder": 2
   },
   {
     "id": "fFY2HeC9i2Tx8FEnK",
@@ -1077,7 +1077,7 @@ const reviewWinnerCategories: ReviewWinnerCategoryAndOrder[] = [
     "id": "R6M4vmShiowDn56of",
     "title": "Butterfly Ideas",
     "category": "practical",
-    "curatedOrder": 2
+    "curatedOrder": 4
   },
   {
     "id": "2MiDpjWraeL5bypRE",
