@@ -152,7 +152,8 @@ export const filters: Record<string,any> = {
  * sorting, do not try to supply your own.
  */
 export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
-  magic: { score: -1 },
+  // filteredScore is added as a synthetic field by filterSettingsToParams
+  magic: { filteredScore: -1 },
   top: { baseScore: -1 },
   topAdjusted: { karmaInflationAdjustedScore: -1 },
   new: { postedAt: -1 },
@@ -357,7 +358,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
   const useSlowerFrontpage = !!context?.currentUser && isEAForum
 
   const syntheticFields = {
-    score: {$divide:[
+    filteredScore: {$divide:[
       {$multiply: [
         {$add:[
           "$baseScore",
