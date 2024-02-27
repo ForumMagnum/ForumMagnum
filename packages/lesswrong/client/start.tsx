@@ -9,7 +9,8 @@ import { fmCrosspostBaseUrlSetting } from "../lib/instanceSettings";
 import { populateComponentsAppDebug } from '../lib/vulcan-lib';
 import { initServerSentEvents } from "./serverSentEventsClient";
 
-onStartup(() => {
+function browserMain() {
+  console.log("Running browserMain");
   populateComponentsAppDebug();
   initServerSentEvents();
   const apolloClient = createApolloClient();
@@ -37,6 +38,16 @@ onStartup(() => {
     />
   );
 
+  let usedScaffoldPage = false;
+  if (document.getElementById("preload-scaffold-page")) {
+    usedScaffoldPage = true;
+    const scaffoldReactRoot = document.getElementById('react-app');
+    scaffoldReactRoot?.setAttribute("id", "scaffold-react-app");
+    const newReactRoot = document.createElement("div");
+    newReactRoot.setAttribute("id", "react-app");
+    document.body.appendChild(newReactRoot);
+  }
+
   ReactDOM.hydrate(
     <Main />,
     document.getElementById('react-app'),
@@ -46,5 +57,42 @@ onStartup(() => {
       timeOverride.currentTime = null;
     }
   );
+  
+  if (usedScaffoldPage) {
+    document.getElementById('scaffold-react-app')?.remove();
+  }
+  
+  void registerServiceWorker();
+}
+
+async function registerServiceWorker() {
+  console.log("Registering service worker");
+  if ('serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.register(
+        getServiceWorkerUrl(),
+        {
+          scope: './',
+        }
+      );
+      if (registration.installing) {
+        console.log('Service worker installing');
+      } else if (registration.waiting) {
+        console.log('Service worker installed');
+      } else if (registration.active) {
+        console.log('Service worker active');
+      }
+    } catch (error) {
+      console.error(`Registration failed with ${error}`);
+    }
+  }
+}
+
+function getServiceWorkerUrl(): string {
+  return "/js/serviceWorker.js"; // TODO: plumbing for a hash
+}
+
 // Order 100 to make this execute last
+onStartup(() => {
+  browserMain();
 }, 100);

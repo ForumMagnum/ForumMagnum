@@ -60,8 +60,8 @@ if (isProduction) {
   process.env.NODE_ENV="development";
 }
 
-const clientBundleBanner = `/*
- * LessWrong 2.0 (client JS bundle)
+const clientBundleBanner = (description) => `/*
+ * LessWrong 2.0 (${description})
  * Copyright (c) 2022 the LessWrong development team. See https://github.com/ForumMagnum/ForumMagnum
  * for source and license details.
  *
@@ -87,6 +87,11 @@ const clientBundleDefinitions = {
   "global": "window",
 }
 
+const serviceWorkerDefinitions = {
+  "bundleIsServer": false,
+  "global": "globalThis",
+}
+
 const serverBundleDefinitions = {
   "bundleIsServer": true,
   "estrellaPid": process.pid,
@@ -103,7 +108,7 @@ build({
   outfile: clientOutfilePath,
   minify: isProduction,
   banner: {
-    js: clientBundleBanner,
+    js: clientBundleBanner("client JS bundle"),
   },
   treeShaking: "ignore-annotations",
   run: false,
@@ -195,6 +200,66 @@ build({
     "gpt-3-encoder", "@elastic/elasticsearch", "zod", "node-abort-controller",
   ],
 })
+
+const serviceWorkerFilePath = `${getOutputDir()}/client/js/serviceWorker.js`;
+build({
+  entryPoints: ['./packages/lesswrong/serviceworker/serviceWorker.ts'],
+  bundle: true,
+  target: "es6",
+  sourcemap: true,
+  metafile: true,
+  sourcesContent: true,
+  outfile: serviceWorkerFilePath,
+  minify: isProduction,
+  banner: {
+    js: clientBundleBanner("service worker bundle"),
+  },
+  treeShaking: "ignore-annotations",
+  run: false,
+  onStart: (config, changedFiles, ctx) => {
+    // TODO
+    /*setClientRebuildInProgress(true);
+    inProgressBuildId = generateBuildId();
+    config.define.buildId = `"${inProgressBuildId}"`;
+    if (opts.lint) {
+      startLint();
+    }*/
+  },
+  onEnd: (config, buildResult, ctx) => {
+    /*setClientRebuildInProgress(false);
+    if (buildResult?.errors?.length > 0) {
+      console.log("Skipping browser refresh notification because there were build errors");
+    } else {
+      // Creating brotli compressed version of bundle.js to save on client download size:
+      const brotliOutfilePath = `${serviceWorkerFilePath}.br`;
+      // Always delete compressed version if it exists, to avoid stale files
+      if (fs.existsSync(brotliOutfilePath)) {
+        fs.unlinkSync(brotliOutfilePath);
+      }
+      if (isProduction) {
+        fs.writeFileSync(brotliOutfilePath, zlib.brotliCompressSync(fs.readFileSync(serviceWorkerFilePath, 'utf8')));
+      }
+
+      latestCompletedBuildId = inProgressBuildId;
+      if (cliopts.watch) {
+        initiateRefresh({serverPort});
+      }
+
+      if (buildResult.metafile) {
+        fs.writeFile(
+          "client_meta.json",
+          JSON.stringify(buildResult.metafile, null, 2),
+          () => {},
+        );
+      }
+    }
+    inProgressBuildId = null;*/
+  },
+  define: {
+    ...bundleDefinitions,
+    ...serviceWorkerDefinitions,
+  },
+});
 
 if (cliopts.watch && cliopts.run && !isProduction) {
   startAutoRefreshServer({serverPort, websocketPort});

@@ -1556,6 +1556,12 @@ addRoute(
     title: "All Posts",
   },
   {
+    name: 'preloadScaffold',
+    path: '/preload-scaffold',
+    componentName: 'PreloadScaffoldPage',
+    enableResourcePrefetch: true,
+  },
+  {
     name: 'questions',
     path: '/questions',
     componentName: 'QuestionsPage',

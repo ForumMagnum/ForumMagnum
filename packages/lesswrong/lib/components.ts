@@ -219,6 +219,7 @@ importComponent("EmailPreview", () => require('../components/notifications/Email
 importComponent("CommentOnYourDraftNotificationHover", () => require('../components/notifications/CommentOnYourDraftNotificationHover'));
 
 importComponent("Layout", () => require('../components/Layout.tsx'));
+importComponent("PreloadScaffoldPage", () => require('../components/common/PreloadScaffoldPage.tsx'));
 
 importComponent("AnalyticsClient", () => require('../components/common/AnalyticsClient'));
 importComponent("ForumIcon", () => require('../components/common/ForumIcon'));
