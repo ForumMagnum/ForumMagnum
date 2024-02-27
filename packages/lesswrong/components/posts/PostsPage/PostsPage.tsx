@@ -28,7 +28,7 @@ import { tagGetUrl } from '../../../lib/collections/tags/helpers';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import { useOnNotificationsChanged } from '../../hooks/useUnreadNotifications';
+import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
@@ -428,11 +428,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     limit: 1000
   });
   
-  useOnNotificationsChanged(currentUser, (message) => {
-    if (message.eventType === 'notificationCheck') {
-      if (currentUser && isDialogueParticipant(currentUser._id, post)) {
-        refetchDebateResponses();
-      }
+  useOnServerSentEvent('notificationCheck', currentUser, (message) => {
+    if (currentUser && isDialogueParticipant(currentUser._id, post)) {
+      refetchDebateResponses();
     }
   });
 

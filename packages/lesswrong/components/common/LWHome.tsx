@@ -5,7 +5,7 @@ import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUti
 import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
 
 const LWHome = () => {
-  const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget } = Components
+  const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, QuickTakesSection } = Components
   
   return (
       <AnalyticsContext pageContext="homePage">
@@ -27,6 +27,10 @@ const LWHome = () => {
           >
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
+
+          <QuickTakesSection />
+
+          <EAPopularCommentsSection />
 
           <RecentDiscussionFeed
             af={false}

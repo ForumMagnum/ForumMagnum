@@ -3,6 +3,7 @@ import { useCurrentFrontpageSpotlight } from "../hooks/useCurrentFrontpageSpotli
 import { registerComponent } from "../../lib/vulcan-lib";
 import { getSpotlightUrl } from "../../lib/collections/spotlights/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
+import { isLWorAF } from "../../lib/instanceSettings";
 
 const styles = (_theme: ThemeType) => ({
   root: {
@@ -32,6 +33,7 @@ type CurrentEvent = {
 const useCurrentEvent = (): CurrentEvent | null => {
   const spotlight = useCurrentFrontpageSpotlight({
     fragmentName: "SpotlightHeaderEventSubtitle",
+    skip: isLWorAF
   });
   
   if (!spotlight?.headerTitle) {

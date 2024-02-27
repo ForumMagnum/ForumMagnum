@@ -870,6 +870,7 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
 
 
   const [hover, setHover] = useState(false)
+  const { location } = useLocation();
   const imgRef = useRef<HTMLImageElement>(null);
 
   const handleMouseOver = () => {
@@ -878,7 +879,7 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
 
   const handleMouseLeave = () => setHover(false);
 
-  return <Link className={classes.imageGridPost} key={post._id} to={isShowAll && showAllVisible ? '#' : postGetPageUrl(post)}>
+  return <Link className={classes.imageGridPost} key={post._id} to={isShowAll && showAllVisible ? (location.pathname + location.search)  : postGetPageUrl(post)}>
     <div className={classes.imageGridPostBody} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
       <div className={authorClassName}>
         {post?.user?.displayName}

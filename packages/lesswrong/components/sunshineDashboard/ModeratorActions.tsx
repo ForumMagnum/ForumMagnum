@@ -352,7 +352,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
         Posts
       </div>
     </LWTooltip>
-    <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own ${isFriendlyUI ? "quick takes" : "shortform"})`}>
+    <LWTooltip title={`${user.allCommentingDisabled ? "Enable" : "Disable"} this user's to comment (including their own quick takes)`}>
       <div className={classNames(classes.permissionsButton, {[classes.permissionDisabled]: user.allCommentingDisabled})} onClick={handleDisableAllCommenting}>
         All Comments
       </div>

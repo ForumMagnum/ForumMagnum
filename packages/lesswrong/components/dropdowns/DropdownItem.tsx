@@ -39,8 +39,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     textOverflow: "ellipsis",
   },
   afterIcon: {
-    fontSize: 20,
-    marginLeft: 4,
+    fontSize: '16px !important',
+    marginLeft: 8,
+    color: theme.palette.grey[600],
   },
   sideMessage: {
     position: "absolute",
@@ -69,7 +70,7 @@ export type DropdownItemProps = DropdownItemAction & {
   sideMessage?: string,
   icon?: ForumIconName | (() => ReactElement),
   iconClassName?: string,
-  afterIcon?: ForumIconName,
+  afterIcon?: ForumIconName | (() => ReactElement),
   tooltip?: string,
   disabled?: boolean,
   loading?: boolean,
@@ -127,8 +128,9 @@ const DropdownItem = ({
             </ListItemIcon>
           }
           <span className={classes.title}>{title}</span>
-          {afterIcon &&
-            <ForumIcon icon={afterIcon} className={classes.afterIcon} />
+          {typeof afterIcon === "string"
+            ? <ForumIcon icon={afterIcon} className={classes.afterIcon} />
+            : afterIcon?.()
           }
           {sideMessage &&
             <div className={classes.sideMessage}>
