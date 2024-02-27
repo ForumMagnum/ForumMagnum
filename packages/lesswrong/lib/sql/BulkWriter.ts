@@ -60,8 +60,8 @@ class BulkWriter<T extends DbObject> {
       this.queries.push(new InsertQuery(table, inserts.map(({document}) => document)));
     }
     if (updateOnes.length) {
-      this.queries = this.queries.concat(updateOnes.map(({filter, update, upsert}) => upsert
-        ? new InsertQuery(table, update as T, {}, {conflictStrategy: "upsert", upsertSelector: filter})
+      this.queries = this.queries.concat(updateOnes.map(({filter, update, upsert}) => upsert && update['$set']
+        ? new InsertQuery(table, update['$set'], {}, {conflictStrategy: "upsert", upsertSelector: filter})
         : new UpdateQuery(table, filter, update)
       ));
     }
