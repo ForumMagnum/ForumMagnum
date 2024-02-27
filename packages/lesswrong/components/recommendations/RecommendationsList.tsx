@@ -7,6 +7,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 export type RecommendationsListItem = ComponentType<{
   post: PostsListWithVotes|PostsListWithVotesAndSequence,
   translucentBackground?: boolean,
+  showBottomBorder?: boolean,
 }>;
 
 const styles = (theme: ThemeType) => ({
@@ -34,14 +35,15 @@ const RecommendationsList = ({
   const {recommendationsLoading, recommendations} = useRecommendations(algorithm);
 
   if (recommendationsLoading || !recommendations)
-    return loadingFallback ?? <PostsLoading/>;
+    return loadingFallback ?? <PostsLoading placeholderCount={algorithm.count}/>;
 
   return <div className={className}>
-    {recommendations.map(post =>
+    {recommendations.map((post,i) =>
       <ListItem
         key={post._id}
         post={post}
         translucentBackground={translucentBackground}
+        showBottomBorder={i+1<recommendations.length}
       />
     )}
     {recommendations.length === 0 &&

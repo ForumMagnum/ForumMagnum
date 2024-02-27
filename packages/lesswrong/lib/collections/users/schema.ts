@@ -1146,6 +1146,14 @@ const schema: SchemaType<"Users"> = {
     optional: true
   },
 
+  bookmarkCount: resolverOnlyField({
+    type: Number,
+    canRead: [userOwns, 'sunshineRegiment', 'admins'],
+    resolver: async (user: DbUser, args: void, context: ResolverContext): Promise<number> => {
+      return user.bookmarkedPostsMetadata.length;
+    }
+  }),
+
   // Note: this data model was chosen mainly for expediency: bookmarks has the same one, so we know it works,
   // and it was easier to add a property vs. making a new object. If the creator had more time, they'd instead
   // model this closer to ReadStatuses: an object per hidden thread + user pair, and exposing the hidden status

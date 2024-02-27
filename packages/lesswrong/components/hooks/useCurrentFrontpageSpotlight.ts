@@ -4,7 +4,7 @@ export const useCurrentFrontpageSpotlight = <FragmentTypeName extends FragmentTy
   fragmentName: FragmentTypeName,
   skip?: boolean,
 }): FragmentTypes[FragmentTypeName] | undefined => {
-  const {results: currentSpotlightResults} = useMulti({
+  const { results: currentSpotlightResults, loading } = useMulti({
     collectionName: "Spotlights",
     fragmentName: fragmentName,
     terms: {

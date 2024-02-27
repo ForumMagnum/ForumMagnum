@@ -169,6 +169,7 @@ registerFragment(`
     recommendationSettings
     theme
 
+    bookmarkCount
     bookmarkedPostsMetadata
 
     hiddenPostsMetadata

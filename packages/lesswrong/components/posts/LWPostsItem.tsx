@@ -305,7 +305,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: theme.spacing.unit/2,
     marginRight: theme.spacing.unit*1.5,
     position: "relative",
-    top: 2,
+    height: 22,
   },
   isRead: {
     // this is just a placeholder, enabling easier theming.

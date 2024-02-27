@@ -26,7 +26,7 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
-  const { PostsItem, LoadMore } = Components
+  const { PostsItem, LoadMore, PostsLoading } = Components
   
   const {results: bookmarkedPosts, loading, loadMoreProps} = useMulti({
     collectionName: "Posts",
@@ -40,6 +40,10 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
     skip: !currentUser?._id,
   });
   
+  if (!currentUser) {
+    return null;
+  }
+  
   // HACK: The results have limit/pagination which correctly reflects the order
   // of currentUser.bookmarkedPostsMetadata, but within the limited result set
   // the posts themselves may be out of order. Sort them. See also comments in
@@ -50,15 +54,21 @@ const BookmarksList = ({showMessageIfEmpty=false, limit=20, hideLoadMore=false, 
       (bookmark)=>bookmark.postId === post._id
     )
   );
+  
+  const noPostsBookmarked = !currentUser || (loading
+    ? !currentUser.bookmarkCount
+    : !bookmarkedPosts?.length
+  );
 
   return <AnalyticsContext pageSubSectionContext="bookmarksList">
     <div>
-      {showMessageIfEmpty && !loading && sortedBookmarkedPosts && !sortedBookmarkedPosts.length && <div className={classes.empty}>
+      {showMessageIfEmpty && noPostsBookmarked && <div className={classes.empty}>
         {isEAForum
           ? "You haven't saved any posts yet."
           : "You haven't bookmarked any posts yet."
         }
       </div>}
+      {loading && <PostsLoading placeholderCount={Math.min(currentUser.bookmarkCount??0, limit??3)}/>}
       {sortedBookmarkedPosts && sortedBookmarkedPosts.map((post: PostsListWithVotes, i: number) =>
         <PostsItem
           key={post._id} post={post} bookmark
