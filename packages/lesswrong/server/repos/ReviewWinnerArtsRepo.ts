@@ -15,19 +15,27 @@ class ReviewWinnerArtsRepo extends AbstractRepo<"ReviewWinnerArts"> {
 
   async getAllActiveReviewWinnerArt(postIds: string[]) {
     const reviewWinnerArts = await this.any(`
-      WITH cte AS (
+      WITH "LatestSplashArtCoordinate" AS (
+        SELECT
+          sac."reviewWinnerArtId",
+          MAX(sac."createdAt") AS "mostRecentlyCreatedAt"
+        FROM "SplashArtCoordinates" sac
+        GROUP BY sac."reviewWinnerArtId"
+      ),
+      "RankedReviewWinnerArts" AS (
         SELECT
           rwa._id,
-          ROW_NUMBER() OVER (PARTITION BY sac_with_rownumber."reviewWinnerArtId" ORDER BY sac_with_rownumber."createdAt" DESC) as rn
-        FROM "SplashArtCoordinates" AS sac_with_rownumber
-        JOIN "ReviewWinnerArts" AS rwa
-        ON sac_with_rownumber."reviewWinnerArtId" = rwa._id
+          ROW_NUMBER() OVER (PARTITION BY rwa."postId" ORDER BY sac."createdAt" DESC) AS rn
+        FROM "ReviewWinnerArts" rwa
+        INNER JOIN "LatestSplashArtCoordinate" lsac ON rwa._id = lsac."reviewWinnerArtId"
+        INNER JOIN "SplashArtCoordinates" sac ON rwa._id = sac."reviewWinnerArtId" AND sac."createdAt" = lsac."mostRecentlyCreatedAt"
+        JOIN "Posts" p ON rwa."postId" = p._id
       )
-      SELECT rwa.*
-      FROM cte
+      SELECT *
+      FROM "RankedReviewWinnerArts"
       JOIN "ReviewWinnerArts" AS rwa
-      ON cte._id = rwa._id
-      WHERE cte.rn = 1
+      ON "RankedReviewWinnerArts"._id = rwa._id
+      WHERE rn = 1;
     `, []);
 
     const artByPostId = keyBy(reviewWinnerArts, rwa => rwa.postId);
