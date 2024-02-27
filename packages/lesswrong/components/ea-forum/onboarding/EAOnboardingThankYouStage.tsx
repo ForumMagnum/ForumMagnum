@@ -9,9 +9,6 @@ const styles = (theme: ThemeType) => ({
     padding: 40,
     display: "flex",
     flexDirection: "column",
-    [theme.breakpoints.down("xs")]: {
-      height: "100%",
-    },
   },
   content: {
     [theme.breakpoints.down("xs")]: {
@@ -34,11 +31,19 @@ const styles = (theme: ThemeType) => ({
     padding: "12px 16px",
     marginBottom: 12,
     display: "flex",
+    gap: '20px',
     alignItems: "center",
     textAlign: "left",
     "& > *:first-child": {
       flexGrow: 1,
     },
+  },
+  interviewSection: {
+    background: 'none',
+    borderTop: theme.palette.border.normal,
+    borderRadius: 0,
+    padding: '24px 0 0',
+    marginTop: 24,
   },
   heading: {
     color: theme.palette.grey[1000],
@@ -49,6 +54,14 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontSize: 14,
     fontWeight: 500,
+  },
+  interviewDescription: {
+    color: theme.palette.grey[600],
+    fontSize: 13,
+    lineHeight: '140%',
+    fontWeight: 500,
+    textWrap: 'pretty',
+    marginTop: 4,
   },
   toggle: {
     [theme.breakpoints.down("xs")]: {
@@ -65,10 +78,25 @@ const styles = (theme: ThemeType) => ({
       },
     },
   },
-  button: {
+  interviewButtonWrapper: {
+    flex: 'none',
+    [theme.breakpoints.down("xs")]: {
+      alignSelf: 'center',
+      marginTop: 8,
+    },
+  },
+  interviewButton: {
+    fontWeight: 600,
+    textDecoration: 'none !important',
+    padding: '12px 16px',
+  },
+  footer: {
+    textAlign: 'center',
+  },
+  footerButton: {
     width: "100%",
+    maxWidth: 500,
     padding: "12px 20px",
-    marginTop: 28,
     fontSize: 14,
     fontWeight: 600,
   },
@@ -120,7 +148,14 @@ export const EAOnboardingThankYouStage = ({classes}: {
       title="Thanks for joining the discussion"
       className={classes.root}
       hideHeader
-      hideFooter
+      footer={
+        <div className={classes.footer}>
+          <EAButton onClick={onComplete} className={classes.footerButton}>
+            Go to the Forum -&gt;
+          </EAButton>
+        </div>
+      }
+      hideFooterButton
     >
       <div className={classes.content}>
         <div className={classes.thanks}>
@@ -156,10 +191,22 @@ export const EAOnboardingThankYouStage = ({classes}: {
             <EAOnboardingPodcast podcast={getPodcastDataByName("Apple Podcasts")} />
           </div>
         </div>
+        <div className={classNames(classes.section, classes.interviewSection, classes.mobileColumn)}>
+          <div>
+            <div className={classes.heading}>
+              Sign up for a user interview
+            </div>
+            <div className={classes.interviewDescription}>
+              We’d love to learn why you joined and how you got involved with EA. We’ll also answer any questions you have.
+            </div>
+          </div>
+          <div className={classes.interviewButtonWrapper}>
+            <EAButton href="https://savvycal.com/cea/forum-team" target="_blank" rel="noreferrer" style="grey" className={classes.interviewButton}>
+              Book a call
+            </EAButton>
+          </div>
+        </div>
       </div>
-      <EAButton onClick={onComplete} className={classes.button}>
-        Go to the Forum -&gt;
-      </EAButton>
     </EAOnboardingStage>
   );
 }
