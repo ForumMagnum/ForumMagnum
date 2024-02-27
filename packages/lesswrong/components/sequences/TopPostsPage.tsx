@@ -12,6 +12,7 @@ import { gql, useQuery } from '@apollo/client';
 import classNames from 'classnames';
 import range from 'lodash/range';
 import { CoordinateInfo, ReviewSectionInfo, ReviewWinnerSectionName, ReviewWinnerYear, ReviewYearGroupInfo, reviewWinnerSectionsInfo, reviewWinnerYearGroupsInfo } from '../../lib/publicSettings';
+import { useCurrentUser } from '../common/withUser';
 
 /** In theory, we can get back posts which don't have review winner info, but given we're explicitly querying for review winners... */
 type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclude<PostsTopItemInfo['reviewWinner'], null> })[]
@@ -135,7 +136,11 @@ const styles = (theme: ThemeType) => ({
     },
     [theme.breakpoints.down(800)]: {
       flexDirection: "column",
-    }
+    },
+    '&:hover $imageGridPostBody': {
+      backdropFilter: 'none',
+      '--top-posts-page-scrim-opacity': '0%'
+    },
   },
   expandedImageGrid: {
     '& $imageGridContainer': {
@@ -224,7 +229,8 @@ const styles = (theme: ThemeType) => ({
     transition: 'width 0.5s ease-in-out, height 0.5s ease-in-out',
     [theme.breakpoints.down(800)]: {
       transition: 'height 0.5s ease-in-out',
-    }
+    },
+    
   },
   imageGrid: {
     display: "grid",
@@ -233,12 +239,12 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
     gridAutoFlow: 'row',
     transition: 'left 0.5s ease-in-out',
-    '&:hover $imageGridPostBackground': {
+    '&:hover $imageGridPostBackgroundContainer': {
       transitionDelay: '0.2s'
     },
     // This is so that when the user moves their mouse between different post items in the grid (which have loaded their images successfully),
     // the "cover" image doesn't pop in between "post" image transitions
-    '&:has($imageGridPostBackgroundCompleteHovered:not($imageGridPostBackgroundContainerHidden)) $imageGridBackground': {
+    '&:has($imageGridPostBackgroundCompleteHovered:not($imageGridPostBackgroundContainerHidden)) $imageGridBackgroundContainer': {
       opacity: 0,
     },
   },
@@ -255,6 +261,9 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.leastwrong.imageGridBackground,
     display: 'flex',
     flexDirection: 'column',
+  },
+  imageGridBackgroundContainerCategory: {
+    zIndex: -2
   },
   imageGridBackground: {
     position: "relative",
@@ -319,6 +328,13 @@ const styles = (theme: ThemeType) => ({
     height: 'inherit',
   },
 
+  imageGridPostUnread: {
+    '&': {
+      backdropFilter: 'grayscale(0.75) brightness(0.6)',
+      background: 'none'
+    }
+  },
+
   imageGridPostHidden: {
     opacity: 0,
     transitionDelay: '0.5s'
@@ -334,12 +350,14 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 0,
     borderRight: `1px solid ${theme.palette.text.alwaysWhite}`,
     borderBottom: `1px solid ${theme.palette.text.alwaysWhite}`,
+    background: `linear-gradient(0deg, rgba(0,0,0,var(--top-posts-page-scrim-opacity)), transparent 60%)`,
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
     width: "100%",
     position: "relative",
     zIndex: 4,
+    transition: 'backdrop-filter 0.5s ease-in-out, --top-posts-page-scrim-opacity 0.5s ease-in-out',
     '&&&:hover': {
       background: theme.palette.leastwrong.highlightedPost,
       backdropFilter: "none",
@@ -402,7 +420,14 @@ const styles = (theme: ThemeType) => ({
     WebkitBoxOrient: "vertical",
     overflow: "hidden",
   },
-  expandIcon: {}
+  expandIcon: {},
+  '@global': {
+    '@property --top-posts-page-scrim-opacity': {
+      syntax: '"<percentage>"',
+      inherits: false,
+      initialValue: '36%',
+    }
+  }
 });
 
 function sortReviewWinners(reviewWinners: GetAllReviewWinnersQueryResult, sortOrder: LWReviewWinnerSortOrder) {
@@ -827,7 +852,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
     </div>
     <div className={classes.imageGridContainer} style={{ height: gridContainerHeight }}>
       <div className={gridClassName} style={gridTemplateDimensions}>
-        <div className={classes.imageGridBackgroundContainer}>
+        <div className={classNames(classes.imageGridBackgroundContainer, classes.imageGridBackgroundContainerCategory)}>
           <img src={croppedUrl} ref={coverImgRef} onLoad={() => setCoverImgLoaded(true)} className={classes.imageGridBackground} />
           <img src={croppedUrl} className={classNames([classes.imageGridBackground, classes.imageGridBackgroundReflected])} />
           <img src={croppedUrl} className={classes.imageGridBackground} />
@@ -849,6 +874,7 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
   isShowAll?: boolean,
   showAllVisible?: boolean,
 }) => {
+  const currentUser = useCurrentUser();
   const titleClassName = classNames(classes.imageGridPostTitle, {
     [classes.imageGridPostHidden]: isShowAll && showAllVisible
   });
@@ -874,7 +900,7 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
   const handleMouseLeave = () => setHover(false);
 
   return <Link className={classes.imageGridPost} key={post._id} to={isShowAll && showAllVisible ? (location.pathname + location.search)  : postGetPageUrl(post)}>
-    <div className={classes.imageGridPostBody} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
+    <div className={classNames(classes.imageGridPostBody, {[classes.imageGridPostUnread]: currentUser && !post.isRead})} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
       <div className={authorClassName}>
         {post?.user?.displayName}
       </div>
