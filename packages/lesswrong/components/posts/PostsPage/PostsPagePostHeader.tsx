@@ -166,7 +166,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   tagSection: {
     flex: 1,
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     height: "100%",
   }
 });

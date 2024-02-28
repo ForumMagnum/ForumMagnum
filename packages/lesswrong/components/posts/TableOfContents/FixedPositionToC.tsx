@@ -229,7 +229,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   }, [filteredSections, normalizedSections]);
 
   const postContext = usePostsPageContext();
-  const disableProgressBar = (!postContext || isServer || postContext.isEvent || postContext.question || postContext.debate || postContext.shortform || postContext.readTimeMinutes < 3);
+  const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
