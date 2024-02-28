@@ -24,20 +24,24 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 14,
     color: isFriendlyUI ? theme.palette.grey[600] : 'white',
     ...(isFriendlyUI ? {fontWeight: 600} : {}),
+  },
+  blackLabel: {
+    color: theme.palette.text.primary,
   }
 })
 
-const SettingsButton = ({classes, className, onClick, showIcon=true, label=""}: {
+const SettingsButton = ({classes, className, onClick, showIcon=true, label="", color = "white"}: {
   classes: ClassesType,
   className?: string,
   onClick?: any,
   label?: string,
-  showIcon?: boolean
+  showIcon?: boolean,
+  color?: "black" | "white"
 }) => {
   if (label) {
     return <span className={classNames(classes.iconWithLabelGroup, className)} onClick={onClick}>
       {showIcon && <Settings className={classNames(classes.icon, classes.iconWithLabel)}/>}
-      <span className={classes.label}>{ label }</span>
+      <span className={classNames(classes.label, {[classes.blackLabel]: color === 'black'})}>{ label }</span>
     </span>
   }
   return <Settings className={classNames(classes.icon, className)} onClick={onClick}/>
