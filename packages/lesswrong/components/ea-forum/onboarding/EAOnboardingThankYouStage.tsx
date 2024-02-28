@@ -84,18 +84,18 @@ const styles = (theme: ThemeType) => ({
 export const EAOnboardingThankYouStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {goToNextStage, currentUser, updateCurrentUser, captureOnboardingEvent, viewAsAdmin} = useEAOnboarding();
+  const {currentStage, goToNextStage, currentUser, updateCurrentUser, captureOnboardingEvent, viewAsAdmin} = useEAOnboarding();
   const [subscribed, setSubscribed] = useState(true);
 
   useEffect(() => {
     // Default to subscribing to the digest (unless this is an admin testing)
-    if (!currentUser.subscribedToDigest && !viewAsAdmin) {
+    if (!currentUser.subscribedToDigest && currentStage === 'thankyou' && !viewAsAdmin) {
       void updateCurrentUser({
         subscribedToDigest: true,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentStage]);
 
   const setSubscribedToDigest = useCallback((value: boolean) => {
     setSubscribed(value);

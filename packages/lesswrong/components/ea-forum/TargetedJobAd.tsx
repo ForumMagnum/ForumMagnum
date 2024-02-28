@@ -271,11 +271,9 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     deadline: moment('2024-03-02'),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        <InteractionWrapper className={classes.inline}>
-          <Link to="https://www.givingwhatwecan.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-            Giving What We Can (GWWC)
-          </Link>
-        </InteractionWrapper> is a nonprofit providing support, community and information for donors to do the most good with their charitable giving.
+        <Link to="https://www.givingwhatwecan.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Giving What We Can (GWWC)
+        </Link> is a nonprofit providing support, community and information for donors to do the most good with their charitable giving.
         This researcher will help identify the most effective donation opportunities for a variety of worldviews, and recommend these to donors.
       </div>
       <div className={classes.description}>
@@ -289,11 +287,9 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     </>,
     get80kDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-      <InteractionWrapper className={classes.inline}>
-          <Link to="https://www.givingwhatwecan.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-            Giving What We Can
-          </Link>
-        </InteractionWrapper> is a nonprofit providing support, community and information for donors to do the most good with their charitable giving.
+        <Link to="https://www.givingwhatwecan.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Giving What We Can
+        </Link> is a nonprofit providing support, community and information for donors to do the most good with their charitable giving.
       </div>
       <div className={classes.description}>
         Giving What We Can (GWWC) is looking for a Researcher to help us identify the most effective donation opportunities for a variety of worldviews,
@@ -321,11 +317,9 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     location: 'Remote',
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        <InteractionWrapper className={classes.inline}>
-          <Link to="https://www.safer-ai.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-            SaferAI
-          </Link>
-        </InteractionWrapper> is a French organization dedicated to assessing and managing AI risks. They worked in standardization at JTC21,
+        <Link to="https://www.safer-ai.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          SaferAI
+        </Link> is a French organization dedicated to assessing and managing AI risks. They worked in standardization at JTC21,
         the body in charge of writing the technical specifications of the EU AI Act, and part of the newly constituted US AI Safety Institute Consortium.
       </div>
       <div className={classes.description}>
@@ -342,11 +336,9 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     </>,
     get80kDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-      <InteractionWrapper className={classes.inline}>
         <Link to="https://www.safer-ai.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-            SaferAI
-          </Link>
-        </InteractionWrapper> is an organisation dedicated to assessing and managing AI risks.
+          SaferAI
+        </Link> is an organisation dedicated to assessing and managing AI risks.
       </div>
       <div className={classes.description}>
         We are looking for a Technical Governance Researcher with a strong ability to write technical governance pieces for AI safety that SaferAI
@@ -379,11 +371,9 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     deadline: moment('2024-03-08'),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        The <InteractionWrapper className={classes.inline}>
-          <Link to="https://www.longtermresilience.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-            Centre for Long-Term Resilience (CLTR)
-          </Link>
-        </InteractionWrapper> is a UK-based non-profit and independent think tank with a mission to transform global resilience to extreme risks.
+        The <Link to="https://www.longtermresilience.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Centre for Long-Term Resilience (CLTR)
+        </Link> is a UK-based non-profit and independent think tank with a mission to transform global resilience to extreme risks.
         This role will contribute to developing, evaluating, and advocating for impactful <span className={classes.link}>
           <Components.HoverPreviewLink href={makeAbsolute("/topics/biosecurity")}>
             biosecurity
@@ -416,11 +406,9 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     location: 'Remote, multiple locations',
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        <InteractionWrapper className={classes.inline}>
-          <Link to="https://www.leadelimination.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-            LEEP
-          </Link>
-        </InteractionWrapper> is an impact-driven non-profit that aims to eliminate childhood <span className={classes.link}>
+        <Link to="https://www.leadelimination.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          LEEP
+        </Link> is an impact-driven non-profit that aims to eliminate childhood <span className={classes.link}>
           <Components.HoverPreviewLink href={makeAbsolute("/topics/lead-poisoning")}>
             lead poisoning
           </Components.HoverPreviewLink>
@@ -470,7 +458,10 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
       onExpand()
     }
   }, [expanded, setExpanded, captureEvent, onExpand])
-  const { onClick } = useClickableCell({onClick: handleToggleExpand})
+  const { onClick } = useClickableCell({
+    onClick: handleToggleExpand,
+    ignoreLinks: true
+  })
   
   const handleApply = useCallback(() => {
     setClosed(true)
@@ -489,7 +480,9 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
   }
   
   const description = descriptionAbTestGroup === '80k' && adData.get80kDescription ? adData.get80kDescription(classes) : adData.getDescription(classes)
-
+  // Only show the "Remind me" button if the job's deadline is more than 3 days away
+  const showRemindMe = adData.deadline && moment().add(3, 'days').isBefore(adData.deadline)
+  
   return <AnalyticsContext pageSubSectionContext="targetedJobAd">
     <div className={classNames(classes.root, {[classes.rootClosed]: closed})} onClick={onClick}>
       <div className={classes.topRow}>
@@ -502,16 +495,14 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
           </LWTooltip>
         </div>
         <div className={classNames(classes.feedbackLink, classes.metadata)}>
-          <InteractionWrapper>
-            <a href={`
-                https://docs.google.com/forms/d/e/1FAIpQLSd4uDGbXbJSwYX2w_9wXNTuLLBf7bhiWoWc-goJJXiWGA7qDg/viewform?usp=pp_url&entry.70861771=${adData.feedbackLinkPrefill}
-              `}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Give us feedback
-            </a>
-          </InteractionWrapper>
+          <a href={`
+              https://docs.google.com/forms/d/e/1FAIpQLSd4uDGbXbJSwYX2w_9wXNTuLLBf7bhiWoWc-goJJXiWGA7qDg/viewform?usp=pp_url&entry.70861771=${adData.feedbackLinkPrefill}
+            `}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Give us feedback
+          </a>
         </div>
         <InteractionWrapper>
           <Tooltip title="Dismiss">
@@ -577,7 +568,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
                 >
                   Apply <OpenInNew className={classes.btnIcon} />
                 </EAButton>
-                {adData.deadline && <EAButton variant="contained" style="grey" onClick={handleRemindMe} className={classes.btn}>
+                {showRemindMe && <EAButton variant="contained" style="grey" onClick={handleRemindMe} className={classes.btn}>
                   Remind me before the deadline
                 </EAButton>}
               </div>

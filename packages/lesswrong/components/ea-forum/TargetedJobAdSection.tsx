@@ -176,7 +176,7 @@ const TargetedJobAdSection = () => {
     // record when a user has clicked the "Remind me" button
     const ad = userJobAds.find(ad => ad.jobName === activeJob)
     if (ad) {
-      // email is sent via callback or cron depending on how soon the deadline is
+      // email is sent via cron
       void updateUserJobAd({
         selector: {_id: ad._id},
         data: {

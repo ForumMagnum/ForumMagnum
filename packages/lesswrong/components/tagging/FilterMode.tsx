@@ -146,7 +146,9 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   classes: ClassesType,
 }) => {
   const { LWTooltip, PopperCard, TagPreview, ContentStyles } = Components
-  const { hover, anchorEl, eventHandlers } = useHover({ tagId, label, mode });
+  const { hover, anchorEl, eventHandlers } = useHover({
+    eventProps: {tagId, label, mode},
+  });
 
   const currentUser = useCurrentUser()
   const { document: tag } = useSingle({

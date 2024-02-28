@@ -206,6 +206,10 @@ export const darkModeTheme: UserThemeSpecification = {
         yellow: "#ffba7d",
         green: "#7ee486",
       },
+      reviewWinner: {
+        title: greyAlpha(0.75),
+        author: greyAlpha(0.65)
+      }
     },
     link: {
       primaryDim: '#3a7883',

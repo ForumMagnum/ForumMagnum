@@ -32,9 +32,10 @@ export const DateWithoutTime: FC<{date: Date}> = ({date}) => {
   return <span>{moment(date).tz(timezone).format("MMM Do")}</span>
 }
 
-const PostsItemMeta = ({post, read, classes}: {
+const PostsItemMeta = ({post, read, hideTags, classes}: {
   post: PostsList,
   read?: boolean,
+  hideTags?: boolean,
   classes: ClassesType,
 }) => {
   const baseScore = isAF ? post.afBaseScore : post.baseScore
@@ -85,7 +86,7 @@ const PostsItemMeta = ({post, read, classes}: {
         </LWTooltip>
       </span>}
 
-      {!post.isEvent && <span className={classes.info}>
+      {!post.isEvent && !hideTags && <span className={classes.info}>
         <AnalyticsContext pageElementContext="tagsList">
           <FooterTagList post={post} hideScore hideAddTag smallText/>
         </AnalyticsContext>
