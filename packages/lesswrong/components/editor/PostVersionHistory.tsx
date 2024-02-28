@@ -15,6 +15,7 @@ import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { isCollaborative } from './EditorFormComponent';
+import { useOnNavigate } from '../hooks/useOnNavigate';
 
 const LEFT_COLUMN_WIDTH = 160
 
@@ -122,7 +123,7 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
 }
 
 const LIVE_REVISION_TOOLTIP = "This version is currently live"
-const LOAD_VERSION_TOOLTIP = "Load the version into the editor, you will then need to publish it to update the live post"
+const LOAD_VERSION_TOOLTIP = "Load this version into the editor (you will then need to publish it to update the live post)"
 const RESTORE_VERSION_TOOLTIP = "Update the live post to use this version"
 
 const PostVersionHistory = ({post, postId, onClose, classes}: {
@@ -204,6 +205,10 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     onClose();
   }, [captureEvent, location.location, location.pathname, navigate, onClose, post.linkSharingKey, postId, query, selectedRevisionId])
 
+  useOnNavigate(() => {
+    onClose();
+  })
+
   const { document: revision, loading: revisionLoading } = useSingle({
     skip: !selectedRevisionId,
     documentId: selectedRevisionId||"",
@@ -268,7 +273,7 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
                     </LWTooltip>}
                     <LWTooltip title={RESTORE_VERSION_TOOLTIP} placement="top" popperClassName={classes.tooltip}>
                       <EAButton variant="contained" className={classes.button} onClick={restoreVersion}>
-                        Restore {revertInProgress && <Loading />}
+                        {revertInProgress ? <Loading /> : "Restore"}
                       </EAButton>
                     </LWTooltip>
                   </div>
