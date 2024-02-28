@@ -143,6 +143,11 @@ import './collections/userJobAds/fragments';
 import './collections/userJobAds/permissions';
 import './collections/userJobAds/views';
 
+import './collections/userEAGDetails/collection';
+import './collections/userEAGDetails/fragments';
+import './collections/userEAGDetails/permissions';
+import './collections/userEAGDetails/views';
+
 import './collections/userMostValuablePosts/collection';
 import './collections/userMostValuablePosts/fragments';
 import './collections/userMostValuablePosts/permissions';

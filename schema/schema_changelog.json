@@ -555,8 +555,13 @@
     "timestamp": "2024-02-13T22:27:00.000Z"
   },
   {
-    "acceptsSchemaHash": "c474d685fecb4d58a3d23e9d419f859a",
-    "acceptedByMigration": "20240215T203245.add_ReviewWinnerArts_SplashArtCoordinates.ts",
-    "timestamp": "2024-02-15T20:32:45.000Z"
+    "acceptsSchemaHash": "c88a556fe6f1bc2d5ce4f08149eb3388",
+    "acceptedByMigration": "20240222T212933.add_UserEAGDetails_collection.ts",
+    "timestamp": "2024-02-22T21:29:33.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ea9de36d7fd118012a686d5148193cde",
+    "acceptedByMigration": "20240228T000423.addReviewWinnerTables.ts",
+    "timestamp": "2024-02-28T00:04:23.000Z"
   }
 ]

@@ -1236,6 +1236,22 @@ interface DbUserActivity extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type UserEAGDetailsCollection = CollectionBase<"UserEAGDetails">;
+
+interface DbUserEAGDetail extends DbObject {
+  __collectionName?: "UserEAGDetails"
+  userId: string
+  careerStage: Array<string> | null
+  countryOrRegion: string | null
+  nearestCity: string | null
+  willingnessToRelocate: any /*{"definitions":[{"blackbox":true}]}*/
+  experiencedIn: Array<string> | null
+  interestedIn: Array<string> | null
+  lastUpdated: Date
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type UserJobAdsCollection = CollectionBase<"UserJobAds">;
 
 interface DbUserJobAd extends DbObject {
@@ -1787,6 +1803,7 @@ interface CollectionsByName {
   Tags: TagsCollection
   TypingIndicators: TypingIndicatorsCollection
   UserActivities: UserActivitiesCollection
+  UserEAGDetails: UserEAGDetailsCollection
   UserJobAds: UserJobAdsCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
@@ -1857,6 +1874,7 @@ interface ObjectsByCollectionName {
   Tags: DbTag
   TypingIndicators: DbTypingIndicator
   UserActivities: DbUserActivity
+  UserEAGDetails: DbUserEAGDetail
   UserJobAds: DbUserJobAd
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit
@@ -1927,6 +1945,7 @@ interface ObjectsByTypeName {
   Tag: DbTag
   TypingIndicator: DbTypingIndicator
   UserActivity: DbUserActivity
+  UserEAGDetail: DbUserEAGDetail
   UserJobAd: DbUserJobAd
   UserMostValuablePost: DbUserMostValuablePost
   UserRateLimit: DbUserRateLimit
