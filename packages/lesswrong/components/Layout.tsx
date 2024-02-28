@@ -489,7 +489,7 @@ const Layout = ({currentUser, children, classes}: {
                 { isLW && <>
                   {
                     currentRoute?.name === 'home' ? 
-                      <Link className={classes.imageColumn} to="/leastwrong">
+                      <Link className={classes.imageColumn} to="/posts/qvCMiwkBqdYjfiX6n/announcing-the-leastwrong-and-review-winner-post-pages">
                         <h2 className={classes.leastWrongLink}>Announcing The LeastWrong</h2>
                         <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_b456ccf9-b443-4449-97d7-ccd0fcf07fd8_peyutf" darkPublicId="ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_b456ccf9-b443-4449-97d7-ccd0fcf07fd8_peyutf"/>
                       </Link> 
