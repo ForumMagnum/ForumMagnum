@@ -6,14 +6,17 @@ import { createAnonymousContext } from "../vulcan-lib";
 import Posts from "../../lib/collections/posts/collection";
 import { updateSplashArtCoordinateCache } from "../../lib/collections/splashArtCoordinates/cache";
 import { REVIEW_WINNER_CACHE, ReviewWinnerWithPost, updateReviewWinnerCache } from "../../lib/collections/reviewWinners/cache";
+import { isLWorAF } from "../../lib/instanceSettings";
 
 
 onStartup(async () => {
-  const context = createAnonymousContext();
-  await Promise.all([
-    updateReviewWinnerCache(context),
-    updateSplashArtCoordinateCache(context),
-  ]);
+  if (isLWorAF) {
+    const context = createAnonymousContext();
+    await Promise.all([
+      updateReviewWinnerCache(context),
+      updateSplashArtCoordinateCache(context),
+    ]);
+  }
 });
 
 function restrictReviewWinnerPostFields(reviewWinners: ReviewWinnerWithPost[], context: ResolverContext) {
