@@ -103,8 +103,10 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   classes: ClassesType,
 }) => {
   const {eventHandlers, hover, anchorEl} = useHover({
-    pageElementContext: "shortformItemTooltip",
-    commentId: quickTake._id,
+    eventProps: {
+      pageElementContext: "shortformItemTooltip",
+      commentId: quickTake._id,
+    },
   });
 
   const {onClick} = useClickableCell({onClick: () => setExpanded(true)});

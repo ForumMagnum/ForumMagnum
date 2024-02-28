@@ -68,10 +68,7 @@ export const NotificationsPage = ({classes}: {
     <div className={classes.root}>
       <div className={classes.title}>Notifications</div>
       <NotificationsPageTabContextProvider>
-        <NotificationsPageFeed
-          karmaChanges={karmaChanges.current}
-          currentUser={currentUser}
-        />
+        <NotificationsPageFeed karmaChanges={karmaChanges.current} />
       </NotificationsPageTabContextProvider>
     </div>
   );

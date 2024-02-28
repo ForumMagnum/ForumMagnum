@@ -14,6 +14,10 @@ import classNames from 'classnames';
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     color: theme.palette.text.dim,
+    //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
+    '& .TableOfContentsRow-title': {
+      borderBottom: "none",
+    },
   },
   comment: {
     display: "inline-flex",
@@ -40,7 +44,11 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   postTitle: {
     minHeight: 24,
-    paddingTop: 4,
+    paddingTop: 16,
+    ...theme.typography.postStyle,
+    ...theme.typography.smallCaps,
+    fontSize: "1.3rem",
+    marginBottom: 8,
   },
   highlightUnread: {
     paddingLeft: 4,
@@ -64,6 +72,8 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   const { landmarkName: highlightedLandmarkName } = useScrollHighlight(
     flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
+
+  if (flattenedComments.length === 0) return null;
   
   if (!commentsTableOfContentsEnabled) {
     return null;
@@ -80,6 +90,8 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
       }}
       highlighted={highlightedLandmarkName==="above"}
       title
+      fullHeight
+      commentToC
     >
       <span className={classes.postTitle}>
         {post.title?.trim()}

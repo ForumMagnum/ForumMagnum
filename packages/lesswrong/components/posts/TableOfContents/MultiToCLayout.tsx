@@ -2,24 +2,26 @@ import classNames from 'classnames';
 import React from 'react';
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { MAX_COLUMN_WIDTH } from '../PostsPage/PostsPage';
+import { fullHeightToCEnabled } from '../../../lib/betas';
 
-const DEFAULT_TOC_MARGIN = 100
+const DEFAULT_TOC_MARGIN = '1.5fr'
 const MAX_TOC_WIDTH = 270
 const MIN_TOC_WIDTH = 200
 export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
 const TOC_OFFSET_BOTTOM = 64
+const LEFT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1fr';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     position: "relative",
     display: "grid",
     gridTemplateColumns: `
-      1fr
+      ${LEFT_COLUMN_WIDTH}
       minmax(${MIN_TOC_WIDTH}px, ${MAX_TOC_WIDTH}px)
-      minmax(0px, ${DEFAULT_TOC_MARGIN}px)
+      minmax(0px, ${DEFAULT_TOC_MARGIN})
       minmax(min-content, ${MAX_COLUMN_WIDTH}px)
-      minmax(0px, ${DEFAULT_TOC_MARGIN}px)
+      minmax(0px, ${DEFAULT_TOC_MARGIN})
       min-content
       10px
       1.5fr
@@ -33,14 +35,22 @@ const styles = (theme: ThemeType): JssStyles => ({
     position: 'unset',
     width: 'unset',
     left: -DEFAULT_TOC_MARGIN,
-    marginTop: -TOC_OFFSET_TOP,
-    marginBottom: -TOC_OFFSET_BOTTOM,
+    marginTop: fullHeightToCEnabled ? '-100vh' : -TOC_OFFSET_TOP,
+    marginBottom: fullHeightToCEnabled ? undefined : -TOC_OFFSET_BOTTOM,
 
     [theme.breakpoints.down('sm')]:{
       display: "none",
       marginTop: 0,
       marginBottom: 0,
     },
+  },
+  commentToCMargin: {
+    marginTop: 'unset',
+  },
+  // This is needed for an annoying IntersectionObserver hack to prevent the title from being hidden when scrolling up
+  commentToCIntersection: {
+    // And unfortunately we need !important because otherwise this style gets overriden by the `top: 0` in `stickyBlockScroller`
+    top: '-1px !important',
   },
   stickyBlockScroller: {
     position: "sticky",
@@ -50,7 +60,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
-    maxHeight: "100vh",
+    ...(fullHeightToCEnabled ? { height: "100vh" } : { maxHeight: "100vh" }),
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
@@ -66,8 +76,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     // Cancels the direction:rtl in stickyBlockScroller
     direction: "ltr",
     
-    paddingTop: TOC_OFFSET_TOP,
-    paddingBottom: TOC_OFFSET_BOTTOM,
+    paddingTop: fullHeightToCEnabled ? undefined : TOC_OFFSET_TOP,
+    paddingBottom: fullHeightToCEnabled ? undefined : TOC_OFFSET_BOTTOM,
   },
   content: {},
   gap1: { gridArea: 'gap1'},
@@ -95,17 +105,18 @@ const styles = (theme: ThemeType): JssStyles => ({
   hideTocButtonHidden: {
     display: "none",
   },
-})
+});
 
 export type ToCLayoutSegment = {
   toc?: React.ReactNode,
   centralColumn: React.ReactNode,
   rightColumn?: React.ReactNode,
+  isCommentToC?: boolean,
 };
 
 const MultiToCLayout = ({segments, classes}: {
   segments: ToCLayoutSegment[],
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const tocVisible = true;
   const gridTemplateAreas = segments
@@ -114,8 +125,8 @@ const MultiToCLayout = ({segments, classes}: {
   return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
     {segments.map((segment,i) => <React.Fragment key={i}>
       {segment.toc && tocVisible && <>
-        <div className={classes.toc} style={{ "gridArea": `toc${i}` }} >
-          <div className={classes.stickyBlockScroller}>
+        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC })} style={{ "gridArea": `toc${i}` }} >
+          <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })}>
             <div className={classes.stickyBlock}>
               {segment.toc}
             </div>

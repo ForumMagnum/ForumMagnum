@@ -116,7 +116,7 @@ const PostBodyPrefix = ({post, query, classes}: {
         <Info className={classes.infoIcon}/>
       </LWTooltip>
     </div>}
-    <LinkPostMessage post={post} negativeTopMargin />
+    <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI} />
     {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }
