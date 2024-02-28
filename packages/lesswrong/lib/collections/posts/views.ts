@@ -232,6 +232,14 @@ Posts.addDefaultView((terms: PostsViewTerms, _, context?: ResolverContext) => {
       options: { ...params.options, ...filterParams.options },
       syntheticFields: { ...params.syntheticFields, ...filterParams.syntheticFields },
     };
+  } else {
+    // The "magic" sorting needs a `filteredScore` to use when ordering. This
+    // is normally filled in using the filter settings, but we need to just
+    // copy over the normal score when filter settings are not supplied.
+    params.syntheticFields = {
+      ...params.syntheticFields,
+      filteredScore: "$score",
+    };
   }
   if (terms.sortedBy) {
     if (terms.sortedBy === 'topAdjusted') {
