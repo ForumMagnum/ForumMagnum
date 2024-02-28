@@ -63,8 +63,10 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   const { ForumIcon, LWPopper, CommentsNode, CommentsItemMeta } = Components;
 
   const {eventHandlers, hover, anchorEl} = useHover({
-    pageElementContext: "shortformItemTooltip",
-    commentId: quickTake._id,
+    eventProps: {
+      pageElementContext: "shortformItemTooltip",
+      commentId: quickTake._id,
+    },
   });
 
   const expand = useCallback(() => {
