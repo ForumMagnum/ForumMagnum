@@ -6,13 +6,11 @@ import SplashArtCoordinates from "../../lib/collections/splashArtCoordinates/col
 import { createTable, dropTable } from "./meta/utils"
 
 export const up = async ({db}: MigrationContext) => {
-  await createTable(db, ReviewWinners);
   await createTable(db, ReviewWinnerArts);
   await createTable(db, SplashArtCoordinates);
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropTable(db, ReviewWinners);
   await dropTable(db, ReviewWinnerArts);
   await dropTable(db, SplashArtCoordinates);
 }
