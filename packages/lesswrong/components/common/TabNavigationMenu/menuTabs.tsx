@@ -130,6 +130,12 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       showOnCompressed: true,
     // next 3 are subItems
     }, {
+      id: 'leastwrong',
+      title: 'LeastWrong',
+      link: '/bestoflesswrong',
+      tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
+      subItem: true,
+    }, {
       id: 'highlights',
       title: 'Sequence Highlights',
       link: '/highlights',
@@ -159,12 +165,6 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
       title: 'HPMOR',
       link: '/hpmor',
       tooltip: 'What if Harry Potter was a scientist? What would you do if the universe had magic in it? A story that illustrates many rationality concepts.',
-      subItem: true,
-    }, {
-      id: 'bestoflesswrong',
-      title: 'Best Of',
-      link: '/bestoflesswrong',
-      tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
       subItem: true,
     }, {
       id: 'events',
