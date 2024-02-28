@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef, useContext } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { getConfirmedCoauthorIds, isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
@@ -7,7 +7,7 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import {forumTitleSetting, isAF, isEAForum} from '../../../lib/instanceSettings';
+import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
 import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled } from '../../../lib/betas';
@@ -30,11 +30,14 @@ import qs from 'qs';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { useOnServerSentEvent } from '../../hooks/useUnreadNotifications';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/schema';
-import isEqual from 'lodash/isEqual';
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import { useNavigate } from '../../../lib/reactRouterWrapper';
+import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
+import { ImageProvider } from './ImageContext';
 import NoSSR from 'react-no-ssr';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
+import isEqual from 'lodash/isEqual';
+import { usePostReadProgress } from '../usePostReadProgress';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -287,6 +290,13 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     justifyContent: "center",
   },
+  secondSplashPageHeader: {
+    ...theme.typography.postStyle,
+    fontSize: '46px',
+    lineHeight: 1,
+    textWrap: 'balance',
+    fontWeight: '600'
+  }
 })
 
 const getDebateResponseBlocks = (responses: CommentsList[], replies: CommentsList[]) => responses.map(debateResponse => ({
@@ -327,9 +337,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
-  const allowTypeIIIPlayer = isPostAllowedType3Audio(post);
 
-  const toggleEmbeddedPlayer = post.podcastEpisode || allowTypeIIIPlayer ? () => {
+  const toggleEmbeddedPlayer = postHasAudioPlayer(post) ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("toggleAudioPlayer", { action });
@@ -343,32 +352,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
 
-  // For friendly sites, show a reading progress bar to indicate how far in the post you are.
-  // Your progress is hard to tell via the scroll bar because it includes the comments section.
-  const postBodyRef = useRef<HTMLDivElement|null>(null)
-  const readingProgressBarRef = useRef<HTMLDivElement|null>(null)
-  useEffect(() => {
-    if (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3) return
+  const disableProgressBar = (isBookUI || isServer || post.isEvent || post.question || post.debate || post.shortform || post.readTimeMinutes < 3);
 
-    updateReadingProgressBar()
-    window.addEventListener('scroll', updateReadingProgressBar)
+  const { readingProgressBarRef } = usePostReadProgress({
+    updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
+    disabled: disableProgressBar
+  });
 
-    return () => {
-      window.removeEventListener('scroll', updateReadingProgressBar)
-    };
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-  const updateReadingProgressBar = () => {
-    if (!postBodyRef.current || !readingProgressBarRef.current) return
-
-    // position of post body bottom relative to the top of the viewport
-    const postBodyBottomPos = postBodyRef.current.getBoundingClientRect().bottom - window.innerHeight
-    // total distance from top of page to post body bottom
-    const totalHeight = window.scrollY + postBodyBottomPos
-    const scrollPercent = (1 - (postBodyBottomPos / totalHeight)) * 100
-
-    readingProgressBarRef.current.style.setProperty("--scrollAmount", `${scrollPercent}%`)
-  }
-  
   // On the EA Forum, show a digest ad at the bottom of the screen after the user scrolled down.
   const digestAdAbTestGroup = useABTest(postPageFixedDigestAd);
   useEffect(() => {
@@ -393,6 +383,11 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   }
 
   const { query, params } = location;
+
+  // We don't want to show the splash header if the user is on a `/s/:sequenceId/p/:postId` route
+  // We explicitly don't use `getSequenceId` because that also gets the post's canonical sequence ID,
+  // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
+  const showSplashPageHeader = !!post.reviewWinner && !params.sequenceId;
 
   useEffect(() => {
     if (!query[SHARE_POPUP_QUERY_PARAM]) return;
@@ -468,12 +463,11 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
     PostCoauthorRequest, CommentPermalink, ToCColumn, WelcomeBox, TableOfContents, RSVPs,
-    PostsPodcastPlayer, CloudinaryImage2, ContentStyles,
-    PostBody, CommentOnSelectionContentWrapper, PermanentRedirect, DebateBody,
-    PostsPageRecommendationsList, PostSideRecommendations, T3AudioPlayer,
-    PostBottomRecommendations, NotifyMeDropdownItem, Row,
-    AnalyticsInViewTracker, PostsPageQuestionContent, AFUnreviewedCommentCount,
-    CommentsListSection, CommentsTableOfContents, StickyDigestAd
+    CloudinaryImage2, ContentStyles, PostBody, CommentOnSelectionContentWrapper,
+    PermanentRedirect, DebateBody, PostsPageRecommendationsList, PostSideRecommendations,
+    PostBottomRecommendations, NotifyMeDropdownItem, Row, AnalyticsInViewTracker,
+    PostsPageQuestionContent, AFUnreviewedCommentCount, CommentsListSection, CommentsTableOfContents,
+    StickyDigestAd, PostsPageSplashHeader, PostsAudioPlayerWrapper
   } = Components
 
   useEffect(() => {
@@ -557,7 +551,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? <TableOfContents sectionData={sectionData} title={post.title} />
+    ? <TableOfContents sectionData={sectionData} title={post.title} postedAt={post.postedAt} fixedPositionToc={isLWorAF} />
     : null;
 
   const noIndex = post.noIndex || post.rejected;
@@ -593,13 +587,13 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             />
           </div>}
           <PostCoauthorRequest post={post} currentUser={currentUser} />
-          <PostsPagePostHeader
+          {!showSplashPageHeader && <PostsPagePostHeader
             post={post}
             answers={answers ?? []}
             showEmbeddedPlayer={showEmbeddedPlayer}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             dialogueResponses={debateResponses} 
-            annualReviewMarketInfo={marketInfo}/>
+            annualReviewMarketInfo={marketInfo}/>}
         </div>
       </div>
     </AnalyticsContext>
@@ -644,13 +638,12 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // the same time.
 
   const postBodySection =
-    <div id="postBody" ref={postBodyRef} className={classes.centralColumn}>
+    <div id="postBody" className={classes.centralColumn}>
+      {showSplashPageHeader && !commentId && !isDebateResponseLink && <h1 className={classes.secondSplashPageHeader}>
+        {post.title}
+      </h1>}
       {/* Body */}
-      {/* The embedded player for posts with a manually uploaded podcast episode */}
-      {post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
-        <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
-      </div>}
-      {allowTypeIIIPlayer && <T3AudioPlayer showEmbeddedPlayer={showEmbeddedPlayer} postId={post._id}/>}
+      <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={post}/>
       { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
       {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
         <PostBodyPrefix post={post} query={query}/>
@@ -752,8 +745,16 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   return (
   <AnalyticsContext pageContext="postsPage" postId={post._id}>
     <PostsPageContext.Provider value={post}>
+    <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
+    {showSplashPageHeader && !commentId && !isDebateResponseLink && <PostsPageSplashHeader
+      // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
+      // and Typescript is only smart enough to narrow the type for you if you access the field directly like this
+      post={{...post, reviewWinner: post.reviewWinner}}
+      showEmbeddedPlayer={showEmbeddedPlayer} 
+      toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+    />}
     {commentsTableOfContentsEnabled
       ? <Components.MultiToCLayout
           segments={[
@@ -767,6 +768,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
             {
               toc: commentsToC,
               centralColumn: commentsSection,
+              isCommentToC: true
             },
           ]}
         />
@@ -789,6 +791,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       />
     </AnalyticsInViewTracker>}
     </SideCommentVisibilityContext.Provider>
+    </ImageProvider>
     </PostsPageContext.Provider>
   </AnalyticsContext>
   );

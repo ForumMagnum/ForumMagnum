@@ -473,6 +473,8 @@ importComponent("UserPageTitle", () => require('../components/titles/UserPageTit
 importComponent("SequencesPageTitle", () => require('../components/titles/SequencesPageTitle'));
 importComponent("PostsPageHeaderTitle", () => require('../components/titles/PostsPageHeaderTitle'));
 importComponent("PostsCoauthor", () => require('../components/posts/PostsPage/PostsCoauthor'));
+importComponent("SplashHeaderImageOptions", () => require('../components/posts/PostsPage/SplashHeaderImageOptions'));
+importComponent("ImageCropPreview", () => require('../components/posts/PostsPage/ImageCropPreview'));
 importComponent("PostsVideoCard", () => require('../components/posts/PostsVideoCard'));
 importComponent("PostsAudioCard", () => require('../components/posts/PostsAudioCard'));
 importComponent("LocalgroupPageTitle", () => require('../components/titles/LocalgroupPageTitle'));
@@ -522,6 +524,7 @@ importComponent("UsersWhoReacted", () => require('../components/votes/lwReaction
 
 importComponent("PostsVote", () => require('../components/votes/PostsVote'));
 importComponent("PostsVoteDefault", () => require('../components/votes/PostsVoteDefault'));
+importComponent("PostsSplashPageHeaderVote", () => require('../components/votes/PostsSplashPageHeaderVote'));
 importComponent("VotingPatternsWarningPopup", () => require('../components/votes/VotingPatternsWarningPopup'));
 
 // Events
@@ -899,9 +902,11 @@ importComponent("BigCollectionsCard", () => require('../components/collections/B
 importComponent("CoreSequences", () => require('../components/sequences/CoreSequences'));
 importComponent("HPMOR", () => require('../components/sequences/HPMOR'));
 importComponent("Codex", () => require('../components/sequences/Codex'));
-importComponent("BestOfLessWrong", () => require('../components/sequences/BestOfLessWrong'));
+importComponent("Books", () => require('../components/sequences/Books'));
 importComponent("CuratedSequences", () => require('../components/sequences/CuratedSequences'));
 importComponent("EAIntroCurriculum", () => require('../components/sequences/EAIntroCurriculum'));
+importComponent("TopPostsPage", () => require('../components/sequences/TopPostsPage'));
+importComponent("TopPostsDisplaySettings", () => require('../components/sequences/TopPostsDisplaySettings'));
 
 importComponent("PostsListEditor", () => require('../components/form-components/PostsListEditor'));
 importComponent("EditPostCategory", () => require('../components/form-components/EditPostCategory'));

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
-import { useSingle, UseSingleProps } from '../../../lib/crud/withSingle';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 import { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
@@ -9,6 +8,7 @@ import { useMulti } from '../../../lib/crud/withMulti';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { postsCommentsThreadMultiOptions } from './PostsPage';
+import { useDisplayedPost } from '../usePost';
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -18,22 +18,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   const currentUser = useCurrentUser();
   const { query } = useSubscribedLocation();
 
-  const extraVariables = {sequenceId: 'String', ...(version && {version: 'String'}) }
-  // Note: including batchKey ensures that the post query is not batched together with the
-  // comments query when sent from the client (i.e. not during SSR). This makes the main post body load
-  // much faster
-  const extraVariablesValues = {sequenceId, batchKey: "singlePost", ...(version && {version}) }
-  const fragmentName = version ? 'PostsWithNavigationAndRevision' : 'PostsWithNavigation'
-
-  const fetchProps: UseSingleProps<"PostsWithNavigation"|"PostsWithNavigationAndRevision"> = {
-    collectionName: "Posts",
-    fragmentName,
-    extraVariables,
-    extraVariablesValues,
-    documentId,
-  };
-
-  const { document: post, refetch, loading, error } = useSingle<"PostsWithNavigation"|"PostsWithNavigationAndRevision">(fetchProps);
+  const { document: post, refetch, loading, error, fetchProps } = useDisplayedPost(documentId, sequenceId, version);
 
   // This section is a performance optimisation to make comment fetching start as soon as possible rather than waiting for
   // the post to be fetched first. This is mainly beneficial in SSR

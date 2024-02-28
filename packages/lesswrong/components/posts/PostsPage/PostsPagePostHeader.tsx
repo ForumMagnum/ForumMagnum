@@ -2,7 +2,7 @@ import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { extractVersionsFromSemver } from '../../../lib/editor/utils'
+import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
@@ -11,7 +11,7 @@ import { isLWorAF } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import { AnnualReviewMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
+import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
@@ -168,11 +168,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     flexDirection: "column",
     height: "100%",
-  },
-  annualReviewMarketInfo: {
-    justifyContent: 'center',
-    alignItems: 'right',
-    },
+  }
 });
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
@@ -436,12 +432,8 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       <div className={classes.tagSection}>
         {!post.shortform && !post.isEvent && !hideTags && 
         <AnalyticsContext pageSectionContext="tagHeader">
-          <FooterTagList post={post} hideScore allowTruncate overrideMargins={true}/>
+          <FooterTagList post={post} hideScore allowTruncate overrideMargins={true} annualReviewMarketInfo={annualReviewMarketInfo} />
         </AnalyticsContext>}
-      </div>
-      <div className={classes.annualReviewMarketInfo}>
-        {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) &&
-          <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
       </div>
     </div>
     {post.isEvent && <PostsPageEventData post={post}/>}

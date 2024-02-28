@@ -12,13 +12,11 @@ import { getReviewPhase, postEligibleForReview, postIsVoteable, REVIEW_YEAR } fr
 import { PostsItemConfig, usePostsItem } from './usePostsItem';
 import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
-import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
-import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
 
 
-export const KARMA_WIDTH = 32
+export const KARMA_WIDTH = 32;
 
-export const styles = (theme: ThemeType): JssStyles => ({
+export const styles = (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
@@ -53,6 +51,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
     display: "flex",
     position: "relative",
     padding: 10,
+    paddingLeft: 6,
     alignItems: "center",
     flexWrap: "nowrap",
     [theme.breakpoints.down('xs')]: {
@@ -87,7 +86,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
   },
   karma: {
     width: KARMA_WIDTH,
-    justifyContent: "center",
+    marginRight: 4,
     [theme.breakpoints.down('xs')]:{
       width: "unset",
       justifyContent: "flex-start",
@@ -343,7 +342,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
 const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
 
 export type PostsList2Props = PostsItemConfig & {
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 };
 
 const LWPostsItem = ({classes, ...props}: PostsList2Props) => {

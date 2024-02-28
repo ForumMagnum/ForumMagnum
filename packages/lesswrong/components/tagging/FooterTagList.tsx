@@ -16,14 +16,21 @@ import { isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
+import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
 
 const styles = (theme: ThemeType) => ({
-  root: {
+  root: isFriendlyUI ? {
     marginTop: 8,
     marginBottom: 8,
+  } : {
+    display: 'flex',
+    gap: '4px',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   allowTruncate: {
-    display: "block",
+    display: isFriendlyUI ? "block" : "inline-flex",
     // Truncate to 3 rows (webkit-line-clamp would be ideal here but it adds an ellipsis
     // which can't be removed)
     maxHeight: 104,
@@ -51,8 +58,8 @@ const styles = (theme: ThemeType) => ({
         },
       }
       : {
-        paddingTop: 4,
-        paddingBottom: 4,
+        paddingTop: 4.5,
+        paddingBottom: 4.5,
       }),
     border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,
@@ -79,7 +86,20 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     cursor: "pointer",
     width: 'fit-content',
-  }
+  },
+  altAddTagButton: {
+    backgroundColor: theme.palette.panelBackground.default,
+    display: "inline-block",
+    paddingLeft: 8,
+    paddingTop: 4.5,
+    paddingBottom: 4.5,
+    paddingRight: 8,
+    borderRadius: 3,
+    fontWeight: 700,
+    gap: 4,
+    cursor: "pointer",
+    border: theme.palette.tag.border
+  },
 });
 
 export function sortTags<T>(list: Array<T>, toTag: (item: T) => TagBasicInfo|null|undefined): Array<T> {
@@ -93,6 +113,8 @@ const FooterTagList = ({
   post,
   hideScore,
   hideAddTag,
+  //used for PostsPageSplashHeader
+  useAltAddTagButton,
   smallText=false,
   showCoreTags,
   hidePostTypeTag,
@@ -100,11 +122,14 @@ const FooterTagList = ({
   highlightAutoApplied=false,
   allowTruncate=false,
   overrideMargins=false,
+  appendElement,
+  annualReviewMarketInfo,
   classes
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
   hideAddTag?: boolean,
+  useAltAddTagButton?: boolean,
   showCoreTags?: boolean
   hidePostTypeTag?: boolean,
   smallText?: boolean,
@@ -112,6 +137,8 @@ const FooterTagList = ({
   highlightAutoApplied?: boolean,
   allowTruncate?: boolean,
   overrideMargins?: boolean,
+  appendElement?: ReactNode,
+  annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
@@ -270,7 +297,9 @@ const FooterTagList = ({
 
   const sortedTagRels = results ? sortTags(results, t=>t.tag).filter(tagRel => !!tagRel?.tag) : []
 
-  const {Loading, FooterTag, AddTagButton, CoreTagsChecklist} = Components;
+  const {Loading, FooterTag, AddTagButton, CoreTagsChecklist, PostsAnnualReviewMarketTag} = Components;
+
+  const tooltipPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
   const innerContent =
     (loadingInitial || !results) ? (
@@ -279,6 +308,7 @@ const FooterTagList = ({
           <FooterTag key={tag._id} tag={tag} hideScore smallText={smallText} />
         ))}
         {!hidePostTypeTag && postType}
+        {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
       </>
     ) : (
       <>
@@ -302,7 +332,11 @@ const FooterTagList = ({
             )
         )}
         {!hidePostTypeTag && postType}
-        {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} isVotingContext />}
+        {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) && <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
+        {currentUser && !hideAddTag && <AddTagButton onTagSelected={onTagSelected} isVotingContext tooltipPlacement={tooltipPlacement}>
+            {useAltAddTagButton && <span className={classes.altAddTagButton}>+</span>}
+          </AddTagButton>
+        }
         {isAwaiting && <Loading />}
       </>
     );
@@ -313,6 +347,7 @@ const FooterTagList = ({
       className={classNames(classes.root, {[classes.allowTruncate]: !showAll}, {[classes.overrideMargins] : overrideMargins})}
     >
       {innerContent}
+      {appendElement}
     </span>
     {displayShowAllButton && <div className={classes.showAll} onClick={onClickShowAll}>Show all {taggingNamePluralSetting.get()}</div>}
   </>

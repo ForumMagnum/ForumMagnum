@@ -10,7 +10,6 @@ import { createNotification } from '../notificationCallbacksHelpers';
 import { checkForStricterRateLimits } from '../rateLimitUtils';
 import { batchUpdateScore } from '../updateScores';
 import { triggerCommentAutomodIfNeeded } from "./sunshineCallbackUtils";
-import { DatabaseServerSetting } from '../databaseSettings';
 import { createMutator } from '../vulcan-lib/mutators';
 import { Comments } from '../../lib/collections/comments';
 import { createAdminContext } from '../vulcan-lib';
@@ -216,7 +215,6 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
   // Return if market creation fails
   if (!liteMarket) return;
 
-  // add the review tags to the post
   const [comment] = await Promise.all([
     makeMarketComment(post._id, year, liteMarket.url, botUser),
     Posts.rawUpdateOne(post._id, {$set: {manifoldReviewMarketId: liteMarket.id}}),
@@ -247,6 +245,7 @@ const makeMarketComment = async (postId: string, year: number, marketUrl: string
     currentUser: botUser,
     context: createAdminContext()
   })
+
 
   return result.data
 }

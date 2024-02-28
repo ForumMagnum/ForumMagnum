@@ -22,7 +22,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   label: {
     ...theme.typography.body2,
     fontSize: 14,
-    color: theme.palette.grey[600],
+    color: isFriendlyUI ? theme.palette.grey[600] : 'white',
     ...(isFriendlyUI ? {fontWeight: 600} : {}),
   }
 })

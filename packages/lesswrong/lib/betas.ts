@@ -66,6 +66,7 @@ export const hasDigests = isEAForum;
 export const hasSideComments = hasSideCommentsSetting.get();
 export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get();
+export const fullHeightToCEnabled = isLWorAF;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;
