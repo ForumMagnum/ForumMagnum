@@ -148,7 +148,6 @@ import './server/callbacks/rateLimitCallbacks';
 import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
-import './server/callbacks/userJobAdCallbacks';
 import './server/callbacks/digestCallbacks';
 import './server/callbacks/dialogueMatchPreferenceCallbacks';
 
