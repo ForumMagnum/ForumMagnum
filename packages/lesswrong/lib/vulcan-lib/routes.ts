@@ -119,6 +119,10 @@ export const overrideRoute = (...routes: Route[]): void => {
   addRoute(...routes);
 }
 
+export const getRouteByName = (name: string): Route | undefined => {
+  return Routes[name];
+}
+
 export const getRouteMatchingPathname = (pathname: string): Route | undefined  => {
   return Object.values(Routes).reverse().find((route) => matchPath(pathname, {
     path: route.path,

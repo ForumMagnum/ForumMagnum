@@ -34,6 +34,7 @@ import { performanceMetricLoggingEnabled } from '../../../lib/instanceSettings';
 import { getForwardedWhitelist } from '../../forwarded_whitelist';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
 import { onStartup, isAnyTest } from '../../../lib/executionEnvironment';
+import { getCurrentUserQuery } from '../../../lib/crud/withCurrentUser';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -377,6 +378,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   // the render will be omitted, which is the point.)
   let abTestGroups: RelevantTestGroupAllocation = {};
   
+  const isPreload = req.url.startsWith("/preloadScaffold");
   const now = new Date();
   const timeOverride: TimeOverride = {currentTime: now};
   const App = <AppGenerator
@@ -386,6 +388,7 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
     serverRequestStatus={serverRequestStatus}
     abTestGroupsUsed={abTestGroups}
     timeOverride={timeOverride}
+    isPreload={isPreload}
   />;
   
   const themeOptions = getThemeOptionsFromReq(req, user);
@@ -394,7 +397,16 @@ const renderRequest = async ({req, user, startTime, res, clientId, userAgent}: R
   
   let htmlContent = '';
   try {
-    htmlContent = await renderToStringWithData(WrappedApp);
+    if (isPreload) {
+      const queryCurrentUserPromise = await client.query({
+        query: getCurrentUserQuery(),
+      });
+      // TODO: Figure out how apollo-client works in this context. Is this
+      // preventing queries, or is it starting queries and abandoning them?
+      htmlContent = ReactDOM.renderToString(WrappedApp);
+    } else {
+      htmlContent = await renderToStringWithData(WrappedApp);
+    }
   } catch(err) {
     console.error(`Error while fetching Apollo Data. date: ${new Date().toString()} url: ${JSON.stringify(getPathFromReq(req))}`); // eslint-disable-line no-console
     console.error(err); // eslint-disable-line no-console

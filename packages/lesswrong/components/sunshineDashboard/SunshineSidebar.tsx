@@ -6,6 +6,7 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { isLWorAF } from '../../lib/instanceSettings';
+import NoSSR from 'react-no-ssr';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -52,8 +53,8 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
   const showInitialSidebar = userCanDo(currentUser, 'posts.moderate.all') || currentUser.groups?.includes('alignmentForumAdmins')
   const underbellyName = isLWorAF ? 'the Underbelly' : 'Low Priority'
 
-  return (
-    <div className={classes.root}>
+  return <div className={classes.root}>
+    <NoSSR>
       {showInitialSidebar && <div className={classes.background}>
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
@@ -108,8 +109,8 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
           <SunshineNewUsersList terms={{view:"allUsers", limit: 30}} currentUser={currentUser} />
         </div>}
       </div>}
-    </div>
-  )
+    </NoSSR>
+  </div>
 }
 
 const SunshineSidebarComponent = registerComponent("SunshineSidebar", SunshineSidebar, {

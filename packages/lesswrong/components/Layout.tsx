@@ -492,9 +492,7 @@ const Layout = ({currentUser, children, classes}: {
                   </StickyWrapper>
                 }
                 {renderSunshineSidebar && <div className={classes.sunshine}>
-                  <NoSSR>
-                    <SunshineSidebar/>
-                  </NoSSR>
+                  <SunshineSidebar/>
                 </div>}
               </div>
             </CommentBoxManager>

@@ -32,7 +32,11 @@ const AppGenerator = ({ apolloClient, foreignApolloClient, abTestGroupsUsed, the
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
               <PrefersDarkModeProvider>
                 <LayoutOptionsContextProvider>
-                  <Components.App apolloClient={apolloClient} timeOverride={timeOverride}/>
+                  <Components.App
+                    apolloClient={apolloClient}
+                    timeOverride={timeOverride}
+                    isPreload={false}
+                  />
                 </LayoutOptionsContextProvider>
               </PrefersDarkModeProvider>
             </ABTestGroupsUsedContext.Provider>

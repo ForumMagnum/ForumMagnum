@@ -2,6 +2,15 @@ import { fragmentTextForQuery } from '../vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
 import { hookToHoc } from '../hocUtils';
 
+export const getCurrentUserQuery = () => gql`
+  query getCurrentUser {
+    currentUser {
+      ...UsersCurrent
+    }
+  }
+  ${fragmentTextForQuery('UsersCurrent')}
+`;
+
 /**
  * HoC for a graphQL that fetches the logged-in user object. This is used once,
  * in App.tsx, and then provided to the rest of the page as React context which
@@ -10,14 +19,7 @@ import { hookToHoc } from '../hocUtils';
  * context.
  */
 export const useQueryCurrentUser = () => {
-  const {data, refetch, loading} = useQuery(gql`
-    query getCurrentUser {
-      currentUser {
-        ...UsersCurrent
-      }
-    }
-    ${fragmentTextForQuery('UsersCurrent')}
-  `, {
+  const {data, refetch, loading} = useQuery(getCurrentUserQuery(), {
     fetchPolicy: "cache-first",
     ssr: true,
   });

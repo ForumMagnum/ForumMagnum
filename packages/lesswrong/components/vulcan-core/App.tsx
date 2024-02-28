@@ -15,7 +15,7 @@ import {
   NavigationContext,
   checkUserRouteAccess,
 } from '../../lib/vulcan-core/appContext'
-import type { RouterLocation } from '../../lib/vulcan-lib/routes';
+import { RouterLocation, getRouteByName } from '../../lib/vulcan-lib/routes';
 import { MessageContextProvider } from '../common/FlashMessages';
 import type { History } from 'history'
 import { RefetchCurrentUserContext } from '../common/withUser';
@@ -26,9 +26,10 @@ interface ExternalProps {
   apolloClient: AnyBecauseTodo,
   serverRequestStatus?: ServerRequestStatusContextType,
   timeOverride: TimeOverride,
+  isPreload: boolean,
 }
 
-const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
+const App = ({serverRequestStatus, timeOverride, history, isPreload}: ExternalProps & {
   history: History
 }) => {
   const {currentUser, refetchCurrentUser, currentUserLoading} = useQueryCurrentUser();
@@ -56,7 +57,8 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
   }, [currentUser?._id]);
 
   // Parse the location into a route/params/query/etc.
-  const location = checkUserRouteAccess(currentUser, parseRoute({location: reactDomLocation}));
+  const parsedLocation = checkUserRouteAccess(currentUser, parseRoute({location: reactDomLocation}));
+  const location = isPreload ? locationToPreload(parsedLocation) : parsedLocation;
   
   if (location.redirected) {
     return (
@@ -122,6 +124,21 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
     </NavigationContext.Provider>
     </LocationContext.Provider>
   );
+}
+
+function locationToPreload(location: RouterLocation): RouterLocation {
+  const routeName = location.query.route ?? null;
+  const route = routeName ? getRouteByName(routeName) : null;
+  if (!route || !route.componentName) return location;
+
+  const RouteComponent: any = Components[route.componentName];
+  return {
+    currentRoute: route, RouteComponent,
+    location,
+    pathname: location.pathname,
+    url: location.pathname,
+    params: {}, hash: "", query: {},
+  };
 }
 
 const AppComponent = registerComponent<ExternalProps>('App', App, {

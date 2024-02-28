@@ -16,13 +16,14 @@ import { LayoutOptionsContextProvider } from '../../../../components/hooks/useLa
 // Server-side wrapper around the app. There's another AppGenerator which is
 // the client-side version, which differs in how it sets up the wrappers for
 // routing and cookies and such. See client/start.tsx.
-const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, timeOverride }: {
+const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestStatus, abTestGroupsUsed, timeOverride, isPreload }: {
   req: Request,
   apolloClient: ApolloClient<NormalizedCacheObject>,
   foreignApolloClient: ApolloClient<NormalizedCacheObject>,
   serverRequestStatus: ServerRequestStatusContextType,
   abTestGroupsUsed: RelevantTestGroupAllocation,
   timeOverride: TimeOverride,
+  isPreload: boolean,
 }) => {
   const App = (
     <ApolloProvider client={apolloClient}>
@@ -36,6 +37,7 @@ const AppGenerator = ({ req, apolloClient, foreignApolloClient, serverRequestSta
                   apolloClient={apolloClient}
                   serverRequestStatus={serverRequestStatus}
                   timeOverride={timeOverride}
+                  isPreload={isPreload}
                 />
               </LayoutOptionsContextProvider>
             </ABTestGroupsUsedContext.Provider>

@@ -24,12 +24,10 @@ export function browserMain() {
   populateComponentsAppDebug();
   initServerSentEvents();
   const apolloClient = createApolloClient();
-  apolloClient.disableNetworkFetches = true;
   const foreignApolloClient = createApolloClient(fmCrosspostBaseUrlSetting.get() ?? "/");
-  foreignApolloClient.disableNetworkFetches = true;
 
   const ssrRenderedAt: Date = new Date(window.ssrRenderedAt);
-  const timeOverride: TimeOverride = {currentTime: ssrRenderedAt};
+  const timeOverride: TimeOverride = {currentTime: null};
 
   // Create the root element, if it doesn't already exist.
   if (!document.getElementById('react-app')) {
@@ -59,13 +57,14 @@ export function browserMain() {
       <Main />,
       document.getElementById('react-app'),
       () => {
-        apolloClient.disableNetworkFetches = false;
-        foreignApolloClient.disableNetworkFetches = false;
-        timeOverride.currentTime = null;
       }
     );
     document.getElementById('scaffold-react-app')?.remove();
   } else {
+    timeOverride.currentTime = ssrRenderedAt;
+    apolloClient.disableNetworkFetches = true;
+    foreignApolloClient.disableNetworkFetches = true;
+
     ReactDOM.hydrate(
       <Main />,
       document.getElementById('react-app'),

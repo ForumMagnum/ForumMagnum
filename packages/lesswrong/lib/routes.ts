@@ -1557,7 +1557,7 @@ addRoute(
   },
   {
     name: 'preloadScaffold',
-    path: '/preload-scaffold',
+    path: '/preloadScaffold',
     componentName: 'PreloadScaffoldPage',
     enableResourcePrefetch: true,
   },

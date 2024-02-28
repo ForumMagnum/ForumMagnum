@@ -38,12 +38,12 @@ async function getScaffoldPageResponse() {
 
 async function loadScaffoldPage() {
   const cache = await caches.open('v1');
-  await cache.add('/preload-scaffold');
+  await cache.add('/preloadScaffold?route=home');
 }
 
 async function getScaffoldHtml() {
   const cache = await caches.open('v1');
-  const scaffoldCache = await cache.match('/preload-scaffold');
+  const scaffoldCache = await cache.match('/preloadScaffold?route=home');
   return scaffoldCache ?? null;
 }
 
