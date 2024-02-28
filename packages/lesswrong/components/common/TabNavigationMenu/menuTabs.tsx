@@ -131,7 +131,7 @@ export const menuTabs: ForumOptions<Array<MenuTab>> = {
     // next 3 are subItems
     }, {
       id: 'leastwrong',
-      title: 'The LeastWrong',
+      title: 'Best of LessWrong',
       link: '/leastwrong',
       tooltip: "Top posts from the Annual Review (2018 through " + REVIEW_YEAR + ")",
       subItem: true,

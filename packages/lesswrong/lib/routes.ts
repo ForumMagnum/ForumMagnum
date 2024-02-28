@@ -41,7 +41,7 @@ const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Hi
 
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
-const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "The LeastWrong" };
+const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "The Best of LessWrong" };
 
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 
@@ -861,7 +861,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'leastwrong',
       path: '/leastwrong',
       componentName: 'TopPostsPage',
-      title: "The LeastWrong",
+      title: "The Best of LessWrong",
       background: "#f8f4ee",
       ...leastWrongSubtitle,
     },
