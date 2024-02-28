@@ -17,6 +17,7 @@ import { getForumTheme } from '../themes/forumTheme';
 import { usedMuiStyles } from './usedMuiStyles';
 import { minify } from 'csso';
 import { requestedCssVarsToString } from '../themes/cssVars';
+import { getDropcapStylesheet } from './dropcaps';
 
 const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
   importAllComponents();
@@ -54,6 +55,7 @@ const generateMergedStylesheet = (themeOptions: ThemeOptions): Buffer => {
     jssStylesheet,
     ...theme.rawCSS,
     cssVars,
+    getDropcapStylesheet(),
   ].join("\n");
 
   const minifiedCSS = minify(mergedCSS).css;

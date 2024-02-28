@@ -406,10 +406,17 @@ const Layout = ({currentUser, children, classes}: {
       <SidebarsWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
-        <div className={classNames(
-          "wrapper",
-          {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
-        )} id="wrapper">
+        <div
+          className={classNames(
+            "wrapper", {
+              'alignment-forum': isAF,
+              [classes.fullscreen]: currentRoute?.fullscreen,
+              [classes.wrapper]: isLWorAF,
+              "dropcaps-yinit": isLW,
+            }
+          )}
+          id="wrapper"
+        >
           <DialogManager>
             <CommentBoxManager>
               <Helmet>
