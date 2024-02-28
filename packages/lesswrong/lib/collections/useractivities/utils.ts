@@ -1,5 +1,6 @@
 /* See lib/collections/useractivities/collection.ts for a high-level overview */
 import sum from 'lodash/sum';
+import { Globals } from '../../vulcan-lib';
 
 function expandActivityInfluence(input: number[], influenceHours: number): number[] {
   const output: number[] = new Array(input.length).fill(0);
@@ -36,3 +37,14 @@ export const calculateActivityFactor = (activityArray: number[] | undefined, hal
   const normalisationConstant = 1 / (1 - Math.exp(-decayConstant));
   return rawActivityFactor / normalisationConstant;
 }
+
+Globals.calculateActivityFactor = () => {
+  const twentyOneDaysInHours = 168 * 3;
+  const activityArray = Array(twentyOneDaysInHours).fill(0);
+  for (let i = 0; i < twentyOneDaysInHours / 24 * 7; i++) {
+    activityArray[i * (24 * 7)] = 1;
+  }
+  const activityFactor = calculateActivityFactor(activityArray, 60);
+  // eslint-disable-next-line no-console
+  console.log(activityFactor);
+};

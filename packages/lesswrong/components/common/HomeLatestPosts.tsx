@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Components, registerComponent } from '../../lib/vulcan-lib';
+import { Components, getSiteUrl, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { useLocation } from '../../lib/routeUtil';
+import { useLocation, useNavigate } from '../../lib/routeUtil';
 import { useTimezone } from './withTimezone';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
 import { FilterSettings, useFilterSettings } from '../../lib/filterSettings';
@@ -19,6 +19,10 @@ import { forumSelect } from '../../lib/forumTypeUtils';
 import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
+import { userIsAdmin } from '../../lib/vulcan-users';
+import Input from '@material-ui/core/Input';
+import debounce from 'lodash/debounce';
+import qs from 'qs';
 
 const titleWrapper = isLWorAF ? {
   marginBottom: 8
@@ -29,7 +33,7 @@ const titleWrapper = isLWorAF ? {
   alignItems: "center"
 };
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   titleWrapper,
   title: {
     ...sectionTitleStyle(theme),
@@ -53,6 +57,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.up('md')]: {
       display: "none"
     },
+  },
+  algoParams: {
+    display: 'flex'
   },
 })
 
@@ -97,8 +104,11 @@ const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings =>
   };
 }
 
-const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
+type AlgoParamKey = Extract<keyof PostsViewTerms, `algo${string}`>;
+
+const HomeLatestPosts = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const updateCurrentUser = useUpdateCurrentUser();
   const currentUser = useCurrentUser();
 
@@ -119,8 +129,18 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const now = useCurrentTime();
   const dateCutoff = moment(now).tz(timezone).subtract(frontpageDaysAgoCutoffSetting.get(), 'days').format("YYYY-MM-DD");
 
+  const [algoParams, setAlgoParams] = useState<Partial<Record<AlgoParamKey, string>>>({
+    'algoStartingAgeHours': query.algoStartingAgeHours,
+    'algoDecayFactorSlowest': query.algoDecayFactorSlowest,
+    'algoDecayFactorFastest': query.algoDecayFactorFastest,
+    'algoActivityHalfLifeHours': query.algoActivityHalfLifeHours,
+    'algoActivityWeight': query.algoActivityWeight,
+    'algoActivityFactor': query.algoActivityFactor,
+  });
+
   const recentPostsTerms = {
     ...query,
+    ...algoParams,
     filterSettings: applyConstantFilters(filterSettings),
     after: dateCutoff,
     view: "magic",
@@ -141,6 +161,20 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   }
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
+
+  const updateAlgoQueryParams = debounce((newParams: Partial<Record<AlgoParamKey, string>>) => {
+    navigate({ ...location.location, search: qs.stringify({ ...query, ...newParams }) }, { replace: true });
+  }, 300);
+
+  const setAlgoParam = (algoParamKey: Extract<keyof PostsViewTerms, `algo${string}`>, value: string) => {
+    const newParams = {
+      ...algoParams,
+      [algoParamKey]: value
+    };
+
+    setAlgoParams(newParams);
+    updateAlgoQueryParams(newParams);
+  };
 
   return (
     <AnalyticsContext pageSectionContext="latestPosts">
@@ -185,6 +219,32 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
             />
           </div>
         </AnalyticsContext>
+        {isLW && userIsAdmin(currentUser) && <div className={classes.algoParams}>
+          <span>
+            Starting Age (Hours)
+            <Input onChange={(e) => setAlgoParam('algoStartingAgeHours', e.target.value)} value={algoParams.algoStartingAgeHours} />
+          </span>
+          <span>
+            Decay Factor (Slowest)
+            <Input onChange={(e) => setAlgoParam('algoDecayFactorSlowest', e.target.value)} value={algoParams.algoDecayFactorSlowest} />
+          </span>
+          <span>
+            Decay Factor (Fastest)
+            <Input onChange={(e) => setAlgoParam('algoDecayFactorFastest', e.target.value)} value={algoParams.algoDecayFactorFastest} />
+          </span>
+          <span>
+            Half Life (Hours)
+            <Input onChange={(e) => setAlgoParam('algoActivityHalfLifeHours', e.target.value)} value={algoParams.algoActivityHalfLifeHours} />
+          </span>
+          <span>
+            Weight
+            <Input onChange={(e) => setAlgoParam('algoActivityWeight', e.target.value)} value={algoParams.algoActivityWeight} />
+          </span>
+          <span>
+            Override Activity Factor
+            <Input onChange={(e) => setAlgoParam('algoActivityFactor', e.target.value)} value={algoParams.algoActivityFactor} />
+          </span>
+        </div>}
         {isFriendlyUI && <StickiedPosts />}
         <HideRepeatedPostsProvider>
           {showCurated && <CuratedPostsList />}

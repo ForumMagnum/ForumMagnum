@@ -2840,6 +2840,13 @@ const schema: SchemaType<"Posts"> = {
     hidden: true,
   },
 
+  filteredScore: resolverOnlyField({
+    canRead: ['admins'],
+    type: Number,
+    graphQLtype: 'Float',
+    resolver: (post) => post.filteredScore?.toFixed(2)
+  }),
+
   /* Alignment Forum fields */
 
   af: {

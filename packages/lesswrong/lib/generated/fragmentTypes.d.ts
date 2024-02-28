@@ -1097,6 +1097,7 @@ interface PostsWithVotes extends PostsBase { // fragment on Posts
 interface PostsListWithVotes extends PostsList { // fragment on Posts
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
+  readonly filteredScore: number|null,
 }
 
 interface PostsListWithVotesAndSequence extends PostsListWithVotes { // fragment on Posts

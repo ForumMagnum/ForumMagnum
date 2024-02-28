@@ -160,6 +160,7 @@ registerFragment(`
     ...PostsList
     currentUserVote
     currentUserExtendedVote
+    filteredScore
   }
 `)
 

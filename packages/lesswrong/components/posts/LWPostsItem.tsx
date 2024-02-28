@@ -14,6 +14,9 @@ import { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@material-ui/icons/Forum';
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/annualReviewMarkets';
 import { commentGetPageUrl } from '../../lib/collections/comments/helpers';
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { isLW } from '../../lib/instanceSettings';
+import { useCurrentUser } from '../common/withUser';
 
 
 export const KARMA_WIDTH = 32
@@ -93,7 +96,12 @@ export const styles = (theme: ThemeType): JssStyles => ({
       justifyContent: "flex-start",
       marginLeft: 2,
       marginRight: theme.spacing.unit
-    }
+    },
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  filteredScore: {
+    color: theme.palette.primary.main
   },
   karmaPredictedReviewWinner: {
     color: theme.palette.review.winner
@@ -392,6 +400,8 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
     className,
   } = usePostsItem(props);
 
+  const currentUser = useCurrentUser();
+
   if (isRepeated) {
     return null;
   }
@@ -439,12 +449,15 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             {tagRel && <Components.PostsItemTagRelevance tagRel={tagRel} />}
             {showKarma && <PostsItem2MetaInfo className={classNames(
               classes.karma, {
-                [classes.karmaPredictedReviewWinner]: !!marketLink
+                [classes.karmaPredictedReviewWinner]: !!marketLink,
               })}>
               {post.isEvent
                 ? <AddToCalendarButton post={post} />
                 : <KarmaDisplay document={post} linkItem={marketLink}/>
               }
+              <div className={classNames({ [classes.filteredScore]: isLW && userIsAdmin(currentUser) })}>
+                {post.filteredScore}
+              </div>
             </PostsItem2MetaInfo>}
 
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>

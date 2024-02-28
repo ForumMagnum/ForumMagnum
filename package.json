@@ -16,6 +16,7 @@
     "start-local-db": "./build.js -run --watch --lint --settings settings-dev.json",
     "start-dev-db": "./build.js --no-clear -run --watch --lint --db ../LessWrong-Credentials/connectionConfigs/dev.json --settings ../LessWrong-Credentials/settings-local-dev-devdb.json",
     "start-prod-db": "./build.js --no-clear -run --watch --lint --db ../LessWrong-Credentials/connectionConfigs/prod.json --settings ../LessWrong-Credentials/settings-local-dev-proddb.json",
+    "start-prod-db-2": "PORT=3005 ./build.js --no-clear -run --lint --db ../LessWrong-Credentials/connectionConfigs/prod.json --settings ../LessWrong-Credentials/settings-local-dev-proddb.json",
     "lw-start-local-db": "./build.js --no-clear -run --watch --lint --db ../LessWrong-Credentials/connectionConfigs/local.json --settings settings.json",
     "shell": "./build.js --no-clear -run --settings settings.json --shell",
     "shell-dev-db": "./build.js --no-clear -run --db ../LessWrong-Credentials/connectionConfigs/dev.json --settings ../LessWrong-Credentials/settings-local-dev-devdb.json --shell",
