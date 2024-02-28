@@ -143,6 +143,11 @@ import './collections/userJobAds/fragments';
 import './collections/userJobAds/permissions';
 import './collections/userJobAds/views';
 
+import './collections/userEAGDetails/collection';
+import './collections/userEAGDetails/fragments';
+import './collections/userEAGDetails/permissions';
+import './collections/userEAGDetails/views';
+
 import './collections/userMostValuablePosts/collection';
 import './collections/userMostValuablePosts/fragments';
 import './collections/userMostValuablePosts/permissions';
@@ -285,6 +290,19 @@ import './collections/dialogueMatchPreferences/views';
 // dialogue match preferences
 import './collections/ckEditorUserSessions/collection';
 import './collections/ckEditorUserSessions/fragments';
+
+// Review winners
+import './collections/reviewWinners/collection';
+import './collections/reviewWinners/fragments';
+
+// Review winners
+import './collections/reviewWinnerArts/collection';
+import './collections/reviewWinnerArts/fragments';
+import './collections/reviewWinnerArts/views';
+
+// Splash art coordinates
+import './collections/splashArtCoordinates/collection';
+import './collections/splashArtCoordinates/fragments';
 
 // Alignment Forum
 import './alignment-forum/permissions';

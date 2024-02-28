@@ -25,6 +25,32 @@ registerFragment(`
   }
 `);
 
+// ...PostsAuthors
+
+registerFragment(`
+  fragment PostsTopItemInfo on Post {
+    ...PostsMinimumInfo
+    ...PostsAuthors
+    isRead
+    contents {
+      _id
+      htmlHighlight
+      wordCount
+      version
+    }
+    customHighlight {
+      _id
+      html
+    }
+    tags {
+      ...TagPreviewFragment
+    }
+    reviewWinner {
+      ...ReviewWinnerTopPostsPage
+    }
+  }
+`);
+
 registerFragment(`
   fragment PostsBase on Post {
     ...PostsMinimumInfo
@@ -434,6 +460,9 @@ registerFragment(`
     }
     
     tableOfContentsRevision(version: $version)
+    reviewWinner {
+      ...ReviewWinnerAll
+    }
   }
 `)
 
@@ -443,6 +472,9 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContents
+    reviewWinner {
+      ...ReviewWinnerAll
+    }
   }
 `)
 

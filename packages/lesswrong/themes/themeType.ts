@@ -154,6 +154,10 @@ declare global {
       primaryDarkOnDim: ColorString,
       contentHeader?: ColorString,
     
+      reviewWinner: {
+        title: ColorString,
+        author: ColorString,
+      }
       reviewUpvote: ColorString,
       reviewDownvote: ColorString,
       reviewBallotIcon: ColorString,
@@ -164,7 +168,7 @@ declare global {
         yellow: ColorString,
         green: ColorString,
       },
-
+      
       debateComment: {
         [1]: ColorString,
         [2]: ColorString,
@@ -221,7 +225,7 @@ declare global {
       recentDiscussionGrey: ColorString,
       headerKarma: ColorString,
       activeDotOrange: ColorString,
-
+      
       commentsBubble: {
         commentCount: ColorString,
         noUnread: ColorString,
@@ -320,6 +324,7 @@ declare global {
       strawpoll: ColorString,
       userProfileImageHover: ColorString,
       userProfileImageLoading: string,
+      reviewGold: ColorString
       onboardingSection: ColorString,
       onboardingPodcast: ColorString,
     },
@@ -419,6 +424,14 @@ declare global {
       adminButton: ColorString,
       winner: ColorString,
     },
+    leastwrong: {
+      fadeOut: ColorString,
+      imageGridHeaderHighlighted: ColorString,
+      imageGridHeader: ColorString,
+      highlightedPost: ColorString,
+      imageGridBackground: ColorString,
+      postBodyScrim: ColorString,
+    }
     background: {
       default: ColorString
       paper: ColorString,

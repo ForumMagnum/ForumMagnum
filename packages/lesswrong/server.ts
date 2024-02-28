@@ -76,6 +76,8 @@ import "./server/scripts/randomRecommendationSamples";
 import './server/scripts/cleanUpDuplicatePostAutosaves';
 import "./server/scripts/generativeModels/generateTaggingPostSets";
 import "./server/scripts/generativeModels/testModGPTOnComments";
+import "./server/scripts/generativeModels/coverImage";
+import "./server/scripts/addManualReviewArt";
 // doesn't pass unit tests but works fine. Leaving commented out for now
 // import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
@@ -178,7 +180,7 @@ import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/databaseSettingsResolvers';
-
+import './server/resolvers/reviewWinnerResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';

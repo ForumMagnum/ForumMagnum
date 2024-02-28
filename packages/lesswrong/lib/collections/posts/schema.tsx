@@ -33,6 +33,7 @@ import {crosspostKarmaThreshold} from '../../publicSettings'
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
+import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 
 // TODO: This disagrees with the value used for the book progress bar
 export const READ_WORDS_PER_MINUTE = 250;
@@ -1150,7 +1151,26 @@ const schema: SchemaType<"Posts"> = {
       resolver: (reviewVotesField) => reviewVotesField("*"),
     }),
   }),
-  
+
+  reviewWinner: resolverOnlyField({
+    type: "ReviewWinner",
+    graphQLtype: "ReviewWinner",
+    canRead: ['guests'],
+    resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      const { currentUser, ReviewWinners } = context;
+      const winner = await getPostReviewWinnerInfo(post._id, context);
+      return accessFilterSingle(currentUser, ReviewWinners, winner, context);
+    },
+    sqlResolver: ({field, join}) => join({
+      table: "ReviewWinners",
+      type: "left",
+      on: {
+        postId: field("_id"),
+      },
+      resolver: (reviewWinnersField) => reviewWinnersField("*"),
+    })
+  }),
+
   votingSystem: {
     type: String,
     optional: true,
