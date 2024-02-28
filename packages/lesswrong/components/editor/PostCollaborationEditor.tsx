@@ -9,7 +9,6 @@ import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { fragmentTextForQuery } from '../../lib/vulcan-lib/fragments';
 import { useQuery, gql } from '@apollo/client';
-import { isFriendlyUI } from '../../themes/forumTheme';
 
 const styles = (theme: ThemeType): JssStyles => ({
   title: {
@@ -35,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm, PostVersionHistoryButton, FriendlyPostVersionHistoryButton } = Components
+  const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm, PostVersionHistoryButton } = Components
   const currentUser = useCurrentUser();
 
   const { query: { postId, key } } = useLocation();
@@ -90,8 +89,6 @@ const PostCollaborationEditor = ({ classes }: {
     return <ForeignCrosspostEditForm post={post} />;
   }
 
-  const VersionHistoryButton = isFriendlyUI ? FriendlyPostVersionHistoryButton : PostVersionHistoryButton
-  
   return <SingleColumnSection>
     <div className={classes.title}>{post.title}</div>
     <Components.PostsAuthors post={post}/>
@@ -111,7 +108,7 @@ const PostCollaborationEditor = ({ classes }: {
           accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
           document={post}
         />
-        <VersionHistoryButton
+        <PostVersionHistoryButton
           post={post}
           postId={postId}
         />
