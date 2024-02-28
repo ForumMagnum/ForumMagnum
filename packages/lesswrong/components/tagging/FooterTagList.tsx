@@ -26,7 +26,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     gap: '4px',
     flexWrap: 'wrap',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     alignItems: 'center',
   },
   allowTruncate: {

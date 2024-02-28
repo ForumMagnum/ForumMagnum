@@ -72,6 +72,8 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   const { landmarkName: highlightedLandmarkName } = useScrollHighlight(
     flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
+
+  if (flattenedComments.length === 0) return null;
   
   if (!commentsTableOfContentsEnabled) {
     return null;
