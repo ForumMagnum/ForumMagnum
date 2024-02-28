@@ -135,8 +135,8 @@ function locationToPreload(location: RouterLocation): RouterLocation {
   return {
     currentRoute: route, RouteComponent,
     location,
-    pathname: location.pathname,
-    url: location.pathname,
+    pathname: route.path,
+    url: route.path,
     params: {}, hash: "", query: {},
   };
 }
