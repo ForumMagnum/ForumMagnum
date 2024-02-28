@@ -161,7 +161,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     top: 56,
     right: 24,
     mixBlendMode: 'overlay',
-    color: 'white',
+    color: theme.palette.text.alwaysWhite,
     zIndex: 2,
     maxWidth: 300,
     textWrap: 'balance',
