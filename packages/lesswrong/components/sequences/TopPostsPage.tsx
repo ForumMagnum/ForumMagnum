@@ -350,7 +350,7 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 0,
     borderRight: `1px solid ${theme.palette.text.alwaysWhite}`,
     borderBottom: `1px solid ${theme.palette.text.alwaysWhite}`,
-    background: `linear-gradient(0deg, rgba(0,0,0,var(--top-posts-page-scrim-opacity)), transparent 60%)`,
+    background: `linear-gradient(0deg, ${theme.palette.leastwrong.postBodyScrim}, transparent 60%)`,
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",

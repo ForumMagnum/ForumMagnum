@@ -508,6 +508,7 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
     imageGridHeader: 'rgba(241, 209, 150, .4)',
     highlightedPost: 'rgba(0,0,0,0.27)',
     imageGridBackground: '#f8f4ee',
+    postBodyScrim: 'rgba(0,0,0,var(--top-posts-page-scrim-opacity))'
   },
   header: {
     text: shades.greyAlpha(.87),

@@ -430,6 +430,7 @@ declare global {
       imageGridHeader: ColorString,
       highlightedPost: ColorString,
       imageGridBackground: ColorString,
+      postBodyScrim: ColorString,
     }
     background: {
       default: ColorString
