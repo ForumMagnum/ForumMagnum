@@ -12,7 +12,10 @@ export const formGroups: Record<string, FormGroupType<"Posts">> = {
   category: {
     name: "category",
     order: -20,
-    layoutComponent: "FormGroupPostTopBar",
+    layoutComponentProps: {
+      groupStyling: false,
+      paddingStyling: true,
+    }
   },
   title: {
     name: "title",
