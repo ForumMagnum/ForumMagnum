@@ -1807,6 +1807,20 @@
   resolved "https://registry.yarnpkg.com/@fastify/busboy/-/busboy-2.0.0.tgz#f22824caff3ae506b18207bad4126dbc6ccdb6b8"
   integrity sha512-JUFJad5lv7jxj926GPgymrWQxxjPYuJNiNjNMzqT+HiuP6Vl3dk5xzG+8sTX96np0ZAluvaMzPsjhHZ5rNuNQQ==
 
+"@googleapis/drive@^8.7.0":
+  version "8.7.0"
+  resolved "https://registry.yarnpkg.com/@googleapis/drive/-/drive-8.7.0.tgz#ae89aff42fda6408c4aece846f21902094d60206"
+  integrity sha512-XAi6kfySIU4H3ivX2DpzTDce5UhNke5NxEWCL6tySEdcVqx+cmXJmkMqwfOAHJalEB5s9PPfdLBU29Xd5XlLSQ==
+  dependencies:
+    googleapis-common "^7.0.0"
+
+"@googleapis/oauth2@^1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@googleapis/oauth2/-/oauth2-1.0.5.tgz#39b2aecd90f07554240e4c776194d13edbb5ca9f"
+  integrity sha512-nAXO+qbYuBltMXTq3AuZfWmbON5dR5maEIyjGDlWM+qaB2/vmfvU87uEXFK8PpsSxuvM5amWrHI/N+sHErAZ6g==
+  dependencies:
+    googleapis-common "^7.0.0"
+
 "@googlemaps/google-maps-services-js@^3.1.13":
   version "3.1.13"
   resolved "https://registry.yarnpkg.com/@googlemaps/google-maps-services-js/-/google-maps-services-js-3.1.13.tgz"
@@ -9116,14 +9130,6 @@ googleapis-common@^7.0.0:
     qs "^6.7.0"
     url-template "^2.0.8"
     uuid "^9.0.0"
-
-googleapis@^133.0.0:
-  version "133.0.0"
-  resolved "https://registry.yarnpkg.com/googleapis/-/googleapis-133.0.0.tgz#e8d2f7128eb60d1c268dde91b6e17f5c5403790a"
-  integrity sha512-6xyc49j+x7N4smawJs/q1i7mbSkt6SYUWWd9RbsmmDW7gRv+mhwZ4xT+XkPihZcNyo/diF//543WZq4szdS74w==
-  dependencies:
-    google-auth-library "^9.0.0"
-    googleapis-common "^7.0.0"
 
 gopd@^1.0.1:
   version "1.0.1"

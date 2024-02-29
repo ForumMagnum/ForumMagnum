@@ -21,7 +21,7 @@ import { AUTH0_SCOPE, loginAuth0User, signupAuth0User } from './authentication/a
 import { IdFromProfile, UserDataFromProfile, getOrCreateForumUser } from './authentication/getOrCreateForumUser';
 import { promisify } from 'util';
 import { OAuth2Client as GoogleOAuth2Client } from 'google-auth-library';
-import { google } from 'googleapis';
+import { oauth2 } from '@googleapis/oauth2';
 import { googleDocImportClientIdSetting, googleDocImportClientSecretSetting, updateActiveServiceAccount } from './posts/googleDocImport';
 import { userIsAdmin } from '../lib/vulcan-users';
 
@@ -217,7 +217,7 @@ const addGoogleDriveLinkMiddleware = (addConnectHandler: AddMiddlewareType) => {
 
       oauth2Client.setCredentials(tokens);
 
-      const userInfo = await google.oauth2({
+      const userInfo = await oauth2({
         auth: oauth2Client,
         version: 'v2'
       }).userinfo.get();
