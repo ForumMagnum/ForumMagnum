@@ -13,7 +13,7 @@ registerMigration({
       WHERE
         u."_id" = n."userId" AND
         n."type" = 'newMessage' AND
-        COALESCE(u."lastNotificationsCheck", '2000-01-01'::TIMESTAMP) > n."createdAt"
+        COALESCE(u."lastNotificationsCheck", TO_TIMESTAMP(0)) > n."createdAt"
     `);
   },
 });
