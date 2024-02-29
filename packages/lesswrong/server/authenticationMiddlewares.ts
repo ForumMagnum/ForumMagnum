@@ -22,7 +22,7 @@ import { IdFromProfile, UserDataFromProfile, getOrCreateForumUser } from './auth
 import { promisify } from 'util';
 import { OAuth2Client as GoogleOAuth2Client } from 'google-auth-library';
 import { google } from 'googleapis';
-import { updateActiveServiceAccount } from './posts/googleDocImport';
+import { googleDocImportClientIdSetting, googleDocImportClientSecretSetting, updateActiveServiceAccount } from './posts/googleDocImport';
 import { userIsAdmin } from '../lib/vulcan-users';
 
 /**
@@ -171,8 +171,8 @@ async function deserializeUserPassport(id: AnyBecauseTodo, done: AnyBecauseTodo)
  * Add routes for handling linking the service account required to import google docs
  */
 const addGoogleDriveLinkMiddleware = (addConnectHandler: AddMiddlewareType) => {
-  const googleClientId = googleClientIdSetting.get();
-  const googleOAuthSecret = googleOAuthSecretSetting.get();
+  const googleClientId = googleDocImportClientIdSetting.get();
+  const googleOAuthSecret = googleDocImportClientSecretSetting.get()
 
   if (!googleClientId || !googleOAuthSecret) {
     return;
