@@ -5,8 +5,8 @@ import { extractGoogleDocId } from '../../lib/collections/posts/helpers';
 import GoogleServiceAccountSessions from '../../lib/collections/googleServiceAccountSessions/collection';
 import { createMutator, updateMutator } from '../vulcan-lib';
 
-const clientIdSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.clientId', null)
-const clientSecretSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.secret', null)
+export const googleDocImportClientIdSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.clientId', null)
+export const googleDocImportClientSecretSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.secret', null)
 
 let oAuth2Client: OAuth2Client | null = null;
 let cacheTimestamp: number | null = null;
@@ -22,8 +22,8 @@ export async function getGoogleDocImportOAuthClient() {
     return oAuth2Client;
   }
 
-  const googleClientId = clientIdSetting.get();
-  const googleOAuthSecret = clientSecretSetting.get();
+  const googleClientId = googleDocImportClientIdSetting.get();
+  const googleOAuthSecret = googleDocImportClientSecretSetting.get();
 
   if (!googleClientId || !googleOAuthSecret) {
     throw new Error('Google OAuth client not configured');
@@ -87,8 +87,8 @@ async function getActiveRefreshToken() {
  * the active token, as previous tokens are automatically revoked, but we may want to do it for security reasons
  */
 export async function revokeAllAccessTokens() {
-  const googleClientId = clientIdSetting.get();
-  const googleOAuthSecret = clientSecretSetting.get();
+  const googleClientId = googleDocImportClientIdSetting.get();
+  const googleOAuthSecret = googleDocImportClientSecretSetting.get();
 
   if (!googleClientId || !googleOAuthSecret) {
     throw new Error('Google OAuth client not configured');
