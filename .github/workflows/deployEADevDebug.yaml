@@ -2,7 +2,7 @@ name: Deploy EA Debug
 concurrency: deploy-ea-dev
 on:
   push:
-    branches: [ wh-google-doc-deploy-test-2024-02 ]
+    branches: [ wh-google-doc-deploy-test-2024-02, wh-gdoc-fix-deploys-2024-02 ]
 jobs:
   deploy:
     runs-on: ubuntu-latest
