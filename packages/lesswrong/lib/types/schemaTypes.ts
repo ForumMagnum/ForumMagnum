@@ -3,6 +3,7 @@ import type { SimpleSchema } from 'simpl-schema';
 import { formProperties } from '../vulcan-forms/schema_utils';
 import type { SmartFormProps } from '../../components/vulcan-forms/propTypes';
 import { permissionGroups } from "../permissions";
+import type { FormGroupLayoutProps } from '../../components/form-components/FormGroupLayout';
 
 /// This file is wrapped in 'declare global' because it's an ambient declaration
 /// file (meaning types in this file can be used without being imported).
@@ -174,17 +175,21 @@ type FormGroupType<N extends CollectionNameString> = {
   name: string,
   order: number,
   label?: string,
-  paddingStyle?: boolean,
   startCollapsed?: boolean,
-  defaultStyle?: boolean,
   helpText?: string,
-  flexStyle?: boolean,
   hideHeader?: boolean,
-  flexAlignTopStyle?: boolean,
+  layoutComponent?: ComponentWithProps<FormGroupLayoutProps>,
+  layoutComponentProps?: Partial<FormGroupLayoutProps>,
   fields?: FormField<N>[]
 }
 
-type SchemaType<N extends CollectionNameString> = Record<string, CollectionFieldSpecification<N>>
+// Using FormGroupType as part of the props of a function causes a circular reference (because ComponentWithProps<T>
+// needs to know the prop types of all registered components), omit `layoutComponent` to fix this
+type FormGroupSafeType<N extends CollectionNameString> = Omit<FormGroupType<N>, "layoutComponent"> & {
+  layoutComponent?: string;
+};
+
+type SchemaType<N extends CollectionNameString> = Record<string, CollectionFieldSpecification<N>>;
 type SimpleSchemaType<N extends CollectionNameString> = SimpleSchema & {_schema: SchemaType<N>};
 
 }

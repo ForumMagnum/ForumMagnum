@@ -58,7 +58,7 @@ const ModerationGuidelinesEditForm = ({ commentType = "post", documentId, onClos
           successCallback={onClose}
           formComponents={{
             FormSubmit: SubmitComponent,
-            FormGroupLayout: Components.DefaultStyleFormGroup
+            FormGroupLayout: Components.FormGroupNoStyling
           }}
           extraVariables={isPost ? {
             version: 'String'

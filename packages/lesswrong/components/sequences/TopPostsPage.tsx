@@ -137,8 +137,8 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down(800)]: {
       flexDirection: "column",
     },
-    '&:hover $imageGridPostBody': {
-      backdropFilter: 'none',
+    '&:hover $imageGridPostBody:not($imageGridPostRead)': {
+      backdropFilter: 'grayscale(0) brightness(0.6)',
       '--top-posts-page-scrim-opacity': '0%'
     },
   },
@@ -244,9 +244,9 @@ const styles = (theme: ThemeType) => ({
     },
     // This is so that when the user moves their mouse between different post items in the grid (which have loaded their images successfully),
     // the "cover" image doesn't pop in between "post" image transitions
-    '&:has($imageGridPostBackgroundCompleteHovered:not($imageGridPostBackgroundContainerHidden)) $imageGridBackgroundContainer': {
-      opacity: 0,
-    },
+    // '&:has($imageGridPostBackgroundCompleteHovered:not($imageGridPostBackgroundContainerHidden)) $imageGridBackgroundContainer': {
+    //   opacity: 0,
+    // },
   },
   // If we want to display a grid with more than 6 items, increase this number
   ...Object.fromEntries(Array.from({ length: MAX_GRID_SIZE }, (_, i) => gridPositionToClassesEntry(theme, i))),
@@ -335,6 +335,10 @@ const styles = (theme: ThemeType) => ({
     }
   },
 
+  imageGridPostRead: {
+
+  },
+
   imageGridPostHidden: {
     opacity: 0,
     transitionDelay: '0.5s'
@@ -346,8 +350,6 @@ const styles = (theme: ThemeType) => ({
   },
 
   imageGridPostBody: {
-    padding: 4,
-    paddingTop: 0,
     borderRight: `1px solid ${theme.palette.text.alwaysWhite}`,
     borderBottom: `1px solid ${theme.palette.text.alwaysWhite}`,
     background: `linear-gradient(0deg, ${theme.palette.leastwrong.postBodyScrim}, transparent 60%)`,
@@ -381,6 +383,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0,
     zIndex: -1,
     transition: "opacity 0.2s ease-in",
+    transitionDelay: '0.2s',
     objectPosition: "right",
     background: theme.palette.leastwrong.imageGridBackground,
     display: 'flex',
@@ -407,13 +410,15 @@ const styles = (theme: ThemeType) => ({
     textAlign: "right",
     paddingTop: 2,
     fontWeight: 600,
-    paddingRight: 2,
+    paddingRight: 6,
     transition: "opacity 0.2s ease-in",
     paddingLeft: 12
   },
   imageGridPostTitle: {
+    padding: 4,
+    paddingTop: 0,
     transition: "opacity 0.2s ease-in",
-    textShadow: `0px 0px 3px ${theme.palette.text.alwaysBlack}`,
+    textShadow: `0px 0px 3px ${theme.palette.text.alwaysBlack}, 0 0 5px ${theme.palette.text.alwaysBlack}, 0 0 8px ${theme.palette.text.alwaysBlack}`,
     textOverflow: "ellipsis",
     display: "-webkit-box",
     WebkitLineClamp: 6,
@@ -632,7 +637,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
       <AnalyticsContext pageContext="topPostsPage">
         <div className={classes.widerColumn}>
           <div className={classes.description}>
-            <SectionTitle title={preferredHeadingCase("The LeastWrong")} className={classes.title} />
+            <SectionTitle title={preferredHeadingCase("The Best of LessWrong")} className={classes.title} />
             <ContentStyles contentType="post">
               Here you can find the best posts of LessWrong. When posts turn more than a year old, the LessWrong community reviews and votes on how well they have stood the test of time. These are the posts that have ranked the highest for all years since 2018 (when our annual tradition of choosing the least wrong of LessWrong began).
               <br /><br />
@@ -900,7 +905,7 @@ const ImageGridPost = ({ post, imgSrc, imageGridId, handleToggleFullyOpen, image
   const handleMouseLeave = () => setHover(false);
 
   return <Link className={classes.imageGridPost} key={post._id} to={isShowAll && showAllVisible ? (location.pathname + location.search)  : postGetPageUrl(post)}>
-    <div className={classNames(classes.imageGridPostBody, {[classes.imageGridPostUnread]: currentUser && !post.isRead})} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
+    <div className={classNames(classes.imageGridPostBody, {[classes.imageGridPostUnread]: currentUser && !post.isRead, [classes.imageGridPostRead]: currentUser && post.isRead})} onMouseOver={handleMouseOver} onMouseLeave={handleMouseLeave}>
       <div className={authorClassName}>
         {post?.user?.displayName}
       </div>

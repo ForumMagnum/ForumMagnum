@@ -1,9 +1,11 @@
 
-export const formGroups = {
+export const formGroups: Partial<Record<string, FormGroupType<"Spotlights">>> = {
   spotlight: {
     name: "spotlight",
     order: 0,
-    paddingStyle: true,
-    label: "Spotlight"
+    label: "Spotlight",
+    layoutComponentProps: {
+      paddingStyling: true,
+    }
   },
 };
