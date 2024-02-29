@@ -51,6 +51,7 @@ const styles = (theme: ThemeType) => ({
   commentToCIntersection: {
     // And unfortunately we need !important because otherwise this style gets overriden by the `top: 0` in `stickyBlockScroller`
     top: '-1px !important',
+    paddingTop: 12
   },
   stickyBlockScroller: {
     position: "sticky",
@@ -114,13 +115,14 @@ export type ToCLayoutSegment = {
   isCommentToC?: boolean,
 };
 
-const MultiToCLayout = ({segments, classes}: {
+const MultiToCLayout = ({segments, classes, tocRowMap = []}: {
   segments: ToCLayoutSegment[],
   classes: ClassesType<typeof styles>,
+  tocRowMap?: number[] // This allows you to specify which row each ToC should be in
 }) => {
   const tocVisible = true;
   const gridTemplateAreas = segments
-    .map((_segment,i) => `"... toc${i} gap1 content${i} gap2 rhs${i} gap3 ..."`)
+    .map((_segment,i) => `"... toc${tocRowMap[i] || i} gap1 content${i} gap2 rhs${i} gap3 ..."`)
     .join('\n')
   return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
     {segments.map((segment,i) => <React.Fragment key={i}>
