@@ -10,6 +10,7 @@ import moment from 'moment';
 import { InteractionWrapper, useClickableCell } from '../common/useClickableCell';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
+import { jobAdDescription, useABTest } from '../../lib/abTests';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -223,29 +224,130 @@ type EAGOccupation =
   'S-risk'
 
 type JobAdData = {
-  eagOccupations?: EAGOccupation[],  // used to match on EAG experience + interests
-  interestedIn?: EAGOccupation[],    // used to match on EAG interests
-  subscribedTagIds?: string[],       // used to match on a set of topics that the user is subscribed to
-  readCoreTagIds?: string[],         // used to match on a set of core topics that the user has read frequently
-  logo: string,                      // url for org logo
-  occupation: string,                // text displayed in the tooltip
-  feedbackLinkPrefill: string,       // url param used to prefill part of the feedback form
-  bitlyLink: string,                 // bitly link to the job ad page
+  eagOccupations?: EAGOccupation[],                           // used to match on EAG experience + interests
+  interestedIn?: EAGOccupation[],                             // used to match on EAG interests
+  subscribedTagIds?: string[],                                // used to match on a set of topics that the user is subscribed to
+  readCoreTagIds?: string[],                                  // used to match on a set of core topics that the user has read frequently
+  coreTagReadsThreshold?: number,                             // used to adjust the threshold for how many post reads per topic to qualify for seeing the ad
+  logo: string,                                               // url for org logo
+  occupation: string,                                         // text displayed in the tooltip
+  feedbackLinkPrefill: string,                                // url param used to prefill part of the feedback form
+  bitlyLink: string,                                          // bitly link to the job ad page
   role: string,
-  insertThe?: boolean,               // set if you want to insert a "the" before the org name
+  insertThe?: boolean,                                        // set if you want to insert a "the" before the org name
   org: string,
-  orgLink: string,                   // internal link on the org name
+  orgLink: string,                                            // internal link on the org name
   salary?: string,
   location: string,
-  countryCode?: string,              // if provided, only show to users who we think are in this country
-  roleType?: string,                 // i.e. part-time, contract
-  deadline?: moment.Moment,          // also used to hide the ad after this date
-  getDescription: (classes: ClassesType) => JSX.Element
+  countryCode?: string,                                       // if provided, only show to users who we think are in this country
+  roleType?: string,                                          // i.e. part-time, contract
+  deadline?: moment.Moment,                                   // also used to hide the ad after this date
+  getDescription: (classes: ClassesType) => JSX.Element,
+  get80kDescription?: (classes: ClassesType) => JSX.Element   // just used on some ads for an A/B test
 }
 
 // job-specific data for the ad
 // (also used in the reminder email, so links in the description need to be absolute)
 export const JOB_AD_DATA: Record<string, JobAdData> = {
+  'gwwc-researcher': {
+    subscribedTagIds: [
+      'psBzwdY8ipfCeExJ7', // cause prioritization
+      'L6NqHZkLc4xZ7YtDr', // effective giving
+    ],
+    readCoreTagIds: [
+      'psBzwdY8ipfCeExJ7', // cause prioritization
+      'L6NqHZkLc4xZ7YtDr', // effective giving
+    ],
+    coreTagReadsThreshold: 60,
+    logo: 'https://80000hours.org/wp-content/uploads/2023/01/Giving-What-We-Can-160x160.png',
+    occupation: 'cause prioritization and effective giving',
+    feedbackLinkPrefill: 'Researcher+at+GWWC',
+    bitlyLink: "https://efctv.org/3uHTPZU", // https://www.givingwhatwecan.org/get-involved/careers/gwwc-researcher
+    role: 'Researcher',
+    org: 'Giving What We Can',
+    orgLink: '/topics/giving-what-we-can',
+    salary: '£37k - £64k',
+    location: 'Remote',
+    deadline: moment('2024-03-02'),
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <Link to="https://www.givingwhatwecan.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Giving What We Can (GWWC)
+        </Link> is a nonprofit providing support, community and information for donors to do the most good with their charitable giving.
+        This researcher will help identify the most effective donation opportunities for a variety of worldviews, and recommend these to donors.
+      </div>
+      <div className={classes.description}>
+        An ideal candidate:
+        <ul>
+          <li>Has excellent analytical skills, and is comfortable working with quantitative and qualitative frameworks</li>
+          <li>Has great written communication skills</li>
+          <li>Is a skilled generalist, open to adapting to different types of work</li>
+        </ul>
+      </div>
+    </>,
+    get80kDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <Link to="https://www.givingwhatwecan.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Giving What We Can
+        </Link> is a nonprofit providing support, community and information for donors to do the most good with their charitable giving.
+      </div>
+      <div className={classes.description}>
+        Giving What We Can (GWWC) is looking for a Researcher to help us identify the most effective donation opportunities for a variety of worldviews,
+        and recommend these to our donors. This role provides an opportunity to help influence millions of dollars of charitable giving to be more effective.
+        We estimate GWWC as a whole caused ~$83M in donations to high-impact charities through our fundraising and recommendations in 2020-2022.
+        In 2022 alone, GWWC pledgers and other donors gave ~$27M through our donation platform, and reported giving another [...]
+      </div>
+    </>
+  },
+  'saferai-technical-governance-researcher': {
+    subscribedTagIds: [
+      'u3Xg8MjDe2e6BvKtv', // AI governance
+    ],
+    readCoreTagIds: [
+      'u3Xg8MjDe2e6BvKtv', // AI governance
+    ],
+    logo: 'https://80000hours.org/wp-content/uploads/2024/02/saferai_logo-160x160.jpeg',
+    occupation: 'AI governance',
+    feedbackLinkPrefill: 'Technical+Governance+Researcher+at+SaferAI',
+    bitlyLink: "https://efctv.org/3UOH0aW", // https://docs.google.com/document/d/1-WV4LPcleEMQO5slSz90wfBuXH5mlXXA37JoQJGOq9s/edit
+    role: 'Technical Governance Researcher',
+    org: 'SaferAI',
+    orgLink: '/topics/saferai',
+    salary: '$50k - $75k',
+    location: 'Remote',
+    getDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <Link to="https://www.safer-ai.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          SaferAI
+        </Link> is a French organization dedicated to assessing and managing AI risks. They worked in standardization at JTC21,
+        the body in charge of writing the technical specifications of the EU AI Act, and part of the newly constituted US AI Safety Institute Consortium.
+      </div>
+      <div className={classes.description}>
+        This researcher will be a key enabler in ensuring the technical standardization contributions of SaferAI be as high quality as possible.
+      </div>
+      <div className={classes.description}>
+        An ideal candidate:
+        <ul>
+          <li>Has strong knowledge of AI safety & AI governance</li>
+          <li>Has strong writing skills</li>
+          <li>Is detail-oriented and conscientious</li>
+        </ul>
+      </div>
+    </>,
+    get80kDescription: (classes: ClassesType) => <>
+      <div className={classes.description}>
+        <Link to="https://www.safer-ai.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          SaferAI
+        </Link> is an organisation dedicated to assessing and managing AI risks.
+      </div>
+      <div className={classes.description}>
+        We are looking for a Technical Governance Researcher with a strong ability to write technical governance pieces for AI safety that SaferAI
+        will contribute to EU and US standardization efforts. The Technical Governance Researcher will be working closely with the standardization
+        team and the leadership to produce excellent work that gets distributed in such institutions. You will be a key enabler in ensuring the
+        technical standardization contributions of SaferAI be as high quality as possible. Responsibilities: Objective: Be the SaferAI technical governance [...]
+      </div>
+    </>
+  },
   'cltr-biosecurity-policy-advisor': {
     subscribedTagIds: [
       'H43gvLzBCacxxamPe', // biosecurity
@@ -269,11 +371,9 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     deadline: moment('2024-03-08'),
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        The <InteractionWrapper className={classes.inline}>
-          <Link to="https://www.longtermresilience.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-            Centre for Long-Term Resilience (CLTR)
-          </Link>
-        </InteractionWrapper> is a UK-based non-profit and independent think tank with a mission to transform global resilience to extreme risks.
+        The <Link to="https://www.longtermresilience.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          Centre for Long-Term Resilience (CLTR)
+        </Link> is a UK-based non-profit and independent think tank with a mission to transform global resilience to extreme risks.
         This role will contribute to developing, evaluating, and advocating for impactful <span className={classes.link}>
           <Components.HoverPreviewLink href={makeAbsolute("/topics/biosecurity")}>
             biosecurity
@@ -306,11 +406,9 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     location: 'Remote, multiple locations',
     getDescription: (classes: ClassesType) => <>
       <div className={classes.description}>
-        <InteractionWrapper className={classes.inline}>
-          <Link to="https://www.leadelimination.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-            LEEP
-          </Link>
-        </InteractionWrapper> is an impact-driven non-profit that aims to eliminate childhood <span className={classes.link}>
+        <Link to="https://www.leadelimination.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
+          LEEP
+        </Link> is an impact-driven non-profit that aims to eliminate childhood <span className={classes.link}>
           <Components.HoverPreviewLink href={makeAbsolute("/topics/lead-poisoning")}>
             lead poisoning
           </Components.HoverPreviewLink>
@@ -323,40 +421,6 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
           <li>Strong interpersonal and stakeholder management skills</li>
           <li>Willingness to travel for 8 to 12 weeks per year</li>
           <li>Strong ability to prioritise and focus on impact</li>
-        </ul>
-      </div>
-    </>
-  },
-  'thl-apa-program-specialist': {
-    subscribedTagIds: [
-      'QdH9f8TC6G8oGYdgt', // animal welfare
-      'of9xBvR3wpbp6qsZC', // policy
-    ],
-    logo: 'https://80000hours.org/wp-content/uploads/2019/12/he-humane-league-160x160.png',
-    occupation: 'animal welfare and policy',
-    feedbackLinkPrefill: 'APA+Program+Specialist+at+THL',
-    bitlyLink: "https://efctv.org/3UrH6ov", // https://thehumaneleague.org/single-offer-career?gh_jid=5608962
-    role: 'Animal Policy Alliance, Program Specialist',
-    org: 'The Humane League',
-    orgLink: '/topics/the-humane-league',
-    salary: '$65k - $80k',
-    location: 'Remote (USA)',
-    deadline: moment('2024-02-08'),
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        Animal Policy Alliance (APA), launched by <InteractionWrapper className={classes.inline}>
-          <Link to="https://thehumaneleague.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-            The Humane League
-          </Link>
-        </InteractionWrapper> in 2022, is a national network of state and local animal protection and food policy advocacy groups in the US that include animals
-        raised for food among their legislative priorities. The program specialist will play a key role in supporting the growth and operation of the APA.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates have:
-        <ul>
-          <li>A minimum 5 years experience in positions related to public policy and/or animal protection advocacy</li>
-          <li>Event planning experience</li>
-          <li>Outstanding relationship building and interpersonal skills</li>
         </ul>
       </div>
     </>
@@ -375,6 +439,8 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
   classes: ClassesType,
 }) => {
   const adData = JOB_AD_DATA[ad]
+  // Temp A/B test for the job ad description
+  const descriptionAbTestGroup = useABTest(jobAdDescription)
   
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking()
@@ -392,7 +458,10 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
       onExpand()
     }
   }, [expanded, setExpanded, captureEvent, onExpand])
-  const { onClick } = useClickableCell({onClick: handleToggleExpand})
+  const { onClick } = useClickableCell({
+    onClick: handleToggleExpand,
+    ignoreLinks: true
+  })
   
   const handleApply = useCallback(() => {
     setClosed(true)
@@ -409,7 +478,11 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
   if (!adData || !currentUser) {
     return null
   }
-
+  
+  const description = descriptionAbTestGroup === '80k' && adData.get80kDescription ? adData.get80kDescription(classes) : adData.getDescription(classes)
+  // Only show the "Remind me" button if the job's deadline is more than 3 days away
+  const showRemindMe = adData.deadline && moment().add(3, 'days').isBefore(adData.deadline)
+  
   return <AnalyticsContext pageSubSectionContext="targetedJobAd">
     <div className={classNames(classes.root, {[classes.rootClosed]: closed})} onClick={onClick}>
       <div className={classes.topRow}>
@@ -422,16 +495,14 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
           </LWTooltip>
         </div>
         <div className={classNames(classes.feedbackLink, classes.metadata)}>
-          <InteractionWrapper>
-            <a href={`
-                https://docs.google.com/forms/d/e/1FAIpQLSd4uDGbXbJSwYX2w_9wXNTuLLBf7bhiWoWc-goJJXiWGA7qDg/viewform?usp=pp_url&entry.70861771=${adData.feedbackLinkPrefill}
-              `}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Give us feedback
-            </a>
-          </InteractionWrapper>
+          <a href={`
+              https://docs.google.com/forms/d/e/1FAIpQLSd4uDGbXbJSwYX2w_9wXNTuLLBf7bhiWoWc-goJJXiWGA7qDg/viewform?usp=pp_url&entry.70861771=${adData.feedbackLinkPrefill}
+            `}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Give us feedback
+          </a>
         </div>
         <InteractionWrapper>
           <Tooltip title="Dismiss">
@@ -484,7 +555,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
           </div>
           
           <div className={classNames({[classes.collapsedBody]: !expanded})}>
-            {adData.getDescription(classes)}
+            {description}
             <InteractionWrapper>
               <div className={classes.btnRow}>
                 <EAButton
@@ -497,7 +568,7 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
                 >
                   Apply <OpenInNew className={classes.btnIcon} />
                 </EAButton>
-                {adData.deadline && <EAButton variant="contained" style="grey" onClick={handleRemindMe} className={classes.btn}>
+                {showRemindMe && <EAButton variant="contained" style="grey" onClick={handleRemindMe} className={classes.btn}>
                   Remind me before the deadline
                 </EAButton>}
               </div>

@@ -95,11 +95,12 @@ const TargetedJobAdSection = () => {
         (setting: FilterTag) => filterModeIsSubscribed(setting.filterMode)
       )?.map((setting: FilterTag) => setting.tagId)
       let userIsMatch = subscribedTagIds && !difference(subscribedTagIds, userTagSubs).length
-      // or if they have read at least 18 posts in all the relevant topics in the past 6 months
+      // or if they have read at least 30 posts in all the relevant topics in the past 6 months
+      const readsThreshold = JOB_AD_DATA[jobName].coreTagReadsThreshold ?? 30
       userIsMatch = userIsMatch || (
         !!coreTagReads?.length &&
         JOB_AD_DATA[jobName].readCoreTagIds?.every(
-          tagId => coreTagReads.some(tag => tag.tagId === tagId && tag.userReadCount >= 18)
+          tagId => coreTagReads.some(tag => tag.tagId === tagId && tag.userReadCount >= readsThreshold)
         )
       )
       
@@ -175,7 +176,7 @@ const TargetedJobAdSection = () => {
     // record when a user has clicked the "Remind me" button
     const ad = userJobAds.find(ad => ad.jobName === activeJob)
     if (ad) {
-      // email is sent via callback or cron depending on how soon the deadline is
+      // email is sent via cron
       void updateUserJobAd({
         selector: {_id: ad._id},
         data: {

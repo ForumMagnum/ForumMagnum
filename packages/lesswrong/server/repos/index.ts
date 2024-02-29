@@ -17,7 +17,10 @@ import PostViewTimesRepo from "./PostViewTimesRepo";
 import PostViewsRepo from "./PostViewsRepo";
 import PostsRepo from "./PostsRepo";
 import ReadStatusesRepo from "./ReadStatusesRepo";
+import ReviewWinnersRepo from "./ReviewWinnersRepo";
+import ReviewWinnerArtsRepo from "./ReviewWinnerArtsRepo";
 import SequencesRepo from "./SequencesRepo";
+import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
 import TagsRepo from "./TagsRepo";
 import TypingIndicatorsRepo from "./TypingIndicatorsRepo";
 import UsersRepo from "./UsersRepo";
@@ -47,7 +50,10 @@ const getAllRepos = () => ({
   postViews: new PostViewsRepo(),
   postViewTimes: new PostViewTimesRepo(),
   readStatuses: new ReadStatusesRepo(),
+  reviewWinners: new ReviewWinnersRepo(),
+  reviewWinnerArts: new ReviewWinnerArtsRepo(),
   sequences: new SequencesRepo(),
+  splashArtCoordinates: new SplashArtCoordinatesRepo(),
   tags: new TagsRepo(),
   typingIndicators: new TypingIndicatorsRepo(),
   users: new UsersRepo(),
@@ -73,6 +79,7 @@ export {
   PostsRepo,
   ReadStatusesRepo,
   SequencesRepo,
+  SplashArtCoordinatesRepo,
   TagsRepo,
   TypingIndicatorsRepo,
   UsersRepo,

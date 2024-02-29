@@ -6,7 +6,6 @@ import { defaultVisibilityTags } from './publicSettings';
 import filter from 'lodash/filter';
 import findIndex from 'lodash/findIndex'
 import { useTracking } from './analyticsEvents';
-import { userHasNewTagSubscriptions } from './betas';
 
 export interface FilterSettings {
   personalBlog: FilterMode,

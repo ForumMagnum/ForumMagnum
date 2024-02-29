@@ -3,7 +3,16 @@ import { registerComponent, Components } from '../../lib/vulcan-lib';
 import Card from '@material-ui/core/Card';
 import { PopperPlacementType } from '@material-ui/core/Popper'
 
-const PopperCard = ({children, placement="bottom-start", open, anchorEl, allowOverflow, flip, style, className}: {
+const PopperCard = ({
+  children,
+  placement="bottom-start",
+  open,
+  anchorEl,
+  allowOverflow,
+  flip,
+  style,
+  className,
+}: {
   children?: React.ReactNode,
   placement?: PopperPlacementType,
   open: boolean,
@@ -11,20 +20,13 @@ const PopperCard = ({children, placement="bottom-start", open, anchorEl, allowOv
   allowOverflow?: boolean,
   flip?: boolean,
   style?: CSSProperties,
-  className?: string
+  className?: string,
 }) => {
-  return (
-    <Components.LWPopper
-      open={open}
-      anchorEl={anchorEl}
-      placement={placement}
-      allowOverflow={allowOverflow}
-      flip={flip}
-      className={className}
-    >
-      <Card style={style}>{children}</Card>
-    </Components.LWPopper>
-  );
+  return <Components.LWPopper open={open} anchorEl={anchorEl} placement={placement} allowOverflow={allowOverflow} flip={flip}>
+    <Card style={style} className={className}>
+      {children}
+    </Card>
+  </Components.LWPopper>
 }
 
 const PopperCardComponent = registerComponent("PopperCard", PopperCard, {stylePriority: -1});

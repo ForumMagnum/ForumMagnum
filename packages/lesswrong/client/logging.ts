@@ -72,7 +72,7 @@ window.addEventListener('load', ev => {
     performance: {
       memory: (window as any).performance?.memory?.usedJSHeapSize,
       timeOrigin: window.performance?.timeOrigin,
-      timing: window.performance?.timing,
+      timing: window.performance?.timing?.toJSON?.(),
     },
   });
 });

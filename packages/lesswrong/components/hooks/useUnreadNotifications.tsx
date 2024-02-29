@@ -59,6 +59,10 @@ export type NotificationCheckMessage = {
 
 export type ServerSentEventsMessage = ActiveDialoguePartnersMessage | TypingIndicatorMessage | NotificationCheckMessage;
 
+type EventType = ServerSentEventsMessage['eventType'];
+type MessageOfType<T extends EventType> = Extract<ServerSentEventsMessage, { eventType: T }>;
+type NotificationEventListener<T extends EventType> = (message: MessageOfType<T>) => void;
+
 const notificationsCheckedAtLocalStorageKey = "notificationsCheckedAt";
 
 type UnreadNotificationsContext = {
@@ -177,16 +181,14 @@ export const UnreadNotificationsContextProvider: FC<{
   useOnNavigate(refetchBoth);
   useOnFocusTab(refetchBoth);
   
-  const refetchIfNewNotifications = useCallback((message: ServerSentEventsMessage) => {
-    if (message.eventType === 'notificationCheck') {
-      const timestamp = message.newestNotificationTime;
-      if (!checkedAt || (timestamp && new Date(timestamp) > new Date(checkedAt))) {
-        void refetchBoth();
-      }
+  const refetchIfNewNotifications = useCallback((message: NotificationCheckMessage) => {
+    const timestamp = message.newestNotificationTime;
+    if (!checkedAt || (timestamp && new Date(timestamp) > new Date(checkedAt))) {
+      void refetchBoth();
     }
   }, [checkedAt, refetchBoth]);
   
-  useOnNotificationsChanged(currentUser, refetchIfNewNotifications);
+  useOnServerSentEvent('notificationCheck', currentUser, refetchIfNewNotifications);
   
   const notificationsOpened = useCallback(async () => {
     const now = new Date();
@@ -213,28 +215,30 @@ export const UnreadNotificationsContextProvider: FC<{
 
 export const useUnreadNotifications = () => useContext(unreadNotificationsContext);
 
-export const useOnNotificationsChanged = (currentUser: UsersCurrent|null, cb: (message: ServerSentEventsMessage) => void) => {
+export const useOnServerSentEvent = <T extends EventType>(eventType: T, currentUser: UsersCurrent|null, cb: NotificationEventListener<T>) => {
   useEffect(() => {
     if (!currentUser)
       return;
-    const onServerSentNotification = (message: ServerSentEventsMessage) => {
+    const onServerSentNotification = (message: MessageOfType<T>) => {
       void cb(message);
     }
-    notificationEventListeners.push(onServerSentNotification);
+    getEventListenersOfType(eventType).push(onServerSentNotification);
     serverSentEventsAPI.setServerSentEventsActive?.(true);
     
     return () => {
-      notificationEventListeners = notificationEventListeners.filter(l=>l!==onServerSentNotification);
+      // Typescript really thinks `notificationEventListenersByType[eventType]` must a union of arrays, which makes it impossible to assign to normally
+      const remainingListenersOfType = getEventListenersOfType(eventType).filter(l=>l!==onServerSentNotification);
+      Object.assign(notificationEventListenersByType, { [eventType]: remainingListenersOfType });
       
       // When removing a server-sent event listener, wait 200ms (just in case this
       // is a rerender with a remove-and-immediately-add-back) then check whether
       // there are zero event listeners.
       setTimeout(() => {
-        if (!notificationEventListeners.length)
+        if (Object.values(notificationEventListenersByType).every(listeners => !listeners.length))
           serverSentEventsAPI.setServerSentEventsActive?.(false);
       }, 200);
     }
-  }, [currentUser, cb]);
+  }, [eventType, currentUser, cb]);
 }
 
 /**
@@ -260,10 +264,35 @@ function setFaviconBadge(notificationCount: number) {
   }
 }
 
-let notificationEventListeners: Array<(message: ServerSentEventsMessage) => void> = [];
+let notificationEventListenersByType = {
+  notificationCheck: [] as NotificationEventListener<'notificationCheck'>[],
+  activeDialoguePartners: [] as NotificationEventListener<'activeDialoguePartners'>[],
+  typingIndicator: [] as NotificationEventListener<'typingIndicator'>[],
+};
 
-export function onServerSentNotificationEvent(message: ServerSentEventsMessage) {
-  for (let listener of [...notificationEventListeners]) {
+function getEventListenersOfType<T extends EventType>(eventType: T): NotificationEventListener<T>[] {
+  return notificationEventListenersByType[eventType] as unknown as NotificationEventListener<T>[];
+}
+
+function listenToMessage<T extends EventType>(message: MessageOfType<T>, listeners: NotificationEventListener<T>[]) {
+  for (let listener of listeners) {
     listener(message);
   }
 }
+
+export function onServerSentNotificationEvent(message: ServerSentEventsMessage) {
+  // Unfortunately typescript isn't smart enough to track that the invariant is correct in a distributed way,
+  // so we need to narrow each individual case even if they're identical
+  switch (message.eventType) {
+    case 'notificationCheck':
+      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
+      break;
+    case 'activeDialoguePartners':
+      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
+      break;
+    case 'typingIndicator':
+      listenToMessage(message, [...notificationEventListenersByType[message.eventType]]);
+      break;
+  }
+}
+

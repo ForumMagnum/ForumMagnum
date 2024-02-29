@@ -2,13 +2,10 @@ import { Globals } from '../../lib/vulcan-lib/config';
 import OpenAI from "openai";
 import { Tags } from '../../lib/collections/tags/collection';
 import { dataToMarkdown } from '../editor/conversionUtils';
-import { DatabaseServerSetting } from '../databaseSettings';
+import { DatabaseServerSetting, openAIApiKey, openAIOrganizationId } from '../databaseSettings';
 import { encode as gpt3encode, decode as gpt3decode } from 'gpt-3-encoder'
 import drop from 'lodash/drop';
 import take from 'lodash/take';
-
-const openAIApiKey = new DatabaseServerSetting<string|null>('languageModels.openai.apiKey', null);
-const openAIOrganizationId = new DatabaseServerSetting<string|null>('languageModels.openai.organizationId', null);
 
 let openAIApi: OpenAI|null = null;
 export async function getOpenAI(): Promise<OpenAI|null> {

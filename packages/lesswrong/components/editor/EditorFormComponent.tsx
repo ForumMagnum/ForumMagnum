@@ -411,8 +411,6 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
   // to not rely on document
   if (!document) return null;
 
-  const VersionHistoryButton = isFriendlyUI ? Components.FriendlyPostVersionHistoryButton : Components.PostVersionHistoryButton
-    
   return <div className={classes.root}>
     {showEditorWarning &&
       <Components.LastEditedInWarning
@@ -454,7 +452,7 @@ export const EditorFormComponent = ({form, formType, formProps, document, name, 
     />
     {!hideControls && <Components.EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>}
     {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id &&
-      <VersionHistoryButton
+      <Components.PostVersionHistoryButton
         post={document}
         postId={document._id}
       />

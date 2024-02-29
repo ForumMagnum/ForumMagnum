@@ -86,18 +86,18 @@ export const EAOnboardingThankYouStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {captureEvent} = useTracking();
-  const {goToNextStage, currentUser, updateCurrentUser} = useEAOnboarding();
+  const {currentStage, goToNextStage, currentUser, updateCurrentUser} = useEAOnboarding();
   const [subscribed, setSubscribed] = useState(true);
 
   useEffect(() => {
     // Default to subscribing to the digest
-    if (!currentUser.subscribedToDigest) {
+    if (!currentUser.subscribedToDigest && currentStage === 'thankyou') {
       void updateCurrentUser({
         subscribedToDigest: true,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [currentStage]);
 
   const setSubscribedToDigest = useCallback((value: boolean) => {
     setSubscribed(value);

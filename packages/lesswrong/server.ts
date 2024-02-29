@@ -9,6 +9,7 @@ import './server/cronUtil';
 import './server/startupSanityChecks';
 
 import './server/postgresView';
+import './server/analyticsViews';
 
 import './server/database-import/database_import_new';
 import './server/rss-integration/cron';
@@ -75,6 +76,8 @@ import "./server/scripts/randomRecommendationSamples";
 import './server/scripts/cleanUpDuplicatePostAutosaves';
 import "./server/scripts/generativeModels/generateTaggingPostSets";
 import "./server/scripts/generativeModels/testModGPTOnComments";
+import "./server/scripts/generativeModels/coverImage";
+import "./server/scripts/addManualReviewArt";
 // doesn't pass unit tests but works fine. Leaving commented out for now
 // import './server/scripts/generativeModels/autoSpotlight';
 import "./server/scripts/mongoQueryToSQL";
@@ -145,7 +148,6 @@ import './server/callbacks/rateLimitCallbacks';
 import './server/callbacks/reviewVoteCallbacks';
 import './server/callbacks/tagFlagCallbacks';
 import './server/callbacks/moderatorActionCallbacks';
-import './server/callbacks/userJobAdCallbacks';
 import './server/callbacks/digestCallbacks';
 import './server/callbacks/dialogueMatchPreferenceCallbacks';
 
@@ -178,7 +180,7 @@ import './server/resolvers/moderationResolvers';
 import './server/resolvers/typingIndicatorsResolvers';
 import './server/resolvers/dialogueChecksResolvers';
 import './server/resolvers/databaseSettingsResolvers';
-
+import './server/resolvers/reviewWinnerResolvers';
 
 import './server/intercomSetup';
 import './server/callbacks/intercomCallbacks';
