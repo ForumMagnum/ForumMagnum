@@ -971,6 +971,14 @@ interface ModeratorClientIDInfo { // fragment on ClientIds
   readonly users: Array<UsersMinimumInfo>,
 }
 
+interface GoogleServiceAccountSessionsDefaultFragment { // fragment on GoogleServiceAccountSessions
+  readonly email: string,
+  readonly refreshToken: string,
+  readonly estimatedExpiry: Date,
+  readonly active: boolean,
+  readonly revoked: boolean,
+}
+
 interface SessionsDefaultFragment { // fragment on Sessions
   readonly _id: string,
   readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -1407,12 +1415,10 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly contents: RevisionDisplay|null,
   readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
-  readonly linkSharingKey: string | null,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly myEditorAccess: string,
-  readonly linkSharingKey: string | null,
   readonly version: string|null,
   readonly coauthorStatuses: Array<{
     userId: string,
@@ -2704,6 +2710,7 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly plaintextDescription: string,
   readonly plaintextMainText: string,
   readonly changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/,
+  readonly googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/,
 }
 
 interface UsersMinimumInfo { // fragment on Users
@@ -3560,6 +3567,17 @@ interface ElectionVoteRecentDiscussion { // fragment on ElectionVotes
   readonly submittedAt: Date | null,
 }
 
+interface GoogleServiceAccountSessionInfo { // fragment on GoogleServiceAccountSessions
+  readonly _id: string,
+  readonly email: string,
+}
+
+interface GoogleServiceAccountSessionAdminInfo { // fragment on GoogleServiceAccountSessions
+  readonly _id: string,
+  readonly email: string,
+  readonly estimatedExpiry: Date,
+}
+
 interface TypingIndicatorInfo { // fragment on TypingIndicators
   readonly _id: string,
   readonly userId: string,
@@ -3768,6 +3786,7 @@ interface FragmentTypes {
   emailHistoryFragment: emailHistoryFragment
   ClientIdsDefaultFragment: ClientIdsDefaultFragment
   ModeratorClientIDInfo: ModeratorClientIDInfo
+  GoogleServiceAccountSessionsDefaultFragment: GoogleServiceAccountSessionsDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
@@ -3961,6 +3980,8 @@ interface FragmentTypes {
   WithVoteElectionCandidate: WithVoteElectionCandidate
   ElectionVoteInfo: ElectionVoteInfo
   ElectionVoteRecentDiscussion: ElectionVoteRecentDiscussion
+  GoogleServiceAccountSessionInfo: GoogleServiceAccountSessionInfo
+  GoogleServiceAccountSessionAdminInfo: GoogleServiceAccountSessionAdminInfo
   TypingIndicatorInfo: TypingIndicatorInfo
   ElicitQuestionsDefaultFragment: ElicitQuestionsDefaultFragment
   ElicitQuestionPredictionsDefaultFragment: ElicitQuestionPredictionsDefaultFragment
@@ -4005,6 +4026,7 @@ interface FragmentTypesByCollection {
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
+  GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
   CronHistories: "CronHistoriesDefaultFragment"
   Messages: "MessagesDefaultFragment"|"messageListFragment"
@@ -4070,6 +4092,7 @@ interface CollectionNamesByFragmentName {
   emailHistoryFragment: "LWEvents"
   ClientIdsDefaultFragment: "ClientIds"
   ModeratorClientIDInfo: "ClientIds"
+  GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   SessionsDefaultFragment: "Sessions"
   CronHistoriesDefaultFragment: "CronHistories"
   MessagesDefaultFragment: "Messages"
@@ -4263,6 +4286,8 @@ interface CollectionNamesByFragmentName {
   WithVoteElectionCandidate: "ElectionCandidates"
   ElectionVoteInfo: "ElectionVotes"
   ElectionVoteRecentDiscussion: "ElectionVotes"
+  GoogleServiceAccountSessionInfo: "GoogleServiceAccountSessions"
+  GoogleServiceAccountSessionAdminInfo: "GoogleServiceAccountSessions"
   TypingIndicatorInfo: "TypingIndicators"
   ElicitQuestionsDefaultFragment: "ElicitQuestions"
   ElicitQuestionPredictionsDefaultFragment: "ElicitQuestionPredictions"
@@ -4280,9 +4305,9 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentComment: "Comments"
 }
 
-type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameString = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"CronHistories"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Sessions"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
-type CollectionNameWithCreatedAt = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type CollectionNameWithCreatedAt = "AdvisorRequests"|"Bans"|"Books"|"Chapters"|"CkEditorUserSessions"|"ClientIds"|"Collections"|"CommentModeratorActions"|"Comments"|"Conversations"|"DatabaseMetadata"|"DebouncerEvents"|"DialogueChecks"|"DialogueMatchPreferences"|"DigestPosts"|"Digests"|"ElectionCandidates"|"ElectionVotes"|"ElicitQuestionPredictions"|"ElicitQuestions"|"EmailTokens"|"FeaturedResources"|"GardenCodes"|"GoogleServiceAccountSessions"|"Images"|"LWEvents"|"LegacyData"|"Localgroups"|"ManifoldProbabilitiesCaches"|"Messages"|"Migrations"|"ModerationTemplates"|"ModeratorActions"|"Notifications"|"PageCache"|"PetrovDayLaunchs"|"PodcastEpisodes"|"Podcasts"|"PostEmbeddings"|"PostRecommendations"|"PostRelations"|"PostViewTimes"|"PostViews"|"Posts"|"RSSFeeds"|"ReadStatuses"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"SplashArtCoordinates"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"TypingIndicators"|"UserActivities"|"UserEAGDetails"|"UserJobAds"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
 
 type CollectionNameWithSlug = "Collections"|"GardenCodes"|"Posts"|"TagFlags"|"Tags"|"Users"
 

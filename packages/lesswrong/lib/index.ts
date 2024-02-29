@@ -263,6 +263,11 @@ import './collections/electionVotes/collection';
 import './collections/electionVotes/fragments';
 import './collections/electionVotes/views';
 
+// GoogleServiceAccountSessions
+import './collections/googleServiceAccountSessions/collection';
+import './collections/googleServiceAccountSessions/fragments';
+import './collections/googleServiceAccountSessions/views';
+
 // Collections supporting vendored libraries
 import './collections/cronHistories';
 import './collections/sessions';

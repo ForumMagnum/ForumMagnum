@@ -22,6 +22,7 @@ type ElicitQuestionsViewName = never
 type EmailTokensViewName = never
 type FeaturedResourcesViewName = "activeResources";
 type GardenCodesViewName = "usersPrivateGardenCodes"|"publicGardenCodes"|"gardenCodeByCode";
+type GoogleServiceAccountSessionsViewName = never
 type ImagesViewName = never
 type LWEventsViewName = "adminView"|"postVisits"|"emailHistory"|"gatherTownUsers"|"postEverPublished";
 type LegacyDataViewName = never
@@ -92,6 +93,7 @@ interface ViewTermsByCollectionName {
   EmailTokens: ViewTermsBase
   FeaturedResources: FeaturedResourcesViewTerms
   GardenCodes: GardenCodesViewTerms
+  GoogleServiceAccountSessions: GoogleServiceAccountSessionsViewTerms
   Images: ViewTermsBase
   LWEvents: LWEventsViewTerms
   LegacyData: ViewTermsBase

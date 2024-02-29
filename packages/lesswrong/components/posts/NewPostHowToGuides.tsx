@@ -68,13 +68,8 @@ const guides: HowToGuide[] = [
   },
   {
     icon: "ChatBubbleLeftRight",
-    label: "Guide to norms on the forum",
+    label: "Guide to norms on the Forum",
     url: "/posts/yND9aGJgobm5dEXqF/guide-to-norms-on-the-forum",
-  },
-  {
-    icon: "Document",
-    label: "How to import Google Docs",
-    url: "/posts/Y8gkABpa9R6ktkhYt/forum-user-manual#Two_different_editors__WYSIWYG_and_Markdown",
   },
 ];
 
