@@ -563,5 +563,10 @@
     "acceptsSchemaHash": "ea9de36d7fd118012a686d5148193cde",
     "acceptedByMigration": "20240228T000423.addReviewWinnerTables.ts",
     "timestamp": "2024-02-28T00:04:23.000Z"
+  },
+  {
+    "acceptsSchemaHash": "10225605411f6e346ca4185fd18de582",
+    "acceptedByMigration": "20240229T140317.add_GoogleServiceAccountSessions.ts",
+    "timestamp": "2024-02-29T14:03:17.000Z"
   }
 ]

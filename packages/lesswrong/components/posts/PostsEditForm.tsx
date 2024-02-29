@@ -23,7 +23,7 @@ export const EditorContext = React.createContext<[Editor | null, (e: Editor) => 
 
 const PostsEditForm = ({ documentId, version, classes }: {
   documentId: string,
-  version?: string,
+  version?: string | null,
   classes: ClassesType,
 }) => {
   const { query, params } = useLocation();
