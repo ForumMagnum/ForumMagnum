@@ -92,7 +92,7 @@ const NewAnswerForm = ({post, classes}: {
         collectionName="Comments"
         formComponents={{
           FormSubmit: SubmitComponent,
-          FormGroupLayout: Components.DefaultStyleFormGroup
+          FormGroupLayout: Components.FormGroupNoStyling
         }}
         mutationFragment={getFragment('CommentsList')}
         prefilledProps={prefilledProps}
