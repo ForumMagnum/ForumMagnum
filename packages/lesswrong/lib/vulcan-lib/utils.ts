@@ -315,12 +315,32 @@ const allowedTableStyles = {
 };
 
 const allowedMathMLGlobalAttributes = ['mathvariant', 'dir', 'displaystyle', 'scriptlevel'];
+const footnoteAttributes = [
+  'data-footnote-content',
+  'data-footnote-id',
+  'data-footnote-index',
+  'data-footnote-item',
+  'data-footnote-reference',
+  'data-footnote-section',
+  'data-footnote-back-link',
+  'data-footnote-back-link-href',
+]
+const footnoteClasses = [
+  "footnote-content",
+  "footnote-item",
+  "footnote-reference",
+  "footnote-section",
+  "footnote-back-link",
+  "footnotes",
+  "hidden",
+]
 
 export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
+      '*': footnoteAttributes,
       audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],
@@ -381,6 +401,7 @@ export const sanitize = function(s: string): string {
       'calendly.com'
     ],
     allowedClasses: {
+      '*': footnoteClasses,
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
       div: [
         'spoilers',
@@ -401,7 +422,7 @@ export const sanitize = function(s: string): string {
         'ck-cta-button-centered'
       ],
       iframe: [ 'thoughtSaverFrame' ],
-      ol: [ 'footnotes' ],
+      ol: [ 'footnotes', 'footnote-section' ],
       li: [ 'footnote-item' ],
     },
     allowedStyles: {

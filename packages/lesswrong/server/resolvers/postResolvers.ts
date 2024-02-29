@@ -4,23 +4,38 @@ import { Comments } from '../../lib/collections/comments/collection';
 import { SideCommentsCache, SideCommentsResolverResult, getLastReadStatus, sideCommentCacheVersion } from '../../lib/collections/posts/schema';
 import { augmentFieldsDict, denormalizedField, accessFilterMultiple } from '../../lib/utils/schemaUtils'
 import { getLocalTime } from '../mapsUtils'
-import { isNotHostedHere } from '../../lib/collections/posts/helpers';
+import { canUserEditPostMetadata, extractGoogleDocId, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import { matchSideComments } from '../sideComments';
 import { captureException } from '@sentry/core';
 import { getToCforPost } from '../tableOfContents';
 import { getDefaultViewSelector } from '../../lib/utils/viewUtils';
 import keyBy from 'lodash/keyBy';
 import GraphQLJSON from 'graphql-type-json';
-import { addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema } from '../vulcan-lib';
+import { addGraphQLMutation, addGraphQLQuery, addGraphQLResolvers, addGraphQLSchema, createMutator } from '../vulcan-lib';
 import { postIsCriticism } from '../languageModels/autoTagCallbacks';
 import { createPaginatedResolver } from './paginatedResolver';
 import { getDefaultPostLocationFields, getDialogueResponseIds, getDialogueMessageTimestamps } from "../posts/utils";
-import { getLatestRev } from '../editor/make_editable_callbacks';
+import { buildRevision } from '../editor/make_editable_callbacks';
 import { cheerioParse } from '../utils/htmlUtil';
 import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPage';
 import { marketInfoLoader } from '../posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF } from '../../lib/instanceSettings';
+import { google } from 'googleapis';
+import { convertImportedGoogleDoc } from '../editor/conversionUtils';
+import Revisions from '../../lib/collections/revisions/collection';
+import { randomId } from '../../lib/random';
+import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
+
+type GoogleDocMetadata = {
+  id: string;
+  name: string;
+  version: string;
+  createdTime: string;
+  modifiedTime: string;
+  size: string;
+}
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -352,8 +367,129 @@ addGraphQLResolvers({
 
       const posts = await repos.posts.getUsersReadPostsOfTargetUser(userId, targetUserId, limit)
       return await accessFilterMultiple(currentUser, Posts, posts, context)
-    }, 
+    },
+    async CanAccessGoogleDoc(root: void, { fileUrl }: { fileUrl: string }, context: ResolverContext) {
+      const { currentUser } = context
+      if (!currentUser) {
+        return null;
+      }
+
+      return canAccessGoogleDoc(fileUrl)
+    },
   },
+  Mutation: {
+    async ImportGoogleDoc(root: void, { fileUrl, postId }: { fileUrl: string, postId?: string | null }, context: ResolverContext) {
+      if (!fileUrl) {
+        throw new Error("fileUrl must be given")
+      }
+      const fileId = extractGoogleDocId(fileUrl)
+
+      if (!fileId) {
+        throw new Error(`Could not extract id from google doc url: ${fileUrl}`)
+      }
+
+      const { currentUser } = context;
+      if (!currentUser) {
+        throw new Error('Must be logged in to import google doc')
+      }
+
+      if (postId) {
+        const post = await Posts.findOne({_id: postId})
+
+        if (!post) {
+          throw new Error(`No post with id: ${postId}`)
+        }
+
+        if (!canUserEditPostMetadata(currentUser, post)) {
+          throw new Error(`User doesn't have permission to edit post with id: ${postId}`)
+        }
+      }
+
+      const oauth2Client = await getGoogleDocImportOAuthClient();
+
+      const drive = google.drive({
+        version: "v3",
+        auth: oauth2Client,
+      });
+
+      // Retrieve the file's metadata to get the name
+      const fileMetadata = await drive.files.get({
+        fileId,
+        fields: 'id, name, description, version, createdTime, modifiedTime, size'
+      });
+
+      const docMetadata = fileMetadata.data as GoogleDocMetadata;
+
+      const fileContents = await drive.files.export(
+        {
+          fileId,
+          mimeType: "text/html",
+        },
+        { responseType: "text" }
+      );
+
+      const html = fileContents.data as string;
+
+      if (!html || !docMetadata) {
+        throw new Error("Unable to import google doc")
+      }
+
+      const finalPostId = postId ?? randomId()
+      // Converting to ckeditor markup does some thing like removing styles to standardise
+      // the result, so we always want to do this first before converting to whatever format the user
+      // is using
+      const ckEditorMarkup = await convertImportedGoogleDoc(html, finalPostId)
+      const commitMessage = `[Google Doc import] Last modified: ${docMetadata.modifiedTime}, Name: "${docMetadata.name}"`
+      const originalContents = {type: "ckEditorMarkup", data: ckEditorMarkup}
+
+      if (postId) {
+        const previousRev = await getLatestRev(postId, "contents")
+        const revisionType = "major"
+
+        const newRevision: Partial<DbRevision> = {
+          ...(await buildRevision({
+            originalContents,
+            currentUser,
+          })),
+          documentId: postId,
+          draft: true,
+          fieldName: "contents",
+          collectionName: "Posts",
+          version: getNextVersion(previousRev, revisionType, true),
+          updateType: revisionType,
+          commitMessage: commitMessage,
+          changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
+          googleDocMetadata: docMetadata
+        };
+
+        await createMutator({
+          collection: Revisions,
+          document: newRevision,
+          validate: false,
+        });
+
+        return await Posts.findOne({_id: postId})
+      } else {
+        // Create a draft post if one doesn't exist. This runs `buildRevision` itself via a callback
+        const { data: post } = await createMutator({
+          collection: Posts,
+          document: {
+            _id: finalPostId,
+            userId: currentUser._id,
+            title: docMetadata.name,
+            contents: {
+              originalContents,
+            },
+            draft: true
+          },
+          currentUser,
+          validate: false,
+        })
+
+        return post;
+      }
+    },
+  }
 })
 
 addGraphQLQuery("UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]");
@@ -374,6 +510,9 @@ addGraphQLSchema(`
   }
 `)
 addGraphQLQuery('DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost]')
+
+addGraphQLQuery("CanAccessGoogleDoc(fileUrl: String!): Boolean");
+addGraphQLMutation("ImportGoogleDoc(fileUrl: String!, postId: String): Post");
 
 createPaginatedResolver({
   name: "DigestHighlights",

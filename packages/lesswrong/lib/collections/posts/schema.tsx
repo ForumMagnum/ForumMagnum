@@ -33,6 +33,7 @@ import {crosspostKarmaThreshold} from '../../publicSettings'
 import { getDefaultViewSelector } from '../../utils/viewUtils';
 import GraphQLJSON from 'graphql-type-json';
 import { addGraphQLSchema } from '../../vulcan-lib/graphql';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 import { getPostReviewWinnerInfo } from '../reviewWinners/cache';
 
 // TODO: This disagrees with the value used for the book progress bar
@@ -2398,7 +2399,7 @@ const schema: SchemaType<"Posts"> = {
     optional: true,
     control: "PostSharingSettings",
     label: "Sharing Settings",
-    group: formGroups.title,
+    group: isFriendlyUI ? formGroups.category : formGroups.title,
     blackbox: true,
     hidden: (props) => !!props.debateForm
   },
