@@ -34,34 +34,49 @@ defineQuery({
       }
     }
 
-    const lastNotificationsCheck = currentUser.lastNotificationsCheck;
-    const newNotifications = await Notifications.find({
+    const selector = {
       ...getDefaultViewSelector("Notifications"),
       userId: currentUser._id,
-      ...(lastNotificationsCheck && {
-        createdAt: {$gt: lastNotificationsCheck},
-      }),
-    }).fetch();
+    };
+    const lastNotificationsCheck = currentUser.lastNotificationsCheck;
 
-    // Notifications are shown separately from new messages in friendly UI.
-    // The `viewed` parameter is currently only actually used for messages,
-    // but we check it here for all notifications as it's quite likely we'll
-    // expand this in the future.
-    const unreadNotifications = isFriendlyUI
-      ? newNotifications.filter(
-        ({type, viewed}) => type !== "newMessage" && !viewed,
-      ).length
-      : newNotifications.length;
-    const unreadPrivateMessages = newNotifications.filter(
-      ({type, viewed}) => type === "newMessage" && !viewed,
-    ).length;
+    // In bookUI, notifications are considered "read" iif they were created
+    // before the current user's `lastNotificationsCheck`. The
+    // `unreadPrivateMessages` is ignored.
+    // In friendlyUI, the same is true for most notifications, but new message
+    // notifications are handled separately - they bypass
+    // `lastNotificationsCheck` and instead use the `viewed` field on the
+    // notification.
+    const [
+      unreadPrivateMessages,
+      newNotifications,
+    ] = await Promise.all([
+      isFriendlyUI
+        ? Notifications.find({
+          ...selector,
+          type: "newMessage",
+          viewed: {$ne: true},
+        }).count()
+        : Promise.resolve(0),
+      Notifications.find({
+        ...selector,
+        ...(lastNotificationsCheck && {
+          createdAt: {$gt: lastNotificationsCheck},
+        }),
+        ...(isFriendlyUI && {
+          type: {$ne: "newMessage"},
+          viewed: {$ne: true},
+        }),
+      }).fetch(),
+    ]);
+
     const badgeNotifications = newNotifications.filter(notif =>
       !!getNotificationTypeByName(notif.type).causesRedBadge
     );
 
     return {
       checkedAt,
-      unreadNotifications,
+      unreadNotifications: newNotifications.length,
       unreadPrivateMessages,
       faviconBadgeNumber: badgeNotifications.length,
     }
