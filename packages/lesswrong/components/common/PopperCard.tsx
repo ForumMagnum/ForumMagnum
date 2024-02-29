@@ -29,7 +29,7 @@ const PopperCard = ({
   </Components.LWPopper>
 }
 
-const PopperCardComponent = registerComponent("PopperCard", PopperCard, {stylePriority: -1});
+const PopperCardComponent = registerComponent("PopperCard", PopperCard);
 
 declare global {
   interface ComponentTypes {

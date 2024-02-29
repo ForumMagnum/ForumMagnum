@@ -7,6 +7,7 @@ import { isPostCategory } from "../../lib/collections/posts/helpers";
 const styles = (theme: ThemeType): JssStyles => ({
   tabs: {
     width: "100%",
+    borderBottom: theme.palette.border.normal,
     "& .MuiTab-root": {
       fontSize: 14,
       fontWeight: 600,
