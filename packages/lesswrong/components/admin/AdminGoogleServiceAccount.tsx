@@ -23,7 +23,7 @@ const AdminGoogleServiceAccount = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
-  const { SingleColumnSection, Error404, EAButton } = Components;
+  const { SingleColumnSection, ErrorAccessDenied, EAButton } = Components;
 
   const { results: serviceAccounts } = useMulti({
     terms: {},
@@ -60,7 +60,7 @@ const AdminGoogleServiceAccount = ({classes}: {
   }, []);
 
   if (!userIsAdminOrMod(currentUser)) {
-    return <Error404 />
+    return <ErrorAccessDenied />
   }
 
   return (

@@ -8,8 +8,8 @@ import { createMutator, updateMutator } from '../vulcan-lib';
 const clientIdSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.clientId', null)
 const clientSecretSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.secret', null)
 
-let _oAuthClient: OAuth2Client | null = null;
-let _cacheTimestamp: number | null = null;
+let oAuth2Client: OAuth2Client | null = null;
+let cacheTimestamp: number | null = null;
 
 /**
  * Get an OAuth2Client with the credentials set to the service account used for importing google docs
@@ -18,8 +18,8 @@ export async function getGoogleDocImportOAuthClient() {
   const ttl = 600000; // 10 minutes in milliseconds
   const currentTime = Date.now();
 
-  if (_oAuthClient && _cacheTimestamp && currentTime - _cacheTimestamp < ttl) {
-    return _oAuthClient;
+  if (oAuth2Client && cacheTimestamp && currentTime - cacheTimestamp < ttl) {
+    return oAuth2Client;
   }
 
   const googleClientId = clientIdSetting.get();
@@ -35,8 +35,8 @@ export async function getGoogleDocImportOAuthClient() {
   oauth2Client.setCredentials({ refresh_token: gdocImportEmailToken });
 
   // Update the cache
-  _oAuthClient = oauth2Client;
-  _cacheTimestamp = currentTime;
+  oAuth2Client = oauth2Client;
+  cacheTimestamp = currentTime;
 
   return oauth2Client;
 }
@@ -133,6 +133,6 @@ export async function updateActiveServiceAccount({email, refreshToken}: {email: 
     validate: false,
   })
 
-  _oAuthClient = null;
-  _cacheTimestamp = null;
+  oAuth2Client = null;
+  cacheTimestamp = null;
 }

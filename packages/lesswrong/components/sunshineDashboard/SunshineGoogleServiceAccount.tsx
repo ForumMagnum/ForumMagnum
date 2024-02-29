@@ -32,6 +32,7 @@ const SunshineGoogleServiceAccount = ({ classes }: {
     collectionName: "GoogleServiceAccountSessions",
     fragmentName: 'GoogleServiceAccountSessionAdminInfo',
     enableTotal: false,
+    skip: !hasGoogleDocImport,
   })
   const estimatedExpiry = serviceAccounts?.[0]?.estimatedExpiry
 
@@ -46,7 +47,7 @@ const SunshineGoogleServiceAccount = ({ classes }: {
   return (
     <div className={classes.root}>
       <Link to={"/admin/googleServiceAccount"}>
-      {message}
+        {message}
       </Link>
     </div>
   )

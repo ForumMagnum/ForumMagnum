@@ -374,7 +374,7 @@ addGraphQLResolvers({
         return null;
       }
 
-      return await canAccessGoogleDoc(fileUrl)
+      return canAccessGoogleDoc(fileUrl)
     },
   },
   Mutation: {

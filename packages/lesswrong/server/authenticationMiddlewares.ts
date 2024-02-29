@@ -20,9 +20,10 @@ import { Request, Response, NextFunction, json } from "express";
 import { AUTH0_SCOPE, loginAuth0User, signupAuth0User } from './authentication/auth0';
 import { IdFromProfile, UserDataFromProfile, getOrCreateForumUser } from './authentication/getOrCreateForumUser';
 import { promisify } from 'util';
-import { OAuth2Client } from 'google-auth-library';
+import { OAuth2Client as GoogleOAuth2Client } from 'google-auth-library';
 import { google } from 'googleapis';
 import { updateActiveServiceAccount } from './posts/googleDocImport';
+import { userIsAdmin } from '../lib/vulcan-users';
 
 /**
  * Passport declares an empty interface User in the Express namespace. We modify
@@ -178,11 +179,11 @@ const addGoogleDriveLinkMiddleware = (addConnectHandler: AddMiddlewareType) => {
   }
 
   const callbackUrl = "google_oauth2callback"
-  const oauth2Client = new OAuth2Client(googleClientId, googleOAuthSecret, `${getSiteUrl()}${callbackUrl}`);
+  const oauth2Client = new GoogleOAuth2Client(googleClientId, googleOAuthSecret, combineUrls(getSiteUrl(), callbackUrl));
 
   addConnectHandler('/auth/linkgdrive', (req: Request, res: Response) => {
-    if (!req.user?._id) {
-      res.status(400).send("User is not authenticated");
+    if (!req.user?._id || !userIsAdmin(req.user)) {
+      res.status(400).send("User is not authenticated or not an admin");
       return;
     }
 
@@ -193,7 +194,7 @@ const addGoogleDriveLinkMiddleware = (addConnectHandler: AddMiddlewareType) => {
         'https://www.googleapis.com/auth/userinfo.profile',
         'https://www.googleapis.com/auth/userinfo.email'
       ],
-      redirect_uri: `${getSiteUrl()}google_oauth2callback`
+      redirect_uri: combineUrls(getSiteUrl(), callbackUrl)
     });
     res.redirect(url);
   });
@@ -202,8 +203,8 @@ const addGoogleDriveLinkMiddleware = (addConnectHandler: AddMiddlewareType) => {
     const code = req.query.code as string;
     const user = req.user
 
-    if (!user?._id) {
-      res.status(400).send("User is not authenticated");
+    if (!user?._id || !userIsAdmin(user)) {
+      res.status(400).send("User is not authenticated or not an admin");
       return;
     }
 
@@ -478,7 +479,7 @@ export const addAuthMiddlewares = (addConnectHandler: AddMiddlewareType) => {
     });
   }
 
-  addConnectHandler('/auth/google/callback', (req: AnyBecauseTodo, res: AnyBecauseTodo, next: AnyBecauseTodo) => {
+  addConnectHandler('/auth/google/callback', (req: Request, res: Response, next: NextFunction) => {
     passport.authenticate('google', {}, (err, user, info) => {
       handleAuthenticate(req, res, next, err, user, info);
     })(req, res, next)

@@ -27,7 +27,7 @@ const PopperCard = ({children, placement="bottom-start", open, anchorEl, allowOv
   );
 }
 
-const PopperCardComponent = registerComponent("PopperCard", PopperCard);
+const PopperCardComponent = registerComponent("PopperCard", PopperCard, {stylePriority: -1});
 
 declare global {
   interface ComponentTypes {
