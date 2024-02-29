@@ -1,8 +1,8 @@
 import React from 'react'
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import { FormGroupLayoutProps } from './FormGroupLayout';
-import { hasGoogleDocImport } from '../../lib/betas';
 import { useLocation } from '../../lib/routeUtil';
+import { hasGoogleDocImportSetting } from '../../lib/publicSettings';
 
 // We want the buttons to go _above_ the tabs when the space gets too tight,
 // which requires some special breakpoint logic (due to the how the central column
@@ -68,7 +68,7 @@ const FormGroupPostTopBar = ({ children, classes }: FormGroupLayoutProps & { cla
     <div className={classes.root}>
       <div className={classes.tabs}>{tabs}</div>
       <div className={classes.otherChildren}>
-        {hasGoogleDocImport && <GoogleDocImportButton postId={postId} />}
+        {hasGoogleDocImportSetting.get() && <GoogleDocImportButton postId={postId} />}
         {otherChildren}
       </div>
     </div>

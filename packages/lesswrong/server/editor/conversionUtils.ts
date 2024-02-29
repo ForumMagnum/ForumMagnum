@@ -553,6 +553,31 @@ function googleDocRemoveRedirects(html: string): string {
 }
 
 /**
+ * Converts Google Docs formatting to ckeditor formatting. Currently handles:
+ * - Italics
+ * - Bold
+ */
+function googleDocFormatting(html: string): string {
+  const $ = cheerio.load(html);
+
+  $('span').each((_, element) => {
+    const span = $(element);
+    const fontStyle = span.css('font-style');
+    const fontWeight = span.css('font-weight');
+
+    if (fontStyle === 'italic' && fontWeight === '700') {
+      span.wrap('<i><strong></strong></i>');
+    } else if (fontStyle === 'italic') {
+      span.wrap('<i></i>');
+    } else if (fontWeight === '700') {
+      span.wrap('<strong></strong>');
+    }
+  });
+
+  return $.html();
+}
+
+/**
  * We need to convert a few things in the raw html exported from google to make it work with ckeditor, this is
  * largely mirroring conversions we do on paste in the ckeditor code:
  * - Convert footnotes to our format
@@ -561,7 +586,8 @@ function googleDocRemoveRedirects(html: string): string {
  */
 export async function convertImportedGoogleDoc(html: string, postId: string) {
   const { html: withRehostedImages } = await convertImagesInHTML(html, postId, url => url.includes("googleusercontent"))
-  const withConvertedFootnotes = googleDocConvertFootnotes(withRehostedImages)
+  const withGoogleDocFormatting = googleDocFormatting(withRehostedImages)
+  const withConvertedFootnotes = googleDocConvertFootnotes(withGoogleDocFormatting)
   const withNormalisedRedirects = googleDocRemoveRedirects(withConvertedFootnotes)
   const ckEditorMarkup = await dataToCkEditor(withNormalisedRedirects, "html")
 

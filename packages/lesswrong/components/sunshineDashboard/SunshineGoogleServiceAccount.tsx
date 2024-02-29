@@ -3,8 +3,8 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { hasGoogleDocImport } from '../../lib/betas';
 import { userIsAdminOrMod } from '../../lib/vulcan-users';
+import { hasGoogleDocImportSetting } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -32,13 +32,13 @@ const SunshineGoogleServiceAccount = ({ classes }: {
     collectionName: "GoogleServiceAccountSessions",
     fragmentName: 'GoogleServiceAccountSessionAdminInfo',
     enableTotal: false,
-    skip: !hasGoogleDocImport,
+    skip: !hasGoogleDocImportSetting.get(),
   })
   const estimatedExpiry = serviceAccounts?.[0]?.estimatedExpiry
 
   const shouldWarn = !estimatedExpiry || (new Date(estimatedExpiry).getTime() - Date.now()) < WARN_THRESHOLD
 
-  if (loading || !userIsAdminOrMod(currentUser) || !hasGoogleDocImport || !shouldWarn) {
+  if (loading || !userIsAdminOrMod(currentUser) || !hasGoogleDocImportSetting.get() || !shouldWarn) {
     return null;
   }
 
