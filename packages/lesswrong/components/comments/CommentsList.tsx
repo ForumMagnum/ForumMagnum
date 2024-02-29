@@ -7,16 +7,20 @@ import { useCurrentUser } from '../common/withUser';
 import withErrorBoundary from '../common/withErrorBoundary';
 import type { CommentTreeNode } from '../../lib/utils/unflatten';
 import type { CommentTreeOptions } from './commentTree';
+import classNames from 'classnames';
 
 const styles = (theme: ThemeType): JssStyles => ({
   button: {
     color: theme.palette.lwTertiary.main
   },
+  commentsListLoadingSpacer: {
+    minHeight: '100vh',
+  },
 })
 
 export const POST_COMMENT_COUNT_TRUNCATE_THRESHOLD = 70
 
-const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, classes}: {
+const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTruncated, parentAnswerId, defaultNestingLevel=1, parentCommentId, loading, classes}: {
   treeOptions: CommentTreeOptions,
   comments: Array<CommentTreeNode<CommentsList>>,
   totalComments?: number,
@@ -24,6 +28,7 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   parentAnswerId?: string,
   defaultNestingLevel?: number,
   parentCommentId?: string,
+  loading?: boolean,
   classes: ClassesType,
 }) => {
   const currentUser = useCurrentUser();
@@ -64,7 +69,9 @@ const CommentsListFn = ({treeOptions, comments, totalComments=0, startThreadTrun
   }
   return <Components.ErrorBoundary>
     {renderExpandOptions()}
-    <div>
+    {/* commentsListLoadingSpacer makes the comments list keep a minimum height while reloading a different comment
+        sorting view, so that the scroll position doesn't move. */}
+    <div className={classNames({[classes.commentsListLoadingSpacer]: loading})}>
       {comments.map(comment =>
         <CommentsNode
           treeOptions={treeOptions}
