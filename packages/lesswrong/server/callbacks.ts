@@ -18,11 +18,11 @@ import { getCollectionHooks } from './mutationCallbacks';
 import { asyncForeachSequential } from '../lib/utils/asyncUtils';
 import Tags from '../lib/collections/tags/collection';
 import Revisions from '../lib/collections/revisions/collection';
+import { syncDocumentWithLatestRevision } from './editor/utils';
 import { createAdminContext } from './vulcan-lib/query';
 import ReadStatusesRepo from './repos/ReadStatusesRepo';
 import Sequences from '../lib/collections/sequences/collection';
 import { UsersRepo } from './repos';
-import { syncDocumentWithLatestRevision } from './editor/utils';
 
 
 getCollectionHooks("Messages").newAsync.add(async function updateConversationActivity (message: DbMessage) {
