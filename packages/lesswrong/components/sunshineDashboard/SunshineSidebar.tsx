@@ -45,18 +45,7 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
   const [showUnderbelly, setShowUnderbelly] = useState(false)
   const currentUser = useCurrentUser();
 
-  const {
-    SunshineNewUsersList,
-    SunshineNewCommentsList,
-    SunshineNewTagsList,
-    SunshineNewPostsList,
-    SunshineReportedContentList,
-    SunshineCuratedSuggestionsList,
-    AFSuggestUsersList,
-    AFSuggestPostsList,
-    AFSuggestCommentsList,
-    SunshineGoogleServiceAccount,
-  } = Components;
+  const { SunshineNewUsersList, SunshineNewCommentsList, SunshineNewTagsList, SunshineNewPostsList, SunshineReportedContentList, SunshineCuratedSuggestionsList, AFSuggestUsersList, AFSuggestPostsList, AFSuggestCommentsList } = Components
 
   if (!currentUser) return null
 
@@ -66,7 +55,6 @@ const SunshineSidebar = ({classes}: {classes: ClassesType}) => {
   return (
     <div className={classes.root}>
       {showInitialSidebar && <div className={classes.background}>
-        <SunshineGoogleServiceAccount />
         <SunshineCuratedSuggestionsList terms={{view:"sunshineCuratedSuggestions", limit: 7}}/>
         <SunshineNewPostsList terms={{view:"sunshineNewPosts"}}/>
         <SunshineNewUsersList terms={{view:"sunshineNewUsers", limit: 10}} currentUser={currentUser}/>
