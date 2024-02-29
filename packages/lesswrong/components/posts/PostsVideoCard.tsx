@@ -71,9 +71,11 @@ const PostsVideoCard = ({post, classes}: {
 }) => {
   const authorExpandContainer = useRef(null);
   const {eventHandlers} = useHover({
-    pageElementContext: "videoCard",
-    documentId: post._id,
-    documentSlug: post.slug,
+    eventProps: {
+      pageElementContext: "videoCard",
+      documentId: post._id,
+      documentSlug: post.slug,
+    },
   });
 
   const htmlHighlight = post.contents?.htmlHighlight ?? "";

@@ -1128,6 +1128,9 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: "ReviewVote",
     canRead: ['members'],
     resolver: async (post: DbPost, args: void, context: ResolverContext): Promise<Partial<DbReviewVote>|null> => {
+      if (!isLWorAF) {
+        return null;
+      }
       const { ReviewVotes, currentUser } = context;
       if (!currentUser) return null;
       const votes = await getWithLoader(context, ReviewVotes,
@@ -1157,6 +1160,9 @@ const schema: SchemaType<"Posts"> = {
     graphQLtype: "ReviewWinner",
     canRead: ['guests'],
     resolver: async (post: DbPost, args: void, context: ResolverContext) => {
+      if (!isLWorAF) {
+        return null;
+      }
       const { currentUser, ReviewWinners } = context;
       const winner = await getPostReviewWinnerInfo(post._id, context);
       return accessFilterSingle(currentUser, ReviewWinners, winner, context);

@@ -30,6 +30,8 @@ export type FriendlyHoverOverProps = {
   analyticsProps?: AnalyticsProps,
   className?: string,
   popperClassName?: string,
+  onShow?: () => void,
+  onHide?: () => void,
   children: ReactNode,
   classes: ClassesType,
 }
@@ -49,6 +51,8 @@ const FriendlyHoverOver = ({
   analyticsProps,
   className,
   popperClassName,
+  onShow,
+  onHide,
   children,
   classes,
 }: FriendlyHoverOverProps) => {
@@ -65,6 +69,8 @@ const FriendlyHoverOver = ({
       clickable={clickable}
       flip={flip}
       analyticsProps={analyticsProps}
+      onShow={onShow}
+      onHide={onHide}
       className={className}
     >
       {children}

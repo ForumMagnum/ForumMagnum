@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef, useContext } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { useSubscribedLocation } from '../../../lib/routeUtil';
-import { getConfirmedCoauthorIds, isPostAllowedType3Audio, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
+import { getConfirmedCoauthorIds, postCoauthorIsPending, postGetPageUrl } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers'
 import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
@@ -387,7 +387,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // We don't want to show the splash header if the user is on a `/s/:sequenceId/p/:postId` route
   // We explicitly don't use `getSequenceId` because that also gets the post's canonical sequence ID,
   // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
-  const showSplashPageHeader = !!post.reviewWinner && !params.sequenceId;
+  const showSplashPageHeader = isLWorAF && !!post.reviewWinner && !params.sequenceId;
 
   useEffect(() => {
     if (!query[SHARE_POPUP_QUERY_PARAM]) return;
@@ -771,6 +771,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
               isCommentToC: true
             },
           ]}
+          tocRowMap={[1, 1, 2, 3]}
         />
       : <ToCColumn
           tableOfContents={tableOfContents}

@@ -108,6 +108,7 @@ const styles = (theme: ThemeType) => ({
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${TITLE_CONTAINER_CLASS_NAME}`]: {
       opacity: 0,
+      maxHeight: 64
     },
     [`body:has(.headroom--unfixed) .${TITLE_CONTAINER_CLASS_NAME}`]: {
       marginTop: 64

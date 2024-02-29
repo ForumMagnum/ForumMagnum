@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { Link } from "../../lib/reactRouterWrapper";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -100,8 +100,10 @@ const useParentCommentLinkAndTooltip = ({ comment, classes }: {
   const { LWPopper, CommentById } = Components;
 
   const { eventHandlers, hover, anchorEl } = useHover({
-    pageElementContext: "popularCommentParentTooltip",
-    commentId: comment._id,
+    eventProps: {
+      pageElementContext: "popularCommentParentTooltip",
+      commentId: comment._id,
+    },
   });
 
   if (!comment.parentCommentId) {
@@ -187,7 +189,7 @@ const LWPopularComment = ({comment, classes}: {
   }, [expanded, captureEvent]);
 
   // We have a separate wrapper because we don't want clicking on the expanded comment body to close it again
-  const onClickCommentBody = useCallback((e: React.MouseEvent) => {
+  const onClickCommentBody = useCallback((_e: React.MouseEvent) => {
     if (!expanded) {
       onClickCallback();
     }
