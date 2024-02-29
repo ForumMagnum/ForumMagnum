@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useNotifyMe } from "../../hooks/useNotifyMe";
 import { useOptimisticToggle } from "../../hooks/useOptimisticToggle";
 import classNames from "classnames";
+import { useEAOnboarding } from "./useEAOnboarding";
 
 const TAG_SIZE = 103;
 
@@ -70,22 +71,26 @@ export const EAOnboardingTag = ({tag, onSubscribed, classes}: {
   onSubscribed?: (id: string, subscribed: boolean) => void,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {viewAsAdmin} = useEAOnboarding();
+
   const {isSubscribed, onSubscribe} = useNotifyMe({
     document: tag,
     overrideSubscriptionType: "newTagPosts",
     hideFlashes: true,
   });
 
+  // If viewAsAdmin is true, then this is an admin testing
+  // and we don't want any real updates to happen
   const subscribedCallback = useCallback((
     e: MouseEvent<HTMLDivElement>,
     newValue: boolean,
   ) => {
-    void onSubscribe?.(e);
+    !viewAsAdmin && void onSubscribe?.(e);
     onSubscribed?.(tag._id, newValue);
-  }, [onSubscribe, onSubscribed, tag._id]);
+  }, [onSubscribe, onSubscribed, tag._id, viewAsAdmin]);
 
   const [subscribed, toggleSubscribed] = useOptimisticToggle(
-    isSubscribed ?? false,
+    viewAsAdmin ? false : (isSubscribed ?? false),
     subscribedCallback,
   );
 

@@ -15,12 +15,18 @@ const styles = (_theme: ThemeType) => ({
 export const EAOnboardingWorkStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {updateCurrentUser, goToNextStageAfter} = useEAOnboarding();
+  const {updateCurrentUser, goToNextStage, goToNextStageAfter, viewAsAdmin} = useEAOnboarding();
   const [role, setRole] = useState("");
   const [organization, setOrganization] = useState("");
   const [careerStage, setCareerStage] = useState("");
 
   const onContinue = useCallback(async () => {
+    // If this is an admin testing, don't make any changes
+    if (viewAsAdmin) {
+      await goToNextStage()
+      return
+    }
+
     await goToNextStageAfter(
       updateCurrentUser({
         jobTitle: role,
@@ -28,7 +34,7 @@ export const EAOnboardingWorkStage = ({classes}: {
         careerStage: [careerStage],
       }),
     );
-  }, [role, organization, careerStage, updateCurrentUser, goToNextStageAfter]);
+  }, [role, organization, careerStage, updateCurrentUser, goToNextStage, goToNextStageAfter, viewAsAdmin]);
 
   const canContinue = !!(role || organization || careerStage);
   const {

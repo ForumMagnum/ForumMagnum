@@ -698,6 +698,7 @@ importComponent("AdminMetadata", () => require('../components/admin/AdminMetadat
 importComponent("AdminSynonymsPage", () => require('../components/admin/AdminSynonymsPage'));
 importComponent("AdminToggle", () => require('../components/admin/AdminToggle'));
 importComponent("RandomUserPage", () => require('../components/admin/RandomUserPage'));
+importComponent("AdminViewOnboarding", () => require('../components/admin/AdminViewOnboarding'));
 importComponent("ModerationDashboard", () => require('../components/sunshineDashboard/ModerationDashboard'));
 importComponent("TagMergePage", () => require('../components/tagging/TagMergePage.tsx'));
 importComponent("RecentlyActiveUsers", () => require('../components/sunshineDashboard/ModeratorUserInfo/RecentlyActiveUsers'));

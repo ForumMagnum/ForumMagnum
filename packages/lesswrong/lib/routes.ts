@@ -1508,6 +1508,12 @@ addRoute(
     title: "Random User",
   },
   {
+    name: 'onboarding',
+    path: '/admin/onboarding',
+    componentName: 'AdminViewOnboarding',
+    title: "Onboarding (for testing purposes)",
+  },
+  {
     name: 'moderation',
     path: '/moderation',
     componentName: 'ModerationLog',
