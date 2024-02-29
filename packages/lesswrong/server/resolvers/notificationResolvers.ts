@@ -41,12 +41,12 @@ defineQuery({
     const lastNotificationsCheck = currentUser.lastNotificationsCheck;
 
     // In bookUI, notifications are considered "read" iif they were created
-    // before the current user's `lastNotificationsCheck`. The
-    // `unreadPrivateMessages` is ignored.
+    // before the current user's `lastNotificationsCheck`. The value of
+    // `unreadPrivateMessages` is ignored and not used in the UI.
     // In friendlyUI, the same is true for most notifications, but new message
     // notifications are handled separately - they bypass
     // `lastNotificationsCheck` and instead use the `viewed` field on the
-    // notification.
+    // notification, so `unreadPrivateMessages` can be displayed independently.
     const [
       unreadPrivateMessages,
       newNotifications,
