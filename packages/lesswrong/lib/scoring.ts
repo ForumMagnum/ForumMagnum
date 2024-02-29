@@ -144,7 +144,7 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
 
 // SCORE_BIAS is used in updateScores.ts which is used for all votable documents, this here is used for frontpage posts only. SCORE_BIAS is weirdly name. 
 // It is just adding to the age of the post to make the score decay faster, preventing low karma posts getting on the frontpage for very long.
-const AGE_OFFSET = (isLW) ? 6 : SCORE_BIAS 
+const AGE_OFFSET = isLW ? 6 : SCORE_BIAS 
 
 export const timeDecayExpr = () => {
   return {$pow: [
