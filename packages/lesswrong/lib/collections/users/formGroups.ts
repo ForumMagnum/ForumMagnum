@@ -4,7 +4,9 @@ export const formGroups: Partial<Record<string, FormGroupType<"Users">>> = {
   default: {
     name: "default",
     order: 0,
-    paddingStyle: true
+    layoutComponentProps: {
+      paddingStyling: true
+    }
   },
   siteCustomizations: {
     order: 1,

@@ -70,7 +70,9 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
+    linkSharingKey
 
+    contents_latest
     commentCount
     voteCount
     baseScore
@@ -521,7 +523,6 @@ registerFragment(`
       ...RevisionDisplay
     }
     myEditorAccess
-    linkSharingKey
   }
 `)
 
@@ -529,7 +530,6 @@ registerFragment(`
   fragment PostsEdit on Post {
     ...PostsDetails
     myEditorAccess
-    linkSharingKey
     version
     coauthorStatuses
     readTimeMinutesOverride
