@@ -326,3 +326,6 @@ import './sql';
 
 import './rateLimits/constants';
 import './rateLimits/types';
+
+import './collections/lcMarkets/collection';
+import './collections/lcOrders/collection';
