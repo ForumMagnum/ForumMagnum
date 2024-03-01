@@ -401,7 +401,6 @@ export const sanitize = function(s: string): string {
       'calendly.com'
     ],
     allowedClasses: {
-      '*': footnoteClasses,
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
       div: [
         'spoilers',
