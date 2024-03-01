@@ -14,6 +14,7 @@ import {
   hasSideCommentsSetting, 
   hasDialoguesSetting, 
   hasPostInlineReactionsSetting,
+  isLW,
 } from './instanceSettings'
 import { userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
@@ -53,6 +54,8 @@ export const userHasEagProfileImport = disabled;
 export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 
 export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
+
+export const userGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
 
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();
