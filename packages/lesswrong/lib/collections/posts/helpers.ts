@@ -424,3 +424,12 @@ export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
     return false
   }
 }
+
+/**
+ * Given a url like https://docs.google.com/document/d/1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA/edit#heading=h.82kaw9idgbpe
+ * , return just the id part (1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA in this case)
+ */
+export const extractGoogleDocId = (urlOrId: string): string | null => {
+  const docIdMatch = urlOrId.match(/\/d\/(.+?)(\/|$)/);
+  return docIdMatch ? docIdMatch[1] : null;
+};

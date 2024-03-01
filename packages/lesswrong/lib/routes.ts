@@ -1478,6 +1478,12 @@ addRoute(
     title: `${taggingNameCapitalSetting.get()} merging tool`
   },
   {
+    name: 'googleServiceAccount',
+    path: '/admin/googleServiceAccount',
+    componentName: 'AdminGoogleServiceAccount',
+    title: `Google Doc import service account`
+  },
+  {
     name: 'recentlyActiveUsers',
     path: '/admin/recentlyActiveUsers',
     componentName: 'RecentlyActiveUsers',
@@ -1506,6 +1512,12 @@ addRoute(
     path: '/admin/random-user',
     componentName: 'RandomUserPage',
     title: "Random User",
+  },
+  {
+    name: 'onboarding',
+    path: '/admin/onboarding',
+    componentName: 'AdminViewOnboarding',
+    title: "Onboarding (for testing purposes)",
   },
   {
     name: 'moderation',

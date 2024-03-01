@@ -971,6 +971,14 @@ interface ModeratorClientIDInfo { // fragment on ClientIds
   readonly users: Array<UsersMinimumInfo>,
 }
 
+interface GoogleServiceAccountSessionsDefaultFragment { // fragment on GoogleServiceAccountSessions
+  readonly email: string,
+  readonly refreshToken: string,
+  readonly estimatedExpiry: Date,
+  readonly active: boolean,
+  readonly revoked: boolean,
+}
+
 interface SessionsDefaultFragment { // fragment on Sessions
   readonly _id: string,
   readonly session: any /*{"definitions":[{"blackbox":true}]}*/,
@@ -1407,12 +1415,10 @@ interface PostsPage extends PostsDetails { // fragment on Posts
   readonly contents: RevisionDisplay|null,
   readonly customHighlight: RevisionDisplay|null,
   readonly myEditorAccess: string,
-  readonly linkSharingKey: string | null,
 }
 
 interface PostsEdit extends PostsDetails { // fragment on Posts
   readonly myEditorAccess: string,
-  readonly linkSharingKey: string | null,
   readonly version: string|null,
   readonly coauthorStatuses: Array<{
     userId: string,
@@ -3561,14 +3567,6 @@ interface ElectionVoteRecentDiscussion { // fragment on ElectionVotes
   readonly submittedAt: Date | null,
 }
 
-interface GoogleServiceAccountSessionsDefaultFragment { // fragment on GoogleServiceAccountSessions
-  readonly email: string,
-  readonly refreshToken: string,
-  readonly estimatedExpiry: Date,
-  readonly active: boolean,
-  readonly revoked: boolean,
-}
-
 interface GoogleServiceAccountSessionInfo { // fragment on GoogleServiceAccountSessions
   readonly _id: string,
   readonly email: string,
@@ -3788,6 +3786,7 @@ interface FragmentTypes {
   emailHistoryFragment: emailHistoryFragment
   ClientIdsDefaultFragment: ClientIdsDefaultFragment
   ModeratorClientIDInfo: ModeratorClientIDInfo
+  GoogleServiceAccountSessionsDefaultFragment: GoogleServiceAccountSessionsDefaultFragment
   SessionsDefaultFragment: SessionsDefaultFragment
   CronHistoriesDefaultFragment: CronHistoriesDefaultFragment
   MessagesDefaultFragment: MessagesDefaultFragment
@@ -3981,7 +3980,6 @@ interface FragmentTypes {
   WithVoteElectionCandidate: WithVoteElectionCandidate
   ElectionVoteInfo: ElectionVoteInfo
   ElectionVoteRecentDiscussion: ElectionVoteRecentDiscussion
-  GoogleServiceAccountSessionsDefaultFragment: GoogleServiceAccountSessionsDefaultFragment
   GoogleServiceAccountSessionInfo: GoogleServiceAccountSessionInfo
   GoogleServiceAccountSessionAdminInfo: GoogleServiceAccountSessionAdminInfo
   TypingIndicatorInfo: TypingIndicatorInfo
@@ -4028,6 +4026,7 @@ interface FragmentTypesByCollection {
   Votes: "VotesDefaultFragment"|"TagRelVotes"|"TagVotingActivity"|"UserVotes"|"UserVotesWithDocument"
   LWEvents: "LWEventsDefaultFragment"|"newEventFragment"|"lastEventFragment"|"lwEventsAdminPageFragment"|"emailHistoryFragment"
   ClientIds: "ClientIdsDefaultFragment"|"ModeratorClientIDInfo"
+  GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   Sessions: "SessionsDefaultFragment"
   CronHistories: "CronHistoriesDefaultFragment"
   Messages: "MessagesDefaultFragment"|"messageListFragment"
@@ -4055,7 +4054,6 @@ interface FragmentTypesByCollection {
   CommentModeratorActions: "CommentModeratorActionsDefaultFragment"|"CommentModeratorActionDisplay"
   ModerationTemplates: "ModerationTemplatesDefaultFragment"|"ModerationTemplateFragment"
   UserRateLimits: "UserRateLimitsDefaultFragment"|"UserRateLimitDisplay"
-  GoogleServiceAccountSessions: "GoogleServiceAccountSessionsDefaultFragment"|"GoogleServiceAccountSessionInfo"|"GoogleServiceAccountSessionAdminInfo"
   ElicitQuestions: "ElicitQuestionsDefaultFragment"
   ElicitQuestionPredictions: "ElicitQuestionPredictionsDefaultFragment"
   DialogueMatchPreferences: "DialogueMatchPreferencesDefaultFragment"|"DialogueMatchPreferenceInfo"
@@ -4094,6 +4092,7 @@ interface CollectionNamesByFragmentName {
   emailHistoryFragment: "LWEvents"
   ClientIdsDefaultFragment: "ClientIds"
   ModeratorClientIDInfo: "ClientIds"
+  GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   SessionsDefaultFragment: "Sessions"
   CronHistoriesDefaultFragment: "CronHistories"
   MessagesDefaultFragment: "Messages"
@@ -4287,7 +4286,6 @@ interface CollectionNamesByFragmentName {
   WithVoteElectionCandidate: "ElectionCandidates"
   ElectionVoteInfo: "ElectionVotes"
   ElectionVoteRecentDiscussion: "ElectionVotes"
-  GoogleServiceAccountSessionsDefaultFragment: "GoogleServiceAccountSessions"
   GoogleServiceAccountSessionInfo: "GoogleServiceAccountSessions"
   GoogleServiceAccountSessionAdminInfo: "GoogleServiceAccountSessions"
   TypingIndicatorInfo: "TypingIndicators"

@@ -363,6 +363,7 @@ importComponent("CrosspostLoginPage", () => require('../components/users/Crosspo
 importComponent("LoginPopupButton", () => require('../components/users/LoginPopupButton'));
 importComponent("LoginPopup", () => require('../components/users/LoginPopup'));
 importComponent("SharePostPopup", () => require('../components/posts/SharePostPopup'));
+importComponent("GoogleDocImportButton", () => require('../components/posts/GoogleDocImportButton'));
 importComponent("KarmaChangeNotifier", () => require('../components/users/KarmaChangeNotifier'));
 importComponent("KarmaChangeNotifierSettings", () => require('../components/users/KarmaChangeNotifierSettings'));
 importComponent("EmailTokenPage", () => require('../components/users/EmailTokenPage'));
@@ -698,6 +699,8 @@ importComponent("AdminMetadata", () => require('../components/admin/AdminMetadat
 importComponent("AdminSynonymsPage", () => require('../components/admin/AdminSynonymsPage'));
 importComponent("AdminToggle", () => require('../components/admin/AdminToggle'));
 importComponent("RandomUserPage", () => require('../components/admin/RandomUserPage'));
+importComponent("AdminGoogleServiceAccount", () => require('../components/admin/AdminGoogleServiceAccount'));
+importComponent("AdminViewOnboarding", () => require('../components/admin/AdminViewOnboarding'));
 importComponent("ModerationDashboard", () => require('../components/sunshineDashboard/ModerationDashboard'));
 importComponent("TagMergePage", () => require('../components/tagging/TagMergePage.tsx'));
 importComponent("RecentlyActiveUsers", () => require('../components/sunshineDashboard/ModeratorUserInfo/RecentlyActiveUsers'));
@@ -743,6 +746,7 @@ importComponent("SunshineReportedItem", () => require('../components/sunshineDas
 importComponent("ModeratorMessageCount", () => require('../components/sunshineDashboard/ModeratorMessageCount'));
 importComponent("SunshineCuratedSuggestionsItem", () => require('../components/sunshineDashboard/SunshineCuratedSuggestionsItem'));
 importComponent("SunshineCuratedSuggestionsList", () => require('../components/sunshineDashboard/SunshineCuratedSuggestionsList'));
+importComponent("SunshineGoogleServiceAccount", () => require('../components/sunshineDashboard/SunshineGoogleServiceAccount'));
 importComponent("SunshineNewTagsList", () => require('../components/sunshineDashboard/SunshineNewTagsList'));
 importComponent("SunshineNewTagsItem", () => require('../components/sunshineDashboard/SunshineNewTagsItem'));
 importComponent("SunshineSidebar", () => require('../components/sunshineDashboard/SunshineSidebar'));
@@ -955,6 +959,7 @@ importComponent("ThemeSelect", () => require('../components/form-components/Them
 // Form group components
 importComponent("FormGroupLayout", () => require('../components/form-components/FormGroupLayout'))
 importComponent("FormGroupNoStyling", () => require('../components/form-components/FormGroupNoStyling'))
+importComponent("FormGroupPostTopBar", () => require('../components/form-components/FormGroupPostTopBar'))
 
 importComponent("PostSummaryDialog", () => require('../components/languageModels/PostSummaryDialog'));
 

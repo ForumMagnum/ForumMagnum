@@ -2,6 +2,7 @@ import React, { FC, ReactNode, createContext, useCallback, useContext, useState 
 import { Components } from "../../../lib/vulcan-lib";
 import { useCurrentUser, useRefetchCurrentUser } from "../../common/withUser";
 import { UpdateCurrentUserFunction, useUpdateCurrentUser } from "../../hooks/useUpdateCurrentUser";
+import { useTracking } from "../../../lib/analyticsEvents";
 
 /**
  * Ordered list of all onboarding stages.
@@ -33,6 +34,9 @@ type EAOnboardingContext = {
   nextStageIsLoading: boolean,
   currentUser: UsersCurrent,
   updateCurrentUser: UpdateCurrentUserFunction,
+  captureOnboardingEvent: (type?: string, trackingData?: Record<string,any>) => void,
+  // if viewAsAdmin is true, this is an admin testing out the flow, so don't update their account
+  viewAsAdmin?: boolean,
 }
 
 const eaOnboardingContext = createContext<EAOnboardingContext>({
@@ -42,17 +46,21 @@ const eaOnboardingContext = createContext<EAOnboardingContext>({
   nextStageIsLoading: false,
   currentUser: {} as UsersCurrent,
   updateCurrentUser: async () => {},
+  captureOnboardingEvent: (type?: string, trackingData?: Record<string,any>) => {},
+  viewAsAdmin: false,
 });
 
 export const EAOnboardingContextProvider: FC<{
   onOnboardingComplete?: () => void,
+  viewAsAdmin?: boolean,
   children: ReactNode,
-}> = ({onOnboardingComplete, children}) => {
+}> = ({onOnboardingComplete, viewAsAdmin, children}) => {
   const [stage, setStage] = useState<OnboardingStage>(onboardingStages[0]);
   const [loading, setLoading] = useState(false);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const refetchCurrentUser = useRefetchCurrentUser();
+  const {captureEvent} = useTracking();
 
   const goToNextStage = useCallback(async () => {
     setLoading(true);
@@ -71,6 +79,13 @@ export const EAOnboardingContextProvider: FC<{
     await promise;
     await goToNextStage();
   }, [goToNextStage]);
+  
+  /**
+   * Wrapper around captureEvent() that suppresses events when we are viewing as admin
+   */
+  const captureOnboardingEvent = useCallback((type?: string, trackingData?: Record<string,any>) => {
+    !viewAsAdmin && captureEvent(type, trackingData);
+  }, [viewAsAdmin, captureEvent])
 
   // This should never happen
   if (!currentUser) {
@@ -88,6 +103,8 @@ export const EAOnboardingContextProvider: FC<{
       nextStageIsLoading: loading,
       currentUser,
       updateCurrentUser,
+      captureOnboardingEvent,
+      viewAsAdmin,
     }}>
       {children}
     </eaOnboardingContext.Provider>
