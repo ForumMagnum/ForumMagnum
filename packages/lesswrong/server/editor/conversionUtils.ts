@@ -578,6 +578,31 @@ function googleDocFormatting(html: string): string {
 }
 
 /**
+ * Removes comments from the raw html exported from Google Docs.
+ */
+function googleDocStripComments(html: string): string {
+  const $ = cheerio.load(html);
+
+  // Remove any <sup> tags that contain a child with a #cmnt id
+  $('sup').each((_, element) => {
+    const sup = $(element);
+    if (sup.find('a[id^="cmnt_ref"]').length > 0) {
+      sup.remove();
+    }
+  });
+
+  // Remove the whole box at the bottom containing the comments
+  $('div').each((_, element) => {
+    const div = $(element);
+    if (div.find('a[id^="cmnt"]').length > 0) {
+      div.remove();
+    }
+  });
+
+  return $.html();
+}
+
+/**
  * We need to convert a few things in the raw html exported from google to make it work with ckeditor, this is
  * largely mirroring conversions we do on paste in the ckeditor code:
  * - Convert footnotes to our format
@@ -586,7 +611,8 @@ function googleDocFormatting(html: string): string {
  */
 export async function convertImportedGoogleDoc(html: string, postId: string) {
   const { html: withRehostedImages } = await convertImagesInHTML(html, postId, url => url.includes("googleusercontent"))
-  const withGoogleDocFormatting = googleDocFormatting(withRehostedImages)
+  const withNoComments = googleDocStripComments(withRehostedImages)
+  const withGoogleDocFormatting = googleDocFormatting(withNoComments)
   const withConvertedFootnotes = googleDocConvertFootnotes(withGoogleDocFormatting)
   const withNormalisedRedirects = googleDocRemoveRedirects(withConvertedFootnotes)
   const ckEditorMarkup = await dataToCkEditor(withNormalisedRedirects, "html")
