@@ -632,7 +632,7 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
 
   return (
     <>
-      <HeadTags description={description} />
+      <HeadTags description={description} image={"https://res.cloudinary.com/lesswrong-2-0/image/upload/v1709263520/Screen_Shot_2024-02-29_at_7.24.56_PM_tyjy7h.png"} />
       {/** TODO: change pageContext when/if we rename component */}
       <AnalyticsContext pageContext="topPostsPage">
         <div className={classes.widerColumn}>
