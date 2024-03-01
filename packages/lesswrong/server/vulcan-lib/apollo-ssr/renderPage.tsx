@@ -35,7 +35,7 @@ import { getForwardedWhitelist } from '../../forwarded_whitelist';
 import PriorityBucketQueue, { RequestData } from '../../../lib/requestPriorityQueue';
 import { onStartup, isAnyTest } from '../../../lib/executionEnvironment';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../../lib/cookies/cookies';
-import { userGetsDynamicFrontpage } from '../../../lib/betas';
+import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 
 const slowSSRWarnThresholdSetting = new DatabaseServerSetting<number>("slowSSRWarnThreshold", 3000);
 
@@ -116,7 +116,7 @@ export const renderWithCache = async (req: Request, res: Response, user: DbUser|
   const lastVisitedFrontpage = getCookieFromReq(req, LAST_VISITED_FRONTPAGE_COOKIE);
   // For LW, skip the cache on users who have visited the frontpage before, including logged out. 
   // Doing this so we can show dynamic latest posts list with varying HN decay parameters based on visit frequency (see useractivities/cron.ts).
-  const showDynamicFrontpage = !!lastVisitedFrontpage && userGetsDynamicFrontpage(user) && url === "/";
+  const showDynamicFrontpage = !!lastVisitedFrontpage && visitorGetsDynamicFrontpage(user) && url === "/";
   
   if ((!isHealthCheck && (user || isExcludedFromPageCache(url, abTestGroups))) || isSlackBot || showDynamicFrontpage) {
     // When logged in, don't use the page cache (logged-in pages have notifications and stuff)

@@ -13,6 +13,7 @@ import { INITIAL_REVIEW_THRESHOLD, getPositiveVoteThreshold, QUICK_REVIEW_SCORE_
 import { jsonArrayContainsSelector } from '../../utils/viewUtils';
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/collection';
 import { filter, isEmpty, pick } from 'underscore';
+import { visitorGetsDynamicFrontpage } from '../../betas';
 
 export const DEFAULT_LOW_KARMA_THRESHOLD = -10
 export const MAX_LOW_KARMA_THRESHOLD = -1000
@@ -363,7 +364,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
     t => (t.filterMode!=="Hidden" && t.filterMode!=="Required" && t.filterMode!=="Default" && t.filterMode!==0)
   );
 
-  const useSlowerFrontpage = !!context?.currentUser && isEAForum
+  const useSlowerFrontpage = !!context && ((!!context.currentUser && isEAForum) || visitorGetsDynamicFrontpage(context.currentUser ?? null));
 
   const syntheticFields = {
     filteredScore: {$divide:[

@@ -6,14 +6,14 @@ import { showReviewOnFrontPageIfActive } from '../../lib/publicSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
-import { userGetsDynamicFrontpage } from '../../lib/betas';
+import { visitorGetsDynamicFrontpage } from '../../lib/betas';
 
 const LWHome = () => {
   const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, QuickTakesSection } = Components
   const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
 
   useEffect(() => {
-    if (userGetsDynamicFrontpage(null)) {
+    if (visitorGetsDynamicFrontpage(null)) {
       setCookie(LAST_VISITED_FRONTPAGE_COOKIE, new Date().toISOString(), { path: "/", expires: moment().add(1, 'year').toDate() });
     }
   }, [setCookie])
