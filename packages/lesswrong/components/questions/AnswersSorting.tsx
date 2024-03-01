@@ -6,23 +6,15 @@ import * as _ from 'underscore';
 import type { Option } from '../common/InlineSelect';
 import { getCommentViewOptions } from '../../lib/commentViewOptions';
 import { useNavigate } from '../../lib/reactRouterWrapper';
+import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 
-const viewOptions = getCommentViewOptions();
-
-const sortOrder = [
-  'postCommentsTop',
-  'postCommentsMagic',
-  'postCommentsNew',
-  'postCommentsOld',
-  'postCommentsRecentReplies'
-];
-
-viewOptions.sort((a, b) => sortOrder.indexOf(a.value) - sortOrder.indexOf(b.value));
-
-const sortingNames = viewOptions.reduce((sortingName: Record<string, string>, viewOption) => {
-  sortingName[viewOption.value] = viewOption.label;
-  return sortingName;
-}, {});
+const sortingNames = {
+  'top': isFriendlyUI ? 'Top' : 'top scoring',
+  'magic': isFriendlyUI ? 'New & upvoted' : 'magic (new & upvoted)',
+  'newest': isFriendlyUI ? 'New' : 'newest',
+  'oldest': isFriendlyUI ? 'Old' : 'oldest',
+  'recentComments': preferredHeadingCase('latest reply'),
+}
 
 const AnswersSorting = ({ post, classes }: {
   post?: PostsList,
