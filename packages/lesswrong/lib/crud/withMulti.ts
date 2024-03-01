@@ -164,11 +164,8 @@ export function useMulti<
       terms: { ...terms, limit: defaultLimit },
       enableCache, enableTotal, createIfMissing
     },
-    ...(_.pick(extraVariablesValues, Object.keys(extraVariables || {})))
-  }), [
-    terms, defaultLimit, enableCache, enableTotal, createIfMissing,
-    extraVariables, extraVariablesValues,
-  ]);
+    ...extraVariablesValues
+  }), [terms, defaultLimit, enableCache, enableTotal, createIfMissing, extraVariablesValues]);
 
   let effectiveLimit = limit;
   if (!_.isEqual(terms, lastTerms)) {

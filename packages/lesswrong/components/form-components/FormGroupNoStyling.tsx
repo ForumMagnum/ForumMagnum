@@ -1,9 +1,8 @@
-import React, { ReactNode } from 'react'
+import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib';
+import { FormGroupLayoutProps } from './FormGroupLayout';
 
-const FormGroupNoStyling = ({children}: {
-  children: ReactNode
-}) => {
+const FormGroupNoStyling = ({children}: FormGroupLayoutProps) => {
   return <React.Fragment>
     {children}
   </React.Fragment>

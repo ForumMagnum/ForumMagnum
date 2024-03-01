@@ -8,7 +8,7 @@ const PostsEditPage = () => {
   const version = query.version;
   
   return <div>
-    <Components.PostsEditForm documentId={postId} version={version}/>
+    <Components.PostsEditForm documentId={postId} version={version} />
   </div>
 }
 
