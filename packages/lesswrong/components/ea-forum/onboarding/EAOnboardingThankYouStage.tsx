@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { getPodcastDataByName } from "../../../lib/eaPodcasts";
-import { useTracking } from "../../../lib/analyticsEvents";
 import { useEAOnboarding } from "./useEAOnboarding";
 import classNames from "classnames";
 
@@ -85,13 +84,12 @@ const styles = (theme: ThemeType) => ({
 export const EAOnboardingThankYouStage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {captureEvent} = useTracking();
-  const {currentStage, goToNextStage, currentUser, updateCurrentUser} = useEAOnboarding();
+  const {currentStage, goToNextStage, currentUser, updateCurrentUser, captureOnboardingEvent, viewAsAdmin} = useEAOnboarding();
   const [subscribed, setSubscribed] = useState(true);
 
   useEffect(() => {
-    // Default to subscribing to the digest
-    if (!currentUser.subscribedToDigest && currentStage === 'thankyou') {
+    // Default to subscribing to the digest (unless this is an admin testing)
+    if (!currentUser.subscribedToDigest && currentStage === 'thankyou' && !viewAsAdmin) {
       void updateCurrentUser({
         subscribedToDigest: true,
       });
@@ -101,16 +99,17 @@ export const EAOnboardingThankYouStage = ({classes}: {
 
   const setSubscribedToDigest = useCallback((value: boolean) => {
     setSubscribed(value);
-    void updateCurrentUser({
+    // If this is an admin testing, don't make any changes
+    !viewAsAdmin && void updateCurrentUser({
       subscribedToDigest: value,
     });
-    captureEvent("toggleDigest", {subscribed: value});
-  }, [updateCurrentUser, captureEvent]);
+    captureOnboardingEvent("toggleDigest", {subscribed: value});
+  }, [updateCurrentUser, captureOnboardingEvent, viewAsAdmin]);
 
   const onComplete = useCallback(() => {
     void goToNextStage();
-    captureEvent("onboardingComplete");
-  }, [goToNextStage, captureEvent]);
+    captureOnboardingEvent("onboardingComplete");
+  }, [goToNextStage, captureOnboardingEvent]);
 
   const {
     EAOnboardingStage, EAOnboardingPodcast, SectionTitle, EAButton, ToggleSwitch,

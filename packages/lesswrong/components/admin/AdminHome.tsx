@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { hasDigests } from '../../lib/betas';
-import { taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isEAForum, taggingNameCapitalSetting, taggingNamePluralCapitalSetting, taggingNamePluralSetting } from '../../lib/instanceSettings';
 import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
 
 // Also used in ModerationLog
@@ -86,6 +86,9 @@ const AdminHome = ({ classes }: {
         <li><Link className={classes.link} to="/postListEditorTest">Post List Editor Test</Link></li>
         <li><Link className={classes.link} to="/imageUpload">Image Upload Test</Link></li>
         <li><Link className={classes.link} to="/admin/recommendationsSample">Recommendations Explorer</Link></li>
+        {isEAForum && <li>
+          <Link className={classes.link} to="/admin/onboarding">View onboarding flow</Link> (for testing purposes - this will not make any changes to your account)
+        </li>}
       </ul>
 
       <h3>Server Information</h3>

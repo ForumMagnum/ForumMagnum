@@ -1,4 +1,5 @@
 import { calculateActivityFactor } from './collections/useractivities/utils';
+import { isLW } from './instanceSettings';
 import { DatabasePublicSetting } from './publicSettings';
 
 /**
@@ -141,6 +142,10 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
   return { $pow: [{ $add: [ageInHours, startingAgeHours] }, timeDecayFactor] };
 }
 
+// SCORE_BIAS is used in updateScores.ts which is used for all votable documents, this here is used for frontpage posts only. SCORE_BIAS is weirdly name. 
+// It is just adding to the age of the post to make the score decay faster, preventing low karma posts getting on the frontpage for very long.
+const AGE_OFFSET = isLW ? 6 : SCORE_BIAS 
+
 export const timeDecayExpr = () => {
   return {$pow: [
     {$add: [
@@ -150,7 +155,7 @@ export const timeDecayExpr = () => {
         ]},
         60 * 60 * 1000
       ] }, // Age in hours
-      SCORE_BIAS,
+      AGE_OFFSET
     ]},
     TIME_DECAY_FACTOR.get()
   ]}

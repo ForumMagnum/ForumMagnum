@@ -700,6 +700,7 @@ importComponent("AdminSynonymsPage", () => require('../components/admin/AdminSyn
 importComponent("AdminToggle", () => require('../components/admin/AdminToggle'));
 importComponent("RandomUserPage", () => require('../components/admin/RandomUserPage'));
 importComponent("AdminGoogleServiceAccount", () => require('../components/admin/AdminGoogleServiceAccount'));
+importComponent("AdminViewOnboarding", () => require('../components/admin/AdminViewOnboarding'));
 importComponent("ModerationDashboard", () => require('../components/sunshineDashboard/ModerationDashboard'));
 importComponent("TagMergePage", () => require('../components/tagging/TagMergePage.tsx'));
 importComponent("RecentlyActiveUsers", () => require('../components/sunshineDashboard/ModeratorUserInfo/RecentlyActiveUsers'));

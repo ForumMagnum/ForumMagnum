@@ -1,6 +1,6 @@
 import React, { ReactNode, useCallback } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
+import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { OnboardingStage, useEAOnboarding } from "./useEAOnboarding";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import classNames from "classnames";
@@ -131,19 +131,18 @@ export const EAOnboardingStage = ({
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {currentStage, goToNextStage, nextStageIsLoading} = useEAOnboarding();
-  const {captureEvent} = useTracking();
+  const {currentStage, goToNextStage, nextStageIsLoading, captureOnboardingEvent} = useEAOnboarding();
 
   const wrappedOnContinue = useCallback(async () => {
     await onContinue?.();
-    captureEvent("onboardingContinue", {from: stageName});
+    captureOnboardingEvent("onboardingContinue", {from: stageName});
     await goToNextStage();
-  }, [onContinue, goToNextStage, captureEvent, stageName]);
+  }, [onContinue, goToNextStage, captureOnboardingEvent, stageName]);
 
   const onSkip = useCallback(async () => {
-    captureEvent("onboardingSkip", {from: stageName});
+    captureOnboardingEvent("onboardingSkip", {from: stageName});
     await goToNextStage();
-  }, [goToNextStage, captureEvent, stageName]);
+  }, [goToNextStage, captureOnboardingEvent, stageName]);
 
   if (currentStage !== stageName) {
     return null;
