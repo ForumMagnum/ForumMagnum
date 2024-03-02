@@ -108,9 +108,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.grey[400],
   },
   progressBar: {
-    // width: 1,
     flex: 'var(--scrollAmount)',
-    // background: theme.palette.grey[400],
     marginBottom: 8,
     display: 'flex',
     [theme.breakpoints.down('sm')]: {
@@ -119,11 +117,9 @@ const styles = (theme: ThemeType) => ({
     },
     "&:after": {
       content: "''",
-      position: "fixed",
       marginLeft: -0.5,
-      width: 2,
+      paddingLeft: 2,
       alignSelf: 'end',
-      // TODO: dynamic height
       height: 30,
       background: theme.palette.grey[600],
     }
@@ -245,7 +241,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);
 
   const { readingProgressBarRef } = usePostReadProgress({
-    updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
+    updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${Math.min(Math.max(scrollPercent, 0), 100)}%`),
     disabled: disableProgressBar,
     delayStartOffset: window.innerHeight - getCurrentSectionMark()
   });
