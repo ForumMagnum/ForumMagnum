@@ -103,16 +103,29 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-evenly',
     '--scrollAmount': '0%',
     marginRight: -4,
-    paddingLeft: 4,
+    // paddingLeft: 4,
+    width: 1,
+    background: theme.palette.grey[400],
   },
   progressBar: {
-    width: 1,
+    // width: 1,
     flex: 'var(--scrollAmount)',
-    background: theme.palette.grey[400],
+    // background: theme.palette.grey[400],
     marginBottom: 8,
+    display: 'flex',
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8
+    },
+    "&:after": {
+      content: "''",
+      position: "fixed",
+      marginLeft: -0.5,
+      width: 2,
+      alignSelf: 'end',
+      // TODO: dynamic height
+      height: 30,
+      background: theme.palette.grey[600],
     }
   },
   unfilledProgressBar: {
