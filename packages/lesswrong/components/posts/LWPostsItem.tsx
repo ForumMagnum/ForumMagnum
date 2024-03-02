@@ -200,6 +200,7 @@ export const styles = (theme: ThemeType): JssStyles => ({
       display: "none",
     },
     flexGrow: 1,
+    height: 24,
   },
   mobileActions: {
     cursor: "pointer",

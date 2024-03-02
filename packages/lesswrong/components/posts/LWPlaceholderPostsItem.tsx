@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
-import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { registerComponent } from "../../lib/vulcan-lib";
 import { styles } from './LWPostsItem';
 
 const LWPlaceholderPostsItem = ({showBottomBorder, classes}: {
@@ -15,6 +15,7 @@ const LWPlaceholderPostsItem = ({showBottomBorder, classes}: {
     )}>
       <div className={classes.postsItem}>
         <span className={classes.title}/>
+        <div className={classes.mobileSecondRowSpacer}/>
       </div>
     </div>
   </div>
