@@ -24,7 +24,8 @@ registerMigration({
         set: {
           socialPreview: {
             imageId,
-            text: art.splashArtImagePrompt,
+            // We want to keep the default preview text, which is a snippet of the first paragraph of the post.
+            text: '',
           }
         }
       });
