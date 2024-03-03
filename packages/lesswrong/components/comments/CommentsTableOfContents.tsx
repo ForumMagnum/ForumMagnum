@@ -10,6 +10,8 @@ import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import classNames from 'classnames';
+import { useTimezone } from '../common/withTimezone';
+import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -49,6 +51,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     ...theme.typography.smallCaps,
     fontSize: "1.3rem",
     marginBottom: 8,
+    display: 'block'
+  },
+  tocPostedAt: {
+    color: theme.palette.link.tocLink
   },
   highlightUnread: {
     paddingLeft: 4,
@@ -65,6 +71,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   classes: ClassesType,
 }) => {
   const { TableOfContentsRow } = Components;
+  const { timezone } = useTimezone();
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
     ...(commentTree ?? [])
@@ -96,6 +103,9 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
       <span className={classes.postTitle}>
         {post.title?.trim()}
       </span>
+      {post.postedAt && <div className={classes.tocPostedAt}>
+        {moment(new Date(post.postedAt)).tz(timezone).format("Do MMM YYYY")}
+      </div>}
     </TableOfContentsRow>
 
     {answersTree && answersTree.map(answer => <>

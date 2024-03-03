@@ -121,7 +121,8 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8
-    }
+    },
+    paddingBottom: 12
   },
   nonTitleRows: {
     display: 'flex',
