@@ -98,18 +98,17 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
   },
   progressBarContainer: {
-    display: 'flex',
+    // display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     '--scrollAmount': '0%',
     marginRight: -4,
-    // paddingLeft: 4,
+    marginBottom: 8,
     width: 1,
     background: theme.palette.grey[400],
   },
   progressBar: {
     flex: 'var(--scrollAmount)',
-    marginBottom: 8,
     display: 'flex',
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
@@ -120,7 +119,8 @@ const styles = (theme: ThemeType) => ({
       marginLeft: -0.5,
       paddingLeft: 2,
       alignSelf: 'end',
-      height: 30,
+      height: 'var(--windowHeight)',
+      marginTop: 'var(--windowMarginTop)',
       background: theme.palette.grey[600],
     }
   },
@@ -241,9 +241,13 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);
 
   const { readingProgressBarRef } = usePostReadProgress({
-    updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${Math.min(Math.max(scrollPercent, 0), 100)}%`),
+    updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
     disabled: disableProgressBar,
-    delayStartOffset: window.innerHeight - getCurrentSectionMark()
+    delayStartOffset: window.innerHeight - getCurrentSectionMark(),
+    setScrollWindowHeight: (element, height, marginTop) => {
+      element.style.setProperty("--windowHeight", `${height}px`);
+      element.style.setProperty("--windowMarginTop", `${marginTop}px`)
+    }
   });
 
   const titleRow = (
