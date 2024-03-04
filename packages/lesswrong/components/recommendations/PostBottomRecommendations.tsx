@@ -74,8 +74,11 @@ const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
   const {
     results: opportunityPosts,
     loading: opportunitiesLoading,
+    coreTagLabel
   } = useRecentOpportunities({
     fragmentName: "PostsListWithVotes",
+    post,
+    maxAgeInDays: 60
   });
 
   const profileUrl = userGetProfileUrl(post.user);
@@ -138,7 +141,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
             </div>
             <div className={classes.section}>
               <div className={classes.sectionHeading}>
-                Recent opportunities
+                Recent opportunities{coreTagLabel ? ` in ${coreTagLabel}` : ""}
               </div>
               {opportunitiesLoading && !opportunityPosts?.length &&
                 <PostsLoading />

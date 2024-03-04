@@ -419,12 +419,18 @@ function filterModeToAdditiveKarmaModifier(mode: FilterMode): number {
 }
 
 function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
-  if (typeof mode === "number" && 0 < mode && mode < 1) {
+  // Example: "x10.0" is a multiplier of 10
+  const match = typeof mode === "string" && mode.match(/^x(\d+(?:\.\d+)?)$/);
+  if (match) {
+    return parseFloat(match[1]);
+  } else if (typeof mode === "number" && 0 < mode && mode < 1) {
     return mode;
-  } else switch(mode) {
-    default:
-    case "Default": return 1;
-    case "Reduced": return 0.5;
+  } else {
+    switch(mode) {
+      default:
+      case "Default": return 1;
+      case "Reduced": return 0.5;
+    }
   }
 }
 
