@@ -35,6 +35,7 @@ registerFragment(`
     contents {
       _id
       htmlHighlight
+      plaintextDescription
       wordCount
       version
     }

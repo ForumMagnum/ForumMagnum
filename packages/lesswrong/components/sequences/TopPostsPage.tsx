@@ -520,6 +520,14 @@ function getNewExpansionState(expansionState: Record<string, ExpansionState>, to
   return newState;
 }
 
+function TopPostsItem({ post, imageUrl }: { post: PostsTopItemInfo, imageUrl: string }) {
+  return <div style={{width: 720, background: "white", padding: 12, fontFamily: "Gill Sans"}}>
+    {imageUrl && <img src={imageUrl} alt={post.title} />}
+    <h1>{post.title}</h1>
+    <p>{post.contents?.plaintextDescription}</p>
+  </div>
+}
+
 const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const { SectionTitle, HeadTags, TopPostsDisplaySettings, ContentStyles } = Components;
 
@@ -620,6 +628,13 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
     return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, title ?? id, id, index, expandedNotYetMoved);
   });
 
+  const sectionLists = Object.entries(sectionsInfo).sort(([, a], [, b]) => a.order - b.order).map(([id, { title, imgUrl, coords }], index) => {
+    const posts = sortedReviewWinners.filter(post => post.reviewWinner?.category === id);
+    return posts
+  })
+  console.log(sectionsInfo)
+  console.log(sectionLists)
+
   const yearGrid = Object.entries(yearGroupsInfo).sort(([a], [b]) => parseInt(b) - parseInt(a)).map(([year, { imgUrl, coords }], index) => {
     const posts = sortedReviewWinners.filter(({ reviewWinner }) => reviewWinner?.reviewYear.toString() === year);
     return getPostsImageGrid(posts, imgUrl, coords ?? DEFAULT_SPLASH_ART_COORDINATES, year, year, index, expandedNotYetMoved);
@@ -644,6 +659,15 @@ const TopPostsPage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
             <div className={classes.gridContainer} onMouseMove={() => expandedNotYetMoved && setExpandedNotYetMoved(false)}>
               {currentSortOrder === 'curated' ? sectionGrid : yearGrid}
             </div>
+          </div>
+          <div>
+            {sectionLists?.map((section, i) => <div key={`sectionList${i}`}>
+              {section.map((post, j) => {
+                const imageUrl = post.reviewWinner?.reviewWinnerArt ?? undefined;
+                const newPost = post as any
+                return <TopPostsItem key={post._id} post={newPost} imageUrl={imageUrl}/>
+              })}
+            </div>)}
           </div>
         </div>
       </AnalyticsContext>
@@ -693,7 +717,7 @@ const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => 
 
   const emptyCellElement = <div key={`empty-${rowIdx}-${columnIdx}`} className={classes.emptyGridCell} />;
 
-  const reviewWinnerArt = post?.reviewWinner?.reviewWinnerArt ?? undefined;
+const reviewWinnerArt = post?.reviewWinner?.reviewWinnerArt ?? undefined;
   const imgSrc = reviewWinnerArt ? getSplashArtUrl({ reviewWinnerArt, leftBookOffset }) : '';
 
   const applyHideImageClass = !(isDefault || isUnderTitle || isExpanded || isShowingAll) || !coverLoaded || expandedNotYetMoved;

@@ -105,7 +105,7 @@ const EALargePostsItem = ({
   className,
   classes,
 }: {
-  post: PostsPage,
+  post: PostsPage|PostsTopItemInfo,
   isNarrow?: boolean,
   noImagePlaceholder?: boolean,
   className?: string,
