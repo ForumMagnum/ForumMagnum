@@ -217,7 +217,7 @@ const EAPostsItem = ({
     return null;
   }
 
-  const showDraftAmnestyTag = isDraftAmnestyWeek && isDraftAmnestyPost(post);
+  const showDraftAmnestyTag = isDraftAmnestyWeek() && isDraftAmnestyPost(post);
   const highlightedTag = showDraftAmnestyTag
     ? {
       slug: draftAmnestyWeekTagSlug,
