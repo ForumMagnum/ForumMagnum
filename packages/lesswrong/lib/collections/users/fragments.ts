@@ -408,7 +408,7 @@ registerFragment(`
 
 registerFragment(`
   fragment UsersEdit on User {
-    ...UsersProfile
+    ...UsersCurrent
     biography {
       ...RevisionEdit
     }
