@@ -7,7 +7,7 @@ import omit from "lodash/omit";
 import { logAllQueries } from "../lib/sql/sqlClient";
 import { recordSqlQueryPerfMetric } from "./perfMetrics";
 
-const SLOW_QUERY_REPORT_CUTOFF_MS = 2000;
+const SLOW_QUERY_REPORT_CUTOFF_MS = 10000;
 
 const pgConnIdleTimeoutMsSetting = new PublicInstanceSetting<number>('pg.idleTimeoutMs', 10000, 'optional')
 

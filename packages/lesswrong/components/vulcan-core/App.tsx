@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import moment from 'moment';
 import { DatabasePublicSetting, localeSetting } from '../../lib/publicSettings';
-import { Components, registerComponent, userChangedCallback } from '../../lib/vulcan-lib';
+import { Components, TreeContext, registerComponent, userChangedCallback } from '../../lib/vulcan-lib';
 import { TimeOverride, TimeContext } from '../../lib/utils/timeUtil';
 // eslint-disable-next-line no-restricted-imports
 import { useLocation, withRouter } from 'react-router';
@@ -102,6 +102,7 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
   }
 
   return (
+    <TreeContext.Provider value={{ ancestors: [{ name: 'App', queriesAndMutations: [] }]}}>
     <LocationContext.Provider value={locationContext.current}>
     <NavigationContext.Provider value={navigationContext.current}>
     <SubscribeLocationContext.Provider value={subscribeLocationContext.current}>
@@ -121,6 +122,7 @@ const App = ({serverRequestStatus, timeOverride, history}: ExternalProps & {
     </SubscribeLocationContext.Provider>
     </NavigationContext.Provider>
     </LocationContext.Provider>
+    </TreeContext.Provider>
   );
 }
 
