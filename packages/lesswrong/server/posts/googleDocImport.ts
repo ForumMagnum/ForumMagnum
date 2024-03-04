@@ -1,9 +1,9 @@
 import { OAuth2Client } from 'google-auth-library';
 import { DatabaseServerSetting } from '../databaseSettings';
-import { google } from 'googleapis';
 import { extractGoogleDocId } from '../../lib/collections/posts/helpers';
 import GoogleServiceAccountSessions from '../../lib/collections/googleServiceAccountSessions/collection';
 import { createMutator, updateMutator } from '../vulcan-lib';
+import { drive } from '@googleapis/drive';
 
 export const googleDocImportClientIdSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.clientId', null)
 export const googleDocImportClientSecretSetting = new DatabaseServerSetting<string | null>('googleDocImport.oAuth.secret', null)
@@ -53,13 +53,13 @@ export async function canAccessGoogleDoc(fileUrl: string): Promise<boolean> {
 
   try {
     const oauth2Client = await getGoogleDocImportOAuthClient();
-    const drive = google.drive({
+    const googleDrive = drive({
       version: "v3",
       auth: oauth2Client,
     });
 
     // Attempt to retrieve the file's metadata
-    await drive.files.get({
+    await googleDrive.files.get({
       fileId,
       fields: 'name'
     });

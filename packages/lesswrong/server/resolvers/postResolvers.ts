@@ -21,7 +21,7 @@ import { isDialogueParticipant } from '../../components/posts/PostsPage/PostsPag
 import { marketInfoLoader } from '../posts/annualReviewMarkets';
 import { getWithCustomLoader } from '../../lib/loaders';
 import { isLWorAF } from '../../lib/instanceSettings';
-import { google } from 'googleapis';
+import { drive } from "@googleapis/drive";
 import { convertImportedGoogleDoc } from '../editor/conversionUtils';
 import Revisions from '../../lib/collections/revisions/collection';
 import { randomId } from '../../lib/random';
@@ -407,20 +407,20 @@ addGraphQLResolvers({
 
       const oauth2Client = await getGoogleDocImportOAuthClient();
 
-      const drive = google.drive({
+      const googleDrive = drive({
         version: "v3",
         auth: oauth2Client,
       });
 
       // Retrieve the file's metadata to get the name
-      const fileMetadata = await drive.files.get({
+      const fileMetadata = await googleDrive.files.get({
         fileId,
         fields: 'id, name, description, version, createdTime, modifiedTime, size'
       });
 
       const docMetadata = fileMetadata.data as GoogleDocMetadata;
 
-      const fileContents = await drive.files.export(
+      const fileContents = await googleDrive.files.export(
         {
           fileId,
           mimeType: "text/html",
