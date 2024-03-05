@@ -497,7 +497,7 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
-    '& .footnotes': {
+    '& .footnotes': isFriendlyUI ? {} : {
       marginTop: 0,
       paddingTop: 0,
     },
