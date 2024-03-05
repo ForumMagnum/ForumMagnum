@@ -515,7 +515,6 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
       ...theme.typography.commentHeader,
       ...theme.typography.commentStyle
     },
-
     // spoiler styles
     // HACK FIXME: Playing with pointer events is a horrible idea in general, and probably also in this context
     // but it's the only way I was able to make this weird stuff work.
