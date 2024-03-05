@@ -25,6 +25,7 @@ import { getCookieFromReq } from '../../utils/httpUtil';
 import { isEAForum } from '../../../lib/instanceSettings';
 import { userChangedCallback } from '../../../lib/vulcan-lib/callbacks';
 import { asyncLocalStorage } from '../../perfMetrics';
+import { visitorGetsDynamicFrontpage } from '../../../lib/betas';
 
 // From https://github.com/apollographql/meteor-integration/blob/master/src/server.js
 export const getUser = async (loginToken: string): Promise<DbUser|null> => {
@@ -109,7 +110,7 @@ export function requestIsFromGreaterWrong(req?: Request): boolean {
 export const computeContextFromUser = async (user: DbUser|null, req?: Request, res?: Response): Promise<ResolverContext> => {
   let visitorActivity: DbUserActivity|null = null;
   const clientId = req ? getCookieFromReq(req, "clientId") : null;
-  if ((user || clientId) && isEAForum) {
+  if ((user || clientId) && (isEAForum || visitorGetsDynamicFrontpage(user))) {
     visitorActivity = user ?
       await UserActivities.findOne({visitorId: user._id, type: 'userId'}) :
       await UserActivities.findOne({visitorId: clientId, type: 'clientId'});
