@@ -1,6 +1,8 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import { JOB_AD_DATA } from "../../components/ea-forum/TargetedJobAd";
+import { useABTest } from "../../lib/abTestImpl";
+import { jobAdDescription } from "../../lib/abTests";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -39,12 +41,17 @@ const EmailJobAdReminder = ({
   jobName: string;
   classes: ClassesType;
 }) => {
+  // Temp A/B test for the job ad description
+  const descriptionAbTestGroup = useABTest(jobAdDescription)
+  
   const jobData = JOB_AD_DATA[jobName];
   const link = jobData.bitlyLink;
   const role = jobData.role;
   const insertThe = jobData.insertThe;
   const org = jobData.org;
-  const description = jobData.getDescription(classes);
+  const description = descriptionAbTestGroup === '80k' && jobData.get80kDescription ?
+    jobData.get80kDescription(classes) :
+    jobData.getDescription(classes)
 
   return (
     <div className={classes.root}>

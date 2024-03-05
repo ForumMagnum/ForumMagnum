@@ -34,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 const PostCollaborationEditor = ({ classes }: {
   classes: ClassesType,
 }) => {
-  const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm } = Components
+  const { SingleColumnSection, Loading, ContentStyles, ErrorAccessDenied, PermanentRedirect, ForeignCrosspostEditForm, PostVersionHistoryButton } = Components
   const currentUser = useCurrentUser();
 
   const { query: { postId, key } } = useLocation();
@@ -88,7 +88,7 @@ const PostCollaborationEditor = ({ classes }: {
   if (isNotHostedHere(post)) {
     return <ForeignCrosspostEditForm post={post} />;
   }
-  
+
   return <SingleColumnSection>
     <div className={classes.title}>{post.title}</div>
     <Components.PostsAuthors post={post}/>
@@ -108,7 +108,7 @@ const PostCollaborationEditor = ({ classes }: {
           accessLevel={post.myEditorAccess as CollaborativeEditingAccessLevel}
           document={post}
         />
-        <Components.PostVersionHistoryButton
+        <PostVersionHistoryButton
           post={post}
           postId={postId}
         />

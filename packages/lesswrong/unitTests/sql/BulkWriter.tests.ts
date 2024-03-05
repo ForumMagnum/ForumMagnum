@@ -19,6 +19,20 @@ describe("BulkWriter", () => {
     expect(queries).toHaveLength(1);
     expect(queries[0] instanceof UpdateQuery).toBe(true);
   });
+  it("updateOne creates an InsertQuery when upsert is true (and $set is defined)", () => {
+    const queries = new BulkWriter(testTable, [
+      {updateOne: {filter: {}, update: {$set: {b: 'hello'}}, upsert: true}},
+    ]).getQueries();
+    expect(queries).toHaveLength(1);
+    expect(queries[0] instanceof InsertQuery).toBe(true);
+  });
+  it("updateOne creates an UpdateQuery when upsert is true and $set is not defined", () => {
+    const queries = new BulkWriter(testTable, [
+      {updateOne: {filter: {}, update: {}, upsert: true}},
+    ]).getQueries();
+    expect(queries).toHaveLength(1);
+    expect(queries[0] instanceof UpdateQuery).toBe(true);
+  });
   it("updateMany creates an UpdateQuery", () => {
     const queries = new BulkWriter(testTable, [
       {updateMany: {filter: {}, update: {}}},

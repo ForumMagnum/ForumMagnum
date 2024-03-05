@@ -66,6 +66,7 @@ import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIco
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
+import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -215,7 +216,8 @@ export type ForumIconName =
   "InfoCircle" |
   "BarsArrowDown" |
   "LightbulbChat" |
-  "VoteBallot"
+  "VoteBallot" |
+  "Import"
   ;
 
 const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
@@ -305,6 +307,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BarsArrowDown: BarsArrowDown,
     LightbulbChat: LightbulbChatIcon,
     VoteBallot: MuiVoteIcon,
+    Import: ArrowDownOnSquareIcon
   },
   default: {
     VolumeUp: SpeakerWaveIcon,
@@ -392,6 +395,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     BarsArrowDown: BarsArrowDown,
     LightbulbChat: LightbulbChatIcon,
     VoteBallot: MuiVoteIcon,
+    Import: ArrowDownOnSquareIcon
   },
 };
 

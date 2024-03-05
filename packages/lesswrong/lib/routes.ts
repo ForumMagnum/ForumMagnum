@@ -6,7 +6,7 @@ import { REVIEW_YEAR } from './reviewUtils';
 import { forumSelect } from './forumTypeUtils';
 import pickBy from 'lodash/pickBy';
 import qs from 'qs';
-import {getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug} from './pingback'
+import { getPostPingbackById, getPostPingbackByLegacyId, getPostPingbackBySlug, getUserPingbackBySlug } from './pingback';
 import { eaSequencesHomeDescription } from '../components/ea-forum/EASequencesHome';
 import { pluralize } from './vulcan-lib';
 import { forumSpecificRoutes } from './forumSpecificRoutes';
@@ -41,7 +41,7 @@ const highlightsSubtitle = { subtitleLink: "/highlights", subtitle: "Sequence Hi
 
 const hpmorSubtitle = { subtitleLink: "/hpmor", subtitle: "HPMoR" };
 const codexSubtitle = { subtitleLink: "/codex", subtitle: "SlateStarCodex" };
-const bestoflwSubtitle = { subtitleLink: "/bestoflesswrong", subtitle: "Best of LessWrong" };
+const leastWrongSubtitle = { subtitleLink: "/leastwrong", subtitle: "The Best of LessWrong" };
 
 const taggingDashboardSubtitle = { subtitleLink: '/tags/dashboard', subtitle: `${taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tag'} Dashboard`}
 
@@ -855,9 +855,21 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     {
       name: 'bestoflesswrong',
       path: '/bestoflesswrong',
-      componentName: 'BestOfLessWrong',
-      title: "Best of LessWrong",
-      ...bestoflwSubtitle,
+      redirect: () => `/leastwrong`,
+    },
+    {
+      name: 'leastwrong',
+      path: '/leastwrong',
+      componentName: 'TopPostsPage',
+      title: "The Best of LessWrong",
+      background: "#f8f4ee",
+      ...leastWrongSubtitle,
+    },
+    { 
+      name: 'books',
+      path: '/books',
+      componentName: 'Books',
+      title: "Books",
     },
     {
       name: 'HPMOR',
@@ -913,11 +925,6 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       ...codexSubtitle,
       getPingback: (parsedUrl) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug),
       background: postBackground
-    },
-    {
-      name: 'bookLanding',
-      path: '/books',
-      redirect: () => `/books/2018`,
     },
     {
       name: 'book2018Landing',
@@ -1471,6 +1478,12 @@ addRoute(
     title: `${taggingNameCapitalSetting.get()} merging tool`
   },
   {
+    name: 'googleServiceAccount',
+    path: '/admin/googleServiceAccount',
+    componentName: 'AdminGoogleServiceAccount',
+    title: `Google Doc import service account`
+  },
+  {
     name: 'recentlyActiveUsers',
     path: '/admin/recentlyActiveUsers',
     componentName: 'RecentlyActiveUsers',
@@ -1499,6 +1512,12 @@ addRoute(
     path: '/admin/random-user',
     componentName: 'RandomUserPage',
     title: "Random User",
+  },
+  {
+    name: 'onboarding',
+    path: '/admin/onboarding',
+    componentName: 'AdminViewOnboarding',
+    title: "Onboarding (for testing purposes)",
   },
   {
     name: 'moderation',

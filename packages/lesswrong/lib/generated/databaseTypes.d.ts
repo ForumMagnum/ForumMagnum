@@ -433,6 +433,19 @@ interface DbGardenCode extends DbObject {
   pingbacks: any /*{"definitions":[{}]}*/
 }
 
+type GoogleServiceAccountSessionsCollection = CollectionBase<"GoogleServiceAccountSessions">;
+
+interface DbGoogleServiceAccountSession extends DbObject {
+  __collectionName?: "GoogleServiceAccountSessions"
+  email: string
+  refreshToken: string
+  estimatedExpiry: Date
+  active: boolean
+  revoked: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type ImagesCollection = CollectionBase<"Images">;
 
 interface DbImages extends DbObject {
@@ -968,6 +981,31 @@ interface DbReviewVote extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ReviewWinnerArtsCollection = CollectionBase<"ReviewWinnerArts">;
+
+interface DbReviewWinnerArt extends DbObject {
+  __collectionName?: "ReviewWinnerArts"
+  postId: string
+  splashArtImagePrompt: string
+  splashArtImageUrl: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type ReviewWinnersCollection = CollectionBase<"ReviewWinners">;
+
+interface DbReviewWinner extends DbObject {
+  __collectionName?: "ReviewWinners"
+  postId: string
+  reviewYear: number
+  category: "rationality" | "modeling" | "optimization" | "ai strategy" | "ai safety" | "practical"
+  curatedOrder: number
+  reviewRanking: number
+  isAI: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type RevisionsCollection = CollectionBase<"Revisions">;
 
 interface DbRevision extends DbObject {
@@ -989,6 +1027,7 @@ interface DbRevision extends DbObject {
   html: string | null
   wordCount: number | null
   changeMetrics: any /*{"definitions":[{"blackbox":true}]}*/
+  googleDocMetadata: any /*{"definitions":[{"blackbox":true}]}*/
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   voteCount: number
@@ -1031,6 +1070,30 @@ interface DbSession extends DbObject {
   session: any /*{"definitions":[{"blackbox":true}]}*/
   expires: Date | null
   lastModified: Date | null
+}
+
+type SplashArtCoordinatesCollection = CollectionBase<"SplashArtCoordinates">;
+
+interface DbSplashArtCoordinate extends DbObject {
+  __collectionName?: "SplashArtCoordinates"
+  reviewWinnerArtId: string
+  leftXPct: number
+  leftYPct: number
+  leftHeightPct: number
+  leftWidthPct: number
+  leftFlipped: boolean
+  middleXPct: number
+  middleYPct: number
+  middleHeightPct: number
+  middleWidthPct: number
+  middleFlipped: boolean
+  rightXPct: number
+  rightYPct: number
+  rightHeightPct: number
+  rightWidthPct: number
+  rightFlipped: boolean
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
 type SpotlightsCollection = CollectionBase<"Spotlights">;
@@ -1183,6 +1246,22 @@ interface DbUserActivity extends DbObject {
   startDate: Date
   endDate: Date
   activityArray: Array<number>
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
+type UserEAGDetailsCollection = CollectionBase<"UserEAGDetails">;
+
+interface DbUserEAGDetail extends DbObject {
+  __collectionName?: "UserEAGDetails"
+  userId: string
+  careerStage: Array<string> | null
+  countryOrRegion: string | null
+  nearestCity: string | null
+  willingnessToRelocate: any /*{"definitions":[{"blackbox":true}]}*/
+  experiencedIn: Array<string> | null
+  interestedIn: Array<string> | null
+  lastUpdated: Date
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
@@ -1701,6 +1780,7 @@ interface CollectionsByName {
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
   GardenCodes: GardenCodesCollection
+  GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
   Images: ImagesCollection
   LWEvents: LWEventsCollection
   LegacyData: LegacyDataCollection
@@ -1725,9 +1805,12 @@ interface CollectionsByName {
   ReadStatuses: ReadStatusesCollection
   Reports: ReportsCollection
   ReviewVotes: ReviewVotesCollection
+  ReviewWinnerArts: ReviewWinnerArtsCollection
+  ReviewWinners: ReviewWinnersCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
+  SplashArtCoordinates: SplashArtCoordinatesCollection
   Spotlights: SpotlightsCollection
   Subscriptions: SubscriptionsCollection
   TagFlags: TagFlagsCollection
@@ -1735,6 +1818,7 @@ interface CollectionsByName {
   Tags: TagsCollection
   TypingIndicators: TypingIndicatorsCollection
   UserActivities: UserActivitiesCollection
+  UserEAGDetails: UserEAGDetailsCollection
   UserJobAds: UserJobAdsCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
@@ -1768,6 +1852,7 @@ interface ObjectsByCollectionName {
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
   GardenCodes: DbGardenCode
+  GoogleServiceAccountSessions: DbGoogleServiceAccountSession
   Images: DbImages
   LWEvents: DbLWEvent
   LegacyData: DbLegacyData
@@ -1792,9 +1877,12 @@ interface ObjectsByCollectionName {
   ReadStatuses: DbReadStatus
   Reports: DbReport
   ReviewVotes: DbReviewVote
+  ReviewWinnerArts: DbReviewWinnerArt
+  ReviewWinners: DbReviewWinner
   Revisions: DbRevision
   Sequences: DbSequence
   Sessions: DbSession
+  SplashArtCoordinates: DbSplashArtCoordinate
   Spotlights: DbSpotlight
   Subscriptions: DbSubscription
   TagFlags: DbTagFlag
@@ -1802,6 +1890,7 @@ interface ObjectsByCollectionName {
   Tags: DbTag
   TypingIndicators: DbTypingIndicator
   UserActivities: DbUserActivity
+  UserEAGDetails: DbUserEAGDetail
   UserJobAds: DbUserJobAd
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit
@@ -1835,6 +1924,7 @@ interface ObjectsByTypeName {
   EmailTokens: DbEmailTokens
   FeaturedResource: DbFeaturedResource
   GardenCode: DbGardenCode
+  GoogleServiceAccountSession: DbGoogleServiceAccountSession
   Images: DbImages
   LWEvent: DbLWEvent
   LegacyData: DbLegacyData
@@ -1859,9 +1949,12 @@ interface ObjectsByTypeName {
   ReadStatus: DbReadStatus
   Report: DbReport
   ReviewVote: DbReviewVote
+  ReviewWinnerArt: DbReviewWinnerArt
+  ReviewWinner: DbReviewWinner
   Revision: DbRevision
   Sequence: DbSequence
   Session: DbSession
+  SplashArtCoordinate: DbSplashArtCoordinate
   Spotlight: DbSpotlight
   Subscription: DbSubscription
   TagFlag: DbTagFlag
@@ -1869,6 +1962,7 @@ interface ObjectsByTypeName {
   Tag: DbTag
   TypingIndicator: DbTypingIndicator
   UserActivity: DbUserActivity
+  UserEAGDetail: DbUserEAGDetail
   UserJobAd: DbUserJobAd
   UserMostValuablePost: DbUserMostValuablePost
   UserRateLimit: DbUserRateLimit

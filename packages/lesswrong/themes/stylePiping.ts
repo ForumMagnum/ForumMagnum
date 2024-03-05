@@ -174,6 +174,9 @@ const tableStyles = (theme: ThemeType): JssStyles => ({
       fontSize: 14,
       lineHeight: "1.4em",
     },
+    "& sup *": {
+      fontSize: 10,
+    },
     "& ul, & ol": {
       paddingLeft: "1.5em",
     },
@@ -493,6 +496,11 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     wordBreak: "break-word",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
+
+    '& .footnotes': isFriendlyUI ? {} : {
+      marginTop: 0,
+      paddingTop: 0,
+    },
 
     '& blockquote': {
       ...theme.typography.commentBlockquote,

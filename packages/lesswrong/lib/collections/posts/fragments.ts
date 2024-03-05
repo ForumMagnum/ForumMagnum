@@ -25,6 +25,32 @@ registerFragment(`
   }
 `);
 
+// ...PostsAuthors
+
+registerFragment(`
+  fragment PostsTopItemInfo on Post {
+    ...PostsMinimumInfo
+    ...PostsAuthors
+    isRead
+    contents {
+      _id
+      htmlHighlight
+      wordCount
+      version
+    }
+    customHighlight {
+      _id
+      html
+    }
+    tags {
+      ...TagPreviewFragment
+    }
+    reviewWinner {
+      ...ReviewWinnerTopPostsPage
+    }
+  }
+`);
+
 registerFragment(`
   fragment PostsBase on Post {
     ...PostsMinimumInfo
@@ -44,7 +70,9 @@ registerFragment(`
 
     shareWithUsers
     sharingSettings
+    linkSharingKey
 
+    contents_latest
     commentCount
     voteCount
     baseScore
@@ -434,6 +462,9 @@ registerFragment(`
     }
     
     tableOfContentsRevision(version: $version)
+    reviewWinner {
+      ...ReviewWinnerAll
+    }
   }
 `)
 
@@ -443,6 +474,9 @@ registerFragment(`
     ...PostSequenceNavigation
     
     tableOfContents
+    reviewWinner {
+      ...ReviewWinnerAll
+    }
   }
 `)
 
@@ -489,7 +523,6 @@ registerFragment(`
       ...RevisionDisplay
     }
     myEditorAccess
-    linkSharingKey
   }
 `)
 
@@ -497,7 +530,6 @@ registerFragment(`
   fragment PostsEdit on Post {
     ...PostsDetails
     myEditorAccess
-    linkSharingKey
     version
     coauthorStatuses
     readTimeMinutesOverride
