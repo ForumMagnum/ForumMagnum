@@ -183,10 +183,14 @@ export const usePostsList = ({
 
   const postIds = (orderedResults || []).map((post) => post._id);
 
+  const postIdsWithScores = (orderedResults || []).map((post) => {
+      return {postId: post._id, score: post.score, baseScore: post.baseScore}
+    });
+
   // Analytics Tracking
   useOnMountTracking({
     eventType: "postList",
-    eventProps: {postIds, postVisibility: hiddenPosts},
+    eventProps: {postIds, postVisibility: hiddenPosts, postMountData: postIdsWithScores},
     captureOnMount: (eventProps) => eventProps.postIds.length > 0,
     skip: !postIds.length || loading,
   });
