@@ -25,18 +25,23 @@ interface UsePostReadProgressProps {
    * Sets the height of the "sliding window" on the progress bar, which should represent the section of the post the user's viewport currently displays
    */
   setScrollWindowHeight?: (element: HTMLDivElement, height: number) => void;
+
+  /**
+   * Progress bars in the full-height ToC which display a sliding window need to include the height of the initial viewport when calculating the scroll percentage
+   */
+  useFirstViewportHeight?: boolean;
 }
 
 const clampPct = getClamper(0, 1);
 
-export const usePostReadProgress = ({ updateProgressBar, disabled = false, delayStartOffset = 0, setScrollWindowHeight }: UsePostReadProgressProps) => {
+export const usePostReadProgress = ({ updateProgressBar, disabled = false, delayStartOffset = 0, setScrollWindowHeight, useFirstViewportHeight = false }: UsePostReadProgressProps) => {
   const readingProgressBarRef = useRef<HTMLDivElement|null>(null);
 
   const getScrollPct = (postBodyElement: HTMLElement, delayStartOffset: number, clamp = true) => {
     // position of post body bottom relative to the bottom of the viewport
     const postBodyBottomPos = postBodyElement.getBoundingClientRect().bottom - window.innerHeight;
     // total distance from top of page to post body bottom
-    const totalHeight = window.scrollY + postBodyBottomPos;
+    const totalHeight = useFirstViewportHeight ? postBodyElement.getBoundingClientRect().height : window.scrollY + postBodyBottomPos;
   
     const scrollPercent = 1 - ((postBodyBottomPos + delayStartOffset) / totalHeight);
     const adjustedScrollPercent = clamp ? clampPct(scrollPercent) : scrollPercent;
@@ -92,7 +97,7 @@ export const usePostReadProgress = ({ updateProgressBar, disabled = false, delay
     return () => {
       window.removeEventListener('scroll', updateFunc);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [disabled]); // eslint-disable-line react-hooks/exhaustive-deps
   
   return { readingProgressBarRef };
 };

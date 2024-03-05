@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     position: 'unset',
     width: 'unset',
     left: -DEFAULT_TOC_MARGIN,
-    marginTop: fullHeightToCEnabled ? 'calc(-64px - 50px)' : -TOC_OFFSET_TOP,
+    marginTop: fullHeightToCEnabled ? -50 : -TOC_OFFSET_TOP,
     marginBottom: fullHeightToCEnabled ? undefined : -TOC_OFFSET_BOTTOM,
 
     [theme.breakpoints.down('sm')]:{

@@ -111,9 +111,6 @@ const styles = (theme: ThemeType) => ({
       maxHeight: 84,
       minHeight: 64
     },
-    [`body:has(.headroom--unfixed) .${TITLE_CONTAINER_CLASS_NAME}`]: {
-      marginTop: 64
-    }
   }
 });
 

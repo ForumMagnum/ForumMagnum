@@ -224,28 +224,43 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     filteredSections = sectionsWithAnswersSorted(filteredSections, answersSorting);
   }
 
+  const [hasLoaded, setHasLoaded] = useState(false)
+  const [imagesLoaded, setImagesLoaded] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
     const postBodyRef = document.getElementById('postBody');
     if (!postBodyRef) return;
 
     //Get all elements with href corresponding to anchors from the table of contents
-    const postBodyBlocks = postBodyRef.querySelectorAll('[id]');
-    const sectionHeaders = Array.from(postBodyBlocks).filter(block => filteredSections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
+    const postBodyBlocks = Array.from(postBodyRef.querySelectorAll('[id]'));
+
+    function updateImageLoadingState(this: HTMLImageElement) {
+      const newLoadingStates = { ...imagesLoaded, [this.src]: true };
+      setImagesLoaded(newLoadingStates);
+      this.removeEventListener('load', updateImageLoadingState);
+    };
+
+    const postImages = Array.from(postBodyRef.getElementsByTagName('img'));
+    postImages.forEach((postImage) => postImage.addEventListener('load', updateImageLoadingState));
+    
+    const sectionHeaders = postBodyBlocks.filter(block => filteredSections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
     const sectionsWithOffsets = getSectionsWithOffsets(sectionHeaders, filteredSections);
     const newNormalizedSections = normalizeOffsets(sectionsWithOffsets);
 
     if (!isEqual(normalizedSections, newNormalizedSections)) {
       setNormalizedSections(newNormalizedSections);
     }
-  }, [filteredSections, normalizedSections]);
+    if (!hasLoaded && postImages.every(image => image.complete)) setHasLoaded(true)
+  }, [filteredSections, normalizedSections, imagesLoaded, hasLoaded]);
 
   const postContext = usePostsPageContext();
   const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar,
-    setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`)
+    disabled: disableProgressBar || !hasLoaded,
+    setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`),
+    useFirstViewportHeight: true
   });
 
   const titleRow = (
@@ -303,7 +318,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
 
   const commentsRow = normalizedSections.at(-1)?.anchor === 'comments' ? rows.pop() : undefined;
 
-  if (!tocSections)
+  if (!tocSections || !hasLoaded)
     return <div/>
 
   return <div className={classNames(classes.root, { [classes.fadeIn]: tocVisible, [classes.fadeOut]: !tocVisible })}>
