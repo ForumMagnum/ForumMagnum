@@ -69,7 +69,7 @@ const styles = (theme: ThemeType) => ({
     '& .TableOfContentsRow-title': {
       borderBottom: "none",
     },
-    transition: 'opacity .5s, transform .5s',
+    transition: 'opacity .5s, transform .5s, min-height 0.4s ease-in-out',
   },
   fadeOut: {
     opacity: 0,
