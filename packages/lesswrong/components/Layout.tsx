@@ -470,7 +470,7 @@ const Layout = ({currentUser, children, classes}: {
                   {
                     currentRoute?.name === 'home' ? 
                     <div className={classes.imageColumn}>
-                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_3_jbqyqv" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
                     </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
