@@ -96,7 +96,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     flexWrap: 'wrap',
     columnGap: 8,
-    rowGap: '3px'
+    rowGap: '3px',
+    color: theme.palette.grey[600],
   },
   metadata: {
     display: 'flex',
