@@ -121,8 +121,6 @@ const styles = (theme: ThemeType) => ({
       paddingLeft: 2,
       alignSelf: 'end',
       height: 'var(--windowHeight)',
-      // marginTop: 'var(--windowMarginTop)',
-      // marginBottom: 'var(--windowMarginBottom)',
       background: theme.palette.grey[600],
     }
   },

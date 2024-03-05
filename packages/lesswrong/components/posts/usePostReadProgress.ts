@@ -21,6 +21,9 @@ interface UsePostReadProgressProps {
    */
   delayStartOffset?: number;
 
+  /**
+   * Sets the height of the "sliding window" on the progress bar, which should represent the section of the post the user's viewport currently displays
+   */
   setScrollWindowHeight?: (element: HTMLDivElement, height: number) => void;
 }
 
@@ -43,7 +46,6 @@ export const usePostReadProgress = ({ updateProgressBar, disabled = false, delay
   const getScrollWindowHeight = (postBodyElement: HTMLElement, readingProgressBarContainerElement: HTMLElement) => {
     const postBodyHeight = postBodyElement.getBoundingClientRect().height;
     const windowHeight = window.innerHeight;
-    const currentScrollPct = getScrollPct(postBodyElement, delayStartOffset);
     
     /**
      * What percent of the post body's height is revealed within the window viewport.
@@ -52,9 +54,10 @@ export const usePostReadProgress = ({ updateProgressBar, disabled = false, delay
     const windowBodyPercent = clampPct(windowHeight / postBodyHeight) * 100;
     const containerHeight = readingProgressBarContainerElement.getBoundingClientRect().height;
     const absoluteScrollWindowHeight = (windowBodyPercent / 100) * containerHeight;
-    const displayedScrollWindowPercent = currentScrollPct / windowBodyPercent;
-
-    const displayedWindowScrollHeight = absoluteScrollWindowHeight * clampPct(displayedScrollWindowPercent);
+    const currentScrollPct = getScrollPct(postBodyElement, delayStartOffset);
+    
+    const displayedScrollWindowPercent = clampPct(currentScrollPct / windowBodyPercent);
+    const displayedWindowScrollHeight = absoluteScrollWindowHeight * displayedScrollWindowPercent;
 
     return { displayedWindowScrollHeight };
   }
