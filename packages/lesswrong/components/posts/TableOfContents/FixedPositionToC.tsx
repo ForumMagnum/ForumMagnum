@@ -98,7 +98,7 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
   },
   progressBarContainer: {
-    // display: 'flex',
+    display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
     '--scrollAmount': '0%',
@@ -106,6 +106,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 8,
     width: 1,
     background: theme.palette.grey[400],
+    overflowY: 'clip',
   },
   progressBar: {
     flex: 'var(--scrollAmount)',
@@ -120,7 +121,8 @@ const styles = (theme: ThemeType) => ({
       paddingLeft: 2,
       alignSelf: 'end',
       height: 'var(--windowHeight)',
-      marginTop: 'var(--windowMarginTop)',
+      // marginTop: 'var(--windowMarginTop)',
+      // marginBottom: 'var(--windowMarginBottom)',
       background: theme.palette.grey[600],
     }
   },
@@ -192,11 +194,13 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
       landmarkName: section.anchor,
       elementId: section.anchor,
       position: "centerOfElement",
+      offset: -(getCurrentSectionMark() * 2)
     })),
     {
       landmarkName: "comments",
       elementId: "postBody",
       position: "bottomOfElement",
+      offset: -(getCurrentSectionMark() * 2)
     },
   ]);
 
@@ -243,11 +247,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
     disabled: disableProgressBar,
-    delayStartOffset: window.innerHeight - getCurrentSectionMark(),
-    setScrollWindowHeight: (element, height, marginTop) => {
-      element.style.setProperty("--windowHeight", `${height}px`);
-      element.style.setProperty("--windowMarginTop", `${marginTop}px`)
-    }
+    setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`)
   });
 
   const titleRow = (
