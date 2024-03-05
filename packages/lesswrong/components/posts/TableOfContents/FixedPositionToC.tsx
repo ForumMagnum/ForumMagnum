@@ -103,7 +103,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-evenly',
     '--scrollAmount': '0%',
     marginRight: -4,
-    marginBottom: 8,
+    marginBottom: 20,
     width: 1,
     background: theme.palette.grey[400],
     overflowY: 'clip',
@@ -130,7 +130,7 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8
-    }
+    },
   },
   nonTitleRows: {
     display: 'flex',

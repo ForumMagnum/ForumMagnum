@@ -462,16 +462,16 @@ Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
 });
 ensureIndex(Comments, augmentForDefaultView({parentAnswerId:1, baseScore:-1}));
 
-Comments.addView('answersAndReplies', ({postId}: CommentsViewTerms) => {
+Comments.addView('answersAndReplies', (terms: CommentsViewTerms) => {
   return {
     selector: {
-      postId,
+      postId: terms.postId,
       $or: [
         { answer: true },
         { parentAnswerId: {$exists: true} },
       ],
     },
-    options: {sort: {baseScore: -1}}
+    options: {sort: questionAnswersSortings[terms.sortBy || "top"]}
   };
 });
 
