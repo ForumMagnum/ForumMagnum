@@ -13,6 +13,8 @@ import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getCountryCode } from '../../lib/geocoding';
+import intersection from 'lodash/intersection';
+import union from 'lodash/fp/union';
 
 type UserCoreTagReads = {
   tagId: string,
@@ -55,6 +57,13 @@ const TargetedJobAdSection = () => {
     skip: !currentUser
   })
   
+  const { results: userEAGDetails, loading: userEAGDetailsLoading } = useMulti({
+    terms: {view: 'dataByUser', userId: currentUser?._id},
+    collectionName: 'UserEAGDetails',
+    fragmentName: 'UserEAGDetailsMinimumInfo',
+    skip: !currentUser
+  })
+  
   // check the amount that the user has read core tags to help target ads
   const { data: coreTagReadsData, loading: coreTagReadsLoading } = useQuery(
     query,
@@ -73,45 +82,76 @@ const TargetedJobAdSection = () => {
   
   // select a job ad to show to the current user
   useMemo(() => {
-    if (!currentUser || userJobAdsLoading || coreTagReadsLoading || activeJob) return
-    
-    // user's relevant interests from EAG, such as "software engineering"
-    // TODO: add this back in once we have the data
-    // const userEAGInterests = union(currentUser.experiencedIn, currentUser.interestedIn)
+    if (!currentUser || userJobAdsLoading || userEAGDetailsLoading || coreTagReadsLoading || activeJob) return
+  
     const ads = userJobAds ?? []
     
     for (let jobName in JOB_AD_DATA) {
+      const jobAd = JOB_AD_DATA[jobName]
       // skip any jobs where the deadline to apply has passed
-      const deadline = JOB_AD_DATA[jobName].deadline
+      const deadline = jobAd.deadline
       if (deadline && moment().isAfter(deadline, 'day')) {
         continue
       }
 
-      const jobAdState = ads.find(ad => ad.jobName === jobName)?.adState
-      // check if the ad fits the user's interests -
-      // currently based on whether they have subscribed to all the topics relevant to the job ad
-      const subscribedTagIds = JOB_AD_DATA[jobName].subscribedTagIds
+      const userJobAdState = ads.find(ad => ad.jobName === jobName)?.adState
+      const userEAGData = userEAGDetails?.[0]
+      
+      /** Check if the job fits the user's interests */
+
+      // Are they subscribed to all the topics relevant to the job ad?
+      const subscribedTagIds = jobAd.subscribedTagIds
       const userTagSubs = currentUser.frontpageFilterSettings?.tags?.filter(
         (setting: FilterTag) => filterModeIsSubscribed(setting.filterMode)
       )?.map((setting: FilterTag) => setting.tagId)
       let userIsMatch = subscribedTagIds && !difference(subscribedTagIds, userTagSubs).length
-      // or if they have read at least 30 posts in all the relevant topics in the past 6 months
-      const readsThreshold = JOB_AD_DATA[jobName].coreTagReadsThreshold ?? 30
+      // Or have they have read at least 18 posts in all the relevant topics in the past 6 months?
+      const readsThreshold = jobAd.coreTagReadsThreshold ?? 6
       userIsMatch = userIsMatch || (
         !!coreTagReads?.length &&
-        JOB_AD_DATA[jobName].readCoreTagIds?.every(
+        jobAd.readCoreTagIds?.every(
           tagId => coreTagReads.some(tag => tag.tagId === tagId && tag.userReadCount >= readsThreshold)
         )
       )
+      // Or do they have the relevant EAG interests?
+      const interestedIn = jobAd.interestedIn
+      const userEAGInterests = union(userEAGData?.interestedIn, userEAGData?.experiencedIn)
+      userIsMatch = userIsMatch || (
+        !!interestedIn &&
+        !!userEAGInterests &&
+        !difference(interestedIn, userEAGInterests).length
+      )
       
-      // check if the ad is limited to a certain country
-      const countryCode = JOB_AD_DATA[jobName].countryCode
-      if (userIsMatch && countryCode) {
-        userIsMatch = getCountryCode(currentUser.googleLocation) === countryCode
+      /** Check if the user should be excluded from the job ad audience */
+
+      // Are they in the right country?
+      const countryCode = jobAd.countryCode
+      const countryName = jobAd.countryName
+      if (userIsMatch && (countryCode || countryName)) {
+        userIsMatch = (getCountryCode(currentUser.googleLocation) === countryCode) ||
+          (userEAGData?.countryOrRegion === countryName)
+      }
+      // And are they near the right city?
+      const nearestCity = jobAd.nearestCity
+      if (userIsMatch && nearestCity) {
+        userIsMatch = userEAGData?.nearestCity === nearestCity
+      }
+      // And are they in the right career stage?
+      const careerStages = jobAd.careerStages
+      if (userIsMatch && careerStages) {
+        userIsMatch = intersection(careerStages, userEAGData?.careerStage).length > 0
+      }
+      // And do they have the right experience?
+      const experiencedIn = jobAd.experiencedIn
+      if (userIsMatch && experiencedIn) {
+        // TODO: my guess is that we want the user to have *all* the listed skills,
+        // rather than just one, but for the current test I want to cast a wider net.
+        // userIsMatch = !!userEAGData?.experiencedIn && !difference(experiencedIn, userEAGData.experiencedIn).length
+        userIsMatch = intersection(experiencedIn, userEAGData?.experiencedIn).length > 0
       }
 
-      // make sure the user hasn't already clicked "apply" or "remind me" for this ad
-      const shouldShowAd = !jobAdState || ['seen', 'expanded'].includes(jobAdState)
+      // Make sure the user hasn't already clicked "apply" or "remind me" for this ad
+      const shouldShowAd = !userJobAdState || ['seen', 'expanded'].includes(userJobAdState)
 
       if (userIsMatch && shouldShowAd) {
         setActiveJob(jobName)
@@ -119,7 +159,16 @@ const TargetedJobAdSection = () => {
       }
     }
     
-  }, [currentUser, userJobAds, userJobAdsLoading, coreTagReads, coreTagReadsLoading, activeJob])
+  }, [
+    currentUser,
+    userJobAds,
+    userJobAdsLoading,
+    userEAGDetails,
+    userEAGDetailsLoading,
+    coreTagReads,
+    coreTagReadsLoading,
+    activeJob
+  ])
 
   // record when this user has seen the selected ad
   useEffect(() => {
@@ -142,20 +191,6 @@ const TargetedJobAdSection = () => {
     captureEvent('hideJobAd')
     void updateCurrentUser({hideJobAdUntil: moment().add(30, 'days').toDate()})
   }, [captureEvent, updateCurrentUser])
-  
-  const handleExpand = useCallback(() => {
-    if (!currentUser || !userJobAds?.length || !activeJob) return
-    // record when a user has expanded the selected ad
-    const ad = userJobAds.find(ad => ad.jobName === activeJob)
-    if (ad) {
-      void updateUserJobAd({
-        selector: {_id: ad._id},
-        data: {
-          adState: 'expanded'
-        }
-      })
-    }
-  }, [currentUser, userJobAds, activeJob, updateUserJobAd])
   
   const handleApply = useCallback(() => {
     if (!currentUser || !userJobAds?.length || !activeJob) return
@@ -202,7 +237,6 @@ const TargetedJobAdSection = () => {
     <TargetedJobAd
       ad={activeJob}
       onDismiss={dismissJobAd}
-      onExpand={handleExpand}
       onApply={handleApply}
       onRemindMe={handleRemindMe}
     />

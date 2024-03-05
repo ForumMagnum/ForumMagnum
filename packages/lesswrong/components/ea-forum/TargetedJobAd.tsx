@@ -1,16 +1,14 @@
 import React, { useCallback, useState } from 'react';
-import { Components, makeAbsolute, registerComponent } from '../../lib/vulcan-lib';
+import { Components, registerComponent } from '../../lib/vulcan-lib';
 import Button from '@material-ui/core/Button'
 import CloseIcon from '@material-ui/icons/Close'
-import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
+import { AnalyticsContext } from '../../lib/analyticsEvents';
 import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import OpenInNew from '@material-ui/icons/OpenInNew';
 import moment from 'moment';
-import { InteractionWrapper, useClickableCell } from '../common/useClickableCell';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { jobAdDescription, useABTest } from '../../lib/abTests';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -20,14 +18,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     padding: '10px 12px 12px',
     border: `1px solid ${theme.palette.grey[100]}`,
     borderRadius: theme.borderRadius.default,
-    cursor: 'pointer',
-    "&:hover": {
-      background: theme.palette.grey[50],
-      border: `1px solid ${theme.palette.grey[250]}`,
-      '& .TargetedJobAd-collapsedBody::after': {
-        background: `linear-gradient(to top, ${theme.palette.grey[50]}, transparent)`,
-      },
-    },
     [theme.breakpoints.down('xs')]: {
       columnGap: 12,
       padding: '6px 10px',
@@ -46,11 +36,8 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    columnGap: 10,
-    marginBottom: 8,
-  },
-  jobRecLabel: {
-    flexGrow: 1
+    columnGap: 20,
+    marginBottom: 5,
   },
   infoIcon: {
     fontSize: 14,
@@ -63,7 +50,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     minWidth: '.75em',
   },
   closeIcon: {
-    fontSize: 14,
+    fontSize: 16,
     color: theme.palette.grey[500],
   },
   mainRow: {
@@ -79,10 +66,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   bodyCol: {
     flexGrow: 1,
-    marginBottom: 6,
-    [theme.breakpoints.down('xs')]: {
-      marginBottom: 4
-    }
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    columnGap: 20,
+    rowGap: '10px',
+    flexWrap: 'wrap',
   },
   headerRow: {
     marginBottom: 4
@@ -103,12 +92,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     color: theme.palette.grey[1000],
     margin: '0 0 4px'
   },
-  inline: {
-    display: 'inline'
-  },
-  link: {
-    color: theme.palette.primary.main
-  },
   metadataRow: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -128,58 +111,47 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontSize: 12,
   },
   feedbackLink: {
+    flexGrow: 1,
     [theme.breakpoints.down('xs')]: {
       display: 'none'
     }
   },
-  collapsedBody: {
-    position: 'relative',
-    height: 50,
-    overflow: 'hidden',
-    '&::after': {
-      position: 'absolute',
-      bottom: 0,
-      width: '100%',
-      height: 20,
-      content: "''",
-      background: `linear-gradient(to top, ${theme.palette.grey[0]}, transparent)`,
-    }
-  },
-  description: {
-    maxWidth: 666,
+  reminderBtn: {
+    background: 'none',
     fontSize: 13,
-    lineHeight: '20px',
+    lineHeight: '17px',
+    color: theme.palette.grey[600],
     fontWeight: 500,
-    color: theme.palette.grey[1000],
-    margin: '10px 0',
-    '& ul': {
-      margin: 0
+    fontFamily: theme.typography.fontFamily,
+    textDecoration: 'underline',
+    textUnderlineOffset: '2px',
+    padding: 0,
+    '&:hover': {
+      color: theme.palette.grey[800],
     },
-    '& li': {
-      marginTop: 1
-    }
   },
-  btnRow: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    columnGap: 8,
-    rowGap: '12px',
-    alignItems: 'baseline',
-    marginTop: 18,
-    marginBottom: 8
-  },
-  btn: {
-    textTransform: 'none',
-    boxShadow: 'none',
+  applyBtn: {
+    marginRight: 5,
+    marginBottom: 4,
   },
   btnIcon: {
-    fontSize: 13,
+    fontSize: 16,
     marginLeft: 6
   },
 })
 
-// list of options from EAG
-type EAGOccupation =
+// list of career stage options from EAG
+type EAGCareerStages =
+  'Pursuing an undergraduate degree'|
+  'Pursuing a graduate degree (e.g. Masters)'|
+  'Pursuing a doctoral degree (e.g. PhD)'|
+  'Pursuing other degree/diploma'|
+  'Working (0-5 years of experience)'|
+  'Working (6-15 years of experience)'|
+  'Working (15+ years of experience)'
+
+// list of "interested in" / "experienced in" / "working in" options from EAG
+type EAGOccupationsAndCauses =
   'Academic research'|
   'Operations'|
   'Entrepreneurship'|
@@ -222,246 +194,109 @@ type EAGOccupation =
   'Counselling/Social work'|
   'Graphic design'|
   'S-risk'
+  
+type EAGWillingToMoveOptions =
+  'I’d be excited to move here or already live here'|
+  'I’d be willing to move here for a good opportunity'|
+  'I’m hesitant to move here, but would for a great opportunity'|
+  'I’m unwilling or unable to move here'
 
 type JobAdData = {
-  eagOccupations?: EAGOccupation[],                           // used to match on EAG experience + interests
-  interestedIn?: EAGOccupation[],                             // used to match on EAG interests
-  subscribedTagIds?: string[],                                // used to match on a set of topics that the user is subscribed to
-  readCoreTagIds?: string[],                                  // used to match on a set of core topics that the user has read frequently
-  coreTagReadsThreshold?: number,                             // used to adjust the threshold for how many post reads per topic to qualify for seeing the ad
-  logo: string,                                               // url for org logo
-  occupation: string,                                         // text displayed in the tooltip
-  feedbackLinkPrefill: string,                                // url param used to prefill part of the feedback form
-  bitlyLink: string,                                          // bitly link to the job ad page
+  careerStages?: EAGCareerStages[],             // used to match on EAG career stages
+  experiencedIn?: EAGOccupationsAndCauses[],    // used to match on EAG experience
+  interestedIn?: EAGOccupationsAndCauses[],     // used to match on EAG interests
+  subscribedTagIds?: string[],                  // used to match on a set of topics that the user is subscribed to
+  readCoreTagIds?: string[],                    // used to match on a set of core topics that the user has read frequently
+  coreTagReadsThreshold?: number,               // used to adjust the threshold for how many post reads per topic to qualify for seeing the ad
+  logo: string,                                 // url for org logo
+  occupation: string,                           // text displayed in the tooltip
+  feedbackLinkPrefill: string,                  // url param used to prefill part of the feedback form
+  bitlyLink: string,                            // bitly link to the job ad page
   role: string,
-  insertThe?: boolean,                                        // set if you want to insert a "the" before the org name
+  insertThe?: boolean,                          // set if you want to insert a "the" before the org name
   org: string,
-  orgLink: string,                                            // internal link on the org name
+  orgLink: string,                              // internal link on the org name
   salary?: string,
   location: string,
-  countryCode?: string,                                       // if provided, only show to users who we think are in this country
-  roleType?: string,                                          // i.e. part-time, contract
-  deadline?: moment.Moment,                                   // also used to hide the ad after this date
-  getDescription: (classes: ClassesType) => JSX.Element,
-  get80kDescription?: (classes: ClassesType) => JSX.Element   // just used on some ads for an A/B test
+  countryCode?: string,                         // if provided, only show to users who we think are in this country (match on account location)
+  countryName?: string,                         // if provided, only show to users who we think are in this country (match on EAG data)
+  nearestCity?: string,                         // if provided, only show to users who we think are near this city (match on EAG data)
+  roleType?: string,                            // i.e. part-time, contract
+  deadline?: moment.Moment,                     // also used to hide the ad after this date
 }
 
 // job-specific data for the ad
 // (also used in the reminder email, so links in the description need to be absolute)
 export const JOB_AD_DATA: Record<string, JobAdData> = {
-  'gwwc-researcher': {
-    subscribedTagIds: [
-      'psBzwdY8ipfCeExJ7', // cause prioritization
-      'L6NqHZkLc4xZ7YtDr', // effective giving
-    ],
-    readCoreTagIds: [
-      'psBzwdY8ipfCeExJ7', // cause prioritization
-      'L6NqHZkLc4xZ7YtDr', // effective giving
-    ],
-    coreTagReadsThreshold: 60,
-    logo: 'https://80000hours.org/wp-content/uploads/2023/01/Giving-What-We-Can-160x160.png',
-    occupation: 'cause prioritization and effective giving',
-    feedbackLinkPrefill: 'Researcher+at+GWWC',
-    bitlyLink: "https://efctv.org/3uHTPZU", // https://www.givingwhatwecan.org/get-involved/careers/gwwc-researcher
-    role: 'Researcher',
-    org: 'Giving What We Can',
-    orgLink: '/topics/giving-what-we-can',
-    salary: '£37k - £64k',
-    location: 'Remote',
-    deadline: moment('2024-03-02'),
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <Link to="https://www.givingwhatwecan.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Giving What We Can (GWWC)
-        </Link> is a nonprofit providing support, community and information for donors to do the most good with their charitable giving.
-        This researcher will help identify the most effective donation opportunities for a variety of worldviews, and recommend these to donors.
-      </div>
-      <div className={classes.description}>
-        An ideal candidate:
-        <ul>
-          <li>Has excellent analytical skills, and is comfortable working with quantitative and qualitative frameworks</li>
-          <li>Has great written communication skills</li>
-          <li>Is a skilled generalist, open to adapting to different types of work</li>
-        </ul>
-      </div>
-    </>,
-    get80kDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <Link to="https://www.givingwhatwecan.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Giving What We Can
-        </Link> is a nonprofit providing support, community and information for donors to do the most good with their charitable giving.
-      </div>
-      <div className={classes.description}>
-        Giving What We Can (GWWC) is looking for a Researcher to help us identify the most effective donation opportunities for a variety of worldviews,
-        and recommend these to our donors. This role provides an opportunity to help influence millions of dollars of charitable giving to be more effective.
-        We estimate GWWC as a whole caused ~$83M in donations to high-impact charities through our fundraising and recommendations in 2020-2022.
-        In 2022 alone, GWWC pledgers and other donors gave ~$27M through our donation platform, and reported giving another [...]
-      </div>
-    </>
-  },
-  'saferai-technical-governance-researcher': {
-    subscribedTagIds: [
-      'u3Xg8MjDe2e6BvKtv', // AI governance
-    ],
-    readCoreTagIds: [
-      'u3Xg8MjDe2e6BvKtv', // AI governance
-    ],
-    logo: 'https://80000hours.org/wp-content/uploads/2024/02/saferai_logo-160x160.jpeg',
-    occupation: 'AI governance',
-    feedbackLinkPrefill: 'Technical+Governance+Researcher+at+SaferAI',
-    bitlyLink: "https://efctv.org/3UOH0aW", // https://docs.google.com/document/d/1-WV4LPcleEMQO5slSz90wfBuXH5mlXXA37JoQJGOq9s/edit
-    role: 'Technical Governance Researcher',
-    org: 'SaferAI',
-    orgLink: '/topics/saferai',
-    salary: '$50k - $75k',
-    location: 'Remote',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <Link to="https://www.safer-ai.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          SaferAI
-        </Link> is a French organization dedicated to assessing and managing AI risks. They worked in standardization at JTC21,
-        the body in charge of writing the technical specifications of the EU AI Act, and part of the newly constituted US AI Safety Institute Consortium.
-      </div>
-      <div className={classes.description}>
-        This researcher will be a key enabler in ensuring the technical standardization contributions of SaferAI be as high quality as possible.
-      </div>
-      <div className={classes.description}>
-        An ideal candidate:
-        <ul>
-          <li>Has strong knowledge of AI safety & AI governance</li>
-          <li>Has strong writing skills</li>
-          <li>Is detail-oriented and conscientious</li>
-        </ul>
-      </div>
-    </>,
-    get80kDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <Link to="https://www.safer-ai.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          SaferAI
-        </Link> is an organisation dedicated to assessing and managing AI risks.
-      </div>
-      <div className={classes.description}>
-        We are looking for a Technical Governance Researcher with a strong ability to write technical governance pieces for AI safety that SaferAI
-        will contribute to EU and US standardization efforts. The Technical Governance Researcher will be working closely with the standardization
-        team and the leadership to produce excellent work that gets distributed in such institutions. You will be a key enabler in ensuring the
-        technical standardization contributions of SaferAI be as high quality as possible. Responsibilities: Objective: Be the SaferAI technical governance [...]
-      </div>
-    </>
-  },
-  'cltr-biosecurity-policy-advisor': {
-    subscribedTagIds: [
-      'H43gvLzBCacxxamPe', // biosecurity
-      'of9xBvR3wpbp6qsZC', //policy
-    ],
-    readCoreTagIds: [
-      'H43gvLzBCacxxamPe', // biosecurity
-      'of9xBvR3wpbp6qsZC', //policy
-    ],
-    logo: 'https://res.cloudinary.com/cea/image/upload/q_auto,f_auto/v1707183771/Screen_Shot_2024-02-05_at_8.42.20_PM',
-    occupation: 'biosecurity and policy',
-    feedbackLinkPrefill: 'Biosecurity+Policy+Advisor+at+CLTR',
-    bitlyLink: "https://efctv.org/4buFxw8", // https://www.longtermresilience.org/post/we-are-hiring-for-a-biosecurity-policy-adviser-deadline-8-march-2024
-    role: 'Biosecurity Policy Advisor',
+  'iaps-ai-policy-fellowship': {
+    careerStages: ['Working (0-5 years of experience)'],
+    interestedIn: ['AI strategy & policy'],
+    logo: 'https://80000hours.org/wp-content/uploads/2023/10/institute_for_ai_policy_and_strategy_iaps_logo-160x160.jpeg',
+    occupation: 'AI policy',
+    feedbackLinkPrefill: 'AI+Policy+Fellow+at+IAPS',
+    bitlyLink: "https://efctv.org/3uYKM70", // https://careers.rethinkpriorities.org/en/postings/3f805288-30d0-41f0-9b99-d6972009f0d4
+    role: 'AI Policy Fellow',
     insertThe: true,
-    org: 'Centre for Long-Term Resilience',
-    orgLink: '/topics/centre-for-long-term-resilience',
-    salary: '£63k - £80k',
-    location: 'UK (London-based)',
-    countryCode: 'GB',
-    deadline: moment('2024-03-08'),
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        The <Link to="https://www.longtermresilience.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          Centre for Long-Term Resilience (CLTR)
-        </Link> is a UK-based non-profit and independent think tank with a mission to transform global resilience to extreme risks.
-        This role will contribute to developing, evaluating, and advocating for impactful <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/biosecurity")}>
-            biosecurity
-          </Components.HoverPreviewLink>
-        </span> policies aimed at reducing extreme biological risks.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates have:
-        <ul>
-          <li>Experience in research, policy, or advocacy in biosecurity or a related field</li>
-          <li>A good understanding of the biosecurity landscape</li>
-          <li>A track record of executing tasks independently and effectively</li>
-        </ul>
-      </div>
-    </>
+    org: 'Institute for AI Policy & Strategy',
+    orgLink: '/topics/institute-for-ai-policy-and-strategy',
+    salary: '$5k per month',
+    location: 'Remote',
+    deadline: moment('2024-03-18'),
   },
-  'leep-program-manager': {
+  'cea-head-of-comms': {
+    careerStages: ['Working (6-15 years of experience)', 'Working (15+ years of experience)'],
+    experiencedIn: ['Communications/Marketing', 'Journalism'],
+    interestedIn: ['EA community building/community management'],
     subscribedTagIds: [
-      'sWcuTyTB5dP3nas2t', // global health & development
-      'of9xBvR3wpbp6qsZC', //policy
+      'EHLmbEmJ2Qd5WfwTb', // building EA
     ],
-    logo: 'https://80000hours.org/wp-content/uploads/2022/06/LEEP-logo-160x160.png',
-    occupation: 'global health and policy',
-    feedbackLinkPrefill: 'Program+Manager+at+LEEP',
-    bitlyLink: "https://efctv.org/49HrguD", // https://leadelimination.org/jobs/
-    role: 'Program Manager',
+    logo: 'https://80000hours.org/wp-content/uploads/2022/12/CEA-160x160.png',
+    occupation: 'communications and EA community building',
+    feedbackLinkPrefill: 'Head+of+Communications+at+CEA',
+    bitlyLink: "https://efctv.org/3P5ISZ7", // https://www.centreforeffectivealtruism.org/careers/head-of-communications
+    role: 'Head of Communications',
     insertThe: true,
-    org: 'Lead Exposure Elimination Project',
-    orgLink: '/topics/lead-exposure-elimination-project',
-    location: 'Remote, multiple locations',
-    getDescription: (classes: ClassesType) => <>
-      <div className={classes.description}>
-        <Link to="https://www.leadelimination.org/" target="_blank" rel="noopener noreferrer" className={classes.link}>
-          LEEP
-        </Link> is an impact-driven non-profit that aims to eliminate childhood <span className={classes.link}>
-          <Components.HoverPreviewLink href={makeAbsolute("/topics/lead-poisoning")}>
-            lead poisoning
-          </Components.HoverPreviewLink>
-        </span>, which affects an estimated one in three children worldwide.
-        LEEP is hiring program managers to lead their programs in multiple time zones and locations.
-      </div>
-      <div className={classes.description}>
-        Ideal candidates have:
-        <ul>
-          <li>Strong interpersonal and stakeholder management skills</li>
-          <li>Willingness to travel for 8 to 12 weeks per year</li>
-          <li>Strong ability to prioritise and focus on impact</li>
-        </ul>
-      </div>
-    </>
+    org: 'Centre for Effective Altruism',
+    orgLink: '/topics/centre-for-effective-altruism-1',
+    salary: '$97k - $170k',
+    location: 'Remote',
+    deadline: moment('2024-03-22'),
+  },
+  'fem-head-of-ops': {
+    careerStages: ['Working (6-15 years of experience)', 'Working (15+ years of experience)'],
+    experiencedIn: ['Operations'],
+    interestedIn: ['Global health & development'],
+    subscribedTagIds: [
+      'sWcuTyTB5dP3nas2t', // GH&D
+    ],
+    logo: 'https://80000hours.org/wp-content/uploads/2022/05/Family-Empowerment-Media-160x160.png',
+    occupation: 'ops and global health & development',
+    feedbackLinkPrefill: 'Head+of+Operations+at+FEM',
+    bitlyLink: "https://efctv.org/4c50Kxd", // https://docs.google.com/document/d/1Crui7aF5tEU-EYpC5dJ-fCTzXenmR85x9CFb3k3H8wo/edit
+    role: 'Head of Operations',
+    org: 'Family Empowerment Media',
+    orgLink: '/topics/family-empowerment-media',
+    salary: '$50k - $60k',
+    location: 'Remote',
+    deadline: moment('2024-03-31'),
   },
 }
 
 /**
  * This component only handles the job ad UI. See TargetedJobAdSection.tsx for functional logic.
  */
-const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: {
+const TargetedJobAd = ({ad, onDismiss, onApply, onRemindMe, classes}: {
   ad: string,
   onDismiss: () => void,
-  onExpand: () => void,
   onApply: () => void,
   onRemindMe: () => void,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
 }) => {
   const adData = JOB_AD_DATA[ad]
-  // Temp A/B test for the job ad description
-  const descriptionAbTestGroup = useABTest(jobAdDescription)
   
   const currentUser = useCurrentUser()
-  const { captureEvent } = useTracking()
-  // expand/collapse the ad contents
-  const [expanded, setExpanded] = useState(false)
   // clicking either "apply" or "remind me" will close the ad
   const [closed, setClosed] = useState(false)
-
-  const handleToggleExpand = useCallback(() => {
-    if (expanded) {
-      setExpanded(false)
-    } else {
-      captureEvent('expandJobAd')
-      setExpanded(true)
-      onExpand()
-    }
-  }, [expanded, setExpanded, captureEvent, onExpand])
-  const { onClick } = useClickableCell({
-    onClick: handleToggleExpand,
-    ignoreLinks: true
-  })
   
   const handleApply = useCallback(() => {
     setClosed(true)
@@ -479,12 +314,12 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
     return null
   }
   
-  const description = descriptionAbTestGroup === '80k' && adData.get80kDescription ? adData.get80kDescription(classes) : adData.getDescription(classes)
   // Only show the "Remind me" button if the job's deadline is more than 3 days away
   const showRemindMe = adData.deadline && moment().add(3, 'days').isBefore(adData.deadline)
   
   return <AnalyticsContext pageSubSectionContext="targetedJobAd">
-    <div className={classNames(classes.root, {[classes.rootClosed]: closed})} onClick={onClick}>
+    <div className={classNames(classes.root, {[classes.rootClosed]: closed})}>
+
       <div className={classes.topRow}>
         <div className={classNames(classes.jobRecLabel, classes.metadata)}>
           Job recommendation for {currentUser.displayName}
@@ -504,76 +339,71 @@ const TargetedJobAd = ({ad, onDismiss, onExpand, onApply, onRemindMe, classes}: 
             Give us feedback
           </a>
         </div>
-        <InteractionWrapper>
-          <Tooltip title="Dismiss">
-            <Button className={classes.closeButton} onClick={onDismiss}>
-              <CloseIcon className={classes.closeIcon} />
-            </Button>
-          </Tooltip>
-        </InteractionWrapper>
+        <Tooltip title="Dismiss">
+          <Button className={classes.closeButton} onClick={onDismiss}>
+            <CloseIcon className={classes.closeIcon} />
+          </Button>
+        </Tooltip>
       </div>
+
       <div className={classes.mainRow}>
         <img src={adData.logo} className={classes.logo} />
         <div className={classes.bodyCol}>
-          <div className={classes.headerRow}>
-            <ForumIcon icon="Pin" className={classes.pinIcon} />
-            <h2 className={classes.header}>
-              <InteractionWrapper className={classes.inline}>
+          
+          <div>
+            <div className={classes.headerRow}>
+              <ForumIcon icon="Pin" className={classes.pinIcon} />
+              <h2 className={classes.header}>
                 <Link to={adData.bitlyLink} target="_blank" rel="noopener noreferrer">
                   {adData.role}
-                </Link>
-              </InteractionWrapper> at{adData.insertThe ? ' the ' : ' '}
-              <InteractionWrapper className={classes.inline}>
+                </Link> at{adData.insertThe ? ' the ' : ' '}
                 <HoverPreviewLink href={adData.orgLink}>
                   {adData.org}
                 </HoverPreviewLink>
-              </InteractionWrapper>
-            </h2>
-          </div>
-          <div className={classes.metadataRow}>
-            {adData.salary && <>
-              <div className={classes.metadata}>
-                {adData.salary}
-              </div>
-              <div>·</div>
-            </>}
-            <div className={classes.metadata}>
-              {adData.location}
+              </h2>
             </div>
-            {adData.roleType && <>
-              <div>·</div>
+            <div className={classes.metadataRow}>
+              {adData.salary && <>
+                <div className={classes.metadata}>
+                  {adData.salary}
+                </div>
+                <div>·</div>
+              </>}
               <div className={classes.metadata}>
-                {adData.roleType}
+                {adData.location}
               </div>
-            </>}
-            {adData.deadline && <>
-              <div>·</div>
-              <div className={classes.metadata}>
-                Deadline: {adData.deadline.format('MMM Do')}
-              </div>
-            </>}
+              {adData.roleType && <>
+                <div>·</div>
+                <div className={classes.metadata}>
+                  {adData.roleType}
+                </div>
+              </>}
+              {adData.deadline && <>
+                <div>·</div>
+                <div className={classes.metadata}>
+                  Deadline: {adData.deadline.format('MMM Do')}
+                </div>
+                {showRemindMe && <>
+                  <div>·</div>
+                  <button onClick={handleRemindMe} className={classes.reminderBtn}>
+                    Set reminder
+                  </button>
+                </>}
+              </>}
+            </div>
           </div>
           
-          <div className={classNames({[classes.collapsedBody]: !expanded})}>
-            {description}
-            <InteractionWrapper>
-              <div className={classes.btnRow}>
-                <EAButton
-                  variant="contained"
-                  href={adData.bitlyLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={classes.btn}
-                  onClick={() => handleApply()}
-                >
-                  Apply <OpenInNew className={classes.btnIcon} />
-                </EAButton>
-                {showRemindMe && <EAButton variant="contained" style="grey" onClick={handleRemindMe} className={classes.btn}>
-                  Remind me before the deadline
-                </EAButton>}
-              </div>
-            </InteractionWrapper>
-          </div>
+          <EAButton
+            style="grey"
+            variant="contained"
+            href={adData.bitlyLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={classes.applyBtn}
+            onClick={() => handleApply()}
+          >
+            View job details <OpenInNew className={classes.btnIcon} />
+          </EAButton>
         </div>
       </div>
     </div>
