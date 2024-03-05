@@ -15,6 +15,7 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { getCountryCode } from '../../lib/geocoding';
 import intersection from 'lodash/intersection';
 import union from 'lodash/fp/union';
+import { CAREER_STAGES } from '../../lib/collections/users/schema';
 
 type UserCoreTagReads = {
   tagId: string,
@@ -139,7 +140,11 @@ const TargetedJobAdSection = () => {
       // And are they in the right career stage?
       const careerStages = jobAd.careerStages
       if (userIsMatch && careerStages) {
-        userIsMatch = intersection(careerStages, userEAGData?.careerStage).length > 0
+        // Check their user profile and their EAG data
+        const userProfileCareerStages = currentUser.careerStage ?? []
+        const userEAGCareerStages = userEAGData?.careerStage?.map(cs => CAREER_STAGES.find(stage => stage.EAGLabel === cs)?.value ?? '') ?? []
+        const userCareerStages = userProfileCareerStages.concat(userEAGCareerStages)
+        userIsMatch = intersection(careerStages, userCareerStages).length > 0
       }
       // And do they have the right experience?
       const experiencedIn = jobAd.experiencedIn

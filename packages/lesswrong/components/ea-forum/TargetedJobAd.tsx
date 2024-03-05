@@ -9,6 +9,7 @@ import OpenInNew from '@material-ui/icons/OpenInNew';
 import moment from 'moment';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
+import { CareerStageValue } from '../../lib/collections/users/schema';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -141,18 +142,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 })
 
-// list of career stage options from EAG
-type EAGCareerStages =
-  'Pursuing an undergraduate degree'|
-  'Pursuing a graduate degree (e.g. Masters)'|
-  'Pursuing a doctoral degree (e.g. PhD)'|
-  'Pursuing other degree/diploma'|
-  'Working (0-5 years of experience)'|
-  'Working (6-15 years of experience)'|
-  'Working (15+ years of experience)'
-
 // list of "interested in" / "experienced in" / "working in" options from EAG
-type EAGOccupationsAndCauses =
+type EAGOccupationOrCause =
   'Academic research'|
   'Operations'|
   'Entrepreneurship'|
@@ -194,7 +185,9 @@ type EAGOccupationsAndCauses =
   'Data science/Data visualization'|
   'Counselling/Social work'|
   'Graphic design'|
-  'S-risk'
+  'S-risk'|
+  'Information security'|
+  'Machine learning'
   
 type EAGWillingToMoveOptions =
   'I’d be excited to move here or already live here'|
@@ -203,9 +196,9 @@ type EAGWillingToMoveOptions =
   'I’m unwilling or unable to move here'
 
 type JobAdData = {
-  careerStages?: EAGCareerStages[],             // used to match on EAG career stages
-  experiencedIn?: EAGOccupationsAndCauses[],    // used to match on EAG experience
-  interestedIn?: EAGOccupationsAndCauses[],     // used to match on EAG interests
+  careerStages?: CareerStageValue[],            // used to match on EAG career stages
+  experiencedIn?: EAGOccupationOrCause[],       // used to match on EAG experience
+  interestedIn?: EAGOccupationOrCause[],        // used to match on EAG interests
   subscribedTagIds?: string[],                  // used to match on a set of topics that the user is subscribed to
   readCoreTagIds?: string[],                    // used to match on a set of core topics that the user has read frequently
   coreTagReadsThreshold?: number,               // used to adjust the threshold for how many post reads per topic to qualify for seeing the ad
@@ -230,12 +223,12 @@ type JobAdData = {
 // (also used in the reminder email, so links in the description need to be absolute)
 export const JOB_AD_DATA: Record<string, JobAdData> = {
   'iaps-ai-policy-fellowship': {
-    careerStages: ['Working (0-5 years of experience)'],
+    careerStages: ['earlyCareer'],
     interestedIn: ['AI strategy & policy'],
     logo: 'https://80000hours.org/wp-content/uploads/2023/10/institute_for_ai_policy_and_strategy_iaps_logo-160x160.jpeg',
     occupation: 'AI policy',
     feedbackLinkPrefill: 'AI+Policy+Fellow+at+IAPS',
-    bitlyLink: "https://efctv.org/3uYKM70", // https://careers.rethinkpriorities.org/en/postings/3f805288-30d0-41f0-9b99-d6972009f0d4
+    bitlyLink: "https://efctv.org/49Jfdx5", // https://www.iaps.ai/fellowship
     role: 'AI Policy Fellow',
     insertThe: true,
     org: 'Institute for AI Policy & Strategy',
@@ -245,7 +238,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     deadline: moment('2024-03-18'),
   },
   'cea-head-of-comms': {
-    careerStages: ['Working (6-15 years of experience)', 'Working (15+ years of experience)'],
+    careerStages: ['midCareer', 'lateCareer'],
     experiencedIn: ['Communications/Marketing', 'Journalism'],
     interestedIn: ['EA community building/community management'],
     subscribedTagIds: [
@@ -264,7 +257,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     deadline: moment('2024-03-22'),
   },
   'fem-head-of-ops': {
-    careerStages: ['Working (6-15 years of experience)', 'Working (15+ years of experience)'],
+    careerStages: ['midCareer', 'lateCareer'],
     experiencedIn: ['Operations'],
     interestedIn: ['Global health & development'],
     subscribedTagIds: [
@@ -387,7 +380,7 @@ const TargetedJobAd = ({ad, onDismiss, onApply, onRemindMe, classes}: {
                 {showRemindMe && <>
                   <div>·</div>
                   <button onClick={handleRemindMe} className={classes.reminderBtn}>
-                    Set reminder
+                    Remind me
                   </button>
                 </>}
               </>}

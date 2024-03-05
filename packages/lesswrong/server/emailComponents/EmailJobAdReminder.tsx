@@ -32,7 +32,7 @@ const EmailJobAdReminder = ({
   return (
     <div className={classes.root}>
       <div className={classes.row}>
-        The application deadline for this job is coming up soon! You can apply <a href={link}>here</a>.
+        The application deadline for this job is coming up soon! Apply <a href={link}>here</a> before {jobData.deadline?.format("dddd, MMMM D")}.
       </div>
       <hr className={classes.hr}/>
     </div>
