@@ -99,20 +99,18 @@ const styles = (theme: ThemeType) => ({
   },
   titleContainer: {
     maxHeight: 200,
-    minHeight: 70,
+    minHeight: 30,
     display: 'flex',
     flexDirection: 'column-reverse',
-    transition: 'opacity 0.4s ease-in-out, max-height 0.4s ease-in-out, margin-top 0.4s ease-in-out',
+    transition: 'opacity 0.4s ease-in-out, max-height 0.4s ease-in-out, max-height 0.4s ease-in-out, margin-top 0.4s ease-in-out',
   },
   '@global': {
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${TITLE_CONTAINER_CLASS_NAME}`]: {
       opacity: 0,
-      maxHeight: 64
+      maxHeight: 84,
+      minHeight: 64
     },
-    [`body:has(.headroom--unfixed) .${TITLE_CONTAINER_CLASS_NAME}`]: {
-      marginTop: 64
-    }
   }
 });
 

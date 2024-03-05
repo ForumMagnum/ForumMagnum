@@ -103,16 +103,25 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'space-evenly',
     '--scrollAmount': '0%',
     marginRight: -4,
-    paddingLeft: 4,
+    marginBottom: 20,
+    width: 1,
+    background: theme.palette.grey[400],
+    overflowY: 'clip',
   },
   progressBar: {
-    width: 1,
     flex: 'var(--scrollAmount)',
-    background: theme.palette.grey[400],
-    marginBottom: 8,
+    display: 'flex',
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8
+    },
+    "&:after": {
+      content: "''",
+      marginLeft: -0.5,
+      paddingLeft: 2,
+      alignSelf: 'end',
+      height: 'var(--windowHeight)',
+      background: theme.palette.grey[600],
     }
   },
   unfilledProgressBar: {
@@ -121,7 +130,7 @@ const styles = (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       marginLeft: -8,
       marginRight: -8
-    }
+    },
   },
   nonTitleRows: {
     display: 'flex',
@@ -183,11 +192,13 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
       landmarkName: section.anchor,
       elementId: section.anchor,
       position: "centerOfElement",
+      offset: -(getCurrentSectionMark() * 2)
     })),
     {
       landmarkName: "comments",
       elementId: "postBody",
       position: "bottomOfElement",
+      offset: -(getCurrentSectionMark() * 2)
     },
   ]);
 
@@ -213,28 +224,43 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     filteredSections = sectionsWithAnswersSorted(filteredSections, answersSorting);
   }
 
+  const [hasLoaded, setHasLoaded] = useState(false)
+  const [imagesLoaded, setImagesLoaded] = useState<Record<string, boolean>>({});
+
   useEffect(() => {
     const postBodyRef = document.getElementById('postBody');
     if (!postBodyRef) return;
 
     //Get all elements with href corresponding to anchors from the table of contents
-    const postBodyBlocks = postBodyRef.querySelectorAll('[id]');
-    const sectionHeaders = Array.from(postBodyBlocks).filter(block => filteredSections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
+    const postBodyBlocks = Array.from(postBodyRef.querySelectorAll('[id]'));
+
+    function updateImageLoadingState(this: HTMLImageElement) {
+      const newLoadingStates = { ...imagesLoaded, [this.src]: true };
+      setImagesLoaded(newLoadingStates);
+      this.removeEventListener('load', updateImageLoadingState);
+    };
+
+    const postImages = Array.from(postBodyRef.getElementsByTagName('img'));
+    postImages.forEach((postImage) => postImage.addEventListener('load', updateImageLoadingState));
+    
+    const sectionHeaders = postBodyBlocks.filter(block => filteredSections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
     const sectionsWithOffsets = getSectionsWithOffsets(sectionHeaders, filteredSections);
     const newNormalizedSections = normalizeOffsets(sectionsWithOffsets);
 
     if (!isEqual(normalizedSections, newNormalizedSections)) {
       setNormalizedSections(newNormalizedSections);
     }
-  }, [filteredSections, normalizedSections]);
+    if (!hasLoaded && postImages.every(image => image.complete)) setHasLoaded(true)
+  }, [filteredSections, normalizedSections, imagesLoaded, hasLoaded]);
 
   const postContext = usePostsPageContext();
   const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);
 
   const { readingProgressBarRef } = usePostReadProgress({
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
-    disabled: disableProgressBar,
-    delayStartOffset: window.innerHeight - getCurrentSectionMark()
+    disabled: disableProgressBar || !hasLoaded,
+    setScrollWindowHeight: (element, height) => element.style.setProperty("--windowHeight", `${height}px`),
+    useFirstViewportHeight: true
   });
 
   const titleRow = (
@@ -292,7 +318,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
 
   const commentsRow = normalizedSections.at(-1)?.anchor === 'comments' ? rows.pop() : undefined;
 
-  if (!tocSections)
+  if (!tocSections || !hasLoaded)
     return <div/>
 
   return <div className={classNames(classes.root, { [classes.fadeIn]: tocVisible, [classes.fadeOut]: !tocVisible })}>

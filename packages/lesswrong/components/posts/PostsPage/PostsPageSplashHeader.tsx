@@ -494,7 +494,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     <div className={classes.rightSection}>
       <AnalyticsContext pageSectionContext="tagHeader">
         <div className={classes.rightSectionTopRow}>
-          <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} appendElement={postActionsButton} />
+          <FooterTagList post={post} hideScore useAltAddTagButton hideAddTag={false} appendElement={postActionsButton} align="right" />
         </div>
       </AnalyticsContext>
       <div className={classes.rightSectionBottomRow}>
