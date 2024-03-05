@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     position: 'unset',
     width: 'unset',
     left: -DEFAULT_TOC_MARGIN,
-    marginTop: fullHeightToCEnabled ? '-100vh' : -TOC_OFFSET_TOP,
+    marginTop: fullHeightToCEnabled ? -50 : -TOC_OFFSET_TOP,
     marginBottom: fullHeightToCEnabled ? undefined : -TOC_OFFSET_BOTTOM,
 
     [theme.breakpoints.down('sm')]:{
@@ -44,14 +44,16 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 0,
     },
   },
+  splashPageHeaderToc: {
+    marginTop: '-100vh'
+  },
   commentToCMargin: {
     marginTop: 'unset',
   },
   // This is needed for an annoying IntersectionObserver hack to prevent the title from being hidden when scrolling up
   commentToCIntersection: {
     // And unfortunately we need !important because otherwise this style gets overriden by the `top: 0` in `stickyBlockScroller`
-    top: '-1px !important',
-    paddingTop: 12
+    top: '-1px !important'
   },
   stickyBlockScroller: {
     position: "sticky",
@@ -115,10 +117,11 @@ export type ToCLayoutSegment = {
   isCommentToC?: boolean,
 };
 
-const MultiToCLayout = ({segments, classes, tocRowMap = []}: {
+const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader = false}: {
   segments: ToCLayoutSegment[],
   classes: ClassesType<typeof styles>,
-  tocRowMap?: number[] // This allows you to specify which row each ToC should be in
+  tocRowMap?: number[], // This allows you to specify which row each ToC should be in, where maybe you want a ToC to span more than one row
+  showSplashPageHeader?: boolean,
 }) => {
   const tocVisible = true;
   const gridTemplateAreas = segments
@@ -127,7 +130,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = []}: {
   return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
     {segments.map((segment,i) => <React.Fragment key={i}>
       {segment.toc && tocVisible && <>
-        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC })} style={{ "gridArea": `toc${i}` }} >
+        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader })} style={{ "gridArea": `toc${i}` }} >
           <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })}>
             <div className={classes.stickyBlock}>
               {segment.toc}

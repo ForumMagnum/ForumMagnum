@@ -113,6 +113,7 @@ export const EAOnboardingStage = ({
   footer,
   hideHeader,
   hideFooter,
+  hideFooterButton,
   thin,
   children,
   className,
@@ -126,6 +127,7 @@ export const EAOnboardingStage = ({
   footer?: ReactNode,
   hideHeader?: boolean,
   hideFooter?: boolean,
+  hideFooterButton?: boolean,
   thin?: boolean,
   children?: ReactNode,
   className?: string,
@@ -183,16 +185,18 @@ export const EAOnboardingStage = ({
                 Skip for now
               </a>
             }
-            <EAButton
-              onClick={wrappedOnContinue}
-              disabled={!canContinue || nextStageIsLoading}
-              className={classes.continue}
-            >
-              {nextStageIsLoading
-                ? <Loading className={classes.spinner} />
-                : <>Continue -&gt;</>
-              }
-            </EAButton>
+            {!hideFooterButton &&
+              <EAButton
+                onClick={wrappedOnContinue}
+                disabled={!canContinue || nextStageIsLoading}
+                className={classes.continue}
+              >
+                {nextStageIsLoading
+                  ? <Loading className={classes.spinner} />
+                  : <>Continue -&gt;</>
+                }
+              </EAButton>
+            }
           </div>
         }
       </div>

@@ -771,7 +771,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
               isCommentToC: true
             },
           ]}
-          tocRowMap={[1, 1, 2, 3]}
+          tocRowMap={[1, 1, 1, 3]}
+          showSplashPageHeader={showSplashPageHeader}
         />
       : <ToCColumn
           tableOfContents={tableOfContents}

@@ -127,14 +127,10 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   imageColumn: {
-    display: 'block',
     gridArea: 'imageGap',
     [theme.breakpoints.down('md')]: {
       display: 'none'
     },
-    '&:hover': {
-      opacity: 1
-    }
   },
   backgroundImage: {
     position: 'absolute',
@@ -148,25 +144,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     }
   },
   votingImage: {
-    width: '100vw',
-    maxWidth: 'inherit',
-    left: 500,
-    '-webkit-mask-image': `radial-gradient(ellipse at 51% 17%,${theme.palette.text.alwaysBlack} 34%,transparent 68%)`,
-    pointerEvents: 'none'
-  },
-  leastWrongLink: {
-    ...theme.typography.postStyle,
-    fontSize: '26px',
-    position: 'absolute',
-    top: 56,
-    right: 24,
-    mixBlendMode: 'overlay',
-    color: theme.palette.text.alwaysWhite,
-    zIndex: 2,
-    maxWidth: 300,
-    textWrap: 'balance',
-    textAlign: 'right',
-    lineHeight: '1.1'
+    width: '55vw',
+    maxWidth: '1000px',
+    marginLeft: '-15px'
   },
   unspacedGridActivated: {
     '@supports (grid-template-areas: "title")': {
@@ -489,10 +469,9 @@ const Layout = ({currentUser, children, classes}: {
                 { isLW && <>
                   {
                     currentRoute?.name === 'home' ? 
-                      <Link className={classes.imageColumn} to="/posts/qvCMiwkBqdYjfiX6n/announcing-the-leastwrong-and-review-winner-post-pages">
-                        <h2 className={classes.leastWrongLink}>Announcing the new Best of LessWrong</h2>
-                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_b456ccf9-b443-4449-97d7-ccd0fcf07fd8_peyutf" darkPublicId="ohabryka_Aquarelle_sketch_by_Thomas_W._Schaller_inspired_by_top_b456ccf9-b443-4449-97d7-ccd0fcf07fd8_peyutf"/>
-                      </Link> 
+                    <div className={classes.imageColumn}>
+                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_3_jbqyqv" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
+                    </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
                         <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>

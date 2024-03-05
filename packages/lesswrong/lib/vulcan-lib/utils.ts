@@ -325,15 +325,6 @@ const footnoteAttributes = [
   'data-footnote-back-link',
   'data-footnote-back-link-href',
 ]
-const footnoteClasses = [
-  "footnote-content",
-  "footnote-item",
-  "footnote-reference",
-  "footnote-section",
-  "footnote-back-link",
-  "footnotes",
-  "hidden",
-]
 
 export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
@@ -401,7 +392,6 @@ export const sanitize = function(s: string): string {
       'calendly.com'
     ],
     allowedClasses: {
-      '*': footnoteClasses,
       span: [ 'footnote-reference', 'footnote-label', 'footnote-back-link' ],
       div: [
         'spoilers',

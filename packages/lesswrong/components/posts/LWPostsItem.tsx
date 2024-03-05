@@ -449,6 +449,7 @@ const LWPostsItem = ({classes, ...props}: PostsList2Props) => {
             <span className={classNames(classes.title, {[classes.hasSmallSubtitle]: !!resumeReading})}>
               <AnalyticsTracker
                   eventType={"postItem"}
+                  eventProps={{mountedPostId: post._id, mountedPostScore: post.score, mountedPostBaseScore: post.baseScore}}
                   captureOnMount={(eventData) => eventData.capturePostItemOnMount}
                   captureOnClick={false}
               >
