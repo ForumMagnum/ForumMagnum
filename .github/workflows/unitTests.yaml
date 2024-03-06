@@ -14,8 +14,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Upload ckEditor bundle
-      if: github.ref == 'refs/heads/ea-deploy'
-      uses: ./.github/actions/uploadCkEditorBundle/eaAction.yaml
+      # if: github.ref == 'refs/heads/ea-deploy'
+      uses: ./.github/actions/uploadCkEditorBundle
       with:
         mode: prod
         credentials-repo: ${{ secrets.CEA_CREDENTIALS_REPO }}
