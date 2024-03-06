@@ -45,7 +45,7 @@ type RestorableState = {
 const restorableStateHasMetadata = (savedState: any) => {
   return typeof savedState === "object"
 }
-const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: (editorType?: string) => any): RestorableState|null => {
+export const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: (editorType?: string) => any): RestorableState|null => {
   const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
   
   for (const editorType of editors) {
