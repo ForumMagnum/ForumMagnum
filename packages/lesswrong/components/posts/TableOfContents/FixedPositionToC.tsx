@@ -69,16 +69,14 @@ const styles = (theme: ThemeType) => ({
     '& .TableOfContentsRow-title': {
       borderBottom: "none",
     },
-    transition: 'opacity .5s, transform .5s, min-height 0.4s ease-in-out',
+    transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, min-height 0.4s ease-in-out',
   },
   fadeOut: {
     opacity: 0,
     transform: 'translateX(-50px)',
-    transitionTimingFunction: 'ease-in',
+    transitionDelay: '0s',
   },
   fadeIn: {
-    transitionDelay: '0.5s',
-    transitionTimingFunction: 'ease-out',
   },
   //Use our PostTitle styling with small caps
   tocTitle: {
@@ -241,7 +239,13 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     };
 
     const postImages = Array.from(postBodyRef.getElementsByTagName('img'));
-    postImages.forEach((postImage) => postImage.addEventListener('load', updateImageLoadingState));
+    const cleanup: Array<()=>void> = [];
+    postImages.forEach((postImage) => {
+      postImage.addEventListener('load', updateImageLoadingState)
+      cleanup.push(() => {
+        postImage.removeEventListener('load', updateImageLoadingState);
+      });
+    });
     
     const sectionHeaders = postBodyBlocks.filter(block => filteredSections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
     const sectionsWithOffsets = getSectionsWithOffsets(sectionHeaders, filteredSections);
@@ -251,6 +255,11 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
       setNormalizedSections(newNormalizedSections);
     }
     if (!hasLoaded && postImages.every(image => image.complete)) setHasLoaded(true)
+    
+    return () => {
+      for (const cleanupFn of cleanup)
+        cleanupFn();
+    }
   }, [filteredSections, normalizedSections, imagesLoaded, hasLoaded]);
 
   const postContext = usePostsPageContext();
