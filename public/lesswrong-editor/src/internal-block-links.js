@@ -1,5 +1,8 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 
+/**
+ * Support a "data-internal-id" to allow internal links to blocks
+ */
 export default class InternalBlockLinks extends Plugin {
   init() {
     const editor = this.editor;
@@ -9,7 +12,7 @@ export default class InternalBlockLinks extends Plugin {
       allowAttributes: ['data-internal-id']
     });
 
-    // Define the upcast converter for elements with a `data-internal-id`
+    // (data view → model)
     editor.conversion.for('upcast').attributeToAttribute({
       view: 'data-internal-id',
       model: 'data-internal-id'
