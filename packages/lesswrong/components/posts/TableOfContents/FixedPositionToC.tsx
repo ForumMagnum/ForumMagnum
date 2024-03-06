@@ -223,30 +223,27 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   }
 
   const [hasLoaded, setHasLoaded] = useState(false)
-  const [imagesLoaded, setImagesLoaded] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     const postBodyRef = document.getElementById('postBody');
     if (!postBodyRef) return;
-
     //Get all elements with href corresponding to anchors from the table of contents
-    const postBodyBlocks = Array.from(postBodyRef.querySelectorAll('[id]'));
-
+    const postImages = Array.from(postBodyRef.getElementsByTagName('img'));
     function updateImageLoadingState(this: HTMLImageElement) {
-      const newLoadingStates = { ...imagesLoaded, [this.src]: true };
-      setImagesLoaded(newLoadingStates);
+      if (postImages.every(image => image.complete)) setHasLoaded(true)
       this.removeEventListener('load', updateImageLoadingState);
     };
+    postImages.forEach((postImage) => postImage.addEventListener('load', updateImageLoadingState));
+    if (postImages.every(image => image.complete)) setHasLoaded(true);
+    return () => {
+      postImages.forEach((postImage) => postImage.removeEventListener('load', updateImageLoadingState));
+    }
+  }, [])
 
-    const postImages = Array.from(postBodyRef.getElementsByTagName('img'));
-    const cleanup: Array<() => void> = [];
-    postImages.forEach((postImage) => {
-      postImage.addEventListener('load', updateImageLoadingState)
-      cleanup.push(() => {
-        postImage.removeEventListener('load', updateImageLoadingState);
-      });
-    });
-    
+  useEffect(() => {
+    const postBodyRef = document.getElementById('postBody');
+    if (!postBodyRef) return;
+    const postBodyBlocks = Array.from(postBodyRef.querySelectorAll('[id]'));
     const sectionHeaders = postBodyBlocks.filter(block => filteredSections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
     const sectionsWithOffsets = getSectionsWithOffsets(sectionHeaders, filteredSections);
     const newNormalizedSections = normalizeOffsets(sectionsWithOffsets);
@@ -254,13 +251,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     if (!isEqual(normalizedSections, newNormalizedSections)) {
       setNormalizedSections(newNormalizedSections);
     }
-    if (!hasLoaded && postImages.every(image => image.complete)) setHasLoaded(true)
-    
-    return () => {
-      for (const cleanupFn of cleanup)
-        cleanupFn();
-    }
-  }, [filteredSections, normalizedSections, imagesLoaded, hasLoaded]);
+  }, [filteredSections, normalizedSections, hasLoaded]);
 
   const postContext = usePostsPageContext();
   const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);

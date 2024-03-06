@@ -65,7 +65,28 @@ function generateSignature(apiKey: string, method: string, uri: string, timestam
   return hmac.digest('hex');
 }
 
-async function fetchCkEditorRestAPI(method: string, uri: string, body?: any): Promise<string> {
+async function extractCkEditorResponseErrorInfo(response: Response) {
+  let reason;
+  try {
+    const responseBody = await response.json();
+    reason = responseBody.data?.reasons?.[0];
+    // eslint-disable-next-line no-console
+    console.log({ reason });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log(`Failed to extract error info from non-ok ckEditor response`, { err });
+  }
+
+  return reason;
+}
+
+function logAndThrow(message: string) {
+  // eslint-disable-next-line no-console
+  console.log(message);
+  throw new Error(message);
+}
+
+async function fetchCkEditorRestAPI<T extends boolean = false>(method: string, uri: string, body?: any, returnRawResponse?: T): Promise<T extends true ? Response : string> {
   const apiPrefix = getCkEditorApiPrefix()!;
   // See: https://ckeditor.com/docs/cs/latest/guides/security/request-signature.html
   const timestamp = new Date().getTime();
@@ -79,20 +100,18 @@ async function fetchCkEditorRestAPI(method: string, uri: string, body?: any): Pr
       "X-CS-Timestamp": "" + timestamp,
     },
   });
+  if (returnRawResponse) {
+    return response as (T extends true ? Response : string);
+  }
   if (!response.ok) {
-
-    let explanation;
-    try {
-      const responseBody = await response.json();
-      explanation = responseBody.data?.reasons?.[0]?.explanation;
-    } catch (err) { /* empty */ }
-
-    if (explanation)
-      throw new Error(`CkEditor REST API call FAILED (${response.status}): ${method} ${fullURI}\n${explanation}`);
-    throw new Error(`CkEditor REST API call FAILED (${response.status}): ${method} ${fullURI}`);
+    const errorReason = await extractCkEditorResponseErrorInfo(response);
+    if (errorReason) {
+      logAndThrow(`CkEditor REST API call FAILED (${response.status}): ${method} ${fullURI}\n${JSON.stringify(errorReason)}`);
+    }
+    logAndThrow(`CkEditor REST API call FAILED (${response.status}): ${method} ${fullURI}`);
   }
   const responseBody = await response.text();
-  return responseBody;
+  return responseBody as (T extends true ? Response : string);
 }
 
 
@@ -199,6 +218,29 @@ const documentHelpers = {
 
 // See https://docs.cke-cs.com/api/v5/docs for documentation on ckEditor's api.
 const ckEditorApi = {
+  async getStorageDocument(ckEditorId: string) {
+    const rawResult = await fetchCkEditorRestAPI("GET", `/storage/${ckEditorId}`);
+    let parsedResult;
+    try {
+      parsedResult = JSON.parse(rawResult);
+    } catch (err) {
+      throw new Error(`Failure to parse response from ckEditor when fetching storage document. Returned data: ${rawResult}`);
+    }
+
+    return parsedResult;
+  },
+
+  async getAllStorageDocuments() {
+    const rawResult = await fetchCkEditorRestAPI("GET", `/storage?order=desc`);
+    let parsedResult;
+    try {
+      parsedResult = JSON.parse(rawResult);
+    } catch (err) {
+      throw new Error(`Failure to parse response from ckEditor when fetching all storage documents. Returned data: ${rawResult}`);
+    }
+
+    return parsedResult.data;
+  },
   async fetchCkEditorDocumentFromStorage(ckEditorId: string): Promise<DocumentResponse> {
     const rawResult = await fetchCkEditorRestAPI("GET", `/documents/${ckEditorId}`);
     let parsedResult;
@@ -220,12 +262,20 @@ const ckEditorApi = {
     return await fetchCkEditorRestAPI("GET", "/collaborations");
   },
 
+  async getCollaborationDetails(documentId: string) {
+    return await fetchCkEditorRestAPI("GET", `/collaborations/${documentId}/details`);
+  },
+
   async getAllConnectedUserIds(documentId: string) {
     return await fetchCkEditorRestAPI("GET", `/collaborations/${documentId}/users`);
   },
 
   async getAllDocuments() {
     return await fetchCkEditorRestAPI("GET", "/documents"); 
+  },
+
+  async getAllRevisionsForDocument(ckEditorId: string) {
+    return await fetchCkEditorRestAPI("GET", `/revisions?document_id=${ckEditorId}&order=desc`); 
   },
 
   async fetchCkEditorCommentThread(threadId: string): Promise<CkEditorComment[]> {
@@ -239,7 +289,7 @@ const ckEditorApi = {
     // won't subscribed after the 1000th comment, which is not a big problem.
     const limit = 1000;
     
-    const response = await fetchCkEditorRestAPI("GET", `/comments?thread_id=${threadId}&limit=${limit}`);
+    const response = await fetchCkEditorRestAPI("GET", `/comments?thread_id=${threadId}&limit=${limit}&include_deleted=true`);
     const parsedResponse: CkEditorGetCommentsResponse = JSON.parse(response);
     return parsedResponse.data;
   },
@@ -328,16 +378,30 @@ const ckEditorApi = {
         },
       },
       testData: "<p>Test</p>",
-    });
+    }, true);
+
+    if (result.status > 299 && result.status !== 409) {
+      logAndThrow(`Got a ${result.status} status code when uploading bundle version ${bundleVersion}`);
+    }
   },
 
-  async checkEditorBundle(bundleVersion: string): Promise<void> {
+  async checkEditorBundle(bundleVersion: string): Promise<{ exists: boolean }> {
     if (!bundleVersion)
       throw new Error("Missing argument: bundleVersion");
     
     const result = await fetchCkEditorRestAPI("GET", `/editors/${bundleVersion}/exists`);
-    // eslint-disable-next-line no-console
-    console.log(result);
+
+    let parsedResult;
+    try {
+      parsedResult = JSON.parse(result);
+      if (!('exists' in parsedResult)) {
+        logAndThrow('Missing "exists" field in response from ckEditor when checking if editor bundle exists');
+      }
+    } catch (err) {
+      logAndThrow(`Failure to parse response from ckEditor when checking if editor bundle ${bundleVersion} exists. Returned data: ${result}`);
+    }
+
+    return parsedResult;
   },
 
   async flushAllCkEditorCollaborations() {
