@@ -6,7 +6,7 @@ import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents,
   getBlankEditorContents, EditorContents, isBlank, serializeEditorContents,
-  EditorTypeString, styles, FormProps, shouldSubmitContents, SerializedEditorContents, adminEditors, nonAdminEditors, deserializeEditorContents } from './Editor';
+  EditorTypeString, styles, FormProps, shouldSubmitContents, deserializeEditorContents } from './Editor';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PropTypes from 'prop-types';
 import * as _ from 'underscore';
