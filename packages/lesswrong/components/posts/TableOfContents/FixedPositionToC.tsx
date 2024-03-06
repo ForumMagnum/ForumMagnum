@@ -241,7 +241,13 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     };
 
     const postImages = Array.from(postBodyRef.getElementsByTagName('img'));
-    postImages.forEach((postImage) => postImage.addEventListener('load', updateImageLoadingState));
+    const cleanup: Array<()=>void> = [];
+    postImages.forEach((postImage) => {
+      postImage.addEventListener('load', updateImageLoadingState)
+      cleanup.push(() => {
+        postImage.removeEventListener('load', updateImageLoadingState);
+      });
+    });
     
     const sectionHeaders = postBodyBlocks.filter(block => filteredSections.map(section => section.anchor).includes(block.getAttribute('id') ?? ''));
     const sectionsWithOffsets = getSectionsWithOffsets(sectionHeaders, filteredSections);
@@ -251,6 +257,11 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
       setNormalizedSections(newNormalizedSections);
     }
     if (!hasLoaded && postImages.every(image => image.complete)) setHasLoaded(true)
+    
+    return () => {
+      for (const cleanupFn of cleanup)
+        cleanupFn();
+    }
   }, [filteredSections, normalizedSections, imagesLoaded, hasLoaded]);
 
   const postContext = usePostsPageContext();
