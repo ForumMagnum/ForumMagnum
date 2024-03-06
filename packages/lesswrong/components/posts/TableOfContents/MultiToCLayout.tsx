@@ -45,7 +45,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   splashPageHeaderToc: {
-    marginTop: '-100vh'
+    marginTop: 'calc(-100vh - 64px)'
+  },
+  normalHeaderToc: {
+    
   },
   commentToCMargin: {
     marginTop: 'unset',
@@ -130,7 +133,7 @@ const MultiToCLayout = ({segments, classes, tocRowMap = [], showSplashPageHeader
   return <div className={classNames(classes.root)} style={{ gridTemplateAreas }}>
     {segments.map((segment,i) => <React.Fragment key={i}>
       {segment.toc && tocVisible && <>
-        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader })} style={{ "gridArea": `toc${i}` }} >
+        <div className={classNames(classes.toc, { [classes.commentToCMargin]: segment.isCommentToC, [classes.splashPageHeaderToc]: showSplashPageHeader, [classes.normalHeaderToc]: !showSplashPageHeader })} style={{ "gridArea": `toc${i}` }} >
           <div className={classNames(classes.stickyBlockScroller, { [classes.commentToCIntersection]: segment.isCommentToC })}>
             <div className={classes.stickyBlock}>
               {segment.toc}
