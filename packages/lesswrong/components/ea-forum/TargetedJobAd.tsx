@@ -7,7 +7,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import classNames from 'classnames';
 import OpenInNew from '@material-ui/icons/OpenInNew';
 import moment from 'moment';
-import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { CareerStageValue } from '../../lib/collections/users/schema';
 
@@ -37,7 +36,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    columnGap: 20,
+    columnGap: 10,
     marginBottom: 5,
   },
   infoIcon: {
@@ -103,7 +102,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   metadata: {
     display: 'flex',
     alignItems: 'center',
-    columnGap: 4,
+    columnGap: 3,
     fontSize: 13,
     lineHeight: '17px',
     color: theme.palette.grey[600],
@@ -288,7 +287,6 @@ const TargetedJobAd = ({ad, onDismiss, onApply, onRemindMe, classes}: {
 }) => {
   const adData = JOB_AD_DATA[ad]
   
-  const currentUser = useCurrentUser()
   // clicking either "apply" or "remind me" will close the ad
   const [closed, setClosed] = useState(false)
   
@@ -304,7 +302,7 @@ const TargetedJobAd = ({ad, onDismiss, onApply, onRemindMe, classes}: {
   
   const { HoverPreviewLink, LWTooltip, ForumIcon, EAButton } = Components
   
-  if (!adData || !currentUser) {
+  if (!adData) {
     return null
   }
   
@@ -316,7 +314,7 @@ const TargetedJobAd = ({ad, onDismiss, onApply, onRemindMe, classes}: {
 
       <div className={classes.topRow}>
         <div className={classNames(classes.jobRecLabel, classes.metadata)}>
-          Job recommendation for {currentUser.displayName}
+          Job recommendation for you
           <LWTooltip title={
             `You're seeing this recommendation because of your interest in ${adData.occupation}.`
           }>
