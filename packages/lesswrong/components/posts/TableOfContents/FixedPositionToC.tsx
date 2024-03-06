@@ -69,16 +69,14 @@ const styles = (theme: ThemeType) => ({
     '& .TableOfContentsRow-title': {
       borderBottom: "none",
     },
-    transition: 'opacity .5s, transform .5s, min-height 0.4s ease-in-out',
+    transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, min-height 0.4s ease-in-out',
   },
   fadeOut: {
     opacity: 0,
     transform: 'translateX(-50px)',
-    transitionTimingFunction: 'ease-in',
+    transitionDelay: '0s',
   },
   fadeIn: {
-    transitionDelay: '0.5s',
-    transitionTimingFunction: 'ease-out',
   },
   //Use our PostTitle styling with small caps
   tocTitle: {
