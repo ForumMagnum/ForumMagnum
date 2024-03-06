@@ -145,10 +145,11 @@ export type CommentsNewFormProps = {
   fragment?: FragmentName,
   formProps?: any,
   enableGuidelines?: boolean,
-  padding?: boolean
-  formStyle?: FormDisplayMode
-  classes: ClassesType
-  className?: string
+  padding?: boolean,
+  formStyle?: FormDisplayMode,
+  overrideHintText?: string,
+  classes: ClassesType,
+  className?: string,
 }
 
 const CommentsNewForm = ({
@@ -166,6 +167,7 @@ const CommentsNewForm = ({
   enableGuidelines=true,
   padding=true,
   formStyle="default",
+  overrideHintText,
   classes,
   className,
 }: CommentsNewFormProps) => {
@@ -316,7 +318,10 @@ const CommentsNewForm = ({
   const hideDate = hideUnreviewedAuthorCommentsSettings.get()
   const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
     currentUser && !currentUser.isReviewed 
-  const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
+  const extraFormProps = {
+    ...(isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}),
+    ...(overrideHintText ? {editorHintText: overrideHintText} : {})
+  }
   const parentDocumentId = post?._id || tag?._id
 
   useEffect(() => {
