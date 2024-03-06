@@ -21,6 +21,7 @@ import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { Posts } from '../../lib/collections/posts';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import { convertImagesInHTML } from '../scripts/convertImagesToCloudinary';
+import { extractTableOfContents } from '../tableOfContents';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -607,13 +608,13 @@ function googleDocStripComments(html: string): string {
  * This is used to maintain internal document links when importing into ckeditor, which doesn't use `id` attributes
  * on elements for internal linking.
  */
-export function googleDocInternalLinks(html: string): string {
+export async function googleDocInternalLinks(html: string): Promise<string> {
   const $ = cheerio.load(html);
 
   // Define block level elements that are considered as blocks in ckeditor
   const blockLevelElements = ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ol', 'ul', 'li', 'blockquote', 'pre', 'hr', 'table'];
 
-  // Find all elements with an id
+  // Map id to data-internal-id
   $('[id]').each((_, element) => {
     // Remove the id attribute and store its value
     const idValue = $(element).attr('id');
@@ -622,11 +623,44 @@ export function googleDocInternalLinks(html: string): string {
     // Find the nearest parent that is a block level element
     const blockParent = $(element).closest(blockLevelElements.join(','));
 
-    // If a block level parent is found, set the `data-internal-id` attribute
     if (blockParent.length && idValue) {
-      blockParent.attr('data-internal-id', idValue);
+      blockParent.attr('data-internal-id', idValue)
+      blockParent.removeAttr('id');
     }
   });
+
+  const tocHtml = (await extractTableOfContents($.html()))?.html;
+  if (tocHtml) {
+    const idMap: Record<string, string> = {};
+    const $toc = cheerio.load(tocHtml);
+    $toc('[id][data-internal-id]').each((_, element) => {
+      const readableId = $toc(element).attr('id');
+      const internalId = $toc(element).attr('data-internal-id');
+      if (readableId && internalId) {
+        idMap[internalId] = readableId;
+      }
+    });
+
+    // Update all hrefs to point to the readable ids
+    $('a[href]').each((_, element) => {
+      const href = $(element).attr('href');
+      if (href && href.startsWith('#')) {
+        const internalId = href.slice(1);
+        if (idMap[internalId]) {
+          $(element).attr('href', `#${idMap[internalId]}`);
+        }
+      }
+    });
+
+    // Update the data-internal-ids to be equal to the readable id, this
+    // means that even if they change the heading the links will still work
+    $('[data-internal-id]').each((_, element) => {
+      const internalId = $(element).attr('data-internal-id');
+      if (internalId && idMap[internalId]) {
+        $(element).attr('data-internal-id', idMap[internalId]);
+      }
+    });
+  }
 
   return $.html();
 }
@@ -638,17 +672,25 @@ export function googleDocInternalLinks(html: string): string {
  * - Remove google redirects from all urls
  * - Reupload images to cloudinary (we actually don't do this on paste, but it's easier to do so here and prevents images breaking due to rate limits)
  */
-export async function convertImportedGoogleDoc(html: string, postId: string) {
-  const { html: withRehostedImages } = await convertImagesInHTML(html, postId, url => url.includes("googleusercontent"))
-  const withNoComments = googleDocStripComments(withRehostedImages)
-  const withGoogleDocFormatting = googleDocFormatting(withNoComments)
-  const withInternalLinks = googleDocInternalLinks(withGoogleDocFormatting)
-  const withConvertedFootnotes = googleDocConvertFootnotes(withInternalLinks)
-  const withNormalisedRedirects = googleDocRemoveRedirects(withConvertedFootnotes)
-  const ckEditorMarkup = await dataToCkEditor(withNormalisedRedirects, "html")
+export async function convertImportedGoogleDoc({
+  html,
+  postId,
+}: {
+  html: string;
+  postId: string;
+}) {
+  const { html: withRehostedImages } = await convertImagesInHTML(html, postId, (url) =>
+    url.includes("googleusercontent")
+  );
+  const withNoComments = googleDocStripComments(withRehostedImages);
+  const withGoogleDocFormatting = googleDocFormatting(withNoComments);
+  const withInternalLinks = await googleDocInternalLinks(withGoogleDocFormatting);
+  const withConvertedFootnotes = googleDocConvertFootnotes(withInternalLinks);
+  const withNormalisedRedirects = googleDocRemoveRedirects(withConvertedFootnotes);
+  const ckEditorMarkup = await dataToCkEditor(withNormalisedRedirects, "html");
 
   // Note: there are also some `color` attributes that are carried through, on <span>s and tables. These don't
   // appear in the actual editor or the live post, so I am ignoring them
 
-  return ckEditorMarkup
+  return ckEditorMarkup;
 }

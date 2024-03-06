@@ -438,7 +438,7 @@ addGraphQLResolvers({
       // Converting to ckeditor markup does some thing like removing styles to standardise
       // the result, so we always want to do this first before converting to whatever format the user
       // is using
-      const ckEditorMarkup = await convertImportedGoogleDoc(html, finalPostId)
+      const ckEditorMarkup = await convertImportedGoogleDoc({ html, postId: finalPostId })
       const commitMessage = `[Google Doc import] Last modified: ${docMetadata.modifiedTime}, Name: "${docMetadata.name}"`
       const originalContents = {type: "ckEditorMarkup", data: ckEditorMarkup}
 
