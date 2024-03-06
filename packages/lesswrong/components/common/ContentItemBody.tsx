@@ -140,6 +140,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
       this.markElicitBlocks(element);
       this.wrapStrawPoll(element);
       this.applyIdInsertions(element);
+      this.exposeInternalIds(element);
     } catch(e) {
       // Don't let exceptions escape from here. This ensures that, if client-side
       // modifications crash, the post/comment text still remains visible.
@@ -421,6 +422,27 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
     }
   }
 
+  /**
+   * Convert data-internal-id to id (handling collisions etc)
+   */
+  exposeInternalIds = (element: HTMLElement) => {
+    const elementsWithDataInternalId = element.querySelectorAll('[data-internal-id]');
+    elementsWithDataInternalId.forEach((el: Element) => {
+      const internalId = el.getAttribute('data-internal-id');
+      if (internalId && !document.getElementById(internalId)) {
+        if (!el.id) {
+          el.id = internalId;
+        } else {
+          const wrapperSpan = document.createElement('span');
+          wrapperSpan.id = internalId;
+          while (el.firstChild) {
+            wrapperSpan.appendChild(el.firstChild);
+          }
+          el.appendChild(wrapperSpan);
+        }
+      }
+    });
+  }
 
   replaceElement = (replacedElement: HTMLElement|Element, replacementElement: React.ReactNode) => {
     const replacementContainer = document.createElement("span");

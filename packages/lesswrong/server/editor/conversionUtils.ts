@@ -603,6 +603,35 @@ function googleDocStripComments(html: string): string {
 }
 
 /**
+ * Converts internal links in Google Docs HTML to a format with `data-internal-id` attributes on block level elements.
+ * This is used to maintain internal document links when importing into ckeditor, which doesn't use `id` attributes
+ * on elements for internal linking.
+ */
+export function googleDocInternalLinks(html: string): string {
+  const $ = cheerio.load(html);
+
+  // Define block level elements that are considered as blocks in ckeditor
+  const blockLevelElements = ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ol', 'ul', 'li', 'blockquote', 'pre', 'hr', 'table'];
+
+  // Find all elements with an id
+  $('[id]').each((_, element) => {
+    // Remove the id attribute and store its value
+    const idValue = $(element).attr('id');
+    $(element).removeAttr('id');
+
+    // Find the nearest parent that is a block level element
+    const blockParent = $(element).closest(blockLevelElements.join(','));
+
+    // If a block level parent is found, set the `data-internal-id` attribute
+    if (blockParent.length && idValue) {
+      blockParent.attr('data-internal-id', idValue);
+    }
+  });
+
+  return $.html();
+}
+
+/**
  * We need to convert a few things in the raw html exported from google to make it work with ckeditor, this is
  * largely mirroring conversions we do on paste in the ckeditor code:
  * - Convert footnotes to our format
@@ -613,7 +642,8 @@ export async function convertImportedGoogleDoc(html: string, postId: string) {
   const { html: withRehostedImages } = await convertImagesInHTML(html, postId, url => url.includes("googleusercontent"))
   const withNoComments = googleDocStripComments(withRehostedImages)
   const withGoogleDocFormatting = googleDocFormatting(withNoComments)
-  const withConvertedFootnotes = googleDocConvertFootnotes(withGoogleDocFormatting)
+  const withInternalLinks = googleDocInternalLinks(withGoogleDocFormatting)
+  const withConvertedFootnotes = googleDocConvertFootnotes(withInternalLinks)
   const withNormalisedRedirects = googleDocRemoveRedirects(withConvertedFootnotes)
   const ckEditorMarkup = await dataToCkEditor(withNormalisedRedirects, "html")
 
