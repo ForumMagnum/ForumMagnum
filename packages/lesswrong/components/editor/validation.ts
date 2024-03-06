@@ -39,6 +39,10 @@ function countMentions(document: AnyBecauseTodo): number {
 }
 
 function isMention(href: string) {
-  const url = new URL(href)
-  return url.searchParams.get(userMentionQuery) === userMentionValue
+  try {
+    const url = new URL(href);
+    return url.searchParams.get(userMentionQuery) === userMentionValue;
+  } catch (e) {
+    return false;
+  }
 }
