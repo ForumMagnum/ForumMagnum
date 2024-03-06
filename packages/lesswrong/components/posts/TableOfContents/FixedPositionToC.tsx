@@ -239,7 +239,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     };
 
     const postImages = Array.from(postBodyRef.getElementsByTagName('img'));
-    const cleanup: Array<()=>void> = [];
+    const cleanup: Array<() => void> = [];
     postImages.forEach((postImage) => {
       postImage.addEventListener('load', updateImageLoadingState)
       cleanup.push(() => {

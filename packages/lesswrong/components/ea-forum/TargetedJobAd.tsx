@@ -195,7 +195,7 @@ type EAGWillingToMoveOptions =
   'I’m unwilling or unable to move here'
 
 type JobAdData = {
-  careerStages?: CareerStageValue[],            // used to match on EAG career stages
+  careerStages?: CareerStageValue[],            // used to match on career stages (either from the user profile or EAG)
   experiencedIn?: EAGOccupationOrCause[],       // used to match on EAG experience
   interestedIn?: EAGOccupationOrCause[],        // used to match on EAG interests
   subscribedTagIds?: string[],                  // used to match on a set of topics that the user is subscribed to
