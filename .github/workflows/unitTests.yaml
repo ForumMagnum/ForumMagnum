@@ -8,6 +8,19 @@ on:
 env:
   BROWSERSLIST_IGNORE_OLD_DATA: 1
 jobs:
+  # DEBUG
+  upload-ckeditor-bundle:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Upload ckEditor bundle
+      if: github.ref == 'refs/heads/ea-deploy'
+      uses: ./.github/actions/uploadCkEditorBundle/eaAction.yaml
+      with:
+        mode: prod
+        credentials-repo: ${{ secrets.CEA_CREDENTIALS_REPO }}
+        credentials-pat: ${{ secrets.CEA_CREDENTIALS_PAT }}
+        transcrypt-secret: ${{ secrets.CEA_TRANSCRYPT_SECRET }}
   runLint:
     runs-on: ubuntu-latest
     steps:
