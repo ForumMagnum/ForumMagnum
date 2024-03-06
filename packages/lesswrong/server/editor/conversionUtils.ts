@@ -625,7 +625,6 @@ export async function googleDocInternalLinks(html: string): Promise<string> {
 
     if (blockParent.length && idValue) {
       blockParent.attr('data-internal-id', idValue)
-      blockParent.removeAttr('id');
     }
   });
 

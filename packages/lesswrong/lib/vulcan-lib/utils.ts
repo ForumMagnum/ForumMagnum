@@ -332,7 +332,7 @@ export const sanitize = function(s: string): string {
     allowedTags: sanitizeAllowedTags,
     allowedAttributes:  {
       ...sanitizeHtml.defaults.allowedAttributes,
-      '*': footnoteAttributes,
+      '*': [...footnoteAttributes, 'data-internal-id'],
       audio: [ 'controls', 'src', 'style' ],
       img: [ 'src' , 'srcset', 'alt', 'style'],
       figure: ['style', 'class'],

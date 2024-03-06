@@ -117,7 +117,7 @@ const sharedPlugins = [
 	UploadAdapter,
 	Mathematics,
 	SanitizeTags,
-  InternalBlockLinks,
+	InternalBlockLinks,
 	Spoilers,
 	AutoLink,
 	Footnote,

@@ -423,7 +423,7 @@ export class ContentItemBody extends Component<ContentItemBodyProps,ContentItemB
   }
 
   /**
-   * Convert data-internal-id to id (handling collisions etc)
+   * Convert data-internal-id to id, handling duplicates
    */
   exposeInternalIds = (element: HTMLElement) => {
     const elementsWithDataInternalId = element.querySelectorAll('[data-internal-id]');
