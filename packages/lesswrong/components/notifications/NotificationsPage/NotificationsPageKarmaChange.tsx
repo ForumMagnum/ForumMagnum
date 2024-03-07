@@ -15,6 +15,13 @@ import {
   getEAAnonymousEmojiByName,
   getEAPublicEmojiByName,
 } from "../../../lib/voting/eaEmojiPalette";
+import { captureException } from "@sentry/core";
+
+const logAndCaptureError = (error: Error) => {
+  // eslint-disable-next-line no-console
+  console.error(error);
+  captureException(error);
+}
 
 const styles = (theme: ThemeType) => ({
   amount: {
@@ -180,10 +187,12 @@ export const NotificationsPageKarmaChange = ({
         </>
       );
     } else {
+      logAndCaptureError(new Error(`Invalid commentKarmaChange ${JSON.stringify(commentKarmaChange)}`));
       return null;
     }
   } else if (tagRevisionKarmaChange) {
     if (!tagRevisionKarmaChange.tagName || !tagRevisionKarmaChange.tagSlug) {
+      logAndCaptureError(new Error(`Invalid tagRevisionKarmaChange ${JSON.stringify(tagRevisionKarmaChange)}`));
       return null;
     }
     karmaChange = tagRevisionKarmaChange.scoreChange;
@@ -196,6 +205,7 @@ export const NotificationsPageKarmaChange = ({
       </Link>
     );
   } else {
+    logAndCaptureError(new Error(`Invalid karma change: ${JSON.stringify({postKarmaChange, commentKarmaChange, tagRevisionKarmaChange})}`));
     return null;
   }
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { fragmentTextForQuery } from "../../lib/vulcan-lib";
 import { ApolloError, ApolloQueryResult, NetworkStatus, gql, useQuery } from "@apollo/client";
 import take from "lodash/take";
+import isEqual from "lodash/isEqual"
 import { isServer } from "../../lib/executionEnvironment";
 import type { LoadMoreCallback, LoadMoreProps } from "../../lib/crud/withMulti";
 
@@ -94,10 +95,10 @@ export const usePaginatedResolver = <
   }
 
   useEffect(() => {
-    if (results?.length && results.length >= (list?.length ?? 0)) {
+    if (results?.length && results.length >= (list?.length ?? 0) && !isEqual(list, results)) {
       setList(results);
     }
-  }, [results, list?.length]);
+  }, [results, list]);
 
   if (error) {
     // This error was already caught by the apollo middleware, but the

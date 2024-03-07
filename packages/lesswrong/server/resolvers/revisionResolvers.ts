@@ -12,11 +12,12 @@ import { dataToDraftJS } from './toDraft';
 import { sanitize, sanitizeAllowedTags } from '../../lib/vulcan-lib/utils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { tagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { afterCreateRevisionCallback, buildRevision, getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/make_editable_callbacks';
+import { afterCreateRevisionCallback, buildRevision } from '../editor/make_editable_callbacks';
 import isEqual from 'lodash/isEqual';
 import { createMutator, updateMutator } from '../vulcan-lib/mutators';
 import { EditorContents } from '../../components/editor/Editor';
 import { userOwns } from '../../lib/vulcan-users/permissions';
+import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 
 // Use html-to-text's compile() wrapper (baking in options) to make it faster when called repeatedly
 const htmlToTextPlaintextDescription = compileHtmlToText({

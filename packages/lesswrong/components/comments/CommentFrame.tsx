@@ -34,9 +34,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   new: {
     '&&': {
-      borderLeft: `solid 5px ${theme.palette.secondary.light}`,
+      borderLeft: `solid 5px ${theme.palette.secondary.light}${isFriendlyUI ? '' : '8c'}`,
       '&:hover': {
-        borderLeft: `solid 5px ${theme.palette.secondary.main}`
+        borderLeft: `solid 5px ${theme.palette.secondary.main}${isFriendlyUI ? '' : '8c'}`
       },
     }
   },

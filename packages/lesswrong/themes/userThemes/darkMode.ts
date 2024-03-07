@@ -146,6 +146,9 @@ const forumComponentPalette = (shadePalette: ThemeShadePalette) =>
         default: shadePalette.grey[20],
         modalBackground: "#292929",
         loginInput: "#3d3d3d",
+        loginInputHovered: "#3f3f3f",
+        onboardingSection: "#424242",
+        onboardingPodcast: "#525252",
       },
       background: {
         primaryTranslucent: "rgba(12,134,155,0.4)",
@@ -203,6 +206,10 @@ export const darkModeTheme: UserThemeSpecification = {
         yellow: "#ffba7d",
         green: "#7ee486",
       },
+      reviewWinner: {
+        title: greyAlpha(0.75),
+        author: greyAlpha(0.65)
+      }
     },
     link: {
       primaryDim: '#3a7883',

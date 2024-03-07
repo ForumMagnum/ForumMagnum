@@ -10,6 +10,7 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { defineQuery } from '../utils/serverGraphqlUtil';
 import uniqBy from 'lodash/uniqBy';
 import sampleSize from 'lodash/sampleSize';
+import { isLWorAF } from '../../lib/instanceSettings';
 
 
 const specificResolvers = {
@@ -78,7 +79,10 @@ createPaginatedResolver({
   callback: async (
     context: ResolverContext,
     limit: number,
-  ): Promise<DbComment[]> => context.repos.comments.getPopularComments({limit}),
+  ): Promise<DbComment[]> => {
+    const recencyFactor = isLWorAF ? 175_000 : 250_000;
+    return context.repos.comments.getPopularComments({limit, recencyFactor});
+  },
   cacheMaxAgeMs: 300000, // 5 mins
 });
 

@@ -1,5 +1,5 @@
 import { Components, registerComponent, getFragment } from '../../lib/vulcan-lib';
-import React, {ComponentProps, useState, useEffect, useRef} from 'react';
+import React, {ComponentProps, useState, useEffect, useRef, useCallback} from 'react';
 import Button from '@material-ui/core/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
@@ -145,10 +145,11 @@ export type CommentsNewFormProps = {
   fragment?: FragmentName,
   formProps?: any,
   enableGuidelines?: boolean,
-  padding?: boolean
-  formStyle?: FormDisplayMode
-  classes: ClassesType
-  className?: string
+  padding?: boolean,
+  formStyle?: FormDisplayMode,
+  overrideHintText?: string,
+  classes: ClassesType,
+  className?: string,
 }
 
 const CommentsNewForm = ({
@@ -166,6 +167,7 @@ const CommentsNewForm = ({
   enableGuidelines=true,
   padding=true,
   formStyle="default",
+  overrideHintText,
   classes,
   className,
 }: CommentsNewFormProps) => {
@@ -204,7 +206,7 @@ const CommentsNewForm = ({
   const [showGuidelines, setShowGuidelines] = useState(false)
   const [loading, setLoading] = useState(false)
   const [_,setForceRefreshState] = useState(0);
-  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, Loading, NewCommentModerationWarning, RateLimitWarning } = Components
+  const { ModerationGuidelinesBox, WrappedSmartForm, RecaptchaWarning, NewCommentModerationWarning, RateLimitWarning } = Components
   
   const { openDialog } = useDialog();
   const { mutate: updateComment } = useUpdate({
@@ -217,21 +219,23 @@ const CommentsNewForm = ({
   // doesn't work (the focus event fires before the click event, the state change
   // causes DOM nodes to get replaced, and replacing the DOM nodes prevents the
   // rest of the click event handlers from firing.)
-  const onFocusCommentForm = () => setTimeout(() => {
-    // TODO: user field for showing new user guidelines
-    // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
-    const dialogProps = { user: currentUser, post };
-    if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
-      openDialog({
-        componentName: 'NewUserGuidelinesDialog',
-        componentProps: dialogProps,
-        noClickawayCancel: true
-      });
-    }
-    if (isLWorAF) {
-      setShowGuidelines(true);
-    }
-  }, 0);
+  const onFocusCommentForm: React.FocusEventHandler = () => {
+    setTimeout(() => {
+      // TODO: user field for showing new user guidelines
+      // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
+      const dialogProps = { user: currentUser, post };
+      if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
+        openDialog({
+          componentName: 'NewUserGuidelinesDialog',
+          componentProps: dialogProps,
+          noClickawayCancel: true
+        });
+      }
+      if (isLWorAF) {
+        setShowGuidelines(true);
+      }
+    }, 0);
+  };
 
   const wrappedSuccessCallback = (comment: CommentsList, { form }: {form: any}) => {
     afNonMemberSuccessHandling({currentUser, document: comment, openDialog, updateDocument: updateComment })
@@ -276,7 +280,8 @@ const CommentsNewForm = ({
     };
   }
 
-  const SubmitComponent = ({submitLabel = "Submit"}) => {
+  const SubmitComponent = useCallback(({submitLabel = "Submit"}) => {
+    const { Loading } = Components;
     const formButtonClass = isMinimalist ? classes.formButtonMinimalist : classes.formButton
     // by default, the EA Forum uses MUI contained buttons here
     const cancelBtnProps: BtnProps = isFriendlyUI && !isMinimalist ? {variant: 'contained'} : {}
@@ -311,12 +316,15 @@ const CommentsNewForm = ({
         {loading ? <Loading /> : (isMinimalist ? <ArrowForward /> : submitLabel)}
       </Button>
     </div>
-  };
+  }, [classes, cancelCallback, currentUser, formDisabledDueToRateLimit, isMinimalist, loading, openDialog, type]);
 
   const hideDate = hideUnreviewedAuthorCommentsSettings.get()
   const commentWillBeHidden = hideDate && new Date(hideDate) < new Date() &&
     currentUser && !currentUser.isReviewed 
-  const extraFormProps = isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}
+  const extraFormProps = {
+    ...(isMinimalist ? {commentMinimalistStyle: true, editorHintText: "Reply..."} : {}),
+    ...(overrideHintText ? {editorHintText: overrideHintText} : {})
+  }
   const parentDocumentId = post?._id || tag?._id
 
   useEffect(() => {
@@ -367,7 +375,7 @@ const CommentsNewForm = ({
               layout="elementOnly"
               formComponents={{
                 FormSubmit: SubmitComponent,
-                FormGroupLayout: Components.DefaultStyleFormGroup
+                FormGroupLayout: Components.FormGroupNoStyling
               }}
               alignmentForumPost={post?.af}
               addFields={currentUser ? [] : ["title", "contents"]}

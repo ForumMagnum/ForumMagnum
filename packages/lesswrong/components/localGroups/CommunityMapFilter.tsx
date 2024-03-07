@@ -14,7 +14,7 @@ import RoomIcon from '@material-ui/icons/Room';
 import StarIcon from '@material-ui/icons/Star';
 import PersonPinIcon from '@material-ui/icons/PersonPin';
 import Tooltip from '@material-ui/core/Tooltip';
-import { CloseableComponents, OpenDialogContextType, useDialog } from '../common/withDialog'
+import { CloseableComponent, OpenDialogContextType, useDialog } from '../common/withDialog'
 import { useCurrentUser } from '../common/withUser';
 import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
@@ -183,7 +183,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const createFallBackDialogHandler = (
   openDialog: OpenDialogContextType['openDialog'],
-  dialogName: CloseableComponents,
+  dialogName: CloseableComponent,
   currentUser: UsersCurrent | null
 ) => {
   return () => openDialog({

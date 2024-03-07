@@ -14,6 +14,7 @@ import {
   hasSideCommentsSetting, 
   hasDialoguesSetting, 
   hasPostInlineReactionsSetting,
+  isLW,
 } from './instanceSettings'
 import { userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
@@ -54,11 +55,13 @@ export const userHasEAHomeRHS = isEAForum ? shippedFeature : disabled;
 
 export const userHasPopularCommentsSection = isEAForum ? shippedFeature : disabled;
 
+export const visitorGetsDynamicFrontpage = isLW ? shippedFeature : disabled;
+
 // Non-user-specific features
 export const dialoguesEnabled = hasDialoguesSetting.get();
 export const ckEditorUserSessionsEnabled = isLWorAF;
 export const inlineReactsHoverEnabled = hasPostInlineReactionsSetting.get();
-export const allowSubscribeToUserComments = isLWorAF;
+export const allowSubscribeToUserComments = true;
 /** On the post page, do we show users other content they might want to read */
 export const hasPostRecommendations = isEAForum;
 /** Some Forums, notably the EA Forum, have a weekly digest that users can sign up to receive */
@@ -66,6 +69,7 @@ export const hasDigests = isEAForum;
 export const hasSideComments = hasSideCommentsSetting.get();
 export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get();
+export const fullHeightToCEnabled = isLWorAF;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

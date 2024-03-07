@@ -254,6 +254,9 @@ class PgCollection<
     fieldOrSpec: MongoIndexFieldOrKey<ObjectsByCollectionName[N]>,
     options?: MongoEnsureIndexOptions<ObjectsByCollectionName[N]>,
   ) {
+    if (!this.table) {
+      throw new Error("Postgres tables must be initialized before calling ensureIndex");
+    }
     const key: MongoIndexKeyObj<ObjectsByCollectionName[N]> = typeof fieldOrSpec === "string"
       ? {[fieldOrSpec as keyof ObjectsByCollectionName[N]]: 1 as const} as MongoIndexKeyObj<ObjectsByCollectionName[N]>
       : fieldOrSpec;

@@ -47,8 +47,13 @@ const getDisplayConfig = ({type, comment}: NotificationDisplay): DisplayConfig =
   };
 }
 
-export const NotificationsPageNotification = ({notification, classes}: {
+export const NotificationsPageNotification = ({
+  notification,
+  hideCommentPreviews,
+  classes,
+}: {
   notification: NotificationDisplay,
+  hideCommentPreviews?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const {Display, Icon, iconVariant} = getDisplayConfig(notification);
@@ -146,13 +151,17 @@ export const NotificationsPageNotification = ({notification, classes}: {
     return null;
   }
 
+  const previewCommentId = hideCommentPreviews
+    ? undefined
+    : notification.comment?._id;
+
   const {NotificationsPageItem} = Components;
   return (
     <NotificationsPageItem
       Icon={Icon}
       iconVariant={iconVariant}
       post={post as PostsMinimumInfo | undefined}
-      previewCommentId={notification.comment?._id}
+      previewCommentId={previewCommentId}
     >
       <Display
         notification={notification}

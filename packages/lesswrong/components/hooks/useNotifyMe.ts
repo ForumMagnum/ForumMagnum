@@ -1,4 +1,4 @@
-import type { MouseEvent } from "react";
+import { MouseEvent, useCallback } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCreate } from "../../lib/crud/withCreate";
 import { getCollectionName } from "../../lib/vulcan-lib";
@@ -14,12 +14,23 @@ import { useMulti } from "../../lib/crud/withMulti";
 import { max } from "underscore";
 import { userIsDefaultSubscribed } from "../../lib/subscriptionUtil";
 
+export type NotifyMeDocument =
+  UsersProfile |
+  UsersMinimumInfo |
+  UserOnboardingAuthor |
+  UserOnboardingTag |
+  CommentsList |
+  PostsBase |
+  PostsMinimumInfo |
+  PostsBase_group |
+  PostsAuthors_user;
+
 const currentUserIsSubscribed = (
   currentUser: UsersCurrent|null,
   results: SubscriptionState[]|undefined,
   subscriptionType: SubscriptionType,
   collectionName: CollectionNameString,
-  document: AnyBecauseTodo,
+  document: NotifyMeDocument,
 ) => {
   // Get the last element of the results array, which will be the most
   // recent subscription
@@ -52,16 +63,21 @@ export type NotifyMeConfig = {
 }
 
 export const useNotifyMe = ({
-  document,
+  document: rawDocument,
   overrideSubscriptionType,
   hideIfNotificationsDisabled,
   hideForLoggedOutUsers,
+  hideFlashes,
 }: {
-  document: AnyBecauseTodo,
+  document: NotifyMeDocument,
   overrideSubscriptionType?: SubscriptionType,
   hideIfNotificationsDisabled?: boolean,
   hideForLoggedOutUsers?: boolean,
+  hideFlashes?: boolean,
 }): NotifyMeConfig => {
+  // __typename is added by apollo but it doesn't exist in the typesystem
+  const document = rawDocument as NotifyMeDocument & {__typename: string};
+
   const currentUser = useCurrentUser();
   const {openDialog} = useDialog();
   const {flash} = useMessages();
@@ -98,8 +114,18 @@ export const useNotifyMe = ({
     enableTotal: false,
     skip: !currentUser
   });
-  
-  const onSubscribe = async (e: MouseEvent) => {
+
+  const isSubscribed = currentUser ?
+    currentUserIsSubscribed(
+      currentUser,
+      results,
+      subscriptionType,
+      collectionName,
+      document,
+    )
+    : false;
+
+  const onSubscribe = useCallback(async (e: MouseEvent) => {
     if (!currentUser) {
       openDialog({componentName: "LoginPopup"});
       return;
@@ -126,14 +152,22 @@ export const useNotifyMe = ({
       invalidateCache();
 
       // Success message will be for example posts.subscribed
-      flash({messageString: `Successfully ${
-        isSubscribed ? "unsubscribed" : "subscribed"}`
-      });
+      if (!hideFlashes) {
+        flash({messageString: `Successfully ${
+          isSubscribed ? "unsubscribed" : "subscribed"}`
+        });
+      }
     } catch(error) {
-      flash({messageString: error.message});
+      if (!hideFlashes) {
+        flash({messageString: error.message});
+      }
     }
-  }
-  
+  }, [
+    currentUser, openDialog, isSubscribed, captureEvent, document._id,
+    collectionName, subscriptionType, createSubscription, invalidateCache,
+    flash, hideFlashes,
+  ]);
+
   // If we are hiding the notify element, don't return an onSubscribe.
   if (!currentUser && hideForLoggedOutUsers) {
     return {
@@ -156,14 +190,6 @@ export const useNotifyMe = ({
       loading: true,
     };
   };
-
-  const isSubscribed = currentUserIsSubscribed(
-    currentUser,
-    results,
-    subscriptionType,
-    collectionName,
-    document,
-  );
 
   // Can't subscribe to yourself
   if (collectionName === 'Users' && document._id === currentUser?._id) {

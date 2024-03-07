@@ -108,7 +108,15 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
   const [filterSettingsVisibleDesktop, setFilterSettingsVisibleDesktop] = useState(isFriendlyUI ? false : !currentUser?.hideFrontpageFilterSettingsDesktop);
   const [filterSettingsVisibleMobile, setFilterSettingsVisibleMobile] = useState(false);
   const { timezone } = useTimezone();
-  const { captureEvent } = useOnMountTracking({eventType:"frontpageFilterSettings", eventProps: {filterSettings, filterSettingsVisible: filterSettingsVisibleDesktop, pageSectionContext: "latestPosts"}, captureOnMount: true})
+  const { captureEvent } = useOnMountTracking({
+    eventType:"frontpageFilterSettings",
+    eventProps: {
+      filterSettings,
+      filterSettingsVisible: filterSettingsVisibleDesktop,
+      pageSectionContext: "latestPosts"
+    },
+    captureOnMount: true,
+  })
   const { query } = location;
   const {
     SingleColumnSection, PostsList2, TagFilterSettings, LWTooltip, SettingsButton,

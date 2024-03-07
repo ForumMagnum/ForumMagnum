@@ -20,6 +20,7 @@ import Users from '../../lib/vulcan-users';
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { Posts } from '../../lib/collections/posts';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
+import { convertImagesInHTML } from '../scripts/convertImagesToCloudinary';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -411,4 +412,213 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string) {
   }
 
   return bestWordCount
+}
+
+/**
+ * Convert the footnotes we get in google doc html to a format ckeditor can understand. This is mirroring the logic
+ * in the footnotes plugin (see e.g. public/lesswrong-editor/src/ckeditor5-footnote/src/footnoteEditing/googleDocsFootnotesNormalizer.js)
+ */
+function googleDocConvertFootnotes(html: string): string {
+  const $ = cheerio.load(html);
+
+  const footnotePattern = /^ftnt(\d+)$/; // The actual footnotes at the bottom of the doc
+  const referencePattern = /^ftnt_ref(\d+)$/; // The links to the footnotes in the main text
+
+  const footnotes: Record<string, { item: cheerio.Cheerio; anchor: cheerio.Cheerio, id: string }> = {};
+  $('a[id]').each((_, element) => {
+    if (!('attribs' in element)) return
+
+    const match = element.attribs.id.match(footnotePattern);
+    if (match) {
+      const index = match[1];
+      // Find the closest parent div of the footnote anchor
+      const footnoteDiv = $(element).closest('div');
+      footnotes[index] = {
+        item: footnoteDiv,
+        anchor: $(element),
+        id: Math.random().toString(36).slice(2),
+      };
+    }
+  });
+
+  if (Object.keys(footnotes).length === 0) {
+    return $.html();
+  }
+
+  const references: Record<string, { item: cheerio.Cheerio; id: string }> = {};
+  $('a[id]').each((_, element) => {
+    if (!('attribs' in element)) return
+
+    const match = element.attribs.id.match(referencePattern);
+    if (match) {
+      const index = match[1];
+      if (footnotes.hasOwnProperty(index)) {
+        references[index] = {
+          item: $(element),
+          id: footnotes[index].id,
+        };
+      }
+    }
+  });
+
+  // Normalize the references by adding attributes and replacing the original <sup> tag
+  Object.entries(references).forEach(([index, { item, id }]) => {
+    item.attr('data-footnote-reference', '');
+    item.attr('data-footnote-index', index);
+    item.attr('data-footnote-id', id);
+    item.attr('role', 'doc-noteref');
+    item.parents('sup').replaceWith(item); // Replace the original <sup> tag with `item`
+    item.wrap(`<span class="footnote-reference" id="fnref${id}"></span>`);
+    item.text(`[${index}]`);
+  });
+
+  // Create the footnotes section
+  $('body').append('<ol class="footnote-section footnotes" data-footnote-section="" role="doc-endnotes"></ol>');
+
+  // Normalize the footnotes and put them in the newly created section
+  Object.entries(footnotes).forEach(([index, { item, anchor, id }]) => {
+    // Remove e.g. "[1]&nbsp;" from the footnote
+    const anchorHtml = anchor.html();
+    if (anchorHtml && anchorHtml.startsWith('&nbsp;')) {
+      anchor.html(anchorHtml.replace(/^&nbsp;/, ''));
+    } else {
+      anchor.remove();
+    }
+
+    const footnoteContent = item.clone().addClass('footnote-content');
+
+    // Replace bullets in footnotes with regular <p> elements and move them up a level
+    const listParent = footnoteContent.find('li').parent('ul, ol');
+    listParent.children('li').each((_, liElement) => {
+      const liContent = $(liElement).html();
+      $(`<p>${liContent}</p>`).insertBefore(listParent);
+    });
+    listParent.remove();
+
+    const newFootnoteBackLink = $('<span class="footnote-back-link" data-footnote-back-link="" data-footnote-id="' + id + '"><sup><strong><a href="#fnref' + id + '">^</a></strong></sup></span>');
+
+    const newFootnoteContent = $('<div class="footnote-content" data-footnote-content="" data-footnote-id="' + id + '" data-footnote-index="' + index + '"></div>');
+    newFootnoteContent.append(footnoteContent.contents());
+
+    const newFootnoteItem = $('<li class="footnote-item" data-footnote-item="" data-footnote-id="' + id + '" data-footnote-index="' + index + '" role="doc-endnote" id="fn' + id + '"></li>');
+    newFootnoteItem.append(newFootnoteBackLink);
+    newFootnoteItem.append(newFootnoteContent);
+
+    $('.footnote-section').append(newFootnoteItem);
+    item.remove()
+  });
+
+  // The changes so far leave over a stub like so:
+  // <hr />
+  //   <div>
+  //     <p></p>
+  //   </div>
+  //   ...
+  // <ol class=\"footnotes\" role=\"doc-endnotes\">
+  //
+  // Remove everything from the <hr /> to the footnotes section
+  const footnotesSection = $('.footnote-section');
+  const hrBeforeFootnotes = footnotesSection.prevAll('hr').last();
+  hrBeforeFootnotes.remove();
+
+  return $.html();
+}
+
+/**
+ * Remote the google redirect from links that come from google docs
+ *
+ * https://www.google.com/url?q=https://en.wikipedia.org/wiki/Main_Page becomes https://en.wikipedia.org/wiki/Main_Page
+ */
+function googleDocRemoveRedirects(html: string): string {
+  const $ = cheerio.load(html);
+
+  // Regex match examples:
+  // https://www.google.com/url?q=https://en.wikipedia.org/wiki/Main_Page&sa=D&source=editors&ust=1667922372715536&usg=AOvVaw2NyT5CZhfsrRY_zzMs2UUJ
+  //                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ <- first match group matches this, stopping at the first &
+  // https://www.google.com/url?q=https://en.wikipedia.org/wiki/Main_Page
+  //                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ <- if there are no more params (no &), match up to the end of the string
+  const hrefPattern = /^https:\/\/www\.google\.com\/url\?q=(\S+?)(&|$)/;
+
+  $('a[href]').each((_, element) => {
+    const href = $(element).attr('href');
+    if (!href) return
+
+    const match = hrefPattern.exec(href);
+    if (match && match[1]) {
+      $(element).attr('href', decodeURIComponent(match[1]));
+    }
+  });
+
+  return $.html();
+}
+
+/**
+ * Converts Google Docs formatting to ckeditor formatting. Currently handles:
+ * - Italics
+ * - Bold
+ */
+function googleDocFormatting(html: string): string {
+  const $ = cheerio.load(html);
+
+  $('span').each((_, element) => {
+    const span = $(element);
+    const fontStyle = span.css('font-style');
+    const fontWeight = span.css('font-weight');
+
+    if (fontStyle === 'italic' && fontWeight === '700') {
+      span.wrap('<i><strong></strong></i>');
+    } else if (fontStyle === 'italic') {
+      span.wrap('<i></i>');
+    } else if (fontWeight === '700') {
+      span.wrap('<strong></strong>');
+    }
+  });
+
+  return $.html();
+}
+
+/**
+ * Removes comments from the raw html exported from Google Docs.
+ */
+function googleDocStripComments(html: string): string {
+  const $ = cheerio.load(html);
+
+  // Remove any <sup> tags that contain a child with a #cmnt id
+  $('sup').each((_, element) => {
+    const sup = $(element);
+    if (sup.find('a[id^="cmnt_ref"]').length > 0) {
+      sup.remove();
+    }
+  });
+
+  // Remove the whole box at the bottom containing the comments
+  $('div').each((_, element) => {
+    const div = $(element);
+    if (div.find('a[id^="cmnt"]').length > 0) {
+      div.remove();
+    }
+  });
+
+  return $.html();
+}
+
+/**
+ * We need to convert a few things in the raw html exported from google to make it work with ckeditor, this is
+ * largely mirroring conversions we do on paste in the ckeditor code:
+ * - Convert footnotes to our format
+ * - Remove google redirects from all urls
+ * - Reupload images to cloudinary (we actually don't do this on paste, but it's easier to do so here and prevents images breaking due to rate limits)
+ */
+export async function convertImportedGoogleDoc(html: string, postId: string) {
+  const { html: withRehostedImages } = await convertImagesInHTML(html, postId, url => url.includes("googleusercontent"))
+  const withNoComments = googleDocStripComments(withRehostedImages)
+  const withGoogleDocFormatting = googleDocFormatting(withNoComments)
+  const withConvertedFootnotes = googleDocConvertFootnotes(withGoogleDocFormatting)
+  const withNormalisedRedirects = googleDocRemoveRedirects(withConvertedFootnotes)
+  const ckEditorMarkup = await dataToCkEditor(withNormalisedRedirects, "html")
+
+  // Note: there are also some `color` attributes that are carried through, on <span>s and tables. These don't
+  // appear in the actual editor or the live post, so I am ignoring them
+
+  return ckEditorMarkup
 }

@@ -13,7 +13,7 @@ import { CommentBoxManager } from './hooks/useCommentBox';
 import { ItemsReadContextWrapper } from './hooks/useRecordPostView';
 import { pBodyStyle } from '../themes/stylePiping';
 import { DatabasePublicSetting, googleTagManagerIdSetting } from '../lib/publicSettings';
-import { isAF, isLW, isLWorAF } from '../lib/instanceSettings';
+import { isAF, isEAForum, isLW, isLWorAF } from '../lib/instanceSettings';
 import { globalStyles } from '../themes/globalStyles/globalStyles';
 import { ForumOptions, forumSelect } from '../lib/forumTypeUtils';
 import { userCanDo } from '../lib/vulcan-users/permissions';
@@ -30,6 +30,7 @@ import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
 import { reviewIsActive } from '../lib/reviewUtils';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
+import { Link } from '../lib/reactRouterWrapper';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -129,7 +130,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     gridArea: 'imageGap',
     [theme.breakpoints.down('md')]: {
       display: 'none'
-    }
+    },
   },
   backgroundImage: {
     position: 'absolute',
@@ -251,7 +252,7 @@ const Layout = ({currentUser, children, classes}: {
 }) => {
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const [disableNoKibitz, setDisableNoKibitz] = useState(false);
-  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : (reviewIsActive() && isLW)
+  const hideNavigationSidebarDefault = currentUser ? !!(currentUser?.hideNavigationSidebar) : false
   const [hideNavigationSidebar,setHideNavigationSidebar] = useState(hideNavigationSidebarDefault);
   const theme = useTheme();
   const {currentRoute, pathname} = useLocation();
@@ -329,6 +330,7 @@ const Layout = ({currentUser, children, classes}: {
       NavigationEventSender,
       PetrovDayWrapper,
       NewUserCompleteProfile,
+      EAOnboardingFlow,
       CommentOnSelectionPageWrapper,
       SidebarsWrapper,
       IntercomWrapper,
@@ -362,8 +364,8 @@ const Layout = ({currentUser, children, classes}: {
     // The friendly home page has a unique grid layout, to account for the right hand side column.
     const friendlyHomeLayout = isFriendlyUI && currentRoute?.name === 'home'
 
-    const showNewUserCompleteProfile = currentUser?.usernameUnset &&
-      !allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+    const isIncompletePath = allowedIncompletePaths.includes(currentRoute?.name ?? "404");
+    const showNewUserCompleteProfile = currentUser?.usernameUnset && !isIncompletePath;
 
     const renderPetrovDay = () => {
       const currentTime = (new Date()).valueOf()
@@ -456,20 +458,20 @@ const Layout = ({currentUser, children, classes}: {
                     <FlashMessages />
                   </ErrorBoundary>
                   <ErrorBoundary>
-                    {showNewUserCompleteProfile
+                    {showNewUserCompleteProfile && !isEAForum
                       ? <NewUserCompleteProfile currentUser={currentUser}/>
                       : children
                     }
+                    {!isIncompletePath && isEAForum && <EAOnboardingFlow />}
                   </ErrorBoundary>
                   {!currentRoute?.fullscreen && !currentRoute?.noFooter && <Footer />}
                 </div>
                 { isLW && <>
                   {
                     currentRoute?.name === 'home' ? 
-                      <div className={classes.imageColumn}>
-                        <ReviewVotingCanvas />
-                        <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="LWVote_copy_Watercolor_text_3_jbqyqv" darkPublicId="LWVote_copy_Dark_pdmmdn"/>
-                      </div> 
+                    <div className={classes.imageColumn}>
+                      <CloudinaryImage2 className={classNames(classes.backgroundImage, classes.votingImage)} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>
+                    </div> 
                     : 
                       (standaloneNavigation && <div className={classes.imageColumn}>
                         <CloudinaryImage2 className={classes.backgroundImage} publicId="ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413" darkPublicId={"ohabryka_Topographic_aquarelle_book_cover_by_Thomas_W._Schaller_f9c9dbbe-4880-4f12-8ebb-b8f0b900abc1_m4k6dy_734413_copy_lnopmw"}/>

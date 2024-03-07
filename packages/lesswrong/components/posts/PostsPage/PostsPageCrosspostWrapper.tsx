@@ -66,7 +66,12 @@ const PostsPageCrosspostWrapper = ({post, eagerPostComments, refetch, fetchProps
 
   return (
     <crosspostContext.Provider value={contextValue}>
-      <PostsPage post={contextValue.combinedPost ?? post} eagerPostComments={eagerPostComments} refetch={refetch} />
+      <PostsPage
+        fullPost={contextValue.combinedPost ?? post}
+        postPreload={undefined}
+        eagerPostComments={eagerPostComments}
+        refetch={refetch}
+      />
     </crosspostContext.Provider>
   );
 }

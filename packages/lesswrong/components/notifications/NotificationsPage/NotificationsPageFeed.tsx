@@ -1,6 +1,5 @@
 import React, { useCallback, useRef, useState, ChangeEvent } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import { gql, useQuery } from "@apollo/client";
 import { Link } from "../../../lib/reactRouterWrapper";
 import {
   isNotificationsPageTabName,
@@ -12,6 +11,7 @@ import Tab from "@material-ui/core/Tab";
 import type { NotificationDisplay } from "../../../lib/notificationTypes";
 import type { KarmaChanges } from "../../../lib/collections/users/karmaChangesGraphQL";
 import type { KarmaChangeUpdateFrequency } from "../../../lib/collections/users/schema";
+import { useNotificationDisplays } from "./useNotificationDisplays";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -66,16 +66,6 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-// We have to do this manually outside of `usePaginatedResolver` because the
-// return type is pure unadulterated JSON, not a registered fragment type
-const query = gql`
-  query getNotificationDisplays($limit: Int, $type: String) {
-    NotificationDisplays(limit: $limit, type: $type) {
-      results
-    }
-  }
-`;
-
 const DEFAULT_LIMIT = 20;
 
 const batchingMessages: Record<KarmaChangeUpdateFrequency, string> = {
@@ -85,13 +75,8 @@ const batchingMessages: Record<KarmaChangeUpdateFrequency, string> = {
   realtime: "Karma changes are shown in realtime",
 };
 
-export const NotificationsPageFeed = ({
-  karmaChanges,
-  currentUser,
-  classes,
-}: {
+export const NotificationsPageFeed = ({karmaChanges, classes}: {
   karmaChanges?: KarmaChanges,
-  currentUser: UsersCurrent,
   classes: ClassesType<typeof styles>,
 }) => {
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
@@ -102,18 +87,7 @@ export const NotificationsPageFeed = ({
     error,
     loading,
     networkStatus,
-  } = useQuery(query, {
-    ssr: true,
-    notifyOnNetworkStatusChange: true,
-    skip: !currentUser,
-    pollInterval: 0,
-    fetchPolicy: "cache-and-network",
-    nextFetchPolicy: "cache-only",
-    variables: {
-      type: tab.type,
-      limit,
-    },
-  });
+  } = useNotificationDisplays(limit, tab.type);
 
   if (error) {
     // eslint-disable-next-line no-console
@@ -149,7 +123,7 @@ export const NotificationsPageFeed = ({
   }, [setTab]);
 
   const {
-    NotificationsPageNotification, NotificationsPageKarmaChange,
+    NotificationsPageNotification, NotificationsPageKarmaChangeList,
     NotificationsPageEmpty, LoadMore, Loading, SectionTitle,
   } = Components;
   return (
@@ -171,24 +145,7 @@ export const NotificationsPageFeed = ({
         <>
           <SectionTitle title="Karma and reactions" />
           <div className={classes.karmaChanges}>
-            {karmaChanges?.posts?.map((karmaChange) =>
-              <NotificationsPageKarmaChange
-                key={karmaChange._id}
-                postKarmaChange={karmaChange}
-              />
-            )}
-            {karmaChanges?.comments?.map((karmaChange) =>
-              <NotificationsPageKarmaChange
-                key={karmaChange._id}
-                commentKarmaChange={karmaChange}
-              />
-            )}
-            {karmaChanges?.tagRevisions?.map((karmaChange) =>
-              <NotificationsPageKarmaChange
-                key={karmaChange._id}
-                tagRevisionKarmaChange={karmaChange}
-              />
-            )}
+            <NotificationsPageKarmaChangeList karmaChanges={karmaChanges} />
             <div className={classes.karmaBatching}>
               <span>{batchingMessages[karmaChanges!.updateFrequency]}{" "}</span>
               <Link to="/account?highlightField=karmaChangeNotifierSettings">
