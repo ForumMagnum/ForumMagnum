@@ -20,7 +20,7 @@ const liveEnvDescriptions = forumSelect<Record<string, string>>({
     "local-dev-staging-db": 'staging', // staging running locally
   },
   LessWrong: {
-    "production": 'lesswrong.com',
+    "lesswrong.com": 'lesswrong.com',
     "dev": 'development',
     // this setting applies to localhost running against prod db – set to 'lesswrong.com' to use analytics events produced in prod, 
     // or 'development' to use events produced when a server is running locally
