@@ -446,7 +446,11 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
     if (newBackgroundImage) {
       setBackgroundImage(newBackgroundImage.replace('upload/', imageFlipped ? 'upload/a_hflip/' : 'upload/'));
     }
-  }, [post, selectedImageInfo, imageFlipped]);
+
+    // When we leave a review winner post page, we want to set this back to true, since it's a global rather than post-specific setting.
+    // Without this, if a user scrolls down and then back up such that the ToC is hidden on a review winner post, and then navigates to another post, the ToC will be hidden.
+    return () => setToCVisible(true);
+  }, [post, selectedImageInfo, imageFlipped, setToCVisible]);
 
   const nonhumanAudio = post.podcastEpisodeId === null && isLWorAF;
 
