@@ -18,9 +18,20 @@ jobs:
         mode: prod
         credentials-repo: ${{ secrets.LW_CREDENTIALS_REPO }}
         credentials-pat: ${{ secrets.LW_CREDENTIALS_REPO_PAT }}
+  upload-ckeditor-bundle:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Upload ckEditor bundle
+      if: github.ref == 'refs/heads/lw-deploy'
+      uses: ./.github/actions/uploadLWCkEditorBundle
+      with:
+        mode: prod
+        credentials-repo: ${{ secrets.LW_CREDENTIALS_REPO }}
+        credentials-pat: ${{ secrets.LW_CREDENTIALS_REPO_PAT }}
   deploy: 
     runs-on: ubuntu-latest
-    needs: migrate
+    needs: [migrate, upload-ckeditor-bundle]
     strategy:
       matrix: 
         node-version: [18.x]
