@@ -457,7 +457,7 @@ addGraphQLResolvers({
           collectionName: "Posts",
           version: getNextVersion(previousRev, revisionType, true),
           updateType: revisionType,
-          commitMessage: commitMessage,
+          commitMessage,
           changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
           googleDocMetadata: docMetadata
         };
@@ -479,6 +479,8 @@ addGraphQLResolvers({
             title: docMetadata.name,
             contents: {
               originalContents,
+              commitMessage,
+              googleDocMetadata: docMetadata
             },
             draft: true
           },
