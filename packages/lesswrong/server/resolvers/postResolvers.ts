@@ -27,15 +27,7 @@ import Revisions from '../../lib/collections/revisions/collection';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
-
-type GoogleDocMetadata = {
-  id: string;
-  name: string;
-  version: string;
-  createdTime: string;
-  modifiedTime: string;
-  size: string;
-}
+import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
