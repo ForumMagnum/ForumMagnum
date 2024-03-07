@@ -225,21 +225,24 @@ type JobAdData = {
 // job-specific data for the ad
 // (also used in the reminder email, so links in the description need to be absolute)
 export const JOB_AD_DATA: Record<string, JobAdData> = {
-  // 'iaps-ai-policy-fellowship': {
-  //   careerStages: ['earlyCareer'],
-  //   interestedIn: ['AI strategy & policy'],
-  //   logo: 'https://80000hours.org/wp-content/uploads/2023/10/institute_for_ai_policy_and_strategy_iaps_logo-160x160.jpeg',
-  //   occupation: 'AI policy',
-  //   feedbackLinkPrefill: 'AI+Policy+Fellow+at+IAPS',
-  //   bitlyLink: "https://efctv.org/49Jfdx5", // https://www.iaps.ai/fellowship
-  //   role: 'AI Policy Fellow',
-  //   insertThe: true,
-  //   org: 'Institute for AI Policy & Strategy',
-  //   orgLink: '/topics/institute-for-ai-policy-and-strategy',
-  //   salary: '$5k per month',
-  //   location: 'Remote',
-  //   deadline: moment('2024-03-18'),
-  // },
+  'iaps-ai-policy-fellowship': {
+    careerStages: ['earlyCareer'],
+    interestedIn: ['AI strategy & policy'],
+    subscribedTagIds: [
+      'u3Xg8MjDe2e6BvKtv' // AI governance
+    ],
+    logo: 'https://80000hours.org/wp-content/uploads/2023/10/institute_for_ai_policy_and_strategy_iaps_logo-160x160.jpeg',
+    occupation: 'AI policy',
+    feedbackLinkPrefill: 'AI+Policy+Fellow+at+IAPS',
+    bitlyLink: "https://efctv.org/49Jfdx5", // https://www.iaps.ai/fellowship
+    role: 'AI Policy Fellow',
+    insertThe: true,
+    org: 'Institute for AI Policy & Strategy',
+    orgLink: '/topics/institute-for-ai-policy-and-strategy',
+    salary: '$5k per month',
+    location: 'Remote',
+    deadline: moment('2024-03-18'),
+  },
   'cea-head-of-comms': {
     careerStages: ['midCareer', 'lateCareer'],
     experiencedIn: ['Communications/Marketing', 'Journalism'],
