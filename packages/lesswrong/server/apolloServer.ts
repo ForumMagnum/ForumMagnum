@@ -187,14 +187,34 @@ export function startWebserver() {
   apolloServer.applyMiddleware({ app })
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
+    const requestedHash: string|undefined = query.hash;
     const {bundleHash, bundleBuffer, bundleBrotliBuffer} = getClientBundle();
+    
+    // If no hash is specified in the request, serve a 302 redirect to the
+    // correct bundle hash. Preload scaffolds, which are cached client-side and
+    // may outlive a server version upgrade, are requested this way.
+    if (!requestedHash) {
+      res.writeHead(302, {
+        Location: `/js/bundle.js?hash=${bundleHash}`
+      });
+      res.end('');
+      return;
+    }
+
+    // When a client requests the main JS bundle, it may provide a hash. If the
+    // script tag was in an SSR, the hash is the bundle hash of the server that
+    // did the SSR rendering. If it was in a preload scaffold, the hash is
+    // omitted. If the page comes out of an old browser cache, or if the request
+    // is being answered by a different server version than the SSR because a
+    // deploy is in progress, the hash may be mismatched.
+
     let headers: Record<string,string> = {
       "Content-Type": "text/javascript; charset=utf-8",
       "Service-Worker-Allowed": "/",
     }
     const acceptBrotli = req.headers['accept-encoding'] && req.headers['accept-encoding'].includes('br')
 
-    if ((query.hash && query.hash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
+    if ((requestedHash && requestedHash !== bundleHash) || (acceptBrotli && bundleBrotliBuffer === null)) {
       // If the query specifies a hash, but it's wrong, this probably means there's a
       // version upgrade in progress, and the SSR and the bundle were handled by servers
       // on different versions. Serve whatever bundle we have (there's really not much
@@ -288,10 +308,13 @@ export function startWebserver() {
   });
 
   app.get('*', async (request, response) => {
+    const isPreload = request.url.startsWith("/preloadScaffold");
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
     const {bundleHash} = getClientBundle();
-    const clientScript = `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
+    const clientScript = isPreload
+      ? `<script defer src="/js/bundle.js"></script>`
+      : `<script defer src="/js/bundle.js?hash=${bundleHash}"></script>`
     const instanceSettingsHeader = embedAsGlobalVar("publicInstanceSettings", getInstanceSettings().public);
 
     // Check whether the requested route has enableResourcePrefetch. If it does,
