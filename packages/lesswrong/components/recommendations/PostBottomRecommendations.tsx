@@ -141,7 +141,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
             </div>
             <div className={classes.section}>
               <div className={classes.sectionHeading}>
-                Recent opportunities{coreTagLabel ? ` in ${coreTagLabel}` : ""}
+                {coreTagLabel ? "Recent" : "Relevant"} opportunities{coreTagLabel ? ` in ${coreTagLabel}` : ""}
               </div>
               {opportunitiesLoading && !opportunityPosts?.length &&
                 <PostsLoading />
