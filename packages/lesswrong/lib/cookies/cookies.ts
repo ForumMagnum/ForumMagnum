@@ -120,6 +120,12 @@ export const HIDE_2021_BOOK_BANNER_COOKIE = registerCookie({
   description: "Don't show the 2021 book banner",
 });
 
+export const LAST_VISITED_FRONTPAGE_COOKIE = registerCookie({
+  name: "last_visited_frontpage",
+  type: "functional",
+  description: "Stores the date of the user's last visit to the frontpage",
+});
+
 
 // Third party cookies
 

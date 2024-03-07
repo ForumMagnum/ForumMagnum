@@ -45,7 +45,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 const PostBottomRecommendations = ({post, hasTableOfContents, classes}: {
-  post: PostsWithNavigation | PostsWithNavigationAndRevision,
+  post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
   hasTableOfContents?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {

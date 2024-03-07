@@ -32,7 +32,7 @@ const clearStyle = (theme: ThemeType): JssStyles => ({
   "textarea, textarea:focus, input, input:focus": {
     border: "none",
     outline: "none",
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontFamily: isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     color: theme.palette.text.maxIntensity,
   },
   

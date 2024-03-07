@@ -316,12 +316,15 @@ export const postsCommentsThreadMultiOptions = {
   enableTotal: true,
 }
 
-const PostsPage = ({post, eagerPostComments, refetch, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}: {
   eagerPostComments?: EagerPostComments,
   refetch: () => void,
   classes: ClassesType,
-}) => {
+} & (
+  { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
+  | { fullPost: undefined, postPreload: PostsListWithVotes }
+)) => {
+  const post = fullPost ?? postPreload;
   const location = useSubscribedLocation();
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
@@ -338,7 +341,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
 
-  const toggleEmbeddedPlayer = postHasAudioPlayer(post) ? () => {
+  const toggleEmbeddedPlayer = fullPost && postHasAudioPlayer(fullPost) ? () => {
     const action = showEmbeddedPlayer ? "close" : "open";
     const newCookieValue = showEmbeddedPlayer ? "false" : "true";
     captureEvent("toggleAudioPlayer", { action });
@@ -379,7 +382,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const getSequenceId = () => {
     const { params } = location;
-    return params.sequenceId || post?.canonicalSequenceId;
+    return params.sequenceId || fullPost?.canonicalSequenceId || null;
   }
 
   const { query, params } = location;
@@ -387,26 +390,29 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   // We don't want to show the splash header if the user is on a `/s/:sequenceId/p/:postId` route
   // We explicitly don't use `getSequenceId` because that also gets the post's canonical sequence ID,
   // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
-  const showSplashPageHeader = isLWorAF && !!post.reviewWinner && !params.sequenceId;
+  const isReviewWinner = ('reviewWinner' in post) && post.reviewWinner;
+  const showSplashPageHeader = isLWorAF && !!isReviewWinner && !params.sequenceId;
 
   useEffect(() => {
     if (!query[SHARE_POPUP_QUERY_PARAM]) return;
 
-    openDialog({
-      componentName: "SharePostPopup",
-      componentProps: {
-        post,
-      },
-      noClickawayCancel: true,
-      closeOnNavigate: true,
-    });
+    if (fullPost) {
+      openDialog({
+        componentName: "SharePostPopup",
+        componentProps: {
+          post: fullPost,
+        },
+        noClickawayCancel: true,
+        closeOnNavigate: true,
+      });
+    }
 
     // Remove "sharePopup" from query once the popup is open, to prevent accidentally
     // sharing links with the popup open
     const currentQuery = isEmpty(query) ? {} : query
     const newQuery = {...currentQuery, [SHARE_POPUP_QUERY_PARAM]: undefined}
     navigate({...location.location, search: `?${qs.stringify(newQuery)}`})
-  }, [navigate, location.location, openDialog, post, query]);
+  }, [navigate, location.location, openDialog, fullPost, query]);
 
   const sortBy: CommentSortingMode = (query.answersSorting as CommentSortingMode) || "top";
   const { results: answersAndReplies } = useMulti({
@@ -458,7 +464,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     collectionName: "Comments",
     fragmentName: 'CommentsList',
     fetchPolicy: 'cache-and-network',
-    skip: !post.debate
+    skip: !post.debate || !fullPost
   });
 
   const { HeadTags, CitationTags, PostsPagePostHeader, PostsPagePostFooter, PostBodyPrefix,
@@ -483,7 +489,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   const isOldVersion = query.revision && post.contents;
   
   const defaultSideCommentVisibility = hasSideComments
-    ? (post.sideCommentVisibility ?? "highKarma")
+    ? (fullPost?.sideCommentVisibility ?? "highKarma")
     : "hidden";
   const [sideCommentMode,setSideCommentMode] = useState<SideCommentMode>(defaultSideCommentVisibility as SideCommentMode);
   const sideCommentModeContext: SideCommentVisibilityContextType = useMemo(
@@ -492,8 +498,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
   );
   
   const sequenceId = getSequenceId();
-  const sectionData = (post as PostsWithNavigationAndRevision).tableOfContentsRevision || (post as PostsWithNavigation).tableOfContents;
-  const htmlWithAnchors = sectionData?.html || post.contents?.html;
+  const sectionData = (fullPost as PostsWithNavigationAndRevision)?.tableOfContentsRevision || (post as PostsWithNavigation)?.tableOfContents;
+  const htmlWithAnchors = sectionData?.html || fullPost?.contents?.html || postPreload?.contents?.htmlHighlight || "";
 
   const showRecommendations = hasPostRecommendations &&
     !currentUser?.hidePostsRecommendations &&
@@ -509,9 +515,9 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const commentId = query.commentId || params.commentId
 
-  const description = getPostDescription(post)
+  const description = fullPost ? getPostDescription(fullPost) : null
   const ogUrl = postGetPageUrl(post, true) // open graph
-  const canonicalUrl = post.canonicalSource || ogUrl
+  const canonicalUrl = fullPost?.canonicalSource || ogUrl
   // For imageless posts this will be an empty string
   let socialPreviewImageUrl = post.socialPreviewData?.imageUrl ?? "";
   if (post.isEvent && post.eventImageId) {
@@ -554,16 +560,18 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     ? <TableOfContents sectionData={sectionData} title={post.title} postedAt={post.postedAt} fixedPositionToc={isLWorAF} />
     : null;
 
-  const noIndex = post.noIndex || post.rejected;
+  const noIndex = fullPost?.noIndex || post.rejected;
 
   const marketInfo = getMarketInfo(post)
 
   const header = <>
-    {!commentId && <>
+    {fullPost && !commentId && <>
       <HeadTags
         ogUrl={ogUrl} canonicalUrl={canonicalUrl} image={socialPreviewImageUrl}
-        title={post.title} description={description} noIndex={noIndex}
-        structuredData={getStructuredData({post, description})}
+        title={post.title}
+        description={description}
+        noIndex={noIndex}
+        structuredData={getStructuredData({post: fullPost, description})}
       />
       <CitationTags
         title={post.title}
@@ -578,7 +586,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     <AnalyticsContext pageSectionContext="postHeader">
       <div className={classNames(classes.title, {[classes.titleWithMarket] : highlightMarket(marketInfo)})}>
         <div className={classes.centralColumn}>
-          {commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={post} />}
+          {fullPost && commentId && !isDebateResponseLink && <CommentPermalink documentId={commentId} post={fullPost} />}
           {post.eventImageId && <div className={classNames(classes.headerImageContainer, {[classes.headerImageContainerWithComment]: commentId})}>
             <CloudinaryImage2
               publicId={post.eventImageId}
@@ -609,7 +617,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
 
   const rightColumnChildren = (welcomeBox || (showRecommendations && recommendationsPosition === "right")) && <>
     {welcomeBox}
-    {showRecommendations && recommendationsPosition === "right" && <PostSideRecommendations post={post} />}
+    {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
   </>;
 
   // check for deep equality between terms and eagerPostComments.terms
@@ -643,8 +651,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         {post.title}
       </h1>}
       {/* Body */}
-      <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={post}/>
-      { post.isEvent && post.activateRSVPs &&  <RSVPs post={post} /> }
+      {fullPost && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
+      {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
       {!post.debate && <ContentStyles contentType="post" className={classNames(classes.postContent, "instapaper_body")}>
         <PostBodyPrefix post={post} query={query}/>
         <AnalyticsContext pageSectionContext="postBody">
@@ -673,10 +681,10 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         </div>
       </Row>}
 
-      {post.debate && debateResponses && debateResponseReplies &&
+      {post.debate && debateResponses && debateResponseReplies && fullPost &&
         <DebateBody
           debateResponses={getDebateResponseBlocks(debateResponses, debateResponseReplies)}
-          post={post}
+          post={fullPost}
         />}
 
     </div>
@@ -706,24 +714,24 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
       {/* Answers Section */}
       {post.question && <div className={classes.centralColumn}>
         <div id="answers"/>
-        <AnalyticsContext pageSectionContext="answersSection">
-          <PostsPageQuestionContent post={post} answersTree={answersTree ?? []} refetch={refetch}/>
-        </AnalyticsContext>
+        {fullPost && <AnalyticsContext pageSectionContext="answersSection">
+          <PostsPageQuestionContent post={fullPost} answersTree={answersTree ?? []} refetch={refetch}/>
+        </AnalyticsContext>}
       </div>}
       {/* Comments Section */}
       <div className={classes.commentsSection}>
         <AnalyticsContext pageSectionContext="commentsSection">
-          <CommentsListSection
+          {fullPost && <CommentsListSection
             comments={results ?? []}
             loadMoreComments={loadMore}
             totalComments={totalCount as number}
             commentCount={commentCount}
             loadingMoreComments={loadingMore}
-            post={post}
+            post={fullPost}
             newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
             highlightDate={highlightDate ?? undefined}
             setHighlightDate={setHighlightDate}
-          />
+          />}
           {isAF && <AFUnreviewedCommentCount post={post}/>}
         </AnalyticsContext>
         {isFriendlyUI && post.commentCount < 1 &&
@@ -734,25 +742,26 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
         }
       </div>
     </AnalyticsInViewTracker>
-  const commentsToC =
-    <CommentsTableOfContents
-      commentTree={commentTree}
-      answersTree={answersTree}
-      post={post}
-      highlightDate={highlightDate ?? undefined}
-    />
 
-  return (
-  <AnalyticsContext pageContext="postsPage" postId={post._id}>
-    <PostsPageContext.Provider value={post}>
+  const commentsToC = fullPost
+    ? <CommentsTableOfContents
+        commentTree={commentTree}
+        answersTree={answersTree}
+        post={fullPost}
+        highlightDate={highlightDate ?? undefined}
+      />
+    : undefined
+
+  return <AnalyticsContext pageContext="postsPage" postId={post._id}>
+    <PostsPageContext.Provider value={fullPost ?? null}>
     <ImageProvider>
     <SideCommentVisibilityContext.Provider value={sideCommentModeContext}>
     <div ref={readingProgressBarRef} className={classes.readingProgressBar}></div>
-    {showSplashPageHeader && !commentId && !isDebateResponseLink && <PostsPageSplashHeader
+    {fullPost && showSplashPageHeader && !commentId && !isDebateResponseLink && <PostsPageSplashHeader
       // We perform this seemingly redundant spread because `showSplashPageHeader` checks that `post.reviewWinner` exists,
       // and Typescript is only smart enough to narrow the type for you if you access the field directly like this
-      post={{...post, reviewWinner: post.reviewWinner}}
-      showEmbeddedPlayer={showEmbeddedPlayer} 
+      post={{...fullPost, reviewWinner: fullPost.reviewWinner!}}
+      showEmbeddedPlayer={showEmbeddedPlayer}
       toggleEmbeddedPlayer={toggleEmbeddedPlayer}
     />}
     {commentsTableOfContentsEnabled
@@ -771,7 +780,8 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
               isCommentToC: true
             },
           ]}
-          tocRowMap={[1, 1, 2, 3]}
+          tocRowMap={[1, 1, 1, 3]}
+          showSplashPageHeader={showSplashPageHeader}
         />
       : <ToCColumn
           tableOfContents={tableOfContents}
@@ -785,7 +795,7 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     }
   
     {isEAForum && showDigestAd && <NoSSR><StickyDigestAd /></NoSSR>}
-    {hasPostRecommendations && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
+    {hasPostRecommendations && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
       <PostBottomRecommendations
         post={post}
         hasTableOfContents={hasTableOfContents}
@@ -795,7 +805,6 @@ const PostsPage = ({post, eagerPostComments, refetch, classes}: {
     </ImageProvider>
     </PostsPageContext.Provider>
   </AnalyticsContext>
-  );
 }
 
 export type PostParticipantInfo = Partial<Pick<PostsDetails, "userId"|"debate"|"hasCoauthorPermission" | "coauthorStatuses">>
