@@ -81,13 +81,16 @@ export const commentDefaultToAlignment = (currentUser: UsersCurrent|null, post: 
   }
 }
 
-export const commentGetDefaultView = (post: PostsDetails|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
+export const commentGetDefaultView = (post: PostsDetails|PostsList|DbPost|null, currentUser: UsersCurrent|null): CommentsViewName => {
   const fallback = forumSelect({
     AlignmentForum: "afPostCommentsTop",
     EAForum: "postCommentsMagic",
     default: "postCommentsTop",
   });
-  return (post?.commentSortOrder as CommentsViewName) || (currentUser?.commentSorting as CommentsViewName) || fallback
+  const postSortOrder = (post && 'commentSortOrder' in post) ? post.commentSortOrder : null;
+  return (postSortOrder as CommentsViewName)
+    || (currentUser?.commentSorting as CommentsViewName)
+    || fallback;
 }
 
 export const commentGetKarma = (comment: CommentsList|DbComment): number => {
