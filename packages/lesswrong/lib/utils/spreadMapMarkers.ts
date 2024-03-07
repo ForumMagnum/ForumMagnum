@@ -21,7 +21,7 @@ type MapMarkerWithData<T> = {
  */
 export function spreadMapMarkers<T>(
   markers: MapMarkerWithData<T>[],
-  getSortKey: (data: T)=>string
+  getSortKey: (data: T) => string
 ): MapMarkerWithData<T>[] {
   // Group by exact location
   const markersByLocation: Record<string,MapMarkerWithData<T>[]> =
