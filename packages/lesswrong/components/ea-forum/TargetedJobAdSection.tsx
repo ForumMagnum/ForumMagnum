@@ -107,10 +107,12 @@ const TargetedJobAdSection = () => {
       )?.map((setting: FilterTag) => setting.tagId)
       let userIsMatch = subscribedTagIds && !difference(subscribedTagIds, userTagSubs).length
       // Or have they have read at least 30 posts in all the relevant topics in the past 6 months?
+      const readCoreTagIds = jobAd.readCoreTagIds
       const readsThreshold = jobAd.coreTagReadsThreshold ?? 30
       userIsMatch = userIsMatch || (
+        readCoreTagIds &&
         !!coreTagReads?.length &&
-        jobAd.readCoreTagIds?.every(
+        readCoreTagIds.every(
           tagId => coreTagReads.some(tag => tag.tagId === tagId && tag.userReadCount >= readsThreshold)
         )
       )
@@ -122,6 +124,10 @@ const TargetedJobAdSection = () => {
         !!userEAGInterests &&
         !difference(interestedIn, userEAGInterests).length
       )
+      // In the rare case when we don't want to filter by interests, start by matching on all users
+      if (!subscribedTagIds && !readCoreTagIds && !interestedIn) {
+        userIsMatch = true
+      }
       
       /** Check if the user should be excluded from the job ad audience */
 

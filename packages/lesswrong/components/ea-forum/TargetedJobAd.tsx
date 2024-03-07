@@ -243,12 +243,8 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
   'cea-head-of-comms': {
     careerStages: ['midCareer', 'lateCareer'],
     experiencedIn: ['Communications/Marketing', 'Journalism'],
-    interestedIn: ['EA community building/community management'],
-    subscribedTagIds: [
-      'EHLmbEmJ2Qd5WfwTb', // building EA
-    ],
     logo: 'https://80000hours.org/wp-content/uploads/2022/12/CEA-160x160.png',
-    occupation: 'communications and EA community building',
+    occupation: 'communications',
     feedbackLinkPrefill: 'Head+of+Communications+at+CEA',
     bitlyLink: "https://efctv.org/3P5ISZ7", // https://www.centreforeffectivealtruism.org/careers/head-of-communications
     role: 'Head of Communications',
