@@ -32,7 +32,7 @@ export const useRecentOpportunities =<
   fragmentName: FragmentTypeName,
   limit?: number,
   maxAgeInDays?: number,
-  post?: PostsWithNavigation | PostsWithNavigationAndRevision,
+  post?: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList,
 }): UseMultiResult<FragmentTypeName> & {coreTagLabel: string | null} => {
   const coreTags =
     post?.tags
