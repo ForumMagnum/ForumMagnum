@@ -50,7 +50,7 @@ const STICKY_PRIORITIES = {
   4: "Max",
 }
 
-function getDefaultVotingSystem() {
+export function getDefaultVotingSystem() {
   return forumSelect({
     EAForum: "eaEmojis",
     LessWrong: "namesAttachedReactions",
