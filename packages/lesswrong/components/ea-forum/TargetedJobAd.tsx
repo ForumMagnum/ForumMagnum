@@ -144,50 +144,54 @@ const styles = (theme: ThemeType): JssStyles => ({
 // list of "interested in" / "experienced in" / "working in" options from EAG
 type EAGOccupationOrCause =
   'Academic research'|
-  'Operations'|
-  'Entrepreneurship'|
-  'Policymaking/Civil service'|
-  'EA community building/community management'|
   'AI safety technical research'|
-  'Software development/Software engineering'|
-  'People management'|
-  'Education'|
-  'Global health & development'|
-  'Improving institutional decision making'|
-  'Earning to give'|
   'AI strategy & policy'|
-  'Project management/ Program management'|
-  'Healthcare/Medicine'|
-  'Technology'|
-  'Grantmaking'|
-  'Information security'|
-  'Climate change mitigation'|
-  'Global coordination & peace-building'|
-  'Consulting'|
   'Alternative proteins'|
-  'Global mental health & well-being'|
-  'Nuclear security'|
-  'Politics'|
-  'Writing'|
-  'Event production'|
-  'Product management'|
-  'Wild animal welfare'|
   'Biosecurity'|
-  'Philanthropy'|
-  'Farmed animal welfare'|
+  'China-Western relations'|
+  'Civilisational recovery/resilience'|
+  'Climate change mitigation'|
   'Communications/Marketing'|
-  'HR/People operations'|
-  'Global priorities research'|
-  'Journalism'|
-  'Finance/Accounting'|
-  'User experience design/research'|
-  'Data science/Data visualization'|
+  'Consulting'|
   'Counselling/Social work'|
+  'Creatives'|  // This might be a stray value, only one person had this
+  'Data science/Data visualization'|
+  'EA community building/community management'|
+  'Earning to give'|
+  'Education'|
+  'Entrepreneurship'|
+  'Event production'|
+  'Farmed animal welfare'|
+  'Finance/Accounting'|
+  'General X-Risk'|
+  'Global coordination & peace-building'|
+  'Global health & development'|
+  'Global mental health & well-being'|
+  'Global priorities research'|
+  'Grantmaking'|
   'Graphic design'|
-  'S-risk'|
+  'Healthcare/Medicine'|
+  'HR/People operations'|
+  'Improving institutional decision making'|
   'Information security'|
-  'Machine learning'
-  
+  'Journalism'|
+  'Machine learning'|
+  'Nuclear security'|
+  'Operations'|
+  'People management'|
+  'Philanthropy'|
+  'Policymaking/Civil service'|
+  'Politics'|
+  'Product management'|
+  'Project management/ Program management'|
+  'Software development/Software engineering'|
+  'Space governance'|
+  'S-risks'|
+  'Technology'|
+  'User experience design/research'|
+  'Wild animal welfare'|
+  'Writing'
+
 type EAGWillingToMoveOptions =
   'I’d be excited to move here or already live here'|
   'I’d be willing to move here for a good opportunity'|
