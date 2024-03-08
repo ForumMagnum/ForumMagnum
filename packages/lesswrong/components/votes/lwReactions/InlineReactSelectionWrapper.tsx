@@ -108,10 +108,8 @@ function getYOffsetFromDocument (selection: Selection, commentTextRef: React.Ref
   if (!commentTextRect) return 0;
 
   const documentCenter = commentTextRect?.top + (commentTextRect?.height / 2);
-
   const selectionRectTop = selection.getRangeAt(0).getBoundingClientRect().top;
-  // const selectionRectBottom = selection.getRangeAt(0).getBoundingClientRect().bottom;
-  // const selectionY = (selectionRectTop + selectionRectBottom) / 2;
+  
   return selectionRectTop - documentCenter;
 }
 
