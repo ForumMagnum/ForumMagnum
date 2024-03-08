@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
 import { Components, registerComponent } from "../../../lib/vulcan-lib";
-import InsertEmoticonOutlined from '@material-ui/icons/InsertEmoticon';
 import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnComment";
 import { VotingProps } from "../votingProps";
 import { QuoteLocator } from "../../../lib/voting/namesAttachedReactions";
@@ -26,12 +25,11 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
 }) => {
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
-  const { LWTooltip, ReactionsPalette } = Components;
+  const { LWTooltip, ForumIcon, ReactionsPalette } = Components;
 
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
   
-
-  const handleOpen = () => {
+  const handleOpen = (e: React.MouseEvent) => {
     !disabled && setOpen(true)
   }
 
@@ -50,14 +48,15 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
     <span
       ref={buttonRef}
     >
-      {!open && <InsertEmoticonOutlined onClick={handleOpen} className={disabled ? classes.disabled : undefined}/>}
-      {open && <div className={classes.palette}>
-        <ReactionsPalette
-          getCurrentUserReactionVote={getCurrentUserReactionVote}
-          toggleReaction={handleToggleReaction}
-          quote={quote} 
-        />
-      </div>}
+      {!open && <ForumIcon icon="AddReaction" onClick={handleOpen} className={disabled ? classes.disabled : undefined}/>}
+      {open &&
+        <div className={classes.palette}>
+          <ReactionsPalette
+            getCurrentUserReactionVote={getCurrentUserReactionVote}
+            toggleReaction={handleToggleReaction}
+            quote={quote} 
+          />
+        </div>}
     </span>
   </LWTooltip>
 }
