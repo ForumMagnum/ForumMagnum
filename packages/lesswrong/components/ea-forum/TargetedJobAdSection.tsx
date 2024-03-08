@@ -138,11 +138,6 @@ const TargetedJobAdSection = () => {
         userIsMatch = (getCountryCode(currentUser.googleLocation) === countryCode) ||
           (userEAGData?.countryOrRegion === countryName)
       }
-      // And are they near the right city?
-      const nearestCity = jobAd.nearestCity
-      if (userIsMatch && nearestCity) {
-        userIsMatch = userEAGData?.nearestCity === nearestCity
-      }
       // And are they in the right career stage?
       const careerStages = jobAd.careerStages
       if (userIsMatch && careerStages) {

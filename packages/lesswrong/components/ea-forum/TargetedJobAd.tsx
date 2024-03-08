@@ -217,7 +217,6 @@ type JobAdData = {
   location: string,
   countryCode?: string,                         // if provided, only show to users who we think are in this country (match on account location)
   countryName?: string,                         // if provided, only show to users who we think are in this country (match on EAG data)
-  nearestCity?: string,                         // if provided, only show to users who we think are near this city (match on EAG data)
   roleType?: string,                            // i.e. part-time, contract
   deadline?: moment.Moment,                     // also used to hide the ad after this date
 }
