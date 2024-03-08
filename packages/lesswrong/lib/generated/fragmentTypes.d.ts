@@ -1463,11 +1463,11 @@ interface PostsRevisionsList { // fragment on Posts
   readonly revisions: Array<RevisionMetadata>,
 }
 
-interface PostsRecentDiscussion extends PostsList { // fragment on Posts
+interface PostsRecentDiscussion extends PostsListWithVotes { // fragment on Posts
   readonly recentComments: Array<CommentsList>,
 }
 
-interface ShortformRecentDiscussion extends PostsList { // fragment on Posts
+interface ShortformRecentDiscussion extends PostsListWithVotes { // fragment on Posts
   readonly recentComments: Array<CommentsListWithTopLevelComment>,
 }
 
@@ -2481,7 +2481,7 @@ interface TagWithFlagsAndRevisionFragment extends TagRevisionFragment { // fragm
 interface TagPageFragment extends TagWithFlagsFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
-  readonly subforumIntroPost: PostsList|null,
+  readonly subforumIntroPost: PostsListWithVotes|null,
   readonly subforumWelcomeText: TagPageFragment_subforumWelcomeText|null,
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,
@@ -2499,7 +2499,7 @@ interface AllTagsPageFragment extends TagWithFlagsFragment { // fragment on Tags
 interface TagPageWithRevisionFragment extends TagWithFlagsAndRevisionFragment { // fragment on Tags
   readonly tableOfContents: any,
   readonly postsDefaultSortOrder: string,
-  readonly subforumIntroPost: PostsList|null,
+  readonly subforumIntroPost: PostsListWithVotes|null,
   readonly subforumWelcomeText: TagPageWithRevisionFragment_subforumWelcomeText|null,
   readonly contributors: any,
   readonly canVoteOnRels: Array<"userOwns" | "userOwnsOnlyUpvote" | "guests" | "members" | "admins" | "sunshineRegiment" | "alignmentForumAdmins" | "alignmentForum" | "alignmentVoters" | "podcasters" | "canBypassPostRateLimit" | "trustLevel1" | "canModeratePersonal" | "canSuggestCuration" | "debaters" | "realAdmins">,

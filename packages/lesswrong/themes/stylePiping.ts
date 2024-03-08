@@ -497,6 +497,13 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
 
+    '& .footnotes': isFriendlyUI ? {} : {
+      marginTop: 0,
+      paddingTop: 8,
+      paddingLeft: 16,
+      marginBottom: 0
+    },
+
     '& blockquote': {
       ...theme.typography.commentBlockquote,
       ...theme.typography.body2,

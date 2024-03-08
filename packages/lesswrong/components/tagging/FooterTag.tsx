@@ -75,7 +75,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     )
   },
   tooltip: {
-    marginTop: 6,
+    marginTop: isFriendlyUI ? 6 : undefined,
   },
   core: {
     ...coreTagStyle(theme),
