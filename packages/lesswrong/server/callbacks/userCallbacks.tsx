@@ -284,9 +284,13 @@ getCollectionHooks("Users").editSync.add(async function usersEditCheckEmail (mod
  * When a user explicitly unsubscribes from all emails, we also want to unsubscribe them from digest emails.
  * They can then explicitly re-subscribe to the digest while keeping "unsubscribeFromAll" checked while still being
  * unsubscribed from all other emails, if they want.
+ *
+ * Also unsubscribe them from the digest if they deactivate their account.
  */
-getCollectionHooks("Users").updateBefore.add(async function unsubscribeFromAll(data: DbUser, {oldDocument}) {
-  if (data.unsubscribeFromAll && !oldDocument.unsubscribeFromAll && hasDigests) {
+getCollectionHooks("Users").updateBefore.add(async function unsubscribeFromDigest(data: DbUser, {oldDocument}) {
+  const unsubscribedFromAll = data.unsubscribeFromAll && !oldDocument.unsubscribeFromAll
+  const deactivatedAccount = data.deleted && !oldDocument.deleted
+  if (hasDigests && (unsubscribedFromAll || deactivatedAccount)) {
     data.subscribedToDigest = false
   }
   return data;
