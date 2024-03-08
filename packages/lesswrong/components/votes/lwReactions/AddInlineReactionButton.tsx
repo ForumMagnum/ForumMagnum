@@ -49,14 +49,13 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
       ref={buttonRef}
     >
       {!open && <ForumIcon icon="AddReaction" onClick={handleOpen} className={disabled ? classes.disabled : undefined}/>}
-      {open &&
-        <div className={classes.palette}>
-          <ReactionsPalette
-            getCurrentUserReactionVote={getCurrentUserReactionVote}
-            toggleReaction={handleToggleReaction}
-            quote={quote} 
-          />
-        </div>}
+      {open && <div className={classes.palette}>
+        <ReactionsPalette
+          getCurrentUserReactionVote={getCurrentUserReactionVote}
+          toggleReaction={handleToggleReaction}
+          quote={quote} 
+        />
+      </div>}
     </span>
   </LWTooltip>
 }
