@@ -92,7 +92,7 @@ const BadgeWrapper = ({commentCount, classes, children}: {
 
 const SideCommentIcon = ({commentIds, post, classes}: {
   commentIds: string[]
-  post: PostsDetails
+  post: PostsList
   classes: ClassesType
 }) => {
   const {LWPopper, SideCommentHover} = Components;
@@ -158,7 +158,7 @@ const SideCommentIcon = ({commentIds, post, classes}: {
 
 const SideCommentHover = ({commentIds, post, classes}: {
   commentIds: string[],
-  post: PostsDetails
+  post: PostsList
   classes: ClassesType,
 }) => {
   const { SideCommentSingle } = Components;
@@ -181,7 +181,7 @@ const SideCommentHover = ({commentIds, post, classes}: {
 
 const SideCommentSingle = ({commentId, post, dontTruncateRoot=false, classes}: {
   commentId: string,
-  post: PostsDetails,
+  post: PostsList,
   classes: ClassesType,
   dontTruncateRoot?: boolean,
 }) => {

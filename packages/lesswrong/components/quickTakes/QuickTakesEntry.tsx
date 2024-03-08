@@ -27,12 +27,12 @@ const styles = (theme: ThemeType) => ({
     border: `1px solid ${theme.palette.grey[200]}`,
   },
   commentEditor: {
-    padding: "1px 10px",
+    padding: isFriendlyUI ? "1px 10px" : undefined,
     background: theme.palette.grey[100],
     borderTopLeftRadius: getBorderRadius(theme),
     borderTopRightRadius: getBorderRadius(theme),
     "& .ck-placeholder::before": {
-      color: theme.palette.grey[600],
+      color: isFriendlyUI ? theme.palette.grey[600] : undefined,
       fontFamily: theme.palette.fonts.sansSerifStack,
       fontSize: 14,
       fontWeight: 500,
@@ -71,6 +71,32 @@ const styles = (theme: ThemeType) => ({
     marginRight: 8,
   },
   ...submitButtonStyles(theme),
+  commentForm: {
+    '& .form-input': {
+      margin: 0,
+      minHeight: 30
+    },
+    '& .ck.ck-editor__editable_inline': {
+      border: "none !important",
+    },
+    '& .EditorTypeSelect-select': {
+      display: 'none',
+    },
+  },
+  commentFormCollapsed: {
+    '& .EditorFormComponent-commentEditorHeight': {
+      minHeight: 'unset'
+    },
+    '& .EditorFormComponent-commentEditorHeight .ck.ck-content': {
+      minHeight: 'unset'
+    },
+    '& .LocalStorageCheck-root': {
+      display: 'none',
+    },
+    '& .ck .ck-placeholder': {
+      position: 'unset'
+    },
+  },
 });
 
 // TODO: decide on copy for LW
@@ -176,10 +202,9 @@ const QuickTakesEntry = ({
 
   const onCancel = useCallback(async (ev?: MouseEvent) => {
     ev?.preventDefault();
-    editorRef.current?.clear(currentUser);
     setExpanded(false);
     void cancelCallback?.();
-  }, [currentUser, cancelCallback]);
+  }, [cancelCallback]);
 
 
   const onFocus = useCallback(() => setExpanded(true), []);
@@ -217,7 +242,7 @@ const QuickTakesEntry = ({
     return null;
   }
 
-  const {Editor, Loading, TagsChecklist} = Components;
+  const {Editor, Loading, TagsChecklist, CommentsNewForm} = Components;
 
   const cancelButton = (
     <Button
@@ -276,6 +301,31 @@ const QuickTakesEntry = ({
         </div>
       )
   );
+
+  if (!isFriendlyUI) {
+    const innerClassName = classNames(classes.commentEditor, {
+      [classes.collapsed]: !expanded,
+    });
+
+    return <div className={classNames(classes.root, className)}>
+      <div className={innerClassName} onFocus={onFocus}>
+        <CommentsNewForm
+          type='reply'
+          prefilledProps={{
+            shortform: true,
+            shortformFrontpage: frontpage,
+            relevantTagIds: selectedTagIds,
+          }}
+          enableGuidelines={false}
+          className={classNames(classes.commentForm, { [classes.commentFormCollapsed]: !expanded })}
+          cancelCallback={onCancel}
+          successCallback={successCallback}
+          overrideHintText={placeholder}
+        />
+      </div>
+      {expanded && isFriendlyUI && tagList}
+    </div>
+  }
 
   return (
     <form

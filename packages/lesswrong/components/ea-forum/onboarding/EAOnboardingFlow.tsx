@@ -9,7 +9,9 @@ const styles = (_theme: ThemeType) => ({
   },
 });
 
-const EAOnboardingFlow = ({classes}: {
+const EAOnboardingFlow = ({viewAsAdmin, classes}: {
+  // if viewAsAdmin is true, this is an admin testing out the flow, so don't update their account
+  viewAsAdmin?: boolean,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
@@ -18,7 +20,7 @@ const EAOnboardingFlow = ({classes}: {
   // We cache the value in a `useState` as it gets set to false in the very
   // first stage (which is the only compulsary stage) - without caching the
   // value this would close the popup.
-  const [isOnboarding, setIsOnboarding] = useState(currentUser?.usernameUnset);
+  const [isOnboarding, setIsOnboarding] = useState(currentUser?.usernameUnset || viewAsAdmin);
 
   useEffect(() => {
     // Set `isOnboarding` to true after a new user signs up.
@@ -39,7 +41,7 @@ const EAOnboardingFlow = ({classes}: {
   } = Components;
   return (
     <BlurredBackgroundModal open className={classes.root}>
-      <EAOnboardingContextProvider onOnboardingComplete={onOnboardingComplete}>
+      <EAOnboardingContextProvider onOnboardingComplete={onOnboardingComplete} viewAsAdmin={viewAsAdmin}>
         <EAOnboardingUserStage />
         <EAOnboardingSubscribeStage />
         <EAOnboardingWorkStage />

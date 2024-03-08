@@ -12,6 +12,8 @@ import { forumTypeSetting } from '../../lib/instanceSettings';
 import PersonIcon from '@material-ui/icons/Person';
 import classNames from 'classnames';
 import {isFriendlyUI} from '../../themes/forumTheme'
+import { filterNonnull } from '../../lib/utils/typeGuardUtils';
+import { spreadMapMarkers } from '../../lib/utils/spreadMapMarkers';
 
 const styles = createStyles((theme: ThemeType): JssStyles => ({
   root: {
@@ -207,11 +209,21 @@ const PersonalMapLocationMarkers = ({users, handleClick, handleClose, openWindow
   classes: ClassesType,
 }) => {
   const { StyledMapPopup } = Components
+  
+  const mapLocations = filterNonnull(users.map(user => {
+    const location = user.mapLocation
+    if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
+    const { geometry: {location: {lat, lng}}} = location
+    return {
+      lat, lng,
+      data: user,
+    }
+  }));
+  
+  const spreadMapLocations = spreadMapMarkers(mapLocations, u=>u.displayName);
+  
   return <React.Fragment>
-    {users.map(user => {
-      const location = user.mapLocation
-      if (!location?.geometry?.location?.lat || !location?.geometry?.location?.lng) return null
-      const { geometry: {location: {lat, lng}}} = location
+    {spreadMapLocations.map(({lat, lng, data: user}) => {
       const htmlBody = {__html: user.htmlMapMarkerText};
       return <React.Fragment key={user._id}>
         <Marker

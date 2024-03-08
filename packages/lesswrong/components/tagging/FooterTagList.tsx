@@ -29,6 +29,9 @@ const styles = (theme: ThemeType) => ({
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
+  alignRight: {
+    justifyContent: 'flex-end',
+  },
   allowTruncate: {
     display: isFriendlyUI ? "block" : "inline-flex",
     // Truncate to 3 rows (webkit-line-clamp would be ideal here but it adds an ellipsis
@@ -124,7 +127,8 @@ const FooterTagList = ({
   overrideMargins=false,
   appendElement,
   annualReviewMarketInfo,
-  classes
+  classes,
+  align = "left"
 }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision | PostsList | SunshinePostsList,
   hideScore?: boolean,
@@ -139,6 +143,7 @@ const FooterTagList = ({
   overrideMargins?: boolean,
   appendElement?: ReactNode,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
+  align?: "left" | "right",
   classes: ClassesType<typeof styles>,
 }) => {
   const [isAwaiting, setIsAwaiting] = useState(false);
@@ -344,7 +349,7 @@ const FooterTagList = ({
   return <>
     <span
       ref={rootRef}
-      className={classNames(classes.root, {[classes.allowTruncate]: !showAll}, {[classes.overrideMargins] : overrideMargins})}
+      className={classNames(classes.root, {[classes.allowTruncate]: !showAll}, {[classes.overrideMargins] : overrideMargins, [classes.alignRight]: align === "right"})}
     >
       {innerContent}
       {appendElement}

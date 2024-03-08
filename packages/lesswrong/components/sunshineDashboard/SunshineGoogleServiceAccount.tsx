@@ -3,7 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
-import { userIsAdminOrMod } from '../../lib/vulcan-users';
+import { userIsAdmin } from '../../lib/vulcan-users';
 import { hasGoogleDocImportSetting } from '../../lib/publicSettings';
 
 const styles = (theme: ThemeType): JssStyles => ({
@@ -38,7 +38,7 @@ const SunshineGoogleServiceAccount = ({ classes }: {
 
   const shouldWarn = !estimatedExpiry || (new Date(estimatedExpiry).getTime() - Date.now()) < WARN_THRESHOLD
 
-  if (loading || !userIsAdminOrMod(currentUser) || !hasGoogleDocImportSetting.get() || !shouldWarn) {
+  if (loading || !userIsAdmin(currentUser) || !hasGoogleDocImportSetting.get() || !shouldWarn) {
     return null;
   }
 
