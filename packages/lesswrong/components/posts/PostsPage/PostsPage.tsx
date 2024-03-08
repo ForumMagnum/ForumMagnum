@@ -324,7 +324,9 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   { fullPost: PostsWithNavigation|PostsWithNavigationAndRevision, postPreload: undefined }
   | { fullPost: undefined, postPreload: PostsListWithVotes }
 )) => {
-  const post = fullPost ?? postPreload;
+  // const post = fullPost ?? postPreload;
+  fullPost = postPreload;
+  const post = postPreload;
   const location = useSubscribedLocation();
   const navigate = useNavigate();
   const currentUser = useCurrentUser();

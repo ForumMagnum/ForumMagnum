@@ -11,10 +11,11 @@ import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
-import type { ToCData, ToCSection } from '../lib/tableOfContents';
+import { extractTableOfContents as extractTableOfContentsLib, ToCData, ToCSection } from '../lib/tableOfContents';
 import { defineQuery } from './utils/serverGraphqlUtil';
 import { htmlToTextDefault } from '../lib/htmlToText';
 import { commentsTableOfContentsEnabled } from '../lib/betas';
+import { JSDOM } from 'jsdom';
 
 // Number of headings below which a table of contents won't be generated.
 // If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
@@ -56,6 +57,16 @@ const headingSelector = _.keys(headingTags).join(",");
 //       {title: "Conclusion", anchor: "conclusion", level: 1},
 //     ]
 //   }
+// export function extractTableOfContents(postHTML: string | null) {
+//   if (!postHTML) return null;
+
+//   // Use jsdom to create a Document from the HTML string
+//   const { window } = new JSDOM(postHTML);
+//   const document = window.document;
+
+//   // Call the library version of extractTableOfContents with the constructed Document
+//   return extractTableOfContentsLib({ document, window });
+// }
 export function extractTableOfContents(postHTML: string | null)
 {
   if (!postHTML) return null;
@@ -292,8 +303,11 @@ export const getToCforPost = async ({document, version, context}: {
     html = document?.contents?.html;
   }
   
+  const tStart = performance.now()
   const tableOfContents = extractTableOfContents(html)
   let tocSections = tableOfContents?.sections || []
+  const tEnd = performance.now()
+  console.log(`Time to do parsing required for toc: ${tEnd - tStart}`)
   
   if (tocSections.length >= MIN_HEADINGS_FOR_TOC) {
     const tocAnswers = await getTocAnswers(document)
