@@ -3,7 +3,6 @@ import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useCurrentUser } from './withUser';
 import { useServerRequestStatus } from '../../lib/routeUtil'
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { isEAForum } from '../../lib/instanceSettings';
 
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI
