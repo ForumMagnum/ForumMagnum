@@ -289,19 +289,6 @@ const TargetedJobAd = ({ad, onDismiss, onApply, onRemindMe, classes}: {
 }) => {
   const adData = JOB_AD_DATA[ad]
   
-  // clicking either "apply" or "remind me" will close the ad
-  const [closed, setClosed] = useState(false)
-  
-  const handleApply = useCallback(() => {
-    setClosed(true)
-    onApply()
-  }, [setClosed, onApply])
-  
-  const handleRemindMe = useCallback(() => {
-    setClosed(true)
-    onRemindMe()
-  }, [setClosed, onRemindMe])
-  
   const { HoverPreviewLink, LWTooltip, ForumIcon, EAButton } = Components
   
   if (!adData) {
@@ -312,7 +299,7 @@ const TargetedJobAd = ({ad, onDismiss, onApply, onRemindMe, classes}: {
   const showRemindMe = adData.deadline && moment().add(3, 'days').isBefore(adData.deadline)
   
   return <AnalyticsContext pageSubSectionContext="targetedJobAd">
-    <div className={classNames(classes.root, {[classes.rootClosed]: closed})}>
+    <div className={classes.root}>
 
       <div className={classes.topRow}>
         <div className={classNames(classes.jobRecLabel, classes.metadata)}>
@@ -379,7 +366,7 @@ const TargetedJobAd = ({ad, onDismiss, onApply, onRemindMe, classes}: {
                 </div>
                 {showRemindMe && <>
                   <div>·</div>
-                  <button onClick={handleRemindMe} className={classes.reminderBtn}>
+                  <button onClick={onRemindMe} className={classes.reminderBtn}>
                     Remind me
                   </button>
                 </>}
@@ -394,7 +381,7 @@ const TargetedJobAd = ({ad, onDismiss, onApply, onRemindMe, classes}: {
             target="_blank"
             rel="noopener noreferrer"
             className={classes.applyBtn}
-            onClick={() => handleApply()}
+            onClick={onApply}
           >
             View job details <OpenInNew className={classes.btnIcon} />
           </EAButton>
