@@ -7,7 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useCreate } from '../../lib/crud/withCreate';
 import { useMulti } from '../../lib/crud/withMulti';
 import { useUpdate } from '../../lib/crud/withUpdate';
-import { JOB_AD_DATA } from './TargetedJobAd';
+import { EAGWillingToRelocateOption, JOB_AD_DATA } from './TargetedJobAd';
 import { gql, useQuery } from '@apollo/client';
 import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
@@ -138,6 +138,15 @@ const TargetedJobAdSection = () => {
         userIsMatch = (getCountryCode(currentUser.googleLocation) === countryCode) ||
           (userEAGData?.countryOrRegion === countryName)
       }
+      // Are they in the right city/area or willing to move there?
+      const city = jobAd.willingToRelocateTo
+      const relevantWillingnessesToRelocate: EAGWillingToRelocateOption[] = [
+        'I’d be excited to move here or already live here',
+        'I’d be willing to move here for a good opportunity'
+      ]
+      if (userIsMatch && city) {
+        userIsMatch = relevantWillingnessesToRelocate.includes(userEAGData?.willingnessToRelocate?.[city])
+      }
       // And are they in the right career stage?
       const careerStages = jobAd.careerStages
       if (userIsMatch && careerStages) {
@@ -221,7 +230,8 @@ const TargetedJobAdSection = () => {
       void updateUserJobAd({
         selector: {_id: ad._id},
         data: {
-          adState: 'reminderSet'
+          adState: 'reminderSet',
+          reminderSetAt: new Date()
         }
       })
     }
@@ -241,7 +251,8 @@ const TargetedJobAdSection = () => {
   
   return <div ref={setNode}>
     <TargetedJobAd
-      ad={activeJob}
+      jobName={activeJob}
+      userJobAd={userJobAds?.find(ad => ad.jobName === activeJob)}
       onDismiss={dismissJobAd}
       onApply={handleApply}
       onRemindMe={handleRemindMe}

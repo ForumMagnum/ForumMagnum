@@ -27,7 +27,7 @@ const sendJobAdReminderEmails = async () => {
   // Find all the user reminders set for these jobs
   const userJobAds = await UserJobAds.find({
     jobName: {$in: jobNames},
-    adState: 'reminderSet'
+    reminderSetAt: {$exists: true},
   }).fetch()
   if (!userJobAds.length) {
     logger(`No users to remind for jobs: ${jobNames.join(', ')}`)

@@ -91,8 +91,8 @@ Vulcan.importEAGUserDetails = wrapVulcanAsyncScript(
         countryOrRegion: row.countryOrRegion,
         nearestCity: row.nearestCity,
         willingnessToRelocate: {
-          Boston: row.willingnessToRelocateBoston,
           BayArea: row.willingnessToRelocateBayArea,
+          Boston: row.willingnessToRelocateBoston,
           DC: row.willingnessToRelocateDC,
           London: row.willingnessToRelocateLondon,
           NYC: row.willingnessToRelocateNYC,

@@ -192,11 +192,20 @@ type EAGOccupationOrCause =
   'Wild animal welfare'|
   'Writing'
 
-type EAGWillingToMoveOptions =
+export type EAGWillingToRelocateOption =
   'I’d be excited to move here or already live here'|
   'I’d be willing to move here for a good opportunity'|
   'I’m hesitant to move here, but would for a great opportunity'|
   'I’m unwilling or unable to move here'
+  
+type EAGWillingToRelocateLocation =
+  'BayArea'|
+  'Boston'|
+  'DC'|
+  'London'|
+  'NYC'|
+  'Oxford'|
+  'Remote'
 
 type JobAdData = {
   careerStages?: CareerStageValue[],            // used to match on career stages (either from the user profile or EAG)
@@ -217,6 +226,7 @@ type JobAdData = {
   location: string,
   countryCode?: string,                         // if provided, only show to users who we think are in this country (match on account location)
   countryName?: string,                         // if provided, only show to users who we think are in this country (match on EAG data)
+  willingToRelocateTo?: EAGWillingToRelocateLocation,          // if provided, only show to users who live here or are excited/willing to move here (match on EAG data)
   roleType?: string,                            // i.e. part-time, contract
   deadline?: moment.Moment,                     // also used to hide the ad after this date
 }
@@ -275,19 +285,39 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     location: 'Remote',
     deadline: moment('2024-03-31'),
   },
+  'cais-research-engineer': {
+    careerStages: ['earlyCareer'],
+    experiencedIn: ['Software development/Software engineering'],
+    interestedIn: ['AI safety technical research'],
+    subscribedTagIds: [
+      'oNiQsBHA3i837sySD', // AI safety
+    ],
+    logo: 'https://80000hours.org/wp-content/uploads/2023/11/Center-for-AI-safety-160x160.jpeg',
+    occupation: 'AI safety',
+    feedbackLinkPrefill: 'Research+Engineer+at+CAIS',
+    bitlyLink: "https://efctv.org/49MlRCM", // https://jobs.lever.co/aisafety/297ef7ae-a5aa-4c7e-a954-bf4535fd0e88
+    role: 'Research Engineer',
+    insertThe: true,
+    org: 'Center for AI Safety',
+    orgLink: '/topics/center-for-ai-safety',
+    salary: '$120k - $160k',
+    location: 'San Francisco, CA',
+    willingToRelocateTo: 'BayArea',
+  },
 }
 
 /**
  * This component only handles the job ad UI. See TargetedJobAdSection.tsx for functional logic.
  */
-const TargetedJobAd = ({ad, onDismiss, onApply, onRemindMe, classes}: {
-  ad: string,
+const TargetedJobAd = ({jobName, userJobAd, onDismiss, onApply, onRemindMe, classes}: {
+  jobName: string,
+  userJobAd?: UserJobAdsMinimumInfo,
   onDismiss: () => void,
   onApply: () => void,
   onRemindMe: () => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const adData = JOB_AD_DATA[ad]
+  const adData = JOB_AD_DATA[jobName]
   
   const { HoverPreviewLink, LWTooltip, ForumIcon, EAButton } = Components
   
@@ -296,7 +326,8 @@ const TargetedJobAd = ({ad, onDismiss, onApply, onRemindMe, classes}: {
   }
   
   // Only show the "Remind me" button if the job's deadline is more than 3 days away
-  const showRemindMe = adData.deadline && moment().add(3, 'days').isBefore(adData.deadline)
+  // and the current user hasn't already set a reminder for this job.
+  const showRemindMe = adData.deadline && moment().add(3, 'days').isBefore(adData.deadline) && !userJobAd?.reminderSetAt
   
   return <AnalyticsContext pageSubSectionContext="targetedJobAd">
     <div className={classes.root}>
