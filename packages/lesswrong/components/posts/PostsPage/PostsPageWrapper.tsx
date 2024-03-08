@@ -1,5 +1,5 @@
 import React from 'react';
-import { Components, registerComponent } from '../../../lib/vulcan-lib';
+import { Components, getFragment, registerComponent } from '../../../lib/vulcan-lib';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 import { isPostWithForeignId } from "./PostsPageCrosspostWrapper";
 import { commentGetDefaultView } from '../../../lib/collections/comments/helpers';
@@ -9,6 +9,8 @@ import { useSubscribedLocation } from '../../../lib/routeUtil';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import { postsCommentsThreadMultiOptions } from './PostsPage';
 import { useDisplayedPost } from '../usePost';
+import { useSingle } from '../../../lib/crud/withSingle';
+import { useApolloClient } from '@apollo/client';
 
 const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   sequenceId: string|null,
@@ -17,6 +19,13 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
 }) => {
   const currentUser = useCurrentUser();
   const { query } = useSubscribedLocation();
+
+  const apolloClient = useApolloClient();
+  const postPreload = apolloClient.cache.readFragment<PostsListWithVotes>({
+    fragment: getFragment("PostsListWithVotes"),
+    fragmentName: "PostsListWithVotes",
+    id: 'Post:'+documentId,
+  });
 
   const { document: post, refetch, loading, error, fetchProps } = useDisplayedPost(documentId, sequenceId, version);
 
@@ -47,7 +56,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
   const { Error404, Loading, PostsPageCrosspostWrapper, PostsPage } = Components;
   if (error && !isMissingDocumentError(error) && !isOperationNotAllowedError(error)) {
     throw new Error(error.message);
-  } else if (loading) {
+  } else if (loading && !postPreload) {
     return <div><Loading/></div>
   } else if (error) {
     if (isMissingDocumentError(error)) {
@@ -57,15 +66,16 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     } else {
       throw new Error(error.message);
     }
-  } else if (!post) {
+  } else if (!post && !postPreload) {
     return <Error404/>
-  } else if (isPostWithForeignId(post)) {
+  } else if (post && isPostWithForeignId(post)) {
     return <PostsPageCrosspostWrapper post={post} eagerPostComments={eagerPostComments} refetch={refetch} fetchProps={fetchProps} />
   }
 
   return (
     <PostsPage
-      post={post}
+      fullPost={post}
+      postPreload={postPreload ?? undefined}
       eagerPostComments={eagerPostComments}
       refetch={refetch}
     />

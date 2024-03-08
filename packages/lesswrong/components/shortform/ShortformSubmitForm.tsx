@@ -29,7 +29,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     fontWeight: isFriendlyUI ? 700 : 500,
     fontSize: 20,
     color: theme.palette.grey[1000],
-    margin: 20,
+    margin: isFriendlyUI ? 20 : '16px 20px 16px 0px',
   },
   quickTakesRoot: {
     background: "transparent",

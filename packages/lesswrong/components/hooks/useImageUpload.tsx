@@ -256,6 +256,7 @@ export const useImageUpload = ({
           },
         },
       },
+      maxFileSize: 5_000_000, // 5 MB
       ...cloudinaryArgs,
       uploadPreset,
       croppingAspectRatio,

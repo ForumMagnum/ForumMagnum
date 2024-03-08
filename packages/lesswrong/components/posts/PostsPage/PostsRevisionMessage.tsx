@@ -14,10 +14,12 @@ interface PostsRevisionMessageFragment {
 }
 
 const PostsRevisionMessage = ({post, classes}: {
-  post: PostsRevisionMessageFragment,
+  post: PostsRevisionMessageFragment|PostsList,
   classes: ClassesType,
 }) => {
-  if (!post.contents)
+  if (!post.contents )
+    return null;
+  if (!("editedAt" in post.contents))
     return null;
 
   const { FormatDate } = Components
