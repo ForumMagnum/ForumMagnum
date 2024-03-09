@@ -403,7 +403,7 @@ const PostsPageSplashHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, 
   const observerRef = useObserver<HTMLDivElement>({
     onEnter: () => transitionHeader(true),
     onExit: () => transitionHeader(false),
-    threshold: 0.95
+    threshold: 0.85
   });
 
   const setCropPreview = (coordinates?: Coordinates) => {
