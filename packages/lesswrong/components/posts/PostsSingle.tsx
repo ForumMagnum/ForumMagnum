@@ -6,6 +6,11 @@ const PostsSingle = () => {
   const { params, query } = useLocation();
   const version = query?.revision;
 
+  if (params._id.length !== 17) { 
+    return <Components.PermanentRedirect status={307} url={'/posts/slug/' + params._id}/>
+  }
+
+
   return <Components.PostsPageWrapper documentId={params._id} sequenceId={null} version={version} />
 };
 
