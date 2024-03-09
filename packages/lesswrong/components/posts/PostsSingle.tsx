@@ -1,13 +1,13 @@
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { useLocation } from '../../lib/routeUtil';
 import React from 'react';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isLWorAF } from '../../lib/instanceSettings';
 
 const PostsSingle = () => {
   const { params, query } = useLocation();
   const version = query?.revision;
 
-  if (params._id.length !== 17 && !isEAForum) { 
+  if (params._id.length !== 17 && isLWorAF) { 
     return <Components.PermanentRedirect status={307} url={'/posts/slug/' + params._id}/>
   }
 
