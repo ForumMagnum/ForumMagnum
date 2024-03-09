@@ -232,7 +232,6 @@ export function getDefaultResolvers<N extends CollectionNameString>(
           );
           const compiledQuery = query.compile();
           const db = getSqlClientOrThrow();
-          console.log({ compiledQuery });
           doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
         } else {
           doc = await Utils.Connectors.get(collection, selector);
