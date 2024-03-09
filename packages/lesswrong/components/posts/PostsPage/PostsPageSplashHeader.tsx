@@ -233,14 +233,14 @@ const styles = (theme: ThemeType) => ({
     lineHeight: '1',
     maxWidth: '75vw',
     textWrap: 'balance',
-    [`${theme.breakpoints.down('xs')} or (${theme.breakpoints.down('sm')} and (orientation:landscape))`]: {
+    [theme.breakpoints.down('xs')]: {
       fontSize: '2.5rem',
       maxWidth: '90vw'
     },
   },
   titleSmaller: {
     fontSize: '3.8rem',
-    [`${theme.breakpoints.down('xs')} or (${theme.breakpoints.down('sm')} and (orientation:landscape))`]: {
+    [theme.breakpoints.down('xs')]: {
       fontSize: '2rem'
     }
   },
