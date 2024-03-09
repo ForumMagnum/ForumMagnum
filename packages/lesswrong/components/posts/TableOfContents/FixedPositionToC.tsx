@@ -74,6 +74,7 @@ const styles = (theme: ThemeType) => ({
       borderBottom: "none",
     },
     transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, min-height 0.4s ease-in-out',
+    wordBreak: 'break-word'
   },
   fadeOut: {
     opacity: 0,
