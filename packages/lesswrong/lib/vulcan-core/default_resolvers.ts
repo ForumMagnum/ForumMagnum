@@ -300,7 +300,7 @@ const performQueryFromViewParameters = async <N extends CollectionNameString>(
   };
 
   // I don't know if we ever get a `skip` value in `parameters.options`, but if we do, we've been running on that logic for years
-  // So defer to that instead of override it with the value from `terms.offset`
+  // So defer to that if it exists, instead of overriding it with the value from `terms.offset`
   parameters.options.skip ??= options.skip;
 
   if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
