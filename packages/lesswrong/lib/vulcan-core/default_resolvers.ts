@@ -232,6 +232,7 @@ export function getDefaultResolvers<N extends CollectionNameString>(
           );
           const compiledQuery = query.compile();
           const db = getSqlClientOrThrow();
+          console.log({ compiledQuery });
           doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
         } else {
           doc = await Utils.Connectors.get(collection, selector);
@@ -292,11 +293,17 @@ const performQueryFromViewParameters = async <N extends CollectionNameString>(
   const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
   const selector = parameters.selector;
   const description = describeTerms(collection.collectionName, terms);
+
   const options: MongoFindOptions<ObjectsByCollectionName[N]> = {
     ...parameters.options,
     skip: terms.offset,
     comment: description
   };
+
+  // I don't know if we ever get a `skip` value in `parameters.options`, but if we do, we've been running on that logic for years
+  // So defer to that instead of override it with the value from `terms.offset`
+  parameters.options.skip ??= options.skip;
+
   if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
     const pipeline = [
       // First stage: Filter by selector
