@@ -39,7 +39,7 @@ export interface ToCData {
 // If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
 // it's empty) to keep the horizontal position of things on the page from
 // being imbalanced.
-const MIN_HEADINGS_FOR_TOC = commentsTableOfContentsEnabled ? 0 : 1;
+export const MIN_HEADINGS_FOR_TOC = commentsTableOfContentsEnabled ? 0 : 1;
 
 // Tags which define headings. Currently <h1>-<h4>, <strong>, and <b>. Excludes
 // <h5> and <h6> because their usage in historical (HTML) wasn't as a ToC-
@@ -75,16 +75,22 @@ const headingSelector = _.keys(headingTags).join(",");
 //       {title: "Conclusion", anchor: "conclusion", level: 1},
 //     ]
 //   }
-export function extractTableOfContents({ document, window }: { document: Document; window: DOMWindow }): ToCData | null {
+export function extractTableOfContents({
+  document,
+  window,
+}: {
+  document: Document;
+  window: DOMWindow | Window & typeof globalThis;
+}): ToCData | null {
   // `<b>` and `<strong>` tags are headings iff they are the only thing in their
   // paragraph.
   const tagIsWholeParagraph = (element: AnyBecauseIsInput): boolean => {
     if (!(element instanceof window.HTMLElement)) {
-      throw new Error("element must be HTMLElement")
+      throw new Error("element must be HTMLElement");
     }
     // Ensure the element's parent is a 'p' tag
     const parent = element.parentElement;
-    if (!parent || parent.tagName.toLowerCase() !== 'p') {
+    if (!parent || parent.tagName.toLowerCase() !== "p") {
       return false;
     }
 
@@ -96,7 +102,7 @@ export function extractTableOfContents({ document, window }: { document: Documen
         return true;
       }
       // Allow whitespace text nodes
-      if (child.nodeType === window.Node.TEXT_NODE && child.textContent?.trim() === '') {
+      if (child.nodeType === window.Node.TEXT_NODE && child.textContent?.trim() === "") {
         return true;
       }
       // Disallow anything else
@@ -104,7 +110,7 @@ export function extractTableOfContents({ document, window }: { document: Documen
     });
 
     return isOnlyElement;
-  }
+  };
 
   let headings: Array<ToCSection> = [];
   let usedAnchors: Record<string, boolean> = {};
@@ -137,7 +143,7 @@ export function extractTableOfContents({ document, window }: { document: Documen
   // Filter out unused heading levels, mapping the heading levels to consecutive
   // numbers starting from 1.
   let headingLevelsUsedDict: Partial<Record<number, boolean>> = {};
-  headings.forEach(heading => {
+  headings.forEach((heading) => {
     headingLevelsUsedDict[heading.level] = true;
   });
 
@@ -147,7 +153,7 @@ export function extractTableOfContents({ document, window }: { document: Documen
     headingLevelMap[level] = index + 1;
   });
 
-  headings.forEach(heading => {
+  headings.forEach((heading) => {
     heading.level = headingLevelMap[heading.level];
   });
 
@@ -158,7 +164,7 @@ export function extractTableOfContents({ document, window }: { document: Documen
   return {
     html: document.body.innerHTML,
     sections: headings,
-    headingsCount: headings.length
+    headingsCount: headings.length,
   };
 }
 

@@ -57,78 +57,78 @@ const headingSelector = _.keys(headingTags).join(",");
 //       {title: "Conclusion", anchor: "conclusion", level: 1},
 //     ]
 //   }
-// export function extractTableOfContents(postHTML: string | null) {
-//   if (!postHTML) return null;
-
-//   // Use jsdom to create a Document from the HTML string
-//   const { window } = new JSDOM(postHTML);
-//   const document = window.document;
-
-//   // Call the library version of extractTableOfContents with the constructed Document
-//   return extractTableOfContentsLib({ document, window });
-// }
-export function extractTableOfContents(postHTML: string | null)
-{
+export function extractTableOfContents(postHTML: string | null) {
   if (!postHTML) return null;
-  const postBody = cheerioParse(postHTML);
-  let headings: Array<ToCSection> = [];
-  let usedAnchors: Record<string,boolean> = {};
 
-  // First, find the headings in the document, create a linear list of them,
-  // and insert anchors at each one.
-  let headingTags = postBody(headingSelector);
-  for (let i=0; i<headingTags.length; i++) {
-    let tag = headingTags[i];
+  // Use jsdom to create a Document from the HTML string
+  const { window } = new JSDOM(postHTML);
+  const document = window.document;
 
-    if (tag.type !== "tag") {
-      continue;
-    }
-    if (tagIsHeadingIfWholeParagraph(tag.tagName) && !tagIsWholeParagraph(tag)) {
-      continue;
-    }
-
-    let title = elementToToCText(tag);
-    
-    if (title && title.trim()!=="") {
-      let anchor = titleToAnchor(title, usedAnchors);
-      usedAnchors[anchor] = true;
-      cheerio(tag).attr("id", anchor);
-      headings.push({
-        title: title,
-        anchor: anchor,
-        level: tagToHeadingLevel(tag.tagName),
-      });
-    }
-  }
-
-  // Filter out unused heading levels, mapping the heading levels to consecutive
-  // numbers starting from 1. So if a post uses <h1>, <h3> and <strong>, those
-  // will be levels 1, 2, and 3 (not 1, 3 and 7).
-
-  // Get a list of heading levels used
-  let headingLevelsUsedDict: Partial<Record<number,boolean>> = {};
-  for(let i=0; i<headings.length; i++)
-    headingLevelsUsedDict[headings[i].level] = true;
-
-  // Generate a mapping from raw heading levels to compressed heading levels
-  let headingLevelsUsed = _.keys(headingLevelsUsedDict).sort();
-  let headingLevelMap: Record<string, number> = {};
-  for(let i=0; i<headingLevelsUsed.length; i++)
-    headingLevelMap[ headingLevelsUsed[i] ] = i;
-
-  // Mark sections with compressed heading levels
-  for(let i=0; i<headings.length; i++)
-    headings[i].level = headingLevelMap[headings[i].level]+1;
-
-  if (headings.length) {
-    headings.push({divider:true, level: 0, anchor: "postHeadingsDivider"})
-  }
-  return {
-    html: postBody.html(),
-    sections: headings,
-    headingsCount: headings.length
-  }
+  // Call the library version of extractTableOfContents with the constructed Document
+  return extractTableOfContentsLib({ document, window });
 }
+// export function extractTableOfContents(postHTML: string | null)
+// {
+//   if (!postHTML) return null;
+//   const postBody = cheerioParse(postHTML);
+//   let headings: Array<ToCSection> = [];
+//   let usedAnchors: Record<string,boolean> = {};
+
+//   // First, find the headings in the document, create a linear list of them,
+//   // and insert anchors at each one.
+//   let headingTags = postBody(headingSelector);
+//   for (let i=0; i<headingTags.length; i++) {
+//     let tag = headingTags[i];
+
+//     if (tag.type !== "tag") {
+//       continue;
+//     }
+//     if (tagIsHeadingIfWholeParagraph(tag.tagName) && !tagIsWholeParagraph(tag)) {
+//       continue;
+//     }
+
+//     let title = elementToToCText(tag);
+    
+//     if (title && title.trim()!=="") {
+//       let anchor = titleToAnchor(title, usedAnchors);
+//       usedAnchors[anchor] = true;
+//       cheerio(tag).attr("id", anchor);
+//       headings.push({
+//         title: title,
+//         anchor: anchor,
+//         level: tagToHeadingLevel(tag.tagName),
+//       });
+//     }
+//   }
+
+//   // Filter out unused heading levels, mapping the heading levels to consecutive
+//   // numbers starting from 1. So if a post uses <h1>, <h3> and <strong>, those
+//   // will be levels 1, 2, and 3 (not 1, 3 and 7).
+
+//   // Get a list of heading levels used
+//   let headingLevelsUsedDict: Partial<Record<number,boolean>> = {};
+//   for(let i=0; i<headings.length; i++)
+//     headingLevelsUsedDict[headings[i].level] = true;
+
+//   // Generate a mapping from raw heading levels to compressed heading levels
+//   let headingLevelsUsed = _.keys(headingLevelsUsedDict).sort();
+//   let headingLevelMap: Record<string, number> = {};
+//   for(let i=0; i<headingLevelsUsed.length; i++)
+//     headingLevelMap[ headingLevelsUsed[i] ] = i;
+
+//   // Mark sections with compressed heading levels
+//   for(let i=0; i<headings.length; i++)
+//     headings[i].level = headingLevelMap[headings[i].level]+1;
+
+//   if (headings.length) {
+//     headings.push({divider:true, level: 0, anchor: "postHeadingsDivider"})
+//   }
+//   return {
+//     html: postBody.html(),
+//     sections: headings,
+//     headingsCount: headings.length
+//   }
+// }
 
 function elementToToCText(cheerioTag: cheerio.Element) {
   const tagHtml = cheerio(cheerioTag).html();
