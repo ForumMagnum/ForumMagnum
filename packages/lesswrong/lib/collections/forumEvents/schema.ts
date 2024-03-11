@@ -1,3 +1,5 @@
+import { foreignKeyField } from "../../utils/schemaUtils";
+
 const defaultProps = (): CollectionFieldSpecification<"ForumEvents"> => ({
   optional: false,
   nullable: false,
@@ -15,11 +17,17 @@ const schema: SchemaType<"ForumEvents"> = {
     ...defaultProps(),
     type: Date,
     control: "datetime",
+    form: {
+      below: true,
+    },
   },
   endDate: {
     ...defaultProps(),
     type: Date,
     control: "datetime",
+    form: {
+      below: true,
+    },
   },
   darkColor: {
     ...defaultProps(),
@@ -33,7 +41,13 @@ const schema: SchemaType<"ForumEvents"> = {
   },
   tagId: {
     ...defaultProps(),
-    type: String,
+    ...foreignKeyField({
+      idFieldName: "tagId",
+      resolverName: "tag",
+      collectionName: "Tags",
+      type: "Tag",
+      nullable: true,
+    }),
     control: "TagSelect",
     label: "Choose tag",
   },

@@ -2653,6 +2653,38 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly bannerImageId: string | null,
 }
 
+interface ForumEventsMinimumInfo { // fragment on ForumEvents
+  readonly _id: string,
+  readonly title: string,
+  readonly startDate: Date,
+  readonly endDate: Date,
+  readonly darkColor: string,
+  readonly lightColor: string,
+  readonly tagId: string,
+  readonly bannerImageId: string | null,
+}
+
+interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on ForumEvents
+  readonly tag: TagBasicInfo|null,
+  readonly frontpageDescription: ForumEventsDisplay_frontpageDescription|null,
+  readonly postPageDescription: ForumEventsDisplay_postPageDescription|null,
+}
+
+interface ForumEventsDisplay_frontpageDescription { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+}
+
+interface ForumEventsDisplay_postPageDescription { // fragment on Revisions
+  readonly _id: string,
+  readonly html: string,
+}
+
+interface ForumEventsEdit extends ForumEventsMinimumInfo { // fragment on ForumEvents
+  readonly frontpageDescription: RevisionEdit|null,
+  readonly postPageDescription: RevisionEdit|null,
+}
+
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions
   readonly userId: string,
   readonly state: "subscribed" | "suppressed",
@@ -3940,6 +3972,9 @@ interface FragmentTypes {
   DigestsDefaultFragment: DigestsDefaultFragment
   DigestsMinimumInfo: DigestsMinimumInfo
   ForumEventsDefaultFragment: ForumEventsDefaultFragment
+  ForumEventsMinimumInfo: ForumEventsMinimumInfo
+  ForumEventsDisplay: ForumEventsDisplay
+  ForumEventsEdit: ForumEventsEdit
   SubscriptionsDefaultFragment: SubscriptionsDefaultFragment
   SubscriptionState: SubscriptionState
   PodcastsDefaultFragment: PodcastsDefaultFragment
@@ -4056,7 +4091,7 @@ interface FragmentTypesByCollection {
   UserMostValuablePosts: "UserMostValuablePostsDefaultFragment"|"UserMostValuablePostInfo"
   DigestPosts: "DigestPostsDefaultFragment"|"DigestPostsMinimumInfo"
   Digests: "DigestsDefaultFragment"|"DigestsMinimumInfo"
-  ForumEvents: "ForumEventsDefaultFragment"
+  ForumEvents: "ForumEventsDefaultFragment"|"ForumEventsMinimumInfo"|"ForumEventsDisplay"|"ForumEventsEdit"
   Subscriptions: "SubscriptionsDefaultFragment"|"SubscriptionState"
   Podcasts: "PodcastsDefaultFragment"|"PodcastSelect"
   PodcastEpisodes: "PodcastEpisodesDefaultFragment"|"PodcastEpisodeFull"
@@ -4248,6 +4283,9 @@ interface CollectionNamesByFragmentName {
   DigestsDefaultFragment: "Digests"
   DigestsMinimumInfo: "Digests"
   ForumEventsDefaultFragment: "ForumEvents"
+  ForumEventsMinimumInfo: "ForumEvents"
+  ForumEventsDisplay: "ForumEvents"
+  ForumEventsEdit: "ForumEvents"
   SubscriptionsDefaultFragment: "Subscriptions"
   SubscriptionState: "Subscriptions"
   PodcastsDefaultFragment: "Podcasts"

@@ -2,8 +2,9 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentUser } from "../common/withUser";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   root: {
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
 });
 
@@ -21,7 +22,11 @@ export const AdminForumEventsPage = ({classes}: {
 
   return (
     <div className={classes.root}>
-      <WrappedSmartForm collectionName="ForumEvents" />
+      <WrappedSmartForm
+        collectionName="ForumEvents"
+        queryFragmentName="ForumEventsEdit"
+        mutationFragmentName="ForumEventsEdit"
+      />
     </div>
   );
 }

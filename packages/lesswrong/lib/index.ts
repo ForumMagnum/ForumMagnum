@@ -169,6 +169,7 @@ import './collections/digests/schema';
 import './collections/digests/views';
 
 import './collections/forumEvents/collection';
+import './collections/forumEvents/fragments';
 
 // Subscriptions
 import './collections/subscriptions';
