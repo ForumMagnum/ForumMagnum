@@ -8,5 +8,6 @@ registerFragment(`
     lastUpdated
     jobName
     adState
+    reminderSetAt
   }
 `);

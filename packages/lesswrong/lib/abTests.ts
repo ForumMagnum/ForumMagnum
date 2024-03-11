@@ -250,7 +250,7 @@ export const postPageFixedDigestAd = new ABTest({
 
 export const jobAdDescription = new ABTest({
   name: "jobAdDescription",
-  active: true,
+  active: false,
   affectsLoggedOut: false,
   description: "Which description to show in the job ad",
   groups: {
