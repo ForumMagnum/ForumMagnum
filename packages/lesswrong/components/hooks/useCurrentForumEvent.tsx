@@ -1,6 +1,6 @@
 import React, { FC, ReactNode, createContext, useContext, useMemo } from "react";
 import { useMulti } from "../../lib/crud/withMulti";
-import { isEAForum } from "../../lib/instanceSettings";
+import { hasForumEvents } from "../../lib/betas";
 
 type CurrentForumEventContext = {
   currentForumEvent: ForumEventsDisplay | null,
@@ -19,7 +19,7 @@ export const CurrentForumEventProvider: FC<{
     terms: {
       view: "currentForumEvent",
     },
-    skip: !isEAForum,
+    skip: !hasForumEvents,
   });
   const value = useMemo(() => {
     return {

@@ -339,7 +339,7 @@ const Layout = ({currentUser, children, classes}: {
       SunshineSidebar,
       EAHomeRightHandSide,
       CloudinaryImage2,
-      ReviewVotingCanvas
+      ForumEventBanner,
     } = Components;
 
     const baseLayoutOptions: LayoutOptions = {
@@ -421,6 +421,7 @@ const Layout = ({currentUser, children, classes}: {
                 stayAtTop={!!currentRoute?.staticHeader}
                 backgroundColor={headerBackgroundColor}
               />}
+              <ForumEventBanner />
               {/* enable during ACX Everywhere */}
               {renderCommunityMap && <span className={classes.hideHomepageMapOnMobile}><HomepageCommunityMap dontAskUserLocation={true}/></span>}
               {renderPetrovDay() && <PetrovDayWrapper/>}
