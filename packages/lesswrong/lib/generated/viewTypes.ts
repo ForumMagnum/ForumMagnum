@@ -21,6 +21,7 @@ type ElicitQuestionPredictionsViewName = never
 type ElicitQuestionsViewName = never
 type EmailTokensViewName = never
 type FeaturedResourcesViewName = "activeResources";
+type ForumEventsViewName = never
 type GardenCodesViewName = "usersPrivateGardenCodes"|"publicGardenCodes"|"gardenCodeByCode";
 type GoogleServiceAccountSessionsViewName = never
 type ImagesViewName = never
@@ -92,6 +93,7 @@ interface ViewTermsByCollectionName {
   ElicitQuestions: ViewTermsBase
   EmailTokens: ViewTermsBase
   FeaturedResources: FeaturedResourcesViewTerms
+  ForumEvents: ViewTermsBase
   GardenCodes: GardenCodesViewTerms
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViewTerms
   Images: ViewTermsBase

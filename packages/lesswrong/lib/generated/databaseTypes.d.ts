@@ -411,6 +411,25 @@ interface DbFeaturedResource extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ForumEventsCollection = CollectionBase<"ForumEvents">;
+
+interface DbForumEvent extends DbObject {
+  __collectionName?: "ForumEvents"
+  title: string
+  startDate: Date
+  endDate: Date
+  darkColor: string
+  lightColor: string
+  tagId: string
+  imageId: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  frontpageDescription: EditableFieldContents
+  frontpageDescription_latest: string | null
+  postPageDescription: EditableFieldContents
+  postPageDescription_latest: string | null
+}
+
 type GardenCodesCollection = CollectionBase<"GardenCodes">;
 
 interface DbGardenCode extends DbObject {
@@ -1779,6 +1798,7 @@ interface CollectionsByName {
   ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
+  ForumEvents: ForumEventsCollection
   GardenCodes: GardenCodesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
   Images: ImagesCollection
@@ -1851,6 +1871,7 @@ interface ObjectsByCollectionName {
   ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
+  ForumEvents: DbForumEvent
   GardenCodes: DbGardenCode
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
   Images: DbImages
@@ -1923,6 +1944,7 @@ interface ObjectsByTypeName {
   ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResource: DbFeaturedResource
+  ForumEvent: DbForumEvent
   GardenCode: DbGardenCode
   GoogleServiceAccountSession: DbGoogleServiceAccountSession
   Images: DbImages
