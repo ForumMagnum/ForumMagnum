@@ -2650,7 +2650,7 @@ interface ForumEventsDefaultFragment { // fragment on ForumEvents
   readonly darkColor: string,
   readonly lightColor: string,
   readonly tagId: string,
-  readonly imageId: string,
+  readonly bannerImageId: string | null,
 }
 
 interface SubscriptionsDefaultFragment { // fragment on Subscriptions

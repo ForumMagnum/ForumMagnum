@@ -1,7 +1,7 @@
 import ForumEvents from "../../lib/collections/forumEvents/collection";
 import { createTable, dropTable } from "./meta/utils";
 
-export const acceptsSchemaHash = "7d00e24659b5765533db00034c6636ae";
+export const acceptsSchemaHash = "a5d908ad079b15fbcbc381bbc31e2f03";
 
 export const up = async ({db}: MigrationContext) => {
   await createTable(db, ForumEvents);

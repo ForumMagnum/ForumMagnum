@@ -570,7 +570,7 @@
     "timestamp": "2024-02-29T14:03:17.000Z"
   },
   {
-    "acceptsSchemaHash": "7d00e24659b5765533db00034c6636ae",
+    "acceptsSchemaHash": "a5d908ad079b15fbcbc381bbc31e2f03",
     "acceptedByMigration": "20240311T113830.create_ForumEvents_table.ts",
     "timestamp": "2024-03-11T11:38:30.000Z"
   }

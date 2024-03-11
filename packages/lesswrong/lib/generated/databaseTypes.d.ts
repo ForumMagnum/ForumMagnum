@@ -421,7 +421,7 @@ interface DbForumEvent extends DbObject {
   darkColor: string
   lightColor: string
   tagId: string
-  imageId: string
+  bannerImageId: string | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
   frontpageDescription: EditableFieldContents

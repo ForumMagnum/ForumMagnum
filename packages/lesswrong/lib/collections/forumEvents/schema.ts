@@ -33,9 +33,12 @@ const schema: SchemaType<"ForumEvents"> = {
     ...defaultProps(),
     type: String,
     control: "TagSelect",
+    label: "Choose tag",
   },
-  imageId: {
+  bannerImageId: {
     ...defaultProps(),
+    optional: true,
+    nullable: true,
     type: String,
     control: "ImageUpload",
   },
