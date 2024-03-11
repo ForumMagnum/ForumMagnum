@@ -568,5 +568,10 @@
     "acceptsSchemaHash": "10225605411f6e346ca4185fd18de582",
     "acceptedByMigration": "20240229T140317.add_GoogleServiceAccountSessions.ts",
     "timestamp": "2024-02-29T14:03:17.000Z"
+  },
+  {
+    "acceptsSchemaHash": "7d00e24659b5765533db00034c6636ae",
+    "acceptedByMigration": "20240311T113830.create_ForumEvents_table.ts",
+    "timestamp": "2024-03-11T11:38:30.000Z"
   }
 ]
