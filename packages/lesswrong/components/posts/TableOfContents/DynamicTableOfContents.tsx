@@ -44,8 +44,8 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
 
   const context = useMemo(() => ({setToc: setToc}), [setToc]);
 
-  const sectionData = latestToc ?? {html:null, sections:[], headingsCount:0};
-  const displayedTitle = title || (sectionData.headingsCount > 0 ? "Table of Contents" : "")
+  const sectionData = latestToc ?? {html:null, sections:[]};
+  const displayedTitle = title || (sectionData.sections.length > 0 ? "Table of Contents" : "")
 
   return <div>
     <DynamicTableOfContentsContext.Provider value={context}>

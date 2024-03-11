@@ -35,7 +35,6 @@ export interface ToCSectionWithOffset extends ToCSection {
 export interface ToCData {
   html: string | null,
   sections: ToCSection[],
-  headingsCount: number,
 }
 
 // Number of headings below which a table of contents won't be generated.
@@ -142,9 +141,9 @@ export function extractTableOfContents({
   }
 
   return {
+    // TODO check that this is the right html, although I think it isn't used
     html: document.body.innerHTML,
     sections: headings,
-    headingsCount: headings.length,
   };
 }
 

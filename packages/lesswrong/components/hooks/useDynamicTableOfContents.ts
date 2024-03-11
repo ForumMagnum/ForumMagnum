@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { MIN_HEADINGS_FOR_TOC, ToCData, extractTableOfContents, getTocAnswers } from "../../lib/tableOfContents";
 import { PostWithCommentCounts, getResponseCounts, postGetCommentCountStr } from "../../lib/collections/posts/helpers";
+import { parseDocumentFromString } from "../../lib/domParser";
 
 // Comment/answer count notes:
 // Currently:
@@ -15,7 +16,8 @@ import { PostWithCommentCounts, getResponseCounts, postGetCommentCountStr } from
 // - [X] Move getResponseCounts function out to lib somewhere post helpers
 // - [X] Use this for the comment counts
 // - [X] Use the answers directly for the answer sections
-// - [ ] See if I can remove headingsCount
+// - [X] See if I can remove headingsCount
+// - [ ] Fix SSR issue
 
 export const useDynamicTableOfContents = ({
   html,
@@ -26,15 +28,13 @@ export const useDynamicTableOfContents = ({
   post: PostWithCommentCounts & {question: boolean}
   answers: CommentsList[];
 }): ToCData|null => {
-  return useMemo(() => {
-    const parser = new DOMParser();
-    const htmlDoc = parser.parseFromString(html, "text/html");
+  return useMemo(async () => {
+    const { document: htmlDoc, window: genericWindow } = await parseDocumentFromString(html);
 
     const {
       sections = [],
-      headingsCount = 0,
       html: tocHtml = null,
-    } = extractTableOfContents({ document: htmlDoc, window }) ?? {};
+    } = extractTableOfContents({ document: htmlDoc, window: genericWindow }) ?? {};
 
     const { commentCount } = getResponseCounts({ post, answers })
     const answerSections = getTocAnswers({post, answers})
@@ -48,10 +48,10 @@ export const useDynamicTableOfContents = ({
       const commentsSection = [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, commentCount) }];
       sections?.push(...commentsSection)
 
+      console.log({ sections });
       return {
         html: tocHtml ?? null,
         sections,
-        headingsCount
       }
     }
 
