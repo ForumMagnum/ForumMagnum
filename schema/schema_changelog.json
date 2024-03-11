@@ -568,5 +568,10 @@
     "acceptsSchemaHash": "10225605411f6e346ca4185fd18de582",
     "acceptedByMigration": "20240229T140317.add_GoogleServiceAccountSessions.ts",
     "timestamp": "2024-02-29T14:03:17.000Z"
+  },
+  {
+    "acceptsSchemaHash": "9ebb51a67d889b5907585d2a7073434d",
+    "acceptedByMigration": "20240308T231309.add_reminderSetAt_to_UserJobAds.ts",
+    "timestamp": "2024-03-08T23:13:09.000Z"
   }
 ]
