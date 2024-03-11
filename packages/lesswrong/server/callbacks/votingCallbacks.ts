@@ -2,7 +2,7 @@ import moment from 'moment';
 import Notifications from '../../lib/collections/notifications/collection';
 import { Posts } from '../../lib/collections/posts/collection';
 import Users from '../../lib/collections/users/collection';
-import { isLWorAF, reviewUserBotSetting } from '../../lib/instanceSettings';
+import { isLWorAF, reviewMarketCreationMinimumKarmaSetting, reviewUserBotSetting } from '../../lib/instanceSettings';
 import { voteCallbacks, VoteDocTuple } from '../../lib/voting/vote';
 import { userSmallVotePower } from '../../lib/voting/voteTypes';
 import { postPublishedCallback } from '../notificationCallbacks';
@@ -16,7 +16,6 @@ import { createAdminContext } from '../vulcan-lib';
 import { addOrUpvoteTag } from '../tagging/tagsGraphQL';
 import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
-import { MINIMUM_KARMA_REVIEW_MARKET_CREATION } from '../../lib/annualReviewMarkets';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../posts/annualReviewMarkets';
 
@@ -187,7 +186,7 @@ voteCallbacks.castVoteAsync.add(async ({newDocument, vote}: VoteDocTuple, collec
 
   if (collection.collectionName !== "Posts") return;
   if (vote.power <= 0 || vote.cancelled) return; // In principle it would be fine to make a market here, but it should never be first created here
-  if (newDocument.baseScore < MINIMUM_KARMA_REVIEW_MARKET_CREATION) return;
+  if (newDocument.baseScore < reviewMarketCreationMinimumKarmaSetting.get()) return;
   const post = await Posts.findOne({_id: newDocument._id})
   if (!post) return;
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
