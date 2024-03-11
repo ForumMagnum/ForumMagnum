@@ -499,8 +499,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   );
   
   const sequenceId = getSequenceId();
-  // const sectionData = (fullPost as PostsWithNavigationAndRevision)?.tableOfContentsRevision || (post as PostsWithNavigation)?.tableOfContents;
-  const sectionData = useDynamicTableOfContents({ html: post?.contents?.html ?? post?.contents?.htmlHighlight ?? "" })
+  const sectionData = useDynamicTableOfContents({
+    html: (post as PostsWithNavigationAndRevision)?.contents?.html ?? post?.contents?.htmlHighlight ?? "",
+    post,
+    answers,
+  });
   const htmlWithAnchors = sectionData?.html || fullPost?.contents?.html || postPreload?.contents?.htmlHighlight || "";
 
   const showRecommendations = hasPostRecommendations &&

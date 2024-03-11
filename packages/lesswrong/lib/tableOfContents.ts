@@ -149,15 +149,14 @@ export function extractTableOfContents({
 }
 
 type CommentType = CommentsList | DbComment
-export function getTocAnswers(answers: CommentType[]) {
-  // TODO make sure this condition is checked elsewhere
-  // if (!document.question) return []
+export function getTocAnswers({ post, answers }: { post: { question: boolean }; answers: CommentType[] }) {
+  if (!post.question) return []
 
   const answerSections: ToCSection[] = answers.map((answer: CommentType): ToCSection => {
-    const { html = "" } = answer.contents || {}
-    const highlight = truncate(html, 900)
+    const { html = "" } = answer.contents || {};
+    const highlight = truncate(html, 900);
     let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html));
-    const author = (("user" in answer) ? answer.user?.displayName : answer.author) ?? null;
+    const author = ("user" in answer ? answer.user?.displayName : answer.author) ?? null;
 
     return {
       title: `${answer.baseScore} ${author}`,
@@ -166,21 +165,22 @@ export function getTocAnswers(answers: CommentType[]) {
         voteCount: answer.voteCount,
         postedAt: answer.postedAt,
         author: author,
-        highlight, shortHighlight,
+        highlight,
+        shortHighlight,
       },
       anchor: answer._id,
-      level: 2
+      level: 2,
     };
-  })
+  });
 
   if (answerSections.length) {
     return [
-      {anchor: "answers", level:1, title:'Answers'}, 
+      { anchor: "answers", level: 1, title: "Answers" },
       ...answerSections,
-      {divider:true, level: 0, anchor: "postAnswersDivider"}
-    ]
+      { divider: true, level: 0, anchor: "postAnswersDivider" },
+    ];
   } else {
-    return []
+    return [];
   }
 }
 
