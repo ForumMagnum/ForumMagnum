@@ -19,6 +19,7 @@ makeEditable({
   collection: ForumEvents,
   options: {
     fieldName: "frontpageDescription",
+    label: "Frontpage description",
     commentEditor: true,
     commentStyles: true,
     hideControls: true,
@@ -40,6 +41,7 @@ makeEditable({
   collection: ForumEvents,
   options: {
     fieldName: "postPageDescription",
+    label: "Post page description",
     commentEditor: true,
     commentStyles: true,
     hideControls: true,

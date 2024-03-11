@@ -701,7 +701,6 @@ importComponent("AdminToggle", () => require('../components/admin/AdminToggle'))
 importComponent("RandomUserPage", () => require('../components/admin/RandomUserPage'));
 importComponent("AdminGoogleServiceAccount", () => require('../components/admin/AdminGoogleServiceAccount'));
 importComponent("AdminViewOnboarding", () => require('../components/admin/AdminViewOnboarding'));
-importComponent("AdminForumEventsPage", () => require('../components/admin/AdminForumEventsPage'));
 importComponent("ModerationDashboard", () => require('../components/sunshineDashboard/ModerationDashboard'));
 importComponent("TagMergePage", () => require('../components/tagging/TagMergePage.tsx'));
 importComponent("RecentlyActiveUsers", () => require('../components/sunshineDashboard/ModeratorUserInfo/RecentlyActiveUsers'));
@@ -717,6 +716,10 @@ importComponent("SunshineCommentsItemOverview", () => require('../components/sun
 importComponent("AFSuggestCommentsItem", () => require('../components/sunshineDashboard/AFSuggestCommentsItem'));
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
+
+importComponent("AdminForumEventsPage", () => require('../components/forumEvents/AdminForumEventsPage'));
+importComponent("ForumEventsList", () => require('../components/forumEvents/ForumEventsList'));
+importComponent("NewForumEvent", () => require('../components/forumEvents/NewForumEvent'));
 
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));

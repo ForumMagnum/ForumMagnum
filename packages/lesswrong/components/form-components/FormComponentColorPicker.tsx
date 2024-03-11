@@ -25,8 +25,8 @@ export const FormComponentColorPicker = ({
   disabled,
   classes,
 }: FormComponentColorPickerProps) => {
-  const onChange = useCallback((ev) => {
-    updateCurrentValues({
+  const onChange = useCallback(async (ev) => {
+    await updateCurrentValues({
       [path]: ev.target.value,
     });
   }, [updateCurrentValues, path]);

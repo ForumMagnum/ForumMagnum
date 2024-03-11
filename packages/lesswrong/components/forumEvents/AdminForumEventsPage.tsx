@@ -5,6 +5,9 @@ import { useCurrentUser } from "../common/withUser";
 const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
   },
 });
 
@@ -13,7 +16,10 @@ export const AdminForumEventsPage = ({classes}: {
 }) => {
   const currentUser = useCurrentUser();
 
-  const {ErrorAccessDenied, WrappedSmartForm} = Components;
+  const {
+    ErrorAccessDenied, SingleColumnSection, ForumEventsList, NewForumEvent,
+  } = Components;
+
   if (!currentUser?.isAdmin) {
     return (
       <ErrorAccessDenied />
@@ -21,13 +27,17 @@ export const AdminForumEventsPage = ({classes}: {
   }
 
   return (
-    <div className={classes.root}>
-      <WrappedSmartForm
-        collectionName="ForumEvents"
-        queryFragmentName="ForumEventsEdit"
-        mutationFragmentName="ForumEventsEdit"
+    <SingleColumnSection className={classes.root}>
+      <ForumEventsList
+        title="Upcoming and current events"
+        view="upcomingForumEvents"
       />
-    </div>
+      <ForumEventsList
+        title="Past events"
+        view="pastForumEvents"
+      />
+      <NewForumEvent />
+    </SingleColumnSection>
   );
 }
 
