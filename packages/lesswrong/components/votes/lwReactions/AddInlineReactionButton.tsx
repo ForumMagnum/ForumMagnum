@@ -3,8 +3,23 @@ import { Components, registerComponent } from "../../../lib/vulcan-lib";
 import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnComment";
 import { VotingProps } from "../votingProps";
 import { QuoteLocator } from "../../../lib/voting/namesAttachedReactions";
+import classNames from "classnames";
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
+  tooltip: {
+    height: 38,
+  },
+  icon: {
+    borderRadius: 8,
+    padding: '7px 8px',
+    "&:hover": {
+      background: theme.palette.panelBackground.darken08,
+    },
+    // Icons have 24 px font size; gives it enough room for padding while still maintaing proper icon size
+    width: '1.666em',
+    height: '1.666em',
+    cursor: "pointer",
+  },
   disabled: {
     opacity: .25
   },
@@ -19,7 +34,7 @@ const styles = (theme: ThemeType): JssStyles => ({
 
 const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType,
+  classes: ClassesType<typeof styles>,
   quote: QuoteLocator|null,
   disabled?: boolean
 }) => {
@@ -40,15 +55,15 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled}: {
 
   return <LWTooltip
     disabled={open}
-    inlineBlock={false}
-    title={<div><p>Click to react to this comment snippet</p>
+    title={<div><p>Click to react to the selected text</p>
       {disabled && <p><em>You need to select a unique snippet.<br/>Please select more text until the snippet is unique</em></p>}
     </div>}
+    className={classes.tooltip}
   >
     <span
       ref={buttonRef}
     >
-      {!open && <ForumIcon icon="AddReaction" onClick={handleOpen} className={disabled ? classes.disabled : undefined}/>}
+      {!open && <ForumIcon icon="AddReaction" onClick={handleOpen} className={classNames(classes.icon, { [classes.disabled]: disabled })}/>}
       {open && <div className={classes.palette}>
         <ReactionsPalette
           getCurrentUserReactionVote={getCurrentUserReactionVote}

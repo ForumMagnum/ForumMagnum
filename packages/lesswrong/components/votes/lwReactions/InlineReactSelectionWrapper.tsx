@@ -16,7 +16,7 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: 1000,
     position: "relative",
     left: 12,
-    backgroundColor: theme.palette.background.paper, 
+    backgroundColor: theme.palette.background.paper,
   },
 });
 
@@ -82,7 +82,7 @@ export const InlineReactSelectionWrapper = ({commentBodyRef, voteProps, styling,
   }, [detectSelection, commentBodyRef]);
   
   const buttonOffsetLeft = (styling==="comment") ? 12 : 30;
-  const buttonOffsetTop = (styling==="comment") ? 12 : 22;
+  const buttonOffsetTop = (styling==="comment") ? 10 : 20;
 
   return (
     <div className={classes.root} ref={commentTextRef}>
