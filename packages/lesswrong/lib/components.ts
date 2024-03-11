@@ -948,6 +948,7 @@ importComponent(["MultiSelect","FormComponentMultiSelect"], () => require('../co
 importComponent("FormComponentDate", () => require('../components/form-components/FormComponentDate'));
 importComponent(["DatePicker","FormComponentDateTime"], () => require('../components/form-components/FormComponentDateTime'));
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
+importComponent("FormComponentColorPicker", () => require('../components/form-components/FormComponentColorPicker'));
 importComponent("FormComponentQuickTakesTags", () => require('../components/form-components/FormComponentQuickTakesTags'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));

@@ -23,11 +23,13 @@ const schema: SchemaType<"ForumEvents"> = {
   },
   darkColor: {
     ...defaultProps(),
-    type: String, // TODO: Color picker
+    type: String,
+    control: "FormComponentColorPicker",
   },
   lightColor: {
     ...defaultProps(),
-    type: String, // TODO: Color picker
+    type: String,
+    control: "FormComponentColorPicker",
   },
   tagId: {
     ...defaultProps(),
