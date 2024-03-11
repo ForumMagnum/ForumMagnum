@@ -112,7 +112,10 @@ const styles = (theme: ThemeType) => ({
     padding: "0 6px",
     height: 20,
   },
-})
+  highlightedTagTooltip: {
+    marginTop: -2,
+  },
+});
 
 const postIcon = (post: PostsBase|PostsListBase) => {
   const matchingIdSetting = Array.from(idSettingIcons.keys()).find(idSetting => post._id === idSetting.get())
@@ -222,7 +225,10 @@ const PostsTitle = ({
         </InteractionWrapper>
       </span>}
       {highlightedTag &&
-        <TagsTooltip tagSlug={highlightedTag.slug}>
+        <TagsTooltip
+          tagSlug={highlightedTag.slug}
+          className={classes.highlightedTagTooltip}
+        >
           <span className={classes.highlightedTag}>
             {highlightedTag.name}
           </span>
