@@ -28,8 +28,8 @@ export const useDynamicTableOfContents = ({
   post: PostWithCommentCounts & {question: boolean}
   answers: CommentsList[];
 }): ToCData|null => {
-  return useMemo(async () => {
-    const { document: htmlDoc, window: genericWindow } = await parseDocumentFromString(html);
+  return useMemo(() => {
+    const { document: htmlDoc, window: genericWindow } = parseDocumentFromString(html);
 
     const {
       sections = [],
