@@ -244,7 +244,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     logo: 'https://80000hours.org/wp-content/uploads/2023/10/institute_for_ai_policy_and_strategy_iaps_logo-160x160.jpeg',
     occupation: 'AI policy',
     feedbackLinkPrefill: 'AI+Policy+Fellow+at+IAPS',
-    bitlyLink: "https://efctv.org/49Jfdx5", // https://www.iaps.ai/fellowship
+    bitlyLink: "https://efctv.org/49OaBpB", // https://www.iaps.ai/fellowship
     role: 'AI Policy Fellow',
     insertThe: true,
     org: 'Institute for AI Policy & Strategy',
@@ -259,7 +259,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     logo: 'https://80000hours.org/wp-content/uploads/2022/12/CEA-160x160.png',
     occupation: 'communications',
     feedbackLinkPrefill: 'Head+of+Communications+at+CEA',
-    bitlyLink: "https://efctv.org/3P5ISZ7", // https://www.centreforeffectivealtruism.org/careers/head-of-communications
+    bitlyLink: "https://efctv.org/3Terl1X", // https://www.centreforeffectivealtruism.org/careers/head-of-communications
     role: 'Head of Communications',
     insertThe: true,
     org: 'Centre for Effective Altruism',
@@ -296,7 +296,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     logo: 'https://80000hours.org/wp-content/uploads/2023/11/Center-for-AI-safety-160x160.jpeg',
     occupation: 'AI safety',
     feedbackLinkPrefill: 'Research+Engineer+at+CAIS',
-    bitlyLink: "https://efctv.org/49MlRCM", // https://jobs.lever.co/aisafety/297ef7ae-a5aa-4c7e-a954-bf4535fd0e88
+    bitlyLink: "https://efctv.org/49OMlU9", // https://jobs.lever.co/aisafety/297ef7ae-a5aa-4c7e-a954-bf4535fd0e88
     role: 'Research Engineer',
     insertThe: true,
     org: 'Center for AI Safety',
