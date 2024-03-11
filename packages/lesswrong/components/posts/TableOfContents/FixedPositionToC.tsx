@@ -74,6 +74,7 @@ const styles = (theme: ThemeType) => ({
     '& .TableOfContentsRow-title': {
       borderBottom: "none",
     },
+    wordBreak: 'break-word',
     transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, height 0.4s ease-in-out, max-height 0.4s ease-in-out',
   },
   fadeOut: {
