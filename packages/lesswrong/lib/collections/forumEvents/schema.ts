@@ -12,6 +12,7 @@ const schema: SchemaType<"ForumEvents"> = {
   title: {
     ...defaultProps(),
     type: String,
+    control: "MuiTextField",
   },
   startDate: {
     ...defaultProps(),

@@ -17,7 +17,7 @@ export const AdminForumEventsPage = ({classes}: {
   const currentUser = useCurrentUser();
 
   const {
-    ErrorAccessDenied, SingleColumnSection, ForumEventsList, NewForumEvent,
+    ErrorAccessDenied, SingleColumnSection, ForumEventsList, ForumEventForm,
   } = Components;
 
   if (!currentUser?.isAdmin) {
@@ -36,7 +36,7 @@ export const AdminForumEventsPage = ({classes}: {
         title="Past events"
         view="pastForumEvents"
       />
-      <NewForumEvent />
+      <ForumEventForm />
     </SingleColumnSection>
   );
 }

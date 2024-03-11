@@ -19,7 +19,6 @@ type FormComponentColorPickerProps = FormComponentProps<number> & {
 export const FormComponentColorPicker = ({
   value,
   label,
-  placeholder,
   updateCurrentValues,
   path,
   disabled,
@@ -35,7 +34,7 @@ export const FormComponentColorPicker = ({
       {label && <div className={classes.label}>{label}</div>}
       <input
         type="color"
-        value={value ?? placeholder ?? "#ffffff"}
+        value={value ?? "#ffffff"}
         onChange={onChange}
         disabled={disabled}
       />

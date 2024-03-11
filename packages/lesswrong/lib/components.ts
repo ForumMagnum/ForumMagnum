@@ -718,8 +718,9 @@ importComponent("AFSuggestCommentsList", () => require('../components/sunshineDa
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
 
 importComponent("AdminForumEventsPage", () => require('../components/forumEvents/AdminForumEventsPage'));
+importComponent("EditForumEventPage", () => require('../components/forumEvents/EditForumEventPage'));
 importComponent("ForumEventsList", () => require('../components/forumEvents/ForumEventsList'));
-importComponent("NewForumEvent", () => require('../components/forumEvents/NewForumEvent'));
+importComponent("ForumEventForm", () => require('../components/forumEvents/ForumEventForm'));
 
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));

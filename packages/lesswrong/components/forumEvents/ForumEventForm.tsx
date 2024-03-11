@@ -3,19 +3,22 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 
 const styles = (_theme: ThemeType) => ({
   root: {},
-  newFormTitle: {
+  formTitle: {
     marginBottom: -30,
   },
 });
 
-export const NewForumEvent = ({classes}: {
+export const ForumEventForm = ({documentId, classes}: {
+  documentId?: string,
   classes: ClassesType<typeof styles>,
 }) => {
+  const title = documentId ? "Edit forum event" : "New forum event";
   const {SectionTitle, WrappedSmartForm} = Components;
   return (
     <div className={classes.root}>
-      <SectionTitle title="New forum event" className={classes.newFormTitle} />
+      <SectionTitle title={title} className={classes.formTitle} />
       <WrappedSmartForm
+        documentId={documentId}
         collectionName="ForumEvents"
         queryFragmentName="ForumEventsEdit"
         mutationFragmentName="ForumEventsEdit"
@@ -24,14 +27,14 @@ export const NewForumEvent = ({classes}: {
   );
 }
 
-const NewForumEventComponent = registerComponent(
-  "NewForumEvent",
-  NewForumEvent,
+const ForumEventFormComponent = registerComponent(
+  "ForumEventForm",
+  ForumEventForm,
   {styles},
 );
 
 declare global {
   interface ComponentTypes {
-    NewForumEvent: typeof NewForumEventComponent
+    ForumEventForm: typeof ForumEventFormComponent
   }
 }

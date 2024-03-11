@@ -798,7 +798,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       name: 'adminForumEvents',
       path: '/adminForumEvents',
       componentName: 'AdminForumEventsPage',
-      title: 'Edit forum events',
+      title: 'Manage forum events',
+    },
+    {
+      name: 'editForumEvent',
+      path: '/editForumEvent/:documentId',
+      componentName: 'EditForumEventPage',
+      title: 'Edit forum event',
     },
   ],
   LessWrong: [
