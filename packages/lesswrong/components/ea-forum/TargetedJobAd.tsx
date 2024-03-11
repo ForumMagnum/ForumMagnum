@@ -208,27 +208,28 @@ type EAGWillingToRelocateLocation =
   'Remote'
 
 type JobAdData = {
-  careerStages?: CareerStageValue[],            // used to match on career stages (either from the user profile or EAG)
-  experiencedIn?: EAGOccupationOrCause[],       // used to match on EAG experience
-  interestedIn?: EAGOccupationOrCause[],        // used to match on EAG interests
-  subscribedTagIds?: string[],                  // used to match on a set of topics that the user is subscribed to
-  readCoreTagIds?: string[],                    // used to match on a set of core topics that the user has read frequently
-  coreTagReadsThreshold?: number,               // used to adjust the threshold for how many post reads per topic to qualify for seeing the ad
-  logo: string,                                 // url for org logo
-  occupation: string,                           // text displayed in the tooltip
-  feedbackLinkPrefill: string,                  // url param used to prefill part of the feedback form
-  bitlyLink: string,                            // bitly link to the job ad page
+  careerStages?: CareerStageValue[],                    // used to match on career stages (either from the user profile or EAG)
+  experiencedIn?: EAGOccupationOrCause[],               // used to match on EAG experience
+  interestedIn?: EAGOccupationOrCause[],                // used to match on EAG interests
+  subscribedTagIds?: string[],                          // used to match on a set of topics that the user is subscribed to
+  readCoreTagIds?: string[],                            // used to match on a set of core topics that the user has read frequently
+  coreTagReadsThreshold?: number,                       // used to adjust the threshold for how many post reads per topic to qualify for seeing the ad
+  logo: string,                                         // url for org logo
+  occupation: string,                                   // text displayed in the tooltip
+  feedbackLinkPrefill: string,                          // url param used to prefill part of the feedback form
+  bitlyLink: string,                                    // bitly link to the job ad page
   role: string,
-  insertThe?: boolean,                          // set if you want to insert a "the" before the org name
+  insertThe?: boolean,                                  // set if you want to insert a "the" before the org name
   org: string,
-  orgLink: string,                              // internal link on the org name
+  orgLink: string,                                      // internal link on the org name
   salary?: string,
   location: string,
-  countryCode?: string,                         // if provided, only show to users who we think are in this country (match on account location)
-  countryName?: string,                         // if provided, only show to users who we think are in this country (match on EAG data)
-  willingToRelocateTo?: EAGWillingToRelocateLocation,          // if provided, only show to users who live here or are excited/willing to move here (match on EAG data)
-  roleType?: string,                            // i.e. part-time, contract
-  deadline?: moment.Moment,                     // also used to hide the ad after this date
+  countryCode?: string,                                 // if provided, only show to users who we think are in this country (match on account location)
+  countryName?: string,                                 // if provided, only show to users who we think are in this country (match on EAG data)
+  city?: string,                                        // if provided, only show to users who we think are in or near this city
+  willingToRelocateTo?: EAGWillingToRelocateLocation,   // if provided, only show to users who live here or are excited/willing to move here (match on EAG data)
+  roleType?: string,                                    // i.e. part-time, contract
+  deadline?: moment.Moment,                             // also used to hide the ad after this date
 }
 
 // job-specific data for the ad
@@ -302,6 +303,7 @@ export const JOB_AD_DATA: Record<string, JobAdData> = {
     orgLink: '/topics/center-for-ai-safety',
     salary: '$120k - $160k',
     location: 'San Francisco, CA',
+    city: 'San Francisco',
     willingToRelocateTo: 'BayArea',
   },
 }

@@ -12,7 +12,7 @@ import { gql, useQuery } from '@apollo/client';
 import { FilterTag, filterModeIsSubscribed } from '../../lib/filterSettings';
 import difference from 'lodash/difference';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { getCountryCode } from '../../lib/geocoding';
+import { getCountryCode, isInPoliticalEntity } from '../../lib/geocoding';
 import intersection from 'lodash/intersection';
 import union from 'lodash/fp/union';
 import { CAREER_STAGES } from '../../lib/collections/users/schema';
@@ -135,17 +135,20 @@ const TargetedJobAdSection = () => {
       const countryCode = jobAd.countryCode
       const countryName = jobAd.countryName
       if (userIsMatch && (countryCode || countryName)) {
-        userIsMatch = (getCountryCode(currentUser.googleLocation) === countryCode) ||
-          (userEAGData?.countryOrRegion === countryName)
+        userIsMatch = getCountryCode(currentUser.googleLocation) === countryCode ||
+          userEAGData?.countryOrRegion === countryName
       }
       // Are they in the right city/area or willing to move there?
-      const city = jobAd.willingToRelocateTo
+      const city = jobAd.city
+      const willingToRelocateTo = jobAd.willingToRelocateTo
       const relevantWillingnessesToRelocate: EAGWillingToRelocateOption[] = [
         'I’d be excited to move here or already live here',
         'I’d be willing to move here for a good opportunity'
       ]
-      if (userIsMatch && city) {
-        userIsMatch = relevantWillingnessesToRelocate.includes(userEAGData?.willingnessToRelocate?.[city])
+      if (userIsMatch && (city || willingToRelocateTo)) {
+        userIsMatch = (city && isInPoliticalEntity(currentUser.googleLocation, city)) ||
+          (city && userEAGData?.nearestCity?.toLowerCase().includes(city.toLowerCase())) ||
+          (willingToRelocateTo && relevantWillingnessesToRelocate.includes(userEAGData?.willingnessToRelocate?.[willingToRelocateTo]))
       }
       // And are they in the right career stage?
       const careerStages = jobAd.careerStages
