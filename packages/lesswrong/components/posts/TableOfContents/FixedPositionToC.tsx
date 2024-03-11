@@ -65,7 +65,8 @@ const styles = (theme: ThemeType) => ({
   root: {
     left: 0,
     top: 0,
-    minHeight: '100vh',
+    maxHeight: '100vh',
+    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
@@ -73,7 +74,7 @@ const styles = (theme: ThemeType) => ({
     '& .TableOfContentsRow-title': {
       borderBottom: "none",
     },
-    transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, min-height 0.4s ease-in-out',
+    transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, height 0.4s ease-in-out, max-height 0.4s ease-in-out',
   },
   fadeOut: {
     opacity: 0,
