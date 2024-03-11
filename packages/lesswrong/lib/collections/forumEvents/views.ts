@@ -27,3 +27,17 @@ ForumEvents.addView("pastForumEvents", (terms: ForumEventsViewTerms) => {
     },
   };
 });
+
+ForumEvents.addView("currentForumEvent", (_terms: ForumEventsViewTerms) => {
+  const now = new Date();
+  return {
+    selector: {
+      startDate: {$lt: now},
+      endDate: {$gt: now},
+    },
+    options: {
+      sort: {createdAt: 1},
+      limit: 1,
+    },
+  };
+});

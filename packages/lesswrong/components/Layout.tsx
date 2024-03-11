@@ -28,9 +28,8 @@ import { useHeaderVisible } from './hooks/useHeaderVisible';
 import StickyBox from '../lib/vendor/react-sticky-box';
 import { isFriendlyUI } from '../themes/forumTheme';
 import { requireCssVar } from '../themes/cssVars';
-import { reviewIsActive } from '../lib/reviewUtils';
 import { UnreadNotificationsContextProvider } from './hooks/useUnreadNotifications';
-import { Link } from '../lib/reactRouterWrapper';
+import { CurrentForumEventProvider } from './hooks/useCurrentForumEvent';
 
 export const petrovBeforeTime = new DatabasePublicSetting<number>('petrov.beforeTime', 0)
 const petrovAfterTime = new DatabasePublicSetting<number>('petrov.afterTime', 0)
@@ -386,6 +385,7 @@ const Layout = ({currentUser, children, classes}: {
       <SidebarsWrapper>
       <DisableNoKibitzContext.Provider value={noKibitzContext}>
       <CommentOnSelectionPageWrapper>
+      <CurrentForumEventProvider>
         <div className={classNames(
           "wrapper",
           {'alignment-forum': isAF, [classes.fullscreen]: currentRoute?.fullscreen, [classes.wrapper]: isLWorAF}
@@ -500,6 +500,7 @@ const Layout = ({currentUser, children, classes}: {
             </CommentBoxManager>
           </DialogManager>
         </div>
+      </CurrentForumEventProvider>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContext.Provider>
       </SidebarsWrapper>
