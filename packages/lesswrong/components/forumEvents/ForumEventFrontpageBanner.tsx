@@ -27,6 +27,11 @@ const styles = (theme: ThemeType) => ({
     `,
     [theme.breakpoints.down("sm")]: {
       background: "var(--forum-event-background)",
+      height: "unset",
+    },
+    [theme.breakpoints.down("xs")]: {
+      padding: 20,
+      marginTop: 8,
     },
   },
   content: {
@@ -44,11 +49,9 @@ const styles = (theme: ThemeType) => ({
   description: {
     color: theme.palette.text.alwaysWhite,
   },
-  imageWrapper: {
-    zIndex: -1,
-  },
   image: {
     position: "absolute",
+    zIndex: -1,
     top: "-50%",
     right: 0,
     width: "100vw",
@@ -100,8 +103,6 @@ export const ForumEventFrontpageBanner = ({classes}: {
         <CloudinaryImage2
           publicId={bannerImageId}
           className={classes.image}
-          wrapperClassName={classes.imageWrapper}
-          objectFit="contain"
         />
       }
     </div>

@@ -1,23 +1,99 @@
-import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import React, { CSSProperties } from "react";
+import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
+import { useLocation } from "../../lib/routeUtil";
+import { useSingle } from "../../lib/crud/withSingle";
+import { hasForumEvents } from "../../lib/betas";
 
-const styles = (_theme: ThemeType) => ({
+const BANNER_HEIGHT = 60;
+
+const styles = (theme: ThemeType) => ({
   root: {
+    position: "relative",
+    width: "100%",
+    height: BANNER_HEIGHT,
+    padding: "0px 30px",
+    display: "flex",
+    alignItems: "center",
+    overflow: "hidden",
+    background: `
+      linear-gradient(
+        90deg,
+        var(--forum-event-background) 0%,
+        var(--forum-event-background) 30%,
+        rgba(255,255,255,0) 100%
+      );
+    `,
+    [theme.breakpoints.down("sm")]: {
+      background: "var(--forum-event-background)",
+      height: "unset",
+      padding: "20px 30px",
+    },
+    [theme.breakpoints.down("xs")]: {
+      padding: 20,
+      marginTop: 8,
+    },
+  },
+  desrciptionWrapper: {
+    margin: 0,
+  },
+  description: {
+    color: theme.palette.text.alwaysWhite,
+  },
+  image: {
+    position: "absolute",
+    zIndex: -1,
+    top: "-50%",
+    right: 0,
+    width: "100vw",
   },
 });
 
 export const ForumEventPostPageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {params} = useLocation();
+  const {document: post} = useSingle({
+    collectionName: "Posts",
+    fragmentName: "PostsDetails",
+    documentId: params._id,
+    skip: !hasForumEvents || !params._id,
+  });
+
   const {currentForumEvent} = useCurrentForumEvent();
-  if (!currentForumEvent) {
+  if (!currentForumEvent || !post) {
     return null;
   }
 
+  const relevance = post?.tagRelevance[currentForumEvent.tagId] ?? 0;
+  if (relevance < 1) {
+    return null;
+  }
+
+  const {postPageDescription, bannerImageId, darkColor} = currentForumEvent;
+
+  // Define background color with a CSS variable to be accessed in the styles
+  const style = {
+    "--forum-event-background": darkColor,
+  } as CSSProperties;
+
+  const {ContentStyles, ContentItemBody, CloudinaryImage2} = Components;
   return (
-    <div className={classes.root}>
-      post page banner
+    <div className={classes.root} style={style}>
+      {postPageDescription?.html &&
+        <ContentStyles contentType="comment" className={classes.desrciptionWrapper}>
+          <ContentItemBody
+            dangerouslySetInnerHTML={{__html: postPageDescription.html}}
+            className={classes.description}
+          />
+        </ContentStyles>
+      }
+      {bannerImageId &&
+        <CloudinaryImage2
+          publicId={bannerImageId}
+          className={classes.image}
+        />
+      }
     </div>
   );
 }
