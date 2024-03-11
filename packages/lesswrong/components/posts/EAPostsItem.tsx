@@ -7,6 +7,11 @@ import { SECTION_WIDTH } from "../common/SingleColumnSection";
 import withErrorBoundary from "../common/withErrorBoundary";
 import classNames from "classnames";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
+import {
+  draftAmnestyWeekTagSlug,
+  isDraftAmnestyPost,
+  isDraftAmnestyWeek,
+} from "../../lib/eaDraftAmnestyWeek";
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -212,6 +217,14 @@ const EAPostsItem = ({
     return null;
   }
 
+  const showDraftAmnestyTag = isDraftAmnestyWeek() && isDraftAmnestyPost(post);
+  const highlightedTag = showDraftAmnestyTag
+    ? {
+      slug: draftAmnestyWeekTagSlug,
+      name: "Draft Amnesty Week",
+    }
+    : undefined;
+
   const {
     PostsTitle, ForumIcon, PostActionsButton, EAKarmaDisplay, EAPostMeta,
     PostsItemTagRelevance, PostsItemTooltipWrapper, PostsVote,
@@ -296,6 +309,7 @@ const EAPostsItem = ({
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
                 isLink={false}
+                highlightedTag={highlightedTag}
                 className={classes.title}
               />
               <div className={classes.meta}>

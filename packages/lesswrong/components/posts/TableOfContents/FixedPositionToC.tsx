@@ -19,6 +19,10 @@ import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY, sectionsWithAnswersSorted } from './TableOfContentsList';
 
 function normalizeOffsets(sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] {
+  if (sections.length === 0) {
+    return [];
+  }
+  
   const titleSection: ToCSectionWithOffset = { ...sections[0], offset: sections[0].offset ?? 0 };
 
   const remainingSections = sections.slice(1);
@@ -316,7 +320,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     )
   });
 
-  const commentsRow = normalizedSections.at(-1)?.anchor === 'comments' ? rows.pop() : undefined;
+  const commentsRow = normalizedSections.slice(-1)?.[0]?.anchor === 'comments' ? rows.pop() : undefined;
 
   if (!tocSections || !hasLoaded)
     return <div/>

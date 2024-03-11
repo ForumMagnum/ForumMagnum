@@ -9,8 +9,9 @@ import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/con
 import { communityPath } from '../../lib/routes';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { isFriendlyUI } from '../../themes/forumTheme';
+import { coreTagStyle, smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
@@ -101,7 +102,20 @@ const styles = (theme: ThemeType): JssStyles => ({
   strikethroughTitle: {
     textDecoration: "line-through"
   },
-})
+  highlightedTag: {
+    ...tagStyle(theme),
+    ...smallTagTextStyle(theme),
+    ...coreTagStyle(theme),
+    display: "inline-flex",
+    alignItems: "center",
+    marginLeft: 10,
+    padding: "0 6px",
+    height: 20,
+  },
+  highlightedTagTooltip: {
+    marginTop: -2,
+  },
+});
 
 const postIcon = (post: PostsBase|PostsListBase) => {
   const matchingIdSetting = Array.from(idSettingIcons.keys()).find(idSetting => post._id === idSetting.get())
@@ -121,42 +135,49 @@ const postIcon = (post: PostsBase|PostsListBase) => {
 
 const DefaultWrapper: FC = ({children}) => <>{children}</>;
 
+type HighlightedPostTag = {
+  slug: string,
+  name: string,
+}
+
 const PostsTitle = ({
   post, 
   postLink, 
-  classes, 
   sticky, 
   read, 
   showPersonalIcon=true, 
   showDraftTag=true, 
   wrap=false, 
   showIcons=true,
+  highlightedTag,
   isLink=true,
   curatedIconLeft=true,
   strikethroughTitle=false,
   Wrapper=DefaultWrapper,
   linkEventProps,
   className,
+  classes,
 }: {
   post: PostsBase|PostsListBase,
   postLink?: string,
-  classes: ClassesType,
   sticky?: boolean,
   read?: boolean,
   showPersonalIcon?: boolean
   showDraftTag?: boolean,
   wrap?: boolean,
   showIcons?: boolean,
+  highlightedTag?: HighlightedPostTag,
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
   Wrapper?: FC,
   linkEventProps?: Record<string, string>,
-  className?: string
+  className?: string,
+  classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
-  const { PostsItemIcons, CuratedIcon, ForumIcon } = Components
+  const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
 
@@ -203,9 +224,18 @@ const PostsTitle = ({
           <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
         </InteractionWrapper>
       </span>}
+      {highlightedTag &&
+        <TagsTooltip
+          tagSlug={highlightedTag.slug}
+          className={classes.highlightedTagTooltip}
+        >
+          <span className={classes.highlightedTag}>
+            {highlightedTag.name}
+          </span>
+        </TagsTooltip>
+      }
     </span>
   )
-
 }
 
 const PostsTitleComponent = registerComponent('PostsTitle', PostsTitle, {styles});
