@@ -192,7 +192,7 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
              // @ts-ignore */}
             {inputOpen && <SearchBox reset={null} focusShortcuts={[]} autoFocus={true} />}
           </div>
-          { searchOpen && <div className={classes.searchBarClose} onClick={closeSearch}>
+          { inputOpen && <div className={classes.searchBarClose} onClick={closeSearch}>
             <CloseIcon className={classes.closeSearchIcon}/>
           </div>}
           <div>
