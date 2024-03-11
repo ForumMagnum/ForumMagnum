@@ -379,9 +379,7 @@ const Header = ({
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classes.rightHeaderItems}>
-    <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
-      <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-    </NoSSR>
+    <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
