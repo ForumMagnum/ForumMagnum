@@ -3,7 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
 import { HIDE_FORUM_EVENT_BANNER_PREFIX } from "../../lib/cookies/cookies";
-import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
+import { useDismissable } from "../hooks/useDismissable";
 
 export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
   background: `
@@ -100,22 +100,15 @@ const formatDate = ({startDate, endDate}: ForumEventsDisplay) => {
 export const ForumEventFrontpageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const [cookies, setCookie] = useCookiesWithConsent();
   const {currentForumEvent} = useCurrentForumEvent();
-  if (!currentForumEvent) {
-    return null;
-  }
-
-  const hideCookieName = HIDE_FORUM_EVENT_BANNER_PREFIX + currentForumEvent._id;
-  const isHidden = cookies[hideCookieName] === "true";
-  if (isHidden) {
+  const cookieName = HIDE_FORUM_EVENT_BANNER_PREFIX + currentForumEvent?._id;
+  const {dismiss, dismissed} = useDismissable(cookieName);
+  if (!currentForumEvent || dismissed) {
     return null;
   }
 
   const {title, frontpageDescription, bannerImageId, darkColor} = currentForumEvent;
   const date = formatDate(currentForumEvent);
-
-  const onHide = () => setCookie(hideCookieName, "true");
 
   // Define background color with a CSS variable to be accessed in the styles
   const style = {
@@ -143,7 +136,7 @@ export const ForumEventFrontpageBanner = ({classes}: {
           className={classes.image}
         />
       }
-      <ForumIcon icon="Close" onClick={onHide} className={classes.hideButton} />
+      <ForumIcon icon="Close" onClick={dismiss} className={classes.hideButton} />
     </div>
   );
 }
