@@ -1709,6 +1709,7 @@ interface DbUser extends DbObject {
   afApplicationText: string | null
   afSubmittedApplication: boolean | null
   hideSunshineSidebar: boolean
+  inactiveSurveyEmailSentAt: Date | null
   wrapped2023Viewed: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
