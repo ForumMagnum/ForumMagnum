@@ -7,9 +7,8 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI
     ? {
-      maxWidth: 600,
       fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 15,
+      fontSize: 16,
       fontWeight: 500,
       lineHeight: '26px',
       textWrap: 'pretty',
