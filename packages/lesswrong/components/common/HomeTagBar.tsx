@@ -221,7 +221,7 @@ const HomeTagBar = (
       const activeTab = coreTopics.find(topic => topic.slug === query.tab)
       if (activeTab) {
         updateActiveTab(activeTab)
-      } else if (query.tab === currentForumEvent?.tag?.slug) {
+      } else if (currentForumEvent?.tag && query.tab === currentForumEvent?.tag?.slug) {
         updateActiveTab(currentForumEvent?.tag);
       } else {
         updateActiveTab(frontpageTab)
