@@ -39,6 +39,14 @@ const styles = (theme: ThemeType) => ({
   },
   description: {
     color: theme.palette.text.alwaysWhite,
+    "& a": {
+      textDecoration: "underline",
+      color: `${theme.palette.text.alwaysWhite} !important`,
+      "&::after": {
+        display: "inline-block",
+        textDecoration: "none",
+      },
+    },
   },
   image: {
     position: "absolute",
