@@ -268,6 +268,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
       return;
     }
 
+    // We sometimes set a `maxHeight` of `calc(100vh - 64) in `TableOfContentsRow`, so we need to check not against the innerHeight but that minus 64 px.
     if (tocRef.current.getBoundingClientRect().height < (window.innerHeight - 64)) {
       setShorterToc(true);
     }
