@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { CSSProperties, FC } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
@@ -9,7 +9,7 @@ import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/con
 import { communityPath } from '../../lib/routes';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { coreTagStyle, smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
+import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
@@ -107,12 +107,17 @@ const styles = (theme: ThemeType) => ({
   eventTag: {
     ...tagStyle(theme),
     ...smallTagTextStyle(theme),
-    ...coreTagStyle(theme),
     display: "inline-flex",
     alignItems: "center",
     marginLeft: 10,
     padding: "0 6px",
     height: 20,
+    border: "none",
+    backgroundColor: "var(--post-title-tag-background)",
+    color: "var(--post-title-tag-foreground)",
+    "&:hover": {
+      opacity: 0.9,
+    },
   },
   highlightedTagTooltip: {
     marginTop: -2,
@@ -229,7 +234,13 @@ const PostsTitle = ({
             className={classes.highlightedTagTooltip}
           >
             <Link to={tagGetUrl(currentForumEvent.tag)}>
-              <span className={classes.eventTag}>
+              <span
+                className={classes.eventTag}
+                style={{
+                  "--post-title-tag-background": currentForumEvent.lightColor,
+                  "--post-title-tag-foreground": currentForumEvent.darkColor,
+                } as CSSProperties}
+              >
                 {currentForumEvent.tag.name}
               </span>
             </Link>
