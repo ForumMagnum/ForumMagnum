@@ -62,7 +62,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId }: {
     if (isMissingDocumentError(error)) {
       return <Error404/>
     } else if (isOperationNotAllowedError(error)) {
-      return <Components.ErrorAccessDenied explanation={"This is usually because the post in question has been removed by the author."}/>
+      return <Components.ErrorAccessDenied explanation={"This is usually because the post in question has been removed by the author."} skipLoginPrompt />
     } else {
       throw new Error(error.message);
     }
