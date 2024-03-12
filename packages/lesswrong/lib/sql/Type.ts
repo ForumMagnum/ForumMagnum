@@ -5,7 +5,19 @@ import { ID_LENGTH } from "../random";
 import { DeferredForumSelect } from "../forumTypeUtils";
 import { ForumTypeString } from "../instanceSettings";
 
-const forceNonResolverFields = ["contents", "moderationGuidelines", "customHighlight", "originalContents", "description", "subforumWelcomeText", "howOthersCanHelpMe", "howICanHelpOthers", "biography"];
+const forceNonResolverFields = [
+  "contents",
+  "moderationGuidelines",
+  "customHighlight",
+  "originalContents",
+  "description",
+  "subforumWelcomeText",
+  "howOthersCanHelpMe",
+  "howICanHelpOthers",
+  "biography",
+  "frontpageDescription",
+  "postPageDescription",
+];
 
 export const isResolverOnly =
   <N extends CollectionNameString>(fieldName: string, schema: CollectionFieldSpecification<N>) =>
