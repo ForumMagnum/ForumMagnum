@@ -3,7 +3,7 @@ import type { Color as MuiColorShades } from '@material-ui/core';
 import type { PartialDeep, Merge } from 'type-fest'
 import type { ForumTypeString } from '../lib/instanceSettings';
 import type { UnionOf } from '../lib/utils/typeGuardUtils';
-import { userThemeNames, userThemeSettings, muiThemeNames } from './themeNames';
+import { userThemeNames, userThemeSettings, muiThemeNames, ThemeOptions } from './themeNames';
 
 declare global {
   type BreakpointName = "xs"|"sm"|"md"|"lg"|"xl"|"tiny"
@@ -523,6 +523,7 @@ declare global {
   
   type ThemeType = {
     forumType: ForumTypeString,
+    themeOptions: ThemeOptions,
 
     baseFontSize: number,
     
