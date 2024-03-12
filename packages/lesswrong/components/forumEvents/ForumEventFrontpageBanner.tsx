@@ -54,7 +54,7 @@ const styles = (theme: ThemeType) => ({
     zIndex: -1,
     top: "-50%",
     right: 0,
-    width: "100vw",
+    width: "70vw",
   },
 });
 
