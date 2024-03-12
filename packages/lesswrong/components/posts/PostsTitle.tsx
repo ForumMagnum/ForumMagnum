@@ -113,8 +113,12 @@ const styles = (theme: ThemeType) => ({
     padding: "0 6px",
     height: 20,
     border: "none",
-    backgroundColor: "var(--post-title-tag-background)",
-    color: "var(--post-title-tag-foreground)",
+    backgroundColor: theme.themeOptions.name === "dark"
+      ? "var(--post-title-tag-foreground)"
+      : "var(--post-title-tag-background)",
+    color: theme.themeOptions.name === "dark"
+      ? "var(--post-title-tag-background)"
+      : "var(--post-title-tag-foreground)",
     "&:hover": {
       opacity: 0.9,
     },

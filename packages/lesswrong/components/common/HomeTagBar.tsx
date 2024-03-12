@@ -117,11 +117,19 @@ const styles = (theme: ThemeType) => ({
     },
   },
   eventTab: {
-    backgroundColor: "var(--tag-bar-event-background)",
-    color: "var(--tag-bar-event-foreground)",
+    backgroundColor: theme.themeOptions.name === "dark"
+      ? "var(--tag-bar-event-foreground)"
+      : "var(--tag-bar-event-background)",
+    color: theme.themeOptions.name === "dark"
+      ? "var(--tag-bar-event-background)"
+      : "var(--tag-bar-event-foreground)",
     "&:hover": {
-      backgroundColor: "var(--tag-bar-event-background)",
-      color: "var(--tag-bar-event-foreground)",
+      backgroundColor: theme.themeOptions.name === "dark"
+        ? "var(--tag-bar-event-foreground)"
+        : "var(--tag-bar-event-background)",
+      color: theme.themeOptions.name === "dark"
+        ? "var(--tag-bar-event-background)"
+        : "var(--tag-bar-event-foreground)",
       opacity: 0.9,
     },
   },
