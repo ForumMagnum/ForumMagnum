@@ -9,6 +9,24 @@ import {useLocation} from '../../lib/routeUtil.tsx'
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent.tsx'
 import qs from 'qs'
 
+const eventTabStyles = (invertColors: boolean) => ({
+  backgroundColor: invertColors
+    ? "var(--tag-bar-event-foreground)"
+    : "var(--tag-bar-event-background)",
+  color: invertColors
+    ? "var(--tag-bar-event-background)"
+    : "var(--tag-bar-event-foreground)",
+  "&:hover": {
+    backgroundColor: invertColors
+      ? "var(--tag-bar-event-foreground)"
+      : "var(--tag-bar-event-background)",
+    color: invertColors
+      ? "var(--tag-bar-event-background)"
+      : "var(--tag-bar-event-foreground)",
+    opacity: 0.9,
+  },
+});
+
 const styles = (theme: ThemeType) => ({
   tabsSection: {
     marginTop: 10,
@@ -117,21 +135,10 @@ const styles = (theme: ThemeType) => ({
     },
   },
   eventTab: {
-    backgroundColor: theme.themeOptions.name === "dark"
-      ? "var(--tag-bar-event-foreground)"
-      : "var(--tag-bar-event-background)",
-    color: theme.themeOptions.name === "dark"
-      ? "var(--tag-bar-event-background)"
-      : "var(--tag-bar-event-foreground)",
-    "&:hover": {
-      backgroundColor: theme.themeOptions.name === "dark"
-        ? "var(--tag-bar-event-foreground)"
-        : "var(--tag-bar-event-background)",
-      color: theme.themeOptions.name === "dark"
-        ? "var(--tag-bar-event-background)"
-        : "var(--tag-bar-event-foreground)",
-      opacity: 0.9,
-    },
+    ...eventTabStyles(theme.themeOptions.name === "dark"),
+  },
+  activeEventTab: {
+    ...eventTabStyles(theme.themeOptions.name !== "dark"),
   },
   tagDescriptionTooltip: {
     margin: 8,
@@ -313,6 +320,7 @@ const HomeTagBar = (
                 <div ref={topicsBarRef} className={classes.topicsBar}>
                   {allTabs.map(tab => {
                     const tabName = tab.shortName || tab.name
+                    const isActive = tab._id === activeTab._id;
                     const isEventTab = tab._id === currentForumEvent?.tag?._id;
                     return <LWTooltip
                       title={showDescriptionOnHover ? tab.description?.plaintextDescription : null} 
@@ -322,8 +330,9 @@ const HomeTagBar = (
                       <button
                         onClick={() => handleTabClick(tab)}
                         className={classNames(classes.tab, {
-                          [classes.activeTab]: tab._id === activeTab._id,
+                          [classes.activeTab]: isActive && !isEventTab,
                           [classes.eventTab]: isEventTab,
+                          [classes.activeEventTab]: isActive && isEventTab,
                         })}
                         style={
                           isEventTab
