@@ -17,7 +17,7 @@ registerFragment(`
   fragment ForumEventsDisplay on ForumEvent {
     ...ForumEventsMinimumInfo
     tag {
-      ...TagPreviewFragment
+      ...TagBasicInfo
     }
     frontpageDescription {
       _id
