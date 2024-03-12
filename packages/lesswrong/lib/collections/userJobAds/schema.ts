@@ -34,6 +34,15 @@ const schema: SchemaType<"UserJobAds"> = {
     canUpdate: [userOwns, 'admins'],
     allowedValues: ['seen', 'expanded', 'applied', 'reminderSet']
   },
+  reminderSetAt: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canCreate: ['members'],
+    canRead: [userOwns, 'admins'],
+    canUpdate: [userOwns, 'admins'],
+  },
   lastUpdated: {
     type: Date,
     optional: true,

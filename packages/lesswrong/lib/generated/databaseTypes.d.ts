@@ -1292,6 +1292,7 @@ interface DbUserJobAd extends DbObject {
   userId: string
   jobName: string
   adState: "seen" | "expanded" | "applied" | "reminderSet"
+  reminderSetAt: Date | null
   lastUpdated: Date
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/

@@ -2564,6 +2564,7 @@ interface UserJobAdsDefaultFragment { // fragment on UserJobAds
   readonly userId: string,
   readonly jobName: string,
   readonly adState: "seen" | "expanded" | "applied" | "reminderSet",
+  readonly reminderSetAt: Date | null,
   readonly lastUpdated: Date,
 }
 
@@ -2574,6 +2575,7 @@ interface UserJobAdsMinimumInfo { // fragment on UserJobAds
   readonly lastUpdated: Date,
   readonly jobName: string,
   readonly adState: "seen" | "expanded" | "applied" | "reminderSet",
+  readonly reminderSetAt: Date | null,
 }
 
 interface UserEAGDetailsDefaultFragment { // fragment on UserEAGDetails
