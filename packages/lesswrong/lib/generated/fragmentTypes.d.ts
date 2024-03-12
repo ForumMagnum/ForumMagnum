@@ -2667,7 +2667,7 @@ interface ForumEventsMinimumInfo { // fragment on ForumEvents
 }
 
 interface ForumEventsDisplay extends ForumEventsMinimumInfo { // fragment on ForumEvents
-  readonly tag: TagBasicInfo|null,
+  readonly tag: TagPreviewFragment|null,
   readonly frontpageDescription: ForumEventsDisplay_frontpageDescription|null,
   readonly postPageDescription: ForumEventsDisplay_postPageDescription|null,
 }
