@@ -430,6 +430,6 @@ export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
  * , return just the id part (1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA in this case)
  */
 export const extractGoogleDocId = (urlOrId: string): string | null => {
-  const docIdMatch = urlOrId.match(/\/d\/(.+?)(\/|$)/);
+  const docIdMatch = urlOrId.match(/.*docs\.google\.com.*\/d\/(.+?)(\/|$)/);
   return docIdMatch ? docIdMatch[1] : null;
 };
