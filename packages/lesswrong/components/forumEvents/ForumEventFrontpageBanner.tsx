@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
         90deg,
         var(--forum-event-background) 0%,
         var(--forum-event-background) 30%,
-        ${theme.palette.greyAlpha(0)} 100%
+        ${theme.palette.greyAlpha(0)} 50%
       );
     `,
     [theme.breakpoints.down("sm")]: {
@@ -52,8 +52,9 @@ const styles = (theme: ThemeType) => ({
   image: {
     position: "absolute",
     zIndex: -1,
-    right: 0,
-    width: "70vw",
+    top: "-45%",
+    right: "-10%",
+    width: "80vw",
   },
 });
 
