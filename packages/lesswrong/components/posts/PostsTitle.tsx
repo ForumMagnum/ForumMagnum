@@ -11,6 +11,7 @@ import { InteractionWrapper } from '../common/useClickableCell';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { coreTagStyle, smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
 import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -222,14 +223,18 @@ const PostsTitle = ({
         </InteractionWrapper>
       </span>}
       {showEventTag && currentForumEvent?.tag && isEventPost(post) &&
-        <TagsTooltip
-          tagSlug={currentForumEvent.tag.slug}
-          className={classes.highlightedTagTooltip}
-        >
-          <span className={classes.eventTag}>
-            {currentForumEvent.tag.name}
-          </span>
-        </TagsTooltip>
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <TagsTooltip
+            tagSlug={currentForumEvent.tag.slug}
+            className={classes.highlightedTagTooltip}
+          >
+            <Link to={tagGetUrl(currentForumEvent.tag)}>
+              <span className={classes.eventTag}>
+                {currentForumEvent.tag.name}
+              </span>
+            </Link>
+          </TagsTooltip>
+        </InteractionWrapper>
       }
     </span>
   )
