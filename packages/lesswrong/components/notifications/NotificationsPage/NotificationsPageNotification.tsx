@@ -105,7 +105,7 @@ export const NotificationsPageNotification = ({
   const Comment: FC = useCallback(() => comment
     ? (
       <Components.PostsTooltip
-        postId={displayPost?._id}
+        postId={comment.post?._id ?? displayPost?._id}
         commentId={comment._id}
         tagRelId={tagRelId}
       >
