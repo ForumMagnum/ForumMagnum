@@ -252,7 +252,7 @@ const makeMarketComment = async (postId: string, year: number, marketUrl: string
 }
 
 voteCallbacks.castVoteAsync.add(async ({ newDocument, vote }, collection, user, context) => {
-  if (vote.collectionName !== 'Comments' || !newDocument.userId) {
+  if (!isLWorAF || vote.collectionName !== 'Comments' || !newDocument.userId) {
     return;
   }
 
