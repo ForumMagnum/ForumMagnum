@@ -79,8 +79,8 @@ const styles = (theme: ThemeType) => ({
   hideButton: {
     cursor: "pointer",
     position: "absolute",
-    top: 4,
-    right: 4,
+    top: 12,
+    right: 12,
     width: 20,
     height: 20,
     color: theme.palette.text.alwaysWhite,
