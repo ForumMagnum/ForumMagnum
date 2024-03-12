@@ -18,6 +18,8 @@ import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../posts/annualReviewMarkets';
+import { ModeratorActions } from '../../lib/collections/moderatorActions';
+import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
 
@@ -248,3 +250,42 @@ const makeMarketComment = async (postId: string, year: number, marketUrl: string
 
   return result.data
 }
+
+voteCallbacks.castVoteAsync.add(async ({ newDocument, vote }, collection, user, context) => {
+  if (vote.collectionName !== 'Comments' || !newDocument.userId) {
+    return;
+  }
+
+  const adminContext = createAdminContext();
+
+  const { userId } = newDocument;
+
+  const [longtermDownvoteScore, previousAlert] = await Promise.all([
+    context.repos.votes.getLongtermDownvoteScore(userId),
+    context.ModeratorActions.findOne({ userId, type: RECEIVED_SENIOR_DOWNVOTES_ALERT }, { sort: { createdAt: -1 } })
+  ]);
+
+  // If the user has already been flagged with this moderator action in the last month, no need to apply it again
+  if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(1, 'day'))) {
+    return;
+  }
+
+  const {
+    commentCount,
+    longtermScore,
+    longtermSeniorDownvoterCount
+  } = longtermDownvoteScore;
+
+  if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
+    void createMutator({
+      collection: ModeratorActions,
+      document: {
+        type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
+        userId: userId,
+        endedAt: new Date()
+      },
+      context: adminContext,
+      currentUser: adminContext.currentUser,
+    });
+  }
+});
