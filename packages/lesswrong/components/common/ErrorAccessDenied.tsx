@@ -7,10 +7,11 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 const styles = (theme: ThemeType) => ({
   root: isFriendlyUI
     ? {
+      maxWidth: 600,
       fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 14,
+      fontSize: 15,
       fontWeight: 500,
-      lineHeight: '24px',
+      lineHeight: '26px',
       textWrap: 'pretty',
       marginTop: 30
     }
