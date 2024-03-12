@@ -52,7 +52,6 @@ const styles = (theme: ThemeType) => ({
   image: {
     position: "absolute",
     zIndex: -1,
-    top: "-50%",
     right: 0,
     width: "70vw",
   },
