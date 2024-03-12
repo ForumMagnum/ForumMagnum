@@ -10,8 +10,8 @@ export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
     linear-gradient(
       90deg,
       var(--forum-event-background) 0%,
-      var(--forum-event-background) 40%,
-      ${theme.palette.greyAlpha(0)} 70%
+      var(--forum-event-background) 30%,
+      ${theme.palette.greyAlpha(0)} 50%
     );
   `,
 });
@@ -43,16 +43,19 @@ const styles = (theme: ThemeType) => ({
     padding: 30,
     overflow: "hidden",
     ...forumEventBannerGradientBackground(theme),
+    [theme.breakpoints.down("sm")]: {
+      background: "var(--forum-event-background)",
+      height: "unset",
+    },
     [theme.breakpoints.down("xs")]: {
       padding: 20,
       marginTop: 8,
-      background: "var(--forum-event-background)",
     },
   },
   content: {
     // If you change this width, you probably also want to change the middle
     // breakpoint in `forumEventBannerGradientBackground` to match
-    maxWidth: 440,
+    maxWidth: 480,
   },
   date: {
     fontWeight: 500,
@@ -70,13 +73,8 @@ const styles = (theme: ThemeType) => ({
     position: "absolute",
     zIndex: -1,
     top: "-45%",
-    right: "-20%",
+    right: "-10%",
     width: "80vw",
-    [theme.breakpoints.down("sm")]: {
-      top: "-15%",
-      width: "100vw",
-      right: "-40%",
-    },
   },
   hideButton: {
     cursor: "pointer",
