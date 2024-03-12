@@ -2,6 +2,8 @@ import React, { CSSProperties } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
+import { HIDE_FORUM_EVENT_BANNER_PREFIX } from "../../lib/cookies/cookies";
+import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 
 export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
   background: `
@@ -74,6 +76,15 @@ const styles = (theme: ThemeType) => ({
     right: "-10%",
     width: "80vw",
   },
+  hideButton: {
+    cursor: "pointer",
+    position: "absolute",
+    top: 4,
+    right: 4,
+    width: 20,
+    height: 20,
+    color: theme.palette.text.alwaysWhite,
+  },
 });
 
 const formatDate = ({startDate, endDate}: ForumEventsDisplay) => {
@@ -89,20 +100,29 @@ const formatDate = ({startDate, endDate}: ForumEventsDisplay) => {
 export const ForumEventFrontpageBanner = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const [cookies, setCookie] = useCookiesWithConsent();
   const {currentForumEvent} = useCurrentForumEvent();
   if (!currentForumEvent) {
+    return null;
+  }
+
+  const hideCookieName = HIDE_FORUM_EVENT_BANNER_PREFIX + currentForumEvent._id;
+  const isHidden = cookies[hideCookieName] === "true";
+  if (isHidden) {
     return null;
   }
 
   const {title, frontpageDescription, bannerImageId, darkColor} = currentForumEvent;
   const date = formatDate(currentForumEvent);
 
+  const onHide = () => setCookie(hideCookieName, "true");
+
   // Define background color with a CSS variable to be accessed in the styles
   const style = {
     "--forum-event-background": darkColor,
   } as CSSProperties;
 
-  const {ContentStyles, ContentItemBody, CloudinaryImage2} = Components;
+  const {ContentStyles, ContentItemBody, CloudinaryImage2, ForumIcon} = Components;
   return (
     <div className={classes.root} style={style}>
       <div className={classes.content}>
@@ -123,6 +143,7 @@ export const ForumEventFrontpageBanner = ({classes}: {
           className={classes.image}
         />
       }
+      <ForumIcon icon="Close" onClick={onHide} className={classes.hideButton} />
     </div>
   );
 }

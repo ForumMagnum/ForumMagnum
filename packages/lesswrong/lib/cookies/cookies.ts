@@ -90,6 +90,14 @@ registerCookie({
   description: "Stores whether a spotlight item has been hidden (for a specific spotlight item id)",
 });
 
+export const HIDE_FORUM_EVENT_BANNER_PREFIX = "hide_forum_event_banner_";
+registerCookie({
+  name: `${HIDE_FORUM_EVENT_BANNER_PREFIX}[*]`,
+  matches: (name: string) => name.startsWith(HIDE_FORUM_EVENT_BANNER_PREFIX),
+  type: "necessary",
+  description: "Stores whether a forum event banner has been hidden",
+});
+
 export const SHOW_RECOMMENDATIONS_SECTION_COOKIE = registerCookie({
   name: "show_recommendations_section",
   type: "necessary",
