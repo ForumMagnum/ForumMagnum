@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react'
+import React, {CSSProperties, useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {Components, registerComponent} from '../../lib/vulcan-lib'
 import {AnalyticsContext, useTracking} from '../../lib/analyticsEvents.tsx'
 import classNames from 'classnames'
@@ -6,10 +6,10 @@ import {useMulti} from '../../lib/crud/withMulti.ts'
 import debounce from 'lodash/debounce'
 import {useNavigate} from '../../lib/reactRouterWrapper.tsx'
 import {useLocation} from '../../lib/routeUtil.tsx'
+import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent.tsx'
 import qs from 'qs'
 
-
-const styles = (theme: ThemeType): JssStyles => ({
+const styles = (theme: ThemeType) => ({
   tabsSection: {
     marginTop: 10,
     marginBottom: 26,
@@ -116,6 +116,15 @@ const styles = (theme: ThemeType): JssStyles => ({
       backgroundColor: theme.palette.grey[1000],
     },
   },
+  eventTab: {
+    backgroundColor: "var(--tag-bar-event-background)",
+    color: "var(--tag-bar-event-foreground)",
+    "&:hover": {
+      backgroundColor: "var(--tag-bar-event-background)",
+      color: "var(--tag-bar-event-foreground)",
+      opacity: 0.9,
+    },
+  },
   tagDescriptionTooltip: {
     margin: 8,
   }
@@ -144,13 +153,15 @@ const HomeTagBar = (
     sortTopics = (topics: Array<TopicsBarTab>) => topics,
     showDescriptionOnHover = false,
   }: {
-    classes: ClassesType,
+    classes: ClassesType<typeof styles>,
     onTagSelectionUpdated: (tab: TopicsBarTab) => void,
     frontpageTab: TopicsBarTab,
     sortTopics?: (topics: Array<TopicsBarTab>) => Array<TopicsBarTab>,
     showDescriptionOnHover?: boolean,
   },
 ) => {
+  const {currentForumEvent} = useCurrentForumEvent();
+
   // we use the widths of the tabs window and the underlying topics bar
   // when calculating how far to scroll left and right
   const tabsWindowRef = useRef<HTMLDivElement | null>(null)
@@ -183,9 +194,13 @@ const HomeTagBar = (
     // when topics are finished fetching (and rendered)
   }, [tabsWindowRef, topicsBarRef, coreTopics])
 
-  const allTabs: TopicsBarTab[] = useMemo(() =>
-      [frontpageTab, ...(sortTopics(coreTopics ?? []))],
-    [coreTopics, sortTopics, frontpageTab])
+  const allTabs: TopicsBarTab[] = useMemo(() => {
+    const mainTabs = [frontpageTab];
+    if (currentForumEvent?.tag) {
+      mainTabs.push(currentForumEvent?.tag);
+    }
+    return [...mainTabs, ...(sortTopics(coreTopics ?? []))];
+  }, [coreTopics, sortTopics, frontpageTab, currentForumEvent?.tag]);
 
   const [activeTab, setActiveTab] = useState<TopicsBarTab>(frontpageTab)
   const [leftArrowVisible, setLeftArrowVisible] = useState(false)
@@ -206,11 +221,13 @@ const HomeTagBar = (
       const activeTab = coreTopics.find(topic => topic.slug === query.tab)
       if (activeTab) {
         updateActiveTab(activeTab)
+      } else if (query.tab === currentForumEvent?.tag?.slug) {
+        updateActiveTab(currentForumEvent?.tag);
       } else {
         updateActiveTab(frontpageTab)
       }
     }
-  }, [coreTopics, query, updateActiveTab, frontpageTab])
+  }, [coreTopics, query, updateActiveTab, frontpageTab, currentForumEvent?.tag])
 
   /**
    * When the topics bar is scrolled, hide/show the left/right arrows as necessary.
@@ -288,7 +305,8 @@ const HomeTagBar = (
                 <div ref={topicsBarRef} className={classes.topicsBar}>
                   {allTabs.map(tab => {
                     const tabName = tab.shortName || tab.name
-                    return <LWTooltip 
+                    const isEventTab = tab._id === currentForumEvent?.tag?._id;
+                    return <LWTooltip
                       title={showDescriptionOnHover ? tab.description?.plaintextDescription : null} 
                       popperClassName={classes.tagDescriptionTooltip}
                       key={tabName}
@@ -297,7 +315,16 @@ const HomeTagBar = (
                         onClick={() => handleTabClick(tab)}
                         className={classNames(classes.tab, {
                           [classes.activeTab]: tab._id === activeTab._id,
+                          [classes.eventTab]: isEventTab,
                         })}
+                        style={
+                          isEventTab
+                            ? {
+                              "--tag-bar-event-background": currentForumEvent.lightColor,
+                              "--tag-bar-event-foreground": currentForumEvent.darkColor,
+                            } as CSSProperties
+                            : undefined
+                        }
                       >
                         {tabName}
                       </button>
