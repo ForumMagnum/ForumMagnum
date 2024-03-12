@@ -67,6 +67,7 @@ registerFragment(`
     meta
     deletedDraft
     postCategory
+    tagRelevance
 
     shareWithUsers
     sharingSettings
@@ -275,7 +276,6 @@ registerFragment(`
 registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
-    tagRelevance
     deletedDraft
     contents {
       _id

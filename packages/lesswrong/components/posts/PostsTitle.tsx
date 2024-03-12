@@ -10,6 +10,7 @@ import { communityPath } from '../../lib/routes';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { coreTagStyle, smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
+import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -102,7 +103,7 @@ const styles = (theme: ThemeType) => ({
   strikethroughTitle: {
     textDecoration: "line-through"
   },
-  highlightedTag: {
+  eventTag: {
     ...tagStyle(theme),
     ...smallTagTextStyle(theme),
     ...coreTagStyle(theme),
@@ -135,11 +136,6 @@ const postIcon = (post: PostsBase|PostsListBase) => {
 
 const DefaultWrapper: FC = ({children}) => <>{children}</>;
 
-type HighlightedPostTag = {
-  slug: string,
-  name: string,
-}
-
 const PostsTitle = ({
   post, 
   postLink, 
@@ -149,11 +145,11 @@ const PostsTitle = ({
   showDraftTag=true, 
   wrap=false, 
   showIcons=true,
-  highlightedTag,
   isLink=true,
   curatedIconLeft=true,
   strikethroughTitle=false,
   Wrapper=DefaultWrapper,
+  showEventTag,
   linkEventProps,
   className,
   classes,
@@ -166,17 +162,18 @@ const PostsTitle = ({
   showDraftTag?: boolean,
   wrap?: boolean,
   showIcons?: boolean,
-  highlightedTag?: HighlightedPostTag,
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
   Wrapper?: FC,
+  showEventTag?: boolean,
   linkEventProps?: Record<string, string>,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
+  const {currentForumEvent, isEventPost} = useCurrentForumEvent();
   const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
@@ -224,13 +221,13 @@ const PostsTitle = ({
           <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
         </InteractionWrapper>
       </span>}
-      {highlightedTag &&
+      {showEventTag && currentForumEvent?.tag && isEventPost(post) &&
         <TagsTooltip
-          tagSlug={highlightedTag.slug}
+          tagSlug={currentForumEvent.tag.slug}
           className={classes.highlightedTagTooltip}
         >
-          <span className={classes.highlightedTag}>
-            {highlightedTag.name}
+          <span className={classes.eventTag}>
+            {currentForumEvent.tag.name}
           </span>
         </TagsTooltip>
       }
