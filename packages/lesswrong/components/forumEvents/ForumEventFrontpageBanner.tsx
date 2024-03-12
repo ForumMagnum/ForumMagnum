@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
         90deg,
         var(--forum-event-background) 0%,
         var(--forum-event-background) 30%,
-        rgba(255,255,255,0) 100%
+        ${theme.palette.greyAlpha(0)} 100%
       );
     `,
     [theme.breakpoints.down("sm")]: {
