@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   date: {
     fontWeight: 500,
     marginBottom: 6,
-    fontSize: "1.1rem",
+    fontSize: '1.1rem',
   },
   title: {
     fontSize: 34,
