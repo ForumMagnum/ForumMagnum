@@ -31,7 +31,7 @@ const styles = (theme: ThemeType) => ({
       marginTop: 8,
     },
   },
-  desrciptionWrapper: {
+  descriptionWrapper: {
     margin: 0,
   },
   description: {
@@ -78,7 +78,7 @@ export const ForumEventPostPageBanner = ({classes}: {
   return (
     <div className={classes.root} style={style}>
       {postPageDescription?.html &&
-        <ContentStyles contentType="comment" className={classes.desrciptionWrapper}>
+        <ContentStyles contentType="comment" className={classes.descriptionWrapper}>
           <ContentItemBody
             dangerouslySetInnerHTML={{__html: postPageDescription.html}}
             className={classes.description}
