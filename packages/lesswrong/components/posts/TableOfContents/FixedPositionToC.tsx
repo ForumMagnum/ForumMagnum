@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { isServer } from '../../../lib/executionEnvironment';
@@ -65,8 +65,6 @@ const styles = (theme: ThemeType) => ({
   root: {
     left: 0,
     top: 0,
-    maxHeight: '100vh',
-    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
@@ -76,6 +74,9 @@ const styles = (theme: ThemeType) => ({
     },
     wordBreak: 'break-word',
     transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, height 0.4s ease-in-out, max-height 0.4s ease-in-out',
+  },
+  shorterToc: {
+    height: '100%',
   },
   fadeOut: {
     opacity: 0,
@@ -165,6 +166,9 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   const { tocVisible } = useContext(SidebarsContext)!;
 
   const [normalizedSections, setNormalizedSections] = useState<ToCSectionWithOffset[]>([]);
+
+  const tocRef = useRef<HTMLDivElement>(null);
+  const [shorterToc, setShorterToc] = useState(false);
 
   const jumpToAnchor = (anchor: string) => {
     if (isServer) return;
@@ -259,6 +263,16 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     }
   }, [filteredSections, normalizedSections, hasLoaded]);
 
+  useEffect(() => {
+    if (!tocRef.current) {
+      return;
+    }
+
+    if (tocRef.current.getBoundingClientRect().height < (window.innerHeight - 64)) {
+      setShorterToc(true);
+    }
+  }, [normalizedSections]);
+
   const postContext = usePostsPageContext();
   const disableProgressBar = (!postContext || isServer || postContext.shortform || postContext.readTimeMinutes < 2);
 
@@ -327,7 +341,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
   if (!tocSections || !hasLoaded)
     return <div/>
 
-  return <div className={classNames(classes.root, { [classes.fadeIn]: tocVisible, [classes.fadeOut]: !tocVisible })}>
+  return <div ref={tocRef} className={classNames(classes.root, { [classes.fadeIn]: tocVisible, [classes.fadeOut]: !tocVisible, [classes.shorterToc]: shorterToc })}>
     {titleRow}
     <div className={classes.belowTitle}>
       <div className={classes.progressBarContainer} ref={readingProgressBarRef}>
