@@ -4,6 +4,10 @@ import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import { useLocation } from "../../lib/routeUtil";
 import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
+import {
+  forumEventBannerDescriptionStyles,
+  forumEventBannerGradientBackground,
+} from "./ForumEventFrontpageBanner";
 
 const BANNER_HEIGHT = 60;
 
@@ -16,14 +20,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     overflow: "hidden",
-    background: `
-      linear-gradient(
-        90deg,
-        var(--forum-event-background) 0%,
-        var(--forum-event-background) 30%,
-        ${theme.palette.greyAlpha(0)} 100%
-      );
-    `,
+    ...forumEventBannerGradientBackground(theme),
     [theme.breakpoints.down("sm")]: {
       background: "var(--forum-event-background)",
       height: "unset",
@@ -38,15 +35,7 @@ const styles = (theme: ThemeType) => ({
     margin: 0,
   },
   description: {
-    color: theme.palette.text.alwaysWhite,
-    "& a": {
-      textDecoration: "underline",
-      color: `${theme.palette.text.alwaysWhite} !important`,
-      "&::after": {
-        display: "inline-block",
-        textDecoration: "none",
-      },
-    },
+    ...forumEventBannerDescriptionStyles(theme),
   },
   image: {
     position: "absolute",

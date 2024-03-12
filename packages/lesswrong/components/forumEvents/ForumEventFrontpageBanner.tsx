@@ -3,6 +3,29 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { useCurrentForumEvent } from "../hooks/useCurrentForumEvent";
 import moment from "moment";
 
+export const forumEventBannerGradientBackground = (theme: ThemeType) => ({
+  background: `
+    linear-gradient(
+      90deg,
+      var(--forum-event-background) 0%,
+      var(--forum-event-background) 30%,
+      ${theme.palette.greyAlpha(0)} 50%
+    );
+  `,
+});
+
+export const forumEventBannerDescriptionStyles = (theme: ThemeType) => ({
+  color: theme.palette.text.alwaysWhite,
+  "& a": {
+    textDecoration: "underline",
+    color: `${theme.palette.text.alwaysWhite} !important`,
+    "&::after": {
+      display: "inline-block",
+      textDecoration: "none",
+    },
+  },
+});
+
 const BANNER_HEIGHT = 180;
 
 const styles = (theme: ThemeType) => ({
@@ -17,14 +40,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "center",
     padding: 30,
     overflow: "hidden",
-    background: `
-      linear-gradient(
-        90deg,
-        var(--forum-event-background) 0%,
-        var(--forum-event-background) 30%,
-        ${theme.palette.greyAlpha(0)} 50%
-      );
-    `,
+    ...forumEventBannerGradientBackground(theme),
     [theme.breakpoints.down("sm")]: {
       background: "var(--forum-event-background)",
       height: "unset",
@@ -35,6 +51,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   content: {
+    // If you change this width, you probably also want to change the middle
+    // breakpoint in `forumEventBannerGradientBackground` to match
     maxWidth: 480,
   },
   date: {
@@ -47,15 +65,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 700,
   },
   description: {
-    color: theme.palette.text.alwaysWhite,
-    "& a": {
-      textDecoration: "underline",
-      color: `${theme.palette.text.alwaysWhite} !important`,
-      "&::after": {
-        display: "inline-block",
-        textDecoration: "none",
-      },
-    },
+    ...forumEventBannerDescriptionStyles(theme),
   },
   image: {
     position: "absolute",
