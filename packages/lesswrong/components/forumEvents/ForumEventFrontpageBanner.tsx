@@ -38,9 +38,9 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 480,
   },
   date: {
-    fontSize: 16,
     fontWeight: 500,
     marginBottom: 6,
+    fontSize: "1.1rem",
   },
   title: {
     fontSize: 34,
