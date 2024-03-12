@@ -160,6 +160,25 @@ defineQuery({
   },
 });
 
+defineQuery({
+  name: "latestGoogleDocMetadata",
+  resultType: "JSON",
+  argTypes: "(postId: String!, version: String)",
+  fn: async (root: void, { postId, version }: { postId: string; version?: string }, context: ResolverContext) => {
+    const query = {
+      documentId: postId,
+      googleDocMetadata: { $exists: true },
+      ...(version && { version: { $lte: version } }),
+    };
+    const latestRevisionWithMetadata = await Revisions.findOne(
+      query,
+      { sort: { editedAt: -1 } },
+      { googleDocMetadata: 1 }
+    );
+    return latestRevisionWithMetadata ? latestRevisionWithMetadata.googleDocMetadata : null;
+  },
+});
+
 defineMutation({
   name: "revertTagToRevision",
   resultType: "Tag",
