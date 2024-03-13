@@ -122,7 +122,7 @@ const settingsFileName = (mode, forumType) => {
     const { exists } = await checkEditorBundle(ckEditorBundleVersion);
     if (!exists) {
       console.log(`ckEditor bundle version ${ckEditorBundleVersion} not yet uploaded; building now`);
-      await execAsync(`cd public/lesswrong-editor && yarn build`);
+      await execAsync(`cd public/lesswrong-editor && yarn && yarn build`);
       await uploadEditorBundle(ckEditorBundleVersion);
     }
   } catch (e) {
