@@ -100,6 +100,8 @@ async function registerServiceWorker() {
     } catch (error) {
       console.error(`Registration failed with ${error}`);
     }
+  } else {
+    console.log("Service worker API is unavailable");
   }
 }
 
