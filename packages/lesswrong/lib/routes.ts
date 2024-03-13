@@ -806,6 +806,12 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'EditForumEventPage',
       title: 'Edit forum event',
     },
+    {
+      name: 'peopleDirectory',
+      path: '/peopleDirectory',
+      componentName: 'PeopleDirectoryPage',
+      title: 'People directory',
+    },
   ],
   LessWrong: [
     {
