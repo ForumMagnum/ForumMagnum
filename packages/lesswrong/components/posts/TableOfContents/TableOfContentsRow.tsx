@@ -100,10 +100,11 @@ const styles = (theme: ThemeType) => ({
     ...sectionOffsetStyling,
   },
   titleContainer: {
+    height: '100%',
     maxHeight: 200,
     display: 'flex',
     flexDirection: 'column-reverse',
-    transition: 'opacity 0.4s ease-in-out, max-height 0.4s ease-in-out, margin-top 0.4s ease-in-out',
+    transition: 'opacity 0.4s ease-in-out, height 0.4s ease-in-out, max-height 0.4s ease-in-out, margin-top 0.4s ease-in-out',
   },
   '@global': isFriendlyUI ? {} : {
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
