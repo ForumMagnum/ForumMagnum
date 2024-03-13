@@ -18,7 +18,6 @@ import Tags from '../../lib/collections/tags/collection';
 import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../posts/annualReviewMarkets';
-import { ModeratorActions } from '../../lib/collections/moderatorActions';
 import { RECEIVED_SENIOR_DOWNVOTES_ALERT } from '../../lib/collections/moderatorActions/schema';
 
 export const collectionsThatAffectKarma = ["Posts", "Comments", "Revisions"]
@@ -278,7 +277,7 @@ voteCallbacks.castVoteAsync.add(async ({ newDocument, vote }, collection, user, 
 
   if (commentCount > 20 && longtermSeniorDownvoterCount >= 3 && longtermScore < 0) {
     void createMutator({
-      collection: ModeratorActions,
+      collection: context.ModeratorActions,
       document: {
         type: RECEIVED_SENIOR_DOWNVOTES_ALERT,
         userId: userId,
