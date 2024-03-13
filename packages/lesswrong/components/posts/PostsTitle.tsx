@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { CSSProperties, FC } from 'react';
 import { registerComponent, Components } from '../../lib/vulcan-lib';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
@@ -9,7 +9,9 @@ import { idSettingIcons, tagSettingIcons } from "../../lib/collections/posts/con
 import { communityPath } from '../../lib/routes';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { coreTagStyle, smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
+import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
+import { useCurrentForumEvent } from '../hooks/useCurrentForumEvent';
+import { tagGetUrl } from '../../lib/collections/tags/helpers';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -102,15 +104,24 @@ const styles = (theme: ThemeType) => ({
   strikethroughTitle: {
     textDecoration: "line-through"
   },
-  highlightedTag: {
+  eventTag: {
     ...tagStyle(theme),
     ...smallTagTextStyle(theme),
-    ...coreTagStyle(theme),
     display: "inline-flex",
     alignItems: "center",
     marginLeft: 10,
     padding: "0 6px",
     height: 20,
+    border: "none",
+    backgroundColor: theme.themeOptions.name === "dark"
+      ? "var(--post-title-tag-foreground)"
+      : "var(--post-title-tag-background)",
+    color: theme.themeOptions.name === "dark"
+      ? "var(--post-title-tag-background)"
+      : "var(--post-title-tag-foreground)",
+    "&:hover": {
+      opacity: 0.9,
+    },
   },
   highlightedTagTooltip: {
     marginTop: -2,
@@ -135,11 +146,6 @@ const postIcon = (post: PostsBase|PostsListBase) => {
 
 const DefaultWrapper: FC = ({children}) => <>{children}</>;
 
-type HighlightedPostTag = {
-  slug: string,
-  name: string,
-}
-
 const PostsTitle = ({
   post, 
   postLink, 
@@ -149,11 +155,11 @@ const PostsTitle = ({
   showDraftTag=true, 
   wrap=false, 
   showIcons=true,
-  highlightedTag,
   isLink=true,
   curatedIconLeft=true,
   strikethroughTitle=false,
   Wrapper=DefaultWrapper,
+  showEventTag,
   linkEventProps,
   className,
   classes,
@@ -166,17 +172,18 @@ const PostsTitle = ({
   showDraftTag?: boolean,
   wrap?: boolean,
   showIcons?: boolean,
-  highlightedTag?: HighlightedPostTag,
   isLink?: boolean,
   curatedIconLeft?: boolean
   strikethroughTitle?: boolean
   Wrapper?: FC,
+  showEventTag?: boolean,
   linkEventProps?: Record<string, string>,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
+  const {currentForumEvent, isEventPost} = useCurrentForumEvent();
   const { PostsItemIcons, CuratedIcon, ForumIcon, TagsTooltip } = Components;
 
   const shared = post.draft && (post.userId !== currentUser?._id) && post.shareWithUsers
@@ -224,15 +231,25 @@ const PostsTitle = ({
           <PostsItemIcons post={post} hideCuratedIcon={curatedIconLeft} hidePersonalIcon={!showPersonalIcon}/>
         </InteractionWrapper>
       </span>}
-      {highlightedTag &&
-        <TagsTooltip
-          tagSlug={highlightedTag.slug}
-          className={classes.highlightedTagTooltip}
-        >
-          <span className={classes.highlightedTag}>
-            {highlightedTag.name}
-          </span>
-        </TagsTooltip>
+      {showEventTag && currentForumEvent?.tag && isEventPost(post) &&
+        <InteractionWrapper className={classes.interactionWrapper}>
+          <TagsTooltip
+            tagSlug={currentForumEvent.tag.slug}
+            className={classes.highlightedTagTooltip}
+          >
+            <Link to={tagGetUrl(currentForumEvent.tag)}>
+              <span
+                className={classes.eventTag}
+                style={{
+                  "--post-title-tag-background": currentForumEvent.lightColor,
+                  "--post-title-tag-foreground": currentForumEvent.darkColor,
+                } as CSSProperties}
+              >
+                {currentForumEvent.tag.name}
+              </span>
+            </Link>
+          </TagsTooltip>
+        </InteractionWrapper>
       }
     </span>
   )
