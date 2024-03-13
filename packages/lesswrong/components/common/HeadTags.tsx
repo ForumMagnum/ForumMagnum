@@ -71,6 +71,8 @@ const HeadTags = ({
           { /* <meta property='og:title' content={title}/> */ }
           <meta property='og:description' content={description}/>
 
+          <meta httpEquiv='delegate-ch' content='sec-ch-dpr https://res.cloudinary.com;' />
+
           {(noIndex || currentRoute?.noIndex || noIndexSetting.get()) && <meta name='robots' content='noindex' />}
           <link rel='canonical' href={canonicalUrl}/>
 
