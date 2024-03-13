@@ -62,7 +62,7 @@ export const ForumEventPostPageBanner = ({classes}: {
     return null;
   }
 
-  const relevance = post?.tagRelevance[currentForumEvent.tagId] ?? 0;
+  const relevance = post?.tagRelevance?.[currentForumEvent.tagId] ?? 0;
   if (relevance < 1) {
     return null;
   }
