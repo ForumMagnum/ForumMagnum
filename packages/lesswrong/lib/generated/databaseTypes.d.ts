@@ -586,7 +586,7 @@ type ModeratorActionsCollection = CollectionBase<"ModeratorActions">;
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
