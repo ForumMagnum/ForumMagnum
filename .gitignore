@@ -73,7 +73,6 @@ typings
 build*
 !build.js
 !buildUtil.js
-!public/lesswrong-editor/build/ckeditor-cloud.js
 yarn-error.log
 
 # Created by @shelf/jest-mongodb
