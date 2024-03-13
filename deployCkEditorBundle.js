@@ -7,6 +7,10 @@
  */
 require("ts-node/register");
 const { getDatabaseConfig, startSshTunnel } = require("./scripts/startup/buildUtil");
+const { exec } = require('child_process');
+const { promisify } = require('util');
+
+const execAsync = promisify(exec);
 
 const initGlobals = (args, isProd) => {
   global.bundleIsServer = true;
@@ -117,10 +121,12 @@ const settingsFileName = (mode, forumType) => {
   try {
     const { exists } = await checkEditorBundle(ckEditorBundleVersion);
     if (!exists) {
+      console.log(`ckEditor bundle version ${ckEditorBundleVersion} not yet uploaded; building now`);
+      await execAsync(`cd public/lesswrong-editor && yarn build`);
       await uploadEditorBundle(ckEditorBundleVersion);
     }
   } catch (e) {
-    console.error("An error occurred while running checking or uploading the ckEditor bundle version:", e);
+    console.error("An error occurred while checking, building, or uploading the ckEditor bundle version:", e);
     exitCode = 1;
   }
 
