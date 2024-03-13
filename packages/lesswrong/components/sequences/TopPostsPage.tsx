@@ -20,6 +20,7 @@ type GetAllReviewWinnersQueryResult = (PostsTopItemInfo & { reviewWinner: Exclud
 type ExpansionState = 'expanded' | 'collapsed' | 'default';
 type HiddenState = 'full' | 'hidden';
 export type CoordinatePosition = 'left' | 'middle' | 'right';
+type Dpr = 1 | 2;
 
 interface PostGridDimensions {
   postGridColumns: number;
@@ -45,6 +46,7 @@ interface PostGridContentsProps extends PostGridDimensions {
   leftBookOffset: number;
   coverLoaded: boolean;
   expandedNotYetMoved: boolean;
+  dpr: Dpr;
 }
 
 interface PostGridCellContentsProps extends Omit<PostGridContentsProps, 'postsInGrid'> {
@@ -56,6 +58,7 @@ interface PostGridCellContentsProps extends Omit<PostGridContentsProps, 'postsIn
 interface GetSplashArtUrlArgs {
   reviewWinnerArt: ReviewWinnerTopPostsPage_reviewWinnerArt;
   leftBookOffset: number;
+  dpr: Dpr;
 }
 
 const MAX_GRID_SIZE = 6;
@@ -687,7 +690,7 @@ const PostGridContents = (props: PostGridContentsProps) => {
 }
 
 const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => {
-  const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset, coverLoaded, expandedNotYetMoved } = props;
+  const { post, rowIdx, columnIdx, viewportHeight, postGridColumns, postGridRows, classes, id, handleToggleFullyOpen, isExpanded, isShowingAll, leftBookOffset, coverLoaded, expandedNotYetMoved, dpr } = props;
   const isLastCellInDefaultView = (rowIdx === (viewportHeight - 1)) && (columnIdx === (postGridColumns - 1));
   const offsetColumnIdx = columnIdx - (leftBookOffset * 3);
   const isDefault = rowIdx < viewportHeight && (offsetColumnIdx < 3) && (offsetColumnIdx >= 0);
@@ -699,7 +702,7 @@ const PostGridCellContents = (props: PostGridCellContentsProps): JSX.Element => 
   const emptyCellElement = <div key={`empty-${rowIdx}-${columnIdx}`} className={classes.emptyGridCell} />;
 
   const reviewWinnerArt = post?.reviewWinner?.reviewWinnerArt ?? undefined;
-  const imgSrc = reviewWinnerArt ? getSplashArtUrl({ reviewWinnerArt, leftBookOffset }) : '';
+  const imgSrc = reviewWinnerArt ? getSplashArtUrl({ reviewWinnerArt, leftBookOffset, dpr }) : '';
 
   const applyHideImageClass = !(isDefault || isUnderTitle || isExpanded || isShowingAll) || !coverLoaded || expandedNotYetMoved;
   const imageClass = classNames({
@@ -732,7 +735,7 @@ function getPostGridTemplateDimensions({ postGridRows, postGridColumns }: PostGr
   };
 }
 
-const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates, "_id" | "reviewWinnerArtId">, leftBookOffset: number) => {
+const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates, "_id" | "reviewWinnerArtId">, leftBookOffset: number, dpr: Dpr) => {
   let coordinatePosition: CoordinatePosition | undefined = BOOK_OFFSETS_TO_COORDINATE_POSITIONS[leftBookOffset];
   if (!coordinatePosition) {
     // eslint-disable-next-line no-console
@@ -747,22 +750,26 @@ const getCroppedUrl = (url: string, splashCoordinates: Omit<SplashArtCoordinates
     [`${coordinatePosition}Flipped` as const]: flipped,
   } = splashCoordinates;
 
-  const newXPct = xPct - (widthPct * leftBookOffset);
+  const newXPct = Math.min(1, Math.max(0, xPct - (widthPct * leftBookOffset)));
   const newWidthPct = Math.min(1, Math.max(0, widthPct * 3)); // this will break the url if it goes above 1, but it shouldn't
 
-  const cropPathParam = `c_crop,w_${newWidthPct},x_${newXPct},y_${yPct},h_1`;
+  // According to https://cloudinary.com/documentation/responsive_server_side_client_hints#automatic_pixel_density_detection,
+  // "Setting a value of dpr_1.0 is treated the same way as dpr_auto and will also be replaced with the device's DPR.
+  // If you want to force dpr_1.0, you should do so by removing the dpr option from the URL completely."
+  const dprParam = dpr === 2 ? 'dpr_2.0,' : '';
+  const cropPathParam = `c_crop,w_${newWidthPct},x_${newXPct},y_${yPct},h_1/${dprParam}w_1080`;
   return url
     .replace('upload/', `upload/${cropPathParam}/`)
     .replace('upload/', `upload/${flipped ? 'a_hflip/' : ''}`)
 }
 
-function getSplashArtUrl({ reviewWinnerArt, leftBookOffset }: GetSplashArtUrlArgs) {
+function getSplashArtUrl({ reviewWinnerArt, leftBookOffset, dpr }: GetSplashArtUrlArgs) {
   const {
     splashArtImageUrl,
     activeSplashArtCoordinates,
   } = reviewWinnerArt;
 
-  return getCroppedUrl(splashArtImageUrl, activeSplashArtCoordinates ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset)
+  return getCroppedUrl(splashArtImageUrl, activeSplashArtCoordinates ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset, dpr)
     .replace('f_auto,q_auto', 'f_auto,q_auto:eco');
 }
 
@@ -783,6 +790,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
 }) => {
   const coverImgRef = useRef<HTMLImageElement>(null);
   const [coverImgLoaded, setCoverImgLoaded] = useState(false);
+  const [dpr, setDpr] = useState<Dpr>(1);
 
   /** The "index" of this book grid in its "row" */
   const leftBookOffset = getLeftOffset(gridPosition, horizontalBookGridCount);
@@ -826,8 +834,9 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
     isExpanded={isExpanded}
     isShowingAll={isShowingAll}
     leftBookOffset={leftBookOffset}
-    coverLoaded={coverImgRef.current?.complete ?? false}
+    coverLoaded={coverImgLoaded}
     expandedNotYetMoved={expandedNotYetMoved}
+    dpr={dpr}
   />
 
   const gridWrapperClassName = classNames(classes.postsImageGrid, {
@@ -837,7 +846,7 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
   });
 
   const gridClassName = classNames(classes.imageGrid, classes[gridPositionClass]);
-  const croppedUrl = getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset);
+  const croppedUrl = getCroppedUrl(img, coords ?? DEFAULT_SPLASH_ART_COORDINATES, leftBookOffset, dpr);
 
   // We have this useEffect checking the `complete` property, along with an `onLoad` on the `img` itself
   // We need both because `onLoad` isn't reliable, e.g. in the case where the cover images are cached.
@@ -846,6 +855,11 @@ const PostsImageGrid = ({ posts, classes, img, coords, header, id, horizontalBoo
     if (coverImgRef.current?.complete) {
       setCoverImgLoaded(true);
     }
+  }, []);
+
+  useEffect(() => {
+    const validDpr = window.devicePixelRatio >= 2 ? 2 : 1;
+    setDpr(validDpr);
   }, []);
 
   return <div className={gridWrapperClassName} id={`PostsImageGrid-${id}`} style={{ height: postGridHeight }}>

@@ -38,7 +38,7 @@ export const getForumTheme = (themeOptions: ThemeOptions): MuiThemeType&ThemeTyp
   if (!themeCache.has(themeCacheKey)) {
     const siteTheme = getSiteTheme(forumType);
     const userTheme = getUserTheme(themeOptions.name);
-    const theme = buildTheme(userTheme, siteTheme, forumType);
+    const theme = buildTheme(userTheme, siteTheme, forumType, themeOptions);
     themeCache.set(themeCacheKey, theme);
   }
   
@@ -48,7 +48,8 @@ export const getForumTheme = (themeOptions: ThemeOptions): MuiThemeType&ThemeTyp
 const buildTheme = (
   userTheme: UserThemeSpecification,
   siteTheme: SiteThemeSpecification,
-  forumType: ForumTypeString
+  forumType: ForumTypeString,
+  themeOptions: ThemeOptions,
 ): ThemeType => {
   let shadePalette: ThemeShadePalette = baseTheme.shadePalette;
   if (siteTheme.shadePalette) shadePalette = deepmerge(shadePalette, siteTheme.shadePalette);
@@ -69,7 +70,9 @@ const buildTheme = (
     ...combinedTheme,
     palette
   };
-  return createMuiTheme(themeWithPalette as any) as any;
+  const theme = createMuiTheme(themeWithPalette as any) as any;
+  theme.themeOptions = themeOptions;
+  return theme;
 }
 
 /**
