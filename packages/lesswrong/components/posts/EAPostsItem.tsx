@@ -296,6 +296,7 @@ const EAPostsItem = ({
                 Wrapper={TitleWrapper}
                 read={isRead && !showReadCheckbox}
                 isLink={false}
+                showEventTag
                 className={classes.title}
               />
               <div className={classes.meta}>

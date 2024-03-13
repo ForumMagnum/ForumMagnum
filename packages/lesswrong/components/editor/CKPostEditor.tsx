@@ -201,7 +201,7 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
       return true;
     }
 
-    const lastChild = children.at(-1);
+    const lastChild = children.slice(-1)?.[0];
     const inputWrapper = inputWrappers[0];
 
     // We check that the input wrapper is the last child of the root

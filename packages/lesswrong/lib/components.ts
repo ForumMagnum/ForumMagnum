@@ -719,6 +719,14 @@ importComponent("AFSuggestCommentsItem", () => require('../components/sunshineDa
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
 importComponent("AFSuggestCommentsList", () => require('../components/sunshineDashboard/AFSuggestCommentsList'));
 
+importComponent("AdminForumEventsPage", () => require('../components/forumEvents/AdminForumEventsPage'));
+importComponent("EditForumEventPage", () => require('../components/forumEvents/EditForumEventPage'));
+importComponent("ForumEventsList", () => require('../components/forumEvents/ForumEventsList'));
+importComponent("ForumEventForm", () => require('../components/forumEvents/ForumEventForm'));
+importComponent("ForumEventBanner", () => require('../components/forumEvents/ForumEventBanner'));
+importComponent("ForumEventFrontpageBanner", () => require('../components/forumEvents/ForumEventFrontpageBanner'));
+importComponent("ForumEventPostPageBanner", () => require('../components/forumEvents/ForumEventPostPageBanner'));
+
 importComponent("UserReviewMetadata", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewMetadata'));
 importComponent("UserReviewStatus", () => require('../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus'));
 importComponent("AltAccountInfo", () => require('../components/sunshineDashboard/ModeratorUserInfo/AltAccountInfo'));
@@ -949,6 +957,7 @@ importComponent(["MultiSelect","FormComponentMultiSelect"], () => require('../co
 importComponent("FormComponentDate", () => require('../components/form-components/FormComponentDate'));
 importComponent(["DatePicker","FormComponentDateTime"], () => require('../components/form-components/FormComponentDateTime'));
 importComponent("FormComponentNumber", () => require('../components/form-components/FormComponentNumber'));
+importComponent("FormComponentColorPicker", () => require('../components/form-components/FormComponentColorPicker'));
 importComponent("FormComponentQuickTakesTags", () => require('../components/form-components/FormComponentQuickTakesTags'));
 importComponent("WrappedSmartForm", () => require('../components/form-components/WrappedSmartForm'));
 importComponent("ManageSubscriptionsLink", () => require('../components/form-components/ManageSubscriptionsLink'));

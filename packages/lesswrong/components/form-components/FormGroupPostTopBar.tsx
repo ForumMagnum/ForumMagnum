@@ -61,6 +61,7 @@ const FormGroupPostTopBar = ({ children, classes }: FormGroupLayoutProps & { cla
 
   const { query } = useLocation();
   const postId = query.postId;
+  const version = query.version;
 
   const { GoogleDocImportButton } = Components;
 
@@ -68,7 +69,7 @@ const FormGroupPostTopBar = ({ children, classes }: FormGroupLayoutProps & { cla
     <div className={classes.root}>
       <div className={classes.tabs}>{tabs}</div>
       <div className={classes.otherChildren}>
-        {hasGoogleDocImportSetting.get() && <GoogleDocImportButton postId={postId} />}
+        {hasGoogleDocImportSetting.get() && <GoogleDocImportButton postId={postId} version={version} />}
         {otherChildren}
       </div>
     </div>

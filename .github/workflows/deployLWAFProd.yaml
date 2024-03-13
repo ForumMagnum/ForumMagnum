@@ -24,7 +24,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Upload ckEditor bundle
       if: github.ref == 'refs/heads/lw-deploy'
-      uses: ./.github/actions/uploadCkEditorBundle/lwAction.yaml
+      uses: ./.github/actions/uploadLWCkEditorBundle
       with:
         mode: prod
         credentials-repo: ${{ secrets.LW_CREDENTIALS_REPO }}

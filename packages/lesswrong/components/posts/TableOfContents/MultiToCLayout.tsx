@@ -66,7 +66,8 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
-    ...(fullHeightToCEnabled ? { height: "100vh" } : { maxHeight: "100vh" }),
+    maxHeight: "100vh",
+    height: fullHeightToCEnabled ? "100%" : undefined,
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
@@ -81,7 +82,7 @@ const styles = (theme: ThemeType) => ({
   stickyBlock: {
     // Cancels the direction:rtl in stickyBlockScroller
     direction: "ltr",
-    
+    height: fullHeightToCEnabled ? "100%" : undefined,
     paddingTop: fullHeightToCEnabled ? undefined : TOC_OFFSET_TOP,
     paddingBottom: fullHeightToCEnabled ? undefined : TOC_OFFSET_BOTTOM,
   },

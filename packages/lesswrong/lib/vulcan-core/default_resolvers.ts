@@ -292,11 +292,17 @@ const performQueryFromViewParameters = async <N extends CollectionNameString>(
   const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
   const selector = parameters.selector;
   const description = describeTerms(collection.collectionName, terms);
+
   const options: MongoFindOptions<ObjectsByCollectionName[N]> = {
     ...parameters.options,
     skip: terms.offset,
     comment: description
   };
+
+  // I don't know if we ever get a `skip` value in `parameters.options`, but if we do, we've been running on that logic for years
+  // So defer to that if it exists, instead of overriding it with the value from `terms.offset`
+  parameters.options.skip ??= options.skip;
+
   if (parameters.syntheticFields && Object.keys(parameters.syntheticFields).length>0) {
     const pipeline = [
       // First stage: Filter by selector

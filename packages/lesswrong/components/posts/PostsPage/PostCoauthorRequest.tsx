@@ -40,12 +40,12 @@ const styles = (theme: ThemeType): JssStyles => ({
 });
 
 const isRequestedCoauthor = (
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   currentUser: UsersCurrent|null
 ) => currentUser && post.coauthorStatuses?.find?.(({ userId, confirmed }) => userId === currentUser._id && !confirmed);
 
 const PostCoauthorRequest = ({post, currentUser, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   currentUser: UsersCurrent|null,
   classes: ClassesType,
 }) => {

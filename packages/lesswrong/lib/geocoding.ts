@@ -51,3 +51,22 @@ export function getCountryCode(googleLocation: AnyBecauseHard): string|null {
   }
   return null
 }
+
+/**
+ * Given a Google Maps reverse geocoding result and the name of a political entity (such as a city),
+ * return whether or not the result is in that political entity.
+ * See documentation for data structure:
+ * https://developers.google.com/maps/documentation/geocoding/requests-reverse-geocoding#reverse-example
+ *
+ * @param googleLocation
+ * @param politicalRegion
+ * @returns {boolean}
+ */
+export function isInPoliticalEntity(googleLocation: AnyBecauseHard, politicalEntity: string): boolean {
+  const addressComponents = googleLocation?.address_components
+  if (!addressComponents) return false
+
+  return addressComponents.some((entry: AnyBecauseHard) => (
+    entry.types.some((type: string) => type === 'political') && entry.long_name === politicalEntity
+  ))
+}

@@ -67,6 +67,7 @@ registerFragment(`
     meta
     deletedDraft
     postCategory
+    tagRelevance
 
     shareWithUsers
     sharingSettings
@@ -275,7 +276,6 @@ registerFragment(`
 registerFragment(`
   fragment PostsList on Post {
     ...PostsListBase
-    tagRelevance
     deletedDraft
     contents {
       _id
@@ -593,7 +593,7 @@ registerFragment(`
 
 registerFragment(`
   fragment PostsRecentDiscussion on Post {
-    ...PostsList
+    ...PostsListWithVotes
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsList
     }
@@ -602,7 +602,7 @@ registerFragment(`
 
 registerFragment(`
   fragment ShortformRecentDiscussion on Post {
-    ...PostsList
+    ...PostsListWithVotes
     recentComments(commentsLimit: $commentsLimit, maxAgeHours: $maxAgeHours, af: $af) {
       ...CommentsListWithTopLevelComment
     }
