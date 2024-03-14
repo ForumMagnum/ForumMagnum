@@ -1105,3 +1105,4 @@ importComponent("HomeTagBar", () => require('../components/common/HomeTagBar'));
 
 // People directory
 importComponent("PeopleDirectoryPage", () => require('../components/peopleDirectory/PeopleDirectoryPage'));
+importComponent("PeopleDirectoryInput", () => require('../components/peopleDirectory/PeopleDirectoryInput'));
