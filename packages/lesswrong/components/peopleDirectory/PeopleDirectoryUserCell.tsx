@@ -1,20 +1,15 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import { cellTextStyles } from "./PeopleDirectoryTextCell";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
     gap: "8px",
   },
   name: {
-    fontSize: 14,
-    fontWeight: 500,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    display: "-webkit-box",
-    "-webkit-line-clamp": 2,
-    "-webkit-box-orient": "vertical",
+    ...cellTextStyles(theme),
   },
 });
 

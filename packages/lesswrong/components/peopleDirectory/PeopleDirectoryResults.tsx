@@ -5,6 +5,10 @@ import { usePeopleDirectory } from "./usePeopleDirectory";
 const cellComponents = [
   "PeopleDirectoryUserCell",
   "PeopleDirectoryTextCell",
+  "PeopleDirectoryDateCell",
+  "PeopleDirectoryNumberCell",
+  "PeopleDirectorySocialMediaCell",
+  "PeopleDirectoryCareerStageCell",
 ] as const;
 
 type CellComponentName = typeof cellComponents[number];
@@ -47,6 +51,43 @@ const columns: PeopleDirectoryColumn<CellComponentName>[] = [
       fieldName: "bio",
     },
   },
+  {
+    label: "Social media",
+    sortable: false,
+    componentName: "PeopleDirectorySocialMediaCell",
+    props: {},
+  },
+  {
+    label: "Career stage",
+    sortable: false,
+    componentName: "PeopleDirectoryCareerStageCell",
+    props: {},
+  },
+  {
+    label: "Karma",
+    sortable: false,
+    componentName: "PeopleDirectoryNumberCell",
+    props: {
+      fieldName: "karma",
+    },
+  },
+  {
+    label: "Location",
+    sortable: false,
+    componentName: "PeopleDirectoryTextCell",
+    props: {
+      fieldName: "mapLocationAddress",
+    },
+  },
+  {
+    label: "Profile updated",
+    sortable: false,
+    componentName: "PeopleDirectoryDateCell",
+    props: {
+      fieldName: "exportedAt",
+      format: "MMM YYYY",
+    },
+  },
 ];
 
 const styles = (theme: ThemeType) => ({
@@ -63,7 +104,7 @@ const styles = (theme: ThemeType) => ({
   heading: {
     fontSize: 14,
     fontWeight: 600,
-    padding: "8px 0",
+    padding: "8px 6px",
   },
   cell: {
     display: "flex",

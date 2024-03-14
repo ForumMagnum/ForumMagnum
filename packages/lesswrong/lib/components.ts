@@ -1109,3 +1109,7 @@ importComponent("PeopleDirectoryInput", () => require('../components/peopleDirec
 importComponent("PeopleDirectoryResults", () => require('../components/peopleDirectory/PeopleDirectoryResults'));
 importComponent("PeopleDirectoryUserCell", () => require('../components/peopleDirectory/PeopleDirectoryUserCell'));
 importComponent("PeopleDirectoryTextCell", () => require('../components/peopleDirectory/PeopleDirectoryTextCell'));
+importComponent("PeopleDirectoryDateCell", () => require('../components/peopleDirectory/PeopleDirectoryDateCell'));
+importComponent("PeopleDirectoryNumberCell", () => require('../components/peopleDirectory/PeopleDirectoryNumberCell'));
+importComponent("PeopleDirectorySocialMediaCell", () => require('../components/peopleDirectory/PeopleDirectorySocialMediaCell'));
+importComponent("PeopleDirectoryCareerStageCell", () => require('../components/peopleDirectory/PeopleDirectoryCareerStageCell'));

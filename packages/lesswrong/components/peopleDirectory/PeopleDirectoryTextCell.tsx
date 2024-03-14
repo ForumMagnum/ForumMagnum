@@ -2,22 +2,27 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 
-const EMPTY = "-";
+export const cellTextStyles = (theme: ThemeType) => ({
+  color: theme.palette.grey[1000],
+  fontSize: 14,
+  fontWeight: 500,
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  display: "-webkit-box",
+  "-webkit-line-clamp": 2,
+  "-webkit-box-orient": "vertical",
+});
 
 const styles = (theme: ThemeType) => ({
   root: {
-    fontSize: 14,
-    fontWeight: 500,
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    display: "-webkit-box",
-    "-webkit-line-clamp": 2,
-    "-webkit-box-orient": "vertical",
+    ...cellTextStyles(theme),
   },
   empty: {
     color: theme.palette.grey[600],
   },
 });
+
+const EMPTY = "-";
 
 export const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
   user: SearchUser,
