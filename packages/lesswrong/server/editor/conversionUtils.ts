@@ -677,7 +677,7 @@ function googleDocConvertLinks(html: string) {
 /**
  * In google docs nested bullets are handled through styling (each indentation level is actually
  * a separate list, with a margin-left creating the effect of nesting). In ckeditor, nested bullets are
- * actually <ul>s nested within each other. Convert this styling based nesting to genuined nesting
+ * actually <ul>s nested within each other. Convert this styling based nesting to genuine nesting
  */
 function googleDocConvertNestedBullets(html: string): string {
   const $ = cheerio.load(html);
