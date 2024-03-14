@@ -1,7 +1,11 @@
-
-interface SearchComment {
+interface SearchBase {
   objectID: string,
   _id: string,
+  publicDateMs: number,
+  exportedAt: string,
+}
+
+interface SearchComment extends SearchBase {
   userId: string,
   baseScore: number,
   isDeleted: boolean,
@@ -10,9 +14,8 @@ interface SearchComment {
   spam: boolean,
   legacy: boolean,
   userIP: string | null,
-  createdAt: Date,
-  postedAt: Date,
-  publicDateMs: number, // the date (in ms) when this became "public" (ex. comment postedAt, or user createdAt)
+  createdAt: string,
+  postedAt: string,
   af: boolean,
   authorDisplayName?: string | null,
   authorUserName?: string | null,
@@ -30,13 +33,10 @@ interface SearchComment {
   tagCommentType?: import("../../lib/collections/comments/types").TagCommentType,
 }
 
-interface SearchSequence {
-  objectID: string,
-  _id: string,
+interface SearchSequence extends SearchBase {
   title: string | null,
   userId: string,
-  createdAt: Date,
-  publicDateMs: number,
+  createdAt: string,
   af: boolean,
   authorDisplayName?: string | null,
   authorUserName?: string | null,
@@ -45,13 +45,10 @@ interface SearchSequence {
   bannerImageId?: string | null,
 }
 
-interface SearchUser {
-  _id: string,
-  objectID: string,
+interface SearchUser extends SearchBase {
   username: string,
   displayName: string,
-  createdAt: Date,
-  publicDateMs: number,
+  createdAt: string,
   isAdmin: boolean,
   profileImageId?: string,
   bio: string,
@@ -72,9 +69,7 @@ interface SearchUser {
   tags: Array<string>,
 }
 
-interface SearchPost {
-  _id: string,
-  userId: string,
+interface SearchPost extends SearchBase {
   url: string | null,
   title: string | null,
   slug: string,
@@ -84,13 +79,12 @@ interface SearchPost {
   legacy: boolean,
   commentCount: number,
   userIP: string | null,
-  createdAt: Date,
-  postedAt: Date,
-  publicDateMs: number,
+  createdAt: string,
+  postedAt: string,
   isFuture: boolean,
   isEvent: boolean,
   viewCount: number,
-  lastCommentedAt: Date | null,
+  lastCommentedAt: string | null,
   draft: boolean,
   af: boolean,
   tags: Array<string>,
@@ -100,12 +94,9 @@ interface SearchPost {
   feedName?: string,
   feedLink?: string | null,
   body: string,
-  order: number // we split posts into multiple records (based on body paragraph) - this tells us the order to reconstruct them
 }
 
-interface SearchTag {
-  _id: string,
-  objectID: string,
+interface SearchTag extends SearchBase {
   name: string,
   slug: string,
   core: boolean,
