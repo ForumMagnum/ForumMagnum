@@ -675,6 +675,22 @@ function googleDocConvertLinks(html: string) {
 }
 
 /**
+ * To fix double spacing, remove all empty <p> tags that are immediate children of <body> from the HTML
+ */
+function removeEmptyBodyParagraphs(html: string): string {
+  const $ = cheerio.load(html);
+
+  $('body > p').each((_, element) => {
+    const p = $(element);
+    if (p.text().trim() === '') {
+      p.remove();
+    }
+  });
+
+  return $.html();
+}
+
+/**
  * We need to convert a few things in the raw html exported from google to make it work with ckeditor, this is
  * largely mirroring conversions we do on paste in the ckeditor code:
  * - Convert footnotes to our format
@@ -699,6 +715,7 @@ export async function convertImportedGoogleDoc({
     googleDocFormatting,
     googleDocConvertLinks,
     googleDocRemoveRedirects,
+    removeEmptyBodyParagraphs,
     async (html: string) => await dataToCkEditor(html, "html"),
   ];
 
