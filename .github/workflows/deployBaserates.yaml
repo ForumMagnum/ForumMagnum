@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix: 
         node-version: [18.x]
-        environment: [baserates]
+        environment: [staging-baserates]
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
