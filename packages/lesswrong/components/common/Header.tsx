@@ -408,15 +408,14 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const HeaderNotificationsMenu = () => currentUser && !hasNotificationsPage
-    ? (
+  const headerNotificationsMenu = currentUser && !hasNotificationsPage
+    && (
       <NotificationsMenu
         open={notificationOpen}
         hasOpened={notificationHasOpened}
         setIsOpen={handleSetNotificationDrawerOpen}
       />
-    )
-    : null;
+    );
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -458,7 +457,7 @@ const Header = ({
           </header>
           <HeaderNavigationDrawer />
         </Headroom>
-        <HeaderNotificationsMenu />
+        {headerNotificationsMenu}
       </div>
     </AnalyticsContext>
   )
