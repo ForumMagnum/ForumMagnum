@@ -675,6 +675,66 @@ function googleDocConvertLinks(html: string) {
 }
 
 /**
+ * In google docs nested bullets are handled through styling (each indentation level is actually
+ * a separate list, with a margin-left creating the effect of nesting). In ckeditor, nested bullets are
+ * actually <ul>s nested within each other. Convert this styling based nesting to genuine nesting
+ */
+function googleDocConvertNestedBullets(html: string): string {
+  const $ = cheerio.load(html);
+
+  // Each nesting level has a class like lst-kix_gwukp0509sil-0, or lst-kix_gwukp0509sil-1
+  // The id in the middle indicates the overall nested list that this level belongs to, and the number at the end
+  // indicates the level of indentation
+  const listGroups: Record<string, {element: cheerio.Cheerio, index: number}[]> = {};
+  $('ul[class*="lst-"], ol[class*="lst-"]').each((_, element) => {
+    const classNames = $(element).attr('class')?.split(/\s+/);
+    const listClass = classNames?.find(name => name.startsWith('lst-'));
+    if (!listClass) return;
+
+    const match = listClass.match(/lst-([a-z_0-9]+)-(\d+)/);
+    if (!match) return;
+
+    const [ , id, index] = match;
+    if (!listGroups[id]) {
+      listGroups[id] = [];
+    }
+    listGroups[id].push({ element: $(element), index: parseInt(index) });
+  });
+
+  // Adjust the indices to account for contraints in ckeditor, and convert to genuine nesting
+  for (const group of Object.values(listGroups)) {
+    // In ckeditor, lists aren't allowed to start indented
+    group[0].index = 0;
+
+    // Indices can only increase by 1 from element to element
+    for (let i = 1; i < group.length; i++) {
+      if (group[i].index > group[i-1].index + 1) {
+        group[i].index = group[i-1].index + 1;
+      }
+    }
+
+    // Convert to genuine nesting
+    group.forEach((item, i, arr) => {
+      if (i > 0) {
+        const prevItem = arr[i - 1];
+        if (item.index === prevItem.index + 1) {
+          prevItem.element.children('li:last-child').append(item.element);
+        } else if (item.index <= prevItem.index) {
+          // Find the ancestor list that matches the current index
+          let ancestor = prevItem.element;
+          for (let j = 0; j < prevItem.index - item.index; j++) {
+            ancestor = ancestor.parent().closest('ul, ol');
+          }
+          ancestor.after(item.element);
+        }
+      }
+    });
+  };
+
+  return $.html();
+}
+
+/**
  * To fix double spacing, remove all empty <p> tags that are immediate children of <body> from the HTML
  */
 function removeEmptyBodyParagraphs(html: string): string {
@@ -716,6 +776,7 @@ export async function convertImportedGoogleDoc({
     googleDocConvertLinks,
     googleDocRemoveRedirects,
     removeEmptyBodyParagraphs,
+    googleDocConvertNestedBullets,
     async (html: string) => await dataToCkEditor(html, "html"),
   ];
 
