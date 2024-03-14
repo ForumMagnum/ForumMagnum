@@ -22,7 +22,7 @@ import type { Node, RootElement, Writer, Element as CKElement, Selection, Docume
 import { EditorContext } from '../posts/PostsEditForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useMulti } from '../../lib/crud/withMulti';
-import {cloudinaryConfig} from '../../lib/editor/cloudinaryConfig.ts'
+import {cloudinaryConfig} from '../../lib/editor/cloudinaryConfig'
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';

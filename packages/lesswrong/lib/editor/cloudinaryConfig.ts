@@ -1,4 +1,4 @@
-import {cloudinaryCloudNameSetting, DatabasePublicSetting} from '../publicSettings.ts'
+import {cloudinaryCloudNameSetting, DatabasePublicSetting} from '../publicSettings'
 
 const cloudinaryUploadPresetEditorName =
   new DatabasePublicSetting<string | null>('cloudinary.uploadPresetEditor', null)
