@@ -1,11 +1,10 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
-import { forumTitleSetting } from "../../lib/instanceSettings";
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     fontFamily: theme.typography.fontFamily,
-    fontSize: 16,
+    fontSize: 15,
     lineHeight: "22px",
   },
   link: {
@@ -23,6 +22,7 @@ const EmailInactiveUserSurvey = ({
   user: DbUser;
   classes: ClassesType;
 }) => {
+  const surveyLink = 'https://docs.google.com/forms/d/e/1FAIpQLSevnR0viER-xSUbcL0AsQpQ8Zn7X5iuvUgMcs3XEqk55SngLw/viewform'
 
   return (
     <div className={classes.root}>
@@ -30,14 +30,21 @@ const EmailInactiveUserSurvey = ({
         Hi {user.displayName},
       </p>
       <p>
-        We noticed that you haven’t visited the EA Forum in a while. We’d be interested to hear about your experience with it.
+        I work on the <a href="https://forum.effectivealtruism.org/" className={classes.link}>EA Forum</a>,
+        and would be really grateful if you took 5-10 minutes to <a href={surveyLink} className={classes.link}>fill out an anonymous survey</a> about your experience with the site.
       </p>
       <p>
-        Please consider filling in <a href="https://docs.google.com/forms/d/e/1FAIpQLSevnR0viER-xSUbcL0AsQpQ8Zn7X5iuvUgMcs3XEqk55SngLw/viewform" className={classes.link}>this anonymous survey</a> (all questions are optional).
-        Your answers will help us make the site better for everyone.
+        Your response would be especially valuable to us, as it looks like you haven’t visited the EA Forum in a while — we
+        tend to miss the perspective of people who stop using the Forum or who use it infrequently.
+        (If our analytics are off or you’re just using the Forum logged-out, you can also just flag that in the linked form.
+        Please also feel free to let me know if you’re facing any issues with your account!)
       </p>
       <p>
-        - The {forumTitleSetting.get()} Team
+        The <a href={surveyLink} className={classes.link}>survey</a> shouldn’t take more than <strong>10 minutes</strong>,
+        and <strong>all questions are optional</strong>. Any responses you share will likely help us improve the site for everyone.
+      </p>
+      <p>
+        - Sarah (for the EA Forum Team)
       </p>
       <hr className={classes.hr}/>
     </div>
