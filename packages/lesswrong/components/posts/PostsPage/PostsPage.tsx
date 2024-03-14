@@ -370,7 +370,7 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
       const postReadCount = ls.getItem('postReadCount') ?? 0
       ls.setItem('postReadCount', parseInt(postReadCount) + 1)
     }
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // On the EA Forum, show a digest ad at the bottom of the screen after the user scrolled down.
   useEffect(() => {
