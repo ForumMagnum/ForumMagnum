@@ -11,6 +11,7 @@ export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
 const TOC_OFFSET_BOTTOM = 64
 const LEFT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1fr';
+const RIGHT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1.5fr';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +25,7 @@ const styles = (theme: ThemeType) => ({
       minmax(0px, ${DEFAULT_TOC_MARGIN})
       min-content
       10px
-      1.5fr
+      ${RIGHT_COLUMN_WIDTH}
     `,
     [theme.breakpoints.down('sm')]: {
       display: 'block',
