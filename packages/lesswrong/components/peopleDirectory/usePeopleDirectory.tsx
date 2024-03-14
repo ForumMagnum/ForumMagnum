@@ -24,7 +24,9 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
         {
           indexName: "test_users",
           query,
-          params: {},
+          params: {
+            query,
+          },
         },
       ]);
       setResults(results?.results?.[0]?.hits ?? []);

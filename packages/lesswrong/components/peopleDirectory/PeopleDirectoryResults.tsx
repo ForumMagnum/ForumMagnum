@@ -1,33 +1,51 @@
 import React, { Fragment } from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 
-type PeopleDirectoryColumn = {
+const cellComponents = [
+  "PeopleDirectoryUserCell",
+  "PeopleDirectoryTextCell",
+] as const;
+
+type CellComponentName = typeof cellComponents[number];
+
+type PeopleDirectoryColumn<T extends CellComponentName> = {
   label: string,
-  fieldName: string,
   sortable: boolean,
+  componentName: T,
+  props: Omit<ComponentProps<ComponentTypes[T]>, "user">,
 }
 
-const columns: PeopleDirectoryColumn[] = [
+const columns: PeopleDirectoryColumn<CellComponentName>[] = [
   {
     label: "Name",
-    fieldName: "displayName",
     sortable: true,
+    componentName: "PeopleDirectoryUserCell",
+    props: {},
   },
   {
     label: "Role",
-    fieldName: "role",
     sortable: true,
+    componentName: "PeopleDirectoryTextCell",
+    props: {
+      fieldName: "jobTitle",
+    },
   },
   {
     label: "Organization",
-    fieldName: "organization",
     sortable: true,
+    componentName: "PeopleDirectoryTextCell",
+    props: {
+      fieldName: "organization",
+    },
   },
   {
     label: "Bio",
-    fieldName: "bio",
     sortable: false,
+    componentName: "PeopleDirectoryTextCell",
+    props: {
+      fieldName: "bio",
+    },
   },
 ];
 
@@ -42,9 +60,17 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.grey[0],
     color: theme.palette.grey[1000],
   },
-  label: {
+  heading: {
     fontSize: 14,
     fontWeight: 600,
+    padding: "8px 0",
+  },
+  cell: {
+    display: "flex",
+    alignItems: "center",
+    height: "100%",
+    padding: "12px 6px",
+    borderTop: `1px solid ${theme.palette.grey[600]}`,
   },
 });
 
@@ -55,16 +81,20 @@ export const PeopleDirectoryResults = ({classes}: {
   return (
     <div className={classes.root}>
       {columns.map(({label}) => (
-        <div key={label} className={classes.label}>
+        <div key={label} className={classes.heading}>
           {label}
         </div>
       ))}
       {results.map((result) => (
         <Fragment key={result._id}>
-          <div>{result.displayName}</div>
-          <div>{result.jobTitle}</div>
-          <div>{result.organization}</div>
-          <div>{result.bio}</div>
+          {columns.map(({label, componentName, props}) => {
+            const Component = Components[componentName] as AnyBecauseTodo;
+            return (
+              <div key={label} className={classes.cell}>
+                <Component user={result} {...props} />
+              </div>
+            );
+          })}
         </Fragment>
       ))}
     </div>
