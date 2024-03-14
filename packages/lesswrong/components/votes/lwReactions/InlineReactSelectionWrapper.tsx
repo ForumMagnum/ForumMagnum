@@ -16,7 +16,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     zIndex: 1000,
     position: "relative",
     left: 12,
-    backgroundColor: theme.palette.background.paper,
   },
 });
 

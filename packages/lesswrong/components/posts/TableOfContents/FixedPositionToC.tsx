@@ -69,7 +69,6 @@ const styles = (theme: ThemeType) => ({
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-evenly',
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
     '& .TableOfContentsRow-title': {
       borderBottom: "none",
