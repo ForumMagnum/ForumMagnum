@@ -1,99 +1,12 @@
 import React, { Fragment } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePeopleDirectory } from "./usePeopleDirectory";
-
-const cellComponents = [
-  "PeopleDirectoryUserCell",
-  "PeopleDirectoryTextCell",
-  "PeopleDirectoryDateCell",
-  "PeopleDirectoryNumberCell",
-  "PeopleDirectorySocialMediaCell",
-  "PeopleDirectoryCareerStageCell",
-] as const;
-
-type CellComponentName = typeof cellComponents[number];
-
-type PeopleDirectoryColumn<T extends CellComponentName> = {
-  label: string,
-  sortable: boolean,
-  componentName: T,
-  props: Omit<ComponentProps<ComponentTypes[T]>, "user">,
-}
-
-const columns: PeopleDirectoryColumn<CellComponentName>[] = [
-  {
-    label: "Name",
-    sortable: true,
-    componentName: "PeopleDirectoryUserCell",
-    props: {},
-  },
-  {
-    label: "Role",
-    sortable: true,
-    componentName: "PeopleDirectoryTextCell",
-    props: {
-      fieldName: "jobTitle",
-    },
-  },
-  {
-    label: "Organization",
-    sortable: true,
-    componentName: "PeopleDirectoryTextCell",
-    props: {
-      fieldName: "organization",
-    },
-  },
-  {
-    label: "Bio",
-    sortable: false,
-    componentName: "PeopleDirectoryTextCell",
-    props: {
-      fieldName: "bio",
-    },
-  },
-  {
-    label: "Social media",
-    sortable: false,
-    componentName: "PeopleDirectorySocialMediaCell",
-    props: {},
-  },
-  {
-    label: "Career stage",
-    sortable: false,
-    componentName: "PeopleDirectoryCareerStageCell",
-    props: {},
-  },
-  {
-    label: "Karma",
-    sortable: false,
-    componentName: "PeopleDirectoryNumberCell",
-    props: {
-      fieldName: "karma",
-    },
-  },
-  {
-    label: "Location",
-    sortable: false,
-    componentName: "PeopleDirectoryTextCell",
-    props: {
-      fieldName: "mapLocationAddress",
-    },
-  },
-  {
-    label: "Profile updated",
-    sortable: false,
-    componentName: "PeopleDirectoryDateCell",
-    props: {
-      fieldName: "exportedAt",
-      format: "MMM YYYY",
-    },
-  },
-];
+import { peopleDirectoryColumns } from "./peopleDirectoryColumns";
 
 const styles = (theme: ThemeType) => ({
   root: {
     display: "grid",
-    gridTemplateColumns: `repeat(${columns.length}, 1fr)`,
+    gridTemplateColumns: `repeat(${peopleDirectoryColumns.length}, 1fr)`,
     padding: "12px 24px",
     width: "100%",
     border: `1px solid ${theme.palette.grey[310]}`,
@@ -101,15 +14,10 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.grey[0],
     color: theme.palette.grey[1000],
   },
-  heading: {
-    fontSize: 14,
-    fontWeight: 600,
-    padding: "8px 6px",
-  },
   cell: {
     display: "flex",
     alignItems: "center",
-    height: "100%",
+    height: 64,
     padding: "12px 6px",
     borderTop: `1px solid ${theme.palette.grey[600]}`,
   },
@@ -119,16 +27,15 @@ export const PeopleDirectoryResults = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {results} = usePeopleDirectory();
+  const {PeopleDirectoryHeading} = Components;
   return (
     <div className={classes.root}>
-      {columns.map(({label}) => (
-        <div key={label} className={classes.heading}>
-          {label}
-        </div>
+      {peopleDirectoryColumns.map((column) => (
+        <PeopleDirectoryHeading key={column.label} column={column} />
       ))}
       {results.map((result) => (
         <Fragment key={result._id}>
-          {columns.map(({label, componentName, props}) => {
+          {peopleDirectoryColumns.map(({label, componentName, props}) => {
             const Component = Components[componentName] as AnyBecauseTodo;
             return (
               <div key={label} className={classes.cell}>

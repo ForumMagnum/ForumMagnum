@@ -1107,6 +1107,7 @@ importComponent("HomeTagBar", () => require('../components/common/HomeTagBar'));
 importComponent("PeopleDirectoryPage", () => require('../components/peopleDirectory/PeopleDirectoryPage'));
 importComponent("PeopleDirectoryInput", () => require('../components/peopleDirectory/PeopleDirectoryInput'));
 importComponent("PeopleDirectoryResults", () => require('../components/peopleDirectory/PeopleDirectoryResults'));
+importComponent("PeopleDirectoryHeading", () => require('../components/peopleDirectory/PeopleDirectoryHeading'));
 importComponent("PeopleDirectoryUserCell", () => require('../components/peopleDirectory/PeopleDirectoryUserCell'));
 importComponent("PeopleDirectoryTextCell", () => require('../components/peopleDirectory/PeopleDirectoryTextCell'));
 importComponent("PeopleDirectoryDateCell", () => require('../components/peopleDirectory/PeopleDirectoryDateCell'));
