@@ -717,16 +717,15 @@ function googleDocConvertNestedBullets(html: string): string {
     group.forEach((item, i, arr) => {
       if (i > 0) {
         const prevItem = arr[i - 1];
-        if (item.index === prevItem.index + 1) { // If the current item is a nested list
-          // Append the current list to the previous list item
+        if (item.index === prevItem.index + 1) {
           prevItem.element.children('li:last-child').append(item.element);
-        } else if (item.index <= prevItem.index) { // If the current item is at the same level or outdented
+        } else if (item.index <= prevItem.index) {
           // Find the ancestor list that matches the current index
           let ancestor = prevItem.element;
           for (let j = 0; j < prevItem.index - item.index; j++) {
             ancestor = ancestor.parent().closest('ul, ol');
           }
-          ancestor.after(item.element); // Place the current list after the found ancestor list
+          ancestor.after(item.element);
         }
       }
     });
