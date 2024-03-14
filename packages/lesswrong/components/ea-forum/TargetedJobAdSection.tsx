@@ -51,7 +51,7 @@ const TargetedJobAdSection = () => {
     collectionName: 'UserJobAds',
     fragmentName: 'UserJobAdsMinimumInfo',
   })
-  const { results: userJobAds, loading: userJobAdsLoading } = useMulti({
+  const { results: userJobAds, loading: userJobAdsLoading, refetch: refetchUserJobAds } = useMulti({
     terms: {view: 'adsByUser', userId: currentUser?._id},
     collectionName: 'UserJobAds',
     fragmentName: 'UserJobAdsMinimumInfo',
@@ -202,7 +202,7 @@ const TargetedJobAdSection = () => {
         jobName: activeJob,
         adState: 'seen'
       }
-    })
+    }).finally(refetchUserJobAds)
   }, [currentUser, userJobAds, userJobAdsLoading, activeJob, entry, createUserJobAd])
   
   const dismissJobAd = useCallback(() => {
