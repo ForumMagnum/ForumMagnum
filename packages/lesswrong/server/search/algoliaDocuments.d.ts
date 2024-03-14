@@ -60,6 +60,7 @@ interface SearchUser {
   slug: string,
   jobTitle?: string,
   organization?: string,
+  careerStage?: string[],
   website: string,
   groups: Array<string>,
   af: boolean,
