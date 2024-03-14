@@ -1,5 +1,6 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
+import { usePeopleDirectory } from "./usePeopleDirectory";
 
 type PeopleDirectoryColumn = {
   label: string,
@@ -50,12 +51,21 @@ const styles = (theme: ThemeType) => ({
 export const PeopleDirectoryResults = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
+  const {results} = usePeopleDirectory();
   return (
     <div className={classes.root}>
       {columns.map(({label}) => (
         <div key={label} className={classes.label}>
           {label}
         </div>
+      ))}
+      {results.map((result) => (
+        <Fragment key={result._id}>
+          <div>{result.displayName}</div>
+          <div>{result.jobTitle}</div>
+          <div>{result.organization}</div>
+          <div>{result.bio}</div>
+        </Fragment>
       ))}
     </div>
   );
