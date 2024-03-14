@@ -203,7 +203,7 @@ const TargetedJobAdSection = () => {
         adState: 'seen'
       }
     }).finally(refetchUserJobAds)
-  }, [currentUser, userJobAds, userJobAdsLoading, activeJob, entry, createUserJobAd])
+  }, [currentUser, userJobAds, userJobAdsLoading, refetchUserJobAds, activeJob, entry, createUserJobAd])
   
   const dismissJobAd = useCallback(() => {
     captureEvent('hideJobAd')
