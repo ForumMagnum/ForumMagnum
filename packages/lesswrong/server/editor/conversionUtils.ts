@@ -608,7 +608,7 @@ function googleDocStripComments(html: string): string {
  * This is used to maintain internal document links when importing into ckeditor, which doesn't use `id` attributes
  * on elements for internal linking.
  */
-export async function googleDocInternalLinks(html: string): Promise<string> {
+async function googleDocInternalLinks(html: string): Promise<string> {
   const $ = cheerio.load(html);
 
   // Define block level elements that are considered as blocks in ckeditor
@@ -665,6 +665,16 @@ export async function googleDocInternalLinks(html: string): Promise<string> {
 }
 
 /**
+ * Handle footnotes and internal links. These are bundled together because they must
+ * be done in the right order
+ */
+function googleDocConvertLinks(html: string) {
+  const withNormalizedFootnotes = googleDocConvertFootnotes(html);
+  const withInternalLinks = googleDocInternalLinks(withNormalizedFootnotes);
+  return withInternalLinks
+}
+
+/**
  * We need to convert a few things in the raw html exported from google to make it work with ckeditor, this is
  * largely mirroring conversions we do on paste in the ckeditor code:
  * - Convert footnotes to our format
@@ -678,18 +688,25 @@ export async function convertImportedGoogleDoc({
   html: string;
   postId: string;
 }) {
-  const { html: withRehostedImages } = await convertImagesInHTML(html, postId, (url) =>
-    url.includes("googleusercontent")
-  );
-  const withNoComments = googleDocStripComments(withRehostedImages);
-  const withGoogleDocFormatting = googleDocFormatting(withNoComments);
-  const withInternalLinks = await googleDocInternalLinks(withGoogleDocFormatting);
-  const withConvertedFootnotes = googleDocConvertFootnotes(withInternalLinks);
-  const withNormalisedRedirects = googleDocRemoveRedirects(withConvertedFootnotes);
-  const ckEditorMarkup = await dataToCkEditor(withNormalisedRedirects, "html");
+  const converters: (((html: string) => Promise<string>) | ((html: string) => string))[] = [
+    async (html: string) => {
+      const { html: rehostedHtml } = await convertImagesInHTML(html, postId, (url) =>
+        url.includes("googleusercontent")
+      );
+      return rehostedHtml;
+    },
+    googleDocStripComments,
+    googleDocFormatting,
+    googleDocConvertLinks,
+    googleDocRemoveRedirects,
+    async (html: string) => await dataToCkEditor(html, "html"),
+  ];
 
-  // Note: there are also some `color` attributes that are carried through, on <span>s and tables. These don't
-  // appear in the actual editor or the live post, so I am ignoring them
+  let result: string = html;
+  // Apply each converter in sequence
+  for (const converter of converters) {
+    result = await converter(result);
+  }
 
-  return ckEditorMarkup;
+  return result;
 }
