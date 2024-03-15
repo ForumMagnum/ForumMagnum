@@ -411,6 +411,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly rateLimitNextAbleToPost: any,
   readonly recentKarmaInfo: any,
   readonly hideSunshineSidebar: boolean,
+  readonly inactiveSurveyEmailSentAt: Date | null,
   readonly wrapped2023Viewed: boolean,
 }
 

@@ -2981,6 +2981,17 @@ const schema: SchemaType<"Users"> = {
     hidden: isEAForum,
     ...schemaDefaultValue(false),
   },
+  
+  // EA Forum emails the user a survey if they haven't read a post in 3 months
+  inactiveSurveyEmailSentAt: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canCreate: ['members'],
+    canRead: ['admins'],
+    canUpdate: ['admins'],
+  },
 
   // EA Forum wrapped fields
   wrapped2023Viewed: {
