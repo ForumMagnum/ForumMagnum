@@ -578,5 +578,10 @@
     "acceptsSchemaHash": "ec6d12fa05425118431d110f2e216b80",
     "acceptedByMigration": "20240312T123630.create_ForumEvents_table.ts",
     "timestamp": "2024-03-12T12:36:30.000Z"
+  },
+  {
+    "acceptsSchemaHash": "2a56d7da2e4ee362f7616d1350760500",
+    "acceptedByMigration": "20240315T192840.add_CurationEmails_table.ts",
+    "timestamp": "2024-03-15T19:28:40.000Z"
   }
 ]
