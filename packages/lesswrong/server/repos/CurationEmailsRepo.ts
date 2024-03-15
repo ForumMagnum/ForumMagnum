@@ -64,6 +64,7 @@ class CurationEmailsRepo extends AbstractRepo<"CurationEmails"> {
               SELECT "userId"
               FROM "CurationEmails" AS ce
               WHERE ce."postId" = $1
+            )
           )
         END
       )
