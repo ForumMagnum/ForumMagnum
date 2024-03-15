@@ -399,6 +399,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
       }, context) : timeDecayExpr()
     ]}
   }
+
   
   return {
     selector: {

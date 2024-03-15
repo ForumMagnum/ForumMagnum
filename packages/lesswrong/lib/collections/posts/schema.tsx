@@ -2867,6 +2867,14 @@ const schema: SchemaType<"Posts"> = {
     hidden: true,
   },
 
+  /* TEMPORARY FOR DEBUGGING */
+  filteredScore: resolverOnlyField({
+    type: Number,
+    graphQLtype: 'Float',
+    canRead: ['guests'],
+    resolver: (post: DbPost, args: void, context: ResolverContext) => { return (post as AnyBecauseHard).filteredScore }
+  }),
+
   /* Alignment Forum fields */
 
   af: {

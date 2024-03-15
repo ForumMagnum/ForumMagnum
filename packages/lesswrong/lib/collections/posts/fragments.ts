@@ -180,6 +180,7 @@ registerFragment(`
     ...PostsBase
     currentUserVote
     currentUserExtendedVote
+    filteredScore
   }
 `);
 
@@ -188,6 +189,7 @@ registerFragment(`
     ...PostsList
     currentUserVote
     currentUserExtendedVote
+    filteredScore
   }
 `)
 
@@ -461,6 +463,7 @@ registerFragment(`
       ...RevisionDisplay
     }
     
+    filteredScore
     tableOfContentsRevision(version: $version)
     reviewWinner {
       ...ReviewWinnerAll

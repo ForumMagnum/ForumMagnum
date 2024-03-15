@@ -184,7 +184,11 @@ export const usePostsList = ({
   const postIds = (orderedResults || []).map((post) => post._id);
 
   const postIdsWithScores = (orderedResults || []).map((post) => {
-      return {postId: post._id, score: post.score, baseScore: post.baseScore}
+
+      // Calculate the age of the post in hours, taking the difference between post.postedAt and the current time
+      const ageHours = (new Date().getTime() - new Date(post.postedAt).getTime()) / (60 * 60 * 1000);
+    
+      return { postId: post._id, score: post.score, baseScore: post.baseScore, filteredScore: post.filteredScore, postedAt: post.postedAt, ageHours }
     });
 
   // Analytics Tracking

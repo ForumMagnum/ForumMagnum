@@ -1156,11 +1156,13 @@ interface PostsBase_group { // fragment on Localgroups
 interface PostsWithVotes extends PostsBase { // fragment on Posts
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
+  readonly filteredScore: number|null,
 }
 
 interface PostsListWithVotes extends PostsList { // fragment on Posts
   readonly currentUserVote: string|null,
   readonly currentUserExtendedVote: any,
+  readonly filteredScore: number|null,
 }
 
 interface PostsListWithVotesAndSequence extends PostsListWithVotes { // fragment on Posts
@@ -1367,6 +1369,7 @@ interface PostsRevisionEdit extends PostsDetails { // fragment on Posts
 
 interface PostsWithNavigationAndRevision extends PostsRevision, PostSequenceNavigation { // fragment on Posts
   readonly customHighlight: RevisionDisplay|null,
+  readonly filteredScore: number|null,
   readonly tableOfContentsRevision: any,
   readonly reviewWinner: ReviewWinnerAll|null,
 }

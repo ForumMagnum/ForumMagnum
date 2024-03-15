@@ -139,6 +139,7 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
     ],
   };
 
+  console.log("using frontpageTimeDecayExpr with timeDecayFactor", timeDecayFactor )
   return { $pow: [{ $add: [ageInHours, startingAgeHours] }, timeDecayFactor] };
 }
 
@@ -147,6 +148,7 @@ export const frontpageTimeDecayExpr = (props: TimeDecayExprProps, context: Resol
 const AGE_OFFSET = isLW ? 6 : SCORE_BIAS 
 
 export const timeDecayExpr = () => {
+  console.log("using timeDecayExpr with TIME_DECAY_FACTOR:", TIME_DECAY_FACTOR.get())
   return {$pow: [
     {$add: [
       {$divide: [
