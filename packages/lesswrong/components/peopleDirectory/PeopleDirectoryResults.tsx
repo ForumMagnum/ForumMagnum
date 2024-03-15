@@ -21,13 +21,17 @@ const styles = (theme: ThemeType) => ({
     padding: "12px 6px",
     borderTop: `1px solid ${theme.palette.grey[600]}`,
   },
+  loading: {
+    gridColumn: "1/-1",
+    margin: 12,
+  },
 });
 
 export const PeopleDirectoryResults = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {results} = usePeopleDirectory();
-  const {PeopleDirectoryHeading} = Components;
+  const {results, resultsLoading} = usePeopleDirectory();
+  const {PeopleDirectoryHeading, Loading} = Components;
   return (
     <div className={classes.root}>
       {peopleDirectoryColumns.map((column) => (
@@ -45,6 +49,9 @@ export const PeopleDirectoryResults = ({classes}: {
           })}
         </Fragment>
       ))}
+      {resultsLoading &&
+        <div className={classes.loading}><Loading /></div>
+      }
     </div>
   );
 }
