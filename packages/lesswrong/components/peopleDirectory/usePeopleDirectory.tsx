@@ -30,9 +30,10 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   useEffect(() => {
     const searchClient = getSearchClient();
     void (async () => {
+      const sortString = sorting ? `_${sorting.field}:${sorting.direction}` : "";
       const results = await searchClient.search([
         {
-          indexName: "test_users",
+          indexName: "test_users" + sortString,
           query,
           params: {
             query,

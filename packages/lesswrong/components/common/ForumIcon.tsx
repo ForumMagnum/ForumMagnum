@@ -67,6 +67,7 @@ import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
+import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
 import MuiVolumeUpIcon from "@material-ui/icons/VolumeUp";
 import MuiBookmarkIcon from "@material-ui/icons/Bookmark";
 import MuiBookmarkBorderIcon from "@material-ui/icons/BookmarkBorder";
@@ -180,6 +181,7 @@ export type ForumIconName =
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
+  "ChevronUpDown" |
   "NarrowArrowDown" |
   "Plus" |
   "Check" |
@@ -271,6 +273,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    ChevronUpDown: ChevronUpDownIcon,
     NarrowArrowDown: ArrowLongDown,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,
@@ -360,6 +363,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ThickChevronLeft: ThickChevronLeftIcon,
     ThickChevronRight: ThickChevronRightIcon,
     ThickChevronDown: ThickChevronDownIcon,
+    ChevronUpDown: ChevronUpDownIcon,
     NarrowArrowDown: ArrowLongDown,
     Plus: PlusIcon,
     PlusSmall: PlusSmallIcon,

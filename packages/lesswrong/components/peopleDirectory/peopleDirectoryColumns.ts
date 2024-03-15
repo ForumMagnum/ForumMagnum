@@ -13,7 +13,7 @@ type CellComponentName = typeof cellComponents[number];
 
 export type PeopleDirectoryColumn<T extends CellComponentName = CellComponentName> = {
   label: string,
-  sortable: boolean,
+  sortField?: string,
   componentName: T,
   props: Omit<ComponentProps<ComponentTypes[T]>, "user">,
 }
@@ -21,13 +21,13 @@ export type PeopleDirectoryColumn<T extends CellComponentName = CellComponentNam
 export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] = [
   {
     label: "Name",
-    sortable: true,
+    sortField: "displayName.sort",
     componentName: "PeopleDirectoryUserCell",
     props: {},
   },
   {
     label: "Role",
-    sortable: true,
+    sortField: "jobTitle.sort",
     componentName: "PeopleDirectoryTextCell",
     props: {
       fieldName: "jobTitle",
@@ -35,7 +35,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Organization",
-    sortable: true,
+    sortField: "organization.sort",
     componentName: "PeopleDirectoryTextCell",
     props: {
       fieldName: "organization",
@@ -43,7 +43,6 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Bio",
-    sortable: false,
     componentName: "PeopleDirectoryTextCell",
     props: {
       fieldName: "bio",
@@ -51,19 +50,16 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Social media",
-    sortable: false,
     componentName: "PeopleDirectorySocialMediaCell",
     props: {},
   },
   {
     label: "Career stage",
-    sortable: false,
     componentName: "PeopleDirectoryCareerStageCell",
     props: {},
   },
   {
     label: "Karma",
-    sortable: false,
     componentName: "PeopleDirectoryNumberCell",
     props: {
       fieldName: "karma",
@@ -71,7 +67,6 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Location",
-    sortable: false,
     componentName: "PeopleDirectoryTextCell",
     props: {
       fieldName: "mapLocationAddress",
@@ -79,7 +74,6 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Profile updated",
-    sortable: false,
     componentName: "PeopleDirectoryDateCell",
     props: {
       fieldName: "exportedAt",
@@ -87,4 +81,3 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     },
   },
 ];
-
