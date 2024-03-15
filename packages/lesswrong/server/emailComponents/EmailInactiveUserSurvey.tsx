@@ -34,17 +34,16 @@ const EmailInactiveUserSurvey = ({
         and would be really grateful if you took 5-10 minutes to <a href={surveyLink} className={classes.link}>fill out an anonymous survey</a> about your experience with the site.
       </p>
       <p>
-        Your response would be especially valuable to us, as it looks like you haven’t visited the EA Forum in a while — we
-        tend to miss the perspective of people who stop using the Forum or who use it infrequently.
-        (If our analytics are off or you’re just using the Forum logged-out, you can also just flag that in the linked form.
-        Please also feel free to let me know if you’re facing any issues with your account!)
+        Your response would be especially valuable to us, as it looks like you haven’t visited the EA Forum in a while — we tend to miss the perspectives
+        of people who stop using the Forum or who use it infrequently. (If our analytics are off or you’re using the Forum while you’re logged-out, you can
+        flag that in the linked form. Also, please feel free to reply to this email and let me know if you’re facing any issues with your account!)
       </p>
       <p>
         The <a href={surveyLink} className={classes.link}>survey</a> shouldn’t take more than <strong>10 minutes</strong>,
         and <strong>all questions are optional</strong>. Any responses you share will likely help us improve the site for everyone.
       </p>
       <p>
-        - Sarah (for the EA Forum Team)
+        – Sarah (for the EA Forum Team)
       </p>
       <hr className={classes.hr}/>
     </div>
