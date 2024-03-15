@@ -164,7 +164,7 @@ export async function pruneOldPerfMetrics() {
     await connection.none(`
       DELETE
       FROM perf_metrics
-      WHERE started_at < CURRENT_DATE - INTERVAL '30 days'
+      WHERE started_at < CURRENT_DATE - INTERVAL '35 days'
     `);
 
     await connection.none(`
