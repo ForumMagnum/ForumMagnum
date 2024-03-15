@@ -53,7 +53,8 @@ class CurationEmailsRepo extends AbstractRepo<"CurationEmails"> {
         ${verifiedEmailFilter}
       AND (
         CASE
-          -- If we've already finished curating this post, we don't want to return any userIds
+          -- If we've already finished curating this post, we don't want to return any userIds.
+          -- This is to stop us from emailing every new user who registers or otherwise subscribes to curated emails well after the post was curated, since the cron job runs frequently.
           WHEN (SELECT is_finished FROM curation_status)
             THEN false
           -- Otherwise, return all subscribed userIds who haven't already been sent this post
