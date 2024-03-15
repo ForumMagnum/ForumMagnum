@@ -22,14 +22,16 @@ const styles = (theme: ThemeType) => ({
 export const PeopleDirectoryPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {PeopleDirectoryInput, PeopleDirectoryResults} = Components;
+  const {
+    PeopleDirectoryInput, PeopleDirectoryFilters, PeopleDirectoryResults,
+  } = Components;
   return (
     <AnalyticsContext pageContext="peopleDirectory">
       <PeopleDirectoryProvider>
         <div className={classes.root}>
           <h1 className={classes.pageTitle}>People directory</h1>
           <PeopleDirectoryInput />
-          {/* TODO: Add filters here */}
+          <PeopleDirectoryFilters />
           <PeopleDirectoryResults />
         </div>
       </PeopleDirectoryProvider>
