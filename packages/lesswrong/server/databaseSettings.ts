@@ -92,3 +92,6 @@ function validateSettings(registeredSettings: Record<string, "server" | "public"
   // eslint-disable-next-line no-console
   console.log(groupBy(Object.keys(registeredSettings), key => registeredSettings[key]))
 }
+
+export const openAIApiKey = new DatabaseServerSetting<string|null>('languageModels.openai.apiKey', null);
+export const openAIOrganizationId = new DatabaseServerSetting<string|null>('languageModels.openai.organizationId', null);

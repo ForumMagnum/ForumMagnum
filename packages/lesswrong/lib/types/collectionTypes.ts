@@ -320,11 +320,12 @@ interface EditableFieldContents {
   userId: string
   version: string
   commitMessage?: string
+  googleDocMetadata?: AnyBecauseHard
 }
 
 // The subset of EditableFieldContents that you provide when creating a new document
 // or revision, ie, the parts of a revision which are not auto-generated.
-type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"commitMessage">
+type EditableFieldInsertion = Pick<EditableFieldContents, "originalContents"|"commitMessage"|"googleDocMetadata">
 
 // For a DbObject, gets the field-names of all the make_editable fields.
 type EditableFieldsIn<T extends DbObject> = NonAnyFieldsOfType<T,EditableFieldContents>

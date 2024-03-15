@@ -54,7 +54,13 @@ const UsersNameDisplay = ({
 
   classes: ClassesType,
 }) => {
-  const {eventHandlers, hover} = useHover({pageElementContext: "linkPreview",  pageSubElementContext: "userNameDisplay", userId: user?._id})
+  const {eventHandlers, hover} = useHover({
+    eventProps: {
+      pageElementContext: "linkPreview",
+      pageSubElementContext: "userNameDisplay",
+      userId: user?._id
+    },
+  });
   const currentUser = useCurrentUser();
   const {disableNoKibitz} = useContext(DisableNoKibitzContext);
   const noKibitz = (currentUser

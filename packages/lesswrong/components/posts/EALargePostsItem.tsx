@@ -117,9 +117,11 @@ const EALargePostsItem = ({
   const {onClick} = useClickableCell({href: postLink});
 
   const {eventHandlers} = useHover({
-    pageElementContext: "postListItem",
-    documentId: post._id,
-    documentSlug: post.slug,
+    eventProps: {
+      pageElementContext: "postListItem",
+      documentId: post._id,
+      documentSlug: post.slug,
+    },
   });
 
   const {postContents, loading, error} = usePostContents({
