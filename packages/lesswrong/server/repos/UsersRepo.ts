@@ -582,6 +582,58 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [displayName]);
     return result.isDisplayNameTaken;
   }
+  
+  /**
+   * Returns a list of users who haven't read a post in over 6 months
+   * and who we want to email a feedback survey to.
+   *
+   * This excludes admins, deleted/deactivated users,
+   * flagged or purged or removed from queue users,
+   * users who were banned any time over the past 6 month period,
+   * and users who have already been sent this email.
+   */
+  async getInactiveUsersToEmail(limit: number): Promise<DbUser[]> {
+    return this.manyOrNone(`
+      -- UsersRepo.getInactiveUsersToEmail
+      SELECT
+        u.*
+      FROM public."Users" AS u
+      LEFT JOIN (
+        SELECT "userId", MAX("lastUpdated") AS max_last_updated
+        FROM "ReadStatuses"
+        WHERE "isRead" IS TRUE
+        GROUP BY "userId"
+      ) AS rs ON u._id = rs."userId"
+      WHERE
+        u."inactiveSurveyEmailSentAt" IS NULL
+        AND u."unsubscribeFromAll" IS NOT TRUE
+        AND u."isAdmin" IS NOT TRUE
+        AND u.deleted IS NOT TRUE
+        AND u."deleteContent" IS NOT TRUE
+        AND u."sunshineFlagged" IS NOT TRUE
+        AND (
+          u.banned IS NULL
+          OR u.banned < CURRENT_TIMESTAMP - INTERVAL '6 months'
+        )
+        AND (
+          u."reviewedByUserId" IS NOT NULL
+          OR u."sunshineNotes" IS NULL
+          OR u."sunshineNotes" = ''
+        )
+        AND (
+          (
+            rs.max_last_updated IS NULL
+            AND u."createdAt" < CURRENT_TIMESTAMP - INTERVAL '6 months'
+          )
+          OR (
+            rs.max_last_updated IS NOT NULL
+            AND rs.max_last_updated < CURRENT_TIMESTAMP - INTERVAL '6 months'
+          )
+        )
+      ORDER BY u."createdAt" desc
+      LIMIT $1;
+    `, [limit])
+  }
 }
 
 recordPerfMetrics(UsersRepo, { excludeMethods: ['getUserByLoginToken'] });

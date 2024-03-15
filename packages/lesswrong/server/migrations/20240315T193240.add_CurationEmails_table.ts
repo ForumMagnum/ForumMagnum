@@ -1,17 +1,17 @@
 /**
- * Generated on 2024-03-15T19:28:40.933Z by `yarn makemigrations`
+ * Generated on 2024-03-15T19:32:40.476Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/robert/Documents/repos/ForumMagnum/schema/accepted_schema.sql b/Users/robert/Documents/repos/ForumMagnum/schema/schema_to_accept.sql
- * index feca4cc2cd..6a9b2c2fb5 100644
+ * index 2dd1585323..ce11d56fd9 100644
  * --- a/Users/robert/Documents/repos/ForumMagnum/schema/accepted_schema.sql
  * +++ b/Users/robert/Documents/repos/ForumMagnum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
  *  --
- * --- Overall schema hash: ec6d12fa05425118431d110f2e216b80
+ * --- Overall schema hash: 01bf8045d376a34b6a5c7d0d8bfddcaa
  * -
- * --- Accepted on 2024-03-12T12:36:30.000Z by 20240312T123630.create_ForumEvents_table.ts
- * +-- Overall schema hash: 2a56d7da2e4ee362f7616d1350760500
+ * --- Accepted on 2024-03-12T18:57:36.000Z by 20240312T185736.add_inactiveSurveyEmailSentAt_to_Users.ts
+ * +-- Overall schema hash: b60bd4b195f187b7412bdf61fad49d6e
  *  
  * @@ -237,2 +235,13 @@ CREATE TABLE "CronHistories" (
  *  
@@ -27,7 +27,7 @@
  * +);
  * +
  *  -- Schema for "DatabaseMetadata", hash: d05d205da4249541e524b7d8879c6e1c
- * @@ -1734 +1743,17 @@ CREATE OR REPLACE FUNCTION fm_vote_added_emoji(
+ * @@ -1735 +1744,17 @@ CREATE OR REPLACE FUNCTION fm_vote_added_emoji(
  *  
  * +-- Function, hash: 321634e71748effc28132b851408fb4c
  * +CREATE OR REPLACE FUNCTION fm_has_verified_email(emails jsonb[])
@@ -54,7 +54,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "2a56d7da2e4ee362f7616d1350760500";
+export const acceptsSchemaHash = "b60bd4b195f187b7412bdf61fad49d6e";
 
 import CurationEmails from "../../lib/collections/curationEmails/collection"
 import { createTable, dropTable, updateFunctions } from "./meta/utils"

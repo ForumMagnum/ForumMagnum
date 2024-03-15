@@ -580,8 +580,13 @@
     "timestamp": "2024-03-12T12:36:30.000Z"
   },
   {
-    "acceptsSchemaHash": "2a56d7da2e4ee362f7616d1350760500",
-    "acceptedByMigration": "20240315T192840.add_CurationEmails_table.ts",
-    "timestamp": "2024-03-15T19:28:40.000Z"
+    "acceptsSchemaHash": "01bf8045d376a34b6a5c7d0d8bfddcaa",
+    "acceptedByMigration": "20240312T185736.add_inactiveSurveyEmailSentAt_to_Users.ts",
+    "timestamp": "2024-03-12T18:57:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "b60bd4b195f187b7412bdf61fad49d6e",
+    "acceptedByMigration": "20240315T193240.add_CurationEmails_table.ts",
+    "timestamp": "2024-03-15T19:32:40.000Z"
   }
 ]
