@@ -52,6 +52,9 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
   // ...but it might actually be better to not, since this allows us to e.g. edit the post after the job has started if there's some egregious issue
   const post = await Posts.findOne(postId);
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
+
+  const curationEmailsRepo = new CurationEmailsRepo();
+  
   for (const user of users) {
     await wrapAndSendEmail({
       user,
@@ -59,7 +62,7 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
       body: <Components.NewPostEmail documentId={post._id} reason={reason}/>
     });
 
-    await (new CurationEmailsRepo()).recordSentEmail(user._id, post._id);
+    await curationEmailsRepo.recordSentEmail(user._id, post._id);
   }
 }
 
