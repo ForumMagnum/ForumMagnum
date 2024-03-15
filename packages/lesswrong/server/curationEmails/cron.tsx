@@ -54,7 +54,7 @@ export async function sendCurationEmail({users, postId, reason, subject}: {
   if (!post) throw Error(`Can't find post to send by email: ${postId}`)
 
   const curationEmailsRepo = new CurationEmailsRepo();
-  
+
   for (const user of users) {
     await wrapAndSendEmail({
       user,
@@ -127,14 +127,18 @@ function isWithinSanityCheckPeriod(post: DbPost) {
 async function sendCurationEmails() {
   // I can't actually figure out whether a cron job which (sometimes) takes longer to run than its interval risks having multiple copies of itself running at once.
   // I hope not, but if it does, this will prevent whatever instance is responsible for running cron jobs from running multiple copies concurrently
+  console.log('Starting sendCurationEmails', { jobLock });
   if (jobLock) return;
 
   jobLock = true;
 
   try {
     const lastCuratedPost = await Posts.findOne({ curatedDate: { $exists: true } }, { sort: { curatedDate: -1 } });
+    console.log({ lastCuratedPost });
+
     // We specifically don't want to include the curatedDate filter in the SQL query because we want to skip doing anything if a post was newly curated in the last 20 minutes
     if (!lastCuratedPost || isWithinSanityCheckPeriod(lastCuratedPost)) {
+      if (lastCuratedPost) console.log({ isWithinSanityCheckPeriod: isWithinSanityCheckPeriod(lastCuratedPost) });
       return;
     }
 
@@ -142,12 +146,14 @@ async function sendCurationEmails() {
     const curationEmailsExist = await CurationEmails.findOneArbitrary();
     if (!curationEmailsExist) {
       const hydratedRecordCount = await initialCurationEmailsHydration(lastCuratedPost);
+      console.log('No CurationEmails exist', { hydratedRecordCount });
       // If the hydration didn't insert any records, that means one of two things:
       // 1. This is the first post that's ever been curated, which means it correctly didn't find any previous emails sent out for curation
       // 2. Something went wrong. Most likely is some issue with the forumSiteName, which is used to find previous curation emails (it's included in the subject line)
       // If something like that went wrong, we don't want to proceed without understanding what's going on.  I recommend running the initial hydration manually.
       if (hydratedRecordCount === 0) {
         const curatedPostCount = await Posts.find({ curatedDate: { $exists: true } }).count();
+        console.log({ curatedPostCount });
         if (curatedPostCount > 1)
           // eslint-disable-next-line no-console
           console.error(`${curatedPostCount} posts have been curated, but CurationEmails was not successfully hydrated with the last post's emails.`);
@@ -160,6 +166,7 @@ async function sendCurationEmails() {
     // and this job will be running relatively frequently.  So we optimize a bit to reduce DB load.
     const curationEmailsRepo = new CurationEmailsRepo();
     const userIdsToEmail = await curationEmailsRepo.getUserIdsToEmail(lastCuratedPost._id);
+    console.log({ userIdsToEmailCount: userIdsToEmail.length });
     if (userIdsToEmail.length === 0) {
       return;
     }
@@ -180,7 +187,7 @@ async function sendCurationEmails() {
 
 if (useCurationEmailsCron) {
   addCronJob({
-    name: 'updateUserActivitiesCron',
+    name: 'sendCurationEmailsCron',
     interval: 'every 1 minute',
     async job() {
       await sendCurationEmails();
