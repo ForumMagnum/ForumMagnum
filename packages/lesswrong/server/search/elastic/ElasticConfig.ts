@@ -103,6 +103,10 @@ const fullTextMapping: MappingProperty = {
       type: "text",
       analyzer: "fm_exact_analyzer",
     },
+    sort: {
+      type: "keyword",
+      normalizer: "fm_sortable_keyword",
+    },
   },
 };
 
@@ -118,6 +122,10 @@ const shingleTextMapping: MappingProperty = {
     exact: {
       type: "text",
       analyzer: "fm_exact_analyzer",
+    },
+    sort: {
+      type: "keyword",
+      normalizer: "fm_sortable_keyword",
     },
   },
 };

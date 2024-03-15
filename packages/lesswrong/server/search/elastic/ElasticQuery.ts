@@ -339,10 +339,26 @@ class ElasticQuery {
         {[this.config.tiebreaker]: {order: "desc"}},
       ];
     }
+
     const sort: Sort = [
-      {_score: {order: "desc"}},
       {[this.config.tiebreaker]: {order: "desc"}},
     ];
+
+    // If we specify a custom sort (such as from the people directory) then
+    // we should ignore the search _score completely when sorting
+    if (sorting && sorting.indexOf(":") > 0) {
+      const [field, order] = sorting.split(":");
+      if (order !== "asc" && order !== "desc") {
+        throw new Error("Invalid sorting order");
+      }
+      sort.unshift({[field]: {order}});
+      return sort;
+    } else {
+      sort.unshift({_score: {order: "desc"}});
+    }
+
+    // There are several special sortings builtin to the main search page.
+    // Note that these are used in conjunction with the search _score
     switch (sorting) {
     case "karma":
       const field = this.config.karmaField ?? "baseScore";
@@ -361,6 +377,7 @@ class ElasticQuery {
         throw new Error("Invalid sorting: " + sorting);
       }
     }
+
     return sort;
   }
 
