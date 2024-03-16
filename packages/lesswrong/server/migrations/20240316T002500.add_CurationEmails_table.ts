@@ -1,9 +1,9 @@
 /**
- * Generated on 2024-03-15T19:32:40.476Z by `yarn makemigrations`
+ * Generated on 2024-03-16T00:25:00.724Z by `yarn makemigrations`
  * The following schema changes were detected:
  * -------------------------------------------
  * diff --git a/Users/robert/Documents/repos/ForumMagnum/schema/accepted_schema.sql b/Users/robert/Documents/repos/ForumMagnum/schema/schema_to_accept.sql
- * index 2dd1585323..ce11d56fd9 100644
+ * index 2dd1585323..e849c6a283 100644
  * --- a/Users/robert/Documents/repos/ForumMagnum/schema/accepted_schema.sql
  * +++ b/Users/robert/Documents/repos/ForumMagnum/schema/schema_to_accept.sql
  * @@ -4,5 +4,3 @@
@@ -11,23 +11,22 @@
  * --- Overall schema hash: 01bf8045d376a34b6a5c7d0d8bfddcaa
  * -
  * --- Accepted on 2024-03-12T18:57:36.000Z by 20240312T185736.add_inactiveSurveyEmailSentAt_to_Users.ts
- * +-- Overall schema hash: b60bd4b195f187b7412bdf61fad49d6e
+ * +-- Overall schema hash: 5fb909476a7c6ef9567f7efb1abd005f
  *  
- * @@ -237,2 +235,13 @@ CREATE TABLE "CronHistories" (
+ * @@ -237,2 +235,12 @@ CREATE TABLE "CronHistories" (
  *  
- * +-- Schema for "CurationEmails", hash: 96d68c0c8e13f03b5d373b7f8f005637
+ * +-- Schema for "CurationEmails", hash: 2b0de558a2fbb70cb5713fa5b7076862
  * +CREATE TABLE "CurationEmails" (
  * +    _id varchar(27) PRIMARY KEY,
  * +    "userId" text NOT NULL,
  * +    "postId" text NOT NULL,
- * +    "updatedAt" timestamptz NOT NULL,
  * +    "schemaVersion" double precision NOT NULL DEFAULT 1,
  * +    "createdAt" timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
  * +    "legacyData" jsonb
  * +);
  * +
  *  -- Schema for "DatabaseMetadata", hash: d05d205da4249541e524b7d8879c6e1c
- * @@ -1735 +1744,17 @@ CREATE OR REPLACE FUNCTION fm_vote_added_emoji(
+ * @@ -1735 +1743,17 @@ CREATE OR REPLACE FUNCTION fm_vote_added_emoji(
  *  
  * +-- Function, hash: 321634e71748effc28132b851408fb4c
  * +CREATE OR REPLACE FUNCTION fm_has_verified_email(emails jsonb[])
@@ -54,7 +53,7 @@
  * - [ ] Uncomment `acceptsSchemaHash` below
  * - [ ] Run `yarn acceptmigrations` to update the accepted schema hash (running makemigrations again will also do this)
  */
-export const acceptsSchemaHash = "b60bd4b195f187b7412bdf61fad49d6e";
+export const acceptsSchemaHash = "5fb909476a7c6ef9567f7efb1abd005f";
 
 import CurationEmails from "../../lib/collections/curationEmails/collection"
 import { createTable, dropTable, updateFunctions } from "./meta/utils"

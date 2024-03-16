@@ -585,8 +585,8 @@
     "timestamp": "2024-03-12T18:57:36.000Z"
   },
   {
-    "acceptsSchemaHash": "b60bd4b195f187b7412bdf61fad49d6e",
-    "acceptedByMigration": "20240315T193240.add_CurationEmails_table.ts",
-    "timestamp": "2024-03-15T19:32:40.000Z"
+    "acceptsSchemaHash": "5fb909476a7c6ef9567f7efb1abd005f",
+    "acceptedByMigration": "20240316T002500.add_CurationEmails_table.ts",
+    "timestamp": "2024-03-16T00:25:00.000Z"
   }
 ]

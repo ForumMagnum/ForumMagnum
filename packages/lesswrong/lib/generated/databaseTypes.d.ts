@@ -231,7 +231,6 @@ interface DbCurationEmail extends DbObject {
   __collectionName?: "CurationEmails"
   userId: string
   postId: string
-  updatedAt: Date
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }

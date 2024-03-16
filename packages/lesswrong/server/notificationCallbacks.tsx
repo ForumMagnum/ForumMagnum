@@ -37,7 +37,7 @@ import { commentIsHidden } from '../lib/collections/comments/helpers';
 import { getDialogueResponseIds } from './posts/utils';
 import { DialogueMessageInfo } from '../components/posts/PostsPreviewTooltip/PostsPreviewTooltip';
 import { filterNonnull } from '../lib/utils/typeGuardUtils';
-import { findUsersToEmail, sendCurationEmail } from './curationEmails/cron';
+import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from './curationEmails/cron';
 import { useCurationEmailsCron } from '../lib/betas';
 
 // Callback for a post being published. This is distinct from being created in
@@ -387,6 +387,8 @@ getCollectionHooks("Posts").editAsync.add(async function PostsCurateNotification
         key: post._id,
         af: false
       });  
+    } else {
+      await hydrateCurationEmailsQueue(post._id);
     }
   }
 });

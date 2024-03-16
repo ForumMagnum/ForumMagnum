@@ -16,10 +16,6 @@ const schema: SchemaType<'CurationEmails'> = {
     type: String,
     ...commonFields(false)
   },
-  updatedAt: {
-    type: Date,
-    ...commonFields(false)
-  },
 };
 
 export default schema;
