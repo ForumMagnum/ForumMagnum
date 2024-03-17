@@ -26,6 +26,8 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   commentKarma: {
     width: 20,
+    textAlign: "right",
+    marginRight: 4,
   },
   commentAuthor: {
   },

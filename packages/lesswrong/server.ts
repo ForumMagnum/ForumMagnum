@@ -193,6 +193,7 @@ import './server/deleteUserContent';
 
 import './server/spotlightCron';
 import './server/userJobAdCron';
+import './server/inactiveUserSurveyCron';
 
 import "./server/languageModels/autoTagCallbacks";
 import './server/languageModels/languageModelIntegration';
