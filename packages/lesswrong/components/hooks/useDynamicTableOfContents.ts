@@ -3,22 +3,6 @@ import { MIN_HEADINGS_FOR_TOC, ToCData, extractTableOfContents, getTocAnswers } 
 import { PostWithCommentCounts, getResponseCounts, postGetCommentCountStr } from "../../lib/collections/posts/helpers";
 import { parseDocumentFromString } from "../../lib/domParser";
 
-// Comment/answer count notes:
-// Currently:
-// - Answers don't need a count, just the list of answers, which we have on the client already (and in fact this saves a lot of db time)
-// - Comments only need a count
-//   - On the server, this is calculated directly with a count query that (which will always be correct)
-//   - On the client, this (the number at the top of the page) is calculated from the cached commentCount field, minus the number of answers.
-//     This number of answers is also calculated in a slightly roundabout way, in that it uses countAnswersAndDescendents to include replies
-//     to these answers
-
-// TODO:
-// - [X] Move getResponseCounts function out to lib somewhere post helpers
-// - [X] Use this for the comment counts
-// - [X] Use the answers directly for the answer sections
-// - [X] See if I can remove headingsCount
-// - [X] Fix SSR issue
-
 type PostMinForToc = PostWithCommentCounts & {
   question: boolean;
   tableOfContentsRevision?: ToCData;
