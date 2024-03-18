@@ -183,7 +183,6 @@ export const postGetCommentCount = (post: PostWithCommentCounts): number => {
 /**
  * Can pass in a manual comment count, or retrieve the post's cached comment count
  */
-// TODO remove the case of passing in a post
 export const postGetCommentCountStr = (post?: PostWithCommentCounts|null, commentCount?: number|undefined): string => {
   const count = commentCount !== undefined ? commentCount : post ? postGetCommentCount(post) : 0;
   if (!count) {
