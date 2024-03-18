@@ -186,6 +186,21 @@ export const postgresFunctions = [
     LIMIT 1
   $$
   `,
+  // Checks a user has a verified email, from their `emails`.
+  `CREATE OR REPLACE FUNCTION fm_has_verified_email(emails jsonb[])
+    RETURNS boolean LANGUAGE plpgsql IMMUTABLE AS $$
+    DECLARE
+      item jsonb;
+    BEGIN
+      FOR item IN SELECT unnest(emails)
+      LOOP
+        IF (item->>'verified')::boolean THEN
+          RETURN true;
+        END IF;
+      END LOOP;
+      RETURN false;
+    END;
+  $$`
 ] as const;
 
 export type PostgresFunction = typeof postgresFunctions[number];

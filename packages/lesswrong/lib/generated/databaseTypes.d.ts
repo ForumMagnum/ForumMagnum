@@ -225,6 +225,16 @@ interface DbCronHistory extends DbObject {
   result: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type CurationEmailsCollection = CollectionBase<"CurationEmails">;
+
+interface DbCurationEmail extends DbObject {
+  __collectionName?: "CurationEmails"
+  userId: string
+  postId: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type DatabaseMetadataCollection = CollectionBase<"DatabaseMetadata">;
 
 interface DbDatabaseMetadata extends DbObject {
@@ -1788,6 +1798,7 @@ interface CollectionsByName {
   Comments: CommentsCollection
   Conversations: ConversationsCollection
   CronHistories: CronHistoriesCollection
+  CurationEmails: CurationEmailsCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
   DialogueChecks: DialogueChecksCollection
@@ -1861,6 +1872,7 @@ interface ObjectsByCollectionName {
   Comments: DbComment
   Conversations: DbConversation
   CronHistories: DbCronHistory
+  CurationEmails: DbCurationEmail
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueChecks: DbDialogueCheck
@@ -1934,6 +1946,7 @@ interface ObjectsByTypeName {
   Comment: DbComment
   Conversation: DbConversation
   CronHistory: DbCronHistory
+  CurationEmail: DbCurationEmail
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueCheck: DbDialogueCheck
