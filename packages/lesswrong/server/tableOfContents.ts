@@ -95,10 +95,8 @@ export const getToCforPost = async ({document, version, context}: {
   
   const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
   let tocSections = tableOfContents?.sections || []
-
-  // TODO update to match dynamic version
   
-  if (tocSections.length >= MIN_HEADINGS_FOR_TOC) {
+  if (tocSections.length >= MIN_HEADINGS_FOR_TOC || document.question) {
     const tocAnswers = await getTocAnswers(document)
     const tocComments = await getTocComments(document)
     tocSections.push(...tocAnswers)
@@ -160,6 +158,7 @@ const getToCforTag = async ({document, version, context}: {
 Utils.getToCforPost = getToCforPost;
 Utils.getToCforTag = getToCforTag;
 
+/** @deprecated Use extractTableOfContents directly on the client instead. TODO delete after 2024-04-14 */
 defineQuery({
   name: "generateTableOfContents",
   resultType: "JSON",

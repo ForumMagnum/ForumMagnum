@@ -30,32 +30,41 @@ export const useDynamicTableOfContents = ({
   post,
   answers,
 }: {
-  html: string;
-  post: PostMinForToc;
+  html: string | null;
+  post: PostMinForToc | null;
   answers: CommentsList[];
 }): ToCData | null => {
   return useMemo(() => {
-    const precalcuatedToc = post.tableOfContentsRevision ?? post.tableOfContents;
+    const precalcuatedToc = post?.tableOfContentsRevision ?? post?.tableOfContents;
     if (precalcuatedToc) {
       return precalcuatedToc;
     }
 
-    const { document: htmlDoc, window: genericWindow } = parseDocumentFromString(html);
+    if (!html) {
+      return {
+        html,
+        sections: []
+      }
+    }
 
     const { sections = [], html: tocHtml = null } =
-      extractTableOfContents({ document: htmlDoc, window: genericWindow }) ?? {};
-
-    const { commentCount } = getResponseCounts({ post, answers });
-    const answerSections = getTocAnswers({ post, answers });
-
-    // TODO note behaviour change here, previously these would only be included if there were
-    // headings in the post
-    sections.push(...answerSections);
+      extractTableOfContents(parseDocumentFromString(html)) ?? {};
 
     // Always show the ToC for questions, to avoid layout shift when the answers load
-    if (sections && (sections.length > MIN_HEADINGS_FOR_TOC || post.question)) {
+    if (sections.length > MIN_HEADINGS_FOR_TOC || post?.question) {
+      if (!post) {
+        return {
+          html: tocHtml ?? null,
+          sections,
+        };
+      }
+
+      const answerSections = getTocAnswers({ post, answers });
+      sections.push(...answerSections);
+
+      const { commentCount } = getResponseCounts({ post, answers });
       const commentsSection = [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, commentCount) }];
-      sections?.push(...commentsSection);
+      sections.push(...commentsSection);
 
       return {
         html: tocHtml ?? null,
