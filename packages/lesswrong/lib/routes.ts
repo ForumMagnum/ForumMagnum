@@ -808,7 +808,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
     },
     {
       name: 'peopleDirectory',
-      path: '/peopleDirectory',
+      path: '/people-directory',
       componentName: 'PeopleDirectoryPage',
       title: 'People directory',
     },
