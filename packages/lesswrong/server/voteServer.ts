@@ -577,6 +577,10 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
     {
       documentId: document._id,
       cancelled: false
+    }, {
+      sort: {
+        votedAt: 1
+      }
     }
   ).fetch() || [];
   
