@@ -245,6 +245,12 @@ const Header = ({
   const { notificationsOpened } = useUnreadNotifications();
   const { pathname, hash } = useLocation();
 
+  const {
+    SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
+    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
+    ActiveDialogues, SiteLogo, MessagesMenuButton,
+  } = Components;
+
   useEffect(() => {
     // When we move to a different page we will be positioned at the top of
     // the page (unless the hash is set) but Headroom doesn't run this callback
@@ -303,12 +309,12 @@ const Header = ({
     setSearchOpenState(isOpen);
   }, [captureEvent]);
 
-  const NavigationMenuButton = () => {
+  const navigationMenuButton = (
     // The navigation menu button either toggles a free floating sidebar, opens
     // a drawer with site navigation, or a drawer with table of contents. (This
     // is structured a little oddly because the hideSmDown/hideMdUp filters
     // cause a misalignment if they're in the wrong part of the tree.)
-    return <React.Fragment>
+    <React.Fragment>
       {toc?.sectionData?.sections
         ? <>
             <div className={classes.hideSmDown}>
@@ -362,13 +368,7 @@ const Header = ({
         {(isFriendlyUI && !sidebarHidden) ? <ForumIcon icon="CloseMenu" /> : <ForumIcon icon="Menu" />}
       </IconButton>}
     </React.Fragment>
-  }
-
-  const {
-    SearchBar, UsersMenu, UsersAccountMenu, NotificationsMenuButton, NavigationDrawer,
-    NotificationsMenu, KarmaChangeNotifier, HeaderSubtitle, Typography, ForumIcon,
-    ActiveDialogues, SiteLogo, MessagesMenuButton,
-  } = Components;
+  )
 
   const usersMenuClass = isFriendlyUI ? classes.hideXsDown : classes.hideMdDown
   const usersMenuNode = currentUser && <div className={searchOpen ? usersMenuClass : undefined}>
@@ -379,9 +379,7 @@ const Header = ({
 
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classes.rightHeaderItems}>
-    <NoSSR onSSR={<div className={classes.searchSSRStandin} />} >
-      <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-    </NoSSR>
+    <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
     {!isFriendlyUI && usersMenuNode}
     {!currentUser && <UsersAccountMenu />}
     {hasKarmaChangeNotifier && <KarmaChangeNotifier
@@ -402,7 +400,7 @@ const Header = ({
   </div>
 
   // the left side nav menu
-  const HeaderNavigationDrawer = () => <NavigationDrawer
+  const headerNavigationDrawer = <NavigationDrawer
     open={navigationOpen}
     handleOpen={() => setNavigationOpen(true)}
     handleClose={() => setNavigationOpen(false)}
@@ -410,15 +408,14 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const HeaderNotificationsMenu = () => currentUser && !hasNotificationsPage
-    ? (
+  const headerNotificationsMenu = currentUser && !hasNotificationsPage
+    && (
       <NotificationsMenu
         open={notificationOpen}
         hasOpened={notificationHasOpened}
         setIsOpen={handleSetNotificationDrawerOpen}
       />
-    )
-    : null;
+    );
 
   return (
     <AnalyticsContext pageSectionContext="header">
@@ -436,7 +433,7 @@ const Header = ({
         >
           <header className={classNames(classes.appBar, {[classes.appBarDarkBackground]: !!backgroundColor})} style={backgroundColor ? {backgroundColor} : {}}>
             <Toolbar disableGutters={isFriendlyUI}>
-              <NavigationMenuButton />
+              {navigationMenuButton}
               <Typography className={classes.title} variant="title">
                 <div className={classes.hideSmDown}>
                   <div className={classes.titleSubtitleContainer}>
@@ -458,9 +455,9 @@ const Header = ({
               {rightHeaderItemsNode}
             </Toolbar>
           </header>
-          <HeaderNavigationDrawer />
+          {headerNavigationDrawer}
         </Headroom>
-        <HeaderNotificationsMenu />
+        {headerNotificationsMenu}
       </div>
     </AnalyticsContext>
   )

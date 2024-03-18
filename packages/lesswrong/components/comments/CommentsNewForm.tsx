@@ -68,7 +68,6 @@ const styles = (theme: ThemeType): JssStyles => ({
     boxShadow: 'none',
     marginLeft: 8,
   } : {
-    paddingBottom: "2px",
     fontSize: "16px",
     color: theme.palette.lwTertiary.main,
     marginLeft: "5px",

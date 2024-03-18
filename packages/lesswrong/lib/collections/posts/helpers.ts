@@ -447,9 +447,18 @@ export const isPostAllowedType3Audio = (post: PostsBase|DbPost): boolean => {
 
 /**
  * Given a url like https://docs.google.com/document/d/1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA/edit#heading=h.82kaw9idgbpe
- * , return just the id part (1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA in this case)
+ * return just the id part (1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA in this case)
  */
 export const extractGoogleDocId = (urlOrId: string): string | null => {
-  const docIdMatch = urlOrId.match(/\/d\/(.+?)(\/|$)/);
+  const docIdMatch = urlOrId.match(/.*docs\.google\.com.*\/d\/(.+?)(\/|$)/);
   return docIdMatch ? docIdMatch[1] : null;
+};
+
+/**
+ * Given a Google doc id like 1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA, return
+ * the full url (as if you were able to edit it). In this case it would be
+ * https://docs.google.com/document/d/1G4SNqovdoEHaHca20TPJA6D4Ck7Yo8ocvKdwdZdL5qA/edit
+ */
+export const googleDocIdToUrl = (docId: string): string => {
+  return `https://docs.google.com/document/d/${docId}/edit`;
 };

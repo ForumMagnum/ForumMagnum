@@ -100,21 +100,20 @@ const styles = (theme: ThemeType) => ({
     ...sectionOffsetStyling,
   },
   titleContainer: {
+    height: '100%',
     maxHeight: 200,
-    minHeight: 30,
     display: 'flex',
     flexDirection: 'column-reverse',
-    transition: 'opacity 0.4s ease-in-out, max-height 0.4s ease-in-out, max-height 0.4s ease-in-out, margin-top 0.4s ease-in-out',
+    transition: 'opacity 0.4s ease-in-out, height 0.4s ease-in-out, max-height 0.4s ease-in-out, margin-top 0.4s ease-in-out',
   },
-  '@global': {
+  '@global': isFriendlyUI ? {} : {
     // Hard-coding this class name as a workaround for one of the JSS plugins being incapable of parsing a self-reference ($titleContainer) while inside @global
     [`body:has(.headroom--pinned) .${TITLE_CONTAINER_CLASS_NAME}`]: {
       opacity: 0,
-      maxHeight: 84,
-      minHeight: 64
+      height: 84,
     },
     [`body:has(.headroom--unfixed) .${FIXED_POSITION_NON_SPLASH_PAGE_TOC_CLASS_NAME} .${FIXED_POSITION_TOC_CLASS_NAME}`]: {
-      minHeight: 'calc(100vh - 64px)'
+      maxHeight: 'calc(100vh - 64px)',
     }
   }
 });

@@ -19,6 +19,10 @@ import classNames from 'classnames';
 import { ToCDisplayOptions, adjustHeadingText, getAnchorY, isRegularClick, jumpToY, sectionsWithAnswersSorted } from './TableOfContentsList';
 
 function normalizeOffsets(sections: (ToCSection | ToCSectionWithOffset)[]): ToCSectionWithOffset[] {
+  if (sections.length === 0) {
+    return [];
+  }
+  
   const titleSection: ToCSectionWithOffset = { ...sections[0], offset: sections[0].offset ?? 0 };
 
   const remainingSections = sections.slice(1);
@@ -61,15 +65,16 @@ const styles = (theme: ThemeType) => ({
   root: {
     left: 0,
     top: 0,
-    minHeight: '100vh',
+    maxHeight: '100vh',
+    height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-evenly',
     //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
     '& .TableOfContentsRow-title': {
       borderBottom: "none",
     },
-    transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, min-height 0.4s ease-in-out',
+    wordBreak: 'break-word',
+    transition: 'opacity .5s ease-in-out 0.5s, transform .5s ease-in-out 0.5s, height 0.4s ease-in-out, max-height 0.4s ease-in-out',
   },
   fadeOut: {
     opacity: 0,
@@ -316,7 +321,7 @@ const FixedPositionToc = ({tocSections, title, postedAt, onClickSection, display
     )
   });
 
-  const commentsRow = normalizedSections.at(-1)?.anchor === 'comments' ? rows.pop() : undefined;
+  const commentsRow = normalizedSections.slice(-1)?.[0]?.anchor === 'comments' ? rows.pop() : undefined;
 
   if (!tocSections || !hasLoaded)
     return <div/>

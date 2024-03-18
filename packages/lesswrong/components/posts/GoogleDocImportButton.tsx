@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { fragmentTextForQuery, registerComponent, Components } from "../../lib/vulcan-lib";
 import { useMutation, gql, useQuery } from "@apollo/client";
-import { extractGoogleDocId, postGetEditUrl } from "../../lib/collections/posts/helpers";
+import { extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "../../lib/collections/posts/helpers";
 import { useMessages } from "../common/withMessages";
 import { Link, useNavigate } from "../../lib/reactRouterWrapper";
 import { useLocation } from "../../lib/routeUtil";
 import { useMulti } from "../../lib/crud/withMulti";
 import { useTracking } from "../../lib/analyticsEvents";
+import { GoogleDocMetadata } from "../../lib/collections/revisions/helpers";
 
 const styles = (theme: ThemeType) => ({
   button: {
@@ -91,7 +92,7 @@ const styles = (theme: ThemeType) => ({
 });
 
 
-const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: ClassesType<typeof styles> }) => {
+const GoogleDocImportButton = ({ postId, version, classes }: { postId?: string; version?: string; classes: ClassesType<typeof styles> }) => {
   const [googleDocUrl, setGoogleDocUrl] = useState("");
   const [open, setOpen] = useState(false)
   const anchorEl = useRef<HTMLDivElement | null>(null)
@@ -105,8 +106,36 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
   const location = useLocation();
   const navigate = useNavigate();
 
+  const { data: latestGoogleDocMetadataQuery } = useQuery<{ latestGoogleDocMetadata: GoogleDocMetadata }>(
+    gql`
+      query latestGoogleDocMetadata($postId: String!, $version: String) {
+        latestGoogleDocMetadata(postId: $postId, version: $version)
+      }
+    `,
+    {
+      variables: {
+        postId,
+        version,
+        batchKey: "docImportInfo"
+      },
+      skip: !postId,
+    }
+  );
+  const previousDocId = latestGoogleDocMetadataQuery?.latestGoogleDocMetadata?.id
+
+  useEffect(() => {
+    if (previousDocId) {
+      setGoogleDocUrl(googleDocIdToUrl(previousDocId))
+    }
+  }, [previousDocId])
+
+
   const fileId = extractGoogleDocId(googleDocUrl)
-  const { data: canAccessQuery, loading: canAccessQueryLoading, refetch } = useQuery(
+  const {
+    data: canAccessQuery,
+    loading: canAccessQueryLoading,
+    refetch,
+  } = useQuery<{ CanAccessGoogleDoc: boolean }>(
     gql`
       query CanAccessGoogleDoc($fileUrl: String!) {
         CanAccessGoogleDoc(fileUrl: $fileUrl)
@@ -167,7 +196,7 @@ const GoogleDocImportButton = ({ postId, classes }: { postId?: string; classes: 
     fragmentName: 'GoogleServiceAccountSessionInfo',
     enableTotal: false,
     extraVariablesValues: {
-      batchKey: "serviceAccounts"
+      batchKey: "docImportInfo"
     }
   })
   const email = serviceAccounts?.[0]?.email

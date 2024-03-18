@@ -27,15 +27,7 @@ import Revisions from '../../lib/collections/revisions/collection';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
-
-type GoogleDocMetadata = {
-  id: string;
-  name: string;
-  version: string;
-  createdTime: string;
-  modifiedTime: string;
-  size: string;
-}
+import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -435,7 +427,7 @@ addGraphQLResolvers({
       // Converting to ckeditor markup does some thing like removing styles to standardise
       // the result, so we always want to do this first before converting to whatever format the user
       // is using
-      const ckEditorMarkup = await convertImportedGoogleDoc(html, finalPostId)
+      const ckEditorMarkup = await convertImportedGoogleDoc({ html, postId: finalPostId })
       const commitMessage = `[Google Doc import] Last modified: ${docMetadata.modifiedTime}, Name: "${docMetadata.name}"`
       const originalContents = {type: "ckEditorMarkup", data: ckEditorMarkup}
 
@@ -454,7 +446,7 @@ addGraphQLResolvers({
           collectionName: "Posts",
           version: getNextVersion(previousRev, revisionType, true),
           updateType: revisionType,
-          commitMessage: commitMessage,
+          commitMessage,
           changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
           googleDocMetadata: docMetadata
         };
@@ -476,6 +468,8 @@ addGraphQLResolvers({
             title: docMetadata.name,
             contents: {
               originalContents,
+              commitMessage,
+              googleDocMetadata: docMetadata
             },
             draft: true
           },

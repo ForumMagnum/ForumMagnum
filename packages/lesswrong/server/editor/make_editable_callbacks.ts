@@ -104,6 +104,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents
       const commitMessage = doc[fieldName].commitMessage;
+      const googleDocMetadata = doc[fieldName].googleDocMetadata;
       const html = await dataToHTML(data, type, !currentUser.isAdmin)
       const wordCount = await dataToWordCount(data, type)
       const version = getInitialVersion(doc)
@@ -133,7 +134,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
         await validateCreateMutation(createFirstCommentParams);
       }
 
-      const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "googleDocMetadata"> = {
+      const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
         ...(await buildRevision({
           originalContents,
           currentUser,
@@ -144,6 +145,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
         draft: versionIsDraft(version, collectionName),
         updateType: 'initial',
         commitMessage,
+        googleDocMetadata,
         changeMetrics,
         createdAt: editedAt,
       };

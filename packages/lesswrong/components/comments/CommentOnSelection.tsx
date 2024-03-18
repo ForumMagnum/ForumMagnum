@@ -7,13 +7,16 @@ import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
 import { hasSideComments } from '../../lib/betas';
 
 const selectedTextToolbarStyles = (theme: ThemeType): JssStyles => ({
+  toolbarWrapper: {
+    position: "absolute",
+  },
   toolbar: {
-    background: theme.palette.panelBackground.darken03,
+    display: "flex",
     borderRadius: 8,
     color: theme.palette.icon.dim,
-    position: "absolute",
     zIndex: theme.zIndexes.lwPopper,
     padding: 8,
+    paddingBottom: 6,
     cursor: "pointer",
     
     "&:hover": {
@@ -149,15 +152,20 @@ const SelectedTextToolbar = ({onClickComment, x, y, classes}: {
   x: number, y: number,
   classes: ClassesType,
 }) => {
+  const { LWTooltip } = Components;
   const { captureEvent } = useTracking()
 
-  return <div className={classes.toolbar} style={{left: x, top: y}}>
-    <AnalyticsContext pageElementContext="selectedTextToolbar">
-      <CommentIcon onClick={ev => {
-        captureEvent("commentOnSelectionClicked");
-        onClickComment(ev);
-      }}/>
-    </AnalyticsContext>
+  return <div className={classes.toolbarWrapper} style={{left: x, top: y}}>
+    <LWTooltip inlineBlock={false} title={<div><p>Click to comment on the selected text</p></div>}>
+      <div className={classes.toolbar}>
+        <AnalyticsContext pageElementContext="selectedTextToolbar">
+          <CommentIcon onClick={ev => {
+            captureEvent("commentOnSelectionClicked");
+            onClickComment(ev);
+          }}/>
+        </AnalyticsContext>
+      </div>
+    </LWTooltip>
   </div>
 }
 

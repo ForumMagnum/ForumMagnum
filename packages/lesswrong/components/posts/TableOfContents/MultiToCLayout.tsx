@@ -11,6 +11,7 @@ export const MAX_CONTENT_WIDTH = 720;
 const TOC_OFFSET_TOP = 92
 const TOC_OFFSET_BOTTOM = 64
 const LEFT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1fr';
+const RIGHT_COLUMN_WIDTH = fullHeightToCEnabled ? '0fr' : '1.5fr';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +25,7 @@ const styles = (theme: ThemeType) => ({
       minmax(0px, ${DEFAULT_TOC_MARGIN})
       min-content
       10px
-      1.5fr
+      ${RIGHT_COLUMN_WIDTH}
     `,
     [theme.breakpoints.down('sm')]: {
       display: 'block',
@@ -66,7 +67,8 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 1,
     paddingLeft: theme.spacing.unit*2,
     textAlign: "left",
-    ...(fullHeightToCEnabled ? { height: "100vh" } : { maxHeight: "100vh" }),
+    maxHeight: "100vh",
+    height: fullHeightToCEnabled ? "100%" : undefined,
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
@@ -81,7 +83,7 @@ const styles = (theme: ThemeType) => ({
   stickyBlock: {
     // Cancels the direction:rtl in stickyBlockScroller
     direction: "ltr",
-    
+    height: fullHeightToCEnabled ? "100%" : undefined,
     paddingTop: fullHeightToCEnabled ? undefined : TOC_OFFSET_TOP,
     paddingBottom: fullHeightToCEnabled ? undefined : TOC_OFFSET_BOTTOM,
   },

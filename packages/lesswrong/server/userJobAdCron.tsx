@@ -9,9 +9,12 @@ import { wrapAndSendEmail } from './emails/renderEmail';
 import './emailComponents/EmailJobAdReminder';
 import { Components, Globals } from './vulcan-lib';
 import { loggerConstructor } from '../lib/utils/logging';
+import { isEAForum } from '../lib/instanceSettings';
 
 
 const sendJobAdReminderEmails = async () => {
+  if (!isEAForum) return
+
   const logger = loggerConstructor(`cron-sendJobAdReminderEmails`)
 
   // Find all the job ads where the deadline is 2 days away
@@ -27,7 +30,7 @@ const sendJobAdReminderEmails = async () => {
   // Find all the user reminders set for these jobs
   const userJobAds = await UserJobAds.find({
     jobName: {$in: jobNames},
-    adState: 'reminderSet'
+    reminderSetAt: {$exists: true},
   }).fetch()
   if (!userJobAds.length) {
     logger(`No users to remind for jobs: ${jobNames.join(', ')}`)
@@ -62,12 +65,14 @@ const sendJobAdReminderEmails = async () => {
   logger(`Sent email reminders for ${jobNames.join(', ')} to ${users.length} users`)
 }
 
-addCronJob({
-  name: 'sendJobAdReminderEmails',
-  interval: `every 1 day`,
-  job() {
-    void sendJobAdReminderEmails();
-  }
-});
+if (isEAForum) {
+  addCronJob({
+    name: 'sendJobAdReminderEmails',
+    interval: `every 1 day`,
+    job() {
+      void sendJobAdReminderEmails();
+    }
+  });
+}
 
 Globals.sendJobAdReminderEmails = sendJobAdReminderEmails;
