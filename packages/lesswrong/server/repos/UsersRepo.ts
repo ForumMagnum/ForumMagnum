@@ -639,7 +639,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
   async getCurationSubscribedUserIds(): Promise<string[]> {
     const verifiedEmailFilter = !isEAForum ? 'AND fm_has_verified_email(emails)' : '';
 
-    return this.getRawDb().any(`
+    const userIdRecords = await this.getRawDb().any<Record<'_id', string>>(`
       SELECT _id
       FROM "Users"
       WHERE "emailSubscribedToCurated" IS TRUE
@@ -648,6 +648,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
         AND "unsubscribeFromAll" IS NOT TRUE
         ${verifiedEmailFilter}
     `);
+
+    return userIdRecords.map(({ _id }) => _id);
   }
 }
 
