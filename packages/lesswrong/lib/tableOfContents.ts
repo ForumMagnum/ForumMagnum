@@ -141,7 +141,6 @@ export function extractTableOfContents({
   }
 
   return {
-    // TODO check that this is the right html, although I think it isn't used
     html: document.body.innerHTML,
     sections: headings,
   };
