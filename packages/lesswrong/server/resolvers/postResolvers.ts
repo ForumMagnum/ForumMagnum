@@ -86,10 +86,7 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: GraphQLJSON,
       resolver: async (document: DbPost, args: void, context: ResolverContext) => {
-        const tStart = performance.now()
         const res = await getToCforPost({document, version: null, context});
-        const tEnd = performance.now()
-        console.log(`Total time to construct ToC: ${tEnd - tStart}`)
         return res
         // TODO add exception catching back in
     },

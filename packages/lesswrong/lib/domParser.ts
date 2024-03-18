@@ -9,6 +9,9 @@ const { JSDOM = null } = bundleIsServer ? require('jsdom') : {};
  */
 export type WindowType = DOMWindow | Window & typeof globalThis
 
+/**
+ * Version of DOMParser().parseFromString that can be used server-side (including during SSR)
+ */
 export function parseDocumentFromString(html: string): {
   document: Document;
   window: WindowType;
