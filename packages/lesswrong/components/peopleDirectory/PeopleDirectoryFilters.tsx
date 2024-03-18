@@ -1,7 +1,6 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { CAREER_STAGES } from "../../lib/collections/users/schema";
-import { useMultiSelect } from "../hooks/useMultiSelect";
+import { usePeopleDirectory } from "./usePeopleDirectory";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -34,16 +33,23 @@ export const PeopleDirectoryFilters = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
-    state: careerStages,
-    selectedValues: selectedCareerStages,
-    clear: clearCareerStages,
-  } = useMultiSelect(CAREER_STAGES);
+    careerStages: {
+      state: careerStages,
+      selectedValues: selectedCareerStages,
+      clear: clearCareerStages,
+      summary: careerStagesSummary,
+    },
+  } = usePeopleDirectory();
 
   const {PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption} = Components;
   return (
     <div className={classes.root}>
       <div className={classes.filters}>
-        <PeopleDirectoryFilterDropdown title="Role" className={classes.multiSelect}>
+        <PeopleDirectoryFilterDropdown
+          title={careerStagesSummary}
+          active={selectedCareerStages.length > 0}
+          className={classes.multiSelect}
+        >
           {careerStages.map((state) => (
             <PeopleDirectorySelectOption state={state} key={state.value} />
           ))}

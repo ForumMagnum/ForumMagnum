@@ -5,6 +5,11 @@ export type MultiSelectOption = {
   label: string,
 }
 
+export type MultiSelectProps = {
+  title: string,
+  options: MultiSelectOption[],
+}
+
 export type MultiSelectState = MultiSelectOption & {
   selected: boolean,
   onToggle: () => void,
@@ -14,9 +19,28 @@ export type MultiSelectResult = {
   state: MultiSelectState[],
   selectedValues: string[],
   clear: () => void,
+  summary: string,
 }
 
-export const useMultiSelect = (options: MultiSelectOption[]): MultiSelectResult => {
+const buildSummary = (
+  title: string,
+  options: MultiSelectOption[],
+  selected: string[],
+): string => {
+  if (selected.length === 0) {
+    return title;
+  }
+  if (selected.length === 1) {
+    const label = options.find(({value}) => value === selected[0])?.label;
+    return label ? `${title}: ${label}` : title;
+  }
+  return `${title}: ${selected.length}`;
+}
+
+export const useMultiSelect = ({
+  title,
+  options,
+}: MultiSelectProps): MultiSelectResult => {
   const [selected, setSelected] = useState<string[]>([]);
 
   const onToggle = useCallback((value: string) => {
@@ -45,5 +69,6 @@ export const useMultiSelect = (options: MultiSelectOption[]): MultiSelectResult 
     state,
     selectedValues: selected,
     clear,
+    summary: buildSummary(title, options, selected),
   };
 }
