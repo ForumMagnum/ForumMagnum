@@ -1,6 +1,3 @@
-import cheerio from 'cheerio';
-import * as _ from 'underscore';
-import { cheerioParse } from './utils/htmlUtil';
 import { Comments } from '../lib/collections/comments/collection';
 import { questionAnswersSortings } from '../lib/collections/comments/views';
 import { postGetCommentCountStr } from '../lib/collections/posts/helpers';
@@ -11,11 +8,11 @@ import { Utils } from '../lib/vulcan-lib';
 import { updateDenormalizedHtmlAttributions } from './tagging/updateDenormalizedHtmlAttributions';
 import { annotateAuthors } from './attributeEdits';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
-import { extractTableOfContents as extractTableOfContentsLib, ToCData, ToCSection } from '../lib/tableOfContents';
+import { extractTableOfContents, ToCData, ToCSection } from '../lib/tableOfContents';
 import { defineQuery } from './utils/serverGraphqlUtil';
 import { htmlToTextDefault } from '../lib/htmlToText';
 import { commentsTableOfContentsEnabled } from '../lib/betas';
-import { JSDOM } from 'jsdom';
+import { parseDocumentFromString } from '../lib/domParser';
 
 // Number of headings below which a table of contents won't be generated.
 // If comments-ToC is enabled, this is 0 because we need a post-ToC (even if
@@ -23,151 +20,6 @@ import { JSDOM } from 'jsdom';
 // being imbalanced.
 const MIN_HEADINGS_FOR_TOC = commentsTableOfContentsEnabled ? 0 : 1;
 
-// Tags which define headings. Currently <h1>-<h4>, <strong>, and <b>. Excludes
-// <h5> and <h6> because their usage in historical (HTML) wasn't as a ToC-
-// worthy heading.
-const headingTags = {
-  h1: 1,
-  h2: 2,
-  h3: 3,
-  h4: 4,
-  // <b> and <strong> are at the same level
-  strong: 7,
-  b: 7,
-}
-
-const headingIfWholeParagraph = {
-  strong: true,
-  b: true,
-};
-
-const headingSelector = _.keys(headingTags).join(",");
-
-// Given an HTML document, extract a list of sections for a table of contents
-// from it, and add anchors. The result is modified HTML with added anchors,
-// plus a JSON array of sections, where each section has a
-// `title`, `anchor`, and `level`, like this:
-//   {
-//     html: "<a anchor=...">,
-//     sections: [
-//       {title: "Preamble", anchor: "preamble", level: 1},
-//       {title: "My Cool Idea", anchor: "mycoolidea", level: 1},
-//         {title: "An Aspect of My Cool Idea", anchor:"anaspectofmycoolidea", level: 2},
-//         {title: "Why This Is Neat", anchor:"whythisisneat", level: 2},
-//       {title: "Conclusion", anchor: "conclusion", level: 1},
-//     ]
-//   }
-export function extractTableOfContents(postHTML: string | null) {
-  if (!postHTML) return null;
-
-  // Use jsdom to create a Document from the HTML string
-  const { window } = new JSDOM(postHTML);
-  const document = window.document;
-
-  // Call the library version of extractTableOfContents with the constructed Document
-  return extractTableOfContentsLib({ document, window });
-}
-
-function elementToToCText(cheerioTag: cheerio.Element) {
-  const tagHtml = cheerio(cheerioTag).html();
-  if (!tagHtml) return null;
-  const tagClone = cheerioParse(tagHtml);
-  tagClone("style").remove();
-  return tagClone.root().text();
-}
-
-const reservedAnchorNames = ["top", "comments"];
-
-// Given the text in a heading block and a dict of anchors that have been used
-// in the post so far, generate an anchor, and return it. An anchor is a
-// URL-safe string that can be used for within-document links, and which is
-// not one of a few reserved anchor names.
-function titleToAnchor(title: string, usedAnchors: Record<string,boolean>): string
-{
-  let charsToUse = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
-  let sb: Array<string> = [];
-
-  for(let i=0; i<title.length; i++) {
-    let ch = title.charAt(i);
-    if(charsToUse.indexOf(ch) >= 0) {
-      sb.push(ch);
-    } else {
-      sb.push('_');
-    }
-  }
-
-  let anchor = sb.join('');
-  if(!usedAnchors[anchor] && !_.find(reservedAnchorNames, x=>x===anchor))
-    return anchor;
-
-  let anchorSuffix = 1;
-  while(usedAnchors[anchor + anchorSuffix])
-    anchorSuffix++;
-  return anchor+anchorSuffix;
-}
-
-// `<b>` and `<strong>` tags are headings iff they are the only thing in their
-// paragraph. Return whether the given tag name is a tag with that property
-// (ie, is `<strong>` or `<b>`).
-// See tagIsWholeParagraph
-function tagIsHeadingIfWholeParagraph(tagName: string): boolean
-{
-  return tagName.toLowerCase() in headingIfWholeParagraph;
-}
-
-const tagIsAlien = (baseTag: cheerio.TagElement, potentialAlienTag: cheerio.Element): boolean => {
-  switch (potentialAlienTag.type) {
-    case 'tag':
-      return baseTag.name !== potentialAlienTag.name;
-    case 'text':
-      return (potentialAlienTag.data?.trim().length ?? 0) > 0;
-    default:
-      return true;
-  }
-}
-
-// `<b>` and `<strong>` tags are headings iff they are the only thing in their
-// paragraph. Return whether or not the given cheerio tag satisfies these heuristics.
-// See tagIsHeadingIfWholeParagraph
-const tagIsWholeParagraph = (tag?: cheerio.TagElement): boolean => {
-  if (!tag) {
-    return false;
-  }
-
-  // Ensure the tag's parent is valid
-  const parents = cheerio(tag).parent();
-  if (!parents || !parents.length || parents[0].type !== 'tag') {
-    return false;
-  }
-
-  // Ensure that all of the tag's siblings are of the same type as the tag
-  const selfAndSiblings = cheerio(parents[0]).contents();
-  if (selfAndSiblings.toArray().find((elem) => tagIsAlien(tag, elem))) {
-    return false;
-  }
-
-  // Ensure that the tag is inside a 'p' element and that all the text in that 'p' is in tags of
-  // the same type as our base tag
-  const para = cheerio(tag).closest('p');
-  if (para.length < 1 || para.text().trim() !== para.find(tag.name).text().trim()) {
-    return false;
-  }
-
-  return true;
-}
-
-function tagToHeadingLevel(tagName: string): number
-{
-  let lowerCaseTagName = tagName.toLowerCase();
-  if (lowerCaseTagName in headingTags)
-    return headingTags[lowerCaseTagName as keyof typeof headingTags];
-  else if (lowerCaseTagName in headingIfWholeParagraph)
-    // TODO: this seems wrong??? It's returning a boolean when it should be returning a number
-    // @ts-ignore
-    return headingIfWholeParagraph[lowerCaseTagName as keyof typeof headingIfWholeParagraph];
-  else
-    return 0;
-}
 
 async function getTocAnswers (document: DbPost) {
   if (!document.question) return []
@@ -241,8 +93,10 @@ export const getToCforPost = async ({document, version, context}: {
     html = document?.contents?.html;
   }
   
-  const tableOfContents = extractTableOfContents(html)
+  const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
   let tocSections = tableOfContents?.sections || []
+
+  // TODO update to match dynamic version
   
   if (tocSections.length >= MIN_HEADINGS_FOR_TOC) {
     const tocAnswers = await getTocAnswers(document)
@@ -294,7 +148,7 @@ const getToCforTag = async ({document, version, context}: {
     }
   }
   
-  const tableOfContents = extractTableOfContents(html)
+  const tableOfContents = extractTableOfContents(parseDocumentFromString(html))
   let tocSections = tableOfContents?.sections || []
   
   return {
@@ -312,7 +166,7 @@ defineQuery({
   argTypes: "(html: String!)",
   fn: (root: void, {html}: {html: string}, context: ResolverContext) => {
     if (html) {
-      return extractTableOfContents(html)
+      return extractTableOfContents(parseDocumentFromString(html))
     } else {
       return {html: null, sections: []}
     }

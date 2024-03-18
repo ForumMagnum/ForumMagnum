@@ -78,9 +78,12 @@ augmentFieldsDict(Posts, {
     resolveAs: {
       type: GraphQLJSON,
       resolver: async (document: DbPost, args: void, context: ResolverContext) => {
-        const res = await getToCforPost({document, version: null, context});
-        return res
-        // TODO add exception catching back in
+        try {
+          return await getToCforPost({document, version: null, context});
+        } catch(e) {
+          captureException(e);
+          return null;
+        }
     },
     },
   },
