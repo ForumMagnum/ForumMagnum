@@ -66,7 +66,8 @@ export const PeopleDirectoryFilters = ({classes}: {
       <div className={classes.options}>
         <PeopleDirectoryFilterDropdown
           title="Columns"
-          active={false}
+          icon="ViewColumns"
+          style="button"
           className={classes.multiSelect}
         >
           {columns.map((state) => (

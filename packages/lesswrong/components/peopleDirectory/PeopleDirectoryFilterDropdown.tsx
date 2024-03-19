@@ -1,28 +1,39 @@
 import React, { ReactNode, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
+import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     display: "inline-block",
-    color: theme.palette.grey[1000],
-    border: `1px solid ${theme.palette.grey[340]}`,
-    borderRadius: theme.borderRadius.small,
     padding: "4px 8px",
     fontFamily: theme.palette.fonts.sansSerifStack,
+    borderRadius: theme.borderRadius.small,
+  },
+  dropdown: {
+    color: theme.palette.grey[1000],
+    border: `1px solid ${theme.palette.grey[340]}`,
+    background: theme.palette.grey[0],
+  },
+  button: {
+    color: theme.palette.grey[600],
   },
   active: {
     color: theme.palette.grey[0],
     background: theme.palette.primary.dark,
   },
-  button: {
+  title: {
     userSelect: "none",
     fontSize: 14,
     fontWeight: 500,
     height: 29,
     display: "flex",
     alignItems: "center",
+  },
+  icon: {
+    width: 20,
+    marginRight: 4,
   },
   chevron: {
     width: 20,
@@ -47,12 +58,16 @@ const styles = (theme: ThemeType) => ({
 export const PeopleDirectoryFilterDropdown = ({
   title,
   active,
+  style = "dropdown",
+  icon,
   children,
   className,
   classes,
 }: {
   title: string,
   active?: boolean,
+  style?: "dropdown" | "button",
+  icon?: ForumIconName,
   children?: ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -63,20 +78,26 @@ export const PeopleDirectoryFilterDropdown = ({
   return (
     <div
       ref={anchorRef}
-      className={classNames(classes.root, {[classes.active]: active})}
+      className={classNames(classes.root, {
+        [classes.dropdown]: style === "dropdown",
+        [classes.button]: style === "button",
+        [classes.active]: active,
+      })}
     >
-      <div onClick={() => setOpen(!open)} className={classes.button}>
+      <div onClick={() => setOpen(!open)} className={classes.title}>
+        {icon && <ForumIcon icon={icon} className={classes.icon} />}
         {title}
-        <ForumIcon
-          icon="ThickChevronDown"
-          className={classNames(classes.chevron, {[classes.chevronOpen]: open})}
-        />
+        {style === "dropdown" &&
+          <ForumIcon
+            icon="ThickChevronDown"
+            className={classNames(classes.chevron, {[classes.chevronOpen]: open})}
+          />
+        }
       </div>
       <LWPopper
         placement="bottom-start"
         open={open}
         anchorEl={anchorRef.current}
-        allowOverflow
         className={classes.popper}
       >
         <LWClickAwayListener onClickAway={() => setOpen(false)}>

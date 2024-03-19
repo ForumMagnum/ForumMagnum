@@ -65,6 +65,7 @@ import ArrowRightOutlineIcon from "@heroicons/react/24/outline/PaperAirplaneIcon
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import FunnelIcon from "@heroicons/react/24/outline/FunnelIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
+import ViewColumnsIcon from "@heroicons/react/24/outline/ViewColumnsIcon";
 import InformationCircleIcon from '@heroicons/react/24/solid/InformationCircleIcon';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/outline/ArrowDownOnSquareIcon';
 import ChevronUpDownIcon from "@heroicons/react/24/outline/ChevronUpDownIcon";
@@ -218,6 +219,7 @@ export type ForumIconName =
   "Voted" |
   "InfoCircle" |
   "BarsArrowDown" |
+  "ViewColumns" |
   "LightbulbChat" |
   "VoteBallot" |
   "Import" |
@@ -310,6 +312,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
+    ViewColumns: ViewColumnsIcon,
     LightbulbChat: LightbulbChatIcon,
     VoteBallot: MuiVoteIcon,
     Import: ArrowDownOnSquareIcon,
@@ -400,6 +403,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     Voted: VotedIcon,
     InfoCircle: InformationCircleIcon,
     BarsArrowDown: BarsArrowDown,
+    ViewColumns: ViewColumnsIcon,
     LightbulbChat: LightbulbChatIcon,
     VoteBallot: MuiVoteIcon,
     Import: ArrowDownOnSquareIcon,
