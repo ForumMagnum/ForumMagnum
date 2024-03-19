@@ -36,7 +36,7 @@ export const PeopleDirectoryInput = ({classes}: {
     <div className={classes.root}>
       <ForumIcon icon="Search" className={classes.icon} />
       <input
-        placeholder="Search for a person..."
+        placeholder="Search name or bio..."
         value={query}
         onChange={onChange}
         className={classes.input}
