@@ -67,7 +67,7 @@ export const MODERATOR_ACTION_TYPES = {
   [REJECTED_COMMENT]: 'Rejected Comment',
   [POTENTIAL_TARGETED_DOWNVOTING]: 'Suspected targeted downvoting of a specific user',
   [EXEMPT_FROM_RATE_LIMITS]: 'Exempt from rate limits',
-  [RECEIVED_SENIOR_DOWNVOTES_ALERT]: 'Received too many downvotes on net-negative comments from senior users',
+  [RECEIVED_SENIOR_DOWNVOTES_ALERT]: 'Received too many downvotes on net-negative comments from senior users; if justified, default to 1 comment per 2 day rate limit for a month',
 };
 
 /** The max # of users an unapproved account is allowed to DM before being flagged */

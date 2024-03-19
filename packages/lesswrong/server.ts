@@ -19,6 +19,7 @@ import './server/karmaInflation/cron';
 import './server/useractivities/cron';
 import './server/pageCache/cron';
 import './server/users/cron'
+import './server/curationEmails/cron';
 import './server/database-import/force_batch_update_scores';
 import './server/database-import/cleanup_scripts';
 import './server/robots';
@@ -193,6 +194,7 @@ import './server/deleteUserContent';
 
 import './server/spotlightCron';
 import './server/userJobAdCron';
+import './server/inactiveUserSurveyCron';
 
 import "./server/languageModels/autoTagCallbacks";
 import './server/languageModels/languageModelIntegration';

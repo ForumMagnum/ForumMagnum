@@ -313,6 +313,9 @@ import './collections/reviewWinnerArts/views';
 import './collections/splashArtCoordinates/collection';
 import './collections/splashArtCoordinates/fragments';
 
+// Curation emails
+import './collections/curationEmails/collection';
+
 // Alignment Forum
 import './alignment-forum/permissions';
 import './alignment-forum/posts/helpers';

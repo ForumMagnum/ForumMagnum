@@ -19,12 +19,17 @@ import { userHasEAHomeRHS } from '../../lib/betas';
 import { useRecentOpportunities } from '../hooks/useRecentOpportunities';
 import { podcastPost, podcasts } from '../../lib/eaPodcasts';
 
+/**
+ * The max screen width where the Home RHS is visible
+ */
+export const HOME_RHS_MAX_SCREEN_WIDTH = 1370
+
 const styles = (theme: ThemeType) => ({
   root: {
     paddingRight: 50,
     marginTop: 10,
     marginLeft: 50,
-    '@media(max-width: 1370px)': {
+    [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       display: 'none'
     }
   },
@@ -43,7 +48,7 @@ const styles = (theme: ThemeType) => ({
       width: 34,
       backgroundColor: theme.palette.grey[250],
     },
-    '@media(max-width: 1370px)': {
+    [`@media(max-width: ${HOME_RHS_MAX_SCREEN_WIDTH}px)`]: {
       display: 'none'
     }
   },
@@ -274,7 +279,14 @@ export const EAHomeRightHandSide = ({classes}: {
     </LWTooltip>
   </div>
   
-  if (isHidden) return sidebarToggleNode
+  if (isHidden) {
+    // We include an empty root here so that when the sidebar is hidden,
+    // the center column is slightly closer to the center of the screen.
+    return <AnalyticsContext pageSectionContext="homeRhs">
+      {sidebarToggleNode}
+      <div className={classes.root}></div>
+    </AnalyticsContext>
+  }
   
   // NoSSR sections that could affect the logged out user cache
   let digestAdNode = <SidebarDigestAd className={classes.digestAd} />

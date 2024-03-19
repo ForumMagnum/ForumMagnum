@@ -324,7 +324,6 @@ const footnoteAttributes = [
   'data-footnote-section',
   'data-footnote-back-link',
   'data-footnote-back-link-href',
-  'data-internal-id'
 ]
 
 export const sanitize = function(s: string): string {

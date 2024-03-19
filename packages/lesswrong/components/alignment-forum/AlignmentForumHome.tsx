@@ -47,7 +47,6 @@ const AlignmentForumHome = ({classes}: {
         </SectionTitle>
         <PostsList2 terms={recentPostsTerms} />
       </SingleColumnSection>
-      <QuickTakesSection />
       <EAPopularCommentsSection />
       <SingleColumnSection>
         <RecentDiscussionThreadsList
