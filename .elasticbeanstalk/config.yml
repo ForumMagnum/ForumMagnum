@@ -1,6 +1,8 @@
 branch-defaults:
   lw-devel:
     environment: LessestWrong
+  baserates:
+    environment: BaseratesDotOrg
   ea-dev:
     environment: EAForum-Staging-2
 global:
