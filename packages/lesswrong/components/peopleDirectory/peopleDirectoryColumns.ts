@@ -92,7 +92,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
       fieldName: "mapLocationAddress",
     },
     hideable: true,
-    hidden: false,
+    hidden: true,
   },
   {
     label: "Profile updated",
