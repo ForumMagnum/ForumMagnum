@@ -3,7 +3,7 @@ import { useCurationEmailsCron } from "../../lib/betas";
 import CurationEmails from "../../lib/collections/curationEmails/collection";
 import { Posts } from "../../lib/collections/posts";
 import Users from "../../lib/collections/users/collection";
-import { isEAForum } from "../../lib/instanceSettings";
+import { isEAForum, testServerSetting } from "../../lib/instanceSettings";
 import { randomId } from "../../lib/random";
 import { Components } from "../../lib/vulcan-lib/components";
 import { addCronJob } from "../cronUtil";
@@ -117,7 +117,7 @@ async function sendCurationEmails() {
   }
 }
 
-if (useCurationEmailsCron) {
+if (!testServerSetting.get() && useCurationEmailsCron) {
   addCronJob({
     name: 'sendCurationEmailsCron',
     interval: 'every 1 minute',
