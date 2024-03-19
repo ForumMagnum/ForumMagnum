@@ -11,12 +11,19 @@ const cellComponents = [
 
 type CellComponentName = typeof cellComponents[number];
 
+type PeopleDirectoryColumnState = {
+  hideable: false,
+} | {
+  hideable: true,
+  hidden: boolean,
+}
+
 export type PeopleDirectoryColumn<T extends CellComponentName = CellComponentName> = {
   label: string,
   sortField?: string,
   componentName: T,
   props: Omit<ComponentProps<ComponentTypes[T]>, "user">,
-}
+} & PeopleDirectoryColumnState;
 
 export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] = [
   {
@@ -24,6 +31,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     sortField: "displayName.sort",
     componentName: "PeopleDirectoryUserCell",
     props: {},
+    hideable: false,
   },
   {
     label: "Role",
@@ -32,6 +40,8 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     props: {
       fieldName: "jobTitle",
     },
+    hideable: true,
+    hidden: false,
   },
   {
     label: "Organization",
@@ -40,6 +50,8 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     props: {
       fieldName: "organization",
     },
+    hideable: true,
+    hidden: false,
   },
   {
     label: "Bio",
@@ -47,16 +59,22 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     props: {
       fieldName: "bio",
     },
+    hideable: true,
+    hidden: false,
   },
   {
     label: "Social media",
     componentName: "PeopleDirectorySocialMediaCell",
     props: {},
+    hideable: true,
+    hidden: false,
   },
   {
     label: "Career stage",
     componentName: "PeopleDirectoryCareerStageCell",
     props: {},
+    hideable: true,
+    hidden: false,
   },
   {
     label: "Karma",
@@ -64,6 +82,8 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     props: {
       fieldName: "karma",
     },
+    hideable: true,
+    hidden: false,
   },
   {
     label: "Location",
@@ -71,6 +91,8 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
     props: {
       fieldName: "mapLocationAddress",
     },
+    hideable: true,
+    hidden: false,
   },
   {
     label: "Profile updated",
@@ -79,5 +101,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
       fieldName: "exportedAt",
       format: "MMM YYYY",
     },
+    hideable: true,
+    hidden: false,
   },
 ];

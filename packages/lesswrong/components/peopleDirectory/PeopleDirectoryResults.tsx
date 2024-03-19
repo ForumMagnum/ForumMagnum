@@ -1,12 +1,10 @@
 import React, { Fragment } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePeopleDirectory } from "./usePeopleDirectory";
-import { peopleDirectoryColumns } from "./peopleDirectoryColumns";
 
 const styles = (theme: ThemeType) => ({
   root: {
     display: "grid",
-    gridTemplateColumns: `repeat(${peopleDirectoryColumns.length}, 1fr)`,
     padding: "12px 24px",
     width: "100%",
     border: `1px solid ${theme.palette.grey[310]}`,
@@ -30,16 +28,30 @@ const styles = (theme: ThemeType) => ({
 export const PeopleDirectoryResults = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {results, resultsLoading} = usePeopleDirectory();
+  const {results, resultsLoading, columns} = usePeopleDirectory();
+  const columnCount = columns
+    .filter((column) => !column.hideable || !column.hidden)
+    .length;
   const {PeopleDirectoryHeading, Loading} = Components;
   return (
-    <div className={classes.root}>
-      {peopleDirectoryColumns.map((column) => (
-        <PeopleDirectoryHeading key={column.label} column={column} />
-      ))}
+    <div
+      style={{
+        gridTemplateColumns: `repeat(${columnCount}, 1fr)`,
+      }}
+      className={classes.root}
+    >
+      {columns.map((column) =>
+        !column.hideable || !column.hidden
+          ? <PeopleDirectoryHeading key={column.label} column={column} />
+          : null
+      )}
       {results.map((result) => (
         <Fragment key={result._id}>
-          {peopleDirectoryColumns.map(({label, componentName, props}) => {
+          {columns.map((column) => {
+            if (column.hideable && column.hidden) {
+              return null;
+            }
+            const {componentName, label, props} = column;
             const Component = Components[componentName] as AnyBecauseTodo;
             return (
               <div key={label} className={classes.cell}>

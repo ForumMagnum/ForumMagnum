@@ -39,6 +39,7 @@ export const PeopleDirectoryFilters = ({classes}: {
       clear: clearCareerStages,
       summary: careerStagesSummary,
     },
+    columns,
   } = usePeopleDirectory();
 
   const {PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption} = Components;
@@ -63,6 +64,15 @@ export const PeopleDirectoryFilters = ({classes}: {
         </PeopleDirectoryFilterDropdown>
       </div>
       <div className={classes.options}>
+        <PeopleDirectoryFilterDropdown
+          title="Columns"
+          active={false}
+          className={classes.multiSelect}
+        >
+          {columns.map((state) => (
+            <PeopleDirectorySelectOption state={state} key={state.value} />
+          ))}
+        </PeopleDirectoryFilterDropdown>
       </div>
     </div>
   );

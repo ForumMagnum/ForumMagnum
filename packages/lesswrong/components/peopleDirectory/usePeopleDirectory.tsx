@@ -1,7 +1,8 @@
-import React, { ReactNode, createContext, useContext, useEffect, useState } from "react";
+import React, { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { getSearchClient } from "../../lib/search/searchUtil";
-import { MultiSelectResult, useMultiSelect } from "../hooks/useMultiSelect";
+import { MultiSelectResult, MultiSelectState, useMultiSelect } from "../hooks/useMultiSelect";
 import { CAREER_STAGES } from "../../lib/collections/users/schema";
+import { PeopleDirectoryColumn, peopleDirectoryColumns } from "./peopleDirectoryColumns";
 
 type PeopleDirectorySorting = {
   field: string,
@@ -16,6 +17,7 @@ type PeopleDirectoryContext = {
   results: SearchUser[],
   resultsLoading: boolean,
   careerStages: MultiSelectResult,
+  columns: (PeopleDirectoryColumn & MultiSelectState)[],
 }
 
 const peopleDirectoryContext = createContext<PeopleDirectoryContext | null>(null);
@@ -25,12 +27,33 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const [sorting, setSorting] = useState<PeopleDirectorySorting | null>(null);
   const [results, setResults] = useState<SearchUser[]>([]);
   const [resultsLoading, setResultsLoading] = useState(true);
+
   const careerStages = useMultiSelect({
     title: "Career stage",
     options: CAREER_STAGES,
   });
-
   const selectedCareerStages = careerStages.selectedValues;
+
+  const [columns, setColumns] = useState(peopleDirectoryColumns);
+  const toggleColumn = useCallback((columnLabel: string) => {
+    setColumns((columns) => columns.map((column) => {
+      return column.label === columnLabel && column.hideable
+        ? {
+          ...column,
+          hidden: !column.hidden,
+        }
+        : column;
+    }));
+  }, []);
+  const columnSelectState = useMemo(() => {
+    return columns.filter(({hideable}) => hideable).map((column) => ({
+      ...column,
+      value: column.label,
+      label: column.label,
+      selected: column.hideable && !column.hidden,
+      onToggle: () => toggleColumn(column.label),
+    }));
+  }, [columns]);
 
   useEffect(() => {
     setResultsLoading(true);
@@ -73,6 +96,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       results,
       resultsLoading,
       careerStages,
+      columns: columnSelectState,
     }}>
       {children}
     </peopleDirectoryContext.Provider>
