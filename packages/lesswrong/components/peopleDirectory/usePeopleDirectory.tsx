@@ -46,7 +46,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     }));
   }, []);
   const columnSelectState = useMemo(() => {
-    return columns.filter(({hideable}) => hideable).map((column) => ({
+    return columns.map((column) => ({
       ...column,
       value: column.label,
       label: column.label,

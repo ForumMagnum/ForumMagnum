@@ -70,7 +70,7 @@ export const PeopleDirectoryFilters = ({classes}: {
           style="button"
           className={classes.multiSelect}
         >
-          {columns.map((state) => (
+          {columns.filter(({hideable}) => hideable).map((state) => (
             <PeopleDirectorySelectOption state={state} key={state.value} />
           ))}
         </PeopleDirectoryFilterDropdown>
