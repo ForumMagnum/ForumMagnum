@@ -265,7 +265,7 @@ voteCallbacks.castVoteAsync.add(async ({ newDocument, vote }, collection, user, 
   ]);
 
   // If the user has already been flagged with this moderator action in the last month, no need to apply it again
-  if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(1, 'day'))) {
+  if (previousAlert && moment(previousAlert.createdAt).isAfter(moment().subtract(1, 'month'))) {
     return;
   }
 
