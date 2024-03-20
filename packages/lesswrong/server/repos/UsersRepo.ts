@@ -642,9 +642,13 @@ class UsersRepo extends AbstractRepo<"Users"> {
       throw new Error(`Invalid facet field: ${facetField}`);
     }
 
+    const normalizedFacetField = facetField === "location"
+      ? `TRIM("${facetField}")`
+      : `INITCAP(TRIM("${facetField}"))`;
+
     const results = await this.getRawDb().any(`
       SELECT
-        DISTINCT TRIM("${facetField}") AS "result",
+        DISTINCT ${normalizedFacetField} AS "result",
         TS_RANK_CD(
           TO_TSVECTOR('english', "${facetField}"),
           WEBSEARCH_TO_TSQUERY($1),
