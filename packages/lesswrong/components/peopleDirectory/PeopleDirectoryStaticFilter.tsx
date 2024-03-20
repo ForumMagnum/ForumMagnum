@@ -2,20 +2,12 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import type { MultiSelectResult } from "../hooks/useMultiSelect";
 
-const styles = (theme: ThemeType) => ({
+const styles = (_theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
     gap: "12px",
     padding: 16,
-  },
-  clearAll: {
-    display: "inline-block",
-    cursor: "pointer",
-    userSelect: "none",
-    fontSize: 14,
-    fontWeight: 500,
-    color: theme.palette.primary.dark,
   },
 });
 
@@ -26,7 +18,10 @@ export const PeopleDirectoryStaticFilter = ({
   filter: MultiSelectResult,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption} = Components;
+  const {
+    PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
+    PeopleDirectoryClearAll,
+  } = Components;
   return (
     <PeopleDirectoryFilterDropdown
       title={summary}
@@ -38,9 +33,7 @@ export const PeopleDirectoryStaticFilter = ({
       ))}
       {selectedValues.length > 1 &&
         <div>
-          <div onClick={clear} className={classes.clearAll}>
-            Clear all
-          </div>
+          <PeopleDirectoryClearAll onClear={clear} />
         </div>
       }
     </PeopleDirectoryFilterDropdown>

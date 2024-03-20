@@ -25,6 +25,9 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     margin: "4px 0",
   },
+  clearAll: {
+    padding: "0 16px",
+  },
 });
 
 type Suggestion = MultiSelectState & {
@@ -46,6 +49,12 @@ export const PeopleDirectorySearchableFilter = ({title, facetField, classes}: {
   }, [suggestions]);
 
   const summary = buildMultiSelectSummary(title, suggestions, selectedValues);
+
+  const onClear = useCallback(() => {
+    setSearch("");
+    setLoading(false);
+    setSuggestions([]);
+  }, []);
 
   const onOpen = useCallback(() => {
     setTimeout(() => {
@@ -129,7 +138,7 @@ export const PeopleDirectorySearchableFilter = ({title, facetField, classes}: {
 
   const {
     PeopleDirectoryFilterDropdown, PeopleDirectoryInput, Loading,
-    PeopleDirectorySelectOption,
+    PeopleDirectorySelectOption, PeopleDirectoryClearAll,
   } = Components;
   return (
     <PeopleDirectoryFilterDropdown
@@ -164,6 +173,11 @@ export const PeopleDirectorySearchableFilter = ({title, facetField, classes}: {
               />
             </Fragment>
           ))}
+          {!loading && selectedValues.length > 1 &&
+            <div className={classes.clearAll}>
+              <PeopleDirectoryClearAll onClear={onClear} />
+            </div>
+          }
         </div>
       }
     </PeopleDirectoryFilterDropdown>

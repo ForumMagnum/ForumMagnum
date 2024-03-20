@@ -1112,6 +1112,7 @@ importComponent("PeopleDirectoryFilterDropdown", () => require('../components/pe
 importComponent("PeopleDirectoryStaticFilter", () => require('../components/peopleDirectory/PeopleDirectoryStaticFilter'));
 importComponent("PeopleDirectorySearchableFilter", () => require('../components/peopleDirectory/PeopleDirectorySearchableFilter'));
 importComponent("PeopleDirectorySelectOption", () => require('../components/peopleDirectory/PeopleDirectorySelectOption'));
+importComponent("PeopleDirectoryClearAll", () => require('../components/peopleDirectory/PeopleDirectoryClearAll'));
 importComponent("PeopleDirectoryResults", () => require('../components/peopleDirectory/PeopleDirectoryResults'));
 importComponent("PeopleDirectoryHeading", () => require('../components/peopleDirectory/PeopleDirectoryHeading'));
 importComponent("PeopleDirectoryUserCell", () => require('../components/peopleDirectory/PeopleDirectoryUserCell'));
