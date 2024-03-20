@@ -200,8 +200,12 @@ export const updateMissingPostEmbeddings = async () => {
   const ids = await new PostsRepo().getPostIdsWithoutEmbeddings();
   for (const id of ids) {
     try {
+      const post = await Posts.findOne(id);
+      if (!post) return;
+
       // One at a time to avoid being rate limited by the API
-      await updatePostEmbeddings(id);
+      await batchUpdatePostEmbeddings([post]);
+      // await updatePostEmbeddings(id);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error((e as AnyBecauseIsInput).response ?? e);
