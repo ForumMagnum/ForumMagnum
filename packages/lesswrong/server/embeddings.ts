@@ -71,9 +71,27 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
   const tokenizerModel = DEFAULT_EMBEDDINGS_MODEL;
   const embeddingModel = NEW_EMBEDDINGS_MODEL;
   const maxTokens = DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS;
-  const trimmedInputMapping = mapValues(inputs, (postText) => trimText(postText, tokenizerModel, maxTokens));
-  const filteredInputTuples = Object.entries(trimmedInputMapping).filter(([_, trimmedText]) => !!trimmedText);
+
+  const trimmedInputTuples: [string, string][] = [];
+  for (const [postId, postText] of Object.entries(inputs)) {
+    try {
+      const trimmedText = trimText(postText, tokenizerModel, maxTokens);
+      trimmedInputTuples.push([postId, trimmedText]);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(`Failed to trim text for post ${postId}`);
+    }
+  }
+
+  const filteredInputTuples = trimmedInputTuples.filter(([_, trimmedText]) => !!trimmedText);
   const filteredInputs = filteredInputTuples.map(([_, text]) => text);
+
+  if (filteredInputs.length === 0) {
+    return {
+      embeddings: {},
+      model: embeddingModel
+    };
+  }
 
   const result = await api.embeddings.create({
     input: filteredInputs,
@@ -199,7 +217,7 @@ const updateAllPostEmbeddings = async () => {
 
 export const updateMissingPostEmbeddings = async () => {
   const ids = await new PostsRepo().getPostIdsWithoutEmbeddings();
-  for (const idBatch of chunk(ids, 1)) {
+  for (const idBatch of chunk(ids, 50)) {
     try {
       const posts = await Posts.find({ _id: { $in: idBatch } }).fetch();
       // if (!post) return;
@@ -209,7 +227,7 @@ export const updateMissingPostEmbeddings = async () => {
       // await updatePostEmbeddings(id);
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error(`Failed to generated embeddings for post ${idBatch[0]}`, { error: e.response ?? e });
+      console.error(`Failed to generated embeddings`, { error: e.response ?? e, idBatch });
       // console.error((e as AnyBecauseIsInput).response ?? e);
     }
   }
