@@ -82,11 +82,12 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
   if (
     !embeddingResults ||
     !Array.isArray(embeddingResults) ||
-    !embeddingResults.every(({ embedding }) => 
+    embeddingResults.some(({ embedding }) => 
       !embedding.length ||
       typeof embedding[0] !== "number"
     )
   ) {
+    // const invalidEmbeddings = embeddingResults.filter(({ embedding }) => !embedding.length || typeof embedding[0] !== "number");
     throw new Error(`Invalid API response: ${inspect(result, {depth: null})}`);
   }
 
