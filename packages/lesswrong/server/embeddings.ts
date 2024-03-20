@@ -10,10 +10,12 @@ import { isAnyTest } from "../lib/executionEnvironment";
 import { isEAForum } from "../lib/instanceSettings";
 import { addCronJob } from "./cronUtil";
 import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
+import mapValues from "lodash/mapValues";
 
 export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = isEAForum;
 
 export const DEFAULT_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
+const NEW_EMBEDDINGS_MODEL = "text-embedding-3-large";
 const DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS = 8191;
 
 type EmbeddingsResult = {
@@ -53,6 +55,50 @@ const trimText = (
   return text;
 }
 
+const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
+  if (isAnyTest) {
+    return {
+      embeddings: {},
+      model: "test",
+    };
+  }
+  const api = await getOpenAI();
+  if (!api) {
+    throw new Error("OpenAI client is not configured");
+  }
+  const tokenizerModel = DEFAULT_EMBEDDINGS_MODEL;
+  const embeddingModel = NEW_EMBEDDINGS_MODEL;
+  const maxTokens = DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS;
+  const trimmedInputMapping = mapValues(inputs, (postText) => trimText(postText, tokenizerModel, maxTokens));
+  const filteredInputTuples = Object.entries(trimmedInputMapping).filter(([_, trimmedText]) => !!trimmedText);
+  const filteredInputs = filteredInputTuples.map(([_, text]) => text);
+
+  const result = await api.embeddings.create({
+    input: filteredInputs,
+    model: embeddingModel,
+  });
+
+  const embeddingResults = result?.data;
+  if (
+    !embeddingResults ||
+    !Array.isArray(embeddingResults) ||
+    !embeddingResults.every(({ embedding }) => 
+      !embedding.length ||
+      typeof embedding[0] !== "number"
+    )
+  ) {
+    throw new Error(`Invalid API response: ${inspect(result, {depth: null})}`);
+  }
+
+  const orderedEmbeddings = embeddingResults.sort((a, b) => a.index - b.index).map(({ embedding }) => embedding);
+  const mappedEmbeddings = Object.fromEntries(filteredInputs.map(([postId], idx) => [postId, orderedEmbeddings[idx]] as const));
+
+  return {
+    embeddings: mappedEmbeddings,
+    model: embeddingModel
+  };
+}
+
 const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => {
   if (isAnyTest) {
     return {
@@ -86,9 +132,11 @@ const getEmbeddingsFromApi = async (text: string): Promise<EmbeddingsResult> => 
   };
 }
 
+type EmbeddingsWithHash = EmbeddingsResult & { hash: string };
+
 const getEmbeddingsForPost = async (
   postId: string,
-): Promise<EmbeddingsResult & {hash: string}> => {
+): Promise<EmbeddingsWithHash> => {
   const post = await Posts.findOne({_id: postId});
   if (!post) {
     throw new Error(`Can't find post with id ${postId}`);
@@ -99,10 +147,34 @@ const getEmbeddingsForPost = async (
   return {hash, ...embeddings};
 }
 
+const getEmbeddingsForPosts = async (
+  posts: DbPost[],
+): Promise<Record<string, EmbeddingsWithHash>> => {
+  const textMappings = Object.fromEntries(posts.map((post) => [post._id, htmlToTextDefault(post.contents?.html ?? "")] as const));
+  const hashMappings = mapValues(textMappings, (postText: string) => md5(postText));
+
+  const embeddingResult = await getBatchEmbeddingsFromApi(textMappings);
+
+  const embeddingsWithHashes: Record<string, EmbeddingsWithHash> = mapValues(embeddingResult.embeddings, (postEmbeddings, postId) => ({
+    hash: hashMappings[postId],
+    embeddings: postEmbeddings,
+    model: embeddingResult.model
+  }));
+
+  return embeddingsWithHashes;
+}
+
 export const updatePostEmbeddings = async (postId: string) => {
   const {hash, embeddings, model} = await getEmbeddingsForPost(postId);
   const repo = new PostEmbeddingsRepo();
   await repo.setPostEmbeddings(postId, hash, model, embeddings);
+}
+
+export const batchUpdatePostEmbeddings = async (posts: DbPost[]) => {
+  const repo = new PostEmbeddingsRepo();
+  const postEmbeddings = await getEmbeddingsForPosts(posts);
+  const updates = Object.entries(postEmbeddings).map(([postId, { hash, model, embeddings }]) => repo.setPostEmbeddings(postId, hash, model, embeddings));
+  await Promise.all(updates);
 }
 
 const updateAllPostEmbeddings = async () => {
@@ -111,7 +183,8 @@ const updateAllPostEmbeddings = async () => {
     batchSize: 100,
     callback: async (posts: DbPost[]) => {
       try {
-        await Promise.all(posts.map(({_id}) => updatePostEmbeddings(_id)));
+        await batchUpdatePostEmbeddings(posts);
+        // await Promise.all(posts.map(({_id}) => updatePostEmbeddings(_id)));
       } catch (e) {
         // eslint-disable-next-line no-console
         console.error("Error", e);
