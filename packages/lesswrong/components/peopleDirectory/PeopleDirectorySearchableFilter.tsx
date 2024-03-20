@@ -136,6 +136,12 @@ export const PeopleDirectorySearchableFilter = ({title, facetField, classes}: {
     .filter(({grandfathered}) => grandfathered)
     .length;
 
+  const showLoading = loading;
+  const showNoResults = search && !loading && suggestions.length === 0;
+  const showResults = !loading && suggestions.length > 0;
+  const showClearAll = !loading && selectedValues.length > 1;
+  const showAnything = showLoading || showNoResults || showResults || showClearAll;
+
   const {
     PeopleDirectoryFilterDropdown, PeopleDirectoryInput, Loading,
     PeopleDirectorySelectOption, PeopleDirectoryClearAll,
@@ -156,13 +162,13 @@ export const PeopleDirectorySearchableFilter = ({title, facetField, classes}: {
           noBorder
         />
       </div>
-      {search &&
+      {showAnything &&
         <div className={classes.results}>
-          {loading && <Loading />}
-          {search && !loading && suggestions.length === 0 &&
+          {showLoading && <Loading />}
+          {showNoResults &&
             <div className={classes.noResults}>No results found</div>
           }
-          {!loading && suggestions.map((suggestion, i) => (
+          {showResults && suggestions.map((suggestion, i) => (
             <Fragment key={suggestion.value}>
               {!!grandfatheredCount && i === grandfatheredCount &&
                 <div className={classes.grandfatheredHr} />
@@ -173,7 +179,7 @@ export const PeopleDirectorySearchableFilter = ({title, facetField, classes}: {
               />
             </Fragment>
           ))}
-          {!loading && selectedValues.length > 1 &&
+          {showClearAll &&
             <div className={classes.clearAll}>
               <PeopleDirectoryClearAll onClear={onClear} />
             </div>
