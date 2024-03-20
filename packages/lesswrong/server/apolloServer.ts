@@ -52,6 +52,16 @@ import ElasticController from './search/elastic/ElasticController';
 import type { ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestListener } from 'apollo-server-plugin-base';
 import { asyncLocalStorage, closePerfMetric, openPerfMetric, perfMetricMiddleware, setAsyncStoreValue } from './perfMetrics';
 import { addAdminRoutesMiddleware } from './adminRoutesMiddleware'
+import { TreeContext, TreeContextType, constructComponentTreeDistinct, extractAndSortBranchesWithTruncation, hocAllComponents, importAllComponents } from './vulcan-lib';
+
+import '../components/posts/PostsPage';
+import '../components/posts/TableOfContents';
+import '../components/vulcan-core/vulcan-core-components.ts';
+import '../components/vulcan-forms/components.ts';
+import '../lib/components.ts';
+import { useContext } from 'react';
+import { getQueryName } from '../lib/crud/utils.ts';
+import { QueryHookOptions } from '@apollo/client/react/types/types';
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   requestDidStart({ request, context }: GraphQLRequestContext<ResolverContext>): GraphQLRequestListener<ResolverContext> {
@@ -290,6 +300,29 @@ export function startWebserver() {
   });
 
   app.get('*', async (request, response) => {
+    const treeContexts: TreeContextType[] = [];
+
+    importAllComponents();
+
+    hocAllComponents((treeContext) => {
+      treeContexts.push(treeContext);
+    });
+
+    importAllComponents();
+
+    const originalUseQuery = (await import('@apollo/client')).useQuery;
+
+    require('@apollo/client').useQuery = function useContextualQuery(query: any, options: QueryHookOptions) {
+      const treeContext = useContext(TreeContext);
+      if (treeContext && !(options.skip || !options.ssr)) {
+        treeContext.ancestors.at(-1)?.queriesAndMutations.push({
+          type: 'query',
+          name: getQueryName(query)
+        });
+      }
+      return originalUseQuery(query, options);
+    };
+
     response.setHeader("Content-Type", "text/html; charset=utf-8"); // allows compression
 
     const {bundleHash} = getClientBundle();
@@ -339,6 +372,15 @@ export function startWebserver() {
     const renderResult = performanceMetricLoggingEnabled.get()
       ? await asyncLocalStorage.run({}, () => renderWithCache(request, response, user))
       : await renderWithCache(request, response, user);
+
+    const root = constructComponentTreeDistinct(treeContexts);
+    const sortedBranches = extractAndSortBranchesWithTruncation(root);
+    console.log(sortedBranches);
+  
+    // console.log({
+    //   route: parsedRoute.currentRoute?.path,
+    //   treeContext: JSON.stringify(constructComponentTreeDistinct(treeContexts), null, 2)
+    // });
     
     if (renderResult.aborted) {
       response.status(499);
