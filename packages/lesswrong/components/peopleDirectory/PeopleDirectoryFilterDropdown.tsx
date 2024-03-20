@@ -60,6 +60,7 @@ export const PeopleDirectoryFilterDropdown = ({
   style = "dropdown",
   icon,
   onOpen,
+  onClose,
   children,
   className,
   classes,
@@ -69,6 +70,7 @@ export const PeopleDirectoryFilterDropdown = ({
   style?: "dropdown" | "button",
   icon?: ForumIconName,
   onOpen?: () => void,
+  onClose?: () => void,
   children?: ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
@@ -80,10 +82,12 @@ export const PeopleDirectoryFilterDropdown = ({
     setOpen((oldOpen) => {
       if (!oldOpen && newOpen) {
         onOpen?.();
+      } else if (oldOpen && !newOpen) {
+        onClose?.();
       }
       return newOpen;
     });
-  }, [onOpen]);
+  }, [onOpen, onClose]);
 
   const {LWPopper, LWClickAwayListener, ForumIcon} = Components;
   return (

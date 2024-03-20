@@ -22,7 +22,7 @@ export type MultiSelectResult = {
   summary: string,
 }
 
-const buildSummary = (
+export const buildMultiSelectSummary = (
   title: string,
   options: MultiSelectOption[],
   selected: string[],
@@ -69,6 +69,6 @@ export const useMultiSelect = ({
     state,
     selectedValues: selected,
     clear,
-    summary: buildSummary(title, options, selected),
+    summary: buildMultiSelectSummary(title, options, selected),
   };
 }

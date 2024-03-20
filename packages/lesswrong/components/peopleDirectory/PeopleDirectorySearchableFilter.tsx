@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import type { MultiSelectState } from "../hooks/useMultiSelect";
+import { MultiSelectState, buildMultiSelectSummary } from "../hooks/useMultiSelect";
 import { useLRUCache } from "../hooks/useLRUCache";
 
 const styles = (theme: ThemeType) => ({
@@ -15,9 +15,21 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     gap: "12px",
-    padding: 16,
+    padding: "16px 0",
+  },
+  result: {
+    padding: "0 16px",
+  },
+  grandfatheredHr: {
+    borderBottom: `1px solid ${theme.palette.grey[600]}`,
+    width: "100%",
+    margin: "4px 0",
   },
 });
+
+type Suggestion = MultiSelectState & {
+  grandfathered: boolean,
+}
 
 export const PeopleDirectorySearchableFilter = ({title, facetField, classes}: {
   title: string,
@@ -26,8 +38,14 @@ export const PeopleDirectorySearchableFilter = ({title, facetField, classes}: {
 }) => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
-  const [suggestions, setSuggestions] = useState<MultiSelectState[]>([]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const ref = useRef<HTMLInputElement | null>(null);
+
+  const selectedValues: string[] = useMemo(() => {
+    return suggestions.filter(({selected}) => selected).map(({value}) => value);
+  }, [suggestions]);
+
+  const summary = buildMultiSelectSummary(title, suggestions, selectedValues);
 
   const onOpen = useCallback(() => {
     setTimeout(() => {
@@ -36,6 +54,16 @@ export const PeopleDirectorySearchableFilter = ({title, facetField, classes}: {
       }
     }, 0);
   }, [ref]);
+
+  const onClose = useCallback(() => {
+    setSearch("");
+  }, []);
+
+  const onRemove = useCallback((removeValue: string) => {
+    setSuggestions((suggestions) =>
+      suggestions.filter(({value}) => value !== removeValue,
+    ));
+  }, []);
 
   const onToggle = useCallback((value: string) => {
     setSuggestions((suggestions) => suggestions.map((suggestion) => {
@@ -72,21 +100,32 @@ export const PeopleDirectorySearchableFilter = ({title, facetField, classes}: {
   const getWithCache = useLRUCache<string, Promise<string[]>>(fetchSuggestions);
 
   useEffect(() => {
-    if (search) {
-      setLoading(true);
-      setSuggestions([]);
-      void (async () => {
-        const hits = await getWithCache(search);
-        setSuggestions(hits.map((hit: string) => ({
+    setLoading(true);
+    void (async () => {
+      const hits = search ? await getWithCache(search) : [];
+      setSuggestions((oldSuggestions) => {
+        const grandfathered = suggestions
+          .filter(({value, selected}) => selected && !hits.includes(value))
+          .map((suggestion) => ({
+            ...suggestion,
+            grandfathered: true,
+            onToggle: onRemove.bind(null, suggestion.value),
+          }));
+        return grandfathered.concat(hits.map((hit: string) => ({
           value: hit,
           label: hit,
-          selected: false,
+          selected: !!oldSuggestions.find(({value}) => value === hit)?.selected,
           onToggle: onToggle.bind(null, hit),
+          grandfathered: false,
         })));
-        setLoading(false);
-      })();
-    }
-  }, [search, getWithCache, onToggle]);
+      });
+      setLoading(false);
+    })();
+  }, [search, getWithCache, onToggle, onRemove]);
+
+  const grandfatheredCount = suggestions
+    .filter(({grandfathered}) => grandfathered)
+    .length;
 
   const {
     PeopleDirectoryFilterDropdown, PeopleDirectoryInput, Loading,
@@ -94,9 +133,10 @@ export const PeopleDirectorySearchableFilter = ({title, facetField, classes}: {
   } = Components;
   return (
     <PeopleDirectoryFilterDropdown
-      title={title}
-      active={false}
+      title={summary}
+      active={selectedValues.length > 0}
       onOpen={onOpen}
+      onClose={onClose}
     >
       <div className={classes.search}>
         <PeopleDirectoryInput
@@ -113,8 +153,16 @@ export const PeopleDirectorySearchableFilter = ({title, facetField, classes}: {
           {search && !loading && suggestions.length === 0 &&
             <div className={classes.noResults}>No results found</div>
           }
-          {suggestions.map((suggestion) => (
-            <PeopleDirectorySelectOption key={suggestion.value} state={suggestion} />
+          {!loading && suggestions.map((suggestion, i) => (
+            <Fragment key={suggestion.value}>
+              {!!grandfatheredCount && i === grandfatheredCount &&
+                <div className={classes.grandfatheredHr} />
+              }
+              <PeopleDirectorySelectOption
+                state={suggestion}
+                className={classes.result}
+              />
+            </Fragment>
           ))}
         </div>
       }

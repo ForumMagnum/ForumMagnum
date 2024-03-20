@@ -31,14 +31,15 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectorySelectOption = ({state, classes}: {
+export const PeopleDirectorySelectOption = ({state, className, classes}: {
   state: MultiSelectState,
+  className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const {label, selected, onToggle} = state;
   const {ForumIcon} = Components;
   return (
-    <div onClick={onToggle} className={classes.root}>
+    <div onClick={onToggle} className={classNames(classes.root, className)}>
       <div className={classNames(classes.check, {[classes.selected]: selected})}>
         {selected && <ForumIcon icon="Check" className={classes.icon} />}
       </div>
@@ -50,7 +51,7 @@ export const PeopleDirectorySelectOption = ({state, classes}: {
 const PeopleDirectorySelectOptionComponent = registerComponent(
   "PeopleDirectorySelectOption",
   PeopleDirectorySelectOption,
-  {styles},
+  {styles, stylePriority: -1},
 );
 
 declare global {
