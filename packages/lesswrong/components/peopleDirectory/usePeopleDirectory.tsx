@@ -53,7 +53,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       selected: column.hideable && !column.hidden,
       onToggle: () => toggleColumn(column.label),
     }));
-  }, [columns]);
+  }, [columns, toggleColumn]);
 
   useEffect(() => {
     setResultsLoading(true);

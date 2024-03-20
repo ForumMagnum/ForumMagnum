@@ -34,8 +34,19 @@ export const PeopleDirectoryFilters = ({classes}: {
   return (
     <div className={classes.root}>
       <div className={classes.filters}>
-        <PeopleDirectorySearchableFilter title="Role" />
+        <PeopleDirectorySearchableFilter
+          title="Role"
+          facetField="jobTitle"
+        />
+        <PeopleDirectorySearchableFilter
+          title="Organization"
+          facetField="organization"
+        />
         <PeopleDirectoryStaticFilter filter={careerStages} />
+        <PeopleDirectorySearchableFilter
+          title="Location"
+          facetField="location"
+        />
       </div>
       <div className={classes.options}>
         <PeopleDirectoryFilterDropdown

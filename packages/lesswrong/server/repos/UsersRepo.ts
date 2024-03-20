@@ -41,6 +41,8 @@ LIMIT 1
 
 export type MongoNearLocation = { type: "Point", coordinates: number[] }
 
+const allowedFacetFields = ["jobTitle", "organization", "location"];
+
 class UsersRepo extends AbstractRepo<"Users"> {
   constructor() {
     super(Users);
@@ -633,6 +635,37 @@ class UsersRepo extends AbstractRepo<"Users"> {
       ORDER BY u."createdAt" desc
       LIMIT $1;
     `, [limit])
+  }
+
+  async searchFacets(facetField: string, query: string): Promise<string[]> {
+    if (!allowedFacetFields.includes(facetField)) {
+      throw new Error(`Invalid facet field: ${facetField}`);
+    }
+
+    const results = await this.getRawDb().any(`
+      SELECT
+        DISTINCT TRIM("${facetField}") AS "result",
+        TS_RANK_CD(
+          TO_TSVECTOR('english', "${facetField}"),
+          WEBSEARCH_TO_TSQUERY($1),
+          1
+        ) * 5 + COALESCE(SIMILARITY("${facetField}", $1), 0) AS "rank"
+      FROM "Users"
+      WHERE
+        "${facetField}" IS NOT NULL AND
+        (TO_TSVECTOR('english', "${facetField}") @@ WEBSEARCH_TO_TSQUERY($1) OR
+          COALESCE(SIMILARITY("${facetField}", $1), 0) > 0.22) AND
+        "noindex" IS NOT TRUE AND
+        "deleted" IS NOT TRUE AND
+        "voteBanned" IS NOT TRUE AND
+        "deleteContent" IS NOT TRUE AND
+        "nullifyVotes" IS NOT TRUE AND
+        "banned" IS NULL
+      ORDER BY "rank" DESC
+      LIMIT 8
+    `, [query]);
+
+    return results.map(({result}) => result);
   }
 }
 
