@@ -3,6 +3,7 @@ import { getSearchClient } from "../../lib/search/searchUtil";
 import { MultiSelectResult, MultiSelectState, useMultiSelect } from "../hooks/useMultiSelect";
 import { CAREER_STAGES } from "../../lib/collections/users/schema";
 import { PeopleDirectoryColumn, peopleDirectoryColumns } from "./peopleDirectoryColumns";
+import { SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
 
 type PeopleDirectorySorting = {
   field: string,
@@ -16,6 +17,9 @@ type PeopleDirectoryContext = {
   setSorting: (sorting: PeopleDirectorySorting | null) => void,
   results: SearchUser[],
   resultsLoading: boolean,
+  roles: SearchableMultiSelectResult,
+  organizations: SearchableMultiSelectResult,
+  locations: SearchableMultiSelectResult,
   careerStages: MultiSelectResult,
   columns: (PeopleDirectoryColumn & MultiSelectState)[],
 }
@@ -28,11 +32,22 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const [results, setResults] = useState<SearchUser[]>([]);
   const [resultsLoading, setResultsLoading] = useState(true);
 
+  const roles = useSearchableMultiSelect({
+    title: "Role",
+    facetField: "jobTitle",
+  });
+  const organizations = useSearchableMultiSelect({
+    title: "Organization",
+    facetField: "organization",
+  });
+  const locations = useSearchableMultiSelect({
+    title: "Location",
+    facetField: "location",
+  });
   const careerStages = useMultiSelect({
     title: "Career stage",
     options: CAREER_STAGES,
   });
-  const selectedCareerStages = careerStages.selectedValues;
 
   const [columns, setColumns] = useState(peopleDirectoryColumns);
   const toggleColumn = useCallback((columnLabel: string) => {
@@ -64,7 +79,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
           ? `_${sorting.field}:${sorting.direction}`
           : "";
         const facetFilters = [
-          selectedCareerStages.map((stage) => `careerStage:${stage}`),
+          careerStages.selectedValues.map((stage) => `careerStage:${stage}`),
         ];
         const results = await searchClient.search([
           {
@@ -85,7 +100,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
         setResultsLoading(false);
       }
     })();
-  }, [query, sorting, selectedCareerStages]);
+  }, [query, sorting, careerStages.selectedValues]);
 
   return (
     <peopleDirectoryContext.Provider value={{
@@ -95,6 +110,9 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
       setSorting,
       results,
       resultsLoading,
+      roles,
+      organizations,
+      locations,
       careerStages,
       columns: columnSelectState,
     }}>

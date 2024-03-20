@@ -26,7 +26,13 @@ const styles = (theme: ThemeType) => ({
 export const PeopleDirectoryFilters = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
-  const {careerStages, columns} = usePeopleDirectory();
+  const {
+    roles,
+    organizations,
+    locations,
+    careerStages,
+    columns,
+  } = usePeopleDirectory();
   const {
     PeopleDirectoryFilterDropdown, PeopleDirectorySelectOption,
     PeopleDirectoryStaticFilter, PeopleDirectorySearchableFilter,
@@ -34,19 +40,10 @@ export const PeopleDirectoryFilters = ({classes}: {
   return (
     <div className={classes.root}>
       <div className={classes.filters}>
-        <PeopleDirectorySearchableFilter
-          title="Role"
-          facetField="jobTitle"
-        />
-        <PeopleDirectorySearchableFilter
-          title="Organization"
-          facetField="organization"
-        />
+        <PeopleDirectorySearchableFilter filter={roles} />
+        <PeopleDirectorySearchableFilter filter={organizations} />
         <PeopleDirectoryStaticFilter filter={careerStages} />
-        <PeopleDirectorySearchableFilter
-          title="Location"
-          facetField="location"
-        />
+        <PeopleDirectorySearchableFilter filter={locations} />
       </div>
       <div className={classes.options}>
         <PeopleDirectoryFilterDropdown
