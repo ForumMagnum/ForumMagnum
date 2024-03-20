@@ -11,6 +11,7 @@ import { isEAForum } from "../lib/instanceSettings";
 import { addCronJob } from "./cronUtil";
 import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
 import mapValues from "lodash/mapValues";
+import chunk from "lodash/chunk";
 import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/schema";
 
 export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = isEAForum;
@@ -198,13 +199,13 @@ const updateAllPostEmbeddings = async () => {
 
 export const updateMissingPostEmbeddings = async () => {
   const ids = await new PostsRepo().getPostIdsWithoutEmbeddings();
-  for (const id of ids) {
+  for (const idBatch of chunk(ids, 10)) {
     try {
-      const post = await Posts.findOne(id);
-      if (!post) return;
+      const posts = await Posts.find({ _id: { $in: idBatch } }).fetch();
+      // if (!post) return;
 
       // One at a time to avoid being rate limited by the API
-      await batchUpdatePostEmbeddings([post]);
+      await batchUpdatePostEmbeddings(posts);
       // await updatePostEmbeddings(id);
     } catch (e) {
       // eslint-disable-next-line no-console
