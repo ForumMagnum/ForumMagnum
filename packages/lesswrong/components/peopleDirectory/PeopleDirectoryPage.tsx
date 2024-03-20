@@ -23,14 +23,14 @@ export const PeopleDirectoryPage = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {
-    PeopleDirectoryInput, PeopleDirectoryFilters, PeopleDirectoryResults,
+    PeopleDirectoryMainSearch, PeopleDirectoryFilters, PeopleDirectoryResults,
   } = Components;
   return (
     <AnalyticsContext pageContext="peopleDirectory">
       <PeopleDirectoryProvider>
         <div className={classes.root}>
           <h1 className={classes.pageTitle}>People directory</h1>
-          <PeopleDirectoryInput />
+          <PeopleDirectoryMainSearch />
           <PeopleDirectoryFilters />
           <PeopleDirectoryResults />
         </div>

@@ -1,4 +1,4 @@
-import React, { ReactNode, useRef, useState } from "react";
+import React, { ReactNode, useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
@@ -51,7 +51,6 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     border: `1px solid ${theme.palette.grey[120]}`,
     boxShadow: theme.palette.boxShadow.eaCard,
-    padding: 16,
   },
 });
 
@@ -60,6 +59,7 @@ export const PeopleDirectoryFilterDropdown = ({
   active,
   style = "dropdown",
   icon,
+  onOpen,
   children,
   className,
   classes,
@@ -68,12 +68,23 @@ export const PeopleDirectoryFilterDropdown = ({
   active?: boolean,
   style?: "dropdown" | "button",
   icon?: ForumIconName,
+  onOpen?: () => void,
   children?: ReactNode,
   className?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement | null>(null);
+
+  const onChangeOpen = useCallback((newOpen: boolean) => {
+    setOpen((oldOpen) => {
+      if (!oldOpen && newOpen) {
+        onOpen?.();
+      }
+      return newOpen;
+    });
+  }, [onOpen]);
+
   const {LWPopper, LWClickAwayListener, ForumIcon} = Components;
   return (
     <div
@@ -84,7 +95,7 @@ export const PeopleDirectoryFilterDropdown = ({
         [classes.active]: active,
       })}
     >
-      <div onClick={() => setOpen(!open)} className={classes.title}>
+      <div onClick={() => onChangeOpen(!open)} className={classes.title}>
         {icon && <ForumIcon icon={icon} className={classes.icon} />}
         {title}
         {style === "dropdown" &&
@@ -100,7 +111,7 @@ export const PeopleDirectoryFilterDropdown = ({
         anchorEl={anchorRef.current}
         className={classes.popper}
       >
-        <LWClickAwayListener onClickAway={() => setOpen(false)}>
+        <LWClickAwayListener onClickAway={() => onChangeOpen(false)}>
           <div className={classNames(classes.card, className)}>
             {children}
           </div>

@@ -1,16 +1,19 @@
-import React, { useCallback } from "react";
+import React, { MutableRefObject, useCallback } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { usePeopleDirectory } from "./usePeopleDirectory";
+import type { ForumIconName } from "../common/ForumIcon";
+import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
     width: "100%",
-    border: `1px solid ${theme.palette.grey[310]}`,
     borderRadius: theme.borderRadius.default,
     background: theme.palette.grey[0],
     color: theme.palette.grey[1000],
+  },
+  border: {
+    border: `1px solid ${theme.palette.grey[310]}`,
   },
   icon: {
     marginLeft: 12,
@@ -24,22 +27,36 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-export const PeopleDirectoryInput = ({classes}: {
+export const PeopleDirectoryInput = ({
+  value,
+  setValue,
+  icon,
+  noBorder,
+  placeholder,
+  inputRef,
+  classes,
+}: {
+  value?: string,
+  setValue?: (newValue: string) => void,
+  icon?: ForumIconName,
+  noBorder?: boolean,
+  placeholder?: string,
+  inputRef?: MutableRefObject<HTMLInputElement | null>,
   classes: ClassesType<typeof styles>,
 }) => {
-  const {query, setQuery} = usePeopleDirectory();
   const onChange = useCallback((ev) => {
-    setQuery(ev.target?.value ?? "");
-  }, [setQuery]);
+    setValue?.(ev.target?.value ?? "");
+  }, [setValue]);
   const {ForumIcon} = Components;
   return (
-    <div className={classes.root}>
-      <ForumIcon icon="Search" className={classes.icon} />
+    <div className={classNames(classes.root, {[classes.border]: !noBorder})}>
+      {icon && <ForumIcon icon={icon} className={classes.icon} />}
       <input
-        placeholder="Search name or bio..."
-        value={query}
+        placeholder={placeholder}
+        value={value}
         onChange={onChange}
         className={classes.input}
+        ref={inputRef}
       />
     </div>
   );

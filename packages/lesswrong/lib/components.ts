@@ -1106,8 +1106,11 @@ importComponent("HomeTagBar", () => require('../components/common/HomeTagBar'));
 // People directory
 importComponent("PeopleDirectoryPage", () => require('../components/peopleDirectory/PeopleDirectoryPage'));
 importComponent("PeopleDirectoryInput", () => require('../components/peopleDirectory/PeopleDirectoryInput'));
+importComponent("PeopleDirectoryMainSearch", () => require('../components/peopleDirectory/PeopleDirectoryMainSearch'));
 importComponent("PeopleDirectoryFilters", () => require('../components/peopleDirectory/PeopleDirectoryFilters'));
 importComponent("PeopleDirectoryFilterDropdown", () => require('../components/peopleDirectory/PeopleDirectoryFilterDropdown'));
+importComponent("PeopleDirectoryStaticFilter", () => require('../components/peopleDirectory/PeopleDirectoryStaticFilter'));
+importComponent("PeopleDirectorySearchableFilter", () => require('../components/peopleDirectory/PeopleDirectorySearchableFilter'));
 importComponent("PeopleDirectorySelectOption", () => require('../components/peopleDirectory/PeopleDirectorySelectOption'));
 importComponent("PeopleDirectoryResults", () => require('../components/peopleDirectory/PeopleDirectoryResults'));
 importComponent("PeopleDirectoryHeading", () => require('../components/peopleDirectory/PeopleDirectoryHeading'));
