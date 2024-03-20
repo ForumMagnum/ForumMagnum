@@ -583,5 +583,10 @@
     "acceptsSchemaHash": "01bf8045d376a34b6a5c7d0d8bfddcaa",
     "acceptedByMigration": "20240312T185736.add_inactiveSurveyEmailSentAt_to_Users.ts",
     "timestamp": "2024-03-12T18:57:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "d74b93607c019ef9eef124d337de9533",
+    "acceptedByMigration": "20240320T104001.create_pg_trgm_extension.ts",
+    "timestamp": "2024-03-20T10:40:01.000Z"
   }
 ]
