@@ -199,7 +199,7 @@ const updateAllPostEmbeddings = async () => {
 
 export const updateMissingPostEmbeddings = async () => {
   const ids = await new PostsRepo().getPostIdsWithoutEmbeddings();
-  for (const idBatch of chunk(ids, 10)) {
+  for (const idBatch of chunk(ids, 1)) {
     try {
       const posts = await Posts.find({ _id: { $in: idBatch } }).fetch();
       // if (!post) return;
@@ -209,7 +209,8 @@ export const updateMissingPostEmbeddings = async () => {
       // await updatePostEmbeddings(id);
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error((e as AnyBecauseIsInput).response ?? e);
+      console.error(`Failed to generated embeddings for post ${idBatch[0]}`, { error: e.response ?? e });
+      // console.error((e as AnyBecauseIsInput).response ?? e);
     }
   }
 }
