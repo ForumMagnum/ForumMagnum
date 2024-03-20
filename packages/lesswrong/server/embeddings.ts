@@ -11,6 +11,7 @@ import { isEAForum } from "../lib/instanceSettings";
 import { addCronJob } from "./cronUtil";
 import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
 import mapValues from "lodash/mapValues";
+import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/schema";
 
 export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = isEAForum;
 
@@ -76,6 +77,7 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
   const result = await api.embeddings.create({
     input: filteredInputs,
     model: embeddingModel,
+    dimensions: EMBEDDINGS_VECTOR_SIZE,
   });
 
   const embeddingResults = result?.data;
@@ -92,7 +94,7 @@ const getBatchEmbeddingsFromApi = async (inputs: Record<string, string>) => {
   }
 
   const orderedEmbeddings = embeddingResults.sort((a, b) => a.index - b.index).map(({ embedding }) => embedding);
-  const mappedEmbeddings = Object.fromEntries(filteredInputs.map(([postId], idx) => [postId, orderedEmbeddings[idx]] as const));
+  const mappedEmbeddings = Object.fromEntries(filteredInputTuples.map(([postId], idx) => [postId, orderedEmbeddings[idx]] as const));
 
   return {
     embeddings: mappedEmbeddings,
