@@ -1,17 +1,19 @@
 import {
   StrategySpecification,
   RecommendationStrategyName,
+  recommendationStrategies,
+  ContextualStrategySpecification,
 } from "../../lib/collections/users/recommendationSettings";
-import MoreFromAuthorStrategy from "./MoreFromAuthorStrategy";
-import MoreFromTagStrategy from "./MoreFromTagStrategy";
-import BestOfStrategy from "./BestOfStrategy";
-import CollabFilterStrategy from "./CollabFilterStrategy";
-import TagWeightedCollabFilterStrategy from "./TagWeightedCollabFilter";
-import RecommendationStrategy, { RecommendationResult } from "./RecommendationStrategy";
+import MoreFromAuthorStrategy from "../../lib/recommendations/MoreFromAuthorStrategy";
+import MoreFromTagStrategy from "../../lib/recommendations/MoreFromTagStrategy";
+import BestOfStrategy from "../../lib/recommendations/BestOfStrategy";
+import CollabFilterStrategy from "../../lib/recommendations/CollabFilterStrategy";
+import TagWeightedCollabFilterStrategy from "../../lib/recommendations/TagWeightedCollabFilter";
+import RecommendationStrategy, { RecommendationResult } from "../../lib/recommendations/RecommendationStrategy";
 import PostRecommendationsRepo from "../repos/PostRecommendationsRepo";
 import { loggerConstructor } from "../../lib/utils/logging";
-import FeatureStrategy from "./FeatureStrategy";
-import NewAndUpvotedInTagStrategy from "./NewAndUpvotedInTagStrategy";
+import FeatureStrategy from "../../lib/recommendations/FeatureStrategy";
+import NewAndUpvotedInTagStrategy from "../../lib/recommendations/NewAndUpvotedInTagStrategy";
 
 type ConstructableStrategy = {
   new(): RecommendationStrategy,
@@ -29,15 +31,15 @@ class RecommendationService {
     private repo = new PostRecommendationsRepo(),
   ) {}
 
-  private strategies: Record<RecommendationStrategyName, ConstructableStrategy> = {
-    newAndUpvotedInTag: NewAndUpvotedInTagStrategy,
-    moreFromTag: MoreFromTagStrategy,
-    moreFromAuthor: MoreFromAuthorStrategy,
-    bestOf: BestOfStrategy,
-    tagWeightedCollabFilter: TagWeightedCollabFilterStrategy,
-    collabFilter: CollabFilterStrategy,
-    feature: FeatureStrategy,
-  };
+  // private strategies: Record<RecommendationStrategyName, ConstructableStrategy> = {
+  //   newAndUpvotedInTag: NewAndUpvotedInTagStrategy,
+  //   moreFromTag: MoreFromTagStrategy,
+  //   moreFromAuthor: MoreFromAuthorStrategy,
+  //   bestOf: BestOfStrategy,
+  //   tagWeightedCollabFilter: TagWeightedCollabFilterStrategy,
+  //   collabFilter: CollabFilterStrategy,
+  //   feature: FeatureStrategy,
+  // };
 
   async recommend(
     currentUser: DbUser|null,
@@ -50,8 +52,10 @@ class RecommendationService {
       currentUser = null;
     }
 
-    const strategies = this.getStrategyStack(strategy.name, disableFallbacks);
+    const strategies = this.getStrategyStack(strategy.name, !!strategy.postId, disableFallbacks);
     let posts: DbPost[] = [];
+
+    console.log({ count, strategy });
 
     while (count > 0 && strategies.length) {
       this.logger("Recommending for", strategy.postId, "with", strategies[0]);
@@ -62,6 +66,8 @@ class RecommendationService {
         strategy,
         strategies[0],
       );
+
+      // console.log({ strategy, originalStrategyName: strategies[0], result });
       const newPosts = result.posts.filter(
         ({_id}) => !posts.some((post) => post._id === _id),
       );
@@ -85,17 +91,28 @@ class RecommendationService {
     return posts;
   }
 
+  private isContextualStrategy(strategyName: RecommendationStrategyName) {
+    const Provider = recommendationStrategies[strategyName];
+    if (!Provider) {
+      throw new Error("Invalid recommendation strategy name: " + strategyName);
+    }
+    const source = new Provider();
+
+    return source.isContextual();
+  }
+
   private getStrategyStack(
     primaryStrategy: RecommendationStrategyName,
+    includeContextualStrategies: boolean,
     disableFallbacks = false,
   ): RecommendationStrategyName[] {
     if (disableFallbacks) {
       return [primaryStrategy];
     }
-    const strategies = Object.keys(this.strategies) as RecommendationStrategyName[];
+    const strategies = Object.keys(recommendationStrategies) as RecommendationStrategyName[];
     return [
       primaryStrategy,
-      ...strategies.filter((s) => s !== primaryStrategy),
+      ...strategies.filter((s) => s !== primaryStrategy && (includeContextualStrategies || !this.isContextualStrategy(s))),
     ];
   }
 
@@ -104,14 +121,14 @@ class RecommendationService {
     count: number,
     strategy: StrategySpecification,
     strategyName: RecommendationStrategyName,
-  ): Promise<RecommendationResult> {
-    const Provider = this.strategies[strategyName];
+  ): Promise<RecommendationResult<boolean>> {
+    const Provider = recommendationStrategies[strategyName];
     if (!Provider) {
       throw new Error("Invalid recommendation strategy name: " + strategyName);
     }
     const source = new Provider();
     try {
-      return await source.recommend(currentUser, count, strategy);
+      return await source.recommend(currentUser, count, strategy as ContextualStrategySpecification);
     } catch (e) {
       this.logger("Recommendation error:", e.message);
       const settings = {

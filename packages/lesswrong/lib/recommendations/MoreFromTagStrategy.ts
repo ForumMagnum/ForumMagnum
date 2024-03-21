@@ -1,6 +1,6 @@
-import RecommendationStrategy, { RecommendationResult } from "./RecommendationStrategy";
-import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import RecommendationStrategy, { ContextualRecommendationStrategy, RecommendationResult } from "./RecommendationStrategy";
+import type { ContextualStrategySpecification, StrategySpecification } from "../collections/users/recommendationSettings";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 
 /**
  * A recommendation strategy that returns more posts sharing a common tag. To choose
@@ -13,7 +13,7 @@ import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
  * an error will be thrown, so this should always be used in conjuction with another
  * more reliable fallback strategy.
  */
-class MoreFromTagStrategy extends RecommendationStrategy {
+class MoreFromTagStrategy extends ContextualRecommendationStrategy {
   constructor(
     private minTagPostCount = 10,
   ) {
@@ -23,8 +23,8 @@ class MoreFromTagStrategy extends RecommendationStrategy {
   async recommend(
     currentUser: DbUser|null,
     count: number,
-    {postId}: StrategySpecification,
-  ): Promise<RecommendationResult> {
+    {postId}: ContextualStrategySpecification,
+  ): Promise<RecommendationResult<true>> {
     const tag = await this.chooseTagForPost(postId);
     if (!tag) {
       throw new Error("Couldn't choose a relevant tag for post " + postId);

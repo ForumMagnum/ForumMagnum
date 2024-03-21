@@ -4,16 +4,27 @@ import Users from "../users/collection";
 import { userOwns } from '../../vulcan-users/permissions';
 import { ReviewYear } from '../../reviewUtils';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
+import BestOfStrategy from '../../recommendations/BestOfStrategy';
+import CollabFilterStrategy from '../../recommendations/CollabFilterStrategy';
+import FeatureStrategy from '../../recommendations/FeatureStrategy';
+import MoreFromAuthorStrategy from '../../recommendations/MoreFromAuthorStrategy';
+import MoreFromTagStrategy from '../../recommendations/MoreFromTagStrategy';
+import NewAndUpvotedInTagStrategy from '../../recommendations/NewAndUpvotedInTagStrategy';
+import TagWeightedCollabFilterStrategy from '../../recommendations/TagWeightedCollabFilter';
+import type { ContextualRecommendationStrategy } from '../../recommendations/RecommendationStrategy';
+import { ContextualFeature, featureRegistry } from '../../recommendations/Feature';
 
-export const recommendationStrategyNames = new TupleSet([
-  "moreFromAuthor",
-  "moreFromTag",
-  "newAndUpvotedInTag",
-  "bestOf",
-  "tagWeightedCollabFilter",
-  "collabFilter",
-  "feature",
-] as const);
+export const recommendationStrategies = {
+  newAndUpvotedInTag: NewAndUpvotedInTagStrategy,
+  moreFromTag: MoreFromTagStrategy,
+  moreFromAuthor: MoreFromAuthorStrategy,
+  bestOf: BestOfStrategy,
+  tagWeightedCollabFilter: TagWeightedCollabFilterStrategy,
+  collabFilter: CollabFilterStrategy,
+  feature: FeatureStrategy,
+};
+
+export const recommendationStrategyNames = new TupleSet(Object.keys(recommendationStrategies) as (keyof typeof recommendationStrategies)[]);
 
 export const isRecommendationStrategyName =
   (name: string): name is RecommendationStrategyName =>
@@ -21,13 +32,13 @@ export const isRecommendationStrategyName =
 
 export type RecommendationStrategyName = UnionOf<typeof recommendationStrategyNames>;
 
-export const recommendationFeatureNames = new TupleSet([
-  "karma",
-  "curated",
-  "tagSimilarity",
-  "collabFilter",
-  "textSimilarity",
-] as const);
+export type ContextualRecommendationStrategyName = {
+  [k in RecommendationStrategyName]: InstanceType<(typeof recommendationStrategies)[k]> extends ContextualRecommendationStrategy ? k : never;
+}[RecommendationStrategyName];
+
+export type NonContextualRecommendationStrategyName = Exclude<RecommendationStrategyName, ContextualRecommendationStrategyName>;
+
+export const recommendationFeatureNames = new TupleSet(Object.keys(featureRegistry) as (keyof typeof featureRegistry)[]);
 
 export const isRecommendationFeatureName =
   (name: string): name is RecommendationFeatureName =>
@@ -35,28 +46,65 @@ export const isRecommendationFeatureName =
 
 export type RecommendationFeatureName = UnionOf<typeof recommendationFeatureNames>;
 
-export type WeightedFeature = {
-  feature: RecommendationFeatureName,
+export type ContextualRecommendationFeatureName = {
+  [k in RecommendationFeatureName]: InstanceType<(typeof featureRegistry)[k]> extends ContextualFeature ? k : never;
+}[RecommendationFeatureName];
+
+export type NonContextualRecommendationFeatureName = Exclude<RecommendationFeatureName, ContextualRecommendationFeatureName>;
+
+export type WeightedFeature<PostIdAvailable extends boolean = boolean> = {
+  feature: PostIdAvailable extends true ? RecommendationFeatureName : NonContextualRecommendationFeatureName,
   weight: number,
 }
 
-export interface StrategySettings {
+// export type ContextualWeightedFeature = {
+//   feature: ContextualRecommendationFeatureName,
+//   weight: number,
+// }
+
+interface ContextualStrategySettings {
   /** The post to generate recommendations for. */
   postId: string,
+}
+
+interface NonContextualStrategySettings {
+  /** The post to generate recommendations for. */
+  postId?: undefined,
+}
+
+export type StrategySettings<PostIdAvailable extends boolean> = {
+  /** The post to generate recommendations for. */
+  // postId?: string,
   /** Various strategy use a bias parameter in different ways for tuning - this
    *  is now mostly deprecated in favour of using features. */
   bias?: number,
   /** Weighted scoring factors for defining a recommendation algorithm. */
-  features?: WeightedFeature[],
+  features?: WeightedFeature<PostIdAvailable>[],
   /** The tag to generate recommendations (only used by some some strategies). */
   tagId?: string,
   /** Optional context string - this is not used to generate recommendations,
    *  but is stored along with the recommendation data in the database for
    *  analytics purposes. */
   context?: string,
+} & (PostIdAvailable extends true ? ContextualStrategySettings : NonContextualStrategySettings)
+
+export type StrategySpecification = ContextualStrategySpecification | NonContextualStrategySpecification | NonContextualStrategySpecificationWithPost;
+// {
+//   name: RecommendationStrategyName,
+//   forceLoggedOutView?: boolean,
+// }
+
+export interface ContextualStrategySpecification extends StrategySettings<true> {
+  name: ContextualRecommendationStrategyName,
+  forceLoggedOutView?: boolean,
 }
 
-export interface StrategySpecification extends StrategySettings {
+export interface NonContextualStrategySpecification extends StrategySettings<false> {
+  name: NonContextualRecommendationStrategyName,
+  forceLoggedOutView?: boolean,
+}
+
+interface NonContextualStrategySpecificationWithPost extends StrategySettings<true> {
   name: RecommendationStrategyName,
   forceLoggedOutView?: boolean,
 }

@@ -16,7 +16,7 @@ class PostRecommendationsRepo extends AbstractRepo<"PostRecommendations"> {
     currentUser: DbUser|null,
     clientId: string|null,
     strategyName: RecommendationStrategyName,
-    strategySettings: StrategySettings,
+    strategySettings: StrategySettings<boolean>,
     posts: DbPost[],
   ): Promise<void> {
     const userId = currentUser?._id;

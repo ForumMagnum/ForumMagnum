@@ -1,10 +1,10 @@
-import RecommendationStrategy, { RecommendationResult } from "./RecommendationStrategy";
-import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
+import RecommendationStrategy, { ContextualRecommendationStrategy, RecommendationResult } from "./RecommendationStrategy";
+import type { ContextualStrategySpecification, StrategySpecification } from "../collections/users/recommendationSettings";
 
 /**
  * A recommendation strategy that returns more posts sharing a common tag.
  */
-class NewAndUpvotedInTagStrategy extends RecommendationStrategy {
+class NewAndUpvotedInTagStrategy extends ContextualRecommendationStrategy {
   constructor() {
     super();
   }
@@ -12,8 +12,8 @@ class NewAndUpvotedInTagStrategy extends RecommendationStrategy {
   async recommend(
     currentUser: DbUser|null,
     count: number,
-    {postId, tagId}: StrategySpecification,
-  ): Promise<RecommendationResult> {
+    {postId, tagId}: ContextualStrategySpecification,
+  ): Promise<RecommendationResult<true>> {
     if (!tagId) {
       throw new Error("No tag id provided");
     }

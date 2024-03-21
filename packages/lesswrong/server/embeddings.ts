@@ -13,10 +13,10 @@ import { TiktokenModel, encoding_for_model } from "@dqbd/tiktoken";
 import mapValues from "lodash/mapValues";
 import chunk from "lodash/chunk";
 import { EMBEDDINGS_VECTOR_SIZE } from "../lib/collections/postEmbeddings/schema";
+import { DEFAULT_EMBEDDINGS_MODEL } from "../lib/recommendations/Feature";
 
 export const HAS_EMBEDDINGS_FOR_RECOMMENDATIONS = isEAForum;
 
-export const DEFAULT_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
 const NEW_EMBEDDINGS_MODEL = "text-embedding-3-large";
 const DEFAULT_EMBEDDINGS_MODEL_MAX_TOKENS = 8191;
 
