@@ -121,6 +121,7 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     })();
   }, [
     captureSearch,
+    currentUser,
     query,
     sorting,
     roles.selectedValues,
