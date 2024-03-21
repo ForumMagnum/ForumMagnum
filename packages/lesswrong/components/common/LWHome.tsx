@@ -7,9 +7,37 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
 import { visitorGetsDynamicFrontpage } from '../../lib/betas';
+import { useABTest } from '../../lib/abTestImpl';
+import { recombeeRecommendationsV1 } from '../../lib/abTests';
+import { getRecommendationSettings } from '../recommendations/RecommendationsAlgorithmPicker';
+import { useCurrentUser } from './withUser';
+import { getFrontPageOverwrites } from '../recommendations/LWRecommendations';
+import { RecombeeAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
 const LWHome = () => {
-  const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, QuickTakesSection } = Components
+  const { DismissibleSpotlightItem, RecentDiscussionFeed, HomeLatestPosts, AnalyticsInViewTracker, LWRecommendations, FrontpageReviewWidget, SingleColumnSection, FrontpageBestOfLWWidget, EAPopularCommentsSection, QuickTakesSection, HomepageRecommendations } = Components
+  
+  const currentUser = useCurrentUser();
+  const recombeeAbTest = useABTest(recombeeRecommendationsV1);
+  const recommendationsBelowLatestPosts = recombeeAbTest !== 'control';
+  // TODO: assign new algorithm/etc based on a/b test
+  const userRecommendationSettings = getRecommendationSettings({ settings: {}, currentUser, configName: "frontpage" });
+  const lwRecommendationSettings = {
+    ...userRecommendationSettings,
+    ...getFrontPageOverwrites(!!currentUser),
+    lwRationalityOnly: false,
+  };
+
+  const recombeeRecommendationSettings: RecombeeAlgorithm = {
+    source: 'recombee',
+    count: 5,
+    // lwRationalityOnly: lwRecommendationSettings.lwRationalityOnly,
+    onlyUnread: lwRecommendationSettings.onlyUnread
+  };
+
+  const showRelocatedRecommendations = !!currentUser && recommendationsBelowLatestPosts && !lwRecommendationSettings.hideFrontpage;
+  const recommendationSettings = recombeeAbTest === 'recombee' ? recombeeRecommendationSettings : lwRecommendationSettings;
+  
   const [_, setCookie] = useCookiesWithConsent([LAST_VISITED_FRONTPAGE_COOKIE]);
 
   useEffect(() => {
@@ -38,6 +66,8 @@ const LWHome = () => {
           >
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
+
+          {showRelocatedRecommendations && <HomepageRecommendations recommendationSettings={recommendationSettings} />}
 
           <QuickTakesSection />
 

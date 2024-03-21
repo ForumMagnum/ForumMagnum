@@ -264,3 +264,24 @@ export const jobAdDescription = new ABTest({
     },
   },
 });
+
+export const recombeeRecommendationsV1 = new ABTest({
+  name: "recombeeRecommendationsV1",
+  active: true,
+  affectsLoggedOut: false,
+  description: "Whether to use recombee for recommendations on the frontpage, and where the recommendations are located",
+  groups: {
+    control: {
+      description: "Keep recommendations in the same place, and no change to their source",
+      weight: 1
+    },
+    relocated: {
+      description: "Put recommendations below latest posts, and no change to their source",
+      weight: 1
+    },
+    recombee: {
+      description: "Put recommendations below latest posts, and use recombee as the source",
+      weight: 1
+    },
+  }
+})

@@ -1016,6 +1016,7 @@ importComponent("RecommendationsPageCuratedList", () => require('../components/r
 importComponent("RecommendationsAndCurated", () => require('../components/recommendations/RecommendationsAndCurated'));
 importComponent("LWRecommendations", () => require('../components/recommendations/LWRecommendations'));
 importComponent("RecommendationsSamplePage", () => require('../components/recommendations/RecommendationsSamplePage'));
+importComponent("HomepageRecommendations", () => require('../components/recommendations/HomepageRecommendations'));
 importComponent("SpotlightHistory", () => require('../components/spotlights/SpotlightHistory'));
 importComponent("SpotlightItem", () => require('../components/spotlights/SpotlightItem'));
 importComponent("SpotlightEditorStyles", () => require('../components/spotlights/SpotlightEditorStyles'));
