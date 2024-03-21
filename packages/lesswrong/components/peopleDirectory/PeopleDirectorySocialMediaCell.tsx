@@ -8,7 +8,12 @@ const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     gap: "12px",
+  },
+  link: {
     color: theme.palette.grey[600],
+    "&:hover": {
+      opacity: 1,
+    },
   },
   icon: {
     width: 16,
@@ -51,11 +56,9 @@ export const PeopleDirectorySocialMediaCell = ({user, classes}: {
               userUrl: url,
               targetUserId: user._id,
             })}
+            className={classes.link}
           >
-            <SocialMediaIcon
-              name={field}
-              className={classes.icon}
-            />
+            <SocialMediaIcon name={field} className={classes.icon} />
           </a>
         );
       })}
