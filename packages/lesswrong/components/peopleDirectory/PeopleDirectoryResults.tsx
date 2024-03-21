@@ -13,7 +13,9 @@ const styles = (theme: ThemeType) => ({
     border: `1px solid ${theme.palette.grey[310]}`,
     borderRadius: theme.borderRadius.default,
     background: theme.palette.grey[0],
-    padding: "12px 24px !important", // Overwrite the HorizScrollBlock default
+    // Overwrite the HorizScrollBlock default
+    padding: "12px 24px !important",
+    margin: "0 !important",
   },
   // We want to show some padding to the right of the grid, but there's a nasty
   // firefox bug where the padding isn't shown when the table overflows and
