@@ -664,8 +664,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
       FROM "Users"
       WHERE
         "${facetField}" IS NOT NULL AND
-        (TO_TSVECTOR('english', "${facetField}") @@ WEBSEARCH_TO_TSQUERY($1) OR
-          COALESCE(SIMILARITY("${facetField}", $1), 0) > 0.22) AND
+        (
+          TO_TSVECTOR('english', "${facetField}") @@ WEBSEARCH_TO_TSQUERY($1) OR
+          COALESCE(SIMILARITY("${facetField}", $1), 0) > 0.22 OR
+          "${facetField}" ILIKE ($1 || '%')
+        ) AND
         "noindex" IS NOT TRUE AND
         "deleted" IS NOT TRUE AND
         "voteBanned" IS NOT TRUE AND
