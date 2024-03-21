@@ -239,7 +239,6 @@ const ModerationLog = ({classes}: {
         level: 1
       },
     ],
-    headingsCount: 0
   }
 
   return (

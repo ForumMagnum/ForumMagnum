@@ -31,13 +31,12 @@ const TableOfContents = ({sectionData, title, postedAt, onClickSection, displayO
     }
   }, [title, sectionData, setToC]);
 
-  if (!toc)
-    return <div/>
+  const displayToc = toc ?? {title, sectionData}
 
   if (fixedPositionToc) {
     return (
       <Components.FixedPositionToC
-        tocSections={toc.sectionData.sections}
+        tocSections={displayToc.sectionData.sections}
         title={title}
         postedAt={postedAt}
         onClickSection={onClickSection}

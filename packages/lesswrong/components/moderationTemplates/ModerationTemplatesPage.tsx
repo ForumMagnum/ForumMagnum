@@ -73,7 +73,6 @@ export const ModerationTemplatesPage = ({classes}: {
         level: 1
       }))
     ],
-    headingsCount: 0
   }
 
   return <ToCColumn tableOfContents={<TableOfContents

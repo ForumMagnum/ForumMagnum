@@ -76,7 +76,6 @@ export const SpotlightsPage = ({classes}: {
         level: 2
       })),
     ],
-    headingsCount: 2
   }
 
   return <ToCColumn tableOfContents={<TableOfContents

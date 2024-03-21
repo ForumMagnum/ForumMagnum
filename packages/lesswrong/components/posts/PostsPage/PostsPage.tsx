@@ -38,6 +38,7 @@ import NoSSR from 'react-no-ssr';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 import { usePostReadProgress } from '../usePostReadProgress';
+import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -498,7 +499,11 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   );
   
   const sequenceId = getSequenceId();
-  const sectionData = (fullPost as PostsWithNavigationAndRevision)?.tableOfContentsRevision || (post as PostsWithNavigation)?.tableOfContents;
+  const sectionData = useDynamicTableOfContents({
+    html: (post as PostsWithNavigationAndRevision)?.contents?.html ?? post?.contents?.htmlHighlight ?? "",
+    post,
+    answers,
+  });
   const htmlWithAnchors = sectionData?.html || fullPost?.contents?.html || postPreload?.contents?.htmlHighlight || "";
 
   const showRecommendations = hasPostRecommendations &&

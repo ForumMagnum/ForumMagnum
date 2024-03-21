@@ -21,7 +21,8 @@ import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { Posts } from '../../lib/collections/posts';
 import { getConfirmedCoauthorIds } from '../../lib/collections/posts/helpers';
 import { convertImagesInHTML } from '../scripts/convertImagesToCloudinary';
-import { extractTableOfContents } from '../tableOfContents';
+import { parseDocumentFromString } from '../../lib/domParser';
+import { extractTableOfContents } from '../../lib/tableOfContents';
 
 const turndownService = new TurndownService()
 turndownService.use(gfm); // Add support for strikethrough and tables
@@ -628,7 +629,7 @@ async function googleDocInternalLinks(html: string): Promise<string> {
     }
   });
 
-  const tocHtml = (await extractTableOfContents($.html()))?.html;
+  const tocHtml = (await extractTableOfContents(parseDocumentFromString($.html())))?.html;
   if (tocHtml) {
     const idMap: Record<string, string> = {};
     const $toc = cheerio.load(tocHtml);
