@@ -61,7 +61,7 @@ interface SearchUser extends SearchBase {
   website: string,
   groups: Array<string>,
   af: boolean,
-  socialMediaUrls: Record<string, string> | null,
+  socialMediaUrls: Partial<Record<SocialMediaSiteName | "website", string>> | null,
   _geoloc?: {
     type: "Point",
     coordinates: number[],

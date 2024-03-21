@@ -1,6 +1,6 @@
 import SimpleSchema from 'simpl-schema';
 import { Utils, slugify, getNestedProperty } from '../../vulcan-lib';
-import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup } from "./helpers";
+import {userGetProfileUrl, getAuth0Id, getUserEmail, userOwnsAndInGroup, SOCIAL_MEDIA_PROFILE_FIELDS } from "./helpers";
 import { userGetEditUrl } from '../../vulcan-users/helpers';
 import { userGroups, userOwns, userIsAdmin, userHasntChangedName } from '../../vulcan-users/permissions';
 import { formGroups } from './formGroups';
@@ -16,7 +16,6 @@ import { postsLayouts } from '../posts/dropdownOptions';
 import type { ForumIconName } from '../../../components/common/ForumIcon';
 import { getCommentViewOptions } from '../../commentViewOptions';
 import { allowSubscribeToUserComments, dialoguesEnabled, hasPostRecommendations } from '../../betas';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
 import { randomId } from '../../random';
 import { getUserABTestKey } from '../../abTestImpl';
@@ -304,14 +303,6 @@ export const PROGRAM_PARTICIPATION = [
   {value: 'localgroup', label: "Attended more than three meetings with a local EA group"},
   {value: '80k', label: "Received career coaching from 80,000 Hours"},
 ]
-
-export const SOCIAL_MEDIA_PROFILE_FIELDS = {
-  linkedinProfileURL: 'linkedin.com/in/',
-  facebookProfileURL: 'facebook.com/',
-  twitterProfileURL: 'twitter.com/',
-  githubProfileURL: 'github.com/'
-}
-export type SocialMediaProfileField = keyof typeof SOCIAL_MEDIA_PROFILE_FIELDS;
 
 export type RateLimitReason = "moderator"|"lowKarma"|"downvoteRatio"|"universal"
 
