@@ -3,13 +3,15 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { PeopleDirectoryColumn } from "./peopleDirectoryColumns";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 
-const styles = (_theme: ThemeType) => ({
+const styles = (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
     fontSize: 14,
     fontWeight: 600,
     padding: "8px 6px",
+    whiteSpace: "nowrap",
+    color: theme.palette.grey[600],
   },
   icon: {
     cursor: "pointer",

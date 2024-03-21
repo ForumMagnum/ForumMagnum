@@ -6,6 +6,7 @@ import { cellTextStyles } from "./PeopleDirectoryTextCell";
 const styles = (theme: ThemeType) => ({
   root: {
     ...cellTextStyles(theme),
+    whiteSpace: "nowrap",
   },
 });
 
