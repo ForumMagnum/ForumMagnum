@@ -8,6 +8,7 @@ const styles = (theme: ThemeType) => ({
   },
   noResults: {
     color: theme.palette.grey[600],
+    padding: "0 16px",
   },
   results: {
     borderTop: `1px solid ${theme.palette.grey[600]}`,
@@ -58,7 +59,7 @@ export const PeopleDirectorySearchableFilter = ({
 
   const onClose = useCallback(() => {
     setSearch("");
-  }, []);
+  }, [setSearch]);
 
   const showLoading = loading;
   const showNoResults = search && !loading && suggestions.length === 0;
