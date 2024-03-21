@@ -31,7 +31,6 @@ const LWHome = () => {
   const recombeeRecommendationSettings: RecombeeAlgorithm = {
     source: 'recombee',
     count: 5,
-    // lwRationalityOnly: lwRecommendationSettings.lwRationalityOnly,
     onlyUnread: lwRecommendationSettings.onlyUnread
   };
 
