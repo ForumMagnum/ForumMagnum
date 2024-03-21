@@ -3,6 +3,8 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { usePeopleDirectory } from "./usePeopleDirectory";
 import { SCROLL_INDICATOR_SIZE } from "../common/HorizScrollBlock";
 
+const HORIZ_PADDING = 24;
+
 const styles = (theme: ThemeType) => ({
   root: {
     marginLeft: -SCROLL_INDICATOR_SIZE,
@@ -14,7 +16,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.default,
     background: theme.palette.grey[0],
     // Overwrite the HorizScrollBlock default
-    padding: "12px 24px !important",
+    padding: `12px 0 12px ${HORIZ_PADDING}px !important`, // See firefox bug below
     margin: "0 !important",
   },
   // We want to show some padding to the right of the grid, but there's a nasty
@@ -25,10 +27,11 @@ const styles = (theme: ThemeType) => ({
   gridWrapper: {
     display: "flex",
     width: "min-content",
+    minWidth: "100%",
     "&:after": {
       content: '""',
       display: "block",
-      minWidth: 24,
+      minWidth: HORIZ_PADDING,
       height: "100%",
     },
   },
