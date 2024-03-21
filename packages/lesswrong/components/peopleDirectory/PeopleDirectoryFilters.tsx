@@ -20,6 +20,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     flexDirection: "column",
     gap: "12px",
+    padding: 16,
   },
 });
 
