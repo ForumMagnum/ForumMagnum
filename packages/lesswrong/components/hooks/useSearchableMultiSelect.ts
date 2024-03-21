@@ -84,7 +84,7 @@ export const useSearchableMultiSelect = ({title, facetField}: {
     void (async () => {
       const hits = search ? await getWithCache(search) : [];
       setSuggestions((oldSuggestions) => {
-        const grandfathered = suggestions
+        const grandfathered = oldSuggestions
           .filter(({value, selected}) => selected && !hits.includes(value))
           .map((suggestion) => ({
             ...suggestion,

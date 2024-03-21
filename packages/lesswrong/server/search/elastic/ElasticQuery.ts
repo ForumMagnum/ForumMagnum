@@ -6,9 +6,16 @@ import type {
 import type {
   SearchRequest as SearchRequestBody,
 } from "@elastic/elasticsearch/lib/api/typesWithBodyKey";
-import { indexNameToConfig, IndexConfig, Ranking } from "./ElasticConfig";
+import {
+  IndexConfig,
+  Ranking,
+  isFullTextField,
+  indexToCollectionName,
+  collectionNameToConfig,
+} from "./ElasticConfig";
 import { parseQuery, QueryToken } from "./parseQuery";
 import { searchOriginDate } from "./elasticSettings";
+import { SearchIndexCollectionName } from "../../../lib/search/searchUtil";
 
 /**
  * There a couple of places where we need a rough origin date
@@ -58,13 +65,15 @@ type CompiledQuery = {
 }
 
 class ElasticQuery {
+  private collectionName: SearchIndexCollectionName;
   private config: IndexConfig;
 
   constructor(
     private queryData: QueryData,
     private fuzziness: Fuzziness = 1,
   ) {
-    this.config = indexNameToConfig(queryData.index);
+    this.collectionName = indexToCollectionName(queryData.index);
+    this.config = collectionNameToConfig(this.collectionName);
   }
 
   compileRanking({field, order, weight, scoring}: Ranking): string {
@@ -104,11 +113,23 @@ class ElasticQuery {
     for (const filter of this.queryData.filters) {
       switch (filter.type) {
       case "facet":
-        const term: QueryDslQueryContainer = {
-          term: {
-            [filter.field]: filter.value,
-          },
-        };
+        const term: QueryDslQueryContainer =
+          isFullTextField(this.collectionName, filter.field)
+            ? {
+              match: {
+                [`${filter.field}.exact`]: {
+                  query: filter.value,
+                  analyzer: "fm_exact_analyzer",
+                  operator: "AND",
+                  fuzziness: 0,
+                },
+              },
+            }
+            : {
+              term: {
+                [filter.field]: filter.value,
+              },
+            };
         terms.push(
           filter.negated
             ? {

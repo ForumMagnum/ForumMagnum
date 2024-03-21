@@ -79,6 +79,9 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
           ? `_${sorting.field}:${sorting.direction}`
           : "";
         const facetFilters = [
+          roles.selectedValues.map((role) => `jobTitle:${role}`),
+          organizations.selectedValues.map((org) => `organization:${org}`),
+          locations.selectedValues.map((location) => `location:${location}`),
           careerStages.selectedValues.map((stage) => `careerStage:${stage}`),
         ];
         const results = await searchClient.search([
@@ -100,7 +103,14 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
         setResultsLoading(false);
       }
     })();
-  }, [query, sorting, careerStages.selectedValues]);
+  }, [
+    query,
+    sorting,
+    roles.selectedValues,
+    organizations.selectedValues,
+    locations.selectedValues,
+    careerStages.selectedValues,
+  ]);
 
   return (
     <peopleDirectoryContext.Provider value={{
