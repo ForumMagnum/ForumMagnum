@@ -1,19 +1,20 @@
-import { StrategySettings, StrategySpecification } from "../../lib/collections/users/recommendationSettings";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
-import { postStatuses } from "../../lib/collections/posts/constants";
+import type { ContextualStrategySpecification, StrategySettings, StrategySpecification } from "../collections/users/recommendationSettings";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
+import { postStatuses } from "../collections/posts/constants";
 import {
   EA_FORUM_COMMUNITY_TOPIC_ID,
   EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID,
-} from "../../lib/collections/tags/collection";
+} from "../collections/tags/collection";
 
 export type RecommendationStrategyConfig = {
   maxRecommendationCount: number,
   minimumBaseScore: number,
+  contextual: boolean,
 }
 
-export type RecommendationResult = {
+export type RecommendationResult<Contextual extends boolean = boolean> = {
   posts: DbPost[],
-  settings: StrategySettings,
+  settings: StrategySettings<Contextual>,
 }
 
 /**
@@ -30,6 +31,7 @@ abstract class RecommendationStrategy {
     this.config = {
       maxRecommendationCount: config.maxRecommendationCount ?? 3,
       minimumBaseScore: config.minimumBaseScore ?? 30,
+      contextual: config.contextual ?? false,
     };
   }
 
@@ -37,7 +39,11 @@ abstract class RecommendationStrategy {
     currentUser: DbUser|null,
     count: number,
     strategy: StrategySpecification,
-  ): Promise<RecommendationResult>;
+  ): Promise<RecommendationResult<boolean>>;
+
+  public isContextual() {
+    return this.config.contextual;
+  }
 
   /**
    * Create SQL query fragments that filter out posts that the user has already
@@ -158,6 +164,20 @@ abstract class RecommendationStrategy {
     };
   }
 
+  protected getExcludeCurrentPostFilter(postId?: string) {
+    if (postId) {
+      return {
+        filter: 'p."_id" <> $(postId) AND',
+        args: { postId }
+      };
+    }
+
+    return {
+      filter: '',
+      args: {}
+    };
+  }
+
   /**
    * Find posts in the database using a particular SQL filter, whilst applying
    * the default filters for users, posts and tags.
@@ -195,5 +215,24 @@ abstract class RecommendationStrategy {
     });
   }
 }
+
+interface ContextualStrategy {
+  contextual: true;
+}
+
+abstract class ContextualRecommendationStrategy extends RecommendationStrategy implements ContextualStrategy {
+  readonly contextual = true;
+  constructor(config: Partial<Omit<RecommendationStrategyConfig, 'contextual'>> = {}) {
+    super({ ...config, contextual: true });
+  }
+
+  abstract recommend(
+    currentUser: DbUser|null,
+    count: number,
+    strategy: ContextualStrategySpecification,
+  ): Promise<RecommendationResult<true>>;
+}
+
+export { ContextualRecommendationStrategy, ContextualStrategy };
 
 export default RecommendationStrategy;

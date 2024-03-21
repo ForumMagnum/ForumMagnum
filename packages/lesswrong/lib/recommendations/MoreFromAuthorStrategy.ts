@@ -1,16 +1,16 @@
-import RecommendationStrategy, { RecommendationResult } from "./RecommendationStrategy";
-import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
-import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
+import RecommendationStrategy, { ContextualRecommendationStrategy, RecommendationResult } from "./RecommendationStrategy";
+import type { ContextualStrategySpecification, StrategySpecification } from "../collections/users/recommendationSettings";
+import { getSqlClientOrThrow } from "../sql/sqlClient";
 
 /**
  * A recommendation strategy that returns more posts by the same author.
  */
-class MoreFromAuthorStrategy extends RecommendationStrategy {
+class MoreFromAuthorStrategy extends ContextualRecommendationStrategy {
   async recommend(
     _currentUser: DbUser|null,
     count: number,
-    {postId}: StrategySpecification,
-  ): Promise<RecommendationResult> {
+    {postId}: ContextualStrategySpecification,
+  ): Promise<RecommendationResult<true>> {
     const db = getSqlClientOrThrow();
     const postFilter = this.getDefaultPostFilter();
     const posts = await db.any(`

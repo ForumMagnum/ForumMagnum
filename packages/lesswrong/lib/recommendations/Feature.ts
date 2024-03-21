@@ -1,5 +1,7 @@
-import { RecommendationFeatureName } from "../../lib/collections/users/recommendationSettings";
-import { DEFAULT_EMBEDDINGS_MODEL } from "../embeddings";
+// import { RecommendationFeatureName } from "../collections/users/recommendationSettings";
+import type { TiktokenModel } from "@dqbd/tiktoken";
+
+export const DEFAULT_EMBEDDINGS_MODEL: TiktokenModel = "text-embedding-ada-002";
 
 abstract class Feature {
   getJoin(): string {
@@ -16,6 +18,13 @@ abstract class Feature {
 
   getArgs(): Record<string, unknown> {
     return {};
+  }
+}
+
+abstract class ContextualFeature extends Feature {
+  private readonly contextual = true;
+  constructor() {
+    super();
   }
 }
 
@@ -42,13 +51,13 @@ class CuratedFeature extends Feature {
   }
 }
 
-class TagSimilarityFeature extends Feature {
+class TagSimilarityFeature extends ContextualFeature {
   getScore() {
     return `fm_post_tag_similarity($(postId), p."_id")`;
   }
 }
 
-class CollabFilterFeature extends Feature {
+class CollabFilterFeature extends ContextualFeature {
   getJoin() {
     return `INNER JOIN "UniquePostUpvoters" rec ON rec."postId" = p."_id"`;
   }
@@ -69,7 +78,7 @@ class CollabFilterFeature extends Feature {
   }
 }
 
-class TextSimilarityFeature extends Feature {
+class TextSimilarityFeature extends ContextualFeature {
   constructor(
     private model = DEFAULT_EMBEDDINGS_MODEL,
   ) {
@@ -98,10 +107,9 @@ class TextSimilarityFeature extends Feature {
   }
 }
 
-export const featureRegistry: Record<
-  RecommendationFeatureName,
-  ConstructableFeature
-> = {
+export { ContextualFeature };
+
+export const featureRegistry = {
   karma: KarmaFeature,
   curated: CuratedFeature,
   tagSimilarity: TagSimilarityFeature,

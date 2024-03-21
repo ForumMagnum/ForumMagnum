@@ -1,6 +1,6 @@
 import FeatureStrategy from "./FeatureStrategy";
-import type { StrategySpecification } from "../../lib/collections/users/recommendationSettings";
-import { RecommendationResult } from "./RecommendationStrategy";
+import type { ContextualStrategySpecification, NonContextualStrategySpecification, StrategySpecification } from "../collections/users/recommendationSettings";
+import type { RecommendationResult } from "./RecommendationStrategy";
 
 /**
  * A recommendation strategy that returns the highest voted posts that the user
