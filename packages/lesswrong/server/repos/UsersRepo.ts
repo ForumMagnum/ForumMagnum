@@ -190,6 +190,13 @@ class UsersRepo extends AbstractRepo<"Users"> {
         u."groups",
         u."groups" @> ARRAY['alignmentForum'] AS "af",
         u."profileTagIds" AS "tags",
+        NULLIF(JSONB_STRIP_NULLS(JSONB_BUILD_OBJECT(
+          'website', u."website",
+          'github', u."githubProfileURL",
+          'twitter', u."twitterProfileURL",
+          'linkedin', u."linkedinProfileURL",
+          'facebook', u."facebookProfileURL"
+        )), '{}') AS "socialMediaUrls",
         CASE WHEN u."mapLocation"->'geometry'->'location' IS NULL THEN NULL ELSE
           JSONB_BUILD_OBJECT(
             'type', 'point',
