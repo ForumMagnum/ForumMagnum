@@ -5,6 +5,8 @@ import { CAREER_STAGES } from "../../lib/collections/users/schema";
 import { PeopleDirectoryColumn, peopleDirectoryColumns } from "./peopleDirectoryColumns";
 import { SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
 import { useCurrentUser } from "../common/withUser";
+import { useSearchAnalytics } from "../search/useSearchAnalytics";
+import { captureException } from "@sentry/core";
 
 type PeopleDirectorySorting = {
   field: string,
@@ -29,6 +31,7 @@ const peopleDirectoryContext = createContext<PeopleDirectoryContext | null>(null
 
 export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
   const currentUser = useCurrentUser();
+  const captureSearch = useSearchAnalytics();
   const [query, setQuery] = useState("");
   const [sorting, setSorting] = useState<PeopleDirectorySorting | null>(null);
   const [results, setResults] = useState<SearchUser[]>([]);
@@ -97,16 +100,27 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
             },
           },
         ]);
-        setResults(results?.results?.[0]?.hits ?? []);
+        const hits = results?.results?.[0]?.hits ?? [];
+        setResults(hits);
+        captureSearch("peopleDirectorySearch", {
+          query,
+          sorting,
+          roles: roles.selectedValues,
+          organizations: organizations.selectedValues,
+          locations: locations.selectedValues,
+          careerStages: careerStages.selectedValues,
+          hitCount: hits.length,
+        });
       } catch (e) {
-        // TODO: Better error handling here
         // eslint-disable-next-line no-console
-        console.error("Search error:", e);
+        console.error("People directory search error:", e);
+        captureException(e);
       } finally {
         setResultsLoading(false);
       }
     })();
   }, [
+    captureSearch,
     query,
     sorting,
     roles.selectedValues,

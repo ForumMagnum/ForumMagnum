@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { MultiSelectState, buildMultiSelectSummary } from "./useMultiSelect";
 import { useLRUCache } from "./useLRUCache";
+import { useSearchAnalytics } from "../search/useSearchAnalytics";
+import { captureException } from "@sentry/core";
 
 export type SearchableMultiSelectState = MultiSelectState & {
   grandfathered: boolean,
@@ -22,6 +24,7 @@ export const useSearchableMultiSelect = ({title, facetField}: {
   title: string,
   facetField: string,
 }): SearchableMultiSelectResult => {
+  const captureSearch = useSearchAnalytics();
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<SearchableMultiSelectState[]>([]);
@@ -69,13 +72,19 @@ export const useSearchableMultiSelect = ({title, facetField}: {
         },
       });
       const {hits} = await response.json();
+      captureSearch("userFacetSearch", {
+        facetField,
+        query,
+        hitCount: hits?.length ?? 0,
+      });
       return hits ?? [];
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error("Facet search error:", e);
+      captureException(e);
       return [];
     }
-  }, [facetField]);
+  }, [captureSearch, facetField]);
 
   const getWithCache = useLRUCache<string, Promise<string[]>>(fetchSuggestions);
 
