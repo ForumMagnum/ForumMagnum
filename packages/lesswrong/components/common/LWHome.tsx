@@ -66,7 +66,7 @@ const LWHome = () => {
             <HomeLatestPosts />
           </AnalyticsInViewTracker>
 
-          {showRelocatedRecommendations && <HomepageRecommendations recommendationSettings={recommendationSettings} />}
+          {showRelocatedRecommendations && <HomepageRecommendations recommendationSettings={recommendationSettings} currentUser={currentUser} />}
 
           <QuickTakesSection />
 

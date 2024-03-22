@@ -21,6 +21,8 @@ import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/colle
 import RecommendationService from './recommendations/RecommendationService';
 import PgCollection from '../lib/sql/PgCollection';
 import { recombeeApi } from './recombee/client';
+import { userIsAdmin } from '../lib/vulcan-users';
+import { timedFunc } from '../lib/helpers';
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -397,8 +399,10 @@ addGraphQLResolvers({
         if (!currentUser) {
           throw new Error('Must be logged in to get Recombee recommendations!');
         }
+
         // Call recombee for recommendations
-        return recombeeApi.getRecommendationsForUser(currentUser._id, algorithm, context);
+        
+        return timedFunc('recombeeApi.getRecommendationsForUser', () => recombeeApi.getRecommendationsForUser(currentUser._id, algorithm, context));
       }
 
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})

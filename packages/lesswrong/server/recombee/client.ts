@@ -3,6 +3,7 @@ import { RecombeeAlgorithm } from '../../lib/collections/users/recommendationSet
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { loadByIds } from '../../lib/loaders';
 import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../databaseSettings';
+import { userIsAdmin } from '../../lib/vulcan-users';
 
 const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -28,17 +29,29 @@ const recombeeApi = {
   async getRecommendationsForUser(userId: string, lwAlgoSettings: RecombeeAlgorithm, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
     const { currentUser, Posts } = context;
-    const { count, lwRationalityOnly } = lwAlgoSettings;
+    const { count, lwRationalityOnly, adminOverrides } = lwAlgoSettings;
 
-    const adjustedCount = count + 5;
+    const returnPostCount = adminOverrides?.count ?? count;
+
+    // let userId = currentUser._id;
+    let scenario = 'recommendations-personal';
+    if (userIsAdmin(currentUser) && adminOverrides) {
+      userId = adminOverrides.userId ?? currentUser._id;
+      // Explicitly coalesce empty strings to the default scenario
+      scenario = adminOverrides.scenario || scenario;
+    }
+
+    const adjustedCount = Math.round(returnPostCount * 1.5);
     // TODO: pass in scenario, exclude unread, etc, in options?
     const lwRationalityFilter = lwRationalityOnly ? ` and ("Rationality" in 'core_tags' or "World Modeling" in 'core_tags')` : '';
     const filter = `'karma' >= 50${lwRationalityFilter}`;
 
+    console.log({ userId: currentUser?._id, overrides: lwAlgoSettings.adminOverrides });
     const request = new requests.RecommendItemsToUser(userId, adjustedCount, {
-      scenario: 'recommendations-section',
+      ...adminOverrides,
+      scenario,
       filter,
-      rotationRate: .2,
+      // rotationRate: .2,
     });
 
     const response = await client.send(request);
@@ -51,7 +64,7 @@ const recombeeApi = {
 
 
     // TODO: loop over the above if we don't get enough posts?
-    return filteredPosts.slice(0, lwAlgoSettings.count);
+    return filteredPosts.slice(0, returnPostCount);
   }
 };
 

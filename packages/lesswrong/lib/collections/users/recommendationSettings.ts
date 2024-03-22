@@ -116,6 +116,14 @@ export interface RecombeeAlgorithm {
   count: number,
   onlyUnread?: boolean,
   lwRationalityOnly?: boolean,
+  adminOverrides?: {
+    userId?: string,
+    scenario?: string,
+    count?: number,
+    rotationRate?: number,
+    rotationTime?: number,
+    booster?: string,
+  },
   // recombeeArgs: RecombeeRecommendationsArgs,
 }
 
