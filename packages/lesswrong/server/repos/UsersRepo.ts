@@ -50,12 +50,10 @@ class UsersRepo extends AbstractRepo<"Users"> {
   getUserByLoginToken(hashedToken: string): Promise<DbUser | null> {
     return this.oneOrNone(`
       -- UsersRepo.getUserByLoginToken
-      SELECT *
-      FROM "Users"
-      WHERE "services"->'resume'->'loginTokens' @> ('[{"hashedToken": "' || $1 || '"}]')::JSONB
+      SELECT * FROM fm_get_user_by_login_token($1)
     `, [hashedToken]);
   }
-  
+
   getUsersWhereLocationIsInNotificationRadius(location: MongoNearLocation): Promise<Array<DbUser>> {
     // the notification radius is in miles, so we convert the EARTH_DISTANCE from meters to miles
     return this.any(`
