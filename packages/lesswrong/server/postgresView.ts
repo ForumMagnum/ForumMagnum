@@ -4,6 +4,8 @@ import { addCronJob } from "./cronUtil";
 
 class PostgresView {
   constructor(
+    private name: string,
+    private refreshInterval: string,
     private createViewQuery: string,
     private createIndexQueries: string[] = [],
     private refreshQuery?: string,
@@ -29,11 +31,21 @@ class PostgresView {
       await queryWithLock(db, this.refreshQuery, this.queryTimeout);
     }
   }
+
+  registerCronJob() {
+    addCronJob({
+      name: `refreshPostgresView-${this.name}`,
+      interval: this.refreshInterval,
+      job: () => this.refresh(getSqlClientOrThrow()),
+    });
+  }
 }
 
 const postgresViews: PostgresView[] = [];
 
 export const createPostgresView = (
+  name: string,
+  refreshInterval: string,
   createViewQuery: string,
   createIndexQueries: string[] = [],
   refreshQuery?: string,
@@ -44,25 +56,17 @@ export const createPostgresView = (
     }
   }
   const view = new PostgresView(
+    name,
+    refreshInterval,
     createViewQuery,
     createIndexQueries,
     refreshQuery,
   );
   postgresViews.push(view);
+  view.registerCronJob();
 }
 
 export const ensurePostgresViewsExist = async (db = getSqlClientOrThrow()) => {
   await Promise.all(postgresViews.map((view) => view.createView(db)));
   await Promise.all(postgresViews.map((view) => view.createIndexes(db)));
 }
-
-addCronJob({
-  name: "refreshPostgresViews",
-  interval: "every 1 hour",
-  job: async () => {
-    // Run these in series as they're potentially expensive
-    for (const view of postgresViews) {
-      await view.refresh(getSqlClientOrThrow());
-    }
-  },
-});
