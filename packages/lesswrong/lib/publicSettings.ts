@@ -175,3 +175,5 @@ export const requestFeedbackKarmaLevelSetting = new DatabasePublicSetting<number
 export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolean>('voting.eaEmoji.alwaysShowAnonymousReacts', true);
 
 export const hasGoogleDocImportSetting = new DatabasePublicSetting<boolean>('googleDocImport.enabled', false);
+
+export const latestPostsAlgorithmsSetting = new DatabasePublicSetting<string[]>('latestPosts.algorithms', []);

@@ -28,6 +28,9 @@ import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/googleDocImport';
 import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
+import { userIsAdmin } from '../../lib/vulcan-users';
+import { recombeeApi } from '../recombee/client';
+import { RecombeeAlgorithm } from '../../lib/collections/users/recommendationSettings';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -564,3 +567,26 @@ createPaginatedResolver({
   // Caching is not user specific, do not use caching here else you will share users' drafts
   cacheMaxAgeMs: 0, 
 });
+
+createPaginatedResolver({
+  name: "RecombeeLatestPosts",
+  graphQLType: "Post",
+  args: { settings: "JSON" },
+  callback: async (
+    context: ResolverContext,
+    limit: number,
+    args: { settings: Omit<RecombeeAlgorithm, 'count'> }
+  ): Promise<DbPost[]> => {
+    const { repos, currentUser } = context;
+    if (!userIsAdmin(currentUser)) {
+      throw new Error(`Only admins may use Recombee recommendations right now`);
+    }
+
+    const settings = {
+      ...args?.settings,
+      count: limit
+    };
+
+    return await recombeeApi.getRecommendationsForUser(currentUser._id, settings, context);
+  }
+})

@@ -396,6 +396,7 @@ importComponent("PostsLoading", () => require('../components/posts/PostsLoading'
 importComponent("PostsTimeframeList", () => require('../components/posts/PostsTimeframeList'));
 importComponent("AllPostsPage", () => require('../components/posts/AllPostsPage'));
 importComponent("AllPostsList", () => require('../components/posts/AllPostsList'));
+importComponent("RecombeePostsList", () => require('../components/posts/RecombeePostsList'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton'));
 importComponent("SharePostButton", () => require('../components/posts/SharePostButton'));
