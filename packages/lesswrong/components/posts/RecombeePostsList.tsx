@@ -1,8 +1,7 @@
 import React from 'react';
 import { Components, fragmentTextForQuery, registerComponent } from '../../lib/vulcan-lib';
-import { useTracking } from "../../lib/analyticsEvents";
-import { usePaginatedResolver } from '../hooks/usePaginatedResolver';
 import { gql, useQuery } from '@apollo/client';
+import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -10,8 +9,9 @@ const styles = (theme: ThemeType) => ({
   }
 });
 
-export const RecombeePostsList = ({ algorithm, classes }: {
+export const RecombeePostsList = ({ algorithm, settings, classes }: {
   algorithm: string,
+  settings: RecombeeConfiguration,
   classes: ClassesType<typeof styles>,
 }) => {
   const { Loading, PostsItem } = Components;
@@ -33,7 +33,7 @@ export const RecombeePostsList = ({ algorithm, classes }: {
     pollInterval: 0,
     variables: {
       limit: 13,
-      settings: { adminOverrides: { scenario: algorithm } }
+      settings: { ...settings, scenario: algorithm }
     },
   });
 

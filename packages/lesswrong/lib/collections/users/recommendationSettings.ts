@@ -107,19 +107,17 @@ export const recommendationsAlgorithmHasStrategy = (
 ): algorithm is RecommendationsAlgorithmWithStrategy =>
   "strategy" in algorithm;
 
-export interface RecombeeAlgorithm {
-  // source: 'recombee',
-  count: number,
+export interface RecombeeConfiguration {
+  userId?: string,
+  rotationRate?: number,
+  rotationTime?: number,
+  booster?: string,
+}
+
+export interface RecombeeRecommendationArgs extends RecombeeConfiguration {
   onlyUnread?: boolean,
   lwRationalityOnly?: boolean,
-  adminOverrides?: {
-    userId?: string,
-    scenario?: string,
-    count?: number,
-    rotationRate?: number,
-    rotationTime?: number,
-    booster?: string,
-  },
+  scenario: string,
 }
 
 export const defaultAlgorithmSettings: DefaultRecommendationsAlgorithm = {

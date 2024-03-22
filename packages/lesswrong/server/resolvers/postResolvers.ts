@@ -30,7 +30,7 @@ import { canAccessGoogleDoc, getGoogleDocImportOAuthClient } from '../posts/goog
 import type { GoogleDocMetadata } from '../../lib/collections/revisions/helpers';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { recombeeApi } from '../recombee/client';
-import { RecombeeAlgorithm } from '../../lib/collections/users/recommendationSettings';
+import { RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 
 /**
  * Extracts the contents of tag with provided messageId for a collabDialogue post, extracts using Cheerio
@@ -575,18 +575,13 @@ createPaginatedResolver({
   callback: async (
     context: ResolverContext,
     limit: number,
-    args: { settings: Omit<RecombeeAlgorithm, 'count'> }
+    args: { settings: RecombeeRecommendationArgs }
   ): Promise<DbPost[]> => {
     const { repos, currentUser } = context;
     if (!userIsAdmin(currentUser)) {
       throw new Error(`Only admins may use Recombee recommendations right now`);
     }
 
-    const settings = {
-      ...args?.settings,
-      count: limit
-    };
-
-    return await recombeeApi.getRecommendationsForUser(currentUser._id, settings, context);
+    return await recombeeApi.getRecommendationsForUser(currentUser._id, limit, args.settings, context);
   }
 })
