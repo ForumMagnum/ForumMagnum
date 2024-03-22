@@ -9,6 +9,7 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 import classNames from 'classnames';
 import { DatabasePublicSetting } from '../../lib/publicSettings';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';
+import { recombeeRecommendationsV1, useABTest } from '../../lib/abTests';
 
 export const curatedUrl = "/recommendations"
 
@@ -84,7 +85,7 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
 });
 
-const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
+export const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
   return {
     lwRationalityOnly: true,
     method: 'sample',
@@ -105,6 +106,8 @@ const LWRecommendations = ({
   const currentUser = useCurrentUser();
   const [showSettings, setShowSettings] = useState(false);
   const [settingsState, setSettings] = useState<any>(null);
+  const recombeeAbTest = useABTest(recombeeRecommendationsV1);
+  const relocatedRecommendations = recombeeAbTest !== 'control';
 
   const { captureEvent } = useTracking({eventProps: {pageSectionContext: "recommendations"}});
   const {continueReading} = useContinueReading();
@@ -134,9 +137,9 @@ const LWRecommendations = ({
       <div><em>(Click to see more recommendations)</em></div>
     </div>
 
-    const renderRecommendations = !settings.hideFrontpage && !bookDisplaySetting.get()
+    const renderRecommendations = !settings.hideFrontpage && !bookDisplaySetting.get() && !relocatedRecommendations;
 
-    const titleText = "Recommendations"
+    const titleText = relocatedRecommendations ? "Highlighted" : "Recommendations";
     const titleNode = (
       <div className={classes.title}>
         <SectionTitle

@@ -98,14 +98,48 @@ export interface DefaultRecommendationsAlgorithm {
   hideReview?: boolean,
 }
 
+type RecombeeRecommendationsArgs = Partial<{
+  scenario: string,
+  cascadeCreate: boolean,
+  returnProperties: boolean,
+  includedProperties: string[],
+  filter: string,
+  booster: string,
+  logic: string,
+  minRelevance: string,
+  rotationRate: number,
+  rotationTime: number
+}>;
+
+export interface RecombeeAlgorithm {
+  source: 'recombee',
+  count: number,
+  onlyUnread?: boolean,
+  lwRationalityOnly?: boolean,
+  adminOverrides?: {
+    userId?: string,
+    scenario?: string,
+    count?: number,
+    rotationRate?: number,
+    rotationTime?: number,
+    booster?: string,
+  },
+  // recombeeArgs: RecombeeRecommendationsArgs,
+}
+
 export type RecommendationsAlgorithm =
   RecommendationsAlgorithmWithStrategy |
-  DefaultRecommendationsAlgorithm;
+  DefaultRecommendationsAlgorithm |
+  RecombeeAlgorithm;
 
 export const recommendationsAlgorithmHasStrategy = (
   algorithm: RecommendationsAlgorithm,
 ): algorithm is RecommendationsAlgorithmWithStrategy =>
   "strategy" in algorithm;
+
+export const isRecombeeAlgorithm = (
+  algorithm: RecommendationsAlgorithm,
+): algorithm is RecombeeAlgorithm => 'source' in algorithm && algorithm.source === 'recombee';
 
 export const defaultAlgorithmSettings: DefaultRecommendationsAlgorithm = {
   method: "top",

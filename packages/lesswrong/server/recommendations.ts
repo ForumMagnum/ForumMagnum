@@ -10,6 +10,7 @@ import { WeightedList } from './weightedList';
 import {
   DefaultRecommendationsAlgorithm,
   RecommendationsAlgorithm,
+  isRecombeeAlgorithm,
   recommendationsAlgorithmHasStrategy,
 } from '../lib/collections/users/recommendationSettings';
 import { isEAForum } from '../lib/instanceSettings';
@@ -19,6 +20,9 @@ import { getDefaultViewSelector } from '../lib/utils/viewUtils';
 import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/collection';
 import RecommendationService from './recommendations/RecommendationService';
 import PgCollection from '../lib/sql/PgCollection';
+import { recombeeApi } from './recombee/client';
+import { userIsAdmin } from '../lib/vulcan-users';
+import { timedFunc } from '../lib/helpers';
 
 const MINIMUM_BASE_SCORE = 50
 
@@ -389,6 +393,16 @@ addGraphQLResolvers({
           algorithm.strategy,
           algorithm.disableFallbacks,
         );
+      }
+
+      if (isRecombeeAlgorithm(algorithm)) {
+        if (!currentUser) {
+          throw new Error('Must be logged in to get Recombee recommendations!');
+        }
+
+        // Call recombee for recommendations
+        
+        return timedFunc('recombeeApi.getRecommendationsForUser', () => recombeeApi.getRecommendationsForUser(currentUser._id, algorithm, context));
       }
 
       const recommendedPosts = await getRecommendedPosts({count, algorithm, currentUser})
