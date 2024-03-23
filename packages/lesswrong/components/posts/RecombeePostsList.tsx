@@ -27,6 +27,8 @@ export const RecombeePostsList = ({ algorithm, settings, classes }: {
     ${fragmentTextForQuery('PostsListWithVotes')}
   `;
 
+  console.log({ settings });
+
   const { data, loading } = useQuery(query, {
     ssr: true,
     notifyOnNetworkStatusChange: true,
@@ -35,6 +37,8 @@ export const RecombeePostsList = ({ algorithm, settings, classes }: {
       limit: 13,
       settings: { ...settings, scenario: algorithm }
     },
+    // fetchPolicy: 'cache-and-network',
+    // nextFetchPolicy: 'cache-and-network',
   });
 
   const results: PostsListWithVotes[] | undefined = data?.RecombeeLatestPosts?.results;
