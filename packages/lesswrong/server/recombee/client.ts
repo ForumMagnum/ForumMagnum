@@ -1,5 +1,5 @@
 import { ApiClient, requests } from 'recombee-api-client';
-import { RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
+import { RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { loadByIds } from '../../lib/loaders';
 import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../databaseSettings';
@@ -37,11 +37,11 @@ const recombeeApi = {
     const adjustedCount = Math.round(returnPostCount * 1.5);
     // TODO: pass in scenario, exclude unread, etc, in options?
     const lwRationalityFilter = lwRationalityOnly ? ` and ("Rationality" in 'core_tags' or "World Modeling" in 'core_tags')` : '';
-    const filter = `'karma' >= 50${lwRationalityFilter}`;
 
     const request = new requests.RecommendItemsToUser(servedUserId, adjustedCount, {
       ...settings,
-      filter,
+      booster: settings.booster || undefined,
+      rotationTime: settings.rotationTime * 3600,
     });
 
     const response = await client.send(request);

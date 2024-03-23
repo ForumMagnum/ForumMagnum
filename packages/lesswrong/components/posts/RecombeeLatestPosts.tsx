@@ -110,8 +110,8 @@ const getDefaultScenario = () => {
 };
 
 const defaultScenarioConfig: RecombeeConfiguration = {
-  rotationRate: 0,
-  rotationTime: 7200,
+  rotationRate: 0.2,
+  rotationTime: 24 * 60,
 };
 
 function useRecombeeSettings(onUpdateSelectedScenario: (selectedScenario: string) => void) {

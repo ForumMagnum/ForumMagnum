@@ -109,8 +109,8 @@ export const recommendationsAlgorithmHasStrategy = (
 
 export interface RecombeeConfiguration {
   userId?: string,
-  rotationRate?: number,
-  rotationTime?: number,
+  rotationRate: number,
+  rotationTime: number,
   booster?: string,
 }
 

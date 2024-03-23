@@ -35,10 +35,10 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
 }) => {
   const { UserSelect } = Components;
 
-  const [userIdOverride, setUserIdOverride] = useState<string | null>(settings?.userId ?? null);
-  const [boosterOverride, setBoosterOverride] = useState<string | undefined>(settings?.booster);
-  const [rotationRateOverride, setRotationRateOverride] = useState<number>(settings?.rotationRate ?? 0);
-  const [rotationTimeOverride, setRotationTimeOverride] = useState<number>(settings?.rotationTime ?? 7200);
+  const [userIdOverride, setUserIdOverride] = useState<string | null>(settings.userId ?? null);
+  const [boosterOverride, setBoosterOverride] = useState<string | undefined>(settings.booster);
+  const [rotationRateOverride, setRotationRateOverride] = useState<number>(settings.rotationRate);
+  const [rotationTimeOverride, setRotationTimeOverride] = useState<number>(settings.rotationTime);
 
   const updateAdminOverrides = (e?: React.FocusEvent | React.MouseEvent, forceUpdate?: boolean) => {
     const newSettings = {
