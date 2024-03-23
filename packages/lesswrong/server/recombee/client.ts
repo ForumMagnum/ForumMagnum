@@ -34,7 +34,7 @@ const recombeeApi = {
     const returnPostCount = count;
     const servedUserId = overrideUserId ?? userId;
 
-    const adjustedCount = Math.round(returnPostCount * 1.5);
+    const adjustedCount = Math.round(returnPostCount * 1.0);
     // TODO: pass in scenario, exclude unread, etc, in options?
     const lwRationalityFilter = lwRationalityOnly ? ` and ("Rationality" in 'core_tags' or "World Modeling" in 'core_tags')` : '';
 

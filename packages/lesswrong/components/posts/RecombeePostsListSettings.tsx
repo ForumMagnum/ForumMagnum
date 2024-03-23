@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import Input from '@material-ui/core/Input';
+import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import isEqual from 'lodash/isEqual';
 
@@ -19,6 +20,10 @@ const styles = (theme: ThemeType) => ({
     padding: 8,
     width: 180,
   },
+  userOverride: {
+    padding: 8,
+    width: 280,
+  },
   boosterOverride: {
     width: 600
   },
@@ -33,7 +38,7 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
   updateSettings: (settings: RecombeeConfiguration) => void,
   classes: ClassesType<typeof styles>,
 }) => {
-  const { UserSelect } = Components;
+  const { UserSelect, LWTooltip } = Components;
 
   const [userIdOverride, setUserIdOverride] = useState<string | null>(settings.userId ?? null);
   const [boosterOverride, setBoosterOverride] = useState<string | undefined>(settings.booster);
@@ -77,15 +82,19 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
   return (
     <div className={classes.adminOverrides}>
       <div className={classes.adminOverridesRow}>
-        <div className={classes.adminOverrideItem}>
+        <div className={classes.userOverride}>
           <UserSelect value={userIdOverride} setValue={updateUserIdOverride} label='Override with user' />
         </div>
         <div className={classes.adminOverrideItem}>
-          <label>Rotation Rate:</label>
+          <LWTooltip title="You may penalize an item for being recommended in the near past. For the specific user, rotationRate=1 means maximal rotation, rotationRate=0 means absolutely no rotation. You may also use, for example, rotationRate=0.2 for only slight rotation of recommended items.">
+            <label>Rotation Rate:</label>
+          </LWTooltip>
           <Input type="number" id="rotationRate" value={rotationRateOverride} onChange={updateRotationRateOverride} onBlur={updateAdminOverrides} />
         </div>
         <div className={classes.adminOverrideItem}>
-          <label>Rotation Time:</label>
+          <LWTooltip title="Taking Rotation Rate into account, specifies how long it takes for an item to recover from the penalization. For example, rotationTime=2 means that items recommended less than 2 hours ago are penalized.">
+            <label>Rotation Time(hours):</label>
+          </LWTooltip>
           <Input type="number" id="rotationTime" value={rotationTimeOverride} onChange={updateRotationTimeOverride} onBlur={updateAdminOverrides} />
         </div>
         <Button className={classes.refreshButton} onClick={() => updateAdminOverrides(undefined, true)}>Refresh</Button>
@@ -93,14 +102,17 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
 
       <div className={classes.adminOverridesRow}>
         <div className={classes.adminOverrideItem}>
-          <label>Booster ReQL:</label>
-          <Input type="text" id="booster" value={boosterOverride} onChange={updateBoosterOverride} onBlur={updateAdminOverrides} className={classes.boosterOverride} multiline />
+          <LWTooltip title={`Number-returning “ReQL” expression, which allows you to boost the recommendation rate of some items based on the values of their attributes. e.g. "if ‘curated’ then 1.5 else 1"`}>
+            <label>Booster ReQL:</label>
+          </LWTooltip>
+          {/* <Input type="text" id="booster" value={boosterOverride} onChange={updateBoosterOverride} onBlur={updateAdminOverrides} className={classes.boosterOverride} multiline /> */}
+          <TextField id="booster" value={boosterOverride} onChange={updateBoosterOverride} onBlur={updateAdminOverrides} className={classes.boosterOverride} multiline />
         </div>
       </div>
     </div>
   );
 }
-
+ 
 const RecombeePostsListSettingsComponent = registerComponent('RecombeePostsListSettings', RecombeePostsListSettings, {styles});
 
 declare global {
