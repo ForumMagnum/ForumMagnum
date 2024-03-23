@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import Input from '@material-ui/core/Input';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import isEqual from 'lodash/isEqual';
+import { randomId } from '../../lib/random';
 
 const styles = (theme: ThemeType) => ({
   adminOverrides: {
@@ -46,6 +47,8 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
   const [rotationTimeOverride, setRotationTimeOverride] = useState<number>(settings.rotationTime);
 
   const updateAdminOverrides = (e?: React.FocusEvent | React.MouseEvent, forceUpdate?: boolean) => {
+    const { refreshKey: oldRefreshKey, ...oldSettings } = settings;
+
     const newSettings = {
       userId: userIdOverride ?? undefined,
       booster: boosterOverride,
@@ -53,8 +56,11 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
       rotationTime: rotationTimeOverride,
     };
 
-    if (forceUpdate || !isEqual(settings, newSettings)) {
-      updateSettings(newSettings);
+    if (forceUpdate || !isEqual(oldSettings, newSettings)) {
+      updateSettings({
+        ...newSettings,
+        ...{ refreshKey: forceUpdate ? randomId() : oldRefreshKey },
+      });
     }
   };
 
@@ -78,6 +84,13 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
     if (isNaN(newValue)) newValue = 0;
     setRotationTimeOverride(newValue);
   };
+
+  useEffect(() => {
+    setUserIdOverride(settings.userId ?? null);
+    setBoosterOverride(settings.booster);
+    setRotationRateOverride(settings.rotationRate);
+    setRotationTimeOverride(settings.rotationTime);
+  }, [settings]);
 
   return (
     <div className={classes.adminOverrides}>

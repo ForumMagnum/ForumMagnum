@@ -112,6 +112,7 @@ export interface RecombeeConfiguration {
   rotationRate: number,
   rotationTime: number,
   booster?: string,
+  refreshKey?: string,
 }
 
 export interface RecombeeRecommendationArgs extends RecombeeConfiguration {

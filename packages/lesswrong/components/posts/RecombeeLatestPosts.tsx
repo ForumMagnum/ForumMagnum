@@ -118,8 +118,8 @@ function useRecombeeSettings(onUpdateSelectedScenario: (selectedScenario: string
   const [cookies, setCookie] = useCookiesWithConsent();
   const recombeeCookieSettings: RecombeeCookieSettings = cookies[RECOMBEE_SETTINGS_COOKIE] ?? [];
   const [storedActiveScenario, storedActiveScenarioConfig] = recombeeCookieSettings[0] ?? [];
-  const selectedScenario = storedActiveScenario ?? getDefaultScenario();
-  const scenarioConfig = storedActiveScenarioConfig ?? defaultScenarioConfig;
+  const [selectedScenario, setSelectedScenario] = useState(storedActiveScenario ?? getDefaultScenario());
+  const [scenarioConfig, setScenarioConfig] = useState(storedActiveScenarioConfig ?? defaultScenarioConfig);
 
   const updateSelectedScenario = (newScenario: string) => {
     onUpdateSelectedScenario(newScenario);
@@ -131,12 +131,17 @@ function useRecombeeSettings(onUpdateSelectedScenario: (selectedScenario: string
       : [...recombeeCookieSettings].sort((a, b) => a[0] === newScenario ? -1 : 0);
     
     setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify(newCookieValue), { path: '/' });
+
+    const [_, newScenarioConfig] = newCookieValue[0];
+    setSelectedScenario(newScenario);
+    setScenarioConfig(newScenarioConfig);
   };
 
   const updateScenarioConfig = (newScenarioConfig: RecombeeConfiguration) => {
     const newCookieValue: RecombeeCookieSettings = [...recombeeCookieSettings];
     newCookieValue[0][1] = newScenarioConfig;
     setCookie(RECOMBEE_SETTINGS_COOKIE, JSON.stringify(newCookieValue), { path: '/' });
+    setScenarioConfig(newScenarioConfig);
   };
 
   useEffect(() => {
