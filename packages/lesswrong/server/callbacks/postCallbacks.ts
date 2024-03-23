@@ -31,6 +31,7 @@ import { HAS_EMBEDDINGS_FOR_RECOMMENDATIONS, updatePostEmbeddings } from '../emb
 import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
 import DialogueChecks from '../../lib/collections/dialogueChecks/collection';
 import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPreferences/collection';
+import { recombeeApi } from '../recombee/client';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -597,4 +598,11 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
       await Promise.all(matchForms.map(resetDialogueMatch))
   }
   return post;
+});
+
+getCollectionHooks("Posts").createAsync.add(async ({document, context}: CreateCallbackProperties<"Posts">) => {
+  if (document.draft || document.shortform || document.unlisted) return
+
+  await recombeeApi.upsertPost(document, context);
+
 });

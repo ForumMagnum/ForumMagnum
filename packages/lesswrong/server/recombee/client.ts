@@ -5,6 +5,8 @@ import { loadByIds } from '../../lib/loaders';
 import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../databaseSettings';
 import { userIsAdmin } from '../../lib/vulcan-users';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
+import { htmlToTextDefault } from '../../lib/htmlToText';
+import { truncate } from '../../lib/editor/ellipsize';
 
 const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -50,6 +52,33 @@ const recombeeApi = {
 
     // TODO: loop over the above if we don't get enough posts?
     return filterNonnull(posts).slice(0, returnPostCount);
+  },
+
+  async upsertPost(post: DbPost, context: ResolverContext) {
+    const client = getRecombeeClientOrThrow();
+
+    const tagIds = Object.entries(post.tagRelevance).filter(([tagId, relevance]: [string, number]) => relevance > 0).map(([tagId]: [string, number]) => tagId)
+    const tags = await context.Tags.find({_id: {$in: tagIds}}).fetch()
+    const tagNames = tags.map(tag => tag.name)
+    const coreTagNames = tags.filter(tag => tag.core).map(tag => tag.name)
+
+    const postText = htmlToTextDefault(truncate(post.contents.html, 2000, 'words'))
+
+    const request = new requests.SetItemValues(post._id, {
+      title: post.title,
+      author: post.author,
+      authorId: post.userId,
+      karma: post.baseScore,
+      body: postText,
+      postedAt: post.postedAt,
+      tags: tagNames,
+      coreTags: coreTagNames,
+      curated: !!post.curatedDate,
+      frontpage: !!post.frontpageDate,
+      draft: !!post.draft,
+    }, { cascadeCreate: true });
+
+    await client.send(request);
   }
 };
 
