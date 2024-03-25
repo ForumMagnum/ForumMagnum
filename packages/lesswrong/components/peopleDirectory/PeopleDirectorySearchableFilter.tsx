@@ -11,7 +11,7 @@ const styles = (theme: ThemeType) => ({
     padding: "0 16px",
   },
   results: {
-    borderTop: `1px solid ${theme.palette.grey[600]}`,
+    borderTop: `1px solid ${theme.palette.grey[300]}`,
     display: "flex",
     flexDirection: "column",
     gap: "12px",
@@ -21,7 +21,7 @@ const styles = (theme: ThemeType) => ({
     padding: "0 16px",
   },
   grandfatheredHr: {
-    borderBottom: `1px solid ${theme.palette.grey[600]}`,
+    borderBottom: `1px solid ${theme.palette.grey[300]}`,
     width: "100%",
     margin: "4px 0",
   },

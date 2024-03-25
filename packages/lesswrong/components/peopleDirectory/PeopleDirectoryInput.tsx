@@ -17,12 +17,13 @@ const styles = (theme: ThemeType) => ({
   },
   icon: {
     marginLeft: 12,
+    marginRight: -8,
     height: 16,
   },
   input: {
     width: "100%",
     background: theme.palette.greyAlpha(0),
-    padding: "12px 12px 12px 4px",
+    padding: "12px",
     fontSize: 14,
     fontWeight: 500,
   },

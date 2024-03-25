@@ -2,6 +2,7 @@ import React, { ReactNode, useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
+import { text } from "stream/consumers";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -20,8 +21,8 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
   },
   active: {
-    color: theme.palette.grey[0],
-    background: theme.palette.primary.dark,
+    color: theme.palette.text.alwaysWhite,
+    background: theme.palette.primary.main,
   },
   title: {
     userSelect: "none",
