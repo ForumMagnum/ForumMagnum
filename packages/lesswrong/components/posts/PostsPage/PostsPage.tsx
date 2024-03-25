@@ -10,11 +10,11 @@ import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
 import {forumTitleSetting, isAF, isEAForum, isLWorAF} from '../../../lib/instanceSettings';
 import { cloudinaryCloudNameSetting } from '../../../lib/publicSettings';
 import classNames from 'classnames';
-import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled } from '../../../lib/betas';
+import { hasPostRecommendations, hasSideComments, commentsTableOfContentsEnabled, hasDigests } from '../../../lib/betas';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { welcomeBoxes } from './WelcomeBox';
 import { useABTest } from '../../../lib/abTestImpl';
-import { postPageFixedDigestAd, welcomeBoxABTest } from '../../../lib/abTests';
+import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useDialog } from '../../common/withDialog';
 import { UseMultiResult, useMulti } from '../../../lib/crud/withMulti';
 import { SideCommentMode, SideCommentVisibilityContextType, SideCommentVisibilityContext } from '../../dropdowns/posts/SetSideCommentVisibility';
@@ -38,6 +38,7 @@ import NoSSR from 'react-no-ssr';
 import { getMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
 import isEqual from 'lodash/isEqual';
 import { usePostReadProgress } from '../usePostReadProgress';
+import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 
 export const MAX_COLUMN_WIDTH = 720
 export const CENTRAL_COLUMN_WIDTH = 682
@@ -361,11 +362,19 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     updateProgressBar: (element, scrollPercent) => element.style.setProperty("--scrollAmount", `${scrollPercent}%`),
     disabled: disableProgressBar
   });
+  
+  // postReadCount is currently only used by StickyDigestAd, to only show the ad after the client has visited multiple posts.
+  const ls = getBrowserLocalStorage()
+  useEffect(() => {
+    if (ls && hasDigests) {
+      const postReadCount = ls.getItem('postReadCount') ?? 0
+      ls.setItem('postReadCount', parseInt(postReadCount) + 1)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // On the EA Forum, show a digest ad at the bottom of the screen after the user scrolled down.
-  const digestAdAbTestGroup = useABTest(postPageFixedDigestAd);
   useEffect(() => {
-    if (!isEAForum || isServer || post.isEvent || post.question || post.shortform || digestAdAbTestGroup !== 'show') return
+    if (!isEAForum || isServer || post.isEvent || post.question || post.shortform) return
 
     checkShowDigestAd()
     window.addEventListener('scroll', checkShowDigestAd)
@@ -375,7 +384,6 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
     };
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const checkShowDigestAd = () => {
-    if (digestAdAbTestGroup !== 'show') return
     // Ad stays visible once shown
     setShowDigestAd((showAd) => showAd || window.scrollY > 1000)
   }
