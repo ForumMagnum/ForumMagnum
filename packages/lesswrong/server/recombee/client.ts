@@ -1,6 +1,5 @@
 import { ApiClient, requests } from 'recombee-api-client';
 import { RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
-import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { loadByIds } from '../../lib/loaders';
 import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../databaseSettings';
 import { userIsAdmin } from '../../lib/vulcan-users';
@@ -8,6 +7,8 @@ import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { truncate } from '../../lib/editor/ellipsize';
 import findByIds from '../vulcan-lib/findbyids';
+import ReadStatuses from '../../lib/collections/readStatus/collection';
+import moment from 'moment';
 
 const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -89,17 +90,42 @@ const recombeeApi = {
    * WARNING: this does not do permissions checks on the posts it returns.  The caller is responsible for this.
    */
   async getRecommendationsForUser(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs, context: ResolverContext) {
+    const modifiedCount = Math.ceil(count * 3);
+
     const client = getRecombeeClientOrThrow();
-    const request = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, count, lwAlgoSettings);
+    const request = recombeeRequestHelpers.createRecommendationsForUserRequest(userId, modifiedCount, lwAlgoSettings);
 
     const response = await client.send(request);
 
+    //remove posts read more than a week ago
+    const oneWeekAgo = moment(new Date()).subtract(1, 'week').toDate();
     const postIds = response.recomms.map(rec => rec.id);
-    const posts = await loadByIds(context, 'Posts', postIds);
+    const [
+      posts,
+      readStatuses
+    ] = await Promise.all([ 
+      filterNonnull(await loadByIds(context, 'Posts', postIds)),
+      ReadStatuses.find({ 
+        postId: { $in: postIds }, 
+        userId, 
+        isRead: true, 
+        lastUpdated: { $lt: oneWeekAgo} 
+      }).fetch()
+    ])
+
+    const unreadPosts = posts.filter(post => !readStatuses.find(readStatus => (readStatus.postId === post._id)));
+
+    console.log({
+      count,
+      modifiedCount,
+      numReturned: postIds.length,
+      numUnreadExcludingLastWeek: unreadPosts.length
+    })
 
     // TODO: loop over the above if we don't get enough posts?
-    return filterNonnull(posts).slice(0, count);
+    return unreadPosts.slice(0, count);
   },
+
 
   async upsertPost(post: DbPost, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
