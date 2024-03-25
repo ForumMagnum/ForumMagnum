@@ -70,6 +70,7 @@ import InternalBlockLinks from './internal-block-links';
 import { SanitizeTags } from './clean-styles-plugin'
 
 import { postEditorConfig, commentEditorConfig } from './editorConfigs';
+import {CloudinaryAdapterPlugin} from "./cloudinary"
 
 export class CommentEditor extends BalloonBlockEditorBase {}
 export class PostEditor extends BalloonBlockEditorBase {}
@@ -124,6 +125,7 @@ const sharedPlugins = [
 	Mention,
 	UrlValidator,
 	RemoveRedirect,
+	CloudinaryAdapterPlugin,
 ];
 
 const postEditorPlugins = [
