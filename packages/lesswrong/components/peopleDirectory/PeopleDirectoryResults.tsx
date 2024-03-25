@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: "unset !important", // Overwrite the HorizScrollBlock default
   },
   contents: {
-    border: `1px solid ${theme.palette.grey[310]}`,
+    border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: theme.borderRadius.default,
     background: theme.palette.grey[0],
     // Overwrite the HorizScrollBlock default

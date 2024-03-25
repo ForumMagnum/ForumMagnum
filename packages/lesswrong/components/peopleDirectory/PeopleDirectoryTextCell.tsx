@@ -4,7 +4,7 @@ import classNames from "classnames";
 
 export const cellTextStyles = (theme: ThemeType) => ({
   color: theme.palette.grey[1000],
-  fontSize: 14,
+  fontSize: 13,
   fontWeight: 500,
   overflow: "hidden",
   textOverflow: "ellipsis",

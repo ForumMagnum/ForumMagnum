@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
   },
   dropdown: {
     color: theme.palette.grey[1000],
-    border: `1px solid ${theme.palette.grey[340]}`,
+    border: `1px solid ${theme.palette.grey[300]}`,
     background: theme.palette.grey[0],
   },
   button: {
@@ -27,7 +27,7 @@ const styles = (theme: ThemeType) => ({
     userSelect: "none",
     fontSize: 14,
     fontWeight: 500,
-    height: 29,
+    height: 24,
     display: "flex",
     alignItems: "center",
   },
@@ -36,8 +36,9 @@ const styles = (theme: ThemeType) => ({
     marginRight: 4,
   },
   chevron: {
-    width: 20,
+    width: 16,
     marginLeft: 4,
+    color: theme.palette.grey[600],
   },
   chevronOpen: {
     transform: "rotateX(180deg)",

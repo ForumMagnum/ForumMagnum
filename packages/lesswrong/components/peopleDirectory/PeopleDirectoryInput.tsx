@@ -13,7 +13,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[1000],
   },
   border: {
-    border: `1px solid ${theme.palette.grey[310]}`,
+    border: `1px solid ${theme.palette.grey[300]}`,
   },
   icon: {
     marginLeft: 12,
@@ -22,8 +22,9 @@ const styles = (theme: ThemeType) => ({
   input: {
     width: "100%",
     background: theme.palette.greyAlpha(0),
-    padding: "8px 12px",
+    padding: "12px 12px 12px 4px",
     fontSize: 14,
+    fontWeight: 500,
   },
 });
 

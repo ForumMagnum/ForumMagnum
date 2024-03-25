@@ -17,13 +17,14 @@ const styles = (theme: ThemeType) => ({
   },
   check: {
     display: "inline",
-    border: `1px solid ${theme.palette.grey[340]}`,
+    border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: theme.borderRadius.small,
     width: 16,
     height: 16,
   },
   selected: {
-    background: theme.palette.primary.dark,
+    background: theme.palette.primary.main,
+    color: theme.palette.text.alwaysWhite,
   },
   icon: {
     width: 16,

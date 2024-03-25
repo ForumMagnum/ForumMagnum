@@ -20,7 +20,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     height: 64,
     padding: "12px 6px",
-    borderTop: `1px solid ${theme.palette.grey[600]}`,
+    borderTop: `1px solid ${theme.palette.grey[300]}`,
   },
 });
 

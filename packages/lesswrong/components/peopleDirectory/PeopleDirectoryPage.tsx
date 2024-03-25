@@ -6,7 +6,7 @@ import { PeopleDirectoryProvider } from "./usePeopleDirectory";
 const styles = (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: "20px 50px",
+    padding: "20px 40px",
     display: "flex",
     flexDirection: "column",
     gap: "16px",
