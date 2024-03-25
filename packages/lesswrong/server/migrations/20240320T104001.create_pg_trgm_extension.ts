@@ -1,6 +1,6 @@
 import { installExtensions } from "./meta/utils"
 
-export const acceptsSchemaHash = "d74b93607c019ef9eef124d337de9533";
+export const acceptsSchemaHash = "ab72105cb0319f564fb72f0ef5506015";
 
 export const up = async ({db}: MigrationContext) => {
   await installExtensions(db);

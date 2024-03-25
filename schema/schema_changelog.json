@@ -585,7 +585,12 @@
     "timestamp": "2024-03-12T18:57:36.000Z"
   },
   {
-    "acceptsSchemaHash": "d74b93607c019ef9eef124d337de9533",
+    "acceptsSchemaHash": "5fb909476a7c6ef9567f7efb1abd005f",
+    "acceptedByMigration": "20240316T002500.add_CurationEmails_table.ts",
+    "timestamp": "2024-03-16T00:25:00.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ab72105cb0319f564fb72f0ef5506015",
     "acceptedByMigration": "20240320T104001.create_pg_trgm_extension.ts",
     "timestamp": "2024-03-20T10:40:01.000Z"
   }

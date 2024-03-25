@@ -1,6 +1,7 @@
 import CollectionsRepo from "./CollectionsRepo";
 import CommentsRepo from "./CommentsRepo";
 import ConversationsRepo from "./ConversationsRepo";
+import CurationEmailsRepo from "./CurationEmailsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
 import DialogueChecksRepo from "./DialogueChecksRepo";
@@ -34,6 +35,7 @@ const getAllRepos = () => ({
   collections: new CollectionsRepo(),
   comments: new CommentsRepo(),
   conversations: new ConversationsRepo(),
+  curationEmails: new CurationEmailsRepo(),
   databaseMetadata: new DatabaseMetadataRepo(),
   debouncerEvents: new DebouncerEventsRepo(),
   dialogueChecks: new DialogueChecksRepo(),
@@ -64,6 +66,7 @@ export {
   CollectionsRepo,
   CommentsRepo,
   ConversationsRepo,
+  CurationEmailsRepo,
   DatabaseMetadataRepo,
   DebouncerEventsRepo,
   DialogueChecksRepo,

@@ -4,6 +4,7 @@ import { UpvotedUser } from "../../components/users/DialogueMatchingPage";
 import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
+import { isEAForum } from "../../lib/instanceSettings";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -681,6 +682,22 @@ class UsersRepo extends AbstractRepo<"Users"> {
     `, [query]);
 
     return results.map(({result}) => result);
+  }
+
+  async getCurationSubscribedUserIds(): Promise<string[]> {
+    const verifiedEmailFilter = !isEAForum ? 'AND fm_has_verified_email(emails)' : '';
+
+    const userIdRecords = await this.getRawDb().any<Record<'_id', string>>(`
+      SELECT _id
+      FROM "Users"
+      WHERE "emailSubscribedToCurated" IS TRUE
+        AND "deleted" IS NOT TRUE
+        AND "email" IS NOT NULL
+        AND "unsubscribeFromAll" IS NOT TRUE
+        ${verifiedEmailFilter}
+    `);
+
+    return userIdRecords.map(({ _id }) => _id);
   }
 }
 
