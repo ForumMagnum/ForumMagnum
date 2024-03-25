@@ -619,5 +619,5 @@ voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, contex
   if (!recombeeEnabledSetting.get() || vote.collectionName !== 'Posts') return;
 
   void recombeeApi.upsertPost(newDocument as DbPost, context);
-  // TODO: also implement "add rating" call to recombee
+  void recombeeApi.createVote(vote);
 });

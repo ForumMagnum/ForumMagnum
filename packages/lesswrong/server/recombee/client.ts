@@ -1,9 +1,7 @@
 import { ApiClient, requests } from 'recombee-api-client';
-import { RecombeeConfiguration, RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
-import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
+import { RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
 import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../databaseSettings';
-import { userIsAdmin } from '../../lib/vulcan-users';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { truncate } from '../../lib/editor/ellipsize';
@@ -28,6 +26,13 @@ const getRecombeeClientOrThrow = (() => {
     return client;
   };
 })();
+
+const voteTypeRatingsMap: Partial<Record<string, number>> = {
+  bigDownvote: -1,
+  smallDownvote: -0.5,
+  smallUpvote: 0.5,
+  bigUpvote: 1,
+};
 
 const recombeeRequestHelpers = {
   createRecommendationsForUserRequest(userId: string, count: number, lwAlgoSettings: RecombeeRecommendationArgs) {
@@ -82,6 +87,20 @@ const recombeeRequestHelpers = {
       cascadeCreate: true
     });
   },
+
+  createVoteRequest(vote: DbVote) {
+    const rating = voteTypeRatingsMap[vote.voteType];
+    if (typeof rating !== 'number') {
+      // eslint-disable-next-line no-console
+      console.log(`Attempted to create a recombee rating request for a non-karma vote with id ${vote._id}`);
+      return;
+    }
+
+    return new requests.AddRating(vote.userId, vote.documentId, rating, {
+      timestamp: vote.votedAt.toUTCString(),
+      cascadeCreate: true
+    });
+  },
 };
 
 const recombeeApi = {
@@ -111,6 +130,16 @@ const recombeeApi = {
   async createReadStatus(readStatus: DbReadStatus) {
     const client = getRecombeeClientOrThrow();
     const request = recombeeRequestHelpers.createReadStatusRequest(readStatus);
+    if (!request) {
+      return;
+    }
+
+    await client.send(request);
+  },
+
+  async createVote(vote: DbVote) {
+    const client = getRecombeeClientOrThrow();
+    const request = recombeeRequestHelpers.createVoteRequest(vote);
     if (!request) {
       return;
     }
