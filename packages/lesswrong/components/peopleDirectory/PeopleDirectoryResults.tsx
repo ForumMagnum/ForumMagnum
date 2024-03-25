@@ -38,6 +38,7 @@ const styles = (theme: ThemeType) => ({
   grid: {
     display: "grid",
     color: theme.palette.grey[1000],
+    width: "100%",
   },
   loading: {
     gridColumn: "1/-1",
@@ -59,26 +60,26 @@ export const PeopleDirectoryResults = ({classes}: {
   return (
     <HorizScrollBlock className={classes.root} contentsClassName={classes.contents}>
       <div className={classes.gridWrapper}>
-      <div
-        style={{
-          gridTemplateColumns: `repeat(${columnCount}, 1fr)`,
-        }}
-        className={classes.grid}
-      >
-        {columns.map((column) =>
-          !column.hideable || !column.hidden
-            ? <PeopleDirectoryHeading key={column.label} column={column} />
-            : null
-        )}
-        {results.map((result) => (
-          <PeopleDirectoryResultRow key={result._id} result={result} />
-        ))}
-        {resultsLoading &&
-          <div className={classes.loading}>
-            <Loading />
-          </div>
-        }
-      </div>
+        <div
+          style={{
+            gridTemplateColumns: `repeat(${columnCount}, 1fr)`,
+          }}
+          className={classes.grid}
+        >
+          {columns.map((column) =>
+            !column.hideable || !column.hidden
+              ? <PeopleDirectoryHeading key={column.label} column={column} />
+              : null
+          )}
+          {results.map((result) => (
+            <PeopleDirectoryResultRow key={result._id} result={result} />
+          ))}
+          {resultsLoading &&
+            <div className={classes.loading}>
+              <Loading />
+            </div>
+          }
+        </div>
       </div>
     </HorizScrollBlock>
   );
