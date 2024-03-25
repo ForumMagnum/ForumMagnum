@@ -1,7 +1,8 @@
 import { ApiClient, requests } from 'recombee-api-client';
 import { RecombeeRecommendationArgs } from '../../lib/collections/users/recommendationSettings';
 import { loadByIds } from '../../lib/loaders';
-import { recombeeDatabaseIdSetting, recombeePrivateApiTokenSetting } from '../databaseSettings';
+import { recombeePrivateApiTokenSetting } from '../databaseSettings';
+import { recombeeDatabaseIdSetting } from '../../lib/publicSettings';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { truncate } from '../../lib/editor/ellipsize';
