@@ -7,6 +7,7 @@ import { userIsAdmin } from '../../lib/vulcan-users';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { htmlToTextDefault } from '../../lib/htmlToText';
 import { truncate } from '../../lib/editor/ellipsize';
+import findByIds from '../vulcan-lib/findbyids';
 
 const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
@@ -57,8 +58,10 @@ const recombeeApi = {
   async upsertPost(post: DbPost, context: ResolverContext) {
     const client = getRecombeeClientOrThrow();
 
-    const tagIds = Object.entries(post.tagRelevance).filter(([tagId, relevance]: [string, number]) => relevance > 0).map(([tagId]: [string, number]) => tagId)
-    const tags = await context.Tags.find({_id: {$in: tagIds}}).fetch()
+    const { Tags } = context;
+
+    const tagIds = Object.entries(post.tagRelevance).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]: [string, number]) => tagId)
+    const tags = filterNonnull(await findByIds(Tags, tagIds))
     const tagNames = tags.map(tag => tag.name)
     const coreTagNames = tags.filter(tag => tag.core).map(tag => tag.name)
 

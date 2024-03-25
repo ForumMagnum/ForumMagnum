@@ -32,6 +32,7 @@ import { moveImageToCloudinary } from '../scripts/convertImagesToCloudinary';
 import DialogueChecks from '../../lib/collections/dialogueChecks/collection';
 import DialogueMatchPreferences from '../../lib/collections/dialogueMatchPreferences/collection';
 import { recombeeApi } from '../recombee/client';
+import { recombeeEnabledSetting } from '../../lib/publicSettings';
 
 const MINIMUM_APPROVAL_KARMA = 5
 
@@ -169,9 +170,9 @@ getCollectionHooks("Posts").newAfter.add(async function LWPostsNewUpvoteOwnPost(
  return {...post, ...votedPost} as DbPost;
 });
 
-getCollectionHooks("Posts").createAfter.add((post: DbPost) => {
+getCollectionHooks("Posts").createAfter.add((post: DbPost, { context }) => {
   if (!post.authorIsUnreviewed && !post.draft) {
-    void postPublishedCallback.runCallbacksAsync([post]);
+    void postPublishedCallback.runCallbacksAsync([post, context]);
   }
 });
 
@@ -251,7 +252,7 @@ getCollectionHooks("Posts").createAsync.add(async ({document}: CreateCallbackPro
   }
 });
 
-getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument}: UpdateCallbackProperties<"Posts">) {
+getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTriggerReview ({document, oldDocument, context}: UpdateCallbackProperties<"Posts">) {
   if (document.draft || document.rejected) return
 
   await triggerReviewIfNeeded(oldDocument.userId)
@@ -260,7 +261,7 @@ getCollectionHooks("Posts").updateAsync.add(async function updatedPostMaybeTrigg
   // or the post author is getting approved,
   // then we consider this "publishing" the post
   if ((oldDocument.draft && !document.authorIsUnreviewed) || (oldDocument.authorIsUnreviewed && !document.authorIsUnreviewed)) {
-    await postPublishedCallback.runCallbacksAsync([document]);
+    await postPublishedCallback.runCallbacksAsync([document, context]);
   }
 });
 
@@ -600,9 +601,23 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
   return post;
 });
 
-getCollectionHooks("Posts").createAsync.add(async ({document, context}: CreateCallbackProperties<"Posts">) => {
-  if (document.draft || document.shortform || document.unlisted) return
+/* Recombee callbacks */
 
-  await recombeeApi.upsertPost(document, context);
+postPublishedCallback.add((post, context) => {
+  if (!recombeeEnabledSetting.get() || post.shortform || post.unlisted) return;
 
+  void recombeeApi.upsertPost(post, context);
+});
+
+getCollectionHooks("Posts").updateAsync.add(({ newDocument, context }) => {
+  if (!recombeeEnabledSetting.get() || newDocument.draft || newDocument.shortform || newDocument.unlisted || newDocument.rejected) return;
+
+  void recombeeApi.upsertPost(newDocument, context);
+});
+
+voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, context) => {
+  if (!recombeeEnabledSetting.get() || vote.collectionName !== 'Posts') return;
+
+  void recombeeApi.upsertPost(newDocument as DbPost, context);
+  // TODO: also implement "add rating" call to recombee
 });

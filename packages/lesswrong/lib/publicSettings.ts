@@ -177,3 +177,5 @@ export const alwaysShowAnonymousReactsSetting = new DatabasePublicSetting<boolea
 export const hasGoogleDocImportSetting = new DatabasePublicSetting<boolean>('googleDocImport.enabled', false);
 
 export const latestPostsAlgorithmsSetting = new DatabasePublicSetting<string[]>('latestPosts.algorithms', []);
+
+export const recombeeEnabledSetting = new DatabasePublicSetting<boolean>('recombee.enabled', false);
