@@ -606,18 +606,27 @@ getCollectionHooks("Posts").updateAfter.add(async (post: DbPost, props: UpdateCa
 postPublishedCallback.add((post, context) => {
   if (!recombeeEnabledSetting.get() || post.shortform || post.unlisted) return;
 
-  void recombeeApi.upsertPost(post, context);
+  void recombeeApi.upsertPost(post, context)
+    // eslint-disable-next-line no-console
+    .catch(e => console.log('Error when sending published post to recombee', { e }));  
 });
 
 getCollectionHooks("Posts").updateAsync.add(({ newDocument, context }) => {
   if (!recombeeEnabledSetting.get() || newDocument.draft || newDocument.shortform || newDocument.unlisted || newDocument.rejected) return;
 
-  void recombeeApi.upsertPost(newDocument, context);
+  void recombeeApi.upsertPost(newDocument, context)
+    // eslint-disable-next-line no-console
+    .catch(e => console.log('Error when sending updated post to recombee', { e }));  
 });
 
 voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, context) => {
-  if (!recombeeEnabledSetting.get() || vote.collectionName !== 'Posts') return;
+  if (!recombeeEnabledSetting.get() || vote.collectionName !== 'Posts' || user._id === vote.userId) return;
 
-  void recombeeApi.upsertPost(newDocument as DbPost, context);
-  void recombeeApi.createVote(vote);
+  void recombeeApi.upsertPost(newDocument as DbPost, context)
+    // eslint-disable-next-line no-console
+    .catch(e => console.log('Error when sending voted-on post to recombee', { e }));  
+  void recombeeApi.createVote(vote)
+    // eslint-disable-next-line no-console
+    .catch(e => console.log('Error when sending vote to recombee', { e }));  
+
 });

@@ -19,7 +19,6 @@ const AnalyticsInViewTracker = ({eventType, eventProps, observerProps, children,
     [])
 
   useEffect(() => {
-    console.log("test useEffect inside AnalyticsInViewTracker")
     if (!skip && !!entry) {
       const {time, isIntersecting, intersectionRatio} = entry
       captureInViewEvent(undefined, {time, isIntersecting, intersectionRatio})

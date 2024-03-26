@@ -14,28 +14,22 @@ const RecombeeInViewTracker = ({eventProps, observerProps, children}: {
   const [alreadySent, setAlreadySent] =  useState(false);
   const currentUser = useCurrentUser()
 
-  console.log("inside RecombeeInViewTracker")
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const sendViewPortionEvent = useCallback(
     (eventProps: RecombeeViewPortionProps) => recombeeApi.createViewPortion(eventProps),
-  // absolutely no reason for eventProps to change for InView tracker once created, easiest way to prevent rerender because of object props
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   [])
 
-  console.log('location 2', {entry, eventProps, alreadySent})
   useEffect(() => {
-    console.log({entry, eventProps, alreadySent})
     if (!!entry && !!currentUser) {
-      const {time, isIntersecting, intersectionRatio} = entry
+      const {isIntersecting, intersectionRatio} = entry
 
-      if (!alreadySent && isIntersecting && intersectionRatio > 0.9) {
-        void sendViewPortionEvent({...eventProps, timestamp: new Date(time), userId: currentUser._id})
+      if (!alreadySent && isIntersecting && intersectionRatio > 0) {
+        void sendViewPortionEvent({...eventProps, timestamp: new Date(), userId: currentUser._id})
         setAlreadySent(true);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entry]) //, sendViewPortionEvent, alreadySent])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entry, sendViewPortionEvent, alreadySent])
 
   return (
     <span ref={setNode}>

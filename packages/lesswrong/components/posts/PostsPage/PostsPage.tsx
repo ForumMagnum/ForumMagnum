@@ -710,44 +710,40 @@ const PostsPage = ({fullPost, postPreload, eagerPostComments, refetch, classes}:
   const answersTree = unflattenComments(answersAndReplies ?? []);
   
   const commentsSection =
-    <div>
-      <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
-        <div>
-          <RecombeeInViewTracker eventProps={{postId: post._id, portion: 1}}>
-            {/* Answers Section */}
-            {post.question && <div className={classes.centralColumn}>
-              <div id="answers"/>
-              {fullPost && <AnalyticsContext pageSectionContext="answersSection">
-                <PostsPageQuestionContent post={fullPost} answersTree={answersTree ?? []} refetch={refetch}/>
-              </AnalyticsContext>}
-            </div>}
-            {/* Comments Section */}
-            <div className={classes.commentsSection}>
-              <AnalyticsContext pageSectionContext="commentsSection">
-                {fullPost && <CommentsListSection
-                  comments={results ?? []}
-                  loadMoreComments={loadMore}
-                  totalComments={totalCount as number}
-                  commentCount={commentCount}
-                  loadingMoreComments={loadingMore}
-                  post={fullPost}
-                  newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
-                  highlightDate={highlightDate ?? undefined}
-                  setHighlightDate={setHighlightDate}
-                />}
-                {isAF && <AFUnreviewedCommentCount post={post}/>}
-              </AnalyticsContext>
-              {isFriendlyUI && post.commentCount < 1 &&
-                <div className={classes.noCommentsPlaceholder}>
-                  <div>No comments on this post yet.</div>
-                  <div>Be the first to respond.</div>
-                </div>
-              }
+    <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
+      <RecombeeInViewTracker eventProps={{postId: post._id, portion: 1}}>
+        {/* Answers Section */}
+        {post.question && <div className={classes.centralColumn}>
+          <div id="answers"/>
+          {fullPost && <AnalyticsContext pageSectionContext="answersSection">
+            <PostsPageQuestionContent post={fullPost} answersTree={answersTree ?? []} refetch={refetch}/>
+          </AnalyticsContext>}
+        </div>}
+        {/* Comments Section */}
+        <div className={classes.commentsSection}>
+          <AnalyticsContext pageSectionContext="commentsSection">
+            {fullPost && <CommentsListSection
+              comments={results ?? []}
+              loadMoreComments={loadMore}
+              totalComments={totalCount as number}
+              commentCount={commentCount}
+              loadingMoreComments={loadingMore}
+              post={fullPost}
+              newForm={!post.question && (!post.shortform || post.userId===currentUser?._id)}
+              highlightDate={highlightDate ?? undefined}
+              setHighlightDate={setHighlightDate}
+            />}
+            {isAF && <AFUnreviewedCommentCount post={post}/>}
+          </AnalyticsContext>
+          {isFriendlyUI && post.commentCount < 1 &&
+            <div className={classes.noCommentsPlaceholder}>
+              <div>No comments on this post yet.</div>
+              <div>Be the first to respond.</div>
             </div>
-          </RecombeeInViewTracker>
+          }
         </div>
-      </AnalyticsInViewTracker>
-    </div>
+      </RecombeeInViewTracker>
+    </AnalyticsInViewTracker>
 
   const commentsToC = fullPost
     ? <CommentsTableOfContents

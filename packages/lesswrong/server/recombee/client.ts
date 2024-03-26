@@ -57,7 +57,7 @@ const recombeeRequestHelpers = {
   async createUpsertPostRequest(post: DbPost, context: ResolverContext, tags?: { name: string, core: boolean }[]) {
     const { Tags } = context;
 
-    const tagIds = Object.entries(post.tagRelevance).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]) => tagId)
+    const tagIds = Object.entries(post.tagRelevance ?? {}).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]) => tagId)
     tags ??= filterNonnull(await findByIds(Tags, tagIds))
     const tagNames = tags.map(tag => tag.name)
     const coreTagNames = tags.filter(tag => tag.core).map(tag => tag.name)
@@ -87,8 +87,8 @@ const recombeeRequestHelpers = {
     }
 
     return new requests.AddDetailView(readStatus.userId, readStatus.postId, {
-      timestamp: readStatus.lastUpdated.toUTCString(),
-      cascadeCreate: true
+      timestamp: readStatus.lastUpdated.toISOString(),
+      cascadeCreate: false
     });
   },
 
@@ -101,8 +101,8 @@ const recombeeRequestHelpers = {
     }
 
     return new requests.AddRating(vote.userId, vote.documentId, rating, {
-      timestamp: vote.votedAt.toUTCString(),
-      cascadeCreate: true
+      timestamp: vote.votedAt.toISOString(),
+      cascadeCreate: false
     });
   },
 
@@ -177,6 +177,12 @@ const recombeeApi = {
 
     await client.send(request);
   },
+
+  async createUser(user: DbUser) {
+    const client = getRecombeeClientOrThrow();
+    const request = recombeeRequestHelpers.createUpsertUserDetailsRequest(user);
+    await client.send(request);
+  }
 };
 
 export { recombeeRequestHelpers, recombeeApi };

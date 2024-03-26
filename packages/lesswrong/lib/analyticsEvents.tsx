@@ -297,8 +297,6 @@ export function useIsInView<T extends HTMLElement>({rootMargin='0px', threshold=
     return () => currentObserver.disconnect()
   }, [node, rootMargin, threshold])
 
-  console.log('location 1', {entry, node})
-
   return { setNode, entry, node }
 }
 

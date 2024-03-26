@@ -370,7 +370,12 @@ getCollectionHooks("LWEvents").newSync.add(async function updateReadStatus(event
       void recombeeApi
         .createReadStatus(readStatus)
         // eslint-disable-next-line no-console
-        .catch(e => console.log('Error when sending read status to recombee', { e }));
+        .catch(e => {
+          if (e.statusCode !== 404) {
+            // eslint-disable-next-line no-console
+            console.log('Error when sending read status to recombee', { e })
+          }
+        });
     }
   }
   return event;
