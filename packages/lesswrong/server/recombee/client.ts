@@ -10,7 +10,7 @@ import findByIds from '../vulcan-lib/findbyids';
 import ReadStatuses from '../../lib/collections/readStatus/collection';
 import moment from 'moment';
 
-const getRecombeeClientOrThrow = (() => {
+export const getRecombeeClientOrThrow = (() => {
   let client: ApiClient;
 
   return () => {
@@ -48,16 +48,17 @@ const recombeeRequestHelpers = {
 
     return new requests.RecommendItemsToUser(servedUserId, count, {
       ...settings,
+      // Explicitly coalesce empty strings to undefined, since empty strings aren't valid booster expressions
       booster: settings.booster || undefined,
       rotationTime: settings.rotationTime * 3600,
     });
   },
 
-  async createUpsertPostRequest(post: DbPost, context: ResolverContext) {
+  async createUpsertPostRequest(post: DbPost, context: ResolverContext, tags?: { name: string, core: boolean }[]) {
     const { Tags } = context;
 
-    const tagIds = Object.entries(post.tagRelevance).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]: [string, number]) => tagId)
-    const tags = filterNonnull(await findByIds(Tags, tagIds))
+    const tagIds = Object.entries(post.tagRelevance).filter(([_, relevance]: [string, number]) => relevance > 0).map(([tagId]) => tagId)
+    tags ??= filterNonnull(await findByIds(Tags, tagIds))
     const tagNames = tags.map(tag => tag.name)
     const coreTagNames = tags.filter(tag => tag.core).map(tag => tag.name)
 
@@ -104,6 +105,15 @@ const recombeeRequestHelpers = {
       cascadeCreate: true
     });
   },
+
+  createUpsertUserDetailsRequest(user: DbUser) {
+    const { displayName, karma, createdAt } = user;
+    return new requests.SetUserValues(user._id, { displayName, karma, createdAt }, { cascadeCreate: true });
+  },
+
+  getBatchRequest(requestBatch: requests.Request[]) {
+    return new requests.Batch(requestBatch);
+  }
 };
 
 const recombeeApi = {
@@ -118,7 +128,7 @@ const recombeeApi = {
 
     const response = await client.send(request);
 
-    //remove posts read more than a week ago
+    // remove posts read more than a week ago
     const oneWeekAgo = moment(new Date()).subtract(1, 'week').toDate();
     const postIds = response.recomms.map(rec => rec.id);
     const [
@@ -130,7 +140,7 @@ const recombeeApi = {
         postId: { $in: postIds }, 
         userId, 
         isRead: true, 
-        lastUpdated: { $lt: oneWeekAgo} 
+        lastUpdated: { $lt: oneWeekAgo } 
       }).fetch()
     ])
 
@@ -166,7 +176,7 @@ const recombeeApi = {
     }
 
     await client.send(request);
-  }
+  },
 };
 
 export { recombeeRequestHelpers, recombeeApi };
