@@ -108,62 +108,89 @@ class ElasticQuery {
     return expr;
   }
 
-  private compileFilters() {
-    const terms = [...(this.config.filters ?? [])];
-    for (const filter of this.queryData.filters) {
-      switch (filter.type) {
-      case "facet":
-        const term: QueryDslQueryContainer =
-          isFullTextField(this.collectionName, filter.field)
-            ? {
-              match: {
-                [`${filter.field}.exact`]: {
-                  query: filter.value,
-                  analyzer: "fm_exact_analyzer",
-                  operator: "AND",
-                  fuzziness: 0,
-                },
+  private compileFilterTermForField(filter: QueryFilter): QueryDslQueryContainer {
+    switch (filter.type) {
+    case "facet":
+      const term: QueryDslQueryContainer =
+        isFullTextField(this.collectionName, filter.field)
+          ? {
+            match: {
+              [`${filter.field}.exact`]: {
+                query: filter.value,
+                analyzer: "fm_exact_analyzer",
+                operator: "AND",
+                fuzziness: 0,
               },
-            }
-            : {
-              term: {
-                [filter.field]: filter.value,
-              },
-            };
-        terms.push(
-          filter.negated
-            ? {
-              bool: {
-                should: [],
-                must_not: [term],
-              },
-            }
-            : term,
-        );
-        break;
-      case "numeric":
-        terms.push({
-          range: {
-            [filter.field]: {
-              [filter.op]: filter.value,
             },
-          },
-        });
-        break;
-      case "exists":
-        terms.push({
+          }
+          : {
+            term: {
+              [filter.field]: filter.value,
+            },
+          };
+      return filter.negated
+        ? {
           bool: {
             should: [],
-            must: [{
-              exists: {
-                field: filter.field
-              }
-            }]
-          }
+            must_not: [term],
+          },
+        }
+        : term;
+
+    case "numeric":
+      return {
+        range: {
+          [filter.field]: {
+            [filter.op]: filter.value,
+          },
+        },
+      };
+
+    case "exists":
+      return {
+        bool: {
+          should: [],
+          must: [{
+            exists: {
+              field: filter.field
+            }
+          }]
+        }
+      };
+
+    default:
+      return {};
+    }
+  }
+
+  private compileFilters() {
+    const filtersByField: Record<string, QueryFilter[]> = {};
+    for (const filter of this.queryData.filters) {
+      filtersByField[filter.field] ??= [];
+      filtersByField[filter.field].push(filter);
+    }
+
+    const terms = [...(this.config.filters ?? [])];
+
+    for (const filterField in filtersByField) {
+      const filters = filtersByField[filterField];
+      if (!filters.length) {
+        continue;
+      }
+      const fieldTerms = filters.map(
+        (filter) => this.compileFilterTermForField(filter),
+      );
+      if (fieldTerms.length > 1) {
+        terms.push({
+          bool: {
+            should: fieldTerms,
+          },
         });
-        break;
+      } else {
+        terms.push(fieldTerms[0]);
       }
     }
+
     return terms.length ? terms : undefined;
   }
 
