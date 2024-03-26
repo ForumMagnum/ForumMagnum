@@ -50,9 +50,13 @@ export const PeopleDirectoryResults = ({classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const {results, resultsLoading, columns} = usePeopleDirectory();
-  const columnCount = columns
-    .filter((column) => !column.hideable || !column.hidden)
-    .length;
+
+  let gridTemplateColumns = "";
+  for (const column of columns) {
+    if (!column.hideable || !column.hidden) {
+      gridTemplateColumns += ` ${column.columnWidth ?? " 1fr"}`;
+    }
+  }
 
   const {
     HorizScrollBlock, PeopleDirectoryHeading, PeopleDirectoryResultRow, Loading,
@@ -60,12 +64,7 @@ export const PeopleDirectoryResults = ({classes}: {
   return (
     <HorizScrollBlock className={classes.root} contentsClassName={classes.contents}>
       <div className={classes.gridWrapper}>
-        <div
-          style={{
-            gridTemplateColumns: `repeat(${columnCount}, 1fr)`,
-          }}
-          className={classes.grid}
-        >
+        <div className={classes.grid} style={{gridTemplateColumns}}>
           {columns.map((column) =>
             !column.hideable || !column.hidden
               ? <PeopleDirectoryHeading key={column.label} column={column} />

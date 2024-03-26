@@ -21,6 +21,7 @@ type PeopleDirectoryColumnState = {
 export type PeopleDirectoryColumn<T extends CellComponentName = CellComponentName> = {
   label: string,
   sortField?: string,
+  columnWidth?: string,
   componentName: T,
   props: Omit<ComponentProps<ComponentTypes[T]>, "user">,
 } & PeopleDirectoryColumnState;
@@ -29,6 +30,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   {
     label: "Name",
     sortField: "displayName.sort",
+    columnWidth: "200px",
     componentName: "PeopleDirectoryUserCell",
     props: {},
     hideable: false,
@@ -78,6 +80,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Karma",
+    columnWidth: "80px",
     componentName: "PeopleDirectoryNumberCell",
     props: {
       fieldName: "karma",
@@ -96,6 +99,7 @@ export const peopleDirectoryColumns: PeopleDirectoryColumn<CellComponentName>[] 
   },
   {
     label: "Profile updated",
+    columnWidth: "120px",
     componentName: "PeopleDirectoryDateCell",
     props: {
       fieldName: "exportedAt",
