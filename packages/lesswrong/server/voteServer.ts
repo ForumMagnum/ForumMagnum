@@ -577,6 +577,12 @@ export const recalculateDocumentScores = async (document: VoteableType, context:
     {
       documentId: document._id,
       cancelled: false
+    }, {
+      // This sort order eventually winds up affecting the sort-order of
+      // users-who-reacted in the UI
+      sort: {
+        votedAt: 1
+      }
     }
   ).fetch() || [];
   
