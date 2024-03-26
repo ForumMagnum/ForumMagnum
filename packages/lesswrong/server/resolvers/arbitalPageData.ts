@@ -134,10 +134,10 @@ function isValidArbitalPageAlias(pageAlias: string) {
 addCronJob({
   name: "clearArbitalCache",
   interval: "every 1 hour",
-  job: () => {
+  job: async () => {
     const now = new Date();
     const oldestAgeToKeep = new Date(now.getTime() - (arbitalCacheExpirationMs*2));
-    ArbitalCaches.rawRemove({
+    await ArbitalCaches.rawRemove({
       fetchedAt: { $lt: oldestAgeToKeep },
     });
   },

@@ -275,9 +275,15 @@ export function markdownToHtmlNoLaTeX(markdown: string): string {
   return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
 }
 
-export async function markdownToHtml(markdown: string): Promise<string> {
+export async function markdownToHtml(markdown: string, options?: {
+  skipMathjax?: boolean
+}): Promise<string> {
   const html = markdownToHtmlNoLaTeX(markdown)
-  return await mjPagePromise(html, trimLatexAndAddCSS)
+  if (options?.skipMathjax) {
+    return html;
+  } else {
+    return await mjPagePromise(html, trimLatexAndAddCSS)
+  }
 }
 
 async function ckEditorMarkupToHtml(markup: string, skipMathjax?: boolean): Promise<string> {
@@ -312,7 +318,7 @@ export async function dataToHTML(data: AnyBecauseTodo, type: string, options?: D
     case "draftJS":
       return await draftJSToHtmlWithLatex(data);
     case "markdown":
-      return await markdownToHtml(data)
+      return await markdownToHtml(data, { skipMathjax: options?.skipMathjax })
     default: throw new Error(`Unrecognized format: ${type}`);
   }
 }
