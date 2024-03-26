@@ -568,5 +568,25 @@
     "acceptsSchemaHash": "10225605411f6e346ca4185fd18de582",
     "acceptedByMigration": "20240229T140317.add_GoogleServiceAccountSessions.ts",
     "timestamp": "2024-02-29T14:03:17.000Z"
+  },
+  {
+    "acceptsSchemaHash": "9ebb51a67d889b5907585d2a7073434d",
+    "acceptedByMigration": "20240308T231309.add_reminderSetAt_to_UserJobAds.ts",
+    "timestamp": "2024-03-08T23:13:09.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ec6d12fa05425118431d110f2e216b80",
+    "acceptedByMigration": "20240312T123630.create_ForumEvents_table.ts",
+    "timestamp": "2024-03-12T12:36:30.000Z"
+  },
+  {
+    "acceptsSchemaHash": "01bf8045d376a34b6a5c7d0d8bfddcaa",
+    "acceptedByMigration": "20240312T185736.add_inactiveSurveyEmailSentAt_to_Users.ts",
+    "timestamp": "2024-03-12T18:57:36.000Z"
+  },
+  {
+    "acceptsSchemaHash": "5fb909476a7c6ef9567f7efb1abd005f",
+    "acceptedByMigration": "20240316T002500.add_CurationEmails_table.ts",
+    "timestamp": "2024-03-16T00:25:00.000Z"
   }
 ]

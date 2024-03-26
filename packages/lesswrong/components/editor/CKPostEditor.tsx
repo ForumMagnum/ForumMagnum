@@ -22,6 +22,7 @@ import type { Node, RootElement, Writer, Element as CKElement, Selection, Docume
 import { EditorContext } from '../posts/PostsEditForm';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useMulti } from '../../lib/crud/withMulti';
+import {cloudinaryConfig} from '../../lib/editor/cloudinaryConfig'
 
 // Uncomment this line and the reference below to activate the CKEditor debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -201,7 +202,7 @@ function createDialoguePostFixer(editor: Editor, sortedCoauthors: UsersMinimumIn
       return true;
     }
 
-    const lastChild = children.at(-1);
+    const lastChild = children.slice(-1)?.[0];
     const inputWrapper = inputWrappers[0];
 
     // We check that the input wrapper is the last child of the root
@@ -644,7 +645,8 @@ const CKPostEditor = ({
         initialData: initData,
         placeholder: placeholder ?? defaultEditorPlaceholder,
         mention: mentionPluginConfiguration,
-        dialogues: dialogueConfiguration
+        dialogues: dialogueConfiguration,
+        ...cloudinaryConfig,
       }}
     />}
     {post.collabEditorDialogue && !isFriendlyUI ? <DialogueEditorFeedback post={post} /> : null}

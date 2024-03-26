@@ -168,6 +168,10 @@ import './collections/digests/fragments';
 import './collections/digests/schema';
 import './collections/digests/views';
 
+// Forum events
+import './collections/forumEvents/collection';
+import './collections/forumEvents/fragments';
+import './collections/forumEvents/views';
 
 // Subscriptions
 import './collections/subscriptions';
@@ -308,6 +312,9 @@ import './collections/reviewWinnerArts/views';
 // Splash art coordinates
 import './collections/splashArtCoordinates/collection';
 import './collections/splashArtCoordinates/fragments';
+
+// Curation emails
+import './collections/curationEmails/collection';
 
 // Alignment Forum
 import './alignment-forum/permissions';

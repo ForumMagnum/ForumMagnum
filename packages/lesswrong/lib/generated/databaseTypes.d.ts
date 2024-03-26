@@ -225,6 +225,16 @@ interface DbCronHistory extends DbObject {
   result: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type CurationEmailsCollection = CollectionBase<"CurationEmails">;
+
+interface DbCurationEmail extends DbObject {
+  __collectionName?: "CurationEmails"
+  userId: string
+  postId: string
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+}
+
 type DatabaseMetadataCollection = CollectionBase<"DatabaseMetadata">;
 
 interface DbDatabaseMetadata extends DbObject {
@@ -411,6 +421,25 @@ interface DbFeaturedResource extends DbObject {
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
 }
 
+type ForumEventsCollection = CollectionBase<"ForumEvents">;
+
+interface DbForumEvent extends DbObject {
+  __collectionName?: "ForumEvents"
+  title: string
+  startDate: Date
+  endDate: Date
+  darkColor: string
+  lightColor: string
+  tagId: string
+  bannerImageId: string | null
+  createdAt: Date
+  legacyData: any /*{"definitions":[{"blackbox":true}]}*/
+  frontpageDescription: EditableFieldContents
+  frontpageDescription_latest: string | null
+  postPageDescription: EditableFieldContents
+  postPageDescription_latest: string | null
+}
+
 type GardenCodesCollection = CollectionBase<"GardenCodes">;
 
 interface DbGardenCode extends DbObject {
@@ -567,7 +596,7 @@ type ModeratorActionsCollection = CollectionBase<"ModeratorActions">;
 interface DbModeratorAction extends DbObject {
   __collectionName?: "ModeratorActions"
   userId: string
-  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits"
+  type: "rateLimitOnePerDay" | "rateLimitOnePerThreeDays" | "rateLimitOnePerWeek" | "rateLimitOnePerFortnight" | "rateLimitOnePerMonth" | "rateLimitThreeCommentsPerPost" | "recentlyDownvotedContentAlert" | "lowAverageKarmaCommentAlert" | "lowAverageKarmaPostAlert" | "negativeUserKarmaAlert" | "movedPostToDraft" | "sentModeratorMessage" | "manualFlag" | "votingPatternWarningDelivered" | "flaggedForNDMs" | "autoBlockedFromSendingDMs" | "rejectedPost" | "rejectedComment" | "potentialTargetedDownvoting" | "exemptFromRateLimits" | "receivedSeniorDownvotesAlert"
   endedAt: Date | null
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1273,6 +1302,7 @@ interface DbUserJobAd extends DbObject {
   userId: string
   jobName: string
   adState: "seen" | "expanded" | "applied" | "reminderSet"
+  reminderSetAt: Date | null
   lastUpdated: Date
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1689,6 +1719,7 @@ interface DbUser extends DbObject {
   afApplicationText: string | null
   afSubmittedApplication: boolean | null
   hideSunshineSidebar: boolean
+  inactiveSurveyEmailSentAt: Date | null
   wrapped2023Viewed: boolean
   createdAt: Date
   legacyData: any /*{"definitions":[{"blackbox":true}]}*/
@@ -1767,6 +1798,7 @@ interface CollectionsByName {
   Comments: CommentsCollection
   Conversations: ConversationsCollection
   CronHistories: CronHistoriesCollection
+  CurationEmails: CurationEmailsCollection
   DatabaseMetadata: DatabaseMetadataCollection
   DebouncerEvents: DebouncerEventsCollection
   DialogueChecks: DialogueChecksCollection
@@ -1779,6 +1811,7 @@ interface CollectionsByName {
   ElicitQuestions: ElicitQuestionsCollection
   EmailTokens: EmailTokensCollection
   FeaturedResources: FeaturedResourcesCollection
+  ForumEvents: ForumEventsCollection
   GardenCodes: GardenCodesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
   Images: ImagesCollection
@@ -1839,6 +1872,7 @@ interface ObjectsByCollectionName {
   Comments: DbComment
   Conversations: DbConversation
   CronHistories: DbCronHistory
+  CurationEmails: DbCurationEmail
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueChecks: DbDialogueCheck
@@ -1851,6 +1885,7 @@ interface ObjectsByCollectionName {
   ElicitQuestions: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResources: DbFeaturedResource
+  ForumEvents: DbForumEvent
   GardenCodes: DbGardenCode
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
   Images: DbImages
@@ -1911,6 +1946,7 @@ interface ObjectsByTypeName {
   Comment: DbComment
   Conversation: DbConversation
   CronHistory: DbCronHistory
+  CurationEmail: DbCurationEmail
   DatabaseMetadata: DbDatabaseMetadata
   DebouncerEvents: DbDebouncerEvents
   DialogueCheck: DbDialogueCheck
@@ -1923,6 +1959,7 @@ interface ObjectsByTypeName {
   ElicitQuestion: DbElicitQuestion
   EmailTokens: DbEmailTokens
   FeaturedResource: DbFeaturedResource
+  ForumEvent: DbForumEvent
   GardenCode: DbGardenCode
   GoogleServiceAccountSession: DbGoogleServiceAccountSession
   Images: DbImages

@@ -70,6 +70,8 @@ export const hasSideComments = hasSideCommentsSetting.get();
 export const useElicitApi = false;
 export const commentsTableOfContentsEnabled = hasCommentsTableOfContentSetting.get();
 export const fullHeightToCEnabled = isLWorAF;
+export const hasForumEvents = isEAForum;
+export const useCurationEmailsCron = isLW;
 
 // Shipped Features
 export const userCanManageTags = shippedFeature;

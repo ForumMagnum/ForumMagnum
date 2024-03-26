@@ -1,10 +1,11 @@
 import Users from "../users/collection";
-import { ensureIndex } from '../../collectionIndexUtils';
+import { ensureCustomPgIndex, ensureIndex } from '../../collectionIndexUtils';
 import { spamRiskScoreThreshold } from "../../../components/common/RecaptchaWarning";
 import pick from 'lodash/pick';
 import isNumber from 'lodash/isNumber';
 import mapValues from 'lodash/mapValues';
 import { viewFieldNullOrMissing } from "../../vulcan-lib";
+import { isEAForum } from "../../instanceSettings";
 
 declare global {
   interface UsersViewTerms extends ViewTermsBase {
@@ -284,3 +285,42 @@ Users.addView("usersWithOptedInToDialogueFacilitation", function (terms: UsersVi
 })
 
 ensureIndex(Users, { optedInToDialogueFacilitation: 1, karma: -1 });
+
+// These partial indexes are set up to allow for a very efficient index-only scan when deciding which userIds need to be emailed for post curation.
+// Used by `CurationEmailsRepo.getUserIdsToEmail`.
+// The EA Forum version of the index is missing the fm_has_verified_email conditional to match the behavior of `reasonUserCantReceiveEmails`.
+if (!isEAForum) {
+  void ensureCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_subscribed_to_curated_verified"
+    ON "Users" USING btree (
+      "emailSubscribedToCurated",
+      "unsubscribeFromAll",
+      "deleted",
+      "email",
+      fm_has_verified_email(emails),
+      "_id"
+    )
+    WHERE "emailSubscribedToCurated" IS TRUE
+      AND "unsubscribeFromAll" IS NOT TRUE
+      AND "deleted" IS NOT TRUE
+      AND "email" IS NOT NULL
+      AND fm_has_verified_email(emails);
+  `);
+}
+
+if (isEAForum) {
+  void ensureCustomPgIndex(`
+    CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Users_subscribed_to_curated"
+    ON "Users" USING btree (
+      "emailSubscribedToCurated",
+      "unsubscribeFromAll",
+      "deleted",
+      "email",
+      "_id"
+    )
+    WHERE "emailSubscribedToCurated" IS TRUE
+      AND "unsubscribeFromAll" IS NOT TRUE
+      AND "deleted" IS NOT TRUE
+      AND "email" IS NOT NULL;
+  `);
+}
