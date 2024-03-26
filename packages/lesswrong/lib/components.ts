@@ -1094,6 +1094,8 @@ importComponent("Book2019FrontpageWidget", () => require('../components/books/Bo
 importComponent("Book2020FrontpageWidget", () => require('../components/books/Book2020FrontpageWidget'));
 importComponent("Books2021SaleAnimation", () => require('../components/books/Books2021SaleAnimation'));
 
+importComponent("LessOnlineFrontpageWidget", () => require('../components/lessOnline/LessOnlineFrontpageWidget'));
+
 importComponent("AdminPaymentsPage", () => require('../components/payments/AdminPaymentsPage'));
 importComponent("EditPaymentInfoPage", () => require('../components/payments/EditPaymentInfoPage'));
 

@@ -93,6 +93,7 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 }
 
 export const bookDisplaySetting = new DatabasePublicSetting<boolean>('bookDisplaySetting', false)
+export const lessOnlineDisplaySetting = true;
 
 const LWRecommendations = ({
   configName,
@@ -116,8 +117,8 @@ const LWRecommendations = ({
 
   const render = () => {
     const { DismissibleSpotlightItem, RecommendationsAlgorithmPicker, SingleColumnSection, SettingsButton,
-      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, Book2020FrontpageWidget, SectionSubtitle,
-      ContinueReadingList, BookmarksList } = Components;
+      RecommendationsList, SectionTitle, LWTooltip, CuratedPostsList, Book2019FrontpageWidget, SectionSubtitle,
+      ContinueReadingList, BookmarksList, LessOnlineFrontpageWidget } = Components;
 
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
@@ -173,7 +174,8 @@ const LWRecommendations = ({
     const renderContinueReading = currentUser && (continueReading?.length > 0) && !settings.hideContinueReading
 
     return <SingleColumnSection className={classes.section}>
-      {bookDisplaySetting.get() && <Book2020FrontpageWidget/>}
+      {lessOnlineDisplaySetting && <LessOnlineFrontpageWidget/>}
+      {bookDisplaySetting.get() && <Book2019FrontpageWidget/>}
       <AnalyticsContext pageSectionContext="recommendations">
         {titleNode}
         {showSettings &&
