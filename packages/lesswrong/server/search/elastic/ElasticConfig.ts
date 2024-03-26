@@ -277,6 +277,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
     filters: [
       {term: {deleted: false}},
       {term: {deleteContent: false}},
+      {term: {hideFromPeopleDirectory: false}},
     ],
     mappings: {
       displayName: shingleTextMapping,
@@ -298,6 +299,7 @@ const elasticSearchConfig: Record<SearchIndexCollectionName, IndexConfig> = {
       "deleteContent",
       "deleted",
       "isAdmin",
+      "hideFromPeopleDirectory",
     ],
     karmaField: "karma",
     locationField: "_geoloc",
