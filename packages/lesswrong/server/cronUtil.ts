@@ -57,9 +57,11 @@ onStartup(function() {
 });
 
 async function clearOldCronHistories() {
-  const ONE_DAY = 24*60*60*1000;
+  const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
   await CronHistories.rawRemove({
-    startedAt: {$lt: new Date(new Date().getTime()-ONE_DAY)},
+    startedAt: {
+      $lt: new Date(new Date().getTime() - ONE_WEEK),
+    },
   });
 }
 Globals.clearOldCronHistories = clearOldCronHistories
