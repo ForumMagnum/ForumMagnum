@@ -6,6 +6,7 @@ import { useDialog } from '../../common/withDialog'
 import { useModerateComment } from './withModerateComment';
 import { useCurrentUser } from '../../common/withUser';
 import { preferredHeadingCase } from '../../../themes/forumTheme';
+import { userIsAdminOrMod } from '../../../lib/vulcan-users';
 
 
 const DeleteCommentDropdownItem = ({comment, post, tag}: {
@@ -62,16 +63,18 @@ const DeleteCommentDropdownItem = ({comment, post, tag}: {
         onClick={showDeleteDialog}
       />
     );
-  //} else if (comment.deletedByUserId === currentUser._id) {
-  } else {
+  } else if (
+    userIsAdminOrMod(currentUser)
+    || comment.deletedByUserId === currentUser._id
+  ) {
     return (
       <DropdownItem
         title={preferredHeadingCase("Undo Delete")}
         onClick={handleUndoDelete}
       />
     );
-  //} else {
-  //  return null;
+  } else {
+    return null;
   }
 }
 
