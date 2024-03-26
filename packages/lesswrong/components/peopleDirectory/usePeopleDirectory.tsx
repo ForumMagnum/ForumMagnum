@@ -4,7 +4,6 @@ import { MultiSelectResult, MultiSelectState, useMultiSelect } from "../hooks/us
 import { CAREER_STAGES } from "../../lib/collections/users/schema";
 import { PeopleDirectoryColumn, peopleDirectoryColumns } from "./peopleDirectoryColumns";
 import { SearchableMultiSelectResult, useSearchableMultiSelect } from "../hooks/useSearchableMultiSelect";
-import { useCurrentUser } from "../common/withUser";
 import { useSearchAnalytics } from "../search/useSearchAnalytics";
 import { captureException } from "@sentry/core";
 
@@ -30,7 +29,6 @@ type PeopleDirectoryContext = {
 const peopleDirectoryContext = createContext<PeopleDirectoryContext | null>(null);
 
 export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
-  const currentUser = useCurrentUser();
   const captureSearch = useSearchAnalytics();
   const [query, setQuery] = useState("");
   const [sorting, setSorting] = useState<PeopleDirectorySorting | null>(null);
@@ -84,7 +82,6 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
           ? `_${sorting.field}:${sorting.direction}`
           : "";
         const facetFilters = [
-          currentUser ? [`objectID:-${currentUser._id}`] : [],
           roles.selectedValues.map((role) => `jobTitle:${role}`),
           organizations.selectedValues.map((org) => `organization:${org}`),
           locations.selectedValues.map((location) => `location:${location}`),
@@ -121,7 +118,6 @@ export const PeopleDirectoryProvider = ({children}: {children: ReactNode}) => {
     })();
   }, [
     captureSearch,
-    currentUser,
     query,
     sorting,
     roles.selectedValues,
