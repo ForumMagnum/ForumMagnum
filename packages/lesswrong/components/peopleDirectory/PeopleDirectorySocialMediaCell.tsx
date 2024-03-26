@@ -3,6 +3,7 @@ import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { socialMediaSiteNameToHref } from "../../lib/collections/users/helpers";
 import { objectKeys } from "../../lib/utils/typeGuardUtils";
 import { useTracking } from "../../lib/analyticsEvents";
+import { EMPTY_TEXT_PLACEHOLDER, emptyTextCellStyles } from "./PeopleDirectoryTextCell";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -24,7 +25,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   empty: {
-    color: theme.palette.grey[600],
+    ...emptyTextCellStyles(theme),
   },
 });
 
@@ -40,7 +41,9 @@ export const PeopleDirectorySocialMediaCell = ({user, classes}: {
   const {SocialMediaIcon} = Components;
   return (
     <div className={classes.root}>
-      {keys.length < 1 && "–"}
+      {keys.length < 1 &&
+        <span className={classes.empty}>{EMPTY_TEXT_PLACEHOLDER}</span>
+      }
       {keys.map((field) => {
         const url = urls[field];
         if (!url) {

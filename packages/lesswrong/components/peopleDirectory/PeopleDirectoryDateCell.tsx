@@ -1,11 +1,11 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib";
 import moment from "moment";
-import { cellTextStyles } from "./PeopleDirectoryTextCell";
+import { textCellStyles } from "./PeopleDirectoryTextCell";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    ...cellTextStyles(theme),
+    ...textCellStyles(theme),
   },
 });
 

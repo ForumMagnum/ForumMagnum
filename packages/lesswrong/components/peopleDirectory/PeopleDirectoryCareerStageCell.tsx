@@ -1,7 +1,11 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import { CAREER_STAGES } from "../../lib/collections/users/schema";
-import { cellTextStyles } from "./PeopleDirectoryTextCell";
+import {
+  EMPTY_TEXT_PLACEHOLDER,
+  emptyTextCellStyles,
+  textCellStyles,
+} from "./PeopleDirectoryTextCell";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -14,13 +18,13 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
   },
   label: {
-    ...cellTextStyles(theme),
+    ...textCellStyles(theme),
     color: theme.palette.grey[600],
     fontSize: 13,
     fontWeight: 600,
   },
   empty: {
-    color: theme.palette.grey[600],
+    ...emptyTextCellStyles(theme),
   },
 });
 
@@ -42,7 +46,11 @@ export const PeopleDirectoryCareerStageCell = ({user, classes}: {
               <span className={classes.label}>{stage.label}</span>
             </>
           )
-          : "–"
+          : (
+            <span className={classes.empty}>
+              {EMPTY_TEXT_PLACEHOLDER}
+            </span>
+          )
         }
       </div>
     </LWTooltip>

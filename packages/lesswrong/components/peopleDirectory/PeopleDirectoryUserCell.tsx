@@ -1,6 +1,6 @@
 import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
-import { cellTextStyles } from "./PeopleDirectoryTextCell";
+import { textCellStyles } from "./PeopleDirectoryTextCell";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { useCurrentUser } from "../common/withUser";
 
@@ -12,7 +12,7 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
   },
   name: {
-    ...cellTextStyles(theme),
+    ...textCellStyles(theme),
     flexGrow: 1,
   },
   message: {

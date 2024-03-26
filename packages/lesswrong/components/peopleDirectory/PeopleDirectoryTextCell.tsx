@@ -2,7 +2,9 @@ import React from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 
-export const cellTextStyles = (theme: ThemeType) => ({
+export const EMPTY_TEXT_PLACEHOLDER = "–";
+
+export const textCellStyles = (theme: ThemeType) => ({
   color: theme.palette.grey[1000],
   fontSize: 13,
   fontWeight: 500,
@@ -13,28 +15,30 @@ export const cellTextStyles = (theme: ThemeType) => ({
   "-webkit-box-orient": "vertical",
 });
 
-const styles = (theme: ThemeType) => ({
-  root: {
-    ...cellTextStyles(theme),
-  },
-  empty: {
+export const emptyTextCellStyles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
-  },
 });
 
-const EMPTY = "–";
+const styles = (theme: ThemeType) => ({
+  root: {
+    ...textCellStyles(theme),
+  },
+  empty: {
+    ...emptyTextCellStyles(theme),
+  },
+});
 
 export const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
   user: SearchUser,
   fieldName: keyof SearchUser,
   classes: ClassesType<typeof styles>,
 }) => {
-  const text = user[fieldName] || EMPTY;
+  const text = user[fieldName] || EMPTY_TEXT_PLACEHOLDER;
   const {LWTooltip} = Components;
   return (
     <LWTooltip title={user[fieldName]}>
       <div className={classNames(classes.root, {
-        [classes.empty]: text === EMPTY,
+        [classes.empty]: text === EMPTY_TEXT_PLACEHOLDER,
       })}>
         {text}
       </div>
