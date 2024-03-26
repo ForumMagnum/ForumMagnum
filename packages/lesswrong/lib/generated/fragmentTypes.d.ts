@@ -1603,6 +1603,7 @@ interface CommentsList { // fragment on Comments
   readonly userId: string,
   readonly deleted: boolean,
   readonly deletedPublic: boolean,
+  readonly deletedByUserId: string,
   readonly deletedReason: string,
   readonly hideAuthor: boolean,
   readonly authorIsUnreviewed: boolean,
