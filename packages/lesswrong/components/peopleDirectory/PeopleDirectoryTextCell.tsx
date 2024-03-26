@@ -1,5 +1,5 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib";
+import { Components, registerComponent } from "../../lib/vulcan-lib";
 import classNames from "classnames";
 
 export const cellTextStyles = (theme: ThemeType) => ({
@@ -30,12 +30,15 @@ export const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
   classes: ClassesType<typeof styles>,
 }) => {
   const text = user[fieldName] || EMPTY;
+  const {LWTooltip} = Components;
   return (
-    <div className={classNames(classes.root, {
-      [classes.empty]: text === EMPTY,
-    })}>
-      {text}
-    </div>
+    <LWTooltip title={user[fieldName]}>
+      <div className={classNames(classes.root, {
+        [classes.empty]: text === EMPTY,
+      })}>
+        {text}
+      </div>
+    </LWTooltip>
   );
 }
 
