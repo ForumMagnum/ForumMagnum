@@ -1,4 +1,4 @@
-import React, { MouseEvent, useContext } from 'react';
+import React, { MouseEvent, useContext, useState } from 'react';
 import { Components, registerComponent } from '../../lib/vulcan-lib';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanComment, userCanCreateField, userCanDo, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved } from '../../lib/vulcan-users/permissions';
@@ -23,6 +23,7 @@ import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { isMobile } from '../../lib/utils/isMobile'
 import { SHOW_NEW_SEQUENCE_KARMA_THRESHOLD } from '../../lib/collections/sequences/permissions';
 import { isAF, isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { makeCloudinaryImageUrl } from '../common/CloudinaryImage2';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
@@ -72,14 +73,39 @@ const styles = (theme: ThemeType): JssStyles => ({
     [theme.breakpoints.down('xs')]: {
       display: 'block'
     }
-  } : {}
+  } : {},
+  bulby: {
+    position: 'absolute',
+    top: 50,
+    left: -184,
+    zIndex: theme.zIndexes.commentBoxPopup,
+    pointerEvents: 'none',
+  },
+  bulbyClickTarget: {
+    position: 'absolute',
+    height: 270,
+    width: 108,
+    right: 108,
+    pointerEvents: 'auto',
+    cursor: 'pointer',
+  },
+  bulbyImg: {
+    height: 300,
+  },
+  bulbySpeechBubbleImg: {
+    position: 'absolute',
+    top: -70,
+    left: 10,
+    height: 100,
+  },
 })
 
 const UsersMenu = ({classes}: {
   classes: ClassesType
 }) => {
   const currentUser = useCurrentUser();
-  const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
+  const [bulbyIsSad, setBulbyIsSad] = useState(false);
+  const {eventHandlers, hover, forceUnHover, anchorEl} = useHover({onLeave: () => setBulbyIsSad(false)});
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
   const {toggleOn, toggleOff} = useAdminToggle();
@@ -232,6 +258,20 @@ const UsersMenu = ({classes}: {
                 forceUnHover();
               }}
             >
+              <div className={classes.bulby}>
+                <div className={classes.bulbyClickTarget} onClick={(e) => {
+                  e.stopPropagation();
+                  setBulbyIsSad(true);
+                }} />
+                <img
+                  src={makeCloudinaryImageUrl(bulbyIsSad ? 'sadbulby' : 'bulby', {})}
+                  className={classes.bulbyImg}
+                />
+                {bulbyIsSad && <img
+                  src={makeCloudinaryImageUrl('bulby-sentient', {})}
+                  className={classes.bulbySpeechBubbleImg}
+                />}
+              </div>
               <div onClick={(ev) => {
                 if (afNonMemberDisplayInitialPopup(currentUser, openDialog)) {
                   ev.preventDefault()
