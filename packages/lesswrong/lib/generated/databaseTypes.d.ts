@@ -1710,6 +1710,7 @@ interface DbUser extends DbObject {
   hideJobAdUntil: Date | null
   experiencedIn: Array<string> | null
   interestedIn: Array<string> | null
+  hideFromPeopleDirectory: boolean
   allowDatadogSessionReplay: boolean
   afPostCount: number
   afCommentCount: number

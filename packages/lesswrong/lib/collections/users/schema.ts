@@ -2846,6 +2846,18 @@ const schema: SchemaType<"Users"> = {
   },
 
   /* Privacy settings */
+  hideFromPeopleDirectory: {
+    type: Boolean,
+    optional: true,
+    hidden: !isEAForum,
+    canRead: ["guests"],
+    canUpdate: [userOwns, "sunshineRegiment", "admins"],
+    canCreate: ["members"],
+    label: "Hide my profile from the People directory",
+    group: formGroups.privacy,
+    ...schemaDefaultValue(false),
+  },
+
   allowDatadogSessionReplay: {
     type: Boolean,
     optional: true,

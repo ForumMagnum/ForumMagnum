@@ -593,5 +593,10 @@
     "acceptsSchemaHash": "ab72105cb0319f564fb72f0ef5506015",
     "acceptedByMigration": "20240320T104001.create_pg_trgm_extension.ts",
     "timestamp": "2024-03-20T10:40:01.000Z"
+  },
+  {
+    "acceptsSchemaHash": "ce81160bade97471fbf80ced45b650ac",
+    "acceptedByMigration": "20240326T112902.add_hideFromPeopleDirectory_to_users.ts",
+    "timestamp": "2024-03-26T11:29:02.000Z"
   }
 ]
