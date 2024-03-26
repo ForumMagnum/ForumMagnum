@@ -102,11 +102,14 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
   {
     if (doc[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
-      const { data, type } = doc[fieldName].originalContents
+      const originalContents: DbRevision["originalContents"] = doc[fieldName].originalContents
       const commitMessage = doc[fieldName].commitMessage;
       const googleDocMetadata = doc[fieldName].googleDocMetadata;
-      const html = await dataToHTML(data, type, { sanitize: !currentUser.isAdmin })
-      const wordCount = await dataToWordCount(data, type)
+      const revision = await buildRevision({
+        originalContents,
+        currentUser,
+      });
+      const { html, wordCount } = revision;
       const version = getInitialVersion(doc)
       const userId = currentUser._id
       const editedAt = new Date()
@@ -114,8 +117,6 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       const isFirstDebatePostComment = (collectionName === 'Posts' && 'debate' in doc)
         ? (!!doc.debate && fieldName === 'contents')
         : false;
-
-      const originalContents: DbRevision["originalContents"] = doc[fieldName].originalContents
 
       if (isFirstDebatePostComment) {
         const createFirstCommentParams: CreateMutatorParams<"Comments"> = {
@@ -135,10 +136,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       }
 
       const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
-        ...(await buildRevision({
-          originalContents,
-          currentUser,
-        })),
+        ...revision,
         fieldName,
         collectionName,
         version,
@@ -177,14 +175,17 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
     if (docData[fieldName]?.originalContents) {
       if (!currentUser) { throw Error("Can't create document without current user") }
 
-      const { data, type } = docData[fieldName].originalContents
       const commitMessage = docData[fieldName].commitMessage;
       const dataWithDiscardedSuggestions = docData[fieldName].dataWithDiscardedSuggestions
       delete docData[fieldName].dataWithDiscardedSuggestions
 
-      const readerVisibleData = dataWithDiscardedSuggestions ?? data
-      const html = await dataToHTML(readerVisibleData, type, { sanitize: !currentUser.isAdmin })
-      const wordCount = await dataToWordCount(readerVisibleData, type)
+      const revision = await buildRevision({
+        originalContents: newDocument[fieldName].originalContents,
+        dataWithDiscardedSuggestions,
+        currentUser,
+      });
+      const { html, wordCount } = revision;
+
       const defaultUpdateType = docData[fieldName].updateType || (!document[fieldName] && 'initial') || 'minor'
       // When a document is undrafted for the first time, we ensure that this constitutes a major update
       const { major } = extractVersionsFromSemver((document[fieldName] && document[fieldName].version) ? document[fieldName].version : undefined)
@@ -201,11 +202,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
 
         const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "googleDocMetadata"> = {
           documentId: document._id,
-          ...await buildRevision({
-            originalContents: newDocument[fieldName].originalContents,
-            dataWithDiscardedSuggestions,
-            currentUser,
-          }),
+          ...revision,
           fieldName,
           collectionName,
           version,
