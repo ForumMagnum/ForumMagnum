@@ -62,7 +62,7 @@ const recombeeRequestHelpers = {
     const tagNames = tags.map(tag => tag.name)
     const coreTagNames = tags.filter(tag => tag.core).map(tag => tag.name)
 
-    const postText = htmlToTextDefault(truncate(post.contents.html, 2000, 'words'))
+    const postText = htmlToTextDefault(truncate(post.contents?.html, 2000, 'words'))
 
     return new requests.SetItemValues(post._id, {
       title: post.title,

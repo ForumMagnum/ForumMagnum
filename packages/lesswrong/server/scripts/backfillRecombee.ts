@@ -4,7 +4,7 @@ import { getSqlClientOrThrow } from "../../lib/sql/sqlClient";
 import { filterNonnull } from "../../lib/utils/typeGuardUtils";
 import Users from "../../lib/vulcan-users";
 import { getRecombeeClientOrThrow, recombeeRequestHelpers } from "../recombee/client";
-import { createAdminContext } from "../vulcan-lib";
+import { Globals, createAdminContext } from "../vulcan-lib";
 import chunk from "lodash/chunk";
 
 function getUserBatch(offsetDate: Date) {
@@ -60,7 +60,7 @@ async function backfillUsers(offsetDate?: Date) {
 const postBatchQuery = `
   WITH selected_posts AS (
     SELECT
-      p.*
+      p._id
     FROM "Posts" AS p
     WHERE p.draft IS NOT TRUE
       AND p."isFuture" IS FALSE
@@ -71,18 +71,22 @@ const postBatchQuery = `
       AND p.shortform IS NOT TRUE
       AND ((p."authorIsUnreviewed" IS NOT TRUE) OR (p."reviewedByUserId" IS NOT NULL))
       AND p.status = 2
-      AND p."postedAt" >= $1
-    ORDER BY p."postedAt" ASC
+      AND p."createdAt" >= $1
+    ORDER BY p."createdAt" ASC
     LIMIT $2
   )
   SELECT
     p.*,
-    ARRAY_AGG((t._id, t.name, t.core)) AS tags
+    ARRAY_AGG(JSONB_BUILD_ARRAY(t._id, t.name, t.core)) AS tags
   FROM selected_posts
+  INNER JOIN "Posts" AS p
+  USING(_id)
   LEFT JOIN "TagRels" AS tr
   ON selected_posts._id = tr."postId"
   INNER JOIN "Tags" AS t
   ON tr."tagId" = t._id
+  GROUP BY p._id
+  ORDER BY p."createdAt" ASC
 `;
 
 function getPostBatch(offsetDate: Date) {
@@ -97,8 +101,11 @@ async function backfillPosts(offsetDate?: Date) {
   const recombeeClient = getRecombeeClientOrThrow();
 
   if (!offsetDate) {
-    ({ offsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("postedAt") AS "offsetDate" FROM "Posts"'));
+    ({ offsetDate } = await db.one<{ offsetDate: Date }>('SELECT MIN("createdAt") AS "offsetDate" FROM "Posts"'));
   }
+
+  // eslint-disable-next-line no-console
+  console.log(`Initial post batch offset date: ${offsetDate}`);
 
   let batch = await getPostBatch(offsetDate);
 
@@ -113,11 +120,15 @@ async function backfillPosts(offsetDate?: Date) {
       const batchRequest = recombeeRequestHelpers.getBatchRequest(requestBatch);
       await recombeeClient.send(batchRequest);
   
-      offsetDate = batch.slice(-1)[0].postedAt;
+      offsetDate = batch.slice(-1)[0].createdAt;
+      // eslint-disable-next-line no-console
+      console.log(`Next post batch offset date: ${offsetDate.toISOString()}`);
       batch = await getPostBatch(offsetDate);
     }  
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.log(`Error when backfilling recombee with posts.  Last offset date: ${offsetDate}`, { err });
+    console.log(`Error when backfilling recombee with posts.  Last offset date: ${offsetDate.toISOString()}`, { err });
   }
 }
+
+Globals.backfillRecombeePosts = backfillPosts;
