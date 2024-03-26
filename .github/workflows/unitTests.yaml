@@ -34,11 +34,11 @@ jobs:
     - name: Setup Environment
       uses: ./.github/actions/setupEnvironment
     - run: yarn run unit-ci
-    - uses: actions/upload-artifact@v1
-      if: failure()
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v2
       with:
-        name: Upload schema to accept
-        path: schema/schema_to_accept.sql
+        name: unit-coverage
+        path: unit-coverage
 
   runIntegrationTests:
     runs-on: ubuntu-latest
@@ -68,6 +68,11 @@ jobs:
       run: yarn create-integration-db-ci
     - name: yarn run integration-ci
       run: yarn run integration-ci
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: integration-coverage
+        path: integration-coverage
 
   runPostgresBootstrap:
     runs-on: ubuntu-latest
@@ -98,3 +103,22 @@ jobs:
       run: psql $PG_URL -f ./schema/accepted_schema.sql
     - name: Run Database Bootstrap
       run: yarn migrate up
+
+  mergeCoverageReports:
+    needs: [runUnitTests, runIntegrationTests]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Setup Environment
+      uses: ./.github/actions/setupEnvironment
+    - name: Download all coverage reports
+      uses: actions/download-artifact@v2
+      with:
+        path: .
+    - name: Merge coverage reports
+      run: yarn combine-coverage
+    - name: Coveralls
+      uses: coverallsapp/github-action@v2
+      with:
+        file: combined-coverage
