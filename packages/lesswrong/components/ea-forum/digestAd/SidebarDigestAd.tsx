@@ -102,7 +102,7 @@ const SidebarDigestAd = ({className, classes}: {
   
   if (!showDigestAd) return null
   
-  const { ForumIcon, EAButton } = Components
+  const { AnalyticsInViewTracker, ForumIcon, EAButton } = Components
   
   const buttonProps = loading ? {disabled: true} : {}
   const arrow = <ForumIcon icon="ArrowRight" className={classes.formBtnArrow} />
@@ -139,16 +139,18 @@ const SidebarDigestAd = ({className, classes}: {
   }
   
   return <AnalyticsContext pageSubSectionContext="digestAd">
-    <div className={classNames(classes.root, className)}>
-      <div className={classes.headingRow}>
-        <h2 className={classes.heading}>{DIGEST_AD_HEADLINE_TEXT}</h2>
-        <ForumIcon icon="Close" className={classes.close} onClick={handleClose} />
+    <AnalyticsInViewTracker eventProps={{inViewType: "sidebarDigestAd"}}>
+      <div className={classNames(classes.root, className)}>
+        <div className={classes.headingRow}>
+          <h2 className={classes.heading}>{DIGEST_AD_HEADLINE_TEXT}</h2>
+          <ForumIcon icon="Close" className={classes.close} onClick={handleClose} />
+        </div>
+        <div className={classes.body}>
+          {DIGEST_AD_BODY_TEXT}
+        </div>
+        {formNode}
       </div>
-      <div className={classes.body}>
-        {DIGEST_AD_BODY_TEXT}
-      </div>
-      {formNode}
-    </div>
+    </AnalyticsInViewTracker>
   </AnalyticsContext>
 }
 

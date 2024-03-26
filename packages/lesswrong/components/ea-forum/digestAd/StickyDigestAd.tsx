@@ -7,6 +7,7 @@ import { Link } from '../../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import { useDigestAd } from './useDigestAd';
 import { DIGEST_AD_BODY_TEXT, DIGEST_AD_HEADLINE_TEXT } from './SidebarDigestAd';
+import { getBrowserLocalStorage } from '../../editor/localStorageHandlers';
 
 const styles = (theme: ThemeType) => ({
   '@keyframes digest-fade-in': {
@@ -44,15 +45,9 @@ const styles = (theme: ThemeType) => ({
       width: 500,
       maxWidth: '90%',
     },
-    // For now, we are not displaying this ad on small screens,
-    // since it takes up a larger percent of the screen
-    '@media (max-width: 435px)': {
-      display: 'none'
-    }
   },
   textCol: {
     flexGrow: 1,
-    minWidth: 'max-content',
   },
   heading: {
     fontWeight: 600,
@@ -78,7 +73,8 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     display: 'flex',
     columnGap: 4,
-    rowGap: '12px'
+    rowGap: '8px',
+    flexWrap: 'wrap',
   },
   formInput: {
     minWidth: 240,
@@ -96,9 +92,10 @@ const styles = (theme: ThemeType) => ({
     '&::placeholder': {
       color: theme.palette.grey[600],
     },
-    '@media (max-width: 1000px)': {
-      minWidth: 0,
-    }
+  },
+  formBtns: {
+    display: 'flex',
+    columnGap: 4,
   },
   formBtn: {
     flex: 'none',
@@ -136,10 +133,12 @@ const StickyDigestAd = ({className, classes}: {
 }) => {
   const currentUser = useCurrentUser()
   const { showDigestAd, emailRef, showForm, loading, subscribeClicked, handleClose, handleUserSubscribe } = useDigestAd()
+  const ls = getBrowserLocalStorage()
   
-  if (!showDigestAd) return null
+  // We only show this after the client has viewed a few posts.
+  if (!showDigestAd || !ls?.getItem('postReadCount') || ls?.getItem('postReadCount') < 5) return null
   
-  const { ForumIcon, EAButton } = Components
+  const { AnalyticsInViewTracker, ForumIcon, EAButton } = Components
   
   const buttonProps = loading ? {disabled: true} : {}
   const noThanksBtn = (
@@ -157,18 +156,22 @@ const StickyDigestAd = ({className, classes}: {
   let formNode = (showForm || !currentUser) ? (
     <form action={eaForumDigestSubscribeURL} method="post" className={classes.form}>
       <input ref={emailRef} name="EMAIL" placeholder="Email address" className={classes.formInput} required={true} />
-      <EAButton type="submit" onClick={handleUserSubscribe} className={classes.formBtn} {...buttonProps}>
-        Sign up
-      </EAButton>
-      {noThanksBtn}
+      <div className={classes.formBtns}>
+        <EAButton type="submit" onClick={handleUserSubscribe} className={classes.formBtn} {...buttonProps}>
+          Sign up
+        </EAButton>
+        {noThanksBtn}
+      </div>
     </form>
   ) : (
     <div className={classes.form}>
       <input value={currentUser.email} className={classes.formInput} disabled={true} required={true} />
-      <EAButton onClick={handleUserSubscribe} className={classes.formBtn} {...buttonProps}>
-        Sign up
-      </EAButton>
-      {noThanksBtn}
+      <div className={classes.formBtns}>
+        <EAButton onClick={handleUserSubscribe} className={classes.formBtn} {...buttonProps}>
+          Sign up
+        </EAButton>
+        {noThanksBtn}
+      </div>
     </div>
   )
   
@@ -186,15 +189,17 @@ const StickyDigestAd = ({className, classes}: {
   }
   
   return <AnalyticsContext pageSubSectionContext="digestAd">
-    <div className={classNames(classes.root, className)}>
-      <div className={classes.textCol}>
-        <h2 className={classes.heading}>{DIGEST_AD_HEADLINE_TEXT}</h2>
-        <div className={classNames(classes.body)}>
-          {DIGEST_AD_BODY_TEXT}
+    <AnalyticsInViewTracker eventProps={{inViewType: "stickyDigestAd"}}>
+      <div className={classNames(classes.root, className)}>
+        <div className={classes.textCol}>
+          <h2 className={classes.heading}>{DIGEST_AD_HEADLINE_TEXT}</h2>
+          <div className={classNames(classes.body)}>
+            {DIGEST_AD_BODY_TEXT}
+          </div>
         </div>
+        {formNode}
       </div>
-      {formNode}
-    </div>
+    </AnalyticsInViewTracker>
   </AnalyticsContext>
 }
 

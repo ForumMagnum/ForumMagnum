@@ -240,25 +240,55 @@ const userTheme = new SimpleSchema({
   },
 });
 
+export type CareerStageValue =
+  'highSchool'|
+  'associateDegree'|
+  'undergradDegree'|
+  'professionalDegree'|
+  'graduateDegree'|
+  'doctoralDegree'|
+  'otherDegree'|
+  'earlyCareer'|
+  'midCareer'|
+  'lateCareer'|
+  'seekingWork'|
+  'retired'
+
+// list of career stage options from EAG
+type EAGCareerStage =
+  'Student (high school)'|
+  'Pursuing an associates degree'|
+  'Pursuing an undergraduate degree'|
+  'Pursuing a professional degree'|
+  'Pursuing a graduate degree (e.g. Masters)'|
+  'Pursuing a doctoral degree (e.g. PhD)'|
+  'Pursuing other degree/diploma'|
+  'Working (0-5 years of experience)'|
+  'Working (6-15 years of experience)'|
+  'Working (15+ years of experience)'|
+  'Not employed, but looking'|
+  'Retired'
+
 type CareerStage = {
-  value: string,
+  value: CareerStageValue,
   label: string,
   icon: ForumIconName,
+  EAGLabel: EAGCareerStage
 }
 
 export const CAREER_STAGES: CareerStage[] = [
-  {value: 'highSchool', label: "In high school", icon: "School"},
-  {value: 'associateDegree', label: "Pursuing an associate's degree", icon: "School"},
-  {value: 'undergradDegree', label: "Pursuing an undergraduate degree", icon: "School"},
-  {value: 'professionalDegree', label: "Pursuing a professional degree", icon: "School"},
-  {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)", icon: "School"},
-  {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)", icon: "School"},
-  {value: 'otherDegree', label: "Pursuing other degree/diploma", icon: "School"},
-  {value: 'earlyCareer', label: "Working (0-5 years)", icon: "Work"},
-  {value: 'midCareer', label: "Working (6-15 years)", icon: "Work"},
-  {value: 'lateCareer', label: "Working (15+ years)", icon: "Work"},
-  {value: 'seekingWork', label: "Seeking work", icon: "Work"},
-  {value: 'retired', label: "Retired", icon: "Work"},
+  {value: 'highSchool', label: "In high school", icon: "School", EAGLabel: 'Student (high school)'},
+  {value: 'associateDegree', label: "Pursuing an associate's degree", icon: "School", EAGLabel: 'Pursuing an associates degree'},
+  {value: 'undergradDegree', label: "Pursuing an undergraduate degree", icon: "School", EAGLabel: 'Pursuing an undergraduate degree'},
+  {value: 'professionalDegree', label: "Pursuing a professional degree", icon: "School", EAGLabel: 'Pursuing a professional degree'},
+  {value: 'graduateDegree', label: "Pursuing a graduate degree (e.g. Master's)", icon: "School", EAGLabel: 'Pursuing a graduate degree (e.g. Masters)'},
+  {value: 'doctoralDegree', label: "Pursuing a doctoral degree (e.g. PhD)", icon: "School", EAGLabel: 'Pursuing a doctoral degree (e.g. PhD)'},
+  {value: 'otherDegree', label: "Pursuing other degree/diploma", icon: "School", EAGLabel: 'Pursuing other degree/diploma'},
+  {value: 'earlyCareer', label: "Working (0-5 years)", icon: "Work", EAGLabel: 'Working (0-5 years of experience)'},
+  {value: 'midCareer', label: "Working (6-15 years)", icon: "Work", EAGLabel: 'Working (6-15 years of experience)'},
+  {value: 'lateCareer', label: "Working (15+ years)", icon: "Work", EAGLabel: 'Working (6-15 years of experience)'},
+  {value: 'seekingWork', label: "Seeking work", icon: "Work", EAGLabel: 'Not employed, but looking'},
+  {value: 'retired', label: "Retired", icon: "Work", EAGLabel: 'Retired'},
 ]
 
 export const PROGRAM_PARTICIPATION = [
@@ -1590,7 +1620,6 @@ const schema: SchemaType<"Users"> = {
     hidden: !isLW,
     canRead: ['members'],
   },
-  // Not reusing curated, because we might actually use that as well
   subscribedToDigest: {
     type: Boolean,
     optional: true,
@@ -2125,7 +2154,7 @@ const schema: SchemaType<"Users"> = {
       type: "Post",
       nullable: true,
     }),
-    label: isFriendlyUI ? "Quick takes feed ID" : "Shortform feed ID",
+    label: "Quick takes feed ID",
     optional: true,
     canRead: ['guests'],
     canCreate: ['admins', 'sunshineRegiment'],
@@ -2951,6 +2980,17 @@ const schema: SchemaType<"Users"> = {
     label: "Hide Sunshine Sidebar",
     hidden: isEAForum,
     ...schemaDefaultValue(false),
+  },
+  
+  // EA Forum emails the user a survey if they haven't read a post in 3 months
+  inactiveSurveyEmailSentAt: {
+    type: Date,
+    optional: true,
+    nullable: true,
+    hidden: true,
+    canCreate: ['members'],
+    canRead: ['admins'],
+    canUpdate: ['admins'],
   },
 
   // EA Forum wrapped fields

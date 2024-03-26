@@ -174,6 +174,9 @@ const tableStyles = (theme: ThemeType): JssStyles => ({
       fontSize: 14,
       lineHeight: "1.4em",
     },
+    "& sup *": {
+      fontSize: 10,
+    },
     "& ul, & ol": {
       paddingLeft: "1.5em",
     },
@@ -387,8 +390,8 @@ const baseBodyStyles = (theme: ThemeType): JssStyles => ({
   },
   // CKEditor wraps tables in a figure element
   '& figure.table': {
-    minWidth: 'fit-content !important',
-    minHeight: 'fit-content !important',
+    width: 'fit-content',
+    height: 'fit-content',
   },
   // Many column tables should overflow instead of squishing
   //  - NB: As of Jan 2023, this does not work on firefox, so ff users will have
@@ -493,6 +496,13 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: B
     wordBreak: "break-word",
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
+
+    '& .footnotes': isFriendlyUI ? {} : {
+      marginTop: 0,
+      paddingTop: 8,
+      paddingLeft: 16,
+      marginBottom: 0
+    },
 
     '& blockquote': {
       ...theme.typography.commentBlockquote,

@@ -7,12 +7,22 @@ export interface ToCAnswer {
   shortHighlight: string,
 }
 
+export interface AnchorOffset {
+  anchorHref: string | null,
+  offset: number
+}
+
 export interface ToCSection {
   title?: string,
   answer?: ToCAnswer,
   anchor: string,
   level: number,
   divider?: boolean,
+  offset?: number,
+}
+
+export interface ToCSectionWithOffset extends ToCSection {
+  offset: number,
 }
 
 export interface ToCData {

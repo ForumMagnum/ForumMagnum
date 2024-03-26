@@ -31,13 +31,20 @@ addStaticRoute('/robots.txt', ({query}, req, res, next) => {
     res.end(
 `User-agent: *
 Disallow: /allPosts?*
+Disallow: /allPosts
+Disallow: /allposts
+Disallow: /allposts?*
 Disallow: /graphiql
 Disallow: /debug
 Disallow: /admin
 Disallow: /compare
 Disallow: /emailToken
 Disallow: /*?commentId=*
-Crawl-Delay: 2
+Disallow: /users/*/replies
+Crawl-Delay: 3
+
+User-Agent: SemrushBot
+Disallow: /
 `);
   }
 });

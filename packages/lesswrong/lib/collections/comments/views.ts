@@ -462,16 +462,16 @@ Comments.addView('repliesToAnswer', (terms: CommentsViewTerms) => {
 });
 ensureIndex(Comments, augmentForDefaultView({parentAnswerId:1, baseScore:-1}));
 
-Comments.addView('answersAndReplies', ({postId}: CommentsViewTerms) => {
+Comments.addView('answersAndReplies', (terms: CommentsViewTerms) => {
   return {
     selector: {
-      postId,
+      postId: terms.postId,
       $or: [
         { answer: true },
         { parentAnswerId: {$exists: true} },
       ],
     },
-    options: {sort: {baseScore: -1}}
+    options: {sort: questionAnswersSortings[terms.sortBy || "top"]}
   };
 });
 
@@ -758,4 +758,14 @@ void ensureCustomPgIndex(`
 void ensureCustomPgIndex(`
   CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_Comments_userId_postId_postedAt"
   ON "Comments" ("userId", "postId", "postedAt");
+`);
+
+// Exists for the sake of `CommentsRepo.getPopularComments`, which otherwise takes several seconds to run on a cold cache
+// Note that while it'll continue to use the index if you _increase_ the baseScore requirement above 15, it won't if you decrease it
+// The other conditions in the query could also have been included in the partial index requirements,
+// but they made a trivial difference so the added complexity (and lack of generalizability) didn't seem worth it
+void ensureCustomPgIndex(`
+  CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_comments_popular_comments
+  ON "Comments" ("postId", "baseScore" DESC, "postedAt" DESC)
+  WHERE ("baseScore" >= 15)
 `);

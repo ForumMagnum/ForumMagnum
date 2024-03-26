@@ -1,9 +1,8 @@
 import {getCollectionHooks} from '../mutationCallbacks'
-import {ChangeMetrics, Revisions} from '../../lib/collections/revisions/collection'
+import {Revisions} from '../../lib/collections/revisions/collection'
 import {extractVersionsFromSemver} from '../../lib/editor/utils'
 import {ensureIndex} from '../../lib/collectionIndexUtils'
 import {htmlToPingbacks} from '../pingbacks'
-import {diff} from '../vendor/node-htmldiff/htmldiff'
 import {
   editableCollections,
   editableCollectionsFieldOptions,
@@ -15,14 +14,12 @@ import {getCollection} from '../../lib/vulcan-lib/getCollection'
 import {CallbackHook} from '../../lib/vulcan-lib/callbacks'
 import {createMutator, validateCreateMutation} from '../vulcan-lib/mutators'
 import * as _ from 'underscore'
-import cheerio from 'cheerio'
 import {onStartup} from '../../lib/executionEnvironment'
 import {dataToHTML, dataToWordCount} from './conversionUtils'
 import {Globals} from '../../lib/vulcan-lib/config'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
-import {isBeingUndrafted, MaybeDrafteable} from './utils'
+import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
 import { Comments } from '../../lib/collections/comments'
-import { cheerioParse } from '../utils/htmlUtil'
 
 // TODO: Now that the make_editable callbacks use createMutator to create
 // revisions, we can now add these to the regular ${collection}.create.after
@@ -37,35 +34,6 @@ function getInitialVersion(document: DbPost|DbObject) {
     return '0.1.0'
   } else {
     return '1.0.0'
-  }
-}
-
-export async function getLatestRev(documentId: string, fieldName: string): Promise<DbRevision|null> {
-  return await Revisions.findOne({documentId: documentId, fieldName}, {sort: {editedAt: -1}})
-}
-
-/// Given a revision, return the last revision of the same document/field prior
-/// to it (null if the revision is the first).
-export async function getPrecedingRev(rev: DbRevision): Promise<DbRevision|null> {
-  return await Revisions.findOne(
-    {documentId: rev.documentId, fieldName: rev.fieldName, editedAt: {$lt: rev.editedAt}},
-    {sort: {editedAt: -1}}
-  );
-}
-
-export function getNextVersion(previousRevision: DbRevision | null, updateType: DbRevision['updateType'] = 'minor', isDraft: boolean) {
-  const { major, minor, patch } = extractVersionsFromSemver(previousRevision?.version || "1.0.0")
-  switch (updateType) {
-    case "patch":
-      return `${major}.${minor}.${patch + 1}`
-    case "minor":
-      return `${major}.${minor + 1}.0`
-    case "major":
-      return `${major+1}.0.0`
-    case "initial":
-      return isDraft ? '0.1.0' : '1.0.0'
-    default:
-      throw new Error("Invalid updateType, must be one of 'patch', 'minor' or 'major'")
   }
 }
 
@@ -136,6 +104,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       if (!currentUser) { throw Error("Can't create document without current user") }
       const { data, type } = doc[fieldName].originalContents
       const commitMessage = doc[fieldName].commitMessage;
+      const googleDocMetadata = doc[fieldName].googleDocMetadata;
       const html = await dataToHTML(data, type, { sanitize: !currentUser.isAdmin })
       const wordCount = await dataToWordCount(data, type)
       const version = getInitialVersion(doc)
@@ -176,6 +145,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
         draft: versionIsDraft(version, collectionName),
         updateType: 'initial',
         commitMessage,
+        googleDocMetadata,
         changeMetrics,
         createdAt: editedAt,
       };
@@ -229,7 +199,7 @@ function addEditableCallbacks<N extends CollectionNameString>({collection, optio
       if (await revisionIsChange(newDocument, fieldName)) {
         const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
-        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
+        const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "googleDocMetadata"> = {
           documentId: document._id,
           ...await buildRevision({
             originalContents: newDocument[fieldName].originalContents,
@@ -373,32 +343,3 @@ export function addAllEditableCallbacks() {
 }
 
 onStartup(addAllEditableCallbacks);
-
-/// Given an HTML diff, where added sections are marked with <ins> and <del>
-/// tags, count the number of chars added and removed. This is used for providing
-/// a quick distinguisher between small and large changes, on revision history
-/// lists.
-const diffToChangeMetrics = (diffHtml: string): ChangeMetrics => {
-  const parsedHtml = cheerioParse(diffHtml);
-
-  const insertedChars = countCharsInTag(parsedHtml, "ins");
-  const removedChars = countCharsInTag(parsedHtml, "del");
-
-  return { added: insertedChars, removed: removedChars };
-}
-
-const countCharsInTag = (parsedHtml: cheerio.Root, tagName: string): number => {
-  const instancesOfTag = parsedHtml(tagName);
-  let cumulative = 0;
-  for (let i=0; i<instancesOfTag.length; i++) {
-    const tag = instancesOfTag[i];
-    const text = cheerio(tag).text();
-    cumulative += text.length;
-  }
-  return cumulative;
-}
-
-export const htmlToChangeMetrics = (oldHtml: string, newHtml: string): ChangeMetrics => {
-  const htmlDiff = diff(oldHtml, newHtml);
-  return diffToChangeMetrics(htmlDiff);
-}

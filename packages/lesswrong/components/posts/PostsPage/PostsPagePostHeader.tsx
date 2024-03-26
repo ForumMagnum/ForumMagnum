@@ -2,7 +2,7 @@ import React, { FC, MouseEvent, useEffect, useMemo } from 'react';
 import { Components, registerComponent } from '../../../lib/vulcan-lib';
 import { postGetAnswerCountStr, postGetCommentCount, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
-import { extractVersionsFromSemver } from '../../../lib/editor/utils'
+import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import { getUrlClass } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import { isServer } from '../../../lib/executionEnvironment';
@@ -11,7 +11,7 @@ import { isLWorAF } from '../../../lib/instanceSettings';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { PODCAST_TOOLTIP_SEEN_COOKIE } from '../../../lib/cookies/cookies';
 import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
-import { AnnualReviewMarketInfo, highlightMarket } from '../../../lib/annualReviewMarkets';
+import type { AnnualReviewMarketInfo } from '../../../lib/annualReviewMarkets';
 
 const SECONDARY_SPACING = 20;
 const PODCAST_ICON_SIZE = isFriendlyUI ? 22 : 24;
@@ -166,13 +166,9 @@ const styles = (theme: ThemeType): JssStyles => ({
   tagSection: {
     flex: 1,
     display: "flex",
-    flexDirection: "column",
+    flexDirection: isFriendlyUI ? "column" : "row",
     height: "100%",
-  },
-  annualReviewMarketInfo: {
-    justifyContent: 'center',
-    alignItems: 'right',
-    },
+  }
 });
 
 // On the server, use the 'url' library for parsing hostname out of feed URLs.
@@ -208,7 +204,7 @@ const countAnswersAndDescendents = (answers: CommentsList[]) => {
 }
 
 const getResponseCounts = (
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   answers: CommentsList[],
 ) => {
   // answers may include some which are deleted:true, deletedPublic:true (in which
@@ -248,7 +244,7 @@ const CommentsLink: FC<{
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
 const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   answers?: CommentsList[],
   dialogueResponses?: CommentsList[],
   showEmbeddedPlayer?: boolean,
@@ -275,10 +271,10 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const feedLinkDescription = post.feed?.url && getHostname(post.feed.url)
-  const feedLink = post.feed?.url && `${getProtocol(post.feed.url)}//${getHostname(post.feed.url)}`;
-  const { major } = extractVersionsFromSemver(post.version)
-  const hasMajorRevision = major > 1
+  const rssFeedSource = ('feed' in post) ? post.feed : null;
+  const feedLinkDescription = rssFeedSource?.url && getHostname(rssFeedSource.url)
+  const feedLink = rssFeedSource?.url && `${getProtocol(rssFeedSource.url)}//${getHostname(rssFeedSource.url)}`;
+  const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
 
   const crosspostNode = post.fmCrosspost?.isCrosspost && !post.fmCrosspost.hostedHere &&
     <CrosspostHeaderIcon post={post} />
@@ -409,7 +405,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   return <>
     {post.group && <PostsGroupDetails post={post} documentId={post.group._id} />}
     <AnalyticsContext pageSectionContext="topSequenceNavigation">
-      <PostsTopSequencesNav post={post} />
+      {('sequence' in post) && <PostsTopSequencesNav post={post} />}
     </AnalyticsContext>
     <div className={classNames(classes.header, {[classes.eventHeader]: post.isEvent})}>
       <div className={classes.headerLeft}>
@@ -419,9 +415,9 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
             <div className={classes.authors}>
               <PostsAuthors post={post} pageSectionContext="post_header" />
             </div>
-            {post.feed && post.feed.user &&
+            {rssFeedSource && rssFeedSource.user &&
               <LWTooltip title={`Crossposted from ${feedLinkDescription}`} className={classes.feedName}>
-                <a href={feedLink}>{post.feed.nickname}</a>
+                <a href={feedLink}>{rssFeedSource.nickname}</a>
               </LWTooltip>
             }
           </div>
@@ -436,12 +432,8 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       <div className={classes.tagSection}>
         {!post.shortform && !post.isEvent && !hideTags && 
         <AnalyticsContext pageSectionContext="tagHeader">
-          <FooterTagList post={post} hideScore allowTruncate overrideMargins={true}/>
+          <FooterTagList post={post} hideScore allowTruncate overrideMargins={true} annualReviewMarketInfo={annualReviewMarketInfo} />
         </AnalyticsContext>}
-      </div>
-      <div className={classes.annualReviewMarketInfo}>
-        {annualReviewMarketInfo && highlightMarket(annualReviewMarketInfo) &&
-          <PostsAnnualReviewMarketTag post={post} annualReviewMarketInfo={annualReviewMarketInfo} />}
       </div>
     </div>
     {post.isEvent && <PostsPageEventData post={post}/>}

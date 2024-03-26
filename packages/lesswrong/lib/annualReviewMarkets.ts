@@ -1,6 +1,4 @@
-export const PROBABILITY_REVIEW_WINNER_THRESHOLD = 0.5
-
-export const MINIMUM_KARMA_REVIEW_MARKET_CREATION = 100;
+import { highlightReviewWinnerThresholdSetting } from "./instanceSettings";
 
 export type AnnualReviewMarketInfo = {
   probability: number;
@@ -20,4 +18,4 @@ export const getMarketInfo = (post: PostsBase): AnnualReviewMarketInfo | undefin
 }
 
 export const highlightMarket = (info: AnnualReviewMarketInfo | undefined): boolean =>
-  !!info && !info.isResolved && info.probability > PROBABILITY_REVIEW_WINNER_THRESHOLD
+  !!info && !info.isResolved && info.probability > highlightReviewWinnerThresholdSetting.get()

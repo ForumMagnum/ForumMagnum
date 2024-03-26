@@ -230,20 +230,3 @@ export const offerToAddCalendlyLink = new ABTest({
     },
   },
 });
-
-export const postPageFixedDigestAd = new ABTest({
-  name: "postPageFixedDigestAd",
-  active: true,
-  affectsLoggedOut: true,
-  description: "Whether or not to display the digest ad that's fixed at the bottom of the screen on the post page",
-  groups: {
-    noShow: {
-      description: "Don't show digest ad",
-      weight: 8,
-    },
-    show: {
-      description: "Show digest ad",
-      weight: 2,
-    },
-  },
-});

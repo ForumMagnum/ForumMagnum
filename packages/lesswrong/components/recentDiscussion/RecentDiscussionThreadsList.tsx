@@ -69,11 +69,10 @@ const RecentDiscussionThreadsList = ({
         {currentUser?.isReviewed && shortformButton && !currentUser.allCommentingDisabled && <div onClick={toggleShortformFeed}>
           <SectionButton>
             <AddBoxIcon />
-            {isFriendlyUI ? "New quick take" : "New Shortform Post"}
+            {"New quick take"}
           </SectionButton>
         </div>}
       </SectionTitle>
-      {showShortformFeed && <ShortformSubmitForm successCallback={refetch}/>}
       <div>
         {results && <div>
           {results.map((post, i) =>

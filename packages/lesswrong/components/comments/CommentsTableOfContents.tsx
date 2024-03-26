@@ -10,16 +10,24 @@ import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import { useNavigate } from '../../lib/reactRouterWrapper';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import classNames from 'classnames';
+import { useTimezone } from '../common/withTimezone';
+import moment from 'moment';
 
 const styles = (theme: ThemeType): JssStyles => ({
   root: {
     color: theme.palette.text.dim,
+    //Override bottom border of title row for FixedToC but not in other uses of TableOfContentsRow
+    '& .TableOfContentsRow-title': {
+      borderBottom: "none",
+    },
   },
   comment: {
     display: "inline-flex",
   },
   commentKarma: {
     width: 20,
+    textAlign: "right",
+    marginRight: 4,
   },
   commentAuthor: {
   },
@@ -40,7 +48,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   postTitle: {
     minHeight: 24,
-    paddingTop: 4,
+    paddingTop: 16,
+    ...theme.typography.postStyle,
+    ...theme.typography.smallCaps,
+    fontSize: "1.3rem",
+    marginBottom: 8,
+    display: 'block'
+  },
+  tocPostedAt: {
+    color: theme.palette.link.tocLink
   },
   highlightUnread: {
     paddingLeft: 4,
@@ -57,6 +73,7 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   classes: ClassesType,
 }) => {
   const { TableOfContentsRow } = Components;
+  const { timezone } = useTimezone();
   const flattenedComments = flattenCommentTree([
     ...(answersTree ?? []),
     ...(commentTree ?? [])
@@ -64,6 +81,8 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
   const { landmarkName: highlightedLandmarkName } = useScrollHighlight(
     flattenedComments.map(comment => commentIdToLandmark(comment._id))
   );
+
+  if (flattenedComments.length === 0) return null;
   
   if (!commentsTableOfContentsEnabled) {
     return null;
@@ -80,10 +99,15 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate,
       }}
       highlighted={highlightedLandmarkName==="above"}
       title
+      fullHeight
+      commentToC
     >
       <span className={classes.postTitle}>
         {post.title?.trim()}
       </span>
+      {post.postedAt && <div className={classes.tocPostedAt}>
+        {moment(new Date(post.postedAt)).tz(timezone).format("Do MMM YYYY")}
+      </div>}
     </TableOfContentsRow>
 
     {answersTree && answersTree.map(answer => <>

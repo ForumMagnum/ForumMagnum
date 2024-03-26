@@ -69,7 +69,7 @@ const forumNewUserProcessingTime = forumSelect({
 })
 
 const PostBodyPrefix = ({post, query, classes}: {
-  post: PostsWithNavigation|PostsWithNavigationAndRevision,
+  post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList,
   query?: any,
   classes: ClassesType,
 }) => {
@@ -91,14 +91,9 @@ const PostBodyPrefix = ({post, query, classes}: {
       {shortformDraftMessage}
     </div>}
     {post.shortform && !post.draft && <div className={classes.contentNotice}>
-      {isFriendlyUI
-        ? <>
-          This is a special post for quick takes by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
-        </>
-        : <>
-          This is a special post for short-form writing by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/shortform">Shortform Page</Link> and <Link to="/allPosts">All Posts page</Link>.
-        </>
-      }
+      <>
+        This is a special post for quick takes by <Components.UsersNameDisplay user={post.user}/>. Only they can create top-level comments. Comments here also appear on the <Link to="/quicktakes">Quick Takes page</Link> and <Link to="/allPosts">All Posts page</Link>.
+      </>
     </div>}
 
     {post.rejected && <div className={classes.rejectionNotice}>
@@ -121,7 +116,7 @@ const PostBodyPrefix = ({post, query, classes}: {
         <Info className={classes.infoIcon}/>
       </LWTooltip>
     </div>}
-    <LinkPostMessage post={post} negativeTopMargin />
+    <LinkPostMessage post={post} negativeTopMargin={isFriendlyUI} />
     {query?.revision && post.contents && <PostsRevisionMessage post={post} />}
   </>;
 }

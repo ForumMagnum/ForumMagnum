@@ -563,7 +563,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       -- PostsRepo.getUserReadsPerCoreTag
       WITH core_tags AS (
         SELECT _id
-        FROM tags
+        FROM "Tags"
         WHERE core IS TRUE AND deleted is not true
       )
       
@@ -577,7 +577,10 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         rs."lastUpdated" >= NOW() - interval '6 months'
         AND rs."userId" = $1
         AND rs."isRead" IS TRUE
-        AND tr."tagId" IN (SELECT _id FROM core_tags)
+        AND (
+          tr."tagId" = 'u3Xg8MjDe2e6BvKtv' -- special case to include "AI governance"
+          OR tr."tagId" IN (SELECT _id FROM core_tags)
+        )
         AND tr."deleted" IS FALSE
       GROUP BY tr."tagId"
       `,
@@ -604,7 +607,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       -- PostsRepo.getReadCoreTagStats
       WITH core_tags AS (
           SELECT _id
-          FROM tags
+          FROM "Tags"
           WHERE core IS TRUE AND deleted is not true
       ),
       read_posts AS (

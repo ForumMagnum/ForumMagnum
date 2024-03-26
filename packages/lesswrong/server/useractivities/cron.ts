@@ -2,7 +2,7 @@
 /* See lib/collections/useractivities/collection.ts for a high-level overview */
 import chunk from 'lodash/fp/chunk';
 import max from 'lodash/fp/max';
-import { isEAForum } from '../../lib/instanceSettings';
+import { isEAForum, isLW } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { getSqlClientOrThrow } from '../../lib/sql/sqlClient';
 import { addCronJob } from '../cronUtil';
@@ -361,7 +361,7 @@ export async function backfillUserActivities() {
 }
 
 
-if (isEAForum) {
+if (isEAForum || isLW ) {
   addCronJob({
     name: 'updateUserActivitiesCron',
     interval: 'every 3 hours',
