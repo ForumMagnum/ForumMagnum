@@ -1,6 +1,13 @@
 import { ApiClient, requests } from 'recombee-api-client';
 import { recombeeDatabaseIdSetting, recombeePublicApiTokenSetting } from '../publicSettings';
 
+export interface RecombeeViewPortionProps {
+    timestamp: Date;
+    userId: string;
+    postId: string;
+    portion: number;
+    recommId?: string;
+}
 
 const getRecombeeClientOrThrow = (() => {
     let client: ApiClient;
@@ -22,5 +29,27 @@ const getRecombeeClientOrThrow = (() => {
     };
   })();
 
-  
 
+const recombeeRequestHelpers = {
+  createViewPortionRequest(viewPortionProps: RecombeeViewPortionProps) {
+    const { userId, postId, portion, timestamp, recommId } = viewPortionProps;
+    return new requests.SetViewPortion(userId, postId, portion, {
+      timestamp: timestamp.toUTCString(), 
+      cascadeCreate: false,
+      recommId: recommId
+    });
+  }
+}
+
+
+const recombeeApi = {
+    async createViewPortion(viewPortionProps: RecombeeViewPortionProps) {
+      const client = getRecombeeClientOrThrow();
+      const request = recombeeRequestHelpers.createViewPortionRequest(viewPortionProps);
+      console.log("Sending viewPortion request")
+      return client.send(request);
+    }
+
+}
+
+export { recombeeRequestHelpers, recombeeApi }

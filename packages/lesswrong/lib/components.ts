@@ -399,6 +399,7 @@ importComponent("AllPostsList", () => require('../components/posts/AllPostsList'
 importComponent("RecombeePostsList", () => require('../components/posts/RecombeePostsList'));
 importComponent("RecombeePostsListSettings", () => require('../components/posts/RecombeePostsListSettings'));
 importComponent("RecombeeLatestPosts", () => require('../components/posts/RecombeeLatestPosts'));
+importComponent("RecombeeInViewTracker", () => require('../components/common/RecombeeInViewTracker'));
 importComponent("PostsListSettings", () => require('../components/posts/PostsListSettings'));
 importComponent("BookmarkButton", () => require('../components/posts/BookmarkButton'));
 importComponent("SharePostButton", () => require('../components/posts/SharePostButton'));
