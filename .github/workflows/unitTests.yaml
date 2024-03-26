@@ -37,8 +37,8 @@ jobs:
     - name: Upload coverage report
       uses: actions/upload-artifact@v2
       with:
-        name: unit-coverage
-        path: unit-coverage
+        name: unit-coverage-lcov.info
+        path: unit-coverage/lcov.info
 
   runIntegrationTests:
     runs-on: ubuntu-latest
@@ -71,8 +71,8 @@ jobs:
     - name: Upload coverage report
       uses: actions/upload-artifact@v2
       with:
-        name: integration-coverage
-        path: integration-coverage
+        name: integration-coverage-lcov.info
+        path: integration-coverage/lcov.info
 
   runPostgresBootstrap:
     runs-on: ubuntu-latest
@@ -121,4 +121,4 @@ jobs:
     - name: Coveralls
       uses: coverallsapp/github-action@v2
       with:
-        file: combined-coverage
+        file: combined-coverage/lcov.info
