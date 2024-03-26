@@ -1,6 +1,8 @@
 import { isAnyTest, isDevelopment, onStartup } from '../lib/executionEnvironment';
 import { SyncedCron } from './vendor/synced-cron/synced-cron-server';
 import { getCommandLineArguments } from './commandLine';
+import { CronHistories } from '../lib/collections/cronHistories';
+import { Globals } from './vulcan-lib';
 
 SyncedCron.options = {
   log: !isDevelopment,
@@ -52,4 +54,22 @@ export function startSyncedCron() {
 
 onStartup(function() {
   startSyncedCron();
+});
+
+async function clearOldCronHistories() {
+  const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+  await CronHistories.rawRemove({
+    startedAt: {
+      $lt: new Date(new Date().getTime() - ONE_WEEK),
+    },
+  });
+}
+Globals.clearOldCronHistories = clearOldCronHistories
+
+addCronJob({
+  name: "clearOldCronHistories",
+  interval: 'every 24 hours',
+  job: async () => {
+    await clearOldCronHistories();
+  }
 });
