@@ -1,4 +1,4 @@
-import { ApiClient, requests } from 'recombee-api-client';
+import { ApiClient, SetViewPortion } from 'recombee-js-api-client';
 import { recombeeDatabaseIdSetting, recombeePublicApiTokenSetting } from '../publicSettings';
 
 export interface RecombeeViewPortionProps {
@@ -33,7 +33,7 @@ const getRecombeeClientOrThrow = (() => {
 const recombeeRequestHelpers = {
   createViewPortionRequest(viewPortionProps: RecombeeViewPortionProps) {
     const { userId, postId, portion, timestamp, recommId } = viewPortionProps;
-    return new requests.SetViewPortion(userId, postId, portion, {
+    return new SetViewPortion(userId, postId, portion, {
       timestamp: timestamp.toUTCString(), 
       cascadeCreate: false,
       recommId: recommId
