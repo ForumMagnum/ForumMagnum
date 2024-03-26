@@ -91,6 +91,8 @@ export function extractTableOfContents({
   document: Document;
   window: WindowType;
 }): ToCData | null {
+  if (!document.body.innerHTML) return null;
+
   let headings: Array<ToCSection> = [];
   let usedAnchors: Record<string, boolean> = {};
 
@@ -106,8 +108,8 @@ export function extractTableOfContents({
       return;
     }
 
-    let title = element.textContent?.trim();
-    if (title && title !== "") {
+    let title = element.textContent;
+    if (title && title.trim() !== "") {
       let anchor = titleToAnchor(title, usedAnchors);
       usedAnchors[anchor] = true;
       element.id = anchor;
@@ -182,39 +184,83 @@ export function getTocAnswers({ post, answers }: { post: { question: boolean }; 
   }
 }
 
+// TODO decide what to do with this
 async function getTocComments({ post, comments }: { post: DbPost | PostsListWithVotes; comments: CommentType[] }) {
   return [{ anchor: "comments", level: 0, title: postGetCommentCountStr(post, comments.length) }];
 }
 
+// // `<b>` and `<strong>` tags are headings iff they are the only thing in their
+// // paragraph. Return whether or not the given cheerio tag satisfies these heuristics.
+// // See tagIsHeadingIfWholeParagraph
+// const tagIsWholeParagraph = (tag?: cheerio.TagElement): boolean => {
+//   if (!tag) {
+//     return false;
+//   }
+
+//   // Ensure the tag's parent is valid
+//   const parents = cheerio(tag).parent();
+//   if (!parents || !parents.length || parents[0].type !== 'tag') {
+//     return false;
+//   }
+
+//   // Ensure that all of the tag's siblings are of the same type as the tag
+//   const selfAndSiblings = cheerio(parents[0]).contents();
+//   if (selfAndSiblings.toArray().find((elem) => tagIsAlien(tag, elem))) {
+//     return false;
+//   }
+
+//   // Ensure that the tag is inside a 'p' element and that all the text in that 'p' is in tags of
+//   // the same type as our base tag
+//   const para = cheerio(tag).closest('p');
+//   if (para.length < 1 || para.text().trim() !== para.find(tag.name).text().trim()) {
+//     return false;
+//   }
+
+//   return true;
+// }
+
 /**
  * `<b>` and `<strong>` tags are considered headings if and only if they are the only element within their paragraph.
  */
-function tagIsWholeParagraph({ element, window }: { element: AnyBecauseIsInput; window: WindowType }): boolean {
+function tagIsWholeParagraph({ element, window }: { element: HTMLElement; window: WindowType }): boolean {
   if (!(element instanceof window.HTMLElement)) {
     throw new Error("element must be HTMLElement");
   }
 
-  // Ensure the element's parent is a 'p' tag
-  const parent = element.parentElement;
-  if (!parent || parent.tagName.toLowerCase() !== "p") {
+  const parent = element.parentNode;
+  if (!parent) {
     return false;
   }
 
-  // Check if the element is the only element within the paragraph
-  // and that there is no significant text directly within the paragraph
-  const isOnlyElement = Array.from(parent.childNodes).every((child) => {
-    // Allow the element itself or other elements with the same tag name
-    if (child === element || (child instanceof window.HTMLElement && child.tagName === element.tagName)) {
-      return true;
-    }
-    // Allow whitespace text nodes
-    if (child.nodeType === window.Node.TEXT_NODE && child.textContent?.trim() === "") {
+  // Check if the element is the only significant content within the paragraph
+  const selfAndSiblings = Array.from(parent.childNodes);
+  // TODO simplify
+  const alienFound = selfAndSiblings.some((sibling) => {
+    if (sibling.nodeType === window.Node.ELEMENT_NODE && sibling !== element) {
+      const siblingElement = sibling as HTMLElement;
+      // Check if the sibling is of a different type
+      if (siblingElement.tagName !== element.tagName) {
+        return true;
+      }
+      // Check if the sibling contains significant text that is not part of the element
+      if (siblingElement.textContent?.trim() && !element.contains(siblingElement)) {
+        return true;
+      }
+    } else if (sibling.nodeType === window.Node.TEXT_NODE && sibling.textContent?.trim()) {
+      // Check if it's a text node with non-whitespace content
       return true;
     }
     return false;
   });
 
-  return isOnlyElement;
+  // If an alien element was found, it's not a whole paragraph tag
+  if (alienFound) {
+    return false;
+  }
+
+  // Ensure that all the text in the paragraph is within elements of the same type as our element
+  const para = element.closest('p');
+  return !!para && para.textContent?.trim() === element.textContent?.trim();
 };
 
 /**
@@ -229,6 +275,34 @@ function tagIsHeadingIfWholeParagraph(tagName: string): boolean
 }
 
 const reservedAnchorNames = ["top", "comments"];
+
+// // Given the text in a heading block and a dict of anchors that have been used
+// // in the post so far, generate an anchor, and return it. An anchor is a
+// // URL-safe string that can be used for within-document links, and which is
+// // not one of a few reserved anchor names.
+// function titleToAnchor(title: string, usedAnchors: Record<string,boolean>): string
+// {
+//   let charsToUse = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_0123456789";
+//   let sb: Array<string> = [];
+
+//   for(let i=0; i<title.length; i++) {
+//     let ch = title.charAt(i);
+//     if(charsToUse.indexOf(ch) >= 0) {
+//       sb.push(ch);
+//     } else {
+//       sb.push('_');
+//     }
+//   }
+
+//   let anchor = sb.join('');
+//   if(!usedAnchors[anchor] && !_.find(reservedAnchorNames, x=>x===anchor))
+//     return anchor;
+
+//   let anchorSuffix = 1;
+//   while(usedAnchors[anchor + anchorSuffix])
+//     anchorSuffix++;
+//   return anchor+anchorSuffix;
+// }
 
 /**
  * Given the text in a heading block and a dict of anchors that have been used
