@@ -2,7 +2,6 @@ import React, { ReactNode, useCallback, useRef, useState } from "react";
 import { Components, registerComponent } from "../../lib/vulcan-lib";
 import type { ForumIconName } from "../common/ForumIcon";
 import classNames from "classnames";
-import { text } from "stream/consumers";
 
 const styles = (theme: ThemeType) => ({
   root: {
