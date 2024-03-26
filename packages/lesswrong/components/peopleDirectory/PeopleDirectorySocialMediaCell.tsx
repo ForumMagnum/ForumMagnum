@@ -23,6 +23,9 @@ const styles = (theme: ThemeType) => ({
       fill: theme.palette.grey[800],
     },
   },
+  empty: {
+    color: theme.palette.grey[600],
+  },
 });
 
 export const PeopleDirectorySocialMediaCell = ({user, classes}: {

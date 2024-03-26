@@ -19,6 +19,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: 13,
     fontWeight: 600,
   },
+  empty: {
+    color: theme.palette.grey[600],
+  },
 });
 
 export const PeopleDirectoryCareerStageCell = ({user, classes}: {
