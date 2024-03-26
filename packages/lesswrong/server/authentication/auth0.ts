@@ -6,6 +6,7 @@ import { Profile as Auth0Profile } from 'passport-auth0';
 import { getOrCreateForumUserAsync } from "./getOrCreateForumUser";
 import { auth0ProfilePath, idFromAuth0Profile, userFromAuth0Profile } from "./auth0Accounts";
 import { auth0ClientSettings } from "../../lib/publicSettings";
+import { UsersRepo } from "../repos";
 
 type Auth0Settings = {
   appId: string;
@@ -75,7 +76,11 @@ class Auth0Error extends Error {
   }
 }
 
-const getAuthError = (e: AnyBecauseIsInput, defaultMessage: string): Auth0Error => {
+const getAuthError = async (
+  e: AnyBecauseIsInput,
+  defaultMessage: string,
+  email: string,
+): Promise<Auth0Error> => {
   let message: string;
   let policy: string | undefined;
   try {
@@ -84,6 +89,14 @@ const getAuthError = (e: AnyBecauseIsInput, defaultMessage: string): Auth0Error 
     const parsedError = JSON.parse(e.originalError.response.text);
     if (parsedError.name === "PasswordStrengthError") {
       policy = parsedError.policy;
+    } else if (parsedError.code === "invalid_signup") {
+      // If a user tries to sign up with an email that is already in use auth0
+      // gives us an extremely unhelpful "invalid signup" error - check if this
+      // is the case here and give a better message if so
+      const existingUser = await new UsersRepo().getUserByEmail(email);
+      if (existingUser) {
+        return new Auth0Error("A user with this email already exists");
+      }
     }
     // eslint-disable-next-line no-empty
   } catch (_) {}
@@ -164,7 +177,7 @@ export const loginAuth0User = async (
       token: grant.access_token,
     };
   } catch (e) {
-    throw getAuthError(e, "Login failed");
+    throw await getAuthError(e, "Login failed", email);
   }
 }
 
@@ -190,6 +203,6 @@ export const signupAuth0User = async (
     });
     return loginAuth0User(profileFromAccessToken, email, password);
   } catch (e) {
-    throw getAuthError(e, "Signup failed");
+    throw await getAuthError(e, "Signup failed", email);
   }
 }
