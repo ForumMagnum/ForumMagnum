@@ -39,7 +39,7 @@ export const PeopleDirectoryCareerStageCell = ({user, classes}: {
               <span className={classes.label}>{stage.label}</span>
             </>
           )
-          : "-"
+          : "–"
         }
       </div>
     </LWTooltip>

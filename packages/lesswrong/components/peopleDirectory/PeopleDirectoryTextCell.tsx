@@ -22,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-const EMPTY = "-";
+const EMPTY = "–";
 
 export const PeopleDirectoryTextCell = ({user, fieldName, classes}: {
   user: SearchUser,

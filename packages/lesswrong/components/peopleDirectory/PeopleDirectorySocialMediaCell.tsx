@@ -16,8 +16,8 @@ const styles = (theme: ThemeType) => ({
     },
   },
   icon: {
-    width: 16,
-    height: 16,
+    width: 20,
+    height: 20,
     fill: theme.palette.grey[600],
     "&:hover": {
       fill: theme.palette.grey[800],
@@ -37,7 +37,7 @@ export const PeopleDirectorySocialMediaCell = ({user, classes}: {
   const {SocialMediaIcon} = Components;
   return (
     <div className={classes.root}>
-      {keys.length < 1 && "-"}
+      {keys.length < 1 && "–"}
       {keys.map((field) => {
         const url = urls[field];
         if (!url) {
