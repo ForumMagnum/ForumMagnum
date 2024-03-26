@@ -20,6 +20,7 @@ import { frontpageDaysAgoCutoffSetting } from '../../lib/scoring';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/collection';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { recombeeEnabledSetting } from '../../lib/publicSettings';
 
 const titleWrapper = isLWorAF ? {
   marginBottom: 8
@@ -151,7 +152,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
 
   const showCurated = isFriendlyUI || (isLW && reviewIsActive())
 
-  if (isLW && userIsAdmin(currentUser)) {
+  if (isLW && userIsAdmin(currentUser) && recombeeEnabledSetting.get()) {
     return <RecombeeLatestPosts currentUser={currentUser} />
   }
 
