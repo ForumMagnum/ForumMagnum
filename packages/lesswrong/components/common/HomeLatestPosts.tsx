@@ -165,7 +165,7 @@ const HomeLatestPosts = ({classes}: {classes: ClassesType}) => {
                 filterSettingsToggleLabels.desktopHidden}
               showIcon={false}
               onClick={changeShowTagFilterSettingsDesktop}
-              color="white"
+              color={isLW ? "white" : undefined} 
             />
             <SettingsButton
               className={classes.hideOnDesktop}
