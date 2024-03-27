@@ -101,11 +101,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
       )
       WHERE _id = $1
     `, [userId]);
-    await getPostgresViewByName("UserLoginTokens").refresh(this.getRawDb());
+    await this.refreshUserLoginTokens();
   }
 
-  resetPassword(userId: string, hashedPassword: string): Promise<null> {
-    return this.none(`
+  async resetPassword(userId: string, hashedPassword: string): Promise<void> {
+    await this.none(`
       -- UsersRepo.resetPassword
       UPDATE "Users"
       SET services = jsonb_set(
@@ -130,6 +130,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
       )
       WHERE _id = $1
     `, [userId, hashedPassword]);
+    await this.refreshUserLoginTokens();
+  }
+
+  private async refreshUserLoginTokens() {
+    await getPostgresViewByName("UserLoginTokens").refresh(this.getRawDb());
   }
 
   verifyEmail(userId: string): Promise<null> {
