@@ -128,6 +128,7 @@ async function backfillPosts(offsetDate?: Date) {
   
       const nextOffsetDate = batch.slice(-1)[0].createdAt;
       if (offsetDate.getTime() === nextOffsetDate.getTime()) {
+        // eslint-disable-next-line no-console
         console.log(`Next post batch offset date is the same as previous offset date: ${offsetDate.toISOString()}.  Returning early, investigate!`);
         return;
       }
