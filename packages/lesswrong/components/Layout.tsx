@@ -180,14 +180,6 @@ const styles = (theme: ThemeType): JssStyles => ({
       borderRadius: '3px',
       textAlign: 'center',
       padding: 8
-
-      // color: #000;
-      // border: 0;
-      // text-align: center;
-      // border-radius: 3px;
-      // background-color: rgba(255, 255, 255, .6);
-      // padding: 8px;
-      // font-family: 'Gill Sans';
     }
   },
   lessOnlineBannerDateAndLocation: {
