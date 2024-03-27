@@ -5,6 +5,7 @@ import { calculateVotePower } from "../../lib/voting/voteTypes";
 import { ActiveDialogueServer } from "../../components/hooks/useUnreadNotifications";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isEAForum } from "../../lib/instanceSettings";
+import { getPostgresViewByName } from "../postgresView";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -88,8 +89,8 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return this.oneOrNone(GET_USER_BY_USERNAME_OR_EMAIL_QUERY, [usernameOrEmail]);
   }
 
-  clearLoginTokens(userId: string): Promise<null> {
-    return this.none(`
+  async clearLoginTokens(userId: string): Promise<void> {
+    await this.none(`
       -- UsersRepo.clearLoginTokens
       UPDATE "Users"
       SET services = jsonb_set(
@@ -100,6 +101,7 @@ class UsersRepo extends AbstractRepo<"Users"> {
       )
       WHERE _id = $1
     `, [userId]);
+    await getPostgresViewByName("UserLoginTokens").refresh(this.getRawDb());
   }
 
   resetPassword(userId: string, hashedPassword: string): Promise<null> {

@@ -12,6 +12,10 @@ class PostgresView {
     private queryTimeout = 60,
   ) {}
 
+  getName(): string {
+    return this.name;
+  }
+
   getCreateViewQuery() {
     return this.createViewQuery;
   }
@@ -69,4 +73,12 @@ export const createPostgresView = (
 export const ensurePostgresViewsExist = async (db = getSqlClientOrThrow()) => {
   await Promise.all(postgresViews.map((view) => view.createView(db)));
   await Promise.all(postgresViews.map((view) => view.createIndexes(db)));
+}
+
+export const getPostgresViewByName = (name: string): PostgresView => {
+  const view = postgresViews.find((view) => view.getName() === name);
+  if (!view) {
+    throw new Error(`Postgres view not found: ${name}`);
+  }
+  return view;
 }
