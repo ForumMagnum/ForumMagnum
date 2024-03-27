@@ -27,10 +27,15 @@ const styles = (theme: ThemeType): JssStyles => ({
   },
   blackLabel: {
     color: theme.palette.text.primary,
+  },
+  whiteLabel: {
+    [theme.breakpoints.up('lg')]: {
+      color: theme.palette.text.alwaysWhite
+    }
   }
 })
 
-const SettingsButton = ({classes, className, onClick, showIcon=true, label="", color = "white"}: {
+const SettingsButton = ({classes, className, onClick, showIcon=true, label="", color = "black"}: {
   classes: ClassesType,
   className?: string,
   onClick?: any,
@@ -41,7 +46,7 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label="", c
   if (label) {
     return <span className={classNames(classes.iconWithLabelGroup, className)} onClick={onClick}>
       {showIcon && <Settings className={classNames(classes.icon, classes.iconWithLabel)}/>}
-      <span className={classNames(classes.label, {[classes.blackLabel]: color === 'black'})}>{ label }</span>
+      <span className={classNames(classes.label, {[classes.blackLabel]: color === 'black', [classes.whiteLabel]: color === 'white'})}>{ label }</span>
     </span>
   }
   return <Settings className={classNames(classes.icon, className)} onClick={onClick}/>
