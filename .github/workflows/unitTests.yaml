@@ -110,14 +110,14 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Setup Environment
-      uses: ./.github/actions/setupEnvironment
+    - name: Install dependencies
+      run: sudo apt-get install -y lcov
     - name: Download all coverage reports
       uses: actions/download-artifact@v2
       with:
         path: .
     - name: Merge coverage reports
-      run: yarn combine-coverage
+      run: yarn combine-coverage unit-coverage-lcov.info integration-coverage-lcov.info
     - name: Coveralls
       uses: coverallsapp/github-action@v2
       with:
