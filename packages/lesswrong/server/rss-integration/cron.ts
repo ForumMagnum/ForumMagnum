@@ -12,6 +12,9 @@ import { accessFilterSingle } from '../../lib/utils/schemaUtils';
 import { diffHtml } from '../resolvers/htmlDiff';
 import { sanitize } from '../../lib/vulcan-lib/utils';
 import { dataToHTML } from '../editor/conversionUtils';
+import { createNotification } from '../notificationCallbacksHelpers';
+import { computeContextFromUser, createAdminContext } from '../vulcan-lib';
+import { maxPostsToSyncAtOnce } from '../../components/rss/ReviewRssCrosspostsPage';
 
 const runRSSImport = async () => {
   const feeds = await RSSFeeds.find({status: {$ne: 'inactive'}}).fetch()
@@ -28,6 +31,7 @@ const runRSSImport = async () => {
 }
 
 async function resyncFeed(feed: DbRSSFeed): Promise<void> {
+  console.log(`Resyncing RSS feed ${feed._id}`);
   // create array of all posts in current rawFeed object
   let previousPosts = feed.rawFeed || [];
 
@@ -35,12 +39,8 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
   const url = feed.url;
   const currentPosts = await feedparser.parse(url);
   
-  let newPosts: Array<any> = currentPosts.filter(function (post: AnyBecauseTodo) {
-    return !previousPosts.some((prevPost: AnyBecauseTodo) => {
-      return post.guid === prevPost.guid
-    })
-  })
-
+  const newPosts = await filterNonDuplicateRssCrossposts(currentPosts, previousPosts);
+  
   // update feed object with new feed data (mutation)
   var set: any = {};
   set.rawFeed = currentPosts;
@@ -51,11 +51,20 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
     set: set,
     validate: false,
   })
+  
+  const isDraft = !!feed.importAsDraft;
+  
+  const user = await Users.findOne({_id: feed.userId});
+  if (!user) {
+    throw new Error("Missing user for RSS crosspost");
+  }
+  const context: ResolverContext = await computeContextFromUser(user);
+  console.log(`Creating ${newPosts.length} new RSS crossposts`);
 
   await asyncForeachSequential(newPosts, async newPost => {
     const body = getRssPostContents(newPost);
 
-    var post = {
+    var post: Partial<DbInsertion<DbPost>> = {
       title: newPost.title,
       userId: feed.userId,
       canonicalSource: feed.setCanonicalUrl ? newPost.link : undefined,
@@ -67,18 +76,47 @@ async function resyncFeed(feed: DbRSSFeed): Promise<void> {
       },
       feedId: feed._id,
       feedLink: newPost.link,
-      draft: !!feed.importAsDraft,
+      draft: isDraft,
     };
 
-    let lwUser = await Users.findOne({_id: feed.userId});
+    console.log(`Creating crosspost draft for post ${post.title}`);
 
-    await createMutator({
+    const createdPost = await createMutator({
       collection: Posts,
       document: post,
-      currentUser: lwUser,
+      currentUser: user,
       validate: false,
     })
+    
+    await notifyUserOfRssCrosspostForReview(user, createdPost.data, isDraft, context);
   })
+}
+
+async function filterNonDuplicateRssCrossposts(currentPosts: any[], previousPosts: any[]) {
+  // FIXME: We only detect duplicates by comparing against the previous return
+  // value of the RSS feed, rather than attaching GUIDs to posts in the Posts
+  // table.
+
+  const newPosts = currentPosts
+    .filter(function (post: AnyBecauseTodo) {
+      return !previousPosts.some((prevPost: AnyBecauseTodo) => {
+        return post.guid === prevPost.guid
+      })
+    })
+    .slice(0, maxPostsToSyncAtOnce);
+  
+  return newPosts;
+}
+
+async function notifyUserOfRssCrosspostForReview(user: DbUser, post: DbPost, isDraft: boolean, context: ResolverContext) {
+  console.log(`Creating notification for post ${post.title}`);
+  await createNotification({
+    userId: user._id,
+    notificationType: "rssCrosspostCreated",
+    documentType: "post",
+    documentId: post._id,
+    context
+  });
 }
 
 function getRssPostContents(rssPost: AnyBecauseHard): string {
@@ -107,7 +145,7 @@ defineMutation({
       throw new Error("Invalid feed ID");
     }
     if (!userIsAdminOrMod(currentUser) && currentUser._id !== feed.userId) {
-      throw new Error("Only admins and moderators ca manually resync RSS feeds they don't own");
+      throw new Error("Only admins and moderators can manually resync RSS feeds they don't own");
     }
     
     await resyncFeed(feed);

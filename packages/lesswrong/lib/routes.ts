@@ -975,7 +975,7 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       componentName: 'AllReactedCommentsPage',
       title: "All Comments with Reacts"
     },
-    {
+    { //DELETEME
       name:'coronavirus.link.db',
       path:'/coronavirus-link-database',
       componentName: 'SpreadsheetPage',
@@ -1647,7 +1647,13 @@ addRoute(
     componentName: 'ReviewAdminDashboard',
     title: "Review Admin Dashboard",
     isAdmin: true,
-  }
+  },
+  {
+    name: "reviewRssCrossposts",
+    path: "/reviewRssCrossposts",
+    componentName: "ReviewRssCrosspostsPage",
+    title: "Review RSS Crossposts",
+  },
 );
 
 forumSpecificRoutes();

@@ -824,3 +824,25 @@ export const NewMentionNotification = serverRegisterNotificationType({
     );
   },
 });
+
+export const RssCrosspostCreatedNotification = serverRegisterNotificationType({
+  name: "rssCrosspostCreated",
+  canCombineEmails: false,
+
+  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
+    const title = post.title;
+    return `A post ${title} has been imported for you to cross-post`;
+  },
+  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+    const post = await Posts.findOne(notifications[0].documentId);
+    if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
+    const postLink = postGetPageUrl(post, true);
+
+    return <div>
+      <p>The post <a href={postLink}>{post.title}</a> has been imported as a draft and is ready for you to crosspost.</p>
+      <p>To manage crossposting settings, visit the <a href="/reviewRssCrossposts">crossposting dashboard</a>.</p>
+    </div>
+  },
+});
