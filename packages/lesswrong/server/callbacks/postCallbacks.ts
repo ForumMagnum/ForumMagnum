@@ -611,16 +611,19 @@ postPublishedCallback.add((post, context) => {
     .catch(e => console.log('Error when sending published post to recombee', { e }));  
 });
 
-getCollectionHooks("Posts").updateAsync.add(({ newDocument, context }) => {
-  if (!recombeeEnabledSetting.get() || newDocument.draft || newDocument.shortform || newDocument.unlisted || newDocument.rejected) return;
+getCollectionHooks("Posts").updateAsync.add(async ({ newDocument, context }) => {
+  //newDocument is only a "preview" and does not reliably have full post data, e.g. is missing contents.html
+  //This does seem likely to be a bug in a the mutator logic
+  const post = await context.loaders.Posts.load(newDocument._id);
+  if (!recombeeEnabledSetting.get() || post.draft || post.shortform || post.unlisted || post.rejected) return;
 
-  void recombeeApi.upsertPost(newDocument, context)
+  void recombeeApi.upsertPost(post, context)
     // eslint-disable-next-line no-console
     .catch(e => console.log('Error when sending updated post to recombee', { e }));  
 });
 
 voteCallbacks.castVoteAsync.add(({ newDocument, vote }, collection, user, context) => {
-  if (!recombeeEnabledSetting.get() || vote.collectionName !== 'Posts' || user._id === vote.userId) return;
+  if (!recombeeEnabledSetting.get() || vote.collectionName !== 'Posts' || newDocument.userId === vote.userId) return;
 
   void recombeeApi.upsertPost(newDocument as DbPost, context)
     // eslint-disable-next-line no-console
