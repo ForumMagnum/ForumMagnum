@@ -230,37 +230,3 @@ export const offerToAddCalendlyLink = new ABTest({
     },
   },
 });
-
-export const postPageFixedDigestAd = new ABTest({
-  name: "postPageFixedDigestAd",
-  active: true,
-  affectsLoggedOut: true,
-  description: "Whether or not to display the digest ad that's fixed at the bottom of the screen on the post page",
-  groups: {
-    noShow: {
-      description: "Don't show digest ad",
-      weight: 1,
-    },
-    show: {
-      description: "Show digest ad",
-      weight: 1,
-    },
-  },
-});
-
-export const jobAdDescription = new ABTest({
-  name: "jobAdDescription",
-  active: false,
-  affectsLoggedOut: false,
-  description: "Which description to show in the job ad",
-  groups: {
-    control: {
-      description: "Show the description that our team wrote",
-      weight: 1,
-    },
-    '80k': {
-      description: "Show the description copied from the 80K job board",
-      weight: 1,
-    },
-  },
-});
