@@ -576,7 +576,7 @@ addGraphQLSchema(`
 `)
 
 interface RecombeeRecommendedPost {
-  post: DbPost,
+  post: Partial<DbPost>,
   recommId: string
 }
 
